@@ -183,9 +183,11 @@ export const Landing = () => {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <div className="w-full h-48 bg-muted/50 border-2 border-dashed border-muted-foreground/20 rounded-lg flex items-center justify-center">
-                    <span className="text-muted-foreground text-sm">Image placeholder</span>
-                  </div>
+                  <img 
+                    src="/lovable-uploads/52bd6087-306b-46dd-af9b-463864f343a3.png" 
+                    alt={`${feature.title} illustration`}
+                    className="w-full h-auto rounded-lg object-cover"
+                  />
                 </CardContent>
               </Card>)}
           </div>
