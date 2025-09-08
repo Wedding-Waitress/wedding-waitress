@@ -168,13 +168,13 @@ It handles every detail of your event's seating chart, RSVP & more so you can fo
           {/* Four Steps Section */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-16">
             <Card variant="elevated" className="group hover:shadow-purple-glow transition-all duration-300">
-              <CardHeader>
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-gradient-primary rounded-lg flex items-center justify-center text-white group-hover:scale-110 transition-transform duration-300 flex-shrink-0">
+              <CardHeader className="text-center">
+                <div className="flex flex-col items-center space-y-4">
+                  <div className="w-12 h-12 bg-gradient-primary rounded-lg flex items-center justify-center text-white group-hover:scale-110 transition-transform duration-300">
                     <Users className="w-6 h-6" />
                   </div>
-                  <div className="flex-1">
-                    <CardTitle className="text-xl text-left mb-2">1-Create Your Free Account</CardTitle>
+                  <div>
+                    <CardTitle className="text-xl mb-2">Step 1: Sign Up Free</CardTitle>
                     <CardDescription className="text-base">
                       Set up your wedding details and basic information to get started with your planning journey.
                     </CardDescription>
@@ -184,13 +184,13 @@ It handles every detail of your event's seating chart, RSVP & more so you can fo
             </Card>
             
             <Card variant="elevated" className="group hover:shadow-purple-glow transition-all duration-300">
-              <CardHeader>
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-gradient-primary rounded-lg flex items-center justify-center text-white group-hover:scale-110 transition-transform duration-300 flex-shrink-0">
+              <CardHeader className="text-center">
+                <div className="flex flex-col items-center space-y-4">
+                  <div className="w-12 h-12 bg-gradient-primary rounded-lg flex items-center justify-center text-white group-hover:scale-110 transition-transform duration-300">
                     <Calendar className="w-6 h-6" />
                   </div>
-                  <div className="flex-1">
-                    <CardTitle className="text-xl text-left mb-2">Step 2: Manage Guests</CardTitle>
+                  <div>
+                    <CardTitle className="text-xl mb-2">Step 2: Create Your Free Account</CardTitle>
                     <CardDescription className="text-base">
                       Add your guest list and manage RSVPs with our intelligent guest management system.
                     </CardDescription>
@@ -200,13 +200,13 @@ It handles every detail of your event's seating chart, RSVP & more so you can fo
             </Card>
             
             <Card variant="elevated" className="group hover:shadow-purple-glow transition-all duration-300">
-              <CardHeader>
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-gradient-primary rounded-lg flex items-center justify-center text-white group-hover:scale-110 transition-transform duration-300 flex-shrink-0">
+              <CardHeader className="text-center">
+                <div className="flex flex-col items-center space-y-4">
+                  <div className="w-12 h-12 bg-gradient-primary rounded-lg flex items-center justify-center text-white group-hover:scale-110 transition-transform duration-300">
                     <MapPin className="w-6 h-6" />
                   </div>
-                  <div className="flex-1">
-                    <CardTitle className="text-xl text-left mb-2">Step 3: Design Layout</CardTitle>
+                  <div>
+                    <CardTitle className="text-xl mb-2">Step 3: Customise Everything</CardTitle>
                     <CardDescription className="text-base">
                       Create beautiful seating arrangements and floor plans with our visual design tools.
                     </CardDescription>
@@ -216,13 +216,13 @@ It handles every detail of your event's seating chart, RSVP & more so you can fo
             </Card>
             
             <Card variant="elevated" className="group hover:shadow-purple-glow transition-all duration-300">
-              <CardHeader>
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-gradient-primary rounded-lg flex items-center justify-center text-white group-hover:scale-110 transition-transform duration-300 flex-shrink-0">
+              <CardHeader className="text-center">
+                <div className="flex flex-col items-center space-y-4">
+                  <div className="w-12 h-12 bg-gradient-primary rounded-lg flex items-center justify-center text-white group-hover:scale-110 transition-transform duration-300">
                     <Heart className="w-6 h-6" />
                   </div>
-                  <div className="flex-1">
-                    <CardTitle className="text-xl text-left mb-2">Step 4: Celebrate</CardTitle>
+                  <div>
+                    <CardTitle className="text-xl mb-2">Step 4: Download your QR Code</CardTitle>
                     <CardDescription className="text-base">
                       Execute your perfect wedding day with all the planning and preparation complete.
                     </CardDescription>
