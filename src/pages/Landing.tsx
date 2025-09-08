@@ -167,6 +167,73 @@ export const Landing = () => {
             </h2>
           </div>
 
+          {/* Four Steps Section */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-16">
+            <Card variant="elevated" className="group hover:shadow-purple-glow transition-all duration-300">
+              <CardHeader>
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 bg-gradient-primary rounded-lg flex items-center justify-center text-white group-hover:scale-110 transition-transform duration-300 flex-shrink-0">
+                    <Users className="w-6 h-6" />
+                  </div>
+                  <div className="flex-1">
+                    <CardTitle className="text-xl text-left mb-2">Step 1: Create Event</CardTitle>
+                    <CardDescription className="text-base">
+                      Set up your wedding details and basic information to get started with your planning journey.
+                    </CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+            </Card>
+            
+            <Card variant="elevated" className="group hover:shadow-purple-glow transition-all duration-300">
+              <CardHeader>
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 bg-gradient-primary rounded-lg flex items-center justify-center text-white group-hover:scale-110 transition-transform duration-300 flex-shrink-0">
+                    <Calendar className="w-6 h-6" />
+                  </div>
+                  <div className="flex-1">
+                    <CardTitle className="text-xl text-left mb-2">Step 2: Manage Guests</CardTitle>
+                    <CardDescription className="text-base">
+                      Add your guest list and manage RSVPs with our intelligent guest management system.
+                    </CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+            </Card>
+            
+            <Card variant="elevated" className="group hover:shadow-purple-glow transition-all duration-300">
+              <CardHeader>
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 bg-gradient-primary rounded-lg flex items-center justify-center text-white group-hover:scale-110 transition-transform duration-300 flex-shrink-0">
+                    <MapPin className="w-6 h-6" />
+                  </div>
+                  <div className="flex-1">
+                    <CardTitle className="text-xl text-left mb-2">Step 3: Design Layout</CardTitle>
+                    <CardDescription className="text-base">
+                      Create beautiful seating arrangements and floor plans with our visual design tools.
+                    </CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+            </Card>
+            
+            <Card variant="elevated" className="group hover:shadow-purple-glow transition-all duration-300">
+              <CardHeader>
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 bg-gradient-primary rounded-lg flex items-center justify-center text-white group-hover:scale-110 transition-transform duration-300 flex-shrink-0">
+                    <Heart className="w-6 h-6" />
+                  </div>
+                  <div className="flex-1">
+                    <CardTitle className="text-xl text-left mb-2">Step 4: Celebrate</CardTitle>
+                    <CardDescription className="text-base">
+                      Execute your perfect wedding day with all the planning and preparation complete.
+                    </CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+            </Card>
+          </div>
+
           <div className="grid md:grid-cols-2 gap-8">
             {features.map((feature, index) => <Card key={index} variant="elevated" className="group hover:shadow-purple-glow transition-all duration-300">
                 <CardHeader>
