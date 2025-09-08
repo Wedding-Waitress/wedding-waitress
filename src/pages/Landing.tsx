@@ -82,7 +82,7 @@ export const Landing = () => {
  Streamline your wedding & event planning with our sophisticated guest management system. Create stunning event managed  arrangement, RSVPs invites and delight your guests with seamless table assignments.</p>
               </div>
               
-              <div className="flex flex-wrap items-center gap-4">
+              <div className="flex flex-wrap items-center gap-4 my-[50px] mx-[100px]">
                 <Button variant="hero" size="xl" className="btn-glow text-base">
                   Start Planning Today
                   <ArrowRight className="w-5 h-5 ml-2" />
