@@ -2,13 +2,7 @@ import React from 'react';
 import { Button } from "@/components/ui/enhanced-button";
 import { Heart, Globe, ChevronDown } from "lucide-react";
 import { Link } from "react-router-dom";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 interface HeaderProps {
   user?: {
     name: string;
@@ -16,10 +10,11 @@ interface HeaderProps {
   } | null;
   onSignOut?: () => void;
 }
-
-export const Header: React.FC<HeaderProps> = ({ user, onSignOut }) => {
-  return (
-    <header className="bg-background/95 backdrop-blur-sm border-b border-card-border sticky top-0 z-50">
+export const Header: React.FC<HeaderProps> = ({
+  user,
+  onSignOut
+}) => {
+  return <header className="bg-background/95 backdrop-blur-sm border-b border-card-border sticky top-0 z-50">
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
@@ -29,18 +24,16 @@ export const Header: React.FC<HeaderProps> = ({ user, onSignOut }) => {
             </div>
             <div>
               <h1 className="text-xl font-bold gradient-text">Wedding Waitress</h1>
-              <p className="text-xs text-muted-foreground">Event Management</p>
+              <p className="text-xs text-muted-foreground">Wedding & Event Management made easy</p>
             </div>
           </div>
 
           {/* Center Welcome Message (for dashboard) */}
-          {user && (
-            <div className="flex-1 text-center">
+          {user && <div className="flex-1 text-center">
               <h2 className="text-lg font-semibold text-primary">
                 Welcome {user.name}
               </h2>
-            </div>
-          )}
+            </div>}
 
           {/* Right Navigation */}
           <div className="flex items-center space-x-4">
@@ -62,8 +55,7 @@ export const Header: React.FC<HeaderProps> = ({ user, onSignOut }) => {
             </DropdownMenu>
 
             {/* Navigation Links (for landing page) */}
-            {!user && (
-              <nav className="hidden md:flex items-center space-x-6">
+            {!user && <nav className="hidden md:flex items-center space-x-6">
                 <a href="#how-it-works" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
                   How it Works
                 </a>
@@ -90,12 +82,10 @@ export const Header: React.FC<HeaderProps> = ({ user, onSignOut }) => {
                 <a href="#contact" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
                   Contact
                 </a>
-              </nav>
-            )}
+              </nav>}
 
             {/* User Actions */}
-            {user ? (
-              <DropdownMenu>
+            {user ? <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" className="glass">
                     {user.name}'s Dashboard
@@ -109,9 +99,7 @@ export const Header: React.FC<HeaderProps> = ({ user, onSignOut }) => {
                     Logout
                   </DropdownMenuItem>
                 </DropdownMenuContent>
-              </DropdownMenu>
-            ) : (
-              <div className="flex items-center space-x-2">
+              </DropdownMenu> : <div className="flex items-center space-x-2">
                 <Button variant="outline" size="sm">
                   Sign In
                 </Button>
@@ -121,11 +109,9 @@ export const Header: React.FC<HeaderProps> = ({ user, onSignOut }) => {
                 <Button variant="ghost" size="sm" className="text-xs" asChild>
                   <Link to="/admin">Admin</Link>
                 </Button>
-              </div>
-            )}
+              </div>}
           </div>
         </div>
       </div>
-    </header>
-  );
+    </header>;
 };

@@ -4,19 +4,7 @@ import { Button } from "@/components/ui/enhanced-button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/enhanced-card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { 
-  Heart, 
-  Users, 
-  Calendar, 
-  MapPin, 
-  Mail, 
-  QrCode,
-  Sparkles,
-  ArrowRight,
-  Check,
-  Star
-} from "lucide-react";
-
+import { Heart, Users, Calendar, MapPin, Mail, QrCode, Sparkles, ArrowRight, Check, Star } from "lucide-react";
 export const Landing = () => {
   const [formData, setFormData] = useState({
     firstName: '',
@@ -25,55 +13,43 @@ export const Landing = () => {
     mobile: '',
     password: ''
   });
-
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
     });
   };
-
   const handleSignUp = (e: React.FormEvent) => {
     e.preventDefault();
     // Handle sign up logic here
     console.log('Sign up:', formData);
   };
-
-  const features = [
-    {
-      icon: <Users className="w-6 h-6" />,
-      title: "Smart Guest Management",
-      description: "Effortlessly manage your guest list with AI-powered seating optimization."
-    },
-    {
-      icon: <Calendar className="w-6 h-6" />,
-      title: "Event Timeline",
-      description: "Keep your wedding day perfectly orchestrated with intelligent scheduling."
-    },
-    {
-      icon: <MapPin className="w-6 h-6" />,
-      title: "Interactive Floor Plans",
-      description: "Design and visualize your perfect wedding layout in 3D."
-    },
-    {
-      icon: <Mail className="w-6 h-6" />,
-      title: "Digital RSVP System",
-      description: "Beautiful, personalized invitations with real-time RSVP tracking."
-    },
-    {
-      icon: <QrCode className="w-6 h-6" />,
-      title: "QR Code Check-ins",
-      description: "Seamless guest check-in process with contactless QR codes."
-    },
-    {
-      icon: <Sparkles className="w-6 h-6" />,
-      title: "Wishing Well",
-      description: "Modern digital gift registry and money collection system."
-    }
-  ];
-
-  return (
-    <div className="min-h-screen bg-gradient-subtle">
+  const features = [{
+    icon: <Users className="w-6 h-6" />,
+    title: "Smart Guest Management",
+    description: "Effortlessly manage your guest list with AI-powered seating optimization."
+  }, {
+    icon: <Calendar className="w-6 h-6" />,
+    title: "Event Timeline",
+    description: "Keep your wedding day perfectly orchestrated with intelligent scheduling."
+  }, {
+    icon: <MapPin className="w-6 h-6" />,
+    title: "Interactive Floor Plans",
+    description: "Design and visualize your perfect wedding layout in 3D."
+  }, {
+    icon: <Mail className="w-6 h-6" />,
+    title: "Digital RSVP System",
+    description: "Beautiful, personalized invitations with real-time RSVP tracking."
+  }, {
+    icon: <QrCode className="w-6 h-6" />,
+    title: "QR Code Check-ins",
+    description: "Seamless guest check-in process with contactless QR codes."
+  }, {
+    icon: <Sparkles className="w-6 h-6" />,
+    title: "Wishing Well",
+    description: "Modern digital gift registry and money collection system."
+  }];
+  return <div className="min-h-screen bg-gradient-subtle">
       <Header />
       
       {/* Hero Section */}
@@ -114,9 +90,7 @@ export const Landing = () => {
               {/* Trust Indicators */}
               <div className="flex items-center space-x-6 pt-8">
                 <div className="flex items-center space-x-1">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-4 h-4 fill-primary text-primary" />
-                  ))}
+                  {[...Array(5)].map((_, i) => <Star key={i} className="w-4 h-4 fill-primary text-primary" />)}
                   <span className="text-sm text-muted-foreground ml-2">5.0 from 2,000+ couples</span>
                 </div>
               </div>
@@ -125,9 +99,7 @@ export const Landing = () => {
             {/* Sign Up Form */}
             <Card variant="elevated" className="glass-purple p-8 shadow-purple-glow">
               <CardHeader className="text-center pb-6">
-                <CardTitle className="text-2xl gradient-text">
-                  Start Your Journey
-                </CardTitle>
+                <CardTitle className="text-2xl gradient-text">Start Your Journey for FREE !</CardTitle>
                 <CardDescription className="text-base">
                   Join thousands of couples planning their perfect day
                 </CardDescription>
@@ -137,65 +109,27 @@ export const Landing = () => {
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="firstName">First Name</Label>
-                      <Input
-                        id="firstName"
-                        name="firstName"
-                        value={formData.firstName}
-                        onChange={handleInputChange}
-                        className="glass"
-                        required
-                      />
+                      <Input id="firstName" name="firstName" value={formData.firstName} onChange={handleInputChange} className="glass" required />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="lastName">Last Name</Label>
-                      <Input
-                        id="lastName"
-                        name="lastName"
-                        value={formData.lastName}
-                        onChange={handleInputChange}
-                        className="glass"
-                        required
-                      />
+                      <Input id="lastName" name="lastName" value={formData.lastName} onChange={handleInputChange} className="glass" required />
                     </div>
                   </div>
                   
                   <div className="space-y-2">
                     <Label htmlFor="email">Email</Label>
-                    <Input
-                      id="email"
-                      name="email"
-                      type="email"
-                      value={formData.email}
-                      onChange={handleInputChange}
-                      className="glass"
-                      required
-                    />
+                    <Input id="email" name="email" type="email" value={formData.email} onChange={handleInputChange} className="glass" required />
                   </div>
                   
                   <div className="space-y-2">
                     <Label htmlFor="mobile">Mobile Number</Label>
-                    <Input
-                      id="mobile"
-                      name="mobile"
-                      type="tel"
-                      value={formData.mobile}
-                      onChange={handleInputChange}
-                      className="glass"
-                      required
-                    />
+                    <Input id="mobile" name="mobile" type="tel" value={formData.mobile} onChange={handleInputChange} className="glass" required />
                   </div>
                   
                   <div className="space-y-2">
                     <Label htmlFor="password">Password</Label>
-                    <Input
-                      id="password"
-                      name="password"
-                      type="password"
-                      value={formData.password}
-                      onChange={handleInputChange}
-                      className="glass"
-                      required
-                    />
+                    <Input id="password" name="password" type="password" value={formData.password} onChange={handleInputChange} className="glass" required />
                   </div>
                   
                   <Button type="submit" variant="gradient" size="lg" className="w-full btn-glow">
@@ -227,8 +161,7 @@ export const Landing = () => {
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {features.map((feature, index) => (
-              <Card key={index} variant="elevated" className="group hover:shadow-purple-glow transition-all duration-300">
+            {features.map((feature, index) => <Card key={index} variant="elevated" className="group hover:shadow-purple-glow transition-all duration-300">
                 <CardHeader>
                   <div className="w-12 h-12 bg-gradient-primary rounded-lg flex items-center justify-center text-white group-hover:scale-110 transition-transform duration-300">
                     {feature.icon}
@@ -240,8 +173,7 @@ export const Landing = () => {
                     {feature.description}
                   </CardDescription>
                 </CardContent>
-              </Card>
-            ))}
+              </Card>)}
           </div>
         </div>
       </section>
@@ -269,6 +201,5 @@ export const Landing = () => {
           </div>
         </div>
       </section>
-    </div>
-  );
+    </div>;
 };
