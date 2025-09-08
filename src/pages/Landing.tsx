@@ -158,11 +158,9 @@ export const Landing = () => {
             <h2 className="text-4xl font-bold mb-4">
               How <span className="gradient-text">Wedding Waitress</span> Works
             </h2>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-              Our intelligent platform handles every detail of your wedding planning, 
-              so you can focus on what matters most - celebrating your love.
-            </p>
-            <h2 className="text-4xl font-bold mb-4">
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto my-[75px]">Our intelligent platform helps you save time, money & lots of stress. 
+It handles every detail of your event's seating chart, RSVP & more so you can focus on what matters most - celebrating your special day.</p>
+            <h2 className="text-4xl font-bold mb-4 my-[100px]">
               Four simple steps to create your perfect wedding or event experience
             </h2>
           </div>
@@ -250,11 +248,7 @@ export const Landing = () => {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <img 
-                    src="/lovable-uploads/52bd6087-306b-46dd-af9b-463864f343a3.png" 
-                    alt={`${feature.title} illustration`}
-                    className="w-full h-auto rounded-lg object-cover"
-                  />
+                  <img src="/lovable-uploads/52bd6087-306b-46dd-af9b-463864f343a3.png" alt={`${feature.title} illustration`} className="w-full h-auto rounded-lg object-cover" />
                 </CardContent>
               </Card>)}
           </div>
