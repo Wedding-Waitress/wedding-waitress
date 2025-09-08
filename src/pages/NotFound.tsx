@@ -1,5 +1,6 @@
-import { useLocation } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 import { useEffect } from "react";
+import { Button } from "@/components/ui/enhanced-button";
 
 const NotFound = () => {
   const location = useLocation();
@@ -9,13 +10,23 @@ const NotFound = () => {
   }, [location.pathname]);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">404</h1>
-        <p className="mb-4 text-xl text-gray-600">Oops! Page not found</p>
-        <a href="/" className="text-blue-500 underline hover:text-blue-700">
-          Return to Home
-        </a>
+    <div className="flex min-h-screen items-center justify-center bg-gradient-subtle">
+      <div className="text-center space-y-6">
+        <div className="space-y-2">
+          <h1 className="text-6xl font-bold gradient-text">404</h1>
+          <h2 className="text-2xl font-semibold text-foreground">Page Not Found</h2>
+          <p className="text-muted-foreground max-w-md mx-auto">
+            Oops! The page you're looking for doesn't exist. It might have been moved or deleted.
+          </p>
+        </div>
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+          <Button variant="gradient" asChild>
+            <Link to="/">Return Home</Link>
+          </Button>
+          <Button variant="outline" asChild>
+            <Link to="/dashboard">Go to Dashboard</Link>
+          </Button>
+        </div>
       </div>
     </div>
   );
