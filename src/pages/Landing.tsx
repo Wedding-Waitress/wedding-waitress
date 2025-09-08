@@ -232,6 +232,13 @@ It handles every detail of your event's seating chart, RSVP & more so you can fo
             </Card>
           </div>
 
+          {/* Additional Heading */}
+          <div className="text-center my-16">
+            <h2 className="text-4xl font-bold mb-4">
+              Choose One Product or Create The Magic & Choose Them All
+            </h2>
+          </div>
+
           <div className="grid md:grid-cols-2 gap-8">
             {features.map((feature, index) => <Card key={index} variant="elevated" className="group hover:shadow-purple-glow transition-all duration-300">
                 <CardHeader>
