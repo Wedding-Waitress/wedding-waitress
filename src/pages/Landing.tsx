@@ -176,7 +176,7 @@ It handles every detail of your event's seating chart, RSVP & more so you can fo
                   <div>
                     <CardTitle className="text-xl mb-2">Step 1: Sign Up Free</CardTitle>
                     <CardDescription className="text-base">
-                      Set up your wedding details and basic information to get started with your planning journey.
+                      Sign up & get started with your planning journey.
                     </CardDescription>
                   </div>
                 </div>
@@ -192,7 +192,7 @@ It handles every detail of your event's seating chart, RSVP & more so you can fo
                   <div>
                     <CardTitle className="text-xl mb-2">Step 2: Create Your Free Account</CardTitle>
                     <CardDescription className="text-base">
-                      Add your guest list and manage RSVPs with our intelligent guest management system.
+                      Add your guest list & test drive your RSVP's + seating charts then watch the magic happen.
                     </CardDescription>
                   </div>
                 </div>
@@ -208,7 +208,7 @@ It handles every detail of your event's seating chart, RSVP & more so you can fo
                   <div>
                     <CardTitle className="text-xl mb-2">Step 3: Customise Everything</CardTitle>
                     <CardDescription className="text-base">
-                      Create beautiful seating arrangements and floor plans with our visual design tools.
+                      Finalise everything, download – print your QR Code & signage design
                     </CardDescription>
                   </div>
                 </div>
@@ -224,7 +224,7 @@ It handles every detail of your event's seating chart, RSVP & more so you can fo
                   <div>
                     <CardTitle className="text-xl mb-2">Step 4: Download your QR Code</CardTitle>
                     <CardDescription className="text-base">
-                      Execute your perfect wedding day with all the planning and preparation complete.
+                      Display at your event – Guests scan with mobile phone to find their table & seating
                     </CardDescription>
                   </div>
                 </div>
