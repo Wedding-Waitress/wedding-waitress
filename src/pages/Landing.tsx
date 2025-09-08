@@ -96,8 +96,8 @@ export const Landing = () => {
               <div className="flex items-center space-x-6 pt-8">
                 <div className="flex items-center space-x-1">
                   {[...Array(5)].map((_, i) => <Star key={i} className="w-4 h-4 fill-primary text-primary" />)}
-                  <span className="text-muted-foreground ml-2 text-2xl text-center">5 - Star rating from 2,000+ couples
-Australian Made - Servicing Worldwide</span>
+                  <span className="text-muted-foreground ml-2 text-2xl text-center">5-Star rating from 2,000+ couples
+Australian Made - Servicing Events Worldwide</span>
                 </div>
               </div>
             </div>
