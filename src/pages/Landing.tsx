@@ -233,9 +233,9 @@ It handles every detail of your event's seating chart, RSVP & more so you can fo
           </div>
 
           {/* Additional Heading */}
-          <div className="text-center my-48">
+          <div className="text-center my-16">
             <h2 className="text-4xl font-bold mb-4">
-              Choose One Product or <span className="gradient-text">Create The Magic</span> & Choose Them All
+              Choose A Product or <span className="gradient-text">Create The Magic</span> & Choose Them All
             </h2>
           </div>
 
