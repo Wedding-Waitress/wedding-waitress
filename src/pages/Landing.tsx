@@ -170,15 +170,22 @@ export const Landing = () => {
           <div className="grid md:grid-cols-2 gap-8">
             {features.map((feature, index) => <Card key={index} variant="elevated" className="group hover:shadow-purple-glow transition-all duration-300">
                 <CardHeader>
-                  <div className="w-12 h-12 bg-gradient-primary rounded-lg flex items-center justify-center text-white group-hover:scale-110 transition-transform duration-300">
-                    {feature.icon}
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 bg-gradient-primary rounded-lg flex items-center justify-center text-white group-hover:scale-110 transition-transform duration-300 flex-shrink-0">
+                      {feature.icon}
+                    </div>
+                    <div className="flex-1">
+                      <CardTitle className="text-xl text-left mb-2">{feature.title}</CardTitle>
+                      <CardDescription className="text-base">
+                        {feature.description}
+                      </CardDescription>
+                    </div>
                   </div>
-                  <CardTitle className="text-xl text-left">{feature.title}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <CardDescription className="text-base">
-                    {feature.description}
-                  </CardDescription>
+                  <div className="w-full h-48 bg-muted/50 border-2 border-dashed border-muted-foreground/20 rounded-lg flex items-center justify-center">
+                    <span className="text-muted-foreground text-sm">Image placeholder</span>
+                  </div>
                 </CardContent>
               </Card>)}
           </div>
