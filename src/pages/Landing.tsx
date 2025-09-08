@@ -174,7 +174,7 @@ It handles every detail of your event's seating chart, RSVP & more so you can fo
                     <Users className="w-6 h-6" />
                   </div>
                   <div className="flex-1">
-                    <CardTitle className="text-xl text-left mb-2">Step 1: Create Event</CardTitle>
+                    <CardTitle className="text-xl text-left mb-2">1-Create Your Free Account</CardTitle>
                     <CardDescription className="text-base">
                       Set up your wedding details and basic information to get started with your planning journey.
                     </CardDescription>
