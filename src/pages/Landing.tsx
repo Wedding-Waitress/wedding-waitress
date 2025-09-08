@@ -60,7 +60,7 @@ export const Landing = () => {
             {/* Hero Content */}
             <div className="space-y-8">
               <div className="space-y-4">
-                <div className="inline-flex items-center px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-medium">
+                <div className="inline-flex items-center py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-medium px-[100px]">
                   <Sparkles className="w-4 h-4 mr-2" />
                   Elegant Event Management
                 </div>
