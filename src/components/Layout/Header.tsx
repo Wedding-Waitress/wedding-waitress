@@ -24,7 +24,7 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
             <div>
               <h1 className="text-xl font-bold gradient-text">Wedding Waitress</h1>
-              <p className="text-xs text-muted-foreground">Wedding & Event Management made easy</p>
+              <p className="text-xs text-muted-foreground">Wedding & Event guest list made stress free</p>
             </div>
           </div>
 

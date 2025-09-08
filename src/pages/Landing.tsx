@@ -60,7 +60,7 @@ export const Landing = () => {
             {/* Hero Content */}
             <div className="space-y-8">
               <div className="space-y-4">
-                <div className="inline-flex items-center py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-medium px-[100px]">
+                <div className="inline-flex items-center rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-medium px-[100px] mx-[100px] my-[22px] py-[8px]">
                   <Sparkles className="w-4 h-4 mr-2" />
                   Elegant Event Management
                 </div>
@@ -70,15 +70,11 @@ export const Landing = () => {
                     Perfectly Orchestrated
                   </span>
                 </h1>
-                <p className="text-xl text-muted-foreground leading-relaxed">
-                  Transform your special day with AI-powered wedding management. 
-                  From guest lists to seating charts, make every moment magical 
-                  with Wedding Waitress.
-                </p>
+                <p className="text-xl text-muted-foreground leading-relaxed my-[25px]">Streamline your wedding planning with our sophisticated guest management system. Create stunning events, manage RSVPs, and delight your guests with seamless table assignments.</p>
               </div>
               
               <div className="flex flex-wrap items-center gap-4">
-                <Button variant="hero" size="xl" className="btn-glow">
+                <Button variant="hero" size="xl" className="btn-glow text-xl">
                   Start Planning Today
                   <ArrowRight className="w-5 h-5 ml-2" />
                 </Button>
@@ -99,7 +95,7 @@ export const Landing = () => {
             {/* Sign Up Form */}
             <Card variant="elevated" className="glass-purple p-8 shadow-purple-glow">
               <CardHeader className="text-center pb-6">
-                <CardTitle className="text-2xl gradient-text">Start Your Journey for FREE !</CardTitle>
+                <CardTitle className="text-2xl gradient-text mx-0 px-0 py-0">Start Your Journey for FREE !</CardTitle>
                 <CardDescription className="text-base">
                   Join thousands of couples planning their perfect day
                 </CardDescription>
@@ -166,7 +162,7 @@ export const Landing = () => {
                   <div className="w-12 h-12 bg-gradient-primary rounded-lg flex items-center justify-center text-white group-hover:scale-110 transition-transform duration-300">
                     {feature.icon}
                   </div>
-                  <CardTitle className="text-xl">{feature.title}</CardTitle>
+                  <CardTitle className="text-xl text-left">{feature.title}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <CardDescription className="text-base">
