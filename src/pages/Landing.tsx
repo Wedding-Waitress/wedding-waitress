@@ -161,7 +161,7 @@ Australian Made - Servicing Worldwide</span>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto my-[75px]">Our intelligent platform helps you save time, money & lots of stress. 
 It handles every detail of your event's seating chart, RSVP & more so you can focus on what matters most - celebrating your special day.</p>
             <h2 className="text-4xl font-bold mb-4 my-[100px]">
-              Four simple steps to create your perfect wedding or event experience
+              Four Simple Steps To <span className="gradient-text">Create Your Perfect Wedding</span> Or Event Experience
             </h2>
           </div>
 
