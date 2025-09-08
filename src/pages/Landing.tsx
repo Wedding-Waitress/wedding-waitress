@@ -26,28 +26,36 @@ export const Landing = () => {
   };
   const features = [{
     icon: <Users className="w-6 h-6" />,
-    title: "Smart Guest Management",
+    title: "My Events",
     description: "Effortlessly manage your guest list with AI-powered seating optimization."
   }, {
     icon: <Calendar className="w-6 h-6" />,
-    title: "Event Timeline",
+    title: "Guest List",
     description: "Keep your wedding day perfectly orchestrated with intelligent scheduling."
   }, {
     icon: <MapPin className="w-6 h-6" />,
-    title: "Interactive Floor Plans",
+    title: "Table Setup",
     description: "Design and visualize your perfect wedding layout in 3D."
   }, {
     icon: <Mail className="w-6 h-6" />,
-    title: "Digital RSVP System",
+    title: "Floor Plan",
     description: "Beautiful, personalized invitations with real-time RSVP tracking."
   }, {
     icon: <QrCode className="w-6 h-6" />,
-    title: "QR Code Check-ins",
+    title: "Online RSVP",
     description: "Seamless guest check-in process with contactless QR codes."
   }, {
     icon: <Sparkles className="w-6 h-6" />,
-    title: "Wishing Well",
+    title: "Online Wishing Well",
     description: "Modern digital gift registry and money collection system."
+  }, {
+    icon: <Heart className="w-6 h-6" />,
+    title: "Music Playlist",
+    description: "Curate the perfect soundtrack for your special day with collaborative playlists."
+  }, {
+    icon: <QrCode className="w-6 h-6" />,
+    title: "QR Code & Signage",
+    description: "Create beautiful digital signage and QR codes for seamless guest experience."
   }];
   return <div className="min-h-screen bg-gradient-subtle">
       <Header />
@@ -159,7 +167,7 @@ export const Landing = () => {
             </h2>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-2 gap-8">
             {features.map((feature, index) => <Card key={index} variant="elevated" className="group hover:shadow-purple-glow transition-all duration-300">
                 <CardHeader>
                   <div className="w-12 h-12 bg-gradient-primary rounded-lg flex items-center justify-center text-white group-hover:scale-110 transition-transform duration-300">
