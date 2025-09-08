@@ -37,23 +37,6 @@ export const Header: React.FC<HeaderProps> = ({
 
           {/* Right Navigation */}
           <div className="flex items-center space-x-4">
-            {/* Language Selector */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="hover:bg-accent">
-                  <Globe className="w-4 h-4 mr-2" />
-                  EN
-                  <ChevronDown className="w-3 h-3 ml-1" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="glass">
-                <DropdownMenuItem>🇺🇸 English</DropdownMenuItem>
-                <DropdownMenuItem>🇪🇸 Español</DropdownMenuItem>
-                <DropdownMenuItem>🇫🇷 Français</DropdownMenuItem>
-                <DropdownMenuItem>🇩🇪 Deutsch</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-
             {/* Navigation Links (for landing page) */}
             {!user && <nav className="hidden md:flex items-center space-x-6">
                 <a href="#how-it-works" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
@@ -78,6 +61,9 @@ export const Header: React.FC<HeaderProps> = ({
                 </DropdownMenu>
                 <a href="#faq" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
                   FAQ
+                </a>
+                <a href="#pricing" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
+                  Pricing
                 </a>
                 <a href="#contact" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
                   Contact
@@ -110,6 +96,23 @@ export const Header: React.FC<HeaderProps> = ({
                   <Link to="/admin">Admin</Link>
                 </Button>
               </div>}
+
+            {/* Language Selector */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className="hover:bg-accent">
+                  <Globe className="w-4 h-4 mr-2" />
+                  EN
+                  <ChevronDown className="w-3 h-3 ml-1" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="glass">
+                <DropdownMenuItem>🇺🇸 English</DropdownMenuItem>
+                <DropdownMenuItem>🇪🇸 Español</DropdownMenuItem>
+                <DropdownMenuItem>🇫🇷 Français</DropdownMenuItem>
+                <DropdownMenuItem>🇩🇪 Deutsch</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </div>
