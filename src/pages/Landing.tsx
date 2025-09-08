@@ -154,6 +154,9 @@ export const Landing = () => {
               Our intelligent platform handles every detail of your wedding planning, 
               so you can focus on what matters most - celebrating your love.
             </p>
+            <h2 className="text-3xl font-bold mt-8 mb-8">
+              Four simple steps to create your perfect wedding or event experience
+            </h2>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
