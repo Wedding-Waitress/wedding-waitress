@@ -78,7 +78,8 @@ export const Landing = () => {
                     Perfectly Orchestrated
                   </span>
                 </h1>
-                <p className="text-xl text-muted-foreground leading-relaxed my-[25px]">Streamline your wedding planning with our sophisticated guest management system. Create stunning events, manage RSVPs, and delight your guests with seamless table assignments.</p>
+                <p className="text-xl text-muted-foreground leading-relaxed my-[25px] text-center">First worldwide of it's kind!
+ Streamline your wedding & event planning with our sophisticated guest management system. Create stunning event managed  arrangement, RSVPs invites and delight your guests with seamless table assignments.</p>
               </div>
               
               <div className="flex flex-wrap items-center gap-4">
@@ -95,7 +96,8 @@ export const Landing = () => {
               <div className="flex items-center space-x-6 pt-8">
                 <div className="flex items-center space-x-1">
                   {[...Array(5)].map((_, i) => <Star key={i} className="w-4 h-4 fill-primary text-primary" />)}
-                  <span className="text-sm text-muted-foreground ml-2">5.0 from 2,000+ couples</span>
+                  <span className="text-muted-foreground ml-2 text-2xl text-center">5 - Star rating from 2,000+ couples
+Australian Made - Servicing Worldwide</span>
                 </div>
               </div>
             </div>
@@ -104,9 +106,7 @@ export const Landing = () => {
             <Card variant="elevated" className="glass-purple p-8 shadow-purple-glow">
               <CardHeader className="text-center pb-6">
                 <CardTitle className="text-2xl gradient-text mx-0 px-0 py-0">Start Your Journey for FREE !</CardTitle>
-                <CardDescription className="text-base">
-                  Join thousands of couples planning their perfect day
-                </CardDescription>
+                <CardDescription className="text-base">Join thousands of couples & event planners in create their perfect day</CardDescription>
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleSignUp} className="space-y-4">
