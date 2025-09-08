@@ -62,7 +62,7 @@ export const Landing = () => {
               <div className="space-y-4">
                 <div className="inline-flex items-center px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-medium">
                   <Sparkles className="w-4 h-4 mr-2" />
-                  Futuristic Wedding Management 2026
+                  Elegant Event Management
                 </div>
                 <h1 className="text-5xl lg:text-6xl font-bold leading-tight">
                   Your Dream Wedding,
