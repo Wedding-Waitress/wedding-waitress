@@ -83,7 +83,7 @@ export const Landing = () => {
               </div>
               
               <div className="flex flex-wrap items-center gap-4">
-                <Button variant="hero" size="xl" className="btn-glow text-xl">
+                <Button variant="hero" size="xl" className="btn-glow text-base">
                   Start Planning Today
                   <ArrowRight className="w-5 h-5 ml-2" />
                 </Button>
