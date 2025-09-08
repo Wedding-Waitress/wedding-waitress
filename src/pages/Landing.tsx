@@ -78,8 +78,8 @@ export const Landing = () => {
                     Perfectly Orchestrated
                   </span>
                 </h1>
-                <p className="text-xl text-muted-foreground leading-relaxed my-[25px] text-center">First worldwide of it's kind!
- Streamline your wedding & event planning with our sophisticated guest management system. Create stunning event managed  arrangement, RSVPs invites and delight your guests with seamless table assignments.</p>
+                <p className="text-xl text-muted-foreground leading-relaxed my-[25px] text-center">First of it's kind worldwide. 
+Streamline your wedding & event planning with our sophisticated guest management system. Create stunning event managed  arrangement, RSVPs invites and delight your guests with seamless table assignments.</p>
               </div>
               
               <div className="flex flex-wrap items-center gap-4 my-[50px] mx-[100px]">
@@ -93,12 +93,10 @@ export const Landing = () => {
               </div>
 
               {/* Trust Indicators */}
-              <div className="pt-8">
-                <div className="flex flex-col items-center space-y-3">
-                  <div className="flex items-center space-x-1">
-                    {[...Array(5)].map((_, i) => <Star key={i} className="w-4 h-4 fill-primary text-primary" />)}
-                  </div>
-                  <span className="text-muted-foreground text-2xl text-center">5-Star rating from 2,000+ couples
+              <div className="flex items-center space-x-6 pt-8">
+                <div className="flex items-center space-x-1">
+                  {[...Array(5)].map((_, i) => <Star key={i} className="w-4 h-4 fill-primary text-primary" />)}
+                  <span className="text-muted-foreground ml-2 text-2xl text-center">5-Star rating from 2,000+ couples
 Australian Made - Servicing Events Worldwide</span>
                 </div>
               </div>
