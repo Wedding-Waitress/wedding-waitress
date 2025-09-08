@@ -105,7 +105,8 @@ Australian Made - Servicing Events Worldwide</span>
             {/* Sign Up Form */}
             <Card variant="elevated" className="glass-purple p-8 shadow-purple-glow">
               <CardHeader className="text-center pb-6">
-                <CardTitle className="text-2xl gradient-text mx-0 px-0 py-0">Start Your Journey for FREE !</CardTitle>
+                <CardTitle className="text-2xl gradient-text mx-0 px-0 py-0">Start Your Journey & Test Drive FREE !
+              </CardTitle>
                 <CardDescription className="text-base">Join thousands of couples & event planners in create their perfect day</CardDescription>
               </CardHeader>
               <CardContent>
