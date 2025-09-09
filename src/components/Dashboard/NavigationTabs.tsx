@@ -18,7 +18,6 @@ export const NavigationTabs: React.FC<NavigationTabsProps> = ({
   onTabChange
 }) => {
   const tabs: TabItem[] = [
-    { id: "select", label: "Select", isCompleted: true },
     { id: "my-events", label: "My Events" },
     { id: "guest-list", label: "Guest List" },
     { id: "table-list", label: "Table List" },

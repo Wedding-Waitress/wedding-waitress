@@ -106,7 +106,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
         <Table>
           <TableHeader>
             <TableRow className="border-card-border hover:bg-muted/50">
-              <TableHead className="w-12">Display Specs</TableHead>
+              <TableHead className="w-12">Select</TableHead>
               <TableHead className="min-w-[200px]">
                 <div className="flex items-center">
                   <Calendar className="w-4 h-4 mr-2 text-primary" />
