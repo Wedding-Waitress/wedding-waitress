@@ -113,27 +113,19 @@ export const SignUpModal: React.FC<SignUpModalProps> = ({ children }) => {
       if (error) {
         setError(error.message);
       } else if (data.user) {
-        // Check if profile exists, if not create it
-        const { data: existingProfile } = await supabase
+        // Upsert profile data
+        const { error: profileError } = await supabase
           .from('profiles')
-          .select('*')
-          .eq('user_id', data.user.id)
-          .single();
+          .upsert({
+            id: data.user.id,
+            first_name: formData.first_name,
+            last_name: formData.last_name,
+            email: formData.email,
+            mobile: formData.mobile || null
+          });
 
-        if (!existingProfile) {
-          const { error: profileError } = await supabase
-            .from('profiles')
-            .insert({
-              user_id: data.user.id,
-              first_name: formData.first_name,
-              last_name: formData.last_name,
-              email: formData.email,
-              mobile: formData.mobile || null
-            });
-
-          if (profileError) {
-            console.error('Profile creation error:', profileError);
-          }
+        if (profileError) {
+          console.error('Profile creation error:', profileError);
         }
 
         // Success!
