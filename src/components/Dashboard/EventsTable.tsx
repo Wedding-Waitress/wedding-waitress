@@ -145,6 +145,15 @@ export const EventsTable: React.FC<EventsTableProps> = ({
     return event.guests_count >= event.guest_limit;
   };
 
+  const formatTimeDisplay = (time: string) => {
+    if (!time) return '';
+    const [hour, minute] = time.split(':');
+    const hourNum = parseInt(hour);
+    const ampm = hourNum >= 12 ? 'PM' : 'AM';
+    const displayHour = hourNum % 12 || 12;
+    return `${displayHour}:${minute} ${ampm}`;
+  };
+
   if (loading) {
     return (
       <Card variant="elevated" className="p-8 text-center">
@@ -352,7 +361,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                         />
                       ) : (
                         <span className="text-muted-foreground">
-                          {event.start_time || 'Not set'}
+                          {event.start_time ? formatTimeDisplay(event.start_time) : 'Not set'}
                         </span>
                       )}
                     </TableCell>
@@ -364,7 +373,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                         />
                       ) : (
                         <span className="text-muted-foreground">
-                          {event.finish_time || 'Not set'}
+                          {event.finish_time ? formatTimeDisplay(event.finish_time) : 'Not set'}
                         </span>
                       )}
                     </TableCell>
