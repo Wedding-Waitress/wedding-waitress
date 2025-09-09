@@ -15,6 +15,9 @@ export interface Event {
   guests_count: number;
   event_created: string;
   expiry_date: string;
+  created_date_local: string | null;
+  expiry_date_local: string | null;
+  event_timezone: string | null;
 }
 
 export const useEvents = () => {
@@ -56,6 +59,16 @@ export const useEvents = () => {
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) throw new Error('User not authenticated');
 
+      // Get browser timezone and calculate local dates
+      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      const today = new Date();
+      const localDateString = today.toLocaleDateString('en-CA'); // YYYY-MM-DD format
+      
+      // Calculate expiry date (12 months from today)
+      const expiryDate = new Date(today);
+      expiryDate.setFullYear(expiryDate.getFullYear() + 1);
+      const expiryDateString = expiryDate.toLocaleDateString('en-CA'); // YYYY-MM-DD format
+
       const { data, error } = await supabase
         .from('events')
         .insert([{
@@ -65,7 +78,10 @@ export const useEvents = () => {
           start_time: eventData.start_time,
           finish_time: eventData.finish_time,
           guest_limit: eventData.guest_limit || 50,
-          user_id: user.user.id
+          user_id: user.user.id,
+          created_date_local: localDateString,
+          expiry_date_local: expiryDateString,
+          event_timezone: timezone
         }])
         .select()
         .single();

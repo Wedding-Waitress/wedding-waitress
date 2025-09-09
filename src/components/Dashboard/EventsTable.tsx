@@ -33,6 +33,54 @@ import { useEvents } from '@/hooks/useEvents';
 import { format } from 'date-fns';
 import { formatDisplayTime, formatDisplayDate } from '@/lib/utils';
 
+// Helper function to format local dates with DD/MM/YYYY format and fallback
+const formatLocalDate = (localDate: string | null, fallbackDate: string | null, timezone?: string | null): string => {
+  if (localDate) {
+    // Format local date as DD/MM/YYYY
+    const date = new Date(localDate + 'T00:00:00');
+    return format(date, 'dd/MM/yyyy');
+  }
+  
+  if (fallbackDate) {
+    // Fallback: derive from server timestamp using timezone
+    const serverDate = new Date(fallbackDate);
+    const browserTimezone = timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
+    
+    // Convert to local date in the specified timezone
+    const localDateString = serverDate.toLocaleDateString('en-GB', { // DD/MM/YYYY format
+      timeZone: browserTimezone,
+      day: '2-digit',
+      month: '2-digit', 
+      year: 'numeric'
+    });
+    
+    return localDateString;
+  }
+  
+  return 'No date';
+};
+
+// Helper to calculate expiry date fallback (12 months from created date)
+const getExpiryDateFallback = (createdDate: string | null, timezone?: string | null): string => {
+  if (!createdDate) return 'No date';
+  
+  const date = new Date(createdDate);
+  const browserTimezone = timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
+  
+  // Add 12 months
+  date.setFullYear(date.getFullYear() + 1);
+  
+  // Format as DD/MM/YYYY
+  const localDateString = date.toLocaleDateString('en-GB', {
+    timeZone: browserTimezone,
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric'
+  });
+  
+  return localDateString;
+};
+
 interface EventsTableProps {
   onEventSelect?: (eventId: string) => void;
   onEventEdit?: (eventId: string) => void;
@@ -396,12 +444,12 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                     </TableCell>
                     <TableCell>
                       <span className="text-muted-foreground">
-                        {formatDisplayDate(event.event_created)}
+                        {formatLocalDate(event.created_date_local, event.created_at, event.event_timezone)}
                       </span>
                     </TableCell>
                     <TableCell>
                       <span className="text-muted-foreground">
-                        {formatDisplayDate(event.expiry_date)}
+                        {formatLocalDate(event.expiry_date_local, null, event.event_timezone) || getExpiryDateFallback(event.created_at, event.event_timezone)}
                       </span>
                     </TableCell>
                     <TableCell>

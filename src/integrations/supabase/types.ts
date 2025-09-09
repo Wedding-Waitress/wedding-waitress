@@ -17,9 +17,12 @@ export type Database = {
       events: {
         Row: {
           created_at: string
+          created_date_local: string | null
           date: string | null
           event_created: string
+          event_timezone: string | null
           expiry_date: string | null
+          expiry_date_local: string | null
           finish_time: string | null
           guest_limit: number | null
           id: string
@@ -35,9 +38,12 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          created_date_local?: string | null
           date?: string | null
           event_created?: string
+          event_timezone?: string | null
           expiry_date?: string | null
+          expiry_date_local?: string | null
           finish_time?: string | null
           guest_limit?: number | null
           id?: string
@@ -53,9 +59,12 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          created_date_local?: string | null
           date?: string | null
           event_created?: string
+          event_timezone?: string | null
           expiry_date?: string | null
+          expiry_date_local?: string | null
           finish_time?: string | null
           guest_limit?: number | null
           id?: string
@@ -142,9 +151,12 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: {
           created_at: string
+          created_date_local: string
           date: string
           event_created: string
+          event_timezone: string
           expiry_date: string
+          expiry_date_local: string
           finish_time: string
           guest_limit: number
           guests_count: number
