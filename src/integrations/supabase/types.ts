@@ -14,6 +14,84 @@ export type Database = {
   }
   public: {
     Tables: {
+      events: {
+        Row: {
+          created_at: string
+          date: string | null
+          finish_time: string | null
+          guest_limit: number | null
+          id: string
+          name: string
+          start_time: string | null
+          user_id: string
+          venue: string | null
+        }
+        Insert: {
+          created_at?: string
+          date?: string | null
+          finish_time?: string | null
+          guest_limit?: number | null
+          id?: string
+          name: string
+          start_time?: string | null
+          user_id: string
+          venue?: string | null
+        }
+        Update: {
+          created_at?: string
+          date?: string | null
+          finish_time?: string | null
+          guest_limit?: number | null
+          id?: string
+          name?: string
+          start_time?: string | null
+          user_id?: string
+          venue?: string | null
+        }
+        Relationships: []
+      }
+      guests: {
+        Row: {
+          created_at: string
+          email: string | null
+          event_id: string
+          id: string
+          name: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          event_id: string
+          id?: string
+          name: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          event_id?: string
+          id?: string
+          name?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guests_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "guests_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events_with_guest_count"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string | null
@@ -43,7 +121,21 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      events_with_guest_count: {
+        Row: {
+          created_at: string | null
+          date: string | null
+          finish_time: string | null
+          guest_limit: number | null
+          guests_count: number | null
+          id: string | null
+          name: string | null
+          start_time: string | null
+          user_id: string | null
+          venue: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       [_ in never]: never
