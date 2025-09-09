@@ -134,7 +134,7 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
         </SheetTrigger>
         <SheetContent 
           side="left" 
-          className="p-0 w-[200px]"
+          className="p-0 w-[230px]"
           onInteractOutside={handleClose}
         >
           <SidebarMenuContent 
@@ -148,7 +148,7 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
   }
 
   return (
-    <div className="w-[200px] h-screen sticky top-0">
+    <div className="w-[230px] h-screen sticky top-0">
       <SidebarMenuContent 
         activeTab={activeTab} 
         onTabChange={onTabChange}
