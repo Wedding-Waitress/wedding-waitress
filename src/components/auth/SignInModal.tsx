@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -9,11 +9,16 @@ import { useNavigate } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 
 interface SignInModalProps {
-  children: React.ReactNode;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onBackToSignUp: () => void;
 }
 
-export const SignInModal: React.FC<SignInModalProps> = ({ children }) => {
-  const [open, setOpen] = useState(false);
+export const SignInModal: React.FC<SignInModalProps> = ({ 
+  open, 
+  onOpenChange, 
+  onBackToSignUp 
+}) => {
   const [step, setStep] = useState<'email' | 'verify'>('email');
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState('');
@@ -24,7 +29,7 @@ export const SignInModal: React.FC<SignInModalProps> = ({ children }) => {
   const navigate = useNavigate();
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
-  // Focus email field when modal opens
+  // Focus first field when modal opens
   useEffect(() => {
     if (open && step === 'email') {
       const emailInput = document.querySelector('#signin-email') as HTMLInputElement;
@@ -39,9 +44,9 @@ export const SignInModal: React.FC<SignInModalProps> = ({ children }) => {
     e.preventDefault();
     setError('');
     
-    // Validate email
+    // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!email || !emailRegex.test(email)) {
+    if (!emailRegex.test(email)) {
       setError('Please enter a valid email address');
       return;
     }
@@ -88,10 +93,9 @@ export const SignInModal: React.FC<SignInModalProps> = ({ children }) => {
         setError(error.message);
       } else if (data.user) {
         // Success!
-        setOpen(false);
+        onOpenChange(false);
         toast({
           title: "Signed in ✔",
-          description: "Welcome back to Wedding Waitress!"
         });
         navigate('/dashboard');
       }
@@ -179,7 +183,7 @@ export const SignInModal: React.FC<SignInModalProps> = ({ children }) => {
 
   // Reset modal state when closed
   const handleOpenChange = (newOpen: boolean) => {
-    setOpen(newOpen);
+    onOpenChange(newOpen);
     if (!newOpen) {
       setStep('email');
       setEmail('');
@@ -191,17 +195,14 @@ export const SignInModal: React.FC<SignInModalProps> = ({ children }) => {
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogTrigger asChild>
-        {children}
-      </DialogTrigger>
       <DialogContent className="sm:max-w-[420px] p-6">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold text-center">
-            {step === 'email' ? 'Sign in' : 'Check your email'}
+            {step === 'email' ? 'Sign in' : 'Enter the 6-digit code'}
           </DialogTitle>
           {step === 'verify' && (
             <p className="text-sm text-muted-foreground text-center mt-2">
-              Enter the 6-digit code we sent to {email}
+              We've emailed a one-time code to {email}
             </p>
           )}
         </DialogHeader>
@@ -219,7 +220,6 @@ export const SignInModal: React.FC<SignInModalProps> = ({ children }) => {
                 onChange={(e) => setEmail(e.target.value)}
                 className="mt-1"
                 disabled={loading}
-                placeholder="Enter your email address"
               />
             </div>
 
@@ -233,20 +233,21 @@ export const SignInModal: React.FC<SignInModalProps> = ({ children }) => {
               <Button 
                 type="submit" 
                 className="w-full" 
-                disabled={loading}
+                disabled={loading || !email}
               >
                 {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Email me a code
               </Button>
 
-              <Button 
-                type="button" 
-                variant="ghost" 
-                className="w-full text-sm text-muted-foreground hover:text-foreground"
-                onClick={() => setOpen(false)}
-              >
-                New here? Create account
-              </Button>
+              <div className="text-center">
+                <button
+                  type="button"
+                  onClick={onBackToSignUp}
+                  className="text-sm text-muted-foreground hover:text-foreground"
+                >
+                  ← Back to Sign Up
+                </button>
+              </div>
             </div>
           </form>
         ) : (

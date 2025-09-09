@@ -7,6 +7,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
+import { SignInModal } from './SignInModal';
 
 interface SignUpModalProps {
   children: React.ReactNode;
@@ -32,6 +33,7 @@ export const SignUpModal: React.FC<SignUpModalProps> = ({ children }) => {
   const [verificationCode, setVerificationCode] = useState(['', '', '', '', '', '']);
   const [error, setError] = useState('');
   const [resendTimer, setResendTimer] = useState(0);
+  const [signInOpen, setSignInOpen] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
@@ -246,8 +248,13 @@ export const SignUpModal: React.FC<SignUpModalProps> = ({ children }) => {
       <DialogContent className="sm:max-w-[420px] p-6">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold text-center">
-            {step === 'form' ? 'Create your account' : 'Enter the 6-digit code'}
+            {step === 'form' ? 'Create your free account' : 'Enter the 6-digit code'}
           </DialogTitle>
+          {step === 'form' && (
+            <p className="text-sm text-muted-foreground text-center mt-2">
+              Once submitted a verification code will be sent to your email
+            </p>
+          )}
           {step === 'verify' && (
             <p className="text-sm text-muted-foreground text-center mt-2">
               We've emailed a one-time code to {formData.email}
@@ -302,7 +309,7 @@ export const SignUpModal: React.FC<SignUpModalProps> = ({ children }) => {
 
               <div>
                 <Label htmlFor="mobile" className="text-sm font-medium">
-                  Mobile (optional)
+                  Mobile *
                 </Label>
                 <Input
                   id="mobile"
@@ -332,14 +339,21 @@ export const SignUpModal: React.FC<SignUpModalProps> = ({ children }) => {
                 Send verification code
               </Button>
 
-              <Button 
-                type="button" 
-                variant="ghost" 
-                className="w-full text-sm text-muted-foreground hover:text-foreground"
-                onClick={() => setOpen(false)}
-              >
-                I already have an account → Sign In
-              </Button>
+              <div className="text-center">
+                <span className="text-sm text-muted-foreground">
+                  I already have an account →{' '}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setOpen(false);
+                      setSignInOpen(true);
+                    }}
+                    className="font-bold text-purple-600 hover:text-purple-700"
+                  >
+                    Sign In
+                  </button>
+                </span>
+              </div>
             </div>
           </form>
         ) : (
@@ -391,6 +405,15 @@ export const SignUpModal: React.FC<SignUpModalProps> = ({ children }) => {
           </div>
         )}
       </DialogContent>
+      
+      <SignInModal 
+        open={signInOpen} 
+        onOpenChange={setSignInOpen}
+        onBackToSignUp={() => {
+          setSignInOpen(false);
+          setOpen(true);
+        }}
+      />
     </Dialog>
   );
 };
