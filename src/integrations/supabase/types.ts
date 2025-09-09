@@ -25,11 +25,6 @@ export type Database = {
           start_time: string | null
           user_id: string
           venue: string | null
-          venue_address: string | null
-          venue_lat: number | null
-          venue_lng: number | null
-          venue_name: string | null
-          venue_place_id: string | null
         }
         Insert: {
           created_at?: string
@@ -41,11 +36,6 @@ export type Database = {
           start_time?: string | null
           user_id: string
           venue?: string | null
-          venue_address?: string | null
-          venue_lat?: number | null
-          venue_lng?: number | null
-          venue_name?: string | null
-          venue_place_id?: string | null
         }
         Update: {
           created_at?: string
@@ -57,11 +47,6 @@ export type Database = {
           start_time?: string | null
           user_id?: string
           venue?: string | null
-          venue_address?: string | null
-          venue_lat?: number | null
-          venue_lng?: number | null
-          venue_name?: string | null
-          venue_place_id?: string | null
         }
         Relationships: []
       }
