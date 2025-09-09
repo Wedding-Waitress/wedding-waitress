@@ -291,7 +291,8 @@ It handles every detail of your event's seating chart, RSVP & more so you can fo
       </section>
 
       {/* Footer Section */}
-      <footer className="bg-background border-t">
+      <footer className="relative border-t">
+        <div className="absolute inset-0 bg-gradient-hero opacity-10"></div>
         {/* CTA Footer Section */}
         <section className="py-20 relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-hero opacity-5"></div>
