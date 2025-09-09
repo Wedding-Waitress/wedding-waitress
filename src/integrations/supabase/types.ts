@@ -82,27 +82,51 @@ export type Database = {
       }
       guests: {
         Row: {
+          assigned: boolean | null
           created_at: string
+          dietary: string | null
           email: string | null
           event_id: string
+          first_name: string
           id: string
-          name: string
+          last_name: string | null
+          mobile: string | null
+          notes: string | null
+          rsvp: string | null
+          seat_no: number | null
+          table_no: number | null
           user_id: string
         }
         Insert: {
+          assigned?: boolean | null
           created_at?: string
+          dietary?: string | null
           email?: string | null
           event_id: string
+          first_name: string
           id?: string
-          name: string
+          last_name?: string | null
+          mobile?: string | null
+          notes?: string | null
+          rsvp?: string | null
+          seat_no?: number | null
+          table_no?: number | null
           user_id: string
         }
         Update: {
+          assigned?: boolean | null
           created_at?: string
+          dietary?: string | null
           email?: string | null
           event_id?: string
+          first_name?: string
           id?: string
-          name?: string
+          last_name?: string | null
+          mobile?: string | null
+          notes?: string | null
+          rsvp?: string | null
+          seat_no?: number | null
+          table_no?: number | null
           user_id?: string
         }
         Relationships: [
