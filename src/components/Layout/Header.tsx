@@ -18,7 +18,6 @@ export const Header: React.FC<HeaderProps> = ({
 }) => {
   const [signInOpen, setSignInOpen] = useState(false);
   const signUpButtonRef = useRef<HTMLButtonElement>(null);
-
   const handleBackToSignUp = () => {
     setSignInOpen(false);
     // Trigger the SignUp modal
@@ -36,7 +35,7 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
             <div>
               <h1 className="text-xl font-bold gradient-text">Wedding Waitress</h1>
-              <p className="text-xs text-muted-foreground">Wedding & Event guest list made stress free</p>
+              <p className="text-xs text-muted-foreground">Your Wedding & Event Assistant</p>
             </div>
           </div>
 
@@ -98,11 +97,7 @@ export const Header: React.FC<HeaderProps> = ({
                   </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu> : <div className="flex items-center space-x-2">
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => setSignInOpen(true)}
-                >
+                <Button variant="outline" size="sm" onClick={() => setSignInOpen(true)}>
                   Sign In
                 </Button>
                 <SignUpModal>
@@ -135,10 +130,6 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
       </div>
       
-      <SignInModal
-        open={signInOpen}
-        onOpenChange={setSignInOpen}
-        onBackToSignUp={handleBackToSignUp}
-      />
+      <SignInModal open={signInOpen} onOpenChange={setSignInOpen} onBackToSignUp={handleBackToSignUp} />
     </header>;
 };
