@@ -239,6 +239,13 @@ export const SignInModal: React.FC<SignInModalProps> = ({
                 Email me a code
               </Button>
 
+              <p className="text-xs text-muted-foreground text-center">
+                By continuing you agree to our{' '}
+                <a href="#" className="underline hover:text-foreground">Terms</a>
+                {' '}&{' '}
+                <a href="#" className="underline hover:text-foreground">Privacy Policy</a>
+              </p>
+
               <div className="text-center">
                 <button
                   type="button"

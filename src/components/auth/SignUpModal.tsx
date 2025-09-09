@@ -339,6 +339,13 @@ export const SignUpModal: React.FC<SignUpModalProps> = ({ children }) => {
                 Send verification code
               </Button>
 
+              <p className="text-xs text-muted-foreground text-center">
+                By continuing you agree to our{' '}
+                <a href="#" className="underline hover:text-foreground">Terms</a>
+                {' '}&{' '}
+                <a href="#" className="underline hover:text-foreground">Privacy Policy</a>
+              </p>
+
               <div className="text-center">
                 <span className="text-sm text-muted-foreground">
                   I already have an account →{' '}
