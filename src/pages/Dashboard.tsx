@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Header } from "@/components/Layout/Header";
 import { StatsBar } from "@/components/Dashboard/StatsBar";
-import { NavigationTabs } from "@/components/Dashboard/NavigationTabs";
+import { DashboardSidebar } from "@/components/Dashboard/DashboardSidebar";
 import { EventsTable } from "@/components/Dashboard/EventsTable";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/enhanced-card";
 import { Button } from "@/components/ui/enhanced-button";
@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 
 export const Dashboard = () => {
-  const [activeTab, setActiveTab] = useState('my-events');
+  const [activeTab, setActiveTab] = useState('dashboard');
   const [selectedEventId, setSelectedEventId] = useState('3'); // Reema & Hossam's event is selected by default
 
   // Mock user data
@@ -48,6 +48,21 @@ export const Dashboard = () => {
   // Content for different tabs
   const renderTabContent = () => {
     switch (activeTab) {
+      case 'dashboard':
+        return (
+          <Card variant="elevated" className="p-8 text-center">
+            <TrendingUp className="w-16 h-16 mx-auto text-primary mb-4" />
+            <CardTitle className="mb-2">Dashboard Overview</CardTitle>
+            <CardDescription className="mb-6">
+              Welcome to your wedding planning dashboard. Get an overview of your event progress.
+            </CardDescription>
+            <Button variant="gradient">
+              <Plus className="w-4 h-4 mr-2" />
+              View Analytics
+            </Button>
+          </Card>
+        );
+      
       case 'my-events':
         return (
           <EventsTable
@@ -147,6 +162,51 @@ export const Dashboard = () => {
           </Card>
         );
       
+      case 'planner':
+        return (
+          <Card variant="elevated" className="p-8 text-center">
+            <TrendingUp className="w-16 h-16 mx-auto text-primary mb-4" />
+            <CardTitle className="mb-2">Wedding Planner</CardTitle>
+            <CardDescription className="mb-6">
+              Plan and organize every detail of your wedding with our comprehensive planning tools.
+            </CardDescription>
+            <Button variant="gradient">
+              <Plus className="w-4 h-4 mr-2" />
+              Start Planning
+            </Button>
+          </Card>
+        );
+      
+      case 'vendor-team':
+        return (
+          <Card variant="elevated" className="p-8 text-center">
+            <Users className="w-16 h-16 mx-auto text-primary mb-4" />
+            <CardTitle className="mb-2">Vendor Team</CardTitle>
+            <CardDescription className="mb-6">
+              Manage your wedding vendor team and coordinate with photographers, caterers, and more.
+            </CardDescription>
+            <Button variant="gradient">
+              <Plus className="w-4 h-4 mr-2" />
+              Add Vendors
+            </Button>
+          </Card>
+        );
+      
+      case 'account':
+        return (
+          <Card variant="elevated" className="p-8 text-center">
+            <Settings className="w-16 h-16 mx-auto text-primary mb-4" />
+            <CardTitle className="mb-2">Account Settings</CardTitle>
+            <CardDescription className="mb-6">
+              Manage your account preferences, billing information, and profile settings.
+            </CardDescription>
+            <Button variant="gradient">
+              <Settings className="w-4 h-4 mr-2" />
+              Update Settings
+            </Button>
+          </Card>
+        );
+      
       default:
         return (
           <Card variant="elevated" className="p-8 text-center">
@@ -161,24 +221,24 @@ export const Dashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-subtle">
-      <Header user={user} onSignOut={handleSignOut} />
+    <div className="min-h-screen bg-gradient-subtle flex">
+      {/* Sidebar */}
+      <DashboardSidebar activeTab={activeTab} onTabChange={setActiveTab} />
       
-      <main className="container mx-auto px-4 py-6">
-        {/* Stats Bar */}
-        <StatsBar />
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col">
+        <Header user={user} onSignOut={handleSignOut} />
         
-        {/* Navigation Tabs */}
-        <NavigationTabs 
-          activeTab={activeTab} 
-          onTabChange={setActiveTab} 
-        />
-        
-        {/* Tab Content */}
-        <div className="space-y-6">
-          {renderTabContent()}
-        </div>
-      </main>
+        <main className="flex-1 container mx-auto px-4 py-6 lg:pl-8">
+          {/* Stats Bar */}
+          <StatsBar />
+          
+          {/* Tab Content */}
+          <div className="space-y-6 mt-6">
+            {renderTabContent()}
+          </div>
+        </main>
+      </div>
     </div>
   );
 };
