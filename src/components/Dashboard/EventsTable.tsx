@@ -31,6 +31,7 @@ import { EventDatePicker } from './EventDatePicker';
 import { TimePicker } from './TimePicker';
 import { useEvents } from '@/hooks/useEvents';
 import { format } from 'date-fns';
+import { formatDisplayTime } from '@/lib/utils';
 
 interface EventsTableProps {
   onEventSelect?: (eventId: string) => void;
@@ -352,7 +353,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                         />
                       ) : (
                         <span className="text-muted-foreground">
-                          {event.start_time || 'Not set'}
+                          {formatDisplayTime(event.start_time)}
                         </span>
                       )}
                     </TableCell>
@@ -364,7 +365,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                         />
                       ) : (
                         <span className="text-muted-foreground">
-                          {event.finish_time || 'Not set'}
+                          {formatDisplayTime(event.finish_time)}
                         </span>
                       )}
                     </TableCell>
