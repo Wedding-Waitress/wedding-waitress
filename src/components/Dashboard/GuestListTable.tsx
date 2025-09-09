@@ -51,12 +51,32 @@ export const GuestListTable: React.FC = () => {
     );
   }
 
+  // No event selected - show large centered empty state
+  if (!selectedEventId) {
+    return (
+      <div className="p-16 text-center">
+        <Users className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
+        <h3 className="text-lg font-semibold text-foreground mb-2">Guest List Management</h3>
+        <p className="text-sm text-muted-foreground mb-6">
+          Select an event to view and manage its guest list.
+        </p>
+        <Button variant="gradient" size="sm">
+          <Users className="w-4 h-4 mr-2" />
+          Add Guests
+        </Button>
+      </div>
+    );
+  }
+
+  const guestCount = selectedEvent?.guests_count || 0;
+
+  // Event selected - show table card
   return (
     <Card variant="elevated" className="overflow-hidden">
       <div className="p-6 border-b border-card-border bg-gradient-subtle">
         <div className="space-y-4">
-          {/* Row 1: Controls */}
-          <div className="flex items-center justify-between">
+          {/* Row 1: Controls with repositioned elements */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="flex items-center space-x-4">
               <label className="text-sm font-medium text-foreground">
                 Choose an Event:
@@ -76,63 +96,57 @@ export const GuestListTable: React.FC = () => {
                   ))}
                 </SelectContent>
               </Select>
+              {/* Guest counter pill - moved to left side */}
+              <Badge variant="secondary" className="glass">
+                {guestCount} Guest{guestCount !== 1 ? 's' : ''}
+              </Badge>
             </div>
-            <Badge variant="secondary" className="glass">
-              {selectedEvent ? `${selectedEvent.guests_count} Guest${selectedEvent.guests_count !== 1 ? 's' : ''}` : '0 Guests'}
-            </Badge>
+            
+            {/* No Guests Yet widget - moved to right side, only show when guestCount === 0 */}
+            {guestCount === 0 && (
+              <div className="flex items-center space-x-2">
+                <Users className="w-4 h-4 text-muted-foreground" />
+                <span className="text-sm text-muted-foreground">No Guests Yet</span>
+                <Button variant="gradient" size="sm">
+                  <Users className="w-4 h-4 mr-2" />
+                  Add First Guest
+                </Button>
+              </div>
+            )}
           </div>
           
           {/* Row 2: Title line */}
-          {selectedEvent && (
-            <div className="flex items-center space-x-2">
-              <span className="text-lg font-medium text-foreground">Guest List for</span>
-              <span className="text-lg font-bold text-primary">{selectedEvent.name}</span>
-            </div>
-          )}
+          <div className="flex items-center space-x-2">
+            <span className="text-lg font-medium text-foreground">Guest List for</span>
+            <span className="text-lg font-bold text-primary">{selectedEvent.name}</span>
+          </div>
         </div>
       </div>
 
       <div className="overflow-x-auto">
-        {!selectedEventId ? (
-          // Empty state when no event selected
-          <div className="p-16 text-center">
-            <Users className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold text-foreground mb-2">Select an Event</h3>
-            <p className="text-sm text-muted-foreground">
-              Choose an event from the dropdown above to view and manage its guest list.
-            </p>
-          </div>
-        ) : (
-          // Table scaffold (empty for now)
-          <Table>
-            <TableHeader>
-              <TableRow className="border-card-border hover:bg-muted/50">
-                <TableHead className="min-w-[200px]">Guest Name</TableHead>
-                <TableHead className="min-w-[200px]">Email</TableHead>
-                <TableHead className="min-w-[120px]">RSVP</TableHead>
-                <TableHead className="min-w-[100px]">Table</TableHead>
-                <TableHead className="min-w-[200px]">Notes</TableHead>
-                <TableHead className="w-32">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {/* Empty table state */}
+        <Table>
+          <TableHeader>
+            <TableRow className="border-card-border hover:bg-muted/50">
+              <TableHead className="min-w-[200px]">Guest Name</TableHead>
+              <TableHead className="min-w-[200px]">Email</TableHead>
+              <TableHead className="min-w-[120px]">RSVP</TableHead>
+              <TableHead className="min-w-[100px]">Table</TableHead>
+              <TableHead className="min-w-[200px]">Notes</TableHead>
+              <TableHead className="w-32">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {/* Empty table body when no guests - no large centered state */}
+            {guestCount === 0 && (
               <TableRow className="border-card-border">
-                <TableCell colSpan={6} className="text-center py-16">
-                  <Users className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-                  <h4 className="text-lg font-medium text-foreground mb-2">No Guests Yet</h4>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Start adding guests to your event to see them here.
-                  </p>
-                  <Button variant="gradient" size="sm">
-                    <Users className="w-4 h-4 mr-2" />
-                    Add First Guest
-                  </Button>
+                <TableCell colSpan={6} className="text-center py-8">
+                  {/* Empty - the "No Guests Yet" widget is now in the header */}
                 </TableCell>
               </TableRow>
-            </TableBody>
-          </Table>
-        )}
+            )}
+            {/* Future: guest rows will go here when guestCount > 0 */}
+          </TableBody>
+        </Table>
       </div>
     </Card>
   );
