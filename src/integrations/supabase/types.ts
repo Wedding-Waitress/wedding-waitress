@@ -143,6 +143,8 @@ export type Database = {
         Returns: {
           created_at: string
           date: string
+          event_created: string
+          expiry_date: string
           finish_time: string
           guest_limit: number
           guests_count: number
