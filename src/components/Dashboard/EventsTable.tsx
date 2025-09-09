@@ -31,7 +31,7 @@ import { EventDatePicker } from './EventDatePicker';
 import { TimePicker } from './TimePicker';
 import { useEvents } from '@/hooks/useEvents';
 import { format } from 'date-fns';
-import { formatDisplayTime } from '@/lib/utils';
+import { formatDisplayTime, formatDisplayDate } from '@/lib/utils';
 
 interface EventsTableProps {
   onEventSelect?: (eventId: string) => void;

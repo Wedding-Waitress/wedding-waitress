@@ -13,6 +13,8 @@ export interface Event {
   guest_limit: number;
   created_at: string;
   guests_count: number;
+  event_created: string;
+  expiry_date: string;
 }
 
 export const useEvents = () => {

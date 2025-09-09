@@ -18,6 +18,8 @@ export type Database = {
         Row: {
           created_at: string
           date: string | null
+          event_created: string
+          expiry_date: string | null
           finish_time: string | null
           guest_limit: number | null
           id: string
@@ -34,6 +36,8 @@ export type Database = {
         Insert: {
           created_at?: string
           date?: string | null
+          event_created?: string
+          expiry_date?: string | null
           finish_time?: string | null
           guest_limit?: number | null
           id?: string
@@ -50,6 +54,8 @@ export type Database = {
         Update: {
           created_at?: string
           date?: string | null
+          event_created?: string
+          expiry_date?: string | null
           finish_time?: string | null
           guest_limit?: number | null
           id?: string

@@ -15,3 +15,14 @@ export function formatDisplayTime(time: string): string {
   const displayHour = hourNum % 12 || 12;
   return `${displayHour}:${minute} ${ampm}`;
 }
+
+// Format date to DD/MM/YYYY format
+export function formatDisplayDate(date: string): string {
+  if (!date) return 'Not set';
+  
+  const dateObj = new Date(date);
+  const day = String(dateObj.getDate()).padStart(2, '0');
+  const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+  const year = dateObj.getFullYear();
+  return `${day}/${month}/${year}`;
+}
