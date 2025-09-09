@@ -3,6 +3,7 @@ import { Header } from "@/components/Layout/Header";
 import { StatsBar } from "@/components/Dashboard/StatsBar";
 import { DashboardSidebar } from "@/components/Dashboard/DashboardSidebar";
 import { EventsTable } from "@/components/Dashboard/EventsTable";
+import { GuestListTable } from "@/components/Dashboard/GuestListTable";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/enhanced-card";
 import { Button } from "@/components/ui/enhanced-button";
 import { 
@@ -53,19 +54,7 @@ export const Dashboard = () => {
         return <EventsTable />;
       
       case 'guest-list':
-        return (
-          <Card variant="elevated" className="p-8 text-center">
-            <Users className="w-16 h-16 mx-auto text-primary mb-4" />
-            <CardTitle className="mb-2">Guest List Management</CardTitle>
-            <CardDescription className="mb-6">
-              Manage your wedding guests, dietary requirements, and seating arrangements
-            </CardDescription>
-            <Button variant="gradient">
-              <Plus className="w-4 h-4 mr-2" />
-              Add Guests
-            </Button>
-          </Card>
-        );
+        return <GuestListTable />;
       
       case 'table-list':
         return (
