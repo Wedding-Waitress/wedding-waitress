@@ -191,6 +191,8 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                 <TableHead className="min-w-[120px]">Start Time</TableHead>
                 <TableHead className="min-w-[120px]">Finish Time</TableHead>
                 <TableHead className="w-32">Guest Limit</TableHead>
+                <TableHead className="min-w-[120px]">Created Date:</TableHead>
+                <TableHead className="min-w-[120px]">Expiry Date:</TableHead>
                 <TableHead className="w-32">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -246,6 +248,12 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                       className="w-20"
                       min="1"
                     />
+                  </TableCell>
+                  <TableCell>
+                    <span className="text-muted-foreground text-sm">Auto-generated</span>
+                  </TableCell>
+                  <TableCell>
+                    <span className="text-muted-foreground text-sm">Auto-generated</span>
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center space-x-1">
@@ -385,6 +393,16 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                           </span>
                         </div>
                       )}
+                    </TableCell>
+                    <TableCell>
+                      <span className="text-muted-foreground">
+                        {formatDisplayDate(event.event_created)}
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      <span className="text-muted-foreground">
+                        {formatDisplayDate(event.expiry_date)}
+                      </span>
                     </TableCell>
                     <TableCell>
                       {isEditing ? (
