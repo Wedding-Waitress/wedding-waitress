@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -79,18 +79,51 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
   const form = useForm<AddGuestFormData>({
     resolver: zodResolver(addGuestSchema),
     defaultValues: {
-      first_name: guest?.first_name || '',
-      last_name: guest?.last_name || '',
-      table_no: guest?.table_no || undefined,
-      seat_no: guest?.seat_no || undefined,
-      assigned: guest?.assigned || false,
-      rsvp: (guest?.rsvp as 'Pending' | 'Attending' | 'Not Attending') || 'Pending',
-      dietary: (guest?.dietary as 'NA' | 'Vegan' | 'Vegetarian' | 'Gluten Free' | 'Dairy Free' | 'Nut Free' | 'Seafood Free' | 'Kosher' | 'Halal') || 'NA',
-      mobile: guest?.mobile || '',
-      email: guest?.email || '',
-      notes: guest?.notes || '',
+      first_name: '',
+      last_name: '',
+      table_no: undefined,
+      seat_no: undefined,
+      assigned: false,
+      rsvp: 'Pending',
+      dietary: 'NA',
+      mobile: '',
+      email: '',
+      notes: '',
     },
   });
+
+  // Reset form when guest prop changes (for edit mode)
+  useEffect(() => {
+    if (isOpen) {
+      if (guest && isEdit) {
+        form.reset({
+          first_name: guest.first_name || '',
+          last_name: guest.last_name || '',
+          table_no: guest.table_no || undefined,
+          seat_no: guest.seat_no || undefined,
+          assigned: guest.assigned || false,
+          rsvp: (guest.rsvp as 'Pending' | 'Attending' | 'Not Attending') || 'Pending',
+          dietary: (guest.dietary as 'NA' | 'Vegan' | 'Vegetarian' | 'Gluten Free' | 'Dairy Free' | 'Nut Free' | 'Seafood Free' | 'Kosher' | 'Halal') || 'NA',
+          mobile: guest.mobile || '',
+          email: guest.email || '',
+          notes: guest.notes || '',
+        });
+      } else {
+        form.reset({
+          first_name: '',
+          last_name: '',
+          table_no: undefined,
+          seat_no: undefined,
+          assigned: false,
+          rsvp: 'Pending',
+          dietary: 'NA',
+          mobile: '',
+          email: '',
+          notes: '',
+        });
+      }
+    }
+  }, [isOpen, guest, isEdit, form]);
 
   const onSubmit = async (data: AddGuestFormData) => {
     try {
