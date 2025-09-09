@@ -57,7 +57,7 @@ export const SignInModal: React.FC<SignInModalProps> = ({
       const { error } = await supabase.auth.signInWithOtp({
         email: email,
         options: {
-          shouldCreateUser: true
+          shouldCreateUser: false
         }
       });
 
@@ -154,7 +154,7 @@ export const SignInModal: React.FC<SignInModalProps> = ({
       const { error } = await supabase.auth.signInWithOtp({
         email: email,
         options: {
-          shouldCreateUser: true
+          shouldCreateUser: false
         }
       });
 
