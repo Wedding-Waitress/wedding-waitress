@@ -4,6 +4,7 @@ import { Heart, Globe, ChevronDown } from "lucide-react";
 import { Link } from "react-router-dom";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { SignUpModal } from "@/components/auth/SignUpModal";
+import { SignInModal } from "@/components/auth/SignInModal";
 interface HeaderProps {
   user?: {
     name: string;
@@ -87,9 +88,11 @@ export const Header: React.FC<HeaderProps> = ({
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu> : <div className="flex items-center space-x-2">
-                <Button variant="outline" size="sm">
-                  Sign In
-                </Button>
+                <SignInModal>
+                  <Button variant="outline" size="sm">
+                    Sign In
+                  </Button>
+                </SignInModal>
                 <SignUpModal>
                   <Button variant="gradient" size="sm">
                     Sign Up
