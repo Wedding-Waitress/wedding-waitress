@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/enhanced-button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/enhanced-card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Heart, Users, Calendar, MapPin, Mail, QrCode, Sparkles, ArrowRight, Check, Star } from "lucide-react";
+import { Heart, Users, Calendar, MapPin, Mail, QrCode, Sparkles, ArrowRight, Check, Star, Instagram, Facebook, Linkedin, Youtube } from "lucide-react";
 export const Landing = () => {
   const [formData, setFormData] = useState({
     firstName: '',
@@ -289,5 +289,103 @@ It handles every detail of your event's seating chart, RSVP & more so you can fo
           </div>
         </div>
       </section>
+
+      {/* Footer Section */}
+      <footer className="bg-background border-t">
+        {/* CTA Footer Section */}
+        <section className="py-20 relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-hero opacity-5"></div>
+          <div className="container mx-auto px-4 text-center relative z-10">
+            <div className="max-w-4xl mx-auto space-y-8">
+              <h2 className="text-4xl font-bold">
+                Ready to Plan Smarter & Stress-Free?
+              </h2>
+              <p className="text-xl text-muted-foreground">
+                Join thousands of couples, planners, and venues already simplifying their seating charts and RSVPs.
+              </p>
+              <Button variant="hero" size="xl" className="btn-glow">
+                Create Your Free Account
+              </Button>
+            </div>
+          </div>
+        </section>
+
+        {/* Footer Links */}
+        <div className="bg-card border-t">
+          <div className="container mx-auto px-4 py-16">
+            <div className="grid md:grid-cols-4 gap-8">
+              {/* Wedding Waitress Column */}
+              <div className="space-y-4">
+                <div className="flex items-center space-x-2">
+                  <Heart className="w-6 h-6 text-primary" />
+                  <span className="font-bold text-xl">Wedding Waitress</span>
+                </div>
+                <p className="text-muted-foreground text-sm">
+                  Smart QR Seating Charts & RSVPs for weddings and events worldwide.
+                </p>
+              </div>
+
+              {/* Explore Column */}
+              <div className="space-y-4">
+                <h3 className="font-semibold text-foreground">Explore</h3>
+                <ul className="space-y-2 text-sm text-muted-foreground">
+                  <li><a href="#" className="hover:text-primary transition-colors">QR Code Seating Chart</a></li>
+                  <li><a href="#" className="hover:text-primary transition-colors">QR Code RSVP</a></li>
+                  <li><a href="#how-it-works" className="hover:text-primary transition-colors">How It Works</a></li>
+                  <li><a href="#" className="hover:text-primary transition-colors">Features</a></li>
+                  <li><a href="#" className="hover:text-primary transition-colors">Testimonials</a></li>
+                  <li><a href="#" className="hover:text-primary transition-colors">Pricing</a></li>
+                  <li><a href="#" className="hover:text-primary transition-colors">Trust</a></li>
+                  <li><a href="#" className="hover:text-primary transition-colors">FAQ</a></li>
+                </ul>
+              </div>
+
+              {/* Support Column */}
+              <div className="space-y-4">
+                <h3 className="font-semibold text-foreground">Support</h3>
+                <ul className="space-y-2 text-sm text-muted-foreground">
+                  <li><a href="#" className="hover:text-primary transition-colors">Privacy</a></li>
+                  <li><a href="#" className="hover:text-primary transition-colors">Terms</a></li>
+                  <li><a href="#" className="hover:text-primary transition-colors">Contact</a></li>
+                </ul>
+              </div>
+
+              {/* Payment Column */}
+              <div className="space-y-4">
+                <h3 className="font-semibold text-foreground">Trusted & Secure Payment Gateway</h3>
+                <div className="space-y-3">
+                  <div className="bg-primary/10 rounded-lg p-3 inline-block">
+                    <span className="text-primary font-bold text-lg">stripe</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Secure checkout powered by Stripe. Data encrypted. Your credit card information is fully on Stripe & not on this platform.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Social Media & Copyright */}
+            <div className="border-t mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
+              <div className="flex items-center space-x-4 mb-4 md:mb-0">
+                <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
+                  <Instagram className="w-5 h-5" />
+                </a>
+                <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
+                  <Facebook className="w-5 h-5" />
+                </a>
+                <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
+                  <Linkedin className="w-5 h-5" />
+                </a>
+                <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
+                  <Youtube className="w-5 h-5" />
+                </a>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                © 2025 Wedding Waitress. All rights reserved
+              </p>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>;
 };
