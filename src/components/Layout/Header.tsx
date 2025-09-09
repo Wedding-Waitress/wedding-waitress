@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/enhanced-button";
 import { Heart, Globe, ChevronDown } from "lucide-react";
 import { Link } from "react-router-dom";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { SignUpModal } from "@/components/auth/SignUpModal";
 interface HeaderProps {
   user?: {
     name: string;
@@ -89,9 +90,11 @@ export const Header: React.FC<HeaderProps> = ({
                 <Button variant="outline" size="sm">
                   Sign In
                 </Button>
-                <Button variant="gradient" size="sm">
-                  Sign Up
-                </Button>
+                <SignUpModal>
+                  <Button variant="gradient" size="sm">
+                    Sign Up
+                  </Button>
+                </SignUpModal>
                 <Button variant="ghost" size="sm" className="text-xs" asChild>
                   <Link to="/admin">Admin</Link>
                 </Button>
