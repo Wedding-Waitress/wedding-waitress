@@ -32,6 +32,7 @@ export const GuestListTable: React.FC = () => {
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const { guests, loading: guestsLoading, fetchGuests, deleteGuest } = useGuests(selectedEventId);
+  const [editingGuest, setEditingGuest] = useState<any>(null);
 
   // Load selected event from localStorage on mount
   useEffect(() => {
@@ -48,6 +49,12 @@ export const GuestListTable: React.FC = () => {
   };
 
   const handleAddGuest = () => {
+    setEditingGuest(null);
+    setShowAddModal(true);
+  };
+
+  const handleEditGuest = (guest: any) => {
+    setEditingGuest(guest);
     setShowAddModal(true);
   };
 
@@ -205,7 +212,11 @@ export const GuestListTable: React.FC = () => {
                     <TableCell>{renderPill(!!guest.notes && guest.notes.trim() !== '')}</TableCell>
                     <TableCell>
                       <div className="flex items-center space-x-2">
-                        <Button variant="ghost" size="sm">
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          onClick={() => handleEditGuest(guest)}
+                        >
                           <Edit className="w-4 h-4" />
                         </Button>
                         <Button 
@@ -227,9 +238,14 @@ export const GuestListTable: React.FC = () => {
 
       <AddGuestModal 
         isOpen={showAddModal}
-        onClose={() => setShowAddModal(false)}
+        onClose={() => {
+          setShowAddModal(false);
+          setEditingGuest(null);
+        }}
         eventId={selectedEventId}
         onSuccess={fetchGuests}
+        guest={editingGuest}
+        isEdit={!!editingGuest}
       />
     </>
   );

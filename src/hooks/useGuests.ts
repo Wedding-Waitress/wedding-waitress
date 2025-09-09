@@ -95,6 +95,42 @@ export const useGuests = (eventId: string | null) => {
     }
   };
 
+  const updateGuest = async (guestId: string, guestData: Partial<Guest>) => {
+    try {
+      const { error } = await supabase
+        .from('guests')
+        .update(guestData)
+        .eq('id', guestId);
+
+      if (error) {
+        console.error('Error updating guest:', error);
+        toast({
+          title: "Error",
+          description: "Failed to update guest",
+          variant: "destructive",
+        });
+        return false;
+      }
+
+      toast({
+        title: "Success",
+        description: "Guest updated successfully",
+      });
+
+      // Refresh guests to get updated data
+      await fetchGuests();
+      return true;
+    } catch (error) {
+      console.error('Error updating guest:', error);
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred",
+        variant: "destructive",
+      });
+      return false;
+    }
+  };
+
   useEffect(() => {
     fetchGuests();
   }, [eventId]);
@@ -104,5 +140,6 @@ export const useGuests = (eventId: string | null) => {
     loading,
     fetchGuests,
     deleteGuest,
+    updateGuest,
   };
 };

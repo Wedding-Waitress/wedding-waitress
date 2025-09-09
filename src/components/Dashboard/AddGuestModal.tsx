@@ -50,6 +50,20 @@ interface AddGuestModalProps {
   onClose: () => void;
   eventId: string;
   onSuccess: () => void;
+  guest?: {
+    id: string;
+    first_name: string;
+    last_name: string;
+    table_no: number | null;
+    seat_no: number | null;
+    assigned: boolean;
+    rsvp: string;
+    dietary: string;
+    mobile: string | null;
+    email: string | null;
+    notes: string | null;
+  } | null;
+  isEdit?: boolean;
 }
 
 export const AddGuestModal: React.FC<AddGuestModalProps> = ({
@@ -57,20 +71,24 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
   onClose,
   eventId,
   onSuccess,
+  guest = null,
+  isEdit = false,
 }) => {
   const { toast } = useToast();
   
   const form = useForm<AddGuestFormData>({
     resolver: zodResolver(addGuestSchema),
     defaultValues: {
-      first_name: '',
-      last_name: '',
-      assigned: false,
-      rsvp: 'Pending',
-      dietary: 'NA',
-      mobile: '',
-      email: '',
-      notes: '',
+      first_name: guest?.first_name || '',
+      last_name: guest?.last_name || '',
+      table_no: guest?.table_no || undefined,
+      seat_no: guest?.seat_no || undefined,
+      assigned: guest?.assigned || false,
+      rsvp: (guest?.rsvp as 'Pending' | 'Attending' | 'Not Attending') || 'Pending',
+      dietary: (guest?.dietary as 'NA' | 'Vegan' | 'Vegetarian' | 'Gluten Free' | 'Dairy Free' | 'Nut Free' | 'Seafood Free' | 'Kosher' | 'Halal') || 'NA',
+      mobile: guest?.mobile || '',
+      email: guest?.email || '',
+      notes: guest?.notes || '',
     },
   });
 
@@ -80,15 +98,13 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
       if (!user.user) {
         toast({
           title: "Error",
-          description: "You must be logged in to add guests",
+          description: "You must be logged in to manage guests",
           variant: "destructive",
         });
         return;
       }
 
       const guestData = {
-        event_id: eventId,
-        user_id: user.user.id,
         first_name: data.first_name,
         last_name: data.last_name,
         table_no: data.table_no || null,
@@ -101,30 +117,58 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
         notes: data.notes || null,
       };
 
-      const { error } = await supabase
-        .from('guests')
-        .insert(guestData);
+      if (isEdit && guest) {
+        const { error } = await supabase
+          .from('guests')
+          .update(guestData)
+          .eq('id', guest.id);
 
-      if (error) {
-        console.error('Error adding guest:', error);
+        if (error) {
+          console.error('Error updating guest:', error);
+          toast({
+            title: "Error",
+            description: "Failed to update guest. Please try again.",
+            variant: "destructive",
+          });
+          return;
+        }
+
         toast({
-          title: "Error",
-          description: "Failed to add guest. Please try again.",
-          variant: "destructive",
+          title: "Success",
+          description: "Guest updated successfully",
         });
-        return;
-      }
+      } else {
+        const fullGuestData = {
+          ...guestData,
+          event_id: eventId,
+          user_id: user.user.id,
+        };
 
-      toast({
-        title: "Success",
-        description: "Guest added successfully",
-      });
+        const { error } = await supabase
+          .from('guests')
+          .insert(fullGuestData);
+
+        if (error) {
+          console.error('Error adding guest:', error);
+          toast({
+            title: "Error",
+            description: "Failed to add guest. Please try again.",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        toast({
+          title: "Success",
+          description: "Guest added successfully",
+        });
+      }
 
       form.reset();
       onSuccess();
       onClose();
     } catch (error) {
-      console.error('Error adding guest:', error);
+      console.error('Error managing guest:', error);
       toast({
         title: "Error",
         description: "An unexpected error occurred",
@@ -137,7 +181,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Add Guest</DialogTitle>
+          <DialogTitle>{isEdit ? 'Edit Guest' : 'Add Guest'}</DialogTitle>
         </DialogHeader>
 
         <Form {...form}>
@@ -331,7 +375,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                 Cancel
               </Button>
               <Button type="submit" variant="gradient">
-                Save
+                {isEdit ? 'Save Changes' : 'Save'}
               </Button>
             </DialogFooter>
           </form>
