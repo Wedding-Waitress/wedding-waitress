@@ -19,30 +19,16 @@ import {
 
 export const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [selectedEventId, setSelectedEventId] = useState('3'); // Reema & Hossam's event is selected by default
 
   // Mock user data
   const user = {
-    name: "Naderelalfy1977",
+    name: "Naderelalfy1977",  
     email: "nader@example.com"
   };
 
   const handleSignOut = () => {
     // Handle sign out logic
     console.log('Signing out...');
-  };
-
-  const handleEventSelect = (eventId: string) => {
-    setSelectedEventId(eventId);
-    console.log('Selected event:', eventId);
-  };
-
-  const handleEventEdit = (eventId: string) => {
-    console.log('Edit event:', eventId);
-  };
-
-  const handleEventDelete = (eventId: string) => {
-    console.log('Delete event:', eventId);
   };
 
   // Content for different tabs
@@ -64,13 +50,7 @@ export const Dashboard = () => {
         );
       
       case 'my-events':
-        return (
-          <EventsTable
-            onEventSelect={handleEventSelect}
-            onEventEdit={handleEventEdit}
-            onEventDelete={handleEventDelete}
-          />
-        );
+        return <EventsTable />;
       
       case 'guest-list':
         return (

@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card } from "@/components/ui/enhanced-card";
 import { Button } from "@/components/ui/enhanced-button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 import { 
   Table,
   TableBody,
@@ -13,223 +15,431 @@ import {
 import { 
   Edit2, 
   Trash2, 
-  Settings, 
-  Check,
-  Circle,
   Calendar,
   MapPin,
-  Users
+  Users,
+  Clock,
+  Plus,
+  Save,
+  X,
+  Check,
+  Circle,
+  Settings
 } from "lucide-react";
-
-interface Event {
-  id: string;
-  name: string;
-  date: string;
-  venue: string;
-  plan: string;
-  guestLimit: number;
-  isSelected?: boolean;
-}
+import { DeleteConfirmationModal } from './DeleteConfirmationModal';
+import { EventDatePicker } from './EventDatePicker';
+import { TimePicker } from './TimePicker';
+import { useEvents } from '@/hooks/useEvents';
+import { format } from 'date-fns';
 
 interface EventsTableProps {
-  events?: Event[];
   onEventSelect?: (eventId: string) => void;
   onEventEdit?: (eventId: string) => void;
   onEventDelete?: (eventId: string) => void;
 }
 
 export const EventsTable: React.FC<EventsTableProps> = ({
-  events = [
-    {
-      id: "1",
-      name: "Harry & Nelly",
-      date: "3/14/2026",
-      venue: "Highlander",
-      plan: "free",
-      guestLimit: 120,
-      isSelected: false
-    },
-    {
-      id: "2",
-      name: "Sarah & Ken's Wedding",
-      date: "10/5/2025",
-      venue: "The Grande Reception Epping",
-      plan: "free",
-      guestLimit: 150,
-      isSelected: false
-    },
-    {
-      id: "3",
-      name: "Reema & Hossam's Engagement",
-      date: "11/23/2025",
-      venue: "Crown Casino",
-      plan: "free",
-      guestLimit: 80,
-      isSelected: true
-    },
-    {
-      id: "4",
-      name: "Jessica & Andrew",
-      date: "4/26/2026",
-      venue: "Marnong Estate",
-      plan: "free",
-      guestLimit: 150,
-      isSelected: false
-    }
-  ],
   onEventSelect,
   onEventEdit,
   onEventDelete
 }) => {
+  const { events, loading, activeEventId, setActiveEventId, updateEvent, deleteEvent, createEvent } = useEvents();
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [deleteModal, setDeleteModal] = useState<{isOpen: boolean; event: any}>({
+    isOpen: false,
+    event: null
+  });
+  const [editForm, setEditForm] = useState<any>({});
+  const [isCreating, setIsCreating] = useState(false);
+  const [newEventForm, setNewEventForm] = useState({
+    name: '',
+    date: null as Date | null,
+    venue: '',
+    start_time: '',
+    finish_time: '',
+    guest_limit: 50
+  });
+
+  const handleEventSelect = (eventId: string) => {
+    setActiveEventId(eventId);
+    onEventSelect?.(eventId);
+  };
+
+  const handleEdit = (event: any) => {
+    setEditingId(event.id);
+    setEditForm({
+      name: event.name,
+      date: event.date ? new Date(event.date) : null,
+      venue: event.venue || '',
+      start_time: event.start_time || '',
+      finish_time: event.finish_time || '',
+      guest_limit: event.guest_limit
+    });
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingId) return;
+    
+    try {
+      await updateEvent(editingId, {
+        name: editForm.name,
+        date: editForm.date ? format(editForm.date, 'yyyy-MM-dd') : null,
+        venue: editForm.venue,
+        start_time: editForm.start_time || null,
+        finish_time: editForm.finish_time || null,
+        guest_limit: editForm.guest_limit
+      });
+      setEditingId(null);
+      setEditForm({});
+    } catch (error) {
+      console.error('Failed to save event:', error);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setEditForm({});
+  };
+
+  const handleDeleteClick = (event: any) => {
+    setDeleteModal({ isOpen: true, event });
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (deleteModal.event) {
+      try {
+        await deleteEvent(deleteModal.event.id);
+        setDeleteModal({ isOpen: false, event: null });
+        onEventDelete?.(deleteModal.event.id);
+      } catch (error) {
+        console.error('Failed to delete event:', error);
+      }
+    }
+  };
+
+  const handleCreateEvent = async () => {
+    try {
+      await createEvent({
+        name: newEventForm.name,
+        date: newEventForm.date ? format(newEventForm.date, 'yyyy-MM-dd') : null,
+        venue: newEventForm.venue,
+        start_time: newEventForm.start_time || null,
+        finish_time: newEventForm.finish_time || null,
+        guest_limit: newEventForm.guest_limit
+      });
+      setIsCreating(false);
+      setNewEventForm({
+        name: '',
+        date: null,
+        venue: '',
+        start_time: '',
+        finish_time: '',
+        guest_limit: 50
+      });
+    } catch (error) {
+      console.error('Failed to create event:', error);
+    }
+  };
+
+  const isAtCapacity = (event: any) => {
+    return event.guests_count >= event.guest_limit;
+  };
+
+  if (loading) {
+    return (
+      <Card variant="elevated" className="p-8 text-center">
+        <div>Loading events...</div>
+      </Card>
+    );
+  }
   return (
-    <Card variant="elevated" className="overflow-hidden">
-      <div className="p-6 border-b border-card-border bg-gradient-subtle">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-lg font-semibold text-foreground">My Events</h3>
-            <p className="text-sm text-muted-foreground">
-              Create and manage your wedding events
-            </p>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Badge variant="secondary" className="glass">
-              No of Event {events.length}
-            </Badge>
-            <Button variant="gradient" size="sm">
-              + Create Event
-            </Button>
+    <>
+      <Card variant="elevated" className="overflow-hidden">
+        <div className="p-6 border-b border-card-border bg-gradient-subtle">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-lg font-semibold text-foreground">My Events</h3>
+              <p className="text-sm text-muted-foreground">
+                Create and manage your event
+              </p>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Badge variant="secondary" className="glass">
+                {events.length} Event{events.length !== 1 ? 's' : ''}
+              </Badge>
+              <Button 
+                variant="gradient" 
+                size="sm"
+                onClick={() => setIsCreating(true)}
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Create Event
+              </Button>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div className="overflow-x-auto">
-        <Table>
-          <TableHeader>
-            <TableRow className="border-card-border hover:bg-muted/50">
-              <TableHead className="w-12">Select</TableHead>
-              <TableHead className="min-w-[200px]">
-                <div className="flex items-center">
-                  <Calendar className="w-4 h-4 mr-2 text-primary" />
-                  Event Name
-                </div>
-              </TableHead>
-              <TableHead>
-                <div className="flex items-center">
-                  <Calendar className="w-4 h-4 mr-2 text-primary" />
-                  Date
-                </div>
-              </TableHead>
-              <TableHead>
-                <div className="flex items-center">
-                  <MapPin className="w-4 h-4 mr-2 text-primary" />
-                  Venue
-                </div>
-              </TableHead>
-              <TableHead>Plan</TableHead>
-              <TableHead>
-                <div className="flex items-center">
-                  <Users className="w-4 h-4 mr-2 text-primary" />
-                  Guest Limit
-                </div>
-              </TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {events.map((event) => (
-              <TableRow 
-                key={event.id} 
-                className={`
-                  border-card-border hover:bg-muted/30 transition-colors cursor-pointer
-                  ${event.isSelected ? 'bg-primary/5 border-l-4 border-l-primary' : ''}
-                `}
-                onClick={() => onEventSelect?.(event.id)}
-              >
-                <TableCell>
-                  <Button
-                    variant="ghost"
-                    size="icon"
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow className="border-card-border hover:bg-muted/50">
+                <TableHead className="w-16">Select Event</TableHead>
+                <TableHead className="min-w-[200px]">Event Name</TableHead>
+                <TableHead className="min-w-[150px]">Event Date</TableHead>
+                <TableHead className="min-w-[200px]">Venue</TableHead>
+                <TableHead className="min-w-[120px]">Start Time</TableHead>
+                <TableHead className="min-w-[120px]">Finish Time</TableHead>
+                <TableHead className="w-32">Guest Limit</TableHead>
+                <TableHead className="w-32">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {/* Create new event row */}
+              {isCreating && (
+                <TableRow className="border-card-border bg-muted/20">
+                  <TableCell>
+                    <div className="w-6 h-6" />
+                  </TableCell>
+                  <TableCell>
+                    <Input
+                      value={newEventForm.name}
+                      onChange={(e) => setNewEventForm(prev => ({ ...prev, name: e.target.value }))}
+                      placeholder="Event name"
+                      className="min-w-[180px]"
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <EventDatePicker
+                      value={newEventForm.date}
+                      onChange={(date) => setNewEventForm(prev => ({ ...prev, date }))}
+                      placeholder="Select date"
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Input
+                      value={newEventForm.venue}
+                      onChange={(e) => setNewEventForm(prev => ({ ...prev, venue: e.target.value }))}
+                      placeholder="Venue location"
+                      className="min-w-[180px]"
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <TimePicker
+                      value={newEventForm.start_time}
+                      onChange={(time) => setNewEventForm(prev => ({ ...prev, start_time: time }))}
+                      placeholder="Start time"
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <TimePicker
+                      value={newEventForm.finish_time}
+                      onChange={(time) => setNewEventForm(prev => ({ ...prev, finish_time: time }))}
+                      placeholder="End time"
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Input
+                      type="number"
+                      value={newEventForm.guest_limit}
+                      onChange={(e) => setNewEventForm(prev => ({ ...prev, guest_limit: parseInt(e.target.value) || 50 }))}
+                      className="w-20"
+                      min="1"
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center space-x-1">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={handleCreateEvent}
+                        disabled={!newEventForm.name}
+                        className="w-8 h-8 text-green-600 hover:text-green-700"
+                      >
+                        <Save className="w-3 h-3" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => {
+                          setIsCreating(false);
+                          setNewEventForm({ name: '', date: null, venue: '', start_time: '', finish_time: '', guest_limit: 50 });
+                        }}
+                        className="w-8 h-8 text-muted-foreground hover:text-destructive"
+                      >
+                        <X className="w-3 h-3" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              )}
+
+              {/* Existing events */}
+              {events.map((event) => {
+                const isSelected = activeEventId === event.id;
+                const isEditing = editingId === event.id;
+                const atCapacity = isAtCapacity(event);
+
+                return (
+                  <TableRow 
+                    key={event.id} 
                     className={`
-                      w-6 h-6 rounded-full
-                      ${event.isSelected 
-                        ? 'bg-primary text-primary-foreground' 
-                        : 'border border-card-border hover:bg-accent'
-                      }
+                      border-card-border hover:bg-muted/30 transition-colors
+                      ${isSelected ? 'bg-primary/5 border-l-4 border-l-primary' : ''}
+                      ${atCapacity ? 'bg-green-50 dark:bg-green-900/20' : ''}
                     `}
                   >
-                    {event.isSelected ? (
-                      <Check className="w-3 h-3" />
-                    ) : (
-                      <Circle className="w-3 h-3" />
-                    )}
-                  </Button>
-                </TableCell>
-                <TableCell className="font-medium">
-                  <div className="flex items-center">
-                    {event.isSelected && (
-                      <div className="w-2 h-2 bg-primary rounded-full mr-2 animate-pulse"></div>
-                    )}
-                    {event.name}
-                  </div>
-                </TableCell>
-                <TableCell className="text-muted-foreground">
-                  {event.date}
-                </TableCell>
-                <TableCell className="text-muted-foreground">
-                  {event.venue}
-                </TableCell>
-                <TableCell>
-                  <Badge 
-                    variant="secondary" 
-                    className="glass text-xs font-medium"
-                  >
-                    {event.plan}
-                  </Badge>
-                </TableCell>
-                <TableCell className="text-muted-foreground">
-                  {event.guestLimit}
-                </TableCell>
-                <TableCell className="text-right">
-                  <div className="flex items-center justify-end space-x-1">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onEventEdit?.(event.id);
-                      }}
-                      className="w-8 h-8 text-muted-foreground hover:text-primary"
-                    >
-                      <Edit2 className="w-3 h-3" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onEventDelete?.(event.id);
-                      }}
-                      className="w-8 h-8 text-muted-foreground hover:text-destructive"
-                    >
-                      <Trash2 className="w-3 h-3" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                      }}
-                      className="w-8 h-8 text-muted-foreground hover:text-primary"
-                    >
-                      <Settings className="w-3 h-3" />
-                    </Button>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
-    </Card>
+                    <TableCell>
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          checked={isSelected}
+                          onCheckedChange={() => handleEventSelect(event.id)}
+                          className="border-primary"
+                        />
+                        {atCapacity && (
+                          <Badge variant="secondary" className="text-xs bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100">
+                            At capacity
+                          </Badge>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell className="font-medium">
+                      {isEditing ? (
+                        <Input
+                          value={editForm.name}
+                          onChange={(e) => setEditForm(prev => ({ ...prev, name: e.target.value }))}
+                          className="min-w-[180px]"
+                        />
+                      ) : (
+                        <div className="flex items-center">
+                          {isSelected && (
+                            <div className="w-2 h-2 bg-primary rounded-full mr-2 animate-pulse"></div>
+                          )}
+                          {event.name}
+                        </div>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {isEditing ? (
+                        <EventDatePicker
+                          value={editForm.date}
+                          onChange={(date) => setEditForm(prev => ({ ...prev, date }))}
+                        />
+                      ) : (
+                        <span className="text-muted-foreground">
+                          {event.date ? format(new Date(event.date), 'PPP') : 'No date set'}
+                        </span>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {isEditing ? (
+                        <Input
+                          value={editForm.venue}
+                          onChange={(e) => setEditForm(prev => ({ ...prev, venue: e.target.value }))}
+                          placeholder="Venue location"
+                          className="min-w-[180px]"
+                        />
+                      ) : (
+                        <span className="text-muted-foreground">
+                          {event.venue || 'No venue set'}
+                        </span>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {isEditing ? (
+                        <TimePicker
+                          value={editForm.start_time}
+                          onChange={(time) => setEditForm(prev => ({ ...prev, start_time: time }))}
+                        />
+                      ) : (
+                        <span className="text-muted-foreground">
+                          {event.start_time || 'Not set'}
+                        </span>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {isEditing ? (
+                        <TimePicker
+                          value={editForm.finish_time}
+                          onChange={(time) => setEditForm(prev => ({ ...prev, finish_time: time }))}
+                        />
+                      ) : (
+                        <span className="text-muted-foreground">
+                          {event.finish_time || 'Not set'}
+                        </span>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {isEditing ? (
+                        <Input
+                          type="number"
+                          value={editForm.guest_limit}
+                          onChange={(e) => setEditForm(prev => ({ ...prev, guest_limit: parseInt(e.target.value) || 50 }))}
+                          className="w-20"
+                          min="1"
+                        />
+                      ) : (
+                        <div className="flex items-center space-x-2">
+                          <span className="text-muted-foreground">
+                            {event.guests_count}/{event.guest_limit}
+                          </span>
+                        </div>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {isEditing ? (
+                        <div className="flex items-center space-x-1">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={handleSaveEdit}
+                            className="w-8 h-8 text-green-600 hover:text-green-700"
+                          >
+                            <Save className="w-3 h-3" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={handleCancelEdit}
+                            className="w-8 h-8 text-muted-foreground hover:text-destructive"
+                          >
+                            <X className="w-3 h-3" />
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="flex items-center space-x-1">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleEdit(event)}
+                            className="w-8 h-8 text-muted-foreground hover:text-primary"
+                          >
+                            <Edit2 className="w-3 h-3" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleDeleteClick(event)}
+                            className="w-8 h-8 text-muted-foreground hover:text-destructive"
+                          >
+                            <Trash2 className="w-3 h-3" />
+                          </Button>
+                        </div>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        </div>
+      </Card>
+
+      <DeleteConfirmationModal
+        isOpen={deleteModal.isOpen}
+        onClose={() => setDeleteModal({ isOpen: false, event: null })}
+        onConfirm={handleDeleteConfirm}
+        eventName={deleteModal.event?.name || ''}
+      />
+    </>
   );
 };

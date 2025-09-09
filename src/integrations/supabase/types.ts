@@ -83,13 +83,6 @@ export type Database = {
             referencedRelation: "events"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "guests_event_id_fkey"
-            columns: ["event_id"]
-            isOneToOne: false
-            referencedRelation: "events_with_guest_count"
-            referencedColumns: ["id"]
-          },
         ]
       }
       profiles: {
@@ -121,24 +114,24 @@ export type Database = {
       }
     }
     Views: {
-      events_with_guest_count: {
-        Row: {
-          created_at: string | null
-          date: string | null
-          finish_time: string | null
-          guest_limit: number | null
-          guests_count: number | null
-          id: string | null
-          name: string | null
-          start_time: string | null
-          user_id: string | null
-          venue: string | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_events_with_guest_count: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          created_at: string
+          date: string
+          finish_time: string
+          guest_limit: number
+          guests_count: number
+          id: string
+          name: string
+          start_time: string
+          user_id: string
+          venue: string
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
