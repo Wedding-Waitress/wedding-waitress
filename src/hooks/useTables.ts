@@ -9,6 +9,7 @@ export interface Table {
   name: string;
   limit_seats: number;
   notes?: string;
+  table_no?: number | null;
   created_at: string;
   updated_at: string;
 }
@@ -80,6 +81,7 @@ export const useTables = (eventId: string | null) => {
     name: string;
     limit_seats: number;
     notes?: string;
+    table_no?: number | null;
   }) => {
     if (!eventId) return false;
 
@@ -102,14 +104,26 @@ export const useTables = (eventId: string | null) => {
         description: "Table created successfully",
       });
       return true;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating table:', error);
-      toast({
-        title: "Error",
-        description: "Failed to create table",
-        variant: "destructive",
-      });
-      return false;
+      
+      // Handle unique constraint violation for table numbers
+      if (error?.code === '23505' && error?.message?.includes('uq_tables_event_table_no')) {
+        toast({
+          title: "Error",
+          description: "You already added this table number. Choose another table number.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to create table",
+          variant: "destructive",
+        });
+      }
+      
+      // Re-throw error so the modal can handle it
+      throw error;
     }
   };
 
@@ -117,6 +131,7 @@ export const useTables = (eventId: string | null) => {
     name: string;
     limit_seats: number;
     notes?: string;
+    table_no?: number | null;
   }) => {
     try {
       const { error } = await supabase
@@ -132,14 +147,26 @@ export const useTables = (eventId: string | null) => {
         description: "Table updated successfully",
       });
       return true;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error updating table:', error);
-      toast({
-        title: "Error",
-        description: "Failed to update table",
-        variant: "destructive",
-      });
-      return false;
+      
+      // Handle unique constraint violation for table numbers
+      if (error?.code === '23505' && error?.message?.includes('uq_tables_event_table_no')) {
+        toast({
+          title: "Error",
+          description: "You already added this table number. Choose another table number.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to update table",
+          variant: "destructive",
+        });
+      }
+      
+      // Re-throw error so the modal can handle it
+      throw error;
     }
   };
 

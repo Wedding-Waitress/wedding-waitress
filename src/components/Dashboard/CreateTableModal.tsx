@@ -15,15 +15,17 @@ import { TableWithGuestCount } from '@/hooks/useTables';
 interface CreateTableModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (data: { name: string; limit_seats: number; notes?: string }) => Promise<boolean>;
+  onSave: (data: { name: string; limit_seats: number; notes?: string; table_no?: number | null }) => Promise<boolean>;
   editingTable?: TableWithGuestCount | null;
+  existingTables?: TableWithGuestCount[];
 }
 
 export const CreateTableModal: React.FC<CreateTableModalProps> = ({
   isOpen,
   onClose,
   onSave,
-  editingTable
+  editingTable,
+  existingTables = []
 }) => {
   const [name, setName] = useState('');
   const [limitSeats, setLimitSeats] = useState<number>(8);
@@ -57,6 +59,21 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
       newErrors.limitSeats = 'Table limit must be between 1 and 30';
     }
 
+    // Check for duplicate table numbers
+    const trimmedName = name.trim();
+    const isNumeric = /^\d+$/.test(trimmedName);
+    
+    if (isNumeric) {
+      const tableNo = parseInt(trimmedName);
+      const duplicate = existingTables.find(table => 
+        table.table_no === tableNo && table.id !== editingTable?.id
+      );
+      
+      if (duplicate) {
+        newErrors.name = 'You already added this table number. Choose another table number.';
+      }
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -65,15 +82,32 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
     if (!validateForm()) return;
 
     setIsSubmitting(true);
-    const success = await onSave({
-      name: name.trim(),
-      limit_seats: limitSeats,
-      notes: notes.trim() || undefined
-    });
+    
+    const trimmedName = name.trim();
+    const isNumeric = /^\d+$/.test(trimmedName);
+    const tableNo = isNumeric ? parseInt(trimmedName) : null;
+    
+    try {
+      const success = await onSave({
+        name: trimmedName,
+        limit_seats: limitSeats,
+        notes: notes.trim() || undefined,
+        table_no: tableNo
+      });
 
-    setIsSubmitting(false);
-    if (success) {
-      onClose();
+      setIsSubmitting(false);
+      if (success) {
+        onClose();
+      }
+    } catch (error: any) {
+      setIsSubmitting(false);
+      
+      // Handle unique constraint violation (23505)
+      if (error?.code === '23505' || error?.message?.includes('duplicate key')) {
+        setErrors({ name: 'You already added this table number. Choose another table number.' });
+      } else {
+        throw error; // Re-throw other errors
+      }
     }
   };
 
@@ -98,7 +132,14 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
             <Input
               id="name"
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) => {
+                setName(e.target.value);
+                // Clear error when user starts typing
+                if (errors.name) {
+                  setErrors(prev => ({ ...prev, name: undefined }));
+                }
+              }}
+              onBlur={validateForm}
               placeholder="e.g., 1, Bridal, VIP A"
               disabled={isSubmitting}
             />
@@ -155,7 +196,7 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
           </Button>
           <Button 
             onClick={handleSave}
-            disabled={isSubmitting}
+            disabled={isSubmitting || Object.keys(errors).length > 0}
             variant="gradient"
           >
             {isSubmitting ? 'Saving...' : 'Save'}

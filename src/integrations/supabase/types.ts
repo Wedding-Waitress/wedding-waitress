@@ -184,6 +184,7 @@ export type Database = {
           limit_seats: number
           name: string
           notes: string | null
+          table_no: number | null
           updated_at: string
           user_id: string
         }
@@ -194,6 +195,7 @@ export type Database = {
           limit_seats: number
           name: string
           notes?: string | null
+          table_no?: number | null
           updated_at?: string
           user_id: string
         }
@@ -204,6 +206,7 @@ export type Database = {
           limit_seats?: number
           name?: string
           notes?: string | null
+          table_no?: number | null
           updated_at?: string
           user_id?: string
         }

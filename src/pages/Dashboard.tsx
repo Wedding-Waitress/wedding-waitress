@@ -85,11 +85,16 @@ export const Dashboard = () => {
     setShowCreateTableModal(true);
   };
 
-  const handleSaveTable = async (data: { name: string; limit_seats: number; notes?: string }) => {
-    if (editingTable) {
-      return await updateTable(editingTable.id, data);
-    } else {
-      return await createTable(data);
+  const handleSaveTable = async (data: { name: string; limit_seats: number; notes?: string; table_no?: number | null }) => {
+    try {
+      if (editingTable) {
+        return await updateTable(editingTable.id, data);
+      } else {
+        return await createTable(data);
+      }
+    } catch (error) {
+      // Error is handled in the modal and hooks
+      return false;
     }
   };
 
@@ -382,6 +387,7 @@ export const Dashboard = () => {
         onClose={handleCloseModal}
         onSave={handleSaveTable}
         editingTable={editingTable}
+        existingTables={tables}
       />
     </div>
   );
