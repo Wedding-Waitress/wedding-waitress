@@ -164,7 +164,7 @@ export const TableCard: React.FC<TableCardProps> = ({
     <>
       <Card 
         variant="default" 
-        className={`transition-all duration-300 aspect-square flex flex-col ${
+        className={`transition-all duration-300 flex flex-col min-h-fit ${
           isFull 
             ? 'border-4 border-green-500' 
             : 'border-2 border-primary'
@@ -175,7 +175,7 @@ export const TableCard: React.FC<TableCardProps> = ({
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
       >
-        <CardContent className="p-4 flex flex-col h-full">
+        <CardContent className="p-4 flex flex-col min-h-fit">
           {/* Table Name */}
           <div className="text-xl font-bold text-foreground mb-3 text-center">
             {table.name}
@@ -214,7 +214,7 @@ export const TableCard: React.FC<TableCardProps> = ({
           )}
 
           {/* Guest Chips - Auto-expanding */}
-          <div className="flex-1 mb-3 min-h-0 transition-all duration-300 ease-in-out">
+          <div className="mb-3">
             <div className="text-xs text-muted-foreground mb-2">Guests:</div>
             <div className="space-y-1">
               {guests.length > 0 ? (
@@ -240,8 +240,8 @@ export const TableCard: React.FC<TableCardProps> = ({
             </div>
           </div>
 
-          {/* Actions */}
-          <div className="flex justify-end space-x-2 mt-auto">
+          {/* Actions - Fixed at bottom */}
+          <div className="flex justify-end space-x-2 mt-4">
             <Button
               variant="ghost"
               size="sm"
