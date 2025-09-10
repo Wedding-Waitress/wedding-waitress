@@ -34,6 +34,8 @@ import {
 } from "lucide-react";
 import { useEvents } from '@/hooks/useEvents';
 import { useTables, TableWithGuestCount } from '@/hooks/useTables';
+import { useRealtimeGuests } from '@/hooks/useRealtimeGuests';
+import { useRealtimeTables } from '@/hooks/useRealtimeTables';
 
 export const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -42,14 +44,30 @@ export const Dashboard = () => {
   const [editingTable, setEditingTable] = useState<TableWithGuestCount | null>(null);
   const { events } = useEvents();
   const { 
-    tables, 
+    tables: rawTables, 
     loading: tablesLoading, 
     createTable, 
     updateTable, 
     deleteTable,
-    getGuestsForTable,
     fetchTables
   } = useTables(selectedEventId);
+  
+  // Real-time guest management
+  const { 
+    guests, 
+    loading: guestsLoading, 
+    moveGuest 
+  } = useRealtimeGuests(selectedEventId);
+  
+  // Real-time tables with live guest counts
+  const { 
+    tables, 
+    getGuestsForTable: getRealtimeGuestsForTable 
+  } = useRealtimeTables({
+    tables: rawTables,
+    guests,
+    onRefreshTables: fetchTables
+  });
 
   // Mock user data
   const user = {
@@ -96,6 +114,25 @@ export const Dashboard = () => {
       // Error is handled in the modal and hooks
       return false;
     }
+  };
+
+  // Handle guest movement between tables
+  const handleGuestMove = async (
+    guestId: string, 
+    sourceTableId: string | null, 
+    destTableId: string, 
+    guestName: string
+  ): Promise<boolean> => {
+    const destTable = tables.find(t => t.id === destTableId);
+    if (!destTable) return false;
+
+    return await moveGuest({
+      guestId,
+      sourceTableId,
+      destTableId,
+      destTableNo: destTable.table_no,
+      guestName
+    });
   };
 
   const handleCloseModal = () => {
@@ -214,7 +251,7 @@ export const Dashboard = () => {
                     <div className="text-center py-8">
                       <div className="text-muted-foreground">Loading tables...</div>
                     </div>
-                  ) : tables.length > 0 ? (
+                   ) : tables.length > 0 ? (
                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                        {tables.map((table) => (
                          <TableCard
@@ -222,12 +259,9 @@ export const Dashboard = () => {
                            table={table}
                            onEdit={handleEditTable}
                            onDelete={deleteTable}
-                           getGuestsForTable={getGuestsForTable}
+                           guests={guests}
                            eventId={selectedEventId}
-                           onGuestMoved={() => {
-                             // Refresh both tables and guests data
-                             fetchTables();
-                           }}
+                           onGuestMove={handleGuestMove}
                          />
                        ))}
                      </div>

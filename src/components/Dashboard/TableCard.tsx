@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent } from "@/components/ui/enhanced-card";
 import { Button } from "@/components/ui/enhanced-button";
 import { Progress } from "@/components/ui/progress";
@@ -16,53 +16,38 @@ import {
 import { Input } from "@/components/ui/input";
 import { Edit, Trash2, GripVertical } from "lucide-react";
 import { TableWithGuestCount } from '@/hooks/useTables';
-import { useGuests } from '@/hooks/useGuests';
-import { useToast } from '@/hooks/use-toast';
-
-interface Guest {
-  id: string;
-  first_name: string;
-  last_name?: string;
-  table_id: string | null;
-}
+import { Guest } from '@/hooks/useGuests';
 
 interface TableCardProps {
   table: TableWithGuestCount;
   onEdit: (table: TableWithGuestCount) => void;
   onDelete: (tableId: string) => Promise<boolean>;
-  getGuestsForTable: (tableId: string) => Promise<Guest[]>;
+  guests: Guest[];
   eventId: string;
-  onGuestMoved?: () => void;
+  onGuestMove: (guestId: string, sourceTableId: string | null, destTableId: string, guestName: string) => Promise<boolean>;
 }
 
 export const TableCard: React.FC<TableCardProps> = ({
   table,
   onEdit,
   onDelete,
-  getGuestsForTable,
+  guests: allGuests,
   eventId,
-  onGuestMoved
+  onGuestMove
 }) => {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
-  const [guests, setGuests] = useState<Guest[]>([]);
   const [isDragOver, setIsDragOver] = useState(false);
-  const { updateGuest } = useGuests(eventId);
-  const { toast } = useToast();
+  
+  // Filter guests for this table from the real-time guest list
+  const guests = allGuests.filter(guest => guest.table_id === table.id);
 
   // Guard against divide-by-zero and calculate progress
   const safeLimit = Math.max(table.limit_seats, 1);
   const progressPercentage = Math.min((table.guest_count / safeLimit) * 100, 100);
   const isFull = table.guest_count >= table.limit_seats;
 
-  useEffect(() => {
-    const fetchGuests = async () => {
-      const guestList = await getGuestsForTable(table.id);
-      setGuests(guestList);
-    };
-    fetchGuests();
-  }, [table.id, table.guest_count, getGuestsForTable]);
 
   const handleDelete = async () => {
     if (deleteConfirmText !== 'DELETE') return;
@@ -124,39 +109,10 @@ export const TableCard: React.FC<TableCardProps> = ({
         return;
       }
 
-      // Check table capacity
-      if (table.guest_count >= table.limit_seats) {
-        toast({
-          title: "Table is full",
-          description: `${table.name} has reached its capacity of ${table.limit_seats} guests.`,
-          variant: "destructive",
-        });
-        return;
-      }
-
-      // Update guest's table assignment
-      const success = await updateGuest(guestId, {
-        table_id: table.id,
-        table_no: table.table_no,
-        assigned: true
-      });
-
-      if (success) {
-        toast({
-          title: "Guest moved successfully",
-          description: `Moved ${guestName} to ${table.name}`,
-        });
-        
-        // Trigger refresh of both views
-        onGuestMoved?.();
-      }
+      // Use the new real-time guest move function
+      await onGuestMove(guestId, sourceTableId, table.id, guestName);
     } catch (error) {
       console.error('Error handling drop:', error);
-      toast({
-        title: "Error",
-        description: "Failed to move guest. Please try again.",
-        variant: "destructive",
-      });
     }
   };
 

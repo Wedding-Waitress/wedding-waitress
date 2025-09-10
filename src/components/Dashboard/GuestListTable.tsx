@@ -42,7 +42,7 @@ import {
 } from "@/components/ui/tooltip";
 import { toast } from "@/hooks/use-toast";
 import { useEvents } from '@/hooks/useEvents';
-import { useGuests } from '@/hooks/useGuests';
+import { useRealtimeGuests } from '@/hooks/useRealtimeGuests';
 import { useTables } from '@/hooks/useTables';
 import { AddGuestModal } from './AddGuestModal';
 import { supabase } from "@/integrations/supabase/client";
@@ -82,7 +82,7 @@ export const GuestListTable: React.FC = () => {
   const { events, loading } = useEvents();
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
-  const { guests, loading: guestsLoading, fetchGuests, deleteGuest } = useGuests(selectedEventId);
+  const { guests, loading: guestsLoading, deleteGuest, refetchGuests } = useRealtimeGuests(selectedEventId);
   const { tables, fetchTables } = useTables(selectedEventId);
   const [editingGuest, setEditingGuest] = useState<any>(null);
   const [sortBy, setSortBy] = useState<SortOption>('first_name_asc');
@@ -111,7 +111,7 @@ export const GuestListTable: React.FC = () => {
 
   // Refresh both guests and tables to keep counts in sync
   const handleGuestSuccess = async () => {
-    await Promise.all([fetchGuests(), fetchTables()]);
+    await Promise.all([refetchGuests(), fetchTables()]);
   };
 
   // Handle guest deletion with table count refresh
@@ -407,7 +407,7 @@ export const GuestListTable: React.FC = () => {
                 successMsg += `. Skipped ${duplicateRows.length} duplicates`;
               }
               toast({ title: successMsg });
-              fetchGuests();
+              refetchGuests();
             } catch (error) {
               toast({ 
                 title: "Import failed", 
