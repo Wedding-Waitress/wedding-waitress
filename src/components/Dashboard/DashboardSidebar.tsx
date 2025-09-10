@@ -52,10 +52,9 @@ const SidebarMenuContent = ({ activeTab, onTabChange, onClose }: { activeTab: st
   return (
     <div className="h-full flex flex-col bg-card border-r border-border">
       {/* Logo */}
-      <div className="p-6 border-b border-border">
-        <div className="flex items-center space-x-2">
-          <Heart className="w-6 h-6 text-primary" />
-          <span className="font-bold text-xl">Wedding Waitress</span>
+      <div className="p-4 border-b border-border">
+        <div className="flex justify-start">
+          <Heart className="w-8 h-8 text-primary" />
         </div>
       </div>
 
@@ -76,7 +75,7 @@ const SidebarMenuContent = ({ activeTab, onTabChange, onClose }: { activeTab: st
                 className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${
                   isActive
                     ? 'bg-primary text-primary-foreground shadow-sm'
-                    : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                    : 'text-muted-foreground hover:bg-primary/10 hover:text-foreground'
                 }`}
                 aria-current={isActive ? 'page' : undefined}
               >
@@ -98,7 +97,7 @@ const SidebarMenuContent = ({ activeTab, onTabChange, onClose }: { activeTab: st
           className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${
             activeTab === 'account'
               ? 'bg-primary text-primary-foreground shadow-sm'
-              : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+              : 'text-muted-foreground hover:bg-primary/10 hover:text-foreground'
           }`}
           aria-current={activeTab === 'account' ? 'page' : undefined}
         >
@@ -134,7 +133,7 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
         </SheetTrigger>
         <SheetContent 
           side="left" 
-          className="p-0 w-[240px]"
+          className="p-0 w-[252px]"
           onInteractOutside={handleClose}
         >
           <SidebarMenuContent 
@@ -148,7 +147,7 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
   }
 
   return (
-    <div className="w-[240px] h-screen sticky top-0">
+    <div className="w-[252px] h-screen sticky top-0">
       <SidebarMenuContent 
         activeTab={activeTab} 
         onTabChange={onTabChange}
