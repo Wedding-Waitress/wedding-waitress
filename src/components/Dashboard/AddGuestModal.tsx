@@ -132,9 +132,51 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
         return;
       }
 
+      // Check for duplicate guests (same first and last name, case-insensitive)
+      const { data: existingGuests, error: checkError } = await supabase
+        .from('guests')
+        .select('id, first_name, last_name')
+        .eq('event_id', eventId)
+        .ilike('first_name', data.first_name.trim())
+        .ilike('last_name', data.last_name.trim());
+
+      if (checkError) {
+        console.error('Error checking for duplicates:', checkError);
+        toast({
+          title: "Error",
+          description: "Failed to validate guest information",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Filter out the current guest if editing
+      const duplicates = existingGuests?.filter(existingGuest => 
+        existingGuest.first_name.toLowerCase().trim() === data.first_name.toLowerCase().trim() &&
+        existingGuest.last_name.toLowerCase().trim() === data.last_name.toLowerCase().trim() &&
+        (!isEdit || existingGuest.id !== guest?.id)
+      ) || [];
+
+      if (duplicates.length > 0) {
+        form.setError('first_name', {
+          type: 'manual',
+          message: 'Guest already added – duplicate listing.'
+        });
+        form.setError('last_name', {
+          type: 'manual',
+          message: 'Guest already added – duplicate listing.'
+        });
+        toast({
+          title: "Error",
+          description: "Guest already added – duplicate listing.",
+          variant: "destructive",
+        });
+        return;
+      }
+
       const guestData = {
-        first_name: data.first_name,
-        last_name: data.last_name,
+        first_name: data.first_name.trim(),
+        last_name: data.last_name.trim(),
         table_no: data.table_no || null,
         seat_no: data.seat_no || null,
         rsvp: data.rsvp,
@@ -152,11 +194,28 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
 
         if (error) {
           console.error('Error updating guest:', error);
-          toast({
-            title: "Error",
-            description: "Failed to update guest. Please try again.",
-            variant: "destructive",
-          });
+          // Check if it's a unique constraint violation
+          if (error.code === '23505' && error.message.includes('uniq_guest_name_per_event')) {
+            form.setError('first_name', {
+              type: 'manual',
+              message: 'Guest already added – duplicate listing.'
+            });
+            form.setError('last_name', {
+              type: 'manual',
+              message: 'Guest already added – duplicate listing.'
+            });
+            toast({
+              title: "Error",
+              description: "Guest already added – duplicate listing.",
+              variant: "destructive",
+            });
+          } else {
+            toast({
+              title: "Error",
+              description: "Failed to update guest. Please try again.",
+              variant: "destructive",
+            });
+          }
           return;
         }
 
@@ -177,11 +236,28 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
 
         if (error) {
           console.error('Error adding guest:', error);
-          toast({
-            title: "Error",
-            description: "Failed to add guest. Please try again.",
-            variant: "destructive",
-          });
+          // Check if it's a unique constraint violation
+          if (error.code === '23505' && error.message.includes('uniq_guest_name_per_event')) {
+            form.setError('first_name', {
+              type: 'manual',
+              message: 'Guest already added – duplicate listing.'
+            });
+            form.setError('last_name', {
+              type: 'manual',
+              message: 'Guest already added – duplicate listing.'
+            });
+            toast({
+              title: "Error",
+              description: "Guest already added – duplicate listing.",
+              variant: "destructive",
+            });
+          } else {
+            toast({
+              title: "Error",
+              description: "Failed to add guest. Please try again.",
+              variant: "destructive",
+            });
+          }
           return;
         }
 

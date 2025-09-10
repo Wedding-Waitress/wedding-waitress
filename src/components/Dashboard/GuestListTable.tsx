@@ -44,6 +44,7 @@ import { toast } from "@/hooks/use-toast";
 import { useEvents } from '@/hooks/useEvents';
 import { useGuests } from '@/hooks/useGuests';
 import { AddGuestModal } from './AddGuestModal';
+import { supabase } from "@/integrations/supabase/client";
 
 type SortOption = 
   | 'first_name_asc' | 'first_name_desc'
@@ -213,7 +214,7 @@ export const GuestListTable: React.FC = () => {
       if (!file) return;
       
       const reader = new FileReader();
-      reader.onload = (e) => {
+      reader.onload = async (e) => {
         try {
           const text = e.target?.result as string;
           const lines = text.split('\n').filter(line => line.trim());
@@ -256,7 +257,22 @@ export const GuestListTable: React.FC = () => {
           
           // Parse and validate rows
           const validRows: any[] = [];
+          const duplicateRows: any[] = [];
           const errors: string[] = [];
+          
+          // Get existing guests for duplicate checking
+          const { data: existingGuests } = await supabase
+            .from('guests')
+            .select('first_name, last_name')
+            .eq('event_id', selectedEventId);
+          
+          const existingNames = new Set(
+            (existingGuests || []).map(g => 
+              `${g.first_name.toLowerCase().trim()}_${g.last_name.toLowerCase().trim()}`
+            )
+          );
+          
+          const csvNames = new Set<string>();
           
           dataRows.forEach((row, index) => {
             const values = row.split(',').map(v => v.trim().replace(/"/g, ''));
@@ -280,6 +296,14 @@ export const GuestListTable: React.FC = () => {
               errors.push(`Row ${index + 2}: Table number is required`);
               return;
             }
+            
+            // Check for duplicates
+            const nameKey = `${rowData.first_name.toLowerCase().trim()}_${rowData.last_name.toLowerCase().trim()}`;
+            if (existingNames.has(nameKey) || csvNames.has(nameKey)) {
+              duplicateRows.push({ ...rowData, rowIndex: index + 2 });
+              return;
+            }
+            csvNames.add(nameKey);
             
             // Validate RSVP
             if (rowData.rsvp && !RSVP_OPTIONS.includes(rowData.rsvp)) {
@@ -312,23 +336,55 @@ export const GuestListTable: React.FC = () => {
           
           // Show preview and confirm import
           const preview = validRows.slice(0, 5);
-          const confirmMsg = `Import ${validRows.length} guests?\n\nPreview:\n${preview.map(r => `${r.first_name} ${r.last_name}`).join('\n')}`;
+          let confirmMsg = `Import ${validRows.length} guests?`;
+          if (duplicateRows.length > 0) {
+            confirmMsg += `\n\nNote: ${duplicateRows.length} duplicate guests will be skipped.`;
+          }
+          confirmMsg += `\n\nPreview:\n${preview.map(r => `${r.first_name} ${r.last_name}`).join('\n')}`;
           
           if (confirm(confirmMsg)) {
-            // Bulk insert guests (simplified - in real app you'd use proper bulk insert)
-            Promise.all(validRows.map(async (guestData) => {
-              // This would use your bulk insert API
-              // For now, we'll just show success
-            })).then(() => {
-              toast({ title: `${validRows.length} guests imported successfully` });
+            try {
+              // Bulk insert guests
+              const { data: user } = await supabase.auth.getUser();
+              if (!user.user) {
+                toast({ 
+                  title: "Import failed", 
+                  description: "You must be logged in to import guests",
+                  variant: "destructive"
+                });
+                return;
+              }
+
+              const { error } = await supabase
+                .from('guests')
+                .insert(validRows.map(row => ({
+                  ...row,
+                  user_id: user.user.id
+                })));
+                
+              if (error) {
+                console.error('Import error:', error);
+                toast({ 
+                  title: "Import failed", 
+                  description: "Error importing guests. Please try again.",
+                  variant: "destructive"
+                });
+                return;
+              }
+              
+              let successMsg = `Imported ${validRows.length} guests successfully`;
+              if (duplicateRows.length > 0) {
+                successMsg += `. Skipped ${duplicateRows.length} duplicates`;
+              }
+              toast({ title: successMsg });
               fetchGuests();
-            }).catch(() => {
+            } catch (error) {
               toast({ 
                 title: "Import failed", 
                 description: "Error importing guests. Please try again.",
                 variant: "destructive"
               });
-            });
+            }
           }
         } catch (error) {
           toast({ 
