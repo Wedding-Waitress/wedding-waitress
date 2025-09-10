@@ -43,13 +43,14 @@ import {
 import { toast } from "@/hooks/use-toast";
 import { useEvents } from '@/hooks/useEvents';
 import { useGuests } from '@/hooks/useGuests';
+import { useTables } from '@/hooks/useTables';
 import { AddGuestModal } from './AddGuestModal';
 import { supabase } from "@/integrations/supabase/client";
 
 type SortOption = 
   | 'first_name_asc' | 'first_name_desc'
   | 'last_name_asc' | 'last_name_desc' 
-  | 'table_no_asc' | 'table_no_desc'
+  | 'table_name_asc' | 'table_name_desc'
   | 'seat_no_asc' | 'seat_no_desc'
   | 'rsvp_attending_first' | 'rsvp_not_attending_first';
 
@@ -58,15 +59,15 @@ const SORT_OPTIONS = [
   { value: 'first_name_desc', label: 'First Name (Z–A)' },
   { value: 'last_name_asc', label: 'Last Name (A–Z)' },
   { value: 'last_name_desc', label: 'Last Name (Z–A)' },
-  { value: 'table_no_asc', label: 'Table No. (1→9)' },
-  { value: 'table_no_desc', label: 'Table No. (9→1)' },
+  { value: 'table_name_asc', label: 'Table (A→Z)' },
+  { value: 'table_name_desc', label: 'Table (Z→A)' },
   { value: 'seat_no_asc', label: 'Seat No. (1→9)' },
   { value: 'rsvp_attending_first', label: 'RSVP (Attending → Pending → Not Attending)' },
   { value: 'rsvp_not_attending_first', label: 'RSVP (Not Attending → Pending → Attending)' },
 ] as const;
 
 const CSV_HEADERS = [
-  'first_name', 'last_name', 'table_no', 'seat_no',
+  'first_name', 'last_name', 'table_name', 'seat_no',
   'rsvp', 'dietary', 'mobile', 'email', 'notes'
 ];
 
@@ -82,6 +83,7 @@ export const GuestListTable: React.FC = () => {
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const { guests, loading: guestsLoading, fetchGuests, deleteGuest } = useGuests(selectedEventId);
+  const { tables } = useTables(selectedEventId);
   const [editingGuest, setEditingGuest] = useState<any>(null);
   const [sortBy, setSortBy] = useState<SortOption>('first_name_asc');
 
@@ -121,6 +123,13 @@ export const GuestListTable: React.FC = () => {
     }
   };
 
+  // Helper function to get table name for a guest
+  const getTableName = (guest: any) => {
+    if (!guest.table_id) return null;
+    const table = tables.find(t => t.id === guest.table_id);
+    return table?.name || null;
+  };
+
   // Sort guests based on selected option
   const sortedGuests = useMemo(() => {
     if (!guests.length) return guests;
@@ -135,10 +144,14 @@ export const GuestListTable: React.FC = () => {
           return (a.last_name || '').localeCompare(b.last_name || '');
         case 'last_name_desc':
           return (b.last_name || '').localeCompare(a.last_name || '');
-        case 'table_no_asc':
-          return (a.table_no || 999) - (b.table_no || 999);
-        case 'table_no_desc':
-          return (b.table_no || 0) - (a.table_no || 0);
+        case 'table_name_asc':
+          const tableA = getTableName(a) || 'zzz';
+          const tableB = getTableName(b) || 'zzz';
+          return tableA.localeCompare(tableB);
+        case 'table_name_desc':
+          const tableA2 = getTableName(a) || '';
+          const tableB2 = getTableName(b) || '';
+          return tableB2.localeCompare(tableA2);
         case 'seat_no_asc':
           return (a.seat_no || 999) - (b.seat_no || 999);
         case 'rsvp_attending_first':
@@ -155,14 +168,14 @@ export const GuestListTable: React.FC = () => {
     });
     
     return sorted;
-  }, [guests, sortBy]);
+  }, [guests, sortBy, tables]);
 
   // CSV Functions
   const downloadTemplate = () => {
     const csvContent = [
       CSV_HEADERS.join(','),
-      'John,Doe,1,1,Attending,NA,1234567890,john@example.com,Sample note',
-      'Jane,Smith,2,3,Pending,Vegan,,jane@example.com,'
+      'John,Doe,Table 1,1,Attending,NA,1234567890,john@example.com,Sample note',
+      'Jane,Smith,Table 2,3,Pending,Vegan,,jane@example.com,'
     ].join('\n');
     
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -180,7 +193,7 @@ export const GuestListTable: React.FC = () => {
       ...sortedGuests.map(guest => [
         guest.first_name || '',
         guest.last_name || '',
-        guest.table_no || '',
+        getTableName(guest) || '',
         guest.seat_no || '',
         guest.rsvp || 'Pending',
         guest.dietary || 'NA',
@@ -292,8 +305,8 @@ export const GuestListTable: React.FC = () => {
               errors.push(`Row ${index + 2}: Last name is required`);
               return;
             }
-            if (!rowData.table_no?.trim()) {
-              errors.push(`Row ${index + 2}: Table number is required`);
+            if (!rowData.table_name?.trim()) {
+              errors.push(`Row ${index + 2}: Table name is required`);
               return;
             }
             
@@ -317,10 +330,17 @@ export const GuestListTable: React.FC = () => {
               return;
             }
             
-            // Transform data
-            rowData.table_no = rowData.table_no ? parseInt(rowData.table_no) : null;
+            // Transform data - find table_id from table_name
+            const foundTable = tables.find(t => t.name.toLowerCase() === rowData.table_name.toLowerCase());
+            if (!foundTable) {
+              errors.push(`Row ${index + 2}: Table "${rowData.table_name}" not found`);
+              return;
+            }
+            
+            rowData.table_id = foundTable.id;
             rowData.seat_no = rowData.seat_no ? parseInt(rowData.seat_no) : null;
             rowData.event_id = selectedEventId;
+            delete rowData.table_name; // Remove table_name as we're using table_id
             
             validRows.push(rowData);
           });
@@ -405,7 +425,12 @@ export const GuestListTable: React.FC = () => {
   };
 
   const handleEditGuest = (guest: any) => {
-    setEditingGuest(guest);
+    // Map guest data to include table_id for the edit modal
+    const guestForEdit = {
+      ...guest,
+      table_id: guest.table_id || null,
+    };
+    setEditingGuest(guestForEdit);
     setShowAddModal(true);
   };
 
@@ -592,7 +617,7 @@ export const GuestListTable: React.FC = () => {
               <TableRow className="border-card-border hover:bg-muted/50">
                 <TableHead className="min-w-[120px]">First Name</TableHead>
                 <TableHead className="min-w-[120px]">Last Name</TableHead>
-                <TableHead className="min-w-[100px]">Table No.</TableHead>
+                <TableHead className="min-w-[100px]">Table</TableHead>
                 <TableHead className="min-w-[100px]">Seat No.</TableHead>
                 <TableHead className="min-w-[120px]">RSVP</TableHead>
                 <TableHead className="min-w-[140px]">Dietary</TableHead>
@@ -623,8 +648,8 @@ export const GuestListTable: React.FC = () => {
                   >
                     <TableCell className="font-medium">{guest.first_name}</TableCell>
                     <TableCell className="font-medium">{guest.last_name}</TableCell>
-                    <TableCell>{guest.table_no || '-'}</TableCell>
-                    <TableCell>{guest.seat_no || '-'}</TableCell>
+                    <TableCell>{getTableName(guest) || '–'}</TableCell>
+                    <TableCell>{guest.seat_no || '–'}</TableCell>
                     <TableCell>
                       <Badge variant="outline" className="text-xs">
                         {guest.rsvp}
