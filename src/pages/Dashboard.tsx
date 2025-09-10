@@ -80,11 +80,20 @@ export const Dashboard = () => {
   // Get selected event
   const selectedEvent = selectedEventId ? events.find(e => e.id === selectedEventId) : null;
 
-  // Load selected event from localStorage on mount
+  // Load selected event from localStorage on mount, or default to first event
   useEffect(() => {
+    if (events.length === 0) return;
+    
     const savedEventId = localStorage.getItem('active_event_id');
     if (savedEventId && events.find(e => e.id === savedEventId)) {
       setSelectedEventId(savedEventId);
+    } else {
+      // Default to first event (oldest created event)
+      const firstEvent = events[0];
+      if (firstEvent) {
+        setSelectedEventId(firstEvent.id);
+        localStorage.setItem('active_event_id', firstEvent.id);
+      }
     }
   }, [events]);
 
@@ -412,7 +421,7 @@ export const Dashboard = () => {
         <main className="flex-1 lg:px-6 px-4 py-6">
           <div className="mx-auto max-w-none">
             {/* Stats Bar */}
-            <StatsBar />
+            <StatsBar selectedEvent={selectedEvent} />
             
             {/* Tab Content */}
             <div className="space-y-6 mt-6">
