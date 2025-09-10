@@ -477,6 +477,11 @@ export const GuestListTable: React.FC = () => {
               {/* Control buttons - right side */}
               <div className="flex items-center space-x-2">
                 <TooltipProvider>
+                  {/* Guest counter pill - positioned first */}
+                  <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors h-9 px-3 bg-purple-600 text-white pointer-events-none">
+                    {guestCount} Guest{guestCount !== 1 ? 's' : ''}
+                  </div>
+
                   {/* Sort By Dropdown */}
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -513,11 +518,6 @@ export const GuestListTable: React.FC = () => {
                       </TooltipContent>
                     )}
                   </Tooltip>
-
-                  {/* Guest counter pill - positioned after Sort By */}
-                  <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors h-9 px-3 bg-purple-600 text-white pointer-events-none">
-                    {guestCount} Guest{guestCount !== 1 ? 's' : ''}
-                  </div>
 
                   {/* Import/Export CSV Dropdown */}
                   <Tooltip>
