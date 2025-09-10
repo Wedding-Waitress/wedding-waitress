@@ -6,11 +6,21 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/enhanced-button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { TableWithGuestCount } from '@/hooks/useTables';
+import { useToast } from '@/hooks/use-toast';
 
 interface CreateTableModalProps {
   isOpen: boolean;
@@ -32,6 +42,9 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
   const [notes, setNotes] = useState('');
   const [errors, setErrors] = useState<{ name?: string; limitSeats?: string }>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [validationState, setValidationState] = useState<'idle' | 'valid' | 'invalid' | 'duplicate'>('idle');
+  const [showWarningDialog, setShowWarningDialog] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     if (isOpen) {
@@ -45,8 +58,39 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
         setNotes('');
       }
       setErrors({});
+      setValidationState('idle');
     }
   }, [isOpen, editingTable]);
+
+  const validateTableName = (inputName: string) => {
+    if (!inputName.trim()) {
+      setValidationState('idle');
+      return;
+    }
+
+    const trimmedName = inputName.trim();
+    const isNumeric = /^\d+$/.test(trimmedName);
+    
+    // Check for exact name duplicates (for non-numeric names)
+    const exactNameDuplicate = existingTables.find(table => 
+      table.name.toLowerCase() === trimmedName.toLowerCase() && table.id !== editingTable?.id
+    );
+    
+    // Check for numeric table number duplicates
+    let numericDuplicate = false;
+    if (isNumeric) {
+      const tableNo = parseInt(trimmedName);
+      numericDuplicate = existingTables.some(table => 
+        table.table_no === tableNo && table.id !== editingTable?.id
+      );
+    }
+    
+    if (exactNameDuplicate || numericDuplicate) {
+      setValidationState('duplicate');
+    } else {
+      setValidationState('valid');
+    }
+  };
 
   const validateForm = () => {
     const newErrors: { name?: string; limitSeats?: string } = {};
@@ -59,18 +103,25 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
       newErrors.limitSeats = 'Table limit must be between 1 and 30';
     }
 
-    // Check for duplicate table numbers
+    // Check for duplicates
     const trimmedName = name.trim();
-    const isNumeric = /^\d+$/.test(trimmedName);
-    
-    if (isNumeric) {
-      const tableNo = parseInt(trimmedName);
-      const duplicate = existingTables.find(table => 
-        table.table_no === tableNo && table.id !== editingTable?.id
+    if (trimmedName) {
+      const isNumeric = /^\d+$/.test(trimmedName);
+      
+      const exactNameDuplicate = existingTables.find(table => 
+        table.name.toLowerCase() === trimmedName.toLowerCase() && table.id !== editingTable?.id
       );
       
-      if (duplicate) {
-        newErrors.name = 'You already added this table number. Choose another table number.';
+      let numericDuplicate = false;
+      if (isNumeric) {
+        const tableNo = parseInt(trimmedName);
+        numericDuplicate = existingTables.some(table => 
+          table.table_no === tableNo && table.id !== editingTable?.id
+        );
+      }
+      
+      if (exactNameDuplicate || numericDuplicate) {
+        newErrors.name = 'This table number already exists. Please choose another.';
       }
     }
 
@@ -79,7 +130,10 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
   };
 
   const handleSave = async () => {
-    if (!validateForm()) return;
+    if (!validateForm()) {
+      setShowWarningDialog(true);
+      return;
+    }
 
     setIsSubmitting(true);
     
@@ -104,7 +158,8 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
       
       // Handle unique constraint violation (23505)
       if (error?.code === '23505' || error?.message?.includes('duplicate key')) {
-        setErrors({ name: 'You already added this table number. Choose another table number.' });
+        setErrors({ name: 'This table number already exists. Please choose another.' });
+        setValidationState('duplicate');
       } else {
         throw error; // Re-throw other errors
       }
@@ -138,12 +193,21 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
                 if (errors.name) {
                   setErrors(prev => ({ ...prev, name: undefined }));
                 }
+                // Real-time validation
+                validateTableName(e.target.value);
               }}
               onBlur={validateForm}
               placeholder="e.g., 1, Bridal, VIP A"
               disabled={isSubmitting}
+              className={validationState === 'duplicate' ? 'border-destructive' : validationState === 'valid' ? 'border-green-500' : ''}
             />
-            {errors.name && (
+            {validationState === 'duplicate' && (
+              <p className="text-sm text-destructive">This table number already exists. Please choose another.</p>
+            )}
+            {validationState === 'valid' && (
+              <p className="text-sm text-green-600">✔ Table number is available.</p>
+            )}
+            {errors.name && validationState === 'idle' && (
               <p className="text-sm text-destructive">{errors.name}</p>
             )}
           </div>
@@ -196,13 +260,29 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
           </Button>
           <Button 
             onClick={handleSave}
-            disabled={isSubmitting || Object.keys(errors).length > 0}
+            disabled={isSubmitting || Object.keys(errors).length > 0 || validationState === 'duplicate'}
             variant="gradient"
           >
             {isSubmitting ? 'Saving...' : 'Save'}
           </Button>
         </DialogFooter>
       </DialogContent>
+
+      <AlertDialog open={showWarningDialog} onOpenChange={setShowWarningDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Invalid Table Information</AlertDialogTitle>
+            <AlertDialogDescription>
+              This table number already exists. Please choose another.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={() => setShowWarningDialog(false)}>
+              OK
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Dialog>
   );
 };
