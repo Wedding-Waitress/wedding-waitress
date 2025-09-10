@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Header } from "@/components/Layout/Header";
 import { StatsBar } from "@/components/Dashboard/StatsBar";
 import { DashboardSidebar } from "@/components/Dashboard/DashboardSidebar";
@@ -6,6 +6,19 @@ import { EventsTable } from "@/components/Dashboard/EventsTable";
 import { GuestListTable } from "@/components/Dashboard/GuestListTable";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/enhanced-card";
 import { Button } from "@/components/ui/enhanced-button";
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { 
   Calendar, 
   Users, 
@@ -17,14 +30,34 @@ import {
   TrendingUp,
   Plus
 } from "lucide-react";
+import { useEvents } from '@/hooks/useEvents';
 
 export const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
+  const { events } = useEvents();
 
   // Mock user data
   const user = {
     name: "Naderelalfy1977",  
     email: "nader@example.com"
+  };
+
+  // Get selected event
+  const selectedEvent = selectedEventId ? events.find(e => e.id === selectedEventId) : null;
+
+  // Load selected event from localStorage on mount
+  useEffect(() => {
+    const savedEventId = localStorage.getItem('active_event_id');
+    if (savedEventId && events.find(e => e.id === savedEventId)) {
+      setSelectedEventId(savedEventId);
+    }
+  }, [events]);
+
+  // Handle event selection for tables
+  const handleEventSelect = (eventId: string) => {
+    setSelectedEventId(eventId);
+    localStorage.setItem('active_event_id', eventId);
   };
 
   const handleSignOut = () => {
@@ -60,8 +93,36 @@ export const Dashboard = () => {
         return (
           <Card variant="elevated">
             <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-6">
-              <div>
-                <CardTitle>Tables</CardTitle>
+              <div className="space-y-4 flex-1">
+                {/* Event selector */}
+                <div className="flex items-center space-x-4">
+                  <label className="text-sm font-medium text-foreground">
+                    Choose Event:
+                  </label>
+                  <Select value={selectedEventId || ""} onValueChange={handleEventSelect}>
+                    <SelectTrigger className="w-[300px]">
+                      <SelectValue placeholder="Select an event..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {events.map((event) => (
+                        <SelectItem key={event.id} value={event.id}>
+                          <div className="flex items-center space-x-2">
+                            <Calendar className="w-4 h-4" />
+                            <span>{event.name}</span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                {/* Contextual title - only show if event is selected */}
+                {selectedEvent && (
+                  <div className="flex items-center space-x-2">
+                    <span className="text-lg font-medium text-foreground">Table Set Up for</span>
+                    <span className="text-lg font-bold text-primary">{selectedEvent.name}</span>
+                  </div>
+                )}
               </div>
               
               {/* Empty state block - top right on desktop, stacked on mobile */}
@@ -75,10 +136,27 @@ export const Dashboard = () => {
                     </CardDescription>
                   </div>
                 </div>
-                <Button variant="gradient" className="sm:ml-3 sm:flex-shrink-0">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Create Tables
-                </Button>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div>
+                        <Button 
+                          variant="gradient" 
+                          className="sm:ml-3 sm:flex-shrink-0"
+                          disabled={!selectedEventId}
+                        >
+                          <Plus className="w-4 h-4 mr-2" />
+                          Create Tables
+                        </Button>
+                      </div>
+                    </TooltipTrigger>
+                    {!selectedEventId && (
+                      <TooltipContent>
+                        <p>Choose Event first</p>
+                      </TooltipContent>
+                    )}
+                  </Tooltip>
+                </TooltipProvider>
               </div>
             </CardHeader>
             <CardContent>
