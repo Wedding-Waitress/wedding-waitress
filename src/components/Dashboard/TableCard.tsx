@@ -181,15 +181,27 @@ export const TableCard: React.FC<TableCardProps> = ({
             {table.name}
           </div>
 
-          {/* Table Limit and Progress */}
+          {/* Capacity Bar States */}
           <div className="mb-3">
-            <div className="text-sm text-foreground mb-2">
-              {table.guest_count}/{table.limit_seats}
-            </div>
-            <Progress 
-              value={progressPercentage} 
-              className="h-2 bg-secondary"
-            />
+            {table.guest_count < table.limit_seats ? (
+              <>
+                <div className="text-sm text-foreground mb-2">
+                  {table.guest_count}/{table.limit_seats}
+                </div>
+                <Progress 
+                  value={progressPercentage} 
+                  className="h-2 bg-secondary [&>div]:bg-purple-500"
+                />
+              </>
+            ) : table.guest_count === table.limit_seats ? (
+              <div className="h-6 bg-green-500 rounded-full flex items-center justify-center">
+                <span className="text-white font-bold text-sm">Table Full</span>
+              </div>
+            ) : (
+              <div className="h-6 bg-red-500 rounded-full flex items-center justify-center">
+                <span className="text-white font-bold text-sm">Over Capacity</span>
+              </div>
+            )}
           </div>
 
           {/* Notes */}
@@ -201,10 +213,10 @@ export const TableCard: React.FC<TableCardProps> = ({
             </div>
           )}
 
-          {/* Guest Chips */}
-          <div className="flex-1 mb-3 min-h-0">
+          {/* Guest Chips - Auto-expanding */}
+          <div className="flex-1 mb-3 min-h-0 transition-all duration-300 ease-in-out">
             <div className="text-xs text-muted-foreground mb-2">Guests:</div>
-            <div className="space-y-1 overflow-y-auto max-h-20">
+            <div className="space-y-1">
               {guests.length > 0 ? (
                 guests.map((guest) => (
                   <Badge
