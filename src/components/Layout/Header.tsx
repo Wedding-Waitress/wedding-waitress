@@ -7,7 +7,7 @@ import { SignUpModal } from "@/components/auth/SignUpModal";
 import { SignInModal } from "@/components/auth/SignInModal";
 interface HeaderProps {
   user?: {
-    name: string;
+    first_name: string;
     email: string;
   } | null;
   onSignOut?: () => void;
@@ -42,9 +42,9 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
 
           {/* Center Welcome Message (for dashboard) */}
-          {user && <div className="flex-1 text-center">
+          {user && <div className="flex-1 flex justify-center">
               <h2 className="text-lg font-semibold text-primary">
-                Welcome {user.name}
+                Welcome {user.first_name}
               </h2>
             </div>}
 
@@ -87,7 +87,7 @@ export const Header: React.FC<HeaderProps> = ({
             {!hideDashboardElements && (user ? <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" className="glass">
-                    {user.name}'s Dashboard
+                    {user.first_name}'s Dashboard
                     <ChevronDown className="w-3 h-3 ml-2" />
                   </Button>
                 </DropdownMenuTrigger>

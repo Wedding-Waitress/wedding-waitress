@@ -36,6 +36,7 @@ import { useEvents } from '@/hooks/useEvents';
 import { useTables, TableWithGuestCount } from '@/hooks/useTables';
 import { useRealtimeGuests } from '@/hooks/useRealtimeGuests';
 import { useRealtimeTables } from '@/hooks/useRealtimeTables';
+import { useProfile } from '@/hooks/useProfile';
 
 export const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -43,6 +44,7 @@ export const Dashboard = () => {
   const [showCreateTableModal, setShowCreateTableModal] = useState(false);
   const [editingTable, setEditingTable] = useState<TableWithGuestCount | null>(null);
   const { events } = useEvents();
+  const { profile } = useProfile();
   const { 
     tables: rawTables, 
     loading: tablesLoading, 
@@ -69,11 +71,11 @@ export const Dashboard = () => {
     onRefreshTables: fetchTables
   });
 
-  // Mock user data
-  const user = {
-    name: "Naderelalfy1977",  
-    email: "nader@example.com"
-  };
+  // User data from profile
+  const user = profile ? {
+    first_name: profile.first_name || "User",  
+    email: profile.email || ""
+  } : null;
 
   // Get selected event
   const selectedEvent = selectedEventId ? events.find(e => e.id === selectedEventId) : null;
