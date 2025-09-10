@@ -164,6 +164,14 @@ export const useEvents = () => {
     fetchEvents();
   }, []);
 
+  // Auto-select first event when events are loaded
+  useEffect(() => {
+    if (events.length > 0 && !activeEventId) {
+      const firstEvent = events[0];
+      setActiveEventId(firstEvent.id);
+    }
+  }, [events, activeEventId]);
+
   return {
     events,
     loading,

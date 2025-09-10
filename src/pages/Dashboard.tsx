@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Header } from "@/components/Layout/Header";
 import { StatsBar } from "@/components/Dashboard/StatsBar";
+import { CountdownBar } from "@/components/Dashboard/CountdownBar";
 import { DashboardSidebar } from "@/components/Dashboard/DashboardSidebar";
 import { EventsTable } from "@/components/Dashboard/EventsTable";
 import { GuestListTable } from "@/components/Dashboard/GuestListTable";
@@ -43,7 +44,7 @@ export const Dashboard = () => {
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [showCreateTableModal, setShowCreateTableModal] = useState(false);
   const [editingTable, setEditingTable] = useState<TableWithGuestCount | null>(null);
-  const { events } = useEvents();
+  const { events, activeEventId: eventsActiveEventId, setActiveEventId: setEventsActiveEventId } = useEvents();
   const { profile } = useProfile();
   const { 
     tables: rawTables, 
@@ -77,8 +78,11 @@ export const Dashboard = () => {
     email: profile.email || ""
   } : null;
 
-  // Get selected event
+  // Get selected event for tables
   const selectedEvent = selectedEventId ? events.find(e => e.id === selectedEventId) : null;
+  
+  // Get selected event for My Events countdown (use events active event)
+  const selectedCountdownEvent = eventsActiveEventId ? events.find(e => e.id === eventsActiveEventId) : null;
 
   // Load selected event from localStorage on mount
   useEffect(() => {
@@ -411,8 +415,12 @@ export const Dashboard = () => {
         
         <main className="flex-1 lg:px-6 px-4 py-6">
           <div className="mx-auto max-w-none">
-            {/* Stats Bar */}
-            <StatsBar />
+            {/* Conditional Stats Bar or Countdown */}
+            {activeTab === 'my-events' ? (
+              <CountdownBar selectedEvent={selectedCountdownEvent} />
+            ) : (
+              <StatsBar />
+            )}
             
             {/* Tab Content */}
             <div className="space-y-6 mt-6">
