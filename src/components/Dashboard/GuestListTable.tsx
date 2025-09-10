@@ -455,7 +455,7 @@ export const GuestListTable: React.FC = () => {
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div className="flex items-center space-x-4">
                 <label className="text-sm font-medium text-foreground">
-                  Choose an Event:
+                  Choose Event:
                 </label>
                 <Select value={selectedEventId || ""} onValueChange={handleEventSelect}>
                   <SelectTrigger className="w-[300px]">
@@ -472,10 +472,6 @@ export const GuestListTable: React.FC = () => {
                     ))}
                   </SelectContent>
                 </Select>
-                {/* Guest counter pill - moved to left side */}
-                <Badge variant="secondary" className="glass">
-                  {guestCount} Guest{guestCount !== 1 ? 's' : ''}
-                </Badge>
               </div>
               
               {/* Control buttons - right side */}
@@ -517,6 +513,11 @@ export const GuestListTable: React.FC = () => {
                       </TooltipContent>
                     )}
                   </Tooltip>
+
+                  {/* Guest counter pill - positioned after Sort By */}
+                  <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors h-9 px-3 bg-purple-600 text-white pointer-events-none">
+                    {guestCount} Guest{guestCount !== 1 ? 's' : ''}
+                  </div>
 
                   {/* Import/Export CSV Dropdown */}
                   <Tooltip>
