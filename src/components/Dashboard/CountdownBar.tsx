@@ -43,7 +43,7 @@ export const CountdownBar: React.FC<CountdownBarProps> = ({ selectedEvent }) => 
         <h2 className="text-3xl font-bold text-black mb-4">
           Days to go
         </h2>
-        <div className="text-6xl font-bold text-black">
+        <div className="text-6xl font-bold text-purple-600">
           {daysRemaining}
         </div>
         {selectedEvent && (

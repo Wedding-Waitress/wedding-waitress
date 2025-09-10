@@ -23,9 +23,9 @@ import {
   Save,
   X,
   Check,
-  Circle,
   Settings
 } from "lucide-react";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { DeleteConfirmationModal } from './DeleteConfirmationModal';
 import { EventDatePicker } from './EventDatePicker';
 import { TimePicker } from './TimePicker';
@@ -232,14 +232,15 @@ export const EventsTable: React.FC<EventsTableProps> = ({
           <Table>
             <TableHeader>
               <TableRow className="border-card-border hover:bg-muted/50">
-                <TableHead className="min-w-[180px]">Event Name</TableHead>
-                <TableHead className="min-w-[140px]">Event Date</TableHead>
-                <TableHead className="min-w-[160px]">Venue</TableHead>
-                <TableHead className="min-w-[120px]">Start Time</TableHead>
-                <TableHead className="min-w-[120px]">Finish Time</TableHead>
-                <TableHead className="w-28">Guest Limit</TableHead>
-                <TableHead className="min-w-[120px]">Created Date:</TableHead>
-                <TableHead className="min-w-[120px]">Expiry Date:</TableHead>
+                <TableHead className="w-32">Display Countdown</TableHead>
+                <TableHead className="min-w-[160px]">Event Name</TableHead>
+                <TableHead className="min-w-[120px]">Event Date</TableHead>
+                <TableHead className="min-w-[140px]">Venue</TableHead>
+                <TableHead className="min-w-[100px]">Start Time</TableHead>
+                <TableHead className="min-w-[100px]">Finish Time</TableHead>
+                <TableHead className="w-24">Guest Limit</TableHead>
+                <TableHead className="min-w-[100px]">Created Date:</TableHead>
+                <TableHead className="min-w-[100px]">Expiry Date:</TableHead>
                 <TableHead className="w-28">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -247,6 +248,9 @@ export const EventsTable: React.FC<EventsTableProps> = ({
               {/* Create new event row */}
               {isCreating && (
                 <TableRow className="border-card-border bg-muted/20">
+                  <TableCell>
+                    <span className="text-muted-foreground text-sm">-</span>
+                  </TableCell>
                   <TableCell>
                     <Input
                       value={newEventForm.name}
@@ -341,6 +345,17 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                       ${atCapacity ? 'bg-green-50 dark:bg-green-900/20' : ''}
                     `}
                   >
+                    <TableCell className="text-center">
+                      <RadioGroup value={activeEventId || ''} onValueChange={handleEventSelect}>
+                        <div className="flex items-center justify-center">
+                          <RadioGroupItem 
+                            value={event.id} 
+                            id={`countdown-${event.id}`}
+                            className="data-[state=checked]:border-primary data-[state=checked]:text-primary"
+                          />
+                        </div>
+                      </RadioGroup>
+                    </TableCell>
                     <TableCell className="font-medium">
                       {isEditing ? (
                         <Input

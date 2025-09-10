@@ -42,7 +42,7 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
 
           {/* Center Welcome Message (for dashboard) */}
-          {user && <div className="flex-1 flex justify-center">
+          {user && <div className="flex-1 flex justify-center -ml-16">
               <h2 className="text-4xl font-semibold text-primary">
                 Welcome {user.first_name}
               </h2>
