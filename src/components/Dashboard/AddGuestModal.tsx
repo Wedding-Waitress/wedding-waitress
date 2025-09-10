@@ -449,16 +449,27 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                       </FormControl>
                       <SelectContent>
                         {tables.map((table) => {
-                          const isFull = table.guest_count >= table.limit_seats;
+                          const currentCount = table.guest_count;
                           const isCurrentTable = isEdit && guest && guest.table_id === table.id;
+                          
+                          // Calculate display count including this guest
+                          const displayCount = isEdit && isCurrentTable 
+                            ? currentCount // If editing and same table, don't add 1
+                            : currentCount + (field.value === table.id ? 1 : 0); // Add 1 if this table is selected
+                          
+                          const wouldBeFull = displayCount >= table.limit_seats;
+                          const isAtCapacity = currentCount >= table.limit_seats;
                           
                           return (
                             <SelectItem 
                               key={table.id} 
                               value={table.id}
-                              disabled={isFull && !isCurrentTable}
+                              disabled={isAtCapacity && !isCurrentTable}
                             >
-                              {table.name} — {table.guest_count}/{table.limit_seats}
+                              {isAtCapacity && !isCurrentTable 
+                                ? `${table.name} — Full`
+                                : `${table.name} — ${displayCount}/${table.limit_seats}`
+                              }
                             </SelectItem>
                           );
                         })}
