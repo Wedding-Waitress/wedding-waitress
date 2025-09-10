@@ -215,7 +215,7 @@ export const useTables = (eventId: string | null) => {
     try {
       const { data, error } = await supabase
         .from('guests')
-        .select('first_name, last_name')
+        .select('id, first_name, last_name, table_id')
         .eq('table_id', tableId);
 
       if (error) throw error;

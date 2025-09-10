@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/enhanced-card";
 import { Button } from "@/components/ui/enhanced-button";
 import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -13,12 +14,16 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
-import { Edit, Trash2 } from "lucide-react";
+import { Edit, Trash2, GripVertical } from "lucide-react";
 import { TableWithGuestCount } from '@/hooks/useTables';
+import { useGuests } from '@/hooks/useGuests';
+import { useToast } from '@/hooks/use-toast';
 
 interface Guest {
+  id: string;
   first_name: string;
   last_name?: string;
+  table_id: string | null;
 }
 
 interface TableCardProps {
@@ -26,18 +31,25 @@ interface TableCardProps {
   onEdit: (table: TableWithGuestCount) => void;
   onDelete: (tableId: string) => Promise<boolean>;
   getGuestsForTable: (tableId: string) => Promise<Guest[]>;
+  eventId: string;
+  onGuestMoved?: () => void;
 }
 
 export const TableCard: React.FC<TableCardProps> = ({
   table,
   onEdit,
   onDelete,
-  getGuestsForTable
+  getGuestsForTable,
+  eventId,
+  onGuestMoved
 }) => {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
   const [guests, setGuests] = useState<Guest[]>([]);
+  const [isDragOver, setIsDragOver] = useState(false);
+  const { updateGuest } = useGuests(eventId);
+  const { toast } = useToast();
 
   // Guard against divide-by-zero and calculate progress
   const safeLimit = Math.max(table.limit_seats, 1);
@@ -72,6 +84,82 @@ export const TableCard: React.FC<TableCardProps> = ({
     }
   };
 
+  const handleDragStart = (e: React.DragEvent, guest: Guest) => {
+    e.dataTransfer.setData('text/plain', JSON.stringify({
+      guestId: guest.id,
+      guestName: `${guest.first_name} ${guest.last_name || ''}`.trim(),
+      sourceTableId: guest.table_id,
+      sourceTableName: table.name
+    }));
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    // Only remove drag over state if leaving the card entirely
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX;
+    const y = e.clientY;
+    
+    if (x < rect.left || x > rect.right || y < rect.top || y > rect.bottom) {
+      setIsDragOver(false);
+    }
+  };
+
+  const handleDrop = async (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+
+    try {
+      const dragData = JSON.parse(e.dataTransfer.getData('text/plain'));
+      const { guestId, guestName, sourceTableId } = dragData;
+
+      // Don't allow dropping on the same table
+      if (sourceTableId === table.id) {
+        return;
+      }
+
+      // Check table capacity
+      if (table.guest_count >= table.limit_seats) {
+        toast({
+          title: "Table is full",
+          description: `${table.name} has reached its capacity of ${table.limit_seats} guests.`,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Update guest's table assignment
+      const success = await updateGuest(guestId, {
+        table_id: table.id,
+        table_no: table.table_no,
+        assigned: true
+      });
+
+      if (success) {
+        toast({
+          title: "Guest moved successfully",
+          description: `Moved ${guestName} to ${table.name}`,
+        });
+        
+        // Trigger refresh of both views
+        onGuestMoved?.();
+      }
+    } catch (error) {
+      console.error('Error handling drop:', error);
+      toast({
+        title: "Error",
+        description: "Failed to move guest. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <>
       <Card 
@@ -80,7 +168,12 @@ export const TableCard: React.FC<TableCardProps> = ({
           isFull 
             ? 'border-4 border-green-500' 
             : 'border-2 border-primary'
+        } ${
+          isDragOver ? 'border-4 border-blue-500 bg-blue-50 dark:bg-blue-950' : ''
         }`}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
       >
         <CardContent className="p-4 flex flex-col h-full">
           {/* Table Name */}
@@ -108,18 +201,29 @@ export const TableCard: React.FC<TableCardProps> = ({
             </div>
           )}
 
-          {/* Guest Names */}
+          {/* Guest Chips */}
           <div className="flex-1 mb-3 min-h-0">
-            <div className="text-xs text-muted-foreground mb-1">Guests:</div>
-            <div className="text-xs space-y-1 overflow-y-auto max-h-20">
+            <div className="text-xs text-muted-foreground mb-2">Guests:</div>
+            <div className="space-y-1 overflow-y-auto max-h-20">
               {guests.length > 0 ? (
-                guests.map((guest, index) => (
-                  <div key={index} className="text-foreground">
-                    {guest.first_name} {guest.last_name || ''}
-                  </div>
+                guests.map((guest) => (
+                  <Badge
+                    key={guest.id}
+                    variant="secondary"
+                    className="w-full justify-between text-xs py-1 px-2 cursor-grab active:cursor-grabbing hover:bg-secondary/80 transition-colors"
+                    draggable
+                    onDragStart={(e) => handleDragStart(e, guest)}
+                  >
+                    <span className="truncate">
+                      {guest.first_name} {guest.last_name || ''}
+                    </span>
+                    <GripVertical className="h-3 w-3 flex-shrink-0 ml-1 opacity-50" />
+                  </Badge>
                 ))
               ) : (
-                <div className="text-muted-foreground italic">No guests assigned</div>
+                <div className="text-muted-foreground italic text-xs p-2 border-2 border-dashed border-muted rounded-md text-center">
+                  {isDragOver ? 'Drop guest here' : 'No guests assigned'}
+                </div>
               )}
             </div>
           </div>

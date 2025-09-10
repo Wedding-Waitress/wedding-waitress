@@ -215,17 +215,22 @@ export const Dashboard = () => {
                       <div className="text-muted-foreground">Loading tables...</div>
                     </div>
                   ) : tables.length > 0 ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-                      {tables.map((table) => (
-                        <TableCard
-                          key={table.id}
-                          table={table}
-                          onEdit={handleEditTable}
-                          onDelete={deleteTable}
-                          getGuestsForTable={getGuestsForTable}
-                        />
-                      ))}
-                    </div>
+                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                       {tables.map((table) => (
+                         <TableCard
+                           key={table.id}
+                           table={table}
+                           onEdit={handleEditTable}
+                           onDelete={deleteTable}
+                           getGuestsForTable={getGuestsForTable}
+                           eventId={selectedEventId}
+                           onGuestMoved={() => {
+                             // Refresh both tables and guests data
+                             fetchTables();
+                           }}
+                         />
+                       ))}
+                     </div>
                   ) : (
                     <div className="text-center py-8">
                       <div className="text-muted-foreground mb-4">No tables created yet</div>
