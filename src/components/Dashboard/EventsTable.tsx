@@ -232,25 +232,21 @@ export const EventsTable: React.FC<EventsTableProps> = ({
           <Table>
             <TableHeader>
               <TableRow className="border-card-border hover:bg-muted/50">
-                <TableHead className="w-16">Select Event</TableHead>
-                <TableHead className="min-w-[200px]">Event Name</TableHead>
-                <TableHead className="min-w-[150px]">Event Date</TableHead>
-                <TableHead className="min-w-[200px]">Venue</TableHead>
+                <TableHead className="min-w-[180px]">Event Name</TableHead>
+                <TableHead className="min-w-[140px]">Event Date</TableHead>
+                <TableHead className="min-w-[160px]">Venue</TableHead>
                 <TableHead className="min-w-[120px]">Start Time</TableHead>
                 <TableHead className="min-w-[120px]">Finish Time</TableHead>
-                <TableHead className="w-32">Guest Limit</TableHead>
+                <TableHead className="w-28">Guest Limit</TableHead>
                 <TableHead className="min-w-[120px]">Created Date:</TableHead>
                 <TableHead className="min-w-[120px]">Expiry Date:</TableHead>
-                <TableHead className="w-32">Actions</TableHead>
+                <TableHead className="w-28">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {/* Create new event row */}
               {isCreating && (
                 <TableRow className="border-card-border bg-muted/20">
-                  <TableCell>
-                    <div className="w-6 h-6" />
-                  </TableCell>
                   <TableCell>
                     <Input
                       value={newEventForm.name}
@@ -345,20 +341,6 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                       ${atCapacity ? 'bg-green-50 dark:bg-green-900/20' : ''}
                     `}
                   >
-                    <TableCell>
-                      <div className="flex items-center space-x-2">
-                        <Checkbox
-                          checked={isSelected}
-                          onCheckedChange={() => handleEventSelect(event.id)}
-                          className="border-primary"
-                        />
-                        {atCapacity && (
-                          <Badge variant="secondary" className="text-xs bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100">
-                            At capacity
-                          </Badge>
-                        )}
-                      </div>
-                    </TableCell>
                     <TableCell className="font-medium">
                       {isEditing ? (
                         <Input
@@ -368,10 +350,12 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                         />
                       ) : (
                         <div className="flex items-center">
-                          {isSelected && (
-                            <div className="w-2 h-2 bg-primary rounded-full mr-2 animate-pulse"></div>
-                          )}
                           {event.name}
+                          {atCapacity && (
+                            <Badge variant="secondary" className="ml-2 text-xs bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100">
+                              At capacity
+                            </Badge>
+                          )}
                         </div>
                       )}
                     </TableCell>
