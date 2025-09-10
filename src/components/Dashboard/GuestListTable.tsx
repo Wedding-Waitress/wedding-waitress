@@ -65,7 +65,7 @@ const SORT_OPTIONS = [
 ] as const;
 
 const CSV_HEADERS = [
-  'first_name', 'last_name', 'table_no', 'seat_no', 'assigned', 
+  'first_name', 'last_name', 'table_no', 'seat_no',
   'rsvp', 'dietary', 'mobile', 'email', 'notes'
 ];
 
@@ -160,8 +160,8 @@ export const GuestListTable: React.FC = () => {
   const downloadTemplate = () => {
     const csvContent = [
       CSV_HEADERS.join(','),
-      'John,Doe,1,1,YES,Attending,NA,1234567890,john@example.com,Sample note',
-      'Jane,Smith,2,3,NO,Pending,Vegan,,jane@example.com,'
+      'John,Doe,1,1,Attending,NA,1234567890,john@example.com,Sample note',
+      'Jane,Smith,2,3,Pending,Vegan,,jane@example.com,'
     ].join('\n');
     
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -181,7 +181,6 @@ export const GuestListTable: React.FC = () => {
         guest.last_name || '',
         guest.table_no || '',
         guest.seat_no || '',
-        guest.assigned ? 'YES' : 'NO',
         guest.rsvp || 'Pending',
         guest.dietary || 'NA',
         guest.mobile || '',
@@ -273,10 +272,12 @@ export const GuestListTable: React.FC = () => {
               errors.push(`Row ${index + 2}: First name is required`);
               return;
             }
-            
-            // Validate assigned
-            if (rowData.assigned && !['YES', 'NO'].includes(rowData.assigned.toUpperCase())) {
-              errors.push(`Row ${index + 2}: Assigned must be YES or NO`);
+            if (!rowData.last_name?.trim()) {
+              errors.push(`Row ${index + 2}: Last name is required`);
+              return;
+            }
+            if (!rowData.table_no?.trim()) {
+              errors.push(`Row ${index + 2}: Table number is required`);
               return;
             }
             
@@ -293,7 +294,6 @@ export const GuestListTable: React.FC = () => {
             }
             
             // Transform data
-            rowData.assigned = rowData.assigned?.toUpperCase() === 'YES';
             rowData.table_no = rowData.table_no ? parseInt(rowData.table_no) : null;
             rowData.seat_no = rowData.seat_no ? parseInt(rowData.seat_no) : null;
             rowData.event_id = selectedEventId;
@@ -537,7 +537,6 @@ export const GuestListTable: React.FC = () => {
                 <TableHead className="min-w-[120px]">Last Name</TableHead>
                 <TableHead className="min-w-[100px]">Table No.</TableHead>
                 <TableHead className="min-w-[100px]">Seat No.</TableHead>
-                <TableHead className="min-w-[100px]">Assigned</TableHead>
                 <TableHead className="min-w-[120px]">RSVP</TableHead>
                 <TableHead className="min-w-[140px]">Dietary</TableHead>
                 <TableHead className="min-w-[120px]">Mobile</TableHead>
@@ -549,13 +548,13 @@ export const GuestListTable: React.FC = () => {
             <TableBody>
               {guestsLoading ? (
                 <TableRow className="border-card-border">
-                  <TableCell colSpan={11} className="text-center py-8">
+                  <TableCell colSpan={10} className="text-center py-8">
                     Loading guests...
                   </TableCell>
                 </TableRow>
               ) : guestCount === 0 ? (
                 <TableRow className="border-card-border">
-                  <TableCell colSpan={11} className="text-center py-8">
+                  <TableCell colSpan={10} className="text-center py-8">
                     {/* Empty - the "No Guests Yet" widget is now in the header */}
                   </TableCell>
                 </TableRow>
@@ -569,7 +568,6 @@ export const GuestListTable: React.FC = () => {
                     <TableCell className="font-medium">{guest.last_name}</TableCell>
                     <TableCell>{guest.table_no || '-'}</TableCell>
                     <TableCell>{guest.seat_no || '-'}</TableCell>
-                    <TableCell>{renderPill(guest.assigned)}</TableCell>
                     <TableCell>
                       <Badge variant="outline" className="text-xs">
                         {guest.rsvp}

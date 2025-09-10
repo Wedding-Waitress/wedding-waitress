@@ -33,9 +33,8 @@ import { useToast } from "@/hooks/use-toast";
 const addGuestSchema = z.object({
   first_name: z.string().min(1, "First name is required"),
   last_name: z.string().min(1, "Last name is required"),
-  table_no: z.number().optional(),
+  table_no: z.number().min(1, "Table number is required"),
   seat_no: z.number().optional(),
-  assigned: z.boolean(),
   rsvp: z.enum(['Pending', 'Attending', 'Not Attending']),
   dietary: z.enum(['NA', 'Vegan', 'Vegetarian', 'Gluten Free', 'Dairy Free', 'Nut Free', 'Seafood Free', 'Kosher', 'Halal']),
   mobile: z.string().optional(),
@@ -56,7 +55,6 @@ interface AddGuestModalProps {
     last_name: string;
     table_no: number | null;
     seat_no: number | null;
-    assigned: boolean;
     rsvp: string;
     dietary: string;
     mobile: string | null;
@@ -83,7 +81,6 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
       last_name: '',
       table_no: undefined,
       seat_no: undefined,
-      assigned: false,
       rsvp: 'Pending',
       dietary: 'NA',
       mobile: '',
@@ -101,7 +98,6 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
           last_name: guest.last_name || '',
           table_no: guest.table_no || undefined,
           seat_no: guest.seat_no || undefined,
-          assigned: guest.assigned || false,
           rsvp: (guest.rsvp as 'Pending' | 'Attending' | 'Not Attending') || 'Pending',
           dietary: (guest.dietary as 'NA' | 'Vegan' | 'Vegetarian' | 'Gluten Free' | 'Dairy Free' | 'Nut Free' | 'Seafood Free' | 'Kosher' | 'Halal') || 'NA',
           mobile: guest.mobile || '',
@@ -114,7 +110,6 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
           last_name: '',
           table_no: undefined,
           seat_no: undefined,
-          assigned: false,
           rsvp: 'Pending',
           dietary: 'NA',
           mobile: '',
@@ -142,7 +137,6 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
         last_name: data.last_name,
         table_no: data.table_no || null,
         seat_no: data.seat_no || null,
-        assigned: data.assigned,
         rsvp: data.rsvp,
         dietary: data.dietary,
         mobile: data.mobile || null,
@@ -286,28 +280,6 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                 )}
               />
             </div>
-
-            <FormField
-              control={form.control}
-              name="assigned"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Assigned</FormLabel>
-                  <Select value={field.value ? 'YES' : 'NO'} onValueChange={(value) => field.onChange(value === 'YES')}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="YES">YES</SelectItem>
-                      <SelectItem value="NO">NO</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
 
             <FormField
               control={form.control}
