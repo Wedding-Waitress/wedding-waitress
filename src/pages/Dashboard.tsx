@@ -58,16 +58,32 @@ export const Dashboard = () => {
       
       case 'table-list':
         return (
-          <Card variant="elevated" className="p-8 text-center">
-            <MapPin className="w-16 h-16 mx-auto text-primary mb-4" />
-            <CardTitle className="mb-2">Table Setup</CardTitle>
-            <CardDescription className="mb-6">
-              Design your perfect seating arrangement and table layouts
-            </CardDescription>
-            <Button variant="gradient">
-              <Plus className="w-4 h-4 mr-2" />
-              Create Tables
-            </Button>
+          <Card variant="elevated">
+            <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-6">
+              <div>
+                <CardTitle>Tables</CardTitle>
+              </div>
+              
+              {/* Empty state block - top right on desktop, stacked on mobile */}
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:ml-auto">
+                <div className="flex items-start gap-3">
+                  <MapPin className="w-16 h-16 text-primary flex-shrink-0" />
+                  <div className="flex flex-col">
+                    <CardTitle className="mb-2 text-left">Table Setup</CardTitle>
+                    <CardDescription className="text-left">
+                      Design your perfect seating arrangement and table layouts
+                    </CardDescription>
+                  </div>
+                </div>
+                <Button variant="gradient" className="sm:ml-3 sm:flex-shrink-0">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Create Tables
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {/* Empty card body until tables are created */}
+            </CardContent>
           </Card>
         );
       
