@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -29,12 +29,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/enhanced-button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useTables } from "@/hooks/useTables";
 
 const addGuestSchema = z.object({
   first_name: z.string().min(1, "First name is required"),
   last_name: z.string().min(1, "Last name is required"),
-  table_no: z.number().min(1, "Table number is required"),
-  seat_no: z.number().optional(),
+  table_id: z.string().min(1, "Table is required"),
+  seat_no: z.number().min(1, "Seat number is required"),
   rsvp: z.enum(['Pending', 'Attending', 'Not Attending']),
   dietary: z.enum(['NA', 'Vegan', 'Vegetarian', 'Gluten Free', 'Dairy Free', 'Nut Free', 'Seafood Free', 'Kosher', 'Halal']),
   mobile: z.string().optional(),
@@ -53,7 +54,7 @@ interface AddGuestModalProps {
     id: string;
     first_name: string;
     last_name: string;
-    table_no: number | null;
+    table_id: string | null;
     seat_no: number | null;
     rsvp: string;
     dietary: string;
@@ -73,13 +74,19 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
   isEdit = false,
 }) => {
   const { toast } = useToast();
+  const { tables } = useTables(eventId);
+  const [selectedTableId, setSelectedTableId] = useState<string>('');
+  const [seatOptions, setSeatOptions] = useState<number[]>([]);
+  const [takenSeats, setTakenSeats] = useState<number[]>([]);
+  const [tableError, setTableError] = useState<string>('');
+  const [seatError, setSeatError] = useState<string>('');
   
   const form = useForm<AddGuestFormData>({
     resolver: zodResolver(addGuestSchema),
     defaultValues: {
       first_name: '',
       last_name: '',
-      table_no: undefined,
+      table_id: '',
       seat_no: undefined,
       rsvp: 'Pending',
       dietary: 'NA',
@@ -89,14 +96,54 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
     },
   });
 
+  // Fetch seat availability for selected table
+  const fetchSeatAvailability = async (tableId: string) => {
+    if (!tableId) {
+      setSeatOptions([]);
+      setTakenSeats([]);
+      return;
+    }
+
+    const selectedTable = tables.find(t => t.id === tableId);
+    if (!selectedTable) return;
+
+    // Generate seat options (1 to limit)
+    const allSeats = Array.from({ length: selectedTable.limit_seats }, (_, i) => i + 1);
+    setSeatOptions(allSeats);
+
+    // Fetch taken seats for this table
+    const { data: occupiedSeats } = await supabase
+      .from('guests')
+      .select('seat_no')
+      .eq('event_id', eventId)
+      .eq('table_id', tableId)
+      .not('seat_no', 'is', null);
+
+    const taken = occupiedSeats?.map(g => g.seat_no).filter(s => s !== null) || [];
+    
+    // If editing, exclude current guest's seat from taken seats
+    if (isEdit && guest && guest.table_id === tableId && guest.seat_no) {
+      const filteredTaken = taken.filter(seat => seat !== guest.seat_no);
+      setTakenSeats(filteredTaken);
+    } else {
+      setTakenSeats(taken);
+    }
+  };
+
   // Reset form when guest prop changes (for edit mode)
   useEffect(() => {
     if (isOpen) {
+      setTableError('');
+      setSeatError('');
+      
       if (guest && isEdit) {
+        const guestTableId = guest.table_id || '';
+        setSelectedTableId(guestTableId);
+        
         form.reset({
           first_name: guest.first_name || '',
           last_name: guest.last_name || '',
-          table_no: guest.table_no || undefined,
+          table_id: guestTableId,
           seat_no: guest.seat_no || undefined,
           rsvp: (guest.rsvp as 'Pending' | 'Attending' | 'Not Attending') || 'Pending',
           dietary: (guest.dietary as 'NA' | 'Vegan' | 'Vegetarian' | 'Gluten Free' | 'Dairy Free' | 'Nut Free' | 'Seafood Free' | 'Kosher' | 'Halal') || 'NA',
@@ -104,11 +151,16 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
           email: guest.email || '',
           notes: guest.notes || '',
         });
+        
+        if (guestTableId) {
+          fetchSeatAvailability(guestTableId);
+        }
       } else {
+        setSelectedTableId('');
         form.reset({
           first_name: '',
           last_name: '',
-          table_no: undefined,
+          table_id: '',
           seat_no: undefined,
           rsvp: 'Pending',
           dietary: 'NA',
@@ -118,7 +170,25 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
         });
       }
     }
-  }, [isOpen, guest, isEdit, form]);
+  }, [isOpen, guest, isEdit, form, tables, eventId]);
+
+  // Handle table selection change
+  const handleTableChange = (tableId: string) => {
+    setSelectedTableId(tableId);
+    setTableError('');
+    setSeatError('');
+    
+    // Reset seat selection when table changes
+    form.setValue('seat_no', undefined);
+    
+    // Check if table is full
+    const selectedTable = tables.find(t => t.id === tableId);
+    if (selectedTable && selectedTable.guest_count >= selectedTable.limit_seats) {
+      setTableError('Table reached guest limit — You can change the limit in each table.');
+    }
+    
+    fetchSeatAvailability(tableId);
+  };
 
   const onSubmit = async (data: AddGuestFormData) => {
     try {
@@ -129,6 +199,48 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
           description: "You must be logged in to manage guests",
           variant: "destructive",
         });
+        return;
+      }
+
+      // Validate table capacity and seat availability before save
+      const selectedTable = tables.find(t => t.id === data.table_id);
+      if (!selectedTable) {
+        setTableError('Please select a valid table');
+        return;
+      }
+
+      // Fresh check for table capacity
+      const { data: currentGuests } = await supabase
+        .from('guests')
+        .select('id')
+        .eq('event_id', eventId)
+        .eq('table_id', data.table_id);
+
+      const currentCount = currentGuests?.length || 0;
+      
+      // If editing, exclude current guest from count
+      const adjustedCount = isEdit && guest && guest.table_id === data.table_id 
+        ? currentCount - 1 
+        : currentCount;
+
+      if (adjustedCount >= selectedTable.limit_seats) {
+        setTableError('Table reached guest limit — You can change the limit in each table.');
+        return;
+      }
+
+      // Fresh check for seat availability
+      const { data: seatCheck } = await supabase
+        .from('guests')
+        .select('id')
+        .eq('event_id', eventId)
+        .eq('table_id', data.table_id)
+        .eq('seat_no', data.seat_no);
+
+      // If editing, exclude current guest from seat check
+      const seatTaken = seatCheck?.filter(g => !isEdit || g.id !== guest?.id).length > 0;
+      
+      if (seatTaken) {
+        setSeatError('This seat is already taken');
         return;
       }
 
@@ -177,8 +289,8 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
       const guestData = {
         first_name: data.first_name.trim(),
         last_name: data.last_name.trim(),
-        table_no: data.table_no || null,
-        seat_no: data.seat_no || null,
+        table_id: data.table_id,
+        seat_no: data.seat_no,
         rsvp: data.rsvp,
         dietary: data.dietary,
         mobile: data.mobile || null,
@@ -320,19 +432,43 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
             <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}
-                name="table_no"
+                name="table_id"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Table No.</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        {...field}
-                        value={field.value || ''}
-                        onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
-                      />
-                    </FormControl>
+                    <FormLabel>Table</FormLabel>
+                    <Select 
+                      onValueChange={(value) => {
+                        field.onChange(value);
+                        handleTableChange(value);
+                      }} 
+                      value={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select table" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {tables.map((table) => {
+                          const isFull = table.guest_count >= table.limit_seats;
+                          const isCurrentTable = isEdit && guest && guest.table_id === table.id;
+                          
+                          return (
+                            <SelectItem 
+                              key={table.id} 
+                              value={table.id}
+                              disabled={isFull && !isCurrentTable}
+                            >
+                              {table.name} — {table.guest_count}/{table.limit_seats}
+                            </SelectItem>
+                          );
+                        })}
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
+                    {tableError && (
+                      <p className="text-sm text-red-600 mt-1">{tableError}</p>
+                    )}
                   </FormItem>
                 )}
               />
@@ -343,15 +479,42 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Seat No.</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        {...field}
-                        value={field.value || ''}
-                        onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
-                      />
-                    </FormControl>
+                    <Select 
+                      onValueChange={(value) => {
+                        field.onChange(parseInt(value));
+                        setSeatError('');
+                      }} 
+                      value={field.value?.toString()}
+                      disabled={!selectedTableId}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder={selectedTableId ? "Select seat" : "Choose table first"} />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {seatOptions.map((seatNum) => {
+                          const isTaken = takenSeats.includes(seatNum);
+                          
+                          return (
+                            <SelectItem 
+                              key={seatNum} 
+                              value={seatNum.toString()}
+                              disabled={isTaken}
+                            >
+                              Seat {seatNum}
+                            </SelectItem>
+                          );
+                        })}
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
+                    {seatError && (
+                      <p className="text-sm text-red-600 mt-1">{seatError}</p>
+                    )}
+                    {selectedTableId && takenSeats.length === seatOptions.length && (
+                      <p className="text-sm text-red-600 mt-1">All seats are taken for this table.</p>
+                    )}
                   </FormItem>
                 )}
               />
