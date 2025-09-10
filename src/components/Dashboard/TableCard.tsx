@@ -150,12 +150,22 @@ export const TableCard: React.FC<TableCardProps> = ({
                 />
               </>
             ) : table.guest_count === table.limit_seats ? (
-              <div className="h-6 bg-green-500 rounded-full flex items-center justify-center">
-                <span className="text-white font-bold text-sm">Table Full</span>
+              <div 
+                className="h-6 bg-green-500 rounded-full flex items-center justify-center"
+                aria-label={`Table Full — ${table.guest_count} guests`}
+              >
+                <span className="text-white font-bold text-sm text-center">
+                  Table Full — {table.guest_count}
+                </span>
               </div>
             ) : (
-              <div className="h-6 bg-red-500 rounded-full flex items-center justify-center">
-                <span className="text-white font-bold text-sm">Over Capacity</span>
+              <div 
+                className="h-6 bg-red-500 rounded-full flex items-center justify-center"
+                aria-label={`Over capacity by ${table.guest_count - table.limit_seats} guests`}
+              >
+                <span className="text-white font-bold text-sm text-center">
+                  Over by +{table.guest_count - table.limit_seats}
+                </span>
               </div>
             )}
           </div>
