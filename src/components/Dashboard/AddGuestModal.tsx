@@ -35,7 +35,10 @@ const addGuestSchema = z.object({
   first_name: z.string().min(1, "First name is required"),
   last_name: z.string().min(1, "Last name is required"),
   table_id: z.string().min(1, "Table is required"),
-  seat_no: z.number().min(1).optional(),
+  seat_no: z.preprocess((val) => {
+    if (val === "" || val === undefined || val === null) return null;
+    return Number(val);
+  }, z.number().int().positive().optional().nullable()),
   rsvp: z.enum(['Pending', 'Attending', 'Not Attending']),
   dietary: z.enum(['NA', 'Vegan', 'Vegetarian', 'Gluten Free', 'Dairy Free', 'Nut Free', 'Seafood Free', 'Kosher', 'Halal']),
   mobile: z.string().optional(),
@@ -483,7 +486,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                     <FormLabel>Seat No.</FormLabel>
                     <Select 
                       onValueChange={(value) => {
-                        field.onChange(value ? parseInt(value) : null);
+                        field.onChange(value === "" ? null : (value ? parseInt(value) : null));
                         setSeatError('');
                       }} 
                       value={field.value?.toString() || ""}
