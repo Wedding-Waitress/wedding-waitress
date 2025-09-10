@@ -27,8 +27,8 @@ interface DashboardSidebarProps {
 const menuItems = [
   { id: "dashboard", label: "Dashboard", icon: Home },
   { id: "my-events", label: "My Events", icon: Calendar },
-  { id: "guest-list", label: "Guest List", icon: Users },
   { id: "table-list", label: "Tables", icon: MapPin },
+  { id: "guest-list", label: "Guest List", icon: Users },
   { id: "floor-plan", label: "Floor Plan", icon: MapPin },
   { id: "rsvp-invite", label: "RSVP Invite", icon: Mail },
   { id: "wishing-well", label: "Online Wishing Well", icon: Gift },
