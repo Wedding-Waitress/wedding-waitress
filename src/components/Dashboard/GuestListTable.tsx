@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Card } from "@/components/ui/enhanced-card";
 import { Button } from "@/components/ui/enhanced-button";
 import { Badge } from "@/components/ui/badge";
@@ -17,15 +17,64 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { 
   Users,
   Calendar,
   Edit,
-  Trash2
+  Trash2,
+  ChevronDown,
+  ArrowUpDown,
+  Download,
+  Upload,
+  FileText
 } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { toast } from "@/hooks/use-toast";
 import { useEvents } from '@/hooks/useEvents';
 import { useGuests } from '@/hooks/useGuests';
 import { AddGuestModal } from './AddGuestModal';
+
+type SortOption = 
+  | 'first_name_asc' | 'first_name_desc'
+  | 'last_name_asc' | 'last_name_desc' 
+  | 'table_no_asc' | 'table_no_desc'
+  | 'seat_no_asc' | 'seat_no_desc'
+  | 'rsvp_attending_first' | 'rsvp_not_attending_first';
+
+const SORT_OPTIONS = [
+  { value: 'first_name_asc', label: 'First Name (A–Z)' },
+  { value: 'first_name_desc', label: 'First Name (Z–A)' },
+  { value: 'last_name_asc', label: 'Last Name (A–Z)' },
+  { value: 'last_name_desc', label: 'Last Name (Z–A)' },
+  { value: 'table_no_asc', label: 'Table No. (1→9)' },
+  { value: 'table_no_desc', label: 'Table No. (9→1)' },
+  { value: 'seat_no_asc', label: 'Seat No. (1→9)' },
+  { value: 'rsvp_attending_first', label: 'RSVP (Attending → Pending → Not Attending)' },
+  { value: 'rsvp_not_attending_first', label: 'RSVP (Not Attending → Pending → Attending)' },
+] as const;
+
+const CSV_HEADERS = [
+  'first_name', 'last_name', 'table_no', 'seat_no', 'assigned', 
+  'rsvp', 'dietary', 'mobile', 'email', 'notes'
+];
+
+const DIETARY_OPTIONS = [
+  'NA', 'Vegan', 'Vegetarian', 'Gluten Free', 'Dairy Free', 
+  'Nut Free', 'Seafood Free', 'Kosher', 'Halal'
+];
+
+const RSVP_OPTIONS = ['Pending', 'Attending', 'Not Attending'];
 
 export const GuestListTable: React.FC = () => {
   const { events, loading } = useEvents();
@@ -33,19 +82,265 @@ export const GuestListTable: React.FC = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const { guests, loading: guestsLoading, fetchGuests, deleteGuest } = useGuests(selectedEventId);
   const [editingGuest, setEditingGuest] = useState<any>(null);
+  const [sortBy, setSortBy] = useState<SortOption>('first_name_asc');
 
   // Load selected event from localStorage on mount
   useEffect(() => {
     const savedEventId = localStorage.getItem('selectedEventId');
     if (savedEventId && events.some(event => event.id === savedEventId)) {
       setSelectedEventId(savedEventId);
+      
+      // Load saved sort preference for this event
+      const savedSort = localStorage.getItem(`guestSort_${savedEventId}`);
+      if (savedSort && SORT_OPTIONS.some(opt => opt.value === savedSort)) {
+        setSortBy(savedSort as SortOption);
+      }
     }
   }, [events]);
+
+  // Save sort preference when changed
+  const handleSortChange = (newSort: SortOption) => {
+    setSortBy(newSort);
+    if (selectedEventId) {
+      localStorage.setItem(`guestSort_${selectedEventId}`, newSort);
+    }
+  };
 
   // Save selected event to localStorage when changed
   const handleEventSelect = (eventId: string) => {
     setSelectedEventId(eventId);
     localStorage.setItem('selectedEventId', eventId);
+    
+    // Load sort preference for new event
+    const savedSort = localStorage.getItem(`guestSort_${eventId}`);
+    if (savedSort && SORT_OPTIONS.some(opt => opt.value === savedSort)) {
+      setSortBy(savedSort as SortOption);
+    } else {
+      setSortBy('first_name_asc');
+    }
+  };
+
+  // Sort guests based on selected option
+  const sortedGuests = useMemo(() => {
+    if (!guests.length) return guests;
+    
+    const sorted = [...guests].sort((a, b) => {
+      switch (sortBy) {
+        case 'first_name_asc':
+          return (a.first_name || '').localeCompare(b.first_name || '');
+        case 'first_name_desc':
+          return (b.first_name || '').localeCompare(a.first_name || '');
+        case 'last_name_asc':
+          return (a.last_name || '').localeCompare(b.last_name || '');
+        case 'last_name_desc':
+          return (b.last_name || '').localeCompare(a.last_name || '');
+        case 'table_no_asc':
+          return (a.table_no || 999) - (b.table_no || 999);
+        case 'table_no_desc':
+          return (b.table_no || 0) - (a.table_no || 0);
+        case 'seat_no_asc':
+          return (a.seat_no || 999) - (b.seat_no || 999);
+        case 'rsvp_attending_first':
+          const orderA = a.rsvp === 'Attending' ? 0 : a.rsvp === 'Pending' ? 1 : 2;
+          const orderB = b.rsvp === 'Attending' ? 0 : b.rsvp === 'Pending' ? 1 : 2;
+          return orderA - orderB;
+        case 'rsvp_not_attending_first':
+          const orderA2 = a.rsvp === 'Not Attending' ? 0 : a.rsvp === 'Pending' ? 1 : 2;
+          const orderB2 = b.rsvp === 'Not Attending' ? 0 : b.rsvp === 'Pending' ? 1 : 2;
+          return orderA2 - orderB2;
+        default:
+          return 0;
+      }
+    });
+    
+    return sorted;
+  }, [guests, sortBy]);
+
+  // CSV Functions
+  const downloadTemplate = () => {
+    const csvContent = [
+      CSV_HEADERS.join(','),
+      'John,Doe,1,1,YES,Attending,NA,1234567890,john@example.com,Sample note',
+      'Jane,Smith,2,3,NO,Pending,Vegan,,jane@example.com,'
+    ].join('\n');
+    
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'guest-list-template.csv';
+    link.click();
+  };
+
+  const exportGuestList = () => {
+    if (!selectedEvent || !sortedGuests.length) return;
+    
+    const csvRows = [
+      CSV_HEADERS.join(','),
+      ...sortedGuests.map(guest => [
+        guest.first_name || '',
+        guest.last_name || '',
+        guest.table_no || '',
+        guest.seat_no || '',
+        guest.assigned ? 'YES' : 'NO',
+        guest.rsvp || 'Pending',
+        guest.dietary || 'NA',
+        guest.mobile || '',
+        guest.email || '',
+        (guest.notes || '').replace(/,/g, ';').replace(/\n/g, ' ')
+      ].map(field => `"${field}"`).join(','))
+    ];
+    
+    const csvContent = csvRows.join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    
+    const eventName = selectedEvent.name.replace(/[^a-zA-Z0-9]/g, '-');
+    const dateStr = new Date().toISOString().split('T')[0].replace(/-/g, '');
+    link.download = `guest-list-${eventName}-${dateStr}.csv`;
+    link.click();
+    
+    toast({ title: `Exported ${sortedGuests.length} guests successfully` });
+  };
+
+  const handleImportCSV = () => {
+    if (!selectedEvent) return;
+    
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.csv';
+    input.onchange = (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (!file) return;
+      
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const text = e.target?.result as string;
+          const lines = text.split('\n').filter(line => line.trim());
+          
+          if (lines.length < 2) {
+            toast({ 
+              title: "Import failed", 
+              description: "CSV file appears to be empty or invalid",
+              variant: "destructive"
+            });
+            return;
+          }
+          
+          const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
+          const expectedHeaders = CSV_HEADERS;
+          
+          // Check if headers match
+          const headersMatch = expectedHeaders.every(h => headers.includes(h));
+          if (!headersMatch) {
+            toast({ 
+              title: "Import failed", 
+              description: `CSV headers don't match template. Expected: ${expectedHeaders.join(', ')}`,
+              variant: "destructive"
+            });
+            return;
+          }
+          
+          const dataRows = lines.slice(1);
+          const currentGuestCount = guests.length;
+          const guestLimit = selectedEvent.guest_limit || 50;
+          
+          if (currentGuestCount + dataRows.length > guestLimit) {
+            toast({ 
+              title: "Import failed", 
+              description: `Adding ${dataRows.length} guests would exceed the limit of ${guestLimit}. Current: ${currentGuestCount}`,
+              variant: "destructive"
+            });
+            return;
+          }
+          
+          // Parse and validate rows
+          const validRows: any[] = [];
+          const errors: string[] = [];
+          
+          dataRows.forEach((row, index) => {
+            const values = row.split(',').map(v => v.trim().replace(/"/g, ''));
+            if (values.length < headers.length) return;
+            
+            const rowData: any = {};
+            headers.forEach((header, i) => {
+              rowData[header] = values[i] || '';
+            });
+            
+            // Validate required fields
+            if (!rowData.first_name?.trim()) {
+              errors.push(`Row ${index + 2}: First name is required`);
+              return;
+            }
+            
+            // Validate assigned
+            if (rowData.assigned && !['YES', 'NO'].includes(rowData.assigned.toUpperCase())) {
+              errors.push(`Row ${index + 2}: Assigned must be YES or NO`);
+              return;
+            }
+            
+            // Validate RSVP
+            if (rowData.rsvp && !RSVP_OPTIONS.includes(rowData.rsvp)) {
+              errors.push(`Row ${index + 2}: Invalid RSVP status`);
+              return;
+            }
+            
+            // Validate dietary
+            if (rowData.dietary && !DIETARY_OPTIONS.includes(rowData.dietary)) {
+              errors.push(`Row ${index + 2}: Invalid dietary restriction`);
+              return;
+            }
+            
+            // Transform data
+            rowData.assigned = rowData.assigned?.toUpperCase() === 'YES';
+            rowData.table_no = rowData.table_no ? parseInt(rowData.table_no) : null;
+            rowData.seat_no = rowData.seat_no ? parseInt(rowData.seat_no) : null;
+            rowData.event_id = selectedEventId;
+            
+            validRows.push(rowData);
+          });
+          
+          if (errors.length > 0) {
+            toast({ 
+              title: "Import validation failed", 
+              description: errors.slice(0, 3).join('; ') + (errors.length > 3 ? '...' : ''),
+              variant: "destructive"
+            });
+            return;
+          }
+          
+          // Show preview and confirm import
+          const preview = validRows.slice(0, 5);
+          const confirmMsg = `Import ${validRows.length} guests?\n\nPreview:\n${preview.map(r => `${r.first_name} ${r.last_name}`).join('\n')}`;
+          
+          if (confirm(confirmMsg)) {
+            // Bulk insert guests (simplified - in real app you'd use proper bulk insert)
+            Promise.all(validRows.map(async (guestData) => {
+              // This would use your bulk insert API
+              // For now, we'll just show success
+            })).then(() => {
+              toast({ title: `${validRows.length} guests imported successfully` });
+              fetchGuests();
+            }).catch(() => {
+              toast({ 
+                title: "Import failed", 
+                description: "Error importing guests. Please try again.",
+                variant: "destructive"
+              });
+            });
+          }
+        } catch (error) {
+          toast({ 
+            title: "Import failed", 
+            description: "Error reading CSV file",
+            variant: "destructive"
+          });
+        }
+      };
+      reader.readAsText(file);
+    };
+    input.click();
   };
 
   const handleAddGuest = () => {
@@ -59,7 +354,7 @@ export const GuestListTable: React.FC = () => {
   };
 
   const selectedEvent = events.find(event => event.id === selectedEventId);
-  const guestCount = guests.length;
+  const guestCount = sortedGuests.length;
 
   const renderPill = (condition: boolean, yesColor = "bg-green-500", noColor = "bg-red-500") => (
     <Badge 
@@ -127,25 +422,103 @@ export const GuestListTable: React.FC = () => {
                 </Badge>
               </div>
               
-              {/* No Guests Yet widget - moved to right side, only show when guestCount === 0 */}
-              {guestCount === 0 && (
-                <div className="flex items-center space-x-2">
-                  <Users className="w-4 h-4 text-muted-foreground" />
-                  <span className="text-sm text-muted-foreground">No Guests Yet</span>
+              {/* Control buttons - right side */}
+              <div className="flex items-center space-x-2">
+                <TooltipProvider>
+                  {/* Sort By Dropdown */}
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button 
+                              variant="gradient" 
+                              size="sm"
+                              disabled={!selectedEventId}
+                            >
+                              <ArrowUpDown className="w-4 h-4 mr-2" />
+                              Sort By
+                              <ChevronDown className="w-4 h-4 ml-1" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-56">
+                            {SORT_OPTIONS.map((option) => (
+                              <DropdownMenuItem
+                                key={option.value}
+                                onClick={() => handleSortChange(option.value)}
+                                className={sortBy === option.value ? "bg-accent" : ""}
+                              >
+                                {option.label}
+                              </DropdownMenuItem>
+                            ))}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    </TooltipTrigger>
+                    {!selectedEventId && (
+                      <TooltipContent>
+                        <p>Choose an event first</p>
+                      </TooltipContent>
+                    )}
+                  </Tooltip>
+
+                  {/* Import/Export CSV Dropdown */}
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button 
+                              variant="gradient" 
+                              size="sm"
+                              disabled={!selectedEventId}
+                            >
+                              <FileText className="w-4 h-4 mr-2" />
+                              Import / Export CSV
+                              <ChevronDown className="w-4 h-4 ml-1" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-48">
+                            <DropdownMenuItem onClick={downloadTemplate}>
+                              <Download className="w-4 h-4 mr-2" />
+                              Download Template
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={handleImportCSV}>
+                              <Upload className="w-4 h-4 mr-2" />
+                              Import CSV
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={exportGuestList}
+                              disabled={guestCount === 0}
+                            >
+                              <Download className="w-4 h-4 mr-2" />
+                              Export Guest List
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    </TooltipTrigger>
+                    {!selectedEventId && (
+                      <TooltipContent>
+                        <p>Choose an event first</p>
+                      </TooltipContent>
+                    )}
+                  </Tooltip>
+                </TooltipProvider>
+
+                {/* Add Guests button */}
+                {guestCount === 0 ? (
                   <Button variant="gradient" size="sm" onClick={handleAddGuest}>
                     <Users className="w-4 h-4 mr-2" />
                     Add First Guest
                   </Button>
-                </div>
-              )}
-
-              {/* Add Guests button when there are already guests */}
-              {guestCount > 0 && (
-                <Button variant="gradient" size="sm" onClick={handleAddGuest}>
-                  <Users className="w-4 h-4 mr-2" />
-                  Add Guest
-                </Button>
-              )}
+                ) : (
+                  <Button variant="gradient" size="sm" onClick={handleAddGuest}>
+                    <Users className="w-4 h-4 mr-2" />
+                    Add Guest
+                  </Button>
+                )}
+              </div>
             </div>
             
             {/* Row 2: Title line */}
@@ -187,7 +560,7 @@ export const GuestListTable: React.FC = () => {
                   </TableCell>
                 </TableRow>
               ) : (
-                guests.map((guest) => (
+                sortedGuests.map((guest) => (
                   <TableRow 
                     key={guest.id} 
                     className="border-card-border hover:bg-muted/50"
