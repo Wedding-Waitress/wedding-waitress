@@ -83,7 +83,7 @@ export const GuestListTable: React.FC = () => {
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const { guests, loading: guestsLoading, fetchGuests, deleteGuest } = useGuests(selectedEventId);
-  const { tables } = useTables(selectedEventId);
+  const { tables, fetchTables } = useTables(selectedEventId);
   const [editingGuest, setEditingGuest] = useState<any>(null);
   const [sortBy, setSortBy] = useState<SortOption>('first_name_asc');
 
@@ -109,6 +109,16 @@ export const GuestListTable: React.FC = () => {
     }
   };
 
+  // Refresh both guests and tables to keep counts in sync
+  const handleGuestSuccess = async () => {
+    await Promise.all([fetchGuests(), fetchTables()]);
+  };
+
+  // Handle guest deletion with table count refresh
+  const handleDeleteGuest = async (guestId: string) => {
+    await deleteGuest(guestId);
+    await fetchTables(); // Refresh table counts after deletion
+  };
   // Save selected event to localStorage when changed
   const handleEventSelect = (eventId: string) => {
     setSelectedEventId(eventId);
@@ -675,7 +685,7 @@ export const GuestListTable: React.FC = () => {
                         <Button 
                           variant="ghost" 
                           size="sm"
-                          onClick={() => deleteGuest(guest.id)}
+                          onClick={() => handleDeleteGuest(guest.id)}
                         >
                           <Trash2 className="w-4 h-4" />
                         </Button>
@@ -696,7 +706,7 @@ export const GuestListTable: React.FC = () => {
           setEditingGuest(null);
         }}
         eventId={selectedEventId}
-        onSuccess={fetchGuests}
+        onSuccess={handleGuestSuccess}
         guest={editingGuest}
         isEdit={!!editingGuest}
       />

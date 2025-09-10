@@ -22,6 +22,19 @@ export const useTables = (eventId: string | null) => {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
+  // Single source of truth for table guest counts
+  const getCurrentCount = async (tableId: string): Promise<number> => {
+    if (!eventId) return 0;
+    
+    const { count } = await supabase
+      .from('guests')
+      .select('*', { count: 'exact', head: true })
+      .eq('event_id', eventId)
+      .eq('table_id', tableId);
+    
+    return count || 0;
+  };
+
   const fetchTables = async () => {
     if (!eventId) {
       setTables([]);
@@ -39,18 +52,13 @@ export const useTables = (eventId: string | null) => {
 
       if (tablesError) throw tablesError;
 
-      // Fetch guest counts for each table
+      // Fetch guest counts for each table using single source of truth
       const tablesWithCounts = await Promise.all(
         (tablesData || []).map(async (table) => {
-          const { count } = await supabase
-            .from('guests')
-            .select('*', { count: 'exact', head: true })
-            .eq('event_id', eventId)
-            .eq('table_id', table.id);
-
+          const guestCount = await getCurrentCount(table.id);
           return {
             ...table,
-            guest_count: count || 0
+            guest_count: guestCount
           };
         })
       );
@@ -202,6 +210,7 @@ export const useTables = (eventId: string | null) => {
     createTable,
     updateTable,
     deleteTable,
-    getGuestsForTable
+    getGuestsForTable,
+    getCurrentCount
   };
 };

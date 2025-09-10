@@ -39,7 +39,9 @@ export const TableCard: React.FC<TableCardProps> = ({
   const [isDeleting, setIsDeleting] = useState(false);
   const [guests, setGuests] = useState<Guest[]>([]);
 
-  const progressPercentage = Math.min((table.guest_count / table.limit_seats) * 100, 100);
+  // Guard against divide-by-zero and calculate progress
+  const safeLimit = Math.max(table.limit_seats, 1);
+  const progressPercentage = Math.min((table.guest_count / safeLimit) * 100, 100);
   const isFull = table.guest_count >= table.limit_seats;
 
   useEffect(() => {
@@ -76,7 +78,7 @@ export const TableCard: React.FC<TableCardProps> = ({
         variant="default" 
         className={`transition-all duration-300 aspect-square flex flex-col ${
           isFull 
-            ? 'border-2 border-green-500' 
+            ? 'border-4 border-green-500' 
             : 'border-2 border-primary'
         }`}
       >

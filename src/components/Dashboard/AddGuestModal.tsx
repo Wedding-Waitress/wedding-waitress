@@ -77,7 +77,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
   isEdit = false,
 }) => {
   const { toast } = useToast();
-  const { tables } = useTables(eventId);
+  const { tables, getCurrentCount } = useTables(eventId);
   const [selectedTableId, setSelectedTableId] = useState<string>('');
   const [seatOptions, setSeatOptions] = useState<number[]>([]);
   const [takenSeats, setTakenSeats] = useState<number[]>([]);
@@ -205,23 +205,17 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
         return;
       }
 
-      // Validate table capacity and seat availability before save
+      // Validate table capacity using centralized count function
       const selectedTable = tables.find(t => t.id === data.table_id);
       if (!selectedTable) {
         setTableError('Please select a valid table');
         return;
       }
 
-      // Fresh check for table capacity
-      const { data: currentGuests } = await supabase
-        .from('guests')
-        .select('id')
-        .eq('event_id', eventId)
-        .eq('table_id', data.table_id);
-
-      const currentCount = currentGuests?.length || 0;
+      // Get fresh count using single source of truth
+      const currentCount = await getCurrentCount(data.table_id);
       
-      // If editing, exclude current guest from count
+      // If editing, exclude current guest from count when checking capacity
       const adjustedCount = isEdit && guest && guest.table_id === data.table_id 
         ? currentCount - 1 
         : currentCount;

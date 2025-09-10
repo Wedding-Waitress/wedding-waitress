@@ -8,6 +8,7 @@ export interface Guest {
   user_id: string;
   first_name: string;
   last_name: string;
+  table_id: string | null;
   table_no: number | null;
   seat_no: number | null;
   assigned: boolean;
