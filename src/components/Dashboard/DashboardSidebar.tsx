@@ -53,8 +53,9 @@ const SidebarMenuContent = ({ activeTab, onTabChange, onClose }: { activeTab: st
     <div className="h-full flex flex-col bg-card border-r border-border">
       {/* Logo */}
       <div className="p-4 border-b border-border">
-        <div className="flex justify-start">
-          <Heart className="w-8 h-8 text-primary" />
+        <div className="flex items-center space-x-2">
+          <Heart className="w-6 h-6 text-primary" />
+          <span className="font-bold text-xl">Wedding Waitress</span>
         </div>
       </div>
 
