@@ -164,13 +164,6 @@ export const useEvents = () => {
     fetchEvents();
   }, []);
 
-  // Set first event as active if no event is selected
-  useEffect(() => {
-    if (events.length > 0 && !activeEventId) {
-      setActiveEventId(events[0].id);
-    }
-  }, [events, activeEventId]);
-
   return {
     events,
     loading,
