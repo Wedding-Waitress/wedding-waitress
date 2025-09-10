@@ -35,7 +35,7 @@ const addGuestSchema = z.object({
   first_name: z.string().min(1, "First name is required"),
   last_name: z.string().min(1, "Last name is required"),
   table_id: z.string().min(1, "Table is required"),
-  seat_no: z.number().min(1, "Seat number is required"),
+  seat_no: z.number().min(1).optional(),
   rsvp: z.enum(['Pending', 'Attending', 'Not Attending']),
   dietary: z.enum(['NA', 'Vegan', 'Vegetarian', 'Gluten Free', 'Dairy Free', 'Nut Free', 'Seafood Free', 'Kosher', 'Halal']),
   mobile: z.string().optional(),
@@ -87,7 +87,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
       first_name: '',
       last_name: '',
       table_id: '',
-      seat_no: undefined,
+      seat_no: null,
       rsvp: 'Pending',
       dietary: 'NA',
       mobile: '',
@@ -144,7 +144,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
           first_name: guest.first_name || '',
           last_name: guest.last_name || '',
           table_id: guestTableId,
-          seat_no: guest.seat_no || undefined,
+          seat_no: guest.seat_no || null,
           rsvp: (guest.rsvp as 'Pending' | 'Attending' | 'Not Attending') || 'Pending',
           dietary: (guest.dietary as 'NA' | 'Vegan' | 'Vegetarian' | 'Gluten Free' | 'Dairy Free' | 'Nut Free' | 'Seafood Free' | 'Kosher' | 'Halal') || 'NA',
           mobile: guest.mobile || '',
@@ -161,7 +161,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
           first_name: '',
           last_name: '',
           table_id: '',
-          seat_no: undefined,
+          seat_no: null,
           rsvp: 'Pending',
           dietary: 'NA',
           mobile: '',
@@ -179,7 +179,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
     setSeatError('');
     
     // Reset seat selection when table changes
-    form.setValue('seat_no', undefined);
+    form.setValue('seat_no', null);
     
     // Check if table is full
     const selectedTable = tables.find(t => t.id === tableId);
@@ -228,20 +228,22 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
         return;
       }
 
-      // Fresh check for seat availability
-      const { data: seatCheck } = await supabase
-        .from('guests')
-        .select('id')
-        .eq('event_id', eventId)
-        .eq('table_id', data.table_id)
-        .eq('seat_no', data.seat_no);
+      // Fresh check for seat availability - only if a seat is selected
+      if (data.seat_no !== null) {
+        const { data: seatCheck } = await supabase
+          .from('guests')
+          .select('id')
+          .eq('event_id', eventId)
+          .eq('table_id', data.table_id)
+          .eq('seat_no', data.seat_no);
 
-      // If editing, exclude current guest from seat check
-      const seatTaken = seatCheck?.filter(g => !isEdit || g.id !== guest?.id).length > 0;
-      
-      if (seatTaken) {
-        setSeatError('This seat is already taken');
-        return;
+        // If editing, exclude current guest from seat check
+        const seatTaken = seatCheck?.filter(g => !isEdit || g.id !== guest?.id).length > 0;
+        
+        if (seatTaken) {
+          setSeatError('This seat is already taken');
+          return;
+        }
       }
 
       // Check for duplicate guests (same first and last name, case-insensitive)
@@ -481,15 +483,15 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                     <FormLabel>Seat No.</FormLabel>
                     <Select 
                       onValueChange={(value) => {
-                        field.onChange(parseInt(value));
+                        field.onChange(value ? parseInt(value) : null);
                         setSeatError('');
                       }} 
-                      value={field.value?.toString()}
+                      value={field.value?.toString() || ""}
                       disabled={!selectedTableId}
                     >
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder={selectedTableId ? "Select seat" : "Choose table first"} />
+                          <SelectValue placeholder={selectedTableId ? "(Optional)" : "Choose table first"} />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -513,7 +515,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                       <p className="text-sm text-red-600 mt-1">{seatError}</p>
                     )}
                     {selectedTableId && takenSeats.length === seatOptions.length && (
-                      <p className="text-sm text-red-600 mt-1">All seats are taken for this table.</p>
+                      <p className="text-sm text-muted-foreground mt-1">All seats are taken for this table, but you can save without assigning a seat.</p>
                     )}
                   </FormItem>
                 )}
