@@ -405,7 +405,7 @@ export const Dashboard = () => {
       
       {/* Main Content */}
       <div className="flex-1 flex flex-col">
-        <Header user={user} onSignOut={handleSignOut} />
+        <Header user={user} onSignOut={handleSignOut} hideDashboardElements={true} />
         
         <main className="flex-1 lg:px-6 px-4 py-6">
           <div className="mx-auto max-w-none">

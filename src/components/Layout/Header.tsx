@@ -11,10 +11,12 @@ interface HeaderProps {
     email: string;
   } | null;
   onSignOut?: () => void;
+  hideDashboardElements?: boolean;
 }
 export const Header: React.FC<HeaderProps> = ({
   user,
-  onSignOut
+  onSignOut,
+  hideDashboardElements = false
 }) => {
   const [signInOpen, setSignInOpen] = useState(false);
   const signUpButtonRef = useRef<HTMLButtonElement>(null);
@@ -82,7 +84,7 @@ export const Header: React.FC<HeaderProps> = ({
               </nav>}
 
             {/* User Actions */}
-            {user ? <DropdownMenu>
+            {!hideDashboardElements && (user ? <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" className="glass">
                     {user.name}'s Dashboard
@@ -108,10 +110,10 @@ export const Header: React.FC<HeaderProps> = ({
                 <Button variant="ghost" size="sm" className="text-xs" asChild>
                   <Link to="/admin">Admin</Link>
                 </Button>
-              </div>}
+              </div>)}
 
             {/* Language Selector */}
-            <DropdownMenu>
+            {!hideDashboardElements && <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="sm" className="hover:bg-accent">
                   <Globe className="w-4 h-4 mr-2" />
@@ -125,7 +127,7 @@ export const Header: React.FC<HeaderProps> = ({
                 <DropdownMenuItem>🇫🇷 Français</DropdownMenuItem>
                 <DropdownMenuItem>🇩🇪 Deutsch</DropdownMenuItem>
               </DropdownMenuContent>
-            </DropdownMenu>
+            </DropdownMenu>}
           </div>
         </div>
       </div>
