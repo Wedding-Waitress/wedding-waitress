@@ -87,9 +87,9 @@ export const GuestListTable: React.FC = () => {
   const [editingGuest, setEditingGuest] = useState<any>(null);
   const [sortBy, setSortBy] = useState<SortOption>('first_name_asc');
 
-  // Load selected event from localStorage on mount
+  // Load selected event from localStorage on mount - use same key as Table Setup
   useEffect(() => {
-    const savedEventId = localStorage.getItem('selectedEventId');
+    const savedEventId = localStorage.getItem('active_event_id');
     if (savedEventId && events.some(event => event.id === savedEventId)) {
       setSelectedEventId(savedEventId);
       
@@ -119,10 +119,10 @@ export const GuestListTable: React.FC = () => {
     await deleteGuest(guestId);
     await fetchTables(); // Refresh table counts after deletion
   };
-  // Save selected event to localStorage when changed
+  // Save selected event to localStorage when changed - use same key as Table Setup
   const handleEventSelect = (eventId: string) => {
     setSelectedEventId(eventId);
-    localStorage.setItem('selectedEventId', eventId);
+    localStorage.setItem('active_event_id', eventId);
     
     // Load sort preference for new event
     const savedSort = localStorage.getItem(`guestSort_${eventId}`);
@@ -463,20 +463,46 @@ export const GuestListTable: React.FC = () => {
     );
   }
 
-  // No event selected - show large centered empty state
+  // No event selected - show placeholder message like Table Setup
   if (!selectedEventId) {
     return (
-      <div className="p-16 text-center">
-        <Users className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
-        <h3 className="text-lg font-semibold text-foreground mb-2">Guest List Management</h3>
-        <p className="text-sm text-muted-foreground mb-6">
-          Select an event to view and manage its guest list.
-        </p>
-        <Button variant="gradient" size="sm" onClick={handleAddGuest}>
-          <Users className="w-4 h-4 mr-2" />
-          Add Guests
-        </Button>
-      </div>
+      <Card variant="elevated">
+        <div className="p-6 border-b border-card-border bg-gradient-subtle">
+          <div className="space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div className="flex items-center space-x-4">
+                <label className="text-sm font-medium text-foreground">
+                  Choose Event:
+                </label>
+                <Select value={selectedEventId || ""} onValueChange={handleEventSelect}>
+                  <SelectTrigger className="w-[300px]">
+                    <SelectValue placeholder="Select an event..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {events.map((event) => (
+                      <SelectItem key={event.id} value={event.id}>
+                        <div className="flex items-center space-x-2">
+                          <Calendar className="w-4 h-4" />
+                          <span>{event.name}</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div className="flex items-center space-x-2">
+              <span className="text-lg font-medium text-foreground">Guest List Management</span>
+            </div>
+          </div>
+        </div>
+        <div className="p-8 text-center">
+          <Users className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
+          <p className="text-sm text-muted-foreground mb-6">
+            Please select an event above to view and manage its guest list.
+          </p>
+        </div>
+      </Card>
     );
   }
 
