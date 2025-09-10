@@ -4,6 +4,8 @@ import { StatsBar } from "@/components/Dashboard/StatsBar";
 import { DashboardSidebar } from "@/components/Dashboard/DashboardSidebar";
 import { EventsTable } from "@/components/Dashboard/EventsTable";
 import { GuestListTable } from "@/components/Dashboard/GuestListTable";
+import { CreateTableModal } from "@/components/Dashboard/CreateTableModal";
+import { TableCard } from "@/components/Dashboard/TableCard";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/enhanced-card";
 import { Button } from "@/components/ui/enhanced-button";
 import { 
@@ -31,11 +33,23 @@ import {
   Plus
 } from "lucide-react";
 import { useEvents } from '@/hooks/useEvents';
+import { useTables, TableWithGuestCount } from '@/hooks/useTables';
 
 export const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
+  const [showCreateTableModal, setShowCreateTableModal] = useState(false);
+  const [editingTable, setEditingTable] = useState<TableWithGuestCount | null>(null);
   const { events } = useEvents();
+  const { 
+    tables, 
+    loading: tablesLoading, 
+    createTable, 
+    updateTable, 
+    deleteTable,
+    getGuestsForTable,
+    fetchTables
+  } = useTables(selectedEventId);
 
   // Mock user data
   const user = {
@@ -58,6 +72,30 @@ export const Dashboard = () => {
   const handleEventSelect = (eventId: string) => {
     setSelectedEventId(eventId);
     localStorage.setItem('active_event_id', eventId);
+  };
+
+  // Handle table operations
+  const handleCreateTable = () => {
+    setEditingTable(null);
+    setShowCreateTableModal(true);
+  };
+
+  const handleEditTable = (table: TableWithGuestCount) => {
+    setEditingTable(table);
+    setShowCreateTableModal(true);
+  };
+
+  const handleSaveTable = async (data: { name: string; limit_seats: number; notes?: string }) => {
+    if (editingTable) {
+      return await updateTable(editingTable.id, data);
+    } else {
+      return await createTable(data);
+    }
+  };
+
+  const handleCloseModal = () => {
+    setShowCreateTableModal(false);
+    setEditingTable(null);
   };
 
   const handleSignOut = () => {
@@ -91,78 +129,111 @@ export const Dashboard = () => {
       
       case 'table-list':
         return (
-          <Card variant="elevated">
-            <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-6">
-              <div className="space-y-4 flex-1">
-                {/* Event selector */}
-                <div className="flex items-center space-x-4">
-                  <label className="text-sm font-medium text-foreground">
-                    Choose Event:
-                  </label>
-                  <Select value={selectedEventId || ""} onValueChange={handleEventSelect}>
-                    <SelectTrigger className="w-[300px]">
-                      <SelectValue placeholder="Select an event..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {events.map((event) => (
-                        <SelectItem key={event.id} value={event.id}>
-                          <div className="flex items-center space-x-2">
-                            <Calendar className="w-4 h-4" />
-                            <span>{event.name}</span>
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+          <div className="space-y-6">
+            <Card variant="elevated">
+              <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-6">
+                <div className="space-y-4 flex-1">
+                  {/* Event selector */}
+                  <div className="flex items-center space-x-4">
+                    <label className="text-sm font-medium text-foreground">
+                      Choose Event:
+                    </label>
+                    <Select value={selectedEventId || ""} onValueChange={handleEventSelect}>
+                      <SelectTrigger className="w-[300px]">
+                        <SelectValue placeholder="Select an event..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {events.map((event) => (
+                          <SelectItem key={event.id} value={event.id}>
+                            <div className="flex items-center space-x-2">
+                              <Calendar className="w-4 h-4" />
+                              <span>{event.name}</span>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  {/* Contextual title - only show if event is selected */}
+                  {selectedEvent && (
+                    <div className="flex items-center space-x-2">
+                      <span className="text-lg font-medium text-foreground">Table Set Up for</span>
+                      <span className="text-lg font-bold text-primary">{selectedEvent.name}</span>
+                    </div>
+                  )}
                 </div>
                 
-                {/* Contextual title - only show if event is selected */}
-                {selectedEvent && (
-                  <div className="flex items-center space-x-2">
-                    <span className="text-lg font-medium text-foreground">Table Set Up for</span>
-                    <span className="text-lg font-bold text-primary">{selectedEvent.name}</span>
+                {/* Right side block */}
+                <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:ml-auto">
+                  <div className="flex items-start gap-3">
+                    <MapPin className="w-16 h-16 text-primary flex-shrink-0" />
+                    <div className="flex flex-col">
+                      <CardTitle className="mb-2 text-left">Table Setup</CardTitle>
+                      <CardDescription className="text-left">
+                        Design your perfect seating arrangement and table layouts
+                      </CardDescription>
+                    </div>
                   </div>
-                )}
-              </div>
-              
-              {/* Empty state block - top right on desktop, stacked on mobile */}
-              <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:ml-auto">
-                <div className="flex items-start gap-3">
-                  <MapPin className="w-16 h-16 text-primary flex-shrink-0" />
-                  <div className="flex flex-col">
-                    <CardTitle className="mb-2 text-left">Table Setup</CardTitle>
-                    <CardDescription className="text-left">
-                      Design your perfect seating arrangement and table layouts
-                    </CardDescription>
-                  </div>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div>
+                          <Button 
+                            variant="gradient" 
+                            className="sm:ml-3 sm:flex-shrink-0"
+                            disabled={!selectedEventId}
+                            onClick={handleCreateTable}
+                          >
+                            <Plus className="w-4 h-4 mr-2" />
+                            Create Tables
+                          </Button>
+                        </div>
+                      </TooltipTrigger>
+                      {!selectedEventId && (
+                        <TooltipContent>
+                          <p>Choose Event first</p>
+                        </TooltipContent>
+                      )}
+                    </Tooltip>
+                  </TooltipProvider>
                 </div>
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <div>
-                        <Button 
-                          variant="gradient" 
-                          className="sm:ml-3 sm:flex-shrink-0"
-                          disabled={!selectedEventId}
-                        >
-                          <Plus className="w-4 h-4 mr-2" />
-                          Create Tables
-                        </Button>
-                      </div>
-                    </TooltipTrigger>
-                    {!selectedEventId && (
-                      <TooltipContent>
-                        <p>Choose Event first</p>
-                      </TooltipContent>
-                    )}
-                  </Tooltip>
-                </TooltipProvider>
-              </div>
-            </CardHeader>
-            <CardContent>
-              {/* Empty card body until tables are created */}
-            </CardContent>
-          </Card>
+              </CardHeader>
+            </Card>
+
+            {/* Tables Grid */}
+            {selectedEventId && (
+              <Card variant="elevated">
+                <CardContent className="p-6">
+                  {tablesLoading ? (
+                    <div className="text-center py-8">
+                      <div className="text-muted-foreground">Loading tables...</div>
+                    </div>
+                  ) : tables.length > 0 ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                      {tables.map((table) => (
+                        <TableCard
+                          key={table.id}
+                          table={table}
+                          onEdit={handleEditTable}
+                          onDelete={deleteTable}
+                          getGuestsForTable={getGuestsForTable}
+                        />
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8">
+                      <div className="text-muted-foreground mb-4">No tables created yet</div>
+                      <Button variant="gradient" onClick={handleCreateTable}>
+                        <Plus className="w-4 h-4 mr-2" />
+                        Create Your First Table
+                      </Button>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+          </div>
         );
       
       case 'floor-plan':
@@ -304,6 +375,14 @@ export const Dashboard = () => {
           </div>
         </main>
       </div>
+
+      {/* Create/Edit Table Modal */}
+      <CreateTableModal
+        isOpen={showCreateTableModal}
+        onClose={handleCloseModal}
+        onSave={handleSaveTable}
+        editingTable={editingTable}
+      />
     </div>
   );
 };

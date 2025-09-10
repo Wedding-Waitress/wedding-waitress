@@ -94,6 +94,7 @@ export type Database = {
           notes: string | null
           rsvp: string | null
           seat_no: number | null
+          table_id: string | null
           table_no: number | null
           user_id: string
         }
@@ -110,6 +111,7 @@ export type Database = {
           notes?: string | null
           rsvp?: string | null
           seat_no?: number | null
+          table_id?: string | null
           table_no?: number | null
           user_id: string
         }
@@ -126,6 +128,7 @@ export type Database = {
           notes?: string | null
           rsvp?: string | null
           seat_no?: number | null
+          table_id?: string | null
           table_no?: number | null
           user_id?: string
         }
@@ -135,6 +138,13 @@ export type Database = {
             columns: ["event_id"]
             isOneToOne: false
             referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "guests_table_id_fkey"
+            columns: ["table_id"]
+            isOneToOne: false
+            referencedRelation: "tables"
             referencedColumns: ["id"]
           },
         ]
@@ -163,6 +173,39 @@ export type Database = {
           id?: string
           last_name?: string | null
           mobile?: string | null
+        }
+        Relationships: []
+      }
+      tables: {
+        Row: {
+          created_at: string
+          event_id: string
+          id: string
+          limit_seats: number
+          name: string
+          notes: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          id?: string
+          limit_seats: number
+          name: string
+          notes?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          id?: string
+          limit_seats?: number
+          name?: string
+          notes?: string | null
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
