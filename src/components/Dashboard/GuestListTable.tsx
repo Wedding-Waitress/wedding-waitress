@@ -42,6 +42,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "@/hooks/use-toast";
 import { useEvents } from '@/hooks/useEvents';
 import { useRealtimeGuests } from '@/hooks/useRealtimeGuests';
@@ -138,6 +139,9 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
   const [showImportErrors, setShowImportErrors] = useState(false);
   const [importErrors, setImportErrors] = useState<ImportError[]>([]);
   const [importStats, setImportStats] = useState({ total: 0, successful: 0 });
+  
+  // Bulk selection state
+  const [selectedGuestIds, setSelectedGuestIds] = useState<Set<string>>(new Set());
   
   // Local state for partner names to prevent input interruption
   const [localPartner1Name, setLocalPartner1Name] = useState('');
@@ -246,6 +250,9 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
     setPartnerNamesSaved(false);
     setHasUnsavedChanges(false);
     setFirstGuestAdded(false);
+    
+    // Reset bulk selection
+    setSelectedGuestIds(new Set());
   };
 
   // Get selected event
@@ -852,6 +859,29 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
   const guestCount = sortedGuests.length;
   const totalGuestCount = guests.length;
 
+  // Bulk selection handlers
+  const handleSelectAllGuests = (checked: boolean) => {
+    if (checked) {
+      setSelectedGuestIds(new Set(sortedGuests.map(guest => guest.id)));
+    } else {
+      setSelectedGuestIds(new Set());
+    }
+  };
+
+  const handleSelectGuest = (guestId: string, checked: boolean) => {
+    const newSelected = new Set(selectedGuestIds);
+    if (checked) {
+      newSelected.add(guestId);
+    } else {
+      newSelected.delete(guestId);
+    }
+    setSelectedGuestIds(newSelected);
+  };
+
+  // Calculate master checkbox state
+  const isAllSelected = sortedGuests.length > 0 && selectedGuestIds.size === sortedGuests.length;
+  const isIndeterminate = selectedGuestIds.size > 0 && selectedGuestIds.size < sortedGuests.length;
+
   const renderPill = (condition: boolean, yesColor = "bg-green-500", noColor = "bg-red-500") => (
     <Badge 
       className={`text-white ${condition ? yesColor : noColor}`}
@@ -1157,6 +1187,13 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
           <Table>
             <TableHeader>
               <TableRow className="border-card-border hover:bg-muted/50">
+                <TableHead className="w-12">
+                  <Checkbox
+                    checked={isAllSelected}
+                    onCheckedChange={handleSelectAllGuests}
+                    aria-label="Select all guests"
+                  />
+                </TableHead>
                 <TableHead className="min-w-[120px]">First Name</TableHead>
                 <TableHead className="min-w-[120px]">Last Name</TableHead>
                 <TableHead className="min-w-[100px]">Table</TableHead>
@@ -1173,13 +1210,13 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
             <TableBody>
               {guestsLoading ? (
                 <TableRow className="border-card-border">
-                  <TableCell colSpan={11} className="text-center py-8">
+                  <TableCell colSpan={12} className="text-center py-8">
                     Loading guests...
                   </TableCell>
                 </TableRow>
               ) : totalGuestCount === 0 ? (
                 <TableRow className="border-card-border">
-                  <TableCell colSpan={11} className="text-center py-8">
+                  <TableCell colSpan={12} className="text-center py-8">
                     {/* Empty - the "No Guests Yet" widget is now in the header */}
                   </TableCell>
                 </TableRow>
@@ -1189,6 +1226,13 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                     key={guest.id} 
                     className="border-card-border hover:bg-muted/50"
                   >
+                    <TableCell>
+                      <Checkbox
+                        checked={selectedGuestIds.has(guest.id)}
+                        onCheckedChange={(checked) => handleSelectGuest(guest.id, checked as boolean)}
+                        aria-label={`Select ${guest.first_name} ${guest.last_name}`}
+                      />
+                    </TableCell>
                     <TableCell className="font-medium">{guest.first_name}</TableCell>
                     <TableCell className="font-medium">{guest.last_name}</TableCell>
                     <TableCell>{getTableName(guest) || '–'}</TableCell>
