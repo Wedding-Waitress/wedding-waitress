@@ -42,7 +42,13 @@ export const Dashboard = () => {
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [showCreateTableModal, setShowCreateTableModal] = useState(false);
   const [editingTable, setEditingTable] = useState<TableWithGuestCount | null>(null);
-  const { events, activeEventId: eventsActiveEventId, setActiveEventId: setEventsActiveEventId } = useEvents();
+  const { 
+    events, 
+    loading: eventsLoading, 
+    activeEventId: eventsActiveEventId, 
+    setActiveEventId: setEventsActiveEventId,
+    refetch: refetchEvents 
+  } = useEvents();
   const { profile } = useProfile();
   const { 
     tables: rawTables, 
@@ -175,17 +181,23 @@ export const Dashboard = () => {
                     </label>
                     <Select value={selectedEventId || ""} onValueChange={handleEventSelect}>
                       <SelectTrigger className="w-[300px]">
-                        <SelectValue placeholder="Select an event..." />
+                        <SelectValue placeholder={eventsLoading ? "Loading events..." : "Select an event..."} />
                       </SelectTrigger>
                       <SelectContent>
-                        {events.map((event) => (
-                          <SelectItem key={event.id} value={event.id}>
-                            <div className="flex items-center space-x-2">
-                              <Calendar className="w-4 h-4" />
-                              <span>{event.name}</span>
-                            </div>
+                        {events.length > 0 ? (
+                          events.map((event) => (
+                            <SelectItem key={event.id} value={event.id}>
+                              <div className="flex items-center space-x-2">
+                                <Calendar className="w-4 h-4" />
+                                <span>{event.name}</span>
+                              </div>
+                            </SelectItem>
+                          ))
+                        ) : (
+                          <SelectItem value="no-events" disabled>
+                            {eventsLoading ? "Loading events..." : "No events found"}
                           </SelectItem>
-                        ))}
+                        )}
                       </SelectContent>
                     </Select>
                   </div>
@@ -391,10 +403,20 @@ export const Dashboard = () => {
     }
   };
 
+  // Handle tab changes with refetch for tables page
+  const handleTabChange = (tabId: string) => {
+    setActiveTab(tabId);
+    
+    // Explicitly refetch events when navigating to the Tables page
+    if (tabId === 'table-list') {
+      refetchEvents();
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-subtle flex">
       {/* Sidebar */}
-      <DashboardSidebar activeTab={activeTab} onTabChange={setActiveTab} />
+      <DashboardSidebar activeTab={activeTab} onTabChange={handleTabChange} />
       
       {/* Main Content */}
       <div className="flex-1 flex flex-col">
