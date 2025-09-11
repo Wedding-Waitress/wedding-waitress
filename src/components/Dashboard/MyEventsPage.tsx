@@ -6,11 +6,10 @@ import { useProfile } from '@/hooks/useProfile';
 import { supabase } from '@/integrations/supabase/client';
 
 export const MyEventsPage: React.FC = () => {
-  const { events, setActiveEventId } = useEvents();
+  const { events, activeEventId, setActiveEventId } = useEvents();
   const { profile, updateDisplayCountdownEvent } = useProfile();
   
-  // A) Page state & data
-  const [selectedCountdownId, setSelectedCountdownId] = useState<string | null>(null);
+  // A) Page state & data - simplified to use activeEventId as single source of truth
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [countdownValues, setCountdownValues] = useState({
     months: 0,
@@ -146,28 +145,22 @@ export const MyEventsPage: React.FC = () => {
     setEventState(timeResult.eventState as 'upcoming' | 'in_progress' | 'finished' | 'no_event');
   };
 
-  // Initialize selectedCountdownId on page load and handle new events
+  // Initialize selectedEvent based on activeEventId
   useEffect(() => {
     if (!events.length) return;
     
-    // Fetch users.display_countdown_event_id from profile
-    const profileEventId = profile?.display_countdown_event_id;
-    
-    if (profileEventId && eventMap[profileEventId]) {
-      // Valid profile selection exists in eventMap
-      setSelectedCountdownId(profileEventId);
-      setSelectedEvent(eventMap[profileEventId]);
-    } else if (!selectedCountdownId || !eventMap[selectedCountdownId]) {
-      // Set to first event if no selection or current selection is invalid
+    // If activeEventId exists and is valid, use it
+    if (activeEventId && eventMap[activeEventId]) {
+      setSelectedEvent(eventMap[activeEventId]);
+    } else if (!activeEventId) {
+      // Set to first event if no active event
       const firstEventId = events[0]?.id;
       if (firstEventId) {
-        setSelectedCountdownId(firstEventId);
         setSelectedEvent(eventMap[firstEventId]);
-        // Sync to activeEventId for table display
         setActiveEventId(firstEventId);
       }
     }
-  }, [events, profile, eventMap, selectedCountdownId, setActiveEventId]);
+  }, [events, activeEventId, eventMap, setActiveEventId]);
 
   // E) Realtime sync for profile changes
   useEffect(() => {
@@ -185,8 +178,7 @@ export const MyEventsPage: React.FC = () => {
         },
         (payload) => {
           const newDisplayEventId = payload.new?.display_countdown_event_id;
-          if (newDisplayEventId && eventMap[newDisplayEventId] && newDisplayEventId !== selectedCountdownId) {
-            setSelectedCountdownId(newDisplayEventId);
+          if (newDisplayEventId && eventMap[newDisplayEventId] && newDisplayEventId !== activeEventId) {
             setSelectedEvent(eventMap[newDisplayEventId]);
             setActiveEventId(newDisplayEventId);
           }
@@ -197,7 +189,7 @@ export const MyEventsPage: React.FC = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [profile?.id, eventMap, selectedCountdownId, setActiveEventId]);
+  }, [profile?.id, eventMap, activeEventId, setActiveEventId]);
 
   const getDisplayName = () => {
     if (profile?.first_name) {
@@ -282,9 +274,8 @@ export const MyEventsPage: React.FC = () => {
   // B) Handle radio change for countdown selection
   const handleCountdownEventSelect = (eventId: string) => {
     // Update state immediately
-    setSelectedCountdownId(eventId);
     setSelectedEvent(eventMap[eventId]);
-    setActiveEventId(eventId); // Sync with table selection
+    setActiveEventId(eventId); // This is now the single source of truth
     
     // Persist in background without blocking UI
     updateDisplayCountdownEvent(eventId).catch(console.error);
@@ -448,7 +439,7 @@ export const MyEventsPage: React.FC = () => {
           </div>
 
           {/* D) Countdown Circles with Timer lifecycle - use key for reset */}
-          <CountdownTimer key={selectedCountdownId} eventId={selectedCountdownId} />
+          <CountdownTimer key={activeEventId} eventId={activeEventId} />
 
           {/* C) Event Name and Time Range binding */}
           {selectedEvent && (
