@@ -270,6 +270,25 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
         }
       }
 
+      // Validate Who Is fields
+      if (!data.who_is_partner || !data.who_is_role) {
+        form.setError('who_is_partner', {
+          type: 'manual',
+          message: 'Please choose one partner and one role.'
+        });
+        form.setError('who_is_role', {
+          type: 'manual',
+          message: 'Please choose one partner and one role.'
+        });
+        
+        // Scroll to Who Is field
+        const whoIsField = document.querySelector('[data-field="who-is"]');
+        if (whoIsField) {
+          whoIsField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        return;
+      }
+
       // Check for duplicate guests (same first and last name, case-insensitive)
       const { data: existingGuests, error: checkError } = await supabase
         .from('guests')
@@ -653,7 +672,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
               control={form.control}
               name="who_is_partner"
               render={() => (
-                <FormItem>
+                <FormItem data-field="who-is">
                   <FormLabel>Who Is*</FormLabel>
                   <p className="text-xs text-muted-foreground mb-2">
                     Choose which partner they're related to, then select exactly one role.
@@ -665,14 +684,19 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                         role: form.watch('who_is_role') as WhoIsRole,
                       }}
                       onChange={handleWhoIsChange}
-                      partner1Name={currentEvent?.partner1_name}
-                      partner2Name={currentEvent?.partner2_name}
+                      partner1Name={currentEvent?.partner1_name || 'Partner 1'}
+                      partner2Name={currentEvent?.partner2_name || 'Partner 2'}
                       isOpen={whoIsSelectorOpen}
                       onToggle={() => setWhoIsSelectorOpen(!whoIsSelectorOpen)}
                       error={form.formState.errors.who_is_partner?.message || form.formState.errors.who_is_role?.message}
                     />
                   </FormControl>
                   <FormMessage />
+                  {(form.formState.errors.who_is_partner || form.formState.errors.who_is_role) && (
+                    <p className="text-sm text-destructive mt-1">
+                      Please choose one partner and one role.
+                    </p>
+                  )}
                 </FormItem>
               )}
             />

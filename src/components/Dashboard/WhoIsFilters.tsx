@@ -78,12 +78,21 @@ export const WhoIsFilters: React.FC<WhoIsFiltersProps> = ({
             {partner1Name && (
               <Badge
                 variant={filters.partners.includes('partner_one') ? 'default' : 'secondary'}
-                className={`cursor-pointer transition-colors ${
+                className={`cursor-pointer transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${
                   filters.partners.includes('partner_one') 
                     ? 'bg-primary text-primary-foreground' 
                     : 'hover:bg-muted'
                 }`}
                 onClick={() => togglePartner('partner_one')}
+                role="button"
+                tabIndex={0}
+                aria-pressed={filters.partners.includes('partner_one')}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    togglePartner('partner_one');
+                  }
+                }}
               >
                 {partner1Name}
               </Badge>
@@ -91,12 +100,21 @@ export const WhoIsFilters: React.FC<WhoIsFiltersProps> = ({
             {partner2Name && (
               <Badge
                 variant={filters.partners.includes('partner_two') ? 'default' : 'secondary'}
-                className={`cursor-pointer transition-colors ${
+                className={`cursor-pointer transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${
                   filters.partners.includes('partner_two') 
                     ? 'bg-primary text-primary-foreground' 
                     : 'hover:bg-muted'
                 }`}
                 onClick={() => togglePartner('partner_two')}
+                role="button"
+                tabIndex={0}
+                aria-pressed={filters.partners.includes('partner_two')}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    togglePartner('partner_two');
+                  }
+                }}
               >
                 {partner2Name}
               </Badge>
@@ -113,12 +131,21 @@ export const WhoIsFilters: React.FC<WhoIsFiltersProps> = ({
             <Badge
               key={role}
               variant={filters.roles.includes(role) ? 'default' : 'secondary'}
-              className={`cursor-pointer transition-colors text-xs ${
+              className={`cursor-pointer transition-colors text-xs focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${
                 filters.roles.includes(role) 
                   ? 'bg-primary text-primary-foreground' 
                   : 'hover:bg-muted'
               }`}
               onClick={() => toggleRole(role)}
+              role="button"
+              tabIndex={0}
+              aria-pressed={filters.roles.includes(role)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  toggleRole(role);
+                }
+              }}
             >
               {WHO_IS_ROLE_LABELS[role]}
             </Badge>

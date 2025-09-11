@@ -154,6 +154,13 @@ export const GuestListTable: React.FC = () => {
 
     // Reset filters when changing events
     setWhoIsFilters({ partners: [], roles: [] });
+    
+    // Reset modal states when changing events 
+    setShowAddModal(false);
+    setEditingGuest(null);
+    
+    // Reset validation state
+    setShowNamesValidation(false);
   };
 
   // Get selected event
@@ -558,7 +565,7 @@ export const GuestListTable: React.FC = () => {
     const partner1Missing = !selectedEvent.partner1_name?.trim();
     const partner2Missing = !selectedEvent.partner2_name?.trim();
     
-    // If this is a new guest list (no guests) and partner names are missing
+    // Gating rule: Only block for first guest (guest_count == 0) and missing partner names
     if (guestCount === 0 && (partner1Missing || partner2Missing)) {
       // Prevent opening the form
       setShowNamesValidation(true);
@@ -583,7 +590,7 @@ export const GuestListTable: React.FC = () => {
       return;
     }
     
-    // Normal flow - open the add guest modal
+    // Normal flow - open the add guest modal (allowed after first guest even if names are empty)
     setEditingGuest(null);
     setShowAddModal(true);
   };
@@ -659,15 +666,21 @@ export const GuestListTable: React.FC = () => {
       <div id="guest-tools-section" className="px-6 py-6">
         <div className="flex justify-center">
           <div className="w-full max-w-2xl">
-            <Card className={`p-6 transition-all duration-300 ${
-              showNamesValidation 
-                ? 'border-red-500 border-2 animate-pulse' 
-                : totalGuestCount > 0 
-                  ? 'border-muted-foreground border' 
-                  : 'border-border'
-            }`}>
+            <Card 
+              className={`p-6 transition-all duration-300 ${
+                showNamesValidation 
+                  ? 'is-alert animate-pulse-soft animate-shake-soft' 
+                  : totalGuestCount > 0 
+                    ? 'is-muted' 
+                    : 'border-border'
+              }`}
+              role="status"
+              aria-live="polite"
+            >
               <div className="text-center mb-6">
-                <h3 className="text-lg font-medium text-foreground">
+                <h3 className={`text-lg font-medium text-foreground ${
+                  showNamesValidation ? 'animate-pulse-soft' : ''
+                }`}>
                   If you're having a wedding or an engagement add the couple's first names below. If you're having any other type of event, write the organiser's first name only.
                 </h3>
               </div>
