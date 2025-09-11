@@ -29,9 +29,28 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { DeleteConfirmationModal } from './DeleteConfirmationModal';
 import { EventDatePicker } from './EventDatePicker';
 import { TimePicker } from './TimePicker';
-import { useEvents } from '@/hooks/useEvents';
 import { format } from 'date-fns';
 import { formatDisplayTime, formatDisplayDate } from '@/lib/utils';
+
+// Define Event type locally
+interface Event {
+  id: string;
+  name: string;
+  date: string | null;
+  venue: string | null;
+  start_time: string | null;
+  finish_time: string | null;
+  guest_limit: number;
+  guests_count: number;
+  created_at: string;
+  event_created: string | null;
+  expiry_date: string | null;
+  created_date_local: string | null;
+  expiry_date_local: string | null;
+  event_timezone: string | null;
+  partner1_name: string | null;
+  partner2_name: string | null;
+}
 
 // Format event date as DAY{ordinal}, Month YYYY (e.g., "20th, September 2025")
 const formatEventDate = (date: string | null): string => {
@@ -102,17 +121,30 @@ const getExpiryDateFallback = (createdDate: string | null, timezone?: string | n
 };
 
 interface EventsTableProps {
+  events: Event[];
+  loading: boolean;
+  activeEventId: string | null;
+  setActiveEventId: (id: string | null) => Promise<void> | void;
+  createEvent: (eventData: Partial<Omit<Event, 'id' | 'user_id' | 'created_at' | 'guests_count'>>) => Promise<any>;
+  updateEvent: (id: string, eventData: Partial<Omit<Event, 'id' | 'user_id' | 'created_at' | 'guests_count'>>) => Promise<void>;
+  deleteEvent: (id: string) => Promise<void>;
   onEventSelect?: (eventId: string) => void;
   onEventEdit?: (eventId: string) => void;
   onEventDelete?: (eventId: string) => void;
 }
 
 export const EventsTable: React.FC<EventsTableProps> = ({
+  events,
+  loading,
+  activeEventId,
+  setActiveEventId,
+  createEvent,
+  updateEvent,
+  deleteEvent,
   onEventSelect,
   onEventEdit,
   onEventDelete
 }) => {
-  const { events, loading, activeEventId, setActiveEventId, updateEvent, deleteEvent, createEvent } = useEvents();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [deleteModal, setDeleteModal] = useState<{isOpen: boolean; event: any}>({
     isOpen: false,
@@ -163,6 +195,10 @@ export const EventsTable: React.FC<EventsTableProps> = ({
       });
       setEditingId(null);
       setEditForm({});
+      
+      // Immediately set this event as active and notify parent
+      setActiveEventId(editingId);
+      onEventSelect?.(editingId);
     } catch (error) {
       console.error('Failed to save event:', error);
     }
@@ -193,7 +229,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
     if (!newEventForm.name.trim()) return;
     
     try {
-      await createEvent({
+      const newEvent = await createEvent({
         name: newEventForm.name,
         date: newEventForm.date ? format(newEventForm.date, 'yyyy-MM-dd') : null,
         venue: newEventForm.venue,
@@ -201,6 +237,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
         finish_time: newEventForm.finish_time || null,
         guest_limit: newEventForm.guest_limit
       });
+      
       setIsCreating(false);
       setNewEventForm({
         name: '',
@@ -210,6 +247,12 @@ export const EventsTable: React.FC<EventsTableProps> = ({
         finish_time: '',
         guest_limit: 50
       });
+      
+      // Immediately set the new event as active and notify parent
+      if (newEvent?.id) {
+        setActiveEventId(newEvent.id);
+        onEventSelect?.(newEvent.id);
+      }
     } catch (error) {
       console.error('Failed to create event:', error);
     }

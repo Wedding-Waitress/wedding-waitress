@@ -6,7 +6,7 @@ import { useProfile } from '@/hooks/useProfile';
 import { supabase } from '@/integrations/supabase/client';
 
 export const MyEventsPage: React.FC = () => {
-  const { events, activeEventId, setActiveEventId } = useEvents();
+  const { events, loading, activeEventId, setActiveEventId, createEvent, updateEvent, deleteEvent } = useEvents();
   const { profile, updateDisplayCountdownEvent } = useProfile();
   
   // A) Page state & data - simplified to use activeEventId as single source of truth
@@ -458,7 +458,16 @@ export const MyEventsPage: React.FC = () => {
       </Card>
 
       {/* Events Table with controlled radios */}
-      <EventsTable onEventSelect={handleCountdownEventSelect} />
+      <EventsTable 
+        events={events}
+        loading={loading}
+        activeEventId={activeEventId}
+        setActiveEventId={setActiveEventId}
+        createEvent={createEvent}
+        updateEvent={updateEvent}
+        deleteEvent={deleteEvent}
+        onEventSelect={handleCountdownEventSelect}
+      />
     </div>
   );
 };
