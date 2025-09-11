@@ -41,8 +41,16 @@ export const Header: React.FC<HeaderProps> = ({
 
           {/* Right Navigation */}
           <div className="flex items-center space-x-4">
-            {/* Navigation Links (for landing page) */}
-            {!user && <nav className="hidden md:flex items-center space-x-6">
+            {/* Logo and Navigation Links (for landing page) */}
+            {!user && <div className="hidden md:flex items-center">
+              <Link to="/" className="flex items-center pr-6">
+                <img 
+                  src="/lovable-uploads/651b28f4-e011-4478-a6c7-f4f0a576b92d.png" 
+                  alt="Wedding Waitress Logo" 
+                  className="h-12 w-auto hover:opacity-80 transition-opacity"
+                />
+              </Link>
+              <nav className="flex items-center space-x-6">
                 <a href="#how-it-works" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
                   How it Works
                 </a>
@@ -72,7 +80,8 @@ export const Header: React.FC<HeaderProps> = ({
                 <a href="#contact" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
                   Contact
                 </a>
-              </nav>}
+              </nav>
+            </div>}
 
             {/* User Actions */}
             {!hideDashboardElements && (user ? <DropdownMenu>
