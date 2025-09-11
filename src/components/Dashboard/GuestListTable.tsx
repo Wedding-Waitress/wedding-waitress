@@ -163,9 +163,7 @@ export const GuestListTable: React.FC = () => {
       }
 
       // Update the selected event in the events hook
-      if (updateEvent) {
-        await updateEvent(selectedEvent.id, { [field]: value });
-      }
+      await updateEvent(selectedEvent.id, { [field]: value });
     } catch (error) {
       console.error('Error updating partner name:', error);
       toast({

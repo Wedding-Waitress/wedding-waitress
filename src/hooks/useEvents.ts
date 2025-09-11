@@ -50,7 +50,11 @@ export const useEvents = () => {
         return;
       }
 
-      setEvents(data || []);
+      setEvents((data || []).map(event => ({
+        ...event,
+        partner1_name: event.partner1_name || null,
+        partner2_name: event.partner2_name || null,
+      })));
     } catch (error) {
       console.error('Error fetching events:', error);
       toast({
