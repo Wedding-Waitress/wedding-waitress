@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Check } from 'lucide-react';
 import { Button } from "@/components/ui/enhanced-button";
 import { Card } from "@/components/ui/card";
-import { WHO_IS_ROLE_OPTIONS, WhoIsPartner, WhoIsRole } from "@/lib/whoIsUtils";
+import { WhoIsPartner, WhoIsRole, getAllRoleOptions, computeWhoIsDisplay } from "@/lib/whoIsUtils";
 
 interface WhoIsSelectorProps {
   value: {
@@ -15,6 +15,8 @@ interface WhoIsSelectorProps {
   isOpen: boolean;
   onToggle: () => void;
   error?: string;
+  customRoles?: string[];
+  allowCustomRoles?: boolean;
 }
 
 export const WhoIsSelector: React.FC<WhoIsSelectorProps> = ({
@@ -24,10 +26,20 @@ export const WhoIsSelector: React.FC<WhoIsSelectorProps> = ({
   partner2Name,
   isOpen,
   onToggle,
-  error
+  error,
+  customRoles = [],
+  allowCustomRoles = false
 }) => {
   const [selectedPartner, setSelectedPartner] = useState<WhoIsPartner>(value.partner);
   const [selectedRole, setSelectedRole] = useState<WhoIsRole>(value.role);
+
+  // Get all available role options (default + custom)
+  const roleOptions = getAllRoleOptions(allowCustomRoles ? customRoles : []);
+
+  useEffect(() => {
+    setSelectedPartner(value.partner);
+    setSelectedRole(value.role);
+  }, [value.partner, value.role]);
 
   const handleRoleSelect = (partner: WhoIsPartner, role: WhoIsRole) => {
     setSelectedPartner(partner);
@@ -46,8 +58,15 @@ export const WhoIsSelector: React.FC<WhoIsSelectorProps> = ({
     onToggle();
   };
 
+  // Display current selection
   const displayText = value.partner && value.role 
-    ? `${value.partner === 'partner_one' ? partner1Name : partner2Name} — ${WHO_IS_ROLE_OPTIONS.find(r => r.value === value.role)?.label}`
+    ? computeWhoIsDisplay(
+        value.partner, 
+        value.role, 
+        partner1Name, 
+        partner2Name, 
+        customRoles
+      )
     : '';
 
   return (
@@ -76,7 +95,7 @@ export const WhoIsSelector: React.FC<WhoIsSelectorProps> = ({
           />
           
           {/* Panel */}
-          <Card className="absolute top-full left-0 right-0 mt-1 p-0 z-50 shadow-lg animate-scale-in">
+          <Card className="absolute top-full left-0 right-0 mt-1 p-0 z-50 shadow-lg animate-scale-in bg-background">
             {/* Header */}
             <div className="grid grid-cols-2 border-b">
               <div className="p-3 text-center bg-primary/10 border-r">
@@ -96,7 +115,7 @@ export const WhoIsSelector: React.FC<WhoIsSelectorProps> = ({
               <div className="grid grid-cols-2">
                 {/* Partner 1 Column */}
                 <div className="border-r">
-                  {WHO_IS_ROLE_OPTIONS.map((role) => (
+                  {roleOptions.map((role) => (
                     <div
                       key={`partner_one_${role.value}`}
                       onClick={() => handleRoleSelect('partner_one', role.value as WhoIsRole)}
@@ -111,14 +130,17 @@ export const WhoIsSelector: React.FC<WhoIsSelectorProps> = ({
                           <Check className="w-4 h-4 text-primary" />
                         )}
                       </div>
-                      <span className="text-sm">{role.label}</span>
+                      <span className={`text-sm ${role.isCustom ? 'italic' : ''}`}>
+                        {role.label}
+                        {role.isCustom && <span className="text-xs text-muted-foreground ml-1">(custom)</span>}
+                      </span>
                     </div>
                   ))}
                 </div>
 
                 {/* Partner 2 Column */}
                 <div>
-                  {WHO_IS_ROLE_OPTIONS.map((role) => (
+                  {roleOptions.map((role) => (
                     <div
                       key={`partner_two_${role.value}`}
                       onClick={() => handleRoleSelect('partner_two', role.value as WhoIsRole)}
@@ -133,7 +155,10 @@ export const WhoIsSelector: React.FC<WhoIsSelectorProps> = ({
                           <Check className="w-4 h-4 text-primary" />
                         )}
                       </div>
-                      <span className="text-sm">{role.label}</span>
+                      <span className={`text-sm ${role.isCustom ? 'italic' : ''}`}>
+                        {role.label}
+                        {role.isCustom && <span className="text-xs text-muted-foreground ml-1">(custom)</span>}
+                      </span>
                     </div>
                   ))}
                 </div>

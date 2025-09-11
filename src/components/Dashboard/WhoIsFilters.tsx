@@ -2,7 +2,8 @@ import React from 'react';
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/enhanced-button";
 import { X } from "lucide-react";
-import { WHO_IS_ROLE_LABELS } from "@/lib/whoIsUtils";
+import { WHO_IS_ROLE_LABELS, getAllRoleOptions, RoleOption } from "@/lib/whoIsUtils";
+import { whoIsAnalytics } from '@/lib/analytics';
 
 interface FilterState {
   partners: string[];
@@ -14,6 +15,8 @@ interface WhoIsFiltersProps {
   onFiltersChange: (filters: FilterState) => void;
   partner1Name?: string | null;
   partner2Name?: string | null;
+  customRoles?: string[];
+  eventId?: string | null;
 }
 
 const ROLE_OPTIONS = [
@@ -25,7 +28,9 @@ export const WhoIsFilters: React.FC<WhoIsFiltersProps> = ({
   filters,
   onFiltersChange,
   partner1Name,
-  partner2Name
+  partner2Name,
+  customRoles = [],
+  eventId
 }) => {
   const togglePartner = (partner: string) => {
     const newPartners = filters.partners.includes(partner)
@@ -33,6 +38,11 @@ export const WhoIsFilters: React.FC<WhoIsFiltersProps> = ({
       : [...filters.partners, partner];
     
     onFiltersChange({ ...filters, partners: newPartners });
+    
+    // Analytics tracking
+    if (eventId) {
+      whoIsAnalytics.tableFilterUsed(eventId, partner);
+    }
   };
 
   const toggleRole = (role: string) => {
@@ -41,6 +51,11 @@ export const WhoIsFilters: React.FC<WhoIsFiltersProps> = ({
       : [...filters.roles, role];
     
     onFiltersChange({ ...filters, roles: newRoles });
+    
+    // Analytics tracking
+    if (eventId) {
+      whoIsAnalytics.tableFilterUsed(eventId, undefined, role);
+    }
   };
 
   const clearFilters = () => {
@@ -127,27 +142,28 @@ export const WhoIsFilters: React.FC<WhoIsFiltersProps> = ({
       <div className="space-y-2">
         <span className="text-xs text-muted-foreground">Role:</span>
         <div className="flex flex-wrap gap-2">
-          {ROLE_OPTIONS.map((role) => (
+          {getAllRoleOptions(customRoles).map((role) => (
             <Badge
-              key={role}
-              variant={filters.roles.includes(role) ? 'default' : 'secondary'}
+              key={role.value}
+              variant={filters.roles.includes(role.value) ? 'default' : 'secondary'}
               className={`cursor-pointer transition-colors text-xs focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${
-                filters.roles.includes(role) 
+                filters.roles.includes(role.value) 
                   ? 'bg-primary text-primary-foreground' 
                   : 'hover:bg-muted'
-              }`}
-              onClick={() => toggleRole(role)}
+              } ${role.isCustom ? 'border-dashed' : ''}`}
+              onClick={() => toggleRole(role.value)}
               role="button"
               tabIndex={0}
-              aria-pressed={filters.roles.includes(role)}
+              aria-pressed={filters.roles.includes(role.value)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
                   e.preventDefault();
-                  toggleRole(role);
+                  toggleRole(role.value);
                 }
               }}
+              title={role.isCustom ? 'Custom Role' : undefined}
             >
-              {WHO_IS_ROLE_LABELS[role]}
+              {role.label}
             </Badge>
           ))}
         </div>

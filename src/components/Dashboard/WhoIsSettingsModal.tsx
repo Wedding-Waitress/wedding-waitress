@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Settings } from "lucide-react";
+import { CustomRoleManager } from './CustomRoleManager';
 
 interface WhoIsSettingsModalProps {
   isOpen: boolean;
@@ -25,6 +26,7 @@ export interface WhoIsSettings {
   who_is_allow_custom_role: boolean;
   who_is_allow_single_partner: boolean;
   who_is_disable_first_guest_alert: boolean;
+  custom_roles?: string[];
 }
 
 export const WhoIsSettingsModal: React.FC<WhoIsSettingsModalProps> = ({
@@ -39,6 +41,7 @@ export const WhoIsSettingsModal: React.FC<WhoIsSettingsModalProps> = ({
     who_is_allow_custom_role: false,
     who_is_allow_single_partner: true,
     who_is_disable_first_guest_alert: false,
+    custom_roles: [],
   });
   const [loading, setLoading] = useState(false);
 
@@ -52,7 +55,7 @@ export const WhoIsSettingsModal: React.FC<WhoIsSettingsModalProps> = ({
     try {
       const { data, error } = await supabase
         .from('events')
-        .select('who_is_required, who_is_allow_custom_role, who_is_allow_single_partner, who_is_disable_first_guest_alert')
+        .select('who_is_required, who_is_allow_custom_role, who_is_allow_single_partner, who_is_disable_first_guest_alert, custom_roles')
         .eq('id', eventId)
         .single();
 
@@ -67,6 +70,7 @@ export const WhoIsSettingsModal: React.FC<WhoIsSettingsModalProps> = ({
           who_is_allow_custom_role: data.who_is_allow_custom_role ?? false,
           who_is_allow_single_partner: data.who_is_allow_single_partner ?? true,
           who_is_disable_first_guest_alert: data.who_is_disable_first_guest_alert ?? false,
+          custom_roles: Array.isArray(data.custom_roles) ? data.custom_roles as string[] : [],
         });
       }
     } catch (error) {
@@ -181,6 +185,15 @@ export const WhoIsSettingsModal: React.FC<WhoIsSettingsModalProps> = ({
               onCheckedChange={(checked) => updateSetting('who_is_disable_first_guest_alert', checked)}
             />
           </div>
+
+          {/* Custom Role Manager - only show when custom roles are enabled */}
+          {settings.who_is_allow_custom_role && (
+            <CustomRoleManager
+              eventId={eventId}
+              customRoles={settings.custom_roles || []}
+              onRolesUpdate={(roles) => setSettings(prev => ({ ...prev, custom_roles: roles }))}
+            />
+          )}
         </div>
 
         <DialogFooter>

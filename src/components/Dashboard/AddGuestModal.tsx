@@ -93,9 +93,45 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
   const [tableError, setTableError] = useState<string>('');
   const [seatError, setSeatError] = useState<string>('');
   const [whoIsSelectorOpen, setWhoIsSelectorOpen] = useState(false);
+  const [whoIsSettings, setWhoIsSettings] = useState({
+    who_is_required: true,
+    who_is_allow_custom_role: false,
+    who_is_allow_single_partner: true,
+    who_is_disable_first_guest_alert: false,
+    custom_roles: [] as string[]
+  });
   
   // Find current event for partner names
   const currentEvent = events.find(e => e.id === eventId);
+
+  // Fetch Who Is settings for the current event
+  useEffect(() => {
+    if (currentEvent?.id) {
+      const fetchWhoIsSettings = async () => {
+        try {
+          const { data, error } = await supabase
+            .from('events')
+            .select('who_is_required, who_is_allow_custom_role, who_is_allow_single_partner, who_is_disable_first_guest_alert, custom_roles')
+            .eq('id', currentEvent.id)
+            .single();
+
+          if (!error && data) {
+            setWhoIsSettings({
+              who_is_required: data.who_is_required ?? true,
+              who_is_allow_custom_role: data.who_is_allow_custom_role ?? false,
+              who_is_allow_single_partner: data.who_is_allow_single_partner ?? true,
+              who_is_disable_first_guest_alert: data.who_is_disable_first_guest_alert ?? false,
+              custom_roles: Array.isArray(data.custom_roles) ? data.custom_roles as string[] : [],
+            });
+          }
+        } catch (error) {
+          console.error('Error fetching Who Is settings:', error);
+        }
+      };
+
+      fetchWhoIsSettings();
+    }
+  }, [currentEvent?.id]);
   
   const form = useForm<AddGuestFormData>({
     resolver: zodResolver(addGuestSchema),
@@ -685,7 +721,9 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                       }}
                       onChange={handleWhoIsChange}
                       partner1Name={currentEvent?.partner1_name || 'Partner 1'}
-                      partner2Name={currentEvent?.partner2_name || 'Partner 2'}
+                       partner2Name={currentEvent?.partner2_name || 'Partner 2'}
+                       customRoles={whoIsSettings.custom_roles}
+                       allowCustomRoles={whoIsSettings.who_is_allow_custom_role}
                       isOpen={whoIsSelectorOpen}
                       onToggle={() => setWhoIsSelectorOpen(!whoIsSelectorOpen)}
                       error={form.formState.errors.who_is_partner?.message || form.formState.errors.who_is_role?.message}

@@ -18,6 +18,7 @@ export type Database = {
         Row: {
           created_at: string
           created_date_local: string | null
+          custom_roles: Json | null
           date: string | null
           event_created: string
           event_timezone: string | null
@@ -45,6 +46,7 @@ export type Database = {
         Insert: {
           created_at?: string
           created_date_local?: string | null
+          custom_roles?: Json | null
           date?: string | null
           event_created?: string
           event_timezone?: string | null
@@ -72,6 +74,7 @@ export type Database = {
         Update: {
           created_at?: string
           created_date_local?: string | null
+          custom_roles?: Json | null
           date?: string | null
           event_created?: string
           event_timezone?: string | null

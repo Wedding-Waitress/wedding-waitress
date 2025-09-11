@@ -16,7 +16,13 @@ export const WHO_IS_ROLE_LABELS: Record<string, string> = {
   vendor: 'Vendor',
 };
 
-export const WHO_IS_ROLE_OPTIONS = [
+export interface RoleOption {
+  value: string;
+  label: string;
+  isCustom?: boolean;
+}
+
+export const WHO_IS_ROLE_OPTIONS: RoleOption[] = [
   { value: 'bridal_party', label: 'Bridal Party' },
   { value: 'father', label: 'Father' },
   { value: 'mother', label: 'Mother' },
@@ -29,15 +35,39 @@ export const WHO_IS_ROLE_OPTIONS = [
   { value: 'vendor', label: 'Vendor' },
 ];
 
+export const getAllRoleOptions = (customRoles: string[] = []): RoleOption[] => {
+  const defaultOptions = [...WHO_IS_ROLE_OPTIONS];
+  const customOptions: RoleOption[] = customRoles.map(role => ({
+    value: `custom_${role.toLowerCase().replace(/\s+/g, '_')}`,
+    label: role,
+    isCustom: true
+  }));
+  
+  return [...defaultOptions, ...customOptions];
+};
+
 export const computeWhoIsDisplay = (
   partner: WhoIsPartner,
   role: WhoIsRole,
   partner1Name?: string | null,
-  partner2Name?: string | null
+  partner2Name?: string | null,
+  customRoles: string[] = []
 ): string => {
   if (!partner || !role) return '';
   
   const partnerName = partner === 'partner_one' ? partner1Name : partner2Name;
+  
+  // Handle custom roles
+  if (role.startsWith('custom_')) {
+    const customRoleName = customRoles.find(cr => 
+      `custom_${cr.toLowerCase().replace(/\s+/g, '_')}` === role
+    );
+    if (customRoleName && partnerName) {
+      return `${partnerName} — ${customRoleName}`;
+    }
+  }
+  
+  // Handle standard roles
   const roleLabel = WHO_IS_ROLE_LABELS[role];
   
   if (!partnerName || !roleLabel) return '';
