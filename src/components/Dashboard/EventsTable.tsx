@@ -33,6 +33,26 @@ import { useEvents } from '@/hooks/useEvents';
 import { format } from 'date-fns';
 import { formatDisplayTime, formatDisplayDate } from '@/lib/utils';
 
+// Format event date as DAY{ordinal}, Month YYYY (e.g., "20th, September 2025")
+const formatEventDate = (date: string | null): string => {
+  if (!date) return "No date";
+  
+  const d = new Date(date);
+  const day = d.getDate();
+  const suffix = (day % 10 === 1 && day !== 11) ? "st"
+              : (day % 10 === 2 && day !== 12) ? "nd"
+              : (day % 10 === 3 && day !== 13) ? "rd" : "th";
+  
+  const monthNames = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+  ];
+  const month = monthNames[d.getMonth()];
+  const year = d.getFullYear();
+  
+  return `${day}${suffix}, ${month} ${year}`;
+};
+
 // Helper function to format local dates with DD/MM/YYYY format and fallback
 const formatLocalDate = (localDate: string | null, fallbackDate: string | null, timezone?: string | null): string => {
   if (localDate) {
@@ -450,7 +470,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                         />
                       ) : (
                         <span className="text-muted-foreground">
-                          {event.date ? format(new Date(event.date), 'PPP') : 'No date set'}
+                          {formatEventDate(event.date)}
                         </span>
                       )}
                     </TableCell>
