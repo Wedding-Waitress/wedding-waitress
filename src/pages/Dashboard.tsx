@@ -128,8 +128,8 @@ export const Dashboard = () => {
     const tablesCreated = tables.length;
     const seatsCreated = tables.reduce((sum, table) => sum + table.limit_seats, 0);
     const seatsFilled = guests.filter(guest => guest.table_id).length;
-    const seatsRemaining = Math.max(0, seatsCreated - seatsFilled);
     const eventGuestLimit = currentEvent?.guest_limit || 0;
+    const seatsRemaining = Math.max(0, eventGuestLimit - seatsFilled);
     const tablesAtCapacity = tables.filter(table => table.guest_count >= table.limit_seats).length;
 
     return {
