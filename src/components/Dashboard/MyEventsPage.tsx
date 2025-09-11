@@ -138,19 +138,25 @@ export const MyEventsPage: React.FC = () => {
 
   // Handle event selection changes - update immediately
   useEffect(() => {
-    updateCountdown(selectedEvent);
-  }, [activeEventId]);
+    console.log('ActiveEventId changed:', activeEventId);
+    // Derive selectedEvent within useEffect to avoid stale closure
+    const currentSelectedEvent = activeEventId ? events.find(e => e.id === activeEventId) : null;
+    console.log('Current selected event:', currentSelectedEvent);
+    updateCountdown(currentSelectedEvent);
+  }, [activeEventId, events]);
 
   // Update countdown every second
   useEffect(() => {
     const interval = setInterval(() => {
-      if (selectedEvent) {
-        updateCountdown(selectedEvent);
+      // Derive selectedEvent within interval to avoid stale closure
+      const currentSelectedEvent = activeEventId ? events.find(e => e.id === activeEventId) : null;
+      if (currentSelectedEvent) {
+        updateCountdown(currentSelectedEvent);
       }
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [selectedEvent]);
+  }, [activeEventId, events]);
 
   const getDisplayName = () => {
     if (profile?.first_name) {
