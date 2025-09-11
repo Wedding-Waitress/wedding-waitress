@@ -120,10 +120,10 @@ export const Dashboard = () => {
     }
   };
 
-  // Calculate real-time statistics
+  // Calculate real-time statistics - always use selectedEvent for consistency
   const statsData = useMemo(() => {
-    // Use the event from the active event (for guest list) or selected event (for tables)
-    const currentEvent = activeTab === 'guest-list' ? selectedCountdownEvent : selectedEvent;
+    // Always use selectedEvent to ensure both Tables and Guest List pages show the same stats
+    const currentEvent = selectedEvent;
     
     const tablesCreated = tables.length;
     const seatsCreated = tables.reduce((sum, table) => sum + table.limit_seats, 0);
@@ -140,7 +140,7 @@ export const Dashboard = () => {
       eventGuestLimit,
       tablesAtCapacity
     };
-  }, [tables, guests, selectedEvent, selectedCountdownEvent, activeTab]);
+  }, [tables, guests, selectedEvent]);
 
   // Handle guest movement between tables
   const handleGuestMove = async (
@@ -188,7 +188,7 @@ export const Dashboard = () => {
         return <MyEventsPage />;
       
       case 'guest-list':
-        return <GuestListTable />;
+        return <GuestListTable selectedEventId={selectedEventId} onEventSelect={handleEventSelect} />;
       
       case 'table-list':
         return (

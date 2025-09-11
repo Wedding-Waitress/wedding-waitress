@@ -105,9 +105,20 @@ const DIETARY_OPTIONS = [
 
 const RSVP_OPTIONS = ['Pending', 'Attending', 'Not Attending'];
 
-export const GuestListTable: React.FC = () => {
+interface GuestListTableProps {
+  selectedEventId?: string | null;
+  onEventSelect?: (eventId: string) => void;
+}
+
+export const GuestListTable: React.FC<GuestListTableProps> = ({ 
+  selectedEventId: propSelectedEventId, 
+  onEventSelect: propOnEventSelect 
+}) => {
   const { events, loading, updateEvent } = useEvents();
-  const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
+  const [localSelectedEventId, setLocalSelectedEventId] = useState<string | null>(null);
+  
+  // Use prop selectedEventId if provided, otherwise use local state
+  const selectedEventId = propSelectedEventId !== undefined ? propSelectedEventId : localSelectedEventId;
   const [showAddModal, setShowAddModal] = useState(false);
   const { guests, loading: guestsLoading, deleteGuest, refetchGuests } = useRealtimeGuests(selectedEventId);
   const { tables, fetchTables } = useTables(selectedEventId);
@@ -132,19 +143,21 @@ export const GuestListTable: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [firstGuestAdded, setFirstGuestAdded] = useState(false);
 
-  // Load selected event from localStorage on mount - use same key as Table Setup
+  // Load selected event from localStorage on mount only if no prop provided
   useEffect(() => {
-    const savedEventId = localStorage.getItem('active_event_id');
-    if (savedEventId && events.some(event => event.id === savedEventId)) {
-      setSelectedEventId(savedEventId);
-      
-      // Load saved sort preference for this event
-      const savedSort = localStorage.getItem(`guestSort_${savedEventId}`);
-      if (savedSort && SORT_OPTIONS.some(opt => opt.value === savedSort)) {
-        setSortBy(savedSort as SortOption);
+    if (propSelectedEventId === undefined) {
+      const savedEventId = localStorage.getItem('active_event_id');
+      if (savedEventId && events.some(event => event.id === savedEventId)) {
+        setLocalSelectedEventId(savedEventId);
+        
+        // Load saved sort preference for this event
+        const savedSort = localStorage.getItem(`guestSort_${savedEventId}`);
+        if (savedSort && SORT_OPTIONS.some(opt => opt.value === savedSort)) {
+          setSortBy(savedSort as SortOption);
+        }
       }
     }
-  }, [events]);
+  }, [events, propSelectedEventId]);
 
 
   // Save sort preference when changed
@@ -178,8 +191,14 @@ export const GuestListTable: React.FC = () => {
 
   // Save selected event to localStorage when changed - use same key as Table Setup
   const handleEventSelect = (eventId: string) => {
-    setSelectedEventId(eventId);
-    localStorage.setItem('active_event_id', eventId);
+    if (propOnEventSelect) {
+      // Use prop callback if provided (when used from Dashboard)
+      propOnEventSelect(eventId);
+    } else {
+      // Use local state if standalone
+      setLocalSelectedEventId(eventId);
+      localStorage.setItem('active_event_id', eventId);
+    }
     
     // Load sort preference for new event
     const savedSort = localStorage.getItem(`guestSort_${eventId}`);
