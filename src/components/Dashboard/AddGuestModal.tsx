@@ -30,6 +30,8 @@ import { Button } from "@/components/ui/enhanced-button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useTables } from "@/hooks/useTables";
+import { WHO_IS_ROLE_OPTIONS, computeWhoIsDisplay, WhoIsPartner, WhoIsRole } from "@/lib/whoIsUtils";
+import { useEvents } from "@/hooks/useEvents";
 
 const addGuestSchema = z.object({
   first_name: z.string().min(1, "First name is required"),
@@ -44,6 +46,8 @@ const addGuestSchema = z.object({
   mobile: z.string().optional(),
   email: z.string().email().optional().or(z.literal('')),
   notes: z.string().optional(),
+  who_is_partner: z.enum(['', 'partner_one', 'partner_two']).default(''),
+  who_is_role: z.enum(['', 'bridal_party', 'father', 'mother', 'brother', 'sister', 'cousin', 'uncle', 'aunty', 'guest', 'vendor']).default(''),
 });
 
 type AddGuestFormData = z.infer<typeof addGuestSchema>;
@@ -64,6 +68,9 @@ interface AddGuestModalProps {
     mobile: string | null;
     email: string | null;
     notes: string | null;
+    who_is_partner: string;
+    who_is_role: string;
+    who_is_display: string;
   } | null;
   isEdit?: boolean;
 }
@@ -78,11 +85,15 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
 }) => {
   const { toast } = useToast();
   const { tables, getCurrentCount } = useTables(eventId);
+  const { events } = useEvents();
   const [selectedTableId, setSelectedTableId] = useState<string>('');
   const [seatOptions, setSeatOptions] = useState<number[]>([]);
   const [takenSeats, setTakenSeats] = useState<number[]>([]);
   const [tableError, setTableError] = useState<string>('');
   const [seatError, setSeatError] = useState<string>('');
+  
+  // Find current event for partner names
+  const currentEvent = events.find(e => e.id === eventId);
   
   const form = useForm<AddGuestFormData>({
     resolver: zodResolver(addGuestSchema),
@@ -96,6 +107,8 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
       mobile: '',
       email: '',
       notes: '',
+      who_is_partner: '',
+      who_is_role: '',
     },
   });
 
@@ -153,6 +166,8 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
           mobile: guest.mobile || '',
           email: guest.email || '',
           notes: guest.notes || '',
+          who_is_partner: (guest.who_is_partner as '' | 'partner_one' | 'partner_two') || '',
+          who_is_role: (guest.who_is_role as '' | 'bridal_party' | 'father' | 'mother' | 'brother' | 'sister' | 'cousin' | 'uncle' | 'aunty' | 'guest' | 'vendor') || '',
         });
         
         if (guestTableId) {
@@ -170,6 +185,8 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
           mobile: '',
           email: '',
           notes: '',
+          who_is_partner: '',
+          who_is_role: '',
         });
       }
     }
@@ -285,6 +302,14 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
         return;
       }
 
+      // Compute who_is_display using current event's partner names
+      const whoIsDisplay = computeWhoIsDisplay(
+        data.who_is_partner as WhoIsPartner,
+        data.who_is_role as WhoIsRole,
+        currentEvent?.partner1_name,
+        currentEvent?.partner2_name
+      );
+
       const guestData = {
         first_name: data.first_name.trim(),
         last_name: data.last_name.trim(),
@@ -295,6 +320,9 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
         mobile: data.mobile || null,
         email: data.email || null,
         notes: data.notes || null,
+        who_is_partner: data.who_is_partner,
+        who_is_role: data.who_is_role,
+        who_is_display: whoIsDisplay,
       };
 
       if (isEdit && guest) {
@@ -623,6 +651,68 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                 </FormItem>
               )}
             />
+
+            {/* Who Is Section */}
+            <div className="space-y-4">
+              <div className="text-sm font-medium text-muted-foreground">
+                Relationship (optional)
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="who_is_partner"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Side</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select side" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="">None</SelectItem>
+                          <SelectItem value="partner_one">
+                            {currentEvent?.partner1_name || 'Partner 1'}
+                          </SelectItem>
+                          <SelectItem value="partner_two">
+                            {currentEvent?.partner2_name || 'Partner 2'}
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="who_is_role"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Role</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select role" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="">None</SelectItem>
+                          {WHO_IS_ROLE_OPTIONS.map((role) => (
+                            <SelectItem key={role.value} value={role.value}>
+                              {role.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
 
             <DialogFooter>
               <Button type="button" variant="secondary" onClick={onClose}>

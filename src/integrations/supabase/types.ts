@@ -105,6 +105,9 @@ export type Database = {
           table_id: string | null
           table_no: number | null
           user_id: string
+          who_is_display: string
+          who_is_partner: string
+          who_is_role: string
         }
         Insert: {
           assigned?: boolean | null
@@ -124,6 +127,9 @@ export type Database = {
           table_id?: string | null
           table_no?: number | null
           user_id: string
+          who_is_display?: string
+          who_is_partner?: string
+          who_is_role?: string
         }
         Update: {
           assigned?: boolean | null
@@ -143,6 +149,9 @@ export type Database = {
           table_id?: string | null
           table_no?: number | null
           user_id?: string
+          who_is_display?: string
+          who_is_partner?: string
+          who_is_role?: string
         }
         Relationships: [
           {
