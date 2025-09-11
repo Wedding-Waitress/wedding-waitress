@@ -1,13 +1,17 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Card } from "@/components/ui/enhanced-card";
 import { EventsTable } from './EventsTable';
 import { useEvents, Event } from '@/hooks/useEvents';
 import { useProfile } from '@/hooks/useProfile';
+import { supabase } from '@/integrations/supabase/client';
 
 export const MyEventsPage: React.FC = () => {
-  const { events, activeEventId } = useEvents();
-  const { profile } = useProfile();
+  const { events, setActiveEventId } = useEvents();
+  const { profile, updateDisplayCountdownEvent } = useProfile();
   
+  // A) Page state & data
+  const [selectedCountdownId, setSelectedCountdownId] = useState<string | null>(null);
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [countdownValues, setCountdownValues] = useState({
     months: 0,
     weeks: 0,
@@ -16,8 +20,14 @@ export const MyEventsPage: React.FC = () => {
   });
   const [eventState, setEventState] = useState<'upcoming' | 'in_progress' | 'finished' | 'no_event'>('no_event');
   
-  // Get the selected event for countdown
-  const selectedEvent = activeEventId ? events.find(e => e.id === activeEventId) : null;
+  // Build eventMap from events data
+  const eventMap = useMemo(() => {
+    const map: { [eventId: string]: Event } = {};
+    events.forEach(event => {
+      map[event.id] = event;
+    });
+    return map;
+  }, [events]);
 
   const calculateTimeRemaining = (event: Event | null) => {
     if (!event?.date) {
@@ -136,27 +146,58 @@ export const MyEventsPage: React.FC = () => {
     setEventState(timeResult.eventState as 'upcoming' | 'in_progress' | 'finished' | 'no_event');
   };
 
-  // Handle event selection changes - update immediately
+  // Initialize selectedCountdownId on page load
   useEffect(() => {
-    console.log('ActiveEventId changed:', activeEventId);
-    // Derive selectedEvent within useEffect to avoid stale closure
-    const currentSelectedEvent = activeEventId ? events.find(e => e.id === activeEventId) : null;
-    console.log('Current selected event:', currentSelectedEvent);
-    updateCountdown(currentSelectedEvent);
-  }, [activeEventId, events]);
-
-  // Update countdown every second
-  useEffect(() => {
-    const interval = setInterval(() => {
-      // Derive selectedEvent within interval to avoid stale closure
-      const currentSelectedEvent = activeEventId ? events.find(e => e.id === activeEventId) : null;
-      if (currentSelectedEvent) {
-        updateCountdown(currentSelectedEvent);
+    if (!events.length) return;
+    
+    // Fetch users.display_countdown_event_id from profile
+    const profileEventId = profile?.display_countdown_event_id;
+    
+    if (profileEventId && eventMap[profileEventId]) {
+      // Valid profile selection exists in eventMap
+      setSelectedCountdownId(profileEventId);
+      setSelectedEvent(eventMap[profileEventId]);
+    } else {
+      // Set to first event (top under current sort)
+      const firstEventId = events[0]?.id;
+      if (firstEventId) {
+        setSelectedCountdownId(firstEventId);
+        setSelectedEvent(eventMap[firstEventId]);
+        // Sync to activeEventId for table display
+        setActiveEventId(firstEventId);
       }
-    }, 1000);
+    }
+  }, [events, profile, eventMap, setActiveEventId]);
 
-    return () => clearInterval(interval);
-  }, [activeEventId, events]);
+  // E) Realtime sync for profile changes
+  useEffect(() => {
+    if (!profile?.id) return;
+
+    const channel = supabase
+      .channel('profile-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'profiles',
+          filter: `id=eq.${profile.id}`
+        },
+        (payload) => {
+          const newDisplayEventId = payload.new?.display_countdown_event_id;
+          if (newDisplayEventId && eventMap[newDisplayEventId] && newDisplayEventId !== selectedCountdownId) {
+            setSelectedCountdownId(newDisplayEventId);
+            setSelectedEvent(eventMap[newDisplayEventId]);
+            setActiveEventId(newDisplayEventId);
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [profile?.id, eventMap, selectedCountdownId, setActiveEventId]);
 
   const getDisplayName = () => {
     if (profile?.first_name) {
@@ -238,6 +279,109 @@ export const MyEventsPage: React.FC = () => {
     }
   };
 
+  // B) Handle radio change for countdown selection
+  const handleCountdownEventSelect = (eventId: string) => {
+    // Update state immediately
+    setSelectedCountdownId(eventId);
+    setSelectedEvent(eventMap[eventId]);
+    setActiveEventId(eventId); // Sync with table selection
+    
+    // Persist in background without blocking UI
+    updateDisplayCountdownEvent(eventId).catch(console.error);
+  };
+
+  // D) Countdown Timer Component with proper lifecycle
+  const CountdownTimer: React.FC<{ eventId: string | null }> = ({ eventId }) => {
+    const [localCountdownValues, setLocalCountdownValues] = useState({
+      months: 0,
+      weeks: 0,
+      hours: 0,
+      seconds: 0
+    });
+    const [localEventState, setLocalEventState] = useState<'upcoming' | 'in_progress' | 'finished' | 'no_event'>('no_event');
+
+    const updateLocalCountdown = (event: Event | null) => {
+      const timeResult = calculateTimeRemaining(event);
+      setLocalCountdownValues({
+        months: timeResult.months,
+        weeks: timeResult.weeks,
+        hours: timeResult.hours,
+        seconds: timeResult.seconds
+      });
+      setLocalEventState(timeResult.eventState as 'upcoming' | 'in_progress' | 'finished' | 'no_event');
+    };
+
+    // Update countdown immediately when event changes
+    useEffect(() => {
+      const currentEvent = eventId ? eventMap[eventId] : null;
+      updateLocalCountdown(currentEvent);
+    }, [eventId, eventMap]);
+
+    // Timer that ticks every 1000ms
+    useEffect(() => {
+      const currentEvent = eventId ? eventMap[eventId] : null;
+      if (!currentEvent) return;
+
+      const interval = setInterval(() => {
+        updateLocalCountdown(currentEvent);
+      }, 1000);
+
+      return () => clearInterval(interval);
+    }, [eventId, eventMap]);
+
+    return (
+      <div className="transition-opacity duration-300 ease-in-out">
+        {selectedEvent ? (
+          <div className="flex justify-center items-center gap-8 md:gap-16 flex-wrap">
+            <CountdownCircle value={localCountdownValues.months} label="Months" type="months" />
+            <CountdownCircle value={localCountdownValues.weeks} label="Weeks" type="weeks" />
+            <CountdownCircle value={localCountdownValues.hours} label="Hours" type="hours" />
+            <CountdownCircle value={localCountdownValues.seconds} label="Seconds" type="seconds" />
+          </div>
+        ) : (
+          <div className="space-y-4">
+            <div className="flex justify-center items-center gap-8 md:gap-16 flex-wrap">
+              <CountdownCircle value="--" label="Months" type="months" />
+              <CountdownCircle value="--" label="Weeks" type="weeks" />
+              <CountdownCircle value="--" label="Hours" type="hours" />
+              <CountdownCircle value="--" label="Seconds" type="seconds" />
+            </div>
+            <p className="text-sm text-muted-foreground">
+              {events.length === 0 
+                ? "Create an event to start your countdown" 
+                : (
+                  <button 
+                    className="underline hover:text-primary transition-colors"
+                    onClick={() => {
+                      const firstEventId = events[0]?.id;
+                      if (firstEventId) {
+                        handleCountdownEventSelect(firstEventId);
+                      }
+                    }}
+                  >
+                    Select an event below to start your countdown
+                  </button>
+                )
+              }
+            </p>
+          </div>
+        )}
+        
+        {/* Event state message */}
+        <div className="text-center mt-4">
+          <p className="text-muted-foreground text-lg">
+            {localEventState === 'in_progress' 
+              ? "Your event is in progress"
+              : localEventState === 'finished'
+              ? <span className="text-sm text-muted-foreground">Event finished</span>
+              : "This is a countdown to your event"
+            }
+          </p>
+        </div>
+      </div>
+    );
+  };
+
   const CountdownCircle = ({ value, label, type }: { value: number | string; label: string; type: string }) => {
     const isPlaceholder = value === '--';
     const progress = isPlaceholder ? 0 : getProgressPercentage(Number(value), 100, type);
@@ -295,15 +439,7 @@ export const MyEventsPage: React.FC = () => {
             <h2 className="text-3xl md:text-4xl font-bold text-primary">
               Welcome {getDisplayName()}
             </h2>
-            <p className="text-muted-foreground text-lg">
-              {eventState === 'in_progress' 
-                ? "Your event is in progress"
-                : eventState === 'finished'
-                ? "Event finished"
-                : "This is a countdown to your event"
-              }
-            </p>
-            {/* Event Date */}
+            {/* C) Countdown header binding - Event Date */}
             {selectedEvent && (
               <p className="text-muted-foreground transition-opacity duration-300 ease-in-out">
                 {formatEventDate(selectedEvent)}
@@ -311,38 +447,10 @@ export const MyEventsPage: React.FC = () => {
             )}
           </div>
 
-          {/* Countdown Circles */}
-          <div className="transition-opacity duration-400 ease-in-out">
-            {selectedEvent ? (
-              <div className="flex justify-center items-center gap-8 md:gap-16 flex-wrap">
-                <CountdownCircle value={countdownValues.months} label="Months" type="months" />
-                <CountdownCircle value={countdownValues.weeks} label="Weeks" type="weeks" />
-                <CountdownCircle value={countdownValues.hours} label="Hours" type="hours" />
-                <CountdownCircle value={countdownValues.seconds} label="Seconds" type="seconds" />
-              </div>
-            ) : (
-              <div className="space-y-4">
-                <div className="flex justify-center items-center gap-8 md:gap-16 flex-wrap">
-                  <CountdownCircle value="--" label="Months" type="months" />
-                  <CountdownCircle value="--" label="Weeks" type="weeks" />
-                  <CountdownCircle value="--" label="Hours" type="hours" />
-                  <CountdownCircle value="--" label="Seconds" type="seconds" />
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  {events.length === 0 
-                    ? "Create an event to start your countdown" 
-                    : (
-                      <button className="underline hover:text-primary transition-colors">
-                        Select an event below to start your countdown
-                      </button>
-                    )
-                  }
-                </p>
-              </div>
-            )}
-          </div>
+          {/* D) Countdown Circles with Timer lifecycle - use key for reset */}
+          <CountdownTimer key={selectedCountdownId} eventId={selectedCountdownId} />
 
-          {/* Event Name and Time Range */}
+          {/* C) Event Name and Time Range binding */}
           {selectedEvent && (
             <div className="space-y-1 transition-opacity duration-300 ease-in-out">
               <p className="text-lg font-medium text-primary">
@@ -358,8 +466,8 @@ export const MyEventsPage: React.FC = () => {
         </div>
       </Card>
 
-      {/* Events Table */}
-      <EventsTable />
+      {/* Events Table with controlled radios */}
+      <EventsTable onEventSelect={handleCountdownEventSelect} />
     </div>
   );
 };
