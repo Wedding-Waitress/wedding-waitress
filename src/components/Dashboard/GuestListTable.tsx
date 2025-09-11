@@ -51,6 +51,16 @@ import { WhoIsFilters } from './WhoIsFilters';
 import { WhoIsBadge } from './WhoIsBadge';
 import { supabase } from "@/integrations/supabase/client";
 import { WHO_IS_ROLE_LABELS, computeWhoIsDisplay } from "@/lib/whoIsUtils";
+import { DeleteConfirmationModal } from './DeleteConfirmationModal';
+import { WhoIsSettingsButton, WhoIsSettings } from './WhoIsSettingsModal';
+import { ImportErrorModal } from './ImportErrorModal';
+import { whoIsAnalytics } from '@/lib/analytics';
+import { 
+  validateWhoIsFields, 
+  normalizePartner, 
+  normalizeRole, 
+  ImportError 
+} from '@/lib/whoIsValidation';
 
 type SortOption = 
   | 'first_name_asc' | 'first_name_desc'
@@ -74,7 +84,15 @@ const SORT_OPTIONS = [
   { value: 'who_is_desc', label: 'Who Is (Z–A)' },
 ] as const;
 
-const CSV_HEADERS = [
+// Template headers (no who_is_display as it's computed)
+const IMPORT_TEMPLATE_HEADERS = [
+  'first_name', 'last_name', 'table_name', 'seat_no',
+  'rsvp', 'dietary', 'mobile', 'email', 'notes', 
+  'who_is_partner', 'who_is_role'
+];
+
+// Export headers (includes who_is_display)
+const EXPORT_HEADERS = [
   'first_name', 'last_name', 'table_name', 'seat_no',
   'rsvp', 'dietary', 'mobile', 'email', 'notes', 
   'who_is_partner', 'who_is_role', 'who_is_display'
@@ -100,6 +118,15 @@ export const GuestListTable: React.FC = () => {
     partners: [],
     roles: []
   });
+  const [whoIsSettings, setWhoIsSettings] = useState<WhoIsSettings>({
+    who_is_required: true,
+    who_is_allow_custom_role: false,
+    who_is_allow_single_partner: true,
+    who_is_disable_first_guest_alert: false,
+  });
+  const [showImportErrors, setShowImportErrors] = useState(false);
+  const [importErrors, setImportErrors] = useState<ImportError[]>([]);
+  const [importStats, setImportStats] = useState({ total: 0, successful: 0 });
 
   // Load selected event from localStorage on mount - use same key as Table Setup
   useEffect(() => {
@@ -202,6 +229,11 @@ export const GuestListTable: React.FC = () => {
       if (bothNamesFilled && showNamesValidation) {
         setShowNamesValidation(false);
       }
+      
+      // Analytics tracking when partner names are set
+      if (bothNamesFilled) {
+        whoIsAnalytics.partnerNamesSet(selectedEvent.id);
+      }
     } catch (error) {
       console.error('Error updating partner name:', error);
       toast({
@@ -296,15 +328,15 @@ export const GuestListTable: React.FC = () => {
   // CSV Functions
   const downloadTemplate = () => {
     const csvContent = [
-      CSV_HEADERS.join(','),
-      'John,Doe,Table 1,1,Attending,NA,1234567890,john@example.com,Sample note,partner_one,father,John — Father',
-      'Jane,Smith,Table 2,3,Pending,Vegan,,jane@example.com,,partner_two,bridal_party,Jane — Bridal Party'
+      IMPORT_TEMPLATE_HEADERS.join(','),
+      'John,Doe,Table 1,1,Attending,NA,1234567890,john@example.com,Sample note,partner_one,father',
+      'Jane,Smith,Table 2,3,Pending,Vegan,,jane@example.com,,partner_two,bridal_party'
     ].join('\n');
     
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = 'guest-list-template.csv';
+    link.download = 'guest-list-import-template.csv';
     link.click();
   };
 
@@ -312,7 +344,7 @@ export const GuestListTable: React.FC = () => {
     if (!selectedEvent || !filteredGuests.length) return;
     
     const csvRows = [
-      CSV_HEADERS.join(','),
+      EXPORT_HEADERS.join(','),
       ...filteredGuests.map(guest => [
         guest.first_name || '',
         guest.last_name || '',
@@ -368,7 +400,7 @@ export const GuestListTable: React.FC = () => {
           }
           
           const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
-          const expectedHeaders = CSV_HEADERS;
+          const expectedHeaders = IMPORT_TEMPLATE_HEADERS;
           
           // Check if headers match
           const headersMatch = expectedHeaders.every(h => headers.includes(h));
@@ -565,8 +597,14 @@ export const GuestListTable: React.FC = () => {
     const partner1Missing = !selectedEvent.partner1_name?.trim();
     const partner2Missing = !selectedEvent.partner2_name?.trim();
     
+    // Check admin settings for first guest alert override
+    const shouldBlockFirstGuest = !whoIsSettings.who_is_disable_first_guest_alert;
+    
     // Gating rule: Only block for first guest (guest_count == 0) and missing partner names
-    if (guestCount === 0 && (partner1Missing || partner2Missing)) {
+    if (shouldBlockFirstGuest && guestCount === 0 && (partner1Missing || partner2Missing)) {
+      // Analytics tracking
+      whoIsAnalytics.addGuestBlockedMissingNames(selectedEvent.id);
+      
       // Prevent opening the form
       setShowNamesValidation(true);
       
@@ -678,11 +716,22 @@ export const GuestListTable: React.FC = () => {
               aria-live="polite"
             >
               <div className="text-center mb-6">
-                <h3 className={`text-lg font-medium text-foreground ${
-                  showNamesValidation ? 'animate-pulse-soft' : ''
-                }`}>
+                <div className="flex items-center justify-center gap-2 mb-2">
+                  <h3 className={`text-lg font-medium text-foreground ${
+                    showNamesValidation ? 'animate-pulse-soft' : ''
+                  }`}>
+                    Partner Names
+                  </h3>
+                  {selectedEventId && (
+                    <WhoIsSettingsButton
+                      eventId={selectedEventId}
+                      onSettingsUpdate={setWhoIsSettings}
+                    />
+                  )}
+                </div>
+                <p className="text-sm text-muted-foreground">
                   If you're having a wedding or an engagement add the couple's first names below. If you're having any other type of event, write the organiser's first name only.
-                </h3>
+                </p>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
@@ -970,6 +1019,13 @@ export const GuestListTable: React.FC = () => {
         guest={editingGuest}
         isEdit={!!editingGuest}
       />
-    </>
-  );
+        <ImportErrorModal
+          isOpen={showImportErrors}
+          onClose={() => setShowImportErrors(false)}
+          errors={importErrors}
+          totalRows={importStats.total}
+          successfulRows={importStats.successful}
+        />
+      </>
+    );
 };

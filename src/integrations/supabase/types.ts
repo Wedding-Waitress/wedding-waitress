@@ -37,6 +37,10 @@ export type Database = {
           venue_lng: number | null
           venue_name: string | null
           venue_place_id: string | null
+          who_is_allow_custom_role: boolean | null
+          who_is_allow_single_partner: boolean | null
+          who_is_disable_first_guest_alert: boolean | null
+          who_is_required: boolean | null
         }
         Insert: {
           created_at?: string
@@ -60,6 +64,10 @@ export type Database = {
           venue_lng?: number | null
           venue_name?: string | null
           venue_place_id?: string | null
+          who_is_allow_custom_role?: boolean | null
+          who_is_allow_single_partner?: boolean | null
+          who_is_disable_first_guest_alert?: boolean | null
+          who_is_required?: boolean | null
         }
         Update: {
           created_at?: string
@@ -83,6 +91,10 @@ export type Database = {
           venue_lng?: number | null
           venue_name?: string | null
           venue_place_id?: string | null
+          who_is_allow_custom_role?: boolean | null
+          who_is_allow_single_partner?: boolean | null
+          who_is_disable_first_guest_alert?: boolean | null
+          who_is_required?: boolean | null
         }
         Relationships: []
       }
