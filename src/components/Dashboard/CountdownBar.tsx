@@ -132,7 +132,7 @@ export const CountdownBar: React.FC<CountdownBarProps> = ({ selectedEvent }) => 
         </div>
         {displayEvent && (
           <p 
-            className={`text-lg font-medium text-muted-foreground mt-2 transition-opacity duration-125 ease-in-out ${
+            className={`text-sm text-muted-foreground mt-2 transition-opacity duration-125 ease-in-out ${
               isAnimating ? 'opacity-0' : 'opacity-100'
             }`}
           >
