@@ -50,7 +50,7 @@ export const useEvents = () => {
         return;
       }
 
-      setEvents(data || []);
+      setEvents((data as Event[]) || []);
     } catch (error) {
       console.error('Error fetching events:', error);
       toast({
