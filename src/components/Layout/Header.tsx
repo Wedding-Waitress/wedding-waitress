@@ -31,15 +31,6 @@ export const Header: React.FC<HeaderProps> = ({
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <div className="flex items-center space-x-2">
-            <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center shadow-glow">
-              <Heart className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <h1 className="text-xl font-bold gradient-text">Wedding Waitress</h1>
-              <p className="text-xs text-muted-foreground">Your Wedding & Event Assistant</p>
-            </div>
-          </div>
 
           {/* Center Welcome Message (for dashboard) */}
           {user && <div className="flex-1 flex justify-center -ml-8">
