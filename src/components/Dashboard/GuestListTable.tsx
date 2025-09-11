@@ -377,6 +377,8 @@ export const GuestListTable: React.FC = () => {
   const handleImportCSV = () => {
     if (!selectedEvent) return;
     
+    whoIsAnalytics.importStarted(selectedEvent.id, 0); // Will update with actual count
+    
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = '.csv';
@@ -402,12 +404,13 @@ export const GuestListTable: React.FC = () => {
           const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
           const expectedHeaders = IMPORT_TEMPLATE_HEADERS;
           
-          // Check if headers match
-          const headersMatch = expectedHeaders.every(h => headers.includes(h));
-          if (!headersMatch) {
+          // Check if headers match (flexible - not all columns required)
+          const requiredHeaders = ['first_name', 'last_name', 'table_name'];
+          const missingHeaders = requiredHeaders.filter(h => !headers.includes(h));
+          if (missingHeaders.length > 0) {
             toast({ 
               title: "Import failed", 
-              description: `CSV headers don't match template. Expected: ${expectedHeaders.join(', ')}`,
+              description: `Missing required headers: ${missingHeaders.join(', ')}`,
               variant: "destructive"
             });
             return;
@@ -416,6 +419,9 @@ export const GuestListTable: React.FC = () => {
           const dataRows = lines.slice(1);
           const currentGuestCount = guests.length;
           const guestLimit = selectedEvent.guest_limit || 50;
+          
+          // Update analytics with actual row count
+          whoIsAnalytics.importStarted(selectedEvent.id, dataRows.length);
           
           if (currentGuestCount + dataRows.length > guestLimit) {
             toast({ 
@@ -426,10 +432,9 @@ export const GuestListTable: React.FC = () => {
             return;
           }
           
-          // Parse and validate rows
+          // Enhanced validation and processing
           const validRows: any[] = [];
-          const duplicateRows: any[] = [];
-          const errors: string[] = [];
+          const allErrors: ImportError[] = [];
           
           // Get existing guests for duplicate checking
           const { data: existingGuests } = await supabase
@@ -447,7 +452,7 @@ export const GuestListTable: React.FC = () => {
           
           dataRows.forEach((row, index) => {
             const values = row.split(',').map(v => v.trim().replace(/"/g, ''));
-            if (values.length < headers.length) return;
+            const rowIndex = index + 2; // +2 because we skip header and arrays are 0-indexed
             
             const rowData: any = {};
             headers.forEach((header, i) => {
@@ -456,67 +461,162 @@ export const GuestListTable: React.FC = () => {
             
             // Validate required fields
             if (!rowData.first_name?.trim()) {
-              errors.push(`Row ${index + 2}: First name is required`);
+              allErrors.push({
+                rowIndex,
+                field: 'first_name',
+                value: rowData.first_name || '',
+                reason: 'First name is required'
+              });
               return;
             }
+            
             if (!rowData.last_name?.trim()) {
-              errors.push(`Row ${index + 2}: Last name is required`);
+              allErrors.push({
+                rowIndex,
+                field: 'last_name',
+                value: rowData.last_name || '',
+                reason: 'Last name is required'
+              });
               return;
             }
+            
             if (!rowData.table_name?.trim()) {
-              errors.push(`Row ${index + 2}: Table name is required`);
+              allErrors.push({
+                rowIndex,
+                field: 'table_name',
+                value: rowData.table_name || '',
+                reason: 'Table name is required'
+              });
               return;
             }
             
             // Check for duplicates
             const nameKey = `${rowData.first_name.toLowerCase().trim()}_${rowData.last_name.toLowerCase().trim()}`;
-            if (existingNames.has(nameKey) || csvNames.has(nameKey)) {
-              duplicateRows.push({ ...rowData, rowIndex: index + 2 });
+            if (existingNames.has(nameKey)) {
+              allErrors.push({
+                rowIndex,
+                field: 'first_name',
+                value: `${rowData.first_name} ${rowData.last_name}`,
+                reason: 'Guest already exists in the event'
+              });
+              return;
+            }
+            
+            if (csvNames.has(nameKey)) {
+              allErrors.push({
+                rowIndex,
+                field: 'first_name',
+                value: `${rowData.first_name} ${rowData.last_name}`,
+                reason: 'Duplicate guest in CSV file'
+              });
               return;
             }
             csvNames.add(nameKey);
             
             // Validate RSVP
             if (rowData.rsvp && !RSVP_OPTIONS.includes(rowData.rsvp)) {
-              errors.push(`Row ${index + 2}: Invalid RSVP status`);
+              allErrors.push({
+                rowIndex,
+                field: 'rsvp',
+                value: rowData.rsvp,
+                reason: `Invalid RSVP status. Must be one of: ${RSVP_OPTIONS.join(', ')}`
+              });
               return;
             }
             
             // Validate dietary
             if (rowData.dietary && !DIETARY_OPTIONS.includes(rowData.dietary)) {
-              errors.push(`Row ${index + 2}: Invalid dietary restriction`);
+              allErrors.push({
+                rowIndex,
+                field: 'dietary',
+                value: rowData.dietary,
+                reason: `Invalid dietary restriction. Must be one of: ${DIETARY_OPTIONS.join(', ')}`
+              });
               return;
             }
             
-            // Transform data - find table_id from table_name
+            // Enhanced Who Is validation
+            const whoIsErrors = validateWhoIsFields(
+              rowData.who_is_partner || '',
+              rowData.who_is_role || '',
+              rowIndex
+            );
+            allErrors.push(...whoIsErrors);
+            
+            if (whoIsErrors.length > 0) {
+              return; // Skip this row due to Who Is errors
+            }
+            
+            // Normalize Who Is fields
+            if (rowData.who_is_partner) {
+              const normalizedPartner = normalizePartner(rowData.who_is_partner);
+              const normalizedRole = normalizeRole(rowData.who_is_role);
+              
+              if (!normalizedPartner || !normalizedRole) {
+                // Should have been caught by validation above, but just in case
+                return;
+              }
+              
+              rowData.who_is_partner = normalizedPartner;
+              rowData.who_is_role = normalizedRole;
+            }
+            
+            // Find table
             const foundTable = tables.find(t => t.name.toLowerCase() === rowData.table_name.toLowerCase());
             if (!foundTable) {
-              errors.push(`Row ${index + 2}: Table "${rowData.table_name}" not found`);
+              allErrors.push({
+                rowIndex,
+                field: 'table_name',
+                value: rowData.table_name,
+                reason: `Table "${rowData.table_name}" not found`
+              });
               return;
             }
             
+            // Validate seat number if provided
+            if (rowData.seat_no) {
+              const seatNum = parseInt(rowData.seat_no);
+              if (isNaN(seatNum) || seatNum < 1) {
+                allErrors.push({
+                  rowIndex,
+                  field: 'seat_no',
+                  value: rowData.seat_no,
+                  reason: 'Seat number must be a positive integer'
+                });
+                return;
+              }
+              rowData.seat_no = seatNum;
+            } else {
+              rowData.seat_no = null;
+            }
+            
+            // Transform data
             rowData.table_id = foundTable.id;
-            rowData.seat_no = rowData.seat_no ? parseInt(rowData.seat_no) : null;
             rowData.event_id = selectedEventId;
+            rowData.rsvp = rowData.rsvp || 'Pending';
+            rowData.dietary = rowData.dietary || 'NA';
             delete rowData.table_name; // Remove table_name as we're using table_id
             
             validRows.push(rowData);
           });
           
-          if (errors.length > 0) {
-            toast({ 
-              title: "Import validation failed", 
-              description: errors.slice(0, 3).join('; ') + (errors.length > 3 ? '...' : ''),
-              variant: "destructive"
-            });
-            return;
+          // If there are errors, show error modal
+          if (allErrors.length > 0) {
+            setImportErrors(allErrors);
+            setImportStats({ total: dataRows.length, successful: validRows.length });
+            setShowImportErrors(true);
+            
+            // If no valid rows, don't proceed with import
+            if (validRows.length === 0) {
+              return;
+            }
           }
           
           // Show preview and confirm import
           const preview = validRows.slice(0, 5);
           let confirmMsg = `Import ${validRows.length} guests?`;
-          if (duplicateRows.length > 0) {
-            confirmMsg += `\n\nNote: ${duplicateRows.length} duplicate guests will be skipped.`;
+          if (allErrors.length > 0) {
+            confirmMsg += `\n\n${allErrors.length} rows will be skipped due to errors.`;
           }
           confirmMsg += `\n\nPreview:\n${preview.map(r => `${r.first_name} ${r.last_name}`).join('\n')}`;
           
@@ -563,13 +663,17 @@ export const GuestListTable: React.FC = () => {
                 return;
               }
               
+              // Analytics tracking
+              whoIsAnalytics.importCompleted(selectedEvent.id, validRows.length, allErrors.length);
+              
               let successMsg = `Imported ${validRows.length} guests successfully`;
-              if (duplicateRows.length > 0) {
-                successMsg += `. Skipped ${duplicateRows.length} duplicates`;
+              if (allErrors.length > 0) {
+                successMsg += `. Skipped ${allErrors.length} rows with errors`;
               }
               toast({ title: successMsg });
               refetchGuests();
             } catch (error) {
+              console.error('Import error:', error);
               toast({ 
                 title: "Import failed", 
                 description: "Error importing guests. Please try again.",
@@ -578,6 +682,7 @@ export const GuestListTable: React.FC = () => {
             }
           }
         } catch (error) {
+          console.error('CSV parsing error:', error);
           toast({ 
             title: "Import failed", 
             description: "Error reading CSV file",
