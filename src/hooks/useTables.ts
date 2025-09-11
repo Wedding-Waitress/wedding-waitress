@@ -48,8 +48,7 @@ export const useTables = (eventId: string | null) => {
       const { data: tablesData, error: tablesError } = await supabase
         .from('tables')
         .select('*')
-        .eq('event_id', eventId)
-        .order('table_no', { ascending: true });
+        .eq('event_id', eventId);
 
       if (tablesError) throw tablesError;
 
@@ -64,7 +63,26 @@ export const useTables = (eventId: string | null) => {
         })
       );
 
-      setTables(tablesWithCounts);
+      // Custom sorting: named tables first (alphabetically), then numbered tables (sequentially)
+      const sortedTables = tablesWithCounts.sort((a, b) => {
+        // Named tables (table_no is null) come first
+        if (a.table_no === null && b.table_no !== null) return -1;
+        if (a.table_no !== null && b.table_no === null) return 1;
+        
+        // Both are named tables - sort alphabetically by name
+        if (a.table_no === null && b.table_no === null) {
+          return a.name.localeCompare(b.name);
+        }
+        
+        // Both are numbered tables - sort by table number
+        if (a.table_no !== null && b.table_no !== null) {
+          return a.table_no - b.table_no;
+        }
+        
+        return 0;
+      });
+
+      setTables(sortedTables);
     } catch (error) {
       console.error('Error fetching tables:', error);
       toast({
