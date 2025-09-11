@@ -14,7 +14,7 @@ export const MyEventsPage: React.FC = () => {
     hours: 0,
     seconds: 0
   });
-  const [hasStarted, setHasStarted] = useState<boolean>(false);
+  const [eventState, setEventState] = useState<'upcoming' | 'in_progress' | 'finished' | 'no_event'>('no_event');
   const [isAnimating, setIsAnimating] = useState(false);
   const debounceTimeoutRef = useRef<NodeJS.Timeout>();
   
@@ -28,22 +28,69 @@ export const MyEventsPage: React.FC = () => {
         weeks: 0,
         hours: 0,
         seconds: 0,
-        hasStarted: false
+        eventState: 'no_event' as const,
+        targetEnd: null
       };
     }
 
     const eventDate = new Date(event.date);
     
-    // If start_time is available, use it; otherwise use 00:00
+    // Calculate target start time
+    const targetStart = new Date(eventDate);
     if (event.start_time) {
       const [hours, minutes] = event.start_time.split(':');
-      eventDate.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+      targetStart.setHours(parseInt(hours), parseInt(minutes), 0, 0);
     } else {
-      eventDate.setHours(0, 0, 0, 0);
+      targetStart.setHours(0, 0, 0, 0);
+    }
+
+    // Calculate target end time
+    let targetEnd: Date | null = null;
+    if (event.finish_time) {
+      targetEnd = new Date(eventDate);
+      const [endHours, endMinutes] = event.finish_time.split(':');
+      const endHour = parseInt(endHours);
+      const endMinute = parseInt(endMinutes);
+      
+      // If finish time is before start time, assume it's next day
+      const startHour = event.start_time ? parseInt(event.start_time.split(':')[0]) : 0;
+      const startMinute = event.start_time ? parseInt(event.start_time.split(':')[1]) : 0;
+      
+      if (endHour < startHour || (endHour === startHour && endMinute <= startMinute)) {
+        targetEnd.setDate(targetEnd.getDate() + 1);
+      }
+      
+      targetEnd.setHours(endHour, endMinute, 0, 0);
     }
 
     const now = new Date();
-    const timeDiff = eventDate.getTime() - now.getTime();
+    
+    // Determine event state and target time
+    let targetTime: Date;
+    let eventState: 'upcoming' | 'in_progress' | 'finished';
+    
+    if (now < targetStart) {
+      // Event hasn't started yet
+      targetTime = targetStart;
+      eventState = 'upcoming';
+    } else if (targetEnd && now < targetEnd) {
+      // Event is in progress
+      targetTime = targetEnd;
+      eventState = 'in_progress';
+    } else {
+      // Event has finished or no end time
+      eventState = 'finished';
+      return {
+        months: 0,
+        weeks: 0,
+        hours: 0,
+        seconds: 0,
+        eventState,
+        targetEnd
+      };
+    }
+
+    const timeDiff = targetTime.getTime() - now.getTime();
 
     if (timeDiff <= 0) {
       return {
@@ -51,7 +98,8 @@ export const MyEventsPage: React.FC = () => {
         weeks: 0,
         hours: 0,
         seconds: 0,
-        hasStarted: true
+        eventState: 'finished',
+        targetEnd
       };
     }
 
@@ -74,7 +122,8 @@ export const MyEventsPage: React.FC = () => {
       weeks,
       hours,
       seconds,
-      hasStarted: false
+      eventState,
+      targetEnd
     };
   };
 
@@ -86,7 +135,7 @@ export const MyEventsPage: React.FC = () => {
       hours: timeResult.hours,
       seconds: timeResult.seconds
     });
-    setHasStarted(timeResult.hasStarted);
+    setEventState(timeResult.eventState as 'upcoming' | 'in_progress' | 'finished' | 'no_event');
   };
 
   const handleEventChange = (newEvent: Event | null) => {
@@ -130,7 +179,7 @@ export const MyEventsPage: React.FC = () => {
           hours: timeResult.hours,
           seconds: timeResult.seconds
         });
-        setHasStarted(timeResult.hasStarted);
+        setEventState(timeResult.eventState as 'upcoming' | 'in_progress' | 'finished' | 'no_event');
       }
     }, 1000);
 
@@ -165,6 +214,26 @@ export const MyEventsPage: React.FC = () => {
     };
     
     return `${dayOfWeek} ${day}${getOrdinalSuffix(day)}, ${month} ${year}`;
+  };
+
+  const formatTimeRange = (event: Event | null) => {
+    if (!event?.start_time) return '';
+    
+    const formatTime = (time: string) => {
+      const [hours, minutes] = time.split(':');
+      const hour = parseInt(hours);
+      const ampm = hour >= 12 ? 'PM' : 'AM';
+      const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
+      return `${displayHour}:${minutes} ${ampm}`;
+    };
+
+    const startTime = formatTime(event.start_time);
+    const finishTime = event.finish_time ? formatTime(event.finish_time) : '';
+    
+    if (finishTime) {
+      return `Start ${startTime} — Finish ${finishTime}`;
+    }
+    return `Start ${startTime}`;
   };
 
   const getProgressPercentage = (value: number, max: number, type: string) => {
@@ -255,7 +324,12 @@ export const MyEventsPage: React.FC = () => {
               Welcome {getDisplayName()}
             </h2>
             <p className="text-muted-foreground text-lg">
-              This is a countdown to your event
+              {eventState === 'in_progress' 
+                ? "Your event is in progress"
+                : eventState === 'finished'
+                ? "Event finished"
+                : "This is a countdown to your event"
+              }
             </p>
             {/* Event Date */}
             {selectedEvent && (
@@ -296,11 +370,18 @@ export const MyEventsPage: React.FC = () => {
             )}
           </div>
 
-          {/* Event Name */}
+          {/* Event Name and Time Range */}
           {selectedEvent && (
-            <p className={`text-lg font-medium text-primary transition-opacity duration-300 ease-in-out ${isAnimating ? 'opacity-0' : 'opacity-100'}`}>
-              {selectedEvent.name}
-            </p>
+            <div className={`space-y-1 transition-opacity duration-300 ease-in-out ${isAnimating ? 'opacity-0' : 'opacity-100'}`}>
+              <p className="text-lg font-medium text-primary">
+                {selectedEvent.name}
+              </p>
+              {formatTimeRange(selectedEvent) && (
+                <p className="text-sm text-muted-foreground">
+                  {formatTimeRange(selectedEvent)}
+                </p>
+              )}
+            </div>
           )}
         </div>
       </Card>
