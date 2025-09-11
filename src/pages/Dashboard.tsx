@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { StatsBar } from "@/components/Dashboard/StatsBar";
-import { CountdownBar } from "@/components/Dashboard/CountdownBar";
 import { DashboardSidebar } from "@/components/Dashboard/DashboardSidebar";
-import { EventsTable } from "@/components/Dashboard/EventsTable";
+import { MyEventsPage } from "@/components/Dashboard/MyEventsPage";
 import { GuestListTable } from "@/components/Dashboard/GuestListTable";
 import { CreateTableModal } from "@/components/Dashboard/CreateTableModal";
 import { TableCard } from "@/components/Dashboard/TableCard";
@@ -158,7 +157,7 @@ export const Dashboard = () => {
         );
       
       case 'my-events':
-        return <EventsTable />;
+        return <MyEventsPage />;
       
       case 'guest-list':
         return <GuestListTable />;
@@ -401,12 +400,8 @@ export const Dashboard = () => {
       <div className="flex-1 flex flex-col">
         <main className="flex-1 lg:px-6 px-4 py-6">
           <div className="mx-auto max-w-none">
-            {/* Conditional Stats Bar or Countdown */}
-            {activeTab === 'my-events' ? (
-              <CountdownBar selectedEvent={selectedCountdownEvent} />
-            ) : (
-              <StatsBar />
-            )}
+            {/* Stats Bar for all tabs except My Events */}
+            {activeTab !== 'my-events' && <StatsBar />}
             
             {/* Tab Content */}
             <div className="space-y-6 mt-6">
