@@ -229,7 +229,8 @@ export const EventsTable: React.FC<EventsTableProps> = ({
         </div>
 
         <div className="overflow-x-auto">
-          <Table>
+          <RadioGroup value={activeEventId || ''} onValueChange={handleEventSelect}>
+            <Table>
             <TableHeader>
               <TableRow className="border-card-border hover:bg-muted/50">
                 <TableHead className="w-32">Countdown</TableHead>
@@ -346,15 +347,14 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                     `}
                   >
                     <TableCell className="text-center">
-                      <RadioGroup value={activeEventId || ''} onValueChange={handleEventSelect}>
-                        <div className="flex items-center justify-center">
-                          <RadioGroupItem 
-                            value={event.id} 
-                            id={`countdown-${event.id}`}
-                            className="data-[state=checked]:border-primary data-[state=checked]:text-primary"
-                          />
-                        </div>
-                      </RadioGroup>
+                      <div className="flex items-center justify-center">
+                        <RadioGroupItem 
+                          value={event.id} 
+                          id={`countdown-${event.id}`}
+                          className="data-[state=checked]:border-primary data-[state=checked]:text-primary"
+                          onClick={() => handleEventSelect(event.id)}
+                        />
+                      </div>
                     </TableCell>
                     <TableCell className="font-medium">
                       {isEditing ? (
@@ -496,7 +496,8 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                 );
               })}
             </TableBody>
-          </Table>
+            </Table>
+          </RadioGroup>
         </div>
       </Card>
 

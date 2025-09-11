@@ -152,6 +152,7 @@ export type Database = {
       profiles: {
         Row: {
           created_at: string | null
+          display_countdown_event_id: string | null
           email: string | null
           first_name: string | null
           id: string
@@ -160,6 +161,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
+          display_countdown_event_id?: string | null
           email?: string | null
           first_name?: string | null
           id?: string
@@ -168,13 +170,22 @@ export type Database = {
         }
         Update: {
           created_at?: string | null
+          display_countdown_event_id?: string | null
           email?: string | null
           first_name?: string | null
           id?: string
           last_name?: string | null
           mobile?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_display_countdown_event_id_fkey"
+            columns: ["display_countdown_event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       tables: {
         Row: {

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useProfile } from '@/hooks/useProfile';
 
 export interface Event {
   id: string;
@@ -25,6 +26,12 @@ export const useEvents = () => {
   const [loading, setLoading] = useState(true);
   const [activeEventId, setActiveEventId] = useState<string | null>(null);
   const { toast } = useToast();
+  const { profile, updateDisplayCountdownEvent } = useProfile();
+
+  const setActiveEventIdWithPersistence = async (eventId: string | null) => {
+    setActiveEventId(eventId);
+    await updateDisplayCountdownEvent(eventId);
+  };
 
   const fetchEvents = async () => {
     try {
@@ -164,19 +171,32 @@ export const useEvents = () => {
     fetchEvents();
   }, []);
 
-  // Auto-select first event when events are loaded
+  // Initialize activeEventId from profile or auto-select first event
   useEffect(() => {
-    if (events.length > 0 && !activeEventId) {
+    if (!profile || events.length === 0) return;
+    
+    // If profile has a saved display_countdown_event_id and it exists in events, use it
+    if (profile.display_countdown_event_id) {
+      const savedEvent = events.find(e => e.id === profile.display_countdown_event_id);
+      if (savedEvent) {
+        setActiveEventId(savedEvent.id);
+        return;
+      }
+    }
+    
+    // Otherwise, auto-select first event and save it
+    if (!activeEventId && events.length > 0) {
       const firstEvent = events[0];
       setActiveEventId(firstEvent.id);
+      updateDisplayCountdownEvent(firstEvent.id);
     }
-  }, [events, activeEventId]);
+  }, [events, profile, activeEventId, updateDisplayCountdownEvent]);
 
   return {
     events,
     loading,
     activeEventId,
-    setActiveEventId,
+    setActiveEventId: setActiveEventIdWithPersistence,
     createEvent,
     updateEvent,
     deleteEvent,

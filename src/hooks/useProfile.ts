@@ -7,6 +7,7 @@ export interface UserProfile {
   last_name: string | null;
   email: string | null;
   mobile: string | null;
+  display_countdown_event_id: string | null;
 }
 
 export const useProfile = () => {
@@ -47,5 +48,22 @@ export const useProfile = () => {
     fetchProfile();
   }, []);
 
-  return { profile, loading, error };
+  const updateDisplayCountdownEvent = async (eventId: string | null) => {
+    if (!profile) return;
+    
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ display_countdown_event_id: eventId })
+        .eq('id', profile.id);
+      
+      if (!error) {
+        setProfile({ ...profile, display_countdown_event_id: eventId });
+      }
+    } catch (err) {
+      console.error('Failed to update display countdown event:', err);
+    }
+  };
+
+  return { profile, loading, error, updateDisplayCountdownEvent };
 };

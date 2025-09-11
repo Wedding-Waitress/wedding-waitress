@@ -283,9 +283,14 @@ export const MyEventsPage: React.FC = () => {
                   <CountdownCircle value="--" label="Seconds" type="seconds" />
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  <button className="underline hover:text-primary transition-colors">
-                    Select an event below to start your countdown
-                  </button>
+                  {events.length === 0 
+                    ? "Create an event to start your countdown" 
+                    : (
+                      <button className="underline hover:text-primary transition-colors">
+                        Select an event below to start your countdown
+                      </button>
+                    )
+                  }
                 </p>
               </div>
             )}
