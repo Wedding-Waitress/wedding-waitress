@@ -15,8 +15,6 @@ export const MyEventsPage: React.FC = () => {
     seconds: 0
   });
   const [eventState, setEventState] = useState<'upcoming' | 'in_progress' | 'finished' | 'no_event'>('no_event');
-  const [isAnimating, setIsAnimating] = useState(false);
-  const debounceTimeoutRef = useRef<NodeJS.Timeout>();
   
   // Get the selected event for countdown
   const selectedEvent = activeEventId ? events.find(e => e.id === activeEventId) : null;
@@ -138,48 +136,16 @@ export const MyEventsPage: React.FC = () => {
     setEventState(timeResult.eventState as 'upcoming' | 'in_progress' | 'finished' | 'no_event');
   };
 
-  const handleEventChange = (newEvent: Event | null) => {
-    if (debounceTimeoutRef.current) {
-      clearTimeout(debounceTimeoutRef.current);
-    }
-
-    debounceTimeoutRef.current = setTimeout(() => {
-      if (!isAnimating) {
-        setIsAnimating(true);
-        
-        setTimeout(() => {
-          updateCountdown(newEvent);
-          
-          setTimeout(() => {
-            setIsAnimating(false);
-          }, 200);
-        }, 200);
-      }
-    }, 100);
-  };
-
-  // Handle event selection changes
+  // Handle event selection changes - update immediately
   useEffect(() => {
-    handleEventChange(selectedEvent);
-    return () => {
-      if (debounceTimeoutRef.current) {
-        clearTimeout(debounceTimeoutRef.current);
-      }
-    };
-  }, [selectedEvent?.id]);
+    updateCountdown(selectedEvent);
+  }, [activeEventId]);
 
   // Update countdown every second
   useEffect(() => {
     const interval = setInterval(() => {
       if (selectedEvent) {
-        const timeResult = calculateTimeRemaining(selectedEvent);
-        setCountdownValues({
-          months: timeResult.months,
-          weeks: timeResult.weeks,
-          hours: timeResult.hours,
-          seconds: timeResult.seconds
-        });
-        setEventState(timeResult.eventState as 'upcoming' | 'in_progress' | 'finished' | 'no_event');
+        updateCountdown(selectedEvent);
       }
     }, 1000);
 
@@ -333,14 +299,14 @@ export const MyEventsPage: React.FC = () => {
             </p>
             {/* Event Date */}
             {selectedEvent && (
-              <p className={`text-muted-foreground transition-opacity duration-300 ease-in-out ${isAnimating ? 'opacity-0' : 'opacity-100'}`}>
+              <p className="text-muted-foreground transition-opacity duration-300 ease-in-out">
                 {formatEventDate(selectedEvent)}
               </p>
             )}
           </div>
 
           {/* Countdown Circles */}
-          <div className={`transition-opacity duration-400 ease-in-out ${isAnimating ? 'opacity-0' : 'opacity-100'}`}>
+          <div className="transition-opacity duration-400 ease-in-out">
             {selectedEvent ? (
               <div className="flex justify-center items-center gap-8 md:gap-16 flex-wrap">
                 <CountdownCircle value={countdownValues.months} label="Months" type="months" />
@@ -372,7 +338,7 @@ export const MyEventsPage: React.FC = () => {
 
           {/* Event Name and Time Range */}
           {selectedEvent && (
-            <div className={`space-y-1 transition-opacity duration-300 ease-in-out ${isAnimating ? 'opacity-0' : 'opacity-100'}`}>
+            <div className="space-y-1 transition-opacity duration-300 ease-in-out">
               <p className="text-lg font-medium text-primary">
                 {selectedEvent.name}
               </p>
