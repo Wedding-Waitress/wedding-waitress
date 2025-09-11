@@ -486,41 +486,45 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{isEdit ? 'Edit Guest' : 'Add Guest'}</DialogTitle>
         </DialogHeader>
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="first_name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>First Name</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            {/* Row 1: First Name & Last Name */}
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="first_name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>First Name</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <FormField
-              control={form.control}
-              name="last_name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Last Name</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              <FormField
+                control={form.control}
+                name="last_name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Last Name</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
+            {/* Row 2: Table & Seat No. */}
             <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}
@@ -623,135 +627,143 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
               />
             </div>
 
-            <FormField
-              control={form.control}
-              name="rsvp"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>RSVP</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+            {/* Row 3: RSVP & Dietary */}
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="rsvp"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>RSVP</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="Pending">Pending</SelectItem>
+                        <SelectItem value="Attending">Attending</SelectItem>
+                        <SelectItem value="Not Attending">Not Attending</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="dietary"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Dietary</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="NA">NA</SelectItem>
+                        <SelectItem value="Vegan">Vegan</SelectItem>
+                        <SelectItem value="Vegetarian">Vegetarian</SelectItem>
+                        <SelectItem value="Gluten Free">Gluten Free</SelectItem>
+                        <SelectItem value="Dairy Free">Dairy Free</SelectItem>
+                        <SelectItem value="Nut Free">Nut Free</SelectItem>
+                        <SelectItem value="Seafood Free">Seafood Free</SelectItem>
+                        <SelectItem value="Kosher">Kosher</SelectItem>
+                        <SelectItem value="Halal">Halal</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            {/* Row 4: Mobile & Email */}
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="mobile"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Mobile</FormLabel>
                     <FormControl>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
+                      <Input {...field} type="tel" />
                     </FormControl>
-                    <SelectContent>
-                      <SelectItem value="Pending">Pending</SelectItem>
-                      <SelectItem value="Attending">Attending</SelectItem>
-                      <SelectItem value="Not Attending">Not Attending</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <FormField
-              control={form.control}
-              name="dietary"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Dietary</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
+                      <Input {...field} type="email" />
                     </FormControl>
-                    <SelectContent>
-                      <SelectItem value="NA">NA</SelectItem>
-                      <SelectItem value="Vegan">Vegan</SelectItem>
-                      <SelectItem value="Vegetarian">Vegetarian</SelectItem>
-                      <SelectItem value="Gluten Free">Gluten Free</SelectItem>
-                      <SelectItem value="Dairy Free">Dairy Free</SelectItem>
-                      <SelectItem value="Nut Free">Nut Free</SelectItem>
-                      <SelectItem value="Seafood Free">Seafood Free</SelectItem>
-                      <SelectItem value="Kosher">Kosher</SelectItem>
-                      <SelectItem value="Halal">Halal</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
-            <FormField
-              control={form.control}
-              name="mobile"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Mobile</FormLabel>
-                  <FormControl>
-                    <Input {...field} type="tel" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <Input {...field} type="email" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Who Is Field */}
-            <FormField
-              control={form.control}
-              name="who_is_partner"
-              render={() => (
-                <FormItem data-field="who-is">
-                  <FormLabel>Who Is*</FormLabel>
-                  <p className="text-xs text-muted-foreground mb-2">
-                    Choose which partner they're related to, then select exactly one role.
-                  </p>
-                  <FormControl>
-                    <WhoIsSelector
-                      value={{
-                        partner: form.watch('who_is_partner') as WhoIsPartner,
-                        role: form.watch('who_is_role') as WhoIsRole,
-                      }}
-                      onChange={handleWhoIsChange}
-                      partner1Name={currentEvent?.partner1_name || 'Partner 1'}
-                       partner2Name={currentEvent?.partner2_name || 'Partner 2'}
-                       customRoles={whoIsSettings.custom_roles}
-                       allowCustomRoles={whoIsSettings.who_is_allow_custom_role}
-                      isOpen={whoIsSelectorOpen}
-                      onToggle={() => setWhoIsSelectorOpen(!whoIsSelectorOpen)}
-                      error={form.formState.errors.who_is_partner?.message || form.formState.errors.who_is_role?.message}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                  {(form.formState.errors.who_is_partner || form.formState.errors.who_is_role) && (
-                    <p className="text-sm text-destructive mt-1">
-                      Please choose one partner and one role.
+            {/* Row 5: Who Is & Notes */}
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="who_is_partner"
+                render={() => (
+                  <FormItem data-field="who-is">
+                    <FormLabel>Who Is*</FormLabel>
+                    <p className="text-xs text-muted-foreground mb-2">
+                      Choose which partner they're related to, then select exactly one role.
                     </p>
-                  )}
-                </FormItem>
-              )}
-            />
+                    <FormControl>
+                      <WhoIsSelector
+                        value={{
+                          partner: form.watch('who_is_partner') as WhoIsPartner,
+                          role: form.watch('who_is_role') as WhoIsRole,
+                        }}
+                        onChange={handleWhoIsChange}
+                        partner1Name={currentEvent?.partner1_name || 'Partner 1'}
+                         partner2Name={currentEvent?.partner2_name || 'Partner 2'}
+                         customRoles={whoIsSettings.custom_roles}
+                         allowCustomRoles={whoIsSettings.who_is_allow_custom_role}
+                        isOpen={whoIsSelectorOpen}
+                        onToggle={() => setWhoIsSelectorOpen(!whoIsSelectorOpen)}
+                        error={form.formState.errors.who_is_partner?.message || form.formState.errors.who_is_role?.message}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                    {(form.formState.errors.who_is_partner || form.formState.errors.who_is_role) && (
+                      <p className="text-sm text-destructive mt-1">
+                        Please choose one partner and one role.
+                      </p>
+                    )}
+                  </FormItem>
+                )}
+              />
 
-            <FormField
-              control={form.control}
-              name="notes"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Notes</FormLabel>
-                  <FormControl>
-                    <Textarea {...field} rows={3} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              <FormField
+                control={form.control}
+                name="notes"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Notes</FormLabel>
+                    <FormControl>
+                      <Textarea {...field} rows={3} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
             <DialogFooter>
               <Button type="button" variant="secondary" onClick={onClose}>
