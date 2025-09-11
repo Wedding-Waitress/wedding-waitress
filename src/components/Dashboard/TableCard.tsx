@@ -193,7 +193,7 @@ export const TableCard: React.FC<TableCardProps> = ({
                     onDragStart={(e) => handleDragStart(e, guest)}
                   >
                     <span className="truncate">
-                      {guest.first_name} {guest.last_name || ''}
+                      {guest.first_name} {guest.last_name || ''}{guest.seat_no ? ` (Seat ${guest.seat_no})` : ''}
                     </span>
                     <GripVertical className="h-3 w-3 flex-shrink-0 ml-1 opacity-50" />
                   </Badge>
