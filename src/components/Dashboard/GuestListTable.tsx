@@ -69,7 +69,7 @@ const SORT_OPTIONS = [
 
 const CSV_HEADERS = [
   'first_name', 'last_name', 'table_name', 'seat_no',
-  'rsvp', 'dietary', 'mobile', 'email', 'notes'
+  'rsvp', 'relation_person1', 'relation_person2', 'dietary', 'mobile', 'email', 'notes'
 ];
 
 const DIETARY_OPTIONS = [
@@ -209,6 +209,8 @@ export const GuestListTable: React.FC = () => {
         getTableName(guest) || '',
         guest.seat_no || '',
         guest.rsvp || 'Pending',
+        guest.relation_person1 || 'None',
+        guest.relation_person2 || 'None',
         guest.dietary || 'NA',
         guest.mobile || '',
         guest.email || '',
@@ -696,6 +698,7 @@ export const GuestListTable: React.FC = () => {
                 <TableHead className="min-w-[100px]">Table</TableHead>
                 <TableHead className="min-w-[100px]">Seat No.</TableHead>
                 <TableHead className="min-w-[120px]">RSVP</TableHead>
+                <TableHead className="min-w-[180px]">Who Is</TableHead>
                 <TableHead className="min-w-[140px]">Dietary</TableHead>
                 <TableHead className="min-w-[120px]">Mobile</TableHead>
                 <TableHead className="min-w-[180px]">Email</TableHead>
@@ -706,13 +709,13 @@ export const GuestListTable: React.FC = () => {
             <TableBody>
               {guestsLoading ? (
                 <TableRow className="border-card-border">
-                  <TableCell colSpan={10} className="text-center py-8">
+                  <TableCell colSpan={11} className="text-center py-8">
                     Loading guests...
                   </TableCell>
                 </TableRow>
               ) : guestCount === 0 ? (
                 <TableRow className="border-card-border">
-                  <TableCell colSpan={10} className="text-center py-8">
+                  <TableCell colSpan={11} className="text-center py-8">
                     {/* Empty - the "No Guests Yet" widget is now in the header */}
                   </TableCell>
                 </TableRow>
@@ -730,6 +733,51 @@ export const GuestListTable: React.FC = () => {
                       <Badge variant="outline" className="text-xs">
                         {guest.rsvp}
                       </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center space-x-1 flex-wrap gap-1">
+                        {currentEvent?.partner1_name && (
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <div className="inline-flex items-center px-2 py-1 rounded-full text-xs border border-border bg-background max-w-[120px]">
+                                  <span className="truncate">
+                                    <span className="font-medium">{currentEvent.partner1_name}:</span>
+                                    <span className={guest.relation_person1 === 'None' ? "text-muted-foreground ml-1" : "text-primary ml-1"}>
+                                      {guest.relation_person1 || 'None'}
+                                    </span>
+                                  </span>
+                                </div>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>{currentEvent.partner1_name}: {guest.relation_person1 || 'None'}</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        )}
+                        {currentEvent?.partner2_name && (
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <div className="inline-flex items-center px-2 py-1 rounded-full text-xs border border-border bg-background max-w-[120px]">
+                                  <span className="truncate">
+                                    <span className="font-medium">{currentEvent.partner2_name}:</span>
+                                    <span className={guest.relation_person2 === 'None' ? "text-muted-foreground ml-1" : "text-primary ml-1"}>
+                                      {guest.relation_person2 || 'None'}
+                                    </span>
+                                  </span>
+                                </div>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>{currentEvent.partner2_name}: {guest.relation_person2 || 'None'}</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        )}
+                        {!currentEvent?.partner1_name && !currentEvent?.partner2_name && (
+                          <span className="text-xs text-muted-foreground">–</span>
+                        )}
+                      </div>
                     </TableCell>
                     <TableCell>
                       <Badge variant="outline" className="text-xs">

@@ -17,6 +17,8 @@ export interface Guest {
   mobile: string | null;
   email: string | null;
   notes: string | null;
+  relation_person1: string | null;
+  relation_person2: string | null;
   created_at: string;
 }
 
