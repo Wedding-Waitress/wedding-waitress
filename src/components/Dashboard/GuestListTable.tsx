@@ -1169,7 +1169,7 @@ export const GuestListTable: React.FC = () => {
                       </Badge>
                     </TableCell>
                     <TableCell>{guest.mobile || '-'}</TableCell>
-                    <TableCell>{guest.email || '-'}</TableCell>
+                    <TableCell>{renderPill(!!guest.email && guest.email.trim() !== '')}</TableCell>
                     <TableCell>{renderPill(!!guest.notes && guest.notes.trim() !== '')}</TableCell>
                     <TableCell>
                       <div className="flex items-center space-x-2">
