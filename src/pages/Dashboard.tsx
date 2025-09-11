@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { StatsBar } from "@/components/Dashboard/StatsBar";
 import { DashboardSidebar } from "@/components/Dashboard/DashboardSidebar";
 import { MyEventsPage } from "@/components/Dashboard/MyEventsPage";
@@ -119,6 +119,28 @@ export const Dashboard = () => {
       return false;
     }
   };
+
+  // Calculate real-time statistics
+  const statsData = useMemo(() => {
+    // Use the event from the active event (for guest list) or selected event (for tables)
+    const currentEvent = activeTab === 'guest-list' ? selectedCountdownEvent : selectedEvent;
+    
+    const tablesCreated = tables.length;
+    const seatsCreated = tables.reduce((sum, table) => sum + table.limit_seats, 0);
+    const seatsFilled = guests.filter(guest => guest.table_id).length;
+    const seatsRemaining = Math.max(0, seatsCreated - seatsFilled);
+    const eventGuestLimit = currentEvent?.guest_limit || 0;
+    const tablesAtCapacity = tables.filter(table => table.guest_count >= table.limit_seats).length;
+
+    return {
+      tablesCreated,
+      seatsCreated,
+      seatsFilled,
+      seatsRemaining,
+      eventGuestLimit,
+      tablesAtCapacity
+    };
+  }, [tables, guests, selectedEvent, selectedCountdownEvent, activeTab]);
 
   // Handle guest movement between tables
   const handleGuestMove = async (
@@ -423,7 +445,7 @@ export const Dashboard = () => {
         <main className="flex-1 lg:px-6 px-4 py-6">
           <div className="mx-auto max-w-none">
             {/* Stats Bar for all tabs except My Events */}
-            {activeTab !== 'my-events' && <StatsBar />}
+            {activeTab !== 'my-events' && <StatsBar stats={statsData} />}
             
             {/* Tab Content */}
             <div className="space-y-6 mt-6">
