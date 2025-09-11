@@ -30,8 +30,9 @@ import { Button } from "@/components/ui/enhanced-button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useTables } from "@/hooks/useTables";
-import { WHO_IS_ROLE_OPTIONS, computeWhoIsDisplay, WhoIsPartner, WhoIsRole } from "@/lib/whoIsUtils";
+import { computeWhoIsDisplay, WhoIsPartner, WhoIsRole } from "@/lib/whoIsUtils";
 import { useEvents } from "@/hooks/useEvents";
+import { WhoIsSelector } from "./WhoIsSelector";
 
 const addGuestSchema = z.object({
   first_name: z.string().min(1, "First name is required"),
@@ -46,8 +47,8 @@ const addGuestSchema = z.object({
   mobile: z.string().optional(),
   email: z.string().email().optional().or(z.literal('')),
   notes: z.string().optional(),
-  who_is_partner: z.enum(['', 'partner_one', 'partner_two']).default(''),
-  who_is_role: z.enum(['', 'bridal_party', 'father', 'mother', 'brother', 'sister', 'cousin', 'uncle', 'aunty', 'guest', 'vendor']).default(''),
+  who_is_partner: z.string().min(1, "Please choose one partner and one role."),
+  who_is_role: z.string().min(1, "Please choose one partner and one role."),
 });
 
 type AddGuestFormData = z.infer<typeof addGuestSchema>;
@@ -91,6 +92,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
   const [takenSeats, setTakenSeats] = useState<number[]>([]);
   const [tableError, setTableError] = useState<string>('');
   const [seatError, setSeatError] = useState<string>('');
+  const [whoIsSelectorOpen, setWhoIsSelectorOpen] = useState(false);
   
   // Find current event for partner names
   const currentEvent = events.find(e => e.id === eventId);
@@ -151,6 +153,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
     if (isOpen) {
       setTableError('');
       setSeatError('');
+      setWhoIsSelectorOpen(false);
       
       if (guest && isEdit) {
         const guestTableId = guest.table_id || '';
@@ -166,8 +169,8 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
           mobile: guest.mobile || '',
           email: guest.email || '',
           notes: guest.notes || '',
-          who_is_partner: (guest.who_is_partner as '' | 'partner_one' | 'partner_two') || '',
-          who_is_role: (guest.who_is_role as '' | 'bridal_party' | 'father' | 'mother' | 'brother' | 'sister' | 'cousin' | 'uncle' | 'aunty' | 'guest' | 'vendor') || '',
+          who_is_partner: guest.who_is_partner || '',
+          who_is_role: guest.who_is_role || '',
         });
         
         if (guestTableId) {
@@ -208,6 +211,13 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
     }
     
     fetchSeatAvailability(tableId);
+  };
+
+  // Handle Who Is selector change
+  const handleWhoIsChange = (partner: WhoIsPartner, role: WhoIsRole) => {
+    form.setValue('who_is_partner', partner);
+    form.setValue('who_is_role', role);
+    form.clearErrors(['who_is_partner', 'who_is_role']);
   };
 
   const onSubmit = async (data: AddGuestFormData) => {
@@ -638,6 +648,35 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
               )}
             />
 
+            {/* Who Is Field */}
+            <FormField
+              control={form.control}
+              name="who_is_partner"
+              render={() => (
+                <FormItem>
+                  <FormLabel>Who Is*</FormLabel>
+                  <p className="text-xs text-muted-foreground mb-2">
+                    Choose which partner they're related to, then select exactly one role.
+                  </p>
+                  <FormControl>
+                    <WhoIsSelector
+                      value={{
+                        partner: form.watch('who_is_partner') as WhoIsPartner,
+                        role: form.watch('who_is_role') as WhoIsRole,
+                      }}
+                      onChange={handleWhoIsChange}
+                      partner1Name={currentEvent?.partner1_name}
+                      partner2Name={currentEvent?.partner2_name}
+                      isOpen={whoIsSelectorOpen}
+                      onToggle={() => setWhoIsSelectorOpen(!whoIsSelectorOpen)}
+                      error={form.formState.errors.who_is_partner?.message || form.formState.errors.who_is_role?.message}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             <FormField
               control={form.control}
               name="notes"
@@ -651,68 +690,6 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                 </FormItem>
               )}
             />
-
-            {/* Who Is Section */}
-            <div className="space-y-4">
-              <div className="text-sm font-medium text-muted-foreground">
-                Relationship (optional)
-              </div>
-              
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="who_is_partner"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Side</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select side" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="">None</SelectItem>
-                          <SelectItem value="partner_one">
-                            {currentEvent?.partner1_name || 'Partner 1'}
-                          </SelectItem>
-                          <SelectItem value="partner_two">
-                            {currentEvent?.partner2_name || 'Partner 2'}
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="who_is_role"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Role</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select role" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="">None</SelectItem>
-                          {WHO_IS_ROLE_OPTIONS.map((role) => (
-                            <SelectItem key={role.value} value={role.value}>
-                              {role.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            </div>
 
             <DialogFooter>
               <Button type="button" variant="secondary" onClick={onClose}>
