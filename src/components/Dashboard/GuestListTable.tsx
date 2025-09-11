@@ -81,7 +81,7 @@ const DIETARY_OPTIONS = [
 const RSVP_OPTIONS = ['Pending', 'Attending', 'Not Attending'];
 
 export const GuestListTable: React.FC = () => {
-  const { events, loading } = useEvents();
+  const { events, loading, updateEvent } = useEvents();
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const { guests, loading: guestsLoading, deleteGuest, refetchGuests } = useRealtimeGuests(selectedEventId);
