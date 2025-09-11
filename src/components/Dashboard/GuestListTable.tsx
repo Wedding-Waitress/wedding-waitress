@@ -88,6 +88,8 @@ export const GuestListTable: React.FC = () => {
   const [editingGuest, setEditingGuest] = useState<any>(null);
   const [sortBy, setSortBy] = useState<SortOption>('first_name_asc');
 
+  const currentEvent = events.find(event => event.id === selectedEventId) || null;
+
   // Load selected event from localStorage on mount - use same key as Table Setup
   useEffect(() => {
     const savedEventId = localStorage.getItem('active_event_id');
@@ -771,6 +773,7 @@ export const GuestListTable: React.FC = () => {
         }}
         eventId={selectedEventId}
         onSuccess={handleGuestSuccess}
+        currentEvent={currentEvent}
         guest={editingGuest}
         isEdit={!!editingGuest}
       />
