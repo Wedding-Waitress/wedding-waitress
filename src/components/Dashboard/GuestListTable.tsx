@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { Card } from "@/components/ui/enhanced-card";
 import { Button } from "@/components/ui/enhanced-button";
 import { Input } from "@/components/ui/input";
@@ -127,6 +127,11 @@ export const GuestListTable: React.FC = () => {
   const [showImportErrors, setShowImportErrors] = useState(false);
   const [importErrors, setImportErrors] = useState<ImportError[]>([]);
   const [importStats, setImportStats] = useState({ total: 0, successful: 0 });
+  
+  // Local state for partner names to prevent input interruption
+  const [localPartner1Name, setLocalPartner1Name] = useState('');
+  const [localPartner2Name, setLocalPartner2Name] = useState('');
+  const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Load selected event from localStorage on mount - use same key as Table Setup
   useEffect(() => {
@@ -141,6 +146,7 @@ export const GuestListTable: React.FC = () => {
       }
     }
   }, [events]);
+
 
   // Save sort preference when changed
   const handleSortChange = (newSort: SortOption) => {
@@ -193,6 +199,14 @@ export const GuestListTable: React.FC = () => {
   // Get selected event
   const selectedEvent = events.find(event => event.id === selectedEventId);
 
+  // Update local partner names when selected event changes
+  useEffect(() => {
+    if (selectedEvent) {
+      setLocalPartner1Name(selectedEvent.partner1_name || '');
+      setLocalPartner2Name(selectedEvent.partner2_name || '');
+    }
+  }, [selectedEvent]);
+
   // Helper function to get table name for a guest
   const getTableName = (guest: any) => {
     if (!guest.table_id) return null;
@@ -200,8 +214,8 @@ export const GuestListTable: React.FC = () => {
     return table?.name || null;
   };
 
-  // Handler for partner name changes with auto-save
-  const handlePartnerNameChange = async (field: 'partner1_name' | 'partner2_name', value: string) => {
+  // Debounced partner name update function
+  const debouncedUpdatePartnerName = useCallback(async (field: 'partner1_name' | 'partner2_name', value: string) => {
     if (!selectedEvent) return;
 
     try {
@@ -224,8 +238,10 @@ export const GuestListTable: React.FC = () => {
       await updateEvent(selectedEvent.id, { [field]: value });
       
       // Check if both names are now filled to clear validation
-      const bothNamesFilled = (field === 'partner1_name' ? value : selectedEvent.partner1_name)?.trim() && 
-                             (field === 'partner2_name' ? value : selectedEvent.partner2_name)?.trim();
+      const partner1Value = field === 'partner1_name' ? value : localPartner1Name;
+      const partner2Value = field === 'partner2_name' ? value : localPartner2Name;
+      const bothNamesFilled = partner1Value?.trim() && partner2Value?.trim();
+      
       if (bothNamesFilled && showNamesValidation) {
         setShowNamesValidation(false);
       }
@@ -234,6 +250,12 @@ export const GuestListTable: React.FC = () => {
       if (bothNamesFilled) {
         whoIsAnalytics.partnerNamesSet(selectedEvent.id);
       }
+
+      // Show success toast
+      toast({
+        title: "Success",
+        description: "Partner name updated successfully",
+      });
     } catch (error) {
       console.error('Error updating partner name:', error);
       toast({
@@ -242,7 +264,36 @@ export const GuestListTable: React.FC = () => {
         variant: "destructive",
       });
     }
+  }, [selectedEvent, updateEvent, showNamesValidation, localPartner1Name, localPartner2Name]);
+
+  // Handler for partner name input changes
+  const handlePartnerNameInputChange = (field: 'partner1_name' | 'partner2_name', value: string) => {
+    // Update local state immediately for responsive UI
+    if (field === 'partner1_name') {
+      setLocalPartner1Name(value);
+    } else {
+      setLocalPartner2Name(value);
+    }
+
+    // Clear existing timeout
+    if (debounceTimeoutRef.current) {
+      clearTimeout(debounceTimeoutRef.current);
+    }
+
+    // Set new timeout for debounced update
+    debounceTimeoutRef.current = setTimeout(() => {
+      debouncedUpdatePartnerName(field, value);
+    }, 500); // 500ms delay
   };
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current);
+      }
+    };
+  }, []);
 
   // Sort guests based on selected option
   const sortedGuests = useMemo(() => {
@@ -847,8 +898,8 @@ export const GuestListTable: React.FC = () => {
                     id="partner1-name"
                     type="text"
                     placeholder="Enter first name"
-                    value={selectedEvent?.partner1_name || ''}
-                    onChange={(e) => handlePartnerNameChange('partner1_name', e.target.value)}
+                    value={localPartner1Name}
+                    onChange={(e) => handlePartnerNameInputChange('partner1_name', e.target.value)}
                     className="mt-1"
                   />
                 </div>
@@ -860,8 +911,8 @@ export const GuestListTable: React.FC = () => {
                     id="partner2-name"
                     type="text"
                     placeholder="Enter first name"
-                    value={selectedEvent?.partner2_name || ''}
-                    onChange={(e) => handlePartnerNameChange('partner2_name', e.target.value)}
+                    value={localPartner2Name}
+                    onChange={(e) => handlePartnerNameInputChange('partner2_name', e.target.value)}
                     className="mt-1"
                   />
                 </div>
