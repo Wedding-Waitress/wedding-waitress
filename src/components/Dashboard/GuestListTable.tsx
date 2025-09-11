@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Card } from "@/components/ui/enhanced-card";
 import { Button } from "@/components/ui/enhanced-button";
-import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { 
   Select,
   SelectContent,
@@ -40,6 +41,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { Badge } from "@/components/ui/badge";
 import { toast } from "@/hooks/use-toast";
 import { useEvents } from '@/hooks/useEvents';
 import { useRealtimeGuests } from '@/hooks/useRealtimeGuests';
@@ -138,6 +140,40 @@ export const GuestListTable: React.FC = () => {
     if (!guest.table_id) return null;
     const table = tables.find(t => t.id === guest.table_id);
     return table?.name || null;
+  };
+
+  // Handler for partner name changes with auto-save
+  const handlePartnerNameChange = async (field: 'partner1_name' | 'partner2_name', value: string) => {
+    if (!selectedEvent) return;
+
+    try {
+      const { error } = await supabase
+        .from('events')
+        .update({ [field]: value })
+        .eq('id', selectedEvent.id);
+
+      if (error) {
+        console.error('Error updating partner name:', error);
+        toast({
+          title: "Error",
+          description: "Failed to update partner name",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Update the selected event in the events hook
+      if (updateEvent) {
+        await updateEvent(selectedEvent.id, { [field]: value });
+      }
+    } catch (error) {
+      console.error('Error updating partner name:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update partner name",
+        variant: "destructive",
+      });
+    }
   };
 
   // Sort guests based on selected option
@@ -517,12 +553,37 @@ export const GuestListTable: React.FC = () => {
         style={{ minHeight: '140px' }}
       >
         <div className="px-6 py-6">
-          <div className="grid grid-cols-12 gap-4">
-            <div className="col-span-12 md:col-span-8">
-              {/* Left content goes here */}
-            </div>
-            <div className="col-span-12 md:col-span-4">
-              {/* Right content goes here */}
+          <div className="flex justify-center">
+            <div className="w-full max-w-2xl">
+              <Card className="p-6">
+                <div className="text-center mb-6">
+                  <h3 className="text-lg font-medium text-foreground">
+                    If you're having a wedding or an engagement add the couple's first names here. If you're having any other type of event, write the organiser's first name twice.
+                  </h3>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="partner1-name">Partner 1 first name</Label>
+                    <Input
+                      id="partner1-name"
+                      value={selectedEvent?.partner1_name || ''}
+                      onChange={(e) => handlePartnerNameChange('partner1_name', e.target.value)}
+                      disabled={!selectedEvent}
+                      placeholder="Enter first name"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="partner2-name">Partner 2 first name</Label>
+                    <Input
+                      id="partner2-name"
+                      value={selectedEvent?.partner2_name || ''}
+                      onChange={(e) => handlePartnerNameChange('partner2_name', e.target.value)}
+                      disabled={!selectedEvent}
+                      placeholder="Enter first name"
+                    />
+                  </div>
+                </div>
+              </Card>
             </div>
           </div>
         </div>

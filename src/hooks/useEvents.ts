@@ -19,6 +19,8 @@ export interface Event {
   created_date_local: string | null;
   expiry_date_local: string | null;
   event_timezone: string | null;
+  partner1_name: string | null;
+  partner2_name: string | null;
 }
 
 export const useEvents = () => {
