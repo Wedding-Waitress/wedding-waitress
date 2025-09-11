@@ -131,7 +131,9 @@ export const GuestListTable: React.FC = () => {
   // Local state for partner names to prevent input interruption
   const [localPartner1Name, setLocalPartner1Name] = useState('');
   const [localPartner2Name, setLocalPartner2Name] = useState('');
-  const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [partnerNamesSaved, setPartnerNamesSaved] = useState(false);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   // Load selected event from localStorage on mount - use same key as Table Setup
   useEffect(() => {
@@ -194,6 +196,10 @@ export const GuestListTable: React.FC = () => {
     
     // Reset validation state
     setShowNamesValidation(false);
+    
+    // Reset partner names saved state
+    setPartnerNamesSaved(false);
+    setHasUnsavedChanges(false);
   };
 
   // Get selected event
@@ -204,6 +210,10 @@ export const GuestListTable: React.FC = () => {
     if (selectedEvent) {
       setLocalPartner1Name(selectedEvent.partner1_name || '');
       setLocalPartner2Name(selectedEvent.partner2_name || '');
+      // Check if partner names are already saved
+      const bothNamesFilled = selectedEvent.partner1_name?.trim() && selectedEvent.partner2_name?.trim();
+      setPartnerNamesSaved(!!bothNamesFilled);
+      setHasUnsavedChanges(false);
     }
   }, [selectedEvent]);
 
@@ -214,58 +224,76 @@ export const GuestListTable: React.FC = () => {
     return table?.name || null;
   };
 
-  // Debounced partner name update function
-  const debouncedUpdatePartnerName = useCallback(async (field: 'partner1_name' | 'partner2_name', value: string) => {
-    if (!selectedEvent) return;
+  // Manual save function for partner names
+  const handleManualSavePartnerNames = useCallback(async () => {
+    if (!selectedEvent || isSaving) return;
+
+    const partner1Value = localPartner1Name?.trim();
+    const partner2Value = localPartner2Name?.trim();
+
+    if (!partner1Value || !partner2Value) {
+      toast({
+        title: "Error",
+        description: "Both partner names are required",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSaving(true);
 
     try {
       const { error } = await supabase
         .from('events')
-        .update({ [field]: value })
+        .update({ 
+          partner1_name: partner1Value,
+          partner2_name: partner2Value 
+        })
         .eq('id', selectedEvent.id);
 
       if (error) {
-        console.error('Error updating partner name:', error);
+        console.error('Error updating partner names:', error);
         toast({
           title: "Error",
-          description: "Failed to update partner name",
+          description: "Failed to save partner names",
           variant: "destructive",
         });
         return;
       }
 
       // Update the selected event in the events hook
-      await updateEvent(selectedEvent.id, { [field]: value });
+      await updateEvent(selectedEvent.id, { 
+        partner1_name: partner1Value,
+        partner2_name: partner2Value 
+      });
       
-      // Check if both names are now filled to clear validation
-      const partner1Value = field === 'partner1_name' ? value : localPartner1Name;
-      const partner2Value = field === 'partner2_name' ? value : localPartner2Name;
-      const bothNamesFilled = partner1Value?.trim() && partner2Value?.trim();
+      setPartnerNamesSaved(true);
+      setHasUnsavedChanges(false);
       
-      if (bothNamesFilled && showNamesValidation) {
+      if (showNamesValidation) {
         setShowNamesValidation(false);
       }
       
       // Analytics tracking when partner names are set
-      if (bothNamesFilled) {
-        whoIsAnalytics.partnerNamesSet(selectedEvent.id);
-        // Only show success toast when both names are completed
-        toast({
-          title: "Success",
-          description: "Partner names updated successfully",
-        });
-      }
+      whoIsAnalytics.partnerNamesSet(selectedEvent.id);
+      
+      toast({
+        title: "Success",
+        description: "Partner names saved successfully",
+      });
     } catch (error) {
-      console.error('Error updating partner name:', error);
+      console.error('Error updating partner names:', error);
       toast({
         title: "Error",
-        description: "Failed to update partner name",
+        description: "Failed to save partner names",
         variant: "destructive",
       });
+    } finally {
+      setIsSaving(false);
     }
-  }, [selectedEvent, updateEvent, showNamesValidation, localPartner1Name, localPartner2Name]);
+  }, [selectedEvent, updateEvent, showNamesValidation, localPartner1Name, localPartner2Name, isSaving]);
 
-  // Handler for partner name input changes
+  // Handler for partner name input changes (no auto-save)
   const handlePartnerNameInputChange = (field: 'partner1_name' | 'partner2_name', value: string) => {
     // Update local state immediately for responsive UI
     if (field === 'partner1_name') {
@@ -274,25 +302,14 @@ export const GuestListTable: React.FC = () => {
       setLocalPartner2Name(value);
     }
 
-    // Clear existing timeout
-    if (debounceTimeoutRef.current) {
-      clearTimeout(debounceTimeoutRef.current);
+    // Mark as having unsaved changes
+    setHasUnsavedChanges(true);
+    
+    // Reset saved status since names changed
+    if (partnerNamesSaved) {
+      setPartnerNamesSaved(false);
     }
-
-    // Set new timeout for debounced update
-    debounceTimeoutRef.current = setTimeout(() => {
-      debouncedUpdatePartnerName(field, value);
-    }, 500); // 500ms delay
   };
-
-  // Cleanup timeout on unmount
-  useEffect(() => {
-    return () => {
-      if (debounceTimeoutRef.current) {
-        clearTimeout(debounceTimeoutRef.current);
-      }
-    };
-  }, []);
 
   // Sort guests based on selected option
   const sortedGuests = useMemo(() => {
@@ -755,8 +772,8 @@ export const GuestListTable: React.FC = () => {
     // Check admin settings for first guest alert override
     const shouldBlockFirstGuest = !whoIsSettings.who_is_disable_first_guest_alert;
     
-    // Gating rule: Only block for first guest (guest_count == 0) and missing partner names
-    if (shouldBlockFirstGuest && guestCount === 0 && (partner1Missing || partner2Missing)) {
+    // Gating rule: Only block for first guest if partner names haven't been manually saved
+    if (shouldBlockFirstGuest && guestCount === 0 && !partnerNamesSaved) {
       // Analytics tracking
       whoIsAnalytics.addGuestBlockedMissingNames(selectedEvent.id);
       
@@ -915,6 +932,29 @@ export const GuestListTable: React.FC = () => {
                     className="mt-1"
                   />
                 </div>
+              </div>
+              
+              {/* Save Button */}
+              <div className="mt-6 flex justify-center">
+                <Button
+                  onClick={handleManualSavePartnerNames}
+                  disabled={!hasUnsavedChanges || !localPartner1Name?.trim() || !localPartner2Name?.trim() || isSaving}
+                  className={`px-8 py-2 transition-all duration-300 ${
+                    partnerNamesSaved 
+                      ? 'bg-green-500 hover:bg-green-600 text-white' 
+                      : 'bg-red-500 hover:bg-red-600 text-white'
+                  }`}
+                >
+                  {isSaving ? (
+                    'Saving...'
+                  ) : partnerNamesSaved ? (
+                    <>
+                      ✅ Saved
+                    </>
+                  ) : (
+                    'Save'
+                  )}
+                </Button>
               </div>
             </Card>
           </div>
