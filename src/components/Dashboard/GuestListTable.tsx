@@ -509,6 +509,25 @@ export const GuestListTable: React.FC = () => {
   // Event selected - show table card
   return (
     <>
+      {/* Guest Tools Section */}
+      <Card 
+        variant="elevated" 
+        id="guest-tools-section"
+        className="mb-6 shadow-sm"
+        style={{ minHeight: '140px' }}
+      >
+        <div className="px-6 py-6">
+          <div className="grid grid-cols-12 gap-4">
+            <div className="col-span-12 md:col-span-8">
+              {/* Left content goes here */}
+            </div>
+            <div className="col-span-12 md:col-span-4">
+              {/* Right content goes here */}
+            </div>
+          </div>
+        </div>
+      </Card>
+
       <Card variant="elevated" className="overflow-hidden">
         <div className="p-6 border-b border-card-border bg-gradient-subtle">
           <div className="space-y-4">
