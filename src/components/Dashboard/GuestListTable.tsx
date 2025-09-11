@@ -88,6 +88,7 @@ export const GuestListTable: React.FC = () => {
   const { tables, fetchTables } = useTables(selectedEventId);
   const [editingGuest, setEditingGuest] = useState<any>(null);
   const [sortBy, setSortBy] = useState<SortOption>('first_name_asc');
+  const [showNamesValidation, setShowNamesValidation] = useState(false);
 
   // Load selected event from localStorage on mount - use same key as Table Setup
   useEffect(() => {
@@ -114,6 +115,11 @@ export const GuestListTable: React.FC = () => {
   // Refresh both guests and tables to keep counts in sync
   const handleGuestSuccess = async () => {
     await Promise.all([refetchGuests(), fetchTables()]);
+    
+    // Clear names validation if this was the first guest added
+    if (guests.length === 0 && showNamesValidation) {
+      setShowNamesValidation(false);
+    }
   };
 
   // Handle guest deletion with table count refresh
@@ -164,6 +170,13 @@ export const GuestListTable: React.FC = () => {
 
       // Update the selected event in the events hook
       await updateEvent(selectedEvent.id, { [field]: value });
+      
+      // Check if both names are now filled to clear validation
+      const bothNamesFilled = (field === 'partner1_name' ? value : selectedEvent.partner1_name)?.trim() && 
+                             (field === 'partner2_name' ? value : selectedEvent.partner2_name)?.trim();
+      if (bothNamesFilled && showNamesValidation) {
+        setShowNamesValidation(false);
+      }
     } catch (error) {
       console.error('Error updating partner name:', error);
       toast({
@@ -464,6 +477,38 @@ export const GuestListTable: React.FC = () => {
   };
 
   const handleAddGuest = () => {
+    if (!selectedEvent) return;
+    
+    const guestCount = guests.length;
+    const partner1Missing = !selectedEvent.partner1_name?.trim();
+    const partner2Missing = !selectedEvent.partner2_name?.trim();
+    
+    // If this is a new guest list (no guests) and partner names are missing
+    if (guestCount === 0 && (partner1Missing || partner2Missing)) {
+      // Prevent opening the form
+      setShowNamesValidation(true);
+      
+      // Scroll to the couple names section
+      const coupleNamesSection = document.getElementById('guest-tools-section');
+      if (coupleNamesSection) {
+        coupleNamesSection.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'center' 
+        });
+        
+        // Focus on the first partner input
+        setTimeout(() => {
+          const partner1Input = document.getElementById('partner1-name');
+          if (partner1Input) {
+            partner1Input.focus();
+          }
+        }, 500);
+      }
+      
+      return;
+    }
+    
+    // Normal flow - open the add guest modal
     setEditingGuest(null);
     setShowAddModal(true);
   };
@@ -553,10 +598,16 @@ export const GuestListTable: React.FC = () => {
         <div className="px-6 py-6">
           <div className="flex justify-center">
             <div className="w-full max-w-2xl">
-              <Card className="p-6">
+              <Card className={`p-6 transition-all duration-300 ${
+                showNamesValidation 
+                  ? 'border-red-500 border-2 animate-pulse' 
+                  : guests.length > 0 
+                    ? 'border-muted-foreground border' 
+                    : 'border-border'
+              }`}>
                 <div className="text-center mb-6">
                   <h3 className="text-lg font-medium text-foreground">
-                    If you're having a wedding or an engagement add the couple's first names here. If you're having any other type of event, write the organiser's first name twice.
+                    If you're having a wedding or an engagement add the couple's first names below. If you're having any other type of event, write the organiser's first name only.
                   </h3>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
