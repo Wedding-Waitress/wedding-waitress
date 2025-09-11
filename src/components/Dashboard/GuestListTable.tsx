@@ -47,6 +47,7 @@ import { useEvents } from '@/hooks/useEvents';
 import { useRealtimeGuests } from '@/hooks/useRealtimeGuests';
 import { useTables } from '@/hooks/useTables';
 import { AddGuestModal } from './AddGuestModal';
+import { GuestDeleteConfirmationModal } from './GuestDeleteConfirmationModal';
 
 import { WhoIsBadge } from './WhoIsBadge';
 import { supabase } from "@/integrations/supabase/client";
@@ -123,6 +124,9 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
   const { guests, loading: guestsLoading, deleteGuest, refetchGuests } = useRealtimeGuests(selectedEventId);
   const { tables, fetchTables } = useTables(selectedEventId);
   const [editingGuest, setEditingGuest] = useState<any>(null);
+  const [guestToDelete, setGuestToDelete] = useState<any>(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [sortBy, setSortBy] = useState<SortOption>('first_name_asc');
   const [showNamesValidation, setShowNamesValidation] = useState(false);
   const [whoIsSettings, setWhoIsSettings] = useState<WhoIsSettings>({
@@ -184,9 +188,31 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
   };
 
   // Handle guest deletion with table count refresh
-  const handleDeleteGuest = async (guestId: string) => {
-    await deleteGuest(guestId);
-    await fetchTables(); // Refresh table counts after deletion
+  const handleDeleteGuest = (guest: any) => {
+    setGuestToDelete(guest);
+    setShowDeleteModal(true);
+  };
+
+  // Handle confirmed guest deletion
+  const handleConfirmDeleteGuest = async () => {
+    if (!guestToDelete) return;
+    
+    setIsDeleting(true);
+    try {
+      await deleteGuest(guestToDelete.id);
+      await fetchTables(); // Refresh table counts after deletion
+      setShowDeleteModal(false);
+      setGuestToDelete(null);
+    } catch (error) {
+      console.error('Error deleting guest:', error);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleCloseDeleteModal = () => {
+    setShowDeleteModal(false);
+    setGuestToDelete(null);
   };
 
   // Save selected event to localStorage when changed - use same key as Table Setup
@@ -1202,7 +1228,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                         <Button 
                           variant="ghost" 
                           size="sm"
-                          onClick={() => handleDeleteGuest(guest.id)}
+                          onClick={() => handleDeleteGuest(guest)}
                         >
                           <Trash2 className="w-4 h-4" />
                         </Button>
@@ -1227,6 +1253,13 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
         guest={editingGuest}
         isEdit={!!editingGuest}
       />
+        <GuestDeleteConfirmationModal
+          isOpen={showDeleteModal}
+          onClose={handleCloseDeleteModal}
+          onConfirm={handleConfirmDeleteGuest}
+          guestName={guestToDelete ? `${guestToDelete.first_name} ${guestToDelete.last_name}` : ''}
+          isLoading={isDeleting}
+        />
         <ImportErrorModal
           isOpen={showImportErrors}
           onClose={() => setShowImportErrors(false)}
