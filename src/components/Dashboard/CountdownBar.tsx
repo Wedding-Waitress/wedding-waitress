@@ -7,33 +7,63 @@ interface CountdownBarProps {
 }
 
 export const CountdownBar: React.FC<CountdownBarProps> = ({ selectedEvent }) => {
-  const [daysRemaining, setDaysRemaining] = useState<number>(0);
+  const [countdownDisplay, setCountdownDisplay] = useState<string>('0 months • 0 weeks • 0 days • 0 hours');
+  const [hasStarted, setHasStarted] = useState<boolean>(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const [displayEvent, setDisplayEvent] = useState<Event | null>(null);
   const debounceTimeoutRef = useRef<NodeJS.Timeout>();
   const animationTimeoutRef = useRef<NodeJS.Timeout>();
 
-  const calculateDaysRemaining = (event: Event | null) => {
+  const calculateTimeRemaining = (event: Event | null) => {
     if (!event?.date) {
-      return 0;
+      return { display: '0 months • 0 weeks • 0 days • 0 hours', hasStarted: false };
     }
 
     const eventDate = new Date(event.date);
-    const today = new Date();
     
-    // Set both dates to midnight for accurate day calculation
-    eventDate.setHours(0, 0, 0, 0);
-    today.setHours(0, 0, 0, 0);
+    // If start_time is available, use it; otherwise use 00:00
+    if (event.start_time) {
+      const [hours, minutes] = event.start_time.split(':');
+      eventDate.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+    } else {
+      eventDate.setHours(0, 0, 0, 0);
+    }
     
-    const timeDiff = eventDate.getTime() - today.getTime();
-    const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
+    const now = new Date();
+    const timeDiff = eventDate.getTime() - now.getTime();
     
-    return Math.max(0, daysDiff);
+    if (timeDiff <= 0) {
+      return { display: '0 months • 0 weeks • 0 days • 0 hours', hasStarted: true };
+    }
+    
+    // Calculate time units
+    const totalMinutes = Math.floor(timeDiff / (1000 * 60));
+    const totalHours = Math.floor(totalMinutes / 60);
+    const totalDays = Math.floor(totalHours / 24);
+    const totalWeeks = Math.floor(totalDays / 7);
+    const totalMonths = Math.floor(totalDays / 30); // Approximate month
+    
+    // Calculate remaining units
+    const months = totalMonths;
+    const weeks = Math.floor((totalDays - (months * 30)) / 7);
+    const days = totalDays - (months * 30) - (weeks * 7);
+    const hours = totalHours - (totalDays * 24);
+    
+    // Format with pluralization and no leading zeros
+    const monthText = months === 1 ? 'month' : 'months';
+    const weekText = weeks === 1 ? 'week' : 'weeks';
+    const dayText = days === 1 ? 'day' : 'days';
+    const hourText = hours === 1 ? 'hour' : 'hours';
+    
+    const display = `${months} ${monthText} • ${weeks} ${weekText} • ${days} ${dayText} • ${hours} ${hourText}`;
+    
+    return { display, hasStarted: false };
   };
 
   const updateCountdown = (event: Event | null) => {
-    const newDaysRemaining = calculateDaysRemaining(event);
-    setDaysRemaining(newDaysRemaining);
+    const timeResult = calculateTimeRemaining(event);
+    setCountdownDisplay(timeResult.display);
+    setHasStarted(timeResult.hasStarted);
     setDisplayEvent(event);
   };
 
@@ -48,15 +78,15 @@ export const CountdownBar: React.FC<CountdownBarProps> = ({ selectedEvent }) => 
       if (!isAnimating && newEvent?.id !== displayEvent?.id) {
         setIsAnimating(true);
         
-        // Fade out animation (150ms)
+        // Fade out animation (125ms)
         setTimeout(() => {
           updateCountdown(newEvent);
           
-          // Fade in animation (150ms) 
+          // Fade in animation (125ms) 
           animationTimeoutRef.current = setTimeout(() => {
             setIsAnimating(false);
-          }, 150);
-        }, 150);
+          }, 125);
+        }, 125);
       }
     }, 150);
   };
@@ -74,14 +104,15 @@ export const CountdownBar: React.FC<CountdownBarProps> = ({ selectedEvent }) => 
     };
   }, [selectedEvent]);
 
-  // Update countdown every hour to keep it current
+  // Update countdown every minute to keep it current
   useEffect(() => {
     const interval = setInterval(() => {
       if (displayEvent) {
-        const newDaysRemaining = calculateDaysRemaining(displayEvent);
-        setDaysRemaining(newDaysRemaining);
+        const timeResult = calculateTimeRemaining(displayEvent);
+        setCountdownDisplay(timeResult.display);
+        setHasStarted(timeResult.hasStarted);
       }
-    }, 3600000);
+    }, 60000); // Update every minute
     
     return () => clearInterval(interval);
   }, [displayEvent]);
@@ -90,22 +121,22 @@ export const CountdownBar: React.FC<CountdownBarProps> = ({ selectedEvent }) => 
     <Card variant="elevated" className="p-8 mb-6">
       <div className="text-center" aria-live="polite">
         <h2 className="text-3xl font-bold text-black mb-4">
-          Days to go
+          Time to go
         </h2>
         <div 
-          className={`text-6xl font-bold text-purple-600 transition-opacity duration-150 ease-in-out ${
+          className={`text-2xl font-bold text-purple-600 transition-opacity duration-125 ease-in-out ${
             isAnimating ? 'opacity-0' : 'opacity-100'
           }`}
         >
-          {daysRemaining}
+          {countdownDisplay}
         </div>
         {displayEvent && (
           <p 
-            className={`text-sm text-muted-foreground mt-2 transition-opacity duration-150 ease-in-out ${
+            className={`text-lg font-medium text-muted-foreground mt-2 transition-opacity duration-125 ease-in-out ${
               isAnimating ? 'opacity-0' : 'opacity-100'
             }`}
           >
-            until {displayEvent.name}
+            {hasStarted ? 'event has started' : `until ${displayEvent.name}`}
           </p>
         )}
       </div>

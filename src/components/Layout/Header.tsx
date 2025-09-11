@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { Button } from "@/components/ui/enhanced-button";
-import { Globe, ChevronDown } from "lucide-react";
+import { Heart, Globe, ChevronDown } from "lucide-react";
 import { Link } from "react-router-dom";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { SignUpModal } from "@/components/auth/SignUpModal";
@@ -32,6 +32,9 @@ export const Header: React.FC<HeaderProps> = ({
         <div className="flex items-center justify-between">
           {/* Logo */}
           <div className="flex items-center space-x-2">
+            <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center shadow-glow">
+              <Heart className="w-6 h-6 text-white" />
+            </div>
             <div>
               <h1 className="text-xl font-bold gradient-text">Wedding Waitress</h1>
               <p className="text-xs text-muted-foreground">Your Wedding & Event Assistant</p>
