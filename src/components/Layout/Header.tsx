@@ -31,15 +31,6 @@ export const Header: React.FC<HeaderProps> = ({
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <div className="flex items-center">
-            <Link to="/" className="flex items-center pr-6">
-              <img 
-                src="/lovable-uploads/6e409c2c-6ff2-465e-865b-ab9bfe9550e0.png" 
-                alt="Wedding Waitress" 
-                className="h-8 w-auto object-contain"
-              />
-            </Link>
-          </div>
 
           {/* Center Welcome Message (for dashboard) */}
           {user && <div className="flex-1 flex justify-center -ml-8">
