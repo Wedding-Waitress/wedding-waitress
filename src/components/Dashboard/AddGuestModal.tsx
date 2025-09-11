@@ -27,14 +27,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/enhanced-button";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useTables } from "@/hooks/useTables";
-import { Event } from "@/hooks/useEvents";
-
-const relationshipOptions = ['None', 'Bridal Party', 'Father', 'Mother', 'Brother', 'Sister', 'Cousin', 'Aunty', 'Uncle', 'Guest', 'Vendor'] as const;
 
 const addGuestSchema = z.object({
   first_name: z.string().min(1, "First name is required"),
@@ -49,8 +44,6 @@ const addGuestSchema = z.object({
   mobile: z.string().optional(),
   email: z.string().email().optional().or(z.literal('')),
   notes: z.string().optional(),
-  relation_person1: z.enum(relationshipOptions).optional(),
-  relation_person2: z.enum(relationshipOptions).optional(),
 });
 
 type AddGuestFormData = z.infer<typeof addGuestSchema>;
@@ -60,7 +53,6 @@ interface AddGuestModalProps {
   onClose: () => void;
   eventId: string;
   onSuccess: () => void;
-  currentEvent: Event | null;
   guest?: {
     id: string;
     first_name: string;
@@ -72,8 +64,6 @@ interface AddGuestModalProps {
     mobile: string | null;
     email: string | null;
     notes: string | null;
-    relation_person1: string | null;
-    relation_person2: string | null;
   } | null;
   isEdit?: boolean;
 }
@@ -83,7 +73,6 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
   onClose,
   eventId,
   onSuccess,
-  currentEvent,
   guest = null,
   isEdit = false,
 }) => {
@@ -107,8 +96,6 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
       mobile: '',
       email: '',
       notes: '',
-      relation_person1: 'None',
-      relation_person2: 'None',
     },
   });
 
@@ -166,8 +153,6 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
           mobile: guest.mobile || '',
           email: guest.email || '',
           notes: guest.notes || '',
-          relation_person1: (guest.relation_person1 as typeof relationshipOptions[number]) || 'None',
-          relation_person2: (guest.relation_person2 as typeof relationshipOptions[number]) || 'None',
         });
         
         if (guestTableId) {
@@ -185,8 +170,6 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
           mobile: '',
           email: '',
           notes: '',
-          relation_person1: 'None',
-          relation_person2: 'None',
         });
       }
     }
@@ -312,8 +295,6 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
         mobile: data.mobile || null,
         email: data.email || null,
         notes: data.notes || null,
-        relation_person1: data.relation_person1 || 'None',
-        relation_person2: data.relation_person2 || 'None',
       };
 
       if (isEdit && guest) {
@@ -412,15 +393,13 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{isEdit ? 'Edit Guest' : 'Add Guest'}</DialogTitle>
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div className="space-y-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
               control={form.control}
               name="first_name"
@@ -631,122 +610,19 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
               )}
             />
 
-                <FormField
-                  control={form.control}
-                  name="notes"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Notes</FormLabel>
-                      <FormControl>
-                        <Textarea {...field} rows={3} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              {/* Who Is Panel */}
-              {currentEvent && (currentEvent.partner1_name || currentEvent.partner2_name) && (
-                <div className="space-y-4">
-                  <div>
-                    <h3 className="text-sm font-medium mb-3">Who Is</h3>
-                    <div className="space-y-4">
-                      {currentEvent.partner1_name && (
-                        <FormField
-                          control={form.control}
-                          name="relation_person1"
-                          render={({ field }) => (
-                            <FormItem>
-                              <div className="bg-muted/50 p-3 rounded-lg">
-                                <FormLabel 
-                                  className="text-sm font-semibold cursor-pointer" 
-                                  onClick={() => {
-                                    const firstRadio = document.querySelector(`input[name="relation_person1"]`) as HTMLInputElement;
-                                    if (firstRadio) firstRadio.focus();
-                                  }}
-                                >
-                                  {currentEvent.partner1_name}
-                                </FormLabel>
-                                <div className="h-px bg-border my-2"></div>
-                                <FormControl>
-                                  <RadioGroup
-                                    onValueChange={field.onChange}
-                                    defaultValue={field.value}
-                                    value={field.value}
-                                    className="space-y-1"
-                                  >
-                                    {relationshipOptions.map((option) => (
-                                      <div key={`person1-${option}`} className="flex items-center space-x-2">
-                                        <RadioGroupItem 
-                                          value={option} 
-                                          id={`person1-${option}`}
-                                        />
-                                        <Label htmlFor={`person1-${option}`} className="text-sm">
-                                          {option}
-                                        </Label>
-                                      </div>
-                                    ))}
-                                  </RadioGroup>
-                                </FormControl>
-                              </div>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      )}
-
-                      {currentEvent.partner2_name && (
-                        <FormField
-                          control={form.control}
-                          name="relation_person2"
-                          render={({ field }) => (
-                            <FormItem>
-                              <div className="bg-muted/50 p-3 rounded-lg">
-                                <FormLabel 
-                                  className="text-sm font-semibold cursor-pointer"
-                                  onClick={() => {
-                                    const firstRadio = document.querySelector(`input[name="relation_person2"]`) as HTMLInputElement;
-                                    if (firstRadio) firstRadio.focus();
-                                  }}
-                                >
-                                  {currentEvent.partner2_name}
-                                </FormLabel>
-                                <div className="h-px bg-border my-2"></div>
-                                <FormControl>
-                                  <RadioGroup
-                                    onValueChange={field.onChange}
-                                    defaultValue={field.value}
-                                    value={field.value}
-                                    className="space-y-1"
-                                  >
-                                    {relationshipOptions.map((option) => (
-                                      <div key={`person2-${option}`} className="flex items-center space-x-2">
-                                        <RadioGroupItem 
-                                          value={option} 
-                                          id={`person2-${option}`}
-                                        />
-                                        <Label htmlFor={`person2-${option}`} className="text-sm">
-                                          {option}
-                                        </Label>
-                                      </div>
-                                    ))}
-                                  </RadioGroup>
-                                </FormControl>
-                              </div>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      )}
-                    </div>
-                    <p className="text-xs text-muted-foreground mt-3">
-                      Select the relationship to each person. Choose 'None' if not applicable.
-                    </p>
-                  </div>
-                </div>
+            <FormField
+              control={form.control}
+              name="notes"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Notes</FormLabel>
+                  <FormControl>
+                    <Textarea {...field} rows={3} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
               )}
-            </div>
+            />
 
             <DialogFooter>
               <Button type="button" variant="secondary" onClick={onClose}>

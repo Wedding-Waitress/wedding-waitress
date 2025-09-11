@@ -23,7 +23,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Checkbox } from "@/components/ui/checkbox";
 import { 
   Users,
   Calendar,
@@ -33,8 +32,7 @@ import {
   ArrowUpDown,
   Download,
   Upload,
-  FileText,
-  X
+  FileText
 } from "lucide-react";
 import {
   Tooltip,
@@ -47,7 +45,6 @@ import { useEvents } from '@/hooks/useEvents';
 import { useRealtimeGuests } from '@/hooks/useRealtimeGuests';
 import { useTables } from '@/hooks/useTables';
 import { AddGuestModal } from './AddGuestModal';
-import { PartnerNamesInline } from './PartnerNamesInline';
 import { supabase } from "@/integrations/supabase/client";
 
 type SortOption = 
@@ -71,7 +68,7 @@ const SORT_OPTIONS = [
 
 const CSV_HEADERS = [
   'first_name', 'last_name', 'table_name', 'seat_no',
-  'rsvp', 'relation_person1', 'relation_person2', 'dietary', 'mobile', 'email', 'notes'
+  'rsvp', 'dietary', 'mobile', 'email', 'notes'
 ];
 
 const DIETARY_OPTIONS = [
@@ -81,36 +78,14 @@ const DIETARY_OPTIONS = [
 
 const RSVP_OPTIONS = ['Pending', 'Attending', 'Not Attending'];
 
-const RELATIONSHIP_OPTIONS = [
-  'All', 'Bridal Party', 'Father', 'Mother', 'Brother', 'Sister', 
-  'Cousin', 'Aunty', 'Uncle', 'Guest', 'Vendor'
-];
-
-type FilterPerson = 'partner1' | 'partner2' | 'both';
-
-interface FilterState {
-  person: FilterPerson;
-  relationship: string;
-  includeUnassigned: boolean;
-}
-
 export const GuestListTable: React.FC = () => {
-  const { events, loading, updateEvent } = useEvents();
+  const { events, loading } = useEvents();
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const { guests, loading: guestsLoading, deleteGuest, refetchGuests } = useRealtimeGuests(selectedEventId);
   const { tables, fetchTables } = useTables(selectedEventId);
   const [editingGuest, setEditingGuest] = useState<any>(null);
   const [sortBy, setSortBy] = useState<SortOption>('first_name_asc');
-  
-  // Filter state
-  const [filters, setFilters] = useState<FilterState>({
-    person: 'both',
-    relationship: 'All',
-    includeUnassigned: false
-  });
-
-  const currentEvent = events.find(event => event.id === selectedEventId) || null;
 
   // Load selected event from localStorage on mount - use same key as Table Setup
   useEffect(() => {
@@ -122,17 +97,6 @@ export const GuestListTable: React.FC = () => {
       const savedSort = localStorage.getItem(`guestSort_${savedEventId}`);
       if (savedSort && SORT_OPTIONS.some(opt => opt.value === savedSort)) {
         setSortBy(savedSort as SortOption);
-      }
-      
-      // Load saved filter preferences for this event
-      const savedFilters = localStorage.getItem(`guestFilters_${savedEventId}`);
-      if (savedFilters) {
-        try {
-          const parsedFilters = JSON.parse(savedFilters);
-          setFilters(parsedFilters);
-        } catch (e) {
-          // If parsing fails, keep defaults
-        }
       }
     }
   }, [events]);
@@ -167,20 +131,6 @@ export const GuestListTable: React.FC = () => {
     } else {
       setSortBy('first_name_asc');
     }
-    
-    // Load filter preferences for new event
-    const savedFilters = localStorage.getItem(`guestFilters_${eventId}`);
-    if (savedFilters) {
-      try {
-        const parsedFilters = JSON.parse(savedFilters);
-        setFilters(parsedFilters);
-      } catch (e) {
-        // If parsing fails, reset to defaults
-        setFilters({ person: 'both', relationship: 'All', includeUnassigned: false });
-      }
-    } else {
-      setFilters({ person: 'both', relationship: 'All', includeUnassigned: false });
-    }
   };
 
   // Helper function to get table name for a guest
@@ -190,54 +140,11 @@ export const GuestListTable: React.FC = () => {
     return table?.name || null;
   };
 
-  // Filter and sort guests
-  const filteredAndSortedGuests = useMemo(() => {
+  // Sort guests based on selected option
+  const sortedGuests = useMemo(() => {
     if (!guests.length) return guests;
     
-    // First apply filters
-    let filtered = guests;
-    
-    const { person, relationship, includeUnassigned } = filters;
-    
-    if (person !== 'both' || relationship !== 'All' || !includeUnassigned) {
-      filtered = guests.filter(guest => {
-        let passes = false;
-        
-        // Apply person and relationship filters
-        if (person === 'partner1') {
-          const relation = guest.relation_person1 || 'None';
-          if (relationship === 'All') {
-            passes = relation !== 'None' || includeUnassigned;
-          } else {
-            passes = relation === relationship;
-          }
-        } else if (person === 'partner2') {
-          const relation = guest.relation_person2 || 'None';
-          if (relationship === 'All') {
-            passes = relation !== 'None' || includeUnassigned;
-          } else {
-            passes = relation === relationship;
-          }
-        } else { // both
-          const relation1 = guest.relation_person1 || 'None';
-          const relation2 = guest.relation_person2 || 'None';
-          
-          if (relationship === 'All') {
-            const hasRelation = relation1 !== 'None' || relation2 !== 'None';
-            const hasNone = relation1 === 'None' || relation2 === 'None';
-            passes = hasRelation || (hasNone && includeUnassigned);
-          } else {
-            passes = relation1 === relationship || relation2 === relationship;
-          }
-        }
-        
-        return passes;
-      });
-    }
-    
-    // Then apply sorting
-    
-    const sorted = [...filtered].sort((a, b) => {
+    const sorted = [...guests].sort((a, b) => {
       switch (sortBy) {
         case 'first_name_asc':
           return (a.first_name || '').localeCompare(b.first_name || '');
@@ -271,30 +178,7 @@ export const GuestListTable: React.FC = () => {
     });
     
     return sorted;
-  }, [guests, sortBy, tables, filters]);
-  
-  // Filter control handlers
-  const handleFilterChange = (newFilters: Partial<FilterState>) => {
-    const updatedFilters = { ...filters, ...newFilters };
-    setFilters(updatedFilters);
-    
-    // Save to localStorage
-    if (selectedEventId) {
-      localStorage.setItem(`guestFilters_${selectedEventId}`, JSON.stringify(updatedFilters));
-    }
-  };
-  
-  const clearFilters = () => {
-    const defaultFilters = { person: 'both' as FilterPerson, relationship: 'All', includeUnassigned: false };
-    setFilters(defaultFilters);
-    
-    // Clear from localStorage
-    if (selectedEventId) {
-      localStorage.removeItem(`guestFilters_${selectedEventId}`);
-    }
-  };
-  
-  const hasActiveFilters = filters.person !== 'both' || filters.relationship !== 'All' || filters.includeUnassigned;
+  }, [guests, sortBy, tables]);
 
   // CSV Functions
   const downloadTemplate = () => {
@@ -312,18 +196,16 @@ export const GuestListTable: React.FC = () => {
   };
 
   const exportGuestList = () => {
-    if (!selectedEvent || !filteredAndSortedGuests.length) return;
+    if (!selectedEvent || !sortedGuests.length) return;
     
     const csvRows = [
       CSV_HEADERS.join(','),
-      ...filteredAndSortedGuests.map(guest => [
+      ...sortedGuests.map(guest => [
         guest.first_name || '',
         guest.last_name || '',
         getTableName(guest) || '',
         guest.seat_no || '',
         guest.rsvp || 'Pending',
-        guest.relation_person1 || 'None',
-        guest.relation_person2 || 'None',
         guest.dietary || 'NA',
         guest.mobile || '',
         guest.email || '',
@@ -341,7 +223,7 @@ export const GuestListTable: React.FC = () => {
     link.download = `guest-list-${eventName}-${dateStr}.csv`;
     link.click();
     
-    toast({ title: `Exported ${filteredAndSortedGuests.length} guests successfully` });
+    toast({ title: `Exported ${sortedGuests.length} guests successfully` });
   };
 
   const handleImportCSV = () => {
@@ -563,14 +445,7 @@ export const GuestListTable: React.FC = () => {
   };
 
   const selectedEvent = events.find(event => event.id === selectedEventId);
-  const guestCount = filteredAndSortedGuests.length;
-  const totalGuestCount = guests.length;
-  const hasPartnerNames = selectedEvent?.partner1_name && selectedEvent?.partner2_name;
-
-  // Handle partner names update
-  const handlePartnerNamesUpdate = (updatedEvent: any) => {
-    updateEvent(updatedEvent.id, updatedEvent);
-  };
+  const guestCount = sortedGuests.length;
 
   const renderPill = (condition: boolean, yesColor = "bg-green-500", noColor = "bg-red-500") => (
     <Badge 
@@ -658,114 +533,14 @@ export const GuestListTable: React.FC = () => {
                     ))}
                   </SelectContent>
                 </Select>
-                
-                {/* Partner Names Inline Component */}
-                {selectedEvent && (
-                  <PartnerNamesInline 
-                    event={selectedEvent} 
-                    onUpdate={handlePartnerNamesUpdate}
-                  />
-                )}
               </div>
-            </div>
-            
-            {/* Row 1.5: Filter Controls */}
-            {hasPartnerNames && (
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-2 border-t border-card-border/50">
-                <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-                  {/* By Person Segmented Control */}
-                  <div className="flex items-center space-x-2">
-                    <span className="text-sm font-medium text-foreground whitespace-nowrap">By Person:</span>
-                    <div className="inline-flex rounded-md border border-card-border bg-background p-1">
-                      <button
-                        onClick={() => handleFilterChange({ person: 'partner1' })}
-                        className={`px-3 py-1 text-xs font-medium rounded transition-colors whitespace-nowrap ${
-                          filters.person === 'partner1' 
-                            ? 'bg-primary text-primary-foreground shadow-sm' 
-                            : 'text-muted-foreground hover:text-foreground'
-                        }`}
-                        disabled={!selectedEvent?.partner1_name}
-                      >
-                        {selectedEvent?.partner1_name || 'Partner 1'}
-                      </button>
-                      <button
-                        onClick={() => handleFilterChange({ person: 'partner2' })}
-                        className={`px-3 py-1 text-xs font-medium rounded transition-colors whitespace-nowrap ${
-                          filters.person === 'partner2'
-                            ? 'bg-primary text-primary-foreground shadow-sm'
-                            : 'text-muted-foreground hover:text-foreground'
-                        }`}
-                        disabled={!selectedEvent?.partner2_name}
-                      >
-                        {selectedEvent?.partner2_name || 'Partner 2'}
-                      </button>
-                      <button
-                        onClick={() => handleFilterChange({ person: 'both' })}
-                        className={`px-3 py-1 text-xs font-medium rounded transition-colors whitespace-nowrap ${
-                          filters.person === 'both'
-                            ? 'bg-primary text-primary-foreground shadow-sm'
-                            : 'text-muted-foreground hover:text-foreground'
-                        }`}
-                      >
-                        Both
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* By Relationship Dropdown */}
-                  <div className="flex items-center space-x-2">
-                    <span className="text-sm font-medium text-foreground whitespace-nowrap">By Relationship:</span>
-                    <Select value={filters.relationship} onValueChange={(value) => handleFilterChange({ relationship: value })}>
-                      <SelectTrigger className="w-[140px]">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {RELATIONSHIP_OPTIONS.map((option) => (
-                          <SelectItem key={option} value={option}>
-                            {option}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {/* Include Unassigned Checkbox */}
-                  <div className="flex items-center space-x-2">
-                    <Checkbox
-                      id="includeUnassigned"
-                      checked={filters.includeUnassigned}
-                      onCheckedChange={(checked) => handleFilterChange({ includeUnassigned: !!checked })}
-                    />
-                    <label htmlFor="includeUnassigned" className="text-sm font-medium text-foreground whitespace-nowrap cursor-pointer">
-                      Include Unassigned ("None")
-                    </label>
-                  </div>
-                </div>
-
-                {/* Clear Filters */}
-                {hasActiveFilters && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={clearFilters}
-                    className="self-start sm:self-auto"
-                  >
-                    <X className="w-3 h-3 mr-1" />
-                    Clear Filters
-                  </Button>
-                )}
-              </div>
-            )}
-            
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-              <div></div>
               
               {/* Control buttons - right side */}
               <div className="flex items-center space-x-2">
                 <TooltipProvider>
                   {/* Guest counter pill - positioned first */}
                   <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors h-9 px-3 bg-purple-600 text-white pointer-events-none">
-                    {hasActiveFilters ? `${guestCount} of ${totalGuestCount}` : `${guestCount}`} Guest{guestCount !== 1 ? 's' : ''}
+                    {guestCount} Guest{guestCount !== 1 ? 's' : ''}
                   </div>
 
                   {/* Sort By Dropdown */}
@@ -850,40 +625,17 @@ export const GuestListTable: React.FC = () => {
                 </TooltipProvider>
 
                 {/* Add Guests button */}
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <div>
-                        {guestCount === 0 ? (
-                          <Button 
-                            variant="gradient" 
-                            size="sm" 
-                            onClick={handleAddGuest}
-                            disabled={!hasPartnerNames}
-                          >
-                            <Users className="w-4 h-4 mr-2" />
-                            Add First Guest
-                          </Button>
-                        ) : (
-                          <Button 
-                            variant="gradient" 
-                            size="sm" 
-                            onClick={handleAddGuest}
-                            disabled={!hasPartnerNames}
-                          >
-                            <Users className="w-4 h-4 mr-2" />
-                            Add Guest
-                          </Button>
-                        )}
-                      </div>
-                    </TooltipTrigger>
-                    {!hasPartnerNames && (
-                      <TooltipContent>
-                        <p>Add the two names to start adding guests</p>
-                      </TooltipContent>
-                    )}
-                  </Tooltip>
-                </TooltipProvider>
+                {guestCount === 0 ? (
+                  <Button variant="gradient" size="sm" onClick={handleAddGuest}>
+                    <Users className="w-4 h-4 mr-2" />
+                    Add First Guest
+                  </Button>
+                ) : (
+                  <Button variant="gradient" size="sm" onClick={handleAddGuest}>
+                    <Users className="w-4 h-4 mr-2" />
+                    Add Guest
+                  </Button>
+                )}
               </div>
             </div>
             
@@ -904,7 +656,6 @@ export const GuestListTable: React.FC = () => {
                 <TableHead className="min-w-[100px]">Table</TableHead>
                 <TableHead className="min-w-[100px]">Seat No.</TableHead>
                 <TableHead className="min-w-[120px]">RSVP</TableHead>
-                <TableHead className="min-w-[180px]">Who Is</TableHead>
                 <TableHead className="min-w-[140px]">Dietary</TableHead>
                 <TableHead className="min-w-[120px]">Mobile</TableHead>
                 <TableHead className="min-w-[180px]">Email</TableHead>
@@ -915,18 +666,18 @@ export const GuestListTable: React.FC = () => {
             <TableBody>
               {guestsLoading ? (
                 <TableRow className="border-card-border">
-                  <TableCell colSpan={11} className="text-center py-8">
+                  <TableCell colSpan={10} className="text-center py-8">
                     Loading guests...
                   </TableCell>
                 </TableRow>
               ) : guestCount === 0 ? (
                 <TableRow className="border-card-border">
-                  <TableCell colSpan={11} className="text-center py-8">
+                  <TableCell colSpan={10} className="text-center py-8">
                     {/* Empty - the "No Guests Yet" widget is now in the header */}
                   </TableCell>
                 </TableRow>
               ) : (
-                filteredAndSortedGuests.map((guest) => (
+                sortedGuests.map((guest) => (
                   <TableRow 
                     key={guest.id} 
                     className="border-card-border hover:bg-muted/50"
@@ -939,51 +690,6 @@ export const GuestListTable: React.FC = () => {
                       <Badge variant="outline" className="text-xs">
                         {guest.rsvp}
                       </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center space-x-1 flex-wrap gap-1">
-                        {currentEvent?.partner1_name && (
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <div className="inline-flex items-center px-2 py-1 rounded-full text-xs border border-border bg-background max-w-[120px]">
-                                  <span className="truncate">
-                                    <span className="font-medium">{currentEvent.partner1_name}:</span>
-                                    <span className={guest.relation_person1 === 'None' ? "text-muted-foreground ml-1" : "text-primary ml-1"}>
-                                      {guest.relation_person1 || 'None'}
-                                    </span>
-                                  </span>
-                                </div>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p>{currentEvent.partner1_name}: {guest.relation_person1 || 'None'}</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                        )}
-                        {currentEvent?.partner2_name && (
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <div className="inline-flex items-center px-2 py-1 rounded-full text-xs border border-border bg-background max-w-[120px]">
-                                  <span className="truncate">
-                                    <span className="font-medium">{currentEvent.partner2_name}:</span>
-                                    <span className={guest.relation_person2 === 'None' ? "text-muted-foreground ml-1" : "text-primary ml-1"}>
-                                      {guest.relation_person2 || 'None'}
-                                    </span>
-                                  </span>
-                                </div>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p>{currentEvent.partner2_name}: {guest.relation_person2 || 'None'}</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                        )}
-                        {!currentEvent?.partner1_name && !currentEvent?.partner2_name && (
-                          <span className="text-xs text-muted-foreground">–</span>
-                        )}
-                      </div>
                     </TableCell>
                     <TableCell>
                       <Badge variant="outline" className="text-xs">
@@ -1027,7 +733,6 @@ export const GuestListTable: React.FC = () => {
         }}
         eventId={selectedEventId}
         onSuccess={handleGuestSuccess}
-        currentEvent={currentEvent}
         guest={editingGuest}
         isEdit={!!editingGuest}
       />

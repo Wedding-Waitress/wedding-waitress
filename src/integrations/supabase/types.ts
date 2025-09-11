@@ -27,8 +27,6 @@ export type Database = {
           guest_limit: number | null
           id: string
           name: string
-          partner1_name: string | null
-          partner2_name: string | null
           start_time: string | null
           user_id: string
           venue: string | null
@@ -50,8 +48,6 @@ export type Database = {
           guest_limit?: number | null
           id?: string
           name: string
-          partner1_name?: string | null
-          partner2_name?: string | null
           start_time?: string | null
           user_id: string
           venue?: string | null
@@ -73,8 +69,6 @@ export type Database = {
           guest_limit?: number | null
           id?: string
           name?: string
-          partner1_name?: string | null
-          partner2_name?: string | null
           start_time?: string | null
           user_id?: string
           venue?: string | null
@@ -98,8 +92,6 @@ export type Database = {
           last_name: string | null
           mobile: string | null
           notes: string | null
-          relation_person1: string | null
-          relation_person2: string | null
           rsvp: string | null
           seat_no: number | null
           table_id: string | null
@@ -117,8 +109,6 @@ export type Database = {
           last_name?: string | null
           mobile?: string | null
           notes?: string | null
-          relation_person1?: string | null
-          relation_person2?: string | null
           rsvp?: string | null
           seat_no?: number | null
           table_id?: string | null
@@ -136,8 +126,6 @@ export type Database = {
           last_name?: string | null
           mobile?: string | null
           notes?: string | null
-          relation_person1?: string | null
-          relation_person2?: string | null
           rsvp?: string | null
           seat_no?: number | null
           table_id?: string | null
@@ -255,8 +243,6 @@ export type Database = {
           guests_count: number
           id: string
           name: string
-          partner1_name: string
-          partner2_name: string
           start_time: string
           user_id: string
           venue: string
