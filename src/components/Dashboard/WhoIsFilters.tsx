@@ -1,0 +1,130 @@
+import React from 'react';
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/enhanced-button";
+import { X } from "lucide-react";
+import { WHO_IS_ROLE_LABELS } from "@/lib/whoIsUtils";
+
+interface FilterState {
+  partners: string[];
+  roles: string[];
+}
+
+interface WhoIsFiltersProps {
+  filters: FilterState;
+  onFiltersChange: (filters: FilterState) => void;
+  partner1Name?: string | null;
+  partner2Name?: string | null;
+}
+
+const ROLE_OPTIONS = [
+  'bridal_party', 'father', 'mother', 'brother', 'sister', 
+  'cousin', 'uncle', 'aunty', 'guest', 'vendor'
+];
+
+export const WhoIsFilters: React.FC<WhoIsFiltersProps> = ({
+  filters,
+  onFiltersChange,
+  partner1Name,
+  partner2Name
+}) => {
+  const togglePartner = (partner: string) => {
+    const newPartners = filters.partners.includes(partner)
+      ? filters.partners.filter(p => p !== partner)
+      : [...filters.partners, partner];
+    
+    onFiltersChange({ ...filters, partners: newPartners });
+  };
+
+  const toggleRole = (role: string) => {
+    const newRoles = filters.roles.includes(role)
+      ? filters.roles.filter(r => r !== role)
+      : [...filters.roles, role];
+    
+    onFiltersChange({ ...filters, roles: newRoles });
+  };
+
+  const clearFilters = () => {
+    onFiltersChange({ partners: [], roles: [] });
+  };
+
+  const hasActiveFilters = filters.partners.length > 0 || filters.roles.length > 0;
+
+  if (!partner1Name && !partner2Name) {
+    return null;
+  }
+
+  return (
+    <div className="flex flex-col gap-3 p-4 bg-muted/20 rounded-lg border mb-4">
+      <div className="flex items-center justify-between">
+        <span className="text-sm font-medium text-muted-foreground">Who Is Filters</span>
+        {hasActiveFilters && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={clearFilters}
+            className="h-7 px-2 text-xs"
+          >
+            <X className="h-3 w-3 mr-1" />
+            Clear
+          </Button>
+        )}
+      </div>
+
+      {/* Partner Filters */}
+      {(partner1Name || partner2Name) && (
+        <div className="space-y-2">
+          <span className="text-xs text-muted-foreground">Partner:</span>
+          <div className="flex flex-wrap gap-2">
+            {partner1Name && (
+              <Badge
+                variant={filters.partners.includes('partner_one') ? 'default' : 'secondary'}
+                className={`cursor-pointer transition-colors ${
+                  filters.partners.includes('partner_one') 
+                    ? 'bg-primary text-primary-foreground' 
+                    : 'hover:bg-muted'
+                }`}
+                onClick={() => togglePartner('partner_one')}
+              >
+                {partner1Name}
+              </Badge>
+            )}
+            {partner2Name && (
+              <Badge
+                variant={filters.partners.includes('partner_two') ? 'default' : 'secondary'}
+                className={`cursor-pointer transition-colors ${
+                  filters.partners.includes('partner_two') 
+                    ? 'bg-primary text-primary-foreground' 
+                    : 'hover:bg-muted'
+                }`}
+                onClick={() => togglePartner('partner_two')}
+              >
+                {partner2Name}
+              </Badge>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Role Filters */}
+      <div className="space-y-2">
+        <span className="text-xs text-muted-foreground">Role:</span>
+        <div className="flex flex-wrap gap-2">
+          {ROLE_OPTIONS.map((role) => (
+            <Badge
+              key={role}
+              variant={filters.roles.includes(role) ? 'default' : 'secondary'}
+              className={`cursor-pointer transition-colors text-xs ${
+                filters.roles.includes(role) 
+                  ? 'bg-primary text-primary-foreground' 
+                  : 'hover:bg-muted'
+              }`}
+              onClick={() => toggleRole(role)}
+            >
+              {WHO_IS_ROLE_LABELS[role]}
+            </Badge>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};

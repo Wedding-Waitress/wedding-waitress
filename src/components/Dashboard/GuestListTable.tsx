@@ -47,14 +47,18 @@ import { useEvents } from '@/hooks/useEvents';
 import { useRealtimeGuests } from '@/hooks/useRealtimeGuests';
 import { useTables } from '@/hooks/useTables';
 import { AddGuestModal } from './AddGuestModal';
+import { WhoIsFilters } from './WhoIsFilters';
+import { WhoIsBadge } from './WhoIsBadge';
 import { supabase } from "@/integrations/supabase/client";
+import { WHO_IS_ROLE_LABELS, computeWhoIsDisplay } from "@/lib/whoIsUtils";
 
 type SortOption = 
   | 'first_name_asc' | 'first_name_desc'
   | 'last_name_asc' | 'last_name_desc' 
   | 'table_name_asc' | 'table_name_desc'
   | 'seat_no_asc' | 'seat_no_desc'
-  | 'rsvp_attending_first' | 'rsvp_not_attending_first';
+  | 'rsvp_attending_first' | 'rsvp_not_attending_first'
+  | 'who_is_asc' | 'who_is_desc';
 
 const SORT_OPTIONS = [
   { value: 'first_name_asc', label: 'First Name (A–Z)' },
@@ -66,11 +70,14 @@ const SORT_OPTIONS = [
   { value: 'seat_no_asc', label: 'Seat No. (1→9)' },
   { value: 'rsvp_attending_first', label: 'RSVP (Attending → Pending → Not Attending)' },
   { value: 'rsvp_not_attending_first', label: 'RSVP (Not Attending → Pending → Attending)' },
+  { value: 'who_is_asc', label: 'Who Is (A–Z)' },
+  { value: 'who_is_desc', label: 'Who Is (Z–A)' },
 ] as const;
 
 const CSV_HEADERS = [
   'first_name', 'last_name', 'table_name', 'seat_no',
-  'rsvp', 'dietary', 'mobile', 'email', 'notes'
+  'rsvp', 'dietary', 'mobile', 'email', 'notes', 
+  'who_is_partner', 'who_is_role', 'who_is_display'
 ];
 
 const DIETARY_OPTIONS = [
@@ -89,6 +96,10 @@ export const GuestListTable: React.FC = () => {
   const [editingGuest, setEditingGuest] = useState<any>(null);
   const [sortBy, setSortBy] = useState<SortOption>('first_name_asc');
   const [showNamesValidation, setShowNamesValidation] = useState(false);
+  const [whoIsFilters, setWhoIsFilters] = useState<{ partners: string[]; roles: string[] }>({
+    partners: [],
+    roles: []
+  });
 
   // Load selected event from localStorage on mount - use same key as Table Setup
   useEffect(() => {
@@ -127,6 +138,7 @@ export const GuestListTable: React.FC = () => {
     await deleteGuest(guestId);
     await fetchTables(); // Refresh table counts after deletion
   };
+
   // Save selected event to localStorage when changed - use same key as Table Setup
   const handleEventSelect = (eventId: string) => {
     setSelectedEventId(eventId);
@@ -139,7 +151,13 @@ export const GuestListTable: React.FC = () => {
     } else {
       setSortBy('first_name_asc');
     }
+
+    // Reset filters when changing events
+    setWhoIsFilters({ partners: [], roles: [] });
   };
+
+  // Get selected event
+  const selectedEvent = events.find(event => event.id === selectedEventId);
 
   // Helper function to get table name for a guest
   const getTableName = (guest: any) => {
@@ -219,20 +237,61 @@ export const GuestListTable: React.FC = () => {
           const orderA2 = a.rsvp === 'Not Attending' ? 0 : a.rsvp === 'Pending' ? 1 : 2;
           const orderB2 = b.rsvp === 'Not Attending' ? 0 : b.rsvp === 'Pending' ? 1 : 2;
           return orderA2 - orderB2;
+        case 'who_is_asc':
+          const partnerNameA = a.who_is_partner === 'partner_one' ? selectedEvent?.partner1_name : selectedEvent?.partner2_name;
+          const partnerNameB = b.who_is_partner === 'partner_one' ? selectedEvent?.partner1_name : selectedEvent?.partner2_name;
+          const roleA = WHO_IS_ROLE_LABELS[a.who_is_role] || '';
+          const roleB = WHO_IS_ROLE_LABELS[b.who_is_role] || '';
+          
+          // Primary sort: partner name
+          const partnerCompare = (partnerNameA || 'zzz').localeCompare(partnerNameB || 'zzz');
+          if (partnerCompare !== 0) return partnerCompare;
+          
+          // Secondary sort: role
+          return roleA.localeCompare(roleB);
+        case 'who_is_desc':
+          const partnerNameA3 = a.who_is_partner === 'partner_one' ? selectedEvent?.partner1_name : selectedEvent?.partner2_name;
+          const partnerNameB3 = b.who_is_partner === 'partner_one' ? selectedEvent?.partner1_name : selectedEvent?.partner2_name;
+          const roleA3 = WHO_IS_ROLE_LABELS[a.who_is_role] || '';
+          const roleB3 = WHO_IS_ROLE_LABELS[b.who_is_role] || '';
+          
+          // Primary sort: partner name (desc)
+          const partnerCompare3 = (partnerNameB3 || '').localeCompare(partnerNameA3 || '');
+          if (partnerCompare3 !== 0) return partnerCompare3;
+          
+          // Secondary sort: role (desc)
+          return roleB3.localeCompare(roleA3);
         default:
           return 0;
       }
     });
     
     return sorted;
-  }, [guests, sortBy, tables]);
+  }, [guests, sortBy, tables, selectedEvent]);
+
+  // Filter guests based on Who Is filters
+  const filteredGuests = useMemo(() => {
+    if (whoIsFilters.partners.length === 0 && whoIsFilters.roles.length === 0) {
+      return sortedGuests;
+    }
+    
+    return sortedGuests.filter(guest => {
+      const matchesPartner = whoIsFilters.partners.length === 0 || 
+        whoIsFilters.partners.includes(guest.who_is_partner || '');
+      
+      const matchesRole = whoIsFilters.roles.length === 0 || 
+        whoIsFilters.roles.includes(guest.who_is_role || '');
+      
+      return matchesPartner && matchesRole;
+    });
+  }, [sortedGuests, whoIsFilters]);
 
   // CSV Functions
   const downloadTemplate = () => {
     const csvContent = [
       CSV_HEADERS.join(','),
-      'John,Doe,Table 1,1,Attending,NA,1234567890,john@example.com,Sample note',
-      'Jane,Smith,Table 2,3,Pending,Vegan,,jane@example.com,'
+      'John,Doe,Table 1,1,Attending,NA,1234567890,john@example.com,Sample note,partner_one,father,John — Father',
+      'Jane,Smith,Table 2,3,Pending,Vegan,,jane@example.com,,partner_two,bridal_party,Jane — Bridal Party'
     ].join('\n');
     
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -243,11 +302,11 @@ export const GuestListTable: React.FC = () => {
   };
 
   const exportGuestList = () => {
-    if (!selectedEvent || !sortedGuests.length) return;
+    if (!selectedEvent || !filteredGuests.length) return;
     
     const csvRows = [
       CSV_HEADERS.join(','),
-      ...sortedGuests.map(guest => [
+      ...filteredGuests.map(guest => [
         guest.first_name || '',
         guest.last_name || '',
         getTableName(guest) || '',
@@ -256,7 +315,10 @@ export const GuestListTable: React.FC = () => {
         guest.dietary || 'NA',
         guest.mobile || '',
         guest.email || '',
-        (guest.notes || '').replace(/,/g, ';').replace(/\n/g, ' ')
+        (guest.notes || '').replace(/,/g, ';').replace(/\n/g, ' '),
+        guest.who_is_partner || '',
+        guest.who_is_role || '',
+        guest.who_is_display || ''
       ].map(field => `"${field}"`).join(','))
     ];
     
@@ -270,7 +332,7 @@ export const GuestListTable: React.FC = () => {
     link.download = `guest-list-${eventName}-${dateStr}.csv`;
     link.click();
     
-    toast({ title: `Exported ${sortedGuests.length} guests successfully` });
+    toast({ title: `Exported ${filteredGuests.length} guests successfully` });
   };
 
   const handleImportCSV = () => {
@@ -421,7 +483,7 @@ export const GuestListTable: React.FC = () => {
           
           if (confirm(confirmMsg)) {
             try {
-              // Bulk insert guests
+              // Bulk insert guests with who_is_display computed
               const { data: user } = await supabase.auth.getUser();
               if (!user.user) {
                 toast({ 
@@ -432,12 +494,25 @@ export const GuestListTable: React.FC = () => {
                 return;
               }
 
+              // Compute who_is_display for each row
+              const rowsWithDisplay = validRows.map(row => {
+                const whoIsDisplay = computeWhoIsDisplay(
+                  row.who_is_partner || '',
+                  row.who_is_role || '',
+                  selectedEvent?.partner1_name,
+                  selectedEvent?.partner2_name
+                );
+                
+                return {
+                  ...row,
+                  who_is_display: whoIsDisplay,
+                  user_id: user.user.id
+                };
+              });
+
               const { error } = await supabase
                 .from('guests')
-                .insert(validRows.map(row => ({
-                  ...row,
-                  user_id: user.user.id
-                })));
+                .insert(rowsWithDisplay);
                 
               if (error) {
                 console.error('Import error:', error);
@@ -514,17 +589,17 @@ export const GuestListTable: React.FC = () => {
   };
 
   const handleEditGuest = (guest: any) => {
-    // Map guest data to include table_id for the edit modal
-    const guestForEdit = {
-      ...guest,
-      table_id: guest.table_id || null,
-    };
-    setEditingGuest(guestForEdit);
+    setEditingGuest(guest);
     setShowAddModal(true);
   };
 
-  const selectedEvent = events.find(event => event.id === selectedEventId);
-  const guestCount = sortedGuests.length;
+  const handleEditWhoIs = (guest: any) => {
+    setEditingGuest({ ...guest, focusWhoIs: true });
+    setShowAddModal(true);
+  };
+
+  const guestCount = filteredGuests.length;
+  const totalGuestCount = guests.length;
 
   const renderPill = (condition: boolean, yesColor = "bg-green-500", noColor = "bg-red-500") => (
     <Badge 
@@ -546,107 +621,100 @@ export const GuestListTable: React.FC = () => {
   if (!selectedEventId) {
     return (
       <Card variant="elevated">
-        <div className="p-6 border-b border-card-border bg-gradient-subtle">
-          <div className="space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-              <div className="flex items-center space-x-4">
-                <label className="text-sm font-medium text-foreground">
-                  Choose Event:
-                </label>
-                <Select value={selectedEventId || ""} onValueChange={handleEventSelect}>
-                  <SelectTrigger className="w-[300px]">
-                    <SelectValue placeholder="Select an event..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {events.map((event) => (
-                      <SelectItem key={event.id} value={event.id}>
-                        <div className="flex items-center space-x-2">
-                          <Calendar className="w-4 h-4" />
-                          <span>{event.name}</span>
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            <div className="flex items-center space-x-2">
-              <span className="text-lg font-medium text-foreground">Guest List Management</span>
-            </div>
+        <div className="p-8 text-center space-y-4">
+          <div className="text-muted-foreground">Select an event to view its guest list</div>
+          
+          {/* Event dropdown */}
+          <div className="flex justify-center">
+            <Select onValueChange={handleEventSelect} value="">
+              <SelectTrigger className="w-[300px]">
+                <SelectValue placeholder="Select an event..." />
+              </SelectTrigger>
+              <SelectContent>
+                {events.map((event) => (
+                  <SelectItem key={event.id} value={event.id}>
+                    <div className="flex items-center space-x-2">
+                      <Calendar className="w-4 h-4" />
+                      <span>{event.name}</span>
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
-        </div>
-        <div className="p-8 text-center">
-          <Users className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
-          <p className="text-sm text-muted-foreground mb-6">
-            Please select an event above to view and manage its guest list.
-          </p>
+          
+          {events.length === 0 && (
+            <div className="text-sm text-muted-foreground">
+              No events found. Create an event first to manage guests.
+            </div>
+          )}
         </div>
       </Card>
     );
   }
 
-  // Event selected - show table card
   return (
     <>
-      {/* Guest Tools Section */}
-      <Card 
-        variant="elevated" 
-        id="guest-tools-section"
-        className="mb-6 shadow-sm"
-        style={{ minHeight: '140px' }}
-      >
-        <div className="px-6 py-6">
-          <div className="flex justify-center">
-            <div className="w-full max-w-2xl">
-              <Card className={`p-6 transition-all duration-300 ${
-                showNamesValidation 
-                  ? 'border-red-500 border-2 animate-pulse' 
-                  : guests.length > 0 
-                    ? 'border-muted-foreground border' 
-                    : 'border-border'
-              }`}>
-                <div className="text-center mb-6">
-                  <h3 className="text-lg font-medium text-foreground">
-                    If you're having a wedding or an engagement add the couple's first names below. If you're having any other type of event, write the organiser's first name only.
-                  </h3>
+      {/* Couple Names Section */}
+      <div id="guest-tools-section" className="px-6 py-6">
+        <div className="flex justify-center">
+          <div className="w-full max-w-2xl">
+            <Card className={`p-6 transition-all duration-300 ${
+              showNamesValidation 
+                ? 'border-red-500 border-2 animate-pulse' 
+                : totalGuestCount > 0 
+                  ? 'border-muted-foreground border' 
+                  : 'border-border'
+            }`}>
+              <div className="text-center mb-6">
+                <h3 className="text-lg font-medium text-foreground">
+                  If you're having a wedding or an engagement add the couple's first names below. If you're having any other type of event, write the organiser's first name only.
+                </h3>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="partner1-name" className="text-sm font-medium">
+                    Partner 1 First Name
+                  </Label>
+                  <Input
+                    id="partner1-name"
+                    type="text"
+                    placeholder="Enter first name"
+                    value={selectedEvent?.partner1_name || ''}
+                    onChange={(e) => handlePartnerNameChange('partner1_name', e.target.value)}
+                    className="mt-1"
+                  />
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="partner1-name">Partner 1 first name</Label>
-                    <Input
-                      id="partner1-name"
-                      value={selectedEvent?.partner1_name || ''}
-                      onChange={(e) => handlePartnerNameChange('partner1_name', e.target.value)}
-                      disabled={!selectedEvent}
-                      placeholder="Enter first name"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="partner2-name">Partner 2 first name</Label>
-                    <Input
-                      id="partner2-name"
-                      value={selectedEvent?.partner2_name || ''}
-                      onChange={(e) => handlePartnerNameChange('partner2_name', e.target.value)}
-                      disabled={!selectedEvent}
-                      placeholder="Enter first name"
-                    />
-                  </div>
+                <div>
+                  <Label htmlFor="partner2-name" className="text-sm font-medium">
+                    Partner 2 First Name
+                  </Label>
+                  <Input
+                    id="partner2-name"
+                    type="text"
+                    placeholder="Enter first name"
+                    value={selectedEvent?.partner2_name || ''}
+                    onChange={(e) => handlePartnerNameChange('partner2_name', e.target.value)}
+                    className="mt-1"
+                  />
                 </div>
-              </Card>
-            </div>
+              </div>
+            </Card>
           </div>
         </div>
-      </Card>
+      </div>
 
-      <Card variant="elevated" className="overflow-hidden">
-        <div className="p-6 border-b border-card-border bg-gradient-subtle">
+      <Card variant="elevated">
+        {/* Header Controls */}
+        <div className="px-6 py-4">
           <div className="space-y-4">
-            {/* Row 1: Controls with repositioned elements */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-              <div className="flex items-center space-x-4">
-                <label className="text-sm font-medium text-foreground">
+            {/* Row 1: Event selector and control buttons */}
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+              {/* Event selector - left side */}
+              <div className="flex items-center space-x-2">
+                <Label htmlFor="event-select" className="whitespace-nowrap text-sm font-medium">
                   Choose Event:
-                </label>
+                </Label>
                 <Select value={selectedEventId || ""} onValueChange={handleEventSelect}>
                   <SelectTrigger className="w-[300px]">
                     <SelectValue placeholder="Select an event..." />
@@ -670,6 +738,7 @@ export const GuestListTable: React.FC = () => {
                   {/* Guest counter pill - positioned first */}
                   <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors h-9 px-3 bg-purple-600 text-white pointer-events-none">
                     {guestCount} Guest{guestCount !== 1 ? 's' : ''}
+                    {guestCount !== totalGuestCount && ` (${totalGuestCount} total)`}
                   </div>
 
                   {/* Sort By Dropdown */}
@@ -754,7 +823,7 @@ export const GuestListTable: React.FC = () => {
                 </TooltipProvider>
 
                 {/* Add Guests button */}
-                {guestCount === 0 ? (
+                {totalGuestCount === 0 ? (
                   <Button variant="gradient" size="sm" onClick={handleAddGuest}>
                     <Users className="w-4 h-4 mr-2" />
                     Add First Guest
@@ -776,6 +845,18 @@ export const GuestListTable: React.FC = () => {
           </div>
         </div>
 
+        {/* Who Is Filters */}
+        {totalGuestCount > 0 && (selectedEvent?.partner1_name || selectedEvent?.partner2_name) && (
+          <div className="px-6">
+            <WhoIsFilters
+              filters={whoIsFilters}
+              onFiltersChange={setWhoIsFilters}
+              partner1Name={selectedEvent?.partner1_name}
+              partner2Name={selectedEvent?.partner2_name}
+            />
+          </div>
+        )}
+
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
@@ -785,6 +866,7 @@ export const GuestListTable: React.FC = () => {
                 <TableHead className="min-w-[100px]">Table</TableHead>
                 <TableHead className="min-w-[100px]">Seat No.</TableHead>
                 <TableHead className="min-w-[120px]">RSVP</TableHead>
+                <TableHead className="min-w-[140px]">Who Is</TableHead>
                 <TableHead className="min-w-[140px]">Dietary</TableHead>
                 <TableHead className="min-w-[120px]">Mobile</TableHead>
                 <TableHead className="min-w-[180px]">Email</TableHead>
@@ -795,18 +877,18 @@ export const GuestListTable: React.FC = () => {
             <TableBody>
               {guestsLoading ? (
                 <TableRow className="border-card-border">
-                  <TableCell colSpan={10} className="text-center py-8">
+                  <TableCell colSpan={11} className="text-center py-8">
                     Loading guests...
                   </TableCell>
                 </TableRow>
-              ) : guestCount === 0 ? (
+              ) : totalGuestCount === 0 ? (
                 <TableRow className="border-card-border">
-                  <TableCell colSpan={10} className="text-center py-8">
+                  <TableCell colSpan={11} className="text-center py-8">
                     {/* Empty - the "No Guests Yet" widget is now in the header */}
                   </TableCell>
                 </TableRow>
               ) : (
-                sortedGuests.map((guest) => (
+                filteredGuests.map((guest) => (
                   <TableRow 
                     key={guest.id} 
                     className="border-card-border hover:bg-muted/50"
@@ -819,6 +901,16 @@ export const GuestListTable: React.FC = () => {
                       <Badge variant="outline" className="text-xs">
                         {guest.rsvp}
                       </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <WhoIsBadge
+                        display={guest.who_is_display || ''}
+                        partner={guest.who_is_partner || ''}
+                        role={guest.who_is_role || ''}
+                        partnerName={guest.who_is_partner === 'partner_one' ? selectedEvent?.partner1_name : selectedEvent?.partner2_name}
+                        onClick={() => handleEditWhoIs(guest)}
+                        isEmpty={!guest.who_is_display}
+                      />
                     </TableCell>
                     <TableCell>
                       <Badge variant="outline" className="text-xs">
