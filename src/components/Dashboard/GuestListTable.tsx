@@ -45,6 +45,7 @@ import { useEvents } from '@/hooks/useEvents';
 import { useRealtimeGuests } from '@/hooks/useRealtimeGuests';
 import { useTables } from '@/hooks/useTables';
 import { AddGuestModal } from './AddGuestModal';
+import { PartnerNamesInline } from './PartnerNamesInline';
 import { supabase } from "@/integrations/supabase/client";
 
 type SortOption = 
@@ -79,7 +80,7 @@ const DIETARY_OPTIONS = [
 const RSVP_OPTIONS = ['Pending', 'Attending', 'Not Attending'];
 
 export const GuestListTable: React.FC = () => {
-  const { events, loading } = useEvents();
+  const { events, loading, updateEvent } = useEvents();
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const { guests, loading: guestsLoading, deleteGuest, refetchGuests } = useRealtimeGuests(selectedEventId);
@@ -446,6 +447,12 @@ export const GuestListTable: React.FC = () => {
 
   const selectedEvent = events.find(event => event.id === selectedEventId);
   const guestCount = sortedGuests.length;
+  const hasPartnerNames = selectedEvent?.partner1_name && selectedEvent?.partner2_name;
+
+  // Handle partner names update
+  const handlePartnerNamesUpdate = (updatedEvent: any) => {
+    updateEvent(updatedEvent.id, updatedEvent);
+  };
 
   const renderPill = (condition: boolean, yesColor = "bg-green-500", noColor = "bg-red-500") => (
     <Badge 
@@ -533,6 +540,14 @@ export const GuestListTable: React.FC = () => {
                     ))}
                   </SelectContent>
                 </Select>
+                
+                {/* Partner Names Inline Component */}
+                {selectedEvent && (
+                  <PartnerNamesInline 
+                    event={selectedEvent} 
+                    onUpdate={handlePartnerNamesUpdate}
+                  />
+                )}
               </div>
               
               {/* Control buttons - right side */}
@@ -625,17 +640,40 @@ export const GuestListTable: React.FC = () => {
                 </TooltipProvider>
 
                 {/* Add Guests button */}
-                {guestCount === 0 ? (
-                  <Button variant="gradient" size="sm" onClick={handleAddGuest}>
-                    <Users className="w-4 h-4 mr-2" />
-                    Add First Guest
-                  </Button>
-                ) : (
-                  <Button variant="gradient" size="sm" onClick={handleAddGuest}>
-                    <Users className="w-4 h-4 mr-2" />
-                    Add Guest
-                  </Button>
-                )}
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div>
+                        {guestCount === 0 ? (
+                          <Button 
+                            variant="gradient" 
+                            size="sm" 
+                            onClick={handleAddGuest}
+                            disabled={!hasPartnerNames}
+                          >
+                            <Users className="w-4 h-4 mr-2" />
+                            Add First Guest
+                          </Button>
+                        ) : (
+                          <Button 
+                            variant="gradient" 
+                            size="sm" 
+                            onClick={handleAddGuest}
+                            disabled={!hasPartnerNames}
+                          >
+                            <Users className="w-4 h-4 mr-2" />
+                            Add Guest
+                          </Button>
+                        )}
+                      </div>
+                    </TooltipTrigger>
+                    {!hasPartnerNames && (
+                      <TooltipContent>
+                        <p>Add the two names to start adding guests</p>
+                      </TooltipContent>
+                    )}
+                  </Tooltip>
+                </TooltipProvider>
               </div>
             </div>
             

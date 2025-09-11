@@ -255,6 +255,8 @@ export type Database = {
           guests_count: number
           id: string
           name: string
+          partner1_name: string
+          partner2_name: string
           start_time: string
           user_id: string
           venue: string
