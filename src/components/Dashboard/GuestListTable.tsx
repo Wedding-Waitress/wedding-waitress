@@ -249,13 +249,12 @@ export const GuestListTable: React.FC = () => {
       // Analytics tracking when partner names are set
       if (bothNamesFilled) {
         whoIsAnalytics.partnerNamesSet(selectedEvent.id);
+        // Only show success toast when both names are completed
+        toast({
+          title: "Success",
+          description: "Partner names updated successfully",
+        });
       }
-
-      // Show success toast
-      toast({
-        title: "Success",
-        description: "Partner name updated successfully",
-      });
     } catch (error) {
       console.error('Error updating partner name:', error);
       toast({
