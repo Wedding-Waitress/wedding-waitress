@@ -21,6 +21,7 @@ export interface Guest {
   who_is_role: string;
   who_is_display: string;
   created_at: string;
+  display_order: number | null;
 }
 
 export const useGuests = (eventId: string | null) => {

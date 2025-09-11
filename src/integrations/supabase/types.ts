@@ -106,6 +106,7 @@ export type Database = {
           assigned: boolean | null
           created_at: string
           dietary: string | null
+          display_order: number | null
           email: string | null
           event_id: string
           first_name: string
@@ -128,6 +129,7 @@ export type Database = {
           assigned?: boolean | null
           created_at?: string
           dietary?: string | null
+          display_order?: number | null
           email?: string | null
           event_id: string
           first_name: string
@@ -150,6 +152,7 @@ export type Database = {
           assigned?: boolean | null
           created_at?: string
           dietary?: string | null
+          display_order?: number | null
           email?: string | null
           event_id?: string
           first_name?: string

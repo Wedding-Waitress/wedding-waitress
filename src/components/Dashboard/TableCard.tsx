@@ -43,7 +43,7 @@ export const TableCard: React.FC<TableCardProps> = ({
   // Filter guests for this table from the real-time guest list
   const guests = allGuests.filter(guest => guest.table_id === table.id);
 
-  // Sort guests: numbered seats first (alphabetically), then non-numbered (alphabetically)
+  // Sort guests: numbered seats first (numerically), then non-numbered (by display_order/creation order)
   const sortedGuests = [...guests].sort((a, b) => {
     const aHasSeat = a.seat_no !== null && a.seat_no !== undefined;
     const bHasSeat = b.seat_no !== null && b.seat_no !== undefined;
@@ -52,10 +52,26 @@ export const TableCard: React.FC<TableCardProps> = ({
     if (aHasSeat && !bHasSeat) return -1;
     if (!aHasSeat && bHasSeat) return 1;
     
-    // Both have same seat status, sort alphabetically by full name
-    const aName = `${a.first_name} ${a.last_name || ''}`.trim().toLowerCase();
-    const bName = `${b.first_name} ${b.last_name || ''}`.trim().toLowerCase();
-    return aName.localeCompare(bName);
+    // Both have seat numbers - sort numerically by seat number
+    if (aHasSeat && bHasSeat) {
+      return (a.seat_no || 0) - (b.seat_no || 0);
+    }
+    
+    // Both have no seat numbers - sort by display_order (if set) or creation time
+    if (!aHasSeat && !bHasSeat) {
+      // If both have display_order, use that
+      if (a.display_order !== null && b.display_order !== null) {
+        return a.display_order - b.display_order;
+      }
+      // If one has display_order and other doesn't, prioritize the one with display_order
+      if (a.display_order !== null && b.display_order === null) return -1;
+      if (a.display_order === null && b.display_order !== null) return 1;
+      
+      // Neither has display_order, sort by creation time (original add order)
+      return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+    }
+    
+    return 0;
   });
 
   // Guard against divide-by-zero and calculate progress

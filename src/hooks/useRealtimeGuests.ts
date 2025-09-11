@@ -91,8 +91,56 @@ export const useRealtimeGuests = (eventId: string | null): UseRealtimeGuestsRetu
       return false;
     }
 
-    // Don't allow moving to the same table
-    if (sourceTableId === destTableId) {
+    // Handle intra-table moves (reordering within same table)
+    if (sourceTableId === destTableId && sourceTableId !== null) {
+      // This is a reorder within the same table
+      // We need to update display_order to maintain the new position
+      
+      // Get all guests in this table excluding the one being moved
+      const tableGuests = guests.filter(g => 
+        g.table_id === sourceTableId && g.id !== guestId
+      );
+      
+      // Calculate new display_order based on position
+      // For simplicity, we'll assign display_order as index * 10 to allow for future insertions
+      const newDisplayOrder = tableGuests.length * 10 + 10;
+      
+      try {
+        const { error } = await supabase
+          .from('guests')
+          .update({ display_order: newDisplayOrder })
+          .eq('id', guestId);
+
+        if (error) {
+          console.error('Error reordering guest:', error);
+          toast({
+            title: "Error",
+            description: "Failed to reorder guest",
+            variant: "destructive",
+          });
+          return false;
+        }
+
+        toast({
+          title: "Guest reordered",
+          description: `${guestName} position updated`,
+        });
+        
+        return true;
+      } catch (error) {
+        console.error('Error reordering guest:', error);
+        toast({
+          title: "Error",
+          description: "An unexpected error occurred",
+          variant: "destructive",
+        });
+        return false;
+      }
+    }
+
+    // Handle inter-table moves (moving between different tables)
+    if (sourceTableId === destTableId && sourceTableId === null) {
+      // Both are null (unassigned), don't allow this move
       return false;
     }
 
@@ -164,14 +212,15 @@ export const useRealtimeGuests = (eventId: string | null): UseRealtimeGuestsRetu
     setGuests(optimisticGuests);
 
     try {
-      // Persist to database
+      // Persist to database with display_order reset for new table
       const { error } = await supabase
         .from('guests')
         .update({
           table_id: destTableId,
           table_no: destTableNo,
           seat_no: newSeatNo,
-          assigned: !!destTableId
+          assigned: !!destTableId,
+          display_order: null // Reset display_order when moving to new table
         })
         .eq('id', guestId);
 
