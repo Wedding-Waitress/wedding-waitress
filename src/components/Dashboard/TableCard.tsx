@@ -43,6 +43,21 @@ export const TableCard: React.FC<TableCardProps> = ({
   // Filter guests for this table from the real-time guest list
   const guests = allGuests.filter(guest => guest.table_id === table.id);
 
+  // Sort guests: numbered seats first (alphabetically), then non-numbered (alphabetically)
+  const sortedGuests = [...guests].sort((a, b) => {
+    const aHasSeat = a.seat_no !== null && a.seat_no !== undefined;
+    const bHasSeat = b.seat_no !== null && b.seat_no !== undefined;
+    
+    // If one has seat number and other doesn't, prioritize the one with seat number
+    if (aHasSeat && !bHasSeat) return -1;
+    if (!aHasSeat && bHasSeat) return 1;
+    
+    // Both have same seat status, sort alphabetically by full name
+    const aName = `${a.first_name} ${a.last_name || ''}`.trim().toLowerCase();
+    const bName = `${b.first_name} ${b.last_name || ''}`.trim().toLowerCase();
+    return aName.localeCompare(bName);
+  });
+
   // Guard against divide-by-zero and calculate progress
   const safeLimit = Math.max(table.limit_seats, 1);
   const progressPercentage = Math.min((table.guest_count / safeLimit) * 100, 100);
@@ -183,8 +198,8 @@ export const TableCard: React.FC<TableCardProps> = ({
           <div className="mb-3">
             <div className="text-xs text-muted-foreground mb-2">Guests:</div>
             <div className="space-y-1">
-              {guests.length > 0 ? (
-                guests.map((guest) => (
+              {sortedGuests.length > 0 ? (
+                sortedGuests.map((guest) => (
                   <Badge
                     key={guest.id}
                     variant="secondary"
