@@ -141,4 +141,46 @@
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
     background: hsl(var(--primary-hover));
   }
+
+  /* New Event Row Styling */
+  .event-row--new {
+    background-color: #F6F0FF !important;
+    border: 2px solid #A56EFF !important;
+    border-radius: 8px;
+    border-left: 4px solid #A56EFF !important;
+    animation: fade-scale-in 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  @keyframes fade-scale-in {
+    from {
+      opacity: 0;
+      transform: scale(0.98);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes shake {
+    0%, 20%, 50%, 80%, 100% {
+      transform: translateX(0);
+    }
+    10% {
+      transform: translateX(-5px);
+    }
+    30% {
+      transform: translateX(5px);
+    }
+    40% {
+      transform: translateX(-3px);
+    }
+    60% {
+      transform: translateX(3px);
+    }
+  }
+
+  .shake {
+    animation: shake 0.6s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+  }
 }

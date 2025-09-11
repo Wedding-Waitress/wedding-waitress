@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Card } from "@/components/ui/enhanced-card";
 import { Button } from "@/components/ui/enhanced-button";
 import { Badge } from "@/components/ui/badge";
@@ -108,6 +108,9 @@ export const EventsTable: React.FC<EventsTableProps> = ({
     finish_time: '',
     guest_limit: 50
   });
+  const [isShaking, setIsShaking] = useState(false);
+  const newRowRef = useRef<HTMLTableRowElement>(null);
+  const nameInputRef = useRef<HTMLInputElement>(null);
 
   const handleEventSelect = (eventId: string) => {
     setActiveEventId(eventId);
@@ -167,6 +170,8 @@ export const EventsTable: React.FC<EventsTableProps> = ({
   };
 
   const handleCreateEvent = async () => {
+    if (!newEventForm.name.trim()) return;
+    
     try {
       await createEvent({
         name: newEventForm.name,
@@ -189,6 +194,66 @@ export const EventsTable: React.FC<EventsTableProps> = ({
       console.error('Failed to create event:', error);
     }
   };
+
+  const handleCancelCreate = () => {
+    const hasChanges = newEventForm.name || 
+                      newEventForm.date || 
+                      newEventForm.venue || 
+                      newEventForm.start_time || 
+                      newEventForm.finish_time || 
+                      newEventForm.guest_limit !== 50;
+
+    if (hasChanges) {
+      const confirmDiscard = window.confirm('Discard this new event?');
+      if (!confirmDiscard) return;
+    }
+
+    setIsCreating(false);
+    setNewEventForm({
+      name: '',
+      date: null,
+      venue: '',
+      start_time: '',
+      finish_time: '',
+      guest_limit: 50
+    });
+  };
+
+  const handleCreateEventClick = () => {
+    if (isCreating) {
+      // Shake existing row if trying to create another
+      setIsShaking(true);
+      setTimeout(() => setIsShaking(false), 600);
+      return;
+    }
+    setIsCreating(true);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && newEventForm.name.trim()) {
+      e.preventDefault();
+      handleCreateEvent();
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      handleCancelCreate();
+    }
+  };
+
+  // Auto-scroll and focus when new row is created
+  useEffect(() => {
+    if (isCreating && newRowRef.current && nameInputRef.current) {
+      // Auto-scroll to new row
+      newRowRef.current.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'nearest' 
+      });
+      
+      // Focus the name input after a short delay to ensure the row is rendered
+      setTimeout(() => {
+        nameInputRef.current?.focus();
+      }, 100);
+    }
+  }, [isCreating]);
 
   const isAtCapacity = (event: any) => {
     return event.guests_count >= event.guest_limit;
@@ -219,7 +284,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
               <Button 
                 variant="gradient" 
                 size="sm"
-                onClick={() => setIsCreating(true)}
+                onClick={handleCreateEventClick}
               >
                 <Plus className="w-4 h-4 mr-2" />
                 Create Event
@@ -248,16 +313,22 @@ export const EventsTable: React.FC<EventsTableProps> = ({
             <TableBody>
               {/* Create new event row */}
               {isCreating && (
-                <TableRow className="border-card-border bg-muted/20">
+                <TableRow 
+                  ref={newRowRef}
+                  className={`event-row--new ${isShaking ? 'shake' : ''}`}
+                  onKeyDown={handleKeyDown}
+                >
                   <TableCell>
                     <span className="text-muted-foreground text-sm">-</span>
                   </TableCell>
                   <TableCell>
                     <Input
+                      ref={nameInputRef}
                       value={newEventForm.name}
                       onChange={(e) => setNewEventForm(prev => ({ ...prev, name: e.target.value }))}
                       placeholder="Event name"
                       className="min-w-[180px]"
+                      onKeyDown={handleKeyDown}
                     />
                   </TableCell>
                   <TableCell>
@@ -318,10 +389,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                       <Button
                         variant="ghost"
                         size="icon"
-                        onClick={() => {
-                          setIsCreating(false);
-                          setNewEventForm({ name: '', date: null, venue: '', start_time: '', finish_time: '', guest_limit: 50 });
-                        }}
+                        onClick={handleCancelCreate}
                         className="w-8 h-8 text-muted-foreground hover:text-destructive"
                       >
                         <X className="w-3 h-3" />
