@@ -1,22 +1,24 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Card } from "@/components/ui/enhanced-card";
 import { Event } from '@/hooks/useEvents';
+import { useProfile } from '@/hooks/useProfile';
 
 interface CountdownBarProps {
   selectedEvent: Event | null;
 }
 
 export const CountdownBar: React.FC<CountdownBarProps> = ({ selectedEvent }) => {
-  const [countdownDisplay, setCountdownDisplay] = useState<string>('0 months • 0 weeks • 0 days • 0 hours');
+  const [countdownValues, setCountdownValues] = useState({ months: 0, weeks: 0, hours: 0, seconds: 0 });
   const [hasStarted, setHasStarted] = useState<boolean>(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const [displayEvent, setDisplayEvent] = useState<Event | null>(null);
   const debounceTimeoutRef = useRef<NodeJS.Timeout>();
   const animationTimeoutRef = useRef<NodeJS.Timeout>();
+  const { profile } = useProfile();
 
   const calculateTimeRemaining = (event: Event | null) => {
     if (!event?.date) {
-      return { display: '0 months • 0 weeks • 0 days • 0 hours', hasStarted: false };
+      return { months: 0, weeks: 0, hours: 0, seconds: 0, hasStarted: false };
     }
 
     const eventDate = new Date(event.date);
@@ -33,11 +35,12 @@ export const CountdownBar: React.FC<CountdownBarProps> = ({ selectedEvent }) => 
     const timeDiff = eventDate.getTime() - now.getTime();
     
     if (timeDiff <= 0) {
-      return { display: '0 months • 0 weeks • 0 days • 0 hours', hasStarted: true };
+      return { months: 0, weeks: 0, hours: 0, seconds: 0, hasStarted: true };
     }
     
     // Calculate time units
-    const totalMinutes = Math.floor(timeDiff / (1000 * 60));
+    const totalSeconds = Math.floor(timeDiff / 1000);
+    const totalMinutes = Math.floor(totalSeconds / 60);
     const totalHours = Math.floor(totalMinutes / 60);
     const totalDays = Math.floor(totalHours / 24);
     const totalWeeks = Math.floor(totalDays / 7);
@@ -46,23 +49,20 @@ export const CountdownBar: React.FC<CountdownBarProps> = ({ selectedEvent }) => 
     // Calculate remaining units
     const months = totalMonths;
     const weeks = Math.floor((totalDays - (months * 30)) / 7);
-    const days = totalDays - (months * 30) - (weeks * 7);
     const hours = totalHours - (totalDays * 24);
+    const seconds = totalSeconds % 60;
     
-    // Format with pluralization and no leading zeros
-    const monthText = months === 1 ? 'month' : 'months';
-    const weekText = weeks === 1 ? 'week' : 'weeks';
-    const dayText = days === 1 ? 'day' : 'days';
-    const hourText = hours === 1 ? 'hour' : 'hours';
-    
-    const display = `${months} ${monthText} • ${weeks} ${weekText} • ${days} ${dayText} • ${hours} ${hourText}`;
-    
-    return { display, hasStarted: false };
+    return { months, weeks, hours, seconds, hasStarted: false };
   };
 
   const updateCountdown = (event: Event | null) => {
     const timeResult = calculateTimeRemaining(event);
-    setCountdownDisplay(timeResult.display);
+    setCountdownValues({
+      months: timeResult.months,
+      weeks: timeResult.weeks, 
+      hours: timeResult.hours,
+      seconds: timeResult.seconds
+    });
     setHasStarted(timeResult.hasStarted);
     setDisplayEvent(event);
   };
@@ -104,39 +104,88 @@ export const CountdownBar: React.FC<CountdownBarProps> = ({ selectedEvent }) => 
     };
   }, [selectedEvent]);
 
-  // Update countdown every minute to keep it current
+  // Update countdown every second for live updates
   useEffect(() => {
     const interval = setInterval(() => {
       if (displayEvent) {
         const timeResult = calculateTimeRemaining(displayEvent);
-        setCountdownDisplay(timeResult.display);
+        setCountdownValues({
+          months: timeResult.months,
+          weeks: timeResult.weeks,
+          hours: timeResult.hours,
+          seconds: timeResult.seconds
+        });
         setHasStarted(timeResult.hasStarted);
       }
-    }, 60000); // Update every minute
+    }, 1000); // Update every second
     
     return () => clearInterval(interval);
   }, [displayEvent]);
 
+  const getDisplayName = () => {
+    if (profile?.first_name) {
+      return profile.first_name;
+    }
+    return 'Guest';
+  };
+
+  const CountdownCircle = ({ value, label }: { value: number; label: string }) => (
+    <div className="flex flex-col items-center">
+      <div className="relative w-24 h-24 md:w-32 md:h-32 mb-2">
+        <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary to-primary-hover shadow-lg border-2 border-white/20"></div>
+        <div className="absolute inset-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/30"></div>
+        <div className="absolute inset-0 flex items-center justify-center">
+          <span className="text-2xl md:text-3xl font-bold text-white">{value}</span>
+        </div>
+      </div>
+      <span className="text-sm md:text-base font-medium text-foreground/80">{label}</span>
+    </div>
+  );
+
   return (
-    <Card variant="elevated" className="p-8 mb-6">
-      <div className="text-center" aria-live="polite">
-        <h2 className="text-3xl font-bold text-black mb-4">
-          Time to go
-        </h2>
+    <Card variant="elevated" className="p-8 mb-6 mx-auto max-w-4xl">
+      <div className="text-center space-y-6" aria-live="polite">
+        {/* Welcome Message */}
+        <div className="space-y-2">
+          <h2 className="text-3xl md:text-4xl font-bold text-foreground">
+            Welcome <span className="gradient-text">{getDisplayName()}</span>
+          </h2>
+          <p className="text-lg text-muted-foreground">
+            This is a countdown to your event
+          </p>
+        </div>
+
+        {/* Countdown Circles */}
         <div 
-          className={`text-2xl font-bold text-purple-600 transition-opacity duration-125 ease-in-out ${
+          className={`transition-opacity duration-300 ease-in-out ${
             isAnimating ? 'opacity-0' : 'opacity-100'
           }`}
         >
-          {countdownDisplay}
+          {displayEvent ? (
+            <div className="flex justify-center items-center gap-6 md:gap-12 flex-wrap">
+              <CountdownCircle value={countdownValues.months} label="Months" />
+              <CountdownCircle value={countdownValues.weeks} label="Weeks" />
+              <CountdownCircle value={countdownValues.hours} label="Hours" />
+              <CountdownCircle value={countdownValues.seconds} label="Seconds" />
+            </div>
+          ) : (
+            <div className="flex justify-center items-center gap-6 md:gap-12 flex-wrap">
+              <CountdownCircle value={0} label="Months" />
+              <CountdownCircle value={0} label="Weeks" />
+              <CountdownCircle value={0} label="Hours" />
+              <CountdownCircle value={0} label="Seconds" />
+            </div>
+          )}
         </div>
+
+        {/* Event Status */}
         {displayEvent && (
           <p 
-            className={`text-lg font-medium text-muted-foreground mt-2 transition-opacity duration-125 ease-in-out ${
+            className={`text-lg font-medium text-muted-foreground transition-opacity duration-300 ease-in-out ${
               isAnimating ? 'opacity-0' : 'opacity-100'
             }`}
           >
-            {hasStarted ? 'event has started' : `until ${displayEvent.name}`}
+            {hasStarted ? 'Event has started!' : `Until ${displayEvent.name}`}
           </p>
         )}
       </div>
