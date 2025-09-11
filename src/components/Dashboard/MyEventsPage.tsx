@@ -146,7 +146,7 @@ export const MyEventsPage: React.FC = () => {
     setEventState(timeResult.eventState as 'upcoming' | 'in_progress' | 'finished' | 'no_event');
   };
 
-  // Initialize selectedCountdownId on page load
+  // Initialize selectedCountdownId on page load and handle new events
   useEffect(() => {
     if (!events.length) return;
     
@@ -157,8 +157,8 @@ export const MyEventsPage: React.FC = () => {
       // Valid profile selection exists in eventMap
       setSelectedCountdownId(profileEventId);
       setSelectedEvent(eventMap[profileEventId]);
-    } else {
-      // Set to first event (top under current sort)
+    } else if (!selectedCountdownId || !eventMap[selectedCountdownId]) {
+      // Set to first event if no selection or current selection is invalid
       const firstEventId = events[0]?.id;
       if (firstEventId) {
         setSelectedCountdownId(firstEventId);
@@ -167,7 +167,7 @@ export const MyEventsPage: React.FC = () => {
         setActiveEventId(firstEventId);
       }
     }
-  }, [events, profile, eventMap, setActiveEventId]);
+  }, [events, profile, eventMap, selectedCountdownId, setActiveEventId]);
 
   // E) Realtime sync for profile changes
   useEffect(() => {

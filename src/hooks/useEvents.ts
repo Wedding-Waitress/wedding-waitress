@@ -101,6 +101,10 @@ export const useEvents = () => {
 
       if (error) throw error;
 
+      // Set the newly created event as active immediately
+      setActiveEventId(data.id);
+      await updateDisplayCountdownEvent(data.id);
+      
       await fetchEvents();
       toast({
         title: "Success",
@@ -174,7 +178,40 @@ export const useEvents = () => {
   };
 
   useEffect(() => {
-    fetchEvents();
+    const setupRealtimeSubscription = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user?.id) return;
+
+      fetchEvents();
+      
+      // Set up realtime subscription for events
+      const channel = supabase
+        .channel('events-changes')
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'events',
+            filter: `user_id=eq.${user.id}`
+          },
+          () => {
+            // Refetch events when any change occurs
+            fetchEvents();
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    };
+
+    const cleanup = setupRealtimeSubscription();
+    
+    return () => {
+      cleanup.then(cleanupFn => cleanupFn && cleanupFn());
+    };
   }, []);
 
   // Initialize activeEventId from profile or auto-select first event
