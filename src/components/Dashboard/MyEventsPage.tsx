@@ -144,6 +144,29 @@ export const MyEventsPage: React.FC = () => {
     return 'Guest';
   };
 
+  const formatEventDate = (event: Event | null) => {
+    if (!event?.date) return '';
+    
+    const eventDate = new Date(event.date);
+    const dayOfWeek = eventDate.toLocaleDateString('en-US', { weekday: 'long' });
+    const day = eventDate.getDate();
+    const month = eventDate.toLocaleDateString('en-US', { month: 'long' });
+    const year = eventDate.getFullYear();
+    
+    // Add ordinal suffix to day
+    const getOrdinalSuffix = (day: number) => {
+      if (day > 3 && day < 21) return 'th';
+      switch (day % 10) {
+        case 1: return 'st';
+        case 2: return 'nd';
+        case 3: return 'rd';
+        default: return 'th';
+      }
+    };
+    
+    return `${dayOfWeek} ${day}${getOrdinalSuffix(day)}, ${month} ${year}`;
+  };
+
   const getProgressPercentage = (value: number, max: number, type: string) => {
     const now = new Date();
     
@@ -234,6 +257,12 @@ export const MyEventsPage: React.FC = () => {
             <p className="text-muted-foreground text-lg">
               This is a countdown to your event
             </p>
+            {/* Event Date */}
+            {selectedEvent && (
+              <p className={`text-muted-foreground transition-opacity duration-300 ease-in-out ${isAnimating ? 'opacity-0' : 'opacity-100'}`}>
+                {formatEventDate(selectedEvent)}
+              </p>
+            )}
           </div>
 
           {/* Countdown Circles */}
@@ -262,10 +291,10 @@ export const MyEventsPage: React.FC = () => {
             )}
           </div>
 
-          {/* Event Status */}
+          {/* Event Name */}
           {selectedEvent && (
-            <p className={`text-lg font-medium text-muted-foreground transition-opacity duration-400 ease-in-out ${isAnimating ? 'opacity-0' : 'opacity-100'}`}>
-              {hasStarted ? 'Event has started!' : `Until ${selectedEvent.name}`}
+            <p className={`text-lg font-medium text-primary transition-opacity duration-300 ease-in-out ${isAnimating ? 'opacity-0' : 'opacity-100'}`}>
+              {selectedEvent.name}
             </p>
           )}
         </div>
