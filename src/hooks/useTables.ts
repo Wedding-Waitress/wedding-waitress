@@ -49,7 +49,7 @@ export const useTables = (eventId: string | null) => {
         .from('tables')
         .select('*')
         .eq('event_id', eventId)
-        .order('created_at', { ascending: true });
+        .order('table_no', { ascending: true });
 
       if (tablesError) throw tablesError;
 
