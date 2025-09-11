@@ -11,7 +11,6 @@ import {
   ClipboardList, 
   Handshake, 
   Settings, 
-  Heart,
   Menu,
   X
 } from 'lucide-react';
@@ -54,7 +53,6 @@ const SidebarMenuContent = ({ activeTab, onTabChange, onClose }: { activeTab: st
       {/* Logo */}
       <div className="p-4 border-b border-border">
         <div className="flex justify-start">
-          <Heart className="w-6 h-6 text-primary" />
         </div>
       </div>
 
