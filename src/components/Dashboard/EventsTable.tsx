@@ -232,7 +232,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
           <Table>
             <TableHeader>
               <TableRow className="border-card-border hover:bg-muted/50">
-                <TableHead className="w-32">Display Countdown</TableHead>
+                <TableHead className="w-32">Countdown</TableHead>
                 <TableHead className="min-w-[160px]">Event Name</TableHead>
                 <TableHead className="min-w-[120px]">Event Date</TableHead>
                 <TableHead className="min-w-[140px]">Venue</TableHead>
