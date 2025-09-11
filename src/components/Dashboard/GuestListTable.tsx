@@ -47,7 +47,7 @@ import { useEvents } from '@/hooks/useEvents';
 import { useRealtimeGuests } from '@/hooks/useRealtimeGuests';
 import { useTables } from '@/hooks/useTables';
 import { AddGuestModal } from './AddGuestModal';
-import { WhoIsFilters } from './WhoIsFilters';
+
 import { WhoIsBadge } from './WhoIsBadge';
 import { supabase } from "@/integrations/supabase/client";
 import { WHO_IS_ROLE_LABELS, computeWhoIsDisplay } from "@/lib/whoIsUtils";
@@ -114,10 +114,6 @@ export const GuestListTable: React.FC = () => {
   const [editingGuest, setEditingGuest] = useState<any>(null);
   const [sortBy, setSortBy] = useState<SortOption>('first_name_asc');
   const [showNamesValidation, setShowNamesValidation] = useState(false);
-  const [whoIsFilters, setWhoIsFilters] = useState<{ partners: string[]; roles: string[] }>({
-    partners: [],
-    roles: []
-  });
   const [whoIsSettings, setWhoIsSettings] = useState<WhoIsSettings>({
     who_is_required: true,
     who_is_allow_custom_role: false,
@@ -193,8 +189,6 @@ export const GuestListTable: React.FC = () => {
       setSortBy('first_name_asc');
     }
 
-    // Reset filters when changing events
-    setWhoIsFilters({ partners: [], roles: [] });
     
     // Reset modal states when changing events 
     setShowAddModal(false);
@@ -386,22 +380,6 @@ export const GuestListTable: React.FC = () => {
     return sorted;
   }, [guests, sortBy, tables, selectedEvent]);
 
-  // Filter guests based on Who Is filters
-  const filteredGuests = useMemo(() => {
-    if (whoIsFilters.partners.length === 0 && whoIsFilters.roles.length === 0) {
-      return sortedGuests;
-    }
-    
-    return sortedGuests.filter(guest => {
-      const matchesPartner = whoIsFilters.partners.length === 0 || 
-        whoIsFilters.partners.includes(guest.who_is_partner || '');
-      
-      const matchesRole = whoIsFilters.roles.length === 0 || 
-        whoIsFilters.roles.includes(guest.who_is_role || '');
-      
-      return matchesPartner && matchesRole;
-    });
-  }, [sortedGuests, whoIsFilters]);
 
   // CSV Functions
   const downloadTemplate = () => {
@@ -419,11 +397,11 @@ export const GuestListTable: React.FC = () => {
   };
 
   const exportGuestList = () => {
-    if (!selectedEvent || !filteredGuests.length) return;
+    if (!selectedEvent || !sortedGuests.length) return;
     
     const csvRows = [
       EXPORT_HEADERS.join(','),
-      ...filteredGuests.map(guest => [
+      ...sortedGuests.map(guest => [
         guest.first_name || '',
         guest.last_name || '',
         getTableName(guest) || '',
@@ -449,7 +427,7 @@ export const GuestListTable: React.FC = () => {
     link.download = `guest-list-${eventName}-${dateStr}.csv`;
     link.click();
     
-    toast({ title: `Exported ${filteredGuests.length} guests successfully` });
+    toast({ title: `Exported ${sortedGuests.length} guests successfully` });
   };
 
   const handleImportCSV = () => {
@@ -826,7 +804,7 @@ export const GuestListTable: React.FC = () => {
     setShowAddModal(true);
   };
 
-  const guestCount = filteredGuests.length;
+  const guestCount = sortedGuests.length;
   const totalGuestCount = guests.length;
 
   const renderPill = (condition: boolean, yesColor = "bg-green-500", noColor = "bg-red-500") => (
@@ -1129,16 +1107,6 @@ export const GuestListTable: React.FC = () => {
         </div>
 
         {/* Who Is Filters */}
-        {totalGuestCount > 0 && (selectedEvent?.partner1_name || selectedEvent?.partner2_name) && (
-          <div className="px-6">
-            <WhoIsFilters
-              filters={whoIsFilters}
-              onFiltersChange={setWhoIsFilters}
-              partner1Name={selectedEvent?.partner1_name}
-              partner2Name={selectedEvent?.partner2_name}
-            />
-          </div>
-        )}
 
         <div className="overflow-x-auto">
           <Table>
@@ -1171,7 +1139,7 @@ export const GuestListTable: React.FC = () => {
                   </TableCell>
                 </TableRow>
               ) : (
-                filteredGuests.map((guest) => (
+                sortedGuests.map((guest) => (
                   <TableRow 
                     key={guest.id} 
                     className="border-card-border hover:bg-muted/50"
