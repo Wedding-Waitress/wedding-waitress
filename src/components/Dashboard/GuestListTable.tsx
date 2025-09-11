@@ -134,6 +134,7 @@ export const GuestListTable: React.FC = () => {
   const [partnerNamesSaved, setPartnerNamesSaved] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [firstGuestAdded, setFirstGuestAdded] = useState(false);
 
   // Load selected event from localStorage on mount - use same key as Table Setup
   useEffect(() => {
@@ -165,6 +166,11 @@ export const GuestListTable: React.FC = () => {
     // Clear names validation if this was the first guest added
     if (guests.length === 0 && showNamesValidation) {
       setShowNamesValidation(false);
+    }
+    
+    // Set first guest added flag when first guest is successfully added
+    if (guests.length === 0) {
+      setFirstGuestAdded(true);
     }
   };
 
@@ -200,6 +206,7 @@ export const GuestListTable: React.FC = () => {
     // Reset partner names saved state
     setPartnerNamesSaved(false);
     setHasUnsavedChanges(false);
+    setFirstGuestAdded(false);
   };
 
   // Get selected event
@@ -214,6 +221,10 @@ export const GuestListTable: React.FC = () => {
       const bothNamesFilled = selectedEvent.partner1_name?.trim() && selectedEvent.partner2_name?.trim();
       setPartnerNamesSaved(!!bothNamesFilled);
       setHasUnsavedChanges(false);
+      
+      // Check if first guest has been added
+      const hasGuests = guests.length > 0;
+      setFirstGuestAdded(hasGuests);
     }
   }, [selectedEvent]);
 
@@ -1081,12 +1092,27 @@ export const GuestListTable: React.FC = () => {
 
                 {/* Add Guests button */}
                 {totalGuestCount === 0 ? (
-                  <Button variant="gradient" size="sm" onClick={handleAddGuest}>
+                  <Button 
+                    size="sm" 
+                    onClick={handleAddGuest}
+                    className={`${
+                      firstGuestAdded || totalGuestCount > 0
+                        ? 'bg-green-500 hover:bg-green-600 text-white'
+                        : partnerNamesSaved
+                        ? 'bg-red-500 hover:bg-red-600 text-white animate-shake'
+                        : 'bg-gradient-primary text-primary-foreground hover:shadow-purple-glow hover:scale-105 transform transition-all duration-300'
+                    }`}
+                  >
                     <Users className="w-4 h-4 mr-2" />
                     Add First Guest
                   </Button>
                 ) : (
-                  <Button variant="gradient" size="sm" onClick={handleAddGuest}>
+                  <Button 
+                    variant="gradient" 
+                    size="sm" 
+                    onClick={handleAddGuest}
+                    className="bg-green-500 hover:bg-green-600 text-white"
+                  >
                     <Users className="w-4 h-4 mr-2" />
                     Add Guest
                   </Button>
