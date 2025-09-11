@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { Header } from "@/components/Layout/Header";
 import { StatsBar } from "@/components/Dashboard/StatsBar";
 import { CountdownBar } from "@/components/Dashboard/CountdownBar";
 import { DashboardSidebar } from "@/components/Dashboard/DashboardSidebar";
@@ -72,12 +71,6 @@ export const Dashboard = () => {
     onRefreshTables: fetchTables
   });
 
-  // User data from profile
-  const user = profile ? {
-    first_name: profile.first_name || "User",  
-    email: profile.email || ""
-  } : null;
-
   // Get selected event for tables
   const selectedEvent = selectedEventId ? events.find(e => e.id === selectedEventId) : null;
   
@@ -144,11 +137,6 @@ export const Dashboard = () => {
   const handleCloseModal = () => {
     setShowCreateTableModal(false);
     setEditingTable(null);
-  };
-
-  const handleSignOut = () => {
-    // Handle sign out logic
-    console.log('Signing out...');
   };
 
   // Content for different tabs
@@ -411,8 +399,6 @@ export const Dashboard = () => {
       
       {/* Main Content */}
       <div className="flex-1 flex flex-col">
-        <Header user={user} onSignOut={handleSignOut} hideDashboardElements={true} />
-        
         <main className="flex-1 lg:px-6 px-4 py-6">
           <div className="mx-auto max-w-none">
             {/* Conditional Stats Bar or Countdown */}
