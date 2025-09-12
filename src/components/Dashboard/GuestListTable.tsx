@@ -33,7 +33,8 @@ import {
   ArrowUpDown,
   Download,
   Upload,
-  FileText
+  FileText,
+  Search
 } from "lucide-react";
 import {
   Tooltip,
@@ -143,6 +144,9 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
   // Bulk selection state
   const [selectedGuestIds, setSelectedGuestIds] = useState<Set<string>>(new Set());
   
+  // Search state
+  const [searchTerm, setSearchTerm] = useState('');
+  
   // Local state for partner names to prevent input interruption
   const [localPartner1Name, setLocalPartner1Name] = useState('');
   const [localPartner2Name, setLocalPartner2Name] = useState('');
@@ -251,8 +255,9 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
     setHasUnsavedChanges(false);
     setFirstGuestAdded(false);
     
-    // Reset bulk selection
+    // Reset bulk selection and search
     setSelectedGuestIds(new Set());
+    setSearchTerm('');
   };
 
   // Get selected event
@@ -368,11 +373,22 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
     }
   };
 
-  // Sort guests based on selected option
+  // Sort and filter guests based on selected option and search term
   const sortedGuests = useMemo(() => {
     if (!guests.length) return guests;
     
-    const sorted = [...guests].sort((a, b) => {
+    // Filter guests by search term first
+    const filtered = guests.filter(guest => {
+      if (!searchTerm.trim()) return true;
+      
+      const searchLower = searchTerm.toLowerCase();
+      const firstNameMatch = (guest.first_name || '').toLowerCase().includes(searchLower);
+      const lastNameMatch = (guest.last_name || '').toLowerCase().includes(searchLower);
+      
+      return firstNameMatch || lastNameMatch;
+    });
+    
+    const sorted = [...filtered].sort((a, b) => {
       switch (sortBy) {
         case 'first_name_asc':
           return (a.first_name || '').localeCompare(b.first_name || '');
@@ -430,7 +446,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
     });
     
     return sorted;
-  }, [guests, sortBy, tables, selectedEvent]);
+  }, [guests, sortBy, tables, selectedEvent, searchTerm]);
 
 
   // CSV Functions
@@ -1031,26 +1047,39 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
           <div className="space-y-4">
             {/* Row 1: Event selector and control buttons */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-              {/* Event selector - left side */}
-              <div className="flex items-center space-x-2">
-                <Label htmlFor="event-select" className="whitespace-nowrap text-sm font-medium">
-                  Choose Event:
-                </Label>
-                <Select value={selectedEventId || ""} onValueChange={handleEventSelect}>
-                  <SelectTrigger className="w-[300px]">
-                    <SelectValue placeholder="Select an event..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {events.map((event) => (
-                      <SelectItem key={event.id} value={event.id}>
-                        <div className="flex items-center space-x-2">
-                          <Calendar className="w-4 h-4" />
-                          <span>{event.name}</span>
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+              {/* Event selector and search - left side */}
+              <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-2">
+                  <Label htmlFor="event-select" className="whitespace-nowrap text-sm font-medium">
+                    Choose Event:
+                  </Label>
+                  <Select value={selectedEventId || ""} onValueChange={handleEventSelect}>
+                    <SelectTrigger className="w-[300px]">
+                      <SelectValue placeholder="Select an event..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {events.map((event) => (
+                        <SelectItem key={event.id} value={event.id}>
+                          <div className="flex items-center space-x-2">
+                            <Calendar className="w-4 h-4" />
+                            <span>{event.name}</span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                {/* Search field */}
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                  <Input
+                    placeholder="Search guests by name..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10 w-[250px]"
+                  />
+                </div>
               </div>
               
               {/* Control buttons - right side */}
