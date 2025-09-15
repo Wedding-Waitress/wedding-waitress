@@ -33,6 +33,7 @@ import { useTables } from "@/hooks/useTables";
 import { computeWhoIsDisplay, WhoIsPartner, WhoIsRole } from "@/lib/whoIsUtils";
 import { useEvents } from "@/hooks/useEvents";
 import { WhoIsSelector } from "./WhoIsSelector";
+import { FamilyGroupCombobox } from "./FamilyGroupCombobox";
 
 const addGuestSchema = z.object({
   first_name: z.string().min(1, "First name is required"),
@@ -46,6 +47,7 @@ const addGuestSchema = z.object({
   dietary: z.enum(['NA', 'Vegan', 'Vegetarian', 'Gluten Free', 'Dairy Free', 'Nut Free', 'Seafood Free', 'Kosher', 'Halal']),
   mobile: z.string().optional(),
   email: z.string().email().optional().or(z.literal('')),
+  family_group: z.string().optional(),
   notes: z.string().optional(),
   who_is_partner: z.string().min(1, "Please choose one partner and one role."),
   who_is_role: z.string().min(1, "Please choose one partner and one role."),
@@ -69,6 +71,7 @@ interface AddGuestModalProps {
     mobile: string | null;
     email: string | null;
     notes: string | null;
+    family_group?: string | null;
     who_is_partner: string;
     who_is_role: string;
     who_is_display: string;
@@ -93,6 +96,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
   const [tableError, setTableError] = useState<string>('');
   const [seatError, setSeatError] = useState<string>('');
   const [whoIsSelectorOpen, setWhoIsSelectorOpen] = useState(false);
+  const [familyMemberIds, setFamilyMemberIds] = useState<string[]>([]);
   const [whoIsSettings, setWhoIsSettings] = useState({
     who_is_required: true,
     who_is_allow_custom_role: false,
@@ -144,6 +148,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
       dietary: 'NA',
       mobile: '',
       email: '',
+      family_group: '',
       notes: '',
       who_is_partner: '',
       who_is_role: '',
@@ -204,6 +209,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
           dietary: (guest.dietary as 'NA' | 'Vegan' | 'Vegetarian' | 'Gluten Free' | 'Dairy Free' | 'Nut Free' | 'Seafood Free' | 'Kosher' | 'Halal') || 'NA',
           mobile: guest.mobile || '',
           email: guest.email || '',
+          family_group: guest.family_group || '',
           notes: guest.notes || '',
           who_is_partner: guest.who_is_partner || '',
           who_is_role: guest.who_is_role || '',
@@ -223,6 +229,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
           dietary: 'NA',
           mobile: '',
           email: '',
+          family_group: '',
           notes: '',
           who_is_partner: '',
           who_is_role: '',
@@ -254,6 +261,12 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
     form.setValue('who_is_partner', partner);
     form.setValue('who_is_role', role);
     form.clearErrors(['who_is_partner', 'who_is_role']);
+  };
+
+  // Handle family group change
+  const handleFamilyGroupChange = (familyName: string, memberIds: string[]) => {
+    form.setValue('family_group', familyName);
+    setFamilyMemberIds(memberIds);
   };
 
   const onSubmit = async (data: AddGuestFormData) => {
@@ -388,12 +401,17 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
         who_is_partner: data.who_is_partner,
         who_is_role: data.who_is_role,
         who_is_display: whoIsDisplay,
-      };
+      } as any;
+
+      // Add family_group if it exists
+      if (data.family_group) {
+        guestData.family_group = data.family_group;
+      }
 
       if (isEdit && guest) {
         const { error } = await supabase
           .from('guests')
-          .update(guestData)
+          .update(guestData as any)
           .eq('id', guest.id);
 
         if (error) {
@@ -423,6 +441,14 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
           return;
         }
 
+        // Update family group for selected members if any
+        if (familyMemberIds.length > 0 && data.family_group?.trim()) {
+          await supabase
+            .from('guests')
+            .update({ family_group: data.family_group.trim() })
+            .in('id', familyMemberIds);
+        }
+
         toast({
           title: "Success",
           description: "Guest updated successfully",
@@ -432,7 +458,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
           ...guestData,
           event_id: eventId,
           user_id: user.user.id,
-        };
+        } as any;
 
         const { error } = await supabase
           .from('guests')
@@ -463,6 +489,14 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
             });
           }
           return;
+        }
+
+        // Update family group for selected members if any
+        if (familyMemberIds.length > 0 && data.family_group?.trim()) {
+          await supabase
+            .from('guests')
+            .update({ family_group: data.family_group.trim() })
+            .in('id', familyMemberIds);
         }
 
         toast({
@@ -713,7 +747,34 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
               />
             </div>
 
-            {/* Row 5: Who Is & Notes */}
+            {/* Row 5: Family/Group */}
+            <div className="space-y-4">
+              <FormField
+                control={form.control}
+                name="family_group"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Family/Group</FormLabel>
+                    <p className="text-xs text-muted-foreground mb-2">
+                      Add members to your Family/Group. Type to search and select guests.
+                    </p>
+                    <FormControl>
+                      <FamilyGroupCombobox
+                        value={field.value || ''}
+                        selectedMembers={familyMemberIds}
+                        onChange={handleFamilyGroupChange}
+                        eventId={eventId}
+                        currentGuestId={guest?.id}
+                        placeholder="Enter family/group name or search members..."
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            {/* Row 6: Who Is & Notes */}
             <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}
