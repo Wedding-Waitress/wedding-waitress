@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Header } from "@/components/Layout/Header";
 import { Button } from "@/components/ui/enhanced-button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/enhanced-card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { 
@@ -37,7 +37,7 @@ export const AdminLogin = () => {
       
       <div className="container mx-auto px-4 py-20">
         <div className="max-w-md mx-auto">
-          <Card variant="elevated" className="glass-purple shadow-purple-glow">
+          <Card>
             <CardHeader className="text-center pb-6">
               <div className="w-16 h-16 bg-gradient-primary rounded-full flex items-center justify-center mx-auto mb-4 shadow-glow">
                 <Shield className="w-8 h-8 text-white" />

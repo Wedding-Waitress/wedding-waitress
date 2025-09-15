@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Card } from "@/components/ui/enhanced-card";
+import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/enhanced-button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -324,14 +324,14 @@ export const EventsTable: React.FC<EventsTableProps> = ({
 
   if (loading) {
     return (
-      <Card variant="elevated" className="p-8 text-center">
+      <Card className="p-8 text-center">
         <div>Loading events...</div>
       </Card>
     );
   }
   return (
     <>
-      <Card variant="elevated" className="overflow-hidden">
+      <Card className="overflow-hidden">
         <div className="p-6 border-b border-card-border bg-gradient-subtle">
           <div className="flex items-center justify-between">
             <div>

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Header } from "@/components/Layout/Header";
 import { Button } from "@/components/ui/enhanced-button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/enhanced-card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Heart, Users, Calendar, MapPin, Mail, QrCode, Sparkles, ArrowRight, Check, Star, Instagram, Facebook, Linkedin, Youtube } from "lucide-react";
@@ -103,7 +103,7 @@ Australian Made - Servicing Events Worldwide</span>
             </div>
 
             {/* Sign Up Form */}
-            <Card variant="elevated" className="glass-purple p-8 shadow-purple-glow">
+            <Card className="p-8">
               <CardHeader className="text-center pb-6">
                 <CardTitle className="text-2xl gradient-text mx-0 px-0 py-0">Start Your Journey & Test Drive FREE !
               </CardTitle>
@@ -171,7 +171,7 @@ It handles every detail of your event's seating chart, RSVP & more so you can fo
 
           {/* Four Steps Section */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-16">
-            <Card variant="elevated" className="group hover:shadow-purple-glow transition-all duration-300">
+            <Card className="group hover:shadow-purple-glow transition-all duration-300">
               <CardHeader className="text-center">
                 <div className="flex flex-col items-center space-y-4">
                   <div className="w-12 h-12 bg-gradient-primary rounded-lg flex items-center justify-center text-white group-hover:scale-110 transition-transform duration-300">
@@ -187,7 +187,7 @@ It handles every detail of your event's seating chart, RSVP & more so you can fo
               </CardHeader>
             </Card>
             
-            <Card variant="elevated" className="group hover:shadow-purple-glow transition-all duration-300">
+            <Card className="group hover:shadow-purple-glow transition-all duration-300">
               <CardHeader className="text-center">
                 <div className="flex flex-col items-center space-y-4">
                   <div className="w-12 h-12 bg-gradient-primary rounded-lg flex items-center justify-center text-white group-hover:scale-110 transition-transform duration-300">
@@ -203,7 +203,7 @@ It handles every detail of your event's seating chart, RSVP & more so you can fo
               </CardHeader>
             </Card>
             
-            <Card variant="elevated" className="group hover:shadow-purple-glow transition-all duration-300">
+            <Card className="group hover:shadow-purple-glow transition-all duration-300">
               <CardHeader className="text-center">
                 <div className="flex flex-col items-center space-y-4">
                   <div className="w-12 h-12 bg-gradient-primary rounded-lg flex items-center justify-center text-white group-hover:scale-110 transition-transform duration-300">
@@ -219,7 +219,7 @@ It handles every detail of your event's seating chart, RSVP & more so you can fo
               </CardHeader>
             </Card>
             
-            <Card variant="elevated" className="group hover:shadow-purple-glow transition-all duration-300">
+            <Card className="group hover:shadow-purple-glow transition-all duration-300">
               <CardHeader className="text-center">
                 <div className="flex flex-col items-center space-y-4">
                   <div className="w-12 h-12 bg-gradient-primary rounded-lg flex items-center justify-center text-white group-hover:scale-110 transition-transform duration-300">
@@ -244,7 +244,7 @@ It handles every detail of your event's seating chart, RSVP & more so you can fo
           </div>
 
           <div className="grid md:grid-cols-2 gap-8">
-            {features.map((feature, index) => <Card key={index} variant="elevated" className="group hover:shadow-purple-glow transition-all duration-300">
+            {features.map((feature, index) => <Card key={index} className="group hover:shadow-purple-glow transition-all duration-300">
                 <CardHeader>
                   <div className="flex items-start gap-4">
                     <div className="w-12 h-12 bg-gradient-primary rounded-lg flex items-center justify-center text-white group-hover:scale-110 transition-transform duration-300 flex-shrink-0">

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Card } from "@/components/ui/enhanced-card";
+import { Card } from "@/components/ui/card";
 import { Event } from '@/hooks/useEvents';
 import { useProfile } from '@/hooks/useProfile';
 interface CountdownBarProps {
@@ -159,7 +159,7 @@ export const CountdownBar: React.FC<CountdownBarProps> = ({
       </div>
       <span className="text-sm md:text-base font-medium text-foreground/80">{label}</span>
     </div>;
-  return <Card variant="elevated" className="p-8 mb-6 mx-auto max-w-4xl">
+  return <Card className="p-8 mb-6 mx-auto max-w-4xl">
       <div className="text-center space-y-6" aria-live="polite">
         {/* Welcome Message */}
         <div className="space-y-2">

@@ -5,7 +5,7 @@ import { MyEventsPage } from "@/components/Dashboard/MyEventsPage";
 import { GuestListTable } from "@/components/Dashboard/GuestListTable";
 import { CreateTableModal } from "@/components/Dashboard/CreateTableModal";
 import { TableCard } from "@/components/Dashboard/TableCard";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/enhanced-card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/enhanced-button";
 import { 
   Select,
@@ -171,7 +171,7 @@ export const Dashboard = () => {
     switch (activeTab) {
       case 'dashboard':
         return (
-          <Card variant="elevated" className="p-8 text-center">
+          <Card className="p-8 text-center">
             <TrendingUp className="w-16 h-16 mx-auto text-primary mb-4" />
             <CardTitle className="mb-2">Dashboard Overview</CardTitle>
             <CardDescription className="mb-6">
@@ -193,7 +193,7 @@ export const Dashboard = () => {
       case 'table-list':
         return (
           <div className="space-y-6">
-            <Card variant="elevated">
+            <Card>
               <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-6">
                 <div className="space-y-4 flex-1">
                   {/* Event selector */}
@@ -272,7 +272,7 @@ export const Dashboard = () => {
 
             {/* Tables Grid */}
             {selectedEventId && (
-              <Card variant="elevated">
+              <Card>
                 <CardContent className="p-6">
                   {tablesLoading ? (
                     <div className="text-center py-8">
@@ -309,7 +309,7 @@ export const Dashboard = () => {
       
       case 'floor-plan':
         return (
-          <Card variant="elevated" className="p-8 text-center">
+          <Card className="p-8 text-center">
             <MapPin className="w-16 h-16 mx-auto text-primary mb-4" />
             <CardTitle className="mb-2">Floor Plan Designer</CardTitle>
             <CardDescription className="mb-6">
@@ -324,7 +324,7 @@ export const Dashboard = () => {
       
       case 'rsvp-invite':
         return (
-          <Card variant="elevated" className="p-8 text-center">
+          <Card className="p-8 text-center">
             <Mail className="w-16 h-16 mx-auto text-primary mb-4" />
             <CardTitle className="mb-2">RSVP Invitations</CardTitle>
             <CardDescription className="mb-6">
@@ -339,7 +339,7 @@ export const Dashboard = () => {
       
       case 'wishing-well':
         return (
-          <Card variant="elevated" className="p-8 text-center">
+          <Card className="p-8 text-center">
             <Heart className="w-16 h-16 mx-auto text-primary mb-4" />
             <CardTitle className="mb-2">Online Wishing Well</CardTitle>
             <CardDescription className="mb-6">
@@ -354,7 +354,7 @@ export const Dashboard = () => {
       
       case 'qr-code':
         return (
-          <Card variant="elevated" className="p-8 text-center">
+          <Card className="p-8 text-center">
             <QrCode className="w-16 h-16 mx-auto text-primary mb-4" />
             <CardTitle className="mb-2">QR Code Management</CardTitle>
             <CardDescription className="mb-6">
@@ -369,7 +369,7 @@ export const Dashboard = () => {
       
       case 'planner':
         return (
-          <Card variant="elevated" className="p-8 text-center">
+          <Card className="p-8 text-center">
             <TrendingUp className="w-16 h-16 mx-auto text-primary mb-4" />
             <CardTitle className="mb-2">Wedding Planner</CardTitle>
             <CardDescription className="mb-6">
@@ -384,7 +384,7 @@ export const Dashboard = () => {
       
       case 'vendor-team':
         return (
-          <Card variant="elevated" className="p-8 text-center">
+          <Card className="p-8 text-center">
             <Users className="w-16 h-16 mx-auto text-primary mb-4" />
             <CardTitle className="mb-2">Vendor Team</CardTitle>
             <CardDescription className="mb-6">
@@ -399,7 +399,7 @@ export const Dashboard = () => {
       
       case 'account':
         return (
-          <Card variant="elevated" className="p-8 text-center">
+          <Card className="p-8 text-center">
             <Settings className="w-16 h-16 mx-auto text-primary mb-4" />
             <CardTitle className="mb-2">Account Settings</CardTitle>
             <CardDescription className="mb-6">
@@ -414,7 +414,7 @@ export const Dashboard = () => {
       
       default:
         return (
-          <Card variant="elevated" className="p-8 text-center">
+          <Card className="p-8 text-center">
             <TrendingUp className="w-16 h-16 mx-auto text-primary mb-4" />
             <CardTitle className="mb-2">Coming Soon</CardTitle>
             <CardDescription>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card } from "@/components/ui/enhanced-card";
+import { Card } from "@/components/ui/card";
 import { 
   Table, 
   Users, 
@@ -77,7 +77,7 @@ export const StatsBar: React.FC<StatsBarProps> = ({
   ];
 
   return (
-    <Card variant="elevated" className="p-4 mb-6">
+    <Card className="mb-6">
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
         {statItems.map((item, index) => (
           <div key={index} className="flex flex-col items-center text-center space-y-2 min-w-0">

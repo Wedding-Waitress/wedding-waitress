@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Card, CardContent } from "@/components/ui/enhanced-card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/enhanced-button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
@@ -150,7 +150,6 @@ export const TableCard: React.FC<TableCardProps> = ({
   return (
     <>
       <Card 
-        variant="default" 
         className={`transition-all duration-300 flex flex-col min-h-fit ${
           isFull 
             ? 'border-4 border-green-500' 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
-import { Card } from "@/components/ui/enhanced-card";
+import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/enhanced-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -915,7 +915,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
 
   if (loading) {
     return (
-      <Card variant="elevated" className="p-8 text-center">
+      <Card className="p-8 text-center">
         <div>Loading events...</div>
       </Card>
     );
@@ -924,7 +924,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
   // No event selected - show placeholder message like Table Setup
   if (!selectedEventId) {
     return (
-      <Card variant="elevated">
+      <Card>
         <div className="p-8 text-center space-y-4">
           <div className="text-muted-foreground">Select an event to view its guest list</div>
           
@@ -1048,7 +1048,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
         </div>
       </div>
 
-      <Card variant="elevated">
+      <Card>
         {/* Header Controls */}
         <div className="px-6 py-4">
           <div className="space-y-4">

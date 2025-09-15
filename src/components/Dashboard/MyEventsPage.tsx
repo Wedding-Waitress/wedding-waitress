@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Card } from "@/components/ui/enhanced-card";
+import { Card } from "@/components/ui/card";
 import { EventsTable } from './EventsTable';
 import { useEvents, Event } from '@/hooks/useEvents';
 import { useProfile } from '@/hooks/useProfile';
@@ -423,7 +423,7 @@ export const MyEventsPage: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Countdown Section */}
-      <Card variant="elevated" className="p-8">
+      <Card className="p-8">
         <div className="text-center space-y-6">
           {/* Welcome Message */}
           <div className="space-y-2">
