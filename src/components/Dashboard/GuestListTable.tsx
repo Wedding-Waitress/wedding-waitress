@@ -90,14 +90,14 @@ const SORT_OPTIONS = [
 // Template headers (no who_is_display as it's computed)
 const IMPORT_TEMPLATE_HEADERS = [
   'first_name', 'last_name', 'table_name', 'seat_no',
-  'rsvp', 'dietary', 'mobile', 'email', 'family_group', 'notes', 
+  'rsvp', 'dietary', 'mobile', 'email', 'notes', 
   'who_is_partner', 'who_is_role'
 ];
 
 // Export headers (includes who_is_display)
 const EXPORT_HEADERS = [
   'first_name', 'last_name', 'table_name', 'seat_no',
-  'rsvp', 'dietary', 'mobile', 'email', 'family_group', 'notes', 
+  'rsvp', 'dietary', 'mobile', 'email', 'notes', 
   'who_is_partner', 'who_is_role', 'who_is_display'
 ];
 
@@ -453,8 +453,8 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
   const downloadTemplate = () => {
     const csvContent = [
       IMPORT_TEMPLATE_HEADERS.join(','),
-      'John,Doe,Table 1,1,Attending,NA,1234567890,john@example.com,Smith Family,Sample note,partner_one,father',
-      'Jane,Smith,Table 2,3,Pending,Vegan,,jane@example.com,Smith Family,,partner_two,bridal_party'
+      'John,Doe,Table 1,1,Attending,NA,1234567890,john@example.com,Sample note,partner_one,father',
+      'Jane,Smith,Table 2,3,Pending,Vegan,,jane@example.com,,partner_two,bridal_party'
     ].join('\n');
     
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -478,7 +478,6 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
         guest.dietary || 'NA',
         guest.mobile || '',
         guest.email || '',
-        guest.family_group || '',
         (guest.notes || '').replace(/,/g, ';').replace(/\n/g, ' '),
         guest.who_is_partner || '',
         guest.who_is_role || '',
@@ -1233,7 +1232,6 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                 <TableHead className="min-w-[140px]">Dietary</TableHead>
                 <TableHead className="min-w-[120px]">Mobile</TableHead>
                 <TableHead className="min-w-[180px]">Email</TableHead>
-                <TableHead className="min-w-[140px]">Family/Group</TableHead>
                 <TableHead className="min-w-[80px]">Notes</TableHead>
                 <TableHead className="w-32">Actions</TableHead>
               </TableRow>
@@ -1241,13 +1239,13 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
             <TableBody>
               {guestsLoading ? (
                 <TableRow className="border-card-border">
-                  <TableCell colSpan={13} className="text-center py-8">
+                  <TableCell colSpan={12} className="text-center py-8">
                     Loading guests...
                   </TableCell>
                 </TableRow>
               ) : totalGuestCount === 0 ? (
                 <TableRow className="border-card-border">
-                  <TableCell colSpan={13} className="text-center py-8">
+                  <TableCell colSpan={12} className="text-center py-8">
                     {/* Empty - the "No Guests Yet" widget is now in the header */}
                   </TableCell>
                 </TableRow>
@@ -1290,7 +1288,6 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                     </TableCell>
                     <TableCell>{guest.mobile || '-'}</TableCell>
                     <TableCell>{renderPill(!!guest.email && guest.email.trim() !== '')}</TableCell>
-                    <TableCell>{guest.family_group || '-'}</TableCell>
                     <TableCell>{renderPill(!!guest.notes && guest.notes.trim() !== '')}</TableCell>
                     <TableCell>
                       <div className="flex items-center space-x-2">

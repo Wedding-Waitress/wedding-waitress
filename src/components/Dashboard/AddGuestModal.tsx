@@ -46,7 +46,6 @@ const addGuestSchema = z.object({
   dietary: z.enum(['NA', 'Vegan', 'Vegetarian', 'Gluten Free', 'Dairy Free', 'Nut Free', 'Seafood Free', 'Kosher', 'Halal']),
   mobile: z.string().optional(),
   email: z.string().email().optional().or(z.literal('')),
-  family_group: z.string().optional(),
   notes: z.string().optional(),
   who_is_partner: z.string().min(1, "Please choose one partner and one role."),
   who_is_role: z.string().min(1, "Please choose one partner and one role."),
@@ -69,7 +68,6 @@ interface AddGuestModalProps {
     dietary: string;
     mobile: string | null;
     email: string | null;
-    family_group: string | null;
     notes: string | null;
     who_is_partner: string;
     who_is_role: string;
@@ -146,7 +144,6 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
       dietary: 'NA',
       mobile: '',
       email: '',
-      family_group: '',
       notes: '',
       who_is_partner: '',
       who_is_role: '',
@@ -207,7 +204,6 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
           dietary: (guest.dietary as 'NA' | 'Vegan' | 'Vegetarian' | 'Gluten Free' | 'Dairy Free' | 'Nut Free' | 'Seafood Free' | 'Kosher' | 'Halal') || 'NA',
           mobile: guest.mobile || '',
           email: guest.email || '',
-          family_group: guest.family_group || '',
           notes: guest.notes || '',
           who_is_partner: guest.who_is_partner || '',
           who_is_role: guest.who_is_role || '',
@@ -227,7 +223,6 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
           dietary: 'NA',
           mobile: '',
           email: '',
-          family_group: '',
           notes: '',
           who_is_partner: '',
           who_is_role: '',
@@ -389,7 +384,6 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
         dietary: data.dietary,
         mobile: data.mobile || null,
         email: data.email || null,
-        family_group: data.family_group || null,
         notes: data.notes || null,
         who_is_partner: data.who_is_partner,
         who_is_role: data.who_is_role,
@@ -719,54 +713,39 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
               />
             </div>
 
-            {/* Row 5: Who Is */}
-            <FormField
-              control={form.control}
-              name="who_is_partner"
-              render={() => (
-                <FormItem data-field="who-is">
-                  <FormLabel>Who Is*</FormLabel>
-                  <p className="text-xs text-muted-foreground mb-2">
-                    Choose which partner they're related to, then select exactly one role.
-                  </p>
-                  <FormControl>
-                    <WhoIsSelector
-                      value={{
-                        partner: form.watch('who_is_partner') as WhoIsPartner,
-                        role: form.watch('who_is_role') as WhoIsRole,
-                      }}
-                      onChange={handleWhoIsChange}
-                      partner1Name={currentEvent?.partner1_name || 'Partner 1'}
-                       partner2Name={currentEvent?.partner2_name || 'Partner 2'}
-                       customRoles={whoIsSettings.custom_roles}
-                       allowCustomRoles={whoIsSettings.who_is_allow_custom_role}
-                      isOpen={whoIsSelectorOpen}
-                      onToggle={() => setWhoIsSelectorOpen(!whoIsSelectorOpen)}
-                      error={form.formState.errors.who_is_partner?.message || form.formState.errors.who_is_role?.message}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                  {(form.formState.errors.who_is_partner || form.formState.errors.who_is_role) && (
-                    <p className="text-sm text-destructive mt-1">
-                      Please choose one partner and one role.
-                    </p>
-                  )}
-                </FormItem>
-              )}
-            />
-
-            {/* Row 6: Family/Group & Notes */}
+            {/* Row 5: Who Is & Notes */}
             <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}
-                name="family_group"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Family/Group</FormLabel>
+                name="who_is_partner"
+                render={() => (
+                  <FormItem data-field="who-is">
+                    <FormLabel>Who Is*</FormLabel>
+                    <p className="text-xs text-muted-foreground mb-2">
+                      Choose which partner they're related to, then select exactly one role.
+                    </p>
                     <FormControl>
-                      <Input {...field} />
+                      <WhoIsSelector
+                        value={{
+                          partner: form.watch('who_is_partner') as WhoIsPartner,
+                          role: form.watch('who_is_role') as WhoIsRole,
+                        }}
+                        onChange={handleWhoIsChange}
+                        partner1Name={currentEvent?.partner1_name || 'Partner 1'}
+                         partner2Name={currentEvent?.partner2_name || 'Partner 2'}
+                         customRoles={whoIsSettings.custom_roles}
+                         allowCustomRoles={whoIsSettings.who_is_allow_custom_role}
+                        isOpen={whoIsSelectorOpen}
+                        onToggle={() => setWhoIsSelectorOpen(!whoIsSelectorOpen)}
+                        error={form.formState.errors.who_is_partner?.message || form.formState.errors.who_is_role?.message}
+                      />
                     </FormControl>
                     <FormMessage />
+                    {(form.formState.errors.who_is_partner || form.formState.errors.who_is_role) && (
+                      <p className="text-sm text-destructive mt-1">
+                        Please choose one partner and one role.
+                      </p>
+                    )}
                   </FormItem>
                 )}
               />

@@ -1,1 +1,0 @@
-ALTER TABLE public.guests ADD COLUMN family_group text;

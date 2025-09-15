@@ -109,7 +109,6 @@ export type Database = {
           display_order: number | null
           email: string | null
           event_id: string
-          family_group: string | null
           first_name: string
           id: string
           last_name: string | null
@@ -133,7 +132,6 @@ export type Database = {
           display_order?: number | null
           email?: string | null
           event_id: string
-          family_group?: string | null
           first_name: string
           id?: string
           last_name?: string | null
@@ -157,7 +155,6 @@ export type Database = {
           display_order?: number | null
           email?: string | null
           event_id?: string
-          family_group?: string | null
           first_name?: string
           id?: string
           last_name?: string | null

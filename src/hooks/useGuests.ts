@@ -17,7 +17,6 @@ export interface Guest {
   mobile: string | null;
   email: string | null;
   notes: string | null;
-  family_group: string | null;
   who_is_partner: string;
   who_is_role: string;
   who_is_display: string;
