@@ -74,6 +74,37 @@ export const FamilyGroupCombobox: React.FC<FamilyGroupComboboxProps> = ({
     }
   }, [value, selectedMembers]);
 
+  // Check if there are other guests with the same family name
+  const checkRemainingFamilyMembers = async (familyName: string, excludeIds: string[]): Promise<number> => {
+    if (!familyName.trim() || !eventId) return 0;
+
+    try {
+      const allExcludeIds = [currentGuestId, ...excludeIds].filter(Boolean);
+      
+      let queryBuilder = supabase
+        .from('guests')
+        .select('id', { count: 'exact' })
+        .eq('event_id', eventId)
+        .eq('family_group', familyName);
+        
+      if (allExcludeIds.length > 0) {
+        queryBuilder = queryBuilder.not('id', 'in', `(${allExcludeIds.join(',')})`);
+      }
+
+      const { count, error } = await queryBuilder;
+
+      if (error) {
+        console.error('Error checking remaining family members:', error);
+        return 0;
+      }
+
+      return count || 0;
+    } catch (error) {
+      console.error('Error checking remaining family members:', error);
+      return 0;
+    }
+  };
+
   // Fetch details for selected members to display as chips
   const fetchSelectedMemberDetails = async (memberIds: string[]) => {
     if (memberIds.length === 0) {
@@ -145,7 +176,7 @@ export const FamilyGroupCombobox: React.FC<FamilyGroupComboboxProps> = ({
   };
 
   // Handle member selection
-  const handleMemberToggle = (guestId: string, checked: boolean) => {
+  const handleMemberToggle = async (guestId: string, checked: boolean) => {
     const newSelectedIds = new Set(selectedMemberIds);
     if (checked) {
       newSelectedIds.add(guestId);
@@ -164,11 +195,39 @@ export const FamilyGroupCombobox: React.FC<FamilyGroupComboboxProps> = ({
       setSelectedMemberDetails(prev => prev.filter(g => g.id !== guestId));
     }
     
+    // Check if we should clear the family name when removing a member
+    if (!checked && inputValue.trim()) {
+      const remainingCount = await checkRemainingFamilyMembers(inputValue, Array.from(newSelectedIds));
+      if (remainingCount === 0 && newSelectedIds.size === 0) {
+        // No other guests have this family name and no members selected, clear it
+        setInputValue('');
+        onChange?.('', []);
+        return;
+      }
+    }
+    
     onChange?.(inputValue, Array.from(newSelectedIds));
   };
 
   // Remove selected member
-  const removeMember = (guestId: string) => {
+  const removeMember = async (guestId: string) => {
+    const newSelectedIds = new Set(selectedMemberIds);
+    newSelectedIds.delete(guestId);
+    
+    // Check if we should clear the family name when removing a member
+    if (inputValue.trim()) {
+      const remainingCount = await checkRemainingFamilyMembers(inputValue, Array.from(newSelectedIds));
+      if (remainingCount === 0 && newSelectedIds.size === 0) {
+        // No other guests have this family name and no members selected, clear it
+        setInputValue('');
+        setSelectedMemberIds(newSelectedIds);
+        setSelectedMemberDetails(prev => prev.filter(g => g.id !== guestId));
+        onChange?.('', []);
+        return;
+      }
+    }
+    
+    // Otherwise, proceed with normal removal
     handleMemberToggle(guestId, false);
   };
 
