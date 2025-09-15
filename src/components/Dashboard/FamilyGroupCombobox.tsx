@@ -181,20 +181,34 @@ export const FamilyGroupCombobox: React.FC<FamilyGroupComboboxProps> = ({
                       <CommandItem
                         key={guest.id}
                         onSelect={() => handleMemberToggle(guest.id, !isSelected)}
+                        className="flex items-center justify-between"
                       >
-                        <Checkbox
-                          checked={isSelected}
-                          onCheckedChange={(checked) => handleMemberToggle(guest.id, checked as boolean)}
-                          className="mr-2"
-                        />
-                        <div className="flex-1">
-                          <span>{guest.first_name} {guest.last_name}</span>
-                          {guest.family_group && (
-                            <span className="ml-2 text-xs text-muted-foreground">
-                              (Currently: {guest.family_group})
-                            </span>
-                          )}
+                        <div className="flex items-center flex-1">
+                          <Checkbox
+                            checked={isSelected}
+                            onCheckedChange={(checked) => handleMemberToggle(guest.id, checked as boolean)}
+                            className="mr-2"
+                          />
+                          <div className="flex-1">
+                            <span>{guest.first_name} {guest.last_name}</span>
+                            {guest.family_group && (
+                              <span className="ml-2 text-xs text-muted-foreground">
+                                (Currently: {guest.family_group})
+                              </span>
+                            )}
+                          </div>
                         </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleMemberToggle(guest.id, true);
+                          }}
+                          className="ml-2 h-6 px-2 text-xs"
+                        >
+                          Add Member
+                        </Button>
                       </CommandItem>
                     );
                   })}
