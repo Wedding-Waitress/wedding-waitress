@@ -1232,7 +1232,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                 </TableHead>
                 <TableHead className="min-w-[120px]">First Name</TableHead>
                 <TableHead className="min-w-[120px]">Last Name</TableHead>
-                <TableHead className="min-w-[100px]">Table</TableHead>
+                <TableHead className="min-w-[100px]">Table No</TableHead>
                 <TableHead className="min-w-[100px]">Seat No.</TableHead>
                 <TableHead className="min-w-[120px]">RSVP</TableHead>
                 <TableHead className="min-w-[140px]">Who Is</TableHead>
