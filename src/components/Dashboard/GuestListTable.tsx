@@ -1220,28 +1220,28 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
         {/* Who Is Filters */}
 
         <div className="overflow-x-auto">
-          <Table>
+          <Table className="table-fixed w-full">
             <TableHeader>
               <TableRow className="border-card-border bg-primary rounded-t-lg">
-                <TableHead className="w-16 text-primary-foreground rounded-tl-lg">
+                <TableHead className="w-12 text-primary-foreground rounded-tl-lg">
                   <Checkbox
                     checked={isAllSelected}
                     onCheckedChange={handleSelectAllGuests}
                     aria-label="Select all guests"
                   />
                 </TableHead>
-                <TableHead className="w-28 text-primary-foreground">First Name</TableHead>
-                <TableHead className="w-28 text-primary-foreground">Last Name</TableHead>
-                <TableHead className="w-24 text-primary-foreground">Table No</TableHead>
-                <TableHead className="w-24 text-primary-foreground">Seat No.</TableHead>
-                <TableHead className="w-24 text-primary-foreground">RSVP</TableHead>
-                <TableHead className="w-32 text-primary-foreground">Who Is</TableHead>
-                <TableHead className="w-32 text-primary-foreground">Dietary</TableHead>
-                <TableHead className="w-32 text-primary-foreground">Mobile</TableHead>
-                <TableHead className="w-40 text-primary-foreground">Email</TableHead>
-                <TableHead className="w-32 text-primary-foreground">Family/Group</TableHead>
-                <TableHead className="w-24 text-primary-foreground">Notes</TableHead>
-                <TableHead className="w-28 text-primary-foreground rounded-tr-lg">Actions</TableHead>
+                <TableHead className="w-24 text-primary-foreground">First Name</TableHead>
+                <TableHead className="w-24 text-primary-foreground">Last Name</TableHead>
+                <TableHead className="w-20 text-primary-foreground">Table No</TableHead>
+                <TableHead className="w-20 text-primary-foreground">Seat No.</TableHead>
+                <TableHead className="w-20 text-primary-foreground">RSVP</TableHead>
+                <TableHead className="w-28 text-primary-foreground">Who Is</TableHead>
+                <TableHead className="w-20 text-primary-foreground">Dietary</TableHead>
+                <TableHead className="w-24 text-primary-foreground">Mobile</TableHead>
+                <TableHead className="w-32 text-primary-foreground">Email</TableHead>
+                <TableHead className="w-24 text-primary-foreground">Family/Group</TableHead>
+                <TableHead className="w-16 text-primary-foreground">Notes</TableHead>
+                <TableHead className="w-20 text-primary-foreground rounded-tr-lg">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -1263,23 +1263,23 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                     key={guest.id} 
                     className="border-card-border hover:bg-muted/50"
                   >
-                    <TableCell className="w-16">
+                    <TableCell className="w-12">
                       <Checkbox
                         checked={selectedGuestIds.has(guest.id)}
                         onCheckedChange={(checked) => handleSelectGuest(guest.id, checked as boolean)}
                         aria-label={`Select ${guest.first_name} ${guest.last_name}`}
                       />
                     </TableCell>
-                    <TableCell className="font-medium w-28">{guest.first_name}</TableCell>
-                    <TableCell className="font-medium w-28">{guest.last_name}</TableCell>
-                    <TableCell className="w-24">{getTableName(guest) || '–'}</TableCell>
-                    <TableCell className="w-24">{guest.seat_no || '–'}</TableCell>
-                    <TableCell className="w-24">
+                    <TableCell className="font-medium w-24">{guest.first_name}</TableCell>
+                    <TableCell className="font-medium w-24">{guest.last_name}</TableCell>
+                    <TableCell className="w-20">{getTableName(guest) || '–'}</TableCell>
+                    <TableCell className="w-20">{guest.seat_no || '–'}</TableCell>
+                    <TableCell className="w-20">
                       <Badge variant="outline" className="text-xs">
                         {guest.rsvp}
                       </Badge>
                     </TableCell>
-                    <TableCell className="w-32">
+                    <TableCell className="w-28">
                       <WhoIsBadge
                         display={guest.who_is_display || ''}
                         partner={guest.who_is_partner || ''}
@@ -1289,14 +1289,14 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                         isEmpty={!guest.who_is_display}
                       />
                     </TableCell>
-                    <TableCell className="w-32">
+                    <TableCell className="w-20">
                       <Badge variant="outline" className="text-xs">
                         {guest.dietary}
                       </Badge>
                     </TableCell>
-                    <TableCell className="w-32">{guest.mobile || '-'}</TableCell>
-                    <TableCell className="w-40">{renderPill(!!guest.email && guest.email.trim() !== '')}</TableCell>
-                    <TableCell className="w-32">
+                    <TableCell className="w-24">{guest.mobile || '-'}</TableCell>
+                    <TableCell className="w-32">{renderPill(!!guest.email && guest.email.trim() !== '')}</TableCell>
+                    <TableCell className="w-24">
                       {guest.family_group ? (
                         <Badge variant="success" className="text-xs">
                           Grouped
@@ -1307,8 +1307,8 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                         </Badge>
                       )}
                     </TableCell>
-                    <TableCell className="w-24">{renderPill(!!guest.notes && guest.notes.trim() !== '')}</TableCell>
-                    <TableCell className="w-28">
+                    <TableCell className="w-16">{renderPill(!!guest.notes && guest.notes.trim() !== '')}</TableCell>
+                    <TableCell className="w-20">
                       <div className="flex items-center space-x-2">
                         <Button 
                           variant="ghost" 
