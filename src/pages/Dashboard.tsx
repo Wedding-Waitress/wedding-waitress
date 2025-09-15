@@ -142,6 +142,32 @@ export const Dashboard = () => {
     };
   }, [tables, guests, selectedEvent]);
 
+  // Refresh tables when guest count changes
+  useEffect(() => {
+    if (selectedEventId && guests.length >= 0) {
+      fetchTables();
+    }
+  }, [guests.length, selectedEventId, fetchTables]);
+
+  // Listen for guest management events
+  useEffect(() => {
+    const handleGuestEvent = () => {
+      if (selectedEventId) {
+        fetchTables();
+      }
+    };
+
+    window.addEventListener('guest-added', handleGuestEvent);
+    window.addEventListener('guest-updated', handleGuestEvent);
+    window.addEventListener('guest-deleted', handleGuestEvent);
+
+    return () => {
+      window.removeEventListener('guest-added', handleGuestEvent);
+      window.removeEventListener('guest-updated', handleGuestEvent);
+      window.removeEventListener('guest-deleted', handleGuestEvent);
+    };
+  }, [selectedEventId, fetchTables]);
+
   // Handle guest movement between tables
   const handleGuestMove = async (
     guestId: string, 
