@@ -445,7 +445,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
         if (familyMemberIds.length > 0 && data.family_group?.trim()) {
           await supabase
             .from('guests')
-            .update({ family_group: data.family_group.trim() })
+            .update({ family_group: data.family_group.trim() } as any)
             .in('id', familyMemberIds);
         }
 
@@ -495,7 +495,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
         if (familyMemberIds.length > 0 && data.family_group?.trim()) {
           await supabase
             .from('guests')
-            .update({ family_group: data.family_group.trim() })
+            .update({ family_group: data.family_group.trim() } as any)
             .in('id', familyMemberIds);
         }
 
