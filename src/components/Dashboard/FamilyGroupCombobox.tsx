@@ -172,6 +172,15 @@ export const FamilyGroupCombobox: React.FC<FamilyGroupComboboxProps> = ({
     handleMemberToggle(guestId, false);
   };
 
+  // Clear family name input
+  const handleClearInput = () => {
+    setInputValue('');
+    setSearchQuery('');
+    setSearchResults([]);
+    setOpen(false);
+    onChange?.('', Array.from(selectedMemberIds));
+  };
+
   // Show create option when there's text but no exact match
   const showCreateOption = inputValue.trim() && 
     !searchResults.some(guest => 
@@ -194,7 +203,7 @@ export const FamilyGroupCombobox: React.FC<FamilyGroupComboboxProps> = ({
               value={inputValue}
               onChange={(e) => handleInputChange(e.target.value)}
               placeholder={placeholder}
-              className="pr-8 cursor-text"
+              className={inputValue ? "pr-16 cursor-text" : "pr-8 cursor-text"}
               autoComplete="off"
               onFocus={() => {
                 if (inputValue.trim()) {
@@ -202,6 +211,15 @@ export const FamilyGroupCombobox: React.FC<FamilyGroupComboboxProps> = ({
                 }
               }}
             />
+            {inputValue && (
+              <button
+                type="button"
+                onClick={handleClearInput}
+                className="absolute right-8 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
             <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           </div>
         </PopoverTrigger>
