@@ -74,6 +74,29 @@ export const FamilyGroupCombobox: React.FC<FamilyGroupComboboxProps> = ({
     }
   }, [value, selectedMembers]);
 
+  // Check total family members including current guest
+  const checkTotalFamilyMembers = async (familyName: string): Promise<number> => {
+    if (!familyName.trim() || !eventId) return 0;
+
+    try {
+      const { count, error } = await supabase
+        .from('guests')
+        .select('id', { count: 'exact' })
+        .eq('event_id', eventId)
+        .eq('family_group', familyName);
+
+      if (error) {
+        console.error('Error checking total family members:', error);
+        return 0;
+      }
+
+      return count || 0;
+    } catch (error) {
+      console.error('Error checking total family members:', error);
+      return 0;
+    }
+  };
+
   // Check if there are other guests with the same family name
   const checkRemainingFamilyMembers = async (familyName: string, excludeIds: string[]): Promise<number> => {
     if (!familyName.trim() || !eventId) return 0;
@@ -195,11 +218,12 @@ export const FamilyGroupCombobox: React.FC<FamilyGroupComboboxProps> = ({
       setSelectedMemberDetails(prev => prev.filter(g => g.id !== guestId));
     }
     
-    // Check if we should clear the family name when removing a member
+    // Check if we should dissolve a 2-member family
     if (!checked && inputValue.trim()) {
-      const remainingCount = await checkRemainingFamilyMembers(inputValue, Array.from(newSelectedIds));
-      if (remainingCount === 0) {
-        // Only the current guest would remain in the family, so dissolve it
+      const totalCount = await checkTotalFamilyMembers(inputValue);
+      // If there were exactly 2 total members and we're removing the only selected member
+      if (totalCount === 2 && newSelectedIds.size === 0) {
+        // Dissolve the family - both guests become "Single"
         setInputValue('');
         onChange?.('', []);
         return;
@@ -214,11 +238,12 @@ export const FamilyGroupCombobox: React.FC<FamilyGroupComboboxProps> = ({
     const newSelectedIds = new Set(selectedMemberIds);
     newSelectedIds.delete(guestId);
     
-    // Check if we should clear the family name when removing a member
+    // Check if we should dissolve a 2-member family
     if (inputValue.trim()) {
-      const remainingCount = await checkRemainingFamilyMembers(inputValue, Array.from(newSelectedIds));
-      if (remainingCount === 0) {
-        // Only the current guest would remain in the family, so dissolve it
+      const totalCount = await checkTotalFamilyMembers(inputValue);
+      // If there were exactly 2 total members and we're removing the only selected member
+      if (totalCount === 2 && newSelectedIds.size === 0) {
+        // Dissolve the family - both guests become "Single"
         setInputValue('');
         setSelectedMemberIds(newSelectedIds);
         setSelectedMemberDetails(prev => prev.filter(g => g.id !== guestId));
