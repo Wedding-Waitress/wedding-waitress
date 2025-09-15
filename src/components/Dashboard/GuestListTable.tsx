@@ -1233,6 +1233,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                 <TableHead className="min-w-[140px]">Dietary</TableHead>
                 <TableHead className="min-w-[120px]">Mobile</TableHead>
                 <TableHead className="min-w-[180px]">Email</TableHead>
+                <TableHead className="min-w-[140px]">Family/Group</TableHead>
                 <TableHead className="min-w-[80px]">Notes</TableHead>
                 <TableHead className="w-32">Actions</TableHead>
               </TableRow>
