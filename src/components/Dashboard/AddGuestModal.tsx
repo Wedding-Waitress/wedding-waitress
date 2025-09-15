@@ -104,6 +104,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
     who_is_disable_first_guest_alert: false,
     custom_roles: [] as string[]
   });
+  const [isSaving, setIsSaving] = useState(false);
   
   // Find current event for partner names
   const currentEvent = events.find(e => e.id === eventId);
@@ -300,7 +301,13 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
 
   // Handle family group change
   const handleFamilyGroupChange = (familyName: string, memberIds: string[]) => {
-    form.setValue('family_group', familyName);
+    let name = familyName;
+    if ((!familyName || !familyName.trim()) && memberIds.length > 0) {
+      const last = form.getValues('last_name')?.trim();
+      const first = form.getValues('first_name')?.trim();
+      name = (last || first) ? `${last || first} Family` : 'Family';
+    }
+    form.setValue('family_group', name || '');
     setFamilyMemberIds(memberIds);
   };
 
@@ -314,6 +321,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
   };
 
   const onSubmit = async (data: AddGuestFormData) => {
+    setIsSaving(true);
     try {
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) {
@@ -432,6 +440,14 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
         currentEvent?.partner2_name
       );
 
+      // Determine family name (auto-generate if members selected but name empty)
+      let familyName = (data.family_group?.trim() || '');
+      if (!familyName && familyMemberIds.length > 0) {
+        const last = data.last_name?.trim();
+        const first = data.first_name?.trim();
+        familyName = (last || first) ? `${last || first} Family` : 'Family';
+      }
+
       const guestData = {
         first_name: data.first_name.trim(),
         last_name: data.last_name.trim(),
@@ -448,8 +464,8 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
       } as any;
 
       // Add family_group if it exists
-      if (data.family_group) {
-        guestData.family_group = data.family_group;
+      if (familyName) {
+        guestData.family_group = familyName;
       }
 
       if (isEdit && guest) {
@@ -485,32 +501,42 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
           return;
         }
 
-        // Handle family group updates using proper logic
-        const familyName = data.family_group?.trim() || null;
-        const allMemberIds = [guest.id, ...familyMemberIds]; // Include current guest
+        // Handle family group updates using robust logic (add/remove)
+        const previousGroupName = guest.family_group?.trim() || null;
+        const selectedMemberIds = [...familyMemberIds]; // excludes current guest
+        const allMemberIds = [guest.id, ...selectedMemberIds]; // include current guest
 
         if (familyName) {
-          // Set family_group for all members (current + selected)
+          // 1) Assign family to all selected members + current guest
           const { error: updateError } = await supabase
             .from('guests')
             .update({ family_group: familyName } as any)
             .in('id', allMemberIds);
-            
           if (updateError) {
             console.error('Error updating family group for members:', updateError);
           }
-          
-          // Handle removals: clear family_group from guests who were in old family but not in new selection
-          if (guest.family_group && guest.family_group !== familyName) {
-            const { error: clearError } = await supabase
+
+          // 2) Clear family from removed members (even if family name didn't change)
+          if (previousGroupName) {
+            const { data: prevMembers, error: prevErr } = await supabase
               .from('guests')
-              .update({ family_group: null } as any)
+              .select('id')
               .eq('event_id', eventId)
-              .eq('family_group', guest.family_group)
-              .not('id', 'in', `(${allMemberIds.join(',')})`);
-              
-            if (clearError) {
-              console.error('Error clearing previous family group:', clearError);
+              .eq('family_group', previousGroupName);
+            if (prevErr) {
+              console.error('Error fetching previous family members:', prevErr);
+            } else {
+              const prevIds = (prevMembers || []).map(g => g.id).filter((id: string) => id !== guest.id);
+              const removedIds = prevIds.filter((id: string) => !selectedMemberIds.includes(id));
+              if (removedIds.length > 0) {
+                const { error: clearError } = await supabase
+                  .from('guests')
+                  .update({ family_group: null } as any)
+                  .in('id', removedIds);
+                if (clearError) {
+                  console.error('Error clearing removed members from family:', clearError);
+                }
+              }
             }
           }
         } else {
@@ -519,7 +545,6 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
             .from('guests')
             .update({ family_group: null } as any)
             .eq('id', guest.id);
-            
           if (clearError) {
             console.error('Error clearing guest family group:', clearError);
           }
@@ -531,8 +556,8 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
         });
 
         // Refresh family members to update UI
-        if (data.family_group?.trim()) {
-          await refreshFamilyMembers(data.family_group.trim(), guest.id);
+        if (familyName) {
+          await refreshFamilyMembers(familyName, guest.id);
         } else {
           setFamilyMemberIds([]);
         }
@@ -547,9 +572,11 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
           user_id: user.user.id,
         } as any;
 
-        const { error } = await supabase
+        const { data: insertedGuest, error } = await supabase
           .from('guests')
-          .insert(fullGuestData);
+          .insert(fullGuestData)
+          .select('id')
+          .single();
 
         if (error) {
           console.error('Error adding guest:', error);
@@ -579,22 +606,12 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
         }
 
         // Handle family group for new guest
-        if (familyMemberIds.length > 0 && data.family_group?.trim()) {
-          // Include the new guest in the family group
-          const { data: newGuest } = await supabase
-            .from('guests')
-            .select('id')
-            .eq('event_id', eventId)
-            .eq('user_id', user.user.id)
-            .eq('first_name', data.first_name.trim())
-            .eq('last_name', data.last_name.trim())
-            .single();
-
-          if (newGuest) {
-            const allMemberIds = [newGuest.id, ...familyMemberIds];
+        if (familyMemberIds.length > 0 && familyName) {
+          if (insertedGuest) {
+            const allMemberIds = [insertedGuest.id, ...familyMemberIds];
             await supabase
               .from('guests')
-              .update({ family_group: data.family_group.trim() } as any)
+              .update({ family_group: familyName } as any)
               .in('id', allMemberIds);
           }
         }
@@ -615,6 +632,8 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
         description: "An unexpected error occurred",
         variant: "destructive",
       });
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -927,11 +946,11 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
             </div>
 
             <DialogFooter>
-              <Button type="button" variant="secondary" onClick={onClose}>
+              <Button type="button" variant="secondary" onClick={onClose} disabled={isSaving}>
                 Cancel
               </Button>
-              <Button type="submit" variant="gradient">
-                {isEdit ? 'Save Changes' : 'Save'}
+              <Button type="submit" variant="gradient" disabled={isSaving}>
+                {isSaving ? 'Saving...' : (isEdit ? 'Save Changes' : 'Save')}
               </Button>
             </DialogFooter>
           </form>
