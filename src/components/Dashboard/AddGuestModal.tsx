@@ -879,6 +879,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                     </p>
                     <FormControl>
                       <FamilyGroupCombobox
+                        key={`family-${guest?.id || 'new'}-${eventId}`}
                         value={field.value || ''}
                         selectedMembers={familyMemberIds}
                         onChange={handleFamilyGroupChange}

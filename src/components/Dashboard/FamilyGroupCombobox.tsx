@@ -42,6 +42,16 @@ export const FamilyGroupCombobox: React.FC<FamilyGroupComboboxProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // Reset state when currentGuestId or eventId changes (new guest or different event)
+  useEffect(() => {
+    setInputValue('');
+    setSearchResults([]);
+    setSelectedMemberDetails([]);
+    setSelectedMemberIds(new Set());
+    setSearchQuery('');
+    setOpen(false);
+  }, [currentGuestId, eventId]);
+
   // Update local state when props change
   useEffect(() => {
     setInputValue(value);
@@ -56,6 +66,13 @@ export const FamilyGroupCombobox: React.FC<FamilyGroupComboboxProps> = ({
       setSelectedMemberDetails([]);
     }
   }, [selectedMembers, eventId]);
+
+  // Defensive clear: empty selectedMemberDetails if family name is empty and no members selected
+  useEffect(() => {
+    if (!value && selectedMembers.length === 0) {
+      setSelectedMemberDetails([]);
+    }
+  }, [value, selectedMembers]);
 
   // Fetch details for selected members to display as chips
   const fetchSelectedMemberDetails = async (memberIds: string[]) => {
