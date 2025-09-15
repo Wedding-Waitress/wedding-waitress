@@ -178,13 +178,23 @@ export const useEvents = () => {
   };
 
   useEffect(() => {
-    const setupRealtimeSubscription = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user?.id) return;
+    let realtimeCleanup: (() => void) | null = null;
 
+    const init = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+
+      // If not authenticated, ensure we don't get stuck loading
+      if (!user) {
+        setEvents([]);
+        setActiveEventId(null);
+        setLoading(false);
+        return;
+      }
+
+      // Initial fetch for authenticated users
       fetchEvents();
-      
-      // Set up realtime subscription for events
+
+      // Set up realtime subscription for this user's events
       const channel = supabase
         .channel('events-changes')
         .on(
@@ -193,24 +203,39 @@ export const useEvents = () => {
             event: '*',
             schema: 'public',
             table: 'events',
-            filter: `user_id=eq.${user.id}`
+            filter: `user_id=eq.${user.id}`,
           },
           () => {
-            // Refetch events when any change occurs
+            // Refetch when any change occurs
             fetchEvents();
           }
         )
         .subscribe();
 
-      return () => {
+      realtimeCleanup = () => {
         supabase.removeChannel(channel);
       };
     };
 
-    const cleanup = setupRealtimeSubscription();
-    
+    void init();
+
+    // Auth listener: refetch on login, clear on logout
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        // Defer Supabase calls to avoid deadlocks
+        setTimeout(() => {
+          fetchEvents();
+        }, 0);
+      } else {
+        setEvents([]);
+        setActiveEventId(null);
+        setLoading(false);
+      }
+    });
+
     return () => {
-      cleanup.then(cleanupFn => cleanupFn && cleanupFn());
+      subscription.unsubscribe();
+      if (realtimeCleanup) realtimeCleanup();
     };
   }, []);
 
