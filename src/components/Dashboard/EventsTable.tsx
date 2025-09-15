@@ -358,19 +358,19 @@ export const EventsTable: React.FC<EventsTableProps> = ({
 
         <div className="overflow-x-auto">
           <RadioGroup value={activeEventId || ''} onValueChange={handleEventSelect}>
-            <Table>
+            <Table className="table-fixed w-full">
             <TableHeader>
-              <TableRow className="border-card-border hover:bg-muted/50">
-                <TableHead className="w-32">Countdown</TableHead>
-                <TableHead className="min-w-[160px]">Event Name</TableHead>
-                <TableHead className="min-w-[120px]">Event Date</TableHead>
-                <TableHead className="min-w-[140px]">Venue</TableHead>
-                <TableHead className="min-w-[100px]">Start Time</TableHead>
-                <TableHead className="min-w-[100px]">Finish Time</TableHead>
-                <TableHead className="w-24">Guest Limit</TableHead>
-                <TableHead className="min-w-[100px]">Created Date:</TableHead>
-                <TableHead className="min-w-[100px]">Expiry Date:</TableHead>
-                <TableHead className="w-28">Actions</TableHead>
+              <TableRow className="border-card-border bg-primary rounded-t-lg">
+                <TableHead className="w-20 text-primary-foreground rounded-tl-lg">Countdown</TableHead>
+                <TableHead className="w-32 text-primary-foreground">Event Name</TableHead>
+                <TableHead className="w-24 text-primary-foreground">Event Date</TableHead>
+                <TableHead className="w-28 text-primary-foreground">Venue</TableHead>
+                <TableHead className="w-20 text-primary-foreground">Start Time</TableHead>
+                <TableHead className="w-20 text-primary-foreground">Finish Time</TableHead>
+                <TableHead className="w-20 text-primary-foreground">Guest Limit</TableHead>
+                <TableHead className="w-24 text-primary-foreground">Created Date:</TableHead>
+                <TableHead className="w-24 text-primary-foreground">Expiry Date:</TableHead>
+                <TableHead className="w-20 text-primary-foreground rounded-tr-lg">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -381,10 +381,10 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                   className={`event-row--new ${isShaking ? 'shake' : ''}`}
                   onKeyDown={handleKeyDown}
                 >
-                  <TableCell>
+                  <TableCell className="w-20">
                     <span className="text-muted-foreground text-sm">-</span>
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="w-32">
                     <Input
                       ref={nameInputRef}
                       value={newEventForm.name}
@@ -394,14 +394,14 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                       onKeyDown={handleKeyDown}
                     />
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="w-24">
                     <EventDatePicker
                       value={newEventForm.date}
                       onChange={(date) => setNewEventForm(prev => ({ ...prev, date }))}
                       placeholder="Select date"
                     />
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="w-28">
                     <Input
                       value={newEventForm.venue}
                       onChange={(e) => setNewEventForm(prev => ({ ...prev, venue: e.target.value }))}
@@ -409,21 +409,21 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                       className="min-w-[180px]"
                     />
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="w-20">
                     <TimePicker
                       value={newEventForm.start_time}
                       onChange={(time) => setNewEventForm(prev => ({ ...prev, start_time: time }))}
                       placeholder="Start time"
                     />
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="w-20">
                     <TimePicker
                       value={newEventForm.finish_time}
                       onChange={(time) => setNewEventForm(prev => ({ ...prev, finish_time: time }))}
                       placeholder="End time"
                     />
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="w-20">
                     <Input
                       type="number"
                       value={newEventForm.guest_limit}
@@ -432,13 +432,13 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                       min="1"
                     />
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="w-24">
                     <span className="text-muted-foreground text-sm">Auto-generated</span>
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="w-24">
                     <span className="text-muted-foreground text-sm">Auto-generated</span>
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="w-20">
                     <div className="flex items-center space-x-1">
                       <Button
                         variant="ghost"
@@ -477,7 +477,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                       ${atCapacity ? 'bg-green-50 dark:bg-green-900/20' : ''}
                     `}
                   >
-                    <TableCell className="text-center">
+                    <TableCell className="text-center w-20">
                       <div className="flex items-center justify-center">
                         <RadioGroupItem 
                           value={event.id} 
@@ -487,7 +487,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                         />
                       </div>
                     </TableCell>
-                    <TableCell className="font-medium">
+                    <TableCell className="font-medium w-32">
                       {isEditing ? (
                         <Input
                           value={editForm.name}
@@ -505,7 +505,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                         </div>
                       )}
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="w-24">
                       {isEditing ? (
                         <EventDatePicker
                           value={editForm.date}
@@ -517,7 +517,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                         </span>
                       )}
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="w-28">
                       {isEditing ? (
                         <Input
                           value={editForm.venue}
@@ -531,7 +531,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                         </span>
                       )}
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="w-20">
                       {isEditing ? (
                         <TimePicker
                           value={editForm.start_time}
@@ -543,7 +543,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                         </span>
                       )}
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="w-20">
                       {isEditing ? (
                         <TimePicker
                           value={editForm.finish_time}
@@ -555,7 +555,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                         </span>
                       )}
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="w-20">
                       {isEditing ? (
                         <Input
                           type="number"
@@ -572,17 +572,17 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                         </div>
                       )}
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="w-24">
                       <span className="text-muted-foreground">
                         {formatLocalDate(event.created_date_local, event.created_at, event.event_timezone)}
                       </span>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="w-24">
                       <span className="text-muted-foreground">
                         {formatLocalDate(event.expiry_date_local, null, event.event_timezone) || getExpiryDateFallback(event.created_at, event.event_timezone)}
                       </span>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="w-20">
                       {isEditing ? (
                         <div className="flex items-center space-x-1">
                           <Button
