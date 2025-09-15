@@ -476,12 +476,35 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
           return;
         }
 
-        // Update family group for selected members if any
+        // Handle family group updates properly
+        console.log('Saving family group - Current guest family_group:', guest.family_group);
+        console.log('Saving family group - New family_group:', data.family_group);
+        console.log('Saving family group - familyMemberIds:', familyMemberIds);
+        
+        if (guest.family_group) {
+          // First, clear family_group from all guests that were previously in this family group
+          const { error: clearError } = await supabase
+            .from('guests')
+            .update({ family_group: null } as any)
+            .eq('event_id', eventId)
+            .eq('family_group', guest.family_group)
+            .neq('id', guest.id);
+            
+          if (clearError) {
+            console.error('Error clearing previous family group:', clearError);
+          }
+        }
+
+        // Then set family_group for newly selected members
         if (familyMemberIds.length > 0 && data.family_group?.trim()) {
-          await supabase
+          const { error: updateError } = await supabase
             .from('guests')
             .update({ family_group: data.family_group.trim() } as any)
             .in('id', familyMemberIds);
+            
+          if (updateError) {
+            console.error('Error updating family group for members:', updateError);
+          }
         }
 
         toast({
