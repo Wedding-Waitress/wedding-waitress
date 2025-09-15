@@ -36,6 +36,7 @@ export const FamilyGroupCombobox: React.FC<FamilyGroupComboboxProps> = ({
   const [open, setOpen] = useState(false);
   const [inputValue, setInputValue] = useState(value);
   const [searchResults, setSearchResults] = useState<GuestSearchResult[]>([]);
+  const [selectedMemberDetails, setSelectedMemberDetails] = useState<GuestSearchResult[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedMemberIds, setSelectedMemberIds] = useState<Set<string>>(new Set(selectedMembers));
   const [searchQuery, setSearchQuery] = useState('');
@@ -48,9 +49,36 @@ export const FamilyGroupCombobox: React.FC<FamilyGroupComboboxProps> = ({
 
   useEffect(() => {
     setSelectedMemberIds(new Set(selectedMembers));
-  }, [selectedMembers]);
+    // Fetch details for selected members
+    if (selectedMembers.length > 0 && eventId) {
+      fetchSelectedMemberDetails(selectedMembers);
+    } else {
+      setSelectedMemberDetails([]);
+    }
+  }, [selectedMembers, eventId]);
 
-  // Search for guests
+  // Fetch details for selected members to display as chips
+  const fetchSelectedMemberDetails = async (memberIds: string[]) => {
+    if (memberIds.length === 0) {
+      setSelectedMemberDetails([]);
+      return;
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from('guests')
+        .select('id, first_name, last_name')
+        .in('id', memberIds);
+
+      if (!error && data) {
+        setSelectedMemberDetails(data as GuestSearchResult[]);
+      }
+    } catch (error) {
+      console.error('Error fetching selected member details:', error);
+    }
+  };
+
+  // Search for guests - exclude already selected and current guest
   const searchGuests = async (query: string) => {
     if (!query.trim() || !eventId) {
       setSearchResults([]);
@@ -59,13 +87,20 @@ export const FamilyGroupCombobox: React.FC<FamilyGroupComboboxProps> = ({
 
     setLoading(true);
     try {
-      const { data, error } = await supabase
+      const excludeIds = [currentGuestId, ...Array.from(selectedMemberIds)].filter(Boolean);
+      
+      let queryBuilder = supabase
         .from('guests')
         .select('id, first_name, last_name')
         .eq('event_id', eventId)
         .or(`first_name.ilike.%${query}%,last_name.ilike.%${query}%`)
-        .neq('id', currentGuestId || '')
         .limit(10);
+        
+      if (excludeIds.length > 0) {
+        queryBuilder = queryBuilder.not('id', 'in', `(${excludeIds.join(',')})`);
+      }
+
+      const { data, error } = await queryBuilder;
 
       if (!error && data) {
         setSearchResults(data as GuestSearchResult[]);
@@ -101,6 +136,17 @@ export const FamilyGroupCombobox: React.FC<FamilyGroupComboboxProps> = ({
       newSelectedIds.delete(guestId);
     }
     setSelectedMemberIds(newSelectedIds);
+    
+    // Update member details
+    if (checked) {
+      const guestData = searchResults.find(g => g.id === guestId);
+      if (guestData) {
+        setSelectedMemberDetails(prev => [...prev, guestData]);
+      }
+    } else {
+      setSelectedMemberDetails(prev => prev.filter(g => g.id !== guestId));
+    }
+    
     onChange?.(inputValue, Array.from(newSelectedIds));
   };
 
@@ -108,9 +154,6 @@ export const FamilyGroupCombobox: React.FC<FamilyGroupComboboxProps> = ({
   const removeMember = (guestId: string) => {
     handleMemberToggle(guestId, false);
   };
-
-  // Get selected guests for display
-  const selectedGuests = searchResults.filter(guest => selectedMemberIds.has(guest.id));
 
   // Show create option when there's text but no exact match
   const showCreateOption = inputValue.trim() && 
@@ -220,13 +263,13 @@ export const FamilyGroupCombobox: React.FC<FamilyGroupComboboxProps> = ({
       </Popover>
 
       {/* Selected Members Chips */}
-      {selectedGuests.length > 0 && (
+      {selectedMemberDetails.length > 0 && (
         <div className="flex flex-wrap gap-2 p-2 bg-muted/50 rounded-md">
           <div className="flex items-center gap-1 text-xs text-muted-foreground">
             <Users className="h-3 w-3" />
             Family Members:
           </div>
-          {selectedGuests.map((guest) => (
+          {selectedMemberDetails.map((guest) => (
             <Badge key={guest.id} variant="secondary" className="text-xs">
               {guest.first_name} {guest.last_name}
               <button

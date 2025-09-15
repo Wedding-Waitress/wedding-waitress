@@ -304,6 +304,15 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
     setFamilyMemberIds(memberIds);
   };
 
+  // Function to refresh family members after save
+  const refreshFamilyMembers = async (familyName: string, currentGuestId: string) => {
+    if (familyName?.trim()) {
+      await fetchFamilyMembers(familyName.trim(), currentGuestId);
+    } else {
+      setFamilyMemberIds([]);
+    }
+  };
+
   const onSubmit = async (data: AddGuestFormData) => {
     try {
       const { data: user } = await supabase.auth.getUser();
@@ -476,34 +485,43 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
           return;
         }
 
-        // Handle family group updates properly
-        console.log('Saving family group - Current guest family_group:', guest.family_group);
-        console.log('Saving family group - New family_group:', data.family_group);
-        console.log('Saving family group - familyMemberIds:', familyMemberIds);
-        
-        if (guest.family_group) {
-          // First, clear family_group from all guests that were previously in this family group
-          const { error: clearError } = await supabase
-            .from('guests')
-            .update({ family_group: null } as any)
-            .eq('event_id', eventId)
-            .eq('family_group', guest.family_group)
-            .neq('id', guest.id);
-            
-          if (clearError) {
-            console.error('Error clearing previous family group:', clearError);
-          }
-        }
+        // Handle family group updates using proper logic
+        const familyName = data.family_group?.trim() || null;
+        const allMemberIds = [guest.id, ...familyMemberIds]; // Include current guest
 
-        // Then set family_group for newly selected members
-        if (familyMemberIds.length > 0 && data.family_group?.trim()) {
+        if (familyName) {
+          // Set family_group for all members (current + selected)
           const { error: updateError } = await supabase
             .from('guests')
-            .update({ family_group: data.family_group.trim() } as any)
-            .in('id', familyMemberIds);
+            .update({ family_group: familyName } as any)
+            .in('id', allMemberIds);
             
           if (updateError) {
             console.error('Error updating family group for members:', updateError);
+          }
+          
+          // Handle removals: clear family_group from guests who were in old family but not in new selection
+          if (guest.family_group && guest.family_group !== familyName) {
+            const { error: clearError } = await supabase
+              .from('guests')
+              .update({ family_group: null } as any)
+              .eq('event_id', eventId)
+              .eq('family_group', guest.family_group)
+              .not('id', 'in', `(${allMemberIds.join(',')})`);
+              
+            if (clearError) {
+              console.error('Error clearing previous family group:', clearError);
+            }
+          }
+        } else {
+          // No family - clear current guest's family_group only
+          const { error: clearError } = await supabase
+            .from('guests')
+            .update({ family_group: null } as any)
+            .eq('id', guest.id);
+            
+          if (clearError) {
+            console.error('Error clearing guest family group:', clearError);
           }
         }
 
@@ -511,6 +529,11 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
           title: "Success",
           description: "Guest updated successfully",
         });
+
+        // Refresh family members to update UI
+        if (data.family_group?.trim()) {
+          await refreshFamilyMembers(data.family_group.trim(), guest.id);
+        }
       } else {
         const fullGuestData = {
           ...guestData,
@@ -549,12 +572,25 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
           return;
         }
 
-        // Update family group for selected members if any
+        // Handle family group for new guest
         if (familyMemberIds.length > 0 && data.family_group?.trim()) {
-          await supabase
+          // Include the new guest in the family group
+          const { data: newGuest } = await supabase
             .from('guests')
-            .update({ family_group: data.family_group.trim() } as any)
-            .in('id', familyMemberIds);
+            .select('id')
+            .eq('event_id', eventId)
+            .eq('user_id', user.user.id)
+            .eq('first_name', data.first_name.trim())
+            .eq('last_name', data.last_name.trim())
+            .single();
+
+          if (newGuest) {
+            const allMemberIds = [newGuest.id, ...familyMemberIds];
+            await supabase
+              .from('guests')
+              .update({ family_group: data.family_group.trim() } as any)
+              .in('id', allMemberIds);
+          }
         }
 
         toast({
