@@ -562,9 +562,6 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
           setFamilyMemberIds([]);
         }
         
-        // Fire custom event to trigger table refresh
-        window.dispatchEvent(new CustomEvent('guest-updated'));
-        
         // Force component re-render by calling onSuccess to refresh parent data
         onSuccess();
         onClose();
@@ -623,9 +620,6 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
           title: "Success",
           description: "Guest added successfully",
         });
-
-        // Fire custom event to trigger table refresh
-        window.dispatchEvent(new CustomEvent('guest-added'));
       }
 
       form.reset();
