@@ -1295,8 +1295,8 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                           Grouped
                         </Badge>
                       ) : (
-                        <Badge variant="outline" className="text-xs">
-                          Ungrouped
+                        <Badge variant="single" className="text-xs">
+                          Single
                         </Badge>
                       )}
                     </TableCell>
