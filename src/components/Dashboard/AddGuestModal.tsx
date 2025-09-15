@@ -33,6 +33,7 @@ import { useTables } from "@/hooks/useTables";
 import { computeWhoIsDisplay, WhoIsPartner, WhoIsRole } from "@/lib/whoIsUtils";
 import { useEvents } from "@/hooks/useEvents";
 import { WhoIsSelector } from "./WhoIsSelector";
+import { FamilyGroupCombobox } from "./FamilyGroupCombobox";
 import { FamilyGroupManager } from "./FamilyGroupManager";
 
 const addGuestSchema = z.object({
@@ -96,6 +97,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
   const [tableError, setTableError] = useState<string>('');
   const [seatError, setSeatError] = useState<string>('');
   const [whoIsSelectorOpen, setWhoIsSelectorOpen] = useState(false);
+  const [selectedFamilyMembers, setSelectedFamilyMembers] = useState<Array<{id: string, first_name: string, last_name: string}>>([]);
   const [whoIsSettings, setWhoIsSettings] = useState({
     who_is_required: true,
     who_is_allow_custom_role: false,
@@ -213,6 +215,8 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
           family_group: guest.family_group || '',
         });
         
+        setSelectedFamilyMembers([]);
+        
         if (guestTableId) {
           fetchSeatAvailability(guestTableId);
         }
@@ -232,6 +236,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
           who_is_role: '',
           family_group: '',
         });
+        setSelectedFamilyMembers([]);
       }
     }
   }, [isOpen, guest, isEdit, form, tables, eventId]);
@@ -393,6 +398,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
         who_is_partner: data.who_is_partner,
         who_is_role: data.who_is_role,
         who_is_display: whoIsDisplay,
+        family_group: data.family_group || null,
       };
 
       if (isEdit && guest) {
@@ -426,6 +432,25 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
             });
           }
           return;
+        }
+
+        // Update selected family members with the same family group
+        if (selectedFamilyMembers.length > 0 && data.family_group) {
+          const memberIds = selectedFamilyMembers.map(m => m.id);
+          const { error: updateError } = await supabase
+            .from('guests')
+            .update({ family_group: data.family_group })
+            .in('id', memberIds)
+            .eq('event_id', eventId);
+
+          if (updateError) {
+            console.error('Error updating family members:', updateError);
+            toast({
+              title: "Warning",
+              description: "Guest updated but failed to link family members",
+              variant: "destructive",
+            });
+          }
         }
 
         toast({
@@ -468,6 +493,25 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
             });
           }
           return;
+        }
+
+        // Update selected family members with the same family group
+        if (selectedFamilyMembers.length > 0 && data.family_group) {
+          const memberIds = selectedFamilyMembers.map(m => m.id);
+          const { error: updateError } = await supabase
+            .from('guests')
+            .update({ family_group: data.family_group })
+            .in('id', memberIds)
+            .eq('event_id', eventId);
+
+          if (updateError) {
+            console.error('Error updating family members:', updateError);
+            toast({
+              title: "Warning",
+              description: "Guest added but failed to link family members",
+              variant: "destructive",
+            });
+          }
         }
 
         toast({
@@ -762,7 +806,15 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                   <FormItem>
                     <FormLabel>Family/Group</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder="Enter family or group name" />
+                      <FamilyGroupCombobox
+                        eventId={eventId}
+                        value={field.value || ''}
+                        onChange={field.onChange}
+                        onSelectedMembersChange={setSelectedFamilyMembers}
+                        selectedMembers={selectedFamilyMembers}
+                        currentGuestId={guest?.id}
+                        placeholder="Enter family or group name"
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -785,19 +837,6 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
               )}
             />
 
-            {/* Family/Group Members Section - Only show when editing */}
-            {isEdit && guest && (
-              <FamilyGroupManager
-                eventId={eventId}
-                currentGuest={{
-                  id: guest.id,
-                  first_name: guest.first_name,
-                  last_name: guest.last_name,
-                  family_group: form.watch('family_group') || null,
-                }}
-                onMemberAdded={onSuccess}
-              />
-            )}
 
             <DialogFooter>
               <Button type="button" variant="secondary" onClick={onClose}>
