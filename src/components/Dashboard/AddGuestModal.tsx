@@ -33,8 +33,6 @@ import { useTables } from "@/hooks/useTables";
 import { computeWhoIsDisplay, WhoIsPartner, WhoIsRole } from "@/lib/whoIsUtils";
 import { useEvents } from "@/hooks/useEvents";
 import { WhoIsSelector } from "./WhoIsSelector";
-import { FamilyGroupCombobox } from "./FamilyGroupCombobox";
-import { FamilyGroupManager } from "./FamilyGroupManager";
 
 const addGuestSchema = z.object({
   first_name: z.string().min(1, "First name is required"),
@@ -51,7 +49,6 @@ const addGuestSchema = z.object({
   notes: z.string().optional(),
   who_is_partner: z.string().min(1, "Please choose one partner and one role."),
   who_is_role: z.string().min(1, "Please choose one partner and one role."),
-  family_group: z.string().optional(),
 });
 
 type AddGuestFormData = z.infer<typeof addGuestSchema>;
@@ -75,7 +72,6 @@ interface AddGuestModalProps {
     who_is_partner: string;
     who_is_role: string;
     who_is_display: string;
-    family_group: string | null;
   } | null;
   isEdit?: boolean;
 }
@@ -97,7 +93,6 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
   const [tableError, setTableError] = useState<string>('');
   const [seatError, setSeatError] = useState<string>('');
   const [whoIsSelectorOpen, setWhoIsSelectorOpen] = useState(false);
-  const [selectedFamilyMembers, setSelectedFamilyMembers] = useState<Array<{id: string, first_name: string, last_name: string}>>([]);
   const [whoIsSettings, setWhoIsSettings] = useState({
     who_is_required: true,
     who_is_allow_custom_role: false,
@@ -212,10 +207,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
           notes: guest.notes || '',
           who_is_partner: guest.who_is_partner || '',
           who_is_role: guest.who_is_role || '',
-          family_group: guest.family_group || '',
         });
-        
-        setSelectedFamilyMembers([]);
         
         if (guestTableId) {
           fetchSeatAvailability(guestTableId);
@@ -234,9 +226,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
           notes: '',
           who_is_partner: '',
           who_is_role: '',
-          family_group: '',
         });
-        setSelectedFamilyMembers([]);
       }
     }
   }, [isOpen, guest, isEdit, form, tables, eventId]);
@@ -398,7 +388,6 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
         who_is_partner: data.who_is_partner,
         who_is_role: data.who_is_role,
         who_is_display: whoIsDisplay,
-        family_group: data.family_group || null,
       };
 
       if (isEdit && guest) {
@@ -432,25 +421,6 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
             });
           }
           return;
-        }
-
-        // Update selected family members with the same family group
-        if (selectedFamilyMembers.length > 0 && data.family_group) {
-          const memberIds = selectedFamilyMembers.map(m => m.id);
-          const { error: updateError } = await supabase
-            .from('guests')
-            .update({ family_group: data.family_group })
-            .in('id', memberIds)
-            .eq('event_id', eventId);
-
-          if (updateError) {
-            console.error('Error updating family members:', updateError);
-            toast({
-              title: "Warning",
-              description: "Guest updated but failed to link family members",
-              variant: "destructive",
-            });
-          }
         }
 
         toast({
@@ -493,25 +463,6 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
             });
           }
           return;
-        }
-
-        // Update selected family members with the same family group
-        if (selectedFamilyMembers.length > 0 && data.family_group) {
-          const memberIds = selectedFamilyMembers.map(m => m.id);
-          const { error: updateError } = await supabase
-            .from('guests')
-            .update({ family_group: data.family_group })
-            .in('id', memberIds)
-            .eq('event_id', eventId);
-
-          if (updateError) {
-            console.error('Error updating family members:', updateError);
-            toast({
-              title: "Warning",
-              description: "Guest added but failed to link family members",
-              variant: "destructive",
-            });
-          }
         }
 
         toast({
@@ -762,7 +713,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
               />
             </div>
 
-            {/* Row 5: Who Is & Family/Group */}
+            {/* Row 5: Who Is & Notes */}
             <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}
@@ -801,42 +752,18 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
 
               <FormField
                 control={form.control}
-                name="family_group"
+                name="notes"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Family/Group</FormLabel>
+                    <FormLabel>Notes</FormLabel>
                     <FormControl>
-                      <FamilyGroupCombobox
-                        eventId={eventId}
-                        value={field.value || ''}
-                        onChange={field.onChange}
-                        onSelectedMembersChange={setSelectedFamilyMembers}
-                        selectedMembers={selectedFamilyMembers}
-                        currentGuestId={guest?.id}
-                        placeholder="Enter family or group name"
-                      />
+                      <Textarea {...field} rows={3} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
             </div>
-
-            {/* Row 6: Notes */}
-            <FormField
-              control={form.control}
-              name="notes"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Notes</FormLabel>
-                  <FormControl>
-                    <Textarea {...field} rows={3} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
 
             <DialogFooter>
               <Button type="button" variant="secondary" onClick={onClose}>
