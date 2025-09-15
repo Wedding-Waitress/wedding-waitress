@@ -1291,11 +1291,11 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                     <TableCell>{renderPill(!!guest.email && guest.email.trim() !== '')}</TableCell>
                     <TableCell>
                       {guest.family_group ? (
-                        <Badge variant="destructive" className="text-xs">
+                        <Badge variant="secondary" className="text-xs bg-green-100 text-green-800 border-green-200 hover:bg-green-200">
                           Grouped
                         </Badge>
                       ) : (
-                        <Badge variant="destructive" className="text-xs">
+                        <Badge variant="outline" className="text-xs">
                           Ungrouped
                         </Badge>
                       )}

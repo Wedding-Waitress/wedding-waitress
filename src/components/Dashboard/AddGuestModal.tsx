@@ -533,7 +533,13 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
         // Refresh family members to update UI
         if (data.family_group?.trim()) {
           await refreshFamilyMembers(data.family_group.trim(), guest.id);
+        } else {
+          setFamilyMemberIds([]);
         }
+        
+        // Force component re-render by calling onSuccess to refresh parent data
+        onSuccess();
+        onClose();
       } else {
         const fullGuestData = {
           ...guestData,
