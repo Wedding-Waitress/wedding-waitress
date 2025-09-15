@@ -555,6 +555,9 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
           description: "Guest updated successfully",
         });
 
+        // Fire custom event for instant table sync
+        window.dispatchEvent(new CustomEvent('guest-updated'));
+
         // Refresh family members to update UI
         if (familyName) {
           await refreshFamilyMembers(familyName, guest.id);
@@ -620,6 +623,9 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
           title: "Success",
           description: "Guest added successfully",
         });
+
+        // Fire custom event for instant table sync
+        window.dispatchEvent(new CustomEvent('guest-added'));
       }
 
       form.reset();

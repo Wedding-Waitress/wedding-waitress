@@ -90,6 +90,36 @@ export const Dashboard = () => {
     }
   }, [events]);
 
+  // Watch for guest changes and refresh tables to ensure instant sync
+  useEffect(() => {
+    if (selectedEventId && guests.length !== undefined) {
+      fetchTables();
+    }
+  }, [selectedEventId, guests.length, fetchTables]);
+
+  // Listen for custom events from AddGuestModal for backup sync
+  useEffect(() => {
+    const handleGuestAdded = () => {
+      if (selectedEventId) {
+        fetchTables();
+      }
+    };
+
+    const handleGuestUpdated = () => {
+      if (selectedEventId) {
+        fetchTables();
+      }
+    };
+
+    window.addEventListener('guest-added', handleGuestAdded);
+    window.addEventListener('guest-updated', handleGuestUpdated);
+
+    return () => {
+      window.removeEventListener('guest-added', handleGuestAdded);
+      window.removeEventListener('guest-updated', handleGuestUpdated);
+    };
+  }, [selectedEventId, fetchTables]);
+
   // Handle event selection for tables
   const handleEventSelect = (eventId: string) => {
     setSelectedEventId(eventId);

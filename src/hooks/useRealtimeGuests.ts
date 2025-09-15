@@ -260,7 +260,7 @@ export const useRealtimeGuests = (eventId: string | null): UseRealtimeGuestsRetu
     }
   }, [guests, toast]);
 
-  // Add guest
+  // Add guest with optimistic update
   const addGuest = useCallback(async (guestData: Omit<Guest, 'id' | 'created_at'>): Promise<boolean> => {
     try {
       const { data: user } = await supabase.auth.getUser();
@@ -273,6 +273,17 @@ export const useRealtimeGuests = (eventId: string | null): UseRealtimeGuestsRetu
         return false;
       }
 
+      // Create optimistic guest with temporary ID
+      const optimisticGuest: Guest = {
+        ...guestData,
+        id: `temp-${Date.now()}`,
+        user_id: user.user.id,
+        created_at: new Date().toISOString(),
+      };
+
+      // Optimistic update
+      setGuests(currentGuests => [...currentGuests, optimisticGuest]);
+
       const { data, error } = await supabase
         .from('guests')
         .insert([{ ...guestData, user_id: user.user.id }])
@@ -281,6 +292,8 @@ export const useRealtimeGuests = (eventId: string | null): UseRealtimeGuestsRetu
 
       if (error) {
         console.error('Error adding guest:', error);
+        // Revert optimistic update
+        setGuests(currentGuests => currentGuests.filter(g => g.id !== optimisticGuest.id));
         toast({
           title: "Error",
           description: "Failed to add guest",
@@ -288,6 +301,11 @@ export const useRealtimeGuests = (eventId: string | null): UseRealtimeGuestsRetu
         });
         return false;
       }
+
+      // Replace optimistic guest with real data
+      setGuests(currentGuests => 
+        currentGuests.map(g => g.id === optimisticGuest.id ? data : g)
+      );
 
       toast({
         title: "Success",
@@ -306,8 +324,24 @@ export const useRealtimeGuests = (eventId: string | null): UseRealtimeGuestsRetu
     }
   }, [toast]);
 
-  // Update guest
+  // Update guest with optimistic update
   const updateGuest = useCallback(async (guestId: string, updates: Partial<Guest>): Promise<boolean> => {
+    // Store original guest for potential revert
+    const originalGuest = guests.find(g => g.id === guestId);
+    if (!originalGuest) {
+      toast({
+        title: "Error",
+        description: "Guest not found",
+        variant: "destructive",
+      });
+      return false;
+    }
+
+    // Optimistic update
+    setGuests(currentGuests => 
+      currentGuests.map(g => g.id === guestId ? { ...g, ...updates } : g)
+    );
+
     try {
       const { error } = await supabase
         .from('guests')
@@ -316,6 +350,10 @@ export const useRealtimeGuests = (eventId: string | null): UseRealtimeGuestsRetu
 
       if (error) {
         console.error('Error updating guest:', error);
+        // Revert optimistic update
+        setGuests(currentGuests => 
+          currentGuests.map(g => g.id === guestId ? originalGuest : g)
+        );
         toast({
           title: "Error",
           description: "Failed to update guest",
@@ -332,6 +370,10 @@ export const useRealtimeGuests = (eventId: string | null): UseRealtimeGuestsRetu
       return true;
     } catch (error) {
       console.error('Error updating guest:', error);
+      // Revert optimistic update
+      setGuests(currentGuests => 
+        currentGuests.map(g => g.id === guestId ? originalGuest : g)
+      );
       toast({
         title: "Error",
         description: "An unexpected error occurred",
@@ -339,7 +381,7 @@ export const useRealtimeGuests = (eventId: string | null): UseRealtimeGuestsRetu
       });
       return false;
     }
-  }, [toast]);
+  }, [guests, toast]);
 
   // Delete guest
   const deleteGuest = useCallback(async (guestId: string): Promise<boolean> => {
@@ -443,6 +485,9 @@ export const useRealtimeGuests = (eventId: string | null): UseRealtimeGuestsRetu
           console.log(`Successfully subscribed to guests:event:${eventId}`);
         } else if (status === 'CHANNEL_ERROR') {
           console.error('Realtime subscription error, setting up debounced refetch');
+          debouncedRefetch();
+        } else if (status === 'CLOSED') {
+          console.error('Realtime subscription closed, setting up debounced refetch');
           debouncedRefetch();
         }
       });
