@@ -110,7 +110,7 @@ export const FamilyGroupCombobox: React.FC<FamilyGroupComboboxProps> = ({
     onChange(newValue);
     setSearchQuery(newValue);
     // Open dropdown when typing
-    if (!open) {
+    if (!open && newValue.length > 0) {
       setOpen(true);
     }
   };
@@ -126,7 +126,8 @@ export const FamilyGroupCombobox: React.FC<FamilyGroupComboboxProps> = ({
               onChange={handleInputChange}
               onFocus={handleInputFocus}
               placeholder={placeholder}
-              className="w-full"
+              className="w-full cursor-text"
+              autoComplete="off"
             />
             {open && (
               <Search className="absolute right-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -137,7 +138,7 @@ export const FamilyGroupCombobox: React.FC<FamilyGroupComboboxProps> = ({
           <Command>
             <CommandInput
               placeholder="Search guests by name..."
-              value={value || searchQuery}
+              value={searchQuery}
               onValueChange={(newValue) => {
                 setSearchQuery(newValue);
                 onChange(newValue);
