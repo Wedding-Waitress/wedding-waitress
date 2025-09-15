@@ -1222,26 +1222,26 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
-              <TableRow className="border-card-border hover:bg-muted/50">
-                <TableHead className="w-12">
+              <TableRow className="border-card-border bg-primary">
+                <TableHead className="w-12 text-primary-foreground">
                   <Checkbox
                     checked={isAllSelected}
                     onCheckedChange={handleSelectAllGuests}
                     aria-label="Select all guests"
                   />
                 </TableHead>
-                <TableHead className="min-w-[120px]">First Name</TableHead>
-                <TableHead className="min-w-[120px]">Last Name</TableHead>
-                <TableHead className="min-w-[100px]">Table No</TableHead>
-                <TableHead className="min-w-[100px]">Seat No.</TableHead>
-                <TableHead className="min-w-[120px]">RSVP</TableHead>
-                <TableHead className="min-w-[140px]">Who Is</TableHead>
-                <TableHead className="min-w-[140px]">Dietary</TableHead>
-                <TableHead className="min-w-[120px]">Mobile</TableHead>
-                <TableHead className="min-w-[180px]">Email</TableHead>
-                <TableHead className="min-w-[140px]">Family/Group</TableHead>
-                <TableHead className="min-w-[80px]">Notes</TableHead>
-                <TableHead className="w-32">Actions</TableHead>
+                <TableHead className="min-w-[120px] text-primary-foreground">First Name</TableHead>
+                <TableHead className="min-w-[120px] text-primary-foreground">Last Name</TableHead>
+                <TableHead className="min-w-[100px] text-primary-foreground">Table No</TableHead>
+                <TableHead className="min-w-[100px] text-primary-foreground">Seat No.</TableHead>
+                <TableHead className="min-w-[120px] text-primary-foreground">RSVP</TableHead>
+                <TableHead className="min-w-[140px] text-primary-foreground">Who Is</TableHead>
+                <TableHead className="min-w-[140px] text-primary-foreground">Dietary</TableHead>
+                <TableHead className="min-w-[120px] text-primary-foreground">Mobile</TableHead>
+                <TableHead className="min-w-[180px] text-primary-foreground">Email</TableHead>
+                <TableHead className="min-w-[140px] text-primary-foreground">Family/Group</TableHead>
+                <TableHead className="min-w-[80px] text-primary-foreground">Notes</TableHead>
+                <TableHead className="w-32 text-primary-foreground">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
