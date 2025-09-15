@@ -71,7 +71,8 @@ type SortOption =
   | 'table_name_asc' | 'table_name_desc'
   | 'seat_no_asc' | 'seat_no_desc'
   | 'rsvp_attending_first' | 'rsvp_not_attending_first'
-  | 'who_is_asc' | 'who_is_desc';
+  | 'who_is_asc' | 'who_is_desc'
+  | 'family_group_asc' | 'family_group_desc';
 
 const SORT_OPTIONS = [
   { value: 'first_name_asc', label: 'First Name (A–Z)' },
@@ -85,6 +86,8 @@ const SORT_OPTIONS = [
   { value: 'rsvp_not_attending_first', label: 'RSVP (Not Attending → Pending → Attending)' },
   { value: 'who_is_asc', label: 'Who Is (A–Z)' },
   { value: 'who_is_desc', label: 'Who Is (Z–A)' },
+  { value: 'family_group_asc', label: 'Family/Group (A–Z)' },
+  { value: 'family_group_desc', label: 'Family/Group (Z–A)' },
 ] as const;
 
 // Template headers (no who_is_display as it's computed)
@@ -440,6 +443,10 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
           
           // Secondary sort: role (desc)
           return roleB3.localeCompare(roleA3);
+        case 'family_group_asc':
+          return (a.family_group || '').localeCompare(b.family_group || '');
+        case 'family_group_desc':
+          return (b.family_group || '').localeCompare(a.family_group || '');
         default:
           return 0;
       }
