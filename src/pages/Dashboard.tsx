@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { StatsBar } from "@/components/Dashboard/StatsBar";
 import { DashboardSidebar } from "@/components/Dashboard/DashboardSidebar";
 import { MyEventsPage } from "@/components/Dashboard/MyEventsPage";
@@ -90,35 +90,37 @@ export const Dashboard = () => {
     }
   }, [events]);
 
-  // Watch for guest changes and refresh tables to ensure instant sync
+  // Maintain a stable ref to fetchTables to avoid effect re-installs
+  const fetchTablesRef = useRef(fetchTables);
   useEffect(() => {
-    if (selectedEventId && guests.length !== undefined) {
-      fetchTables();
-    }
-  }, [selectedEventId, guests.length, fetchTables]);
+    fetchTablesRef.current = fetchTables;
+  }, [fetchTables]);
 
-  // Listen for custom events from AddGuestModal for backup sync
+  // Listen for custom events from AddGuestModal with debounced refresh
   useEffect(() => {
-    const handleGuestAdded = () => {
-      if (selectedEventId) {
-        fetchTables();
-      }
+    let timer: number | null = null;
+
+    const trigger = () => {
+      if (!selectedEventId) return;
+      if (timer) window.clearTimeout(timer);
+      timer = window.setTimeout(() => {
+        fetchTablesRef.current?.();
+        timer = null;
+      }, 250);
     };
 
-    const handleGuestUpdated = () => {
-      if (selectedEventId) {
-        fetchTables();
-      }
-    };
+    const handleGuestAdded = () => trigger();
+    const handleGuestUpdated = () => trigger();
 
     window.addEventListener('guest-added', handleGuestAdded);
     window.addEventListener('guest-updated', handleGuestUpdated);
 
     return () => {
+      if (timer) window.clearTimeout(timer);
       window.removeEventListener('guest-added', handleGuestAdded);
       window.removeEventListener('guest-updated', handleGuestUpdated);
     };
-  }, [selectedEventId, fetchTables]);
+  }, [selectedEventId]);
 
   // Handle event selection for tables
   const handleEventSelect = (eventId: string) => {
