@@ -189,6 +189,33 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
     }
   };
 
+  // Function to fetch family members when editing
+  const fetchFamilyMembers = async (familyGroup: string, currentGuestId: string) => {
+    if (!familyGroup) {
+      setFamilyMemberIds([]);
+      return;
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from('guests')
+        .select('id')
+        .eq('event_id', eventId)
+        .eq('family_group', familyGroup)
+        .neq('id', currentGuestId);
+
+      if (error) {
+        console.error('Error fetching family members:', error);
+        return;
+      }
+
+      const memberIds = data?.map(g => g.id) || [];
+      setFamilyMemberIds(memberIds);
+    } catch (error) {
+      console.error('Error fetching family members:', error);
+    }
+  };
+
   // Reset form when guest prop changes (for edit mode)
   useEffect(() => {
     if (isOpen) {
@@ -215,11 +242,19 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
           who_is_role: guest.who_is_role || '',
         });
         
+        // Fetch family members if guest has a family group
+        if (guest.family_group) {
+          fetchFamilyMembers(guest.family_group, guest.id);
+        } else {
+          setFamilyMemberIds([]);
+        }
+        
         if (guestTableId) {
           fetchSeatAvailability(guestTableId);
         }
       } else {
         setSelectedTableId('');
+        setFamilyMemberIds([]); // Reset family members for new guest
         form.reset({
           first_name: '',
           last_name: '',
