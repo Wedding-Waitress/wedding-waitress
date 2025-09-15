@@ -109,6 +109,10 @@ export const FamilyGroupCombobox: React.FC<FamilyGroupComboboxProps> = ({
     const newValue = e.target.value;
     onChange(newValue);
     setSearchQuery(newValue);
+    // Open dropdown when typing
+    if (!open) {
+      setOpen(true);
+    }
   };
 
   return (
@@ -133,8 +137,11 @@ export const FamilyGroupCombobox: React.FC<FamilyGroupComboboxProps> = ({
           <Command>
             <CommandInput
               placeholder="Search guests by name..."
-              value={searchQuery}
-              onValueChange={setSearchQuery}
+              value={value || searchQuery}
+              onValueChange={(newValue) => {
+                setSearchQuery(newValue);
+                onChange(newValue);
+              }}
             />
             <CommandList>
               {loading ? (
@@ -143,41 +150,63 @@ export const FamilyGroupCombobox: React.FC<FamilyGroupComboboxProps> = ({
                 </div>
               ) : (
                 <>
-                  <CommandEmpty>
-                    <div className="p-4 text-center">
-                      <p className="text-sm text-muted-foreground mb-2">
-                        No guests found matching "{searchQuery}"
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        Create a new guest to add them to this family group
-                      </p>
-                    </div>
-                  </CommandEmpty>
-                  <CommandGroup>
-                    {filteredGuests.map((guest) => {
-                      const isSelected = selectedMembers.some(m => m.id === guest.id);
-                      return (
-                        <CommandItem
-                          key={guest.id}
-                          className="flex items-center space-x-2 cursor-pointer"
-                          onSelect={() => handleSelectGuest(guest, !isSelected)}
-                        >
-                          <Checkbox
-                            checked={isSelected}
-                            onCheckedChange={(checked) => handleSelectGuest(guest, !!checked)}
-                          />
-                          <span className="flex-1">
-                            {guest.first_name} {guest.last_name}
-                          </span>
-                          {guest.family_group && (
-                            <Badge variant="secondary" className="text-xs">
-                              {guest.family_group}
-                            </Badge>
-                          )}
-                        </CommandItem>
-                      );
-                    })}
-                  </CommandGroup>
+                  {/* Show Create option when there's typed text and no exact matches */}
+                  {searchQuery.trim() && !filteredGuests.some(g => 
+                    `${g.first_name} ${g.last_name}`.toLowerCase() === searchQuery.toLowerCase() ||
+                    g.family_group?.toLowerCase() === searchQuery.toLowerCase()
+                  ) && (
+                    <CommandGroup>
+                      <CommandItem
+                        className="flex items-center space-x-2 cursor-pointer text-primary"
+                        onSelect={() => {
+                          // Just close the dropdown - the typed value will be used as family name
+                          setOpen(false);
+                        }}
+                      >
+                        <span className="flex-1">
+                          Create "{searchQuery.trim()}"
+                        </span>
+                      </CommandItem>
+                    </CommandGroup>
+                  )}
+                  
+                  {filteredGuests.length > 0 ? (
+                    <CommandGroup>
+                      {filteredGuests.map((guest) => {
+                        const isSelected = selectedMembers.some(m => m.id === guest.id);
+                        return (
+                          <CommandItem
+                            key={guest.id}
+                            className="flex items-center space-x-2 cursor-pointer"
+                            onSelect={() => handleSelectGuest(guest, !isSelected)}
+                          >
+                            <Checkbox
+                              checked={isSelected}
+                              onCheckedChange={(checked) => handleSelectGuest(guest, !!checked)}
+                            />
+                            <span className="flex-1">
+                              {guest.first_name} {guest.last_name}
+                            </span>
+                            {guest.family_group && (
+                              <Badge variant="secondary" className="text-xs">
+                                {guest.family_group}
+                              </Badge>
+                            )}
+                          </CommandItem>
+                        );
+                      })}
+                    </CommandGroup>
+                  ) : (
+                    !searchQuery.trim() && (
+                      <CommandEmpty>
+                        <div className="p-4 text-center">
+                          <p className="text-sm text-muted-foreground">
+                            Type to search for guests or create a new family group
+                          </p>
+                        </div>
+                      </CommandEmpty>
+                    )
+                  )}
                 </>
               )}
             </CommandList>
