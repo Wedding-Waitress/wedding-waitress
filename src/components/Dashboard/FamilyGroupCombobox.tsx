@@ -198,8 +198,8 @@ export const FamilyGroupCombobox: React.FC<FamilyGroupComboboxProps> = ({
     // Check if we should clear the family name when removing a member
     if (!checked && inputValue.trim()) {
       const remainingCount = await checkRemainingFamilyMembers(inputValue, Array.from(newSelectedIds));
-      if (remainingCount === 0 && newSelectedIds.size === 0) {
-        // No other guests have this family name and no members selected, clear it
+      if (remainingCount === 0) {
+        // Only the current guest would remain in the family, so dissolve it
         setInputValue('');
         onChange?.('', []);
         return;
@@ -217,8 +217,8 @@ export const FamilyGroupCombobox: React.FC<FamilyGroupComboboxProps> = ({
     // Check if we should clear the family name when removing a member
     if (inputValue.trim()) {
       const remainingCount = await checkRemainingFamilyMembers(inputValue, Array.from(newSelectedIds));
-      if (remainingCount === 0 && newSelectedIds.size === 0) {
-        // No other guests have this family name and no members selected, clear it
+      if (remainingCount === 0) {
+        // Only the current guest would remain in the family, so dissolve it
         setInputValue('');
         setSelectedMemberIds(newSelectedIds);
         setSelectedMemberDetails(prev => prev.filter(g => g.id !== guestId));
