@@ -33,6 +33,7 @@ import { useTables } from "@/hooks/useTables";
 import { computeWhoIsDisplay, WhoIsPartner, WhoIsRole } from "@/lib/whoIsUtils";
 import { useEvents } from "@/hooks/useEvents";
 import { WhoIsSelector } from "./WhoIsSelector";
+import { FamilyGroupManager } from "./FamilyGroupManager";
 
 const addGuestSchema = z.object({
   first_name: z.string().min(1, "First name is required"),
@@ -49,6 +50,7 @@ const addGuestSchema = z.object({
   notes: z.string().optional(),
   who_is_partner: z.string().min(1, "Please choose one partner and one role."),
   who_is_role: z.string().min(1, "Please choose one partner and one role."),
+  family_group: z.string().optional(),
 });
 
 type AddGuestFormData = z.infer<typeof addGuestSchema>;
@@ -72,6 +74,7 @@ interface AddGuestModalProps {
     who_is_partner: string;
     who_is_role: string;
     who_is_display: string;
+    family_group: string | null;
   } | null;
   isEdit?: boolean;
 }
@@ -207,6 +210,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
           notes: guest.notes || '',
           who_is_partner: guest.who_is_partner || '',
           who_is_role: guest.who_is_role || '',
+          family_group: guest.family_group || '',
         });
         
         if (guestTableId) {
@@ -226,6 +230,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
           notes: '',
           who_is_partner: '',
           who_is_role: '',
+          family_group: '',
         });
       }
     }
@@ -713,7 +718,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
               />
             </div>
 
-            {/* Row 5: Who Is & Notes */}
+            {/* Row 5: Who Is & Family/Group */}
             <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}
@@ -752,18 +757,47 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
 
               <FormField
                 control={form.control}
-                name="notes"
+                name="family_group"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Notes</FormLabel>
+                    <FormLabel>Family/Group</FormLabel>
                     <FormControl>
-                      <Textarea {...field} rows={3} />
+                      <Input {...field} placeholder="Enter family or group name" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
             </div>
+
+            {/* Row 6: Notes */}
+            <FormField
+              control={form.control}
+              name="notes"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Notes</FormLabel>
+                  <FormControl>
+                    <Textarea {...field} rows={3} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Family/Group Members Section - Only show when editing */}
+            {isEdit && guest && (
+              <FamilyGroupManager
+                eventId={eventId}
+                currentGuest={{
+                  id: guest.id,
+                  first_name: guest.first_name,
+                  last_name: guest.last_name,
+                  family_group: form.watch('family_group') || null,
+                }}
+                onMemberAdded={onSuccess}
+              />
+            )}
 
             <DialogFooter>
               <Button type="button" variant="secondary" onClick={onClose}>

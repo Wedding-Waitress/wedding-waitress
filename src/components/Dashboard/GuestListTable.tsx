@@ -1232,6 +1232,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                 <TableHead className="min-w-[140px]">Dietary</TableHead>
                 <TableHead className="min-w-[120px]">Mobile</TableHead>
                 <TableHead className="min-w-[180px]">Email</TableHead>
+                <TableHead className="min-w-[120px]">Family/Group</TableHead>
                 <TableHead className="min-w-[80px]">Notes</TableHead>
                 <TableHead className="w-32">Actions</TableHead>
               </TableRow>
@@ -1239,13 +1240,13 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
             <TableBody>
               {guestsLoading ? (
                 <TableRow className="border-card-border">
-                  <TableCell colSpan={12} className="text-center py-8">
+                  <TableCell colSpan={13} className="text-center py-8">
                     Loading guests...
                   </TableCell>
                 </TableRow>
               ) : totalGuestCount === 0 ? (
                 <TableRow className="border-card-border">
-                  <TableCell colSpan={12} className="text-center py-8">
+                  <TableCell colSpan={13} className="text-center py-8">
                     {/* Empty - the "No Guests Yet" widget is now in the header */}
                   </TableCell>
                 </TableRow>
@@ -1286,9 +1287,18 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                         {guest.dietary}
                       </Badge>
                     </TableCell>
-                    <TableCell>{guest.mobile || '-'}</TableCell>
-                    <TableCell>{renderPill(!!guest.email && guest.email.trim() !== '')}</TableCell>
-                    <TableCell>{renderPill(!!guest.notes && guest.notes.trim() !== '')}</TableCell>
+                     <TableCell>{guest.mobile || '-'}</TableCell>
+                     <TableCell>{renderPill(!!guest.email && guest.email.trim() !== '')}</TableCell>
+                     <TableCell>
+                       {guest.family_group ? (
+                         <Badge variant="outline" className="text-xs">
+                           {guest.family_group}
+                         </Badge>
+                       ) : (
+                         '–'
+                       )}
+                     </TableCell>
+                     <TableCell>{renderPill(!!guest.notes && guest.notes.trim() !== '')}</TableCell>
                     <TableCell>
                       <div className="flex items-center space-x-2">
                         <Button 
