@@ -358,19 +358,19 @@ export const EventsTable: React.FC<EventsTableProps> = ({
 
         <div className="overflow-x-auto">
           <RadioGroup value={activeEventId || ''} onValueChange={handleEventSelect}>
-            <Table className="table-fixed w-full">
+            <Table>
             <TableHeader>
-              <TableRow className="border-card-border bg-primary rounded-t-lg">
-                <TableHead className="w-20 text-primary-foreground rounded-tl-lg">Countdown</TableHead>
-                <TableHead className="w-32 text-primary-foreground">Event Name</TableHead>
-                <TableHead className="w-24 text-primary-foreground">Event Date</TableHead>
-                <TableHead className="w-28 text-primary-foreground">Venue</TableHead>
-                <TableHead className="w-20 text-primary-foreground">Start Time</TableHead>
-                <TableHead className="w-20 text-primary-foreground">Finish Time</TableHead>
-                <TableHead className="w-20 text-primary-foreground">Guest Limit</TableHead>
-                <TableHead className="w-24 text-primary-foreground">Created Date:</TableHead>
-                <TableHead className="w-24 text-primary-foreground">Expiry Date:</TableHead>
-                <TableHead className="w-20 text-primary-foreground rounded-tr-lg">Actions</TableHead>
+              <TableRow>
+                <TableHead className="w-20 rounded-tl-lg">Countdown</TableHead>
+                <TableHead className="w-32">Event Name</TableHead>
+                <TableHead className="w-24">Event Date</TableHead>
+                <TableHead className="w-28">Venue</TableHead>
+                <TableHead className="w-20">Start Time</TableHead>
+                <TableHead className="w-20">Finish Time</TableHead>
+                <TableHead className="w-20">Guest Limit</TableHead>
+                <TableHead className="w-24">Created Date:</TableHead>
+                <TableHead className="w-24">Expiry Date:</TableHead>
+                <TableHead className="w-20 rounded-tr-lg">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

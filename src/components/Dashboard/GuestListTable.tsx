@@ -1222,26 +1222,26 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
         <div className="overflow-x-auto">
           <Table className="table-fixed w-full">
             <TableHeader>
-              <TableRow className="border-card-border bg-primary rounded-t-lg">
-                <TableHead className="w-12 text-primary-foreground rounded-tl-lg">
+              <TableRow>
+                <TableHead className="w-12 rounded-tl-lg">
                   <Checkbox
                     checked={isAllSelected}
                     onCheckedChange={handleSelectAllGuests}
                     aria-label="Select all guests"
                   />
                 </TableHead>
-                <TableHead className="w-24 text-primary-foreground">First Name</TableHead>
-                <TableHead className="w-24 text-primary-foreground">Last Name</TableHead>
-                <TableHead className="w-20 text-primary-foreground">Table No</TableHead>
-                <TableHead className="w-20 text-primary-foreground">Seat No.</TableHead>
-                <TableHead className="w-20 text-primary-foreground">RSVP</TableHead>
-                <TableHead className="w-28 text-primary-foreground">Who Is</TableHead>
-                <TableHead className="w-20 text-primary-foreground">Dietary</TableHead>
-                <TableHead className="w-24 text-primary-foreground">Mobile</TableHead>
-                <TableHead className="w-32 text-primary-foreground">Email</TableHead>
-                <TableHead className="w-24 text-primary-foreground">Family/Group</TableHead>
-                <TableHead className="w-16 text-primary-foreground">Notes</TableHead>
-                <TableHead className="w-20 text-primary-foreground rounded-tr-lg">Actions</TableHead>
+                <TableHead className="w-24">First Name</TableHead>
+                <TableHead className="w-24">Last Name</TableHead>
+                <TableHead className="w-20">Table No</TableHead>
+                <TableHead className="w-20">Seat No.</TableHead>
+                <TableHead className="w-20">RSVP</TableHead>
+                <TableHead className="w-28">Who Is</TableHead>
+                <TableHead className="w-20">Dietary</TableHead>
+                <TableHead className="w-24">Mobile</TableHead>
+                <TableHead className="w-32">Email</TableHead>
+                <TableHead className="w-24">Family/Group</TableHead>
+                <TableHead className="w-16">Notes</TableHead>
+                <TableHead className="w-20 rounded-tr-lg">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
