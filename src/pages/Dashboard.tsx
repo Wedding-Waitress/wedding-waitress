@@ -36,10 +36,13 @@ import { useTables, TableWithGuestCount } from '@/hooks/useTables';
 import { useRealtimeGuests } from '@/hooks/useRealtimeGuests';
 import { useRealtimeTables } from '@/hooks/useRealtimeTables';
 import { useProfile } from '@/hooks/useProfile';
+import { useGuests } from '@/hooks/useGuests';
 
 export const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
+  const [qrChartEventId, setQrChartEventId] = useState<string | null>(null);
+  const [qrChartLastSync, setQrChartLastSync] = useState<Date | null>(null);
   const [showCreateTableModal, setShowCreateTableModal] = useState(false);
   const [editingTable, setEditingTable] = useState<TableWithGuestCount | null>(null);
   const { 
@@ -75,6 +78,13 @@ export const Dashboard = () => {
     guests,
     onRefreshTables: fetchTables
   });
+
+  // QR Chart specific guest management
+  const { 
+    guests: qrChartGuests, 
+    loading: qrChartGuestsLoading, 
+    fetchGuests: fetchQrChartGuests 
+  } = useGuests(qrChartEventId);
 
   // Get selected event for tables
   const selectedEvent = selectedEventId ? events.find(e => e.id === selectedEventId) : null;
@@ -127,6 +137,28 @@ export const Dashboard = () => {
     setSelectedEventId(eventId);
     localStorage.setItem('active_event_id', eventId);
   };
+
+  // Handle QR Chart event selection
+  const handleQrChartEventSelect = (eventId: string) => {
+    setQrChartEventId(eventId);
+    localStorage.setItem('qr_chart_event_id', eventId);
+    setQrChartLastSync(new Date());
+  };
+
+  // Load QR Chart event from localStorage
+  useEffect(() => {
+    const savedQrChartEventId = localStorage.getItem('qr_chart_event_id');
+    if (savedQrChartEventId && events.find(e => e.id === savedQrChartEventId)) {
+      setQrChartEventId(savedQrChartEventId);
+    }
+  }, [events]);
+
+  // Update sync timestamp when guests are fetched
+  useEffect(() => {
+    if (qrChartEventId && !qrChartGuestsLoading) {
+      setQrChartLastSync(new Date());
+    }
+  }, [qrChartEventId, qrChartGuestsLoading]);
 
   // Handle table operations
   const handleCreateTable = () => {
@@ -401,17 +433,105 @@ export const Dashboard = () => {
             
             {/* QR Code Seating Chart Section */}
             <div className="w-full">
-              <Card className="p-8 text-center">
-                <MapPin className="w-16 h-16 mx-auto text-primary mb-4" />
-                <CardTitle className="mb-2">QR Code Seating Chart</CardTitle>
-                <CardDescription className="mb-6">
-                  Interactive seating chart with QR code functionality
-                </CardDescription>
-                <div className="bg-muted/30 border-2 border-dashed border-muted-foreground/20 rounded-lg p-12 mb-6">
-                  <div className="text-muted-foreground">
-                    Seating chart placeholder area
+              <Card>
+                <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                  <div className="flex items-center space-x-4">
+                    <MapPin className="w-8 h-8 text-primary" />
+                    <div>
+                      <CardTitle className="mb-1">QR Code Seating Chart</CardTitle>
+                      <CardDescription>
+                        Interactive seating chart with QR code functionality
+                      </CardDescription>
+                    </div>
                   </div>
-                </div>
+                  
+                  {/* Event Selector */}
+                  <div className="flex flex-col space-y-2 min-w-[250px]">
+                    <label className="text-sm font-medium text-foreground">
+                      Choose Event:
+                    </label>
+                    <Select value={qrChartEventId || ""} onValueChange={handleQrChartEventSelect}>
+                      <SelectTrigger className="bg-background border-input">
+                        <SelectValue placeholder={eventsLoading ? "Loading events..." : "Select an event..."} />
+                      </SelectTrigger>
+                      <SelectContent className="bg-background border-input z-50">
+                        {events.length > 0 ? (
+                          events.map((event) => (
+                            <SelectItem key={event.id} value={event.id}>
+                              <div className="flex items-center space-x-2">
+                                <Calendar className="w-4 h-4" />
+                                <span>{event.name}</span>
+                              </div>
+                            </SelectItem>
+                          ))
+                        ) : (
+                          <SelectItem value="no-events" disabled>
+                            {eventsLoading ? "Loading events..." : "No events found"}
+                          </SelectItem>
+                        )}
+                      </SelectContent>
+                    </Select>
+                    {qrChartLastSync && (
+                      <div className="text-xs text-muted-foreground">
+                        Last synced: {qrChartLastSync.toLocaleTimeString()}
+                      </div>
+                    )}
+                  </div>
+                </CardHeader>
+                
+                <CardContent className="space-y-6">
+                  {qrChartEventId ? (
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                      {/* Guest List */}
+                      <div className="lg:col-span-1">
+                        <h3 className="font-semibold mb-3 text-foreground">Guest List ({qrChartGuests.length})</h3>
+                        {qrChartGuestsLoading ? (
+                          <div className="text-center py-4">
+                            <div className="text-muted-foreground">Loading guests...</div>
+                          </div>
+                        ) : qrChartGuests.length > 0 ? (
+                          <div className="bg-muted/30 rounded-lg p-4 max-h-96 overflow-y-auto">
+                            <div className="space-y-2">
+                              {qrChartGuests.map((guest) => (
+                                <div 
+                                  key={guest.id} 
+                                  className="flex justify-between items-center p-2 bg-background rounded border text-sm"
+                                >
+                                  <span className="font-medium">
+                                    {guest.first_name} {guest.last_name}
+                                  </span>
+                                  <span className="text-muted-foreground">
+                                    {guest.table_no ? `Table ${guest.table_no}` : 'No table'}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="bg-muted/30 rounded-lg p-4 text-center text-muted-foreground">
+                            No guests found for this event
+                          </div>
+                        )}
+                      </div>
+                      
+                      {/* Seating Chart Placeholder */}
+                      <div className="lg:col-span-2">
+                        <h3 className="font-semibold mb-3 text-foreground">Seating Chart</h3>
+                        <div className="bg-muted/30 border-2 border-dashed border-muted-foreground/20 rounded-lg p-12 text-center">
+                          <div className="text-muted-foreground">
+                            Seating chart visualization will appear here
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="bg-muted/30 border-2 border-dashed border-muted-foreground/20 rounded-lg p-12 text-center">
+                      <div className="text-muted-foreground">
+                        Please select an event to view the seating chart
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
               </Card>
             </div>
           </div>
