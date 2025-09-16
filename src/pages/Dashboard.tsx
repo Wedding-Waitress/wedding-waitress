@@ -1207,6 +1207,103 @@ export const Dashboard = () => {
                         </div>
                       </div>
                       
+                      {/* Design Basics Accordion */}
+                      <Accordion type="single" collapsible className="w-full">
+                        <AccordionItem value="design-basics">
+                          <AccordionTrigger>Design Basics</AccordionTrigger>
+                          <AccordionContent>
+                            <div className="space-y-4">
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                  <Label htmlFor="module-shape">Module Shape</Label>
+                                  <Select 
+                                    value={qrModuleShape} 
+                                    onValueChange={(value: 'square' | 'round') => setQrModuleShape(value)}
+                                  >
+                                    <SelectTrigger>
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="square">Square</SelectItem>
+                                      <SelectItem value="round">Round</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                                
+                                <div className="space-y-2">
+                                  <Label htmlFor="finder-style">Finder/Eye Style</Label>
+                                  <Select 
+                                    value={qrFinderStyle} 
+                                    onValueChange={(value: 'standard' | 'rounded') => setQrFinderStyle(value)}
+                                  >
+                                    <SelectTrigger>
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="standard">Standard</SelectItem>
+                                      <SelectItem value="rounded">Rounded</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                              </div>
+                              
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                  <Label htmlFor="foreground-color">Foreground Color</Label>
+                                  <div className="flex items-center gap-2">
+                                    <Input
+                                      id="foreground-color"
+                                      type="color"
+                                      value={qrForegroundColor}
+                                      onChange={(e) => setQrForegroundColor(e.target.value)}
+                                      className="w-16 h-8 p-1 rounded border"
+                                    />
+                                    <Input
+                                      type="text"
+                                      value={qrForegroundColor}
+                                      onChange={(e) => setQrForegroundColor(e.target.value)}
+                                      placeholder="#000000"
+                                      className="flex-1 font-mono text-sm"
+                                    />
+                                  </div>
+                                </div>
+                                
+                                <div className="space-y-2">
+                                  <Label htmlFor="background-color">Background Color</Label>
+                                  <div className="flex items-center gap-2">
+                                    <Input
+                                      id="background-color"
+                                      type="color"
+                                      value={qrBackgroundColor}
+                                      onChange={(e) => setQrBackgroundColor(e.target.value)}
+                                      className="w-16 h-8 p-1 rounded border"
+                                    />
+                                    <Input
+                                      type="text"
+                                      value={qrBackgroundColor}
+                                      onChange={(e) => setQrBackgroundColor(e.target.value)}
+                                      placeholder="#ffffff"
+                                      className="flex-1 font-mono text-sm"
+                                    />
+                                  </div>
+                                </div>
+                              </div>
+                              
+                              <div className="text-xs text-muted-foreground">
+                                <strong>Scannability maintained:</strong> 4-module quiet zone, timing patterns intact, error correction level H
+                              </div>
+                            </div>
+                          </AccordionContent>
+                        </AccordionItem>
+                      </Accordion>
+                      
+                      {qrContrastWarning && (
+                        <Alert>
+                          <AlertTriangle className="h-4 w-4" />
+                          <AlertDescription>{qrContrastWarning}</AlertDescription>
+                        </Alert>
+                      )}
+                      
                       {/* Download buttons */}
                       <div className="flex flex-wrap gap-2 pt-2 border-t">
                         <Button variant="outline" size="sm" onClick={handleCopyLink}>
