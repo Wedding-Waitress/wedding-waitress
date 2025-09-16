@@ -29,8 +29,12 @@ import {
   Heart,
   Settings,
   TrendingUp,
-  Plus
+  Plus,
+  Copy,
+  Download,
+  Printer
 } from "lucide-react";
+import QRCodeLib from 'qrcode';
 import { useEvents } from '@/hooks/useEvents';
 import { useTables, TableWithGuestCount } from '@/hooks/useTables';
 import { useRealtimeGuests } from '@/hooks/useRealtimeGuests';
@@ -150,6 +154,125 @@ export const Dashboard = () => {
 
   // Get selected QR event
   const selectedQrEvent = qrSelectedEventId ? events.find(e => e.id === qrSelectedEventId) : null;
+
+  // Generate QR code data
+  const generateSeatFinderUrl = (event: any) => {
+    if (!event) return '';
+    const eventSlug = event.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    return `${window.location.origin}/s/${eventSlug}`;
+  };
+
+  const seatFinderUrl = selectedQrEvent ? generateSeatFinderUrl(selectedQrEvent) : '';
+
+  const [qrCodeSvg, setQrCodeSvg] = useState<string>('');
+
+  // Generate QR code SVG
+  useEffect(() => {
+    if (seatFinderUrl) {
+      QRCodeLib.toString(seatFinderUrl, {
+        type: 'svg',
+        errorCorrectionLevel: 'H',
+        margin: 4,
+        color: {
+          dark: '#000000',
+          light: '#ffffff'
+        },
+        width: 200
+      }).then((svg) => {
+        setQrCodeSvg(svg);
+      }).catch((err) => {
+        console.error('QR Code generation error:', err);
+      });
+    } else {
+      setQrCodeSvg('');
+    }
+  }, [seatFinderUrl]);
+
+  // QR Code action handlers
+  const handleCopyLink = async () => {
+    if (seatFinderUrl) {
+      await navigator.clipboard.writeText(seatFinderUrl);
+    }
+  };
+
+  const handleDownloadPng = () => {
+    if (seatFinderUrl) {
+      QRCodeLib.toDataURL(seatFinderUrl, {
+        errorCorrectionLevel: 'H',
+        margin: 4,
+        color: { dark: '#000000', light: '#ffffff' },
+        width: 400
+      }).then((dataUrl) => {
+        const link = document.createElement('a');
+        link.download = `qr-code-${selectedQrEvent?.name || 'event'}.png`;
+        link.href = dataUrl;
+        link.click();
+      });
+    }
+  };
+
+  const handleDownloadSvg = () => {
+    if (qrCodeSvg && selectedQrEvent) {
+      const blob = new Blob([qrCodeSvg], { type: 'image/svg+xml' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.download = `qr-code-${selectedQrEvent.name}.svg`;
+      link.href = url;
+      link.click();
+      URL.revokeObjectURL(url);
+    }
+  };
+
+  const handleDownloadJpg = () => {
+    if (seatFinderUrl) {
+      QRCodeLib.toDataURL(seatFinderUrl, {
+        errorCorrectionLevel: 'H',
+        margin: 4,
+        color: { dark: '#000000', light: '#ffffff' },
+        width: 400
+      }).then((dataUrl) => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const img = new Image();
+        img.onload = () => {
+          canvas.width = img.width;
+          canvas.height = img.height;
+          ctx!.fillStyle = '#ffffff';
+          ctx!.fillRect(0, 0, canvas.width, canvas.height);
+          ctx!.drawImage(img, 0, 0);
+          const jpgDataUrl = canvas.toDataURL('image/jpeg', 0.9);
+          const link = document.createElement('a');
+          link.download = `qr-code-${selectedQrEvent?.name || 'event'}.jpg`;
+          link.href = jpgDataUrl;
+          link.click();
+        };
+        img.src = dataUrl;
+      });
+    }
+  };
+
+  const handlePrint = () => {
+    if (qrCodeSvg) {
+      const printWindow = window.open('', '_blank');
+      if (printWindow) {
+        printWindow.document.write(`
+          <html>
+            <head><title>QR Code - ${selectedQrEvent?.name || 'Event'}</title></head>
+            <body style="display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0;">
+              <div style="text-align: center;">
+                <h2>${selectedQrEvent?.name || 'Event'} - Seat Finder</h2>
+                ${qrCodeSvg}
+                <p>${seatFinderUrl}</p>
+              </div>
+            </body>
+          </html>
+        `);
+        printWindow.document.close();
+        printWindow.print();
+        printWindow.close();
+      }
+    }
+  };
 
   // Handle table operations
   const handleCreateTable = () => {
@@ -461,17 +584,55 @@ export const Dashboard = () => {
                   </div>
                   
                   {selectedQrEvent ? (
-                    <div className="text-center py-4">
-                      <CardDescription>
-                        {qrTablesLoading || qrGuestsLoading ? 
-                          "Loading event data..." : 
-                          `Tables: ${qrTables.length} | Guests: ${qrGuests.length}`
-                        }
-                      </CardDescription>
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <h4 className="font-medium text-sm">Seat-Finder Link</h4>
+                          <div className="p-3 bg-muted rounded-md">
+                            <code className="text-xs break-all">{seatFinderUrl}</code>
+                          </div>
+                          <CardDescription className="text-xs">
+                            Tables: {qrTables.length} | Guests: {qrGuests.length}
+                          </CardDescription>
+                        </div>
+                        
+                        <div className="flex justify-center">
+                          {qrCodeSvg ? (
+                            <div dangerouslySetInnerHTML={{ __html: qrCodeSvg }} />
+                          ) : (
+                            <div className="w-48 h-48 bg-muted flex items-center justify-center rounded-md">
+                              <span className="text-muted-foreground text-sm">Generating QR...</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      
+                      <div className="flex flex-wrap gap-2 pt-2 border-t">
+                        <Button variant="outline" size="sm" onClick={handleCopyLink}>
+                          <Copy className="w-3 h-3 mr-1" />
+                          Copy Link
+                        </Button>
+                        <Button variant="outline" size="sm" onClick={handleDownloadPng}>
+                          <Download className="w-3 h-3 mr-1" />
+                          PNG
+                        </Button>
+                        <Button variant="outline" size="sm" onClick={handleDownloadSvg}>
+                          <Download className="w-3 h-3 mr-1" />
+                          SVG
+                        </Button>
+                        <Button variant="outline" size="sm" onClick={handleDownloadJpg}>
+                          <Download className="w-3 h-3 mr-1" />
+                          JPG
+                        </Button>
+                        <Button variant="outline" size="sm" onClick={handlePrint}>
+                          <Printer className="w-3 h-3 mr-1" />
+                          Print
+                        </Button>
+                      </div>
                     </div>
                   ) : (
-                    <CardDescription className="text-center py-4">
-                      Select an event to view seating chart data
+                    <CardDescription className="text-center py-8">
+                      Select an event to generate QR code
                     </CardDescription>
                   )}
                 </div>
