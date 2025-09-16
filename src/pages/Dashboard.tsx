@@ -65,6 +65,10 @@ export const Dashboard = () => {
   const [qrBackgroundColor, setQrBackgroundColor] = useState('#ffffff');
   const [qrFinderStyle, setQrFinderStyle] = useState<'standard' | 'rounded'>('standard');
   const [qrContrastWarning, setQrContrastWarning] = useState<string>('');
+  const [qrFrameEnabled, setQrFrameEnabled] = useState<boolean>(false);
+  const [qrFrameStyle, setQrFrameStyle] = useState<'rounded' | 'square'>('rounded');
+  const [qrFrameColor, setQrFrameColor] = useState('#e5e7eb');
+  const [qrLabelText, setQrLabelText] = useState('Scan to find your seat');
   const { 
     events, 
     loading: eventsLoading, 
@@ -251,6 +255,78 @@ export const Dashboard = () => {
             );
           }
           
+          // Add frame and label if enabled
+          if (qrFrameEnabled) {
+            const parser = new DOMParser();
+            const svgDoc = parser.parseFromString(processedSvg, 'image/svg+xml');
+            const svgElement = svgDoc.querySelector('svg');
+            
+            if (svgElement) {
+              const originalWidth = parseInt(svgElement.getAttribute('width') || '200');
+              const originalHeight = parseInt(svgElement.getAttribute('height') || '200');
+              
+              // Increase canvas size for frame and label
+              const frameSize = 240;
+              const labelHeight = 30;
+              const totalHeight = frameSize + labelHeight + 20; // padding
+              
+              svgElement.setAttribute('width', frameSize.toString());
+              svgElement.setAttribute('height', totalHeight.toString());
+              svgElement.setAttribute('viewBox', `0 0 ${frameSize} ${totalHeight}`);
+              
+              // Create frame
+              const frameRect = svgDoc.createElementNS('http://www.w3.org/2000/svg', 'rect');
+              frameRect.setAttribute('x', '10');
+              frameRect.setAttribute('y', '10');
+              frameRect.setAttribute('width', (frameSize - 20).toString());
+              frameRect.setAttribute('height', (frameSize - 20).toString());
+              frameRect.setAttribute('fill', 'none');
+              frameRect.setAttribute('stroke', qrFrameColor);
+              frameRect.setAttribute('stroke-width', '2');
+              if (qrFrameStyle === 'rounded') {
+                frameRect.setAttribute('rx', '12');
+                frameRect.setAttribute('ry', '12');
+              }
+              
+              // Move existing QR content to center within frame
+              const existingContent = svgElement.querySelector('g') || svgElement;
+              const offsetX = (frameSize - originalWidth) / 2;
+              const offsetY = (frameSize - originalHeight) / 2 + 10;
+              
+              if (existingContent.tagName === 'g') {
+                existingContent.setAttribute('transform', `translate(${offsetX}, ${offsetY})`);
+              } else {
+                // Wrap all direct children in a group and translate
+                const group = svgDoc.createElementNS('http://www.w3.org/2000/svg', 'g');
+                group.setAttribute('transform', `translate(${offsetX}, ${offsetY})`);
+                
+                const children = Array.from(svgElement.children);
+                children.forEach(child => {
+                  if (child !== frameRect) {
+                    group.appendChild(child);
+                  }
+                });
+                svgElement.appendChild(group);
+              }
+              
+              // Add frame first (so it appears behind QR)
+              svgElement.insertBefore(frameRect, svgElement.firstChild);
+              
+              // Add label
+              const labelText = svgDoc.createElementNS('http://www.w3.org/2000/svg', 'text');
+              labelText.setAttribute('x', (frameSize / 2).toString());
+              labelText.setAttribute('y', (frameSize + 25).toString());
+              labelText.setAttribute('text-anchor', 'middle');
+              labelText.setAttribute('font-family', 'system-ui, sans-serif');
+              labelText.setAttribute('font-size', '12');
+              labelText.setAttribute('fill', qrForegroundColor);
+              labelText.textContent = qrLabelText;
+              svgElement.appendChild(labelText);
+              
+              processedSvg = new XMLSerializer().serializeToString(svgDoc);
+            }
+          }
+          
           setQrCodeSvg(processedSvg);
         })
         .catch((err) => {
@@ -259,7 +335,7 @@ export const Dashboard = () => {
     } else {
       setQrCodeSvg('');
     }
-  }, [seatFinderUrl, qrForegroundColor, qrBackgroundColor, qrModuleShape, qrFinderStyle]);
+  }, [seatFinderUrl, qrForegroundColor, qrBackgroundColor, qrModuleShape, qrFinderStyle, qrFrameEnabled, qrFrameStyle, qrFrameColor, qrLabelText]);
 
   // QR Code action handlers
   const handleCopyLink = async () => {
@@ -770,6 +846,86 @@ export const Dashboard = () => {
                               
                               <div className="text-xs text-muted-foreground">
                                 <strong>Scannability maintained:</strong> 4-module quiet zone, timing patterns intact, error correction level H
+                              </div>
+                            </div>
+                          </AccordionContent>
+                        </AccordionItem>
+                        
+                        <AccordionItem value="frame-label">
+                          <AccordionTrigger>Frame & Label</AccordionTrigger>
+                          <AccordionContent>
+                            <div className="space-y-4">
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                  <div className="flex items-center gap-2">
+                                    <input
+                                      type="checkbox"
+                                      id="frame-enabled"
+                                      checked={qrFrameEnabled}
+                                      onChange={(e) => setQrFrameEnabled(e.target.checked)}
+                                      className="rounded"
+                                    />
+                                    <Label htmlFor="frame-enabled">Enable Frame</Label>
+                                  </div>
+                                </div>
+                                
+                                <div className="space-y-2">
+                                  <Label htmlFor="frame-style">Frame Style</Label>
+                                  <Select 
+                                    value={qrFrameStyle} 
+                                    onValueChange={(value: 'rounded' | 'square') => setQrFrameStyle(value)}
+                                    disabled={!qrFrameEnabled}
+                                  >
+                                    <SelectTrigger>
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="rounded">Rounded</SelectItem>
+                                      <SelectItem value="square">Square</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                              </div>
+                              
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                  <Label htmlFor="frame-color">Frame Color</Label>
+                                  <div className="flex items-center gap-2">
+                                    <Input
+                                      id="frame-color"
+                                      type="color"
+                                      value={qrFrameColor}
+                                      onChange={(e) => setQrFrameColor(e.target.value)}
+                                      disabled={!qrFrameEnabled}
+                                      className="w-16 h-8 p-1 rounded border"
+                                    />
+                                    <Input
+                                      type="text"
+                                      value={qrFrameColor}
+                                      onChange={(e) => setQrFrameColor(e.target.value)}
+                                      disabled={!qrFrameEnabled}
+                                      placeholder="#e5e7eb"
+                                      className="flex-1 font-mono text-sm"
+                                    />
+                                  </div>
+                                </div>
+                                
+                                <div className="space-y-2">
+                                  <Label htmlFor="label-text">Label Text</Label>
+                                  <Input
+                                    id="label-text"
+                                    type="text"
+                                    value={qrLabelText}
+                                    onChange={(e) => setQrLabelText(e.target.value)}
+                                    disabled={!qrFrameEnabled}
+                                    placeholder="Scan to find your seat"
+                                    className="w-full"
+                                  />
+                                </div>
+                              </div>
+                              
+                              <div className="text-xs text-muted-foreground">
+                                Frame and label will appear around the QR code when enabled
                               </div>
                             </div>
                           </AccordionContent>
