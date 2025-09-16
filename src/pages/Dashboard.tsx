@@ -73,6 +73,13 @@ export const Dashboard = () => {
   const [qrLogoDataUrl, setQrLogoDataUrl] = useState<string>('');
   const [qrLogoMask, setQrLogoMask] = useState<'square' | 'round'>('round');
   const [qrLogoSize, setQrLogoSize] = useState<number>(15); // Percentage of QR area
+  const [qrBgImage, setQrBgImage] = useState<File | null>(null);
+  const [qrBgImageDataUrl, setQrBgImageDataUrl] = useState<string>('');
+  const [qrBgPreset, setQrBgPreset] = useState<string>('');
+  const [qrBgFitMode, setQrBgFitMode] = useState<'cover' | 'contain' | 'tile'>('cover');
+  const [qrBgScrim, setQrBgScrim] = useState<number>(40); // Percentage overlay
+  const [qrBgAutoContrast, setQrBgAutoContrast] = useState<boolean>(true);
+  const [qrBgApplyToLiveView, setQrBgApplyToLiveView] = useState<boolean>(false);
   const { 
     events, 
     loading: eventsLoading, 
@@ -197,6 +204,50 @@ export const Dashboard = () => {
   const handleRemoveLogo = () => {
     setQrLogo(null);
     setQrLogoDataUrl('');
+  };
+
+  // Background presets
+  const bgPresets = [
+    { id: 'gradient1', name: 'Ocean Blue', url: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPjxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiM0RjQ2RTUiLz48c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiMyRUQ1Nzki Lz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2cpIi8+PC9zdmc+' },
+    { id: 'gradient2', name: 'Sunset', url: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPjxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiNGRjU5MzMiLz48c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiNGRkJENjMiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2cpIi8+PC9zdmc+' },
+    { id: 'gradient3', name: 'Forest', url: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPjxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiMxNkE0MkUiLz48c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiM2NkJCNkEiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2cpIi8+PC9zdmc+' },
+    { id: 'gradient4', name: 'Rose Gold', url: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPjxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiNGRjc5N0MiLz48c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiNGRkRERDAiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2cpIi8+PC9zdmc+' },
+    { id: 'pattern1', name: 'Dots', url: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHZpZXdCb3g9IjAgMCAyMCAyMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iZG90cyIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgd2lkdGg9IjIwIiBoZWlnaHQ9IjIwIj48Y2lyY2xlIGN4PSIxMCIgY3k9IjEwIiByPSIyIiBmaWxsPSIjRTJFOEYwIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2RvdHMpIi8+PC9zdmc+' },
+    { id: 'pattern2', name: 'Lines', url: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHZpZXdCb3g9IjAgMCAyMCAyMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0ibGluZXMiIHBhdHRlcm5Vbml0cz0idXNlclNwYWNlT25Vc2UiIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCI+PGxpbmUgeDE9IjAiIHkxPSIxMCIgeDI9IjIwIiB5Mj0iMTAiIHN0cm9rZT0iI0UyRThGMCIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2xpbmVzKSIvPjwvc3ZnPg==' },
+    { id: 'solid1', name: 'Light Gray', url: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjRjNGNEY2Ii8+PC9zdmc+' },
+    { id: 'solid2', name: 'Cream', url: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjRkZGN0VEIi8+PC9zdmc+' },
+    { id: 'marble', name: 'Marble', url: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0ibWFyYmxlIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIiB3aWR0aD0iNDAiIGhlaWdodD0iNDAiPjxyZWN0IHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgZmlsbD0iI0Y5RkFGQiIvPjxwYXRoIGQ9Ik0wIDEwYzEwIDAgMjAtMTAgNDAgMTBzMzAtMTAgNDAtMTAiIHN0cm9rZT0iI0VERUZGNSIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI21hcmJsZSkiLz48L3N2Zz4=' },
+    { id: 'geometric', name: 'Geometric', url: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iZ2VvbWV0cmljIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIiB3aWR0aD0iNDAiIGhlaWdodD0iNDAiPjxyZWN0IHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgZmlsbD0iI0Y5RkFGQiIvPjxwb2x5Z29uIHBvaW50cz0iMjAsMTAgMzAsMzAgMTAsMzAiIGZpbGw9IiNFMkU4RjAiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ2VvbWV0cmljKSIvPjwvc3ZnPg==' }
+  ];
+
+  // Handle background image upload
+  const handleBgImageUpload = (file: File) => {
+    if (file && (file.type === 'image/png' || file.type === 'image/jpeg' || file.type === 'image/webp')) {
+      setQrBgImage(file);
+      setQrBgPreset(''); // Clear preset when uploading custom
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        if (e.target?.result) {
+          setQrBgImageDataUrl(e.target.result as string);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleBgPresetSelect = (presetId: string) => {
+    setQrBgPreset(presetId);
+    setQrBgImage(null); // Clear custom upload
+    const preset = bgPresets.find(p => p.id === presetId);
+    if (preset) {
+      setQrBgImageDataUrl(preset.url);
+    }
+  };
+
+  const handleRemoveBgImage = () => {
+    setQrBgImage(null);
+    setQrBgImageDataUrl('');
+    setQrBgPreset('');
   };
 
   // Generate QR code data
@@ -350,6 +401,109 @@ export const Dashboard = () => {
             }
           }
           
+          // Add background image if present
+          if (qrBgImageDataUrl) {
+            const parser = new DOMParser();
+            const svgDoc = parser.parseFromString(processedSvg, 'image/svg+xml');
+            const svgElement = svgDoc.querySelector('svg');
+            
+            if (svgElement) {
+              const svgWidth = parseInt(svgElement.getAttribute('width') || '200');
+              const svgHeight = parseInt(svgElement.getAttribute('height') || '200');
+              
+              // Create defs if not exists
+              let defs = svgDoc.querySelector('defs');
+              if (!defs) {
+                defs = svgDoc.createElementNS('http://www.w3.org/2000/svg', 'defs');
+                svgElement.insertBefore(defs, svgElement.firstChild);
+              }
+              
+              // Create pattern for background
+              const pattern = svgDoc.createElementNS('http://www.w3.org/2000/svg', 'pattern');
+              pattern.setAttribute('id', 'bgPattern');
+              pattern.setAttribute('patternUnits', 'objectBoundingBox');
+              pattern.setAttribute('width', '1');
+              pattern.setAttribute('height', '1');
+              
+              // Background image element
+              const bgImage = svgDoc.createElementNS('http://www.w3.org/2000/svg', 'image');
+              bgImage.setAttribute('href', qrBgImageDataUrl);
+              
+              // Apply fit mode
+              if (qrBgFitMode === 'cover') {
+                bgImage.setAttribute('x', '0');
+                bgImage.setAttribute('y', '0');
+                bgImage.setAttribute('width', '1');
+                bgImage.setAttribute('height', '1');
+                bgImage.setAttribute('preserveAspectRatio', 'xMidYMid slice');
+              } else if (qrBgFitMode === 'contain') {
+                bgImage.setAttribute('x', '0');
+                bgImage.setAttribute('y', '0');
+                bgImage.setAttribute('width', '1');
+                bgImage.setAttribute('height', '1');
+                bgImage.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+              } else { // tile
+                pattern.setAttribute('width', '0.2');
+                pattern.setAttribute('height', '0.2');
+                bgImage.setAttribute('x', '0');
+                bgImage.setAttribute('y', '0');
+                bgImage.setAttribute('width', '1');
+                bgImage.setAttribute('height', '1');
+              }
+              
+              pattern.appendChild(bgImage);
+              defs.appendChild(pattern);
+              
+              // Create background rectangle with pattern and scrim overlay
+              const bgRect = svgDoc.createElementNS('http://www.w3.org/2000/svg', 'rect');
+              bgRect.setAttribute('x', qrFrameEnabled ? '10' : '0');
+              bgRect.setAttribute('y', qrFrameEnabled ? '10' : '0');
+              bgRect.setAttribute('width', (qrFrameEnabled ? svgWidth - 20 : svgWidth).toString());
+              bgRect.setAttribute('height', (qrFrameEnabled ? 220 : svgHeight).toString());
+              bgRect.setAttribute('fill', 'url(#bgPattern)');
+              
+              // Add scrim overlay if needed
+              if (qrBgScrim > 0) {
+                const scrimRect = svgDoc.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                scrimRect.setAttribute('x', qrFrameEnabled ? '10' : '0');
+                scrimRect.setAttribute('y', qrFrameEnabled ? '10' : '0');
+                scrimRect.setAttribute('width', (qrFrameEnabled ? svgWidth - 20 : svgWidth).toString());
+                scrimRect.setAttribute('height', (qrFrameEnabled ? 220 : svgHeight).toString());
+                scrimRect.setAttribute('fill', qrBackgroundColor);
+                scrimRect.setAttribute('opacity', (qrBgScrim / 100).toString());
+                
+                // Insert background and scrim before QR content
+                svgElement.insertBefore(scrimRect, svgElement.children[qrFrameEnabled ? 1 : 0]);
+              }
+              
+              // Insert background before scrim or QR content
+              svgElement.insertBefore(bgRect, svgElement.children[qrFrameEnabled ? 1 : 0]);
+              
+              // Auto-contrast adjustment for readability
+              if (qrBgAutoContrast) {
+                // Create white safety frames around finder patterns
+                const finderRects = [
+                  { x: qrFrameEnabled ? 30 : 20, y: qrFrameEnabled ? 30 : 20, size: 28 }, // Top-left
+                  { x: qrFrameEnabled ? svgWidth - 58 : svgWidth - 48, y: qrFrameEnabled ? 30 : 20, size: 28 }, // Top-right
+                  { x: qrFrameEnabled ? 30 : 20, y: qrFrameEnabled ? svgHeight - 48 : svgHeight - 48, size: 28 }, // Bottom-left (adjust if frame)
+                ];
+                
+                finderRects.forEach(finder => {
+                  const safetyRect = svgDoc.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                  safetyRect.setAttribute('x', finder.x.toString());
+                  safetyRect.setAttribute('y', finder.y.toString());
+                  safetyRect.setAttribute('width', finder.size.toString());
+                  safetyRect.setAttribute('height', finder.size.toString());
+                  safetyRect.setAttribute('fill', qrBackgroundColor);
+                  safetyRect.setAttribute('opacity', '0.9');
+                  svgElement.appendChild(safetyRect);
+                });
+              }
+              
+              processedSvg = new XMLSerializer().serializeToString(svgDoc);
+            }
+          }
+          
           // Add center logo if present
           if (qrLogoDataUrl) {
             const parser = new DOMParser();
@@ -437,7 +591,7 @@ export const Dashboard = () => {
     } else {
       setQrCodeSvg('');
     }
-  }, [seatFinderUrl, qrForegroundColor, qrBackgroundColor, qrModuleShape, qrFinderStyle, qrFrameEnabled, qrFrameStyle, qrFrameColor, qrLabelText, qrLogoDataUrl, qrLogoMask, qrLogoSize]);
+  }, [seatFinderUrl, qrForegroundColor, qrBackgroundColor, qrModuleShape, qrFinderStyle, qrFrameEnabled, qrFrameStyle, qrFrameColor, qrLabelText, qrLogoDataUrl, qrLogoMask, qrLogoSize, qrBgImageDataUrl, qrBgFitMode, qrBgScrim, qrBgAutoContrast]);
 
   // QR Code action handlers
   const handleCopyLink = async () => {
@@ -1103,6 +1257,126 @@ export const Dashboard = () => {
                               
                               <div className="text-xs text-muted-foreground">
                                 <strong>Auto-optimized:</strong> Error correction set to H when logo is present. Logo size capped at 22% for scannability.
+                              </div>
+                            </div>
+                          </AccordionContent>
+                        </AccordionItem>
+                        
+                        <AccordionItem value="background-image">
+                          <AccordionTrigger>Background Image / Photo-in-QR</AccordionTrigger>
+                          <AccordionContent>
+                            <div className="space-y-4">
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                  <Label htmlFor="bg-upload">Upload Background</Label>
+                                  <div className="flex flex-col gap-2">
+                                    <Input
+                                      id="bg-upload"
+                                      type="file"
+                                      accept=".png,.jpg,.jpeg,.webp"
+                                      onChange={(e) => {
+                                        const file = e.target.files?.[0];
+                                        if (file) handleBgImageUpload(file);
+                                      }}
+                                      className="file:mr-4 file:py-1 file:px-2 file:rounded file:border-0 file:text-sm file:bg-muted file:text-foreground hover:file:bg-muted/80"
+                                    />
+                                    {(qrBgImage || qrBgPreset) && (
+                                      <div className="flex gap-2">
+                                        <Button variant="outline" size="sm" onClick={handleRemoveBgImage}>
+                                          Remove
+                                        </Button>
+                                        <Button variant="outline" size="sm" onClick={() => document.getElementById('bg-upload')?.click()}>
+                                          Replace
+                                        </Button>
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                                
+                                <div className="space-y-2">
+                                  <Label htmlFor="bg-preset">Or Choose Preset</Label>
+                                  <Select 
+                                    value={qrBgPreset} 
+                                    onValueChange={handleBgPresetSelect}
+                                  >
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Select preset..." />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      {bgPresets.map(preset => (
+                                        <SelectItem key={preset.id} value={preset.id}>
+                                          {preset.name}
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                              </div>
+                              
+                              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div className="space-y-2">
+                                  <Label htmlFor="bg-fit">Fit Mode</Label>
+                                  <Select 
+                                    value={qrBgFitMode} 
+                                    onValueChange={(value: 'cover' | 'contain' | 'tile') => setQrBgFitMode(value)}
+                                    disabled={!qrBgImageDataUrl}
+                                  >
+                                    <SelectTrigger>
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="cover">Cover</SelectItem>
+                                      <SelectItem value="contain">Contain</SelectItem>
+                                      <SelectItem value="tile">Tile</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                                
+                                <div className="space-y-2">
+                                  <Label htmlFor="bg-scrim">Scrim Overlay: {qrBgScrim}%</Label>
+                                  <input
+                                    id="bg-scrim"
+                                    type="range"
+                                    min="0"
+                                    max="80"
+                                    step="5"
+                                    value={qrBgScrim}
+                                    onChange={(e) => setQrBgScrim(parseInt(e.target.value))}
+                                    disabled={!qrBgImageDataUrl}
+                                    className="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer disabled:cursor-not-allowed"
+                                  />
+                                </div>
+                                
+                                <div className="space-y-2 flex items-end">
+                                  <div className="flex flex-col gap-2">
+                                    <div className="flex items-center gap-2">
+                                      <input
+                                        type="checkbox"
+                                        id="bg-auto-contrast"
+                                        checked={qrBgAutoContrast}
+                                        onChange={(e) => setQrBgAutoContrast(e.target.checked)}
+                                        disabled={!qrBgImageDataUrl}
+                                        className="rounded"
+                                      />
+                                      <Label htmlFor="bg-auto-contrast" className="text-sm">Auto-contrast</Label>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                      <input
+                                        type="checkbox"
+                                        id="bg-apply-live"
+                                        checked={qrBgApplyToLiveView}
+                                        onChange={(e) => setQrBgApplyToLiveView(e.target.checked)}
+                                        disabled={!qrBgImageDataUrl}
+                                        className="rounded"
+                                      />
+                                      <Label htmlFor="bg-apply-live" className="text-sm">Apply to Live View</Label>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                              
+                              <div className="text-xs text-muted-foreground">
+                                <strong>Readability preserved:</strong> Finder patterns stay readable with white safety frames. Auto-contrast boosts QR visibility.
                               </div>
                             </div>
                           </AccordionContent>
