@@ -31,12 +31,14 @@ interface Guest {
   last_name: string;
   table_no: number | null;
   table_id: string | null;
-  who_is_display: string;
+  seat_no?: number | null;
   rsvp: string;
   dietary?: string;
   mobile?: string;
   email?: string;
-  notes?: string;
+  family_group?: string;
+  table_name?: string;
+  table_limit_seats?: number;
 }
 
 interface Event {
@@ -60,49 +62,72 @@ export const GuestLookup: React.FC = () => {
   const [activeTab, setActiveTab] = useState('search');
   const { toast } = useToast();
 
-  // Fetch event and guests data
+  // Fetch event and guests data using public RPC function
   useEffect(() => {
     const fetchEventData = async () => {
       if (!eventSlug) return;
 
       setLoading(true);
       try {
-        // Fetch event by slug
-        const { data: eventData, error: eventError } = await supabase
-          .from('events')
-          .select('id, name, date, venue, partner1_name, partner2_name')
-          .eq('slug', eventSlug)
-          .single();
+        // Use the new public RPC function that bypasses RLS
+        const { data: publicData, error: rpcError } = await supabase.rpc(
+          'get_public_event_with_data',
+          { event_slug: eventSlug }
+        );
 
-        if (eventError) {
-          console.error('Error fetching event:', eventError);
+        if (rpcError) {
+          console.error('Error fetching public event data:', rpcError);
           toast({
             title: "Event Not Found",
             description: "The requested event could not be found.",
             variant: "destructive",
           });
+          setEvent(null);
           return;
         }
 
-        setEvent(eventData);
-
-        // Fetch guests for this event
-        const { data: guestsData, error: guestsError } = await supabase
-          .from('guests')
-          .select('id, first_name, last_name, table_no, table_id, who_is_display, rsvp, dietary, mobile, email, notes')
-          .eq('event_id', eventData.id);
-
-        if (guestsError) {
-          console.error('Error fetching guests:', guestsError);
+        if (!publicData || publicData.length === 0) {
           toast({
-            title: "Error",
-            description: "Failed to load guest list.",
+            title: "Event Not Found",
+            description: "The requested event could not be found.",
             variant: "destructive",
           });
+          setEvent(null);
           return;
         }
 
-        setGuests(guestsData || []);
+        // Extract event data from first row
+        const firstRow = publicData[0];
+        const eventData = {
+          id: firstRow.event_id,
+          name: firstRow.event_name,
+          date: firstRow.event_date,
+          venue: firstRow.event_venue,
+          partner1_name: firstRow.partner1_name,
+          partner2_name: firstRow.partner2_name,
+        };
+        setEvent(eventData);
+
+        // Transform guest data
+        const transformedGuests = publicData
+          .filter(row => row.guest_id) // Only include rows with guest data
+          .map(row => ({
+            id: row.guest_id,
+            first_name: row.guest_first_name,
+            last_name: row.guest_last_name,
+            table_id: row.guest_table_id,
+            table_no: row.guest_table_no || row.table_no,
+            seat_no: row.guest_seat_no,
+            rsvp: row.guest_rsvp,
+            dietary: row.guest_dietary,
+            mobile: row.guest_mobile,
+            email: row.guest_email,
+            family_group: row.guest_family_group,
+            table_name: row.table_name,
+            table_limit_seats: row.table_limit_seats
+          }));
+
+        setGuests(transformedGuests);
       } catch (error) {
         console.error('Error fetching event data:', error);
         toast({
@@ -144,16 +169,36 @@ export const GuestLookup: React.FC = () => {
   };
 
   const refreshGuestData = async () => {
-    if (!event) return;
+    if (!eventSlug) return;
     
     try {
-      const { data: guestsData, error: guestsError } = await supabase
-        .from('guests')
-        .select('id, first_name, last_name, table_no, table_id, who_is_display, rsvp, dietary, mobile, email, notes')
-        .eq('event_id', event.id);
+      // Use the same public RPC function for refreshing data
+      const { data: publicData, error: rpcError } = await supabase.rpc(
+        'get_public_event_with_data',
+        { event_slug: eventSlug }
+      );
 
-      if (!guestsError && guestsData) {
-        setGuests(guestsData);
+      if (!rpcError && publicData) {
+        // Transform guest data
+        const transformedGuests = publicData
+          .filter(row => row.guest_id) // Only include rows with guest data
+          .map(row => ({
+            id: row.guest_id,
+            first_name: row.guest_first_name,
+            last_name: row.guest_last_name,
+            table_id: row.guest_table_id,
+            table_no: row.guest_table_no || row.table_no,
+            seat_no: row.guest_seat_no,
+            rsvp: row.guest_rsvp,
+            dietary: row.guest_dietary,
+            mobile: row.guest_mobile,
+            email: row.guest_email,
+            family_group: row.guest_family_group,
+            table_name: row.table_name,
+            table_limit_seats: row.table_limit_seats
+          }));
+
+        setGuests(transformedGuests);
       }
     } catch (error) {
       console.error('Error refreshing guest data:', error);

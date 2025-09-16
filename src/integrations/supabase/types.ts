@@ -437,6 +437,35 @@ export type Database = {
           venue: string
         }[]
       }
+      get_public_event_with_data: {
+        Args: { event_slug: string }
+        Returns: {
+          event_date: string
+          event_finish_time: string
+          event_id: string
+          event_name: string
+          event_start_time: string
+          event_venue: string
+          guest_dietary: string
+          guest_email: string
+          guest_family_group: string
+          guest_first_name: string
+          guest_id: string
+          guest_last_name: string
+          guest_mobile: string
+          guest_rsvp: string
+          guest_seat_no: number
+          guest_table_id: string
+          guest_table_no: number
+          partner1_name: string
+          partner2_name: string
+          table_id: string
+          table_limit_seats: number
+          table_name: string
+          table_no: number
+          table_notes: string
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
