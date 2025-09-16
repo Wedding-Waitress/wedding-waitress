@@ -1,37 +1,28 @@
-import React, { useRef, useEffect, useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import React, { useCallback, useEffect, useState } from 'react';
+import { useEvents } from '@/hooks/useEvents';
+import { useToast } from '@/hooks/use-toast';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Separator } from '@/components/ui/separator';
-import { Badge } from '@/components/ui/badge';
-import { 
-  Download, 
-  Copy, 
-  Palette, 
-  Settings2, 
-  RefreshCw,
-  Link,
-  Image as ImageIcon,
-  Square,
-  Circle
-} from 'lucide-react';
-import QRCode from 'qrcode';
-import { useQRCodeSettings } from '@/hooks/useQRCodeSettings';
-import { useEvents } from '@/hooks/useEvents';
-import { useToast } from '@/hooks/use-toast';
+import { Switch } from '@/components/ui/switch';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Download, Copy, QrCode as QrCodeIcon, Settings } from 'lucide-react';
+import { AdvancedQRGenerator } from '@/lib/advancedQRGenerator';
+import { AdvancedQRCustomizer } from './AdvancedQRCustomizer';
+import { useQRCodeSettings, QRCodeSettings } from '@/hooks/useQRCodeSettings';
 
 interface QRCodeMainCardProps {
   eventId: string;
 }
 
 export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
   const { settings, loading, saveSettings } = useQRCodeSettings(eventId);
   const { events } = useEvents();
   const { toast } = useToast();
   const [qrUrl, setQrUrl] = useState('');
+  const [qrDataUrl, setQrDataUrl] = useState<string>('');
 
   const selectedEvent = events.find(event => event.id === eventId);
 
@@ -42,27 +33,13 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
     }
   }, [selectedEvent]);
 
-  useEffect(() => {
-    if (qrUrl && settings && canvasRef.current) {
-      generateQRCode();
-    }
-  }, [qrUrl, settings]);
-
-  const generateQRCode = async () => {
-    if (!canvasRef.current || !qrUrl || !settings) return;
+  const generateQRCode = useCallback(async () => {
+    if (!qrUrl || !settings) return;
 
     try {
-      const options = {
-        width: 300,
-        margin: 2,
-        color: {
-          dark: settings.foreground_color || '#000000',
-          light: settings.background_color || '#ffffff',
-        },
-        errorCorrectionLevel: 'M' as const,
-      };
-
-      await QRCode.toCanvas(canvasRef.current, qrUrl, options);
+      const generator = new AdvancedQRGenerator(settings.output_size || 512);
+      const dataUrl = await generator.generate(qrUrl, settings);
+      setQrDataUrl(dataUrl);
     } catch (error) {
       console.error('Error generating QR code:', error);
       toast({
@@ -71,231 +48,225 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
         variant: "destructive",
       });
     }
-  };
+  }, [qrUrl, settings, toast]);
 
-  const handleDownload = (format: 'png' | 'svg' | 'jpg') => {
-    if (!canvasRef.current) return;
-
-    const canvas = canvasRef.current;
-    let link = document.createElement('a');
-    
-    if (format === 'png' || format === 'jpg') {
-      const mimeType = format === 'png' ? 'image/png' : 'image/jpeg';
-      link.download = `qr-code-${selectedEvent?.name || 'seating-chart'}.${format}`;
-      link.href = canvas.toDataURL(mimeType);
+  useEffect(() => {
+    if (qrUrl && settings) {
+      generateQRCode();
     }
-    
-    link.click();
+  }, [generateQRCode]);
+
+  const updateSettings = (newSettings: Partial<QRCodeSettings>) => {
+    if (settings) {
+      const updated = { ...settings, ...newSettings };
+      saveSettings(updated);
+    }
   };
 
-  const copyLink = () => {
-    navigator.clipboard.writeText(qrUrl);
+  const handleDownload = async (format: 'png' | 'jpg') => {
+    if (!qrDataUrl) return;
+
+    const link = document.createElement('a');
+    link.download = `qr-code-${selectedEvent?.name || 'event'}.${format}`;
+    
+    if (format === 'jpg') {
+      // Convert PNG to JPG
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d')!;
+      const img = new Image();
+      
+      img.onload = () => {
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0);
+        link.href = canvas.toDataURL('image/jpeg', 0.9);
+        link.click();
+      };
+      img.src = qrDataUrl;
+    } else {
+      link.href = qrDataUrl;
+      link.click();
+    }
+
     toast({
       title: "Success",
-      description: "QR code link copied to clipboard",
+      description: `QR code downloaded as ${format.toUpperCase()}`,
     });
   };
 
-  const handleSettingChange = (key: string, value: any) => {
-    if (!settings) return;
+  const copyLink = () => {
+    if (!qrUrl) return;
     
-    const newSettings = { ...settings, [key]: value };
-    saveSettings(newSettings);
+    navigator.clipboard.writeText(qrUrl);
+    toast({
+      title: "Success",
+      description: "Event link copied to clipboard",
+    });
   };
 
   if (loading) {
     return (
-      <Card className="p-8 text-center">
-        <div className="animate-spin w-8 h-8 border-2 border-primary border-t-transparent rounded-full mx-auto mb-4"></div>
-        <p className="text-muted-foreground">Loading QR code settings...</p>
+      <Card className="h-full">
+        <CardContent className="flex items-center justify-center h-64">
+          <div className="animate-spin w-8 h-8 border-2 border-primary border-t-transparent rounded-full"></div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (!settings || !selectedEvent) {
+    return (
+      <Card className="h-full">
+        <CardContent className="flex items-center justify-center h-64">
+          <p className="text-muted-foreground">No event selected or settings not found</p>
+        </CardContent>
       </Card>
     );
   }
 
   return (
-    <Card className="border-primary/20">
+    <Card className="h-full">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Settings2 className="w-5 h-5" />
-          QR Code Live Preview & Customization
+          <QrCodeIcon className="h-5 w-5" />
+          QR Code Generator
         </CardTitle>
-        <CardDescription>
-          Customize your QR code appearance and download in multiple formats
-        </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-6">
-        {/* Live Preview Section */}
-        <div className="grid md:grid-cols-2 gap-6">
-          {/* QR Code Preview */}
-          <div className="space-y-4">
-            <div className="text-center">
-              <h3 className="font-semibold mb-4">Live Preview</h3>
-              <div className="p-6 bg-muted/30 rounded-lg border-2 border-dashed border-muted-foreground/20">
-                <canvas 
-                  ref={canvasRef}
-                  className="mx-auto rounded-md"
-                  style={{ maxWidth: '100%', height: 'auto' }}
+      <CardContent className="space-y-4">
+        <Tabs defaultValue="preview" className="space-y-4">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="preview">Live Preview</TabsTrigger>
+            <TabsTrigger value="advanced">Advanced Editor</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="preview" className="space-y-4">
+            {/* Live Preview */}
+            <div className="border rounded-lg p-6 bg-muted/50 text-center">
+              <h3 className="text-sm font-medium mb-4">Live Preview</h3>
+              {qrDataUrl ? (
+                <img 
+                  src={qrDataUrl} 
+                  alt="QR Code Preview" 
+                  className="max-w-[280px] mx-auto border rounded-lg bg-white p-2"
                 />
-                {settings?.has_scan_text && (
-                  <div className="mt-3">
-                    <Badge variant="outline" className="text-sm">
-                      {settings.scan_text}
-                    </Badge>
+              ) : (
+                <div className="w-[280px] h-[280px] mx-auto border-2 border-dashed border-muted-foreground/25 rounded-lg flex items-center justify-center">
+                  <QrCodeIcon className="h-16 w-16 text-muted-foreground" />
+                </div>
+              )}
+              <p className="text-xs text-muted-foreground mt-2">
+                URL: {qrUrl || 'No event selected'}
+              </p>
+            </div>
+
+            {/* Quick Customization */}
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="foreground-color">Foreground</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      type="color"
+                      value={settings?.foreground_color || '#000000'}
+                      onChange={(e) => updateSettings({ foreground_color: e.target.value })}
+                      className="w-12 h-9 p-0 border-0"
+                    />
+                    <Input
+                      value={settings?.foreground_color || '#000000'}
+                      onChange={(e) => updateSettings({ foreground_color: e.target.value })}
+                      className="text-xs"
+                    />
                   </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="background-color">Background</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      type="color"
+                      value={settings?.background_color || '#ffffff'}
+                      onChange={(e) => updateSettings({ background_color: e.target.value })}
+                      className="w-12 h-9 p-0 border-0"
+                    />
+                    <Input
+                      value={settings?.background_color || '#ffffff'}
+                      onChange={(e) => updateSettings({ background_color: e.target.value })}
+                      className="text-xs"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="scan-text">Scan Text</Label>
+                  <Switch
+                    checked={settings?.has_scan_text || false}
+                    onCheckedChange={(checked) => updateSettings({ has_scan_text: checked })}
+                  />
+                </div>
+                {settings?.has_scan_text && (
+                  <Input
+                    placeholder="SCAN ME"
+                    value={settings?.scan_text || ''}
+                    onChange={(e) => updateSettings({ scan_text: e.target.value })}
+                  />
                 )}
               </div>
             </div>
 
             {/* Download Options */}
-            <div className="flex flex-wrap gap-2 justify-center">
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => handleDownload('png')}
-              >
-                <Download className="w-4 h-4 mr-1" />
-                PNG
-              </Button>
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => handleDownload('jpg')}
-              >
-                <Download className="w-4 h-4 mr-1" />
-                JPG
-              </Button>
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={copyLink}
-              >
-                <Copy className="w-4 h-4 mr-1" />
-                Copy Link
-              </Button>
-            </div>
-
-            {/* QR URL Display */}
-            <div className="text-center">
-              <Label className="text-xs text-muted-foreground">QR Code URL:</Label>
-              <div className="mt-1 p-2 bg-muted rounded text-xs font-mono break-all">
-                {qrUrl}
-              </div>
-            </div>
-          </div>
-
-          {/* Customization Panel */}
-          <div className="space-y-4">
-            <h3 className="font-semibold">Customization Options</h3>
-            
-            {/* Shape Selection */}
-            <div className="space-y-2">
-              <Label>QR Code Shape</Label>
-              <Select 
-                value={settings?.shape || 'square'} 
-                onValueChange={(value) => handleSettingChange('shape', value)}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="square">
-                    <div className="flex items-center gap-2">
-                      <Square className="w-4 h-4" />
-                      Square
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="round">
-                    <div className="flex items-center gap-2">
-                      <Circle className="w-4 h-4" />
-                      Round
-                    </div>
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <Separator />
-
-            {/* Color Customization */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Foreground Color</Label>
-                <div className="flex items-center gap-2">
-                  <Input
-                    type="color"
-                    value={settings?.foreground_color || '#000000'}
-                    onChange={(e) => handleSettingChange('foreground_color', e.target.value)}
-                    className="w-12 h-8 p-1 border rounded"
-                  />
-                  <Input
-                    type="text"
-                    value={settings?.foreground_color || '#000000'}
-                    onChange={(e) => handleSettingChange('foreground_color', e.target.value)}
-                    className="flex-1 text-xs font-mono"
-                  />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label>Background Color</Label>
-                <div className="flex items-center gap-2">
-                  <Input
-                    type="color"
-                    value={settings?.background_color || '#ffffff'}
-                    onChange={(e) => handleSettingChange('background_color', e.target.value)}
-                    className="w-12 h-8 p-1 border rounded"
-                  />
-                  <Input
-                    type="text"
-                    value={settings?.background_color || '#ffffff'}
-                    onChange={(e) => handleSettingChange('background_color', e.target.value)}
-                    className="flex-1 text-xs font-mono"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <Separator />
-
-            {/* Scan Text Options */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label>Show Scan Text</Label>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleSettingChange('has_scan_text', !settings?.has_scan_text)}
+            <div className="space-y-3">
+              <div className="flex gap-2">
+                <Button 
+                  onClick={() => handleDownload('png')} 
+                  className="flex-1"
+                  disabled={!qrDataUrl}
                 >
-                  {settings?.has_scan_text ? 'Hide' : 'Show'}
+                  <Download className="h-4 w-4 mr-2" />
+                  PNG
+                </Button>
+                <Button 
+                  onClick={() => handleDownload('jpg')} 
+                  variant="outline" 
+                  className="flex-1"
+                  disabled={!qrDataUrl}
+                >
+                  <Download className="h-4 w-4 mr-2" />
+                  JPG
                 </Button>
               </div>
-              {settings?.has_scan_text && (
-                <Input
-                  value={settings.scan_text || 'SCAN ME'}
-                  onChange={(e) => handleSettingChange('scan_text', e.target.value)}
-                  placeholder="Enter scan text..."
-                />
-              )}
+              
+              <Button 
+                onClick={copyLink} 
+                variant="outline" 
+                className="w-full"
+                disabled={!selectedEvent}
+              >
+                <Copy className="h-4 w-4 mr-2" />
+                Copy Event Link
+              </Button>
             </div>
+          </TabsContent>
 
-            <Separator />
-
-            {/* Advanced Options */}
-            <div className="space-y-2">
-              <Label className="text-sm text-muted-foreground">Advanced Options</Label>
-              <div className="grid grid-cols-2 gap-2">
-                <Button variant="outline" size="sm" disabled>
-                  <ImageIcon className="w-4 h-4 mr-1" />
-                  Add Logo
-                </Button>
-                <Button variant="outline" size="sm" disabled>
-                  <Palette className="w-4 h-4 mr-1" />
-                  Patterns
-                </Button>
-              </div>
-              <p className="text-xs text-muted-foreground">More customization options coming soon</p>
-            </div>
-          </div>
-        </div>
+          <TabsContent value="advanced" className="space-y-4">
+            {settings && (
+              <AdvancedQRCustomizer
+                eventId={eventId}
+                settings={settings}
+                onSettingsChange={updateSettings}
+                onSave={async () => {
+                  const success = await saveSettings(settings);
+                  if (success) {
+                    generateQRCode();
+                  }
+                }}
+              />
+            )}
+          </TabsContent>
+        </Tabs>
       </CardContent>
     </Card>
   );

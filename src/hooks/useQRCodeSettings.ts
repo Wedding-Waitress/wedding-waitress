@@ -8,6 +8,7 @@ export interface QRCodeSettings {
   user_id: string;
   shape: string;
   pattern: string;
+  pattern_style: string;
   background_color: string;
   foreground_color: string;
   background_image_url?: string;
@@ -15,6 +16,20 @@ export interface QRCodeSettings {
   corner_style: string;
   has_scan_text: boolean;
   scan_text: string;
+  gradient_type: string;
+  gradient_colors: any[];
+  border_style: string;
+  border_width: number;
+  border_color: string;
+  shadow_enabled: boolean;
+  shadow_blur: number;
+  shadow_color: string;
+  center_image_size: number;
+  background_opacity: number;
+  output_size: number;
+  output_format: string;
+  color_palette: string;
+  advanced_settings: any;
   created_at?: string;
   updated_at?: string;
 }
@@ -49,18 +64,38 @@ export const useQRCodeSettings = (eventId: string | null) => {
       }
 
       if (data) {
-        setSettings(data);
+        // Ensure gradient_colors is always an array
+        const processedData = {
+          ...data,
+          gradient_colors: Array.isArray(data.gradient_colors) ? data.gradient_colors : []
+        };
+        setSettings(processedData);
       } else {
         // Create default settings if none exist
         const defaultSettings: Partial<QRCodeSettings> = {
           event_id: eventId,
           shape: 'square',
           pattern: 'basic',
+          pattern_style: 'basic',
           background_color: '#ffffff',
           foreground_color: '#000000',
           corner_style: 'square',
           has_scan_text: true,
           scan_text: 'SCAN ME',
+          gradient_type: 'none',
+          gradient_colors: [],
+          border_style: 'none',
+          border_width: 0,
+          border_color: '#000000',
+          shadow_enabled: false,
+          shadow_blur: 10,
+          shadow_color: '#00000033',
+          center_image_size: 80,
+          background_opacity: 1.0,
+          output_size: 512,
+          output_format: 'png',
+          color_palette: 'default',
+          advanced_settings: {},
         };
         setSettings(defaultSettings as QRCodeSettings);
       }

@@ -237,49 +237,94 @@ export type Database = {
       }
       qr_code_settings: {
         Row: {
+          advanced_settings: Json | null
           background_color: string | null
           background_image_url: string | null
+          background_opacity: number | null
+          border_color: string | null
+          border_style: string | null
+          border_width: number | null
+          center_image_size: number | null
           center_image_url: string | null
+          color_palette: string | null
           corner_style: string | null
           created_at: string
           event_id: string
           foreground_color: string | null
+          gradient_colors: Json | null
+          gradient_type: string | null
           has_scan_text: boolean | null
           id: string
+          output_format: string | null
+          output_size: number | null
           pattern: string | null
+          pattern_style: string | null
           scan_text: string | null
+          shadow_blur: number | null
+          shadow_color: string | null
+          shadow_enabled: boolean | null
           shape: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
+          advanced_settings?: Json | null
           background_color?: string | null
           background_image_url?: string | null
+          background_opacity?: number | null
+          border_color?: string | null
+          border_style?: string | null
+          border_width?: number | null
+          center_image_size?: number | null
           center_image_url?: string | null
+          color_palette?: string | null
           corner_style?: string | null
           created_at?: string
           event_id: string
           foreground_color?: string | null
+          gradient_colors?: Json | null
+          gradient_type?: string | null
           has_scan_text?: boolean | null
           id?: string
+          output_format?: string | null
+          output_size?: number | null
           pattern?: string | null
+          pattern_style?: string | null
           scan_text?: string | null
+          shadow_blur?: number | null
+          shadow_color?: string | null
+          shadow_enabled?: boolean | null
           shape?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
+          advanced_settings?: Json | null
           background_color?: string | null
           background_image_url?: string | null
+          background_opacity?: number | null
+          border_color?: string | null
+          border_style?: string | null
+          border_width?: number | null
+          center_image_size?: number | null
           center_image_url?: string | null
+          color_palette?: string | null
           corner_style?: string | null
           created_at?: string
           event_id?: string
           foreground_color?: string | null
+          gradient_colors?: Json | null
+          gradient_type?: string | null
           has_scan_text?: boolean | null
           id?: string
+          output_format?: string | null
+          output_size?: number | null
           pattern?: string | null
+          pattern_style?: string | null
           scan_text?: string | null
+          shadow_blur?: number | null
+          shadow_color?: string | null
+          shadow_enabled?: boolean | null
           shape?: string | null
           updated_at?: string
           user_id?: string
