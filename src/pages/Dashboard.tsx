@@ -90,6 +90,14 @@ export const Dashboard = () => {
     large: 'pass' | 'warn' | 'fail' | 'testing'
   }>({ small: 'testing', medium: 'testing', large: 'testing' });
   const [isTestingScannability, setIsTestingScannability] = useState<boolean>(false);
+  const [showLivePreview, setShowLivePreview] = useState<boolean>(false);
+  const [previewDevice, setPreviewDevice] = useState<'phone' | 'tablet' | 'desktop'>('phone');
+  const [previewOrientation, setPreviewOrientation] = useState<'portrait' | 'landscape'>('portrait');
+  const [previewLanguage, setPreviewLanguage] = useState<'en' | 'es' | 'fr'>('en');
+  const [previewFontSize, setPreviewFontSize] = useState<'sm' | 'md' | 'lg' | 'xl'>('md');
+  const [previewHighContrast, setPreviewHighContrast] = useState<boolean>(false);
+  const [previewSearch, setPreviewSearch] = useState<string>('');
+  const [previewResults, setPreviewResults] = useState<any[]>([]);
   const { 
     events, 
     loading: eventsLoading, 
@@ -366,6 +374,71 @@ export const Dashboard = () => {
       return () => clearTimeout(timer);
     }
   }, [qrCodeSvg, seatFinderUrl]);
+
+  // Handle preview search
+  useEffect(() => {
+    if (previewSearch.length >= 2 && qrGuests.length > 0) {
+      const filtered = qrGuests.filter(guest => 
+        `${guest.first_name} ${guest.last_name}`.toLowerCase().includes(previewSearch.toLowerCase()) ||
+        guest.first_name.toLowerCase().includes(previewSearch.toLowerCase()) ||
+        (guest.last_name && guest.last_name.toLowerCase().includes(previewSearch.toLowerCase()))
+      );
+      setPreviewResults(filtered);
+    } else {
+      setPreviewResults([]);
+    }
+  }, [previewSearch, qrGuests]);
+
+  // Get device frame dimensions
+  const getDeviceFrame = () => {
+    const orientation = previewOrientation;
+    switch (previewDevice) {
+      case 'phone':
+        return orientation === 'portrait' 
+          ? { width: '375px', height: '667px' }
+          : { width: '667px', height: '375px' };
+      case 'tablet':
+        return orientation === 'portrait'
+          ? { width: '768px', height: '1024px' }
+          : { width: '1024px', height: '768px' };
+      case 'desktop':
+        return { width: '1200px', height: '800px' };
+      default:
+        return { width: '375px', height: '667px' };
+    }
+  };
+
+  const handleOpenNewWindow = () => {
+    const newWindow = window.open('', '_blank', 'width=800,height=600');
+    if (newWindow) {
+      newWindow.document.write(`
+        <html>
+          <head>
+            <title>Live Preview - ${selectedQrEvent?.name || 'Event'}</title>
+            <style>
+              body { margin: 0; font-family: system-ui, sans-serif; }
+              .container { padding: 20px; max-width: 600px; margin: 0 auto; }
+              .search { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 20px; }
+              .result { padding: 12px; border: 1px solid #eee; border-radius: 6px; margin-bottom: 8px; }
+              .name { font-weight: bold; margin-bottom: 4px; }
+              .table { color: #666; font-size: 14px; }
+            </style>
+          </head>
+          <body>
+            <div class="container">
+              <h2>Find Your Seat</h2>
+              <input class="search" placeholder="Enter your name..." readonly />
+              <div class="result">
+                <div class="name">John Smith</div>
+                <div class="table">Table 5, Seat 3</div>
+              </div>
+            </div>
+          </body>
+        </html>
+      `);
+      newWindow.document.close();
+    }
+  };
 
   // Check contrast between two colors
   const getContrastRatio = (color1: string, color2: string): number => {
@@ -1609,13 +1682,22 @@ export const Dashboard = () => {
                   </div>
                   
                   {selectedQrEvent ? (
-                    <div className="text-center py-4">
-                      <CardDescription>
-                        {qrTablesLoading || qrGuestsLoading ? 
-                          "Loading preview data..." : 
-                          `Live preview for ${selectedQrEvent.name}`
-                        }
-                      </CardDescription>
+                    <div className="space-y-4">
+                      <div className="text-center py-4">
+                        <CardDescription className="mb-4">
+                          {qrTablesLoading || qrGuestsLoading ? 
+                            "Loading preview data..." : 
+                            `Live preview for ${selectedQrEvent.name}`
+                          }
+                        </CardDescription>
+                        <Button 
+                          variant="gradient" 
+                          onClick={() => setShowLivePreview(true)}
+                          disabled={qrTablesLoading || qrGuestsLoading}
+                        >
+                          Open Live Preview
+                        </Button>
+                      </div>
                     </div>
                   ) : (
                     <CardDescription className="text-center py-4">
@@ -1724,6 +1806,214 @@ export const Dashboard = () => {
         editingTable={editingTable}
         existingTables={tables}
       />
+
+      {/* Live Preview Modal */}
+      {showLivePreview && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-background rounded-lg shadow-xl w-full max-w-6xl h-full max-h-[90vh] flex flex-col">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-4 border-b">
+              <h2 className="text-lg font-semibold">Live Preview - {selectedQrEvent?.name}</h2>
+              <Button variant="ghost" size="sm" onClick={() => setShowLivePreview(false)}>
+                ×
+              </Button>
+            </div>
+            
+            {/* Admin Controls */}
+            <div className="p-4 border-b bg-muted/30">
+              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 text-sm">
+                <div className="space-y-1">
+                  <Label>Device</Label>
+                  <Select value={previewDevice} onValueChange={(value: 'phone' | 'tablet' | 'desktop') => setPreviewDevice(value)}>
+                    <SelectTrigger className="h-8">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="phone">Phone</SelectItem>
+                      <SelectItem value="tablet">Tablet</SelectItem>
+                      <SelectItem value="desktop">Desktop</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="space-y-1">
+                  <Label>Orientation</Label>
+                  <Select value={previewOrientation} onValueChange={(value: 'portrait' | 'landscape') => setPreviewOrientation(value)} disabled={previewDevice === 'desktop'}>
+                    <SelectTrigger className="h-8">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="portrait">Portrait</SelectItem>
+                      <SelectItem value="landscape">Landscape</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="space-y-1">
+                  <Label>Language</Label>
+                  <Select value={previewLanguage} onValueChange={(value: 'en' | 'es' | 'fr') => setPreviewLanguage(value)}>
+                    <SelectTrigger className="h-8">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="en">English</SelectItem>
+                      <SelectItem value="es">Español</SelectItem>
+                      <SelectItem value="fr">Français</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="space-y-1">
+                  <Label>Font Size</Label>
+                  <Select value={previewFontSize} onValueChange={(value: 'sm' | 'md' | 'lg' | 'xl') => setPreviewFontSize(value)}>
+                    <SelectTrigger className="h-8">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="sm">Small</SelectItem>
+                      <SelectItem value="md">Medium</SelectItem>
+                      <SelectItem value="lg">Large</SelectItem>
+                      <SelectItem value="xl">X-Large</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="space-y-1">
+                  <Label>High Contrast</Label>
+                  <div className="flex items-center space-x-2 h-8">
+                    <input
+                      type="checkbox"
+                      id="high-contrast"
+                      checked={previewHighContrast}
+                      onChange={(e) => setPreviewHighContrast(e.target.checked)}
+                      className="rounded"
+                    />
+                    <Label htmlFor="high-contrast" className="text-xs">Enable</Label>
+                  </div>
+                </div>
+                
+                <div className="space-y-1">
+                  <Label>Actions</Label>
+                  <Button variant="outline" size="sm" onClick={handleOpenNewWindow} className="h-8 text-xs">
+                    New Window
+                  </Button>
+                </div>
+              </div>
+            </div>
+            
+            {/* Preview Content */}
+            <div className="flex-1 p-4 flex items-center justify-center bg-gray-100">
+              <div 
+                className={`bg-white rounded-lg shadow-lg overflow-hidden transition-all duration-300 ${
+                  previewDevice === 'phone' ? 'border-4 border-gray-800' : 
+                  previewDevice === 'tablet' ? 'border-2 border-gray-600' : 
+                  'border border-gray-300'
+                }`}
+                style={getDeviceFrame()}
+              >
+                {/* Guest View Content */}
+                <div 
+                  className={`h-full w-full overflow-y-auto ${
+                    previewFontSize === 'sm' ? 'text-sm' : 
+                    previewFontSize === 'lg' ? 'text-lg' : 
+                    previewFontSize === 'xl' ? 'text-xl' : 'text-base'
+                  } ${
+                    previewHighContrast ? 'bg-black text-white' : 'bg-white text-black'
+                  }`}
+                  style={{
+                    backgroundImage: qrBgApplyToLiveView && qrBgImageDataUrl ? `url(${qrBgImageDataUrl})` : 'none',
+                    backgroundSize: qrBgFitMode === 'cover' ? 'cover' : qrBgFitMode === 'contain' ? 'contain' : 'auto',
+                    backgroundRepeat: qrBgFitMode === 'tile' ? 'repeat' : 'no-repeat',
+                    backgroundPosition: 'center'
+                  }}
+                >
+                  {/* Overlay for better text readability if background image is used */}
+                  {qrBgApplyToLiveView && qrBgImageDataUrl && (
+                    <div className={`absolute inset-0 ${previewHighContrast ? 'bg-black/80' : 'bg-white/90'}`} />
+                  )}
+                  
+                  <div className="relative z-10 p-6">
+                    {/* Title */}
+                    <h1 className="text-2xl font-bold text-center mb-6">
+                      {previewLanguage === 'es' ? 'Encuentra tu Mesa' : 
+                       previewLanguage === 'fr' ? 'Trouvez Votre Table' : 
+                       'Find Your Seat'}
+                    </h1>
+                    
+                    {/* Event Name */}
+                    <div className="text-center mb-6 text-muted-foreground">
+                      {selectedQrEvent?.name}
+                    </div>
+                    
+                    {/* Search Input */}
+                    <div className="mb-6">
+                      <Input
+                        type="text"
+                        placeholder={
+                          previewLanguage === 'es' ? 'Ingresa tu nombre (mín. 2 caracteres)...' :
+                          previewLanguage === 'fr' ? 'Entrez votre nom (min. 2 caractères)...' :
+                          'Enter your name (min. 2 characters)...'
+                        }
+                        value={previewSearch}
+                        onChange={(e) => setPreviewSearch(e.target.value)}
+                        className={`w-full ${previewHighContrast ? 'bg-gray-800 border-gray-600 text-white' : ''}`}
+                      />
+                    </div>
+                    
+                    {/* Search Results */}
+                    {previewSearch.length >= 2 && (
+                      <div className="space-y-2">
+                        {previewResults.length > 0 ? (
+                          previewResults.map((guest) => {
+                            const table = qrTables.find(t => t.id === guest.table_id);
+                            return (
+                              <div 
+                                key={guest.id} 
+                                className={`p-4 rounded-lg border ${
+                                  previewHighContrast ? 'bg-gray-800 border-gray-600' : 'bg-gray-50 border-gray-200'
+                                }`}
+                              >
+                                <div className="font-semibold">
+                                  {guest.first_name} {guest.last_name}
+                                </div>
+                                <div className="text-sm text-muted-foreground">
+                                  {table ? (
+                                    previewLanguage === 'es' ? `Mesa ${table.table_no || table.name}, Asiento ${guest.seat_no || 'N/A'}` :
+                                    previewLanguage === 'fr' ? `Table ${table.table_no || table.name}, Siège ${guest.seat_no || 'N/A'}` :
+                                    `Table ${table.table_no || table.name}, Seat ${guest.seat_no || 'N/A'}`
+                                  ) : (
+                                    previewLanguage === 'es' ? 'Mesa no asignada' :
+                                    previewLanguage === 'fr' ? 'Table non assignée' :
+                                    'Table not assigned'
+                                  )}
+                                </div>
+                              </div>
+                            );
+                          })
+                        ) : (
+                          <div className={`text-center py-8 text-muted-foreground`}>
+                            {previewLanguage === 'es' ? 'No se encontraron invitados con ese nombre' :
+                             previewLanguage === 'fr' ? 'Aucun invité trouvé avec ce nom' :
+                             'No guests found with that name'}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                    
+                    {previewSearch.length > 0 && previewSearch.length < 2 && (
+                      <div className="text-center py-4 text-muted-foreground text-sm">
+                        {previewLanguage === 'es' ? 'Ingresa al menos 2 caracteres para buscar' :
+                         previewLanguage === 'fr' ? 'Entrez au moins 2 caractères pour rechercher' :
+                         'Enter at least 2 characters to search'}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
