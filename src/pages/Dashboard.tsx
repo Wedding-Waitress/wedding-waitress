@@ -1146,7 +1146,7 @@ export const Dashboard = () => {
             </Card>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Card className="p-6">
+              <Card className="p-6" data-testid="qr-generator-card">
                 <div className="flex items-center justify-between mb-4">
                   <CardTitle className="text-lg">QR Code Seating Chart</CardTitle>
                   <div className="flex items-center gap-1 text-xs text-muted-foreground">
@@ -1205,6 +1205,30 @@ export const Dashboard = () => {
                             </div>
                           )}
                         </div>
+                      </div>
+                      
+                      {/* Download buttons */}
+                      <div className="flex flex-wrap gap-2 pt-2 border-t">
+                        <Button variant="outline" size="sm" onClick={handleCopyLink}>
+                          <Copy className="w-3 h-3 mr-1" />
+                          Copy Link
+                        </Button>
+                        <Button variant="outline" size="sm" onClick={handleDownloadPng}>
+                          <Download className="w-3 h-3 mr-1" />
+                          Download PNG
+                        </Button>
+                        <Button variant="outline" size="sm" onClick={handleDownloadSvg}>
+                          <Download className="w-3 h-3 mr-1" />
+                          Download SVG
+                        </Button>
+                        <Button variant="outline" size="sm" onClick={handleDownloadJpg}>
+                          <Download className="w-3 h-3 mr-1" />
+                          Download JPG
+                        </Button>
+                        <Button variant="outline" size="sm" onClick={handlePrint}>
+                          <Printer className="w-3 h-3 mr-1" />
+                          Print
+                        </Button>
                       </div>
                       
                       {/* Scannability Meter */}
