@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { Calendar, QrCode, Download, Settings, Eye } from 'lucide-react';
+import { Calendar, QrCode, Download, Settings, Eye, ExternalLink, Copy } from 'lucide-react';
 import { useEvents } from '@/hooks/useEvents';
+import { useToast } from '@/hooks/use-toast';
 import { QRCodeMainCard } from './QRCodeMainCard';
 import { QRCodeFeatureGrid } from './QRCodeFeatureGrid';
 
@@ -18,6 +19,7 @@ export const QRCodeSeatingChart: React.FC<QRCodeSeatingChartProps> = ({
 }) => {
   const { events, loading: eventsLoading } = useEvents();
   const [localSelectedEventId, setLocalSelectedEventId] = useState<string | null>(selectedEventId || null);
+  const { toast } = useToast();
 
   // Auto-select first event when available
   useEffect(() => {
@@ -33,6 +35,32 @@ export const QRCodeSeatingChart: React.FC<QRCodeSeatingChartProps> = ({
   const handleEventSelect = (eventId: string) => {
     setLocalSelectedEventId(eventId);
     onEventSelect?.(eventId);
+  };
+
+  const handleLiveView = () => {
+    if (selectedEvent?.slug) {
+      const url = `/s/${selectedEvent.slug}`;
+      window.open(url, '_blank');
+    }
+  };
+
+  const handleDownloadLink = async () => {
+    if (selectedEvent?.slug) {
+      const url = `${window.location.origin}/s/${selectedEvent.slug}`;
+      try {
+        await navigator.clipboard.writeText(url);
+        toast({
+          title: "Link copied!",
+          description: "The guest lookup link has been copied to your clipboard.",
+        });
+      } catch (error) {
+        toast({
+          title: "Copy failed",
+          description: "Unable to copy link. Please try again.",
+          variant: "destructive",
+        });
+      }
+    }
   };
 
   const currentEventId = selectedEventId || localSelectedEventId;
@@ -96,14 +124,24 @@ export const QRCodeSeatingChart: React.FC<QRCodeSeatingChartProps> = ({
                   </p>
                 </div>
                 <div className="flex space-x-2">
-                  <Button variant="outline" size="sm">
-                    <Eye className="w-4 h-4 mr-2" />
-                    Preview
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={handleLiveView}
+                    disabled={!selectedEvent?.slug}
+                  >
+                    <ExternalLink className="w-4 h-4 mr-2" />
+                    Live View
                   </Button>
-              <Button variant="default" size="sm">
-                <Download className="w-4 h-4 mr-2" />
-                Download
-              </Button>
+                  <Button 
+                    variant="default" 
+                    size="sm"
+                    onClick={handleDownloadLink}
+                    disabled={!selectedEvent?.slug}
+                  >
+                    <Copy className="w-4 h-4 mr-2" />
+                    Download Link
+                  </Button>
                 </div>
               </div>
             </div>
