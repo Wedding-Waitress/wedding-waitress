@@ -386,6 +386,7 @@ export type Database = {
           name: string
           partner1_name: string
           partner2_name: string
+          slug: string
           start_time: string
           user_id: string
           venue: string

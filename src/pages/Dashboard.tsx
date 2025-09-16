@@ -36,6 +36,7 @@ import { useTables, TableWithGuestCount } from '@/hooks/useTables';
 import { useRealtimeGuests } from '@/hooks/useRealtimeGuests';
 import { useRealtimeTables } from '@/hooks/useRealtimeTables';
 import { useProfile } from '@/hooks/useProfile';
+import { QRCodeSeatingChart } from '@/components/Dashboard/QRCode/QRCodeSeatingChart';
 
 export const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('dashboard');

@@ -6,6 +6,7 @@ import { Landing } from "./pages/Landing";
 import { Dashboard } from "./pages/Dashboard";
 import { AdminLogin } from "./pages/AdminLogin";
 import NotFound from "./pages/NotFound";
+import { GuestLookup } from "./pages/GuestLookup";
 
 const queryClient = new QueryClient();
 
@@ -18,6 +19,7 @@ const App = () => (
         <Route path="/" element={<Landing />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/admin" element={<AdminLogin />} />
+        <Route path="/s/:eventSlug" element={<GuestLookup />} />
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<NotFound />} />
       </Routes>
