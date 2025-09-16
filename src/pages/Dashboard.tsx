@@ -386,17 +386,35 @@ export const Dashboard = () => {
       
       case 'qr-code':
         return (
-          <Card className="p-8 text-center">
-            <QrCode className="w-16 h-16 mx-auto text-primary mb-4" />
-            <CardTitle className="mb-2">QR Code Management</CardTitle>
-            <CardDescription className="mb-6">
-              Generate QR codes for guest check-ins and table assignments
-            </CardDescription>
-            <Button variant="gradient">
-              <QrCode className="w-4 h-4 mr-2" />
-              Generate QR Codes
-            </Button>
-          </Card>
+          <div className="space-y-6">
+            <Card className="p-8 text-center">
+              <QrCode className="w-16 h-16 mx-auto text-primary mb-4" />
+              <CardTitle className="mb-2">QR Code Management</CardTitle>
+              <CardDescription className="mb-6">
+                Generate QR codes for guest check-ins and table assignments
+              </CardDescription>
+              <Button variant="gradient">
+                <QrCode className="w-4 h-4 mr-2" />
+                Generate QR Codes
+              </Button>
+            </Card>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Card className="p-8 text-center">
+                <CardTitle className="mb-2">QR Code Seating Chart</CardTitle>
+                <CardDescription className="mb-6">
+                  Content placeholder for QR Code Seating Chart
+                </CardDescription>
+              </Card>
+              
+              <Card className="p-8 text-center">
+                <CardTitle className="mb-2">Live View (Preview)</CardTitle>
+                <CardDescription className="mb-6">
+                  Content placeholder for Live View Preview
+                </CardDescription>
+              </Card>
+            </div>
+          </div>
         );
       
       case 'planner':
