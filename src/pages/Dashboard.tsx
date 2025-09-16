@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import QRCode from 'qrcode';
 import { StatsBar } from "@/components/Dashboard/StatsBar";
 import { DashboardSidebar } from "@/components/Dashboard/DashboardSidebar";
 import { MyEventsPage } from "@/components/Dashboard/MyEventsPage";
@@ -30,24 +29,17 @@ import {
   Heart,
   Settings,
   TrendingUp,
-  Plus,
-  Copy,
-  Download,
-  Printer
+  Plus
 } from "lucide-react";
 import { useEvents } from '@/hooks/useEvents';
 import { useTables, TableWithGuestCount } from '@/hooks/useTables';
 import { useRealtimeGuests } from '@/hooks/useRealtimeGuests';
 import { useRealtimeTables } from '@/hooks/useRealtimeTables';
 import { useProfile } from '@/hooks/useProfile';
-import { useGuests } from '@/hooks/useGuests';
 
 export const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
-  const [qrChartEventId, setQrChartEventId] = useState<string | null>(null);
-  const [qrChartLastSync, setQrChartLastSync] = useState<Date | null>(null);
-  const [qrCodeSVG, setQrCodeSVG] = useState<string>('');
   const [showCreateTableModal, setShowCreateTableModal] = useState(false);
   const [editingTable, setEditingTable] = useState<TableWithGuestCount | null>(null);
   const { 
@@ -84,168 +76,11 @@ export const Dashboard = () => {
     onRefreshTables: fetchTables
   });
 
-  // QR Chart specific guest management
-  const { 
-    guests: qrChartGuests, 
-    loading: qrChartGuestsLoading, 
-    fetchGuests: fetchQrChartGuests 
-  } = useGuests(qrChartEventId);
-
   // Get selected event for tables
   const selectedEvent = selectedEventId ? events.find(e => e.id === selectedEventId) : null;
   
   // Get selected event for My Events countdown (use events active event)
   const selectedCountdownEvent = eventsActiveEventId ? events.find(e => e.id === eventsActiveEventId) : null;
-
-  // Get QR Chart selected event
-  const qrChartSelectedEvent = qrChartEventId ? events.find(e => e.id === qrChartEventId) : null;
-
-  // Utility function to generate event slug
-  const generateEventSlug = (eventName: string): string => {
-    return eventName
-      .toLowerCase()
-      .replace(/[^a-z0-9\s-]/g, '') // Remove special characters
-      .replace(/\s+/g, '-') // Replace spaces with hyphens
-      .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
-      .trim()
-      .replace(/^-|-$/g, ''); // Remove leading/trailing hyphens
-  };
-
-  // Generate Seat-Finder URL
-  const generateSeatFinderUrl = (event: any): string => {
-    const slug = generateEventSlug(event.name);
-    return `${window.location.origin}/s/${slug}`;
-  };
-
-  // Generate QR Code SVG
-  const generateQRCode = async (url: string) => {
-    try {
-      const svgString = await QRCode.toString(url, {
-        type: 'svg',
-        errorCorrectionLevel: 'H',
-        margin: 4,
-        color: {
-          dark: '#000000',
-          light: '#FFFFFF'
-        },
-        width: 256
-      });
-      setQrCodeSVG(svgString);
-    } catch (error) {
-      console.error('Error generating QR code:', error);
-    }
-  };
-
-  // Download functions
-  const downloadQRCode = async (format: 'png' | 'svg' | 'jpg') => {
-    if (!qrChartSelectedEvent) return;
-
-    const url = generateSeatFinderUrl(qrChartSelectedEvent);
-    const filename = `seat-finder-${generateEventSlug(qrChartSelectedEvent.name)}`;
-
-    if (format === 'svg') {
-      // Download SVG directly
-      const blob = new Blob([qrCodeSVG], { type: 'image/svg+xml' });
-      const downloadUrl = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = downloadUrl;
-      link.download = `${filename}.svg`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(downloadUrl);
-    } else {
-      // Generate canvas for PNG/JPG
-      try {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        canvas.width = 512;
-        canvas.height = 512;
-
-        // Generate QR code as data URL
-        const dataUrl = await QRCode.toDataURL(url, {
-          errorCorrectionLevel: 'H',
-          margin: 4,
-          color: {
-            dark: '#000000',
-            light: '#FFFFFF'
-          },
-          width: 512
-        });
-
-        const img = new Image();
-        img.onload = () => {
-          if (ctx) {
-            if (format === 'jpg') {
-              // Set white background for JPG
-              ctx.fillStyle = '#FFFFFF';
-              ctx.fillRect(0, 0, canvas.width, canvas.height);
-            }
-            ctx.drawImage(img, 0, 0);
-
-            canvas.toBlob((blob) => {
-              if (blob) {
-                const downloadUrl = URL.createObjectURL(blob);
-                const link = document.createElement('a');
-                link.href = downloadUrl;
-                link.download = `${filename}.${format}`;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                URL.revokeObjectURL(downloadUrl);
-              }
-            }, format === 'jpg' ? 'image/jpeg' : 'image/png');
-          }
-        };
-        img.src = dataUrl;
-      } catch (error) {
-        console.error('Error downloading QR code:', error);
-      }
-    }
-  };
-
-  // Copy link function
-  const copyLink = async () => {
-    if (!qrChartSelectedEvent) return;
-    
-    const url = generateSeatFinderUrl(qrChartSelectedEvent);
-    try {
-      await navigator.clipboard.writeText(url);
-      // You could add a toast notification here
-    } catch (error) {
-      console.error('Error copying link:', error);
-    }
-  };
-
-  // Print function
-  const printQRCode = () => {
-    if (!qrCodeSVG) return;
-
-    const printWindow = window.open('', '_blank');
-    if (printWindow) {
-      printWindow.document.write(`
-        <html>
-          <head>
-            <title>QR Code - ${qrChartSelectedEvent?.name}</title>
-            <style>
-              body { margin: 0; padding: 20px; text-align: center; }
-              .qr-container { display: inline-block; }
-              h2 { margin-bottom: 20px; }
-            </style>
-          </head>
-          <body>
-            <h2>Seat Finder QR Code</h2>
-            <h3>${qrChartSelectedEvent?.name}</h3>
-            <div class="qr-container">${qrCodeSVG}</div>
-          </body>
-        </html>
-      `);
-      printWindow.document.close();
-      printWindow.focus();
-      printWindow.print();
-      printWindow.close();
-    }
-  };
 
   // Load selected event from localStorage on mount
   useEffect(() => {
@@ -292,30 +127,6 @@ export const Dashboard = () => {
     setSelectedEventId(eventId);
     localStorage.setItem('active_event_id', eventId);
   };
-
-  // Handle QR Chart event selection
-  const handleQrChartEventSelect = (eventId: string) => {
-    setQrChartEventId(eventId);
-    localStorage.setItem('qr_chart_event_id', eventId);
-    setQrChartLastSync(new Date());
-  };
-
-  // Load QR Chart event from localStorage
-  useEffect(() => {
-    const savedQrChartEventId = localStorage.getItem('qr_chart_event_id');
-    if (savedQrChartEventId && events.find(e => e.id === savedQrChartEventId)) {
-      setQrChartEventId(savedQrChartEventId);
-    }
-  }, [events]);
-
-  // Update sync timestamp when guests are fetched and generate QR code
-  useEffect(() => {
-    if (qrChartEventId && !qrChartGuestsLoading && qrChartSelectedEvent) {
-      setQrChartLastSync(new Date());
-      const url = generateSeatFinderUrl(qrChartSelectedEvent);
-      generateQRCode(url);
-    }
-  }, [qrChartEventId, qrChartGuestsLoading, qrChartSelectedEvent]);
 
   // Handle table operations
   const handleCreateTable = () => {
@@ -575,202 +386,17 @@ export const Dashboard = () => {
       
       case 'qr-code':
         return (
-          <div className="space-y-6">
-            <Card className="p-8 text-center">
-              <QrCode className="w-16 h-16 mx-auto text-primary mb-4" />
-              <CardTitle className="mb-2">QR Code Management</CardTitle>
-              <CardDescription className="mb-6">
-                Generate QR codes for guest check-ins and table assignments
-              </CardDescription>
-              <Button variant="gradient">
-                <QrCode className="w-4 h-4 mr-2" />
-                Generate QR Codes
-              </Button>
-            </Card>
-            
-            {/* QR Code Seating Chart Section */}
-            <div className="w-full">
-              <Card>
-                <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                  <div className="flex items-center space-x-4">
-                    <MapPin className="w-8 h-8 text-primary" />
-                    <div>
-                      <CardTitle className="mb-1">QR Code Seating Chart</CardTitle>
-                      <CardDescription>
-                        Interactive seating chart with QR code functionality
-                      </CardDescription>
-                    </div>
-                  </div>
-                  
-                  {/* Event Selector */}
-                  <div className="flex flex-col space-y-2 min-w-[250px]">
-                    <label className="text-sm font-medium text-foreground">
-                      Choose Event:
-                    </label>
-                    <Select value={qrChartEventId || ""} onValueChange={handleQrChartEventSelect}>
-                      <SelectTrigger className="bg-background border-input">
-                        <SelectValue placeholder={eventsLoading ? "Loading events..." : "Select an event..."} />
-                      </SelectTrigger>
-                      <SelectContent className="bg-background border-input z-50">
-                        {events.length > 0 ? (
-                          events.map((event) => (
-                            <SelectItem key={event.id} value={event.id}>
-                              <div className="flex items-center space-x-2">
-                                <Calendar className="w-4 h-4" />
-                                <span>{event.name}</span>
-                              </div>
-                            </SelectItem>
-                          ))
-                        ) : (
-                          <SelectItem value="no-events" disabled>
-                            {eventsLoading ? "Loading events..." : "No events found"}
-                          </SelectItem>
-                        )}
-                      </SelectContent>
-                    </Select>
-                    {qrChartLastSync && (
-                      <div className="text-xs text-muted-foreground">
-                        Last synced: {qrChartLastSync.toLocaleTimeString()}
-                      </div>
-                    )}
-                  </div>
-                </CardHeader>
-                
-                <CardContent className="space-y-6">
-                  {qrChartEventId && qrChartSelectedEvent ? (
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                      {/* Guest List */}
-                      <div className="lg:col-span-1">
-                        <h3 className="font-semibold mb-3 text-foreground">Guest List ({qrChartGuests.length})</h3>
-                        {qrChartGuestsLoading ? (
-                          <div className="text-center py-4">
-                            <div className="text-muted-foreground">Loading guests...</div>
-                          </div>
-                        ) : qrChartGuests.length > 0 ? (
-                          <div className="bg-muted/30 rounded-lg p-4 max-h-96 overflow-y-auto">
-                            <div className="space-y-2">
-                              {qrChartGuests.map((guest) => (
-                                <div 
-                                  key={guest.id} 
-                                  className="flex justify-between items-center p-2 bg-background rounded border text-sm"
-                                >
-                                  <span className="font-medium">
-                                    {guest.first_name} {guest.last_name}
-                                  </span>
-                                  <span className="text-muted-foreground">
-                                    {guest.table_no ? `Table ${guest.table_no}` : 'No table'}
-                                  </span>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="bg-muted/30 rounded-lg p-4 text-center text-muted-foreground">
-                            No guests found for this event
-                          </div>
-                        )}
-                      </div>
-                      
-                      {/* QR Code Preview and Controls */}
-                      <div className="lg:col-span-2 space-y-6">
-                        <div>
-                          <h3 className="font-semibold mb-3 text-foreground">Seat Finder QR Code</h3>
-                          <div className="bg-background border rounded-lg p-6 text-center space-y-4">
-                            {/* QR Code Preview */}
-                            <div className="flex justify-center">
-                              {qrCodeSVG ? (
-                                <div 
-                                  className="border rounded p-4 bg-white"
-                                  dangerouslySetInnerHTML={{ __html: qrCodeSVG }}
-                                />
-                              ) : (
-                                <div className="w-64 h-64 bg-muted/30 border-2 border-dashed border-muted-foreground/20 rounded-lg flex items-center justify-center">
-                                  <div className="text-muted-foreground">Generating QR code...</div>
-                                </div>
-                              )}
-                            </div>
-                            
-                            {/* URL Display */}
-                            <div className="text-sm text-muted-foreground">
-                              <p className="font-medium mb-1">Seat Finder URL:</p>
-                              <code className="bg-muted px-2 py-1 rounded text-xs break-all">
-                                {generateSeatFinderUrl(qrChartSelectedEvent)}
-                              </code>
-                            </div>
-                            
-                            {/* Download Buttons */}
-                            <div className="flex flex-wrap gap-2 justify-center">
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={copyLink}
-                                className="flex items-center gap-2"
-                              >
-                                <Copy className="w-4 h-4" />
-                                Copy Link
-                              </Button>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => downloadQRCode('png')}
-                                className="flex items-center gap-2"
-                              >
-                                <Download className="w-4 h-4" />
-                                PNG
-                              </Button>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => downloadQRCode('svg')}
-                                className="flex items-center gap-2"
-                              >
-                                <Download className="w-4 h-4" />
-                                SVG
-                              </Button>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => downloadQRCode('jpg')}
-                                className="flex items-center gap-2"
-                              >
-                                <Download className="w-4 h-4" />
-                                JPG
-                              </Button>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={printQRCode}
-                                className="flex items-center gap-2"
-                              >
-                                <Printer className="w-4 h-4" />
-                                Print
-                              </Button>
-                            </div>
-                          </div>
-                        </div>
-                        
-                        {/* Seating Chart Placeholder */}
-                        <div>
-                          <h3 className="font-semibold mb-3 text-foreground">Seating Chart</h3>
-                          <div className="bg-muted/30 border-2 border-dashed border-muted-foreground/20 rounded-lg p-12 text-center">
-                            <div className="text-muted-foreground">
-                              Seating chart visualization will appear here
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="bg-muted/30 border-2 border-dashed border-muted-foreground/20 rounded-lg p-12 text-center">
-                      <div className="text-muted-foreground">
-                        Please select an event to view the seating chart
-                      </div>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </div>
-          </div>
+          <Card className="p-8 text-center">
+            <QrCode className="w-16 h-16 mx-auto text-primary mb-4" />
+            <CardTitle className="mb-2">QR Code Management</CardTitle>
+            <CardDescription className="mb-6">
+              Generate QR codes for guest check-ins and table assignments
+            </CardDescription>
+            <Button variant="gradient">
+              <QrCode className="w-4 h-4 mr-2" />
+              Generate QR Codes
+            </Button>
+          </Card>
         );
       
       case 'planner':
