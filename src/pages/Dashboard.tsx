@@ -1296,6 +1296,81 @@ export const Dashboard = () => {
                           </AccordionContent>
                         </AccordionItem>
                         
+                        <AccordionItem value="center-logo">
+                          <AccordionTrigger>Center Logo</AccordionTrigger>
+                          <AccordionContent>
+                            <div className="space-y-4">
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                  <Label htmlFor="logo-upload">Upload Logo</Label>
+                                  <div className="flex flex-col gap-2">
+                                    <Input
+                                      id="logo-upload"
+                                      type="file"
+                                      accept=".png,.jpg,.jpeg,.webp"
+                                      onChange={(e) => {
+                                        const file = e.target.files?.[0];
+                                        if (file) handleLogoUpload(file);
+                                      }}
+                                      className="file:mr-4 file:py-1 file:px-2 file:rounded file:border-0 file:text-sm file:bg-muted file:text-foreground hover:file:bg-muted/80"
+                                    />
+                                    {qrLogo && (
+                                      <div className="flex gap-2">
+                                        <Button variant="outline" size="sm" onClick={handleRemoveLogo}>
+                                          Remove
+                                        </Button>
+                                        <Button variant="outline" size="sm" onClick={() => document.getElementById('logo-upload')?.click()}>
+                                          Replace
+                                        </Button>
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                                
+                                <div className="space-y-2">
+                                  <Label htmlFor="logo-mask">Logo Mask</Label>
+                                  <Select 
+                                    value={qrLogoMask} 
+                                    onValueChange={(value: 'square' | 'round') => setQrLogoMask(value)}
+                                    disabled={!qrLogo}
+                                  >
+                                    <SelectTrigger>
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="round">Round</SelectItem>
+                                      <SelectItem value="square">Square</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                              </div>
+                              
+                              <div className="space-y-2">
+                                <Label htmlFor="logo-size">Logo Size: {qrLogoSize}%</Label>
+                                <input
+                                  id="logo-size"
+                                  type="range"
+                                  min="5"
+                                  max="22"
+                                  step="1"
+                                  value={qrLogoSize}
+                                  onChange={(e) => setQrLogoSize(parseInt(e.target.value))}
+                                  disabled={!qrLogo}
+                                  className="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer disabled:cursor-not-allowed"
+                                />
+                                <div className="flex justify-between text-xs text-muted-foreground">
+                                  <span>5%</span>
+                                  <span>22% (max)</span>
+                                </div>
+                              </div>
+                              
+                              <div className="text-xs text-muted-foreground">
+                                <strong>Auto-optimized:</strong> Error correction set to H when logo is present. Logo size capped at 22% for scannability.
+                              </div>
+                            </div>
+                          </AccordionContent>
+                        </AccordionItem>
+                        
                         <AccordionItem value="frame-label">
                           <AccordionTrigger>Frame & Label</AccordionTrigger>
                           <AccordionContent>
