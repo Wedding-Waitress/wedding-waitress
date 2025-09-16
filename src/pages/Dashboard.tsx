@@ -133,8 +133,8 @@ export const Dashboard = () => {
   const selectedQrEvent = events.find(event => event.id === qrSelectedEventId);
   const selectedAiQrEvent = events.find(event => event.id === aiQrSelectedEventId);
 
-  const { tables, loading: tablesLoading, refetch: refetchTables } = useTables(selectedEventId);
-  const { guests, loading: guestsLoading } = useRealtimeGuests(selectedEventId);
+  const { tables, loading: tablesLoading, fetchTables, createTable, updateTable, deleteTable } = useTables(selectedEventId);
+  const { guests, loading: guestsLoading, moveGuest } = useRealtimeGuests(selectedEventId);
   const qrTables = useTables(qrSelectedEventId).tables;
   const qrGuests = useRealtimeGuests(qrSelectedEventId).guests;
 
@@ -271,14 +271,7 @@ export const Dashboard = () => {
             </div>
 
             {selectedEvent ? (
-              <GuestListTable
-                eventId={selectedEvent.id}
-                eventName={selectedEvent.name}
-                guests={guests}
-                tables={tables}
-                loading={guestsLoading}
-                onGuestMove={handleGuestMove}
-              />
+              <GuestListTable selectedEventId={selectedEvent.id} />
             ) : (
               <CardDescription className="text-center py-8">
                 Select an event to view and manage guests
@@ -342,15 +335,17 @@ export const Dashboard = () => {
                   </div>
                 ) : tables.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    {tables.map((table) => (
-                      <TableCard
-                        key={table.id}
-                        table={table}
-                        onEdit={() => handleEditTable(table)}
-                        onDelete={() => {}}
-                        eventId={selectedEvent.id}
-                      />
-                    ))}
+                      {tables.map((table) => (
+                        <TableCard
+                          key={table.id}
+                          table={table}
+                          onEdit={() => handleEditTable(table)}
+                          onDelete={deleteTable}
+                          guests={guests}
+                          eventId={selectedEvent.id}
+                          onGuestMove={handleGuestMove}
+                        />
+                      ))}
                   </div>
                 ) : (
                   <Card className="p-8 text-center">
@@ -605,13 +600,23 @@ export const Dashboard = () => {
     setEditingTable(null);
   };
 
-  const handleSaveTable = () => {
-    refetchTables();
-    handleCloseModal();
+  const handleSaveTable = async (data: { name: string; limit_seats: number; notes?: string; table_no?: number | null }) => {
+    if (editingTable) {
+      return await updateTable(editingTable.id, data);
+    }
+    return await createTable(data);
   };
 
-  const handleGuestMove = () => {
-    // Handle guest move functionality
+  const handleGuestMove = async (guestId: string, sourceTableId: string | null, destTableId: string, guestName: string) => {
+    const destTable = tables.find(t => t.id === destTableId);
+    const destTableNo = destTable?.table_no ?? null;
+    return await moveGuest({
+      guestId,
+      sourceTableId,
+      destTableId,
+      destTableNo,
+      guestName,
+    });
   };
 
   // Handle tab changes with refetch for tables page
@@ -624,12 +629,21 @@ export const Dashboard = () => {
     }
   };
 
-  const statsData = useMemo(() => ({
-    tablesCreated: tables.length,
-    totalSeats: tables.reduce((sum, table) => sum + (table.capacity || 0), 0),
-    seatsOccupied: guests.filter(guest => guest.table_id).length,
-    pendingGuests: guests.filter(guest => !guest.table_id).length,
-  }), [tables, guests]);
+  const statsData = useMemo(() => {
+    const seatsCreated = tables.reduce((sum, table) => sum + (table.limit_seats || 0), 0);
+    const seatsFilled = guests.filter(g => g.table_id).length;
+    const seatsRemaining = Math.max(seatsCreated - seatsFilled, 0);
+    const tablesAtCapacity = tables.filter(t => t.guest_count >= t.limit_seats).length;
+    const eventGuestLimit = selectedEvent?.guest_limit ?? 0;
+    return {
+      tablesCreated: tables.length,
+      seatsCreated,
+      seatsFilled,
+      seatsRemaining,
+      eventGuestLimit,
+      tablesAtCapacity,
+    };
+  }, [tables, guests, selectedEvent]);
 
   return (
     <div className="min-h-screen bg-gradient-subtle flex">
