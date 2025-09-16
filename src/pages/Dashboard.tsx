@@ -159,6 +159,32 @@ export const Dashboard = () => {
   const [presetName, setPresetName] = useState('');
   const [savingPreset, setSavingPreset] = useState(false);
   const { toast } = useToast();
+  
+  // AI QR state variables
+  const [aiQrSelectedEventId, setAiQrSelectedEventId] = useState<string | null>(null);
+  const [aiQrCodeSvg, setAiQrCodeSvg] = useState<string>('');
+  const [aiQrTemplate, setAiQrTemplate] = useState<string>('mosaic');
+  const [aiQrPhotoFile, setAiQrPhotoFile] = useState<File | null>(null);
+  const [aiQrPhotoUrl, setAiQrPhotoUrl] = useState<string>('');
+  const [aiQrFocalPoint, setAiQrFocalPoint] = useState<{x: number, y: number}>({x: 50, y: 50});
+  const [aiQrPhotoFit, setAiQrPhotoFit] = useState<'cover' | 'contain'>('cover');
+  const [aiQrPhotoScrim, setAiQrPhotoScrim] = useState<number>(30);
+  const [aiQrModulePattern, setAiQrModulePattern] = useState<'square' | 'round' | 'pixel' | 'dash'>('square');
+  const [aiQrEyeStyle, setAiQrEyeStyle] = useState<'standard' | 'rounded' | 'circular' | 'sharp'>('standard');
+  const [aiQrModuleColor, setAiQrModuleColor] = useState('#000000');
+  const [aiQrBackgroundColor, setAiQrBackgroundColor] = useState('#ffffff');
+  const [aiQrEyeColor, setAiQrEyeColor] = useState('#000000');
+  const [aiQrLogo, setAiQrLogo] = useState<File | null>(null);
+  const [aiQrLogoUrl, setAiQrLogoUrl] = useState<string>('');
+  const [aiQrLogoMask, setAiQrLogoMask] = useState<'square' | 'round'>('round');
+  const [aiQrLogoSize, setAiQrLogoSize] = useState<number>(15);
+  const [aiQrQuietZone, setAiQrQuietZone] = useState<number>(4);
+  const [aiQrScannabilityResults, setAiQrScannabilityResults] = useState<{
+    small: 'pass' | 'warn' | 'fail' | 'testing',
+    medium: 'pass' | 'warn' | 'fail' | 'testing',
+    large: 'pass' | 'warn' | 'fail' | 'testing'
+  }>({ small: 'testing', medium: 'testing', large: 'testing' });
+  const [aiQrIsTestingScannability, setAiQrIsTestingScannability] = useState<boolean>(false);
 
   // Get selected event for tables
   const selectedEvent = selectedEventId ? events.find(e => e.id === selectedEventId) : null;
@@ -786,7 +812,166 @@ export const Dashboard = () => {
     } else {
       setQrCodeSvg('');
     }
-  }, [seatFinderUrl, qrForegroundColor, qrBackgroundColor, qrModuleShape, qrFinderStyle, qrFrameEnabled, qrFrameStyle, qrFrameColor, qrLabelText, qrLogoDataUrl, qrLogoMask, qrLogoSize, qrBgImageDataUrl, qrBgFitMode, qrBgScrim, qrBgAutoContrast]);
+  // Generate AI QR code
+  useEffect(() => {
+    if (aiQrSeatFinderUrl) {
+      const qrOptions = {
+        errorCorrectionLevel: aiQrLogoUrl ? 'H' : 'M',
+        type: 'svg',
+        margin: aiQrQuietZone,
+        color: { dark: aiQrModuleColor, light: aiQrBackgroundColor },
+        width: 200
+      };
+
+      QRCodeLib.toString(aiQrSeatFinderUrl, qrOptions)
+        .then((svg) => {
+          let processedSvg = svg;
+          
+          // Apply AI artistic effects based on template
+          switch (aiQrTemplate) {
+            case 'mosaic':
+              // Add mosaic effect by randomizing module positions slightly
+              processedSvg = processedSvg.replace(/<rect([^>]*?)>/g, (match, attrs) => {
+                const xMatch = attrs.match(/x="([^"]*)"/)
+                const yMatch = attrs.match(/y="([^"]*)"/)
+                if (xMatch && yMatch) {
+                  const x = parseFloat(xMatch[1]) + (Math.random() - 0.5) * 0.5
+                  const y = parseFloat(yMatch[1]) + (Math.random() - 0.5) * 0.5
+                  return match.replace(/x="[^"]*"/, `x="${x}"`).replace(/y="[^"]*"/, `y="${y}"`)
+                }
+                return match
+              })
+              break;
+            case 'pixel':
+              // Make modules more square and pixelated
+              processedSvg = processedSvg.replace(/rx="[^"]*"/g, 'rx="0"').replace(/ry="[^"]*"/g, 'ry="0"')
+              break;
+            case 'soft-round':
+              // Make all modules very rounded
+              processedSvg = processedSvg.replace(/<rect([^>]*?)>/g, (match) => {
+                return match.includes('rx=') ? match.replace(/rx="[^"]*"/, 'rx="2"') : match.replace('>', ' rx="2">')
+              })
+              break;
+          }
+          
+          // Apply photo background if present
+          if (aiQrPhotoUrl) {
+            const parser = new DOMParser();
+            const svgDoc = parser.parseFromString(processedSvg, 'image/svg+xml');
+            const svgElement = svgDoc.querySelector('svg');
+            
+            if (svgElement) {
+              const svgWidth = parseInt(svgElement.getAttribute('width') || '200');
+              const svgHeight = parseInt(svgElement.getAttribute('height') || '200');
+              
+              // Create background image element
+              const bgImage = svgDoc.createElementNS('http://www.w3.org/2000/svg', 'image');
+              bgImage.setAttribute('x', '0');
+              bgImage.setAttribute('y', '0');
+              bgImage.setAttribute('width', svgWidth.toString());
+              bgImage.setAttribute('height', svgHeight.toString());
+              bgImage.setAttribute('href', aiQrPhotoUrl);
+              bgImage.setAttribute('opacity', (1 - aiQrPhotoScrim / 100).toString());
+              
+              // Add scrim overlay
+              const scrimRect = svgDoc.createElementNS('http://www.w3.org/2000/svg', 'rect');
+              scrimRect.setAttribute('x', '0');
+              scrimRect.setAttribute('y', '0');
+              scrimRect.setAttribute('width', svgWidth.toString());
+              scrimRect.setAttribute('height', svgHeight.toString());
+              scrimRect.setAttribute('fill', aiQrBackgroundColor);
+              scrimRect.setAttribute('opacity', (aiQrPhotoScrim / 100).toString());
+              
+              svgElement.insertBefore(bgImage, svgElement.firstChild);
+              svgElement.insertBefore(scrimRect, svgElement.children[1]);
+              
+              processedSvg = new XMLSerializer().serializeToString(svgDoc);
+            }
+          }
+          
+          // Add center logo if present (same safety as normal QR)
+          if (aiQrLogoUrl) {
+            const parser = new DOMParser();
+            const svgDoc = parser.parseFromString(processedSvg, 'image/svg+xml');
+            const svgElement = svgDoc.querySelector('svg');
+            
+            if (svgElement) {
+              const svgWidth = parseInt(svgElement.getAttribute('width') || '200');
+              const svgHeight = parseInt(svgElement.getAttribute('height') || '200');
+              
+              const qrSize = Math.min(svgWidth, svgHeight);
+              const logoSize = (qrSize * Math.min(aiQrLogoSize, 22)) / 100;
+              
+              const logoX = (svgWidth - logoSize) / 2;
+              const logoY = (svgHeight - logoSize) / 2;
+              
+              // Create clipping path
+              let defs = svgDoc.querySelector('defs');
+              if (!defs) {
+                defs = svgDoc.createElementNS('http://www.w3.org/2000/svg', 'defs');
+                svgElement.insertBefore(defs, svgElement.firstChild);
+              }
+              
+              const clipPath = svgDoc.createElementNS('http://www.w3.org/2000/svg', 'clipPath');
+              clipPath.setAttribute('id', 'aiLogoClip');
+              
+              if (aiQrLogoMask === 'round') {
+                const circle = svgDoc.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circle.setAttribute('cx', (logoX + logoSize / 2).toString());
+                circle.setAttribute('cy', (logoY + logoSize / 2).toString());
+                circle.setAttribute('r', (logoSize / 2).toString());
+                clipPath.appendChild(circle);
+              } else {
+                const rect = svgDoc.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                rect.setAttribute('x', logoX.toString());
+                rect.setAttribute('y', logoY.toString());
+                rect.setAttribute('width', logoSize.toString());
+                rect.setAttribute('height', logoSize.toString());
+                clipPath.appendChild(rect);
+              }
+              
+              defs.appendChild(clipPath);
+              
+              // Add white background
+              const bgShape = svgDoc.createElementNS('http://www.w3.org/2000/svg', 
+                aiQrLogoMask === 'round' ? 'circle' : 'rect');
+              
+              if (aiQrLogoMask === 'round') {
+                bgShape.setAttribute('cx', (logoX + logoSize / 2).toString());
+                bgShape.setAttribute('cy', (logoY + logoSize / 2).toString());
+                bgShape.setAttribute('r', (logoSize / 2).toString());
+              } else {
+                bgShape.setAttribute('x', logoX.toString());
+                bgShape.setAttribute('y', logoY.toString());
+                bgShape.setAttribute('width', logoSize.toString());
+                bgShape.setAttribute('height', logoSize.toString());
+              }
+              bgShape.setAttribute('fill', aiQrBackgroundColor);
+              svgElement.appendChild(bgShape);
+              
+              // Add logo image
+              const logoImage = svgDoc.createElementNS('http://www.w3.org/2000/svg', 'image');
+              logoImage.setAttribute('x', logoX.toString());
+              logoImage.setAttribute('y', logoY.toString());
+              logoImage.setAttribute('width', logoSize.toString());
+              logoImage.setAttribute('height', logoSize.toString());
+              logoImage.setAttribute('href', aiQrLogoUrl);
+              logoImage.setAttribute('clip-path', 'url(#aiLogoClip)');
+              svgElement.appendChild(logoImage);
+              
+              processedSvg = new XMLSerializer().serializeToString(svgDoc);
+            }
+          }
+          
+          setAiQrCodeSvg(processedSvg);
+        })
+        .catch((err) => {
+          console.error('AI QR Code generation error:', err);
+        });
+    } else {
+      setAiQrCodeSvg('');
+    }
+  }, [aiQrSeatFinderUrl, aiQrTemplate, aiQrModuleColor, aiQrBackgroundColor, aiQrEyeColor, aiQrModulePattern, aiQrEyeStyle, aiQrPhotoUrl, aiQrPhotoScrim, aiQrLogoUrl, aiQrLogoMask, aiQrLogoSize, aiQrQuietZone]);
 
   // QR Code action handlers
   const handleCopyLink = async () => {
@@ -2185,7 +2370,7 @@ export const Dashboard = () => {
                     <label className="text-sm font-medium text-foreground whitespace-nowrap">
                       Choose Event:
                     </label>
-                    <Select value={qrSelectedEventId || ""} onValueChange={handleQrEventSelect}>
+                    <Select value={aiQrSelectedEventId || ""} onValueChange={handleAiQrEventSelect}>
                       <SelectTrigger className="flex-1">
                         <SelectValue placeholder={eventsLoading ? "Loading events..." : "Select an event..."} />
                       </SelectTrigger>
@@ -2208,27 +2393,414 @@ export const Dashboard = () => {
                     </Select>
                   </div>
                   
-                  {selectedQrEvent ? (
+                  {selectedAiQrEvent ? (
                     <div className="space-y-4">
-                      <div className="text-center py-4">
-                        <CardDescription className="mb-4">
-                          {qrTablesLoading || qrGuestsLoading ? 
-                            "Loading preview data..." : 
-                            `Live preview for ${selectedQrEvent.name}`
-                          }
-                        </CardDescription>
-                        <Button 
-                          variant="gradient" 
-                          onClick={() => setShowLivePreview(true)}
-                          disabled={qrTablesLoading || qrGuestsLoading}
-                        >
-                          Open Live Preview
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <h4 className="font-medium text-sm">AI Artistic QR</h4>
+                          <div className="p-3 bg-muted rounded-md">
+                            <code className="text-xs break-all">{aiQrSeatFinderUrl}</code>
+                          </div>
+                        </div>
+                        
+                        <div className="flex justify-center">
+                          {aiQrCodeSvg ? (
+                            <div dangerouslySetInnerHTML={{ __html: aiQrCodeSvg }} />
+                          ) : (
+                            <div className="w-48 h-48 bg-muted flex items-center justify-center rounded-md">
+                              <span className="text-muted-foreground text-sm">Generating AI QR...</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      
+                      {/* AI QR Accordion */}
+                      <Accordion type="single" collapsible className="w-full">
+                        <AccordionItem value="templates">
+                          <AccordionTrigger>Templates</AccordionTrigger>
+                          <AccordionContent>
+                            <div className="space-y-4">
+                              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                                {aiQrTemplates.map((template) => (
+                                  <button
+                                    key={template.id}
+                                    onClick={() => setAiQrTemplate(template.id)}
+                                    className={`p-3 border rounded-lg text-left transition-colors ${
+                                      aiQrTemplate === template.id
+                                        ? 'border-primary bg-primary/5'
+                                        : 'border-muted hover:border-primary/50'
+                                    }`}
+                                  >
+                                    <div className="font-medium text-sm">{template.name}</div>
+                                    <div className="text-xs text-muted-foreground">{template.description}</div>
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                          </AccordionContent>
+                        </AccordionItem>
+                        
+                        <AccordionItem value="photo-in-qr">
+                          <AccordionTrigger>Photo in QR</AccordionTrigger>
+                          <AccordionContent>
+                            <div className="space-y-4">
+                              <div className="space-y-2">
+                                <Label htmlFor="ai-photo-upload">Upload Photo</Label>
+                                <div className="flex flex-col gap-2">
+                                  <Input
+                                    id="ai-photo-upload"
+                                    type="file"
+                                    accept=".png,.jpg,.jpeg,.webp"
+                                    onChange={(e) => {
+                                      const file = e.target.files?.[0];
+                                      if (file) handleAiQrPhotoUpload(file);
+                                    }}
+                                    className="file:mr-4 file:py-1 file:px-2 file:rounded file:border-0 file:text-sm file:bg-muted file:text-foreground hover:file:bg-muted/80"
+                                  />
+                                  {aiQrPhotoFile && (
+                                    <div className="flex gap-2">
+                                      <Button variant="outline" size="sm" onClick={handleRemoveAiQrPhoto}>
+                                        Remove
+                                      </Button>
+                                      <Button variant="outline" size="sm" onClick={() => document.getElementById('ai-photo-upload')?.click()}>
+                                        Replace
+                                      </Button>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                              
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                  <Label htmlFor="ai-photo-fit">Fit Mode</Label>
+                                  <Select 
+                                    value={aiQrPhotoFit} 
+                                    onValueChange={(value: 'cover' | 'contain') => setAiQrPhotoFit(value)}
+                                    disabled={!aiQrPhotoUrl}
+                                  >
+                                    <SelectTrigger>
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="cover">Cover</SelectItem>
+                                      <SelectItem value="contain">Contain</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                                
+                                <div className="space-y-2">
+                                  <Label htmlFor="ai-photo-scrim">Scrim Overlay: {aiQrPhotoScrim}%</Label>
+                                  <input
+                                    id="ai-photo-scrim"
+                                    type="range"
+                                    min="0"
+                                    max="80"
+                                    step="5"
+                                    value={aiQrPhotoScrim}
+                                    onChange={(e) => setAiQrPhotoScrim(parseInt(e.target.value))}
+                                    disabled={!aiQrPhotoUrl}
+                                    className="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer disabled:cursor-not-allowed"
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          </AccordionContent>
+                        </AccordionItem>
+                        
+                        <AccordionItem value="modules-eyes">
+                          <AccordionTrigger>Modules & Eyes</AccordionTrigger>
+                          <AccordionContent>
+                            <div className="space-y-4">
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                  <Label htmlFor="ai-module-pattern">Module Pattern</Label>
+                                  <Select 
+                                    value={aiQrModulePattern} 
+                                    onValueChange={(value: 'square' | 'round' | 'pixel' | 'dash') => setAiQrModulePattern(value)}
+                                  >
+                                    <SelectTrigger>
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="square">Square</SelectItem>
+                                      <SelectItem value="round">Round</SelectItem>
+                                      <SelectItem value="pixel">Pixel</SelectItem>
+                                      <SelectItem value="dash">Dash</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                                
+                                <div className="space-y-2">
+                                  <Label htmlFor="ai-eye-style">Eye Style</Label>
+                                  <Select 
+                                    value={aiQrEyeStyle} 
+                                    onValueChange={(value: 'standard' | 'rounded' | 'circular' | 'sharp') => setAiQrEyeStyle(value)}
+                                  >
+                                    <SelectTrigger>
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="standard">Standard</SelectItem>
+                                      <SelectItem value="rounded">Rounded</SelectItem>
+                                      <SelectItem value="circular">Circular</SelectItem>
+                                      <SelectItem value="sharp">Sharp</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                              </div>
+                              
+                              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div className="space-y-2">
+                                  <Label htmlFor="ai-module-color">Module Color</Label>
+                                  <div className="flex items-center gap-2">
+                                    <Input
+                                      id="ai-module-color"
+                                      type="color"
+                                      value={aiQrModuleColor}
+                                      onChange={(e) => setAiQrModuleColor(e.target.value)}
+                                      className="w-16 h-8 p-1 rounded border"
+                                    />
+                                    <Input
+                                      type="text"
+                                      value={aiQrModuleColor}
+                                      onChange={(e) => setAiQrModuleColor(e.target.value)}
+                                      className="flex-1 font-mono text-sm"
+                                    />
+                                  </div>
+                                </div>
+                                
+                                <div className="space-y-2">
+                                  <Label htmlFor="ai-bg-color">Background Color</Label>
+                                  <div className="flex items-center gap-2">
+                                    <Input
+                                      id="ai-bg-color"
+                                      type="color"
+                                      value={aiQrBackgroundColor}
+                                      onChange={(e) => setAiQrBackgroundColor(e.target.value)}
+                                      className="w-16 h-8 p-1 rounded border"
+                                    />
+                                    <Input
+                                      type="text"
+                                      value={aiQrBackgroundColor}
+                                      onChange={(e) => setAiQrBackgroundColor(e.target.value)}
+                                      className="flex-1 font-mono text-sm"
+                                    />
+                                  </div>
+                                </div>
+                                
+                                <div className="space-y-2">
+                                  <Label htmlFor="ai-eye-color">Eye Color</Label>
+                                  <div className="flex items-center gap-2">
+                                    <Input
+                                      id="ai-eye-color"
+                                      type="color"
+                                      value={aiQrEyeColor}
+                                      onChange={(e) => setAiQrEyeColor(e.target.value)}
+                                      className="w-16 h-8 p-1 rounded border"
+                                    />
+                                    <Input
+                                      type="text"
+                                      value={aiQrEyeColor}
+                                      onChange={(e) => setAiQrEyeColor(e.target.value)}
+                                      className="flex-1 font-mono text-sm"
+                                    />
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </AccordionContent>
+                        </AccordionItem>
+                        
+                        <AccordionItem value="center-logo">
+                          <AccordionTrigger>Center Logo</AccordionTrigger>
+                          <AccordionContent>
+                            <div className="space-y-4">
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                  <Label htmlFor="ai-logo-upload">Upload Logo</Label>
+                                  <div className="flex flex-col gap-2">
+                                    <Input
+                                      id="ai-logo-upload"
+                                      type="file"
+                                      accept=".png,.jpg,.jpeg,.webp"
+                                      onChange={(e) => {
+                                        const file = e.target.files?.[0];
+                                        if (file) handleAiQrLogoUpload(file);
+                                      }}
+                                      className="file:mr-4 file:py-1 file:px-2 file:rounded file:border-0 file:text-sm file:bg-muted file:text-foreground hover:file:bg-muted/80"
+                                    />
+                                    {aiQrLogo && (
+                                      <div className="flex gap-2">
+                                        <Button variant="outline" size="sm" onClick={handleRemoveAiQrLogo}>
+                                          Remove
+                                        </Button>
+                                        <Button variant="outline" size="sm" onClick={() => document.getElementById('ai-logo-upload')?.click()}>
+                                          Replace
+                                        </Button>
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                                
+                                <div className="space-y-2">
+                                  <Label htmlFor="ai-logo-mask">Logo Mask</Label>
+                                  <Select 
+                                    value={aiQrLogoMask} 
+                                    onValueChange={(value: 'square' | 'round') => setAiQrLogoMask(value)}
+                                    disabled={!aiQrLogo}
+                                  >
+                                    <SelectTrigger>
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="round">Round</SelectItem>
+                                      <SelectItem value="square">Square</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                              </div>
+                              
+                              <div className="space-y-2">
+                                <Label htmlFor="ai-logo-size">Logo Size: {aiQrLogoSize}%</Label>
+                                <input
+                                  id="ai-logo-size"
+                                  type="range"
+                                  min="5"
+                                  max="22"
+                                  step="1"
+                                  value={aiQrLogoSize}
+                                  onChange={(e) => setAiQrLogoSize(parseInt(e.target.value))}
+                                  disabled={!aiQrLogo}
+                                  className="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer disabled:cursor-not-allowed"
+                                />
+                                <div className="flex justify-between text-xs text-muted-foreground">
+                                  <span>5%</span>
+                                  <span>22% (max)</span>
+                                </div>
+                              </div>
+                              
+                              <div className="text-xs text-muted-foreground">
+                                <strong>Auto-optimized:</strong> Error correction set to H when logo is present. Logo size capped at 22% for scannability.
+                              </div>
+                            </div>
+                          </AccordionContent>
+                        </AccordionItem>
+                        
+                        <AccordionItem value="spacing-quiet-zone">
+                          <AccordionTrigger>Spacing & Quiet Zone</AccordionTrigger>
+                          <AccordionContent>
+                            <div className="space-y-4">
+                              <div className="space-y-2">
+                                <Label htmlFor="ai-quiet-zone">Quiet Zone: {aiQrQuietZone} modules</Label>
+                                <input
+                                  id="ai-quiet-zone"
+                                  type="range"
+                                  min="4"
+                                  max="10"
+                                  step="1"
+                                  value={aiQrQuietZone}
+                                  onChange={(e) => setAiQrQuietZone(parseInt(e.target.value))}
+                                  className="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer"
+                                />
+                                <div className="flex justify-between text-xs text-muted-foreground">
+                                  <span>4 (minimum)</span>
+                                  <span>10 modules</span>
+                                </div>
+                              </div>
+                              
+                              <div className="text-xs text-muted-foreground">
+                                <strong>Scannability rule:</strong> Minimum 4-module quiet zone enforced for reliable scanning across all devices.
+                              </div>
+                            </div>
+                          </AccordionContent>
+                        </AccordionItem>
+                      </Accordion>
+                      
+                      {/* Download buttons */}
+                      <div className="flex flex-wrap gap-2 pt-2 border-t">
+                        <Button variant="outline" size="sm" onClick={handleCopyLink}>
+                          <Copy className="w-3 h-3 mr-1" />
+                          Copy Link
+                        </Button>
+                        <Button variant="outline" size="sm" onClick={handleDownloadPng}>
+                          <Download className="w-3 h-3 mr-1" />
+                          Download PNG
+                        </Button>
+                        <Button variant="outline" size="sm" onClick={handleDownloadSvg}>
+                          <Download className="w-3 h-3 mr-1" />
+                          Download SVG
+                        </Button>
+                        <Button variant="outline" size="sm" onClick={handleDownloadJpg}>
+                          <Download className="w-3 h-3 mr-1" />
+                          Download JPG
+                        </Button>
+                        <Button variant="outline" size="sm" onClick={handlePrint}>
+                          <Printer className="w-3 h-3 mr-1" />
+                          Print
                         </Button>
                       </div>
+                      
+                      {/* AI QR Scannability Meter */}
+                      {selectedAiQrEvent && (
+                        <div className="border rounded-lg p-4 bg-muted/30">
+                          <div className="flex items-center justify-between mb-3">
+                            <h4 className="font-medium text-sm">Scannability Test</h4>
+                            {aiQrIsTestingScannability && (
+                              <div className="text-xs text-muted-foreground">Testing...</div>
+                            )}
+                          </div>
+                          
+                          <div className="grid grid-cols-3 gap-2 mb-3">
+                            {['small', 'medium', 'large'].map((size) => {
+                              const result = aiQrScannabilityResults[size as keyof typeof aiQrScannabilityResults];
+                              const getIcon = () => {
+                                switch (result) {
+                                  case 'pass': return <CheckCircle className="w-4 h-4 text-green-500" />;
+                                  case 'warn': return <AlertTriangle className="w-4 h-4 text-yellow-500" />;
+                                  case 'fail': return <XCircle className="w-4 h-4 text-red-500" />;
+                                  default: return <div className="w-4 h-4 rounded-full bg-gray-300 animate-pulse" />;
+                                }
+                              };
+                              
+                              return (
+                                <div key={size} className="flex items-center gap-2 text-xs">
+                                  {getIcon()}
+                                  <span className="capitalize">{size}</span>
+                                </div>
+                              );
+                            })}
+                          </div>
+                          
+                          {(aiQrScannabilityResults.small === 'fail' || 
+                            aiQrScannabilityResults.medium === 'fail' || 
+                            aiQrScannabilityResults.large === 'fail' ||
+                            aiQrScannabilityResults.small === 'warn' || 
+                            aiQrScannabilityResults.medium === 'warn' || 
+                            aiQrScannabilityResults.large === 'warn') && (
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              onClick={() => {
+                                // AI QR Fix functionality
+                                setAiQrModuleColor('#000000');
+                                setAiQrBackgroundColor('#ffffff');
+                                setAiQrQuietZone(Math.max(aiQrQuietZone, 4));
+                                if (aiQrLogoSize > 15) setAiQrLogoSize(15);
+                                if (aiQrPhotoScrim < 40) setAiQrPhotoScrim(40);
+                              }}
+                              disabled={aiQrIsTestingScannability}
+                              className="w-full"
+                            >
+                              <Zap className="w-3 h-3 mr-1" />
+                              Fix it for me
+                            </Button>
+                          )}
+                        </div>
+                      )}
                     </div>
                   ) : (
                     <CardDescription className="text-center py-4">
-                      Select an event to view live preview
+                      Select an event to create AI artistic QR
                     </CardDescription>
                   )}
                 </div>
