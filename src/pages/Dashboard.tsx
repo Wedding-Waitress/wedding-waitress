@@ -42,6 +42,8 @@ export const Dashboard = () => {
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [showCreateTableModal, setShowCreateTableModal] = useState(false);
   const [editingTable, setEditingTable] = useState<TableWithGuestCount | null>(null);
+  const [qrSelectedEventId, setQrSelectedEventId] = useState<string | null>(null);
+  const [lastSyncTime, setLastSyncTime] = useState<Date>(new Date());
   const { 
     events, 
     loading: eventsLoading, 
@@ -75,6 +77,18 @@ export const Dashboard = () => {
     guests,
     onRefreshTables: fetchTables
   });
+
+  // QR Code cards data hooks
+  const { 
+    tables: qrTables, 
+    loading: qrTablesLoading, 
+    fetchTables: fetchQrTables
+  } = useTables(qrSelectedEventId);
+  
+  const { 
+    guests: qrGuests, 
+    loading: qrGuestsLoading 
+  } = useRealtimeGuests(qrSelectedEventId);
 
   // Get selected event for tables
   const selectedEvent = selectedEventId ? events.find(e => e.id === selectedEventId) : null;
@@ -127,6 +141,15 @@ export const Dashboard = () => {
     setSelectedEventId(eventId);
     localStorage.setItem('active_event_id', eventId);
   };
+
+  // Handle event selection for QR cards
+  const handleQrEventSelect = (eventId: string) => {
+    setQrSelectedEventId(eventId);
+    setLastSyncTime(new Date());
+  };
+
+  // Get selected QR event
+  const selectedQrEvent = qrSelectedEventId ? events.find(e => e.id === qrSelectedEventId) : null;
 
   // Handle table operations
   const handleCreateTable = () => {
@@ -400,18 +423,112 @@ export const Dashboard = () => {
             </Card>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Card className="p-8 text-center">
-                <CardTitle className="mb-2">QR Code Seating Chart</CardTitle>
-                <CardDescription className="mb-6">
-                  Content placeholder for QR Code Seating Chart
-                </CardDescription>
+              <Card className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <CardTitle className="text-lg">QR Code Seating Chart</CardTitle>
+                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                    <span>Last synced: {lastSyncTime.toLocaleTimeString()}</span>
+                  </div>
+                </div>
+                
+                <div className="space-y-4">
+                  <div className="flex items-center space-x-2">
+                    <label className="text-sm font-medium text-foreground whitespace-nowrap">
+                      Choose Event:
+                    </label>
+                    <Select value={qrSelectedEventId || ""} onValueChange={handleQrEventSelect}>
+                      <SelectTrigger className="flex-1">
+                        <SelectValue placeholder={eventsLoading ? "Loading events..." : "Select an event..."} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {events.length > 0 ? (
+                          events.map((event) => (
+                            <SelectItem key={event.id} value={event.id}>
+                              <div className="flex items-center space-x-2">
+                                <Calendar className="w-4 h-4" />
+                                <span>{event.name}</span>
+                              </div>
+                            </SelectItem>
+                          ))
+                        ) : (
+                          <SelectItem value="no-events" disabled>
+                            {eventsLoading ? "Loading events..." : "No events found"}
+                          </SelectItem>
+                        )}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  {selectedQrEvent ? (
+                    <div className="text-center py-4">
+                      <CardDescription>
+                        {qrTablesLoading || qrGuestsLoading ? 
+                          "Loading event data..." : 
+                          `Tables: ${qrTables.length} | Guests: ${qrGuests.length}`
+                        }
+                      </CardDescription>
+                    </div>
+                  ) : (
+                    <CardDescription className="text-center py-4">
+                      Select an event to view seating chart data
+                    </CardDescription>
+                  )}
+                </div>
               </Card>
               
-              <Card className="p-8 text-center">
-                <CardTitle className="mb-2">Live View (Preview)</CardTitle>
-                <CardDescription className="mb-6">
-                  Content placeholder for Live View Preview
-                </CardDescription>
+              <Card className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <CardTitle className="text-lg">Live View (Preview)</CardTitle>
+                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                    <span>Last synced: {lastSyncTime.toLocaleTimeString()}</span>
+                  </div>
+                </div>
+                
+                <div className="space-y-4">
+                  <div className="flex items-center space-x-2">
+                    <label className="text-sm font-medium text-foreground whitespace-nowrap">
+                      Choose Event:
+                    </label>
+                    <Select value={qrSelectedEventId || ""} onValueChange={handleQrEventSelect}>
+                      <SelectTrigger className="flex-1">
+                        <SelectValue placeholder={eventsLoading ? "Loading events..." : "Select an event..."} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {events.length > 0 ? (
+                          events.map((event) => (
+                            <SelectItem key={event.id} value={event.id}>
+                              <div className="flex items-center space-x-2">
+                                <Calendar className="w-4 h-4" />
+                                <span>{event.name}</span>
+                              </div>
+                            </SelectItem>
+                          ))
+                        ) : (
+                          <SelectItem value="no-events" disabled>
+                            {eventsLoading ? "Loading events..." : "No events found"}
+                          </SelectItem>
+                        )}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  {selectedQrEvent ? (
+                    <div className="text-center py-4">
+                      <CardDescription>
+                        {qrTablesLoading || qrGuestsLoading ? 
+                          "Loading preview data..." : 
+                          `Live preview for ${selectedQrEvent.name}`
+                        }
+                      </CardDescription>
+                    </div>
+                  ) : (
+                    <CardDescription className="text-center py-4">
+                      Select an event to view live preview
+                    </CardDescription>
+                  )}
+                </div>
               </Card>
             </div>
           </div>
