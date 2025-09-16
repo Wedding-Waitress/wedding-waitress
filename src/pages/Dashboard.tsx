@@ -54,6 +54,8 @@ import { useTables, TableWithGuestCount } from '@/hooks/useTables';
 import { useRealtimeGuests } from '@/hooks/useRealtimeGuests';
 import { useRealtimeTables } from '@/hooks/useRealtimeTables';
 import { useProfile } from '@/hooks/useProfile';
+import { useQrPresets, type QrDesignData } from '@/hooks/useQrPresets';
+import { useToast } from '@/hooks/use-toast';
 
 export const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -143,6 +145,20 @@ export const Dashboard = () => {
     guests: qrGuests, 
     loading: qrGuestsLoading 
   } = useRealtimeGuests(qrSelectedEventId);
+
+  // QR Design Presets hook
+  const { 
+    presets: qrPresets, 
+    loading: qrPresetsLoading, 
+    savePreset: saveQrPreset, 
+    loadPreset: loadQrPreset, 
+    deletePreset: deleteQrPreset 
+  } = useQrPresets(qrSelectedEventId);
+  
+  // QR Presets state
+  const [presetName, setPresetName] = useState('');
+  const [savingPreset, setSavingPreset] = useState(false);
+  const { toast } = useToast();
 
   // Get selected event for tables
   const selectedEvent = selectedEventId ? events.find(e => e.id === selectedEventId) : null;
@@ -1492,7 +1508,7 @@ export const Dashboard = () => {
                           </AccordionContent>
                         </AccordionItem>
                         
-                        <AccordionItem value="background-image">
+                         <AccordionItem value="background-image">
                           <AccordionTrigger>Background Image / Photo-in-QR</AccordionTrigger>
                           <AccordionContent>
                             <div className="space-y-4">
@@ -1607,6 +1623,121 @@ export const Dashboard = () => {
                               
                               <div className="text-xs text-muted-foreground">
                                 <strong>Readability preserved:</strong> Finder patterns stay readable with white safety frames. Auto-contrast boosts QR visibility.
+                              </div>
+                            </div>
+                          </AccordionContent>
+                        </AccordionItem>
+                        
+                        <AccordionItem value="design-presets">
+                          <AccordionTrigger>Design Presets</AccordionTrigger>
+                          <AccordionContent>
+                            <div className="space-y-4">
+                              <div className="flex gap-2">
+                                <Input
+                                  type="text"
+                                  placeholder="Enter preset name..."
+                                  value={presetName}
+                                  onChange={(e) => setPresetName(e.target.value)}
+                                  className="flex-1"
+                                />
+                                <Button 
+                                  variant="outline" 
+                                  size="sm"
+                                  onClick={async () => {
+                                    if (!presetName.trim()) {
+                                      toast({
+                                        title: "Error",
+                                        description: "Please enter a preset name",
+                                        variant: "destructive",
+                                      });
+                                      return;
+                                    }
+                                    
+                                    setSavingPreset(true);
+                                    const currentDesign: QrDesignData = {
+                                      foregroundColor: qrForegroundColor,
+                                      backgroundColor: qrBackgroundColor,
+                                      moduleShape: qrModuleShape,
+                                      finderStyle: qrFinderStyle,
+                                      frameEnabled: qrFrameEnabled,
+                                      frameStyle: qrFrameStyle,
+                                      frameColor: qrFrameColor,
+                                      labelText: qrLabelText,
+                                      logo: qrLogoDataUrl,
+                                      logoMask: qrLogoMask,
+                                      logoSize: qrLogoSize,
+                                      backgroundImage: qrBgImageDataUrl,
+                                      backgroundOpacity: qrBgScrim
+                                    };
+                                    
+                                    const success = await saveQrPreset(presetName.trim(), currentDesign);
+                                    if (success) {
+                                      setPresetName('');
+                                    }
+                                    setSavingPreset(false);
+                                  }}
+                                  disabled={savingPreset || !presetName.trim()}
+                                >
+                                  {savingPreset ? 'Saving...' : 'Save Current Design'}
+                                </Button>
+                              </div>
+                              
+                              {qrPresetsLoading ? (
+                                <div className="text-sm text-muted-foreground">Loading presets...</div>
+                              ) : qrPresets.length > 0 ? (
+                                <div className="space-y-2">
+                                  <Label>Saved Presets</Label>
+                                  <div className="grid gap-2">
+                                    {qrPresets.map((preset) => (
+                                      <div key={preset.id} className="flex items-center justify-between p-2 border rounded">
+                                        <div className="flex-1">
+                                          <div className="font-medium text-sm">{preset.name}</div>
+                                          <div className="text-xs text-muted-foreground">
+                                            {new Date(preset.created_at).toLocaleDateString()}
+                                          </div>
+                                        </div>
+                                        <div className="flex gap-1">
+                                          <Button 
+                                            variant="outline" 
+                                            size="sm"
+                                            onClick={() => {
+                                              const designData = loadQrPreset(preset);
+                                              // Apply the loaded design
+                                              setQrForegroundColor(designData.foregroundColor);
+                                              setQrBackgroundColor(designData.backgroundColor);
+                                              setQrModuleShape(designData.moduleShape);
+                                              setQrFinderStyle(designData.finderStyle);
+                                              setQrFrameEnabled(designData.frameEnabled);
+                                              setQrFrameStyle(designData.frameStyle);
+                                              setQrFrameColor(designData.frameColor);
+                                              setQrLabelText(designData.labelText);
+                                              setQrLogoDataUrl(designData.logo || '');
+                                              setQrLogoMask(designData.logoMask);
+                                              setQrLogoSize(designData.logoSize);
+                                              setQrBgImageDataUrl(designData.backgroundImage || '');
+                                              setQrBgScrim(designData.backgroundOpacity);
+                                            }}
+                                          >
+                                            Load
+                                          </Button>
+                                          <Button 
+                                            variant="outline" 
+                                            size="sm"
+                                            onClick={() => deleteQrPreset(preset.id)}
+                                          >
+                                            Delete
+                                          </Button>
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              ) : (
+                                <div className="text-sm text-muted-foreground">No saved presets yet. Customize your QR design and save it as a preset.</div>
+                              )}
+                              
+                              <div className="text-xs text-muted-foreground">
+                                Save your favorite QR designs to quickly apply them to any event. Presets include all styling options, colors, logos, and background settings.
                               </div>
                             </div>
                           </AccordionContent>
