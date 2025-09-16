@@ -1,0 +1,235 @@
+import React, { useEffect, useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Users, MapPin, Utensils } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+
+interface TableGuest {
+  id: string;
+  first_name: string;
+  last_name: string;
+  seat_no: number | null;
+  dietary: string;
+  rsvp: string;
+}
+
+interface TableData {
+  id: string;
+  table_no: number;
+  name: string;
+  limit_seats: number;
+  notes: string | null;
+  guests: TableGuest[];
+}
+
+interface TableVisualizationProps {
+  tableId: string;
+  tableNumber: number;
+  eventId: string;
+}
+
+export const TableVisualization: React.FC<TableVisualizationProps> = ({
+  tableId,
+  tableNumber,
+  eventId
+}) => {
+  const [tableData, setTableData] = useState<TableData | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchTableData = async () => {
+      try {
+        // Fetch table details
+        const { data: table, error: tableError } = await supabase
+          .from('tables')
+          .select('*')
+          .eq('id', tableId)
+          .single();
+
+        if (tableError) throw tableError;
+
+        // Fetch guests for this table
+        const { data: guests, error: guestsError } = await supabase
+          .from('guests')
+          .select('id, first_name, last_name, seat_no, dietary, rsvp')
+          .eq('table_id', tableId)
+          .order('seat_no', { nullsFirst: false });
+
+        if (guestsError) throw guestsError;
+
+        setTableData({
+          ...table,
+          guests: guests || []
+        });
+      } catch (error) {
+        console.error('Error fetching table data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (tableId) {
+      fetchTableData();
+    }
+  }, [tableId]);
+
+  if (loading) {
+    return (
+      <Card className="w-full">
+        <CardContent className="p-6">
+          <div className="animate-pulse space-y-4">
+            <div className="h-4 bg-muted rounded w-1/4"></div>
+            <div className="h-20 bg-muted rounded"></div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (!tableData) {
+    return (
+      <Card className="w-full">
+        <CardContent className="p-6 text-center text-muted-foreground">
+          <MapPin className="w-12 h-12 mx-auto mb-2 opacity-50" />
+          <p>Table information not available</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  const arrangeSeats = (guests: TableGuest[], capacity: number) => {
+    const seats = Array.from({ length: capacity }, (_, i) => ({
+      position: i + 1,
+      guest: guests.find(g => g.seat_no === i + 1) || null
+    }));
+    return seats;
+  };
+
+  const seats = arrangeSeats(tableData.guests, tableData.limit_seats);
+  const radius = 80; // Base radius for the table
+  
+  return (
+    <Card className="w-full card-elevated">
+      <CardHeader className="text-center">
+        <CardTitle className="flex items-center justify-center gap-2">
+          <Users className="w-5 h-5 text-primary" />
+          {tableData.name || `Table ${tableData.table_no}`}
+        </CardTitle>
+        <div className="flex items-center justify-center gap-4 text-sm text-muted-foreground">
+          <span>{tableData.guests.length} of {tableData.limit_seats} seated</span>
+          {tableData.notes && (
+            <Badge variant="outline" className="text-xs">
+              {tableData.notes}
+            </Badge>
+          )}
+        </div>
+      </CardHeader>
+      
+      <CardContent className="p-6">
+        {/* Round Table Visualization */}
+        <div className="relative mx-auto" style={{ width: '240px', height: '240px' }}>
+          {/* Table Surface */}
+          <div 
+            className="absolute inset-0 bg-gradient-card border-2 border-primary/30 rounded-full flex items-center justify-center"
+            style={{ 
+              boxShadow: 'inset 0 2px 8px rgba(0,0,0,0.1), 0 4px 12px rgba(126, 110, 255, 0.15)' 
+            }}
+          >
+            <div className="text-center">
+              <div className="text-lg font-semibold text-primary">Table</div>
+              <div className="text-2xl font-bold text-primary">{tableData.table_no}</div>
+            </div>
+          </div>
+
+          {/* Seats around the table */}
+          {seats.map((seat, index) => {
+            const angle = (index * 360) / seats.length;
+            const radian = (angle - 90) * (Math.PI / 180);
+            const x = radius + (radius + 30) * Math.cos(radian);
+            const y = radius + (radius + 30) * Math.sin(radian);
+            
+            return (
+              <div
+                key={seat.position}
+                className={`absolute w-16 h-16 rounded-full border-2 flex items-center justify-center text-xs font-medium transition-all ${
+                  seat.guest 
+                    ? seat.guest.rsvp === 'Confirmed'
+                      ? 'bg-success/10 border-success text-success-foreground'
+                      : seat.guest.rsvp === 'Declined'
+                      ? 'bg-destructive/10 border-destructive text-destructive-foreground'
+                      : 'bg-warning/10 border-warning text-warning-foreground'
+                    : 'bg-muted border-muted-foreground/30 text-muted-foreground'
+                }`}
+                style={{
+                  left: `${x - 32}px`,
+                  top: `${y - 32}px`,
+                }}
+                title={seat.guest ? `${seat.guest.first_name} ${seat.guest.last_name}` : `Seat ${seat.position}`}
+              >
+                {seat.guest ? (
+                  <div className="text-center leading-tight">
+                    <div className="text-xs font-semibold">
+                      {seat.guest.first_name.charAt(0)}{seat.guest.last_name.charAt(0)}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-xs opacity-60">{seat.position}</div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Guest List */}
+        <div className="mt-6 space-y-2">
+          <h4 className="font-medium text-sm text-muted-foreground mb-3">Seated Guests</h4>
+          {tableData.guests.length > 0 ? (
+            <div className="space-y-2">
+              {tableData.guests.map((guest) => (
+                <div 
+                  key={guest.id} 
+                  className="flex items-center justify-between p-2 bg-background-subtle rounded-lg"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className={`w-3 h-3 rounded-full ${
+                      guest.rsvp === 'Confirmed' ? 'bg-success' :
+                      guest.rsvp === 'Declined' ? 'bg-destructive' : 'bg-warning'
+                    }`} />
+                    <div>
+                      <div className="text-sm font-medium">
+                        {guest.first_name} {guest.last_name}
+                      </div>
+                      {guest.dietary && guest.dietary !== 'NA' && (
+                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                          <Utensils className="w-3 h-3" />
+                          <span>{guest.dietary}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    {guest.seat_no && (
+                      <Badge variant="outline" className="text-xs">
+                        Seat {guest.seat_no}
+                      </Badge>
+                    )}
+                    <div className={`text-xs mt-1 ${
+                      guest.rsvp === 'Confirmed' ? 'text-success' :
+                      guest.rsvp === 'Declined' ? 'text-destructive' : 'text-warning'
+                    }`}>
+                      {guest.rsvp || 'Pending'}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground text-center py-4">
+              No guests seated at this table yet
+            </p>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
+};

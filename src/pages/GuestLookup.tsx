@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Search, 
   Users, 
@@ -13,10 +14,16 @@ import {
   Heart, 
   AlertCircle,
   CheckCircle2,
-  User
+  User,
+  Eye,
+  Smartphone,
+  Share2
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { EnhancedGuestCard } from '@/components/GuestLookup/EnhancedGuestCard';
+import { TableVisualization } from '@/components/GuestLookup/TableVisualization';
+import { GuestProfileModal } from '@/components/GuestLookup/GuestProfileModal';
 
 interface Guest {
   id: string;
@@ -26,6 +33,10 @@ interface Guest {
   table_id: string | null;
   who_is_display: string;
   rsvp: string;
+  dietary?: string;
+  mobile?: string;
+  email?: string;
+  notes?: string;
 }
 
 interface Event {
@@ -44,6 +55,9 @@ export const GuestLookup: React.FC = () => {
   const [event, setEvent] = useState<Event | null>(null);
   const [loading, setLoading] = useState(true);
   const [searching, setSearching] = useState(false);
+  const [selectedGuest, setSelectedGuest] = useState<Guest | null>(null);
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const [activeTab, setActiveTab] = useState('search');
   const { toast } = useToast();
 
   // Fetch event and guests data
@@ -75,7 +89,7 @@ export const GuestLookup: React.FC = () => {
         // Fetch guests for this event
         const { data: guestsData, error: guestsError } = await supabase
           .from('guests')
-          .select('id, first_name, last_name, table_no, table_id, who_is_display, rsvp')
+          .select('id, first_name, last_name, table_no, table_id, who_is_display, rsvp, dietary, mobile, email, notes')
           .eq('event_id', eventData.id);
 
         if (guestsError) {
@@ -129,6 +143,44 @@ export const GuestLookup: React.FC = () => {
     }
   };
 
+  const refreshGuestData = async () => {
+    if (!event) return;
+    
+    try {
+      const { data: guestsData, error: guestsError } = await supabase
+        .from('guests')
+        .select('id, first_name, last_name, table_no, table_id, who_is_display, rsvp, dietary, mobile, email, notes')
+        .eq('event_id', event.id);
+
+      if (!guestsError && guestsData) {
+        setGuests(guestsData);
+      }
+    } catch (error) {
+      console.error('Error refreshing guest data:', error);
+    }
+  };
+
+  const handleEditGuest = (guest: Guest) => {
+    setSelectedGuest(guest);
+    setShowProfileModal(true);
+  };
+
+  // Install PWA prompt
+  useEffect(() => {
+    let deferredPrompt: any;
+    
+    const handleBeforeInstallPrompt = (e: any) => {
+      e.preventDefault();
+      deferredPrompt = e;
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    };
+  }, []);
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-subtle flex items-center justify-center p-4">
@@ -162,146 +214,219 @@ export const GuestLookup: React.FC = () => {
     <div className="min-h-screen bg-gradient-subtle">
       {/* Hero Section */}
       <div className="bg-gradient-hero text-white">
-        <div className="container mx-auto px-4 py-12 text-center">
-          <div className="flex items-center justify-center mb-4">
-            <Heart className="w-8 h-8 mr-3" />
-            <h1 className="text-3xl md:text-4xl font-bold">
-              {event.partner1_name && event.partner2_name 
-                ? `${event.partner1_name} & ${event.partner2_name}`
-                : event.name
-              }
-            </h1>
-          </div>
-          <div className="flex items-center justify-center space-x-6 text-white/90">
-            <div className="flex items-center">
-              <Calendar className="w-4 h-4 mr-2" />
-              <span>{new Date(event.date).toLocaleDateString('en-US', { 
-                weekday: 'long', 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
-              })}</span>
+        <div className="container mx-auto px-4 py-8 md:py-12">
+          <div className="text-center">
+            <div className="flex items-center justify-center mb-4">
+              <Heart className="w-6 h-6 md:w-8 md:h-8 mr-3" />
+              <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold">
+                {event.partner1_name && event.partner2_name 
+                  ? `${event.partner1_name} & ${event.partner2_name}`
+                  : event.name
+                }
+              </h1>
             </div>
-            {event.venue && (
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 text-white/90 text-sm md:text-base">
               <div className="flex items-center">
-                <MapPin className="w-4 h-4 mr-2" />
-                <span>{event.venue}</span>
+                <Calendar className="w-4 h-4 mr-2" />
+                <span>{new Date(event.date).toLocaleDateString('en-US', { 
+                  weekday: 'long', 
+                  year: 'numeric', 
+                  month: 'long', 
+                  day: 'numeric' 
+                })}</span>
               </div>
-            )}
+              {event.venue && (
+                <div className="flex items-center">
+                  <MapPin className="w-4 h-4 mr-2" />
+                  <span className="text-center">{event.venue}</span>
+                </div>
+              )}
+            </div>
+            
+            {/* Mobile-friendly action buttons */}
+            <div className="flex justify-center gap-2 mt-4 md:hidden">
+              <Button 
+                variant="secondary" 
+                size="sm"
+                onClick={() => {
+                  if (navigator.share) {
+                    navigator.share({
+                      title: `${event.partner1_name && event.partner2_name ? `${event.partner1_name} & ${event.partner2_name}` : event.name}`,
+                      url: window.location.href
+                    });
+                  }
+                }}
+                className="bg-white/20 hover:bg-white/30 text-white border-white/30"
+              >
+                <Share2 className="w-4 h-4 mr-1" />
+                Share
+              </Button>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Search Section */}
-      <div className="container mx-auto px-4 py-8">
-        <Card className="max-w-2xl mx-auto">
-          <CardHeader className="text-center">
-            <CardTitle className="flex items-center justify-center gap-2">
-              <Users className="w-6 h-6 text-primary" />
-              Find Your Table
-            </CardTitle>
-            <CardDescription>
-              Start typing your name to find your table assignment
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {/* Search Input */}
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-              <Input
-                type="text"
-                placeholder="Type your first or last name..."
-                value={searchTerm}
-                onChange={(e) => handleSearchChange(e.target.value)}
-                className="pl-10 text-lg h-12"
-                autoFocus
-              />
-            </div>
+      {/* Main Content */}
+      <div className="container mx-auto px-4 py-6 md:py-8">
+        <div className="max-w-4xl mx-auto">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="grid w-full grid-cols-2 mb-6">
+              <TabsTrigger value="search" className="flex items-center gap-2">
+                <Search className="w-4 h-4" />
+                <span className="hidden sm:inline">Find Your Table</span>
+                <span className="sm:hidden">Search</span>
+              </TabsTrigger>
+              <TabsTrigger value="visualization" className="flex items-center gap-2">
+                <Eye className="w-4 h-4" />
+                <span className="hidden sm:inline">Table View</span>
+                <span className="sm:hidden">View</span>
+              </TabsTrigger>
+            </TabsList>
 
-            {/* Search Instructions */}
-            {searchTerm.length < 2 && (
-              <div className="text-center py-8">
-                <User className="w-12 h-12 mx-auto text-muted-foreground mb-3" />
-                <p className="text-muted-foreground">
-                  Type at least 2 letters of your name to search
-                </p>
-              </div>
-            )}
+            <TabsContent value="search">
+              <Card className="card-elevated">
+                <CardHeader className="text-center">
+                  <CardTitle className="flex items-center justify-center gap-2">
+                    <Users className="w-5 h-5 md:w-6 md:h-6 text-primary" />
+                    Find Your Table
+                  </CardTitle>
+                  <CardDescription>
+                    Start typing your name to find your table assignment and manage your RSVP
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  {/* Search Input */}
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                    <Input
+                      type="text"
+                      placeholder="Type your first or last name..."
+                      value={searchTerm}
+                      onChange={(e) => handleSearchChange(e.target.value)}
+                      className="pl-10 text-base md:text-lg h-11 md:h-12"
+                      autoFocus
+                    />
+                  </div>
 
-            {/* Loading State */}
-            {searching && (
-              <div className="text-center py-4">
-                <div className="animate-spin w-6 h-6 border-2 border-primary border-t-transparent rounded-full mx-auto mb-2"></div>
-                <p className="text-sm text-muted-foreground">Searching...</p>
-              </div>
-            )}
-
-            {/* Search Results */}
-            {searchTerm.length >= 2 && !searching && (
-              <div className="space-y-3">
-                {filteredGuests.length > 0 ? (
-                  filteredGuests.map((guest) => (
-                    <Card key={guest.id} className="border-primary/20 bg-gradient-card">
-                      <CardContent className="p-6">
-                        <div className="flex items-center justify-between">
-                          <div className="flex-1">
-                            <h3 className="text-xl font-semibold text-foreground">
-                              {guest.first_name} {guest.last_name}
-                            </h3>
-                            {guest.who_is_display && (
-                              <p className="text-sm text-muted-foreground mt-1">
-                                {guest.who_is_display}
-                              </p>
-                            )}
-                          </div>
-                          <div className="text-right">
-                            {guest.table_no ? (
-                              <div className="space-y-1">
-                                <Badge variant="default" className="text-lg px-4 py-2">
-                                  Table {guest.table_no}
-                                </Badge>
-                                <div className="flex items-center text-success text-sm">
-                                  <CheckCircle2 className="w-4 h-4 mr-1" />
-                                  Assigned
-                                </div>
-                              </div>
-                            ) : (
-                              <div className="space-y-1">
-                                <Badge variant="outline" className="text-sm">
-                                  No Table Assigned
-                                </Badge>
-                                <p className="text-xs text-muted-foreground">
-                                  Please see event staff
-                                </p>
-                              </div>
-                            )}
-                          </div>
+                  {/* Search Instructions */}
+                  {searchTerm.length < 2 && (
+                    <div className="text-center py-8">
+                      <User className="w-10 h-10 md:w-12 md:h-12 mx-auto text-muted-foreground mb-3" />
+                      <p className="text-muted-foreground text-sm md:text-base">
+                        Type at least 2 letters of your name to search
+                      </p>
+                      <div className="mt-4 p-4 bg-accent/50 rounded-lg">
+                        <div className="flex items-center justify-center gap-2 mb-2">
+                          <Smartphone className="w-4 h-4 text-accent-foreground" />
+                          <span className="text-sm font-medium text-accent-foreground">Mobile Tip</span>
                         </div>
-                      </CardContent>
-                    </Card>
-                  ))
-                ) : (
-                  <div className="text-center py-8">
-                    <AlertCircle className="w-12 h-12 mx-auto text-muted-foreground mb-3" />
-                    <p className="text-muted-foreground mb-2">No guests found</p>
-                    <p className="text-sm text-muted-foreground">
-                      Please check your spelling or contact event staff for assistance
-                    </p>
+                        <p className="text-xs text-muted-foreground">
+                          Add this page to your home screen for quick access during the event
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Loading State */}
+                  {searching && (
+                    <div className="text-center py-4">
+                      <div className="animate-spin w-6 h-6 border-2 border-primary border-t-transparent rounded-full mx-auto mb-2"></div>
+                      <p className="text-sm text-muted-foreground">Searching...</p>
+                    </div>
+                  )}
+
+                  {/* Search Results */}
+                  {searchTerm.length >= 2 && !searching && (
+                    <div className="space-y-4">
+                      {filteredGuests.length > 0 ? (
+                        filteredGuests.map((guest) => (
+                          <EnhancedGuestCard
+                            key={guest.id}
+                            guest={guest}
+                            onUpdate={refreshGuestData}
+                            onEdit={handleEditGuest}
+                          />
+                        ))
+                      ) : (
+                        <div className="text-center py-8">
+                          <AlertCircle className="w-10 h-10 md:w-12 md:h-12 mx-auto text-muted-foreground mb-3" />
+                          <p className="text-muted-foreground mb-2 font-medium">No guests found</p>
+                          <p className="text-sm text-muted-foreground">
+                            Please check your spelling or contact event staff for assistance
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  <Separator />
+
+                  {/* Footer */}
+                  <div className="text-center text-sm text-muted-foreground space-y-1">
+                    <p className="font-medium">Having trouble finding your name?</p>
+                    <p>Please contact event staff for assistance</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="visualization">
+              <div className="space-y-6">
+                {filteredGuests.length > 0 && searchTerm.length >= 2 && (
+                  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
+                    {Array.from(new Set(filteredGuests.map(g => g.table_id))).filter(Boolean).map((tableId) => {
+                      const tableGuest = filteredGuests.find(g => g.table_id === tableId);
+                      return tableGuest?.table_no ? (
+                        <TableVisualization
+                          key={tableId}
+                          tableId={tableId!}
+                          tableNumber={tableGuest.table_no}
+                          eventId={event.id}
+                        />
+                      ) : null;
+                    })}
                   </div>
                 )}
+
+                {searchTerm.length < 2 && (
+                  <Card className="card-elevated">
+                    <CardContent className="p-8 text-center">
+                      <Eye className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+                      <CardTitle className="mb-2">Interactive Table View</CardTitle>
+                      <CardDescription>
+                        Search for your name first to see your table visualization
+                      </CardDescription>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {searchTerm.length >= 2 && filteredGuests.length === 0 && !searching && (
+                  <Card className="card-elevated">
+                    <CardContent className="p-8 text-center">
+                      <AlertCircle className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+                      <CardTitle className="mb-2">No Table Found</CardTitle>
+                      <CardDescription>
+                        No table assignments found for your search. Please verify your name or contact event staff.
+                      </CardDescription>
+                    </CardContent>
+                  </Card>
+                )}
               </div>
-            )}
-
-            <Separator />
-
-            {/* Footer */}
-            <div className="text-center text-sm text-muted-foreground">
-              <p>Having trouble finding your name?</p>
-              <p>Please contact event staff for assistance</p>
-            </div>
-          </CardContent>
-        </Card>
+            </TabsContent>
+          </Tabs>
+        </div>
       </div>
+
+      {/* Guest Profile Modal */}
+      <GuestProfileModal
+        guest={selectedGuest}
+        isOpen={showProfileModal}
+        onClose={() => {
+          setShowProfileModal(false);
+          setSelectedGuest(null);
+        }}
+        onUpdate={refreshGuestData}
+      />
     </div>
   );
 };

@@ -1,0 +1,32 @@
+{
+  "name": "Evently Assist - Guest Lookup",
+  "short_name": "Evently",
+  "description": "Find your table and manage your RSVP for events",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "16x16 32x32",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "/placeholder.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/placeholder.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#A56EFF",
+  "background_color": "#F5F3FF",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "categories": ["events", "social", "lifestyle"],
+  "lang": "en-US"
+}
