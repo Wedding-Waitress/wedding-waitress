@@ -37,6 +37,7 @@ import { useRealtimeGuests } from '@/hooks/useRealtimeGuests';
 import { useRealtimeTables } from '@/hooks/useRealtimeTables';
 import { useProfile } from '@/hooks/useProfile';
 import { QRCodeSeatingChart } from '@/components/Dashboard/QRCode/QRCodeSeatingChart';
+import { SignagePage } from '@/components/Dashboard/Signage/SignagePage';
 export const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
@@ -383,6 +384,9 @@ export const Dashboard = () => {
             </Button>
           </Card>
         );
+      
+      case 'signage':
+        return <SignagePage selectedEventId={selectedEventId} onEventSelect={handleEventSelect} />;
       
       case 'qr-code':
         return <QRCodeSeatingChart selectedEventId={selectedEventId} onEventSelect={handleEventSelect} />;
