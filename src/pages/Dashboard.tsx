@@ -1775,9 +1775,9 @@ export const Dashboard = () => {
                 </div>
               </Card>
               
-              <Card className="p-6">
+              <Card className="p-6" data-testid="ai-qr-card">
                 <div className="flex items-center justify-between mb-4">
-                  <CardTitle className="text-lg">Live View (Preview)</CardTitle>
+                  <CardTitle className="text-lg">AI / Artistic QR</CardTitle>
                   <div className="flex items-center gap-1 text-xs text-muted-foreground">
                     <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                     <span>Last synced: {lastSyncTime.toLocaleTimeString()}</span>
