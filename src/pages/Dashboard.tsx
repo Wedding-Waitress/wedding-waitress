@@ -1371,6 +1371,126 @@ export const Dashboard = () => {
                           </AccordionContent>
                         </AccordionItem>
                         
+                        <AccordionItem value="background-image">
+                          <AccordionTrigger>Background Image / Photo-in-QR</AccordionTrigger>
+                          <AccordionContent>
+                            <div className="space-y-4">
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                  <Label htmlFor="bg-upload">Upload Background</Label>
+                                  <div className="flex flex-col gap-2">
+                                    <Input
+                                      id="bg-upload"
+                                      type="file"
+                                      accept=".png,.jpg,.jpeg,.webp"
+                                      onChange={(e) => {
+                                        const file = e.target.files?.[0];
+                                        if (file) handleBgImageUpload(file);
+                                      }}
+                                      className="file:mr-4 file:py-1 file:px-2 file:rounded file:border-0 file:text-sm file:bg-muted file:text-foreground hover:file:bg-muted/80"
+                                    />
+                                    {(qrBgImage || qrBgPreset) && (
+                                      <div className="flex gap-2">
+                                        <Button variant="outline" size="sm" onClick={handleRemoveBgImage}>
+                                          Remove
+                                        </Button>
+                                        <Button variant="outline" size="sm" onClick={() => document.getElementById('bg-upload')?.click()}>
+                                          Replace
+                                        </Button>
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                                
+                                <div className="space-y-2">
+                                  <Label htmlFor="bg-preset">Or Choose Preset</Label>
+                                  <Select 
+                                    value={qrBgPreset} 
+                                    onValueChange={handleBgPresetSelect}
+                                  >
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Select preset..." />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      {bgPresets.map(preset => (
+                                        <SelectItem key={preset.id} value={preset.id}>
+                                          {preset.name}
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                              </div>
+                              
+                              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div className="space-y-2">
+                                  <Label htmlFor="bg-fit">Fit Mode</Label>
+                                  <Select 
+                                    value={qrBgFitMode} 
+                                    onValueChange={(value: 'cover' | 'contain' | 'tile') => setQrBgFitMode(value)}
+                                    disabled={!qrBgImageDataUrl}
+                                  >
+                                    <SelectTrigger>
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="cover">Cover</SelectItem>
+                                      <SelectItem value="contain">Contain</SelectItem>
+                                      <SelectItem value="tile">Tile</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                                
+                                <div className="space-y-2">
+                                  <Label htmlFor="bg-scrim">Scrim Overlay: {qrBgScrim}%</Label>
+                                  <input
+                                    id="bg-scrim"
+                                    type="range"
+                                    min="0"
+                                    max="80"
+                                    step="5"
+                                    value={qrBgScrim}
+                                    onChange={(e) => setQrBgScrim(parseInt(e.target.value))}
+                                    disabled={!qrBgImageDataUrl}
+                                    className="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer disabled:cursor-not-allowed"
+                                  />
+                                </div>
+                                
+                                <div className="space-y-2 flex items-end">
+                                  <div className="flex flex-col gap-2">
+                                    <div className="flex items-center gap-2">
+                                      <input
+                                        type="checkbox"
+                                        id="bg-auto-contrast"
+                                        checked={qrBgAutoContrast}
+                                        onChange={(e) => setQrBgAutoContrast(e.target.checked)}
+                                        disabled={!qrBgImageDataUrl}
+                                        className="rounded"
+                                      />
+                                      <Label htmlFor="bg-auto-contrast" className="text-sm">Auto-contrast</Label>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                      <input
+                                        type="checkbox"
+                                        id="bg-apply-live"
+                                        checked={qrBgApplyToLiveView}
+                                        onChange={(e) => setQrBgApplyToLiveView(e.target.checked)}
+                                        disabled={!qrBgImageDataUrl}
+                                        className="rounded"
+                                      />
+                                      <Label htmlFor="bg-apply-live" className="text-sm">Apply to Live View</Label>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                              
+                              <div className="text-xs text-muted-foreground">
+                                <strong>Readability preserved:</strong> Finder patterns stay readable with white safety frames. Auto-contrast boosts QR visibility.
+                              </div>
+                            </div>
+                          </AccordionContent>
+                        </AccordionItem>
+                        
                         <AccordionItem value="frame-label">
                           <AccordionTrigger>Frame & Label</AccordionTrigger>
                           <AccordionContent>
