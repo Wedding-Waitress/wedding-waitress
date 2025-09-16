@@ -30,6 +30,8 @@ export type Database = {
           name: string
           partner1_name: string | null
           partner2_name: string | null
+          qr_apply_to_live_view: boolean | null
+          slug: string | null
           start_time: string | null
           user_id: string
           venue: string | null
@@ -58,6 +60,8 @@ export type Database = {
           name: string
           partner1_name?: string | null
           partner2_name?: string | null
+          qr_apply_to_live_view?: boolean | null
+          slug?: string | null
           start_time?: string | null
           user_id: string
           venue?: string | null
@@ -86,6 +90,8 @@ export type Database = {
           name?: string
           partner1_name?: string | null
           partner2_name?: string | null
+          qr_apply_to_live_view?: boolean | null
+          slug?: string | null
           start_time?: string | null
           user_id?: string
           venue?: string | null
@@ -229,6 +235,95 @@ export type Database = {
           },
         ]
       }
+      qr_code_settings: {
+        Row: {
+          background_color: string | null
+          background_image_url: string | null
+          center_image_url: string | null
+          corner_style: string | null
+          created_at: string
+          event_id: string
+          foreground_color: string | null
+          has_scan_text: boolean | null
+          id: string
+          pattern: string | null
+          scan_text: string | null
+          shape: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          background_color?: string | null
+          background_image_url?: string | null
+          center_image_url?: string | null
+          corner_style?: string | null
+          created_at?: string
+          event_id: string
+          foreground_color?: string | null
+          has_scan_text?: boolean | null
+          id?: string
+          pattern?: string | null
+          scan_text?: string | null
+          shape?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          background_color?: string | null
+          background_image_url?: string | null
+          center_image_url?: string | null
+          corner_style?: string | null
+          created_at?: string
+          event_id?: string
+          foreground_color?: string | null
+          has_scan_text?: boolean | null
+          id?: string
+          pattern?: string | null
+          scan_text?: string | null
+          shape?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "qr_code_settings_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      qr_design_presets: {
+        Row: {
+          created_at: string
+          design_data: Json
+          event_id: string
+          id: string
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          design_data: Json
+          event_id: string
+          id?: string
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          design_data?: Json
+          event_id?: string
+          id?: string
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       tables: {
         Row: {
           created_at: string
@@ -270,6 +365,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      generate_slug: {
+        Args: { input_text: string }
+        Returns: string
+      }
       get_events_with_guest_count: {
         Args: Record<PropertyKey, never>
         Returns: {

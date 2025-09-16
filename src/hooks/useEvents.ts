@@ -21,6 +21,7 @@ export interface Event {
   event_timezone: string | null;
   partner1_name: string | null;
   partner2_name: string | null;
+  slug: string | null;
 }
 
 export const useEvents = () => {

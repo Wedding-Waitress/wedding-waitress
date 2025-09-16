@@ -385,19 +385,7 @@ export const Dashboard = () => {
         );
       
       case 'qr-code':
-        return (
-          <Card className="p-8 text-center">
-            <QrCode className="w-16 h-16 mx-auto text-primary mb-4" />
-            <CardTitle className="mb-2">QR Code Management</CardTitle>
-            <CardDescription className="mb-6">
-              Generate QR codes for guest check-ins and table assignments
-            </CardDescription>
-            <Button variant="gradient">
-              <QrCode className="w-4 h-4 mr-2" />
-              Generate QR Codes
-            </Button>
-          </Card>
-        );
+        return <QRCodeSeatingChart selectedEventId={selectedEventId} onEventSelect={handleEventSelect} />;
       
       case 'planner':
         return (
