@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
@@ -18,6 +18,15 @@ export const QRCodeSeatingChart: React.FC<QRCodeSeatingChartProps> = ({
 }) => {
   const { events, loading: eventsLoading } = useEvents();
   const [localSelectedEventId, setLocalSelectedEventId] = useState<string | null>(selectedEventId || null);
+
+  // Auto-select first event when available
+  useEffect(() => {
+    if (!selectedEventId && !localSelectedEventId && !eventsLoading && events.length > 0) {
+      const firstId = events[0].id;
+      setLocalSelectedEventId(firstId);
+      onEventSelect?.(firstId);
+    }
+  }, [eventsLoading, events, selectedEventId, localSelectedEventId, onEventSelect]);
 
   const selectedEvent = events.find(event => event.id === (selectedEventId || localSelectedEventId));
 

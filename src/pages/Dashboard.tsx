@@ -37,12 +37,37 @@ import { useRealtimeGuests } from '@/hooks/useRealtimeGuests';
 import { useRealtimeTables } from '@/hooks/useRealtimeTables';
 import { useProfile } from '@/hooks/useProfile';
 import { QRCodeSeatingChart } from '@/components/Dashboard/QRCode/QRCodeSeatingChart';
-
+import { supabase } from '@/integrations/supabase/client';
+import type { Session } from '@supabase/supabase-js';
+import { SignInModal } from '@/components/auth/SignInModal';
+import { SignUpModal } from '@/components/auth/SignUpModal';
 export const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [showCreateTableModal, setShowCreateTableModal] = useState(false);
   const [editingTable, setEditingTable] = useState<TableWithGuestCount | null>(null);
+  // Auth session state
+  const [authChecked, setAuthChecked] = useState(false);
+  const [session, setSession] = useState<Session | null>(null);
+  const [signInOpen, setSignInOpen] = useState(false);
+
+  // Initialize auth listener and load session
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, sess) => {
+      setSession(sess);
+      if (!authChecked) setAuthChecked(true);
+    });
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setAuthChecked(true);
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
+
   const { 
     events, 
     loading: eventsLoading, 
@@ -454,7 +479,39 @@ export const Dashboard = () => {
     if (tabId === 'table-list') {
       refetchEvents();
     }
-  };
+};
+
+  // Authentication gate
+  if (!authChecked) {
+    return (
+      <div className="min-h-screen bg-gradient-subtle flex items-center justify-center p-6">
+        <Card className="w-full max-w-md p-8 text-center">
+          <CardTitle className="mb-2">Loading your dashboard...</CardTitle>
+          <CardDescription>Please wait.</CardDescription>
+        </Card>
+      </div>
+    );
+  }
+
+  if (authChecked && !session) {
+    return (
+      <div className="min-h-screen bg-gradient-subtle flex items-center justify-center p-6">
+        <div className="w-full max-w-md">
+          <Card className="p-8 text-center">
+            <CardTitle className="mb-2">Sign in required</CardTitle>
+            <CardDescription className="mb-6">Please sign in to access My Events, Tables, Guest List, and QR Code Seating Chart.</CardDescription>
+            <div className="flex gap-3 justify-center">
+              <Button variant="gradient" onClick={() => setSignInOpen(true)}>Sign in</Button>
+              <SignUpModal>
+                <Button variant="outline">Create account</Button>
+              </SignUpModal>
+            </div>
+          </Card>
+          <SignInModal open={signInOpen} onOpenChange={setSignInOpen} onBackToSignUp={() => setSignInOpen(false)} />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-subtle flex">
