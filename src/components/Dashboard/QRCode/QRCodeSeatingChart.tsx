@@ -140,7 +140,7 @@ export const QRCodeSeatingChart: React.FC<QRCodeSeatingChartProps> = ({
                     disabled={!selectedEvent?.slug}
                   >
                     <Copy className="w-4 h-4 mr-2" />
-                    Download Link
+                    Copy Link
                   </Button>
                 </div>
               </div>
