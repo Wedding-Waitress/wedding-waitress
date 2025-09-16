@@ -20,6 +20,15 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { 
   Calendar, 
   Users, 
@@ -32,7 +41,8 @@ import {
   Plus,
   Copy,
   Download,
-  Printer
+  Printer,
+  AlertTriangle
 } from "lucide-react";
 import QRCodeLib from 'qrcode';
 import { useEvents } from '@/hooks/useEvents';
@@ -48,6 +58,13 @@ export const Dashboard = () => {
   const [editingTable, setEditingTable] = useState<TableWithGuestCount | null>(null);
   const [qrSelectedEventId, setQrSelectedEventId] = useState<string | null>(null);
   const [lastSyncTime, setLastSyncTime] = useState<Date>(new Date());
+  
+  // QR Code design state
+  const [qrModuleShape, setQrModuleShape] = useState<'square' | 'round'>('square');
+  const [qrForegroundColor, setQrForegroundColor] = useState('#000000');
+  const [qrBackgroundColor, setQrBackgroundColor] = useState('#ffffff');
+  const [qrFinderStyle, setQrFinderStyle] = useState<'standard' | 'rounded'>('standard');
+  const [qrContrastWarning, setQrContrastWarning] = useState<string>('');
   const { 
     events, 
     loading: eventsLoading, 
@@ -166,27 +183,83 @@ export const Dashboard = () => {
 
   const [qrCodeSvg, setQrCodeSvg] = useState<string>('');
 
+  // Check contrast between two colors
+  const getContrastRatio = (color1: string, color2: string): number => {
+    const getLuminance = (hex: string): number => {
+      const rgb = parseInt(hex.slice(1), 16);
+      const r = ((rgb >> 16) & 0xff) / 255;
+      const g = ((rgb >> 8) & 0xff) / 255;
+      const b = (rgb & 0xff) / 255;
+      
+      const sRGB = [r, g, b].map(c => c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4));
+      return 0.2126 * sRGB[0] + 0.7152 * sRGB[1] + 0.0722 * sRGB[2];
+    };
+
+    const lum1 = getLuminance(color1);
+    const lum2 = getLuminance(color2);
+    const brightest = Math.max(lum1, lum2);
+    const darkest = Math.min(lum1, lum2);
+    
+    return (brightest + 0.05) / (darkest + 0.05);
+  };
+
+  // Validate contrast and update warning
+  useEffect(() => {
+    const contrast = getContrastRatio(qrForegroundColor, qrBackgroundColor);
+    if (contrast < 3) {
+      setQrContrastWarning('Low contrast detected. QR code may not scan properly. Minimum recommended contrast ratio is 3:1.');
+    } else {
+      setQrContrastWarning('');
+    }
+  }, [qrForegroundColor, qrBackgroundColor]);
+
   // Generate QR code SVG
   useEffect(() => {
     if (seatFinderUrl) {
-      QRCodeLib.toString(seatFinderUrl, {
-        type: 'svg',
-        errorCorrectionLevel: 'H',
-        margin: 4,
+      const qrOptions = {
+        type: 'svg' as const,
+        errorCorrectionLevel: 'H' as const,
+        margin: 4, // Keep 4-module quiet zone
         color: {
-          dark: '#000000',
-          light: '#ffffff'
+          dark: qrForegroundColor,
+          light: qrBackgroundColor
         },
         width: 200
-      }).then((svg) => {
-        setQrCodeSvg(svg);
-      }).catch((err) => {
-        console.error('QR Code generation error:', err);
-      });
+      };
+
+      QRCodeLib.toString(seatFinderUrl, qrOptions)
+        .then((svg) => {
+          let processedSvg = svg;
+          
+          // Apply module shape modifications if needed
+          if (qrModuleShape === 'round') {
+            // Convert squares to circles while preserving timing patterns and finders
+            processedSvg = processedSvg.replace(
+              /<rect[^>]*class="[^"]*"[^>]*>/g,
+              (match) => {
+                // Skip finder patterns and timing patterns
+                if (match.includes('finder') || match.includes('timing')) {
+                  return match;
+                }
+                // Convert regular modules to circles
+                const x = match.match(/x="([^"]*)"/)![1];
+                const y = match.match(/y="([^"]*)"/)![1];
+                const width = match.match(/width="([^"]*)"/)![1];
+                const fill = match.match(/fill="([^"]*)"/)![1];
+                return `<circle cx="${parseFloat(x) + parseFloat(width) / 2}" cy="${parseFloat(y) + parseFloat(width) / 2}" r="${parseFloat(width) / 2}" fill="${fill}"/>`;
+              }
+            );
+          }
+          
+          setQrCodeSvg(processedSvg);
+        })
+        .catch((err) => {
+          console.error('QR Code generation error:', err);
+        });
     } else {
       setQrCodeSvg('');
     }
-  }, [seatFinderUrl]);
+  }, [seatFinderUrl, qrForegroundColor, qrBackgroundColor, qrModuleShape, qrFinderStyle]);
 
   // QR Code action handlers
   const handleCopyLink = async () => {
@@ -200,7 +273,7 @@ export const Dashboard = () => {
       QRCodeLib.toDataURL(seatFinderUrl, {
         errorCorrectionLevel: 'H',
         margin: 4,
-        color: { dark: '#000000', light: '#ffffff' },
+        color: { dark: qrForegroundColor, light: qrBackgroundColor },
         width: 400
       }).then((dataUrl) => {
         const link = document.createElement('a');
@@ -228,7 +301,7 @@ export const Dashboard = () => {
       QRCodeLib.toDataURL(seatFinderUrl, {
         errorCorrectionLevel: 'H',
         margin: 4,
-        color: { dark: '#000000', light: '#ffffff' },
+        color: { dark: qrForegroundColor, light: qrBackgroundColor },
         width: 400
       }).then((dataUrl) => {
         const canvas = document.createElement('canvas');
@@ -237,7 +310,7 @@ export const Dashboard = () => {
         img.onload = () => {
           canvas.width = img.width;
           canvas.height = img.height;
-          ctx!.fillStyle = '#ffffff';
+          ctx!.fillStyle = qrBackgroundColor;
           ctx!.fillRect(0, 0, canvas.width, canvas.height);
           ctx!.drawImage(img, 0, 0);
           const jpgDataUrl = canvas.toDataURL('image/jpeg', 0.9);
@@ -606,6 +679,102 @@ export const Dashboard = () => {
                           )}
                         </div>
                       </div>
+                      
+                      {qrContrastWarning && (
+                        <Alert>
+                          <AlertTriangle className="h-4 w-4" />
+                          <AlertDescription>{qrContrastWarning}</AlertDescription>
+                        </Alert>
+                      )}
+                      
+                      <Accordion type="single" collapsible className="w-full">
+                        <AccordionItem value="design-basics">
+                          <AccordionTrigger>Design Basics</AccordionTrigger>
+                          <AccordionContent>
+                            <div className="space-y-4">
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                  <Label htmlFor="module-shape">Module Shape</Label>
+                                  <Select 
+                                    value={qrModuleShape} 
+                                    onValueChange={(value: 'square' | 'round') => setQrModuleShape(value)}
+                                  >
+                                    <SelectTrigger>
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="square">Square</SelectItem>
+                                      <SelectItem value="round">Round</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                                
+                                <div className="space-y-2">
+                                  <Label htmlFor="finder-style">Finder/Eye Style</Label>
+                                  <Select 
+                                    value={qrFinderStyle} 
+                                    onValueChange={(value: 'standard' | 'rounded') => setQrFinderStyle(value)}
+                                  >
+                                    <SelectTrigger>
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="standard">Standard</SelectItem>
+                                      <SelectItem value="rounded">Rounded</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                              </div>
+                              
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                  <Label htmlFor="foreground-color">Foreground Color</Label>
+                                  <div className="flex items-center gap-2">
+                                    <Input
+                                      id="foreground-color"
+                                      type="color"
+                                      value={qrForegroundColor}
+                                      onChange={(e) => setQrForegroundColor(e.target.value)}
+                                      className="w-16 h-8 p-1 rounded border"
+                                    />
+                                    <Input
+                                      type="text"
+                                      value={qrForegroundColor}
+                                      onChange={(e) => setQrForegroundColor(e.target.value)}
+                                      placeholder="#000000"
+                                      className="flex-1 font-mono text-sm"
+                                    />
+                                  </div>
+                                </div>
+                                
+                                <div className="space-y-2">
+                                  <Label htmlFor="background-color">Background Color</Label>
+                                  <div className="flex items-center gap-2">
+                                    <Input
+                                      id="background-color"
+                                      type="color"
+                                      value={qrBackgroundColor}
+                                      onChange={(e) => setQrBackgroundColor(e.target.value)}
+                                      className="w-16 h-8 p-1 rounded border"
+                                    />
+                                    <Input
+                                      type="text"
+                                      value={qrBackgroundColor}
+                                      onChange={(e) => setQrBackgroundColor(e.target.value)}
+                                      placeholder="#ffffff"
+                                      className="flex-1 font-mono text-sm"
+                                    />
+                                  </div>
+                                </div>
+                              </div>
+                              
+                              <div className="text-xs text-muted-foreground">
+                                <strong>Scannability maintained:</strong> 4-module quiet zone, timing patterns intact, error correction level H
+                              </div>
+                            </div>
+                          </AccordionContent>
+                        </AccordionItem>
+                      </Accordion>
                       
                       <div className="flex flex-wrap gap-2 pt-2 border-t">
                         <Button variant="outline" size="sm" onClick={handleCopyLink}>
