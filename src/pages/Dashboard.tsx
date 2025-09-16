@@ -1295,6 +1295,86 @@ export const Dashboard = () => {
                             </div>
                           </AccordionContent>
                         </AccordionItem>
+                        
+                        <AccordionItem value="frame-label">
+                          <AccordionTrigger>Frame & Label</AccordionTrigger>
+                          <AccordionContent>
+                            <div className="space-y-4">
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                  <div className="flex items-center gap-2">
+                                    <input
+                                      type="checkbox"
+                                      id="frame-enabled"
+                                      checked={qrFrameEnabled}
+                                      onChange={(e) => setQrFrameEnabled(e.target.checked)}
+                                      className="rounded"
+                                    />
+                                    <Label htmlFor="frame-enabled">Enable Frame</Label>
+                                  </div>
+                                </div>
+                                
+                                <div className="space-y-2">
+                                  <Label htmlFor="frame-style">Frame Style</Label>
+                                  <Select 
+                                    value={qrFrameStyle} 
+                                    onValueChange={(value: 'rounded' | 'square') => setQrFrameStyle(value)}
+                                    disabled={!qrFrameEnabled}
+                                  >
+                                    <SelectTrigger>
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="rounded">Rounded</SelectItem>
+                                      <SelectItem value="square">Square</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                              </div>
+                              
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                  <Label htmlFor="frame-color">Frame Color</Label>
+                                  <div className="flex items-center gap-2">
+                                    <Input
+                                      id="frame-color"
+                                      type="color"
+                                      value={qrFrameColor}
+                                      onChange={(e) => setQrFrameColor(e.target.value)}
+                                      disabled={!qrFrameEnabled}
+                                      className="w-16 h-8 p-1 rounded border"
+                                    />
+                                    <Input
+                                      type="text"
+                                      value={qrFrameColor}
+                                      onChange={(e) => setQrFrameColor(e.target.value)}
+                                      disabled={!qrFrameEnabled}
+                                      placeholder="#e5e7eb"
+                                      className="flex-1 font-mono text-sm"
+                                    />
+                                  </div>
+                                </div>
+                                
+                                <div className="space-y-2">
+                                  <Label htmlFor="label-text">Label Text</Label>
+                                  <Input
+                                    id="label-text"
+                                    type="text"
+                                    value={qrLabelText}
+                                    onChange={(e) => setQrLabelText(e.target.value)}
+                                    disabled={!qrFrameEnabled}
+                                    placeholder="Scan to find your seat"
+                                    className="w-full"
+                                  />
+                                </div>
+                              </div>
+                              
+                              <div className="text-xs text-muted-foreground">
+                                Frame and label will appear around the QR code when enabled
+                              </div>
+                            </div>
+                          </AccordionContent>
+                        </AccordionItem>
                       </Accordion>
                       
                       {qrContrastWarning && (
