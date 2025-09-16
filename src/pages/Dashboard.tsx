@@ -69,6 +69,10 @@ export const Dashboard = () => {
   const [qrFrameStyle, setQrFrameStyle] = useState<'rounded' | 'square'>('rounded');
   const [qrFrameColor, setQrFrameColor] = useState('#e5e7eb');
   const [qrLabelText, setQrLabelText] = useState('Scan to find your seat');
+  const [qrLogo, setQrLogo] = useState<File | null>(null);
+  const [qrLogoDataUrl, setQrLogoDataUrl] = useState<string>('');
+  const [qrLogoMask, setQrLogoMask] = useState<'square' | 'round'>('round');
+  const [qrLogoSize, setQrLogoSize] = useState<number>(15); // Percentage of QR area
   const { 
     events, 
     loading: eventsLoading, 
@@ -175,6 +179,25 @@ export const Dashboard = () => {
 
   // Get selected QR event
   const selectedQrEvent = qrSelectedEventId ? events.find(e => e.id === qrSelectedEventId) : null;
+
+  // Handle logo upload
+  const handleLogoUpload = (file: File) => {
+    if (file && (file.type === 'image/png' || file.type === 'image/jpeg' || file.type === 'image/webp')) {
+      setQrLogo(file);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        if (e.target?.result) {
+          setQrLogoDataUrl(e.target.result as string);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemoveLogo = () => {
+    setQrLogo(null);
+    setQrLogoDataUrl('');
+  };
 
   // Generate QR code data
   const generateSeatFinderUrl = (event: any) => {
@@ -327,6 +350,85 @@ export const Dashboard = () => {
             }
           }
           
+          // Add center logo if present
+          if (qrLogoDataUrl) {
+            const parser = new DOMParser();
+            const svgDoc = parser.parseFromString(processedSvg, 'image/svg+xml');
+            const svgElement = svgDoc.querySelector('svg');
+            
+            if (svgElement) {
+              const svgWidth = parseInt(svgElement.getAttribute('width') || '200');
+              const svgHeight = parseInt(svgElement.getAttribute('height') || '200');
+              
+              // Calculate logo size (percentage of QR area, capped at 22%)
+              const qrSize = Math.min(svgWidth, svgHeight);
+              const logoSize = (qrSize * Math.min(qrLogoSize, 22)) / 100;
+              
+              // Position logo in center
+              const logoX = (svgWidth - logoSize) / 2;
+              const logoY = qrFrameEnabled ? 
+                (220 - logoSize) / 2 + 10 : // Adjust for frame offset
+                (svgHeight - logoSize) / 2;
+              
+              // Create defs for clipping path
+              let defs = svgDoc.querySelector('defs');
+              if (!defs) {
+                defs = svgDoc.createElementNS('http://www.w3.org/2000/svg', 'defs');
+                svgElement.insertBefore(defs, svgElement.firstChild);
+              }
+              
+              // Create clipping path for logo mask
+              const clipPath = svgDoc.createElementNS('http://www.w3.org/2000/svg', 'clipPath');
+              clipPath.setAttribute('id', 'logoClip');
+              
+              if (qrLogoMask === 'round') {
+                const circle = svgDoc.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circle.setAttribute('cx', (logoX + logoSize / 2).toString());
+                circle.setAttribute('cy', (logoY + logoSize / 2).toString());
+                circle.setAttribute('r', (logoSize / 2).toString());
+                clipPath.appendChild(circle);
+              } else {
+                const rect = svgDoc.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                rect.setAttribute('x', logoX.toString());
+                rect.setAttribute('y', logoY.toString());
+                rect.setAttribute('width', logoSize.toString());
+                rect.setAttribute('height', logoSize.toString());
+                clipPath.appendChild(rect);
+              }
+              
+              defs.appendChild(clipPath);
+              
+              // Add white background circle/square for logo
+              const bgShape = svgDoc.createElementNS('http://www.w3.org/2000/svg', 
+                qrLogoMask === 'round' ? 'circle' : 'rect');
+              
+              if (qrLogoMask === 'round') {
+                bgShape.setAttribute('cx', (logoX + logoSize / 2).toString());
+                bgShape.setAttribute('cy', (logoY + logoSize / 2).toString());
+                bgShape.setAttribute('r', (logoSize / 2).toString());
+              } else {
+                bgShape.setAttribute('x', logoX.toString());
+                bgShape.setAttribute('y', logoY.toString());
+                bgShape.setAttribute('width', logoSize.toString());
+                bgShape.setAttribute('height', logoSize.toString());
+              }
+              bgShape.setAttribute('fill', qrBackgroundColor);
+              svgElement.appendChild(bgShape);
+              
+              // Add logo image
+              const logoImage = svgDoc.createElementNS('http://www.w3.org/2000/svg', 'image');
+              logoImage.setAttribute('x', logoX.toString());
+              logoImage.setAttribute('y', logoY.toString());
+              logoImage.setAttribute('width', logoSize.toString());
+              logoImage.setAttribute('height', logoSize.toString());
+              logoImage.setAttribute('href', qrLogoDataUrl);
+              logoImage.setAttribute('clip-path', 'url(#logoClip)');
+              svgElement.appendChild(logoImage);
+              
+              processedSvg = new XMLSerializer().serializeToString(svgDoc);
+            }
+          }
+          
           setQrCodeSvg(processedSvg);
         })
         .catch((err) => {
@@ -335,7 +437,7 @@ export const Dashboard = () => {
     } else {
       setQrCodeSvg('');
     }
-  }, [seatFinderUrl, qrForegroundColor, qrBackgroundColor, qrModuleShape, qrFinderStyle, qrFrameEnabled, qrFrameStyle, qrFrameColor, qrLabelText]);
+  }, [seatFinderUrl, qrForegroundColor, qrBackgroundColor, qrModuleShape, qrFinderStyle, qrFrameEnabled, qrFrameStyle, qrFrameColor, qrLabelText, qrLogoDataUrl, qrLogoMask, qrLogoSize]);
 
   // QR Code action handlers
   const handleCopyLink = async () => {
@@ -926,6 +1028,81 @@ export const Dashboard = () => {
                               
                               <div className="text-xs text-muted-foreground">
                                 Frame and label will appear around the QR code when enabled
+                              </div>
+                            </div>
+                          </AccordionContent>
+                        </AccordionItem>
+                        
+                        <AccordionItem value="center-logo">
+                          <AccordionTrigger>Center Logo</AccordionTrigger>
+                          <AccordionContent>
+                            <div className="space-y-4">
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                  <Label htmlFor="logo-upload">Upload Logo</Label>
+                                  <div className="flex flex-col gap-2">
+                                    <Input
+                                      id="logo-upload"
+                                      type="file"
+                                      accept=".png,.jpg,.jpeg,.webp"
+                                      onChange={(e) => {
+                                        const file = e.target.files?.[0];
+                                        if (file) handleLogoUpload(file);
+                                      }}
+                                      className="file:mr-4 file:py-1 file:px-2 file:rounded file:border-0 file:text-sm file:bg-muted file:text-foreground hover:file:bg-muted/80"
+                                    />
+                                    {qrLogo && (
+                                      <div className="flex gap-2">
+                                        <Button variant="outline" size="sm" onClick={handleRemoveLogo}>
+                                          Remove
+                                        </Button>
+                                        <Button variant="outline" size="sm" onClick={() => document.getElementById('logo-upload')?.click()}>
+                                          Replace
+                                        </Button>
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                                
+                                <div className="space-y-2">
+                                  <Label htmlFor="logo-mask">Logo Mask</Label>
+                                  <Select 
+                                    value={qrLogoMask} 
+                                    onValueChange={(value: 'square' | 'round') => setQrLogoMask(value)}
+                                    disabled={!qrLogo}
+                                  >
+                                    <SelectTrigger>
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="round">Round</SelectItem>
+                                      <SelectItem value="square">Square</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                              </div>
+                              
+                              <div className="space-y-2">
+                                <Label htmlFor="logo-size">Logo Size: {qrLogoSize}%</Label>
+                                <input
+                                  id="logo-size"
+                                  type="range"
+                                  min="5"
+                                  max="22"
+                                  step="1"
+                                  value={qrLogoSize}
+                                  onChange={(e) => setQrLogoSize(parseInt(e.target.value))}
+                                  disabled={!qrLogo}
+                                  className="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer disabled:cursor-not-allowed"
+                                />
+                                <div className="flex justify-between text-xs text-muted-foreground">
+                                  <span>5%</span>
+                                  <span>22% (max)</span>
+                                </div>
+                              </div>
+                              
+                              <div className="text-xs text-muted-foreground">
+                                <strong>Auto-optimized:</strong> Error correction set to H when logo is present. Logo size capped at 22% for scannability.
                               </div>
                             </div>
                           </AccordionContent>
