@@ -42,9 +42,13 @@ import {
   Copy,
   Download,
   Printer,
-  AlertTriangle
+  AlertTriangle,
+  CheckCircle,
+  XCircle,
+  Zap
 } from "lucide-react";
 import QRCodeLib from 'qrcode';
+import QrScanner from 'qr-scanner';
 import { useEvents } from '@/hooks/useEvents';
 import { useTables, TableWithGuestCount } from '@/hooks/useTables';
 import { useRealtimeGuests } from '@/hooks/useRealtimeGuests';
@@ -80,6 +84,12 @@ export const Dashboard = () => {
   const [qrBgScrim, setQrBgScrim] = useState<number>(40); // Percentage overlay
   const [qrBgAutoContrast, setQrBgAutoContrast] = useState<boolean>(true);
   const [qrBgApplyToLiveView, setQrBgApplyToLiveView] = useState<boolean>(false);
+  const [scannabilityResults, setScannabilityResults] = useState<{
+    small: 'pass' | 'warn' | 'fail' | 'testing',
+    medium: 'pass' | 'warn' | 'fail' | 'testing',
+    large: 'pass' | 'warn' | 'fail' | 'testing'
+  }>({ small: 'testing', medium: 'testing', large: 'testing' });
+  const [isTestingScannability, setIsTestingScannability] = useState<boolean>(false);
   const { 
     events, 
     loading: eventsLoading, 
@@ -260,6 +270,102 @@ export const Dashboard = () => {
   const seatFinderUrl = selectedQrEvent ? generateSeatFinderUrl(selectedQrEvent) : '';
 
   const [qrCodeSvg, setQrCodeSvg] = useState<string>('');
+
+  // Test QR scannability at different sizes
+  const testScannability = async () => {
+    if (!qrCodeSvg || !seatFinderUrl) return;
+    
+    setIsTestingScannability(true);
+    setScannabilityResults({ small: 'testing', medium: 'testing', large: 'testing' });
+    
+    const testSizes = [
+      { name: 'small', size: 100 },
+      { name: 'medium', size: 200 },
+      { name: 'large', size: 400 }
+    ];
+    
+    const results: any = {};
+    
+    for (const testSize of testSizes) {
+      try {
+        // Generate QR code as data URL for testing
+        const testDataUrl = await QRCodeLib.toDataURL(seatFinderUrl, {
+          errorCorrectionLevel: 'H',
+          margin: 4,
+          color: { dark: qrForegroundColor, light: qrBackgroundColor },
+          width: testSize.size
+        });
+        
+        // Create image element for scanning
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        
+        await new Promise((resolve, reject) => {
+          img.onload = resolve;
+          img.onerror = reject;
+          img.src = testDataUrl;
+        });
+        
+        // Try to decode the QR code
+        try {
+          const result = await QrScanner.scanImage(img);
+          if (result === seatFinderUrl) {
+            results[testSize.name] = 'pass';
+          } else {
+            results[testSize.name] = 'warn';
+          }
+        } catch (scanError) {
+          results[testSize.name] = 'fail';
+        }
+      } catch (error) {
+        results[testSize.name] = 'fail';
+      }
+    }
+    
+    setScannabilityResults(results);
+    setIsTestingScannability(false);
+  };
+
+  // Auto-fix scannability issues
+  const handleFixScannability = () => {
+    // Increase contrast
+    const contrastRatio = getContrastRatio(qrForegroundColor, qrBackgroundColor);
+    if (contrastRatio < 7) {
+      setQrForegroundColor('#000000');
+      setQrBackgroundColor('#ffffff');
+    }
+    
+    // Enable frame for better quiet zone
+    if (!qrFrameEnabled) {
+      setQrFrameEnabled(true);
+      setQrFrameColor('#ffffff');
+    }
+    
+    // Remove background image if it affects scannability
+    if (qrBgImageDataUrl) {
+      setQrBgScrim(Math.max(qrBgScrim, 60));
+      setQrBgAutoContrast(true);
+    }
+    
+    // Reset logo size if too large
+    if (qrLogoSize > 15) {
+      setQrLogoSize(15);
+    }
+    
+    setTimeout(() => {
+      testScannability();
+    }, 500);
+  };
+
+  // Test scannability when QR changes
+  useEffect(() => {
+    if (qrCodeSvg && seatFinderUrl) {
+      const timer = setTimeout(() => {
+        testScannability();
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [qrCodeSvg, seatFinderUrl]);
 
   // Check contrast between two colors
   const getContrastRatio = (color1: string, color2: string): number => {
@@ -1011,6 +1117,57 @@ export const Dashboard = () => {
                           )}
                         </div>
                       </div>
+                      
+                      {/* Scannability Meter */}
+                      {selectedQrEvent && (
+                        <div className="border rounded-lg p-4 bg-muted/30">
+                          <div className="flex items-center justify-between mb-3">
+                            <h4 className="font-medium text-sm">Scannability Test</h4>
+                            {isTestingScannability && (
+                              <div className="text-xs text-muted-foreground">Testing...</div>
+                            )}
+                          </div>
+                          
+                          <div className="grid grid-cols-3 gap-2 mb-3">
+                            {['small', 'medium', 'large'].map((size) => {
+                              const result = scannabilityResults[size as keyof typeof scannabilityResults];
+                              const getIcon = () => {
+                                switch (result) {
+                                  case 'pass': return <CheckCircle className="w-4 h-4 text-green-500" />;
+                                  case 'warn': return <AlertTriangle className="w-4 h-4 text-yellow-500" />;
+                                  case 'fail': return <XCircle className="w-4 h-4 text-red-500" />;
+                                  default: return <div className="w-4 h-4 rounded-full bg-gray-300 animate-pulse" />;
+                                }
+                              };
+                              
+                              return (
+                                <div key={size} className="flex items-center gap-2 text-xs">
+                                  {getIcon()}
+                                  <span className="capitalize">{size}</span>
+                                </div>
+                              );
+                            })}
+                          </div>
+                          
+                          {(scannabilityResults.small === 'fail' || 
+                            scannabilityResults.medium === 'fail' || 
+                            scannabilityResults.large === 'fail' ||
+                            scannabilityResults.small === 'warn' || 
+                            scannabilityResults.medium === 'warn' || 
+                            scannabilityResults.large === 'warn') && (
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              onClick={handleFixScannability}
+                              disabled={isTestingScannability}
+                              className="w-full"
+                            >
+                              <Zap className="w-3 h-3 mr-1" />
+                              Fix it for me
+                            </Button>
+                          )}
+                        </div>
+                      )}
                       
                       {qrContrastWarning && (
                         <Alert>
