@@ -32,6 +32,7 @@ interface Guest {
   table_no: number | null;
   table_id: string | null;
   seat_no?: number | null;
+  who_is_display?: string;
   rsvp: string;
   dietary?: string;
   mobile?: string;
@@ -118,6 +119,7 @@ export const GuestLookup: React.FC = () => {
             table_id: row.guest_table_id,
             table_no: row.guest_table_no || row.table_no,
             seat_no: row.guest_seat_no,
+            who_is_display: row.guest_who_is_display,
             rsvp: row.guest_rsvp,
             dietary: row.guest_dietary,
             mobile: row.guest_mobile,
@@ -189,6 +191,7 @@ export const GuestLookup: React.FC = () => {
             table_id: row.guest_table_id,
             table_no: row.guest_table_no || row.table_no,
             seat_no: row.guest_seat_no,
+            who_is_display: row.guest_who_is_display,
             rsvp: row.guest_rsvp,
             dietary: row.guest_dietary,
             mobile: row.guest_mobile,
