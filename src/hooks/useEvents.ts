@@ -21,6 +21,7 @@ export interface Event {
   event_timezone: string | null;
   partner1_name: string | null;
   partner2_name: string | null;
+  qr_apply_to_live_view?: boolean;
 }
 
 export const useEvents = () => {

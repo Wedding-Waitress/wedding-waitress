@@ -125,7 +125,11 @@ export const Dashboard = () => {
   const [previewHighContrast, setPreviewHighContrast] = useState(false);
   const [previewSearch, setPreviewSearch] = useState('');
 
-  const { events, loading: eventsLoading, refetch: refetchEvents } = useEvents();
+  // Preset name state
+  const [qrPresetName, setQrPresetName] = useState('');
+  const [aiQrPresetName, setAiQrPresetName] = useState('');
+
+  const { events, loading: eventsLoading, refetch: refetchEvents, updateEvent } = useEvents();
   const { profile } = useProfile();
   const { toast } = useToast();
 
@@ -139,6 +143,7 @@ export const Dashboard = () => {
   const qrGuests = useRealtimeGuests(qrSelectedEventId).guests;
 
   const { presets: qrPresets, savePreset: saveQrPreset, loadPreset: loadQrPreset, deletePreset: deleteQrPreset } = useQrPresets(qrSelectedEventId);
+  const { presets: aiQrPresets, savePreset: saveAiQrPreset, loadPreset: loadAiQrPreset, deletePreset: deleteAiQrPreset } = useQrPresets(aiQrSelectedEventId);
 
   // Seat finder URLs
   const seatFinderUrl = selectedQrEvent ? `${window.location.origin}/seat-finder/${selectedQrEvent.id}` : '';
@@ -430,6 +435,118 @@ export const Dashboard = () => {
                       </div>
                     </div>
                     
+                    {/* Apply to Live View Toggle */}
+                    <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                      <div className="space-y-1">
+                        <label className="text-sm font-medium">Apply background and colors to Live View</label>
+                        <p className="text-xs text-muted-foreground">When enabled, QR design will affect the guest experience</p>
+                      </div>
+                      <input
+                        type="checkbox"
+                        checked={selectedQrEvent.qr_apply_to_live_view || false}
+                        onChange={async (e) => {
+                          try {
+                            await updateEvent(selectedQrEvent.id, { qr_apply_to_live_view: e.target.checked });
+                          } catch (error) {
+                            console.error('Error updating live view setting:', error);
+                          }
+                        }}
+                        className="w-4 h-4 rounded"
+                      />
+                    </div>
+
+                    {/* Design Presets */}
+                    <div className="border rounded-lg p-4">
+                      <h4 className="font-medium text-sm mb-3">Design Presets</h4>
+                      
+                      {/* Save Preset */}
+                      <div className="space-y-3">
+                        <div className="flex gap-2">
+                          <Input
+                            placeholder="Enter preset name..."
+                            value={qrPresetName}
+                            onChange={(e) => setQrPresetName(e.target.value)}
+                            className="flex-1"
+                          />
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={async () => {
+                              if (qrPresetName.trim()) {
+                                const currentDesign = {
+                                  foregroundColor: qrForegroundColor,
+                                  backgroundColor: qrBackgroundColor,
+                                  moduleShape: qrModuleShape,
+                                  finderStyle: qrFinderStyle,
+                                  frameEnabled: qrFrameEnabled,
+                                  frameStyle: qrFrameStyle,
+                                  frameColor: qrFrameColor,
+                                  labelText: qrLabelText,
+                                  logo: qrLogoDataUrl,
+                                  logoMask: qrLogoMask,
+                                  logoSize: qrLogoSize,
+                                  backgroundImage: qrBgImageDataUrl,
+                                  backgroundOpacity: qrBgOpacity,
+                                };
+                                const success = await saveQrPreset(qrPresetName.trim(), currentDesign);
+                                if (success) {
+                                  setQrPresetName('');
+                                }
+                              }
+                            }}
+                            disabled={!qrPresetName.trim()}
+                          >
+                            Save Preset
+                          </Button>
+                        </div>
+
+                        {/* Load Presets */}
+                        {qrPresets.length > 0 && (
+                          <div className="space-y-2">
+                            <p className="text-xs text-muted-foreground">Saved Presets:</p>
+                            <div className="flex flex-wrap gap-2">
+                              {qrPresets.map((preset) => (
+                                <div key={preset.id} className="flex items-center gap-1">
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => {
+                                      const design = loadQrPreset(preset);
+                                      // Apply loaded design to state
+                                      setQrForegroundColor(design.foregroundColor);
+                                      setQrBackgroundColor(design.backgroundColor);
+                                      setQrModuleShape(design.moduleShape);
+                                      setQrFinderStyle(design.finderStyle);
+                                      setQrFrameEnabled(design.frameEnabled);
+                                      setQrFrameStyle(design.frameStyle);
+                                      setQrFrameColor(design.frameColor);
+                                      setQrLabelText(design.labelText);
+                                      setQrLogoDataUrl(design.logo || '');
+                                      setQrLogoMask(design.logoMask);
+                                      setQrLogoSize(design.logoSize);
+                                      setQrBgImageDataUrl(design.backgroundImage || '');
+                                      setQrBgOpacity(design.backgroundOpacity);
+                                    }}
+                                    className="text-xs"
+                                  >
+                                    {preset.name}
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => deleteQrPreset(preset.id)}
+                                    className="h-6 w-6 p-0 text-destructive hover:text-destructive"
+                                  >
+                                    ×
+                                  </Button>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    
                     <div className="text-center py-4 text-muted-foreground">
                       QR customization features coming soon...
                     </div>
@@ -495,6 +612,114 @@ export const Dashboard = () => {
                         ) : (
                           <div className="w-48 h-48 bg-muted flex items-center justify-center rounded-md">
                             <span className="text-muted-foreground text-sm">Generating AI QR...</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    
+                    {/* Apply to Live View Toggle */}
+                    <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                      <div className="space-y-1">
+                        <label className="text-sm font-medium">Apply background and colors to Live View</label>
+                        <p className="text-xs text-muted-foreground">When enabled, AI QR design will affect the guest experience</p>
+                      </div>
+                      <input
+                        type="checkbox"
+                        checked={selectedAiQrEvent.qr_apply_to_live_view || false}
+                        onChange={async (e) => {
+                          try {
+                            await updateEvent(selectedAiQrEvent.id, { qr_apply_to_live_view: e.target.checked });
+                          } catch (error) {
+                            console.error('Error updating AI QR live view setting:', error);
+                          }
+                        }}
+                        className="w-4 h-4 rounded"
+                      />
+                    </div>
+
+                    {/* Design Presets */}
+                    <div className="border rounded-lg p-4">
+                      <h4 className="font-medium text-sm mb-3">Design Presets</h4>
+                      
+                      {/* Save Preset */}
+                      <div className="space-y-3">
+                        <div className="flex gap-2">
+                          <Input
+                            placeholder="Enter preset name..."
+                            value={aiQrPresetName}
+                            onChange={(e) => setAiQrPresetName(e.target.value)}
+                            className="flex-1"
+                          />
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={async () => {
+                              if (aiQrPresetName.trim()) {
+                                const currentDesign = {
+                                  foregroundColor: aiQrModuleColor,
+                                  backgroundColor: aiQrBackgroundColor,
+                                  moduleShape: aiQrModulePattern as 'square' | 'round',
+                                  finderStyle: aiQrEyeStyle as 'standard' | 'rounded',
+                                  frameEnabled: false,
+                                  frameStyle: 'rounded' as 'rounded' | 'square',
+                                  frameColor: '#000000',
+                                  labelText: '',
+                                  logo: aiQrLogoUrl,
+                                  logoMask: aiQrLogoMask,
+                                  logoSize: aiQrLogoSize,
+                                  backgroundImage: aiQrPhotoUrl,
+                                  backgroundOpacity: aiQrPhotoScrim,
+                                };
+                                const success = await saveAiQrPreset(aiQrPresetName.trim(), currentDesign);
+                                if (success) {
+                                  setAiQrPresetName('');
+                                }
+                              }
+                            }}
+                            disabled={!aiQrPresetName.trim()}
+                          >
+                            Save Preset
+                          </Button>
+                        </div>
+
+                        {/* Load Presets */}
+                        {aiQrPresets.length > 0 && (
+                          <div className="space-y-2">
+                            <p className="text-xs text-muted-foreground">Saved Presets:</p>
+                            <div className="flex flex-wrap gap-2">
+                              {aiQrPresets.map((preset) => (
+                                <div key={preset.id} className="flex items-center gap-1">
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => {
+                                      const design = loadAiQrPreset(preset);
+                                      // Apply loaded design to AI QR state
+                                      setAiQrModuleColor(design.foregroundColor);
+                                      setAiQrBackgroundColor(design.backgroundColor);
+                                      setAiQrModulePattern(design.moduleShape === 'round' ? 'round' : 'square');
+                                      setAiQrEyeStyle(design.finderStyle === 'rounded' ? 'rounded' : 'standard');
+                                      setAiQrLogoUrl(design.logo || '');
+                                      setAiQrLogoMask(design.logoMask);
+                                      setAiQrLogoSize(design.logoSize);
+                                      setAiQrPhotoUrl(design.backgroundImage || '');
+                                      setAiQrPhotoScrim(design.backgroundOpacity);
+                                    }}
+                                    className="text-xs"
+                                  >
+                                    {preset.name}
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => deleteAiQrPreset(preset.id)}
+                                    className="h-6 w-6 p-0 text-destructive hover:text-destructive"
+                                  >
+                                    ×
+                                  </Button>
+                                </div>
+                              ))}
+                            </div>
                           </div>
                         )}
                       </div>
