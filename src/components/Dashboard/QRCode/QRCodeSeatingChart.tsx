@@ -7,6 +7,7 @@ import { useEvents } from '@/hooks/useEvents';
 import { useToast } from '@/hooks/use-toast';
 import { QRCodeMainCard } from './QRCodeMainCard';
 import { QRCodeFeatureGrid } from './QRCodeFeatureGrid';
+import { buildGuestLookupUrl } from '@/lib/urlUtils';
 
 interface QRCodeSeatingChartProps {
   selectedEventId?: string | null;
@@ -48,7 +49,7 @@ export const QRCodeSeatingChart: React.FC<QRCodeSeatingChartProps> = ({
 
   const handleDownloadLink = async () => {
     if (selectedEvent?.slug) {
-      const url = `${window.location.origin}/s/${selectedEvent.slug}`;
+      const url = buildGuestLookupUrl(selectedEvent.slug);
       try {
         await navigator.clipboard.writeText(url);
         toast({

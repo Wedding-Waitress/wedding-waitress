@@ -12,6 +12,7 @@ import { Download, Copy, QrCode as QrCodeIcon, Settings } from 'lucide-react';
 import { AdvancedQRGenerator } from '@/lib/advancedQRGenerator';
 import { AdvancedQRCustomizer } from './AdvancedQRCustomizer';
 import { useQRCodeSettings, QRCodeSettings } from '@/hooks/useQRCodeSettings';
+import { buildGuestLookupUrl } from '@/lib/urlUtils';
 
 interface QRCodeMainCardProps {
   eventId: string;
@@ -28,9 +29,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
 
   useEffect(() => {
     if (selectedEvent?.slug) {
-      // Use production URL for QR codes to ensure external accessibility
-      const productionUrl = 'https://wedding-waitress.lovableproject.com';
-      const url = `${productionUrl}/s/${selectedEvent.slug}`;
+      const url = buildGuestLookupUrl(selectedEvent.slug);
       console.log('Generated QR URL:', url); // Debug logging
       setQrUrl(url);
     }
@@ -159,9 +158,23 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
                   <QrCodeIcon className="h-16 w-16 text-muted-foreground" />
                 </div>
               )}
-              <p className="text-xs text-muted-foreground mt-2">
-                URL: {qrUrl || 'No event selected'}
-              </p>
+              <div className="mt-3 p-2 bg-muted/30 rounded border">
+                <p className="text-xs font-medium text-foreground mb-1">Scans to:</p>
+                <div className="flex items-center gap-2">
+                  <p className="text-xs text-muted-foreground truncate flex-1">
+                    {qrUrl || 'No event selected'}
+                  </p>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="h-6 px-2 text-xs"
+                    onClick={copyLink}
+                    disabled={!qrUrl}
+                  >
+                    <Copy className="h-3 w-3" />
+                  </Button>
+                </div>
+              </div>
             </div>
 
             {/* Quick Customization */}
