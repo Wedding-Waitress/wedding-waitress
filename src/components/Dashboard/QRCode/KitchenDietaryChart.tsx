@@ -9,6 +9,7 @@ import { useEvents } from '@/hooks/useEvents';
 import { useTables } from '@/hooks/useTables';
 import jsPDF from 'jspdf';
 import { format } from 'date-fns';
+import weddingWaitressLogo from '@/assets/wedding-waitress-logo.png';
 
 interface KitchenDietaryChartProps {
   eventId: string;
@@ -19,8 +20,10 @@ interface DietaryGuest {
   first_name: string;
   last_name: string;
   table_no: number | null;
+  seat_no: number | null;
   dietary: string;
   who_is_display: string;
+  mobile: string | null;
 }
 
 export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventId }) => {
@@ -45,8 +48,10 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
         first_name: guest.first_name,
         last_name: guest.last_name,
         table_no: guest.table_no,
+        seat_no: guest.seat_no,
         dietary: guest.dietary,
-        who_is_display: guest.who_is_display
+        who_is_display: guest.who_is_display,
+        mobile: guest.mobile
       }))
       .sort((a, b) => {
         // Sort by table number first, then by name
@@ -67,31 +72,31 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
       const pageHeight = pdf.internal.pageSize.getHeight();
       
       // Header
-      pdf.setFontSize(20);
+      pdf.setFontSize(18);
       pdf.setFont('helvetica', 'bold');
-      pdf.text('Kitchen Dietary Requirements', pageWidth / 2, 20, { align: 'center' });
-      
-      pdf.setFontSize(14);
-      pdf.setFont('helvetica', 'normal');
-      pdf.text(currentEvent.name, pageWidth / 2, 30, { align: 'center' });
+      pdf.text(currentEvent.name, pageWidth / 2, 20, { align: 'center' });
       
       if (currentEvent.date) {
+        pdf.setFontSize(14);
+        pdf.setFont('helvetica', 'normal');
         const eventDate = format(new Date(currentEvent.date), 'EEEE, MMMM do, yyyy');
-        pdf.text(eventDate, pageWidth / 2, 40, { align: 'center' });
+        pdf.text(eventDate, pageWidth / 2, 30, { align: 'center' });
       }
 
       // Table headers
-      let yPosition = 60;
+      let yPosition = 50;
       pdf.setFontSize(12);
       pdf.setFont('helvetica', 'bold');
       
-      const colWidths = [40, 25, 60, 60]; // Name, Table, Dietary, Who Is
-      const colPositions = [10, 50, 75, 135];
+      const colWidths = [30, 15, 15, 40, 30, 40]; // Name, Table, Seat, Dietary, Mobile, Relation
+      const colPositions = [10, 40, 55, 70, 110, 140];
       
       pdf.text('Guest Name', colPositions[0], yPosition);
       pdf.text('Table', colPositions[1], yPosition);
-      pdf.text('Dietary Requirements', colPositions[2], yPosition);
-      pdf.text('Relation', colPositions[3], yPosition);
+      pdf.text('Seat', colPositions[2], yPosition);
+      pdf.text('Dietary Requirements', colPositions[3], yPosition);
+      pdf.text('Mobile', colPositions[4], yPosition);
+      pdf.text('Relation', colPositions[5], yPosition);
       
       // Draw line under headers
       yPosition += 5;
@@ -100,49 +105,64 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
 
       // Guest data
       pdf.setFont('helvetica', 'normal');
-      pdf.setFontSize(10);
+      pdf.setFontSize(11);
 
       dietaryGuests.forEach((guest, index) => {
-        if (yPosition > pageHeight - 20) {
+        if (yPosition > pageHeight - 40) {
           pdf.addPage();
           yPosition = 20;
         }
 
         const fullName = `${guest.first_name} ${guest.last_name || ''}`.trim();
-        const tableText = guest.table_no ? `Table ${guest.table_no}` : 'Unassigned';
+        const tableText = guest.table_no ? guest.table_no.toString() : '-';
+        const seatText = guest.seat_no ? guest.seat_no.toString() : '-';
+        const mobileText = guest.mobile || '-';
         
         pdf.text(fullName, colPositions[0], yPosition);
         pdf.text(tableText, colPositions[1], yPosition);
+        pdf.text(seatText, colPositions[2], yPosition);
         
         // Handle long dietary text with wrapping
-        const dietaryLines = pdf.splitTextToSize(guest.dietary, colWidths[2]);
-        pdf.text(dietaryLines, colPositions[2], yPosition);
+        const dietaryLines = pdf.splitTextToSize(guest.dietary, colWidths[3]);
+        pdf.text(dietaryLines, colPositions[3], yPosition);
+        
+        // Handle mobile text
+        const mobileLines = pdf.splitTextToSize(mobileText, colWidths[4]);
+        pdf.text(mobileLines, colPositions[4], yPosition);
         
         // Handle long who_is text with wrapping
-        const whoIsLines = pdf.splitTextToSize(guest.who_is_display || 'Guest', colWidths[3]);
-        pdf.text(whoIsLines, colPositions[3], yPosition);
+        const whoIsLines = pdf.splitTextToSize(guest.who_is_display || 'Guest', colWidths[5]);
+        pdf.text(whoIsLines, colPositions[5], yPosition);
         
-        const maxLines = Math.max(dietaryLines.length, whoIsLines.length);
-        yPosition += maxLines * 5 + 3;
+        const maxLines = Math.max(dietaryLines.length, mobileLines.length, whoIsLines.length);
+        yPosition += maxLines * 6 + 4;
 
         // Add separator line every few entries
-        if ((index + 1) % 5 === 0) {
-          pdf.setDrawColor(200, 200, 200);
+        if ((index + 1) % 3 === 0) {
+          pdf.setDrawColor(220, 220, 220);
           pdf.line(10, yPosition, pageWidth - 10, yPosition);
-          yPosition += 5;
+          yPosition += 3;
         }
       });
 
-      // Footer
-      const totalPages = pdf.internal.pages.length - 1;
+      // Footer with logo
+      const totalPages = pdf.getNumberOfPages();
       for (let i = 1; i <= totalPages; i++) {
         pdf.setPage(i);
+        
+        // Wedding Waitress logo
+        try {
+          pdf.addImage(weddingWaitressLogo, 'PNG', pageWidth / 2 - 10, pageHeight - 25, 20, 10);
+        } catch (error) {
+          console.warn('Could not add logo to PDF:', error);
+        }
+        
         pdf.setFontSize(8);
         pdf.setFont('helvetica', 'italic');
         pdf.text(
-          `Generated on ${format(new Date(), 'dd/MM/yyyy HH:mm')} | Page ${i} of ${totalPages}`,
+          `Kitchen Dietary Requirements | Page ${i} of ${totalPages}`,
           pageWidth / 2,
-          pageHeight - 10,
+          pageHeight - 5,
           { align: 'center' }
         );
       }
@@ -172,141 +192,264 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header Card */}
-      <Card className="border-primary/20 bg-gradient-subtle">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-primary/10">
-                <ChefHat className="w-5 h-5 text-primary" />
-              </div>
-              <div>
-                <CardTitle className="text-xl gradient-text">Kitchen Dietary Requirements</CardTitle>
-                <p className="text-muted-foreground text-sm">
-                  Staff reference sheet for guests with dietary requirements and allergies
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handlePrint}
-                className="gap-2"
-              >
-                <Printer className="w-4 h-4" />
-                Print
-              </Button>
-              <Button
-                variant="default"
-                size="sm"
-                onClick={handleExportPDF}
-                disabled={isExporting || dietaryGuests.length === 0}
-                className="gap-2"
-              >
-                <Download className="w-4 h-4" />
-                {isExporting ? 'Exporting...' : 'Export PDF'}
-              </Button>
-            </div>
-          </div>
-        </CardHeader>
-      </Card>
-
-      {/* Event Info */}
-      {currentEvent && (
-        <Card>
-          <CardContent className="p-4">
+    <>
+      <style>{`
+        @media print {
+          body { -webkit-print-color-adjust: exact !important; color-adjust: exact !important; }
+          @page { size: A4; margin: 0.8in; }
+          .print-hide { display: none !important; }
+          .print-show { display: block !important; }
+          .kitchen-dietary-print {
+            font-size: 14px !important;
+            line-height: 1.4 !important;
+          }
+          .kitchen-dietary-print h1 {
+            font-size: 24px !important;
+            margin-bottom: 8px !important;
+            text-align: center !important;
+          }
+          .kitchen-dietary-print h2 {
+            font-size: 18px !important;
+            margin-bottom: 20px !important;
+            text-align: center !important;
+          }
+          .kitchen-dietary-print table {
+            width: 100% !important;
+            border-collapse: collapse !important;
+            margin-top: 20px !important;
+          }
+          .kitchen-dietary-print th,
+          .kitchen-dietary-print td {
+            border: 1px solid #ccc !important;
+            padding: 12px 8px !important;
+            text-align: left !important;
+            font-size: 13px !important;
+            font-weight: 500 !important;
+          }
+          .kitchen-dietary-print th {
+            background-color: #f5f5f5 !important;
+            font-weight: bold !important;
+            font-size: 14px !important;
+          }
+          .kitchen-dietary-print .dietary-cell {
+            background-color: #f3f4f6 !important;
+            color: #374151 !important;
+            font-weight: 600 !important;
+          }
+          .kitchen-dietary-print .logo-footer {
+            position: fixed !important;
+            bottom: 0.5in !important;
+            left: 50% !important;
+            transform: translateX(-50%) !important;
+            text-align: center !important;
+          }
+          .kitchen-dietary-print .logo-footer img {
+            max-width: 120px !important;
+            height: auto !important;
+          }
+        }
+      `}</style>
+      
+      <div className="space-y-6">
+        {/* Header Card */}
+        <Card className="border-primary/20 bg-gradient-subtle print-hide">
+          <CardHeader>
             <div className="flex items-center justify-between">
-              <div>
-                <h3 className="font-semibold">{currentEvent.name}</h3>
-                {currentEvent.date && (
-                  <p className="text-sm text-muted-foreground">
-                    {format(new Date(currentEvent.date), 'EEEE, MMMM do, yyyy')}
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-primary/10">
+                  <ChefHat className="w-5 h-5 text-primary" />
+                </div>
+                <div>
+                  <CardTitle className="text-xl gradient-text">Kitchen Dietary Requirements</CardTitle>
+                  <p className="text-muted-foreground text-sm">
+                    Staff reference sheet for guests with dietary requirements and allergies
                   </p>
-                )}
+                </div>
               </div>
-              <div className="text-right">
-                <Badge variant="secondary" className="mb-1">
-                  {dietaryGuests.length} Guest{dietaryGuests.length !== 1 ? 's' : ''}
-                </Badge>
-                <p className="text-xs text-muted-foreground">
-                  with dietary requirements
-                </p>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handlePrint}
+                  className="gap-2"
+                >
+                  <Printer className="w-4 h-4" />
+                  Print
+                </Button>
+                <Button
+                  variant="default"
+                  size="sm"
+                  onClick={handleExportPDF}
+                  disabled={isExporting || dietaryGuests.length === 0}
+                  className="gap-2"
+                >
+                  <Download className="w-4 h-4" />
+                  {isExporting ? 'Exporting...' : 'Export PDF'}
+                </Button>
               </div>
             </div>
-          </CardContent>
+          </CardHeader>
         </Card>
-      )}
 
-      {/* Dietary Requirements List */}
-      <Card className="print:shadow-none print:border-0">
-        <CardContent className="p-6">
-          {dietaryGuests.length === 0 ? (
-            <div className="text-center py-8">
-              <AlertCircle className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-medium mb-2">No Dietary Requirements</h3>
-              <p className="text-muted-foreground">
-                No guests have specified dietary requirements or allergies for this event.
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-1">
-              {/* Headers */}
-              <div className="grid grid-cols-12 gap-4 pb-3 border-b font-semibold text-sm text-muted-foreground">
-                <div className="col-span-3">Guest Name</div>
-                <div className="col-span-1">Table</div>
-                <div className="col-span-4">Dietary Requirements</div>
-                <div className="col-span-4">Relation</div>
-              </div>
-              
-              {/* Guest Rows */}
-              {dietaryGuests.map((guest, index) => (
-                <div key={guest.id}>
-                  <div className="grid grid-cols-12 gap-4 py-3 text-sm hover:bg-muted/30 rounded-lg px-2 transition-colors">
-                    <div className="col-span-3 font-medium">
-                      {guest.first_name} {guest.last_name}
-                    </div>
-                    <div className="col-span-1">
-                      {guest.table_no ? (
-                        <Badge variant="outline" className="text-xs">
-                          {guest.table_no}
-                        </Badge>
-                      ) : (
-                        <span className="text-muted-foreground text-xs">Unassigned</span>
-                      )}
-                    </div>
-                    <div className="col-span-4">
-                      <span className="bg-warning/10 text-warning-foreground px-2 py-1 rounded text-xs font-medium">
-                        {guest.dietary}
-                      </span>
-                    </div>
-                    <div className="col-span-4 text-muted-foreground">
-                      {guest.who_is_display || 'Guest'}
-                    </div>
-                  </div>
-                  {index < dietaryGuests.length - 1 && (
-                    <Separator className="my-1 opacity-30" />
+        {/* Event Info */}
+        {currentEvent && (
+          <Card className="print-hide">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-semibold">{currentEvent.name}</h3>
+                  {currentEvent.date && (
+                    <p className="text-sm text-muted-foreground">
+                      {format(new Date(currentEvent.date), 'EEEE, MMMM do, yyyy')}
+                    </p>
                   )}
                 </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+                <div className="text-right">
+                  <Badge variant="secondary" className="mb-1">
+                    {dietaryGuests.length} Guest{dietaryGuests.length !== 1 ? 's' : ''}
+                  </Badge>
+                  <p className="text-xs text-muted-foreground">
+                    with dietary requirements
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
-      {/* Instructions for Kitchen Staff */}
-      <Card className="bg-muted/30 print:hidden">
-        <CardContent className="p-4">
-          <h4 className="font-semibold text-sm mb-2">Instructions for Kitchen Staff</h4>
-          <ul className="text-xs text-muted-foreground space-y-1">
-            <li>• Please ensure all dietary requirements are carefully noted for each guest</li>
-            <li>• Cross-reference table numbers during service</li>
-            <li>• Contact event coordinator if any requirements are unclear</li>
-            <li>• Keep this sheet accessible throughout food preparation and service</li>
-          </ul>
-        </CardContent>
-      </Card>
-    </div>
+        {/* Print Header */}
+        <div className="hidden print-show kitchen-dietary-print">
+          {currentEvent && (
+            <>
+              <h1>{currentEvent.name}</h1>
+              {currentEvent.date && (
+                <h2>{format(new Date(currentEvent.date), 'EEEE, MMMM do, yyyy')}</h2>
+              )}
+            </>
+          )}
+        </div>
+
+        {/* Dietary Requirements List */}
+        <Card className="print:shadow-none print:border-0">
+          <CardContent className="p-6 print:p-0">
+            {dietaryGuests.length === 0 ? (
+              <div className="text-center py-8 print-hide">
+                <AlertCircle className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-medium mb-2">No Dietary Requirements</h3>
+                <p className="text-muted-foreground">
+                  No guests have specified dietary requirements or allergies for this event.
+                </p>
+              </div>
+            ) : (
+              <>
+                {/* Screen View */}
+                <div className="space-y-1 print-hide">
+                  {/* Headers */}
+                  <div className="grid grid-cols-12 gap-4 pb-3 border-b font-semibold text-sm text-muted-foreground">
+                    <div className="col-span-3">Guest Name</div>
+                    <div className="col-span-1">Table</div>
+                    <div className="col-span-1">Seat</div>
+                    <div className="col-span-3">Dietary Requirements</div>
+                    <div className="col-span-2">Mobile</div>
+                    <div className="col-span-2">Relation</div>
+                  </div>
+                  
+                  {/* Guest Rows */}
+                  {dietaryGuests.map((guest, index) => (
+                    <div key={guest.id}>
+                      <div className="grid grid-cols-12 gap-4 py-3 text-sm hover:bg-muted/30 rounded-lg px-2 transition-colors">
+                        <div className="col-span-3 font-medium">
+                          {guest.first_name} {guest.last_name}
+                        </div>
+                        <div className="col-span-1">
+                          {guest.table_no ? (
+                            <Badge variant="outline" className="text-xs">
+                              {guest.table_no}
+                            </Badge>
+                          ) : (
+                            <span className="text-muted-foreground text-xs">-</span>
+                          )}
+                        </div>
+                        <div className="col-span-1">
+                          {guest.seat_no ? (
+                            <Badge variant="outline" className="text-xs">
+                              {guest.seat_no}
+                            </Badge>
+                          ) : (
+                            <span className="text-muted-foreground text-xs">-</span>
+                          )}
+                        </div>
+                        <div className="col-span-3">
+                          <span className="bg-gray-100 text-gray-800 px-3 py-1.5 rounded-full text-xs font-medium">
+                            {guest.dietary}
+                          </span>
+                        </div>
+                        <div className="col-span-2 text-muted-foreground text-xs">
+                          {guest.mobile || '-'}
+                        </div>
+                        <div className="col-span-2 text-muted-foreground text-xs">
+                          {guest.who_is_display || 'Guest'}
+                        </div>
+                      </div>
+                      {index < dietaryGuests.length - 1 && (
+                        <Separator className="my-1 opacity-30" />
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                {/* Print View */}
+                <div className="hidden print-show kitchen-dietary-print">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th style={{ width: '18%' }}>Guest Name</th>
+                        <th style={{ width: '8%' }}>Table</th>
+                        <th style={{ width: '8%' }}>Seat</th>
+                        <th style={{ width: '25%' }}>Dietary Requirements</th>
+                        <th style={{ width: '18%' }}>Mobile</th>
+                        <th style={{ width: '23%' }}>Relation</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {dietaryGuests.map((guest) => (
+                        <tr key={guest.id}>
+                          <td style={{ fontWeight: '600' }}>
+                            {guest.first_name} {guest.last_name}
+                          </td>
+                          <td>{guest.table_no || '-'}</td>
+                          <td>{guest.seat_no || '-'}</td>
+                          <td className="dietary-cell">{guest.dietary}</td>
+                          <td>{guest.mobile || '-'}</td>
+                          <td>{guest.who_is_display || 'Guest'}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Instructions for Kitchen Staff */}
+        <Card className="bg-muted/30 print-hide">
+          <CardContent className="p-4">
+            <h4 className="font-semibold text-sm mb-2">Instructions for Kitchen Staff</h4>
+            <ul className="text-xs text-muted-foreground space-y-1">
+              <li>• Please ensure all dietary requirements are carefully noted for each guest</li>
+              <li>• Cross-reference table numbers during service</li>
+              <li>• Contact event coordinator if any requirements are unclear</li>
+              <li>• Keep this sheet accessible throughout food preparation and service</li>
+            </ul>
+          </CardContent>
+        </Card>
+
+        {/* Print Footer */}
+        <div className="hidden print-show logo-footer">
+          <img src={weddingWaitressLogo} alt="Wedding Waitress" />
+        </div>
+      </div>
+    </>
   );
 };
