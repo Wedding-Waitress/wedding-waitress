@@ -124,7 +124,7 @@ export const generateTableChartImage = async (
 /**
  * Generate SVG content for the chart
  */
-const generateChartSVG = (
+export const generateChartSVG = (
   settings: ChartSettings,
   tables: TableWithGuestCount[],
   guests: Guest[],

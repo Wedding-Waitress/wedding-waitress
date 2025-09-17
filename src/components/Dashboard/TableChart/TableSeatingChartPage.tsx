@@ -66,12 +66,36 @@ export const TableSeatingChartPage: React.FC<TableSeatingChartPageProps> = ({
 
   const selectedEvent = selectedEventId ? events.find(e => e.id === selectedEventId) : null;
 
+  // Format date as "Sunday 23rd November 2025"
+  const formatEventDate = (dateString: string): string => {
+    if (!dateString) return 'Date TBD';
+    
+    const date = new Date(dateString);
+    const dayName = date.toLocaleDateString('en-US', { weekday: 'long' });
+    const day = date.getDate();
+    const month = date.toLocaleDateString('en-US', { month: 'long' });
+    const year = date.getFullYear();
+    
+    // Add ordinal suffix (1st, 2nd, 3rd, 4th, etc.)
+    const getOrdinalSuffix = (day: number): string => {
+      if (day >= 11 && day <= 13) return 'th';
+      switch (day % 10) {
+        case 1: return 'st';
+        case 2: return 'nd';
+        case 3: return 'rd';
+        default: return 'th';
+      }
+    };
+    
+    return `${dayName} ${day}${getOrdinalSuffix(day)} ${month} ${year}`;
+  };
+
   // Update subtitle when event changes
   useEffect(() => {
     if (selectedEvent) {
       setSettings(prev => ({
         ...prev,
-        subtitle: `${selectedEvent.name} - ${selectedEvent.date || 'Date TBD'}`
+        subtitle: `${selectedEvent.name} - ${formatEventDate(selectedEvent.date)}`
       }));
     }
   }, [selectedEvent]);
@@ -91,40 +115,55 @@ export const TableSeatingChartPage: React.FC<TableSeatingChartPageProps> = ({
   };
 
   const handlePrint = () => {
+    if (!isDataReady || !selectedEvent) return;
+
     // Create a new window for printing
     const printWindow = window.open('', '_blank');
     if (!printWindow) return;
 
-    // Generate the chart content for printing
-    const chartHTML = `
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <title>Table Seating Chart</title>
-          <style>
-            @media print {
-              @page { 
-                size: A4 portrait;
-                margin: 10mm;
+    // Import the chart engine to generate SVG
+    import('@/lib/tableChartEngine').then(({ generateChartSVG }) => {
+      const chartSVG = generateChartSVG(settings, tables, guests, selectedEvent);
+      
+      // Generate the chart content for printing
+      const chartHTML = `
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <title>Table Seating Chart - ${selectedEvent.name}</title>
+            <style>
+              @media print {
+                @page { 
+                  size: A4 portrait;
+                  margin: 5mm;
+                }
+                body { margin: 0; padding: 0; }
               }
-              body { margin: 0; padding: 0; }
-            }
-            body { font-family: Arial, sans-serif; }
-          </style>
-        </head>
-        <body>
-          <div style="width: 210mm; height: 297mm; display: flex; justify-content: center; align-items: center;">
-            <p>Print functionality - Chart will be rendered here</p>
-          </div>
-        </body>
-      </html>
-    `;
+              body { 
+                font-family: Arial, sans-serif; 
+                display: flex; 
+                justify-content: center; 
+                align-items: center; 
+                min-height: 100vh; 
+              }
+              svg { 
+                max-width: 100%; 
+                max-height: 100%; 
+              }
+            </style>
+          </head>
+          <body>
+            ${chartSVG}
+          </body>
+        </html>
+      `;
 
-    printWindow.document.write(chartHTML);
-    printWindow.document.close();
-    printWindow.focus();
-    printWindow.print();
-    printWindow.close();
+      printWindow.document.write(chartHTML);
+      printWindow.document.close();
+      printWindow.focus();
+      printWindow.print();
+      printWindow.close();
+    });
   };
 
   const isDataReady = selectedEventId && tables.length > 0 && !tablesLoading && !guestsLoading;

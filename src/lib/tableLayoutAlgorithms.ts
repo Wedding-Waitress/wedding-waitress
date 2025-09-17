@@ -38,21 +38,21 @@ const generatePrintReadyGridLayout = (tables: TableWithGuestCount[]): TablePosit
   const cols = 3;
   const rows = 4;
 
-  // 10mm margins converted to normalized coordinates for A4 (210x297mm)
-  const marginX = 10 / 210; // ~0.048 (4.8%)
-  const marginY = 10 / 297; // ~0.034 (3.4%)
+  // 5mm margins converted to normalized coordinates for A4 (210x297mm)
+  const marginX = 5 / 210; // ~0.024 (2.4%)
+  const marginY = 5 / 297; // ~0.017 (1.7%)
   
   // Available space after margins
   const availableWidth = 1 - (2 * marginX);
   const availableHeight = 1 - (2 * marginY);
   
-  // Even larger table sizes to maximize space with print bleed
-  const tableWidth = 0.306; // ~64mm on A4 (larger tables)
-  const tableHeight = 0.239; // ~71mm on A4 (taller tables)
+  // Properly sized tables to prevent overlapping
+  const tableWidth = 0.28; // ~59mm on A4 (reduced from 0.306)
+  const tableHeight = 0.22; // ~65mm on A4 (reduced from 0.239)
   
-  // Keep same gaps between tables
-  const gapX = 0.024; // ~5mm horizontal gap
-  const gapY = 0.017; // ~5mm vertical gap
+  // Increased gaps between tables to prevent overlapping
+  const gapX = 0.04; // ~8mm horizontal gap (increased from 0.024)
+  const gapY = 0.035; // ~10mm vertical gap (increased from 0.017)
   
   // Calculate actual spacing to center the grid
   const totalContentWidth = (cols * tableWidth) + ((cols - 1) * gapX);
