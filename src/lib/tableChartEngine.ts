@@ -224,25 +224,16 @@ export const generateChartSVG = (
       `;
     }
 
-    // Table Label and Number Combined and Centered
+    // Table number and capacity combined at top right
     svgContent += `
-      <text x="${scaledX + scaledWidth / 2}" y="${scaledY + 25}" 
-            text-anchor="middle" font-family="Arial, sans-serif" 
-            font-size="${fontSize.table}" font-weight="bold" fill="#1f2937">
-        ${settings.showTableNumbers ? `Table ${table.table_no || table.name}` : 'Table'}
+      <text x="${scaledX + scaledWidth - 5}" y="${scaledY + 25}" 
+            text-anchor="end" font-family="Arial, sans-serif" 
+            font-size="${fontSize.table}" fill="#1f2937">
+        <tspan font-weight="bold">${settings.showTableNumbers ? `Table ${table.table_no || table.name}` : 'Table'}</tspan>
+        <tspan font-weight="normal"> - Capacity ${table.guest_count}/${table.limit_seats}</tspan>
       </text>
     `;
 
-    // Capacity at Bottom
-    if (settings.showCapacity) {
-      svgContent += `
-        <text x="${scaledX + scaledWidth / 2}" y="${scaledY + scaledHeight - 15}" 
-              text-anchor="middle" font-family="Arial, sans-serif" 
-              font-size="${fontSize.guest}" fill="#6b7280">
-          ${table.guest_count}/${table.limit_seats}
-        </text>
-      `;
-    }
 
     // Guest Names in Expanded Middle Area
     if (settings.includeNames && tableGuests.length > 0) {
@@ -281,41 +272,10 @@ export const generateChartSVG = (
     }
   });
 
-  // Legend
-  if (settings.colorCoding !== 'none') {
-    const legendX = width - 200;
-    const legendY = height - 120;
-    
-    svgContent += `
-      <rect x="${legendX}" y="${legendY}" width="180" height="100" 
-            fill="#f8fafc" stroke="#e2e8f0" stroke-width="1" rx="4"/>
-      <text x="${legendX + 10}" y="${legendY + 20}" 
-            font-family="Arial, sans-serif" font-size="${fontSize.legend + 2}" 
-            font-weight="600" fill="#1f2937">
-        Legend
-      </text>
-    `;
-
-    if (settings.colorCoding === 'rsvp') {
-      const legendItems = [
-        { label: 'Confirmed', bg: '#dcfce7', border: '#16a34a' },
-        { label: 'Pending', bg: '#fefce8', border: '#ca8a04' },
-        { label: 'Declined', bg: '#fef2f2', border: '#dc2626' }
-      ];
-
-      legendItems.forEach((item, index) => {
-        const itemY = legendY + 35 + (index * 20);
-        svgContent += `
-          <rect x="${legendX + 10}" y="${itemY - 8}" width="12" height="12" 
-                fill="${item.bg}" stroke="${item.border}" stroke-width="1" rx="2"/>
-          <text x="${legendX + 30}" y="${itemY}" 
-                font-family="Arial, sans-serif" font-size="${fontSize.legend}" fill="#1f2937">
-            ${item.label}
-          </text>
-        `;
-      });
-    }
-  }
+  // Wedding Waitress Logo at bottom
+  svgContent += `
+    <image href="/wedding-waitress-logo.png" x="${width / 2 - 40}" y="${height - 100}" width="80" height="60" preserveAspectRatio="xMidYMid meet" />
+  `;
 
   svgContent += '</svg>';
   return svgContent;

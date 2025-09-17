@@ -150,29 +150,22 @@ export const TableChartPreview: React.FC<TableChartPreviewProps> = ({
                 />
               )}
 
-              {/* Table Label and Number Centered */}
+              {/* Table number and capacity combined at top right */}
               <text
-                x={scaledX + scaledWidth / 2}
+                x={scaledX + scaledWidth - 5}
                 y={scaledY + 20}
-                textAnchor="middle"
-                className="fill-current text-foreground font-bold"
+                textAnchor="end"
+                className="fill-current text-foreground"
                 fontSize={settings.fontSize === 'large' ? '16' : settings.fontSize === 'medium' ? '14' : '12'}
               >
-                {settings.showTableNumbers ? `Table ${table.table_no || table.name}` : 'Table'}
+                <tspan className="font-bold">
+                  {settings.showTableNumbers ? `Table ${table.table_no || table.name}` : 'Table'}
+                </tspan>
+                <tspan className="font-normal">
+                  {` - Capacity ${table.guest_count}/${table.limit_seats}`}
+                </tspan>
               </text>
 
-              {/* Capacity at Bottom */}
-              {settings.showCapacity && (
-                <text
-                  x={scaledX + scaledWidth / 2}
-                  y={scaledY + scaledHeight - 10}
-                  textAnchor="middle"
-                  className="fill-current text-muted-foreground"
-                  fontSize={settings.fontSize === 'large' ? '12' : settings.fontSize === 'medium' ? '10' : '8'}
-                >
-                  {table.guest_count}/{table.limit_seats}
-                </text>
-              )}
 
               {/* Guest Names in Expanded Middle Area */}
               {settings.includeNames && tableGuests.length > 0 && (
@@ -225,25 +218,15 @@ export const TableChartPreview: React.FC<TableChartPreviewProps> = ({
           );
         })}
 
-        {/* Legend */}
-        {settings.colorCoding !== 'none' && (
-          <g>
-            <rect x={svgWidth - 150} y={svgHeight - 80} width="140" height="70" fill="#f8fafc" stroke="#e2e8f0" rx="4" />
-            <text x={svgWidth - 145} y={svgHeight - 65} className="fill-current text-foreground font-medium" fontSize="10">
-              Legend
-            </text>
-            {settings.colorCoding === 'rsvp' && (
-              <>
-                <rect x={svgWidth - 145} y={svgHeight - 55} width="8" height="8" fill="#dcfce7" stroke="#16a34a" />
-                <text x={svgWidth - 135} y={svgHeight - 47} className="fill-current text-foreground" fontSize="8">Confirmed</text>
-                <rect x={svgWidth - 145} y={svgHeight - 40} width="8" height="8" fill="#fefce8" stroke="#ca8a04" />
-                <text x={svgWidth - 135} y={svgHeight - 32} className="fill-current text-foreground" fontSize="8">Pending</text>
-                <rect x={svgWidth - 145} y={svgHeight - 25} width="8" height="8" fill="#fef2f2" stroke="#dc2626" />
-                <text x={svgWidth - 135} y={svgHeight - 17} className="fill-current text-foreground" fontSize="8">Declined</text>
-              </>
-            )}
-          </g>
-        )}
+        {/* Wedding Waitress Logo at bottom */}
+        <image
+          href="/wedding-waitress-logo.png"
+          x={svgWidth / 2 - 40}
+          y={svgHeight - 80}
+          width="80"
+          height="40"
+          preserveAspectRatio="xMidYMid meet"
+        />
       </svg>
     );
   };
@@ -265,6 +248,25 @@ export const TableChartPreview: React.FC<TableChartPreviewProps> = ({
               <Utensils className="w-3 h-3 mr-1" />
               {guests.length} Guests
             </Badge>
+            
+            {/* Legend for RSVP color coding */}
+            {settings.colorCoding === 'rsvp' && (
+              <div className="ml-4 flex items-center space-x-4">
+                <span className="text-xs text-muted-foreground font-medium">Legend:</span>
+                <div className="flex items-center space-x-1">
+                  <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: '#dcfce7', border: '1px solid #16a34a' }}></div>
+                  <span className="text-xs text-muted-foreground">Confirmed</span>
+                </div>
+                <div className="flex items-center space-x-1">
+                  <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: '#fefce8', border: '1px solid #ca8a04' }}></div>
+                  <span className="text-xs text-muted-foreground">Pending</span>
+                </div>
+                <div className="flex items-center space-x-1">
+                  <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: '#fef2f2', border: '1px solid #dc2626' }}></div>
+                  <span className="text-xs text-muted-foreground">Declined</span>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </CardHeader>
