@@ -34,33 +34,48 @@ export const generateTableLayout = (
 const generatePrintReadyGridLayout = (tables: TableWithGuestCount[]): TablePosition[] => {
   if (tables.length === 0) return [];
 
-  // Fixed 3 columns, 3 rows for optimal A4 layout with taller tables (9 tables max)
+  // Fixed 3 columns, 3 rows (max 9 tables) optimized for A4
   const cols = 3;
   const rows = 3;
 
   // 5mm margins converted to normalized coordinates for A4 (210x297mm)
   const marginX = 5 / 210; // ~0.024 (2.4%)
   const marginY = 5 / 297; // ~0.017 (1.7%)
-  
+
   // Available space after margins
-  const availableWidth = 1 - (2 * marginX);
-  const availableHeight = 1 - (2 * marginY);
-  
-  // Increased table height to accommodate 12 guest names
-  const tableWidth = 0.28; // ~59mm on A4
-  const tableHeight = 0.35; // ~104mm on A4 (increased to fit 12 names)
-  
-  // Adjusted gaps for taller tables to prevent overlapping
-  const gapX = 0.08; // ~17mm horizontal gap 
-  const gapY = 0.05; // ~15mm vertical gap
-  
-  // Calculate actual spacing to center the grid
-  const totalContentWidth = (cols * tableWidth) + ((cols - 1) * gapX);
-  const totalContentHeight = (rows * tableHeight) + ((rows - 1) * gapY);
+  const availableWidth = 1 - 2 * marginX;
+  const availableHeight = 1 - 2 * marginY;
+
+  // Base sizes (before scaling)
+  const baseTableWidth = 0.28;  // ~59mm on A4
+  const baseTableHeight = 0.35; // ~104mm on A4 (fits up to 12 names)
+  const baseGapX = 0.08;        // ~17mm horizontal gap
+  const baseGapY = 0.05;        // ~15mm vertical gap
+
+  // Compute total content size with base dimensions
+  const baseTotalWidth = cols * baseTableWidth + (cols - 1) * baseGapX;
+  const baseTotalHeight = rows * baseTableHeight + (rows - 1) * baseGapY;
+
+  // Adaptive scale to ensure content fits within available area (prevents overlap)
+  const scale = Math.min(
+    availableWidth / baseTotalWidth,
+    availableHeight / baseTotalHeight,
+    1
+  );
+
+  // Apply scaling uniformly to tables and gaps
+  const tableWidth = baseTableWidth * scale;
+  const tableHeight = baseTableHeight * scale;
+  const gapX = baseGapX * scale;
+  const gapY = baseGapY * scale;
+
+  // Recompute total content after scaling to center the grid
+  const totalContentWidth = cols * tableWidth + (cols - 1) * gapX;
+  const totalContentHeight = rows * tableHeight + (rows - 1) * gapY;
   const startX = marginX + (availableWidth - totalContentWidth) / 2;
   const startY = marginY + (availableHeight - totalContentHeight) / 2;
 
-  return tables.slice(0, 9).map((table, index) => { // Limit to 9 tables for optimal layout with taller tables
+  return tables.slice(0, cols * rows).map((table, index) => {
     const row = Math.floor(index / cols);
     const col = index % cols;
 
