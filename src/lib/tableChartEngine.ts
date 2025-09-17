@@ -141,12 +141,12 @@ const generateChartSVG = (
     guests: guests.filter(guest => guest.table_id === pos.table.id)
   }));
 
-  // Font sizes based on setting
-  const fontSize = {
-    small: { title: 18, subtitle: 14, table: 12, guest: 10, legend: 8 },
-    medium: { title: 24, subtitle: 18, table: 16, guest: 12, legend: 10 },
-    large: { title: 32, subtitle: 24, table: 20, guest: 14, legend: 12 }
-  }[settings.fontSize];
+    // Font sizes based on setting - increased guest name sizes
+    const fontSize = {
+      small: { title: 18, subtitle: 14, table: 12, guest: 12, legend: 8 },
+      medium: { title: 24, subtitle: 18, table: 16, guest: 14, legend: 10 },
+      large: { title: 32, subtitle: 24, table: 20, guest: 16, legend: 12 }
+    }[settings.fontSize];
 
   // Color schemes
   const getGuestColor = (guest: Guest, table: TableWithGuestCount) => {
@@ -210,39 +210,28 @@ const generateChartSVG = (
     const isRound = settings.tableShape === 'round' || 
                    (settings.tableShape === 'mixed' && index % 2 === 0);
 
-    // Table Shape
+    // Table Shape with white background
     if (isRound) {
       svgContent += `
         <ellipse cx="${scaledX + scaledWidth / 2}" cy="${scaledY + scaledHeight / 2}" 
                  rx="${scaledWidth / 2}" ry="${scaledHeight / 2}" 
-                 fill="#f8fafc" stroke="#e2e8f0" stroke-width="2"/>
+                 fill="#ffffff" stroke="#e2e8f0" stroke-width="2"/>
       `;
     } else {
       svgContent += `
         <rect x="${scaledX}" y="${scaledY}" width="${scaledWidth}" height="${scaledHeight}" 
-              fill="#f8fafc" stroke="#e2e8f0" stroke-width="2" rx="8"/>
+              fill="#ffffff" stroke="#e2e8f0" stroke-width="2" rx="8"/>
       `;
     }
 
-    // Table Label and Number on Same Row
+    // Table Label and Number Combined and Centered
     svgContent += `
-      <text x="${scaledX + 15}" y="${scaledY + 25}" 
-            text-anchor="start" font-family="Arial, sans-serif" 
+      <text x="${scaledX + scaledWidth / 2}" y="${scaledY + 25}" 
+            text-anchor="middle" font-family="Arial, sans-serif" 
             font-size="${fontSize.table}" font-weight="bold" fill="#1f2937">
-        Table
+        ${settings.showTableNumbers ? `Table ${table.table_no || table.name}` : 'Table'}
       </text>
     `;
-
-    // Table Number on the Right
-    if (settings.showTableNumbers) {
-      svgContent += `
-        <text x="${scaledX + scaledWidth - 15}" y="${scaledY + 25}" 
-              text-anchor="end" font-family="Arial, sans-serif" 
-              font-size="${fontSize.table}" font-weight="bold" fill="#1f2937">
-          ${table.table_no || table.name}
-        </text>
-      `;
-    }
 
     // Capacity at Bottom
     if (settings.showCapacity) {

@@ -46,11 +46,11 @@ const generatePrintReadyGridLayout = (tables: TableWithGuestCount[]): TablePosit
   const availableWidth = 1 - (2 * marginX);
   const availableHeight = 1 - (2 * marginY);
   
-  // Larger table sizes to utilize space better
-  const tableWidth = 0.286; // ~60mm on A4
-  const tableHeight = 0.219; // ~65mm on A4
+  // Even larger table sizes to maximize space with print bleed
+  const tableWidth = 0.306; // ~64mm on A4 (larger tables)
+  const tableHeight = 0.239; // ~71mm on A4 (taller tables)
   
-  // Smaller gaps between tables
+  // Keep same gaps between tables
   const gapX = 0.024; // ~5mm horizontal gap
   const gapY = 0.017; // ~5mm vertical gap
   

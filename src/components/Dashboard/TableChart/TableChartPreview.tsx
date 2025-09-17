@@ -133,7 +133,7 @@ export const TableChartPreview: React.FC<TableChartPreviewProps> = ({
                   cy={scaledY + scaledHeight / 2}
                   rx={scaledWidth / 2}
                   ry={scaledHeight / 2}
-                  fill="#f8fafc"
+                  fill="#ffffff"
                   stroke="#e2e8f0"
                   strokeWidth="2"
                 />
@@ -143,36 +143,23 @@ export const TableChartPreview: React.FC<TableChartPreviewProps> = ({
                   y={scaledY}
                   width={scaledWidth}
                   height={scaledHeight}
-                  fill="#f8fafc"
+                  fill="#ffffff"
                   stroke="#e2e8f0"
                   strokeWidth="2"
                   rx="8"
                 />
               )}
 
-              {/* Table Label on Left */}
+              {/* Table Label and Number Centered */}
               <text
-                x={scaledX + 10}
+                x={scaledX + scaledWidth / 2}
                 y={scaledY + 20}
-                textAnchor="start"
+                textAnchor="middle"
                 className="fill-current text-foreground font-bold"
                 fontSize={settings.fontSize === 'large' ? '16' : settings.fontSize === 'medium' ? '14' : '12'}
               >
-                Table
+                {settings.showTableNumbers ? `Table ${table.table_no || table.name}` : 'Table'}
               </text>
-
-              {/* Table Number on Right */}
-              {settings.showTableNumbers && (
-                <text
-                  x={scaledX + scaledWidth - 10}
-                  y={scaledY + 20}
-                  textAnchor="end"
-                  className="fill-current text-foreground font-bold"
-                  fontSize={settings.fontSize === 'large' ? '16' : settings.fontSize === 'medium' ? '14' : '12'}
-                >
-                  {table.table_no || table.name}
-                </text>
-              )}
 
               {/* Capacity at Bottom */}
               {settings.showCapacity && (
@@ -201,7 +188,7 @@ export const TableChartPreview: React.FC<TableChartPreviewProps> = ({
                         y={guestY}
                         textAnchor="middle"
                         fill={colors.text}
-                        fontSize={settings.fontSize === 'large' ? '11' : settings.fontSize === 'medium' ? '9' : '8'}
+                        fontSize={settings.fontSize === 'large' ? '14' : settings.fontSize === 'medium' ? '12' : '10'}
                       >
                         {`${guest.first_name} ${guest.last_name || ''}`.trim()}
                       </text>
