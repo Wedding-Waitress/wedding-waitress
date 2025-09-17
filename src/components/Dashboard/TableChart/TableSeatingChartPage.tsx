@@ -90,6 +90,43 @@ export const TableSeatingChartPage: React.FC<TableSeatingChartPageProps> = ({
     }
   };
 
+  const handlePrint = () => {
+    // Create a new window for printing
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) return;
+
+    // Generate the chart content for printing
+    const chartHTML = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Table Seating Chart</title>
+          <style>
+            @media print {
+              @page { 
+                size: A4 portrait;
+                margin: 10mm;
+              }
+              body { margin: 0; padding: 0; }
+            }
+            body { font-family: Arial, sans-serif; }
+          </style>
+        </head>
+        <body>
+          <div style="width: 210mm; height: 297mm; display: flex; justify-content: center; align-items: center;">
+            <p>Print functionality - Chart will be rendered here</p>
+          </div>
+        </body>
+      </html>
+    `;
+
+    printWindow.document.write(chartHTML);
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.print();
+    printWindow.close();
+  };
+
   const isDataReady = selectedEventId && tables.length > 0 && !tablesLoading && !guestsLoading;
 
   return (
@@ -182,13 +219,21 @@ export const TableSeatingChartPage: React.FC<TableSeatingChartPageProps> = ({
                     Export PDF
                   </Button>
                   <Button
-                    variant="gradient"
+                    variant="outline"
                     size="sm"
                     onClick={() => handleExport('png')}
                     disabled={isExporting}
                   >
                     <Download className="w-4 h-4 mr-2" />
                     Export PNG
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={handlePrint}
+                  >
+                    <Download className="w-4 h-4 mr-2" />
+                    Print
                   </Button>
                 </div>
               )}

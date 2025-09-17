@@ -150,25 +150,25 @@ export const TableChartPreview: React.FC<TableChartPreviewProps> = ({
                 />
               )}
 
-              {/* Table Label at Top */}
+              {/* Table Label on Left */}
               <text
-                x={scaledX + scaledWidth / 2}
+                x={scaledX + 10}
                 y={scaledY + 20}
-                textAnchor="middle"
+                textAnchor="start"
                 className="fill-current text-foreground font-bold"
                 fontSize={settings.fontSize === 'large' ? '16' : settings.fontSize === 'medium' ? '14' : '12'}
               >
                 Table
               </text>
 
-              {/* Table Number */}
+              {/* Table Number on Right */}
               {settings.showTableNumbers && (
                 <text
-                  x={scaledX + scaledWidth / 2}
-                  y={scaledY + 40}
-                  textAnchor="middle"
-                  className="fill-current text-foreground font-semibold"
-                  fontSize={settings.fontSize === 'large' ? '18' : settings.fontSize === 'medium' ? '16' : '14'}
+                  x={scaledX + scaledWidth - 10}
+                  y={scaledY + 20}
+                  textAnchor="end"
+                  className="fill-current text-foreground font-bold"
+                  fontSize={settings.fontSize === 'large' ? '16' : settings.fontSize === 'medium' ? '14' : '12'}
                 >
                   {table.table_no || table.name}
                 </text>
@@ -192,7 +192,7 @@ export const TableChartPreview: React.FC<TableChartPreviewProps> = ({
                 <g>
                   {tableGuests.slice(0, 8).map((guest, guestIndex) => {
                     const colors = getColorScheme(guest, table);
-                    const guestY = scaledY + 60 + (guestIndex * 14);
+                    const guestY = scaledY + 40 + (guestIndex * 14);
                     
                     return (
                       <text
@@ -210,7 +210,7 @@ export const TableChartPreview: React.FC<TableChartPreviewProps> = ({
                   {tableGuests.length > 8 && (
                     <text
                       x={scaledX + scaledWidth / 2}
-                      y={scaledY + 60 + (8 * 14)}
+                      y={scaledY + 40 + (8 * 14)}
                       textAnchor="middle"
                       className="fill-current text-muted-foreground"
                       fontSize={settings.fontSize === 'large' ? '10' : settings.fontSize === 'medium' ? '8' : '7'}

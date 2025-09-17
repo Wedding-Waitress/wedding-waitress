@@ -29,36 +29,48 @@ export const generateTableLayout = (
 };
 
 /**
- * Print-Ready Grid Layout - Fixed 3 columns, uniform table sizes, portrait format
+ * Print-Ready Grid Layout - Optimized for 12 tables on A4 with 10mm margins
  */
 const generatePrintReadyGridLayout = (tables: TableWithGuestCount[]): TablePosition[] => {
   if (tables.length === 0) return [];
 
-  // Fixed 3 columns for print-ready format
+  // Fixed 3 columns, 4 rows for optimal A4 layout (12 tables max)
   const cols = 3;
-  const rows = Math.ceil(tables.length / cols);
+  const rows = 4;
 
-  // Uniform table size for all tables
-  const tableWidth = 0.25; // Fixed width
-  const tableHeight = 0.15; // Fixed height for portrait format
+  // 10mm margins converted to normalized coordinates for A4 (210x297mm)
+  const marginX = 10 / 210; // ~0.048 (4.8%)
+  const marginY = 10 / 297; // ~0.034 (3.4%)
+  
+  // Available space after margins
+  const availableWidth = 1 - (2 * marginX);
+  const availableHeight = 1 - (2 * marginY);
+  
+  // Larger table sizes to utilize space better
+  const tableWidth = 0.286; // ~60mm on A4
+  const tableHeight = 0.219; // ~65mm on A4
+  
+  // Smaller gaps between tables
+  const gapX = 0.024; // ~5mm horizontal gap
+  const gapY = 0.017; // ~5mm vertical gap
+  
+  // Calculate actual spacing to center the grid
+  const totalContentWidth = (cols * tableWidth) + ((cols - 1) * gapX);
+  const totalContentHeight = (rows * tableHeight) + ((rows - 1) * gapY);
+  const startX = marginX + (availableWidth - totalContentWidth) / 2;
+  const startY = marginY + (availableHeight - totalContentHeight) / 2;
 
-  // Calculate spacing
-  const totalTableWidth = cols * tableWidth;
-  const totalTableHeight = rows * tableHeight;
-  const paddingX = (1 - totalTableWidth) / (cols + 1);
-  const paddingY = (1 - totalTableHeight) / (rows + 1);
-
-  return tables.map((table, index) => {
+  return tables.slice(0, 12).map((table, index) => { // Limit to 12 tables for optimal layout
     const row = Math.floor(index / cols);
     const col = index % cols;
 
-    const x = paddingX + col * (tableWidth + paddingX);
-    const y = paddingY + row * (tableHeight + paddingY);
+    const x = startX + col * (tableWidth + gapX);
+    const y = startY + row * (tableHeight + gapY);
 
     return {
       id: table.id,
-      x: Math.max(0, Math.min(1 - tableWidth, x)),
-      y: Math.max(0, Math.min(1 - tableHeight, y)),
+      x: Math.max(marginX, Math.min(1 - tableWidth - marginX, x)),
+      y: Math.max(marginY, Math.min(1 - tableHeight - marginY, y)),
       width: tableWidth,
       height: tableHeight,
       table

@@ -224,21 +224,21 @@ const generateChartSVG = (
       `;
     }
 
-    // Table Label at Top
+    // Table Label and Number on Same Row
     svgContent += `
-      <text x="${scaledX + scaledWidth / 2}" y="${scaledY + 25}" 
-            text-anchor="middle" font-family="Arial, sans-serif" 
+      <text x="${scaledX + 15}" y="${scaledY + 25}" 
+            text-anchor="start" font-family="Arial, sans-serif" 
             font-size="${fontSize.table}" font-weight="bold" fill="#1f2937">
         Table
       </text>
     `;
 
-    // Table Number
+    // Table Number on the Right
     if (settings.showTableNumbers) {
       svgContent += `
-        <text x="${scaledX + scaledWidth / 2}" y="${scaledY + 50}" 
-              text-anchor="middle" font-family="Arial, sans-serif" 
-              font-size="${fontSize.table + 2}" font-weight="600" fill="#1f2937">
+        <text x="${scaledX + scaledWidth - 15}" y="${scaledY + 25}" 
+              text-anchor="end" font-family="Arial, sans-serif" 
+              font-size="${fontSize.table}" font-weight="bold" fill="#1f2937">
           ${table.table_no || table.name}
         </text>
       `;
@@ -259,7 +259,7 @@ const generateChartSVG = (
     if (settings.includeNames && tableGuests.length > 0) {
       tableGuests.slice(0, 10).forEach((guest, guestIndex) => {
         const colors = getGuestColor(guest, table);
-        const guestY = scaledY + 75 + (guestIndex * (fontSize.guest + 4));
+        const guestY = scaledY + 45 + (guestIndex * (fontSize.guest + 4));
         
         svgContent += `
           <text x="${scaledX + scaledWidth / 2}" y="${guestY}" 
