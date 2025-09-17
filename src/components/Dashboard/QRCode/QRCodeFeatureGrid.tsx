@@ -21,24 +21,8 @@ interface QRCodeFeatureGridProps {
 
 const featureCards = [
   {
-    id: 'qr-seating-chart',
-    title: 'QR Code Seating Chart',
-    description: 'Main QR code generator with customization options',
-    icon: QrCode,
-    status: 'active',
-    action: 'Customize',
-  },
-  {
-    id: 'live-view',
-    title: 'Live View',
-    description: 'Preview what guests see when they scan the QR code',
-    icon: Eye,
-    status: 'coming-soon',
-    action: 'Preview',
-  },
-  {
-    id: 'qr-signage',
-    title: 'QR Code Signage',
+    id: 'qr-seating-chart-signage',
+    title: 'QR Code Seating Chart Signage',
     description: 'Ready-to-print signage templates with QR codes',
     icon: FileImage,
     status: 'coming-soon',
@@ -53,8 +37,8 @@ const featureCards = [
     action: 'Generate',
   },
   {
-    id: 'kitchen-dietary',
-    title: 'Kitchen Dietary List',
+    id: 'kitchen-dietary-chart',
+    title: 'Kitchen Dietary Requirement Chart',
     description: 'Staff dietary requirements and allergies sheet',
     icon: ChefHat,
     status: 'coming-soon',
@@ -69,20 +53,12 @@ const featureCards = [
     action: 'Download',
   },
   {
-    id: 'place-cards',
+    id: 'table-name-place-cards',
     title: 'Table Name Place Cards',
     description: 'Individual foldable place cards for guests',
     icon: CreditCard,
     status: 'coming-soon',
     action: 'Create',
-  },
-  {
-    id: 'kiosk-view',
-    title: 'Kiosk Live View',
-    description: 'Full-screen self-service seating lookup',
-    icon: Monitor,
-    status: 'coming-soon',
-    action: 'Setup',
   },
   {
     id: 'printables',
@@ -91,6 +67,14 @@ const featureCards = [
     icon: Printer,
     status: 'coming-soon',
     action: 'Browse',
+  },
+  {
+    id: 'kiosk-view',
+    title: 'Kiosk Live View',
+    description: 'Full-screen self-service seating lookup',
+    icon: Monitor,
+    status: 'coming-soon',
+    action: 'Setup',
   },
   {
     id: 'additional',
@@ -192,12 +176,12 @@ export const QRCodeFeatureGrid: React.FC<QRCodeFeatureGridProps> = ({ eventId })
             <div>
               <h3 className="font-semibold text-sm mb-1">Development Progress</h3>
               <p className="text-xs text-muted-foreground">
-                QR Code generation is now active. Additional features will be rolled out in upcoming updates.
+                Features are being developed to provide comprehensive seating management tools.
               </p>
             </div>
             <div className="flex items-center gap-2">
-              <Badge variant="default" className="text-xs">1/10 Active</Badge>
-              <Badge variant="secondary" className="text-xs">9 Coming Soon</Badge>
+              <Badge variant="default" className="text-xs">0/8 Active</Badge>
+              <Badge variant="secondary" className="text-xs">8 Coming Soon</Badge>
             </div>
           </div>
         </CardContent>
