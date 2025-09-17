@@ -224,22 +224,22 @@ export const generateChartSVG = (
       `;
     }
 
-    // Table number and capacity combined at top right
+    // Table number and capacity centered at top
     svgContent += `
-      <text x="${scaledX + scaledWidth - 5}" y="${scaledY + 25}" 
-            text-anchor="end" font-family="Arial, sans-serif" 
+      <text x="${scaledX + scaledWidth / 2}" y="${scaledY + 25}" 
+            text-anchor="middle" font-family="Arial, sans-serif" 
             font-size="${fontSize.table}" fill="#1f2937">
         <tspan font-weight="bold">${settings.showTableNumbers ? `Table ${table.table_no || table.name}` : 'Table'}</tspan>
-        <tspan font-weight="normal"> - Capacity ${table.guest_count}/${table.limit_seats}</tspan>
+        <tspan font-weight="normal"> - ${table.guest_count}/${table.limit_seats}</tspan>
       </text>
     `;
 
 
-    // Guest Names in Expanded Middle Area
+    // Guest Names - show all up to 12
     if (settings.includeNames && tableGuests.length > 0) {
-      tableGuests.slice(0, 10).forEach((guest, guestIndex) => {
+      tableGuests.slice(0, 12).forEach((guest, guestIndex) => {
         const colors = getGuestColor(guest, table);
-        const guestY = scaledY + 45 + (guestIndex * (fontSize.guest + 4));
+        const guestY = scaledY + 45 + (guestIndex * (fontSize.guest + 2));
         
         svgContent += `
           <text x="${scaledX + scaledWidth / 2}" y="${guestY}" 
@@ -249,16 +249,6 @@ export const generateChartSVG = (
           </text>
         `;
       });
-
-      if (tableGuests.length > 10) {
-        svgContent += `
-          <text x="${scaledX + scaledWidth / 2}" y="${scaledY + 75 + (10 * (fontSize.guest + 4))}" 
-                text-anchor="middle" font-family="Arial, sans-serif" 
-                font-size="${fontSize.guest - 2}" fill="#6b7280">
-            +${tableGuests.length - 10} more
-          </text>
-        `;
-      }
     }
 
     // Color coding indicator
@@ -272,9 +262,9 @@ export const generateChartSVG = (
     }
   });
 
-  // Wedding Waitress Logo at bottom
+  // Wedding Waitress Logo at bottom - doubled in size
   svgContent += `
-    <image href="/wedding-waitress-logo.png" x="${width / 2 - 40}" y="${height - 100}" width="80" height="60" preserveAspectRatio="xMidYMid meet" />
+    <image href="/wedding-waitress-logo.png" x="${width / 2 - 80}" y="${height - 90}" width="160" height="80" preserveAspectRatio="xMidYMid meet" />
   `;
 
   svgContent += '</svg>';

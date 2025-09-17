@@ -34,9 +34,9 @@ export const generateTableLayout = (
 const generatePrintReadyGridLayout = (tables: TableWithGuestCount[]): TablePosition[] => {
   if (tables.length === 0) return [];
 
-  // Fixed 3 columns, 4 rows for optimal A4 layout (12 tables max)
+  // Fixed 3 columns, 3 rows for optimal A4 layout with taller tables (9 tables max)
   const cols = 3;
-  const rows = 4;
+  const rows = 3;
 
   // 5mm margins converted to normalized coordinates for A4 (210x297mm)
   const marginX = 5 / 210; // ~0.024 (2.4%)
@@ -46,13 +46,13 @@ const generatePrintReadyGridLayout = (tables: TableWithGuestCount[]): TablePosit
   const availableWidth = 1 - (2 * marginX);
   const availableHeight = 1 - (2 * marginY);
   
-  // Properly sized tables to prevent overlapping
-  const tableWidth = 0.28; // ~59mm on A4 (reduced from 0.306)
-  const tableHeight = 0.22; // ~65mm on A4 (reduced from 0.239)
+  // Increased table height to accommodate 12 guest names
+  const tableWidth = 0.28; // ~59mm on A4
+  const tableHeight = 0.35; // ~104mm on A4 (increased to fit 12 names)
   
-  // Increased gaps between tables to prevent overlapping
-  const gapX = 0.04; // ~8mm horizontal gap (increased from 0.024)
-  const gapY = 0.035; // ~10mm vertical gap (increased from 0.017)
+  // Adjusted gaps for taller tables
+  const gapX = 0.04; // ~8mm horizontal gap
+  const gapY = 0.02; // ~6mm vertical gap (reduced due to taller tables)
   
   // Calculate actual spacing to center the grid
   const totalContentWidth = (cols * tableWidth) + ((cols - 1) * gapX);
@@ -60,7 +60,7 @@ const generatePrintReadyGridLayout = (tables: TableWithGuestCount[]): TablePosit
   const startX = marginX + (availableWidth - totalContentWidth) / 2;
   const startY = marginY + (availableHeight - totalContentHeight) / 2;
 
-  return tables.slice(0, 12).map((table, index) => { // Limit to 12 tables for optimal layout
+  return tables.slice(0, 9).map((table, index) => { // Limit to 9 tables for optimal layout with taller tables
     const row = Math.floor(index / cols);
     const col = index % cols;
 

@@ -150,11 +150,11 @@ export const TableChartPreview: React.FC<TableChartPreviewProps> = ({
                 />
               )}
 
-              {/* Table number and capacity combined at top right */}
+              {/* Table number and capacity centered at top */}
               <text
-                x={scaledX + scaledWidth - 5}
+                x={scaledX + scaledWidth / 2}
                 y={scaledY + 20}
-                textAnchor="end"
+                textAnchor="middle"
                 className="fill-current text-foreground"
                 fontSize={settings.fontSize === 'large' ? '16' : settings.fontSize === 'medium' ? '14' : '12'}
               >
@@ -162,17 +162,17 @@ export const TableChartPreview: React.FC<TableChartPreviewProps> = ({
                   {settings.showTableNumbers ? `Table ${table.table_no || table.name}` : 'Table'}
                 </tspan>
                 <tspan className="font-normal">
-                  {` - Capacity ${table.guest_count}/${table.limit_seats}`}
+                  {` - ${table.guest_count}/${table.limit_seats}`}
                 </tspan>
               </text>
 
 
-              {/* Guest Names in Expanded Middle Area */}
+              {/* Guest Names - show all up to 12 */}
               {settings.includeNames && tableGuests.length > 0 && (
                 <g>
-                  {tableGuests.slice(0, 8).map((guest, guestIndex) => {
+                  {tableGuests.slice(0, 12).map((guest, guestIndex) => {
                     const colors = getColorScheme(guest, table);
-                    const guestY = scaledY + 40 + (guestIndex * 14);
+                    const guestY = scaledY + 40 + (guestIndex * 12);
                     
                     return (
                       <text
@@ -181,23 +181,12 @@ export const TableChartPreview: React.FC<TableChartPreviewProps> = ({
                         y={guestY}
                         textAnchor="middle"
                         fill={colors.text}
-                        fontSize={settings.fontSize === 'large' ? '14' : settings.fontSize === 'medium' ? '12' : '10'}
+                        fontSize={settings.fontSize === 'large' ? '12' : settings.fontSize === 'medium' ? '10' : '9'}
                       >
                         {`${guest.first_name} ${guest.last_name || ''}`.trim()}
                       </text>
                     );
                   })}
-                  {tableGuests.length > 8 && (
-                    <text
-                      x={scaledX + scaledWidth / 2}
-                      y={scaledY + 40 + (8 * 14)}
-                      textAnchor="middle"
-                      className="fill-current text-muted-foreground"
-                      fontSize={settings.fontSize === 'large' ? '10' : settings.fontSize === 'medium' ? '8' : '7'}
-                    >
-                      +{tableGuests.length - 8} more
-                    </text>
-                  )}
                 </g>
               )}
 
@@ -218,13 +207,13 @@ export const TableChartPreview: React.FC<TableChartPreviewProps> = ({
           );
         })}
 
-        {/* Wedding Waitress Logo at bottom */}
+        {/* Wedding Waitress Logo at bottom - doubled in size */}
         <image
           href="/wedding-waitress-logo.png"
-          x={svgWidth / 2 - 40}
-          y={svgHeight - 80}
-          width="80"
-          height="40"
+          x={svgWidth / 2 - 80}
+          y={svgHeight - 90}
+          width="160"
+          height="80"
           preserveAspectRatio="xMidYMid meet"
         />
       </svg>
