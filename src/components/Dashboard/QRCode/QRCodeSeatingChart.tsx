@@ -11,11 +11,13 @@ import { QRCodeFeatureGrid } from './QRCodeFeatureGrid';
 interface QRCodeSeatingChartProps {
   selectedEventId?: string | null;
   onEventSelect?: (eventId: string) => void;
+  onNavigateToTab?: (tab: string) => void;
 }
 
 export const QRCodeSeatingChart: React.FC<QRCodeSeatingChartProps> = ({
   selectedEventId,
   onEventSelect,
+  onNavigateToTab,
 }) => {
   const { events, loading: eventsLoading } = useEvents();
   const [localSelectedEventId, setLocalSelectedEventId] = useState<string | null>(selectedEventId || null);
@@ -156,7 +158,7 @@ export const QRCodeSeatingChart: React.FC<QRCodeSeatingChartProps> = ({
 
       {/* Feature Grid */}
       {currentEventId && (
-        <QRCodeFeatureGrid eventId={currentEventId} />
+        <QRCodeFeatureGrid eventId={currentEventId} onNavigateToTab={onNavigateToTab} />
       )}
 
       {/* Placeholder when no event selected */}

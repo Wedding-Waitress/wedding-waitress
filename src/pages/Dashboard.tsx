@@ -389,7 +389,7 @@ export const Dashboard = () => {
         return <SignagePage selectedEventId={selectedEventId} onEventSelect={handleEventSelect} />;
       
       case 'qr-code':
-        return <QRCodeSeatingChart selectedEventId={selectedEventId} onEventSelect={handleEventSelect} />;
+        return <QRCodeSeatingChart selectedEventId={selectedEventId} onEventSelect={handleEventSelect} onNavigateToTab={handleTabChange} />;
       
       case 'planner':
         return (

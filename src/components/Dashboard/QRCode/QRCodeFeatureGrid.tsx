@@ -17,6 +17,7 @@ import {
 
 interface QRCodeFeatureGridProps {
   eventId: string;
+  onNavigateToTab?: (tab: string) => void;
 }
 
 const featureCards = [
@@ -86,7 +87,12 @@ const featureCards = [
   },
 ];
 
-export const QRCodeFeatureGrid: React.FC<QRCodeFeatureGridProps> = ({ eventId }) => {
+export const QRCodeFeatureGrid: React.FC<QRCodeFeatureGridProps> = ({ eventId, onNavigateToTab }) => {
+  const handleFeatureClick = (cardId: string) => {
+    if (cardId === 'qr-seating-chart-signage') {
+      onNavigateToTab?.('signage');
+    }
+  };
   return (
     <div className="space-y-6">
       <div className="text-center">
@@ -151,6 +157,7 @@ export const QRCodeFeatureGrid: React.FC<QRCodeFeatureGridProps> = ({ eventId })
                   size="sm" 
                   className="w-full text-xs"
                   disabled={!isActive}
+                  onClick={() => isActive && handleFeatureClick(card.id)}
                 >
                   {card.action}
                 </Button>
