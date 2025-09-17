@@ -119,26 +119,17 @@ export const SignageTemplateCard: React.FC<SignageTemplateCardProps> = ({
           {getTemplatePreview(templateType)}
         </div>
         
-        {/* Action Buttons */}
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            className="flex-1"
-            disabled={disabled}
-          >
-            <Eye className="w-4 h-4 mr-2" />
-            Preview
-          </Button>
+        {/* Action Button */}
+        <div className="flex">
           <Button
             variant="gradient"
             size="sm"
-            className="flex-1"
+            className="w-full"
             onClick={onSelect}
             disabled={disabled}
           >
-            <Plus className="w-4 h-4 mr-2" />
-            Create
+            <Eye className="w-4 h-4 mr-2" />
+            Preview & Create
           </Button>
         </div>
       </CardContent>
