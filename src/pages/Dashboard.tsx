@@ -38,6 +38,7 @@ import { useRealtimeTables } from '@/hooks/useRealtimeTables';
 import { useProfile } from '@/hooks/useProfile';
 import { QRCodeSeatingChart } from '@/components/Dashboard/QRCode/QRCodeSeatingChart';
 import { SignagePage } from '@/components/Dashboard/Signage/SignagePage';
+import { TableSeatingChartPage as TableSeatingChartPageComponent } from '@/components/Dashboard/TableChart/TableSeatingChartPage';
 export const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
@@ -390,6 +391,13 @@ export const Dashboard = () => {
       
       case 'qr-code':
         return <QRCodeSeatingChart selectedEventId={selectedEventId} onEventSelect={handleEventSelect} onNavigateToTab={handleTabChange} />;
+      
+      case 'table-chart':
+        return (
+          <div>
+            <TableSeatingChartPageComponent selectedEventId={selectedEventId} onEventSelect={handleEventSelect} />
+          </div>
+        );
       
       case 'planner':
         return (
