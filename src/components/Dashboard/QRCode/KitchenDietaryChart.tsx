@@ -195,62 +195,138 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
     <>
       <style>{`
         @media print {
-          body { -webkit-print-color-adjust: exact !important; color-adjust: exact !important; }
-          @page { size: A4; margin: 0.8in; }
-          .print-hide { display: none !important; }
-          .print-show { display: block !important; }
+          /* Hide everything by default */
+          * { visibility: hidden !important; }
+          
+          /* Show only the specific Kitchen Dietary Chart content */
+          .kitchen-dietary-chart, 
+          .kitchen-dietary-chart *,
+          .kitchen-dietary-print,
+          .kitchen-dietary-print * { 
+            visibility: visible !important; 
+          }
+          
+          /* Global print setup */
+          body { 
+            -webkit-print-color-adjust: exact !important; 
+            color-adjust: exact !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            background: white !important;
+          }
+          
+          @page { 
+            size: A4; 
+            margin: 0.8in; 
+          }
+          
+          /* Hide all dashboard elements */
+          .dashboard-sidebar,
+          .dashboard-header,
+          .dashboard-nav,
+          .stats-bar,
+          nav,
+          aside,
+          header:not(.kitchen-dietary-print header),
+          .sidebar,
+          .navigation,
+          .tabs,
+          .breadcrumb,
+          .print-hide { 
+            display: none !important; 
+            visibility: hidden !important;
+          }
+          
+          /* Show only Kitchen Dietary content */
+          .print-show { 
+            display: block !important; 
+            visibility: visible !important;
+          }
+          
+          /* Position the kitchen dietary chart at the root */
+          .kitchen-dietary-chart {
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            background: white !important;
+          }
+          
           .kitchen-dietary-print {
-            font-size: 14px !important;
-            line-height: 1.4 !important;
+            font-size: 16px !important;
+            line-height: 1.5 !important;
+            color: black !important;
+            background: white !important;
+            width: 100% !important;
           }
+          
           .kitchen-dietary-print h1 {
-            font-size: 24px !important;
-            margin-bottom: 8px !important;
+            font-size: 28px !important;
+            margin-bottom: 10px !important;
             text-align: center !important;
+            color: black !important;
+            font-weight: bold !important;
           }
+          
           .kitchen-dietary-print h2 {
-            font-size: 18px !important;
-            margin-bottom: 20px !important;
+            font-size: 20px !important;
+            margin-bottom: 25px !important;
             text-align: center !important;
+            color: black !important;
+            font-weight: normal !important;
           }
+          
           .kitchen-dietary-print table {
             width: 100% !important;
             border-collapse: collapse !important;
-            margin-top: 20px !important;
+            margin-top: 25px !important;
+            background: white !important;
           }
+          
           .kitchen-dietary-print th,
           .kitchen-dietary-print td {
-            border: 1px solid #ccc !important;
-            padding: 12px 8px !important;
+            border: 2px solid #333 !important;
+            padding: 14px 10px !important;
             text-align: left !important;
-            font-size: 13px !important;
+            font-size: 15px !important;
             font-weight: 500 !important;
+            color: black !important;
+            background: white !important;
           }
+          
           .kitchen-dietary-print th {
-            background-color: #f5f5f5 !important;
+            background-color: #f0f0f0 !important;
             font-weight: bold !important;
-            font-size: 14px !important;
+            font-size: 16px !important;
+            color: black !important;
           }
+          
           .kitchen-dietary-print .dietary-cell {
-            background-color: #f3f4f6 !important;
-            color: #374151 !important;
-            font-weight: 600 !important;
+            background-color: #f5f5f5 !important;
+            color: #333 !important;
+            font-weight: 700 !important;
           }
+          
           .kitchen-dietary-print .logo-footer {
             position: fixed !important;
             bottom: 0.5in !important;
             left: 50% !important;
             transform: translateX(-50%) !important;
             text-align: center !important;
+            visibility: visible !important;
           }
+          
           .kitchen-dietary-print .logo-footer img {
-            max-width: 120px !important;
+            max-width: 150px !important;
             height: auto !important;
+            opacity: 0.8 !important;
           }
         }
       `}</style>
       
-      <div className="space-y-6">
+      <div className="space-y-6 kitchen-dietary-chart">
         {/* Header Card */}
         <Card className="border-primary/20 bg-gradient-subtle print-hide">
           <CardHeader>
