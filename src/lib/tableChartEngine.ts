@@ -262,9 +262,9 @@ export const generateChartSVG = (
     }
   });
 
-  // Wedding Waitress Logo at bottom - doubled in size
+  // Wedding Waitress Logo at bottom - made even larger
   svgContent += `
-    <image href="/wedding-waitress-logo.png" x="${width / 2 - 80}" y="${height - 90}" width="160" height="80" preserveAspectRatio="xMidYMid meet" />
+    <image href="/wedding-waitress-logo.png" x="${width / 2 - 100}" y="${height - 110}" width="200" height="100" preserveAspectRatio="xMidYMid meet" />
   `;
 
   svgContent += '</svg>';

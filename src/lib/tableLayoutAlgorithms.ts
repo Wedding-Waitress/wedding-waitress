@@ -50,9 +50,9 @@ const generatePrintReadyGridLayout = (tables: TableWithGuestCount[]): TablePosit
   const tableWidth = 0.28; // ~59mm on A4
   const tableHeight = 0.35; // ~104mm on A4 (increased to fit 12 names)
   
-  // Adjusted gaps for taller tables
-  const gapX = 0.04; // ~8mm horizontal gap
-  const gapY = 0.02; // ~6mm vertical gap (reduced due to taller tables)
+  // Adjusted gaps for taller tables to prevent overlapping
+  const gapX = 0.08; // ~17mm horizontal gap 
+  const gapY = 0.05; // ~15mm vertical gap
   
   // Calculate actual spacing to center the grid
   const totalContentWidth = (cols * tableWidth) + ((cols - 1) * gapX);

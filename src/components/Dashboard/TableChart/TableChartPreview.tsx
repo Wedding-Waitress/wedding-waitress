@@ -207,13 +207,13 @@ export const TableChartPreview: React.FC<TableChartPreviewProps> = ({
           );
         })}
 
-        {/* Wedding Waitress Logo at bottom - doubled in size */}
+        {/* Wedding Waitress Logo at bottom - made even larger */}
         <image
           href="/wedding-waitress-logo.png"
-          x={svgWidth / 2 - 80}
-          y={svgHeight - 90}
-          width="160"
-          height="80"
+          x={svgWidth / 2 - 100}
+          y={svgHeight - 110}
+          width="200"
+          height="100"
           preserveAspectRatio="xMidYMid meet"
         />
       </svg>
