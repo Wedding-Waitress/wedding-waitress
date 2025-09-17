@@ -25,8 +25,9 @@ export const generateTableChartPDF = async (
   event: any
 ): Promise<Blob> => {
   const paperSize = PAPER_SIZES[settings.paperSize];
+  // Force portrait orientation for all sizes
   const pdf = new jsPDF({
-    orientation: paperSize.width > paperSize.height ? 'landscape' : 'portrait',
+    orientation: 'portrait',
     unit: 'mm',
     format: [paperSize.width, paperSize.height]
   });
@@ -134,8 +135,8 @@ const generateChartSVG = (
   const height = paperSize.height * 3.78;
   const padding = 40;
 
-  // Generate table positions
-  const tablePositions = generateTableLayout(tables, settings.layout).map(pos => ({
+  // Generate table positions using print-ready grid layout
+  const tablePositions = generateTableLayout(tables, 'grid').map(pos => ({
     ...pos,
     guests: guests.filter(guest => guest.table_id === pos.table.id)
   }));
@@ -223,21 +224,30 @@ const generateChartSVG = (
       `;
     }
 
-    // Table Number/Name
+    // Table Label at Top
+    svgContent += `
+      <text x="${scaledX + scaledWidth / 2}" y="${scaledY + 25}" 
+            text-anchor="middle" font-family="Arial, sans-serif" 
+            font-size="${fontSize.table}" font-weight="bold" fill="#1f2937">
+        Table
+      </text>
+    `;
+
+    // Table Number
     if (settings.showTableNumbers) {
       svgContent += `
-        <text x="${scaledX + scaledWidth / 2}" y="${scaledY + scaledHeight / 2 - 10}" 
+        <text x="${scaledX + scaledWidth / 2}" y="${scaledY + 50}" 
               text-anchor="middle" font-family="Arial, sans-serif" 
-              font-size="${fontSize.table}" font-weight="600" fill="#1f2937">
-          ${table.table_no ? `Table ${table.table_no}` : table.name}
+              font-size="${fontSize.table + 2}" font-weight="600" fill="#1f2937">
+          ${table.table_no || table.name}
         </text>
       `;
     }
 
-    // Capacity
+    // Capacity at Bottom
     if (settings.showCapacity) {
       svgContent += `
-        <text x="${scaledX + scaledWidth / 2}" y="${scaledY + scaledHeight / 2 + 10}" 
+        <text x="${scaledX + scaledWidth / 2}" y="${scaledY + scaledHeight - 15}" 
               text-anchor="middle" font-family="Arial, sans-serif" 
               font-size="${fontSize.guest}" fill="#6b7280">
           ${table.guest_count}/${table.limit_seats}
@@ -245,11 +255,11 @@ const generateChartSVG = (
       `;
     }
 
-    // Guest Names
-    if (settings.includeNames && tableGuests.length > 0 && scaledHeight > 80) {
-      tableGuests.slice(0, 6).forEach((guest, guestIndex) => {
+    // Guest Names in Expanded Middle Area
+    if (settings.includeNames && tableGuests.length > 0) {
+      tableGuests.slice(0, 10).forEach((guest, guestIndex) => {
         const colors = getGuestColor(guest, table);
-        const guestY = scaledY + scaledHeight / 2 + 30 + (guestIndex * (fontSize.guest + 2));
+        const guestY = scaledY + 75 + (guestIndex * (fontSize.guest + 4));
         
         svgContent += `
           <text x="${scaledX + scaledWidth / 2}" y="${guestY}" 
@@ -260,12 +270,12 @@ const generateChartSVG = (
         `;
       });
 
-      if (tableGuests.length > 6) {
+      if (tableGuests.length > 10) {
         svgContent += `
-          <text x="${scaledX + scaledWidth / 2}" y="${scaledY + scaledHeight / 2 + 30 + (6 * (fontSize.guest + 2))}" 
+          <text x="${scaledX + scaledWidth / 2}" y="${scaledY + 75 + (10 * (fontSize.guest + 4))}" 
                 text-anchor="middle" font-family="Arial, sans-serif" 
                 font-size="${fontSize.guest - 2}" fill="#6b7280">
-            +${tableGuests.length - 6} more
+            +${tableGuests.length - 10} more
           </text>
         `;
       }

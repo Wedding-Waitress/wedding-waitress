@@ -18,18 +18,56 @@ export const generateTableLayout = (
 ): TablePosition[] => {
   switch (layout) {
     case 'grid':
-      return generateGridLayout(tables);
+      return generatePrintReadyGridLayout(tables);
     case 'organic':
       return generateOrganicLayout(tables);
     case 'custom':
       return generateCustomLayout(tables);
     default:
-      return generateGridLayout(tables);
+      return generatePrintReadyGridLayout(tables);
   }
 };
 
 /**
- * Grid Layout - Organized rows and columns
+ * Print-Ready Grid Layout - Fixed 3 columns, uniform table sizes, portrait format
+ */
+const generatePrintReadyGridLayout = (tables: TableWithGuestCount[]): TablePosition[] => {
+  if (tables.length === 0) return [];
+
+  // Fixed 3 columns for print-ready format
+  const cols = 3;
+  const rows = Math.ceil(tables.length / cols);
+
+  // Uniform table size for all tables
+  const tableWidth = 0.25; // Fixed width
+  const tableHeight = 0.15; // Fixed height for portrait format
+
+  // Calculate spacing
+  const totalTableWidth = cols * tableWidth;
+  const totalTableHeight = rows * tableHeight;
+  const paddingX = (1 - totalTableWidth) / (cols + 1);
+  const paddingY = (1 - totalTableHeight) / (rows + 1);
+
+  return tables.map((table, index) => {
+    const row = Math.floor(index / cols);
+    const col = index % cols;
+
+    const x = paddingX + col * (tableWidth + paddingX);
+    const y = paddingY + row * (tableHeight + paddingY);
+
+    return {
+      id: table.id,
+      x: Math.max(0, Math.min(1 - tableWidth, x)),
+      y: Math.max(0, Math.min(1 - tableHeight, y)),
+      width: tableWidth,
+      height: tableHeight,
+      table
+    };
+  });
+};
+
+/**
+ * Grid Layout - Organized rows and columns (original, kept for backward compatibility)
  */
 const generateGridLayout = (tables: TableWithGuestCount[]): TablePosition[] => {
   if (tables.length === 0) return [];

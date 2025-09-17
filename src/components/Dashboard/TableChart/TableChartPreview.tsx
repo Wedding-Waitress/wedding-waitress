@@ -72,8 +72,9 @@ export const TableChartPreview: React.FC<TableChartPreviewProps> = ({
   };
 
   const renderSVGChart = () => {
+    // Portrait format - A4 ratio (210:297)
     const svgWidth = 800;
-    const svgHeight = 600;
+    const svgHeight = 1131; // A4 ratio in pixels
     const padding = 40;
 
     return (
@@ -149,24 +150,35 @@ export const TableChartPreview: React.FC<TableChartPreviewProps> = ({
                 />
               )}
 
-              {/* Table Number/Name */}
+              {/* Table Label at Top */}
+              <text
+                x={scaledX + scaledWidth / 2}
+                y={scaledY + 20}
+                textAnchor="middle"
+                className="fill-current text-foreground font-bold"
+                fontSize={settings.fontSize === 'large' ? '16' : settings.fontSize === 'medium' ? '14' : '12'}
+              >
+                Table
+              </text>
+
+              {/* Table Number */}
               {settings.showTableNumbers && (
                 <text
                   x={scaledX + scaledWidth / 2}
-                  y={scaledY + scaledHeight / 2 - 10}
+                  y={scaledY + 40}
                   textAnchor="middle"
                   className="fill-current text-foreground font-semibold"
-                  fontSize={settings.fontSize === 'large' ? '14' : settings.fontSize === 'medium' ? '12' : '10'}
+                  fontSize={settings.fontSize === 'large' ? '18' : settings.fontSize === 'medium' ? '16' : '14'}
                 >
-                  {table.table_no ? `Table ${table.table_no}` : table.name}
+                  {table.table_no || table.name}
                 </text>
               )}
 
-              {/* Capacity */}
+              {/* Capacity at Bottom */}
               {settings.showCapacity && (
                 <text
                   x={scaledX + scaledWidth / 2}
-                  y={scaledY + scaledHeight / 2 + 10}
+                  y={scaledY + scaledHeight - 10}
                   textAnchor="middle"
                   className="fill-current text-muted-foreground"
                   fontSize={settings.fontSize === 'large' ? '12' : settings.fontSize === 'medium' ? '10' : '8'}
@@ -175,12 +187,12 @@ export const TableChartPreview: React.FC<TableChartPreviewProps> = ({
                 </text>
               )}
 
-              {/* Guest Names (if enabled and space allows) */}
-              {settings.includeNames && tableGuests.length > 0 && scaledHeight > 60 && (
+              {/* Guest Names in Expanded Middle Area */}
+              {settings.includeNames && tableGuests.length > 0 && (
                 <g>
-                  {tableGuests.slice(0, 4).map((guest, guestIndex) => {
+                  {tableGuests.slice(0, 8).map((guest, guestIndex) => {
                     const colors = getColorScheme(guest, table);
-                    const guestY = scaledY + scaledHeight / 2 + 25 + (guestIndex * 12);
+                    const guestY = scaledY + 60 + (guestIndex * 14);
                     
                     return (
                       <text
@@ -189,21 +201,21 @@ export const TableChartPreview: React.FC<TableChartPreviewProps> = ({
                         y={guestY}
                         textAnchor="middle"
                         fill={colors.text}
-                        fontSize={settings.fontSize === 'large' ? '10' : settings.fontSize === 'medium' ? '8' : '7'}
+                        fontSize={settings.fontSize === 'large' ? '11' : settings.fontSize === 'medium' ? '9' : '8'}
                       >
                         {`${guest.first_name} ${guest.last_name || ''}`.trim()}
                       </text>
                     );
                   })}
-                  {tableGuests.length > 4 && (
+                  {tableGuests.length > 8 && (
                     <text
                       x={scaledX + scaledWidth / 2}
-                      y={scaledY + scaledHeight / 2 + 25 + (4 * 12)}
+                      y={scaledY + 60 + (8 * 14)}
                       textAnchor="middle"
                       className="fill-current text-muted-foreground"
-                      fontSize={settings.fontSize === 'large' ? '9' : settings.fontSize === 'medium' ? '7' : '6'}
+                      fontSize={settings.fontSize === 'large' ? '10' : settings.fontSize === 'medium' ? '8' : '7'}
                     >
-                      +{tableGuests.length - 4} more
+                      +{tableGuests.length - 8} more
                     </text>
                   )}
                 </g>
@@ -272,7 +284,7 @@ export const TableChartPreview: React.FC<TableChartPreviewProps> = ({
       <CardContent>
         <div 
           ref={containerRef}
-          className="w-full aspect-[4/3] border-2 border-dashed border-muted-foreground/20 rounded-lg overflow-hidden bg-muted/5"
+          className="w-full aspect-[210/297] border-2 border-dashed border-muted-foreground/20 rounded-lg overflow-hidden bg-muted/5"
         >
           {tables.length > 0 ? (
             renderSVGChart()
@@ -291,7 +303,7 @@ export const TableChartPreview: React.FC<TableChartPreviewProps> = ({
           ref={canvasRef} 
           className="hidden" 
           width={800} 
-          height={600}
+          height={1131}
         />
       </CardContent>
     </Card>
