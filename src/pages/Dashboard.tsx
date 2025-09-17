@@ -480,8 +480,8 @@ export const Dashboard = () => {
       <div className="flex-1 flex flex-col">
         <main className="flex-1 lg:px-6 px-4 py-6">
           <div className="mx-auto max-w-none">
-            {/* Stats Bar for all tabs except My Events */}
-            {activeTab !== 'my-events' && <StatsBar stats={statsData} />}
+            {/* Stats Bar for all tabs except My Events and QR Code */}
+            {activeTab !== 'my-events' && activeTab !== 'qr-code' && <StatsBar stats={statsData} />}
             
             {/* Tab Content */}
             <div className="space-y-6 mt-6">
