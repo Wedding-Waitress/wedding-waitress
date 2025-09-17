@@ -28,7 +28,10 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
 
   useEffect(() => {
     if (selectedEvent?.slug) {
-      const url = `${window.location.origin}/s/${selectedEvent.slug}`;
+      // Use production URL for QR codes to ensure external accessibility
+      const productionUrl = 'https://wedding-waitress.lovableproject.com';
+      const url = `${productionUrl}/s/${selectedEvent.slug}`;
+      console.log('Generated QR URL:', url); // Debug logging
       setQrUrl(url);
     }
   }, [selectedEvent]);

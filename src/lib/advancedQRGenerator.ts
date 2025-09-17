@@ -55,8 +55,9 @@ export class AdvancedQRGenerator {
   }
 
   private async getQRMatrix(url: string): Promise<boolean[][]> {
+    console.log('Generating QR matrix for URL:', url); // Debug logging
     const qrDataURL = await QRCode.toDataURL(url, {
-      errorCorrectionLevel: 'M',
+      errorCorrectionLevel: 'H', // Increased error correction for better scanning
       margin: 0,
       width: this.canvas.width,
       color: { dark: '#000000', light: '#FFFFFF' }
