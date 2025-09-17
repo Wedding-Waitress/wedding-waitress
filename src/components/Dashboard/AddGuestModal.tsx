@@ -44,7 +44,7 @@ const addGuestSchema = z.object({
     return Number(val);
   }, z.number().int().positive().optional().nullable()),
   rsvp: z.enum(['Pending', 'Attending', 'Not Attending']),
-  dietary: z.enum(['NA', 'Vegan', 'Vegetarian', 'Gluten Free', 'Dairy Free', 'Nut Free', 'Seafood Free', 'Kosher', 'Halal']),
+  dietary: z.enum(['NA', 'Pescatarian', 'Vegan', 'Vegetarian', 'Gluten Free', 'Dairy Free', 'Nut Free', 'Seafood Free', 'Kosher', 'Halal']),
   mobile: z.string().optional(),
   email: z.string().email().optional().or(z.literal('')),
   family_group: z.string().optional(),
@@ -823,17 +823,18 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                           <SelectValue />
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent>
-                        <SelectItem value="NA">NA</SelectItem>
-                        <SelectItem value="Vegan">Vegan</SelectItem>
-                        <SelectItem value="Vegetarian">Vegetarian</SelectItem>
-                        <SelectItem value="Gluten Free">Gluten Free</SelectItem>
-                        <SelectItem value="Dairy Free">Dairy Free</SelectItem>
-                        <SelectItem value="Nut Free">Nut Free</SelectItem>
-                        <SelectItem value="Seafood Free">Seafood Free</SelectItem>
-                        <SelectItem value="Kosher">Kosher</SelectItem>
-                        <SelectItem value="Halal">Halal</SelectItem>
-                      </SelectContent>
+                <SelectContent>
+                  <SelectItem value="NA">NA</SelectItem>
+                  <SelectItem value="Pescatarian">Pescatarian</SelectItem>
+                  <SelectItem value="Vegan">Vegan</SelectItem>
+                  <SelectItem value="Vegetarian">Vegetarian</SelectItem>
+                  <SelectItem value="Gluten Free">Gluten Free</SelectItem>
+                  <SelectItem value="Dairy Free">Dairy Free</SelectItem>
+                  <SelectItem value="Nut Free">Nut Free</SelectItem>
+                  <SelectItem value="Seafood Free">Seafood Free</SelectItem>
+                  <SelectItem value="Kosher">Kosher</SelectItem>
+                  <SelectItem value="Halal">Halal</SelectItem>
+                </SelectContent>
                     </Select>
                     <FormMessage />
                   </FormItem>

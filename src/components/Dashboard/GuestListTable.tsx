@@ -105,7 +105,7 @@ const EXPORT_HEADERS = [
 ];
 
 const DIETARY_OPTIONS = [
-  'NA', 'Vegan', 'Vegetarian', 'Gluten Free', 'Dairy Free', 
+  'NA', 'Pescatarian', 'Vegan', 'Vegetarian', 'Gluten Free', 'Dairy Free', 
   'Nut Free', 'Seafood Free', 'Kosher', 'Halal'
 ];
 
