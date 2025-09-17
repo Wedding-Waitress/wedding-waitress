@@ -21,39 +21,63 @@ interface SignagePageProps {
 
 const TEMPLATE_TYPES: { id: TemplateType; name: string; description: string; icon: React.ReactNode }[] = [
   {
-    id: 'table-tent',
-    name: 'Table Tents',
-    description: 'A-frame cards for table displays',
+    id: 'modern-minimalist',
+    name: 'Modern Minimalist',
+    description: 'Clean, contemporary design with elegant typography',
     icon: <FileImage className="w-8 h-8" />
   },
   {
-    id: 'welcome-sign',
-    name: 'Welcome Signs',
-    description: 'Large entrance displays',
+    id: 'elegant-script',
+    name: 'Elegant Script',
+    description: 'Sophisticated design with decorative borders',
     icon: <FileImage className="w-8 h-8" />
   },
   {
-    id: 'standing-sign',
-    name: 'Standing Signs',
-    description: 'Floor-standing QR displays',
+    id: 'rustic-wood',
+    name: 'Rustic Wood',
+    description: 'Warm wooden texture with natural appeal',
     icon: <FileImage className="w-8 h-8" />
   },
   {
-    id: 'menu-card',
-    name: 'Menu Cards',
-    description: 'QR codes for digital menus',
+    id: 'luxury-gold',
+    name: 'Luxury Gold',
+    description: 'Premium gold design for upscale events',
     icon: <FileImage className="w-8 h-8" />
   },
   {
-    id: 'place-card',
-    name: 'Place Cards',
-    description: 'Individual guest cards',
+    id: 'floral-border',
+    name: 'Floral Border',
+    description: 'Delicate floral patterns and soft colors',
     icon: <FileImage className="w-8 h-8" />
   },
   {
-    id: 'poster-sign',
-    name: 'Poster Signs',
-    description: 'Wall-mounted displays',
+    id: 'geometric',
+    name: 'Geometric',
+    description: 'Bold geometric shapes and modern patterns',
+    icon: <FileImage className="w-8 h-8" />
+  },
+  {
+    id: 'vintage-classic',
+    name: 'Vintage Classic',
+    description: 'Timeless vintage styling with classic fonts',
+    icon: <FileImage className="w-8 h-8" />
+  },
+  {
+    id: 'contemporary',
+    name: 'Contemporary',
+    description: 'Modern design with bold typography',
+    icon: <FileImage className="w-8 h-8" />
+  },
+  {
+    id: 'classic-formal',
+    name: 'Classic Formal',
+    description: 'Traditional formal design for elegant events',
+    icon: <FileImage className="w-8 h-8" />
+  },
+  {
+    id: 'artistic-modern',
+    name: 'Artistic Modern',
+    description: 'Creative artistic flair with modern elements',
     icon: <FileImage className="w-8 h-8" />
   }
 ];
@@ -85,9 +109,14 @@ export const SignagePage: React.FC<SignagePageProps> = ({
         textColor: '#1f2937',
         backgroundColor: '#ffffff',
         fontSize: 'medium',
+        fontFamily: 'Arial',
         includeQR: true,
-        customMessage: '',
-        logoUrl: ''
+        customMessage: 'Scan the QR code below to find your table',
+        logoUrl: '',
+        headerImageUrl: '',
+        backgroundImageUrl: '',
+        textAlignment: 'center',
+        paperSize: 'A4'
       },
       dimensions: getTemplateDimensions(templateType),
       createdAt: new Date(),
@@ -99,22 +128,8 @@ export const SignagePage: React.FC<SignagePageProps> = ({
   };
 
   const getTemplateDimensions = (type: TemplateType) => {
-    switch (type) {
-      case 'table-tent':
-        return { width: 148, height: 105, units: 'mm' as const }; // A6 folded
-      case 'welcome-sign':
-        return { width: 594, height: 420, units: 'mm' as const }; // A2
-      case 'standing-sign':
-        return { width: 297, height: 420, units: 'mm' as const }; // A3
-      case 'menu-card':
-        return { width: 105, height: 148, units: 'mm' as const }; // A6
-      case 'place-card':
-        return { width: 85, height: 55, units: 'mm' as const }; // Business card
-      case 'poster-sign':
-        return { width: 210, height: 297, units: 'mm' as const }; // A4
-      default:
-        return { width: 210, height: 297, units: 'mm' as const };
-    }
+    // All templates use A4 as default, but can be changed in customizer
+    return { width: 210, height: 297, units: 'mm' as const }; // A4
   };
 
   if (isCustomizing && selectedTemplate) {

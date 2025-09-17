@@ -25,7 +25,7 @@ const featureCards = [
     title: 'QR Code Seating Chart Signage',
     description: 'Ready-to-print signage templates with QR codes',
     icon: FileImage,
-    status: 'coming-soon',
+    status: 'active',
     action: 'Create',
   },
   {
@@ -180,8 +180,8 @@ export const QRCodeFeatureGrid: React.FC<QRCodeFeatureGridProps> = ({ eventId })
               </p>
             </div>
             <div className="flex items-center gap-2">
-              <Badge variant="default" className="text-xs">0/8 Active</Badge>
-              <Badge variant="secondary" className="text-xs">8 Coming Soon</Badge>
+              <Badge variant="default" className="text-xs">1/8 Active</Badge>
+              <Badge variant="secondary" className="text-xs">7 Coming Soon</Badge>
             </div>
           </div>
         </CardContent>

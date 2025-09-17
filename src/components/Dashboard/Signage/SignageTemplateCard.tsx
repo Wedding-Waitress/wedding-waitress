@@ -26,40 +26,64 @@ export const SignageTemplateCard: React.FC<SignageTemplateCardProps> = ({
     const commonClasses = "w-full h-24 rounded-md border-2 border-dashed border-muted-foreground/30 flex items-center justify-center";
     
     switch (type) {
-      case 'table-tent':
+      case 'modern-minimalist':
         return (
-          <div className={commonClasses}>
-            <div className="text-xs text-muted-foreground">A-Frame Card</div>
+          <div className={`${commonClasses} bg-gradient-to-r from-slate-50 to-gray-100`}>
+            <div className="text-xs text-muted-foreground">Modern & Clean</div>
           </div>
         );
-      case 'welcome-sign':
+      case 'elegant-script':
         return (
-          <div className={`${commonClasses} bg-primary/10`}>
-            <div className="text-xs text-muted-foreground">Large Welcome</div>
+          <div className={`${commonClasses} bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200`}>
+            <div className="text-xs text-muted-foreground italic">Elegant Script</div>
           </div>
         );
-      case 'standing-sign':
+      case 'rustic-wood':
         return (
-          <div className={`${commonClasses} bg-secondary/10`}>
-            <div className="text-xs text-muted-foreground">Floor Stand</div>
+          <div className={`${commonClasses} bg-gradient-to-r from-amber-100 to-orange-100 border-amber-300`}>
+            <div className="text-xs text-muted-foreground">Rustic Wood</div>
           </div>
         );
-      case 'menu-card':
+      case 'luxury-gold':
         return (
-          <div className={commonClasses}>
-            <div className="text-xs text-muted-foreground">Menu Card</div>
+          <div className={`${commonClasses} bg-gradient-to-r from-yellow-100 to-amber-100 border-yellow-300`}>
+            <div className="text-xs text-muted-foreground font-semibold">Luxury Gold</div>
           </div>
         );
-      case 'place-card':
+      case 'floral-border':
         return (
-          <div className={`${commonClasses} bg-accent/10`}>
-            <div className="text-xs text-muted-foreground">Place Card</div>
+          <div className={`${commonClasses} bg-gradient-to-r from-green-50 to-emerald-50 border-green-200`}>
+            <div className="text-xs text-muted-foreground">Floral Design</div>
           </div>
         );
-      case 'poster-sign':
+      case 'geometric':
         return (
-          <div className={`${commonClasses} bg-muted/20`}>
-            <div className="text-xs text-muted-foreground">Wall Poster</div>
+          <div className={`${commonClasses} bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200`}>
+            <div className="text-xs text-muted-foreground">Geometric</div>
+          </div>
+        );
+      case 'vintage-classic':
+        return (
+          <div className={`${commonClasses} bg-gradient-to-r from-stone-100 to-neutral-100 border-stone-300`}>
+            <div className="text-xs text-muted-foreground">Vintage Style</div>
+          </div>
+        );
+      case 'contemporary':
+        return (
+          <div className={`${commonClasses} bg-gradient-to-r from-cyan-50 to-teal-50 border-cyan-200`}>
+            <div className="text-xs text-muted-foreground">Contemporary</div>
+          </div>
+        );
+      case 'classic-formal':
+        return (
+          <div className={`${commonClasses} bg-gradient-to-r from-gray-50 to-slate-100 border-gray-300`}>
+            <div className="text-xs text-muted-foreground">Classic Formal</div>
+          </div>
+        );
+      case 'artistic-modern':
+        return (
+          <div className={`${commonClasses} bg-gradient-to-r from-rose-50 to-pink-50 border-rose-200`}>
+            <div className="text-xs text-muted-foreground">Artistic Modern</div>
           </div>
         );
       default:

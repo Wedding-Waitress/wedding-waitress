@@ -12,7 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { ArrowLeft, Download, Eye, Save } from "lucide-react";
+import { ArrowLeft, Download, Eye, Save, Upload, Image as ImageIcon } from "lucide-react";
 import { SignageTemplate, SignageTemplateEngine } from '@/lib/signageTemplateEngine';
 import { toast } from "sonner";
 
@@ -31,6 +31,7 @@ export const SignageCustomizer: React.FC<SignageCustomizerProps> = ({
   const [previewUrl, setPreviewUrl] = useState<string>('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [templateEngine] = useState(() => new SignageTemplateEngine());
+  const [uploadingImage, setUploadingImage] = useState<'header' | 'background' | null>(null);
 
   // Generate preview when template changes
   useEffect(() => {
@@ -67,30 +68,79 @@ export const SignageCustomizer: React.FC<SignageCustomizerProps> = ({
     toast.success('Template saved successfully!');
   };
 
+  const handleImageUpload = (type: 'header' | 'background') => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    
+    input.onchange = (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (file) {
+        setUploadingImage(type);
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const imageUrl = e.target?.result as string;
+          if (type === 'header') {
+            handleSettingChange('headerImageUrl', imageUrl);
+          } else {
+            handleSettingChange('backgroundImageUrl', imageUrl);
+          }
+          setUploadingImage(null);
+        };
+        reader.readAsDataURL(file);
+      }
+    };
+    
+    input.click();
+  };
+
   const handleDownload = async () => {
     try {
       setIsGenerating(true);
       const mockGuestLookupUrl = `https://seatingchart.example.com/s/${currentTemplate.eventId}`;
       
+      // Update template dimensions based on paper size
+      const paperDimensions = getPaperDimensions(currentTemplate.settings.paperSize);
+      const updatedTemplate = {
+        ...currentTemplate,
+        dimensions: {
+          width: paperDimensions.width,
+          height: paperDimensions.height,
+          units: 'mm' as const
+        }
+      };
+      
       // Generate PDF
-      const pdfBlob = await templateEngine.exportToPDF(currentTemplate, mockGuestLookupUrl);
+      const pdfBlob = await templateEngine.exportToPDF(updatedTemplate, mockGuestLookupUrl);
       
       // Create download link
       const url = URL.createObjectURL(pdfBlob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `${currentTemplate.name.replace(/\s+/g, '_').toLowerCase()}_signage.pdf`;
+      link.download = `${currentTemplate.name.replace(/\s+/g, '_').toLowerCase()}_${currentTemplate.settings.paperSize}_signage.pdf`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
       
-      toast.success('Signage downloaded successfully!');
+      toast.success(`Signage downloaded successfully in ${currentTemplate.settings.paperSize} format!`);
     } catch (error) {
       console.error('Error downloading signage:', error);
       toast.error('Failed to download signage');
     } finally {
       setIsGenerating(false);
+    }
+  };
+
+  const getPaperDimensions = (paperSize: string): { width: number; height: number } => {
+    switch (paperSize) {
+      case 'A5': return { width: 148, height: 210 };
+      case 'A4': return { width: 210, height: 297 };
+      case 'A3': return { width: 297, height: 420 };
+      case 'A2': return { width: 420, height: 594 };
+      case 'A1': return { width: 594, height: 841 };
+      case 'A0': return { width: 841, height: 1189 };
+      default: return { width: 210, height: 297 };
     }
   };
 
@@ -162,14 +212,65 @@ export const SignageCustomizer: React.FC<SignageCustomizerProps> = ({
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="customMessage">Custom Message (Optional)</Label>
+                <Label htmlFor="customMessage">Welcome Message</Label>
                 <Textarea
                   id="customMessage"
                   value={settings.customMessage}
                   onChange={(e) => handleSettingChange('customMessage', e.target.value)}
-                  placeholder="Add a personal message"
+                  placeholder="Add a welcome message for your guests"
                   rows={3}
                 />
+              </div>
+            </div>
+
+            {/* Image Upload Section */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold">Images</h3>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Header Image</Label>
+                  <Button
+                    variant="outline"
+                    onClick={() => handleImageUpload('header')}
+                    disabled={uploadingImage === 'header'}
+                    className="w-full h-20 flex flex-col gap-1"
+                  >
+                    {uploadingImage === 'header' ? (
+                      <div className="animate-spin w-4 h-4 border-2 border-primary border-t-transparent rounded-full" />
+                    ) : (
+                      <>
+                        <Upload className="w-4 h-4" />
+                        <span className="text-xs">Upload Header Image</span>
+                      </>
+                    )}
+                  </Button>
+                  {settings.headerImageUrl && (
+                    <div className="text-xs text-green-600">✓ Header image uploaded</div>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Background Image</Label>
+                  <Button
+                    variant="outline"
+                    onClick={() => handleImageUpload('background')}
+                    disabled={uploadingImage === 'background'}
+                    className="w-full h-20 flex flex-col gap-1"
+                  >
+                    {uploadingImage === 'background' ? (
+                      <div className="animate-spin w-4 h-4 border-2 border-primary border-t-transparent rounded-full" />
+                    ) : (
+                      <>
+                        <ImageIcon className="w-4 h-4" />
+                        <span className="text-xs">Upload Background</span>
+                      </>
+                    )}
+                  </Button>
+                  {settings.backgroundImageUrl && (
+                    <div className="text-xs text-green-600">✓ Background image uploaded</div>
+                  )}
+                </div>
               </div>
             </div>
 
@@ -232,6 +333,26 @@ export const SignageCustomizer: React.FC<SignageCustomizerProps> = ({
               </div>
 
               <div className="space-y-2">
+                <Label htmlFor="fontFamily">Font Family</Label>
+                <Select 
+                  value={settings.fontFamily} 
+                  onValueChange={(value: 'Arial' | 'Georgia' | 'Times' | 'Helvetica' | 'Garamond' | 'Poppins') => handleSettingChange('fontFamily', value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Arial">Arial</SelectItem>
+                    <SelectItem value="Georgia">Georgia</SelectItem>
+                    <SelectItem value="Times">Times New Roman</SelectItem>
+                    <SelectItem value="Helvetica">Helvetica</SelectItem>
+                    <SelectItem value="Garamond">Garamond</SelectItem>
+                    <SelectItem value="Poppins">Poppins</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
                 <Label htmlFor="fontSize">Font Size</Label>
                 <Select 
                   value={settings.fontSize} 
@@ -244,6 +365,43 @@ export const SignageCustomizer: React.FC<SignageCustomizerProps> = ({
                     <SelectItem value="small">Small</SelectItem>
                     <SelectItem value="medium">Medium</SelectItem>
                     <SelectItem value="large">Large</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="textAlignment">Text Alignment</Label>
+                <Select 
+                  value={settings.textAlignment} 
+                  onValueChange={(value: 'left' | 'center' | 'right') => handleSettingChange('textAlignment', value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="left">Left</SelectItem>
+                    <SelectItem value="center">Center</SelectItem>
+                    <SelectItem value="right">Right</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="paperSize">Paper Size</Label>
+                <Select 
+                  value={settings.paperSize} 
+                  onValueChange={(value: 'A5' | 'A4' | 'A3' | 'A2' | 'A1' | 'A0') => handleSettingChange('paperSize', value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="A5">A5 (148 × 210 mm)</SelectItem>
+                    <SelectItem value="A4">A4 (210 × 297 mm)</SelectItem>
+                    <SelectItem value="A3">A3 (297 × 420 mm)</SelectItem>
+                    <SelectItem value="A2">A2 (420 × 594 mm)</SelectItem>
+                    <SelectItem value="A1">A1 (594 × 841 mm)</SelectItem>
+                    <SelectItem value="A0">A0 (841 × 1189 mm)</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -268,7 +426,7 @@ export const SignageCustomizer: React.FC<SignageCustomizerProps> = ({
               Preview
             </CardTitle>
             <CardDescription>
-              {currentTemplate.dimensions.width} × {currentTemplate.dimensions.height} {currentTemplate.dimensions.units}
+              {settings.paperSize} - High Resolution Print Ready
             </CardDescription>
           </CardHeader>
           <CardContent>
