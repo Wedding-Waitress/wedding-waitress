@@ -141,11 +141,11 @@ const generateChartSVG = (
     guests: guests.filter(guest => guest.table_id === pos.table.id)
   }));
 
-    // Font sizes based on setting - increased guest name sizes
+    // Font sizes based on setting - doubled for better readability
     const fontSize = {
-      small: { title: 18, subtitle: 14, table: 12, guest: 12, legend: 8 },
-      medium: { title: 24, subtitle: 18, table: 16, guest: 14, legend: 10 },
-      large: { title: 32, subtitle: 24, table: 20, guest: 16, legend: 12 }
+      small: { title: 36, subtitle: 28, table: 24, guest: 24, legend: 16 },
+      medium: { title: 48, subtitle: 36, table: 32, guest: 28, legend: 20 },
+      large: { title: 64, subtitle: 48, table: 40, guest: 32, legend: 24 }
     }[settings.fontSize];
 
   // Color schemes
@@ -244,11 +244,11 @@ const generateChartSVG = (
       `;
     }
 
-    // Guest Names in Expanded Middle Area
+    // Guest Names in Expanded Middle Area - Show All Names
     if (settings.includeNames && tableGuests.length > 0) {
-      tableGuests.slice(0, 10).forEach((guest, guestIndex) => {
+      tableGuests.forEach((guest, guestIndex) => {
         const colors = getGuestColor(guest, table);
-        const guestY = scaledY + 45 + (guestIndex * (fontSize.guest + 4));
+        const guestY = scaledY + 50 + (guestIndex * (fontSize.guest + 6));
         
         svgContent += `
           <text x="${scaledX + scaledWidth / 2}" y="${guestY}" 
@@ -258,16 +258,6 @@ const generateChartSVG = (
           </text>
         `;
       });
-
-      if (tableGuests.length > 10) {
-        svgContent += `
-          <text x="${scaledX + scaledWidth / 2}" y="${scaledY + 75 + (10 * (fontSize.guest + 4))}" 
-                text-anchor="middle" font-family="Arial, sans-serif" 
-                font-size="${fontSize.guest - 2}" fill="#6b7280">
-            +${tableGuests.length - 10} more
-          </text>
-        `;
-      }
     }
 
     // Color coding indicator
