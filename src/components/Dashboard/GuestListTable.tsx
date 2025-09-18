@@ -94,14 +94,14 @@ const SORT_OPTIONS = [
 const IMPORT_TEMPLATE_HEADERS = [
   'first_name', 'last_name', 'table_name', 'seat_no',
   'rsvp', 'dietary', 'mobile', 'email', 'notes', 
-  'who_is_partner', 'who_is_role'
+  'relation_partner', 'relation_role'
 ];
 
 // Export headers (includes who_is_display)
 const EXPORT_HEADERS = [
   'first_name', 'last_name', 'table_name', 'seat_no',
   'rsvp', 'dietary', 'mobile', 'email', 'notes', 
-  'who_is_partner', 'who_is_role', 'who_is_display'
+  'relation_partner', 'relation_role', 'relation_display'
 ];
 
 const DIETARY_OPTIONS = [
@@ -1235,7 +1235,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                 <TableHead className="w-20">Table No</TableHead>
                 <TableHead className="w-20">Seat No.</TableHead>
                 <TableHead className="w-20">RSVP</TableHead>
-                <TableHead className="w-28">Who Is</TableHead>
+                <TableHead className="w-28">Relation</TableHead>
                 <TableHead className="w-20">Dietary</TableHead>
                 <TableHead className="w-24">Mobile</TableHead>
                 <TableHead className="w-32">Email</TableHead>
