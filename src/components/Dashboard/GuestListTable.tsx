@@ -53,17 +53,17 @@ import { GuestDeleteConfirmationModal } from './GuestDeleteConfirmationModal';
 
 import { RelationBadge } from './RelationBadge';
 import { supabase } from "@/integrations/supabase/client";
-import { WHO_IS_ROLE_LABELS, computeWhoIsDisplay } from "@/lib/whoIsUtils";
+import { RELATION_ROLE_LABELS, computeRelationDisplay } from "@/lib/relationUtils";
 import { DeleteConfirmationModal } from './DeleteConfirmationModal';
-import { WhoIsSettingsButton, WhoIsSettings } from './WhoIsSettingsModal';
+import { RelationSettingsButton, RelationSettings } from './RelationSettingsModal';
 import { ImportErrorModal } from './ImportErrorModal';
 import { whoIsAnalytics } from '@/lib/analytics';
 import { 
-  validateWhoIsFields, 
+  validateRelationFields, 
   normalizePartner, 
   normalizeRole, 
   ImportError 
-} from '@/lib/whoIsValidation';
+} from '@/lib/relationValidation';
 
 type SortOption = 
   | 'first_name_asc' | 'first_name_desc'
@@ -71,7 +71,7 @@ type SortOption =
   | 'table_name_asc' | 'table_name_desc'
   | 'seat_no_asc' | 'seat_no_desc'
   | 'rsvp_attending_first' | 'rsvp_not_attending_first'
-  | 'who_is_asc' | 'who_is_desc'
+  | 'relation_asc' | 'relation_desc'
   | 'family_group_asc' | 'family_group_desc';
 
 const SORT_OPTIONS = [
@@ -84,8 +84,8 @@ const SORT_OPTIONS = [
   { value: 'seat_no_asc', label: 'Seat No. (1→9)' },
   { value: 'rsvp_attending_first', label: 'RSVP (Attending → Pending → Not Attending)' },
   { value: 'rsvp_not_attending_first', label: 'RSVP (Not Attending → Pending → Attending)' },
-  { value: 'who_is_asc', label: 'Who Is (A–Z)' },
-  { value: 'who_is_desc', label: 'Who Is (Z–A)' },
+  { value: 'relation_asc', label: 'Relation (A–Z)' },
+  { value: 'relation_desc', label: 'Relation (Z–A)' },
   { value: 'family_group_asc', label: 'Family/Group (A–Z)' },
   { value: 'family_group_desc', label: 'Family/Group (Z–A)' },
 ] as const;
@@ -134,11 +134,11 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
   const [isDeleting, setIsDeleting] = useState(false);
   const [sortBy, setSortBy] = useState<SortOption>('first_name_asc');
   const [showNamesValidation, setShowNamesValidation] = useState(false);
-  const [whoIsSettings, setWhoIsSettings] = useState<WhoIsSettings>({
-    who_is_required: true,
-    who_is_allow_custom_role: false,
-    who_is_allow_single_partner: true,
-    who_is_disable_first_guest_alert: false,
+  const [relationSettings, setRelationSettings] = useState<RelationSettings>({
+    relation_required: true,
+    relation_allow_custom_role: false,
+    relation_allow_single_partner: true,
+    relation_disable_first_guest_alert: false,
   });
   const [showImportErrors, setShowImportErrors] = useState(false);
   const [importErrors, setImportErrors] = useState<ImportError[]>([]);
@@ -419,11 +419,11 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
           const orderA2 = a.rsvp === 'Not Attending' ? 0 : a.rsvp === 'Pending' ? 1 : 2;
           const orderB2 = b.rsvp === 'Not Attending' ? 0 : b.rsvp === 'Pending' ? 1 : 2;
           return orderA2 - orderB2;
-        case 'who_is_asc':
-          const partnerNameA = a.who_is_partner === 'partner_one' ? selectedEvent?.partner1_name : selectedEvent?.partner2_name;
-          const partnerNameB = b.who_is_partner === 'partner_one' ? selectedEvent?.partner1_name : selectedEvent?.partner2_name;
-          const roleA = WHO_IS_ROLE_LABELS[a.who_is_role] || '';
-          const roleB = WHO_IS_ROLE_LABELS[b.who_is_role] || '';
+        case 'relation_asc':
+          const partnerNameA = a.relation_partner === 'partner_one' ? selectedEvent?.partner1_name : selectedEvent?.partner2_name;
+          const partnerNameB = b.relation_partner === 'partner_one' ? selectedEvent?.partner1_name : selectedEvent?.partner2_name;
+          const roleA = RELATION_ROLE_LABELS[a.relation_role] || '';
+          const roleB = RELATION_ROLE_LABELS[b.relation_role] || '';
           
           // Primary sort: partner name
           const partnerCompare = (partnerNameA || 'zzz').localeCompare(partnerNameB || 'zzz');
@@ -431,11 +431,11 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
           
           // Secondary sort: role
           return roleA.localeCompare(roleB);
-        case 'who_is_desc':
-          const partnerNameA3 = a.who_is_partner === 'partner_one' ? selectedEvent?.partner1_name : selectedEvent?.partner2_name;
-          const partnerNameB3 = b.who_is_partner === 'partner_one' ? selectedEvent?.partner1_name : selectedEvent?.partner2_name;
-          const roleA3 = WHO_IS_ROLE_LABELS[a.who_is_role] || '';
-          const roleB3 = WHO_IS_ROLE_LABELS[b.who_is_role] || '';
+        case 'relation_desc':
+          const partnerNameA3 = a.relation_partner === 'partner_one' ? selectedEvent?.partner1_name : selectedEvent?.partner2_name;
+          const partnerNameB3 = b.relation_partner === 'partner_one' ? selectedEvent?.partner1_name : selectedEvent?.partner2_name;
+          const roleA3 = RELATION_ROLE_LABELS[a.relation_role] || '';
+          const roleB3 = RELATION_ROLE_LABELS[b.relation_role] || '';
           
           // Primary sort: partner name (desc)
           const partnerCompare3 = (partnerNameB3 || '').localeCompare(partnerNameA3 || '');
@@ -486,9 +486,9 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
         guest.mobile || '',
         guest.email || '',
         (guest.notes || '').replace(/,/g, ';').replace(/\n/g, ' '),
-        guest.who_is_partner || '',
-        guest.who_is_role || '',
-        guest.who_is_display || ''
+        guest.relation_partner || '',
+        guest.relation_role || '',
+        guest.relation_display || ''
       ].map(field => `"${field}"`).join(','))
     ];
     
@@ -667,14 +667,14 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
             }
             
             // Enhanced Who Is validation
-            const whoIsErrors = validateWhoIsFields(
+            const relationErrors = validateRelationFields(
               rowData.who_is_partner || '',
               rowData.who_is_role || '',
               rowIndex
             );
-            allErrors.push(...whoIsErrors);
+            allErrors.push(...relationErrors);
             
-            if (whoIsErrors.length > 0) {
+            if (relationErrors.length > 0) {
               return; // Skip this row due to Who Is errors
             }
             
@@ -766,7 +766,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
 
               // Compute who_is_display for each row
               const rowsWithDisplay = validRows.map(row => {
-                const whoIsDisplay = computeWhoIsDisplay(
+                const relationDisplay = computeRelationDisplay(
                   row.who_is_partner || '',
                   row.who_is_role || '',
                   selectedEvent?.partner1_name,
@@ -775,7 +775,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                 
                 return {
                   ...row,
-                  who_is_display: whoIsDisplay,
+                  relation_display: relationDisplay,
                   user_id: user.user.id
                 };
               });
@@ -834,7 +834,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
     const partner2Missing = !selectedEvent.partner2_name?.trim();
     
     // Check admin settings for first guest alert override
-    const shouldBlockFirstGuest = !whoIsSettings.who_is_disable_first_guest_alert;
+    const shouldBlockFirstGuest = !relationSettings.relation_disable_first_guest_alert;
     
     // Gating rule: Only block for first guest if partner names haven't been manually saved
     if (shouldBlockFirstGuest && guestCount === 0 && !partnerNamesSaved) {
@@ -874,8 +874,8 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
     setShowAddModal(true);
   };
 
-  const handleEditWhoIs = (guest: any) => {
-    setEditingGuest({ ...guest, focusWhoIs: true });
+  const handleEditRelation = (guest: any) => {
+    setEditingGuest({ ...guest, focusRelation: true });
     setShowAddModal(true);
   };
 
@@ -982,9 +982,9 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                     Partner Names
                   </h3>
                   {selectedEventId && (
-                    <WhoIsSettingsButton
+                    <RelationSettingsButton
                       eventId={selectedEventId}
-                      onSettingsUpdate={setWhoIsSettings}
+                      onSettingsUpdate={setRelationSettings}
                     />
                   )}
                 </div>
@@ -1280,13 +1280,13 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                       </Badge>
                     </TableCell>
                     <TableCell className="w-28">
-                      <WhoIsBadge
-                        display={guest.who_is_display || ''}
-                        partner={guest.who_is_partner || ''}
-                        role={guest.who_is_role || ''}
-                        partnerName={guest.who_is_partner === 'partner_one' ? selectedEvent?.partner1_name : selectedEvent?.partner2_name}
-                        onClick={() => handleEditWhoIs(guest)}
-                        isEmpty={!guest.who_is_display}
+                      <RelationBadge
+                        display={guest.relation_display || ''}
+                        partner={guest.relation_partner || ''}
+                        role={guest.relation_role || ''}
+                        partnerName={guest.relation_partner === 'partner_one' ? selectedEvent?.partner1_name : selectedEvent?.partner2_name}
+                        onClick={() => handleEditRelation(guest)}
+                        isEmpty={!guest.relation_display}
                       />
                     </TableCell>
                     <TableCell className="w-20">
@@ -1341,8 +1341,8 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
           setEditingGuest(null);
         }}
         eventId={selectedEventId}
-        onSuccess={handleGuestSuccess}
-        guest={editingGuest}
+        onGuestAdded={handleGuestSuccess}
+        editGuest={editingGuest}
         isEdit={!!editingGuest}
       />
         <GuestDeleteConfirmationModal
