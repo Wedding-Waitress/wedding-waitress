@@ -158,7 +158,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
       </div>
 
       {/* Print Version - Hidden until printing */}
-      <div className="print-version">
+      <div id="full-seating-print" className="hidden print:block">
         <style>{`
           @page {
             size: A4 portrait;
@@ -280,7 +280,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
           
           /* Print-specific styles */
           @media print {
-            .print-version {
+            #full-seating-print {
               display: block !important;
             }
             
