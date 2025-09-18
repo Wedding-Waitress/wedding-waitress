@@ -50,8 +50,8 @@ const featureCards = [
     title: 'Full Seating Chart',
     description: 'Complete guest list with check-off boxes',
     icon: FileText,
-    status: 'coming-soon',
-    action: 'Download',
+    status: 'active',
+    action: 'Generate',
   },
   {
     id: 'table-name-place-cards',
@@ -95,6 +95,8 @@ export const QRCodeFeatureGrid: React.FC<QRCodeFeatureGridProps> = ({ eventId, o
       onNavigateToTab?.('table-chart');
     } else if (cardId === 'kitchen-dietary-chart') {
       onNavigateToTab?.('dietary-chart');
+    } else if (cardId === 'full-seating-chart') {
+      onNavigateToTab?.('full-seating-chart');
     }
   };
   return (
@@ -191,8 +193,8 @@ export const QRCodeFeatureGrid: React.FC<QRCodeFeatureGridProps> = ({ eventId, o
               </p>
             </div>
             <div className="flex items-center gap-2">
-              <Badge variant="default" className="text-xs">3/8 Active</Badge>
-              <Badge variant="secondary" className="text-xs">5 Coming Soon</Badge>
+              <Badge variant="default" className="text-xs">4/8 Active</Badge>
+              <Badge variant="secondary" className="text-xs">4 Coming Soon</Badge>
             </div>
           </div>
         </CardContent>

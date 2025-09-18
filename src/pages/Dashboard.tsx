@@ -40,6 +40,7 @@ import { QRCodeSeatingChart } from '@/components/Dashboard/QRCode/QRCodeSeatingC
 import { KitchenDietaryChart } from '@/components/Dashboard/QRCode/KitchenDietaryChart';
 import { SignagePage } from '@/components/Dashboard/Signage/SignagePage';
 import { TableSeatingChartPage as TableSeatingChartPageComponent } from '@/components/Dashboard/TableChart/TableSeatingChartPage';
+import { FullSeatingChartPage } from '@/components/Dashboard/FullSeatingChart/FullSeatingChartPage';
 export const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
@@ -407,6 +408,9 @@ export const Dashboard = () => {
             <TableSeatingChartPageComponent selectedEventId={selectedEventId} onEventSelect={handleEventSelect} />
           </div>
         );
+      
+      case 'full-seating-chart':
+        return <FullSeatingChartPage selectedEventId={selectedEventId} onEventSelect={handleEventSelect} />;
       
       case 'planner':
         return (
