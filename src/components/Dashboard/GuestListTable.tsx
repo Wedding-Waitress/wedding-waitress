@@ -51,19 +51,19 @@ import { useTables } from '@/hooks/useTables';
 import { AddGuestModal } from './AddGuestModal';
 import { GuestDeleteConfirmationModal } from './GuestDeleteConfirmationModal';
 
-import { RelationBadge } from './RelationBadge';
+import { WhoIsBadge } from './WhoIsBadge';
 import { supabase } from "@/integrations/supabase/client";
-import { RELATION_ROLE_LABELS, computeRelationDisplay } from "@/lib/relationUtils";
+import { WHO_IS_ROLE_LABELS, computeWhoIsDisplay } from "@/lib/whoIsUtils";
 import { DeleteConfirmationModal } from './DeleteConfirmationModal';
-import { RelationSettingsButton, RelationSettings } from './RelationSettingsModal';
+import { WhoIsSettingsButton, WhoIsSettings } from './WhoIsSettingsModal';
 import { ImportErrorModal } from './ImportErrorModal';
 import { whoIsAnalytics } from '@/lib/analytics';
 import { 
-  validateRelationFields, 
+  validateWhoIsFields, 
   normalizePartner, 
   normalizeRole, 
   ImportError 
-} from '@/lib/relationValidation';
+} from '@/lib/whoIsValidation';
 
 type SortOption = 
   | 'first_name_asc' | 'first_name_desc'
@@ -71,7 +71,7 @@ type SortOption =
   | 'table_name_asc' | 'table_name_desc'
   | 'seat_no_asc' | 'seat_no_desc'
   | 'rsvp_attending_first' | 'rsvp_not_attending_first'
-  | 'relation_asc' | 'relation_desc'
+  | 'who_is_asc' | 'who_is_desc'
   | 'family_group_asc' | 'family_group_desc';
 
 const SORT_OPTIONS = [
@@ -84,8 +84,8 @@ const SORT_OPTIONS = [
   { value: 'seat_no_asc', label: 'Seat No. (1→9)' },
   { value: 'rsvp_attending_first', label: 'RSVP (Attending → Pending → Not Attending)' },
   { value: 'rsvp_not_attending_first', label: 'RSVP (Not Attending → Pending → Attending)' },
-  { value: 'relation_asc', label: 'Relation (A–Z)' },
-  { value: 'relation_desc', label: 'Relation (Z–A)' },
+  { value: 'who_is_asc', label: 'Who Is (A–Z)' },
+  { value: 'who_is_desc', label: 'Who Is (Z–A)' },
   { value: 'family_group_asc', label: 'Family/Group (A–Z)' },
   { value: 'family_group_desc', label: 'Family/Group (Z–A)' },
 ] as const;
@@ -94,14 +94,14 @@ const SORT_OPTIONS = [
 const IMPORT_TEMPLATE_HEADERS = [
   'first_name', 'last_name', 'table_name', 'seat_no',
   'rsvp', 'dietary', 'mobile', 'email', 'notes', 
-  'relation_partner', 'relation_role'
+  'who_is_partner', 'who_is_role'
 ];
 
 // Export headers (includes who_is_display)
 const EXPORT_HEADERS = [
   'first_name', 'last_name', 'table_name', 'seat_no',
   'rsvp', 'dietary', 'mobile', 'email', 'notes', 
-  'relation_partner', 'relation_role', 'relation_display'
+  'who_is_partner', 'who_is_role', 'who_is_display'
 ];
 
 const DIETARY_OPTIONS = [
@@ -134,11 +134,11 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
   const [isDeleting, setIsDeleting] = useState(false);
   const [sortBy, setSortBy] = useState<SortOption>('first_name_asc');
   const [showNamesValidation, setShowNamesValidation] = useState(false);
-  const [relationSettings, setRelationSettings] = useState<RelationSettings>({
-    relation_required: true,
-    relation_allow_custom_role: false,
-    relation_allow_single_partner: true,
-    relation_disable_first_guest_alert: false,
+  const [whoIsSettings, setWhoIsSettings] = useState<WhoIsSettings>({
+    who_is_required: true,
+    who_is_allow_custom_role: false,
+    who_is_allow_single_partner: true,
+    who_is_disable_first_guest_alert: false,
   });
   const [showImportErrors, setShowImportErrors] = useState(false);
   const [importErrors, setImportErrors] = useState<ImportError[]>([]);
@@ -228,11 +228,6 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
 
   // Save selected event to localStorage when changed - use same key as Table Setup
   const handleEventSelect = (eventId: string) => {
-    // Filter out placeholder values
-    if (eventId === "no-event") {
-      return;
-    }
-    
     if (propOnEventSelect) {
       // Use prop callback if provided (when used from Dashboard)
       propOnEventSelect(eventId);
@@ -424,11 +419,11 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
           const orderA2 = a.rsvp === 'Not Attending' ? 0 : a.rsvp === 'Pending' ? 1 : 2;
           const orderB2 = b.rsvp === 'Not Attending' ? 0 : b.rsvp === 'Pending' ? 1 : 2;
           return orderA2 - orderB2;
-        case 'relation_asc':
-          const partnerNameA = a.relation_partner === 'partner_one' ? selectedEvent?.partner1_name : selectedEvent?.partner2_name;
-          const partnerNameB = b.relation_partner === 'partner_one' ? selectedEvent?.partner1_name : selectedEvent?.partner2_name;
-          const roleA = RELATION_ROLE_LABELS[a.relation_role] || '';
-          const roleB = RELATION_ROLE_LABELS[b.relation_role] || '';
+        case 'who_is_asc':
+          const partnerNameA = a.who_is_partner === 'partner_one' ? selectedEvent?.partner1_name : selectedEvent?.partner2_name;
+          const partnerNameB = b.who_is_partner === 'partner_one' ? selectedEvent?.partner1_name : selectedEvent?.partner2_name;
+          const roleA = WHO_IS_ROLE_LABELS[a.who_is_role] || '';
+          const roleB = WHO_IS_ROLE_LABELS[b.who_is_role] || '';
           
           // Primary sort: partner name
           const partnerCompare = (partnerNameA || 'zzz').localeCompare(partnerNameB || 'zzz');
@@ -436,11 +431,11 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
           
           // Secondary sort: role
           return roleA.localeCompare(roleB);
-        case 'relation_desc':
-          const partnerNameA3 = a.relation_partner === 'partner_one' ? selectedEvent?.partner1_name : selectedEvent?.partner2_name;
-          const partnerNameB3 = b.relation_partner === 'partner_one' ? selectedEvent?.partner1_name : selectedEvent?.partner2_name;
-          const roleA3 = RELATION_ROLE_LABELS[a.relation_role] || '';
-          const roleB3 = RELATION_ROLE_LABELS[b.relation_role] || '';
+        case 'who_is_desc':
+          const partnerNameA3 = a.who_is_partner === 'partner_one' ? selectedEvent?.partner1_name : selectedEvent?.partner2_name;
+          const partnerNameB3 = b.who_is_partner === 'partner_one' ? selectedEvent?.partner1_name : selectedEvent?.partner2_name;
+          const roleA3 = WHO_IS_ROLE_LABELS[a.who_is_role] || '';
+          const roleB3 = WHO_IS_ROLE_LABELS[b.who_is_role] || '';
           
           // Primary sort: partner name (desc)
           const partnerCompare3 = (partnerNameB3 || '').localeCompare(partnerNameA3 || '');
@@ -491,9 +486,9 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
         guest.mobile || '',
         guest.email || '',
         (guest.notes || '').replace(/,/g, ';').replace(/\n/g, ' '),
-        guest.relation_partner || '',
-        guest.relation_role || '',
-        guest.relation_display || ''
+        guest.who_is_partner || '',
+        guest.who_is_role || '',
+        guest.who_is_display || ''
       ].map(field => `"${field}"`).join(','))
     ];
     
@@ -672,14 +667,14 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
             }
             
             // Enhanced Who Is validation
-            const relationErrors = validateRelationFields(
+            const whoIsErrors = validateWhoIsFields(
               rowData.who_is_partner || '',
               rowData.who_is_role || '',
               rowIndex
             );
-            allErrors.push(...relationErrors);
+            allErrors.push(...whoIsErrors);
             
-            if (relationErrors.length > 0) {
+            if (whoIsErrors.length > 0) {
               return; // Skip this row due to Who Is errors
             }
             
@@ -771,7 +766,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
 
               // Compute who_is_display for each row
               const rowsWithDisplay = validRows.map(row => {
-                const relationDisplay = computeRelationDisplay(
+                const whoIsDisplay = computeWhoIsDisplay(
                   row.who_is_partner || '',
                   row.who_is_role || '',
                   selectedEvent?.partner1_name,
@@ -780,7 +775,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                 
                 return {
                   ...row,
-                  relation_display: relationDisplay,
+                  who_is_display: whoIsDisplay,
                   user_id: user.user.id
                 };
               });
@@ -839,7 +834,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
     const partner2Missing = !selectedEvent.partner2_name?.trim();
     
     // Check admin settings for first guest alert override
-    const shouldBlockFirstGuest = !relationSettings.relation_disable_first_guest_alert;
+    const shouldBlockFirstGuest = !whoIsSettings.who_is_disable_first_guest_alert;
     
     // Gating rule: Only block for first guest if partner names haven't been manually saved
     if (shouldBlockFirstGuest && guestCount === 0 && !partnerNamesSaved) {
@@ -879,8 +874,8 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
     setShowAddModal(true);
   };
 
-  const handleEditRelation = (guest: any) => {
-    setEditingGuest({ ...guest, focusRelation: true });
+  const handleEditWhoIs = (guest: any) => {
+    setEditingGuest({ ...guest, focusWhoIs: true });
     setShowAddModal(true);
   };
 
@@ -935,7 +930,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
           
           {/* Event dropdown */}
           <div className="flex justify-center">
-            <Select onValueChange={handleEventSelect} value="no-event">
+            <Select onValueChange={handleEventSelect} value="">
               <SelectTrigger className="w-[300px]">
                 <SelectValue placeholder="Select an event..." />
               </SelectTrigger>
@@ -987,9 +982,9 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                     Partner Names
                   </h3>
                   {selectedEventId && (
-                    <RelationSettingsButton
+                    <WhoIsSettingsButton
                       eventId={selectedEventId}
-                      onSettingsUpdate={setRelationSettings}
+                      onSettingsUpdate={setWhoIsSettings}
                     />
                   )}
                 </div>
@@ -1065,7 +1060,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                   <Label htmlFor="event-select" className="whitespace-nowrap text-sm font-medium">
                     Choose Event:
                   </Label>
-                  <Select value={selectedEventId || "no-event"} onValueChange={handleEventSelect}>
+                  <Select value={selectedEventId || ""} onValueChange={handleEventSelect}>
                     <SelectTrigger className="w-[300px]">
                       <SelectValue placeholder="Select an event..." />
                     </SelectTrigger>
@@ -1240,7 +1235,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                 <TableHead className="w-20">Table No</TableHead>
                 <TableHead className="w-20">Seat No.</TableHead>
                 <TableHead className="w-20">RSVP</TableHead>
-                <TableHead className="w-28">Relation</TableHead>
+                <TableHead className="w-28">Who Is</TableHead>
                 <TableHead className="w-20">Dietary</TableHead>
                 <TableHead className="w-24">Mobile</TableHead>
                 <TableHead className="w-32">Email</TableHead>
@@ -1285,13 +1280,13 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                       </Badge>
                     </TableCell>
                     <TableCell className="w-28">
-                      <RelationBadge
-                        display={guest.relation_display || ''}
-                        partner={guest.relation_partner || ''}
-                        role={guest.relation_role || ''}
-                        partnerName={guest.relation_partner === 'partner_one' ? selectedEvent?.partner1_name : selectedEvent?.partner2_name}
-                        onClick={() => handleEditRelation(guest)}
-                        isEmpty={!guest.relation_display}
+                      <WhoIsBadge
+                        display={guest.who_is_display || ''}
+                        partner={guest.who_is_partner || ''}
+                        role={guest.who_is_role || ''}
+                        partnerName={guest.who_is_partner === 'partner_one' ? selectedEvent?.partner1_name : selectedEvent?.partner2_name}
+                        onClick={() => handleEditWhoIs(guest)}
+                        isEmpty={!guest.who_is_display}
                       />
                     </TableCell>
                     <TableCell className="w-20">
@@ -1346,8 +1341,8 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
           setEditingGuest(null);
         }}
         eventId={selectedEventId}
-        onGuestAdded={handleGuestSuccess}
-        editGuest={editingGuest}
+        onSuccess={handleGuestSuccess}
+        guest={editingGuest}
         isEdit={!!editingGuest}
       />
         <GuestDeleteConfirmationModal

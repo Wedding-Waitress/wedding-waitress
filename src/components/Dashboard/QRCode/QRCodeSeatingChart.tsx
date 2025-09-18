@@ -36,11 +36,6 @@ export const QRCodeSeatingChart: React.FC<QRCodeSeatingChartProps> = ({
   const selectedEvent = events.find(event => event.id === (selectedEventId || localSelectedEventId));
 
   const handleEventSelect = (eventId: string) => {
-    // Filter out placeholder values 
-    if (eventId === "no-event") {
-      return;
-    }
-    
     setLocalSelectedEventId(eventId);
     onEventSelect?.(eventId);
   };
@@ -97,7 +92,7 @@ export const QRCodeSeatingChart: React.FC<QRCodeSeatingChartProps> = ({
             <label className="text-sm font-medium text-foreground whitespace-nowrap">
               Choose Event:
             </label>
-            <Select value={currentEventId || "no-event"} onValueChange={handleEventSelect}>
+            <Select value={currentEventId || ""} onValueChange={handleEventSelect}>
               <SelectTrigger className="w-[300px]">
                 <SelectValue placeholder={eventsLoading ? "Loading events..." : "Select an event..."} />
               </SelectTrigger>

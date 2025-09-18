@@ -127,11 +127,6 @@ export const Dashboard = () => {
 
   // Handle event selection for tables
   const handleEventSelect = (eventId: string) => {
-    // Filter out placeholder values
-    if (eventId === "no-event") {
-      return;
-    }
-    
     setSelectedEventId(eventId);
     localStorage.setItem('active_event_id', eventId);
   };
@@ -241,7 +236,7 @@ export const Dashboard = () => {
                     <label className="text-sm font-medium text-foreground">
                       Choose Event:
                     </label>
-                    <Select value={selectedEventId || "no-event"} onValueChange={handleEventSelect}>
+                    <Select value={selectedEventId || ""} onValueChange={handleEventSelect}>
                       <SelectTrigger className="w-[300px]">
                         <SelectValue placeholder={eventsLoading ? "Loading events..." : "Select an event..."} />
                       </SelectTrigger>

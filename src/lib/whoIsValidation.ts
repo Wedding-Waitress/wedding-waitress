@@ -1,4 +1,4 @@
-// Relation field validation and normalization utilities
+// Who Is field validation and normalization utilities
 
 export const VALID_PARTNERS = ['partner_one', 'partner_two'] as const;
 export const VALID_ROLES = [
@@ -85,7 +85,7 @@ export interface ImportError {
   reason: string;
 }
 
-export const validateRelationFields = (
+export const validateWhoIsFields = (
   partner: string, 
   role: string, 
   rowIndex: number
@@ -99,7 +99,7 @@ export const validateRelationFields = (
   if (hasPartner && !hasRole) {
     errors.push({
       rowIndex,
-      field: 'relation_role',
+      field: 'who_is_role',
       value: role,
       reason: 'Role is required when partner is specified'
     });
@@ -108,7 +108,7 @@ export const validateRelationFields = (
   if (hasRole && !hasPartner) {
     errors.push({
       rowIndex,
-      field: 'relation_partner',
+      field: 'who_is_partner',
       value: partner,
       reason: 'Partner is required when role is specified'
     });
@@ -120,7 +120,7 @@ export const validateRelationFields = (
     if (!normalizedPartner) {
       errors.push({
         rowIndex,
-        field: 'relation_partner',
+        field: 'who_is_partner',
         value: partner,
         reason: `Invalid partner. Must be one of: ${VALID_PARTNERS.join(', ')}`
       });
@@ -133,7 +133,7 @@ export const validateRelationFields = (
     if (!normalizedRole) {
       errors.push({
         rowIndex,
-        field: 'relation_role',
+        field: 'who_is_role',
         value: role,
         reason: `Invalid role. Must be one of: ${VALID_ROLES.join(', ')}`
       });

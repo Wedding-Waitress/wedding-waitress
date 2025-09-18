@@ -14,33 +14,33 @@ import { useToast } from "@/hooks/use-toast";
 import { Settings } from "lucide-react";
 import { CustomRoleManager } from './CustomRoleManager';
 
-interface RelationSettings {
-  relation_required: boolean;
-  relation_allow_custom_role: boolean;
-  relation_allow_single_partner: boolean;
-  relation_disable_first_guest_alert: boolean;
-  custom_roles?: string[];
-}
-
-interface RelationSettingsModalProps {
+interface WhoIsSettingsModalProps {
   isOpen: boolean;
   onClose: () => void;
   eventId: string;
-  onSettingsUpdate: (settings: RelationSettings) => void;
+  onSettingsUpdate: (settings: WhoIsSettings) => void;
 }
 
-export const RelationSettingsModal: React.FC<RelationSettingsModalProps> = ({
+export interface WhoIsSettings {
+  who_is_required: boolean;
+  who_is_allow_custom_role: boolean;
+  who_is_allow_single_partner: boolean;
+  who_is_disable_first_guest_alert: boolean;
+  custom_roles?: string[];
+}
+
+export const WhoIsSettingsModal: React.FC<WhoIsSettingsModalProps> = ({
   isOpen,
   onClose,
   eventId,
   onSettingsUpdate,
 }) => {
   const { toast } = useToast();
-  const [settings, setSettings] = useState<RelationSettings>({
-    relation_required: true,
-    relation_allow_custom_role: false,
-    relation_allow_single_partner: true,
-    relation_disable_first_guest_alert: false,
+  const [settings, setSettings] = useState<WhoIsSettings>({
+    who_is_required: true,
+    who_is_allow_custom_role: false,
+    who_is_allow_single_partner: true,
+    who_is_disable_first_guest_alert: false,
     custom_roles: [],
   });
   const [loading, setLoading] = useState(false);
@@ -55,7 +55,7 @@ export const RelationSettingsModal: React.FC<RelationSettingsModalProps> = ({
     try {
       const { data, error } = await supabase
         .from('events')
-        .select('relation_required, relation_allow_custom_role, relation_allow_single_partner, relation_disable_first_guest_alert, custom_roles')
+        .select('who_is_required, who_is_allow_custom_role, who_is_allow_single_partner, who_is_disable_first_guest_alert, custom_roles')
         .eq('id', eventId)
         .single();
 
@@ -66,10 +66,10 @@ export const RelationSettingsModal: React.FC<RelationSettingsModalProps> = ({
 
       if (data) {
         setSettings({
-          relation_required: data.relation_required ?? true,
-          relation_allow_custom_role: data.relation_allow_custom_role ?? false,
-          relation_allow_single_partner: data.relation_allow_single_partner ?? true,
-          relation_disable_first_guest_alert: data.relation_disable_first_guest_alert ?? false,
+          who_is_required: data.who_is_required ?? true,
+          who_is_allow_custom_role: data.who_is_allow_custom_role ?? false,
+          who_is_allow_single_partner: data.who_is_allow_single_partner ?? true,
+          who_is_disable_first_guest_alert: data.who_is_disable_first_guest_alert ?? false,
           custom_roles: Array.isArray(data.custom_roles) ? data.custom_roles as string[] : [],
         });
       }
@@ -90,7 +90,7 @@ export const RelationSettingsModal: React.FC<RelationSettingsModalProps> = ({
         console.error('Error updating settings:', error);
         toast({
           title: "Error",
-          description: "Failed to update Relation settings",
+          description: "Failed to update Who Is settings",
           variant: "destructive",
         });
         return;
@@ -98,7 +98,7 @@ export const RelationSettingsModal: React.FC<RelationSettingsModalProps> = ({
 
       toast({
         title: "Success",
-        description: "Relation settings updated successfully",
+        description: "Who Is settings updated successfully",
       });
 
       onSettingsUpdate(settings);
@@ -115,7 +115,7 @@ export const RelationSettingsModal: React.FC<RelationSettingsModalProps> = ({
     }
   };
 
-  const updateSetting = (key: keyof RelationSettings, value: boolean) => {
+  const updateSetting = (key: keyof WhoIsSettings, value: boolean) => {
     setSettings(prev => ({ ...prev, [key]: value }));
   };
 
@@ -125,22 +125,22 @@ export const RelationSettingsModal: React.FC<RelationSettingsModalProps> = ({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Settings className="w-5 h-5" />
-            Relation Settings
+            Who Is Settings
           </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-6 py-4">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
-              <Label htmlFor="required">Require "Relation" on Add/Edit Guest</Label>
+              <Label htmlFor="required">Require "Who Is" on Add/Edit Guest</Label>
               <p className="text-xs text-muted-foreground">
                 When enabled, guests must have a partner and role assigned
               </p>
             </div>
             <Switch
               id="required"
-              checked={settings.relation_required}
-              onCheckedChange={(checked) => updateSetting('relation_required', checked)}
+              checked={settings.who_is_required}
+              onCheckedChange={(checked) => updateSetting('who_is_required', checked)}
             />
           </div>
 
@@ -153,8 +153,8 @@ export const RelationSettingsModal: React.FC<RelationSettingsModalProps> = ({
             </div>
             <Switch
               id="custom-role"
-              checked={settings.relation_allow_custom_role}
-              onCheckedChange={(checked) => updateSetting('relation_allow_custom_role', checked)}
+              checked={settings.who_is_allow_custom_role}
+              onCheckedChange={(checked) => updateSetting('who_is_allow_custom_role', checked)}
             />
           </div>
 
@@ -162,13 +162,13 @@ export const RelationSettingsModal: React.FC<RelationSettingsModalProps> = ({
             <div className="space-y-1">
               <Label htmlFor="single-partner">Allow single-partner events</Label>
               <p className="text-xs text-muted-foreground">
-                When enabled, events with only one partner name still show Relation options
+                When enabled, events with only one partner name still show Who Is options
               </p>
             </div>
             <Switch
               id="single-partner"
-              checked={settings.relation_allow_single_partner}
-              onCheckedChange={(checked) => updateSetting('relation_allow_single_partner', checked)}
+              checked={settings.who_is_allow_single_partner}
+              onCheckedChange={(checked) => updateSetting('who_is_allow_single_partner', checked)}
             />
           </div>
 
@@ -181,13 +181,13 @@ export const RelationSettingsModal: React.FC<RelationSettingsModalProps> = ({
             </div>
             <Switch
               id="disable-alert"
-              checked={settings.relation_disable_first_guest_alert}
-              onCheckedChange={(checked) => updateSetting('relation_disable_first_guest_alert', checked)}
+              checked={settings.who_is_disable_first_guest_alert}
+              onCheckedChange={(checked) => updateSetting('who_is_disable_first_guest_alert', checked)}
             />
           </div>
 
           {/* Custom Role Manager - only show when custom roles are enabled */}
-          {settings.relation_allow_custom_role && (
+          {settings.who_is_allow_custom_role && (
             <CustomRoleManager
               eventId={eventId}
               customRoles={settings.custom_roles || []}
@@ -210,12 +210,12 @@ export const RelationSettingsModal: React.FC<RelationSettingsModalProps> = ({
 };
 
 // Settings button component for the UI
-interface RelationSettingsButtonProps {
+interface WhoIsSettingsButtonProps {
   eventId: string;
-  onSettingsUpdate: (settings: RelationSettings) => void;
+  onSettingsUpdate: (settings: WhoIsSettings) => void;
 }
 
-export const RelationSettingsButton: React.FC<RelationSettingsButtonProps> = ({
+export const WhoIsSettingsButton: React.FC<WhoIsSettingsButtonProps> = ({
   eventId,
   onSettingsUpdate,
 }) => {
@@ -228,12 +228,12 @@ export const RelationSettingsButton: React.FC<RelationSettingsButtonProps> = ({
         size="sm"
         onClick={() => setShowModal(true)}
         className="h-6 w-6 p-0"
-        title="Relation Settings"
+        title="Who Is Settings"
       >
         <Settings className="w-4 h-4" />
       </Button>
 
-      <RelationSettingsModal
+      <WhoIsSettingsModal
         isOpen={showModal}
         onClose={() => setShowModal(false)}
         eventId={eventId}
@@ -242,5 +242,3 @@ export const RelationSettingsButton: React.FC<RelationSettingsButtonProps> = ({
     </>
   );
 };
-
-export type { RelationSettings };

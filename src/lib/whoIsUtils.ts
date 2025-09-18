@@ -1,9 +1,9 @@
-// Utility functions for relationship tracking
+// Utility functions for "Who Is" relationship tracking
 
-export type RelationPartner = 'partner_one' | 'partner_two' | '';
-export type RelationRole = 'bridal_party' | 'father' | 'mother' | 'brother' | 'sister' | 'cousin' | 'uncle' | 'aunty' | 'guest' | 'vendor' | '';
+export type WhoIsPartner = 'partner_one' | 'partner_two' | '';
+export type WhoIsRole = 'bridal_party' | 'father' | 'mother' | 'brother' | 'sister' | 'cousin' | 'uncle' | 'aunty' | 'guest' | 'vendor' | '';
 
-export const RELATION_ROLE_LABELS: Record<string, string> = {
+export const WHO_IS_ROLE_LABELS: Record<string, string> = {
   bridal_party: 'Bridal Party',
   father: 'Father',
   mother: 'Mother',
@@ -22,7 +22,7 @@ export interface RoleOption {
   isCustom?: boolean;
 }
 
-export const RELATION_ROLE_OPTIONS: RoleOption[] = [
+export const WHO_IS_ROLE_OPTIONS: RoleOption[] = [
   { value: 'bridal_party', label: 'Bridal Party' },
   { value: 'father', label: 'Father' },
   { value: 'mother', label: 'Mother' },
@@ -36,7 +36,7 @@ export const RELATION_ROLE_OPTIONS: RoleOption[] = [
 ];
 
 export const getAllRoleOptions = (customRoles: string[] = []): RoleOption[] => {
-  const defaultOptions = [...RELATION_ROLE_OPTIONS];
+  const defaultOptions = [...WHO_IS_ROLE_OPTIONS];
   const customOptions: RoleOption[] = customRoles.map(role => ({
     value: `custom_${role.toLowerCase().replace(/\s+/g, '_')}`,
     label: role,
@@ -46,9 +46,9 @@ export const getAllRoleOptions = (customRoles: string[] = []): RoleOption[] => {
   return [...defaultOptions, ...customOptions];
 };
 
-export const computeRelationDisplay = (
-  partner: RelationPartner,
-  role: RelationRole,
+export const computeWhoIsDisplay = (
+  partner: WhoIsPartner,
+  role: WhoIsRole,
   partner1Name?: string | null,
   partner2Name?: string | null,
   customRoles: string[] = []
@@ -68,7 +68,7 @@ export const computeRelationDisplay = (
   }
   
   // Handle standard roles
-  const roleLabel = RELATION_ROLE_LABELS[role];
+  const roleLabel = WHO_IS_ROLE_LABELS[role];
   
   if (!partnerName || !roleLabel) return '';
   

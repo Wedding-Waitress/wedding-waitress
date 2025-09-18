@@ -2,14 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { Check } from 'lucide-react';
 import { Button } from "@/components/ui/enhanced-button";
 import { Card } from "@/components/ui/card";
-import { RelationPartner, RelationRole, getAllRoleOptions, computeRelationDisplay } from "@/lib/relationUtils";
+import { WhoIsPartner, WhoIsRole, getAllRoleOptions, computeWhoIsDisplay } from "@/lib/whoIsUtils";
 
-interface RelationSelectorProps {
+interface WhoIsSelectorProps {
   value: {
-    partner: RelationPartner;
-    role: RelationRole;
+    partner: WhoIsPartner;
+    role: WhoIsRole;
   };
-  onChange: (partner: RelationPartner, role: RelationRole) => void;
+  onChange: (partner: WhoIsPartner, role: WhoIsRole) => void;
   partner1Name?: string | null;
   partner2Name?: string | null;
   isOpen: boolean;
@@ -19,7 +19,7 @@ interface RelationSelectorProps {
   allowCustomRoles?: boolean;
 }
 
-export const RelationSelector: React.FC<RelationSelectorProps> = ({
+export const WhoIsSelector: React.FC<WhoIsSelectorProps> = ({
   value,
   onChange,
   partner1Name,
@@ -30,8 +30,8 @@ export const RelationSelector: React.FC<RelationSelectorProps> = ({
   customRoles = [],
   allowCustomRoles = false
 }) => {
-  const [selectedPartner, setSelectedPartner] = useState<RelationPartner>(value.partner);
-  const [selectedRole, setSelectedRole] = useState<RelationRole>(value.role);
+  const [selectedPartner, setSelectedPartner] = useState<WhoIsPartner>(value.partner);
+  const [selectedRole, setSelectedRole] = useState<WhoIsRole>(value.role);
 
   // Get all available role options (default + custom)
   const roleOptions = getAllRoleOptions(allowCustomRoles ? customRoles : []);
@@ -41,7 +41,7 @@ export const RelationSelector: React.FC<RelationSelectorProps> = ({
     setSelectedRole(value.role);
   }, [value.partner, value.role]);
 
-  const handleRoleSelect = (partner: RelationPartner, role: RelationRole) => {
+  const handleRoleSelect = (partner: WhoIsPartner, role: WhoIsRole) => {
     setSelectedPartner(partner);
     setSelectedRole(role);
   };
@@ -60,7 +60,7 @@ export const RelationSelector: React.FC<RelationSelectorProps> = ({
 
   // Display current selection
   const displayText = value.partner && value.role 
-    ? computeRelationDisplay(
+    ? computeWhoIsDisplay(
         value.partner, 
         value.role, 
         partner1Name, 
@@ -118,7 +118,7 @@ export const RelationSelector: React.FC<RelationSelectorProps> = ({
                   {roleOptions.map((role) => (
                     <div
                       key={`partner_one_${role.value}`}
-                      onClick={() => handleRoleSelect('partner_one', role.value as RelationRole)}
+                      onClick={() => handleRoleSelect('partner_one', role.value as WhoIsRole)}
                       className={`flex items-center px-3 py-2 cursor-pointer transition-colors hover:bg-muted/50 ${
                         selectedPartner === 'partner_one' && selectedRole === role.value
                           ? 'bg-primary/5'
@@ -143,7 +143,7 @@ export const RelationSelector: React.FC<RelationSelectorProps> = ({
                   {roleOptions.map((role) => (
                     <div
                       key={`partner_two_${role.value}`}
-                      onClick={() => handleRoleSelect('partner_two', role.value as RelationRole)}
+                      onClick={() => handleRoleSelect('partner_two', role.value as WhoIsRole)}
                       className={`flex items-center px-3 py-2 cursor-pointer transition-colors hover:bg-muted/50 ${
                         selectedPartner === 'partner_two' && selectedRole === role.value
                           ? 'bg-primary/5'

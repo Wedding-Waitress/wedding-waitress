@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/enhanced-button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Download, AlertTriangle } from "lucide-react";
-import { generateErrorReport, ImportError } from "@/lib/relationValidation";
+import { generateErrorReport, ImportError } from "@/lib/whoIsValidation";
 
 interface ImportErrorModalProps {
   isOpen: boolean;
