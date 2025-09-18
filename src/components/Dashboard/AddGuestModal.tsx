@@ -105,7 +105,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
     defaultValues: {
       first_name: "",
       last_name: "",
-      table_id: "",
+      table_id: "none",
       seat_no: undefined,
       rsvp: "Pending",
       dietary: "NA",
@@ -154,7 +154,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
         form.reset({
           first_name: editGuest.first_name,
           last_name: editGuest.last_name,
-          table_id: editGuest.table_id || "",
+          table_id: editGuest.table_id || "none",
           seat_no: editGuest.seat_no || undefined,
           rsvp: editGuest.rsvp,
           dietary: editGuest.dietary,
@@ -169,7 +169,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
         form.reset({
           first_name: "",
           last_name: "",
-          table_id: "",
+          table_id: "none",
           seat_no: undefined,
           rsvp: "Pending",
           dietary: "NA",
@@ -232,7 +232,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
       }
 
       // Validate table and seat if provided
-      if (data.table_id && data.seat_no) {
+      if (data.table_id && data.table_id !== "none" && data.seat_no) {
         const selectedTable = tables.find(t => t.id === data.table_id);
         if (selectedTable && data.seat_no > selectedTable.limit_seats) {
           form.setError('seat_no', {
@@ -250,7 +250,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
         user_id: (await supabase.auth.getUser()).data.user?.id!,
         first_name: data.first_name,
         last_name: data.last_name,
-        table_id: data.table_id || null,
+        table_id: data.table_id === "none" ? null : data.table_id || null,
         seat_no: data.seat_no || null,
         rsvp: data.rsvp,
         dietary: data.dietary,
@@ -258,7 +258,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
         email: data.email || null,
         family_group: data.family_group || null,
         notes: data.notes || null,
-        assigned: !!data.table_id,
+        assigned: !!(data.table_id && data.table_id !== "none"),
       };
 
       // Compute relation_display using current event's partner names
@@ -275,7 +275,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
 
       // Get table number if table is selected
       let table_no = null;
-      if (data.table_id) {
+      if (data.table_id && data.table_id !== "none") {
         const selectedTable = tables.find(t => t.id === data.table_id);
         table_no = selectedTable?.table_no || null;
       }
@@ -436,7 +436,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="">No table assigned</SelectItem>
+                        <SelectItem value="none">No table assigned</SelectItem>
                         {tables.map((table) => (
                           <SelectItem key={table.id} value={table.id}>
                             Table {table.table_no} - {table.name}
@@ -461,7 +461,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                     <Select
                       onValueChange={(value) => field.onChange(value ? Number(value) : undefined)}
                       value={field.value?.toString() || ""}
-                      disabled={!form.watch('table_id')}
+                      disabled={!form.watch('table_id') || form.watch('table_id') === "none"}
                     >
                       <FormControl>
                         <SelectTrigger>
@@ -469,8 +469,8 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="">No seat assigned</SelectItem>
-                        {form.watch('table_id') && 
+                        <SelectItem value="none">No seat assigned</SelectItem>
+                        {form.watch('table_id') && form.watch('table_id') !== "none" && 
                           getAvailableSeatNumbers(form.watch('table_id')!).map((seatNum) => (
                             <SelectItem key={seatNum} value={seatNum.toString()}>
                               Seat {seatNum}
