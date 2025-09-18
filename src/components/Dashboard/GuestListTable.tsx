@@ -228,6 +228,11 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
 
   // Save selected event to localStorage when changed - use same key as Table Setup
   const handleEventSelect = (eventId: string) => {
+    // Filter out placeholder values
+    if (eventId === "no-event") {
+      return;
+    }
+    
     if (propOnEventSelect) {
       // Use prop callback if provided (when used from Dashboard)
       propOnEventSelect(eventId);
@@ -930,7 +935,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
           
           {/* Event dropdown */}
           <div className="flex justify-center">
-            <Select onValueChange={handleEventSelect} value="">
+            <Select onValueChange={handleEventSelect} value="no-event">
               <SelectTrigger className="w-[300px]">
                 <SelectValue placeholder="Select an event..." />
               </SelectTrigger>
@@ -1060,7 +1065,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                   <Label htmlFor="event-select" className="whitespace-nowrap text-sm font-medium">
                     Choose Event:
                   </Label>
-                  <Select value={selectedEventId || ""} onValueChange={handleEventSelect}>
+                  <Select value={selectedEventId || "no-event"} onValueChange={handleEventSelect}>
                     <SelectTrigger className="w-[300px]">
                       <SelectValue placeholder="Select an event..." />
                     </SelectTrigger>

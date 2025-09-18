@@ -460,7 +460,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                     <FormLabel>Seat Number</FormLabel>
                     <Select
                       onValueChange={(value) => field.onChange(!value || value === "none" ? undefined : Number(value))}
-                      value={field.value?.toString() || ""}
+                      value={field.value?.toString() || "none"}
                       disabled={!form.watch('table_id') || form.watch('table_id') === "none"}
                     >
                       <FormControl>
