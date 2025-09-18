@@ -280,7 +280,21 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
           
           /* Print-specific styles */
           @media print {
+            body * {
+              visibility: hidden;
+            }
+            
+            #full-seating-print,
+            #full-seating-print * {
+              visibility: visible !important;
+            }
+            
             #full-seating-print {
+              position: absolute !important;
+              left: 0 !important;
+              top: 0 !important;
+              width: 100% !important;
+              background: white !important;
               display: block !important;
             }
             
