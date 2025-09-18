@@ -2,7 +2,7 @@ import React from 'react';
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/enhanced-button";
 
-interface WhoIsBadgeProps {
+interface RelationBadgeProps {
   display: string;
   partner: string;
   role: string;
@@ -11,7 +11,7 @@ interface WhoIsBadgeProps {
   isEmpty?: boolean;
 }
 
-export const WhoIsBadge: React.FC<WhoIsBadgeProps> = ({
+export const RelationBadge: React.FC<RelationBadgeProps> = ({
   display,
   partner,
   role,

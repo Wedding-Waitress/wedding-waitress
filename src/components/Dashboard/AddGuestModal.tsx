@@ -1,13 +1,12 @@
-import React, { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
 } from "@/components/ui/dialog";
 import {
   Form,
@@ -17,6 +16,9 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/enhanced-button";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -24,33 +26,29 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/enhanced-button";
+import { Badge } from "@/components/ui/badge";
+import { X, AlertCircle, Users, Utensils, Calendar, MapPin } from 'lucide-react';
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useTables } from "@/hooks/useTables";
-import { computeWhoIsDisplay, WhoIsPartner, WhoIsRole } from "@/lib/whoIsUtils";
+import { computeRelationDisplay, RelationPartner, RelationRole } from "@/lib/relationUtils";
 import { useEvents } from "@/hooks/useEvents";
-import { WhoIsSelector } from "./WhoIsSelector";
+import { RelationSelector } from "./RelationSelector";
 import { FamilyGroupCombobox } from "./FamilyGroupCombobox";
 
 const addGuestSchema = z.object({
   first_name: z.string().min(1, "First name is required"),
   last_name: z.string().min(1, "Last name is required"),
-  table_id: z.string().min(1, "Table is required"),
-  seat_no: z.preprocess((val) => {
-    if (val === "" || val === undefined || val === null) return null;
-    return Number(val);
-  }, z.number().int().positive().optional().nullable()),
-  rsvp: z.enum(['Pending', 'Attending', 'Not Attending']),
-  dietary: z.enum(['NA', 'Pescatarian', 'Vegan', 'Vegetarian', 'Gluten Free', 'Dairy Free', 'Nut Free', 'Seafood Free', 'Kosher', 'Halal']),
+  table_id: z.string().optional(),
+  seat_no: z.coerce.number().optional(),
+  rsvp: z.string(),
+  dietary: z.string(),
   mobile: z.string().optional(),
-  email: z.string().email().optional().or(z.literal('')),
+  email: z.string().email("Invalid email").optional().or(z.literal("")),
   family_group: z.string().optional(),
   notes: z.string().optional(),
-  who_is_partner: z.string().min(1, "Please choose one partner and one role."),
-  who_is_role: z.string().min(1, "Please choose one partner and one role."),
+  relation_partner: z.string().min(1, "Please choose one partner and one role."),
+  relation_role: z.string().min(1, "Please choose one partner and one role."),
 });
 
 type AddGuestFormData = z.infer<typeof addGuestSchema>;
@@ -58,9 +56,9 @@ type AddGuestFormData = z.infer<typeof addGuestSchema>;
 interface AddGuestModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onGuestAdded: () => void;
   eventId: string;
-  onSuccess: () => void;
-  guest?: {
+  editGuest?: {
     id: string;
     first_name: string;
     last_name: string;
@@ -72,9 +70,9 @@ interface AddGuestModalProps {
     email: string | null;
     notes: string | null;
     family_group?: string | null;
-    who_is_partner: string;
-    who_is_role: string;
-    who_is_display: string;
+    relation_partner: string;
+    relation_role: string;
+    relation_display: string;
   } | null;
   isEdit?: boolean;
 }
@@ -82,586 +80,292 @@ interface AddGuestModalProps {
 export const AddGuestModal: React.FC<AddGuestModalProps> = ({
   isOpen,
   onClose,
+  onGuestAdded,
   eventId,
-  onSuccess,
-  guest = null,
+  editGuest,
   isEdit = false,
 }) => {
   const { toast } = useToast();
-  const { tables, getCurrentCount } = useTables(eventId);
+  const { tables } = useTables(eventId);
   const { events } = useEvents();
-  const [selectedTableId, setSelectedTableId] = useState<string>('');
-  const [seatOptions, setSeatOptions] = useState<number[]>([]);
-  const [takenSeats, setTakenSeats] = useState<number[]>([]);
-  const [tableError, setTableError] = useState<string>('');
-  const [seatError, setSeatError] = useState<string>('');
-  const [whoIsSelectorOpen, setWhoIsSelectorOpen] = useState(false);
-  const [familyMemberIds, setFamilyMemberIds] = useState<string[]>([]);
-  const [whoIsSettings, setWhoIsSettings] = useState({
-    who_is_required: true,
-    who_is_allow_custom_role: false,
-    who_is_allow_single_partner: true,
-    who_is_disable_first_guest_alert: false,
+  const selectedEvent = events.find(e => e.id === eventId);
+  
+  const [relationSelectorOpen, setRelationSelectorOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [relationSettings, setRelationSettings] = useState({
+    relation_required: true,
+    relation_allow_custom_role: false,
+    relation_allow_single_partner: true,
+    relation_disable_first_guest_alert: false,
     custom_roles: [] as string[]
   });
-  const [isSaving, setIsSaving] = useState(false);
-  
-  // Find current event for partner names
-  const currentEvent = events.find(e => e.id === eventId);
 
-  // Fetch Who Is settings for the current event
+  const form = useForm<AddGuestFormData>({
+    resolver: zodResolver(addGuestSchema),
+    defaultValues: {
+      first_name: "",
+      last_name: "",
+      table_id: "",
+      seat_no: undefined,
+      rsvp: "Pending",
+      dietary: "NA",
+      mobile: "",
+      email: "",
+      family_group: "",
+      notes: "",
+      relation_partner: '',
+      relation_role: '',
+    }
+  });
+
+  // Fetch relation settings for this event
   useEffect(() => {
-    if (currentEvent?.id) {
-      const fetchWhoIsSettings = async () => {
+    if (isOpen && eventId) {
+      const fetchRelationSettings = async () => {
         try {
           const { data, error } = await supabase
             .from('events')
-            .select('who_is_required, who_is_allow_custom_role, who_is_allow_single_partner, who_is_disable_first_guest_alert, custom_roles')
-            .eq('id', currentEvent.id)
+            .select('relation_required, relation_allow_custom_role, relation_allow_single_partner, relation_disable_first_guest_alert, custom_roles')
+            .eq('id', eventId)
             .single();
 
-          if (!error && data) {
-            setWhoIsSettings({
-              who_is_required: data.who_is_required ?? true,
-              who_is_allow_custom_role: data.who_is_allow_custom_role ?? false,
-              who_is_allow_single_partner: data.who_is_allow_single_partner ?? true,
-              who_is_disable_first_guest_alert: data.who_is_disable_first_guest_alert ?? false,
+          if (data && !error) {
+            setRelationSettings({
+              relation_required: data.relation_required ?? true,
+              relation_allow_custom_role: data.relation_allow_custom_role ?? false,
+              relation_allow_single_partner: data.relation_allow_single_partner ?? true,
+              relation_disable_first_guest_alert: data.relation_disable_first_guest_alert ?? false,
               custom_roles: Array.isArray(data.custom_roles) ? data.custom_roles as string[] : [],
             });
           }
         } catch (error) {
-          console.error('Error fetching Who Is settings:', error);
+          console.error('Error fetching relation settings:', error);
         }
       };
 
-      fetchWhoIsSettings();
+      fetchRelationSettings();
     }
-  }, [currentEvent?.id]);
-  
-  const form = useForm<AddGuestFormData>({
-    resolver: zodResolver(addGuestSchema),
-    defaultValues: {
-      first_name: '',
-      last_name: '',
-      table_id: '',
-      seat_no: null,
-      rsvp: 'Pending',
-      dietary: 'NA',
-      mobile: '',
-      email: '',
-      family_group: '',
-      notes: '',
-      who_is_partner: '',
-      who_is_role: '',
-    },
-  });
+  }, [isOpen, eventId]);
 
-  // Fetch seat availability for selected table
-  const fetchSeatAvailability = async (tableId: string) => {
-    if (!tableId) {
-      setSeatOptions([]);
-      setTakenSeats([]);
-      return;
-    }
-
-    const selectedTable = tables.find(t => t.id === tableId);
-    if (!selectedTable) return;
-
-    // Generate seat options (1 to limit)
-    const allSeats = Array.from({ length: selectedTable.limit_seats }, (_, i) => i + 1);
-    setSeatOptions(allSeats);
-
-    // Fetch taken seats for this table
-    const { data: occupiedSeats } = await supabase
-      .from('guests')
-      .select('seat_no')
-      .eq('event_id', eventId)
-      .eq('table_id', tableId)
-      .not('seat_no', 'is', null);
-
-    const taken = occupiedSeats?.map(g => g.seat_no).filter(s => s !== null) || [];
-    
-    // If editing, exclude current guest's seat from taken seats
-    if (isEdit && guest && guest.table_id === tableId && guest.seat_no) {
-      const filteredTaken = taken.filter(seat => seat !== guest.seat_no);
-      setTakenSeats(filteredTaken);
-    } else {
-      setTakenSeats(taken);
-    }
-  };
-
-  // Function to fetch family members when editing
-  const fetchFamilyMembers = async (familyGroup: string, currentGuestId: string) => {
-    if (!familyGroup) {
-      setFamilyMemberIds([]);
-      return;
-    }
-
-    try {
-      const { data, error } = await supabase
-        .from('guests')
-        .select('id')
-        .eq('event_id', eventId)
-        .eq('family_group', familyGroup)
-        .neq('id', currentGuestId);
-
-      if (error) {
-        console.error('Error fetching family members:', error);
-        return;
-      }
-
-      const memberIds = data?.map(g => g.id) || [];
-      setFamilyMemberIds(memberIds);
-    } catch (error) {
-      console.error('Error fetching family members:', error);
-    }
-  };
-
-  // Reset form when guest prop changes (for edit mode)
+  // Reset form when modal opens/closes or edit guest changes
   useEffect(() => {
     if (isOpen) {
-      setTableError('');
-      setSeatError('');
-      setWhoIsSelectorOpen(false);
-      
-      if (guest && isEdit) {
-        const guestTableId = guest.table_id || '';
-        setSelectedTableId(guestTableId);
-        
+      if (isEdit && editGuest) {
         form.reset({
-          first_name: guest.first_name || '',
-          last_name: guest.last_name || '',
-          table_id: guestTableId,
-          seat_no: guest.seat_no || null,
-          rsvp: (guest.rsvp as 'Pending' | 'Attending' | 'Not Attending') || 'Pending',
-          dietary: (guest.dietary as 'NA' | 'Vegan' | 'Vegetarian' | 'Gluten Free' | 'Dairy Free' | 'Nut Free' | 'Seafood Free' | 'Kosher' | 'Halal') || 'NA',
-          mobile: guest.mobile || '',
-          email: guest.email || '',
-          family_group: guest.family_group || '',
-          notes: guest.notes || '',
-          who_is_partner: guest.who_is_partner || '',
-          who_is_role: guest.who_is_role || '',
+          first_name: editGuest.first_name,
+          last_name: editGuest.last_name,
+          table_id: editGuest.table_id || "",
+          seat_no: editGuest.seat_no || undefined,
+          rsvp: editGuest.rsvp,
+          dietary: editGuest.dietary,
+          mobile: editGuest.mobile || "",
+          email: editGuest.email || "",
+          family_group: editGuest.family_group || "",
+          notes: editGuest.notes || "",
+          relation_partner: editGuest.relation_partner || '',
+          relation_role: editGuest.relation_role || '',
         });
-        
-        // Fetch family members if guest has a family group
-        if (guest.family_group) {
-          fetchFamilyMembers(guest.family_group, guest.id);
-        } else {
-          setFamilyMemberIds([]);
-        }
-        
-        if (guestTableId) {
-          fetchSeatAvailability(guestTableId);
-        }
       } else {
-        setSelectedTableId('');
-        setFamilyMemberIds([]); // Reset family members for new guest
         form.reset({
-          first_name: '',
-          last_name: '',
-          table_id: '',
-          seat_no: null,
-          rsvp: 'Pending',
-          dietary: 'NA',
-          mobile: '',
-          email: '',
-          family_group: '',
-          notes: '',
-          who_is_partner: '',
-          who_is_role: '',
+          first_name: "",
+          last_name: "",
+          table_id: "",
+          seat_no: undefined,
+          rsvp: "Pending",
+          dietary: "NA",
+          mobile: "",
+          email: "",
+          family_group: "",
+          notes: "",
+          relation_partner: '',
+          relation_role: '',
         });
       }
     }
-  }, [isOpen, guest, isEdit, form, tables, eventId]);
+  }, [isOpen, isEdit, editGuest, form]);
 
-  // Handle table selection change
-  const handleTableChange = (tableId: string) => {
-    setSelectedTableId(tableId);
-    setTableError('');
-    setSeatError('');
-    
-    // Reset seat selection when table changes
-    form.setValue('seat_no', null);
-    
-    // Check if table is full
+  const handleClose = () => {
+    form.reset();
+    setRelationSelectorOpen(false);
+    onClose();
+  };
+
+  const handleRelationChange = (partner: RelationPartner, role: RelationRole) => {
+    form.setValue('relation_partner', partner);
+    form.setValue('relation_role', role);
+    form.clearErrors(['relation_partner', 'relation_role']);
+  };
+
+  const getAvailableSeatNumbers = useCallback((tableId: string): number[] => {
     const selectedTable = tables.find(t => t.id === tableId);
-    if (selectedTable && selectedTable.guest_count >= selectedTable.limit_seats) {
-      setTableError('Table reached guest limit — You can change the limit in each table.');
-    }
-    
-    fetchSeatAvailability(tableId);
-  };
+    if (!selectedTable) return [];
 
-  // Handle Who Is selector change
-  const handleWhoIsChange = (partner: WhoIsPartner, role: WhoIsRole) => {
-    form.setValue('who_is_partner', partner);
-    form.setValue('who_is_role', role);
-    form.clearErrors(['who_is_partner', 'who_is_role']);
-  };
-
-  // Handle family group change
-  const handleFamilyGroupChange = (familyName: string, memberIds: string[]) => {
-    let name = familyName;
-    if ((!familyName || !familyName.trim()) && memberIds.length > 0) {
-      const last = form.getValues('last_name')?.trim();
-      const first = form.getValues('first_name')?.trim();
-      name = (last || first) ? `${last || first} Family` : 'Family';
-    }
-    form.setValue('family_group', name || '');
-    setFamilyMemberIds(memberIds);
-  };
-
-  // Function to refresh family members after save
-  const refreshFamilyMembers = async (familyName: string, currentGuestId: string) => {
-    if (familyName?.trim()) {
-      await fetchFamilyMembers(familyName.trim(), currentGuestId);
-    } else {
-      setFamilyMemberIds([]);
-    }
-  };
+    const totalSeats = selectedTable.limit_seats;
+    return Array.from({ length: totalSeats }, (_, i) => i + 1);
+  }, [tables]);
 
   const onSubmit = async (data: AddGuestFormData) => {
-    setIsSaving(true);
+    setLoading(true);
+    
     try {
-      const { data: user } = await supabase.auth.getUser();
-      if (!user.user) {
-        toast({
-          title: "Error",
-          description: "You must be logged in to manage guests",
-          variant: "destructive",
-        });
-        return;
-      }
+      // Validate required relation if setting is enabled
+      if (relationSettings.relation_required) {
+        if (!data.relation_partner || !data.relation_role) {
+          form.setError('relation_partner', {
+            type: 'manual',
+            message: 'Partner and role are required'
+          });
+          form.setError('relation_role', {
+            type: 'manual',
+            message: 'Partner and role are required'
+          });
 
-      // Validate table capacity using centralized count function
-      const selectedTable = tables.find(t => t.id === data.table_id);
-      if (!selectedTable) {
-        setTableError('Please select a valid table');
-        return;
-      }
+          // Scroll to the field
+          const relationField = document.querySelector('[data-field="relation"]');
+          if (relationField) {
+            relationField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
 
-      // Get fresh count using single source of truth
-      const currentCount = await getCurrentCount(data.table_id);
-      
-      // If editing, exclude current guest from count when checking capacity
-      const adjustedCount = isEdit && guest && guest.table_id === data.table_id 
-        ? currentCount - 1 
-        : currentCount;
-
-      if (adjustedCount >= selectedTable.limit_seats) {
-        setTableError('Table reached guest limit — You can change the limit in each table.');
-        return;
-      }
-
-      // Fresh check for seat availability - only if a seat is selected
-      if (data.seat_no !== null) {
-        const { data: seatCheck } = await supabase
-          .from('guests')
-          .select('id')
-          .eq('event_id', eventId)
-          .eq('table_id', data.table_id)
-          .eq('seat_no', data.seat_no);
-
-        // If editing, exclude current guest from seat check
-        const seatTaken = seatCheck?.filter(g => !isEdit || g.id !== guest?.id).length > 0;
-        
-        if (seatTaken) {
-          setSeatError('This seat is already taken');
+          setLoading(false);
           return;
         }
       }
 
-      // Validate Who Is fields
-      if (!data.who_is_partner || !data.who_is_role) {
-        form.setError('who_is_partner', {
-          type: 'manual',
-          message: 'Please choose one partner and one role.'
-        });
-        form.setError('who_is_role', {
-          type: 'manual',
-          message: 'Please choose one partner and one role.'
-        });
-        
-        // Scroll to Who Is field
-        const whoIsField = document.querySelector('[data-field="who-is"]');
-        if (whoIsField) {
-          whoIsField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      // Validate table and seat if provided
+      if (data.table_id && data.seat_no) {
+        const selectedTable = tables.find(t => t.id === data.table_id);
+        if (selectedTable && data.seat_no > selectedTable.limit_seats) {
+          form.setError('seat_no', {
+            type: 'manual',
+            message: `Seat number cannot exceed ${selectedTable.limit_seats}`
+          });
+          setLoading(false);
+          return;
         }
-        return;
       }
 
-      // Check for duplicate guests (same first and last name, case-insensitive)
-      const { data: existingGuests, error: checkError } = await supabase
-        .from('guests')
-        .select('id, first_name, last_name')
-        .eq('event_id', eventId)
-        .ilike('first_name', data.first_name.trim())
-        .ilike('last_name', data.last_name.trim());
-
-      if (checkError) {
-        console.error('Error checking for duplicates:', checkError);
-        toast({
-          title: "Error",
-          description: "Failed to validate guest information",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      // Filter out the current guest if editing
-      const duplicates = existingGuests?.filter(existingGuest => 
-        existingGuest.first_name.toLowerCase().trim() === data.first_name.toLowerCase().trim() &&
-        existingGuest.last_name.toLowerCase().trim() === data.last_name.toLowerCase().trim() &&
-        (!isEdit || existingGuest.id !== guest?.id)
-      ) || [];
-
-      if (duplicates.length > 0) {
-        form.setError('first_name', {
-          type: 'manual',
-          message: 'Guest already added – duplicate listing.'
-        });
-        form.setError('last_name', {
-          type: 'manual',
-          message: 'Guest already added – duplicate listing.'
-        });
-        toast({
-          title: "Error",
-          description: "Guest already added – duplicate listing.",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      // Compute who_is_display using current event's partner names
-      const whoIsDisplay = computeWhoIsDisplay(
-        data.who_is_partner as WhoIsPartner,
-        data.who_is_role as WhoIsRole,
-        currentEvent?.partner1_name,
-        currentEvent?.partner2_name
-      );
-
-      // Determine family name (auto-generate if members selected but name empty)
-      let familyName = (data.family_group?.trim() || '');
-      if (!familyName && familyMemberIds.length > 0) {
-        const last = data.last_name?.trim();
-        const first = data.first_name?.trim();
-        familyName = (last || first) ? `${last || first} Family` : 'Family';
-      }
-
+      // Prepare guest data
       const guestData = {
-        first_name: data.first_name.trim(),
-        last_name: data.last_name.trim(),
-        table_id: data.table_id,
-        seat_no: data.seat_no,
+        event_id: eventId,
+        user_id: (await supabase.auth.getUser()).data.user?.id!,
+        first_name: data.first_name,
+        last_name: data.last_name,
+        table_id: data.table_id || null,
+        seat_no: data.seat_no || null,
         rsvp: data.rsvp,
         dietary: data.dietary,
         mobile: data.mobile || null,
         email: data.email || null,
+        family_group: data.family_group || null,
         notes: data.notes || null,
-        who_is_partner: data.who_is_partner,
-        who_is_role: data.who_is_role,
-        who_is_display: whoIsDisplay,
-      } as any;
+        assigned: !!data.table_id,
+      };
 
-      // Add family_group if it exists
-      if (familyName) {
-        guestData.family_group = familyName;
+      // Compute relation_display using current event's partner names
+      let relationDisplay = '';
+      if (data.relation_partner && data.relation_role) {
+        relationDisplay = computeRelationDisplay(
+          data.relation_partner as RelationPartner,
+          data.relation_role as RelationRole,
+          selectedEvent?.partner1_name,
+          selectedEvent?.partner2_name,
+          relationSettings.custom_roles
+        );
       }
 
-      if (isEdit && guest) {
+      // Get table number if table is selected
+      let table_no = null;
+      if (data.table_id) {
+        const selectedTable = tables.find(t => t.id === data.table_id);
+        table_no = selectedTable?.table_no || null;
+      }
+
+      const finalGuestData = {
+        ...guestData,
+        table_no,
+        relation_partner: data.relation_partner,
+        relation_role: data.relation_role,
+        relation_display: relationDisplay,
+      };
+
+      if (isEdit && editGuest) {
+        // Update existing guest
         const { error } = await supabase
           .from('guests')
-          .update(guestData as any)
-          .eq('id', guest.id);
+          .update(finalGuestData)
+          .eq('id', editGuest.id);
 
         if (error) {
           console.error('Error updating guest:', error);
-          // Check if it's a unique constraint violation
-          if (error.code === '23505' && error.message.includes('uniq_guest_name_per_event')) {
-            form.setError('first_name', {
-              type: 'manual',
-              message: 'Guest already added – duplicate listing.'
-            });
-            form.setError('last_name', {
-              type: 'manual',
-              message: 'Guest already added – duplicate listing.'
-            });
-            toast({
-              title: "Error",
-              description: "Guest already added – duplicate listing.",
-              variant: "destructive",
-            });
-          } else {
-            toast({
-              title: "Error",
-              description: "Failed to update guest. Please try again.",
-              variant: "destructive",
-            });
-          }
-          return;
-        }
-
-        // Handle family group updates using robust logic (add/remove)
-        const previousGroupName = guest.family_group?.trim() || null;
-        const selectedMemberIds = [...familyMemberIds]; // excludes current guest
-        const allMemberIds = [guest.id, ...selectedMemberIds]; // include current guest
-
-        if (familyName) {
-          // 1) Assign family to all selected members + current guest
-          const { error: updateError } = await supabase
-            .from('guests')
-            .update({ family_group: familyName } as any)
-            .in('id', allMemberIds);
-          if (updateError) {
-            console.error('Error updating family group for members:', updateError);
-          }
-
-          // 2) Clear family from removed members (even if family name didn't change)
-          if (previousGroupName) {
-            const { data: prevMembers, error: prevErr } = await supabase
-              .from('guests')
-              .select('id')
-              .eq('event_id', eventId)
-              .eq('family_group', previousGroupName);
-            if (prevErr) {
-              console.error('Error fetching previous family members:', prevErr);
-            } else {
-              const prevIds = (prevMembers || []).map(g => g.id).filter((id: string) => id !== guest.id);
-              const removedIds = prevIds.filter((id: string) => !selectedMemberIds.includes(id));
-              if (removedIds.length > 0) {
-                const { error: clearError } = await supabase
-                  .from('guests')
-                  .update({ family_group: null } as any)
-                  .in('id', removedIds);
-                if (clearError) {
-                  console.error('Error clearing removed members from family:', clearError);
-                }
-              }
-            }
-          }
+          toast({
+            title: "Error",
+            description: "Failed to update guest. Please try again.",
+            variant: "destructive",
+          });
         } else {
-          // No family - clear current guest's family_group only
-          const { error: clearError } = await supabase
-            .from('guests')
-            .update({ family_group: null } as any)
-            .eq('id', guest.id);
-          if (clearError) {
-            console.error('Error clearing guest family group:', clearError);
-          }
+          toast({
+            title: "Guest Updated",
+            description: `${data.first_name} ${data.last_name} has been updated successfully.`,
+          });
+          onGuestAdded();
+          handleClose();
         }
-
-        toast({
-          title: "Success",
-          description: "Guest updated successfully",
-        });
-
-        // Fire custom event for instant table sync
-        window.dispatchEvent(new CustomEvent('guest-updated'));
-
-        // Refresh family members to update UI
-        if (familyName) {
-          await refreshFamilyMembers(familyName, guest.id);
-        } else {
-          setFamilyMemberIds([]);
-        }
-        
-        // Force component re-render by calling onSuccess to refresh parent data
-        onSuccess();
-        onClose();
       } else {
-        const fullGuestData = {
-          ...guestData,
-          event_id: eventId,
-          user_id: user.user.id,
-        } as any;
-
-        const { data: insertedGuest, error } = await supabase
+        // Create new guest
+        const { error } = await supabase
           .from('guests')
-          .insert(fullGuestData)
-          .select('id')
-          .single();
+          .insert([finalGuestData]);
 
         if (error) {
           console.error('Error adding guest:', error);
-          // Check if it's a unique constraint violation
-          if (error.code === '23505' && error.message.includes('uniq_guest_name_per_event')) {
-            form.setError('first_name', {
-              type: 'manual',
-              message: 'Guest already added – duplicate listing.'
-            });
-            form.setError('last_name', {
-              type: 'manual',
-              message: 'Guest already added – duplicate listing.'
-            });
-            toast({
-              title: "Error",
-              description: "Guest already added – duplicate listing.",
-              variant: "destructive",
-            });
-          } else {
-            toast({
-              title: "Error",
-              description: "Failed to add guest. Please try again.",
-              variant: "destructive",
-            });
-          }
-          return;
+          toast({
+            title: "Error",
+            description: "Failed to add guest. Please try again.",
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: "Guest Added",
+            description: `${data.first_name} ${data.last_name} has been added to your guest list.`,
+          });
+          onGuestAdded();
+          handleClose();
         }
-
-        // Handle family group for new guest
-        if (familyMemberIds.length > 0 && familyName) {
-          if (insertedGuest) {
-            const allMemberIds = [insertedGuest.id, ...familyMemberIds];
-            await supabase
-              .from('guests')
-              .update({ family_group: familyName } as any)
-              .in('id', allMemberIds);
-          }
-        }
-
-        toast({
-          title: "Success",
-          description: "Guest added successfully",
-        });
-
-        // Fire custom event for instant table sync
-        window.dispatchEvent(new CustomEvent('guest-added'));
       }
-
-      form.reset();
-      onSuccess();
-      onClose();
     } catch (error) {
-      console.error('Error managing guest:', error);
+      console.error('Error in onSubmit:', error);
       toast({
         title: "Error",
-        description: "An unexpected error occurred",
+        description: "An unexpected error occurred. Please try again.",
         variant: "destructive",
       });
     } finally {
-      setIsSaving(false);
+      setLoading(false);
     }
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+    <Dialog open={isOpen} onOpenChange={handleClose}>
+      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{isEdit ? 'Edit Guest' : 'Add Guest'}</DialogTitle>
+          <DialogTitle className="flex items-center gap-2">
+            <Users className="w-5 h-5" />
+            {isEdit ? 'Edit Guest' : 'Add New Guest'}
+          </DialogTitle>
         </DialogHeader>
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            {/* Row 1: First Name & Last Name */}
+            {/* Basic Information */}
             <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}
                 name="first_name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>First Name</FormLabel>
+                    <FormLabel>First Name *</FormLabel>
                     <FormControl>
-                      <Input {...field} />
+                      <Input placeholder="Enter first name" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -673,9 +377,9 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                 name="last_name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Last Name</FormLabel>
+                    <FormLabel>Last Name *</FormLabel>
                     <FormControl>
-                      <Input {...field} />
+                      <Input placeholder="Enter last name" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -683,166 +387,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
               />
             </div>
 
-            {/* Row 2: Table & Seat No. */}
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="table_id"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Table</FormLabel>
-                    <Select 
-                      onValueChange={(value) => {
-                        field.onChange(value);
-                        handleTableChange(value);
-                      }} 
-                      value={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select table" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {tables.map((table) => {
-                          const currentCount = table.guest_count;
-                          const isCurrentTable = isEdit && guest && guest.table_id === table.id;
-                          
-                          // Calculate display count including this guest
-                          const displayCount = isEdit && isCurrentTable 
-                            ? currentCount // If editing and same table, don't add 1
-                            : currentCount + (field.value === table.id ? 1 : 0); // Add 1 if this table is selected
-                          
-                          const wouldBeFull = displayCount >= table.limit_seats;
-                          const isAtCapacity = currentCount >= table.limit_seats;
-                          
-                          return (
-                            <SelectItem 
-                              key={table.id} 
-                              value={table.id}
-                              disabled={isAtCapacity && !isCurrentTable}
-                            >
-                              {isAtCapacity && !isCurrentTable 
-                                ? `${table.name} — Full`
-                                : `${table.name} — ${displayCount}/${table.limit_seats}`
-                              }
-                            </SelectItem>
-                          );
-                        })}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                    {tableError && (
-                      <p className="text-sm text-red-600 mt-1">{tableError}</p>
-                    )}
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="seat_no"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Seat No.</FormLabel>
-                    <Select 
-                      onValueChange={(value) => {
-                        field.onChange(value === "" ? null : (value ? parseInt(value) : null));
-                        setSeatError('');
-                      }} 
-                      value={field.value?.toString() || ""}
-                      disabled={!selectedTableId}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder={selectedTableId ? "(Optional)" : "Choose table first"} />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {seatOptions.map((seatNum) => {
-                          const isTaken = takenSeats.includes(seatNum);
-                          
-                          return (
-                            <SelectItem 
-                              key={seatNum} 
-                              value={seatNum.toString()}
-                              disabled={isTaken}
-                            >
-                              Seat {seatNum}
-                            </SelectItem>
-                          );
-                        })}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                    {seatError && (
-                      <p className="text-sm text-red-600 mt-1">{seatError}</p>
-                    )}
-                    {selectedTableId && takenSeats.length === seatOptions.length && (
-                      <p className="text-sm text-muted-foreground mt-1">All seats are taken for this table, but you can save without assigning a seat.</p>
-                    )}
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            {/* Row 3: RSVP & Dietary */}
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="rsvp"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>RSVP</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="Pending">Pending</SelectItem>
-                        <SelectItem value="Attending">Attending</SelectItem>
-                        <SelectItem value="Not Attending">Not Attending</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="dietary"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Dietary</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                      </FormControl>
-                <SelectContent>
-                  <SelectItem value="NA">NA</SelectItem>
-                  <SelectItem value="Pescatarian">Pescatarian</SelectItem>
-                  <SelectItem value="Vegan">Vegan</SelectItem>
-                  <SelectItem value="Vegetarian">Vegetarian</SelectItem>
-                  <SelectItem value="Gluten Free">Gluten Free</SelectItem>
-                  <SelectItem value="Dairy Free">Dairy Free</SelectItem>
-                  <SelectItem value="Nut Free">Nut Free</SelectItem>
-                  <SelectItem value="Seafood Free">Seafood Free</SelectItem>
-                  <SelectItem value="Kosher">Kosher</SelectItem>
-                  <SelectItem value="Halal">Halal</SelectItem>
-                </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            {/* Row 4: Mobile & Email */}
+            {/* Contact Information */}
             <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}
@@ -851,7 +396,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                   <FormItem>
                     <FormLabel>Mobile</FormLabel>
                     <FormControl>
-                      <Input {...field} type="tel" />
+                      <Input placeholder="Enter mobile number" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -865,7 +410,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                   <FormItem>
                     <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input {...field} type="email" />
+                      <Input placeholder="Enter email address" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -873,94 +418,219 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
               />
             </div>
 
-            {/* Row 5: Family/Group */}
-            <div className="space-y-4">
-              <FormField
-                control={form.control}
-                name="family_group"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Family/Group</FormLabel>
-                    <p className="text-xs text-muted-foreground mb-2">
-                      Add members to your Family/Group. Type to search and select guests.
-                    </p>
-                    <FormControl>
-                      <FamilyGroupCombobox
-                        key={`family-${guest?.id || 'new'}-${eventId}`}
-                        value={field.value || ''}
-                        selectedMembers={familyMemberIds}
-                        onChange={handleFamilyGroupChange}
-                        eventId={eventId}
-                        currentGuestId={guest?.id}
-                        placeholder="Enter family/group name or search members..."
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            {/* Row 6: Who Is & Notes */}
+            {/* Table Assignment */}
             <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}
-                name="who_is_partner"
-                render={() => (
-                  <FormItem data-field="who-is">
-                    <FormLabel>Who Is*</FormLabel>
-                    <p className="text-xs text-muted-foreground mb-2">
-                      Choose which partner they're related to, then select exactly one role.
-                    </p>
-                    <FormControl>
-                      <WhoIsSelector
-                        value={{
-                          partner: form.watch('who_is_partner') as WhoIsPartner,
-                          role: form.watch('who_is_role') as WhoIsRole,
-                        }}
-                        onChange={handleWhoIsChange}
-                        partner1Name={currentEvent?.partner1_name || 'Partner 1'}
-                         partner2Name={currentEvent?.partner2_name || 'Partner 2'}
-                         customRoles={whoIsSettings.custom_roles}
-                         allowCustomRoles={whoIsSettings.who_is_allow_custom_role}
-                        isOpen={whoIsSelectorOpen}
-                        onToggle={() => setWhoIsSelectorOpen(!whoIsSelectorOpen)}
-                        error={form.formState.errors.who_is_partner?.message || form.formState.errors.who_is_role?.message}
-                      />
-                    </FormControl>
+                name="table_id"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="flex items-center gap-2">
+                      <MapPin className="w-4 h-4" />
+                      Table
+                    </FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select table" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="">No table assigned</SelectItem>
+                        {tables.map((table) => (
+                          <SelectItem key={table.id} value={table.id}>
+                            Table {table.table_no} - {table.name}
+                            <Badge variant="secondary" className="ml-2">
+                              {table.guest_count}/{table.limit_seats}
+                            </Badge>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
-                    {(form.formState.errors.who_is_partner || form.formState.errors.who_is_role) && (
-                      <p className="text-sm text-destructive mt-1">
-                        Please choose one partner and one role.
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="seat_no"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Seat Number</FormLabel>
+                    <Select
+                      onValueChange={(value) => field.onChange(value ? Number(value) : undefined)}
+                      value={field.value?.toString() || ""}
+                      disabled={!form.watch('table_id')}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select seat" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="">No seat assigned</SelectItem>
+                        {form.watch('table_id') && 
+                          getAvailableSeatNumbers(form.watch('table_id')!).map((seatNum) => (
+                            <SelectItem key={seatNum} value={seatNum.toString()}>
+                              Seat {seatNum}
+                            </SelectItem>
+                          ))
+                        }
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            {/* RSVP and Dietary */}
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="rsvp"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="flex items-center gap-2">
+                      <Calendar className="w-4 h-4" />
+                      RSVP Status
+                    </FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select RSVP status" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="Pending">Pending</SelectItem>
+                        <SelectItem value="Confirmed">Confirmed</SelectItem>
+                        <SelectItem value="Declined">Declined</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="dietary"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="flex items-center gap-2">
+                      <Utensils className="w-4 h-4" />
+                      Dietary Requirements
+                    </FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select dietary requirements" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="NA">None</SelectItem>
+                        <SelectItem value="Vegetarian">Vegetarian</SelectItem>
+                        <SelectItem value="Vegan">Vegan</SelectItem>
+                        <SelectItem value="Gluten-Free">Gluten-Free</SelectItem>
+                        <SelectItem value="Halal">Halal</SelectItem>
+                        <SelectItem value="Kosher">Kosher</SelectItem>
+                        <SelectItem value="Other">Other</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            {/* Family Group */}
+            <FormField
+              control={form.control}
+              name="family_group"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Family Group</FormLabel>
+                  <FormControl>
+                    <FamilyGroupCombobox
+                      eventId={eventId}
+                      value={field.value || ""}
+                      onChange={field.onChange}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Relation Field */}
+            <div data-field="relation">
+              <FormField
+                control={form.control}
+                name="relation_partner"
+                render={() => (
+                  <FormItem>
+                    <FormLabel>
+                      Relation
+                      {relationSettings.relation_required && <span className="text-red-500 ml-1">*</span>}
+                    </FormLabel>
+                    <FormControl>
+                      <div>
+                        <RelationSelector
+                          value={{
+                            partner: form.watch('relation_partner') as RelationPartner,
+                            role: form.watch('relation_role') as RelationRole,
+                          }}
+                          onChange={handleRelationChange}
+                          partner1Name={selectedEvent?.partner1_name}
+                          partner2Name={selectedEvent?.partner2_name}
+                          customRoles={relationSettings.custom_roles}
+                          allowCustomRoles={relationSettings.relation_allow_custom_role}
+                          isOpen={relationSelectorOpen}
+                          onToggle={() => setRelationSelectorOpen(!relationSelectorOpen)}
+                          error={form.formState.errors.relation_partner?.message || form.formState.errors.relation_role?.message}
+                        />
+                      </div>
+                    </FormControl>
+                    {(form.formState.errors.relation_partner || form.formState.errors.relation_role) && (
+                      <p className="text-sm text-red-500 mt-1 flex items-center gap-1">
+                        <AlertCircle className="w-4 h-4" />
+                        {form.formState.errors.relation_partner?.message || form.formState.errors.relation_role?.message}
                       </p>
                     )}
                   </FormItem>
                 )}
               />
-
-              <FormField
-                control={form.control}
-                name="notes"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Notes</FormLabel>
-                    <FormControl>
-                      <Textarea {...field} rows={3} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
             </div>
 
-            <DialogFooter>
-              <Button type="button" variant="secondary" onClick={onClose} disabled={isSaving}>
+            {/* Notes */}
+            <FormField
+              control={form.control}
+              name="notes"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Notes</FormLabel>
+                  <FormControl>
+                    <Textarea 
+                      placeholder="Add any additional notes about this guest..."
+                      className="resize-none"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Form Actions */}
+            <div className="flex justify-end gap-3 pt-4">
+              <Button type="button" variant="secondary" onClick={handleClose}>
                 Cancel
               </Button>
-              <Button type="submit" variant="gradient" disabled={isSaving}>
-                {isSaving ? 'Saving...' : (isEdit ? 'Save Changes' : 'Save')}
+              <Button type="submit" variant="gradient" disabled={loading}>
+                {loading ? (isEdit ? 'Updating...' : 'Adding...') : (isEdit ? 'Update Guest' : 'Add Guest')}
               </Button>
-            </DialogFooter>
+            </div>
           </form>
         </Form>
       </DialogContent>

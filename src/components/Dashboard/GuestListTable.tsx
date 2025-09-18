@@ -51,7 +51,7 @@ import { useTables } from '@/hooks/useTables';
 import { AddGuestModal } from './AddGuestModal';
 import { GuestDeleteConfirmationModal } from './GuestDeleteConfirmationModal';
 
-import { WhoIsBadge } from './WhoIsBadge';
+import { RelationBadge } from './RelationBadge';
 import { supabase } from "@/integrations/supabase/client";
 import { WHO_IS_ROLE_LABELS, computeWhoIsDisplay } from "@/lib/whoIsUtils";
 import { DeleteConfirmationModal } from './DeleteConfirmationModal';
