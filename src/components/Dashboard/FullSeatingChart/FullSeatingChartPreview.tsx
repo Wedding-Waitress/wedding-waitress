@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Badge } from '@/components/ui/badge';
 import { Guest } from '@/hooks/useGuests';
 import weddingWaitressLogo from '@/assets/wedding-waitress-logo-medium.png';
 
@@ -26,11 +25,6 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
     setCheckedGuests(newChecked);
   };
 
-  // Split guests into two columns
-  const midPoint = Math.ceil(guests.length / 2);
-  const leftColumn = guests.slice(0, midPoint);
-  const rightColumn = guests.slice(midPoint);
-
   const formatDate = (dateString: string) => {
     if (!dateString) return '';
     try {
@@ -46,190 +40,288 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
     }
   };
 
-  const GuestRow = ({ guest, isInteractive = true }: { guest: Guest; isInteractive?: boolean }) => (
-    <div className={`flex items-center gap-2 ${isInteractive ? 'py-2 px-1 hover:bg-muted/30 rounded-sm print:hover:bg-transparent' : 'print:py-0'}`}>
-      <div className="flex-shrink-0">
-        {isInteractive ? (
-          <Checkbox
-            id={`guest-${guest.id}`}
-            checked={checkedGuests.has(guest.id)}
-            onCheckedChange={(checked) => handleGuestCheck(guest.id, checked === true)}
-            className="w-4 h-4"
-          />
-      ) : (
-          <div className="w-3 h-3 border border-black rounded-sm print:w-3 print:h-3" />
-        )}
-      </div>
+  // Screen version guest row
+  const ScreenGuestRow = ({ guest }: { guest: Guest }) => (
+    <div className="flex items-center gap-3 py-2 px-1 hover:bg-muted/30 rounded-sm">
+      <Checkbox
+        id={`guest-${guest.id}`}
+        checked={checkedGuests.has(guest.id)}
+        onCheckedChange={(checked) => handleGuestCheck(guest.id, checked === true)}
+        className="w-4 h-4"
+      />
       <div className="flex-1 min-w-0">
-        <div className={`font-medium ${isInteractive ? 'text-sm text-foreground' : ''} print:text-black print:text-xs`}>
+        <div className="font-medium text-sm text-foreground">
           {guest.first_name} {guest.last_name || ''}
         </div>
       </div>
       <div className="flex-shrink-0">
-        <span className={`${isInteractive ? 'text-xs px-2 py-1' : ''} print:text-xs font-medium print:text-black`}>
+        <span className="text-xs px-2 py-1 bg-muted rounded">
           {guest.table_no ? `Table ${guest.table_no}` : 'Unassigned'}
         </span>
       </div>
     </div>
   );
 
+  // Print version guest row - exactly as specified: [ ] {first_name} {last_name} — Table {table_number | Unassigned}
+  const PrintGuestRow = ({ guest }: { guest: Guest }) => (
+    <div className="print-guest-item">
+      <span className="print-checkbox">☐</span>
+      <span className="print-guest-name">{guest.first_name} {guest.last_name || ''}</span>
+      <span className="print-separator"> — </span>
+      <span className="print-table">
+        {guest.table_no ? `Table ${guest.table_no}` : 'Unassigned'}
+      </span>
+    </div>
+  );
+
   return (
     <>
-      {/* Screen Version */}
-      <Card className="print:hidden">
-        <CardContent className="p-6">
-          {/* Header */}
-          <div className="text-center mb-8 space-y-2">
-            <h1 className="text-2xl font-bold text-primary">{event.name}</h1>
-            <h2 className="text-lg font-semibold text-foreground">Full Seating Chart</h2>
-            {event.date && (
-              <p className="text-sm text-muted-foreground">{formatDate(event.date)}</p>
-            )}
-            {event.venue && (
-              <p className="text-sm text-muted-foreground">{event.venue}</p>
-            )}
-          </div>
-
-          {/* Two Column Layout */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Left Column */}
-            <div className="space-y-1">
-              <h3 className="font-semibold text-sm text-muted-foreground mb-3 uppercase tracking-wide">
-                Guests {leftColumn.length > 0 ? `1-${leftColumn.length}` : ''}
-              </h3>
-              {leftColumn.map((guest) => (
-                <GuestRow key={guest.id} guest={guest} />
-              ))}
+      {/* Screen Version with A4 Preview */}
+      <div className="space-y-6 print:hidden">
+        {/* Interactive Version */}
+        <Card>
+          <CardContent className="p-6">
+            {/* Header */}
+            <div className="text-center mb-8 space-y-2">
+              <h1 className="text-2xl font-bold text-primary">{event.name}</h1>
+              <h2 className="text-lg font-semibold text-foreground">Full Seating Chart</h2>
+              {event.date && (
+                <p className="text-sm text-muted-foreground">{formatDate(event.date)}</p>
+              )}
+              {event.venue && (
+                <p className="text-sm text-muted-foreground">{event.venue}</p>
+              )}
             </div>
 
-            {/* Right Column */}
-            <div className="space-y-1">
-              <h3 className="font-semibold text-sm text-muted-foreground mb-3 uppercase tracking-wide">
-                Guests {rightColumn.length > 0 ? `${leftColumn.length + 1}-${guests.length}` : ''}
-              </h3>
-              {rightColumn.map((guest) => (
-                <GuestRow key={guest.id} guest={guest} />
-              ))}
+            {/* Two Column Layout */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Left Column */}
+              <div className="space-y-1">
+                <h3 className="font-semibold text-sm text-muted-foreground mb-3 uppercase tracking-wide">
+                  Guests 1-{Math.ceil(guests.length / 2)}
+                </h3>
+                {guests.slice(0, Math.ceil(guests.length / 2)).map((guest) => (
+                  <ScreenGuestRow key={guest.id} guest={guest} />
+                ))}
+              </div>
+
+              {/* Right Column */}
+              <div className="space-y-1">
+                <h3 className="font-semibold text-sm text-muted-foreground mb-3 uppercase tracking-wide">
+                  Guests {Math.ceil(guests.length / 2) + 1}-{guests.length}
+                </h3>
+                {guests.slice(Math.ceil(guests.length / 2)).map((guest) => (
+                  <ScreenGuestRow key={guest.id} guest={guest} />
+                ))}
+              </div>
             </div>
-          </div>
 
-          {/* Footer */}
-          <div className="mt-8 pt-4 border-t text-center">
-            <p className="text-sm text-muted-foreground">
-              Total Guests: {guests.length} | 
-              Checked: {checkedGuests.size} | 
-              Remaining: {guests.length - checkedGuests.size}
-            </p>
-            <p className="text-xs text-muted-foreground mt-1">
-              Generated on {new Date().toLocaleDateString()}
-            </p>
-          </div>
-        </CardContent>
-      </Card>
+            {/* Footer */}
+            <div className="mt-8 pt-4 border-t text-center">
+              <p className="text-sm text-muted-foreground">
+                Total Guests: {guests.length} | 
+                Checked: {checkedGuests.size} | 
+                Remaining: {guests.length - checkedGuests.size}
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Generated on {new Date().toLocaleDateString()}
+              </p>
+            </div>
+          </CardContent>
+        </Card>
 
-      {/* Print Version */}
-      <div className="hidden print:block print:min-h-screen">
+        {/* A4 Preview Container */}
+        <Card>
+          <CardContent className="p-6">
+            <h3 className="text-lg font-semibold text-foreground mb-4">Print Preview (A4)</h3>
+            <div className="flex justify-center">
+              <div className="a4-preview border shadow-lg">
+                <div className="print-preview-content">
+                  <div className="print-header">
+                    <h1>{event.name} - Full Seating Chart</h1>
+                  </div>
+                  <div className="print-guest-list">
+                    {guests.map((guest) => (
+                      <PrintGuestRow key={guest.id} guest={guest} />
+                    ))}
+                  </div>
+                  <div className="print-footer">
+                    <span>Total: {guests.length} guests</span>
+                    <span>{new Date().toLocaleDateString()}</span>
+                    <img src={weddingWaitressLogo} alt="Wedding Waitress" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Print Version - Hidden until printing */}
+      <div className="print-version">
         <style>{`
           @page {
-            size: A4;
-            margin: 5mm;
+            size: A4 portrait;
+            margin: 12mm;
           }
+          
           @media print {
-            body { -webkit-print-color-adjust: exact; }
-            * { box-sizing: border-box; }
+            /* Hide everything except print version */
+            body * {
+              visibility: hidden;
+            }
             
-            /* Hide all dashboard elements */
+            .print-version, .print-version * {
+              visibility: visible;
+            }
+            
+            .print-version {
+              position: absolute;
+              left: 0;
+              top: 0;
+              width: 100%;
+              height: 100%;
+              background: white;
+            }
+            
+            /* Hide all dashboard elements completely */
             .dashboard-sidebar,
-            .stats-bar,
+            .stats-bar, 
             .dashboard-header,
             .dashboard-nav,
-            .action-buttons,
-            .event-selector,
-            .card:not(.print-guest-list),
-            .dashboard-container > *:not(.print-guest-list) {
+            .print\\:hidden,
+            [class*="dashboard"],
+            [class*="sidebar"],
+            nav,
+            header:not(.print-header),
+            .card:not(.print-version *) {
               display: none !important;
+              visibility: hidden !important;
             }
-            
-            /* Hide the screen version completely */
-            .print\\:hidden {
-              display: none !important;
-            }
-            
-            /* Show only print version */
-            .print\\:block {
+          }
+          
+          /* A4 Preview Styles */
+          .a4-preview {
+            width: 210mm;
+            height: 297mm;
+            background: #fff;
+            overflow: hidden;
+            transform: scale(0.6);
+            transform-origin: top left;
+          }
+          
+          .print-preview-content {
+            padding: 12mm;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+          }
+          
+          .print-header {
+            text-align: center;
+            margin-bottom: 8mm;
+          }
+          
+          .print-header h1 {
+            font-size: 16px;
+            font-weight: bold;
+            margin: 0;
+            color: #000;
+          }
+          
+          .print-guest-list {
+            flex: 1;
+            columns: 2;
+            column-gap: 12mm;
+            column-fill: balance;
+          }
+          
+          .print-guest-item {
+            break-inside: avoid;
+            font-size: 13px;
+            line-height: 1.2;
+            margin-bottom: 2px;
+            color: #000;
+          }
+          
+          .print-checkbox {
+            font-family: monospace;
+            font-size: 14px;
+            margin-right: 4px;
+          }
+          
+          .print-guest-name {
+            font-weight: 500;
+          }
+          
+          .print-separator {
+            margin: 0 2px;
+          }
+          
+          .print-table {
+            font-weight: 400;
+          }
+          
+          .print-footer {
+            margin-top: auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 10px;
+            color: #666;
+            padding-top: 4mm;
+            border-top: 1px solid #ddd;
+          }
+          
+          .print-footer img {
+            height: 12mm;
+            opacity: 0.6;
+          }
+          
+          /* Print-specific styles */
+          @media print {
+            .print-version {
               display: block !important;
             }
             
-            /* Full page layout */
-            body, html, #root {
-              margin: 0 !important;
+            .print-preview-content {
+              transform: none !important;
               padding: 0 !important;
               height: 100vh !important;
-              overflow: visible !important;
             }
             
-            .print\\:full-height { 
-              height: 100vh !important; 
-              margin: 0 !important;
-              padding: 0 !important;
-            }
-            .print\\:optimize-spacing { 
-              line-height: 1.1 !important; 
+            .print-guest-list {
+              font-size: 12px !important;
+              line-height: 1.1 !important;
             }
             
-            /* Optimize text sizes for print */
-            .print\\:text-xs { font-size: 10px !important; }
-            .print\\:text-sm { font-size: 11px !important; }
-            .print\\:text-base { font-size: 12px !important; }
-            .print\\:text-lg { font-size: 14px !important; }
+            .print-guest-item {
+              margin-bottom: 1px !important;
+            }
             
-            /* Maximize space usage */
-            .print\\:p-2 { padding: 8px !important; }
-            .print\\:py-0 { padding-top: 0 !important; padding-bottom: 0 !important; }
-            .print\\:mb-1 { margin-bottom: 4px !important; }
-            .print\\:mb-2 { margin-bottom: 6px !important; }
-            .print\\:space-y-0 > * + * { margin-top: 0 !important; }
+            .print-footer {
+              position: fixed;
+              bottom: 0;
+              left: 0;
+              right: 0;
+              background: white;
+            }
           }
         `}</style>
         
-        <div className="print:text-black print:text-sm print:full-height print:p-2 flex flex-col print:optimize-spacing">
-          {/* Print Header - Minimal */}
-          <div className="text-center print:mb-1">
-            <h1 className="text-sm font-bold print:text-base print:mb-1">{event.name} - Full Seating Chart</h1>
+        <div className="print-preview-content">
+          <div className="print-header">
+            <h1>{event.name} - Full Seating Chart</h1>
           </div>
-
-          {/* Print Two Column Layout - Fills remaining space */}
-          <div className="print:grid print:grid-cols-2 print:gap-4 flex-1 print:optimize-spacing">
-            {/* Print Left Column */}
-            <div className="flex flex-col">
-              <div className="print:space-y-0">
-                {leftColumn.map((guest) => (
-                  <GuestRow key={guest.id} guest={guest} isInteractive={false} />
-                ))}
-              </div>
-            </div>
-
-            {/* Print Right Column */}
-            <div className="flex flex-col">
-              <div className="print:space-y-0">
-                {rightColumn.map((guest) => (
-                  <GuestRow key={guest.id} guest={guest} isInteractive={false} />
-                ))}
-              </div>
-            </div>
+          <div className="print-guest-list">
+            {guests.map((guest) => (
+              <PrintGuestRow key={guest.id} guest={guest} />
+            ))}
           </div>
-
-          {/* Print Footer with Logo - Fixed at bottom */}
-          <div className="print:mt-auto print:pt-2 print:text-center">
-            <div className="flex justify-between items-center print:text-xs">
-              <span>Total: {guests.length} guests</span>
-              <span>{new Date().toLocaleDateString()}</span>
-              <img 
-                src={weddingWaitressLogo} 
-                alt="Wedding Waitress" 
-                className="w-16 h-auto opacity-60"
-              />
-            </div>
+          <div className="print-footer">
+            <span>Total: {guests.length} guests</span>
+            <span>{new Date().toLocaleDateString()}</span>
+            <img src={weddingWaitressLogo} alt="Wedding Waitress" />
           </div>
         </div>
       </div>

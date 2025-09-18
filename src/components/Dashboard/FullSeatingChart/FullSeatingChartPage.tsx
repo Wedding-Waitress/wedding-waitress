@@ -134,7 +134,7 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
                   className="hidden sm:flex"
                 >
                   <Printer className="w-4 h-4 mr-2" />
-                  Print
+                  Print Seating Chart
                 </Button>
                 
                 <Button
