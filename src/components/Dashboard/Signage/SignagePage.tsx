@@ -92,6 +92,14 @@ export const SignagePage: React.FC<SignagePageProps> = ({
 
   const selectedEvent = selectedEventId ? events.find(e => e.id === selectedEventId) : null;
 
+  const handleEventSelect = (eventId: string) => {
+    // Filter out placeholder values
+    if (eventId === "no-event") {
+      return;
+    }
+    onEventSelect(eventId);
+  };
+
   const handleTemplateSelect = (templateType: TemplateType) => {
     if (!selectedEvent) return;
 
@@ -157,7 +165,7 @@ export const SignagePage: React.FC<SignagePageProps> = ({
               <label className="text-sm font-medium text-foreground">
                 Choose Event:
               </label>
-              <Select value={selectedEventId || ""} onValueChange={onEventSelect}>
+              <Select value={selectedEventId || "no-event"} onValueChange={handleEventSelect}>
                 <SelectTrigger className="w-[300px]">
                   <SelectValue placeholder={eventsLoading ? "Loading events..." : "Select an event..."} />
                 </SelectTrigger>

@@ -31,6 +31,10 @@ export type Database = {
           partner1_name: string | null
           partner2_name: string | null
           qr_apply_to_live_view: boolean | null
+          relation_allow_custom_role: boolean | null
+          relation_allow_single_partner: boolean | null
+          relation_disable_first_guest_alert: boolean | null
+          relation_required: boolean | null
           slug: string | null
           start_time: string | null
           user_id: string
@@ -40,10 +44,6 @@ export type Database = {
           venue_lng: number | null
           venue_name: string | null
           venue_place_id: string | null
-          who_is_allow_custom_role: boolean | null
-          who_is_allow_single_partner: boolean | null
-          who_is_disable_first_guest_alert: boolean | null
-          who_is_required: boolean | null
         }
         Insert: {
           created_at?: string
@@ -61,6 +61,10 @@ export type Database = {
           partner1_name?: string | null
           partner2_name?: string | null
           qr_apply_to_live_view?: boolean | null
+          relation_allow_custom_role?: boolean | null
+          relation_allow_single_partner?: boolean | null
+          relation_disable_first_guest_alert?: boolean | null
+          relation_required?: boolean | null
           slug?: string | null
           start_time?: string | null
           user_id: string
@@ -70,10 +74,6 @@ export type Database = {
           venue_lng?: number | null
           venue_name?: string | null
           venue_place_id?: string | null
-          who_is_allow_custom_role?: boolean | null
-          who_is_allow_single_partner?: boolean | null
-          who_is_disable_first_guest_alert?: boolean | null
-          who_is_required?: boolean | null
         }
         Update: {
           created_at?: string
@@ -91,6 +91,10 @@ export type Database = {
           partner1_name?: string | null
           partner2_name?: string | null
           qr_apply_to_live_view?: boolean | null
+          relation_allow_custom_role?: boolean | null
+          relation_allow_single_partner?: boolean | null
+          relation_disable_first_guest_alert?: boolean | null
+          relation_required?: boolean | null
           slug?: string | null
           start_time?: string | null
           user_id?: string
@@ -100,10 +104,6 @@ export type Database = {
           venue_lng?: number | null
           venue_name?: string | null
           venue_place_id?: string | null
-          who_is_allow_custom_role?: boolean | null
-          who_is_allow_single_partner?: boolean | null
-          who_is_disable_first_guest_alert?: boolean | null
-          who_is_required?: boolean | null
         }
         Relationships: []
       }
@@ -121,16 +121,16 @@ export type Database = {
           last_name: string | null
           mobile: string | null
           notes: string | null
+          relation_display: string
+          relation_partner: string
           relation_person1: string | null
           relation_person2: string | null
+          relation_role: string
           rsvp: string | null
           seat_no: number | null
           table_id: string | null
           table_no: number | null
           user_id: string
-          who_is_display: string
-          who_is_partner: string
-          who_is_role: string
         }
         Insert: {
           assigned?: boolean | null
@@ -145,16 +145,16 @@ export type Database = {
           last_name?: string | null
           mobile?: string | null
           notes?: string | null
+          relation_display?: string
+          relation_partner?: string
           relation_person1?: string | null
           relation_person2?: string | null
+          relation_role?: string
           rsvp?: string | null
           seat_no?: number | null
           table_id?: string | null
           table_no?: number | null
           user_id: string
-          who_is_display?: string
-          who_is_partner?: string
-          who_is_role?: string
         }
         Update: {
           assigned?: boolean | null
@@ -169,16 +169,16 @@ export type Database = {
           last_name?: string | null
           mobile?: string | null
           notes?: string | null
+          relation_display?: string
+          relation_partner?: string
           relation_person1?: string | null
           relation_person2?: string | null
+          relation_role?: string
           rsvp?: string | null
           seat_no?: number | null
           table_id?: string | null
           table_no?: number | null
           user_id?: string
-          who_is_display?: string
-          who_is_partner?: string
-          who_is_role?: string
         }
         Relationships: [
           {

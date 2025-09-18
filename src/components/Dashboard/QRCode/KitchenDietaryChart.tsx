@@ -22,7 +22,7 @@ interface DietaryGuest {
   table_no: number | null;
   seat_no: number | null;
   dietary: string;
-  who_is_display: string;
+  relation_display: string;
   mobile: string | null;
 }
 
@@ -50,7 +50,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
         table_no: guest.table_no,
         seat_no: guest.seat_no,
         dietary: guest.dietary,
-        who_is_display: guest.who_is_display,
+        relation_display: guest.relation_display,
         mobile: guest.mobile
       }))
       .sort((a, b) => {
@@ -131,10 +131,10 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
         pdf.text(mobileLines, colPositions[4], yPosition);
         
         // Handle long who_is text with wrapping
-        const whoIsLines = pdf.splitTextToSize(guest.who_is_display || 'Guest', colWidths[5]);
-        pdf.text(whoIsLines, colPositions[5], yPosition);
+        const relationLines = pdf.splitTextToSize(guest.relation_display || 'Guest', colWidths[5]);
+        pdf.text(relationLines, colPositions[5], yPosition);
         
-        const maxLines = Math.max(dietaryLines.length, mobileLines.length, whoIsLines.length);
+        const maxLines = Math.max(dietaryLines.length, mobileLines.length, relationLines.length);
         yPosition += maxLines * 6 + 4;
 
         // Add separator line every few entries
@@ -464,7 +464,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                           {guest.mobile || '-'}
                         </div>
                         <div className="col-span-2 text-muted-foreground text-xs">
-                          {guest.who_is_display || 'Guest'}
+                          {guest.relation_display || 'Guest'}
                         </div>
                       </div>
                       {index < dietaryGuests.length - 1 && (
@@ -497,7 +497,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                           <td>{guest.seat_no || '-'}</td>
                           <td className="dietary-cell">{guest.dietary}</td>
                           <td>{guest.mobile || '-'}</td>
-                          <td>{guest.who_is_display || 'Guest'}</td>
+                          <td>{guest.relation_display || 'Guest'}</td>
                         </tr>
                       ))}
                     </tbody>
