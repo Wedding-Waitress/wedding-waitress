@@ -27,7 +27,7 @@ interface Guest {
   last_name: string;
   table_no: number | null;
   table_id: string | null;
-  who_is_display?: string;
+  relation_display?: string;
   rsvp: string;
   dietary?: string;
   mobile?: string;

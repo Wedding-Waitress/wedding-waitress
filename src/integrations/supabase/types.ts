@@ -453,11 +453,11 @@ export type Database = {
           guest_id: string
           guest_last_name: string
           guest_mobile: string
+          guest_relation_display: string
           guest_rsvp: string
           guest_seat_no: number
           guest_table_id: string
           guest_table_no: number
-          guest_who_is_display: string
           partner1_name: string
           partner2_name: string
           table_id: string

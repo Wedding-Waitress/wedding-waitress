@@ -490,10 +490,9 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
         guest.dietary || 'NA',
         guest.mobile || '',
         guest.email || '',
-        (guest.notes || '').replace(/,/g, ';').replace(/\n/g, ' '),
-        guest.relation_partner || '',
-        guest.relation_role || '',
-        guest.relation_display || ''
+        guest.family_group || '',
+        guest.relation_display || '',
+        (guest.notes || '').replace(/,/g, ';').replace(/\n/g, ' ')
       ].map(field => `"${field}"`).join(','))
     ];
     
@@ -671,30 +670,30 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
               return;
             }
             
-            // Enhanced Who Is validation
+            // Enhanced Relation validation
             const relationErrors = validateRelationFields(
-              rowData.who_is_partner || '',
-              rowData.who_is_role || '',
+              rowData.relation_partner || '',
+              rowData.relation_role || '',
               rowIndex
             );
             allErrors.push(...relationErrors);
             
             if (relationErrors.length > 0) {
-              return; // Skip this row due to Who Is errors
+              return; // Skip this row due to Relation errors
             }
             
-            // Normalize Who Is fields
-            if (rowData.who_is_partner) {
-              const normalizedPartner = normalizePartner(rowData.who_is_partner);
-              const normalizedRole = normalizeRole(rowData.who_is_role);
+            // Normalize Relation fields
+            if (rowData.relation_partner) {
+              const normalizedPartner = normalizePartner(rowData.relation_partner);
+              const normalizedRole = normalizeRole(rowData.relation_role);
               
               if (!normalizedPartner || !normalizedRole) {
                 // Should have been caught by validation above, but just in case
                 return;
               }
               
-              rowData.who_is_partner = normalizedPartner;
-              rowData.who_is_role = normalizedRole;
+              rowData.relation_partner = normalizedPartner;
+              rowData.relation_role = normalizedRole;
             }
             
             // Find table
@@ -758,7 +757,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
           
           if (confirm(confirmMsg)) {
             try {
-              // Bulk insert guests with who_is_display computed
+              // Bulk insert guests with relation_display computed
               const { data: user } = await supabase.auth.getUser();
               if (!user.user) {
                 toast({ 
@@ -769,11 +768,11 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                 return;
               }
 
-              // Compute who_is_display for each row
+              // Compute relation_display for each row
               const rowsWithDisplay = validRows.map(row => {
                 const relationDisplay = computeRelationDisplay(
-                  row.who_is_partner || '',
-                  row.who_is_role || '',
+                  row.relation_partner || '',
+                  row.relation_role || '',
                   selectedEvent?.partner1_name,
                   selectedEvent?.partner2_name
                 );

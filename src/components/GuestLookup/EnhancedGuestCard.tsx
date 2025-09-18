@@ -21,7 +21,7 @@ interface Guest {
   last_name: string;
   table_no: number | null;
   table_id: string | null;
-  who_is_display?: string;
+  relation_display?: string;
   rsvp: string;
   dietary?: string;
   mobile?: string;
@@ -96,9 +96,9 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
               <h3 className="text-xl font-semibold text-foreground">
                 {guest.first_name} {guest.last_name}
               </h3>
-              {guest.who_is_display && (
+              {guest.relation_display && (
                 <p className="text-sm text-muted-foreground mt-1">
-                  {guest.who_is_display}
+                  {guest.relation_display}
                 </p>
               )}
               
