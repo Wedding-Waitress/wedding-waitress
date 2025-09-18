@@ -47,7 +47,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
   };
 
   const GuestRow = ({ guest, isInteractive = true }: { guest: Guest; isInteractive?: boolean }) => (
-    <div className={`flex items-center gap-2 ${isInteractive ? 'py-2 px-1 hover:bg-muted/30 rounded-sm print:hover:bg-transparent' : 'py-1 print:py-0.5'}`}>
+    <div className={`flex items-center gap-2 ${isInteractive ? 'py-2 px-1 hover:bg-muted/30 rounded-sm print:hover:bg-transparent' : 'print:py-0'}`}>
       <div className="flex-shrink-0">
         {isInteractive ? (
           <Checkbox
@@ -61,12 +61,12 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
         )}
       </div>
       <div className="flex-1 min-w-0">
-        <div className={`font-medium ${isInteractive ? 'text-sm text-foreground' : 'text-xs'} print:text-black print:text-sm`}>
+        <div className={`font-medium ${isInteractive ? 'text-sm text-foreground' : ''} print:text-black print:text-xs`}>
           {guest.first_name} {guest.last_name || ''}
         </div>
       </div>
       <div className="flex-shrink-0">
-        <span className={`${isInteractive ? 'text-xs px-2 py-1' : 'text-xs'} print:text-sm font-medium print:text-black`}>
+        <span className={`${isInteractive ? 'text-xs px-2 py-1' : ''} print:text-xs font-medium print:text-black`}>
           {guest.table_no ? `Table ${guest.table_no}` : 'Unassigned'}
         </span>
       </div>
@@ -132,37 +132,77 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
         <style>{`
           @page {
             size: A4;
-            margin: 8mm 8mm 8mm 8mm;
+            margin: 5mm;
           }
           @media print {
             body { -webkit-print-color-adjust: exact; }
             * { box-sizing: border-box; }
-            .print\\:full-height { height: 100vh !important; }
-            .print\\:optimize-spacing { line-height: 1.2 !important; }
+            
+            /* Hide all dashboard elements */
+            .dashboard-sidebar,
+            .stats-bar,
+            .dashboard-header,
+            .dashboard-nav,
+            .action-buttons,
+            .event-selector,
+            .card:not(.print-guest-list),
+            .dashboard-container > *:not(.print-guest-list) {
+              display: none !important;
+            }
+            
+            /* Hide the screen version completely */
+            .print\\:hidden {
+              display: none !important;
+            }
+            
+            /* Show only print version */
+            .print\\:block {
+              display: block !important;
+            }
+            
+            /* Full page layout */
+            body, html, #root {
+              margin: 0 !important;
+              padding: 0 !important;
+              height: 100vh !important;
+              overflow: visible !important;
+            }
+            
+            .print\\:full-height { 
+              height: 100vh !important; 
+              margin: 0 !important;
+              padding: 0 !important;
+            }
+            .print\\:optimize-spacing { 
+              line-height: 1.1 !important; 
+            }
+            
+            /* Optimize text sizes for print */
+            .print\\:text-xs { font-size: 10px !important; }
+            .print\\:text-sm { font-size: 11px !important; }
+            .print\\:text-base { font-size: 12px !important; }
+            .print\\:text-lg { font-size: 14px !important; }
+            
+            /* Maximize space usage */
+            .print\\:p-2 { padding: 8px !important; }
+            .print\\:py-0 { padding-top: 0 !important; padding-bottom: 0 !important; }
+            .print\\:mb-1 { margin-bottom: 4px !important; }
+            .print\\:mb-2 { margin-bottom: 6px !important; }
+            .print\\:space-y-0 > * + * { margin-top: 0 !important; }
           }
         `}</style>
         
-        <div className="print:text-black print:text-sm print:full-height flex flex-col">
+        <div className="print:text-black print:text-sm print:full-height print:p-2 flex flex-col print:optimize-spacing">
           {/* Print Header - Minimal */}
-          <div className="text-center mb-2 print:mb-3">
-            <h1 className="text-base font-bold print:text-lg">{event.name}</h1>
-            <h2 className="text-sm font-semibold print:text-base">Full Seating Chart</h2>
-            {event.date && (
-              <p className="text-xs print:text-sm">{formatDate(event.date)}</p>
-            )}
-            {event.venue && (
-              <p className="text-xs print:text-sm">{event.venue}</p>
-            )}
+          <div className="text-center print:mb-1">
+            <h1 className="text-sm font-bold print:text-base print:mb-1">{event.name} - Full Seating Chart</h1>
           </div>
 
           {/* Print Two Column Layout - Fills remaining space */}
-          <div className="print:grid print:grid-cols-2 print:gap-6 flex-1 print:optimize-spacing">
+          <div className="print:grid print:grid-cols-2 print:gap-4 flex-1 print:optimize-spacing">
             {/* Print Left Column */}
             <div className="flex flex-col">
-              <h3 className="font-semibold text-xs mb-1 uppercase tracking-wide border-b border-black pb-1 print:text-sm print:mb-2">
-                Guests {leftColumn.length > 0 ? `1-${leftColumn.length}` : ''}
-              </h3>
-              <div className="space-y-0.5 print:space-y-1">
+              <div className="print:space-y-0">
                 {leftColumn.map((guest) => (
                   <GuestRow key={guest.id} guest={guest} isInteractive={false} />
                 ))}
@@ -171,10 +211,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
 
             {/* Print Right Column */}
             <div className="flex flex-col">
-              <h3 className="font-semibold text-xs mb-1 uppercase tracking-wide border-b border-black pb-1 print:text-sm print:mb-2">
-                Guests {rightColumn.length > 0 ? `${leftColumn.length + 1}-${guests.length}` : ''}
-              </h3>
-              <div className="space-y-0.5 print:space-y-1">
+              <div className="print:space-y-0">
                 {rightColumn.map((guest) => (
                   <GuestRow key={guest.id} guest={guest} isInteractive={false} />
                 ))}
@@ -183,16 +220,14 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
           </div>
 
           {/* Print Footer with Logo - Fixed at bottom */}
-          <div className="print:mt-auto print:pt-3 print:border-t print:border-black print:text-center">
-            <div className="flex flex-col items-center space-y-1">
-              <div className="text-xs space-y-0.5 print:text-sm">
-                <p>Total Guests: {guests.length}</p>
-                <p>Generated on {new Date().toLocaleDateString()}</p>
-              </div>
+          <div className="print:mt-auto print:pt-2 print:text-center">
+            <div className="flex justify-between items-center print:text-xs">
+              <span>Total: {guests.length} guests</span>
+              <span>{new Date().toLocaleDateString()}</span>
               <img 
                 src={weddingWaitressLogo} 
-                alt="Wedding Waitress Logo" 
-                className="w-20 h-auto opacity-80 print:w-24"
+                alt="Wedding Waitress" 
+                className="w-16 h-auto opacity-60"
               />
             </div>
           </div>

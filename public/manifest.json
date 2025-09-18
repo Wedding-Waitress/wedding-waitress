@@ -1,7 +1,7 @@
 {
-  "name": "Evently Assist - Guest Lookup",
-  "short_name": "Evently",
-  "description": "Find your table and manage your RSVP for events",
+  "name": "Wedding Waitress - Seating Management",
+  "short_name": "Wedding Waitress",
+  "description": "Wedding seating management and guest lookup platform for seamless event coordination",
   "icons": [
     {
       "src": "/favicon.ico",
