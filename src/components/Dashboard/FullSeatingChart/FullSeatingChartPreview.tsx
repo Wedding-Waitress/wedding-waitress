@@ -56,17 +56,17 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
             onCheckedChange={(checked) => handleGuestCheck(guest.id, checked === true)}
             className="w-4 h-4"
           />
-        ) : (
+      ) : (
           <div className="w-3 h-3 border border-black rounded-sm print:w-3 print:h-3" />
         )}
       </div>
       <div className="flex-1 min-w-0">
-        <div className={`font-medium ${isInteractive ? 'text-sm text-foreground' : 'text-xs'} print:text-black print:text-xs`}>
+        <div className={`font-medium ${isInteractive ? 'text-sm text-foreground' : 'text-xs'} print:text-black print:text-sm`}>
           {guest.first_name} {guest.last_name || ''}
         </div>
       </div>
       <div className="flex-shrink-0">
-        <span className={`${isInteractive ? 'text-xs px-2 py-1' : 'text-xs'} print:text-xs font-medium print:text-black`}>
+        <span className={`${isInteractive ? 'text-xs px-2 py-1' : 'text-xs'} print:text-sm font-medium print:text-black`}>
           {guest.table_no ? `Table ${guest.table_no}` : 'Unassigned'}
         </span>
       </div>
@@ -128,38 +128,41 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
       </Card>
 
       {/* Print Version */}
-      <div className="hidden print:block">
+      <div className="hidden print:block print:min-h-screen">
         <style>{`
           @page {
             size: A4;
-            margin: 15mm 10mm 15mm 10mm;
+            margin: 8mm 8mm 8mm 8mm;
           }
           @media print {
             body { -webkit-print-color-adjust: exact; }
+            * { box-sizing: border-box; }
+            .print\\:full-height { height: 100vh !important; }
+            .print\\:optimize-spacing { line-height: 1.2 !important; }
           }
         `}</style>
         
-        <div className="print:text-black print:text-sm">
-          {/* Print Header */}
-          <div className="text-center mb-4 space-y-1">
-            <h1 className="text-lg font-bold">{event.name}</h1>
-            <h2 className="text-base font-semibold">Full Seating Chart</h2>
+        <div className="print:text-black print:text-sm print:full-height flex flex-col">
+          {/* Print Header - Minimal */}
+          <div className="text-center mb-2 print:mb-3">
+            <h1 className="text-base font-bold print:text-lg">{event.name}</h1>
+            <h2 className="text-sm font-semibold print:text-base">Full Seating Chart</h2>
             {event.date && (
-              <p className="text-xs">{formatDate(event.date)}</p>
+              <p className="text-xs print:text-sm">{formatDate(event.date)}</p>
             )}
             {event.venue && (
-              <p className="text-xs">{event.venue}</p>
+              <p className="text-xs print:text-sm">{event.venue}</p>
             )}
           </div>
 
-          {/* Print Two Column Layout */}
-          <div className="print:grid print:grid-cols-2 print:gap-4">
+          {/* Print Two Column Layout - Fills remaining space */}
+          <div className="print:grid print:grid-cols-2 print:gap-6 flex-1 print:optimize-spacing">
             {/* Print Left Column */}
-            <div>
-              <h3 className="font-semibold text-xs mb-2 uppercase tracking-wide border-b border-black pb-1">
+            <div className="flex flex-col">
+              <h3 className="font-semibold text-xs mb-1 uppercase tracking-wide border-b border-black pb-1 print:text-sm print:mb-2">
                 Guests {leftColumn.length > 0 ? `1-${leftColumn.length}` : ''}
               </h3>
-              <div className="space-y-1">
+              <div className="space-y-0.5 print:space-y-1">
                 {leftColumn.map((guest) => (
                   <GuestRow key={guest.id} guest={guest} isInteractive={false} />
                 ))}
@@ -167,11 +170,11 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
             </div>
 
             {/* Print Right Column */}
-            <div>
-              <h3 className="font-semibold text-xs mb-2 uppercase tracking-wide border-b border-black pb-1">
+            <div className="flex flex-col">
+              <h3 className="font-semibold text-xs mb-1 uppercase tracking-wide border-b border-black pb-1 print:text-sm print:mb-2">
                 Guests {rightColumn.length > 0 ? `${leftColumn.length + 1}-${guests.length}` : ''}
               </h3>
-              <div className="space-y-1">
+              <div className="space-y-0.5 print:space-y-1">
                 {rightColumn.map((guest) => (
                   <GuestRow key={guest.id} guest={guest} isInteractive={false} />
                 ))}
@@ -179,17 +182,17 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
             </div>
           </div>
 
-          {/* Print Footer with Logo */}
-          <div className="print:mt-4 print:pt-2 print:border-t print:border-black print:text-center">
-            <div className="flex flex-col items-center space-y-2">
-              <div className="text-xs space-y-1">
+          {/* Print Footer with Logo - Fixed at bottom */}
+          <div className="print:mt-auto print:pt-3 print:border-t print:border-black print:text-center">
+            <div className="flex flex-col items-center space-y-1">
+              <div className="text-xs space-y-0.5 print:text-sm">
                 <p>Total Guests: {guests.length}</p>
                 <p>Generated on {new Date().toLocaleDateString()}</p>
               </div>
               <img 
                 src={weddingWaitressLogo} 
                 alt="Wedding Waitress Logo" 
-                className="w-24 h-auto opacity-80"
+                className="w-20 h-auto opacity-80 print:w-24"
               />
             </div>
           </div>
