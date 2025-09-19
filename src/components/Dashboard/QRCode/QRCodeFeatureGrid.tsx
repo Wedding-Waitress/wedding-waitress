@@ -74,7 +74,7 @@ const featureCards = [
     title: 'Kiosk Live View',
     description: 'Full-screen self-service seating lookup',
     icon: Monitor,
-    status: 'coming-soon',
+    status: 'active',
     action: 'Setup',
   },
   {
@@ -99,6 +99,8 @@ export const QRCodeFeatureGrid: React.FC<QRCodeFeatureGridProps> = ({ eventId, o
       onNavigateToTab?.('full-seating-chart');
     } else if (cardId === 'table-name-place-cards') {
       onNavigateToTab?.('place-cards');
+    } else if (cardId === 'kiosk-view') {
+      onNavigateToTab?.('kiosk-setup');
     }
   };
   return (
@@ -195,8 +197,8 @@ export const QRCodeFeatureGrid: React.FC<QRCodeFeatureGridProps> = ({ eventId, o
               </p>
             </div>
             <div className="flex items-center gap-2">
-              <Badge variant="default" className="text-xs">4/8 Active</Badge>
-              <Badge variant="secondary" className="text-xs">4 Coming Soon</Badge>
+              <Badge variant="default" className="text-xs">5/8 Active</Badge>
+              <Badge variant="secondary" className="text-xs">3 Coming Soon</Badge>
             </div>
           </div>
         </CardContent>

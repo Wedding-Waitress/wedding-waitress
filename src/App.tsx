@@ -8,6 +8,7 @@ import { Dashboard } from "./pages/Dashboard";
 import { AdminLogin } from "./pages/AdminLogin";
 import NotFound from "./pages/NotFound";
 import { GuestLookup } from "./pages/GuestLookup";
+import { KioskView } from "./pages/KioskView";
 
 const queryClient = new QueryClient();
 
@@ -27,6 +28,7 @@ const App = () => (
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/admin" element={<AdminLogin />} />
           <Route path="/s/:eventSlug" element={<GuestLookup />} />
+          <Route path="/kiosk/:eventSlug" element={<KioskView />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

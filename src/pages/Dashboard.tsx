@@ -42,6 +42,7 @@ import { SignagePage } from '@/components/Dashboard/Signage/SignagePage';
 import { TableSeatingChartPage as TableSeatingChartPageComponent } from '@/components/Dashboard/TableChart/TableSeatingChartPage';
 import { PlaceCardsPage } from '@/components/Dashboard/PlaceCards/PlaceCardsPage';
 import { FullSeatingChartPage } from '@/components/Dashboard/FullSeatingChart/FullSeatingChartPage';
+import { KioskSetup } from '@/components/Dashboard/Kiosk/KioskSetup';
 export const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
@@ -415,6 +416,9 @@ export const Dashboard = () => {
       
       case 'place-cards':
         return <PlaceCardsPage />;
+      
+      case 'kiosk-setup':
+        return <KioskSetup selectedEventId={selectedEventId} onEventSelect={handleEventSelect} />;
       
       case 'planner':
         return (

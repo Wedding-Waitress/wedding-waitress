@@ -1,0 +1,1 @@
+export { KioskGuestCard } from './KioskGuestCard';
