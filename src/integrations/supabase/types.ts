@@ -197,6 +197,51 @@ export type Database = {
           },
         ]
       }
+      place_card_settings: {
+        Row: {
+          background_color: string
+          background_image_type: string
+          background_image_url: string | null
+          created_at: string
+          event_id: string
+          font_color: string
+          font_family: string
+          id: string
+          individual_messages: Json | null
+          mass_message: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          background_color?: string
+          background_image_type?: string
+          background_image_url?: string | null
+          created_at?: string
+          event_id: string
+          font_color?: string
+          font_family?: string
+          id?: string
+          individual_messages?: Json | null
+          mass_message?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          background_color?: string
+          background_image_type?: string
+          background_image_url?: string | null
+          created_at?: string
+          event_id?: string
+          font_color?: string
+          font_family?: string
+          id?: string
+          individual_messages?: Json | null
+          mass_message?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string | null

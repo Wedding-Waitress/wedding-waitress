@@ -40,6 +40,7 @@ import { QRCodeSeatingChart } from '@/components/Dashboard/QRCode/QRCodeSeatingC
 import { KitchenDietaryChart } from '@/components/Dashboard/QRCode/KitchenDietaryChart';
 import { SignagePage } from '@/components/Dashboard/Signage/SignagePage';
 import { TableSeatingChartPage as TableSeatingChartPageComponent } from '@/components/Dashboard/TableChart/TableSeatingChartPage';
+import { PlaceCardsPage } from '@/components/Dashboard/PlaceCards/PlaceCardsPage';
 import { FullSeatingChartPage } from '@/components/Dashboard/FullSeatingChart/FullSeatingChartPage';
 export const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -411,6 +412,9 @@ export const Dashboard = () => {
       
       case 'full-seating-chart':
         return <FullSeatingChartPage selectedEventId={selectedEventId} onEventSelect={handleEventSelect} />;
+      
+      case 'place-cards':
+        return <PlaceCardsPage />;
       
       case 'planner':
         return (

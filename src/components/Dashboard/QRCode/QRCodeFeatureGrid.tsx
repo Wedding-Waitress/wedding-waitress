@@ -58,7 +58,7 @@ const featureCards = [
     title: 'Table Name Place Cards',
     description: 'Individual foldable place cards for guests',
     icon: CreditCard,
-    status: 'coming-soon',
+    status: 'active',
     action: 'Create',
   },
   {
@@ -97,6 +97,8 @@ export const QRCodeFeatureGrid: React.FC<QRCodeFeatureGridProps> = ({ eventId, o
       onNavigateToTab?.('dietary-chart');
     } else if (cardId === 'full-seating-chart') {
       onNavigateToTab?.('full-seating-chart');
+    } else if (cardId === 'table-name-place-cards') {
+      onNavigateToTab?.('place-cards');
     }
   };
   return (
