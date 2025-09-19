@@ -5,7 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { Plus, Save, Download, FileText, Image } from 'lucide-react';
+import { Plus, Save, Download, FileText, Image, MapPin, ArrowLeft } from 'lucide-react';
 import { Object as FabricObject } from 'fabric';
 
 import { useEvents } from '@/hooks/useEvents';
@@ -34,6 +34,7 @@ export const FloorPlanPage: React.FC<FloorPlanPageProps> = ({
     loading 
   } = useFloorPlans(selectedEventId);
   
+  const [isDesignerMode, setIsDesignerMode] = useState(false);
   const [currentTool, setCurrentTool] = useState('select');
   const [selectedObject, setSelectedObject] = useState<FabricObject | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -149,11 +150,48 @@ export const FloorPlanPage: React.FC<FloorPlanPageProps> = ({
     );
   }
 
+  // Landing page view
+  if (!isDesignerMode) {
+    return (
+      <div className="flex items-center justify-center min-h-[600px] p-8">
+        <Card className="w-full max-w-md text-center">
+          <CardHeader className="pb-4">
+            <div className="mx-auto mb-4 w-16 h-16 bg-gradient-to-br from-primary to-primary/80 rounded-2xl flex items-center justify-center">
+              <MapPin className="w-8 h-8 text-primary-foreground" />
+            </div>
+            <CardTitle className="text-2xl">Floor Plan Designer</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground mb-6">
+              Visualize and design your wedding venue layout
+            </p>
+            <Button 
+              onClick={() => setIsDesignerMode(true)}
+              className="bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground"
+            >
+              Design Floor Plan
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Designer mode view
   return (
     <div className="flex flex-col h-screen">
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-border">
         <div className="flex items-center space-x-4">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={() => setIsDesignerMode(false)}
+            className="mr-2"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Floor Plans
+          </Button>
           <Select value={selectedEventId} onValueChange={onEventSelect}>
             <SelectTrigger className="w-48">
               <SelectValue />
