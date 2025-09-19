@@ -107,6 +107,90 @@ export type Database = {
         }
         Relationships: []
       }
+      floor_plan_templates: {
+        Row: {
+          canvas_data: Json
+          category: string
+          created_at: string
+          description: string | null
+          guest_capacity_max: number | null
+          guest_capacity_min: number | null
+          id: string
+          is_public: boolean | null
+          name: string
+          preview_image_url: string | null
+        }
+        Insert: {
+          canvas_data?: Json
+          category: string
+          created_at?: string
+          description?: string | null
+          guest_capacity_max?: number | null
+          guest_capacity_min?: number | null
+          id?: string
+          is_public?: boolean | null
+          name: string
+          preview_image_url?: string | null
+        }
+        Update: {
+          canvas_data?: Json
+          category?: string
+          created_at?: string
+          description?: string | null
+          guest_capacity_max?: number | null
+          guest_capacity_min?: number | null
+          id?: string
+          is_public?: boolean | null
+          name?: string
+          preview_image_url?: string | null
+        }
+        Relationships: []
+      }
+      floor_plans: {
+        Row: {
+          canvas_data: Json
+          created_at: string
+          description: string | null
+          event_id: string | null
+          id: string
+          is_template: boolean | null
+          name: string
+          room_dimensions: Json | null
+          settings: Json | null
+          template_category: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          canvas_data?: Json
+          created_at?: string
+          description?: string | null
+          event_id?: string | null
+          id?: string
+          is_template?: boolean | null
+          name: string
+          room_dimensions?: Json | null
+          settings?: Json | null
+          template_category?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          canvas_data?: Json
+          created_at?: string
+          description?: string | null
+          event_id?: string | null
+          id?: string
+          is_template?: boolean | null
+          name?: string
+          room_dimensions?: Json | null
+          settings?: Json | null
+          template_category?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       guests: {
         Row: {
           assigned: boolean | null

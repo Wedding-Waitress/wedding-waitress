@@ -43,6 +43,7 @@ import { TableSeatingChartPage as TableSeatingChartPageComponent } from '@/compo
 import { PlaceCardsPage } from '@/components/Dashboard/PlaceCards/PlaceCardsPage';
 import { FullSeatingChartPage } from '@/components/Dashboard/FullSeatingChart/FullSeatingChartPage';
 import { KioskSetup } from '@/components/Dashboard/Kiosk/KioskSetup';
+import { FloorPlanPage } from '@/components/Dashboard/FloorPlan/FloorPlanPage';
 export const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
@@ -352,17 +353,10 @@ export const Dashboard = () => {
       
       case 'floor-plan':
         return (
-          <Card className="p-8 text-center">
-            <MapPin className="w-16 h-16 mx-auto text-primary mb-4" />
-            <CardTitle className="mb-2">Floor Plan Designer</CardTitle>
-            <CardDescription className="mb-6">
-              Visualize and design your wedding venue layout
-            </CardDescription>
-            <Button variant="gradient">
-              <Settings className="w-4 h-4 mr-2" />
-              Design Floor Plan
-            </Button>
-          </Card>
+          <FloorPlanPage 
+            selectedEventId={selectedEventId}
+            onEventSelect={setSelectedEventId}
+          />
         );
       
       case 'rsvp-invite':
