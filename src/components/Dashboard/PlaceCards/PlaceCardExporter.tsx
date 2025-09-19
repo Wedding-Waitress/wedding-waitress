@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/enhanced-button";
 import { PlaceCardSettings } from '@/hooks/usePlaceCardSettings';
 import { Guest } from '@/hooks/useGuests';
-import { Download, FileText, Loader2 } from 'lucide-react';
+import { Download, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
@@ -62,8 +61,8 @@ export const PlaceCardExporter: React.FC<PlaceCardExporterProps> = ({
     
     return `
       <div style="
-        width: 90mm;
-        height: 65mm;
+        width: 100mm;
+        height: 60mm;
         background-color: ${currentSettings.background_color};
         font-family: ${currentSettings.font_family};
         color: ${currentSettings.font_color};
@@ -132,21 +131,23 @@ export const PlaceCardExporter: React.FC<PlaceCardExporterProps> = ({
       // A4 dimensions: 210mm x 297mm
       const pageWidth = 210;
       const pageHeight = 297;
-      const cardWidth = 90;
-      const cardHeight = 65;
-      const margin = 10;
+      const cardWidth = 100;
+      const cardHeight = 60;
+      const margin = 5;
       
-      // Calculate positions for 4 cards in diagonal layout
+      // Calculate positions for 6 cards in 3x2 grid layout
       const positions = [
-        { x: margin, y: margin + 20, rotation: -2 },
-        { x: pageWidth - cardWidth - margin, y: margin + 40, rotation: 2 },
-        { x: margin + 10, y: pageHeight - cardHeight - margin - 60, rotation: 1 },
-        { x: pageWidth - cardWidth - margin - 10, y: pageHeight - cardHeight - margin - 40, rotation: -1 }
+        { x: margin, y: margin + 30 },
+        { x: margin + cardWidth + margin, y: margin + 30 },
+        { x: pageWidth - cardWidth - margin, y: margin + 30 },
+        { x: margin, y: pageHeight - cardHeight - margin - 30 },
+        { x: margin + cardWidth + margin, y: pageHeight - cardHeight - margin - 30 },
+        { x: pageWidth - cardWidth - margin, y: pageHeight - cardHeight - margin - 30 }
       ];
 
       let pageIndex = 0;
 
-      for (let i = 0; i < placeCards.length; i += 4) {
+      for (let i = 0; i < placeCards.length; i += 6) {
         if (pageIndex > 0) {
           pdf.addPage();
         }
@@ -170,8 +171,8 @@ export const PlaceCardExporter: React.FC<PlaceCardExporterProps> = ({
         pdf.line(pageWidth - 5, pageHeight - 10, pageWidth - 5, pageHeight - 5);
         pdf.line(pageWidth - 10, pageHeight - 5, pageWidth - 5, pageHeight - 5);
 
-        // Process up to 4 cards for this page
-        const pageCards = placeCards.slice(i, i + 4);
+        // Process up to 6 cards for this page
+        const pageCards = placeCards.slice(i, i + 6);
         
         for (let j = 0; j < pageCards.length; j++) {
           const cardData = pageCards[j];
@@ -195,7 +196,7 @@ export const PlaceCardExporter: React.FC<PlaceCardExporterProps> = ({
               allowTaint: true,
             });
 
-            // Add card to PDF (simplified without rotation for now)
+            // Add card to PDF at calculated position
             const imgData = canvas.toDataURL('image/png');
             pdf.addImage(imgData, 'PNG', position.x, position.y, cardWidth, cardHeight);
 
@@ -229,73 +230,40 @@ export const PlaceCardExporter: React.FC<PlaceCardExporterProps> = ({
   };
 
   if (!guests.length) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Download className="h-5 w-5" />
-            Export Place Cards
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-center py-6 text-muted-foreground">
-            <FileText className="h-12 w-12 mx-auto mb-3 opacity-50" />
-            <p>No assigned guests to export</p>
-            <p className="text-sm">Assign guests to tables first</p>
-          </div>
-        </CardContent>
-      </Card>
-    );
+    return null; // Don't render anything if no guests
   }
 
-  const placeCards = generatePlaceCardData();
-  const totalPages = Math.ceil(placeCards.length / 4);
-
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Download className="h-5 w-5" />
-          Export Place Cards
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="text-sm text-muted-foreground space-y-1">
-          <p><strong>{placeCards.length}</strong> place cards ready for export</p>
-          <p><strong>{totalPages}</strong> A4 page{totalPages !== 1 ? 's' : ''} (4 cards per page)</p>
-          <p>Professional quality with cutting guides</p>
-        </div>
+    <div className="space-y-3">
+      <Button 
+        onClick={generatePDF}
+        disabled={exporting}
+        variant="gradient"
+        className="w-full"
+        size="lg"
+      >
+        {exporting ? (
+          <>
+            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            Generating PDF...
+          </>
+        ) : (
+          <>
+            <Download className="h-4 w-4 mr-2" />
+            Print Name Place Cards
+          </>
+        )}
+      </Button>
 
-        <Button 
-          onClick={generatePDF}
-          disabled={exporting}
-          variant="gradient"
-          className="w-full"
-          size="lg"
-        >
-          {exporting ? (
-            <>
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              Generating PDF...
-            </>
-          ) : (
-            <>
-              <Download className="h-4 w-4 mr-2" />
-              Print Name Place Cards
-            </>
-          )}
-        </Button>
-
-        <div className="text-xs text-muted-foreground p-3 bg-muted/30 rounded-lg">
-          <strong>Print Instructions:</strong>
-          <ul className="mt-1 space-y-1 list-disc list-inside">
-            <li>Print on A4 paper (210mm × 297mm)</li>
-            <li>Use cardstock (200-300gsm) for best results</li>
-            <li>Cut along the dashed guides</li>
-            <li>Fold along the bottom line for standing cards</li>
-          </ul>
-        </div>
-      </CardContent>
-    </Card>
+      <div className="text-xs text-muted-foreground p-3 bg-muted/30 rounded-lg">
+        <strong>Print Instructions:</strong>
+        <ul className="mt-1 space-y-1 list-disc list-inside">
+          <li>Print on A4 paper (210mm × 297mm)</li>
+          <li>Use cardstock (200-300gsm) for best results</li>
+          <li>Cut along the dashed guides</li>
+          <li>Fold along the bottom line for standing cards</li>
+        </ul>
+      </div>
+    </div>
   );
 };

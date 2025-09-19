@@ -66,7 +66,7 @@ export const PlaceCardsPage: React.FC = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
             <div>
               <label className="text-sm font-medium mb-2 block">Select Event</label>
               <Select value={selectedEventId || ""} onValueChange={handleEventChange}>
@@ -81,13 +81,27 @@ export const PlaceCardsPage: React.FC = () => {
                   ))}
                 </SelectContent>
               </Select>
-            </div>
-            {selectedEvent && (
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              {selectedEvent && (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground mt-2">
                   <Users className="h-4 w-4" />
                   <span>{assignedGuests.length} assigned guests</span>
                 </div>
+              )}
+            </div>
+            
+            {selectedEvent && assignedGuests.length > 0 && (
+              <div className="lg:col-span-2 space-y-3">
+                <div className="text-sm text-muted-foreground space-y-1">
+                  <p><strong>{assignedGuests.length}</strong> place cards ready for export</p>
+                  <p><strong>{Math.ceil(assignedGuests.length / 6)}</strong> A4 page{Math.ceil(assignedGuests.length / 6) !== 1 ? 's' : ''} (6 cards per page)</p>
+                  <p>Standard 10cm × 6cm wedding place cards</p>
+                </div>
+                
+                <PlaceCardExporter
+                  settings={settings}
+                  guests={assignedGuests}
+                  event={selectedEvent}
+                />
               </div>
             )}
           </div>
@@ -112,14 +126,9 @@ export const PlaceCardsPage: React.FC = () => {
                 />
               </div>
 
-              {/* Preview & Export */}
+              {/* Preview Only */}
               <div className="space-y-6">
                 <PlaceCardPreview
-                  settings={settings}
-                  guests={assignedGuests}
-                  event={selectedEvent}
-                />
-                <PlaceCardExporter
                   settings={settings}
                   guests={assignedGuests}
                   event={selectedEvent}

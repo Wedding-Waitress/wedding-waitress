@@ -52,8 +52,8 @@ export const PlaceCardPreview: React.FC<PlaceCardPreviewProps> = ({
 
   const placeCards = generatePlaceCardData();
 
-  // Group cards into pages (4 cards per page)
-  const cardsPerPage = 4;
+  // Group cards into pages (6 cards per page for better A4 utilization)
+  const cardsPerPage = 6;
   const pages = [];
   for (let i = 0; i < placeCards.length; i += cardsPerPage) {
     pages.push(placeCards.slice(i, i + cardsPerPage));
@@ -67,8 +67,8 @@ export const PlaceCardPreview: React.FC<PlaceCardPreviewProps> = ({
         key={guest.id}
         className="relative border-2 border-dashed border-gray-300 rounded-lg overflow-hidden"
         style={{
-          width: '45%',
-          aspectRatio: '1.4/1',
+          width: '100mm',
+          height: '60mm',
           backgroundColor: currentSettings.background_color,
           fontFamily: currentSettings.font_family,
           color: currentSettings.font_color,
@@ -155,21 +155,21 @@ export const PlaceCardPreview: React.FC<PlaceCardPreviewProps> = ({
         <div className="space-y-6">
           {pages.map((page, pageIndex) => (
             <div key={pageIndex} className="border rounded-lg p-4 bg-white">
-              <div className="text-xs text-center text-muted-foreground mb-3">
-                Page {pageIndex + 1} of {pages.length} • A4 Format
-              </div>
-              
-              {/* A4 Page Container with 4-card diagonal layout */}
-              <div
-                className="mx-auto bg-white border shadow-sm"
-                style={{
-                  width: '210px', // A4 proportions scaled down
-                  height: '297px',
-                  position: 'relative',
-                }}
-              >
-                {/* 4-card diagonal grid layout */}
-                <div className="absolute inset-4 grid grid-cols-2 gap-2">
+          <div className="text-xs text-center text-muted-foreground mb-3">
+            Page {pageIndex + 1} of {pages.length} • A4 Format • 6 Cards per Page
+          </div>
+          
+          {/* A4 Page Container with 6-card 3x2 grid layout */}
+          <div
+            className="mx-auto bg-white border shadow-sm"
+            style={{
+              width: '210px', // A4 proportions scaled down
+              height: '297px',
+              position: 'relative',
+            }}
+          >
+            {/* 6-card 3x2 grid layout (100mm x 60mm each) */}
+            <div className="absolute inset-4 grid grid-cols-3 gap-1">
                   {page.map((cardData, cardIndex) => (
                     <div
                       key={cardData.guest.id}
@@ -178,7 +178,8 @@ export const PlaceCardPreview: React.FC<PlaceCardPreviewProps> = ({
                         backgroundColor: currentSettings.background_color,
                         fontFamily: currentSettings.font_family,
                         color: currentSettings.font_color,
-                        transform: cardIndex % 2 === 0 ? 'rotate(-2deg)' : 'rotate(2deg)',
+                        width: '100%',
+                        height: '100%',
                       }}
                     >
                       {/* Background Image */}

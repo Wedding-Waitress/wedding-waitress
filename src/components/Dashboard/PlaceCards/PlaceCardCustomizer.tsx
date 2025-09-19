@@ -9,14 +9,19 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { PlaceCardSettings } from '@/hooks/usePlaceCardSettings';
 import { Guest } from '@/hooks/useGuests';
-import { Palette, Type, Image, MessageSquare, Upload } from 'lucide-react';
+import { Palette, Type, Image, MessageSquare, Sparkles, Grid3X3 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { PLACE_CARD_TEMPLATES, TEMPLATE_CATEGORIES, getTemplatesByCategory, getTemplateById } from '@/lib/PlaceCardTemplates';
 
 interface PlaceCardCustomizerProps {
   settings: PlaceCardSettings | null;
   onSettingsChange: (settings: Partial<PlaceCardSettings>) => Promise<boolean>;
   guests: Guest[];
+}
+
+interface ExtendedPlaceCardSettings extends PlaceCardSettings {
+  template_id?: string;
 }
 
 const FONT_OPTIONS = [
@@ -41,6 +46,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
     settings?.individual_messages || {}
   );
   const [uploading, setUploading] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   const { toast } = useToast();
 
   const currentSettings = settings || {
@@ -66,6 +72,25 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
 
   const saveIndividualMessages = async () => {
     await onSettingsChange({ individual_messages: individualMessages });
+  };
+
+  const applyTemplate = async (templateId: string) => {
+    const template = getTemplateById(templateId);
+    if (!template) return;
+
+    setSelectedTemplate(templateId);
+    
+    // Apply template styles
+    await onSettingsChange({
+      font_family: template.styles.font_family,
+      font_color: template.styles.font_color,
+      background_color: template.styles.background_color,
+    });
+
+    toast({
+      title: "Template Applied",
+      description: `${template.name} template has been applied`,
+    });
   };
 
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -137,12 +162,62 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <Tabs defaultValue="design" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-3">
+        <Tabs defaultValue="templates" className="space-y-4">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="templates">Templates</TabsTrigger>
             <TabsTrigger value="design">Design</TabsTrigger>
             <TabsTrigger value="background">Background</TabsTrigger>
             <TabsTrigger value="messages">Messages</TabsTrigger>
           </TabsList>
+
+          <TabsContent value="templates" className="space-y-4">
+            <div className="space-y-4">
+              <div>
+                <Label className="flex items-center gap-2 mb-3">
+                  <Sparkles className="h-4 w-4" />
+                  Design Templates
+                </Label>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Choose from professionally designed templates for your place cards
+                </p>
+              </div>
+
+              {TEMPLATE_CATEGORIES.map((category) => (
+                <div key={category.id} className="space-y-3">
+                  <h4 className="font-medium text-sm flex items-center gap-2">
+                    <span>{category.icon}</span>
+                    {category.name}
+                  </h4>
+                  <div className="grid grid-cols-2 gap-3">
+                    {getTemplatesByCategory(category.id).map((template) => (
+                      <div
+                        key={template.id}
+                        className={`border-2 rounded-lg p-3 cursor-pointer transition-all hover:shadow-md ${
+                          selectedTemplate === template.id
+                            ? 'border-primary bg-primary/5'
+                            : 'border-border hover:border-primary/50'
+                        }`}
+                        onClick={() => applyTemplate(template.id)}
+                      >
+                        <div className="text-sm font-medium mb-1">{template.name}</div>
+                        <div 
+                          className="text-xs p-2 rounded border bg-background/50"
+                          style={{
+                            fontFamily: template.styles.font_family,
+                            color: template.styles.font_color,
+                            backgroundColor: template.styles.background_color,
+                          }}
+                        >
+                          John Smith
+                          <div className="text-xs opacity-70 mt-1">Table 1, Seat 1</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </TabsContent>
 
           <TabsContent value="design" className="space-y-4">
             <div className="space-y-4">
