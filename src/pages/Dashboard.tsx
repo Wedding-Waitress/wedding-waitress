@@ -29,7 +29,8 @@ import {
   Heart,
   Settings,
   TrendingUp,
-  Plus
+  Plus,
+  Printer
 } from "lucide-react";
 import { useEvents } from '@/hooks/useEvents';
 import { useTables, TableWithGuestCount } from '@/hooks/useTables';
@@ -394,6 +395,21 @@ export const Dashboard = () => {
       
       case 'qr-code':
         return <QRCodeSeatingChart selectedEventId={selectedEventId} onEventSelect={handleEventSelect} onNavigateToTab={handleTabChange} />;
+      
+      case 'printables':
+        return (
+          <Card className="p-8 text-center">
+            <Printer className="w-16 h-16 mx-auto text-primary mb-4" />
+            <CardTitle className="mb-2">Printables</CardTitle>
+            <CardDescription className="mb-6">
+              Generate and download printable materials for your event
+            </CardDescription>
+            <Button variant="gradient">
+              <Printer className="w-4 h-4 mr-2" />
+              View Printables
+            </Button>
+          </Card>
+        );
       
       case 'dietary-chart':
         return selectedEventId ? <KitchenDietaryChart eventId={selectedEventId} /> : null;
