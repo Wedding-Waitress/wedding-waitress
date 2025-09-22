@@ -46,6 +46,10 @@ import { PlaceCardsPage } from '@/components/Dashboard/PlaceCards/PlaceCardsPage
 import { FullSeatingChartPage } from '@/components/Dashboard/FullSeatingChart/FullSeatingChartPage';
 import { KioskSetup } from '@/components/Dashboard/Kiosk/KioskSetup';
 import { FloorPlanPage } from '@/components/Dashboard/FloorPlan/FloorPlanPage';
+import { Header } from '@/components/Layout/Header';
+import { supabase } from '@/integrations/supabase/client';
+import { useNavigate } from 'react-router-dom';
+
 export const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
@@ -58,7 +62,8 @@ export const Dashboard = () => {
     setActiveEventId: setEventsActiveEventId,
     refetch: refetchEvents 
   } = useEvents();
-  const { profile } = useProfile();
+  const { profile, loading: profileLoading, error: profileError } = useProfile();
+  const navigate = useNavigate();
   const { 
     tables: rawTables, 
     loading: tablesLoading, 
@@ -490,6 +495,12 @@ export const Dashboard = () => {
     }
   };
 
+  // Handle sign out
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    navigate('/');
+  };
+
   // Handle tab changes with refetch for tables page
   const handleTabChange = (tabId: string) => {
     setActiveTab(tabId);
@@ -498,16 +509,58 @@ export const Dashboard = () => {
     if (tabId === 'table-list') {
       refetchEvents();
     }
-};
+  };
+
+  // Show loading state while checking authentication
+  if (profileLoading || eventsLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-subtle flex items-center justify-center">
+        <Card className="ww-box p-8 text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <CardTitle>Loading Dashboard...</CardTitle>
+          <CardDescription>Please wait while we set up your workspace</CardDescription>
+        </Card>
+      </div>
+    );
+  }
+
+  // Show authentication error or redirect to landing
+  if (profileError || !profile) {
+    return (
+      <div className="min-h-screen bg-gradient-subtle flex items-center justify-center">
+        <Card className="ww-box p-8 text-center max-w-md">
+          <CardTitle className="mb-4">Authentication Required</CardTitle>
+          <CardDescription className="mb-6">
+            You need to be signed in to access the dashboard. Please return to the home page to sign in or create an account.
+          </CardDescription>
+          <Button variant="gradient" onClick={() => navigate('/')} className="w-full">
+            Go to Home Page
+          </Button>
+        </Card>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-subtle flex">
-      {/* Sidebar */}
-      <div className="print:hidden"><DashboardSidebar activeTab={activeTab} onTabChange={handleTabChange} /></div>
+    <div className="min-h-screen bg-gradient-subtle flex flex-col">
+      {/* Header */}
+      <Header 
+        user={{
+          first_name: profile?.first_name || 'User',
+          email: profile?.email || ''
+        }}
+        onSignOut={handleSignOut}
+      />
       
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col">
-        <main className="flex-1 lg:px-6 px-4 py-6">
+      <div className="flex flex-1">
+        {/* Sidebar */}
+        <div className="print:hidden">
+          <DashboardSidebar activeTab={activeTab} onTabChange={handleTabChange} />
+        </div>
+        
+        {/* Main Content */}
+        <div className="flex-1 flex flex-col">
+          <main className="flex-1 lg:px-6 px-4 py-6">
           <div className="mx-auto max-w-none">
             {/* Stats Bar excluded from: My Events, QR Code, Dashboard, Vendor Team, Planner, Wishing Well, RSVP, Floor Plan, Kiosk Live View, Printables */}
             {activeTab !== 'my-events' && activeTab !== 'qr-code' && activeTab !== 'dashboard' && 
@@ -524,7 +577,8 @@ export const Dashboard = () => {
               {renderTabContent()}
             </div>
           </div>
-        </main>
+          </main>
+        </div>
       </div>
 
       {/* Create/Edit Table Modal */}
