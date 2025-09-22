@@ -77,7 +77,7 @@ export const StatsBar: React.FC<StatsBarProps> = ({
   ];
 
   return (
-    <Card className="mb-6 border-4 border-primary">
+    <Card className="mb-6 border-2 border-primary shadow-sm" style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
         {statItems.map((item, index) => (
           <div key={index} className="flex flex-col items-center text-center space-y-2 min-w-0">
