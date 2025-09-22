@@ -509,8 +509,8 @@ export const Dashboard = () => {
       <div className="flex-1 flex flex-col">
         <main className="flex-1 lg:px-6 px-4 py-6">
           <div className="mx-auto max-w-none">
-            {/* Stats Bar for all tabs except My Events and QR Code */}
-            {activeTab !== 'my-events' && activeTab !== 'qr-code' && (
+            {/* Stats Bar for all tabs except My Events, QR Code, and Dashboard */}
+            {activeTab !== 'my-events' && activeTab !== 'qr-code' && activeTab !== 'dashboard' && (
               <div className="print:hidden">
                 <StatsBar stats={statsData} />
               </div>
