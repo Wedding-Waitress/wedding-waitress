@@ -966,7 +966,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
       {/* Couple Names Section */}
       <div id="guest-tools-section" className="px-6 py-6">
         <Card 
-          className={`p-6 transition-all duration-300 border-4 border-gray-700 ${
+          className={`p-6 transition-all duration-300 border-4 border-primary ${
             showNamesValidation 
               ? 'is-alert animate-pulse-soft animate-shake-soft' 
               : totalGuestCount > 0 
@@ -1048,7 +1048,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
             </Card>
         </div>
 
-      <Card className="border-4 border-gray-700">
+      <Card className="border-4 border-primary">
         {/* Header Controls */}
         <div className="px-6 py-4">
           <div className="space-y-4">
