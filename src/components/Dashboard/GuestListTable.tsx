@@ -990,11 +990,14 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                     />
                   )}
                 </div>
-                <p className="text-sm text-muted-foreground">
-                  If you're having a wedding or an engagement add the couple's first names below. If you're having any other type of event, write the organiser's first name only.
+                <p className="text-base text-muted-foreground">
+                  If you're having a wedding or an engagement add the couple's first names below. If you're having any other type of event that only has one person that's celebrating or one organiser please write that name twice.
                 </p>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              
+              {/* Tablet-style inner container */}
+              <div className="bg-white border-2 border-primary rounded-lg p-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="partner1-name" className="text-sm font-medium">
                     Partner 1 First Name
@@ -1020,6 +1023,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                     onChange={(e) => handlePartnerNameInputChange('partner2_name', e.target.value)}
                     className="mt-1"
                   />
+                </div>
                 </div>
               </div>
               
