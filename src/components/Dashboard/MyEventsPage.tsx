@@ -365,7 +365,7 @@ export const MyEventsPage: React.FC = () => {
               ? "Your event is in progress"
               : localEventState === 'finished'
               ? <span className="text-sm text-muted-foreground">Event finished</span>
-              : "This is a countdown to your event"
+              : ""
             }
           </p>
         </div>
@@ -381,7 +381,7 @@ export const MyEventsPage: React.FC = () => {
 
     return (
       <div className="flex flex-col items-center">
-        <div className="relative w-32 h-32 mb-2">
+        <div className="relative w-24 h-24 mb-2">
           {/* SVG Ring */}
           <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
             {/* Base ring */}
@@ -410,7 +410,7 @@ export const MyEventsPage: React.FC = () => {
           
           {/* Content */}
           <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <span className="text-4xl font-bold text-foreground">{value}</span>
+            <span className="text-3xl font-bold text-foreground">{value}</span>
             <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
               {label}
             </span>
@@ -426,34 +426,38 @@ export const MyEventsPage: React.FC = () => {
       <Card className="ww-box p-8">
         <div className="text-center space-y-6">
           {/* Welcome Message */}
-          <div className="space-y-2">
-            <h2 className="text-3xl md:text-4xl font-bold text-primary">
-              Welcome {getDisplayName()}
-            </h2>
-            {/* C) Countdown header binding - Event Date */}
-            {selectedEvent && (
-              <p className="text-muted-foreground transition-opacity duration-300 ease-in-out">
-                {formatEventDate(selectedEvent)}
-              </p>
-            )}
-          </div>
+          <h2 className="text-3xl md:text-4xl font-bold text-primary">
+            Welcome {getDisplayName()}
+          </h2>
+          
+          {/* Countdown Description */}
+          <p className="text-muted-foreground text-lg">
+            This is a countdown to your event
+          </p>
 
-          {/* D) Countdown Circles with Timer lifecycle - use key for reset */}
-          <CountdownTimer key={activeEventId} eventId={activeEventId} />
-
-          {/* C) Event Name and Time Range binding */}
+          {/* Event Name */}
           {selectedEvent && (
-            <div className="space-y-1 transition-opacity duration-300 ease-in-out">
-              <p className="text-lg font-medium text-primary">
-                {selectedEvent.name}
-              </p>
-              {formatTimeRange(selectedEvent) && (
-                <p className="text-sm text-muted-foreground">
-                  {formatTimeRange(selectedEvent)}
-                </p>
-              )}
-            </div>
+            <p className="text-lg font-medium text-primary">
+              {selectedEvent.name}
+            </p>
           )}
+
+          {/* Event Date */}
+          {selectedEvent && (
+            <p className="text-muted-foreground transition-opacity duration-300 ease-in-out">
+              {formatEventDate(selectedEvent)}
+            </p>
+          )}
+
+          {/* Time Range */}
+          {selectedEvent && formatTimeRange(selectedEvent) && (
+            <p className="text-sm text-muted-foreground">
+              {formatTimeRange(selectedEvent)}
+            </p>
+          )}
+
+          {/* Countdown Circles */}
+          <CountdownTimer key={activeEventId} eventId={activeEventId} />
         </div>
       </Card>
 
