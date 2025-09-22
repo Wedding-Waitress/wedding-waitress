@@ -284,13 +284,23 @@ export const FamilyGroupCombobox: React.FC<FamilyGroupComboboxProps> = ({
   return (
     <div className="space-y-2">
       {/* Family Name Input */}
-      <Popover open={open} onOpenChange={setOpen}>
+      <Popover open={open} onOpenChange={(next) => {
+        setOpen(next);
+        if (!next) {
+          // Persist latest value to parent when closing
+          onChange?.(inputValue, Array.from(selectedMemberIds));
+          // Reset transient search state
+          setSearchQuery('');
+          setSearchResults([]);
+        }
+      }}>
         <PopoverTrigger asChild>
           <div className="relative">
             <Input
               ref={inputRef}
               value={inputValue}
               onChange={(e) => handleInputChange(e.target.value)}
+              onBlur={() => onChange?.(inputValue, Array.from(selectedMemberIds))}
               placeholder={placeholder}
               className={inputValue ? "pr-16 cursor-text" : "pr-8 cursor-text"}
               autoComplete="off"
