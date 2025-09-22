@@ -965,16 +965,14 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
     <>
       {/* Couple Names Section */}
       <div id="guest-tools-section" className="px-6 py-6">
-        <div className="flex justify-center">
-          <div className="w-full max-w-2xl">
-            <Card 
-              className={`p-6 transition-all duration-300 ${
-                showNamesValidation 
-                  ? 'is-alert animate-pulse-soft animate-shake-soft' 
-                  : totalGuestCount > 0 
-                    ? 'is-muted' 
-                    : 'border-border'
-              }`}
+        <Card 
+          className={`p-6 transition-all duration-300 border-4 border-gray-700 ${
+            showNamesValidation 
+              ? 'is-alert animate-pulse-soft animate-shake-soft' 
+              : totalGuestCount > 0 
+                ? 'is-muted' 
+                : ''
+          }`}
               role="status"
               aria-live="polite"
             >
@@ -1048,11 +1046,10 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                 </Button>
               </div>
             </Card>
-          </div>
         </div>
       </div>
 
-      <Card>
+      <Card className="border-4 border-gray-700">
         {/* Header Controls */}
         <div className="px-6 py-4">
           <div className="space-y-4">
