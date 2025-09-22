@@ -994,7 +994,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                   )}
                 </div>
                 <div className="flex justify-center mb-4">
-                  <div className="bg-white border-2 border-primary rounded-full px-6 py-3 text-center">
+                  <div className="bg-white border-0 rounded-full px-6 py-3 text-center">
                     <div className="text-sm font-medium text-foreground">
                       <div>If you're having a wedding or an engagement add the couple's first names below.</div>
                       <div>If you're having any other type of event that only has one person that's celebrating or one organiser, please write that name twice.</div>
