@@ -112,7 +112,7 @@ export const QRCodeFeatureGrid: React.FC<QRCodeFeatureGridProps> = ({ eventId, o
           return (
             <Card 
               key={card.id} 
-              className={`relative transition-all duration-200 hover:shadow-lg ${
+              className={`ww-box relative transition-all duration-200 hover:shadow-lg ${
                 isActive 
                   ? 'border-primary/50 shadow-purple-glow/20' 
                   : isComingSoon 
@@ -177,7 +177,7 @@ export const QRCodeFeatureGrid: React.FC<QRCodeFeatureGridProps> = ({ eventId, o
       </div>
 
       {/* Development Status Info */}
-      <Card className="bg-gradient-subtle border-primary/20">
+      <Card className="ww-box bg-gradient-subtle border-primary/20">
         <CardContent className="p-4">
           <div className="flex items-center justify-between">
             <div>

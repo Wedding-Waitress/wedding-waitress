@@ -35,7 +35,7 @@ export const PlaceCardsPage: React.FC = () => {
 
   if (!events.length) {
     return (
-      <Card>
+      <Card className="ww-box">
         <CardContent className="flex items-center justify-center h-64">
           <div className="text-center">
             <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
@@ -58,7 +58,7 @@ export const PlaceCardsPage: React.FC = () => {
       </div>
 
       {/* Event Selection */}
-      <Card>
+      <Card className="ww-box">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Settings className="h-5 w-5" />

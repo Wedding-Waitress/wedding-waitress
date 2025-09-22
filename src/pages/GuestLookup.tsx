@@ -232,7 +232,7 @@ export const GuestLookup: React.FC = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-subtle flex items-center justify-center p-4">
-        <Card className="w-full max-w-md">
+        <Card className="ww-box w-full max-w-md">
           <CardContent className="p-8 text-center">
             <div className="animate-spin w-8 h-8 border-2 border-primary border-t-transparent rounded-full mx-auto mb-4"></div>
             <p className="text-muted-foreground">Loading event details...</p>
@@ -245,7 +245,7 @@ export const GuestLookup: React.FC = () => {
   if (!event) {
     return (
       <div className="min-h-screen bg-gradient-subtle flex items-center justify-center p-4">
-        <Card className="w-full max-w-md">
+        <Card className="ww-box w-full max-w-md">
           <CardContent className="p-8 text-center">
             <AlertCircle className="w-16 h-16 mx-auto text-destructive mb-4" />
             <CardTitle className="mb-2">Event Not Found</CardTitle>
@@ -332,7 +332,7 @@ export const GuestLookup: React.FC = () => {
             </TabsList>
 
             <TabsContent value="search">
-              <Card className="card-elevated">
+              <Card className="ww-box card-elevated">
                 <CardHeader className="text-center">
                   <CardTitle className="flex items-center justify-center gap-2">
                     <Users className="w-5 h-5 md:w-6 md:h-6 text-primary" />
@@ -437,7 +437,7 @@ export const GuestLookup: React.FC = () => {
                 )}
 
                 {searchTerm.length < 2 && (
-                  <Card className="card-elevated">
+                  <Card className="ww-box card-elevated">
                     <CardContent className="p-8 text-center">
                       <Eye className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
                       <CardTitle className="mb-2">Interactive Table View</CardTitle>
@@ -449,7 +449,7 @@ export const GuestLookup: React.FC = () => {
                 )}
 
                 {searchTerm.length >= 2 && filteredGuests.length === 0 && !searching && (
-                  <Card className="card-elevated">
+                  <Card className="ww-box card-elevated">
                     <CardContent className="p-8 text-center">
                       <AlertCircle className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
                       <CardTitle className="mb-2">No Table Found</CardTitle>

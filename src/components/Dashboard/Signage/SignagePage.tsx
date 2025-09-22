@@ -157,7 +157,7 @@ export const SignagePage: React.FC<SignagePageProps> = ({
   return (
     <div className="space-y-6">
       {/* Header Card */}
-      <Card>
+      <Card className="ww-box">
         <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-6">
           <div className="space-y-4 flex-1">
             {/* Event selector */}
@@ -214,7 +214,7 @@ export const SignagePage: React.FC<SignagePageProps> = ({
 
       {/* Template Gallery */}
       {selectedEventId ? (
-        <Card>
+        <Card className="ww-box">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Plus className="w-5 h-5" />
@@ -241,7 +241,7 @@ export const SignagePage: React.FC<SignagePageProps> = ({
           </CardContent>
         </Card>
       ) : (
-        <Card className="p-8 text-center">
+        <Card className="ww-box p-8 text-center">
           <FileImage className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
           <CardTitle className="mb-2 text-muted-foreground">Select an Event</CardTitle>
           <CardDescription>

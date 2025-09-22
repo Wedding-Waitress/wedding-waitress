@@ -150,7 +150,7 @@ export const TableCard: React.FC<TableCardProps> = ({
   return (
     <>
       <Card 
-        className={`transition-all duration-300 flex flex-col min-h-fit ${
+        className={`ww-box transition-all duration-300 flex flex-col min-h-fit ${
           isFull 
             ? 'border-4 border-green-500' 
             : 'border-2 border-primary'

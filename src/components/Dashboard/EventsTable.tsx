@@ -324,14 +324,14 @@ export const EventsTable: React.FC<EventsTableProps> = ({
 
   if (loading) {
     return (
-      <Card className="p-8 text-center">
+      <Card className="ww-box p-8 text-center">
         <div>Loading events...</div>
       </Card>
     );
   }
   return (
     <>
-      <Card className="overflow-hidden">
+      <Card className="ww-box overflow-hidden">
         <div className="p-6 border-b border-card-border bg-gradient-subtle">
           <div className="flex items-center justify-between">
             <div>

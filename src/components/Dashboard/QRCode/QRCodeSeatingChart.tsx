@@ -75,7 +75,7 @@ export const QRCodeSeatingChart: React.FC<QRCodeSeatingChartProps> = ({
   return (
     <div className="space-y-8">
       {/* Header Section */}
-      <Card className="border-primary/20 bg-gradient-card">
+      <Card className="ww-box border-primary/20 bg-gradient-card">
         <CardHeader className="pb-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
@@ -164,7 +164,7 @@ export const QRCodeSeatingChart: React.FC<QRCodeSeatingChartProps> = ({
 
       {/* Placeholder when no event selected */}
       {!currentEventId && (
-        <Card className="p-12 text-center">
+        <Card className="ww-box p-12 text-center">
           <QrCode className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
           <CardTitle className="text-xl mb-2 text-muted-foreground">Select an Event</CardTitle>
           <CardDescription className="text-base">

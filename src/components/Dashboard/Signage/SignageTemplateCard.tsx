@@ -96,7 +96,7 @@ export const SignageTemplateCard: React.FC<SignageTemplateCardProps> = ({
   };
 
   return (
-    <Card className={`group cursor-pointer transition-all duration-300 hover:shadow-elevated ${disabled ? 'opacity-50' : 'hover:scale-102'}`}>
+    <Card className={`ww-box group cursor-pointer transition-all duration-300 hover:shadow-elevated ${disabled ? 'opacity-50' : 'hover:scale-102'}`}>
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">

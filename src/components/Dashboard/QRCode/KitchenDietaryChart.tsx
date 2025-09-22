@@ -181,7 +181,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
 
   if (guestsLoading || eventsLoading) {
     return (
-      <Card className="w-full">
+      <Card className="ww-box w-full">
         <CardContent className="p-6">
           <div className="flex items-center justify-center">
             <div className="text-muted-foreground">Loading dietary requirements...</div>
@@ -328,7 +328,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
       
       <div className="space-y-6 kitchen-dietary-chart">
         {/* Header Card */}
-        <Card className="border-primary/20 bg-gradient-subtle print-hide">
+        <Card className="ww-box border-primary/20 bg-gradient-subtle print-hide">
           <CardHeader>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -369,7 +369,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
 
         {/* Event Info */}
         {currentEvent && (
-          <Card className="print-hide">
+          <Card className="ww-box print-hide">
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
@@ -406,7 +406,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
         </div>
 
         {/* Dietary Requirements List */}
-        <Card className="print:shadow-none print:border-0">
+        <Card className="ww-box print:shadow-none print:border-0">
           <CardContent className="p-6 print:p-0">
             {dietaryGuests.length === 0 ? (
               <div className="text-center py-8 print-hide">

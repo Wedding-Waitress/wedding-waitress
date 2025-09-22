@@ -129,7 +129,7 @@ export const FloorPlanPage: React.FC<FloorPlanPageProps> = ({
 
   if (!selectedEventId) {
     return (
-      <Card className="p-8 text-center">
+      <Card className="ww-box p-8 text-center">
         <CardTitle className="mb-4">Select an Event</CardTitle>
         <p className="text-muted-foreground mb-6">
           Choose an event to start designing your floor plan
@@ -154,7 +154,7 @@ export const FloorPlanPage: React.FC<FloorPlanPageProps> = ({
   if (!isDesignerMode) {
     return (
       <div className="flex items-center justify-center min-h-[600px] p-8">
-        <Card className="w-full max-w-md text-center">
+        <Card className="ww-box w-full max-w-md text-center">
           <CardHeader className="pb-4">
             <div className="mx-auto mb-4 w-16 h-16 bg-gradient-to-br from-primary to-primary/80 rounded-2xl flex items-center justify-center">
               <MapPin className="w-8 h-8 text-primary-foreground" />
@@ -295,7 +295,7 @@ export const FloorPlanPage: React.FC<FloorPlanPageProps> = ({
             </div>
           ) : (
             <div className="flex-1 flex items-center justify-center">
-              <Card className="p-8 text-center max-w-md">
+              <Card className="ww-box p-8 text-center max-w-md">
                 <CardHeader>
                   <CardTitle>No Floor Plans</CardTitle>
                 </CardHeader>

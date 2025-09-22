@@ -231,4 +231,11 @@
       transform: translateX(1px);
     }
   }
+
+  /* Wedding Waitress Standardized Box/Card Styling */
+  .ww-box {
+    border: 2px solid hsl(var(--primary));
+    background: white;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
 }

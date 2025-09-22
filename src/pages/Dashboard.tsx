@@ -217,7 +217,7 @@ export const Dashboard = () => {
     switch (activeTab) {
       case 'dashboard':
         return (
-          <Card className="p-8 text-center">
+          <Card className="ww-box p-8 text-center">
             <TrendingUp className="w-16 h-16 mx-auto text-primary mb-4" />
             <CardTitle className="mb-2">Dashboard Overview</CardTitle>
             <CardDescription className="mb-6">
@@ -239,7 +239,7 @@ export const Dashboard = () => {
       case 'table-list':
         return (
           <div className="space-y-6">
-            <Card>
+            <Card className="ww-box">
               <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-6">
                 <div className="space-y-4 flex-1">
                   {/* Event selector */}
@@ -318,7 +318,7 @@ export const Dashboard = () => {
 
             {/* Tables Grid */}
             {selectedEventId && (
-              <Card>
+              <Card className="ww-box">
                 <CardContent className="p-6">
                   {tablesLoading ? (
                     <div className="text-center py-8">
@@ -363,7 +363,7 @@ export const Dashboard = () => {
       
       case 'rsvp-invite':
         return (
-          <Card className="p-8 text-center">
+          <Card className="ww-box p-8 text-center">
             <Mail className="w-16 h-16 mx-auto text-primary mb-4" />
             <CardTitle className="mb-2">RSVP Invitations</CardTitle>
             <CardDescription className="mb-6">
@@ -378,7 +378,7 @@ export const Dashboard = () => {
       
       case 'wishing-well':
         return (
-          <Card className="p-8 text-center">
+          <Card className="ww-box p-8 text-center">
             <Heart className="w-16 h-16 mx-auto text-primary mb-4" />
             <CardTitle className="mb-2">Online Wishing Well</CardTitle>
             <CardDescription className="mb-6">
@@ -401,7 +401,7 @@ export const Dashboard = () => {
         return selectedEventId ? (
           <QRCodeFeatureGrid eventId={selectedEventId} onNavigateToTab={handleTabChange} />
         ) : (
-          <Card className="p-8 text-center">
+          <Card className="ww-box p-8 text-center">
             <Printer className="w-16 h-16 mx-auto text-primary mb-4" />
             <CardTitle className="mb-2">Printables</CardTitle>
             <CardDescription className="mb-6">
@@ -434,7 +434,7 @@ export const Dashboard = () => {
       
       case 'planner':
         return (
-          <Card className="p-8 text-center">
+          <Card className="ww-box p-8 text-center">
             <TrendingUp className="w-16 h-16 mx-auto text-primary mb-4" />
             <CardTitle className="mb-2">Wedding Planner</CardTitle>
             <CardDescription className="mb-6">
@@ -449,7 +449,7 @@ export const Dashboard = () => {
       
       case 'vendor-team':
         return (
-          <Card className="p-8 text-center">
+          <Card className="ww-box p-8 text-center">
             <Users className="w-16 h-16 mx-auto text-primary mb-4" />
             <CardTitle className="mb-2">Vendor Team</CardTitle>
             <CardDescription className="mb-6">

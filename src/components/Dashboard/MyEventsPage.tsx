@@ -423,7 +423,7 @@ export const MyEventsPage: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Countdown Section */}
-      <Card className="p-8">
+      <Card className="ww-box p-8">
         <div className="text-center space-y-6">
           {/* Welcome Message */}
           <div className="space-y-2">

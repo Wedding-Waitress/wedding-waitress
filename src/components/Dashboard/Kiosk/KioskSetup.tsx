@@ -109,7 +109,7 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
   return (
     <div className="space-y-6">
       {/* Header */}
-      <Card className="bg-gradient-subtle border-primary/20">
+      <Card className="ww-box bg-gradient-subtle border-primary/20">
         <CardHeader>
           <div className="flex items-center gap-3">
             <div className="p-2 bg-primary/10 rounded-lg">
@@ -126,7 +126,7 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
       </Card>
 
       {/* Event Selection */}
-      <Card>
+      <Card className="ww-box">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Calendar className="w-5 h-5" />
@@ -177,7 +177,7 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
 
       {/* Kiosk URL and Controls */}
       {selectedEvent && (
-        <Card>
+        <Card className="ww-box">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <ExternalLink className="w-5 h-5" />
@@ -254,7 +254,7 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
       )}
 
       {/* Setup Instructions */}
-      <Card>
+      <Card className="ww-box">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Tablet className="w-5 h-5" />

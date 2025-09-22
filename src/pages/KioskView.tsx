@@ -204,7 +204,7 @@ export const KioskView: React.FC = () => {
       <div className="container mx-auto px-8 py-12">
         <div className="max-w-6xl mx-auto">
           {/* Search Section */}
-          <Card className="bg-white/95 backdrop-blur-sm shadow-2xl mb-8">
+          <Card className="ww-box bg-white/95 backdrop-blur-sm shadow-2xl mb-8">
             <CardContent className="p-12">
               <div className="text-center mb-8">
                 <Search className="w-16 h-16 mx-auto text-primary mb-4" />
@@ -258,7 +258,7 @@ export const KioskView: React.FC = () => {
                   ))}
                 </div>
               ) : (
-                <Card className="bg-white/95 backdrop-blur-sm shadow-2xl">
+                <Card className="ww-box bg-white/95 backdrop-blur-sm shadow-2xl">
                   <CardContent className="p-12 text-center">
                     <AlertCircle className="w-20 h-20 mx-auto text-orange-500 mb-6" />
                     <h3 className="text-2xl font-bold text-foreground mb-4">No guests found</h3>

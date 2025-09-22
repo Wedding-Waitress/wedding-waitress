@@ -110,7 +110,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
 
   if (loading) {
     return (
-      <Card className="h-full">
+      <Card className="ww-box h-full">
         <CardContent className="flex items-center justify-center h-64">
           <div className="animate-spin w-8 h-8 border-2 border-primary border-t-transparent rounded-full"></div>
         </CardContent>
@@ -120,7 +120,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
 
   if (!settings || !selectedEvent) {
     return (
-      <Card className="h-full">
+      <Card className="ww-box h-full">
         <CardContent className="flex items-center justify-center h-64">
           <p className="text-muted-foreground">No event selected or settings not found</p>
         </CardContent>
@@ -129,7 +129,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
   }
 
   return (
-    <Card className="h-full">
+    <Card className="ww-box h-full">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <QrCodeIcon className="h-5 w-5" />
