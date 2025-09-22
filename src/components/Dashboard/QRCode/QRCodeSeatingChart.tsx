@@ -75,7 +75,7 @@ export const QRCodeSeatingChart: React.FC<QRCodeSeatingChartProps> = ({
   return (
     <div className="space-y-8">
       {/* Header Section */}
-      <Card className="ww-box border-primary/20 bg-gradient-card">
+      <Card className="ww-box">
         <CardHeader className="pb-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
