@@ -977,12 +977,14 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
               aria-live="polite"
             >
               <div className="text-center mb-6">
-                <div className="flex items-center justify-center gap-2 mb-2">
-                  <h3 className={`text-lg font-medium text-foreground ${
-                    showNamesValidation ? 'animate-pulse-soft' : ''
-                  }`}>
-                    Partner Names
-                  </h3>
+                <div className="flex items-center justify-center gap-2 mb-4">
+                  <div className="bg-white border-2 border-primary rounded-full px-4 py-2">
+                    <h3 className={`text-lg font-medium text-foreground ${
+                      showNamesValidation ? 'animate-pulse-soft' : ''
+                    }`}>
+                      Partner Names
+                    </h3>
+                  </div>
                   {selectedEventId && (
                     <RelationSettingsButton
                       eventId={selectedEventId}
@@ -990,9 +992,14 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                     />
                   )}
                 </div>
-                <p className="text-sm text-muted-foreground">
-                  If you're having a wedding or an engagement add the couple's first names below. If you're having any other type of event, write the organiser's first name only.
-                </p>
+                <div className="flex justify-center mb-4">
+                  <div className="bg-white border-2 border-primary rounded-full px-6 py-3 text-center">
+                    <div className="text-sm font-medium text-foreground">
+                      <div>If you're having a wedding or an engagement add the couple's first names below.</div>
+                      <div>If you're having any other type of event that only has one person that's celebrating or one organiser, please write that name twice.</div>
+                    </div>
+                  </div>
+                </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
