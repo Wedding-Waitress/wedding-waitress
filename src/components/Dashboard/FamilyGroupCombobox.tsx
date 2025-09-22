@@ -37,6 +37,7 @@ export const FamilyGroupCombobox: React.FC<FamilyGroupComboboxProps> = ({
   const [inputValue, setInputValue] = useState(value);
   const [searchResults, setSearchResults] = useState<GuestSearchResult[]>([]);
   const [selectedMemberDetails, setSelectedMemberDetails] = useState<GuestSearchResult[]>([]);
+  const [pendingFamilyMembers, setPendingFamilyMembers] = useState<GuestSearchResult[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedMemberIds, setSelectedMemberIds] = useState<Set<string>>(new Set(selectedMembers));
   const [searchQuery, setSearchQuery] = useState('');
@@ -147,6 +148,7 @@ export const FamilyGroupCombobox: React.FC<FamilyGroupComboboxProps> = ({
 
       if (!error && data) {
         setSelectedMemberDetails(data as GuestSearchResult[]);
+        setPendingFamilyMembers(data as GuestSearchResult[]);
       }
     } catch (error) {
       console.error('Error fetching selected member details:', error);
@@ -235,6 +237,38 @@ export const FamilyGroupCombobox: React.FC<FamilyGroupComboboxProps> = ({
     }
     
     onChange?.(inputValue, Array.from(newSelectedIds));
+  };
+
+  // Add a guest to pending family members
+  const addPendingMember = (guest: GuestSearchResult) => {
+    if (pendingFamilyMembers.some((g) => g.id === guest.id)) return; // prevent duplicates
+
+    setPendingFamilyMembers((prev) => [...prev, guest]);
+
+    // keep checkbox state and parent sync in-line
+    setSelectedMemberIds((prev) => {
+      const next = new Set(prev);
+      next.add(guest.id);
+      onChange?.(inputValue, Array.from(next));
+      return next;
+    });
+
+    // ensure chip details include this guest
+    setSelectedMemberDetails((prev) => (prev.some((g) => g.id === guest.id) ? prev : [...prev, guest]));
+  };
+
+  // Remove a guest from pending family members
+  const removePendingMember = (guestId: string) => {
+    setPendingFamilyMembers((prev) => prev.filter((g) => g.id !== guestId));
+
+    setSelectedMemberIds((prev) => {
+      const next = new Set(prev);
+      next.delete(guestId);
+      onChange?.(inputValue, Array.from(next));
+      return next;
+    });
+
+    setSelectedMemberDetails((prev) => prev.filter((g) => g.id !== guestId));
   };
 
   // Remove selected member
@@ -353,6 +387,7 @@ export const FamilyGroupCombobox: React.FC<FamilyGroupComboboxProps> = ({
                 <CommandGroup heading="Add Family Members">
                   {searchResults.map((guest) => {
                     const isSelected = selectedMemberIds.has(guest.id);
+                    const isAdded = pendingFamilyMembers.some((m) => m.id === guest.id);
                     return (
                       <CommandItem
                         key={guest.id}
@@ -379,11 +414,14 @@ export const FamilyGroupCombobox: React.FC<FamilyGroupComboboxProps> = ({
                           size="sm"
                           onClick={(e) => {
                             e.stopPropagation();
-                            handleMemberToggle(guest.id, true);
+                            if (!isAdded) {
+                              addPendingMember(guest);
+                            }
                           }}
+                          disabled={isAdded}
                           className="ml-2 h-6 px-2 text-xs"
                         >
-                          Add Member
+                          {isAdded ? 'Added' : 'Add Member'}
                         </Button>
                       </CommandItem>
                     );
@@ -396,18 +434,18 @@ export const FamilyGroupCombobox: React.FC<FamilyGroupComboboxProps> = ({
       </Popover>
 
       {/* Selected Members Chips */}
-      {selectedMemberDetails.length > 0 && (
+      {pendingFamilyMembers.length > 0 && (
         <div className="flex flex-wrap gap-2 p-2 bg-muted/50 rounded-md">
           <div className="flex items-center gap-1 text-xs text-muted-foreground">
             <Users className="h-3 w-3" />
             Family Members:
           </div>
-          {selectedMemberDetails.map((guest) => (
+          {pendingFamilyMembers.map((guest) => (
             <Badge key={guest.id} variant="secondary" className="text-xs">
               {guest.first_name} {guest.last_name}
               <button
                 type="button"
-                onClick={() => removeMember(guest.id)}
+                onClick={() => removePendingMember(guest.id)}
                 className="ml-1 hover:bg-destructive/20 rounded-full p-0.5"
               >
                 <X className="h-3 w-3" />
