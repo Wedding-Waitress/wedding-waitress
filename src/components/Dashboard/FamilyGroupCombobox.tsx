@@ -54,25 +54,30 @@ export const FamilyGroupCombobox: React.FC<FamilyGroupComboboxProps> = ({
 
   // Update local state when props change
   useEffect(() => {
-    setInputValue(value);
-  }, [value]);
+    if (value !== inputValue) {
+      setInputValue(value);
+    }
+  }, [value, inputValue]);
 
   useEffect(() => {
-    setSelectedMemberIds(new Set(selectedMembers));
-    // Fetch details for selected members
-    if (selectedMembers.length > 0 && eventId) {
-      fetchSelectedMemberDetails(selectedMembers);
-    } else {
-      setSelectedMemberDetails([]);
+    const newSelectedMemberIds = new Set(selectedMembers);
+    if (JSON.stringify([...selectedMemberIds]) !== JSON.stringify([...newSelectedMemberIds])) {
+      setSelectedMemberIds(newSelectedMemberIds);
+      // Fetch details for selected members
+      if (selectedMembers.length > 0 && eventId) {
+        fetchSelectedMemberDetails(selectedMembers);
+      } else {
+        setSelectedMemberDetails([]);
+      }
     }
-  }, [selectedMembers, eventId]);
+  }, [selectedMembers, eventId, selectedMemberIds]);
 
   // Defensive clear: empty selectedMemberDetails if family name is empty and no members selected
   useEffect(() => {
-    if (!value && selectedMembers.length === 0) {
+    if (!value && selectedMembers.length === 0 && selectedMemberDetails.length > 0) {
       setSelectedMemberDetails([]);
     }
-  }, [value, selectedMembers]);
+  }, [value, selectedMembers, selectedMemberDetails.length]);
 
   // Check total family members including current guest
   const checkTotalFamilyMembers = async (familyName: string): Promise<number> => {
