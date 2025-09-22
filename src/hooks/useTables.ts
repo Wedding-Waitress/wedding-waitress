@@ -205,52 +205,12 @@ export const useTables = (eventId: string | null) => {
         return false;
       }
 
-      // Get the table being deleted to check its table_no
-      const { data: tableToDelete, error: fetchError } = await supabase
-        .from('tables')
-        .select('table_no')
-        .eq('id', tableId)
-        .single();
-
-      if (fetchError) throw fetchError;
-
-      // Delete the table
       const { error } = await supabase
         .from('tables')
         .delete()
         .eq('id', tableId);
 
       if (error) throw error;
-
-      // If the deleted table had a number, resequence the remaining numbered tables
-      if (tableToDelete?.table_no !== null && tableToDelete?.table_no !== undefined && eventId) {
-        const deletedTableNo = tableToDelete.table_no;
-
-        // Get all numbered tables with table_no greater than the deleted one
-        const { data: tablesToResequence, error: resequenceError } = await supabase
-          .from('tables')
-          .select('id, table_no')
-          .eq('event_id', eventId)
-          .gt('table_no', deletedTableNo)
-          .not('table_no', 'is', null)
-          .order('table_no');
-
-        if (resequenceError) throw resequenceError;
-
-        // Update each table's number to close the gap
-        if (tablesToResequence && tablesToResequence.length > 0) {
-          for (const table of tablesToResequence) {
-            if (table.table_no !== null) {
-              const { error: updateError } = await supabase
-                .from('tables')
-                .update({ table_no: table.table_no - 1 })
-                .eq('id', table.id);
-
-              if (updateError) throw updateError;
-            }
-          }
-        }
-      }
 
       await fetchTables();
       toast({
