@@ -70,14 +70,6 @@ const featureCards = [
     action: 'Browse',
   },
   {
-    id: 'kiosk-view',
-    title: 'Kiosk Live View',
-    description: 'Full-screen self-service seating lookup',
-    icon: Monitor,
-    status: 'active',
-    action: 'Setup',
-  },
-  {
     id: 'additional',
     title: 'Additional Features',
     description: 'More features and customization options',
@@ -99,8 +91,6 @@ export const QRCodeFeatureGrid: React.FC<QRCodeFeatureGridProps> = ({ eventId, o
       onNavigateToTab?.('full-seating-chart');
     } else if (cardId === 'table-name-place-cards') {
       onNavigateToTab?.('place-cards');
-    } else if (cardId === 'kiosk-view') {
-      onNavigateToTab?.('kiosk-setup');
     }
   };
   return (
@@ -112,7 +102,7 @@ export const QRCodeFeatureGrid: React.FC<QRCodeFeatureGridProps> = ({ eventId, o
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {featureCards.map((card) => {
           const Icon = card.icon;
           const isActive = card.status === 'active';
@@ -197,7 +187,7 @@ export const QRCodeFeatureGrid: React.FC<QRCodeFeatureGridProps> = ({ eventId, o
               </p>
             </div>
             <div className="flex items-center gap-2">
-              <Badge variant="default" className="text-xs">5/8 Active</Badge>
+              <Badge variant="default" className="text-xs">4/7 Active</Badge>
               <Badge variant="secondary" className="text-xs">3 Coming Soon</Badge>
             </div>
           </div>

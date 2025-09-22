@@ -411,6 +411,9 @@ export const Dashboard = () => {
           </Card>
         );
       
+      case 'kiosk-live-view':
+        return <KioskSetup selectedEventId={selectedEventId} onEventSelect={handleEventSelect} />;
+      
       case 'dietary-chart':
         return selectedEventId ? <KitchenDietaryChart eventId={selectedEventId} /> : null;
       

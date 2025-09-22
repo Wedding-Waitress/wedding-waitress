@@ -14,7 +14,8 @@ import {
   Heart,
   Menu,
   X,
-  Printer
+  Printer,
+  Monitor
 } from 'lucide-react';
 import { Button } from "@/components/ui/enhanced-button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -32,6 +33,7 @@ const menuItems = [
   { id: "guest-list", label: "Guest List", icon: Users },
   { id: "qr-code", label: "QR Code Seating Chart", icon: QrCode },
   { id: "printables", label: "Printables", icon: Printer },
+  { id: "kiosk-live-view", label: "Kiosk Live View", icon: Monitor },
   { id: "floor-plan", label: "Floor Plan", icon: MapPin },
   { id: "rsvp-invite", label: "RSVP Invite", icon: Mail },
   { id: "wishing-well", label: "Online Wishing Well", icon: Gift },
