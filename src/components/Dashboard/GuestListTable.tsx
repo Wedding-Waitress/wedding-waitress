@@ -1047,7 +1047,6 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
               </div>
             </Card>
         </div>
-      </div>
 
       <Card className="border-4 border-gray-700">
         {/* Header Controls */}
