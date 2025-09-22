@@ -107,6 +107,56 @@ export type Database = {
         }
         Relationships: []
       }
+      family_group_members: {
+        Row: {
+          created_at: string
+          group_id: string
+          guest_id: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          group_id: string
+          guest_id: string
+          id?: string
+        }
+        Update: {
+          created_at?: string
+          group_id?: string
+          guest_id?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "family_group_members_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "family_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      family_groups: {
+        Row: {
+          created_at: string
+          event_id: string
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
       floor_plan_templates: {
         Row: {
           canvas_data: Json

@@ -92,6 +92,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
   
   const [relationSelectorOpen, setRelationSelectorOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [pendingFamilyMembers, setPendingFamilyMembers] = useState<string[]>([]);
   const [relationSettings, setRelationSettings] = useState({
     relation_required: true,
     relation_allow_custom_role: false,
@@ -312,25 +313,88 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
         }
       } else {
         // Create new guest
-        const { error } = await supabase
+        const { data: newGuest, error: guestError } = await supabase
           .from('guests')
-          .insert([finalGuestData]);
+          .insert([finalGuestData])
+          .select('id')
+          .single();
 
-        if (error) {
-          console.error('Error adding guest:', error);
+        if (guestError) {
+          console.error('Error adding guest:', guestError);
           toast({
             title: "Error",
             description: "Failed to add guest. Please try again.",
             variant: "destructive",
           });
+          return;
+        }
+
+        // Handle family group membership if family group is specified
+        if (data.family_group && data.family_group.trim()) {
+          try {
+            // Step 1: Upsert family group
+            const { data: familyGroup, error: familyGroupError } = await supabase
+              .from('family_groups')
+              .upsert(
+                { event_id: eventId, name: data.family_group.trim() },
+                { onConflict: 'event_id,name' }
+              )
+              .select('id')
+              .single();
+
+            if (familyGroupError) {
+              console.error('Error creating family group:', familyGroupError);
+              throw familyGroupError;
+            }
+
+            // Step 2: Insert memberships for new guest and pending members
+            const membershipInserts = [
+              { group_id: familyGroup.id, guest_id: newGuest.id }
+            ];
+
+            // Add pending family members to the group
+            for (const memberId of pendingFamilyMembers) {
+              membershipInserts.push({ group_id: familyGroup.id, guest_id: memberId });
+            }
+
+            const { error: membershipError } = await supabase
+              .from('family_group_members')
+              .upsert(membershipInserts, { onConflict: 'group_id,guest_id' });
+
+            if (membershipError) {
+              console.error('Error creating family memberships:', membershipError);
+              throw membershipError;
+            }
+
+            if (pendingFamilyMembers.length > 0) {
+              toast({
+                title: "Family members added",
+                description: `${data.first_name} ${data.last_name} and ${pendingFamilyMembers.length} family member(s) have been grouped together.`,
+              });
+            } else {
+              toast({
+                title: "Guest Added",
+                description: `${data.first_name} ${data.last_name} has been added to your guest list.`,
+              });
+            }
+          } catch (familyError) {
+            console.error('Error handling family group:', familyError);
+            toast({
+              title: "Guest Added",
+              description: `${data.first_name} ${data.last_name} has been added, but there was an issue with the family group.`,
+            });
+          }
         } else {
           toast({
             title: "Guest Added",
             description: `${data.first_name} ${data.last_name} has been added to your guest list.`,
           });
-          onGuestAdded();
-          handleClose();
         }
+
+        // Clear pending family members and refresh
+        setPendingFamilyMembers([]);
+        onGuestAdded();
+        handleClose();
       }
     } catch (error) {
       console.error('Error in onSubmit:', error);
@@ -557,6 +621,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                       value={field.value || ""}
                       onChange={(familyName: string, memberIds: string[]) => {
                         field.onChange(familyName);
+                        setPendingFamilyMembers(memberIds);
                       }}
                       currentGuestId={editGuest?.id}
                     />
