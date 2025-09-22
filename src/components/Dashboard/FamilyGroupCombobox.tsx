@@ -60,17 +60,16 @@ export const FamilyGroupCombobox: React.FC<FamilyGroupComboboxProps> = ({
   }, [value, inputValue]);
 
   useEffect(() => {
-    const newSelectedMemberIds = new Set(selectedMembers);
-    if (JSON.stringify([...selectedMemberIds]) !== JSON.stringify([...newSelectedMemberIds])) {
-      setSelectedMemberIds(newSelectedMemberIds);
-      // Fetch details for selected members
-      if (selectedMembers.length > 0 && eventId) {
+    // Only sync from props when selectedMembers actually has items
+    // This prevents resetting local selections when parent doesn't track them
+    if (selectedMembers.length > 0) {
+      const newSelectedMemberIds = new Set(selectedMembers);
+      if (JSON.stringify([...selectedMemberIds]) !== JSON.stringify([...newSelectedMemberIds])) {
+        setSelectedMemberIds(newSelectedMemberIds);
         fetchSelectedMemberDetails(selectedMembers);
-      } else {
-        setSelectedMemberDetails([]);
       }
     }
-  }, [selectedMembers, eventId, selectedMemberIds]);
+  }, [selectedMembers, eventId]);
 
   // Defensive clear: empty selectedMemberDetails if family name is empty and no members selected
   useEffect(() => {
