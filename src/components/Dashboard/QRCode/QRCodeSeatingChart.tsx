@@ -6,7 +6,6 @@ import { Calendar, QrCode, Download, Settings, Eye, ExternalLink, Copy } from 'l
 import { useEvents } from '@/hooks/useEvents';
 import { useToast } from '@/hooks/use-toast';
 import { QRCodeMainCard } from './QRCodeMainCard';
-import { QRCodeFeatureGrid } from './QRCodeFeatureGrid';
 import { buildGuestLookupUrl } from '@/lib/urlUtils';
 
 interface QRCodeSeatingChartProps {
@@ -162,10 +161,6 @@ export const QRCodeSeatingChart: React.FC<QRCodeSeatingChartProps> = ({
         <QRCodeMainCard eventId={currentEventId} />
       )}
 
-      {/* Feature Grid */}
-      {currentEventId && (
-        <QRCodeFeatureGrid eventId={currentEventId} onNavigateToTab={onNavigateToTab} />
-      )}
 
       {/* Placeholder when no event selected */}
       {!currentEventId && (

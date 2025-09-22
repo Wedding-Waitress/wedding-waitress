@@ -38,6 +38,7 @@ import { useRealtimeGuests } from '@/hooks/useRealtimeGuests';
 import { useRealtimeTables } from '@/hooks/useRealtimeTables';
 import { useProfile } from '@/hooks/useProfile';
 import { QRCodeSeatingChart } from '@/components/Dashboard/QRCode/QRCodeSeatingChart';
+import { QRCodeFeatureGrid } from '@/components/Dashboard/QRCode/QRCodeFeatureGrid';
 import { KitchenDietaryChart } from '@/components/Dashboard/QRCode/KitchenDietaryChart';
 import { SignagePage } from '@/components/Dashboard/Signage/SignagePage';
 import { TableSeatingChartPage as TableSeatingChartPageComponent } from '@/components/Dashboard/TableChart/TableSeatingChartPage';
@@ -397,17 +398,15 @@ export const Dashboard = () => {
         return <QRCodeSeatingChart selectedEventId={selectedEventId} onEventSelect={handleEventSelect} onNavigateToTab={handleTabChange} />;
       
       case 'printables':
-        return (
+        return selectedEventId ? (
+          <QRCodeFeatureGrid eventId={selectedEventId} onNavigateToTab={handleTabChange} />
+        ) : (
           <Card className="p-8 text-center">
             <Printer className="w-16 h-16 mx-auto text-primary mb-4" />
             <CardTitle className="mb-2">Printables</CardTitle>
             <CardDescription className="mb-6">
-              Generate and download printable materials for your event
+              Select an event to view available printable materials
             </CardDescription>
-            <Button variant="gradient">
-              <Printer className="w-4 h-4 mr-2" />
-              View Printables
-            </Button>
           </Card>
         );
       
