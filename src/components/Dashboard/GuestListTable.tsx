@@ -104,8 +104,8 @@ const EXPORT_HEADERS = [
 ];
 
 const DIETARY_OPTIONS = [
-  'NA', 'Pescatarian', 'Vegan', 'Vegetarian', 'Gluten Free', 'Dairy Free', 
-  'Nut Free', 'Seafood Free', 'Kosher', 'Halal'
+  'None', 'Kids Meal', 'Pescatarian', 'Vegetarian', 'Vegan', 'Gluten Free', 
+  'Dairy Free', 'Nut Free', 'Halal', 'Kosha', 'Vendor Meal'
 ];
 
 const RSVP_OPTIONS = ['Pending', 'Attending', 'Not Attending'];

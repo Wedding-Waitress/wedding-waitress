@@ -593,13 +593,17 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="NA">None</SelectItem>
+                        <SelectItem value="None">None</SelectItem>
+                        <SelectItem value="Kids Meal">Kids Meal</SelectItem>
+                        <SelectItem value="Pescatarian">Pescatarian</SelectItem>
                         <SelectItem value="Vegetarian">Vegetarian</SelectItem>
                         <SelectItem value="Vegan">Vegan</SelectItem>
-                        <SelectItem value="Gluten-Free">Gluten-Free</SelectItem>
+                        <SelectItem value="Gluten Free">Gluten Free</SelectItem>
+                        <SelectItem value="Dairy Free">Dairy Free</SelectItem>
+                        <SelectItem value="Nut Free">Nut Free</SelectItem>
                         <SelectItem value="Halal">Halal</SelectItem>
-                        <SelectItem value="Kosher">Kosher</SelectItem>
-                        <SelectItem value="Other">Other</SelectItem>
+                        <SelectItem value="Kosha">Kosha</SelectItem>
+                        <SelectItem value="Vendor Meal">Vendor Meal</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
