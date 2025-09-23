@@ -6,8 +6,9 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Slider } from '@/components/ui/slider';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { QrCode as QrCodeIcon, Copy, Download, RotateCcw, Save, Printer, FileImage, Upload, RotateCw, Twitter, Instagram, Mail, MapPin, Phone, MessageCircle, Video, Wifi, Globe, Youtube, CreditCard, Bitcoin, X } from 'lucide-react';
+import { QrCode as QrCodeIcon, Copy, Download, RotateCcw, Save, Printer, FileImage, Upload, RotateCw, Twitter, Instagram, Mail, MapPin, Phone, MessageCircle, Video, Wifi, Globe, Youtube, CreditCard, Bitcoin, X, Square, Circle, RectangleHorizontal, RectangleVertical, Trophy, Ticket, Tag } from 'lucide-react';
 import { useEvents } from '@/hooks/useEvents';
 import { useToast } from '@/hooks/use-toast';
 import { buildGuestLookupUrl } from '@/lib/urlUtils';
@@ -54,6 +55,15 @@ interface QRLogoSettings {
   clearBehind: boolean;
 }
 
+interface QRFrameSettings {
+  frameId: string;
+  label: string;
+  font: string;
+  textSizePct: number;
+  useCustomColor: boolean;
+  color: string;
+}
+
 const defaultColors: QRColorsSettings = {
   background: "#ffffff",
   transparentBg: false,
@@ -91,6 +101,38 @@ const defaultLogo: QRLogoSettings = {
   clearBehind: false
 };
 
+const defaultFrame: QRFrameSettings = {
+  frameId: "none",
+  label: "SCAN ME",
+  font: "AbrilFatface",
+  textSizePct: 100,
+  useCustomColor: false,
+  color: "#000000"
+};
+
+const frameOptions = [
+  { id: 'none', label: 'None', icon: X },
+  { id: 'classic', label: 'Classic border', icon: Square },
+  { id: 'rounded', label: 'Rounded border', icon: Circle },
+  { id: 'bottomBar', label: 'Bottom label', icon: RectangleHorizontal },
+  { id: 'topBar', label: 'Top label', icon: RectangleHorizontal },
+  { id: 'ribbonTop', label: 'Ribbon (top)', icon: Trophy },
+  { id: 'ribbonBottom', label: 'Ribbon (bottom)', icon: Trophy },
+  { id: 'phone', label: 'Phone tag', icon: Phone },
+  { id: 'ticket', label: 'Ticket', icon: Ticket },
+  { id: 'tag', label: 'Tag', icon: Tag }
+];
+
+const fontOptions = [
+  'AbrilFatface',
+  'Inter',
+  'Poppins',
+  'Montserrat',
+  'Playfair Display',
+  'Lora',
+  'Roboto'
+];
+
 const logoPresets = [
   { id: 'logo-twitter', label: 'Twitter/X', icon: Twitter, color: '#000000' },
   { id: 'logo-instagram', label: 'Instagram', icon: Instagram, color: '#E4405F' },
@@ -116,10 +158,11 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
   const eventUrl = selectedEvent?.slug ? buildGuestLookupUrl(selectedEvent.slug) : `https://…/live-view/${eventId}`;
 
   // QR Settings State
-  const [qrSettings, setQrSettings] = useState<{ colors: QRColorsSettings; design: QRDesignSettings; logo: QRLogoSettings }>({
+  const [qrSettings, setQrSettings] = useState<{ colors: QRColorsSettings; design: QRDesignSettings; logo: QRLogoSettings; frame: QRFrameSettings }>({
     colors: { ...defaultColors },
     design: { ...defaultDesign },
-    logo: { ...defaultLogo }
+    logo: { ...defaultLogo },
+    frame: { ...defaultFrame }
   });
 
   // Preview state
@@ -181,7 +224,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
     } catch (error) {
       console.error('Error rendering QR code:', error);
     }
-  }, [eventUrl, qrSettings.colors, qrSettings.design, qrSettings.logo, calculateContrast]);
+  }, [eventUrl, qrSettings.colors, qrSettings.design, qrSettings.logo, qrSettings.frame, calculateContrast]);
 
   // Debounced render effect
   useEffect(() => {
@@ -210,6 +253,14 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
     setQrSettings(prev => ({
       ...prev,
       logo: { ...defaultLogo }
+    }));
+  };
+
+  // Reset frame
+  const handleResetFrame = () => {
+    setQrSettings(prev => ({
+      ...prev,
+      frame: { ...defaultFrame }
     }));
   };
 
@@ -265,6 +316,14 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
     setQrSettings(prev => ({
       ...prev,
       logo: { ...prev.logo, ...updates }
+    }));
+  };
+
+  // Frame change handlers
+  const updateFrame = (updates: Partial<QRFrameSettings>) => {
+    setQrSettings(prev => ({
+      ...prev,
+      frame: { ...prev.frame, ...updates }
     }));
   };
 
@@ -1011,8 +1070,126 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
                     <AccordionTrigger className="text-sm font-medium hover:text-primary">
                       Frame
                     </AccordionTrigger>
-                    <AccordionContent className="pt-2">
-                      {/* Frame controls will go here */}
+                    <AccordionContent className="pt-2 space-y-6">
+                      {/* Frame Picker */}
+                      <div className="space-y-3">
+                        <Label className="text-sm font-medium">Frame Style</Label>
+                        <div className="grid grid-cols-5 gap-2">
+                          {frameOptions.map((option) => {
+                            const Icon = option.icon;
+                            const isSelected = qrSettings.frame.frameId === option.id;
+                            return (
+                              <button
+                                key={option.id}
+                                id={option.id}
+                                onClick={() => updateFrame({ frameId: option.id })}
+                                className={`aspect-square w-full border-2 rounded-md p-3 hover:border-primary/50 transition-colors ${
+                                  isSelected ? 'border-primary bg-primary/10' : 'border-muted'
+                                } ${option.id === 'none' ? 'bg-red-50' : 'bg-white'}`}
+                                title={option.label}
+                              >
+                                <Icon 
+                                  className="w-full h-full" 
+                                  style={{ color: option.id === 'none' ? '#DC2626' : '#000000' }}
+                                />
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      {/* Label & Font */}
+                      <div className="space-y-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="frame-label" className="text-sm font-medium">Frame label</Label>
+                          <Input
+                            id="frame-label"
+                            value={qrSettings.frame.label}
+                            onChange={(e) => updateFrame({ label: e.target.value })}
+                            placeholder="SCAN ME"
+                            className="w-full"
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="frame-font" className="text-sm font-medium">Label font</Label>
+                          <Select
+                            value={qrSettings.frame.font}
+                            onValueChange={(value) => updateFrame({ font: value })}
+                          >
+                            <SelectTrigger id="frame-font">
+                              <SelectValue placeholder="Select font" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {fontOptions.map((font) => (
+                                <SelectItem key={font} value={font}>
+                                  {font}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+
+                      {/* Text Size Slider */}
+                      <div className="space-y-3">
+                        <Label className="text-sm font-medium">Text size: {qrSettings.frame.textSizePct}%</Label>
+                        <Slider
+                          id="frame-text-size"
+                          value={[qrSettings.frame.textSizePct]}
+                          onValueChange={([value]) => updateFrame({ textSizePct: value })}
+                          min={0}
+                          max={150}
+                          step={1}
+                          className="w-full"
+                        />
+                      </div>
+
+                      {/* Color Controls */}
+                      <div className="space-y-4">
+                        <div className="flex items-center space-x-2">
+                          <Switch
+                            id="toggle-frame-color"
+                            checked={qrSettings.frame.useCustomColor}
+                            onCheckedChange={(checked) => updateFrame({ useCustomColor: checked })}
+                          />
+                          <Label htmlFor="toggle-frame-color" className="text-sm">Custom frame color</Label>
+                        </div>
+
+                        {qrSettings.frame.useCustomColor && (
+                          <div className="space-y-2 ml-6">
+                            <Label htmlFor="frame-color" className="text-sm font-medium">Frame color</Label>
+                            <div className="flex items-center space-x-2">
+                              <input
+                                id="frame-color"
+                                type="color"
+                                value={qrSettings.frame.color}
+                                onChange={(e) => updateFrame({ color: e.target.value })}
+                                className="w-8 h-8 rounded border border-input cursor-pointer"
+                              />
+                              <Input
+                                value={qrSettings.frame.color}
+                                onChange={(e) => updateFrame({ color: e.target.value })}
+                                placeholder="#000000"
+                                className="flex-1 font-mono text-xs"
+                              />
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Reset Button */}
+                      <div className="pt-2">
+                        <Button
+                          id="btn-reset-frame"
+                          variant="ghost"
+                          size="sm"
+                          onClick={handleResetFrame}
+                          className="text-xs text-muted-foreground hover:text-foreground"
+                        >
+                          Reset Frame
+                        </Button>
+                      </div>
                     </AccordionContent>
                   </AccordionItem>
                 </Accordion>
