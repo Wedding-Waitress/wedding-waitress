@@ -14,6 +14,10 @@ import { useToast } from '@/hooks/use-toast';
 import { buildGuestLookupUrl } from '@/lib/urlUtils';
 import QRCode from 'qrcode';
 import jsPDF from 'jspdf';
+import { PATTERN_DEFS } from '@/lib/qrPatternDefinitions';
+import { FINDER_BORDER_DEFS, FINDER_CENTER_DEFS } from '@/lib/qrFinderDefinitions';
+import { AdvancedQREngine } from '@/lib/advancedQREngine';
+import { QRCodeSettings } from '@/hooks/useQRCodeSettings';
 
 interface QRCodeMainCardProps {
   eventId: string;
@@ -150,6 +154,9 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
     frame: { ...defaultFrame }
   });
 
+  // Initialize QR Engine
+  const [qrEngine] = useState(() => new AdvancedQREngine(1024));
+
   // Preview state
   const [qrDataUrl, setQrDataUrl] = useState<string>('');
   const [contrastWarning, setContrastWarning] = useState<boolean>(false);
@@ -200,21 +207,43 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
     if (!eventUrl) return;
 
     try {
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-      if (!ctx) return;
-
-      // Generate QR code
-      const qrDataURL = await QRCode.toDataURL(eventUrl, {
-        width: 400,
-        margin: 2,
-        color: {
-          dark: qrSettings.colors.foreground,
-          light: qrSettings.colors.background
+      // Create settings for the advanced QR engine
+      const qrEngineSettings = {
+        background_color: qrSettings.colors.background,
+        foreground_color: qrSettings.colors.foreground,
+        pattern_style: qrSettings.design.patternId,
+        design: {
+          useCustomMarkerColors: qrSettings.design.useCustomMarkerColors,
+          useDifferentMarkerColors: qrSettings.design.useDifferentMarkerColors,
+          markerBorderColor: qrSettings.design.markerBorderColor,
+          markerCenterColor: qrSettings.design.markerCenterColor,
+          markers: qrSettings.design.markers
         }
-      });
+      };
 
-      setQrDataUrl(qrDataURL);
+      // Generate high-quality SVG using advanced engine
+      const svgString = await qrEngine.generateQR(eventUrl, qrEngineSettings);
+      
+      // Convert SVG to data URL for preview
+      const svgBlob = new Blob([svgString], { type: 'image/svg+xml' });
+      const svgUrl = URL.createObjectURL(svgBlob);
+      
+      // Create image from SVG for canvas rendering
+      const img = new Image();
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d')!;
+      canvas.width = 400;
+      canvas.height = 400;
+      
+      img.onload = () => {
+        ctx.clearRect(0, 0, 400, 400);
+        ctx.drawImage(img, 0, 0, 400, 400);
+        const dataUrl = canvas.toDataURL('image/png');
+        setQrDataUrl(dataUrl);
+        URL.revokeObjectURL(svgUrl);
+      };
+      
+      img.src = svgUrl;
 
       // Check contrast
       const contrast = calculateContrast(qrSettings.colors.background, qrSettings.colors.foreground);
@@ -222,12 +251,26 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
 
     } catch (error) {
       console.error('Error rendering QR code:', error);
+      // Fallback to basic QR generation
+      try {
+        const qrDataURL = await QRCode.toDataURL(eventUrl, {
+          width: 400,
+          margin: 2,
+          color: {
+            dark: qrSettings.colors.foreground,
+            light: qrSettings.colors.background
+          }
+        });
+        setQrDataUrl(qrDataURL);
+      } catch (fallbackError) {
+        console.error('Fallback QR generation failed:', fallbackError);
+      }
     }
-  }, [eventUrl, qrSettings.colors, qrSettings.design, qrSettings.logo, qrSettings.frame, calculateContrast]);
+  }, [eventUrl, qrSettings, calculateContrast, qrEngine]);
 
-  // Debounced render effect
+  // Debounced render effect with faster updates
   useEffect(() => {
-    const timer = setTimeout(renderQR, 150);
+    const timer = setTimeout(renderQR, 120);
     return () => clearTimeout(timer);
   }, [renderQR]);
 
@@ -265,50 +308,78 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
 
   // Action button handlers
   const handleDownloadPNG = useCallback(async () => {
-    if (!qrDataUrl) return;
-    const link = document.createElement('a');
-    link.download = `qr-code-${selectedEvent?.name || 'event'}.png`;
-    link.href = qrDataUrl;
-    link.click();
-    toast({ title: "PNG downloaded successfully!" });
-  }, [qrDataUrl, selectedEvent?.name, toast]);
+    if (!eventUrl) return;
+    try {
+      // Generate QR first, then export
+      await renderQR();
+      const pngBlob = await qrEngine.exportAs('png', 0.9);
+      const url = URL.createObjectURL(pngBlob);
+      const link = document.createElement('a');
+      link.download = `qr-code-${selectedEvent?.name || 'event'}.png`;
+      link.href = url;
+      link.click();
+      URL.revokeObjectURL(url);
+      toast({ title: "PNG downloaded successfully!" });
+    } catch (error) {
+      console.error('PNG export error:', error);
+      // Fallback to current method
+      if (qrDataUrl) {
+        const link = document.createElement('a');
+        link.download = `qr-code-${selectedEvent?.name || 'event'}.png`;
+        link.href = qrDataUrl;
+        link.click();
+        toast({ title: "PNG downloaded successfully!" });
+      }
+    }
+  }, [eventUrl, selectedEvent?.name, toast, qrEngine, qrDataUrl, renderQR]);
 
   const handleDownloadJPG = useCallback(async () => {
-    if (!qrDataUrl) return;
-    // Convert PNG to JPG
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    const img = new Image();
-    img.onload = () => {
-      canvas.width = img.width;
-      canvas.height = img.height;
-      ctx!.fillStyle = '#FFFFFF';
-      ctx!.fillRect(0, 0, canvas.width, canvas.height);
-      ctx!.drawImage(img, 0, 0);
-      const jpgDataUrl = canvas.toDataURL('image/jpeg', 0.9);
+    if (!eventUrl) return;
+    try {
+      // Generate QR first, then export
+      await renderQR();
+      const jpgBlob = await qrEngine.exportAs('jpeg', 0.9);
+      const url = URL.createObjectURL(jpgBlob);
       const link = document.createElement('a');
       link.download = `qr-code-${selectedEvent?.name || 'event'}.jpg`;
-      link.href = jpgDataUrl;
+      link.href = url;
       link.click();
+      URL.revokeObjectURL(url);
       toast({ title: "JPG downloaded successfully!" });
-    };
-    img.src = qrDataUrl;
-  }, [qrDataUrl, selectedEvent?.name, toast]);
+    } catch (error) {
+      console.error('JPG export error:', error);
+      // Fallback to current method
+      if (qrDataUrl) {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const img = new Image();
+        img.onload = () => {
+          canvas.width = img.width;
+          canvas.height = img.height;
+          ctx!.fillStyle = '#FFFFFF';
+          ctx!.fillRect(0, 0, canvas.width, canvas.height);
+          ctx!.drawImage(img, 0, 0);
+          const jpgDataUrl = canvas.toDataURL('image/jpeg', 0.9);
+          const link = document.createElement('a');
+          link.download = `qr-code-${selectedEvent?.name || 'event'}.jpg`;
+          link.href = jpgDataUrl;
+          link.click();
+          toast({ title: "JPG downloaded successfully!" });
+        };
+        img.src = qrDataUrl;
+      }
+    }
+  }, [eventUrl, selectedEvent?.name, toast, qrEngine, qrDataUrl, renderQR]);
 
   const handleDownloadSVG = useCallback(async () => {
     if (!eventUrl) return;
     try {
-      const qrSvg = await QRCode.toString(eventUrl, {
-        type: 'svg',
-        width: 512,
-        margin: 2,
-        color: {
-          dark: qrSettings.colors.foreground,
-          light: qrSettings.colors.background
-        }
-      });
-      const blob = new Blob([qrSvg], { type: 'image/svg+xml' });
-      const url = URL.createObjectURL(blob);
+      // Generate settings for the QR engine first
+      await renderQR();
+      
+      // Export using the advanced QR engine
+      const svgBlob = await qrEngine.exportAs('svg');
+      const url = URL.createObjectURL(svgBlob);
       const link = document.createElement('a');
       link.download = `qr-code-${selectedEvent?.name || 'event'}.svg`;
       link.href = url;
@@ -316,9 +387,10 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
       URL.revokeObjectURL(url);
       toast({ title: "SVG downloaded successfully!" });
     } catch (error) {
+      console.error('SVG export error:', error);
       toast({ title: "Error downloading SVG", variant: "destructive" });
     }
-  }, [eventUrl, qrSettings.colors, selectedEvent?.name, toast]);
+  }, [eventUrl, selectedEvent?.name, toast, qrEngine, renderQR]);
 
   const handleDownloadPDF = useCallback(async () => {
     if (!qrDataUrl) return;
@@ -685,226 +757,116 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
                       />
                     </button>
                     <AccordionContent className="qr-acc-panel pt-2 space-y-5 border-0 bg-white rounded-b-2xl">
-                      {/* Pattern Section */}
-                      <div className="space-y-3">
-                        <Label className="text-sm font-medium">Pattern</Label>
-                        <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-3">
-                          {Array.from({ length: 20 }, (_, i) => {
-                            const patternId = `pattern-${String(i + 1).padStart(2, '0')}`;
-                            const isSelected = qrSettings.design.patternId === patternId;
-                            return (
-                              <button
-                                key={patternId}
-                                id={patternId}
-                                onClick={() => updateDesign({ patternId })}
-                                className={`w-14 h-14 min-w-12 min-h-12 rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-1 hover:bg-purple-50 ${
-                                  isSelected 
-                                    ? 'border-2 border-purple-500 bg-purple-50' 
-                                    : 'border border-gray-200 hover:border-purple-300'
-                                }`}
-                                title={`Pattern ${i + 1}`}
-                                aria-pressed={isSelected}
-                              >
-                                <svg 
-                                  viewBox="0 0 56 56" 
-                                  className="w-full h-full p-1"
-                                  fill="none"
-                                >
-                                  <rect x="4" y="4" width="48" height="48" fill="#f5f5f5" rx="2"/>
-                                  {/* Pattern-specific 5x5 grid representation */}
-                                  {i === 0 && ( // Basic squares
-                                    <>
-                                      <rect x="12" y="12" width="6" height="6" className="fill-gray-800"/>
-                                      <rect x="20" y="12" width="6" height="6" className="fill-gray-800"/>
-                                      <rect x="28" y="12" width="6" height="6" className="fill-gray-800"/>
-                                      <rect x="36" y="12" width="6" height="6" className="fill-gray-800"/>
-                                      <rect x="12" y="20" width="6" height="6" className="fill-gray-800"/>
-                                      <rect x="28" y="20" width="6" height="6" className="fill-gray-800"/>
-                                      <rect x="12" y="28" width="6" height="6" className="fill-gray-800"/>
-                                      <rect x="20" y="28" width="6" height="6" className="fill-gray-800"/>
-                                      <rect x="36" y="28" width="6" height="6" className="fill-gray-800"/>
-                                      <rect x="20" y="36" width="6" height="6" className="fill-gray-800"/>
-                                      <rect x="28" y="36" width="6" height="6" className="fill-gray-800"/>
-                                      <rect x="36" y="36" width="6" height="6" className="fill-gray-800"/>
-                                    </>
-                                  )}
-                                  {i === 1 && ( // Circles
-                                    <>
-                                      <circle cx="15" cy="15" r="3" className="fill-gray-800"/>
-                                      <circle cx="23" cy="15" r="3" className="fill-gray-800"/>
-                                      <circle cx="31" cy="15" r="3" className="fill-gray-800"/>
-                                      <circle cx="39" cy="15" r="3" className="fill-gray-800"/>
-                                      <circle cx="15" cy="23" r="3" className="fill-gray-800"/>
-                                      <circle cx="31" cy="23" r="3" className="fill-gray-800"/>
-                                      <circle cx="15" cy="31" r="3" className="fill-gray-800"/>
-                                      <circle cx="23" cy="31" r="3" className="fill-gray-800"/>
-                                      <circle cx="39" cy="31" r="3" className="fill-gray-800"/>
-                                      <circle cx="23" cy="39" r="3" className="fill-gray-800"/>
-                                      <circle cx="31" cy="39" r="3" className="fill-gray-800"/>
-                                      <circle cx="39" cy="39" r="3" className="fill-gray-800"/>
-                                    </>
-                                  )}
-                                  {i === 2 && ( // Rounded squares
-                                    <>
-                                      <rect x="12" y="12" width="6" height="6" rx="2" className="fill-gray-800"/>
-                                      <rect x="20" y="12" width="6" height="6" rx="2" className="fill-gray-800"/>
-                                      <rect x="28" y="12" width="6" height="6" rx="2" className="fill-gray-800"/>
-                                      <rect x="36" y="12" width="6" height="6" rx="2" className="fill-gray-800"/>
-                                      <rect x="12" y="20" width="6" height="6" rx="2" className="fill-gray-800"/>
-                                      <rect x="28" y="20" width="6" height="6" rx="2" className="fill-gray-800"/>
-                                      <rect x="12" y="28" width="6" height="6" rx="2" className="fill-gray-800"/>
-                                      <rect x="20" y="28" width="6" height="6" rx="2" className="fill-gray-800"/>
-                                      <rect x="36" y="28" width="6" height="6" rx="2" className="fill-gray-800"/>
-                                      <rect x="20" y="36" width="6" height="6" rx="2" className="fill-gray-800"/>
-                                      <rect x="28" y="36" width="6" height="6" rx="2" className="fill-gray-800"/>
-                                      <rect x="36" y="36" width="6" height="6" rx="2" className="fill-gray-800"/>
-                                    </>
-                                  )}
-                                  {i === 3 && ( // Diamonds
-                                    <>
-                                      <path d="M15 12 L18 15 L15 18 L12 15 Z" className="fill-gray-800"/>
-                                      <path d="M23 12 L26 15 L23 18 L20 15 Z" className="fill-gray-800"/>
-                                      <path d="M31 12 L34 15 L31 18 L28 15 Z" className="fill-gray-800"/>
-                                      <path d="M39 12 L42 15 L39 18 L36 15 Z" className="fill-gray-800"/>
-                                      <path d="M15 20 L18 23 L15 26 L12 23 Z" className="fill-gray-800"/>
-                                      <path d="M31 20 L34 23 L31 26 L28 23 Z" className="fill-gray-800"/>
-                                      <path d="M15 28 L18 31 L15 34 L12 31 Z" className="fill-gray-800"/>
-                                      <path d="M23 28 L26 31 L23 34 L20 31 Z" className="fill-gray-800"/>
-                                      <path d="M39 28 L42 31 L39 34 L36 31 Z" className="fill-gray-800"/>
-                                      <path d="M23 36 L26 39 L23 42 L20 39 Z" className="fill-gray-800"/>
-                                      <path d="M31 36 L34 39 L31 42 L28 39 Z" className="fill-gray-800"/>
-                                      <path d="M39 36 L42 39 L39 42 L36 39 Z" className="fill-gray-800"/>
-                                    </>
-                                  )}
-                                  {i >= 4 && ( // Default pattern for remaining items
-                                    <>
-                                      <rect x="12" y="12" width="6" height="6" className="fill-gray-600"/>
-                                      <rect x="20" y="12" width="6" height="6" className="fill-gray-600"/>
-                                      <rect x="28" y="12" width="6" height="6" className="fill-gray-600"/>
-                                      <rect x="36" y="12" width="6" height="6" className="fill-gray-600"/>
-                                      <rect x="12" y="20" width="6" height="6" className="fill-gray-600"/>
-                                      <rect x="28" y="20" width="6" height="6" className="fill-gray-600"/>
-                                      <rect x="12" y="28" width="6" height="6" className="fill-gray-600"/>
-                                      <rect x="20" y="28" width="6" height="6" className="fill-gray-600"/>
-                                      <rect x="36" y="28" width="6" height="6" className="fill-gray-600"/>
-                                      <rect x="20" y="36" width="6" height="6" className="fill-gray-600"/>
-                                      <rect x="28" y="36" width="6" height="6" className="fill-gray-600"/>
-                                      <rect x="36" y="36" width="6" height="6" className="fill-gray-600"/>
-                                    </>
-                                  )}
-                                </svg>
-                              </button>
-                            );
-                          })}
-                        </div>
-                      </div>
+                       {/* Pattern Section */}
+                       <div className="space-y-3">
+                         <Label className="text-sm font-medium">Pattern</Label>
+                         <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-3">
+                           {PATTERN_DEFS.map((pattern, i) => {
+                             const isSelected = qrSettings.design.patternId === pattern.id;
+                             return (
+                               <button
+                                 key={pattern.id}
+                                 id={pattern.id}
+                                 onClick={() => updateDesign({ patternId: pattern.id })}
+                                 className={`w-14 h-14 min-w-12 min-h-12 rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-1 hover:bg-purple-50 ${
+                                   isSelected 
+                                     ? 'border-2 border-purple-500 bg-purple-50' 
+                                     : 'border border-gray-200 hover:border-purple-300'
+                                 }`}
+                                 title={pattern.label}
+                                 aria-pressed={isSelected}
+                               >
+                                 <svg 
+                                   viewBox="0 0 100 100" 
+                                   className="w-full h-full p-1"
+                                   fill="none"
+                                   ref={(svgRef) => {
+                                     if (svgRef && pattern.thumb) {
+                                       // Clear previous content
+                                       svgRef.innerHTML = '';
+                                       pattern.thumb(svgRef);
+                                     }
+                                   }}
+                                 />
+                               </button>
+                             );
+                           })}
+                         </div>
+                       </div>
 
-                      {/* Marker Border Section */}
-                      <div className="space-y-3">
-                        <Label className="text-sm font-medium">Marker border (finder outer shape)</Label>
-                        <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-3">
-                          {Array.from({ length: 20 }, (_, i) => {
-                            const borderId = `finder-border-${String(i + 1).padStart(2, '0')}`;
-                            const isSelected = qrSettings.design.markerBorderId === borderId;
-                            return (
-                              <button
-                                key={borderId}
-                                id={borderId}
-                                onClick={() => updateDesign({ markerBorderId: borderId })}
-                                className={`w-14 h-14 min-w-12 min-h-12 rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-1 hover:bg-purple-50 ${
-                                  isSelected 
-                                    ? 'border-2 border-purple-500 bg-purple-50' 
-                                    : 'border border-gray-200 hover:border-purple-300'
-                                }`}
-                                title={`Marker Border ${i + 1}`}
-                                aria-pressed={isSelected}
-                              >
-                                <svg 
-                                  viewBox="0 0 56 56" 
-                                  className="w-full h-full p-2"
-                                  fill="none"
-                                >
-                                  <rect x="8" y="8" width="40" height="40" fill="#f5f5f5" rx="2"/>
-                                  {/* Border-specific outer ring representations */}
-                                  {i === 0 && ( // Square border
-                                    <rect x="12" y="12" width="32" height="32" fill="none" stroke="#374151" strokeWidth="3"/>
-                                  )}
-                                  {i === 1 && ( // Rounded square border
-                                    <rect x="12" y="12" width="32" height="32" rx="6" fill="none" stroke="#374151" strokeWidth="3"/>
-                                  )}
-                                  {i === 2 && ( // Circle border
-                                    <circle cx="28" cy="28" r="16" fill="none" stroke="#374151" strokeWidth="3"/>
-                                  )}
-                                  {i === 3 && ( // Thick square border
-                                    <rect x="10" y="10" width="36" height="36" fill="none" stroke="#374151" strokeWidth="4"/>
-                                  )}
-                                  {i >= 4 && ( // Default border pattern
-                                    <rect x="12" y="12" width="32" height="32" fill="none" stroke="#6b7280" strokeWidth="2"/>
-                                  )}
-                                </svg>
-                              </button>
-                            );
-                          })}
-                        </div>
-                      </div>
+                       {/* Marker Border Section */}
+                       <div className="space-y-3">
+                         <Label className="text-sm font-medium">Marker border (finder outer shape)</Label>
+                         <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-3">
+                           {FINDER_BORDER_DEFS.map((borderDef) => {
+                             const isSelected = qrSettings.design.markerBorderId === borderDef.id;
+                             return (
+                               <button
+                                 key={borderDef.id}
+                                 id={borderDef.id}
+                                 onClick={() => updateDesign({ markerBorderId: borderDef.id })}
+                                 className={`w-14 h-14 min-w-12 min-h-12 rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-1 hover:bg-purple-50 ${
+                                   isSelected 
+                                     ? 'border-2 border-purple-500 bg-purple-50' 
+                                     : 'border border-gray-200 hover:border-purple-300'
+                                 }`}
+                                 title={borderDef.label}
+                                 aria-pressed={isSelected}
+                               >
+                                 <svg 
+                                   viewBox="0 0 100 100" 
+                                   className="w-full h-full p-2"
+                                   fill="none"
+                                   ref={(svgRef) => {
+                                     if (svgRef && borderDef.thumb) {
+                                       // Clear previous content
+                                       svgRef.innerHTML = '';
+                                       borderDef.thumb(svgRef);
+                                     }
+                                   }}
+                                 />
+                               </button>
+                             );
+                           })}
+                         </div>
+                       </div>
 
-                      {/* Marker Center Section */}
-                      <div className="space-y-3">
-                        <Label className="text-sm font-medium">Marker center (finder inner shape)</Label>
-                        <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-3">
-                          {Array.from({ length: 26 }, (_, i) => {
-                            const centerId = `finder-center-${String(i + 1).padStart(2, '0')}`;
-                            const isSelected = qrSettings.design.markerCenterId === centerId;
-                            return (
-                              <button
-                                key={centerId}
-                                id={centerId}
-                                onClick={() => updateDesign({ markerCenterId: centerId })}
-                                className={`w-14 h-14 min-w-12 min-h-12 rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-1 hover:bg-purple-50 ${
-                                  isSelected 
-                                    ? 'border-2 border-purple-500 bg-purple-50' 
-                                    : 'border border-gray-200 hover:border-purple-300'
-                                }`}
-                                title={`Marker Center ${i + 1}`}
-                                aria-pressed={isSelected}
-                              >
-                                <svg 
-                                  viewBox="0 0 56 56" 
-                                  className="w-full h-full p-3"
-                                  fill="none"
-                                >
-                                  <rect x="12" y="12" width="32" height="32" fill="#f5f5f5" rx="2"/>
-                                  {/* Center-specific inner glyph representations */}
-                                  {i === 0 && ( // Square center
-                                    <rect x="20" y="20" width="16" height="16" className="fill-gray-800"/>
-                                  )}
-                                  {i === 1 && ( // Circle center
-                                    <circle cx="28" cy="28" r="8" className="fill-gray-800"/>
-                                  )}
-                                  {i === 2 && ( // Diamond center
-                                    <path d="M28 18 L38 28 L28 38 L18 28 Z" className="fill-gray-800"/>
-                                  )}
-                                  {i === 3 && ( // Rounded square center
-                                    <rect x="20" y="20" width="16" height="16" rx="4" className="fill-gray-800"/>
-                                  )}
-                                  {i === 4 && ( // Cross center
-                                    <>
-                                      <rect x="26" y="20" width="4" height="16" className="fill-gray-800"/>
-                                      <rect x="20" y="26" width="16" height="4" className="fill-gray-800"/>
-                                    </>
-                                  )}
-                                  {i === 5 && ( // Star center
-                                    <path d="M28 20 L30 25 L36 25 L31 29 L33 36 L28 32 L23 36 L25 29 L20 25 L26 25 Z" className="fill-gray-800"/>
-                                  )}
-                                  {i >= 6 && ( // Default center pattern
-                                    <rect x="22" y="22" width="12" height="12" rx="2" className="fill-gray-600"/>
-                                  )}
-                                </svg>
-                              </button>
-                            );
-                          })}
-                        </div>
-                      </div>
+                       {/* Marker Center Section */}
+                       <div className="space-y-3">
+                         <Label className="text-sm font-medium">Marker center (finder inner shape)</Label>
+                         <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-3">
+                           {FINDER_CENTER_DEFS.map((centerDef) => {
+                             const isSelected = qrSettings.design.markerCenterId === centerDef.id;
+                             return (
+                               <button
+                                 key={centerDef.id}
+                                 id={centerDef.id}
+                                 onClick={() => updateDesign({ markerCenterId: centerDef.id })}
+                                 className={`w-14 h-14 min-w-12 min-h-12 rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-1 hover:bg-purple-50 ${
+                                   isSelected 
+                                     ? 'border-2 border-purple-500 bg-purple-50' 
+                                     : 'border border-gray-200 hover:border-purple-300'
+                                 }`}
+                                 title={centerDef.label}
+                                 aria-pressed={isSelected}
+                               >
+                                 <svg 
+                                   viewBox="0 0 100 100" 
+                                   className="w-full h-full p-3"
+                                   fill="none"
+                                   ref={(svgRef) => {
+                                     if (svgRef && centerDef.thumb) {
+                                       // Clear previous content
+                                       svgRef.innerHTML = '';
+                                       centerDef.thumb(svgRef);
+                                     }
+                                   }}
+                                 />
+                               </button>
+                             );
+                           })}
+                         </div>
+                       </div>
 
                       {/* Custom Marker Colors Section */}
                       <div className="space-y-4">

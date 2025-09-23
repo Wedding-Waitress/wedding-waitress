@@ -1,7 +1,19 @@
 import QRCode from 'qrcode';
-import { QRCodeSettings } from '@/hooks/useQRCodeSettings';
 import { PATTERN_DEFS, PatternDefinition } from './qrPatternDefinitions';
 import { FINDER_BORDER_DEFS, FINDER_CENTER_DEFS, FinderDefinition } from './qrFinderDefinitions';
+
+interface SimpleQRSettings {
+  background_color: string;
+  foreground_color: string;
+  pattern_style: string;
+  design?: {
+    useCustomMarkerColors?: boolean;
+    useDifferentMarkerColors?: boolean;
+    markerBorderColor?: string;
+    markerCenterColor?: string;
+    markers?: any;
+  };
+}
 
 export class AdvancedQREngine {
   private canvas: HTMLCanvasElement;
@@ -18,7 +30,7 @@ export class AdvancedQREngine {
     this.canvas.height = size;
   }
 
-  async generateQR(url: string, settings: QRCodeSettings): Promise<string> {
+  async generateQR(url: string, settings: SimpleQRSettings): Promise<string> {
     // Check cache
     const settingsKey = JSON.stringify({ url, settings });
     if (this.cachedSvg && this.lastSettings === settingsKey) {
@@ -99,7 +111,7 @@ export class AdvancedQREngine {
     return matrix;
   }
 
-  private async renderSVG(matrix: boolean[][], settings: QRCodeSettings): Promise<string> {
+  private async renderSVG(matrix: boolean[][], settings: SimpleQRSettings): Promise<string> {
     const matrixSize = matrix.length;
     const moduleSize = this.size / matrixSize;
     
@@ -163,7 +175,7 @@ export class AdvancedQREngine {
     moduleSize: number, 
     borderDef: FinderDefinition, 
     centerDef: FinderDefinition,
-    settings: QRCodeSettings
+    settings: SimpleQRSettings
   ) {
     const finderPositions = [
       { x: 3.5, y: 3.5 }, // Top-left
