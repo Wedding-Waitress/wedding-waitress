@@ -684,11 +684,11 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
                         }`}
                       />
                     </button>
-                    <AccordionContent className="qr-acc-panel pt-2 space-y-6 border-0 bg-white rounded-b-2xl">
+                    <AccordionContent className="qr-acc-panel pt-2 space-y-5 border-0 bg-white rounded-b-2xl">
                       {/* Pattern Section */}
                       <div className="space-y-3">
                         <Label className="text-sm font-medium">Pattern</Label>
-                        <div className="grid grid-cols-5 gap-2">
+                        <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-3">
                           {Array.from({ length: 20 }, (_, i) => {
                             const patternId = `pattern-${String(i + 1).padStart(2, '0')}`;
                             const isSelected = qrSettings.design.patternId === patternId;
@@ -697,14 +697,102 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
                                 key={patternId}
                                 id={patternId}
                                 onClick={() => updateDesign({ patternId })}
-                                className={`aspect-square w-full border-2 rounded-md hover:border-primary/50 transition-colors ${
-                                  isSelected ? 'border-primary bg-primary/10' : 'border-muted'
+                                className={`w-14 h-14 min-w-12 min-h-12 rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-1 hover:bg-purple-50 ${
+                                  isSelected 
+                                    ? 'border-2 border-purple-500 bg-purple-50' 
+                                    : 'border border-gray-200 hover:border-purple-300'
                                 }`}
                                 title={`Pattern ${i + 1}`}
+                                aria-pressed={isSelected}
                               >
-                                <div className="w-full h-full bg-muted/30 rounded-sm flex items-center justify-center text-xs">
-                                  {i + 1}
-                                </div>
+                                <svg 
+                                  viewBox="0 0 56 56" 
+                                  className="w-full h-full p-1"
+                                  fill="none"
+                                >
+                                  <rect x="4" y="4" width="48" height="48" fill="#f5f5f5" rx="2"/>
+                                  {/* Pattern-specific 5x5 grid representation */}
+                                  {i === 0 && ( // Basic squares
+                                    <>
+                                      <rect x="12" y="12" width="6" height="6" className="fill-gray-800"/>
+                                      <rect x="20" y="12" width="6" height="6" className="fill-gray-800"/>
+                                      <rect x="28" y="12" width="6" height="6" className="fill-gray-800"/>
+                                      <rect x="36" y="12" width="6" height="6" className="fill-gray-800"/>
+                                      <rect x="12" y="20" width="6" height="6" className="fill-gray-800"/>
+                                      <rect x="28" y="20" width="6" height="6" className="fill-gray-800"/>
+                                      <rect x="12" y="28" width="6" height="6" className="fill-gray-800"/>
+                                      <rect x="20" y="28" width="6" height="6" className="fill-gray-800"/>
+                                      <rect x="36" y="28" width="6" height="6" className="fill-gray-800"/>
+                                      <rect x="20" y="36" width="6" height="6" className="fill-gray-800"/>
+                                      <rect x="28" y="36" width="6" height="6" className="fill-gray-800"/>
+                                      <rect x="36" y="36" width="6" height="6" className="fill-gray-800"/>
+                                    </>
+                                  )}
+                                  {i === 1 && ( // Circles
+                                    <>
+                                      <circle cx="15" cy="15" r="3" className="fill-gray-800"/>
+                                      <circle cx="23" cy="15" r="3" className="fill-gray-800"/>
+                                      <circle cx="31" cy="15" r="3" className="fill-gray-800"/>
+                                      <circle cx="39" cy="15" r="3" className="fill-gray-800"/>
+                                      <circle cx="15" cy="23" r="3" className="fill-gray-800"/>
+                                      <circle cx="31" cy="23" r="3" className="fill-gray-800"/>
+                                      <circle cx="15" cy="31" r="3" className="fill-gray-800"/>
+                                      <circle cx="23" cy="31" r="3" className="fill-gray-800"/>
+                                      <circle cx="39" cy="31" r="3" className="fill-gray-800"/>
+                                      <circle cx="23" cy="39" r="3" className="fill-gray-800"/>
+                                      <circle cx="31" cy="39" r="3" className="fill-gray-800"/>
+                                      <circle cx="39" cy="39" r="3" className="fill-gray-800"/>
+                                    </>
+                                  )}
+                                  {i === 2 && ( // Rounded squares
+                                    <>
+                                      <rect x="12" y="12" width="6" height="6" rx="2" className="fill-gray-800"/>
+                                      <rect x="20" y="12" width="6" height="6" rx="2" className="fill-gray-800"/>
+                                      <rect x="28" y="12" width="6" height="6" rx="2" className="fill-gray-800"/>
+                                      <rect x="36" y="12" width="6" height="6" rx="2" className="fill-gray-800"/>
+                                      <rect x="12" y="20" width="6" height="6" rx="2" className="fill-gray-800"/>
+                                      <rect x="28" y="20" width="6" height="6" rx="2" className="fill-gray-800"/>
+                                      <rect x="12" y="28" width="6" height="6" rx="2" className="fill-gray-800"/>
+                                      <rect x="20" y="28" width="6" height="6" rx="2" className="fill-gray-800"/>
+                                      <rect x="36" y="28" width="6" height="6" rx="2" className="fill-gray-800"/>
+                                      <rect x="20" y="36" width="6" height="6" rx="2" className="fill-gray-800"/>
+                                      <rect x="28" y="36" width="6" height="6" rx="2" className="fill-gray-800"/>
+                                      <rect x="36" y="36" width="6" height="6" rx="2" className="fill-gray-800"/>
+                                    </>
+                                  )}
+                                  {i === 3 && ( // Diamonds
+                                    <>
+                                      <path d="M15 12 L18 15 L15 18 L12 15 Z" className="fill-gray-800"/>
+                                      <path d="M23 12 L26 15 L23 18 L20 15 Z" className="fill-gray-800"/>
+                                      <path d="M31 12 L34 15 L31 18 L28 15 Z" className="fill-gray-800"/>
+                                      <path d="M39 12 L42 15 L39 18 L36 15 Z" className="fill-gray-800"/>
+                                      <path d="M15 20 L18 23 L15 26 L12 23 Z" className="fill-gray-800"/>
+                                      <path d="M31 20 L34 23 L31 26 L28 23 Z" className="fill-gray-800"/>
+                                      <path d="M15 28 L18 31 L15 34 L12 31 Z" className="fill-gray-800"/>
+                                      <path d="M23 28 L26 31 L23 34 L20 31 Z" className="fill-gray-800"/>
+                                      <path d="M39 28 L42 31 L39 34 L36 31 Z" className="fill-gray-800"/>
+                                      <path d="M23 36 L26 39 L23 42 L20 39 Z" className="fill-gray-800"/>
+                                      <path d="M31 36 L34 39 L31 42 L28 39 Z" className="fill-gray-800"/>
+                                      <path d="M39 36 L42 39 L39 42 L36 39 Z" className="fill-gray-800"/>
+                                    </>
+                                  )}
+                                  {i >= 4 && ( // Default pattern for remaining items
+                                    <>
+                                      <rect x="12" y="12" width="6" height="6" className="fill-gray-600"/>
+                                      <rect x="20" y="12" width="6" height="6" className="fill-gray-600"/>
+                                      <rect x="28" y="12" width="6" height="6" className="fill-gray-600"/>
+                                      <rect x="36" y="12" width="6" height="6" className="fill-gray-600"/>
+                                      <rect x="12" y="20" width="6" height="6" className="fill-gray-600"/>
+                                      <rect x="28" y="20" width="6" height="6" className="fill-gray-600"/>
+                                      <rect x="12" y="28" width="6" height="6" className="fill-gray-600"/>
+                                      <rect x="20" y="28" width="6" height="6" className="fill-gray-600"/>
+                                      <rect x="36" y="28" width="6" height="6" className="fill-gray-600"/>
+                                      <rect x="20" y="36" width="6" height="6" className="fill-gray-600"/>
+                                      <rect x="28" y="36" width="6" height="6" className="fill-gray-600"/>
+                                      <rect x="36" y="36" width="6" height="6" className="fill-gray-600"/>
+                                    </>
+                                  )}
+                                </svg>
                               </button>
                             );
                           })}
@@ -714,7 +802,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
                       {/* Marker Border Section */}
                       <div className="space-y-3">
                         <Label className="text-sm font-medium">Marker border (finder outer shape)</Label>
-                        <div className="grid grid-cols-5 gap-2">
+                        <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-3">
                           {Array.from({ length: 20 }, (_, i) => {
                             const borderId = `finder-border-${String(i + 1).padStart(2, '0')}`;
                             const isSelected = qrSettings.design.markerBorderId === borderId;
@@ -723,14 +811,37 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
                                 key={borderId}
                                 id={borderId}
                                 onClick={() => updateDesign({ markerBorderId: borderId })}
-                                className={`aspect-square w-full border-2 rounded-md hover:border-primary/50 transition-colors ${
-                                  isSelected ? 'border-primary bg-primary/10' : 'border-muted'
+                                className={`w-14 h-14 min-w-12 min-h-12 rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-1 hover:bg-purple-50 ${
+                                  isSelected 
+                                    ? 'border-2 border-purple-500 bg-purple-50' 
+                                    : 'border border-gray-200 hover:border-purple-300'
                                 }`}
-                                title={`Finder Border ${i + 1}`}
+                                title={`Marker Border ${i + 1}`}
+                                aria-pressed={isSelected}
                               >
-                                <div className="w-full h-full bg-muted/30 rounded-sm flex items-center justify-center text-xs">
-                                  B{i + 1}
-                                </div>
+                                <svg 
+                                  viewBox="0 0 56 56" 
+                                  className="w-full h-full p-2"
+                                  fill="none"
+                                >
+                                  <rect x="8" y="8" width="40" height="40" fill="#f5f5f5" rx="2"/>
+                                  {/* Border-specific outer ring representations */}
+                                  {i === 0 && ( // Square border
+                                    <rect x="12" y="12" width="32" height="32" fill="none" stroke="#374151" strokeWidth="3"/>
+                                  )}
+                                  {i === 1 && ( // Rounded square border
+                                    <rect x="12" y="12" width="32" height="32" rx="6" fill="none" stroke="#374151" strokeWidth="3"/>
+                                  )}
+                                  {i === 2 && ( // Circle border
+                                    <circle cx="28" cy="28" r="16" fill="none" stroke="#374151" strokeWidth="3"/>
+                                  )}
+                                  {i === 3 && ( // Thick square border
+                                    <rect x="10" y="10" width="36" height="36" fill="none" stroke="#374151" strokeWidth="4"/>
+                                  )}
+                                  {i >= 4 && ( // Default border pattern
+                                    <rect x="12" y="12" width="32" height="32" fill="none" stroke="#6b7280" strokeWidth="2"/>
+                                  )}
+                                </svg>
                               </button>
                             );
                           })}
@@ -740,7 +851,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
                       {/* Marker Center Section */}
                       <div className="space-y-3">
                         <Label className="text-sm font-medium">Marker center (finder inner shape)</Label>
-                        <div className="grid grid-cols-5 gap-2">
+                        <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-3">
                           {Array.from({ length: 26 }, (_, i) => {
                             const centerId = `finder-center-${String(i + 1).padStart(2, '0')}`;
                             const isSelected = qrSettings.design.markerCenterId === centerId;
@@ -749,14 +860,46 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
                                 key={centerId}
                                 id={centerId}
                                 onClick={() => updateDesign({ markerCenterId: centerId })}
-                                className={`aspect-square w-full border-2 rounded-md hover:border-primary/50 transition-colors ${
-                                  isSelected ? 'border-primary bg-primary/10' : 'border-muted'
+                                className={`w-14 h-14 min-w-12 min-h-12 rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-1 hover:bg-purple-50 ${
+                                  isSelected 
+                                    ? 'border-2 border-purple-500 bg-purple-50' 
+                                    : 'border border-gray-200 hover:border-purple-300'
                                 }`}
-                                title={`Finder Center ${i + 1}`}
+                                title={`Marker Center ${i + 1}`}
+                                aria-pressed={isSelected}
                               >
-                                <div className="w-full h-full bg-muted/30 rounded-sm flex items-center justify-center text-xs">
-                                  C{i + 1}
-                                </div>
+                                <svg 
+                                  viewBox="0 0 56 56" 
+                                  className="w-full h-full p-3"
+                                  fill="none"
+                                >
+                                  <rect x="12" y="12" width="32" height="32" fill="#f5f5f5" rx="2"/>
+                                  {/* Center-specific inner glyph representations */}
+                                  {i === 0 && ( // Square center
+                                    <rect x="20" y="20" width="16" height="16" className="fill-gray-800"/>
+                                  )}
+                                  {i === 1 && ( // Circle center
+                                    <circle cx="28" cy="28" r="8" className="fill-gray-800"/>
+                                  )}
+                                  {i === 2 && ( // Diamond center
+                                    <path d="M28 18 L38 28 L28 38 L18 28 Z" className="fill-gray-800"/>
+                                  )}
+                                  {i === 3 && ( // Rounded square center
+                                    <rect x="20" y="20" width="16" height="16" rx="4" className="fill-gray-800"/>
+                                  )}
+                                  {i === 4 && ( // Cross center
+                                    <>
+                                      <rect x="26" y="20" width="4" height="16" className="fill-gray-800"/>
+                                      <rect x="20" y="26" width="16" height="4" className="fill-gray-800"/>
+                                    </>
+                                  )}
+                                  {i === 5 && ( // Star center
+                                    <path d="M28 20 L30 25 L36 25 L31 29 L33 36 L28 32 L23 36 L25 29 L20 25 L26 25 Z" className="fill-gray-800"/>
+                                  )}
+                                  {i >= 6 && ( // Default center pattern
+                                    <rect x="22" y="22" width="12" height="12" rx="2" className="fill-gray-600"/>
+                                  )}
+                                </svg>
                               </button>
                             );
                           })}
