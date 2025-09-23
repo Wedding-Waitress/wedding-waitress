@@ -44,6 +44,7 @@ import { SignagePage } from '@/components/Dashboard/Signage/SignagePage';
 import { TableSeatingChartPage as TableSeatingChartPageComponent } from '@/components/Dashboard/TableChart/TableSeatingChartPage';
 import { PlaceCardsPage } from '@/components/Dashboard/PlaceCards/PlaceCardsPage';
 import { FullSeatingChartPage } from '@/components/Dashboard/FullSeatingChart/FullSeatingChartPage';
+import { IndividualTableSeatingChartPage } from '@/components/Dashboard/IndividualTableChart/IndividualTableSeatingChartPage';
 import { KioskSetup } from '@/components/Dashboard/Kiosk/KioskSetup';
 import { FloorPlanPage } from '@/components/Dashboard/FloorPlan/FloorPlanPage';
 import { Header } from '@/components/Layout/Header';
@@ -433,6 +434,9 @@ export const Dashboard = () => {
       
       case 'place-cards':
         return <PlaceCardsPage />;
+      
+      case 'individual-table-chart':
+        return <IndividualTableSeatingChartPage selectedEventId={selectedEventId} onEventSelect={handleEventSelect} />;
       
       case 'kiosk-setup':
         return <KioskSetup selectedEventId={selectedEventId} onEventSelect={handleEventSelect} />;
