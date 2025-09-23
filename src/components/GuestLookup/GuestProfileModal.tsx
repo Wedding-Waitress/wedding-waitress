@@ -188,6 +188,7 @@ export const GuestProfileModal: React.FC<GuestProfileModalProps> = ({
                 <SelectItem value="Pescatarian">Pescatarian</SelectItem>
                 <SelectItem value="Vegetarian">Vegetarian</SelectItem>
                 <SelectItem value="Vegan">Vegan</SelectItem>
+                <SelectItem value="Seafood Free">Seafood Free</SelectItem>
                 <SelectItem value="Gluten Free">Gluten Free</SelectItem>
                 <SelectItem value="Dairy Free">Dairy Free</SelectItem>
                 <SelectItem value="Nut Free">Nut Free</SelectItem>

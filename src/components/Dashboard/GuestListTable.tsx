@@ -104,7 +104,7 @@ const EXPORT_HEADERS = [
 ];
 
 const DIETARY_OPTIONS = [
-  'None', 'Kids Meal', 'Pescatarian', 'Vegetarian', 'Vegan', 'Gluten Free', 
+  'None', 'Kids Meal', 'Pescatarian', 'Vegetarian', 'Vegan', 'Seafood Free', 'Gluten Free', 
   'Dairy Free', 'Nut Free', 'Halal', 'Kosha', 'Vendor Meal'
 ];
 
