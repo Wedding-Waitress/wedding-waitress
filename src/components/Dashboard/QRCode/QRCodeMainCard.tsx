@@ -8,7 +8,7 @@ import { Slider } from '@/components/ui/slider';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { QrCode as QrCodeIcon, Copy, Download, RotateCcw, Save, Printer, FileImage, Upload, RotateCw, Twitter, Instagram, Mail, MapPin, Phone, MessageCircle, Video, Wifi, Globe, Youtube, CreditCard, Bitcoin, X, Square, Circle, RectangleHorizontal, RectangleVertical, Trophy, Ticket, Tag, Palette, Grid3X3, Image as ImageIcon, ChevronDown } from 'lucide-react';
+import { QrCode as QrCodeIcon, Copy, Download, RotateCcw, Save, Printer, FileImage, Upload, RotateCw, Twitter, Instagram, Mail, MapPin, Phone, MessageCircle, Video, Wifi, Globe, Youtube, CreditCard, Bitcoin, X, Square, Circle, RectangleHorizontal, RectangleVertical, Trophy, Ticket, Tag, Palette, Grid3X3, Image as ImageIcon, ChevronDown, FileDown, Code, FileText } from 'lucide-react';
 import { useEvents } from '@/hooks/useEvents';
 import { useToast } from '@/hooks/use-toast';
 import { buildGuestLookupUrl } from '@/lib/urlUtils';
@@ -519,31 +519,87 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
                   {/* Action Buttons Grid */}
                   <div id="qr-action-grid" className="grid grid-cols-2 gap-3 w-full max-w-[460px]">
                     {/* Row 1 */}
-                    <Button id="btn-dl-png" variant="outline" className="w-full" onClick={handleDownloadPNG}>
+                    <Button 
+                      id="btn-dl-png" 
+                      variant="outline" 
+                      className="w-full flex items-center justify-center gap-2" 
+                      onClick={handleDownloadPNG}
+                      aria-label="Download PNG"
+                      title="Download PNG"
+                    >
+                      <FileDown className="h-4 w-4 text-purple-600" />
                       PNG
                     </Button>
-                    <Button id="btn-dl-jpg" variant="outline" className="w-full" onClick={handleDownloadJPG}>
+                    <Button 
+                      id="btn-dl-jpg" 
+                      variant="outline" 
+                      className="w-full flex items-center justify-center gap-2" 
+                      onClick={handleDownloadJPG}
+                      aria-label="Download JPG"
+                      title="Download JPG"
+                    >
+                      <ImageIcon className="h-4 w-4 text-purple-600" />
                       JPG
                     </Button>
 
                     {/* Row 2 */}
-                    <Button id="btn-dl-svg" variant="outline" className="w-full" onClick={handleDownloadSVG}>
+                    <Button 
+                      id="btn-dl-svg" 
+                      variant="outline" 
+                      className="w-full flex items-center justify-center gap-2" 
+                      onClick={handleDownloadSVG}
+                      aria-label="Download SVG"
+                      title="Download SVG"
+                    >
+                      <Code className="h-4 w-4 text-purple-600" />
                       SVG
                     </Button>
-                    <Button id="btn-dl-pdf" variant="outline" className="w-full" onClick={handleDownloadPDF}>
+                    <Button 
+                      id="btn-dl-pdf" 
+                      variant="outline" 
+                      className="w-full flex items-center justify-center gap-2" 
+                      onClick={handleDownloadPDF}
+                      aria-label="Download PDF"
+                      title="Download PDF"
+                    >
+                      <FileText className="h-4 w-4 text-purple-600" />
                       PDF
                     </Button>
 
                     {/* Row 3 */}
-                    <Button id="btn-reset-qr" variant="outline" className="w-full" onClick={handleResetQR}>
+                    <Button 
+                      id="btn-reset-qr" 
+                      variant="outline" 
+                      className="w-full flex items-center justify-center gap-2" 
+                      onClick={handleResetQR}
+                      aria-label="Reset QR settings"
+                      title="Reset QR settings"
+                    >
+                      <RotateCcw className="h-4 w-4 text-purple-600" />
                       Reset
                     </Button>
-                    <Button id="btn-print-qr" variant="outline" className="w-full" onClick={handlePrintQR}>
+                    <Button 
+                      id="btn-print-qr" 
+                      variant="outline" 
+                      className="w-full flex items-center justify-center gap-2" 
+                      onClick={handlePrintQR}
+                      aria-label="Print QR"
+                      title="Print QR"
+                    >
+                      <Printer className="h-4 w-4 text-purple-600" />
                       Print
                     </Button>
 
                     {/* Row 4 */}
-                    <Button id="btn-save-qr" variant="default" className="col-span-2 w-full" onClick={handleSaveQR}>
+                    <Button 
+                      id="btn-save-qr" 
+                      variant="default" 
+                      className="col-span-2 w-full flex items-center justify-center gap-2" 
+                      onClick={handleSaveQR}
+                      aria-label="Save QR style"
+                      title="Save QR style"
+                    >
+                      <Save className="h-4 w-4 text-white" />
                       Save
                     </Button>
                   </div>
