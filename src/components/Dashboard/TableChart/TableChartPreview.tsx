@@ -130,8 +130,8 @@ export const TableChartPreview: React.FC<TableChartPreviewProps> = ({
                 <ellipse
                   cx={scaledX + scaledWidth / 2}
                   cy={scaledY + scaledHeight / 2}
-                  rx={scaledWidth / 2}
-                  ry={scaledHeight / 2}
+                  rx={Math.min(scaledWidth, scaledHeight) / 2}
+                  ry={Math.min(scaledWidth, scaledHeight) / 2}
                   fill="#ffffff"
                   stroke="#e2e8f0"
                   strokeWidth="2"

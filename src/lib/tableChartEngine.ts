@@ -211,9 +211,10 @@ export const generateChartSVG = (
 
     // Table Shape with white background
     if (isRound) {
+      const radius = Math.min(scaledWidth, scaledHeight) / 2;
       svgContent += `
         <ellipse cx="${scaledX + scaledWidth / 2}" cy="${scaledY + scaledHeight / 2}" 
-                 rx="${scaledWidth / 2}" ry="${scaledHeight / 2}" 
+                 rx="${radius}" ry="${radius}" 
                  fill="#ffffff" stroke="#e2e8f0" stroke-width="2"/>
       `;
     } else {
