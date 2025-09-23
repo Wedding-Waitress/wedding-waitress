@@ -908,55 +908,61 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
 
                       {/* Custom Marker Colors Section */}
                       <div className="space-y-4">
-                        <div className="flex items-center space-x-2">
-                          <Switch
-                            id="toggle-custom-marker-color"
-                            checked={qrSettings.design.useCustomMarkerColors}
-                            onCheckedChange={(checked) => updateDesign({ useCustomMarkerColors: checked })}
-                          />
-                          <Label htmlFor="toggle-custom-marker-color" className="text-sm">Custom marker color</Label>
-                        </div>
-
+                        {/* Row 1: Global Marker Colors (side by side) */}
                         {qrSettings.design.useCustomMarkerColors && (
-                          <div className="space-y-4 pl-6">
-                            {/* Global Marker Colors */}
-                            <div className="space-y-3">
+                          <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                              <Label className="text-sm font-medium">Marker border</Label>
                               <div className="flex items-center space-x-2">
                                 <input
                                   id="color-marker-border"
                                   type="color"
                                   value={qrSettings.design.markerBorderColor}
                                   onChange={(e) => updateDesign({ markerBorderColor: e.target.value })}
-                                  className="w-6 h-6 rounded border border-input"
+                                  className="w-8 h-8 rounded border border-input"
                                 />
-                                <Label className="text-xs">Marker border</Label>
                                 <Input
                                   value={qrSettings.design.markerBorderColor}
                                   onChange={(e) => updateDesign({ markerBorderColor: e.target.value })}
-                                  className="text-xs font-mono w-20"
+                                  className="text-xs font-mono"
                                   placeholder="#000000"
                                 />
                               </div>
-                              
+                            </div>
+
+                            <div className="space-y-2">
+                              <Label className="text-sm font-medium">Marker center</Label>
                               <div className="flex items-center space-x-2">
                                 <input
                                   id="color-marker-center"
                                   type="color"
                                   value={qrSettings.design.markerCenterColor}
                                   onChange={(e) => updateDesign({ markerCenterColor: e.target.value })}
-                                  className="w-6 h-6 rounded border border-input"
+                                  className="w-8 h-8 rounded border border-input"
                                 />
-                                <Label className="text-xs">Marker center</Label>
                                 <Input
                                   value={qrSettings.design.markerCenterColor}
                                   onChange={(e) => updateDesign({ markerCenterColor: e.target.value })}
-                                  className="text-xs font-mono w-20"
+                                  className="text-xs font-mono"
                                   placeholder="#000000"
                                 />
                               </div>
                             </div>
+                          </div>
+                        )}
 
-                            {/* Different Marker Colors Toggle */}
+                        {/* Row 2: Toggle Controls */}
+                        <div className="space-y-3">
+                          <div className="flex items-center space-x-2">
+                            <Switch
+                              id="toggle-custom-marker-color"
+                              checked={qrSettings.design.useCustomMarkerColors}
+                              onCheckedChange={(checked) => updateDesign({ useCustomMarkerColors: checked })}
+                            />
+                            <Label htmlFor="toggle-custom-marker-color" className="text-sm">Custom marker color</Label>
+                          </div>
+
+                          {qrSettings.design.useCustomMarkerColors && (
                             <div className="flex items-center space-x-2">
                               <Switch
                                 id="toggle-different-marker-colors"
@@ -965,44 +971,19 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
                               />
                               <Label htmlFor="toggle-different-marker-colors" className="text-sm">Different markers colors</Label>
                             </div>
+                          )}
+                        </div>
 
-                            {/* Per-Marker Colors */}
-                            {qrSettings.design.useDifferentMarkerColors && (
-                              <div className="space-y-4">
-                                {/* Top Left */}
+                        {/* Row 3: Per-Marker Overrides (only when both toggles are ON) */}
+                        {qrSettings.design.useCustomMarkerColors && qrSettings.design.useDifferentMarkerColors && (
+                          <div className="grid grid-cols-2 gap-6">
+                            {/* Left Column: Marker border overrides */}
+                            <div className="space-y-3">
+                              <Label className="text-sm font-medium">Marker border overrides</Label>
+                              
+                              <div className="space-y-3">
                                 <div className="space-y-2">
-                                  <Label className="text-xs font-medium">Top Left</Label>
-                                  <div className="flex items-center space-x-2">
-                                    <input
-                                      id="color-tl-border"
-                                      type="color"
-                                      value={qrSettings.design.markers.TL.border}
-                                      onChange={(e) => updateDesign({ 
-                                        markers: { 
-                                          ...qrSettings.design.markers, 
-                                          TL: { ...qrSettings.design.markers.TL, border: e.target.value }
-                                        }
-                                      })}
-                                      className="w-5 h-5 rounded border border-input"
-                                    />
-                                    <Input
-                                      id="color-tl-center"
-                                      type="color"
-                                      value={qrSettings.design.markers.TL.center}
-                                      onChange={(e) => updateDesign({ 
-                                        markers: { 
-                                          ...qrSettings.design.markers, 
-                                          TL: { ...qrSettings.design.markers.TL, center: e.target.value }
-                                        }
-                                      })}
-                                      className="w-5 h-5 rounded border border-input"
-                                    />
-                                  </div>
-                                </div>
-
-                                {/* Top Right */}
-                                <div className="space-y-2">
-                                  <Label className="text-xs font-medium">Top Right</Label>
+                                  <Label className="text-xs text-muted-foreground">Top Right</Label>
                                   <div className="flex items-center space-x-2">
                                     <input
                                       id="color-tr-border"
@@ -1014,26 +995,24 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
                                           TR: { ...qrSettings.design.markers.TR, border: e.target.value }
                                         }
                                       })}
-                                      className="w-5 h-5 rounded border border-input"
+                                      className="w-6 h-6 rounded border border-input"
                                     />
-                                    <input
-                                      id="color-tr-center"
-                                      type="color"
-                                      value={qrSettings.design.markers.TR.center}
+                                    <Input
+                                      value={qrSettings.design.markers.TR.border}
                                       onChange={(e) => updateDesign({ 
                                         markers: { 
                                           ...qrSettings.design.markers, 
-                                          TR: { ...qrSettings.design.markers.TR, center: e.target.value }
+                                          TR: { ...qrSettings.design.markers.TR, border: e.target.value }
                                         }
                                       })}
-                                      className="w-5 h-5 rounded border border-input"
+                                      className="text-xs font-mono"
+                                      placeholder="#000000"
                                     />
                                   </div>
                                 </div>
 
-                                {/* Bottom Left */}
                                 <div className="space-y-2">
-                                  <Label className="text-xs font-medium">Bottom Left</Label>
+                                  <Label className="text-xs text-muted-foreground">Bottom Left</Label>
                                   <div className="flex items-center space-x-2">
                                     <input
                                       id="color-bl-border"
@@ -1045,8 +1024,61 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
                                           BL: { ...qrSettings.design.markers.BL, border: e.target.value }
                                         }
                                       })}
-                                      className="w-5 h-5 rounded border border-input"
+                                      className="w-6 h-6 rounded border border-input"
                                     />
+                                    <Input
+                                      value={qrSettings.design.markers.BL.border}
+                                      onChange={(e) => updateDesign({ 
+                                        markers: { 
+                                          ...qrSettings.design.markers, 
+                                          BL: { ...qrSettings.design.markers.BL, border: e.target.value }
+                                        }
+                                      })}
+                                      className="text-xs font-mono"
+                                      placeholder="#000000"
+                                    />
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Right Column: Marker center overrides */}
+                            <div className="space-y-3">
+                              <Label className="text-sm font-medium">Marker center overrides</Label>
+                              
+                              <div className="space-y-3">
+                                <div className="space-y-2">
+                                  <Label className="text-xs text-muted-foreground">Top Right</Label>
+                                  <div className="flex items-center space-x-2">
+                                    <input
+                                      id="color-tr-center"
+                                      type="color"
+                                      value={qrSettings.design.markers.TR.center}
+                                      onChange={(e) => updateDesign({ 
+                                        markers: { 
+                                          ...qrSettings.design.markers, 
+                                          TR: { ...qrSettings.design.markers.TR, center: e.target.value }
+                                        }
+                                      })}
+                                      className="w-6 h-6 rounded border border-input"
+                                    />
+                                    <Input
+                                      value={qrSettings.design.markers.TR.center}
+                                      onChange={(e) => updateDesign({ 
+                                        markers: { 
+                                          ...qrSettings.design.markers, 
+                                          TR: { ...qrSettings.design.markers.TR, center: e.target.value }
+                                        }
+                                      })}
+                                      className="text-xs font-mono"
+                                      placeholder="#000000"
+                                    />
+                                  </div>
+                                </div>
+
+                                <div className="space-y-2">
+                                  <Label className="text-xs text-muted-foreground">Bottom Left</Label>
+                                  <div className="flex items-center space-x-2">
                                     <input
                                       id="color-bl-center"
                                       type="color"
@@ -1057,12 +1089,23 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
                                           BL: { ...qrSettings.design.markers.BL, center: e.target.value }
                                         }
                                       })}
-                                      className="w-5 h-5 rounded border border-input"
+                                      className="w-6 h-6 rounded border border-input"
+                                    />
+                                    <Input
+                                      value={qrSettings.design.markers.BL.center}
+                                      onChange={(e) => updateDesign({ 
+                                        markers: { 
+                                          ...qrSettings.design.markers, 
+                                          BL: { ...qrSettings.design.markers.BL, center: e.target.value }
+                                        }
+                                      })}
+                                      className="text-xs font-mono"
+                                      placeholder="#000000"
                                     />
                                   </div>
                                 </div>
                               </div>
-                            )}
+                            </div>
                           </div>
                         )}
                       </div>
