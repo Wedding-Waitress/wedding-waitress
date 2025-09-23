@@ -448,6 +448,34 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
           </div>
         </div>
 
+        {/* Connection Status Indicators */}
+        <div className="space-y-3 p-4 bg-green-50 border border-green-200 rounded-lg">
+          {/* Connection Status */}
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+            <span className="text-sm font-medium text-green-800">Connected & Synced</span>
+          </div>
+          
+          {/* Event Information */}
+          {selectedEvent && (
+            <div className="flex items-center justify-between text-xs text-green-700">
+              <div className="flex items-center gap-2">
+                <QrCodeIcon className="h-3 w-3" />
+                <span>Linked to: <strong>{selectedEvent.name}</strong></span>
+              </div>
+              <div className="flex items-center gap-1">
+                <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+                <span>Live</span>
+              </div>
+            </div>
+          )}
+          
+          {/* Scan Instructions */}
+          <div className="text-xs text-green-600 bg-green-100 px-2 py-1 rounded">
+            📱 When scanned, opens guest lookup for this event
+          </div>
+        </div>
+
         {/* Two-Column Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
           {/* Left Column - Preview */}
