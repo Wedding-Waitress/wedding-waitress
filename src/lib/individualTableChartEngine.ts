@@ -128,26 +128,42 @@ const generateIndividualTableSVG = (
     }  
   };
 
-  // Arrange seats around table
+  // Arrange seats around table - Updated to match preview
   const arrangeSeats = () => {
     const seatCount = table.limit_seats;
     const seats = [];
     
     for (let i = 1; i <= seatCount; i++) {
-      const guest = sortedGuests.find(g => g.seat_no === i);
+      let guest = sortedGuests.find(g => g.seat_no === i);
+      
+      // If no guest assigned to this seat, try to assign unassigned guests
+      if (!guest) {
+        guest = sortedGuests.find(g => !g.seat_no || g.seat_no === 0);
+        if (guest) {
+          guest = { ...guest, seat_no: i };
+        }
+      }
+      
       const angle = ((i - 1) / seatCount) * 2 * Math.PI - Math.PI / 2;
       
-      const radius = settings.tableShape === 'round' ? 120 : 110;
+      const radius = settings.tableShape === 'round' ? 140 : 130; // Adjusted for larger container
       const centerX = 400;
-      const centerY = 300;
+      const centerY = 320;
       const x = centerX + radius * Math.cos(angle);
       const y = centerY + radius * Math.sin(angle);
+      
+      // Name positioning outside circles
+      const nameRadius = settings.tableShape === 'round' ? 170 : 160;
+      const nameX = centerX + nameRadius * Math.cos(angle);
+      const nameY = centerY + nameRadius * Math.sin(angle);
       
       seats.push({
         number: i,
         guest,
         x,
         y,
+        nameX,
+        nameY,
         angle
       });
     }
@@ -159,28 +175,28 @@ const generateIndividualTableSVG = (
   const eventDate = event?.date ? format(new Date(event.date), 'PPP') : '';
 
   return `
-    <div style="width: 794px; height: 1123px; background: white; font-family: Arial, sans-serif; padding: 40px; box-sizing: border-box; display: flex; flex-direction: column;">
+    <div style="width: 794px; height: 1123px; background: white; font-family: Arial, sans-serif; padding: 30px; box-sizing: border-box; display: flex; flex-direction: column;">
       <!-- Line 1: Event Info -->
       <div style="text-align: center; margin-bottom: 20px; font-size: ${getFontSize(settings.fontSize)}; font-weight: 600;">
         ${event.name} • ${event.venue} • ${eventDate}
       </div>
 
       <!-- Line 2: Table Title -->
-      <div style="text-align: center; margin-bottom: 40px; font-size: ${getTitleSize(settings.fontSize)}; font-weight: bold;">
+      <div style="text-align: center; margin-bottom: 30px; font-size: ${getTitleSize(settings.fontSize)}; font-weight: bold;">
         ${settings.title || `TABLE ${table.table_no}`}
       </div>
 
       <!-- Line 3: Table Visualization -->
-      <div style="flex: 1; display: flex; align-items: center; justify-content: center; margin-bottom: 40px;">
-        <div style="position: relative; width: 500px; height: 400px;">
+      <div style="flex: 1; display: flex; align-items: center; justify-content: center; margin-bottom: 30px;">
+        <div style="position: relative; width: 600px; height: 500px;">
           <!-- Table -->
           <div style="
             position: absolute;
             left: 50%;
             top: 50%;
             transform: translate(-50%, -50%);
-            width: 160px;
-            height: 160px;
+            width: 260px;
+            height: 260px;
             border: 4px solid #333;
             background: #f5f5f5;
             ${settings.tableShape === 'round' ? 'border-radius: 50%;' : 'border-radius: 8px;'}
@@ -202,33 +218,52 @@ const generateIndividualTableSVG = (
               left: ${seat.x}px;
               top: ${seat.y}px;
               transform: translate(-50%, -50%);
-              width: 36px;
-              height: 36px;
-              border: 2px solid #333;
+              width: 42px;
+              height: 42px;
+              border: 3px solid #333;
               border-radius: 50%;
               background: white;
               display: flex;
               align-items: center;
               justify-content: center;
-              font-weight: 600;
-              font-size: 12px;
+              font-weight: bold;
+              font-size: 14px;
+              box-shadow: 0 2px 4px rgba(0,0,0,0.2);
             ">
               ${settings.showSeatNumbers ? seat.number : ''}
             </div>
 
-            <!-- Guest Name -->
-            ${settings.includeNames && seat.guest ? `
+            <!-- Guest Name - Outside circle -->
+            ${seat.guest ? `
               <div style="
                 position: absolute;
-                left: ${seat.x}px;
-                top: ${seat.y + (seat.y < 300 ? -25 : 25)}px;
+                left: ${seat.nameX}px;
+                top: ${seat.nameY - 15}px;
                 transform: translateX(-50%);
-                font-size: ${getFontSize(settings.fontSize)};
-                font-weight: 500;
                 text-align: center;
+                font-size: ${getFontSize(settings.fontSize)};
+                font-weight: 600;
+                background: rgba(255,255,255,0.9);
+                padding: 2px 6px;
+                border-radius: 4px;
                 white-space: nowrap;
               ">
-                ${seat.guest.first_name} ${seat.guest.last_name}
+                ${seat.guest.first_name}
+              </div>
+              <div style="
+                position: absolute;
+                left: ${seat.nameX}px;
+                top: ${seat.nameY + 5}px;
+                transform: translateX(-50%);
+                text-align: center;
+                font-size: ${getFontSize(settings.fontSize)};
+                font-weight: 600;
+                background: rgba(255,255,255,0.9);
+                padding: 2px 6px;
+                border-radius: 4px;
+                white-space: nowrap;
+              ">
+                ${seat.guest.last_name}
               </div>
             ` : ''}
           `).join('')}
@@ -237,16 +272,16 @@ const generateIndividualTableSVG = (
 
       <!-- Line 4 & 5: Guest List -->
       ${settings.includeGuestList ? `
-        <div style="margin-bottom: 40px;">
-          <h3 style="font-size: ${getFontSize(settings.fontSize)}; font-weight: bold; margin-bottom: 16px;">
-            Guest's on this Table & Dietary
+        <div style="margin-bottom: 30px;">
+          <h3 style="font-size: ${getFontSize(settings.fontSize)}; font-weight: bold; margin-bottom: 12px;">
+            Guests on this Table & Dietary
           </h3>
-          <div style="display: grid; grid-template-columns: 1fr; gap: 8px;">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 11px;">
             ${sortedGuests.map((guest, index) => `
-              <div style="display: flex; justify-content: space-between; align-items: center; font-size: ${getFontSize(settings.fontSize)};">
-                <span>${index + 1}. ${guest.first_name} ${guest.last_name}</span>
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${index + 1}. ${guest.first_name} ${guest.last_name}</span>
                 ${settings.includeDietary && guest.dietary && guest.dietary !== 'NA' ? `
-                  <span style="background: #f0f0f0; border: 1px solid #ccc; padding: 2px 8px; border-radius: 12px; font-size: 11px;">
+                  <span style="background: #f0f0f0; border: 1px solid #ccc; padding: 1px 6px; border-radius: 10px; font-size: 10px; margin-left: 4px; flex-shrink: 0;">
                     ${guest.dietary}
                   </span>
                 ` : ''}

@@ -35,12 +35,23 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
     const seatCount = table.limit_seats;
     const seats = [];
     
+    // Create seats for all positions, filling in guests where available
     for (let i = 1; i <= seatCount; i++) {
-      const guest = sortedGuests.find(g => g.seat_no === i);
+      let guest = sortedGuests.find(g => g.seat_no === i);
+      
+      // If no guest assigned to this seat, try to assign unassigned guests
+      if (!guest) {
+        guest = sortedGuests.find(g => !g.seat_no || g.seat_no === 0);
+        if (guest) {
+          // Temporarily assign seat number for display
+          guest = { ...guest, seat_no: i };
+        }
+      }
+      
       const angle = ((i - 1) / seatCount) * 2 * Math.PI - Math.PI / 2; // Start from top
       
-      // Calculate position on circle (relative to center)
-      const radius = settings.tableShape === 'round' ? 45 : 40;
+      // Calculate position on circle (relative to center) - Bring chairs closer to table
+      const radius = settings.tableShape === 'round' ? 32 : 30; // Reduced from 45/40
       const x = 50 + radius * Math.cos(angle); // Center at 50%
       const y = 50 + radius * Math.sin(angle);
       
@@ -83,10 +94,11 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
           className="w-full bg-white text-black print:shadow-none shadow-lg mx-auto"
           style={{ 
             aspectRatio: '210/297', // A4 aspect ratio
-            maxHeight: '800px'
+            maxHeight: '900px',
+            minHeight: '600px'
           }}
         >
-          <div className="h-full flex flex-col p-8 relative">
+          <div className="h-full flex flex-col p-6 relative">
             {/* Line 1: Event Info */}
             <div className={`text-center mb-4 ${getFontSize(settings.fontSize)}`}>
               <div className="font-semibold">
@@ -100,19 +112,19 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
             </div>
 
             {/* Line 3: Table Visualization */}
-            <div className="flex-1 flex items-center justify-center mb-8">
-              <div className="relative" style={{ width: '400px', height: '400px' }}>
+            <div className="flex-1 flex items-center justify-center mb-6">
+              <div className="relative" style={{ width: '500px', height: '450px' }}>
                 {/* Table */}
                 <div 
-                  className={`absolute inset-0 border-4 border-gray-800 flex items-center justify-center bg-gray-50 ${
+                  className={`absolute border-4 border-gray-800 flex items-center justify-center bg-gray-50 ${
                     settings.tableShape === 'round' ? 'rounded-full' : 'rounded-lg'
                   }`}
                   style={{ 
                     left: '50%', 
                     top: '50%', 
                     transform: 'translate(-50%, -50%)',
-                    width: '200px',
-                    height: '200px'
+                    width: '280px', // Increased from 200px
+                    height: '280px' // Increased from 200px
                   }}
                 >
                   <div className={`font-bold ${getTitleSize(settings.fontSize)} text-gray-700`}>
@@ -121,53 +133,65 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
                 </div>
 
                 {/* Seats */}
-                {seats.map((seat) => (
-                  <div key={seat.number}>
-                    {/* Seat Circle */}
-                    <div
-                      className="absolute w-12 h-12 border-2 border-gray-800 rounded-full bg-white flex items-center justify-center transform -translate-x-1/2 -translate-y-1/2"
-                      style={{
-                        left: `${seat.x}%`,
-                        top: `${seat.y}%`,
-                      }}
-                    >
-                      {settings.showSeatNumbers && (
-                        <span className="font-semibold text-xs">{seat.number}</span>
-                      )}
-                    </div>
-
-                    {/* Guest Name */}
-                    {settings.includeNames && seat.guest && (
+                {seats.map((seat) => {
+                  // Calculate name positioning outside the circle
+                  const nameRadius = settings.tableShape === 'round' ? 42 : 40; // Further out for names
+                  const nameX = 50 + nameRadius * Math.cos(seat.angle);
+                  const nameY = 50 + nameRadius * Math.sin(seat.angle);
+                  
+                  return (
+                    <div key={seat.number}>
+                      {/* Seat Circle */}
                       <div
-                        className={`absolute transform -translate-x-1/2 font-medium ${getFontSize(settings.fontSize)}`}
+                        className="absolute w-14 h-14 border-3 border-gray-800 rounded-full bg-white flex items-center justify-center transform -translate-x-1/2 -translate-y-1/2 shadow-md"
                         style={{
                           left: `${seat.x}%`,
-                          top: `${seat.y + (seat.y < 50 ? -8 : 8)}%`, // Position above or below based on seat position
-                          whiteSpace: 'nowrap'
+                          top: `${seat.y}%`,
                         }}
                       >
-                        {seat.guest.first_name} {seat.guest.last_name}
+                        {settings.showSeatNumbers && (
+                          <span className="font-bold text-sm">{seat.number}</span>
+                        )}
                       </div>
-                    )}
-                  </div>
-                ))}
+
+                      {/* Guest Name - Always display outside circle */}
+                      {seat.guest && (
+                        <div
+                          className={`absolute transform -translate-x-1/2 font-semibold ${getFontSize(settings.fontSize)} text-center max-w-24`}
+                          style={{
+                            left: `${nameX}%`,
+                            top: `${nameY}%`,
+                            whiteSpace: 'nowrap',
+                          }}
+                        >
+                          <div className="bg-white/80 px-1 py-0.5 rounded text-gray-800">
+                            {seat.guest.first_name}
+                          </div>
+                          <div className="bg-white/80 px-1 py-0.5 rounded text-gray-800 mt-0.5">
+                            {seat.guest.last_name}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
 
             {/* Line 4 & 5: Guest List */}
             {settings.includeGuestList && (
-              <div className="mb-8">
-                <h3 className={`font-bold mb-4 ${getFontSize(settings.fontSize)}`}>
-                  Guest's on this Table & Dietary
+              <div className="mb-6">
+                <h3 className={`font-bold mb-3 ${getFontSize(settings.fontSize)}`}>
+                  Guests on this Table & Dietary
                 </h3>
-                <div className="grid grid-cols-1 gap-2">
+                <div className="grid grid-cols-2 gap-1 text-xs">
                   {sortedGuests.map((guest, index) => (
-                    <div key={guest.id} className={`flex justify-between items-center ${getFontSize(settings.fontSize)}`}>
-                      <span>
+                    <div key={guest.id} className="flex justify-between items-center">
+                      <span className="truncate">
                         {index + 1}. {guest.first_name} {guest.last_name}
                       </span>
                       {settings.includeDietary && guest.dietary && guest.dietary !== 'NA' && (
-                        <Badge variant="outline" className="text-xs">
+                        <Badge variant="outline" className="text-xs ml-1 flex-shrink-0">
                           {guest.dietary}
                         </Badge>
                       )}
