@@ -140,6 +140,40 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
     window.open(qrUrl, '_blank');
   };
 
+  const resetToDefault = () => {
+    const defaultSettings: Partial<QRCodeSettings> = {
+      event_id: eventId,
+      shape: 'square',
+      pattern: 'basic',
+      pattern_style: 'basic',
+      background_color: '#ffffff',
+      foreground_color: '#000000',
+      corner_style: 'square',
+      has_scan_text: true,
+      scan_text: 'SCAN ME',
+      gradient_type: 'none',
+      gradient_colors: [],
+      border_style: 'none',
+      border_width: 0,
+      border_color: '#000000',
+      shadow_enabled: false,
+      shadow_blur: 10,
+      shadow_color: '#00000033',
+      center_image_size: 80,
+      background_opacity: 1.0,
+      output_size: 512,
+      output_format: 'png',
+      color_palette: 'default',
+      advanced_settings: {},
+    };
+    
+    saveSettings(defaultSettings as QRCodeSettings);
+    toast({
+      title: "Success",
+      description: "QR code settings reset to default",
+    });
+  };
+
   if (loading) {
     return (
       <Card className="ww-box h-full">
@@ -245,6 +279,20 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
                     disabled={!qrDataUrl}
                   >
                     SVG Vector
+                  </Button>
+                </div>
+              </div>
+              
+              {/* Reset Button */}
+              <div className="space-y-2">
+                <div className="flex gap-2">
+                  <Button 
+                    onClick={resetToDefault}
+                    variant="outline"
+                    className="flex-1"
+                    disabled={!settings}
+                  >
+                    Reset to Default
                   </Button>
                 </div>
               </div>
