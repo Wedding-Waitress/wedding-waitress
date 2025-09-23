@@ -360,10 +360,10 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
         </div>
 
         {/* Two-Column Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left Column - Preview (Larger) */}
-          <div id="qr-left" className="lg:col-span-2">
-            <Card className="bg-white border-2 border-primary/20 rounded-lg">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+          {/* Left Column - Preview */}
+          <div id="qr-left" className="col-span-1">
+            <Card className="bg-white border-2 border-primary/20 rounded-lg h-full">
               <CardContent className="p-6">
                 {/* QR Preview */}
                 <div className="flex justify-center mb-6">
@@ -410,9 +410,9 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
             </Card>
           </div>
 
-          {/* Right Column - Controls (Narrower) */}
-          <div id="qr-right">
-            <Card className="bg-white border-2 border-primary/20 rounded-lg">
+          {/* Right Column - Controls */}
+          <div id="qr-right" className="col-span-1">
+            <Card className="bg-white border-2 border-primary/20 rounded-lg h-full">
               <CardContent className="p-4">
                 <Accordion 
                   id="qr-controls" 
