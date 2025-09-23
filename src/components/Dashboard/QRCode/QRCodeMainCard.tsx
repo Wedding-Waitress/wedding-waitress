@@ -22,6 +22,8 @@ interface QRCodeMainCardProps {
 interface QRColorsSettings {
   background: string;
   foreground: string;
+  markerBorder: string;
+  markerCenter: string;
 }
 
 interface QRDesignSettings {
@@ -59,7 +61,9 @@ interface QRFrameSettings {
 
 const defaultColors: QRColorsSettings = {
   background: "#ffffff",
-  foreground: "#060606"
+  foreground: "#060606",
+  markerBorder: "#060606",
+  markerCenter: "#060606"
 };
 
 const defaultDesign: QRDesignSettings = {
@@ -608,6 +612,48 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
                             onChange={(e) => updateColors({ background: e.target.value })}
                             className="text-xs font-mono"
                             placeholder="#ffffff"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Marker Border Color Section */}
+                      <div className="space-y-4">
+                        <Label className="text-sm font-medium">Marker Border Color</Label>
+                        
+                        <div className="flex items-center space-x-2">
+                          <input
+                            id="color-marker-border"
+                            type="color"
+                            value={qrSettings.colors.markerBorder}
+                            onChange={(e) => updateColors({ markerBorder: e.target.value })}
+                            className="w-8 h-8 rounded border border-input"
+                          />
+                          <Input
+                            value={qrSettings.colors.markerBorder}
+                            onChange={(e) => updateColors({ markerBorder: e.target.value })}
+                            className="text-xs font-mono"
+                            placeholder="#060606"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Marker Center Color Section */}
+                      <div className="space-y-4">
+                        <Label className="text-sm font-medium">Marker Center Color</Label>
+                        
+                        <div className="flex items-center space-x-2">
+                          <input
+                            id="color-marker-center"
+                            type="color"
+                            value={qrSettings.colors.markerCenter}
+                            onChange={(e) => updateColors({ markerCenter: e.target.value })}
+                            className="w-8 h-8 rounded border border-input"
+                          />
+                          <Input
+                            value={qrSettings.colors.markerCenter}
+                            onChange={(e) => updateColors({ markerCenter: e.target.value })}
+                            className="text-xs font-mono"
+                            placeholder="#060606"
                           />
                         </div>
                       </div>
