@@ -207,8 +207,7 @@ export const generateChartSVG = (
     const scaledWidth = tablePos.width * (width - 2 * padding);
     const scaledHeight = tablePos.height * availableHeight;
 
-    const isRound = settings.tableShape === 'round' || 
-                   (settings.tableShape === 'mixed' && index % 2 === 0);
+    const isRound = settings.tableShape === 'round';
 
     // Table Shape with white background
     if (isRound) {

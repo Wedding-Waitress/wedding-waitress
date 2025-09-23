@@ -56,7 +56,7 @@ export const TableChartCustomizer: React.FC<TableChartCustomizerProps> = ({
               </Label>
               <Select
                 value={settings.tableShape}
-                onValueChange={(value: 'round' | 'rectangular' | 'mixed') => 
+                onValueChange={(value: 'round' | 'square') => 
                   onSettingsChange({ tableShape: value })
                 }
               >
@@ -65,8 +65,7 @@ export const TableChartCustomizer: React.FC<TableChartCustomizerProps> = ({
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="round">Round Tables</SelectItem>
-                  <SelectItem value="rectangular">Rectangular Tables</SelectItem>
-                  <SelectItem value="mixed">Mixed Shapes</SelectItem>
+                  <SelectItem value="square">Square Tables</SelectItem>
                 </SelectContent>
               </Select>
             </div>

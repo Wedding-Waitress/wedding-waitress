@@ -121,8 +121,7 @@ export const TableChartPreview: React.FC<TableChartPreviewProps> = ({
           const scaledWidth = tablePos.width * (svgWidth - 2 * padding);
           const scaledHeight = tablePos.height * (svgHeight - 2 * padding - 60);
 
-          const isRound = settings.tableShape === 'round' || 
-                         (settings.tableShape === 'mixed' && index % 2 === 0);
+          const isRound = settings.tableShape === 'round';
 
           return (
             <g key={table.id}>

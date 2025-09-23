@@ -24,7 +24,7 @@ interface TableSeatingChartPageProps {
 }
 
 export interface ChartSettings {
-  tableShape: 'round' | 'rectangular' | 'mixed';
+  tableShape: 'round' | 'square';
   colorCoding: 'rsvp' | 'dietary' | 'capacity' | 'none';
   includeNames: boolean;
   includeDietary: boolean;
