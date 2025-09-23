@@ -1260,7 +1260,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                         {guest.dietary}
                       </Badge>
                     </TableCell>
-                    <TableCell className="w-24">{guest.mobile || '-'}</TableCell>
+                    <TableCell className="w-24">{renderPill(!!guest.mobile && guest.mobile.trim() !== '')}</TableCell>
                     <TableCell className="w-32">{renderPill(!!guest.email && guest.email.trim() !== '')}</TableCell>
                     <TableCell className="w-24">
                       {guest.family_group ? (
