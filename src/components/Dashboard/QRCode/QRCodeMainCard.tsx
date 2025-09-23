@@ -21,15 +21,7 @@ interface QRCodeMainCardProps {
 
 interface QRColorsSettings {
   background: string;
-  transparentBg: boolean;
-  bgImage: File | null;
-  bgImageFit: 'cover' | 'contain';
-  bgOpacity: number;
   foreground: string;
-  useGradient: boolean;
-  gradientType: 'linear' | 'radial';
-  gradientColor2: string;
-  gradientAngle: number;
 }
 
 interface QRDesignSettings {
@@ -67,15 +59,7 @@ interface QRFrameSettings {
 
 const defaultColors: QRColorsSettings = {
   background: "#ffffff",
-  transparentBg: false,
-  bgImage: null,
-  bgImageFit: "cover",
-  bgOpacity: 1,
-  foreground: "#060606",
-  useGradient: false,
-  gradientType: "linear",
-  gradientColor2: "#8900d5",
-  gradientAngle: 0
+  foreground: "#060606"
 };
 
 const defaultDesign: QRDesignSettings = {
@@ -225,17 +209,15 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
         width: 400,
         margin: 2,
         color: {
-          dark: qrSettings.colors.useGradient ? qrSettings.colors.foreground : qrSettings.colors.foreground,
-          light: qrSettings.colors.transparentBg ? '#00000000' : qrSettings.colors.background
+          dark: qrSettings.colors.foreground,
+          light: qrSettings.colors.background
         }
       });
 
       setQrDataUrl(qrDataURL);
 
       // Check contrast
-      const effectiveBg = qrSettings.colors.transparentBg ? '#ffffff' : qrSettings.colors.background;
-      const effectiveFg = qrSettings.colors.useGradient ? qrSettings.colors.foreground : qrSettings.colors.foreground;
-      const contrast = calculateContrast(effectiveBg, effectiveFg);
+      const contrast = calculateContrast(qrSettings.colors.background, qrSettings.colors.foreground);
       setContrastWarning(contrast < 4.5);
 
     } catch (error) {
@@ -322,7 +304,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
         margin: 2,
         color: {
           dark: qrSettings.colors.foreground,
-          light: qrSettings.colors.transparentBg ? '#FFFFFF00' : qrSettings.colors.background
+          light: qrSettings.colors.background
         }
       });
       const blob = new Blob([qrSvg], { type: 'image/svg+xml' });
@@ -401,36 +383,6 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
     toast({ title: "QR code settings saved!" });
   }, [toast]);
 
-  // Preset handlers
-  const applyPreset = (preset: 'bw' | 'ww' | 'gold') => {
-    const presets = {
-      bw: {
-        ...defaultColors,
-        background: '#ffffff',
-        foreground: '#000000',
-        useGradient: false
-      },
-      ww: {
-        ...defaultColors,
-        background: '#ffffff',
-        foreground: '#060606',
-        useGradient: true,
-        gradientColor2: '#8900d5',
-        gradientAngle: 45
-      },
-      gold: {
-        ...defaultColors,
-        background: '#ffffff',
-        foreground: '#b8860b',
-        useGradient: false
-      }
-    };
-
-    setQrSettings(prev => ({
-      ...prev,
-      colors: presets[preset]
-    }));
-  };
 
   // Color change handlers
   const updateColors = (updates: Partial<QRColorsSettings>) => {
@@ -643,93 +595,20 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
                       <div className="space-y-4">
                         <Label className="text-sm font-medium">Background</Label>
                         
-                        <div className="space-y-3">
-                          <div className="flex items-center space-x-2">
-                            <input
-                              id="color-bg"
-                              type="color"
-                              value={qrSettings.colors.background}
-                              onChange={(e) => updateColors({ background: e.target.value })}
-                              disabled={qrSettings.colors.transparentBg}
-                              className="w-8 h-8 rounded border border-input disabled:opacity-50"
-                            />
-                            <Input
-                              value={qrSettings.colors.background}
-                              onChange={(e) => updateColors({ background: e.target.value })}
-                              disabled={qrSettings.colors.transparentBg}
-                              className="text-xs font-mono"
-                              placeholder="#ffffff"
-                            />
-                          </div>
-
-                          <div className="flex items-center space-x-2">
-                            <Switch
-                              id="toggle-bg-transparent"
-                              checked={qrSettings.colors.transparentBg}
-                              onCheckedChange={(checked) => updateColors({ transparentBg: checked })}
-                            />
-                            <Label htmlFor="toggle-bg-transparent" className="text-sm">Transparent background</Label>
-                          </div>
-
-                          {!qrSettings.colors.transparentBg && (
-                            <>
-                              <div className="flex items-center space-x-2">
-                                <Switch
-                                  id="toggle-bg-image"
-                                  checked={!!qrSettings.colors.bgImage}
-                                  onCheckedChange={(checked) => {
-                                    if (!checked) updateColors({ bgImage: null });
-                                  }}
-                                />
-                                <Label htmlFor="toggle-bg-image" className="text-sm">Background image</Label>
-                              </div>
-
-                              {qrSettings.colors.bgImage && (
-                                <div className="space-y-2 pl-6">
-                                  <Input
-                                    id="bg-image-file"
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={(e) => {
-                                      const file = e.target.files?.[0] || null;
-                                      updateColors({ bgImage: file });
-                                    }}
-                                    className="text-xs"
-                                  />
-                                  
-                                  <div className="flex items-center space-x-2">
-                                    <Label className="text-xs">Fit:</Label>
-                                    <RadioGroup
-                                      value={qrSettings.colors.bgImageFit}
-                                      onValueChange={(value: 'cover' | 'contain') => updateColors({ bgImageFit: value })}
-                                      className="flex space-x-4"
-                                    >
-                                      <div className="flex items-center space-x-1">
-                                        <RadioGroupItem value="cover" id="bg-image-fit" />
-                                        <Label htmlFor="cover" className="text-xs">Cover</Label>
-                                      </div>
-                                      <div className="flex items-center space-x-1">
-                                        <RadioGroupItem value="contain" />
-                                        <Label htmlFor="contain" className="text-xs">Contain</Label>
-                                      </div>
-                                    </RadioGroup>
-                                  </div>
-                                </div>
-                              )}
-
-                              <div className="space-y-2">
-                                <Label className="text-xs">Opacity: {Math.round(qrSettings.colors.bgOpacity * 100)}%</Label>
-                                <Slider
-                                  id="bg-opacity"
-                                  value={[qrSettings.colors.bgOpacity * 100]}
-                                  onValueChange={([value]) => updateColors({ bgOpacity: value / 100 })}
-                                  max={100}
-                                  step={1}
-                                  className="w-full"
-                                />
-                              </div>
-                            </>
-                          )}
+                        <div className="flex items-center space-x-2">
+                          <input
+                            id="color-bg"
+                            type="color"
+                            value={qrSettings.colors.background}
+                            onChange={(e) => updateColors({ background: e.target.value })}
+                            className="w-8 h-8 rounded border border-input"
+                          />
+                          <Input
+                            value={qrSettings.colors.background}
+                            onChange={(e) => updateColors({ background: e.target.value })}
+                            className="text-xs font-mono"
+                            placeholder="#ffffff"
+                          />
                         </div>
                       </div>
 
@@ -737,118 +616,20 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
                       <div className="space-y-4">
                         <Label className="text-sm font-medium">Foreground</Label>
                         
-                        <div className="space-y-3">
-                          <div className="flex items-center space-x-2">
-                            <input
-                              id="color-fg"
-                              type="color"
-                              value={qrSettings.colors.foreground}
-                              onChange={(e) => updateColors({ foreground: e.target.value })}
-                              className="w-8 h-8 rounded border border-input"
-                            />
-                            <Input
-                              value={qrSettings.colors.foreground}
-                              onChange={(e) => updateColors({ foreground: e.target.value })}
-                              className="text-xs font-mono"
-                              placeholder="#060606"
-                            />
-                          </div>
-
-                          <div className="flex items-center space-x-2">
-                            <Switch
-                              id="toggle-fg-gradient"
-                              checked={qrSettings.colors.useGradient}
-                              onCheckedChange={(checked) => updateColors({ useGradient: checked })}
-                            />
-                            <Label htmlFor="toggle-fg-gradient" className="text-sm">Gradient</Label>
-                          </div>
-
-                          {qrSettings.colors.useGradient && (
-                            <div className="space-y-3 pl-6">
-                              <div className="flex items-center space-x-2">
-                                <input
-                                  id="color-fg-2"
-                                  type="color"
-                                  value={qrSettings.colors.gradientColor2}
-                                  onChange={(e) => updateColors({ gradientColor2: e.target.value })}
-                                  className="w-8 h-8 rounded border border-input"
-                                />
-                                <Input
-                                  value={qrSettings.colors.gradientColor2}
-                                  onChange={(e) => updateColors({ gradientColor2: e.target.value })}
-                                  className="text-xs font-mono"
-                                  placeholder="#8900d5"
-                                />
-                              </div>
-
-                              <div className="space-y-2">
-                                <Label className="text-xs">Type:</Label>
-                                <RadioGroup
-                                  id="fg-gradient-type"
-                                  value={qrSettings.colors.gradientType}
-                                  onValueChange={(value: 'linear' | 'radial') => updateColors({ gradientType: value })}
-                                  className="flex space-x-4"
-                                >
-                                  <div className="flex items-center space-x-1">
-                                    <RadioGroupItem value="linear" />
-                                    <Label className="text-xs">Linear</Label>
-                                  </div>
-                                  <div className="flex items-center space-x-1">
-                                    <RadioGroupItem value="radial" />
-                                    <Label className="text-xs">Radial</Label>
-                                  </div>
-                                </RadioGroup>
-                              </div>
-
-                              {qrSettings.colors.gradientType === 'linear' && (
-                                <div className="space-y-2">
-                                  <Label className="text-xs">Angle: {qrSettings.colors.gradientAngle}°</Label>
-                                  <Slider
-                                    id="fg-gradient-angle"
-                                    value={[qrSettings.colors.gradientAngle]}
-                                    onValueChange={([value]) => updateColors({ gradientAngle: value })}
-                                    max={360}
-                                    step={1}
-                                    className="w-full"
-                                  />
-                                </div>
-                              )}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Presets Section */}
-                      <div className="space-y-3">
-                        <Label className="text-sm font-medium">Presets</Label>
-                        <div className="flex flex-wrap gap-2">
-                          <Button
-                            id="preset-bw"
-                            variant="outline"
-                            size="sm"
-                            onClick={() => applyPreset('bw')}
-                            className="text-xs"
-                          >
-                            Classic B/W
-                          </Button>
-                          <Button
-                            id="preset-ww"
-                            variant="outline"
-                            size="sm"
-                            onClick={() => applyPreset('ww')}
-                            className="text-xs"
-                          >
-                            WW Purple
-                          </Button>
-                          <Button
-                            id="preset-gold"
-                            variant="outline"
-                            size="sm"
-                            onClick={() => applyPreset('gold')}
-                            className="text-xs"
-                          >
-                            Gold on White
-                          </Button>
+                        <div className="flex items-center space-x-2">
+                          <input
+                            id="color-fg"
+                            type="color"
+                            value={qrSettings.colors.foreground}
+                            onChange={(e) => updateColors({ foreground: e.target.value })}
+                            className="w-8 h-8 rounded border border-input"
+                          />
+                          <Input
+                            value={qrSettings.colors.foreground}
+                            onChange={(e) => updateColors({ foreground: e.target.value })}
+                            className="text-xs font-mono"
+                            placeholder="#060606"
+                          />
                         </div>
                       </div>
 
