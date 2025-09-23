@@ -562,17 +562,13 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
                   type="multiple" 
                   value={Array.from(openSections)}
                   onValueChange={(values) => setOpenSections(new Set(values))}
-                  className="w-full divide-y-0 space-y-3"
+                  className="w-full space-y-4 overflow-visible"
                 >
-                  <AccordionItem value="colors" className="qr-acc-item rounded-xl border-2 border-purple-500 overflow-hidden bg-white border-b-0">
+                  <AccordionItem value="colors" className="qr-acc-item rounded-2xl border-2 border-purple-500 overflow-visible bg-white" data-state={openSections.has('colors') ? 'open' : 'closed'}>
                     <button
                       onClick={() => toggleSection('colors')}
                       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleSection('colors'); }}}
-                      className={`w-full flex items-center justify-between gap-3 rounded-xl border-0 px-4 py-3 transition ${
-                        openSections.has('colors') 
-                          ? 'bg-purple-50 border-purple-300' 
-                          : 'border-purple-200 bg-white hover:bg-purple-50'
-                      }`}
+                      className="qr-acc-header w-full flex items-center justify-between gap-3 px-4 py-3 rounded-2xl bg-transparent border-0 transition hover:bg-purple-50/50"
                       aria-expanded={openSections.has('colors')}
                       aria-controls="panel-colors"
                       role="button"
@@ -586,7 +582,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
                         }`}
                       />
                     </button>
-                    <AccordionContent className="pt-2 space-y-6 border-0">
+                    <AccordionContent className="qr-acc-panel pt-2 space-y-6 border-0 bg-white rounded-b-2xl">
                       {/* Background Section */}
                       <div className="space-y-4">
                         <Label className="text-sm font-medium">Background</Label>
@@ -833,15 +829,11 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
                     </AccordionContent>
                   </AccordionItem>
 
-                  <AccordionItem value="design" className="qr-acc-item rounded-xl border-2 border-purple-500 overflow-hidden bg-white border-b-0">
+                  <AccordionItem value="design" className="qr-acc-item rounded-2xl border-2 border-purple-500 overflow-visible bg-white" data-state={openSections.has('design') ? 'open' : 'closed'}>
                     <button
                       onClick={() => toggleSection('design')}
                       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleSection('design'); }}}
-                      className={`w-full flex items-center justify-between gap-3 rounded-xl border-0 px-4 py-3 transition ${
-                        openSections.has('design') 
-                          ? 'bg-purple-50 border-purple-300' 
-                          : 'border-purple-200 bg-white hover:bg-purple-50'
-                      }`}
+                      className="qr-acc-header w-full flex items-center justify-between gap-3 px-4 py-3 rounded-2xl bg-transparent border-0 transition hover:bg-purple-50/50"
                       aria-expanded={openSections.has('design')}
                       aria-controls="panel-design"
                       role="button"
@@ -855,7 +847,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
                         }`}
                       />
                     </button>
-                    <AccordionContent className="pt-2 space-y-6 border-0">
+                    <AccordionContent className="qr-acc-panel pt-2 space-y-6 border-0 bg-white rounded-b-2xl">
                       {/* Pattern Section */}
                       <div className="space-y-3">
                         <Label className="text-sm font-medium">Pattern</Label>
@@ -1110,15 +1102,11 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
                     </AccordionContent>
                   </AccordionItem>
 
-                  <AccordionItem value="logo" className="qr-acc-item rounded-xl border-2 border-purple-500 overflow-hidden bg-white border-b-0">
+                  <AccordionItem value="logo" className="qr-acc-item rounded-2xl border-2 border-purple-500 overflow-visible bg-white" data-state={openSections.has('logo') ? 'open' : 'closed'}>
                     <button
                       onClick={() => toggleSection('logo')}
                       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleSection('logo'); }}}
-                      className={`w-full flex items-center justify-between gap-3 rounded-xl border-0 px-4 py-3 transition ${
-                        openSections.has('logo') 
-                          ? 'bg-purple-50 border-purple-300' 
-                          : 'border-purple-200 bg-white hover:bg-purple-50'
-                      }`}
+                      className="qr-acc-header w-full flex items-center justify-between gap-3 px-4 py-3 rounded-2xl bg-transparent border-0 transition hover:bg-purple-50/50"
                       aria-expanded={openSections.has('logo')}
                       aria-controls="panel-logo"
                       role="button"
@@ -1132,7 +1120,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
                         }`}
                       />
                     </button>
-                    <AccordionContent className="pt-2 space-y-6 border-0">
+                    <AccordionContent className="qr-acc-panel pt-2 space-y-6 border-0 bg-white rounded-b-2xl">
                       {/* Upload Section */}
                       <div className="space-y-3">
                         <Label className="text-sm font-medium">Upload your logo or select a watermark</Label>
@@ -1264,15 +1252,11 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
                     </AccordionContent>
                   </AccordionItem>
 
-                  <AccordionItem value="frame" className="qr-acc-item rounded-xl border-2 border-purple-500 overflow-hidden bg-white border-b-0">
+                  <AccordionItem value="frame" className="qr-acc-item rounded-2xl border-2 border-purple-500 overflow-visible bg-white" data-state={openSections.has('frame') ? 'open' : 'closed'}>
                     <button
                       onClick={() => toggleSection('frame')}
                       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleSection('frame'); }}}
-                      className={`w-full flex items-center justify-between gap-3 rounded-xl border-0 px-4 py-3 transition ${
-                        openSections.has('frame') 
-                          ? 'bg-purple-50 border-purple-300' 
-                          : 'border-purple-200 bg-white hover:bg-purple-50'
-                      }`}
+                      className="qr-acc-header w-full flex items-center justify-between gap-3 px-4 py-3 rounded-2xl bg-transparent border-0 transition hover:bg-purple-50/50"
                       aria-expanded={openSections.has('frame')}
                       aria-controls="panel-frame"
                       role="button"
@@ -1286,7 +1270,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
                         }`}
                       />
                     </button>
-                    <AccordionContent className="pt-2 space-y-6 border-0">
+                    <AccordionContent className="qr-acc-panel pt-2 space-y-6 border-0 bg-white rounded-b-2xl">
                       {/* Frame Picker */}
                       <div className="space-y-3">
                         <Label className="text-sm font-medium">Frame Style</Label>
