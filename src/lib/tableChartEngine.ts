@@ -241,9 +241,8 @@ export const generateChartSVG = (
       const displayedGuests = tableGuests.slice(0, 100);
       
       if (displayedGuests.length > 0) {
-        // Calculate dynamic font size based on guest count
-        const baseFontSize = Math.min(scaledWidth * 0.05, 12);
-        const dynamicFontSize = Math.max(baseFontSize / Math.sqrt(displayedGuests.length / 10), 6);
+        // Use fixed font size based on typography setting
+        const guestFontSize = fontSize.guest;
         
         // Calculate positioning - closer to table number
         const tablePadding = isRound ? scaledWidth * 0.15 : scaledWidth * 0.1;
@@ -251,8 +250,8 @@ export const generateChartSVG = (
         const availableHeight = scaledHeight - (tablePadding * 2);
         
         // Start names closer to table number
-        const startY = scaledY + tablePadding + dynamicFontSize * 1.5;
-        const lineHeight = dynamicFontSize * 1.2; // Tighter line spacing
+        const startY = scaledY + tablePadding + guestFontSize * 1.5;
+        const lineHeight = guestFontSize * 1.2; // Tighter line spacing
         
         // Group guests in pairs and display as "Name A - Name B"
         const guestPairs = [];
@@ -288,7 +287,7 @@ export const generateChartSVG = (
           svgContent += `
             <text x="${scaledX + scaledWidth / 2}" y="${nameY}" 
                   text-anchor="middle" font-family="Arial, sans-serif" 
-                  font-size="${dynamicFontSize}" fill="${guest1Colors.text}" font-weight="500">
+                  font-size="${guestFontSize}" fill="${guest1Colors.text}" font-weight="500">
               ${combinedText}
             </text>
           `;

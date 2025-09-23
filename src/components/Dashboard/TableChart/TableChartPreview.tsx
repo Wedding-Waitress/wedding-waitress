@@ -175,9 +175,8 @@ export const TableChartPreview: React.FC<TableChartPreviewProps> = ({
                   return null;
                 }
 
-                // Calculate dynamic font size based on guest count
-                const baseFontSize = Math.min(scaledWidth * 0.05, 12);
-                const dynamicFontSize = Math.max(baseFontSize / Math.sqrt(displayedGuests.length / 10), 6);
+                // Use fixed font size based on typography setting
+                const guestFontSize = settings.fontSize === 'small' ? 10 : settings.fontSize === 'large' ? 14 : 12;
                 
                 // Calculate positioning - closer to table number
                 const tablePadding = settings.tableShape === 'round' ? scaledWidth * 0.15 : scaledWidth * 0.1;
@@ -185,8 +184,8 @@ export const TableChartPreview: React.FC<TableChartPreviewProps> = ({
                 const availableHeight = scaledHeight - (tablePadding * 2);
                 
                 // Start names closer to table number
-                const startY = scaledY + tablePadding + dynamicFontSize * 1.5;
-                const lineHeight = dynamicFontSize * 1.2; // Tighter line spacing
+                const startY = scaledY + tablePadding + guestFontSize * 1.5;
+                const lineHeight = guestFontSize * 1.2; // Tighter line spacing
                 
                 // Group guests in pairs and display as "Name A - Name B"
                 const guestPairs = [];
@@ -225,7 +224,7 @@ export const TableChartPreview: React.FC<TableChartPreviewProps> = ({
                       x={scaledX + scaledWidth / 2}
                       y={nameY}
                       textAnchor="middle"
-                      fontSize={dynamicFontSize}
+                      fontSize={guestFontSize}
                       fill={guest1Colors.text}
                       fontFamily="Inter, sans-serif"
                       fontWeight="500"
