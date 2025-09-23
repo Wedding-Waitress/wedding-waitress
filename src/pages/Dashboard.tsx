@@ -436,6 +436,7 @@ export const Dashboard = () => {
         return <PlaceCardsPage />;
       
       case 'individual-table-chart':
+        // Individual table seating chart feature
         return <IndividualTableSeatingChartPage selectedEventId={selectedEventId} onEventSelect={handleEventSelect} />;
       
       case 'kiosk-setup':
