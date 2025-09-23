@@ -56,57 +56,22 @@ export class AdvancedQREngine {
   }
 
   private async getQRMatrix(url: string): Promise<boolean[][]> {
-    const qrOptions = {
-      errorCorrectionLevel: 'H' as const,
-      type: 'svg' as const,
-      margin: 4,
-      width: 512
-    };
-
-    const qrSvg = await QRCode.toString(url, qrOptions);
+    // Use QRCode.create() to get direct access to the matrix data
+    const qrCode = QRCode.create(url, { errorCorrectionLevel: 'H' });
+    const modules = qrCode.modules;
+    const size = modules.size;
     
-    // Parse the SVG to extract the matrix
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(qrSvg, 'image/svg+xml');
-    const rects = doc.querySelectorAll('rect');
-    
-    // Find the size by looking at the viewBox or SVG dimensions
-    const svgElement = doc.querySelector('svg');
-    const viewBox = svgElement?.getAttribute('viewBox');
-    let svgSize = 200; // Default fallback
-    
-    if (viewBox) {
-      const parts = viewBox.split(' ');
-      svgSize = parseInt(parts[2]) || 200;
-    }
-    
-    // Calculate module size and grid dimensions
-    const moduleSize = svgSize / (21 + 8); // 21x21 minimum + 4 margin on each side
-    const gridSize = Math.round(svgSize / moduleSize);
-    
-    // Initialize matrix
-    const matrix: boolean[][] = Array(gridSize).fill(null).map(() => Array(gridSize).fill(false));
-    
-    // Fill matrix from SVG rects
-    rects.forEach(rect => {
-      const x = parseInt(rect.getAttribute('x') || '0');
-      const y = parseInt(rect.getAttribute('y') || '0');
-      const width = parseInt(rect.getAttribute('width') || '0');
-      const height = parseInt(rect.getAttribute('height') || '0');
-      
-      const moduleX = Math.floor(x / moduleSize);
-      const moduleY = Math.floor(y / moduleSize);
-      const moduleW = Math.ceil(width / moduleSize);
-      const moduleH = Math.ceil(height / moduleSize);
-      
-      for (let my = moduleY; my < Math.min(moduleY + moduleH, gridSize); my++) {
-        for (let mx = moduleX; mx < Math.min(moduleX + moduleW, gridSize); mx++) {
-          if (my >= 0 && mx >= 0) {
-            matrix[my][mx] = true;
-          }
-        }
+    // Create matrix from the QR code modules
+    const matrix: boolean[][] = [];
+    for (let y = 0; y < size; y++) {
+      const row: boolean[] = [];
+      for (let x = 0; x < size; x++) {
+        // Access module data correctly - modules.data is a Uint8Array
+        const index = y * size + x;
+        row.push(modules.data[index] === 1);
       }
-    });
+      matrix.push(row);
+    }
     
     return matrix;
   }
