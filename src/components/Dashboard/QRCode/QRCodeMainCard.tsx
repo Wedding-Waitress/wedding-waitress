@@ -8,7 +8,7 @@ import { Slider } from '@/components/ui/slider';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { QrCode as QrCodeIcon, Copy, Download, RotateCcw, Save, Printer, FileImage, Upload, RotateCw, Twitter, Instagram, Mail, MapPin, Phone, MessageCircle, Video, Wifi, Globe, Youtube, CreditCard, Bitcoin, X, Square, Circle, RectangleHorizontal, RectangleVertical, Trophy, Ticket, Tag } from 'lucide-react';
+import { QrCode as QrCodeIcon, Copy, Download, RotateCcw, Save, Printer, FileImage, Upload, RotateCw, Twitter, Instagram, Mail, MapPin, Phone, MessageCircle, Video, Wifi, Globe, Youtube, CreditCard, Bitcoin, X, Square, Circle, RectangleHorizontal, RectangleVertical, Trophy, Ticket, Tag, Palette, Grid3X3, Image as ImageIcon, ChevronDown } from 'lucide-react';
 import { useEvents } from '@/hooks/useEvents';
 import { useToast } from '@/hooks/use-toast';
 import { buildGuestLookupUrl } from '@/lib/urlUtils';
@@ -169,6 +169,22 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
   // Preview state
   const [qrDataUrl, setQrDataUrl] = useState<string>('');
   const [contrastWarning, setContrastWarning] = useState<boolean>(false);
+  
+  // Accordion state - track which sections are open
+  const [openSections, setOpenSections] = useState<Set<string>>(new Set(['colors']));
+  
+  // Toggle accordion sections
+  const toggleSection = (section: string) => {
+    setOpenSections(prev => {
+      const newSections = new Set(prev);
+      if (newSections.has(section)) {
+        newSections.delete(section);
+      } else {
+        newSections.add(section);
+      }
+      return newSections;
+    });
+  };
 
   const handleCopyUrl = async () => {
     try {
@@ -542,14 +558,33 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
               <CardContent className="p-4">
                 <Accordion 
                   id="qr-controls" 
-                  type="single" 
-                  collapsible
+                  type="multiple" 
+                  value={Array.from(openSections)}
+                  onValueChange={(values) => setOpenSections(new Set(values))}
                   className="w-full"
                 >
                   <AccordionItem value="colors">
-                    <AccordionTrigger className="text-sm font-medium hover:text-primary">
-                      Colors
-                    </AccordionTrigger>
+                    <button
+                      onClick={() => toggleSection('colors')}
+                      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleSection('colors'); }}}
+                      className={`w-full flex items-center justify-between gap-3 rounded-xl border px-4 py-3 transition ${
+                        openSections.has('colors') 
+                          ? 'bg-purple-50 border-purple-300' 
+                          : 'border-purple-200 bg-white hover:bg-purple-50'
+                      }`}
+                      aria-expanded={openSections.has('colors')}
+                      aria-controls="panel-colors"
+                      role="button"
+                      data-target="#panel-colors"
+                    >
+                      <Palette className="h-5 w-5 text-purple-600" />
+                      <span className="font-medium text-gray-800">Colors</span>
+                      <ChevronDown 
+                        className={`ml-auto h-4 w-4 text-gray-500 transition-transform ${
+                          openSections.has('colors') ? 'rotate-180' : ''
+                        }`}
+                      />
+                    </button>
                     <AccordionContent className="pt-2 space-y-6">
                       {/* Background Section */}
                       <div className="space-y-4">
@@ -798,9 +833,27 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
                   </AccordionItem>
 
                   <AccordionItem value="design">
-                    <AccordionTrigger className="text-sm font-medium hover:text-primary">
-                      Design
-                    </AccordionTrigger>
+                    <button
+                      onClick={() => toggleSection('design')}
+                      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleSection('design'); }}}
+                      className={`w-full flex items-center justify-between gap-3 rounded-xl border px-4 py-3 transition ${
+                        openSections.has('design') 
+                          ? 'bg-purple-50 border-purple-300' 
+                          : 'border-purple-200 bg-white hover:bg-purple-50'
+                      }`}
+                      aria-expanded={openSections.has('design')}
+                      aria-controls="panel-design"
+                      role="button"
+                      data-target="#panel-design"
+                    >
+                      <Grid3X3 className="h-5 w-5 text-purple-600" />
+                      <span className="font-medium text-gray-800">Design</span>
+                      <ChevronDown 
+                        className={`ml-auto h-4 w-4 text-gray-500 transition-transform ${
+                          openSections.has('design') ? 'rotate-180' : ''
+                        }`}
+                      />
+                    </button>
                     <AccordionContent className="pt-2 space-y-6">
                       {/* Pattern Section */}
                       <div className="space-y-3">
@@ -1057,9 +1110,27 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
                   </AccordionItem>
 
                   <AccordionItem value="logo">
-                    <AccordionTrigger className="text-sm font-medium hover:text-primary">
-                      Logo
-                    </AccordionTrigger>
+                    <button
+                      onClick={() => toggleSection('logo')}
+                      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleSection('logo'); }}}
+                      className={`w-full flex items-center justify-between gap-3 rounded-xl border px-4 py-3 transition ${
+                        openSections.has('logo') 
+                          ? 'bg-purple-50 border-purple-300' 
+                          : 'border-purple-200 bg-white hover:bg-purple-50'
+                      }`}
+                      aria-expanded={openSections.has('logo')}
+                      aria-controls="panel-logo"
+                      role="button"
+                      data-target="#panel-logo"
+                    >
+                      <ImageIcon className="h-5 w-5 text-purple-600" />
+                      <span className="font-medium text-gray-800">Logo</span>
+                      <ChevronDown 
+                        className={`ml-auto h-4 w-4 text-gray-500 transition-transform ${
+                          openSections.has('logo') ? 'rotate-180' : ''
+                        }`}
+                      />
+                    </button>
                     <AccordionContent className="pt-2 space-y-6">
                       {/* Upload Section */}
                       <div className="space-y-3">
@@ -1193,9 +1264,27 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
                   </AccordionItem>
 
                   <AccordionItem value="frame">
-                    <AccordionTrigger className="text-sm font-medium hover:text-primary">
-                      Frame
-                    </AccordionTrigger>
+                    <button
+                      onClick={() => toggleSection('frame')}
+                      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleSection('frame'); }}}
+                      className={`w-full flex items-center justify-between gap-3 rounded-xl border px-4 py-3 transition ${
+                        openSections.has('frame') 
+                          ? 'bg-purple-50 border-purple-300' 
+                          : 'border-purple-200 bg-white hover:bg-purple-50'
+                      }`}
+                      aria-expanded={openSections.has('frame')}
+                      aria-controls="panel-frame"
+                      role="button"
+                      data-target="#panel-frame"
+                    >
+                      <Square className="h-5 w-5 text-purple-600" />
+                      <span className="font-medium text-gray-800">Frame</span>
+                      <ChevronDown 
+                        className={`ml-auto h-4 w-4 text-gray-500 transition-transform ${
+                          openSections.has('frame') ? 'rotate-180' : ''
+                        }`}
+                      />
+                    </button>
                     <AccordionContent className="pt-2 space-y-6">
                       {/* Frame Picker */}
                       <div className="space-y-3">
