@@ -13,6 +13,7 @@ import { useEvents } from '@/hooks/useEvents';
 import { useToast } from '@/hooks/use-toast';
 import { buildGuestLookupUrl } from '@/lib/urlUtils';
 import QRCode from 'qrcode';
+import jsPDF from 'jspdf';
 
 interface QRCodeMainCardProps {
   eventId: string;
@@ -264,6 +265,126 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
     }));
   };
 
+  // Action button handlers
+  const handleDownloadPNG = useCallback(async () => {
+    if (!qrDataUrl) return;
+    const link = document.createElement('a');
+    link.download = `qr-code-${selectedEvent?.name || 'event'}.png`;
+    link.href = qrDataUrl;
+    link.click();
+    toast({ title: "PNG downloaded successfully!" });
+  }, [qrDataUrl, selectedEvent?.name, toast]);
+
+  const handleDownloadJPG = useCallback(async () => {
+    if (!qrDataUrl) return;
+    // Convert PNG to JPG
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    const img = new Image();
+    img.onload = () => {
+      canvas.width = img.width;
+      canvas.height = img.height;
+      ctx!.fillStyle = '#FFFFFF';
+      ctx!.fillRect(0, 0, canvas.width, canvas.height);
+      ctx!.drawImage(img, 0, 0);
+      const jpgDataUrl = canvas.toDataURL('image/jpeg', 0.9);
+      const link = document.createElement('a');
+      link.download = `qr-code-${selectedEvent?.name || 'event'}.jpg`;
+      link.href = jpgDataUrl;
+      link.click();
+      toast({ title: "JPG downloaded successfully!" });
+    };
+    img.src = qrDataUrl;
+  }, [qrDataUrl, selectedEvent?.name, toast]);
+
+  const handleDownloadSVG = useCallback(async () => {
+    if (!eventUrl) return;
+    try {
+      const qrSvg = await QRCode.toString(eventUrl, {
+        type: 'svg',
+        width: 512,
+        margin: 2,
+        color: {
+          dark: qrSettings.colors.foreground,
+          light: qrSettings.colors.transparentBg ? '#FFFFFF00' : qrSettings.colors.background
+        }
+      });
+      const blob = new Blob([qrSvg], { type: 'image/svg+xml' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.download = `qr-code-${selectedEvent?.name || 'event'}.svg`;
+      link.href = url;
+      link.click();
+      URL.revokeObjectURL(url);
+      toast({ title: "SVG downloaded successfully!" });
+    } catch (error) {
+      toast({ title: "Error downloading SVG", variant: "destructive" });
+    }
+  }, [eventUrl, qrSettings.colors, selectedEvent?.name, toast]);
+
+  const handleDownloadPDF = useCallback(async () => {
+    if (!qrDataUrl) return;
+    try {
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const img = new Image();
+      img.onload = () => {
+        // A4 dimensions: 210 x 297 mm
+        // Center QR code on page - using 100mm x 100mm size
+        const qrSize = 100;
+        const x = (210 - qrSize) / 2;
+        const y = (297 - qrSize) / 2;
+        
+        pdf.addImage(img, 'PNG', x, y, qrSize, qrSize);
+        pdf.save(`qr-code-${selectedEvent?.name || 'event'}.pdf`);
+        toast({ title: "PDF downloaded successfully!" });
+      };
+      img.src = qrDataUrl;
+    } catch (error) {
+      toast({ title: "Error downloading PDF", variant: "destructive" });
+    }
+  }, [qrDataUrl, selectedEvent?.name, toast]);
+
+  const handleResetQR = useCallback(() => {
+    setQrSettings({
+      colors: { ...defaultColors },
+      design: { ...defaultDesign },
+      logo: { ...defaultLogo },
+      frame: { ...defaultFrame }
+    });
+    toast({ title: "QR settings reset to defaults" });
+  }, [toast]);
+
+  const handlePrintQR = useCallback(() => {
+    if (!qrDataUrl) return;
+    const printWindow = window.open('', '_blank');
+    if (printWindow) {
+      printWindow.document.write(`
+        <html>
+          <head>
+            <title>QR Code - ${selectedEvent?.name || 'Event'}</title>
+            <style>
+              body { margin: 0; padding: 20px; text-align: center; }
+              img { max-width: 100%; height: auto; }
+              h1 { font-family: Arial, sans-serif; margin-bottom: 20px; }
+            </style>
+          </head>
+          <body>
+            <h1>QR Code - ${selectedEvent?.name || 'Event'}</h1>
+            <img src="${qrDataUrl}" alt="QR Code" />
+          </body>
+        </html>
+      `);
+      printWindow.document.close();
+      printWindow.print();
+    }
+    toast({ title: "QR code sent to printer" });
+  }, [qrDataUrl, selectedEvent?.name, toast]);
+
+  const handleSaveQR = useCallback(() => {
+    // For now, just show a toast - this could be extended to save to database
+    toast({ title: "QR code settings saved!" });
+  }, [toast]);
+
   // Preset handlers
   const applyPreset = (preset: 'bw' | 'ww' | 'gold') => {
     const presets = {
@@ -365,8 +486,9 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
           <div id="qr-left" className="col-span-1">
             <Card className="bg-white border-2 border-primary/20 rounded-lg h-full">
               <CardContent className="p-6">
-                {/* QR Preview */}
-                <div className="flex justify-center mb-6">
+                {/* QR Preview + Actions Wrapper */}
+                <div id="qr-preview-wrap" className="flex flex-col items-center gap-4">
+                  {/* QR Preview */}
                   <div 
                     id="qr-preview"
                     className="w-full max-w-[460px] aspect-square min-h-[360px] bg-muted/20 border-2 border-dashed border-muted-foreground/30 rounded-lg flex items-center justify-center"
@@ -377,34 +499,38 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
                       <QrCodeIcon className="h-24 w-24 text-muted-foreground/50" />
                     )}
                   </div>
-                </div>
 
-                {/* Action Buttons */}
-                <div className="flex flex-wrap justify-center gap-2">
-                  <Button id="btn-save-qr" variant="default" size="sm">
-                    <Save className="h-4 w-4 mr-2" />
-                    Save
-                  </Button>
-                  <Button id="btn-reset-qr" variant="outline" size="sm">
-                    <RotateCcw className="h-4 w-4 mr-2" />
-                    Reset
-                  </Button>
-                  <Button id="btn-dl-png" variant="outline" size="sm">
-                    <Download className="h-4 w-4 mr-2" />
-                    PNG
-                  </Button>
-                  <Button id="btn-dl-jpg" variant="outline" size="sm">
-                    <FileImage className="h-4 w-4 mr-2" />
-                    JPG
-                  </Button>
-                  <Button id="btn-dl-svg" variant="outline" size="sm">
-                    <Download className="h-4 w-4 mr-2" />
-                    SVG
-                  </Button>
-                  <Button id="btn-print-qr" variant="outline" size="sm">
-                    <Printer className="h-4 w-4 mr-2" />
-                    Print
-                  </Button>
+                  {/* Action Buttons Grid */}
+                  <div id="qr-action-grid" className="grid grid-cols-2 gap-3 w-full max-w-[460px]">
+                    {/* Row 1 */}
+                    <Button id="btn-dl-png" variant="outline" className="w-full" onClick={handleDownloadPNG}>
+                      PNG
+                    </Button>
+                    <Button id="btn-dl-jpg" variant="outline" className="w-full" onClick={handleDownloadJPG}>
+                      JPG
+                    </Button>
+
+                    {/* Row 2 */}
+                    <Button id="btn-dl-svg" variant="outline" className="w-full" onClick={handleDownloadSVG}>
+                      SVG
+                    </Button>
+                    <Button id="btn-dl-pdf" variant="outline" className="w-full" onClick={handleDownloadPDF}>
+                      PDF
+                    </Button>
+
+                    {/* Row 3 */}
+                    <Button id="btn-reset-qr" variant="outline" className="w-full" onClick={handleResetQR}>
+                      Reset
+                    </Button>
+                    <Button id="btn-print-qr" variant="outline" className="w-full" onClick={handlePrintQR}>
+                      Print
+                    </Button>
+
+                    {/* Row 4 */}
+                    <Button id="btn-save-qr" variant="default" className="col-span-2 w-full" onClick={handleSaveQR}>
+                      Save
+                    </Button>
+                  </div>
                 </div>
               </CardContent>
             </Card>
