@@ -34,9 +34,9 @@ export const generateTableLayout = (
 const generatePrintReadyGridLayout = (tables: TableWithGuestCount[]): TablePosition[] => {
   if (tables.length === 0) return [];
 
-  // Fixed 3 columns, 3 rows (max 9 tables) optimized for A4
+  // Fixed 3 columns, 4 rows (max 12 tables) optimized for A4
   const cols = 3;
-  const rows = 3;
+  const rows = 4;
 
   // 5mm margins converted to normalized coordinates for A4 (210x297mm)
   const marginX = 5 / 210; // ~0.024 (2.4%)
@@ -46,11 +46,11 @@ const generatePrintReadyGridLayout = (tables: TableWithGuestCount[]): TablePosit
   const availableWidth = 1 - 2 * marginX;
   const availableHeight = 1 - 2 * marginY;
 
-  // Base sizes (before scaling)
-  const baseTableWidth = 0.28;  // ~59mm on A4
-  const baseTableHeight = 0.35; // ~104mm on A4 (fits up to 12 names)
+  // Base sizes (before scaling) - optimized for 4 rows
+  const baseTableWidth = 0.26;  // ~55mm on A4
+  const baseTableHeight = 0.20; // ~59mm on A4 (fits guest names within table)
   const baseGapX = 0.08;        // ~17mm horizontal gap
-  const baseGapY = 0.05;        // ~15mm vertical gap
+  const baseGapY = 0.04;        // ~12mm vertical gap
 
   // Compute total content size with base dimensions
   const baseTotalWidth = cols * baseTableWidth + (cols - 1) * baseGapX;

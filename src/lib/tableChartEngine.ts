@@ -235,16 +235,31 @@ export const generateChartSVG = (
     `;
 
 
-    // Guest Names - show all up to 12
+    // Guest Names - positioned within table boundaries
     if (settings.includeNames && tableGuests.length > 0) {
-      tableGuests.slice(0, 12).forEach((guest, guestIndex) => {
-        const colors = getGuestColor(guest, table);
-        const guestY = scaledY + 45 + (guestIndex * (fontSize.guest + 2));
+      tableGuests.slice(0, 8).forEach((guest, guestIndex) => {
+        // Dynamic font size based on table size and guest count
+        const dynamicFontSize = Math.max(fontSize.guest * 0.7, Math.min(fontSize.guest, scaledWidth / 12));
         
+        // Position names within table boundaries
+        const padding = isRound ? scaledWidth * 0.15 : scaledWidth * 0.1;
+        const availableWidth = scaledWidth - (padding * 2);
+        
+        // Calculate grid layout for names within the table
+        const namesPerRow = tableGuests.length <= 4 ? 2 : 3;
+        const row = Math.floor(guestIndex / namesPerRow);
+        const col = guestIndex % namesPerRow;
+        
+        // Position within available space
+        const nameX = scaledX + padding + (col + 0.5) * (availableWidth / namesPerRow);
+        const nameY = scaledY + padding + 35 + row * (dynamicFontSize + 3);
+
+        const colors = getGuestColor(guest, table);
+
         svgContent += `
-          <text x="${scaledX + scaledWidth / 2}" y="${guestY}" 
+          <text x="${nameX}" y="${nameY}" 
                 text-anchor="middle" font-family="Arial, sans-serif" 
-                font-size="${fontSize.guest}" fill="${colors.text}">
+                font-size="${dynamicFontSize}" fill="${colors.text}">
             ${`${guest.first_name} ${guest.last_name || ''}`.trim()}
           </text>
         `;

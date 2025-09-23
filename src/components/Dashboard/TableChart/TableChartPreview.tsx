@@ -166,28 +166,41 @@ export const TableChartPreview: React.FC<TableChartPreviewProps> = ({
               </text>
 
 
-              {/* Guest Names - show all up to 12 */}
-              {settings.includeNames && tableGuests.length > 0 && (
-                <g>
-                  {tableGuests.slice(0, 12).map((guest, guestIndex) => {
-                    const colors = getColorScheme(guest, table);
-                    const guestY = scaledY + 40 + (guestIndex * 12);
-                    
-                    return (
-                      <text
-                        key={guest.id}
-                        x={scaledX + scaledWidth / 2}
-                        y={guestY}
-                        textAnchor="middle"
-                        fill={colors.text}
-                        fontSize={settings.fontSize === 'large' ? '12' : settings.fontSize === 'medium' ? '10' : '9'}
-                      >
-                        {`${guest.first_name} ${guest.last_name || ''}`.trim()}
-                      </text>
-                    );
-                  })}
-                </g>
-              )}
+              {/* Guest Names - positioned within table boundaries */}
+              {settings.includeNames && tableGuests.slice(0, 8).map((guest, guestIndex) => {
+                // Dynamic font size based on table size and guest count
+                const dynamicFontSize = Math.max(8, Math.min(12, scaledWidth / 10));
+                
+                // Position names within table boundaries
+                const padding = settings.tableShape === 'round' ? scaledWidth * 0.15 : scaledWidth * 0.1;
+                const availableWidth = scaledWidth - (padding * 2);
+                const availableHeight = scaledHeight - (padding * 2);
+                
+                // Calculate grid layout for names within the table
+                const namesPerRow = tableGuests.length <= 4 ? 2 : 3;
+                const row = Math.floor(guestIndex / namesPerRow);
+                const col = guestIndex % namesPerRow;
+                
+                // Position within available space
+                const nameX = scaledX + padding + (col + 0.5) * (availableWidth / namesPerRow);
+                const nameY = scaledY + padding + 30 + row * (dynamicFontSize + 4);
+
+                const colors = getColorScheme(guest, table);
+
+                return (
+                  <text
+                    key={guest.id}
+                    x={nameX}
+                    y={nameY}
+                    textAnchor="middle"
+                    fontSize={dynamicFontSize}
+                    fill={colors.text}
+                    fontFamily="Inter, sans-serif"
+                  >
+                    {`${guest.first_name} ${guest.last_name || ''}`.trim()}
+                  </text>
+                );
+              })}
 
               {/* Color coding indicator */}
               {settings.colorCoding !== 'none' && (
