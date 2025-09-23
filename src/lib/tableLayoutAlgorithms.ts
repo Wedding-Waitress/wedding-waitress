@@ -46,9 +46,9 @@ const generatePrintReadyGridLayout = (tables: TableWithGuestCount[]): TablePosit
   const availableWidth = 1 - 2 * marginX;
   const availableHeight = 1 - 2 * marginY;
 
-  // Base sizes (before scaling) - optimized for 4 rows
-  const baseTableWidth = 0.26;  // ~55mm on A4
-  const baseTableHeight = 0.20; // ~59mm on A4 (fits guest names within table)
+  // Base sizes (before scaling) - optimized for 4 rows, slightly larger tables
+  const baseTableWidth = 0.28;  // ~59mm on A4 (slightly larger)
+  const baseTableHeight = 0.22; // ~65mm on A4 (slightly larger, fits more guest names)
   const baseGapX = 0.08;        // ~17mm horizontal gap
   const baseGapY = 0.04;        // ~12mm vertical gap
 
@@ -104,9 +104,9 @@ const generateGridLayout = (tables: TableWithGuestCount[]): TablePosition[] => {
   const cols = Math.ceil(Math.sqrt(tableCount));
   const rows = Math.ceil(tableCount / cols);
 
-  // Base table size
-  const baseWidth = 0.8 / cols;
-  const baseHeight = 0.8 / rows;
+  // Base table size - slightly larger
+  const baseWidth = 0.85 / cols;
+  const baseHeight = 0.85 / rows;
 
   // Padding between tables
   const paddingX = 0.1 / (cols + 1);

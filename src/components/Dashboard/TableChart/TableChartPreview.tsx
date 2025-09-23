@@ -187,49 +187,34 @@ export const TableChartPreview: React.FC<TableChartPreviewProps> = ({
                 const startY = scaledY + tablePadding + guestFontSize * 1.5;
                 const lineHeight = guestFontSize * 1.2; // Tighter line spacing
                 
-                // Group guests in pairs and display as "Name A - Name B"
-                const guestPairs = [];
-                for (let i = 0; i < displayedGuests.length; i += 2) {
-                  const guest1 = displayedGuests[i];
-                  const guest2 = displayedGuests[i + 1];
-                  guestPairs.push({ guest1, guest2 });
-                }
-                
-                return guestPairs.map((pair, pairIndex) => {
-                  const nameY = startY + (pairIndex * lineHeight);
+                // Display each guest individually on their own line, centered
+                return displayedGuests.map((guest, guestIndex) => {
+                  const nameY = startY + (guestIndex * lineHeight);
                   
-                  // Enhanced boundary checking for round tables
+                  // Check if name fits within table boundaries
                   if (settings.tableShape === 'round') {
-                    const centerX = scaledX + scaledWidth / 2;
-                    const centerY = scaledY + scaledHeight / 2;
-                    const radius = (Math.min(scaledWidth, scaledHeight) / 2) - tablePadding;
-                    const distanceFromCenter = Math.sqrt(
-                      Math.pow(scaledX + scaledWidth / 2 - centerX, 2) + Math.pow(nameY - centerY, 2)
-                    );
-                    if (distanceFromCenter > radius) {
-                      return null; // Skip names that would be outside the circle
-                    }
+                    const distanceFromCenter = Math.abs(nameY - (scaledY + scaledHeight / 2));
+                    const maxDistanceAtY = Math.sqrt(Math.pow(scaledHeight / 2, 2) - Math.pow(distanceFromCenter, 2));
+                    if (maxDistanceAtY < scaledWidth * 0.3) return null;
+                  } else {
+                    if (nameY > scaledY + scaledHeight - tablePadding) return null;
                   }
-                  
-                  const guest1Colors = getColorScheme(pair.guest1, table);
-                  
-                  // Create combined text with dash separator
-                  const guest1Name = `${pair.guest1.first_name} ${pair.guest1.last_name || ''}`.trim();
-                  const guest2Name = pair.guest2 ? `${pair.guest2.first_name} ${pair.guest2.last_name || ''}`.trim() : '';
-                  const combinedText = guest2Name ? `${guest1Name} - ${guest2Name}` : guest1Name;
-                  
+
+                  const guestColors = getColorScheme(guest, table);
+                  const guestName = `${guest.first_name} ${guest.last_name || ''}`.trim();
+
                   return (
                     <text
-                      key={`${table.id}-pair-${pairIndex}`}
+                      key={`${table.id}-guest-${guestIndex}`}
                       x={scaledX + scaledWidth / 2}
                       y={nameY}
                       textAnchor="middle"
                       fontSize={guestFontSize}
-                      fill={guest1Colors.text}
+                      fill={guestColors.text}
                       fontFamily="Inter, sans-serif"
                       fontWeight="500"
                     >
-                      {combinedText}
+                      {guestName}
                     </text>
                   );
                 });

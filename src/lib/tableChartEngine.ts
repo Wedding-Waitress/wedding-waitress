@@ -253,42 +253,27 @@ export const generateChartSVG = (
         const startY = scaledY + tablePadding + guestFontSize * 1.5;
         const lineHeight = guestFontSize * 1.2; // Tighter line spacing
         
-        // Group guests in pairs and display as "Name A - Name B"
-        const guestPairs = [];
-        for (let i = 0; i < displayedGuests.length; i += 2) {
-          const guest1 = displayedGuests[i];
-          const guest2 = displayedGuests[i + 1];
-          guestPairs.push({ guest1, guest2 });
-        }
-        
-        guestPairs.forEach((pair, pairIndex) => {
-          const nameY = startY + (pairIndex * lineHeight);
+        // Display each guest individually on their own line, centered
+        displayedGuests.forEach((guest, guestIndex) => {
+          const nameY = startY + (guestIndex * lineHeight);
           
-          // Enhanced boundary checking for round tables
+          // Check if name fits within table boundaries
           if (isRound) {
-            const centerX = scaledX + scaledWidth / 2;
-            const centerY = scaledY + scaledHeight / 2;
-            const radius = (Math.min(scaledWidth, scaledHeight) / 2) - tablePadding;
-            const distanceFromCenter = Math.sqrt(
-              Math.pow(scaledX + scaledWidth / 2 - centerX, 2) + Math.pow(nameY - centerY, 2)
-            );
-            if (distanceFromCenter > radius) {
-              return; // Skip names that would be outside the circle
-            }
+            const distanceFromCenter = Math.abs(nameY - (scaledY + scaledHeight / 2));
+            const maxDistanceAtY = Math.sqrt(Math.pow(scaledHeight / 2, 2) - Math.pow(distanceFromCenter, 2));
+            if (maxDistanceAtY < scaledWidth * 0.3) return;
+          } else {
+            if (nameY > scaledY + scaledHeight - tablePadding) return;
           }
-          
-          const guest1Colors = getGuestColor(pair.guest1, table);
-          
-          // Create combined text with dash separator
-          const guest1Name = `${pair.guest1.first_name} ${pair.guest1.last_name || ''}`.trim();
-          const guest2Name = pair.guest2 ? `${pair.guest2.first_name} ${pair.guest2.last_name || ''}`.trim() : '';
-          const combinedText = guest2Name ? `${guest1Name} - ${guest2Name}` : guest1Name;
-          
+
+          const guestColors = getGuestColor(guest, table);
+          const guestName = `${guest.first_name} ${guest.last_name || ''}`.trim();
+
           svgContent += `
             <text x="${scaledX + scaledWidth / 2}" y="${nameY}" 
                   text-anchor="middle" font-family="Arial, sans-serif" 
-                  font-size="${guestFontSize}" fill="${guest1Colors.text}" font-weight="500">
-              ${combinedText}
+                  font-size="${guestFontSize}" fill="${guestColors.text}" font-weight="500">
+              ${guestName}
             </text>
           `;
         });
