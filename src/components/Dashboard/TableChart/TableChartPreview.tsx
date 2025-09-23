@@ -166,24 +166,52 @@ export const TableChartPreview: React.FC<TableChartPreviewProps> = ({
               </text>
 
 
-              {/* Guest Names - positioned within table boundaries */}
+              {/* Guest Names - positioned within table boundaries with 2 names per row */}
               {settings.includeNames && tableGuests.slice(0, 8).map((guest, guestIndex) => {
-                // Dynamic font size based on table size and guest count
-                const dynamicFontSize = Math.max(8, Math.min(12, scaledWidth / 10));
+                // Fixed layout: exactly 2 names per row
+                const namesPerRow = 2;
+                const totalRows = Math.ceil(tableGuests.length / namesPerRow);
                 
-                // Position names within table boundaries
-                const padding = settings.tableShape === 'round' ? scaledWidth * 0.15 : scaledWidth * 0.1;
+                // Calculate available space for text with proper padding
+                const padding = settings.tableShape === 'round' ? scaledWidth * 0.2 : scaledWidth * 0.15;
                 const availableWidth = scaledWidth - (padding * 2);
                 const availableHeight = scaledHeight - (padding * 2);
                 
-                // Calculate grid layout for names within the table
-                const namesPerRow = tableGuests.length <= 4 ? 2 : 3;
+                // Dynamic font size based on table size and guest count
+                const baseFontSize = Math.min(availableWidth / 8, availableHeight / (totalRows * 2.5));
+                const dynamicFontSize = Math.max(8, Math.min(14, baseFontSize));
+                
+                // Vertical spacing between rows - increased for better readability
+                const lineHeight = dynamicFontSize * 2; // Doubled spacing between lines
+                
+                // Start positioning - leave more space from top for table number
+                const tableNumberSpace = dynamicFontSize * 2;
+                const startY = scaledY + padding + tableNumberSpace + (lineHeight * 0.7);
+                
                 const row = Math.floor(guestIndex / namesPerRow);
                 const col = guestIndex % namesPerRow;
                 
-                // Position within available space
-                const nameX = scaledX + padding + (col + 0.5) * (availableWidth / namesPerRow);
-                const nameY = scaledY + padding + 30 + row * (dynamicFontSize + 4);
+                // Calculate X position for 2-column layout
+                const columnWidth = availableWidth / 2;
+                const nameX = scaledX + padding + (col * columnWidth) + (columnWidth / 2);
+                
+                // Calculate Y position with proper vertical spacing
+                const nameY = startY + (row * lineHeight);
+                
+                // Check if position is within table bounds (important for round tables)
+                let isWithinBounds = true;
+                if (settings.tableShape === 'round') {
+                  const centerX = scaledX + scaledWidth / 2;
+                  const centerY = scaledY + scaledHeight / 2;
+                  const radius = (Math.min(scaledWidth, scaledHeight) / 2) - padding;
+                  const distance = Math.sqrt(Math.pow(nameX - centerX, 2) + Math.pow(nameY - centerY, 2));
+                  isWithinBounds = distance <= radius;
+                }
+
+                // Skip if outside bounds or below table area
+                if (!isWithinBounds || nameY > scaledY + scaledHeight - padding) {
+                  return null;
+                }
 
                 const colors = getColorScheme(guest, table);
 
