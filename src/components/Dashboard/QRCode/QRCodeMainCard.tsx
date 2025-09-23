@@ -564,7 +564,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
                   onValueChange={(values) => setOpenSections(new Set(values))}
                   className="w-full divide-y-0 space-y-3"
                 >
-                  <AccordionItem value="colors" className="qr-acc-item rounded-xl border border-purple-200 overflow-hidden bg-white border-0">
+                  <AccordionItem value="colors" className={`qr-acc-item rounded-xl border-2 overflow-hidden bg-white ${openSections.has('colors') ? 'border-purple-600' : 'border-purple-500'}`}>
                     <button
                       onClick={() => toggleSection('colors')}
                       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleSection('colors'); }}}
@@ -833,7 +833,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
                     </AccordionContent>
                   </AccordionItem>
 
-                  <AccordionItem value="design" className="qr-acc-item rounded-xl border border-purple-200 overflow-hidden bg-white border-0">
+                  <AccordionItem value="design" className={`qr-acc-item rounded-xl border-2 overflow-hidden bg-white ${openSections.has('design') ? 'border-purple-600' : 'border-purple-500'}`}>
                     <button
                       onClick={() => toggleSection('design')}
                       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleSection('design'); }}}
@@ -1110,7 +1110,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
                     </AccordionContent>
                   </AccordionItem>
 
-                  <AccordionItem value="logo" className="qr-acc-item rounded-xl border border-purple-200 overflow-hidden bg-white border-0">
+                  <AccordionItem value="logo" className={`qr-acc-item rounded-xl border-2 overflow-hidden bg-white ${openSections.has('logo') ? 'border-purple-600' : 'border-purple-500'}`}>
                     <button
                       onClick={() => toggleSection('logo')}
                       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleSection('logo'); }}}
@@ -1264,7 +1264,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
                     </AccordionContent>
                   </AccordionItem>
 
-                  <AccordionItem value="frame" className="qr-acc-item rounded-xl border border-purple-200 overflow-hidden bg-white border-0">
+                  <AccordionItem value="frame" className={`qr-acc-item rounded-xl border-2 overflow-hidden bg-white ${openSections.has('frame') ? 'border-purple-600' : 'border-purple-500'}`}>
                     <button
                       onClick={() => toggleSection('frame')}
                       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleSection('frame'); }}}
