@@ -171,7 +171,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
   const [contrastWarning, setContrastWarning] = useState<boolean>(false);
   
   // Accordion state - track which sections are open
-  const [openSections, setOpenSections] = useState<Set<string>>(new Set(['colors']));
+  const [openSections, setOpenSections] = useState<Set<string>>(new Set());
   
   // Toggle accordion sections
   const toggleSection = (section: string) => {
