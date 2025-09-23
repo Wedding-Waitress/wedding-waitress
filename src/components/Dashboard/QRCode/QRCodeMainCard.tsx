@@ -14,6 +14,7 @@ import { useToast } from '@/hooks/use-toast';
 import { buildGuestLookupUrl } from '@/lib/urlUtils';
 import QRCode from 'qrcode';
 import jsPDF from 'jspdf';
+import { AdvancedQRGenerator } from '@/lib/advancedQRGenerator';
 
 interface QRCodeMainCardProps {
   eventId: string;
@@ -190,9 +191,6 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
     }
   };
 
-  // Import AdvancedQRGenerator
-  const { AdvancedQRGenerator } = require('@/lib/advancedQRGenerator');
-
   // High contrast validation functions
   const hexToRgb = (hex: string) => {
     const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
@@ -280,7 +278,6 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
       };
 
       // Use AdvancedQRGenerator for better customization
-      const { AdvancedQRGenerator } = await import('@/lib/advancedQRGenerator');
       const generator = new AdvancedQRGenerator(400);
       const qrDataURL = await generator.generate(eventUrl, qrCodeSettings);
 
