@@ -7,8 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Download, Copy, QrCode as QrCodeIcon, Settings } from 'lucide-react';
+import { Download, Copy, QrCode as QrCodeIcon, ExternalLink } from 'lucide-react';
 import { AdvancedQRGenerator } from '@/lib/advancedQRGenerator';
 import { AdvancedQRCustomizer } from './AdvancedQRCustomizer';
 import { useQRCodeSettings, QRCodeSettings } from '@/hooks/useQRCodeSettings';
@@ -65,13 +64,40 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
     }
   };
 
-  const handleDownload = async (format: 'png' | 'jpg') => {
+  const handleDownload = async (format: 'png' | 'jpg' | 'svg') => {
     if (!qrDataUrl) return;
 
     const link = document.createElement('a');
     link.download = `qr-code-${selectedEvent?.name || 'event'}.${format}`;
     
-    if (format === 'jpg') {
+    if (format === 'svg') {
+      // Generate SVG version using QRCode library
+      try {
+        const QRCode = await import('qrcode');
+        const svgString = await QRCode.toString(qrUrl, {
+          type: 'svg',
+          errorCorrectionLevel: 'H',
+          margin: 2,
+          width: settings?.output_size || 512,
+          color: {
+            dark: settings?.foreground_color || '#000000',
+            light: settings?.background_color || '#ffffff'
+          }
+        });
+        const blob = new Blob([svgString], { type: 'image/svg+xml' });
+        link.href = URL.createObjectURL(blob);
+        link.click();
+        URL.revokeObjectURL(link.href);
+      } catch (error) {
+        console.error('Error generating SVG:', error);
+        toast({
+          title: "Error",
+          description: "Failed to generate SVG",
+          variant: "destructive",
+        });
+        return;
+      }
+    } else if (format === 'jpg') {
       // Convert PNG to JPG
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d')!;
@@ -104,8 +130,14 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
     navigator.clipboard.writeText(qrUrl);
     toast({
       title: "Success",
-      description: "Event link copied to clipboard",
+      description: "Live view link copied to clipboard",
     });
+  };
+
+  const openLiveView = () => {
+    if (!qrUrl) return;
+    
+    window.open(qrUrl, '_blank');
   };
 
   if (loading) {
@@ -137,16 +169,12 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <Tabs defaultValue="preview" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="preview">Live Preview</TabsTrigger>
-            <TabsTrigger value="advanced">Advanced Editor</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="preview" className="space-y-4">
-            {/* Live Preview */}
-            <div className="border rounded-lg p-6 bg-muted/50 text-center">
-              <h3 className="text-sm font-medium mb-4">Live Preview</h3>
+        {/* Two-column layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Left Box - QR Code Display and Actions */}
+          <div className="border rounded-lg p-6 bg-muted/30 space-y-4">
+            {/* QR Code Display */}
+            <div className="text-center">
               {qrDataUrl ? (
                 <img 
                   src={qrDataUrl} 
@@ -154,120 +182,70 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
                   className="max-w-[280px] mx-auto border rounded-lg bg-white p-2"
                 />
               ) : (
-                <div className="w-[280px] h-[280px] mx-auto border-2 border-dashed border-muted-foreground/25 rounded-lg flex items-center justify-center">
+                <div className="w-[280px] h-[280px] mx-auto border-2 border-dashed border-muted-foreground/25 rounded-lg flex items-center justify-center bg-white">
                   <QrCodeIcon className="h-16 w-16 text-muted-foreground" />
                 </div>
               )}
-              <div className="mt-3 p-2 bg-muted/30 rounded border">
-                <p className="text-xs font-medium text-foreground mb-1">Scans to:</p>
-                <div className="flex items-center gap-2">
-                  <p className="text-xs text-muted-foreground truncate flex-1">
-                    {qrUrl || 'No event selected'}
-                  </p>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="h-6 px-2 text-xs"
-                    onClick={copyLink}
-                    disabled={!qrUrl}
+            </div>
+
+            {/* Action Buttons */}
+            <div className="space-y-3">
+              {/* Live View Buttons */}
+              <div className="flex gap-2">
+                <Button 
+                  onClick={openLiveView}
+                  className="flex-1"
+                  disabled={!qrUrl}
+                >
+                  <ExternalLink className="h-4 w-4 mr-2" />
+                  Open Live View
+                </Button>
+                <Button 
+                  onClick={copyLink} 
+                  variant="outline" 
+                  className="flex-1"
+                  disabled={!qrUrl}
+                >
+                  <Copy className="h-4 w-4 mr-2" />
+                  Copy Live View
+                </Button>
+              </div>
+              
+              {/* Download Options */}
+              <div className="space-y-2">
+                <p className="text-sm font-medium">Download:</p>
+                <div className="flex gap-2">
+                  <Button 
+                    onClick={() => handleDownload('png')} 
+                    variant="outline"
+                    className="flex-1"
+                    disabled={!qrDataUrl}
                   >
-                    <Copy className="h-3 w-3" />
+                    PNG
+                  </Button>
+                  <Button 
+                    onClick={() => handleDownload('jpg')} 
+                    variant="outline" 
+                    className="flex-1"
+                    disabled={!qrDataUrl}
+                  >
+                    JPG
+                  </Button>
+                  <Button 
+                    onClick={() => handleDownload('svg')} 
+                    variant="outline" 
+                    className="flex-1"
+                    disabled={!qrDataUrl}
+                  >
+                    SVG Vector
                   </Button>
                 </div>
               </div>
             </div>
+          </div>
 
-            {/* Quick Customization */}
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="foreground-color">Foreground</Label>
-                  <div className="flex gap-2">
-                    <Input
-                      type="color"
-                      value={settings?.foreground_color || '#000000'}
-                      onChange={(e) => updateSettings({ foreground_color: e.target.value })}
-                      className="w-12 h-9 p-0 border-0"
-                    />
-                    <Input
-                      value={settings?.foreground_color || '#000000'}
-                      onChange={(e) => updateSettings({ foreground_color: e.target.value })}
-                      className="text-xs"
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="background-color">Background</Label>
-                  <div className="flex gap-2">
-                    <Input
-                      type="color"
-                      value={settings?.background_color || '#ffffff'}
-                      onChange={(e) => updateSettings({ background_color: e.target.value })}
-                      className="w-12 h-9 p-0 border-0"
-                    />
-                    <Input
-                      value={settings?.background_color || '#ffffff'}
-                      onChange={(e) => updateSettings({ background_color: e.target.value })}
-                      className="text-xs"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="scan-text">Scan Text</Label>
-                  <Switch
-                    checked={settings?.has_scan_text || false}
-                    onCheckedChange={(checked) => updateSettings({ has_scan_text: checked })}
-                  />
-                </div>
-                {settings?.has_scan_text && (
-                  <Input
-                    placeholder="SCAN ME"
-                    value={settings?.scan_text || ''}
-                    onChange={(e) => updateSettings({ scan_text: e.target.value })}
-                  />
-                )}
-              </div>
-            </div>
-
-            {/* Download Options */}
-            <div className="space-y-3">
-              <div className="flex gap-2">
-                <Button 
-                  onClick={() => handleDownload('png')} 
-                  className="flex-1"
-                  disabled={!qrDataUrl}
-                >
-                  <Download className="h-4 w-4 mr-2" />
-                  PNG
-                </Button>
-                <Button 
-                  onClick={() => handleDownload('jpg')} 
-                  variant="outline" 
-                  className="flex-1"
-                  disabled={!qrDataUrl}
-                >
-                  <Download className="h-4 w-4 mr-2" />
-                  JPG
-                </Button>
-              </div>
-              
-              <Button 
-                onClick={copyLink} 
-                variant="outline" 
-                className="w-full"
-                disabled={!selectedEvent}
-              >
-                <Copy className="h-4 w-4 mr-2" />
-                Copy Event Link
-              </Button>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="advanced" className="space-y-4">
+          {/* Right Box - Advanced Editor Features */}
+          <div className="border rounded-lg p-6 bg-muted/30">
             {settings && (
               <AdvancedQRCustomizer
                 eventId={eventId}
@@ -281,8 +259,8 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
                 }}
               />
             )}
-          </TabsContent>
-        </Tabs>
+          </div>
+        </div>
       </CardContent>
     </Card>
   );
