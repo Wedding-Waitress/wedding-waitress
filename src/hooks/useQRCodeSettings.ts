@@ -11,8 +11,6 @@ export interface QRCodeSettings {
   pattern_style: string;
   background_color: string;
   foreground_color: string;
-  marker_border_color: string;
-  marker_center_color: string;
   background_image_url?: string;
   center_image_url?: string;
   corner_style: string;
@@ -81,8 +79,6 @@ export const useQRCodeSettings = (eventId: string | null) => {
           pattern_style: 'basic',
           background_color: '#ffffff',
           foreground_color: '#0a0a0a',
-          marker_border_color: '#000000',
-          marker_center_color: '#000000',
           corner_style: 'square',
           has_scan_text: true,
           scan_text: 'SCAN ME',

@@ -434,8 +434,6 @@ export type Database = {
           gradient_type: string | null
           has_scan_text: boolean | null
           id: string
-          marker_border_color: string | null
-          marker_center_color: string | null
           output_format: string | null
           output_size: number | null
           pattern: string | null
@@ -467,8 +465,6 @@ export type Database = {
           gradient_type?: string | null
           has_scan_text?: boolean | null
           id?: string
-          marker_border_color?: string | null
-          marker_center_color?: string | null
           output_format?: string | null
           output_size?: number | null
           pattern?: string | null
@@ -500,8 +496,6 @@ export type Database = {
           gradient_type?: string | null
           has_scan_text?: boolean | null
           id?: string
-          marker_border_color?: string | null
-          marker_center_color?: string | null
           output_format?: string | null
           output_size?: number | null
           pattern?: string | null

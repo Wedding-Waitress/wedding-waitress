@@ -149,25 +149,20 @@ export class AdvancedQRGenerator {
 
   private applyQRPattern(matrix: boolean[][], settings: QRCodeSettings) {
     const cellSize = this.canvas.width / matrix.length;
-    
+    this.ctx.fillStyle = settings.foreground_color;
+
     for (let y = 0; y < matrix.length; y++) {
       for (let x = 0; x < matrix[y].length; x++) {
         if (matrix[y][x]) {
-          // Check if this is a marker (finder pattern)
-          const isMarker = this.isMarkerPosition(y, x, matrix.length);
-          this.drawQRCell(x * cellSize, y * cellSize, cellSize, settings, isMarker);
+          this.drawQRCell(x * cellSize, y * cellSize, cellSize, settings);
         }
       }
     }
   }
 
-  private drawQRCell(x: number, y: number, size: number, settings: QRCodeSettings, isMarker: boolean = false) {
+  private drawQRCell(x: number, y: number, size: number, settings: QRCodeSettings) {
     const centerX = x + size / 2;
     const centerY = y + size / 2;
-
-    // Use marker colors for finder patterns, regular foreground for data
-    const color = isMarker ? (settings.marker_border_color || settings.foreground_color) : settings.foreground_color;
-    this.ctx.fillStyle = color;
 
     this.ctx.save();
     this.ctx.translate(centerX, centerY);
@@ -311,19 +306,6 @@ export class AdvancedQRGenerator {
     this.ctx.beginPath();
     this.ctx.arc(0, 0, centerRadius, 0, Math.PI * 2);
     this.ctx.fill();
-  }
-
-  private isMarkerPosition(row: number, col: number, matrixSize: number): boolean {
-    // QR Code finder patterns (markers) are located at:
-    // Top-left: (0-6, 0-6)
-    // Top-right: (0-6, matrixSize-7 to matrixSize-1)
-    // Bottom-left: (matrixSize-7 to matrixSize-1, 0-6)
-    
-    const isTopLeft = row <= 6 && col <= 6;
-    const isTopRight = row <= 6 && col >= matrixSize - 7;
-    const isBottomLeft = row >= matrixSize - 7 && col <= 6;
-    
-    return isTopLeft || isTopRight || isBottomLeft;
   }
 
   private applyBorder(settings: QRCodeSettings) {

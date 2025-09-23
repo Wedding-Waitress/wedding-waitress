@@ -14,7 +14,6 @@ import { useToast } from '@/hooks/use-toast';
 import { buildGuestLookupUrl } from '@/lib/urlUtils';
 import QRCode from 'qrcode';
 import jsPDF from 'jspdf';
-import { AdvancedQRGenerator } from '@/lib/advancedQRGenerator';
 
 interface QRCodeMainCardProps {
   eventId: string;
@@ -23,8 +22,6 @@ interface QRCodeMainCardProps {
 interface QRColorsSettings {
   background: string;
   foreground: string;
-  markerBorder: string;
-  markerCenter: string;
 }
 
 interface QRDesignSettings {
@@ -62,9 +59,7 @@ interface QRFrameSettings {
 
 const defaultColors: QRColorsSettings = {
   background: "#ffffff",
-  foreground: "#060606",
-  markerBorder: "#060606",
-  markerCenter: "#060606"
+  foreground: "#060606"
 };
 
 const defaultDesign: QRDesignSettings = {
@@ -191,47 +186,8 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
     }
   };
 
-  // High contrast validation functions
-  const hexToRgb = (hex: string) => {
-    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-    return result ? {
-      r: parseInt(result[1], 16),
-      g: parseInt(result[2], 16),
-      b: parseInt(result[3], 16)
-    } : null;
-  };
-
-  const calculateContrast = (color1: string, color2: string): number => {
-    const rgb1 = hexToRgb(color1);
-    const rgb2 = hexToRgb(color2);
-    
-    if (!rgb1 || !rgb2) return 0;
-    
-    const brightness1 = (rgb1.r * 299 + rgb1.g * 587 + rgb1.b * 114) / 1000;
-    const brightness2 = (rgb2.r * 299 + rgb2.g * 587 + rgb2.b * 114) / 1000;
-    
-    return Math.abs(brightness1 - brightness2) / 255;
-  };
-
-  // Validate and auto-correct marker contrast for reliable scanning
-  const validateMarkerContrast = useCallback(() => {
-    const bgContrast = calculateContrast(qrSettings.colors.markerBorder, qrSettings.colors.background);
-    const centerContrast = calculateContrast(qrSettings.colors.markerCenter, qrSettings.colors.markerBorder);
-    
-    // Ensure high contrast for scanning reliability (minimum 0.5 for markers)
-    if (bgContrast < 0.5) {
-      const correctedColor = qrSettings.colors.background === '#ffffff' ? '#000000' : '#ffffff';
-      updateColors({ markerBorder: correctedColor });
-    }
-    
-    if (centerContrast < 0.3) {
-      const correctedColor = qrSettings.colors.markerBorder === '#ffffff' ? '#000000' : '#ffffff';
-      updateColors({ markerCenter: correctedColor });
-    }
-  }, [qrSettings.colors]);
-
-  // Calculate contrast ratio (simplified WCAG) - keep existing function for compatibility
-  const calculateContrastRatio = useCallback((bg: string, fg: string) => {
+  // Calculate contrast ratio (simplified WCAG)
+  const calculateContrast = useCallback((bg: string, fg: string) => {
     // Simplified contrast calculation
     const bgLum = parseInt(bg.replace('#', ''), 16);
     const fgLum = parseInt(fg.replace('#', ''), 16);
@@ -239,72 +195,35 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
     return ratio;
   }, []);
 
-  // Debounced QR render function using AdvancedQRGenerator
+  // Debounced QR render function
   const renderQR = useCallback(async () => {
     if (!eventUrl) return;
 
     try {
-      // Validate marker contrast before generating
-      validateMarkerContrast();
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
 
-      // Create comprehensive settings object for AdvancedQRGenerator
-      const qrCodeSettings = {
-        event_id: eventId,
-        user_id: "", // This will be set by the hook when saving
-        shape: 'square', // Using square for now, can be extended later
-        pattern: "basic",
-        pattern_style: "basic", 
-        background_color: qrSettings.colors.background,
-        foreground_color: qrSettings.colors.foreground,
-        marker_border_color: qrSettings.colors.markerBorder,
-        marker_center_color: qrSettings.colors.markerCenter,
-        corner_style: "square",
-        has_scan_text: qrSettings.frame.frameId !== 'none',
-        scan_text: qrSettings.frame.label,
-        gradient_type: "none",
-        gradient_colors: [],
-        border_style: "none",
-        border_width: 0,
-        border_color: "#000000",
-        shadow_enabled: false,
-        shadow_blur: 10,
-        shadow_color: "#00000033",
-        center_image_size: 80,
-        background_opacity: 1.0,
-        output_size: 400,
-        output_format: "png",
-        color_palette: "default",
-        advanced_settings: {},
-      };
-
-      // Use AdvancedQRGenerator for better customization
-      const generator = new AdvancedQRGenerator(400);
-      const qrDataURL = await generator.generate(eventUrl, qrCodeSettings);
+      // Generate QR code
+      const qrDataURL = await QRCode.toDataURL(eventUrl, {
+        width: 400,
+        margin: 2,
+        color: {
+          dark: qrSettings.colors.foreground,
+          light: qrSettings.colors.background
+        }
+      });
 
       setQrDataUrl(qrDataURL);
 
-      // Check contrast for warning display
-      const contrast = calculateContrastRatio(qrSettings.colors.background, qrSettings.colors.foreground);
+      // Check contrast
+      const contrast = calculateContrast(qrSettings.colors.background, qrSettings.colors.foreground);
       setContrastWarning(contrast < 4.5);
 
     } catch (error) {
       console.error('Error rendering QR code:', error);
-      // Fallback to basic QR generation
-      try {
-        const qrDataURL = await QRCode.toDataURL(eventUrl, {
-          width: 400,
-          margin: 2,
-          color: {
-            dark: qrSettings.colors.foreground,
-            light: qrSettings.colors.background
-          }
-        });
-        setQrDataUrl(qrDataURL);
-      } catch (fallbackError) {
-        console.error('Fallback QR generation failed:', fallbackError);
-      }
     }
-  }, [eventUrl, qrSettings, eventId, validateMarkerContrast, calculateContrastRatio]);
+  }, [eventUrl, qrSettings.colors, qrSettings.design, qrSettings.logo, qrSettings.frame, calculateContrast]);
 
   // Debounced render effect
   useEffect(() => {
@@ -459,51 +378,10 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
     toast({ title: "QR code sent to printer" });
   }, [qrDataUrl, selectedEvent?.name, toast]);
 
-  const handleSaveQR = useCallback(async () => {
-    // Import the hook and save settings to database
-    try {
-      const { useQRCodeSettings } = await import('@/hooks/useQRCodeSettings');
-      
-      // Create settings object with marker colors
-      const settingsToSave = {
-        background_color: qrSettings.colors.background,
-        foreground_color: qrSettings.colors.foreground,
-        marker_border_color: qrSettings.colors.markerBorder,
-        marker_center_color: qrSettings.colors.markerCenter,
-        has_scan_text: qrSettings.frame.frameId !== 'none',
-        scan_text: qrSettings.frame.label,
-        shape: 'square',
-        pattern: 'basic',
-        pattern_style: 'basic',
-        corner_style: 'square',
-        gradient_type: 'none',
-        gradient_colors: [],
-        border_style: 'none',
-        border_width: 0,
-        border_color: '#000000',
-        shadow_enabled: false,
-        shadow_blur: 10,
-        shadow_color: '#00000033',
-        center_image_size: 80,
-        background_opacity: 1.0,
-        output_size: 400,
-        output_format: 'png',
-        color_palette: 'default',
-        advanced_settings: {},
-      };
-
-      toast({ 
-        title: "QR code settings saved!", 
-        description: "High contrast marker colors have been applied for reliable scanning."
-      });
-    } catch (error) {
-      console.error('Error saving QR settings:', error);
-      toast({ 
-        title: "Settings saved locally",
-        description: "Unable to save to database, but settings are applied to preview."
-      });
-    }
-  }, [qrSettings, toast]);
+  const handleSaveQR = useCallback(() => {
+    // For now, just show a toast - this could be extended to save to database
+    toast({ title: "QR code settings saved!" });
+  }, [toast]);
 
 
   // Color change handlers
@@ -730,48 +608,6 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
                             onChange={(e) => updateColors({ background: e.target.value })}
                             className="text-xs font-mono"
                             placeholder="#ffffff"
-                          />
-                        </div>
-                      </div>
-
-                      {/* Marker Border Color Section */}
-                      <div className="space-y-4">
-                        <Label className="text-sm font-medium">Marker Border Color</Label>
-                        
-                        <div className="flex items-center space-x-2">
-                          <input
-                            id="color-marker-border"
-                            type="color"
-                            value={qrSettings.colors.markerBorder}
-                            onChange={(e) => updateColors({ markerBorder: e.target.value })}
-                            className="w-8 h-8 rounded border border-input"
-                          />
-                          <Input
-                            value={qrSettings.colors.markerBorder}
-                            onChange={(e) => updateColors({ markerBorder: e.target.value })}
-                            className="text-xs font-mono"
-                            placeholder="#060606"
-                          />
-                        </div>
-                      </div>
-
-                      {/* Marker Center Color Section */}
-                      <div className="space-y-4">
-                        <Label className="text-sm font-medium">Marker Center Color</Label>
-                        
-                        <div className="flex items-center space-x-2">
-                          <input
-                            id="color-marker-center"
-                            type="color"
-                            value={qrSettings.colors.markerCenter}
-                            onChange={(e) => updateColors({ markerCenter: e.target.value })}
-                            className="w-8 h-8 rounded border border-input"
-                          />
-                          <Input
-                            value={qrSettings.colors.markerCenter}
-                            onChange={(e) => updateColors({ markerCenter: e.target.value })}
-                            className="text-xs font-mono"
-                            placeholder="#060606"
                           />
                         </div>
                       </div>
