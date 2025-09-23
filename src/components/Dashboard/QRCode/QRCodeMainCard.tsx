@@ -14,10 +14,6 @@ import { useToast } from '@/hooks/use-toast';
 import { buildGuestLookupUrl } from '@/lib/urlUtils';
 import QRCode from 'qrcode';
 import jsPDF from 'jspdf';
-import { PATTERN_DEFS } from '@/lib/qrPatternDefinitions';
-import { FINDER_BORDER_DEFS, FINDER_CENTER_DEFS } from '@/lib/qrFinderDefinitions';
-import { AdvancedQREngine } from '@/lib/advancedQREngine';
-import { QRCodeSettings } from '@/hooks/useQRCodeSettings';
 
 interface QRCodeMainCardProps {
   eventId: string;
@@ -154,9 +150,6 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
     frame: { ...defaultFrame }
   });
 
-  // Initialize QR Engine
-  const [qrEngine] = useState(() => new AdvancedQREngine(1024));
-
   // Preview state
   const [qrDataUrl, setQrDataUrl] = useState<string>('');
   const [contrastWarning, setContrastWarning] = useState<boolean>(false);
@@ -207,43 +200,21 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
     if (!eventUrl) return;
 
     try {
-      // Create settings for the advanced QR engine
-      const qrEngineSettings = {
-        background_color: qrSettings.colors.background,
-        foreground_color: qrSettings.colors.foreground,
-        pattern_style: qrSettings.design.patternId,
-        design: {
-          useCustomMarkerColors: qrSettings.design.useCustomMarkerColors,
-          useDifferentMarkerColors: qrSettings.design.useDifferentMarkerColors,
-          markerBorderColor: qrSettings.design.markerBorderColor,
-          markerCenterColor: qrSettings.design.markerCenterColor,
-          markers: qrSettings.design.markers
-        }
-      };
-
-      // Generate high-quality SVG using advanced engine
-      const svgString = await qrEngine.generateQR(eventUrl, qrEngineSettings);
-      
-      // Convert SVG to data URL for preview
-      const svgBlob = new Blob([svgString], { type: 'image/svg+xml' });
-      const svgUrl = URL.createObjectURL(svgBlob);
-      
-      // Create image from SVG for canvas rendering
-      const img = new Image();
       const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d')!;
-      canvas.width = 400;
-      canvas.height = 400;
-      
-      img.onload = () => {
-        ctx.clearRect(0, 0, 400, 400);
-        ctx.drawImage(img, 0, 0, 400, 400);
-        const dataUrl = canvas.toDataURL('image/png');
-        setQrDataUrl(dataUrl);
-        URL.revokeObjectURL(svgUrl);
-      };
-      
-      img.src = svgUrl;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+
+      // Generate QR code
+      const qrDataURL = await QRCode.toDataURL(eventUrl, {
+        width: 400,
+        margin: 2,
+        color: {
+          dark: qrSettings.colors.foreground,
+          light: qrSettings.colors.background
+        }
+      });
+
+      setQrDataUrl(qrDataURL);
 
       // Check contrast
       const contrast = calculateContrast(qrSettings.colors.background, qrSettings.colors.foreground);
@@ -251,26 +222,12 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
 
     } catch (error) {
       console.error('Error rendering QR code:', error);
-      // Fallback to basic QR generation
-      try {
-        const qrDataURL = await QRCode.toDataURL(eventUrl, {
-          width: 400,
-          margin: 2,
-          color: {
-            dark: qrSettings.colors.foreground,
-            light: qrSettings.colors.background
-          }
-        });
-        setQrDataUrl(qrDataURL);
-      } catch (fallbackError) {
-        console.error('Fallback QR generation failed:', fallbackError);
-      }
     }
-  }, [eventUrl, qrSettings, calculateContrast, qrEngine]);
+  }, [eventUrl, qrSettings.colors, qrSettings.design, qrSettings.logo, qrSettings.frame, calculateContrast]);
 
-  // Debounced render effect with faster updates
+  // Debounced render effect
   useEffect(() => {
-    const timer = setTimeout(renderQR, 120);
+    const timer = setTimeout(renderQR, 150);
     return () => clearTimeout(timer);
   }, [renderQR]);
 
@@ -308,78 +265,50 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
 
   // Action button handlers
   const handleDownloadPNG = useCallback(async () => {
-    if (!eventUrl) return;
-    try {
-      // Generate QR first, then export
-      await renderQR();
-      const pngBlob = await qrEngine.exportAs('png', 0.9);
-      const url = URL.createObjectURL(pngBlob);
-      const link = document.createElement('a');
-      link.download = `qr-code-${selectedEvent?.name || 'event'}.png`;
-      link.href = url;
-      link.click();
-      URL.revokeObjectURL(url);
-      toast({ title: "PNG downloaded successfully!" });
-    } catch (error) {
-      console.error('PNG export error:', error);
-      // Fallback to current method
-      if (qrDataUrl) {
-        const link = document.createElement('a');
-        link.download = `qr-code-${selectedEvent?.name || 'event'}.png`;
-        link.href = qrDataUrl;
-        link.click();
-        toast({ title: "PNG downloaded successfully!" });
-      }
-    }
-  }, [eventUrl, selectedEvent?.name, toast, qrEngine, qrDataUrl, renderQR]);
+    if (!qrDataUrl) return;
+    const link = document.createElement('a');
+    link.download = `qr-code-${selectedEvent?.name || 'event'}.png`;
+    link.href = qrDataUrl;
+    link.click();
+    toast({ title: "PNG downloaded successfully!" });
+  }, [qrDataUrl, selectedEvent?.name, toast]);
 
   const handleDownloadJPG = useCallback(async () => {
-    if (!eventUrl) return;
-    try {
-      // Generate QR first, then export
-      await renderQR();
-      const jpgBlob = await qrEngine.exportAs('jpeg', 0.9);
-      const url = URL.createObjectURL(jpgBlob);
+    if (!qrDataUrl) return;
+    // Convert PNG to JPG
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    const img = new Image();
+    img.onload = () => {
+      canvas.width = img.width;
+      canvas.height = img.height;
+      ctx!.fillStyle = '#FFFFFF';
+      ctx!.fillRect(0, 0, canvas.width, canvas.height);
+      ctx!.drawImage(img, 0, 0);
+      const jpgDataUrl = canvas.toDataURL('image/jpeg', 0.9);
       const link = document.createElement('a');
       link.download = `qr-code-${selectedEvent?.name || 'event'}.jpg`;
-      link.href = url;
+      link.href = jpgDataUrl;
       link.click();
-      URL.revokeObjectURL(url);
       toast({ title: "JPG downloaded successfully!" });
-    } catch (error) {
-      console.error('JPG export error:', error);
-      // Fallback to current method
-      if (qrDataUrl) {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        const img = new Image();
-        img.onload = () => {
-          canvas.width = img.width;
-          canvas.height = img.height;
-          ctx!.fillStyle = '#FFFFFF';
-          ctx!.fillRect(0, 0, canvas.width, canvas.height);
-          ctx!.drawImage(img, 0, 0);
-          const jpgDataUrl = canvas.toDataURL('image/jpeg', 0.9);
-          const link = document.createElement('a');
-          link.download = `qr-code-${selectedEvent?.name || 'event'}.jpg`;
-          link.href = jpgDataUrl;
-          link.click();
-          toast({ title: "JPG downloaded successfully!" });
-        };
-        img.src = qrDataUrl;
-      }
-    }
-  }, [eventUrl, selectedEvent?.name, toast, qrEngine, qrDataUrl, renderQR]);
+    };
+    img.src = qrDataUrl;
+  }, [qrDataUrl, selectedEvent?.name, toast]);
 
   const handleDownloadSVG = useCallback(async () => {
     if (!eventUrl) return;
     try {
-      // Generate settings for the QR engine first
-      await renderQR();
-      
-      // Export using the advanced QR engine
-      const svgBlob = await qrEngine.exportAs('svg');
-      const url = URL.createObjectURL(svgBlob);
+      const qrSvg = await QRCode.toString(eventUrl, {
+        type: 'svg',
+        width: 512,
+        margin: 2,
+        color: {
+          dark: qrSettings.colors.foreground,
+          light: qrSettings.colors.background
+        }
+      });
+      const blob = new Blob([qrSvg], { type: 'image/svg+xml' });
+      const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.download = `qr-code-${selectedEvent?.name || 'event'}.svg`;
       link.href = url;
@@ -387,10 +316,9 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
       URL.revokeObjectURL(url);
       toast({ title: "SVG downloaded successfully!" });
     } catch (error) {
-      console.error('SVG export error:', error);
       toast({ title: "Error downloading SVG", variant: "destructive" });
     }
-  }, [eventUrl, selectedEvent?.name, toast, qrEngine, renderQR]);
+  }, [eventUrl, qrSettings.colors, selectedEvent?.name, toast]);
 
   const handleDownloadPDF = useCallback(async () => {
     if (!qrDataUrl) return;
@@ -756,175 +684,136 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
                         }`}
                       />
                     </button>
-                    <AccordionContent className="qr-acc-panel pt-2 space-y-5 border-0 bg-white rounded-b-2xl">
-                       {/* Pattern Section */}
-                       <div className="space-y-3">
-                         <Label className="text-sm font-medium">Pattern</Label>
-                         <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-3">
-                           {PATTERN_DEFS.map((pattern, i) => {
-                             const isSelected = qrSettings.design.patternId === pattern.id;
-                             return (
-                               <button
-                                 key={pattern.id}
-                                 id={pattern.id}
-                                 onClick={() => updateDesign({ patternId: pattern.id })}
-                                 className={`w-14 h-14 min-w-12 min-h-12 rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-1 hover:bg-purple-50 ${
-                                   isSelected 
-                                     ? 'border-2 border-purple-500 bg-purple-50' 
-                                     : 'border border-gray-200 hover:border-purple-300'
-                                 }`}
-                                 title={pattern.label}
-                                 aria-pressed={isSelected}
-                               >
-                                 <svg 
-                                   viewBox="0 0 100 100" 
-                                   className="w-full h-full p-1"
-                                   fill="none"
-                                   ref={(svgRef) => {
-                                     if (svgRef && pattern.thumb) {
-                                       // Clear previous content
-                                       svgRef.innerHTML = '';
-                                       pattern.thumb(svgRef);
-                                     }
-                                   }}
-                                 />
-                               </button>
-                             );
-                           })}
-                         </div>
-                       </div>
+                    <AccordionContent className="qr-acc-panel pt-2 space-y-6 border-0 bg-white rounded-b-2xl">
+                      {/* Pattern Section */}
+                      <div className="space-y-3">
+                        <Label className="text-sm font-medium">Pattern</Label>
+                        <div className="grid grid-cols-5 gap-2">
+                          {Array.from({ length: 20 }, (_, i) => {
+                            const patternId = `pattern-${String(i + 1).padStart(2, '0')}`;
+                            const isSelected = qrSettings.design.patternId === patternId;
+                            return (
+                              <button
+                                key={patternId}
+                                id={patternId}
+                                onClick={() => updateDesign({ patternId })}
+                                className={`aspect-square w-full border-2 rounded-md hover:border-primary/50 transition-colors ${
+                                  isSelected ? 'border-primary bg-primary/10' : 'border-muted'
+                                }`}
+                                title={`Pattern ${i + 1}`}
+                              >
+                                <div className="w-full h-full bg-muted/30 rounded-sm flex items-center justify-center text-xs">
+                                  {i + 1}
+                                </div>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
 
-                       {/* Marker Border Section */}
-                       <div className="space-y-3">
-                         <Label className="text-sm font-medium">Marker border (finder outer shape)</Label>
-                         <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-3">
-                           {FINDER_BORDER_DEFS.map((borderDef) => {
-                             const isSelected = qrSettings.design.markerBorderId === borderDef.id;
-                             return (
-                               <button
-                                 key={borderDef.id}
-                                 id={borderDef.id}
-                                 onClick={() => updateDesign({ markerBorderId: borderDef.id })}
-                                 className={`w-14 h-14 min-w-12 min-h-12 rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-1 hover:bg-purple-50 ${
-                                   isSelected 
-                                     ? 'border-2 border-purple-500 bg-purple-50' 
-                                     : 'border border-gray-200 hover:border-purple-300'
-                                 }`}
-                                 title={borderDef.label}
-                                 aria-pressed={isSelected}
-                               >
-                                 <svg 
-                                   viewBox="0 0 100 100" 
-                                   className="w-full h-full p-2"
-                                   fill="none"
-                                   ref={(svgRef) => {
-                                     if (svgRef && borderDef.thumb) {
-                                       // Clear previous content
-                                       svgRef.innerHTML = '';
-                                       borderDef.thumb(svgRef);
-                                     }
-                                   }}
-                                 />
-                               </button>
-                             );
-                           })}
-                         </div>
-                       </div>
+                      {/* Marker Border Section */}
+                      <div className="space-y-3">
+                        <Label className="text-sm font-medium">Marker border (finder outer shape)</Label>
+                        <div className="grid grid-cols-5 gap-2">
+                          {Array.from({ length: 20 }, (_, i) => {
+                            const borderId = `finder-border-${String(i + 1).padStart(2, '0')}`;
+                            const isSelected = qrSettings.design.markerBorderId === borderId;
+                            return (
+                              <button
+                                key={borderId}
+                                id={borderId}
+                                onClick={() => updateDesign({ markerBorderId: borderId })}
+                                className={`aspect-square w-full border-2 rounded-md hover:border-primary/50 transition-colors ${
+                                  isSelected ? 'border-primary bg-primary/10' : 'border-muted'
+                                }`}
+                                title={`Finder Border ${i + 1}`}
+                              >
+                                <div className="w-full h-full bg-muted/30 rounded-sm flex items-center justify-center text-xs">
+                                  B{i + 1}
+                                </div>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
 
-                       {/* Marker Center Section */}
-                       <div className="space-y-3">
-                         <Label className="text-sm font-medium">Marker center (finder inner shape)</Label>
-                         <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-3">
-                           {FINDER_CENTER_DEFS.map((centerDef) => {
-                             const isSelected = qrSettings.design.markerCenterId === centerDef.id;
-                             return (
-                               <button
-                                 key={centerDef.id}
-                                 id={centerDef.id}
-                                 onClick={() => updateDesign({ markerCenterId: centerDef.id })}
-                                 className={`w-14 h-14 min-w-12 min-h-12 rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-1 hover:bg-purple-50 ${
-                                   isSelected 
-                                     ? 'border-2 border-purple-500 bg-purple-50' 
-                                     : 'border border-gray-200 hover:border-purple-300'
-                                 }`}
-                                 title={centerDef.label}
-                                 aria-pressed={isSelected}
-                               >
-                                 <svg 
-                                   viewBox="0 0 100 100" 
-                                   className="w-full h-full p-3"
-                                   fill="none"
-                                   ref={(svgRef) => {
-                                     if (svgRef && centerDef.thumb) {
-                                       // Clear previous content
-                                       svgRef.innerHTML = '';
-                                       centerDef.thumb(svgRef);
-                                     }
-                                   }}
-                                 />
-                               </button>
-                             );
-                           })}
-                         </div>
-                       </div>
+                      {/* Marker Center Section */}
+                      <div className="space-y-3">
+                        <Label className="text-sm font-medium">Marker center (finder inner shape)</Label>
+                        <div className="grid grid-cols-5 gap-2">
+                          {Array.from({ length: 26 }, (_, i) => {
+                            const centerId = `finder-center-${String(i + 1).padStart(2, '0')}`;
+                            const isSelected = qrSettings.design.markerCenterId === centerId;
+                            return (
+                              <button
+                                key={centerId}
+                                id={centerId}
+                                onClick={() => updateDesign({ markerCenterId: centerId })}
+                                className={`aspect-square w-full border-2 rounded-md hover:border-primary/50 transition-colors ${
+                                  isSelected ? 'border-primary bg-primary/10' : 'border-muted'
+                                }`}
+                                title={`Finder Center ${i + 1}`}
+                              >
+                                <div className="w-full h-full bg-muted/30 rounded-sm flex items-center justify-center text-xs">
+                                  C{i + 1}
+                                </div>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
 
                       {/* Custom Marker Colors Section */}
                       <div className="space-y-4">
-                        {/* Row 1: Global Marker Colors (side by side) */}
+                        <div className="flex items-center space-x-2">
+                          <Switch
+                            id="toggle-custom-marker-color"
+                            checked={qrSettings.design.useCustomMarkerColors}
+                            onCheckedChange={(checked) => updateDesign({ useCustomMarkerColors: checked })}
+                          />
+                          <Label htmlFor="toggle-custom-marker-color" className="text-sm">Custom marker color</Label>
+                        </div>
+
                         {qrSettings.design.useCustomMarkerColors && (
-                          <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                              <Label className="text-sm font-medium">Marker border</Label>
+                          <div className="space-y-4 pl-6">
+                            {/* Global Marker Colors */}
+                            <div className="space-y-3">
                               <div className="flex items-center space-x-2">
                                 <input
                                   id="color-marker-border"
                                   type="color"
                                   value={qrSettings.design.markerBorderColor}
                                   onChange={(e) => updateDesign({ markerBorderColor: e.target.value })}
-                                  className="w-8 h-8 rounded border border-input"
+                                  className="w-6 h-6 rounded border border-input"
                                 />
+                                <Label className="text-xs">Marker border</Label>
                                 <Input
                                   value={qrSettings.design.markerBorderColor}
                                   onChange={(e) => updateDesign({ markerBorderColor: e.target.value })}
-                                  className="text-xs font-mono"
+                                  className="text-xs font-mono w-20"
                                   placeholder="#000000"
                                 />
                               </div>
-                            </div>
-
-                            <div className="space-y-2">
-                              <Label className="text-sm font-medium">Marker center</Label>
+                              
                               <div className="flex items-center space-x-2">
                                 <input
                                   id="color-marker-center"
                                   type="color"
                                   value={qrSettings.design.markerCenterColor}
                                   onChange={(e) => updateDesign({ markerCenterColor: e.target.value })}
-                                  className="w-8 h-8 rounded border border-input"
+                                  className="w-6 h-6 rounded border border-input"
                                 />
+                                <Label className="text-xs">Marker center</Label>
                                 <Input
                                   value={qrSettings.design.markerCenterColor}
                                   onChange={(e) => updateDesign({ markerCenterColor: e.target.value })}
-                                  className="text-xs font-mono"
+                                  className="text-xs font-mono w-20"
                                   placeholder="#000000"
                                 />
                               </div>
                             </div>
-                          </div>
-                        )}
 
-                        {/* Row 2: Toggle Controls */}
-                        <div className="space-y-3">
-                          <div className="flex items-center space-x-2">
-                            <Switch
-                              id="toggle-custom-marker-color"
-                              checked={qrSettings.design.useCustomMarkerColors}
-                              onCheckedChange={(checked) => updateDesign({ useCustomMarkerColors: checked })}
-                            />
-                            <Label htmlFor="toggle-custom-marker-color" className="text-sm">Custom marker color</Label>
-                          </div>
-
-                          {qrSettings.design.useCustomMarkerColors && (
+                            {/* Different Marker Colors Toggle */}
                             <div className="flex items-center space-x-2">
                               <Switch
                                 id="toggle-different-marker-colors"
@@ -933,19 +822,44 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
                               />
                               <Label htmlFor="toggle-different-marker-colors" className="text-sm">Different markers colors</Label>
                             </div>
-                          )}
-                        </div>
 
-                        {/* Row 3: Per-Marker Overrides (only when both toggles are ON) */}
-                        {qrSettings.design.useCustomMarkerColors && qrSettings.design.useDifferentMarkerColors && (
-                          <div className="grid grid-cols-2 gap-6">
-                            {/* Left Column: Marker border overrides */}
-                            <div className="space-y-3">
-                              <Label className="text-sm font-medium">Marker border overrides</Label>
-                              
-                              <div className="space-y-3">
+                            {/* Per-Marker Colors */}
+                            {qrSettings.design.useDifferentMarkerColors && (
+                              <div className="space-y-4">
+                                {/* Top Left */}
                                 <div className="space-y-2">
-                                  <Label className="text-xs text-muted-foreground">Top Right</Label>
+                                  <Label className="text-xs font-medium">Top Left</Label>
+                                  <div className="flex items-center space-x-2">
+                                    <input
+                                      id="color-tl-border"
+                                      type="color"
+                                      value={qrSettings.design.markers.TL.border}
+                                      onChange={(e) => updateDesign({ 
+                                        markers: { 
+                                          ...qrSettings.design.markers, 
+                                          TL: { ...qrSettings.design.markers.TL, border: e.target.value }
+                                        }
+                                      })}
+                                      className="w-5 h-5 rounded border border-input"
+                                    />
+                                    <Input
+                                      id="color-tl-center"
+                                      type="color"
+                                      value={qrSettings.design.markers.TL.center}
+                                      onChange={(e) => updateDesign({ 
+                                        markers: { 
+                                          ...qrSettings.design.markers, 
+                                          TL: { ...qrSettings.design.markers.TL, center: e.target.value }
+                                        }
+                                      })}
+                                      className="w-5 h-5 rounded border border-input"
+                                    />
+                                  </div>
+                                </div>
+
+                                {/* Top Right */}
+                                <div className="space-y-2">
+                                  <Label className="text-xs font-medium">Top Right</Label>
                                   <div className="flex items-center space-x-2">
                                     <input
                                       id="color-tr-border"
@@ -957,24 +871,26 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
                                           TR: { ...qrSettings.design.markers.TR, border: e.target.value }
                                         }
                                       })}
-                                      className="w-6 h-6 rounded border border-input"
+                                      className="w-5 h-5 rounded border border-input"
                                     />
-                                    <Input
-                                      value={qrSettings.design.markers.TR.border}
+                                    <input
+                                      id="color-tr-center"
+                                      type="color"
+                                      value={qrSettings.design.markers.TR.center}
                                       onChange={(e) => updateDesign({ 
                                         markers: { 
                                           ...qrSettings.design.markers, 
-                                          TR: { ...qrSettings.design.markers.TR, border: e.target.value }
+                                          TR: { ...qrSettings.design.markers.TR, center: e.target.value }
                                         }
                                       })}
-                                      className="text-xs font-mono"
-                                      placeholder="#000000"
+                                      className="w-5 h-5 rounded border border-input"
                                     />
                                   </div>
                                 </div>
 
+                                {/* Bottom Left */}
                                 <div className="space-y-2">
-                                  <Label className="text-xs text-muted-foreground">Bottom Left</Label>
+                                  <Label className="text-xs font-medium">Bottom Left</Label>
                                   <div className="flex items-center space-x-2">
                                     <input
                                       id="color-bl-border"
@@ -986,61 +902,8 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
                                           BL: { ...qrSettings.design.markers.BL, border: e.target.value }
                                         }
                                       })}
-                                      className="w-6 h-6 rounded border border-input"
+                                      className="w-5 h-5 rounded border border-input"
                                     />
-                                    <Input
-                                      value={qrSettings.design.markers.BL.border}
-                                      onChange={(e) => updateDesign({ 
-                                        markers: { 
-                                          ...qrSettings.design.markers, 
-                                          BL: { ...qrSettings.design.markers.BL, border: e.target.value }
-                                        }
-                                      })}
-                                      className="text-xs font-mono"
-                                      placeholder="#000000"
-                                    />
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-
-                            {/* Right Column: Marker center overrides */}
-                            <div className="space-y-3">
-                              <Label className="text-sm font-medium">Marker center overrides</Label>
-                              
-                              <div className="space-y-3">
-                                <div className="space-y-2">
-                                  <Label className="text-xs text-muted-foreground">Top Right</Label>
-                                  <div className="flex items-center space-x-2">
-                                    <input
-                                      id="color-tr-center"
-                                      type="color"
-                                      value={qrSettings.design.markers.TR.center}
-                                      onChange={(e) => updateDesign({ 
-                                        markers: { 
-                                          ...qrSettings.design.markers, 
-                                          TR: { ...qrSettings.design.markers.TR, center: e.target.value }
-                                        }
-                                      })}
-                                      className="w-6 h-6 rounded border border-input"
-                                    />
-                                    <Input
-                                      value={qrSettings.design.markers.TR.center}
-                                      onChange={(e) => updateDesign({ 
-                                        markers: { 
-                                          ...qrSettings.design.markers, 
-                                          TR: { ...qrSettings.design.markers.TR, center: e.target.value }
-                                        }
-                                      })}
-                                      className="text-xs font-mono"
-                                      placeholder="#000000"
-                                    />
-                                  </div>
-                                </div>
-
-                                <div className="space-y-2">
-                                  <Label className="text-xs text-muted-foreground">Bottom Left</Label>
-                                  <div className="flex items-center space-x-2">
                                     <input
                                       id="color-bl-center"
                                       type="color"
@@ -1051,23 +914,12 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
                                           BL: { ...qrSettings.design.markers.BL, center: e.target.value }
                                         }
                                       })}
-                                      className="w-6 h-6 rounded border border-input"
-                                    />
-                                    <Input
-                                      value={qrSettings.design.markers.BL.center}
-                                      onChange={(e) => updateDesign({ 
-                                        markers: { 
-                                          ...qrSettings.design.markers, 
-                                          BL: { ...qrSettings.design.markers.BL, center: e.target.value }
-                                        }
-                                      })}
-                                      className="text-xs font-mono"
-                                      placeholder="#000000"
+                                      className="w-5 h-5 rounded border border-input"
                                     />
                                   </div>
                                 </div>
                               </div>
-                            </div>
+                            )}
                           </div>
                         )}
                       </div>
