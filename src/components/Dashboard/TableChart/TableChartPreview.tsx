@@ -37,13 +37,13 @@ export const TableChartPreview: React.FC<TableChartPreviewProps> = ({
   const tablePositions: TablePosition[] = React.useMemo(() => {
     if (!tables.length) return [];
     
-    const positions = generateTableLayout(tables, settings.layout);
+    const positions = generateTableLayout(tables, 'grid');
     
     return positions.map(pos => ({
       ...pos,
       guests: guests.filter(guest => guest.table_id === pos.table.id)
     }));
-  }, [tables, guests, settings.layout]);
+  }, [tables, guests]);
 
   // Color schemes
   const getColorScheme = (guest: Guest, table: TableWithGuestCount) => {

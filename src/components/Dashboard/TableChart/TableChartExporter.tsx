@@ -201,7 +201,7 @@ export const TableChartExporter: React.FC<TableChartExporterProps> = ({
                 <div>Tables: {tables.length}</div>
                 <div>Guests: {guests.length}</div>
                 <div>Paper Size: {settings.paperSize}</div>
-                <div>Layout: {settings.layout}</div>
+                <div>Layout: Grid</div>
               </div>
             </div>
           )}

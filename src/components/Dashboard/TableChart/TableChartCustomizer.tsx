@@ -51,27 +51,6 @@ export const TableChartCustomizer: React.FC<TableChartCustomizerProps> = ({
           
           <div className="space-y-3">
             <div>
-              <Label htmlFor="layout-type" className="text-xs text-muted-foreground">
-                Layout Type
-              </Label>
-              <Select
-                value={settings.layout}
-                onValueChange={(value: 'grid' | 'organic' | 'custom') => 
-                  onSettingsChange({ layout: value })
-                }
-              >
-                <SelectTrigger id="layout-type">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="grid">Grid Layout</SelectItem>
-                  <SelectItem value="organic">Organic Layout</SelectItem>
-                  <SelectItem value="custom">Custom Layout</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
               <Label htmlFor="table-shape" className="text-xs text-muted-foreground">
                 Table Shape
               </Label>

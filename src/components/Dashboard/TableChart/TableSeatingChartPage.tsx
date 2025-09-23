@@ -24,7 +24,6 @@ interface TableSeatingChartPageProps {
 }
 
 export interface ChartSettings {
-  layout: 'grid' | 'organic' | 'custom';
   tableShape: 'round' | 'rectangular' | 'mixed';
   colorCoding: 'rsvp' | 'dietary' | 'capacity' | 'none';
   includeNames: boolean;
@@ -39,7 +38,6 @@ export interface ChartSettings {
 }
 
 const DEFAULT_SETTINGS: ChartSettings = {
-  layout: 'grid',
   tableShape: 'round',
   colorCoding: 'rsvp',
   includeNames: true,
