@@ -7,7 +7,7 @@ import { Switch } from '@/components/ui/switch';
 import { Slider } from '@/components/ui/slider';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { QrCode as QrCodeIcon, Copy, Download, RotateCcw, Save, Printer, FileImage, Upload, RotateCw } from 'lucide-react';
+import { QrCode as QrCodeIcon, Copy, Download, RotateCcw, Save, Printer, FileImage, Upload, RotateCw, Twitter, Instagram, Mail, MapPin, Phone, MessageCircle, Video, Wifi, Globe, Youtube, CreditCard, Bitcoin, X } from 'lucide-react';
 import { useEvents } from '@/hooks/useEvents';
 import { useToast } from '@/hooks/use-toast';
 import { buildGuestLookupUrl } from '@/lib/urlUtils';
@@ -45,6 +45,15 @@ interface QRDesignSettings {
   };
 }
 
+interface QRLogoSettings {
+  enabled: boolean;
+  source: 'upload' | 'preset' | null;
+  file: File | string | null;
+  presetId: string | null;
+  sizePct: number;
+  clearBehind: boolean;
+}
+
 const defaultColors: QRColorsSettings = {
   background: "#ffffff",
   transparentBg: false,
@@ -73,6 +82,32 @@ const defaultDesign: QRDesignSettings = {
   }
 };
 
+const defaultLogo: QRLogoSettings = {
+  enabled: false,
+  source: null,
+  file: null,
+  presetId: null,
+  sizePct: 100,
+  clearBehind: false
+};
+
+const logoPresets = [
+  { id: 'logo-twitter', label: 'Twitter/X', icon: Twitter, color: '#000000' },
+  { id: 'logo-instagram', label: 'Instagram', icon: Instagram, color: '#E4405F' },
+  { id: 'logo-email', label: 'Email', icon: Mail, color: '#4285F4' },
+  { id: 'logo-location', label: 'Location', icon: MapPin, color: '#EA4335' },
+  { id: 'logo-phone', label: 'Phone', icon: Phone, color: '#34A853' },
+  { id: 'logo-whatsapp', label: 'WhatsApp', icon: MessageCircle, color: '#25D366' },
+  { id: 'logo-skype', label: 'Skype', icon: Video, color: '#00AFF0' },
+  { id: 'logo-zoom', label: 'Zoom', icon: Video, color: '#2D8CFF' },
+  { id: 'logo-wifi', label: 'Wi-Fi', icon: Wifi, color: '#000000' },
+  { id: 'logo-globe', label: 'Web/Globe', icon: Globe, color: '#4285F4' },
+  { id: 'logo-youtube', label: 'YouTube', icon: Youtube, color: '#FF0000' },
+  { id: 'logo-paypal', label: 'PayPal', icon: CreditCard, color: '#003087' },
+  { id: 'logo-bitcoin', label: 'Bitcoin', icon: Bitcoin, color: '#F7931A' },
+  { id: 'logo-clear', label: 'Clear', icon: X, color: '#DC2626' }
+];
+
 export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
   const { events } = useEvents();
   const { toast } = useToast();
@@ -81,9 +116,10 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
   const eventUrl = selectedEvent?.slug ? buildGuestLookupUrl(selectedEvent.slug) : `https://…/live-view/${eventId}`;
 
   // QR Settings State
-  const [qrSettings, setQrSettings] = useState<{ colors: QRColorsSettings; design: QRDesignSettings }>({
+  const [qrSettings, setQrSettings] = useState<{ colors: QRColorsSettings; design: QRDesignSettings; logo: QRLogoSettings }>({
     colors: { ...defaultColors },
-    design: { ...defaultDesign }
+    design: { ...defaultDesign },
+    logo: { ...defaultLogo }
   });
 
   // Preview state
@@ -145,7 +181,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
     } catch (error) {
       console.error('Error rendering QR code:', error);
     }
-  }, [eventUrl, qrSettings.colors, qrSettings.design, calculateContrast]);
+  }, [eventUrl, qrSettings.colors, qrSettings.design, qrSettings.logo, calculateContrast]);
 
   // Debounced render effect
   useEffect(() => {
@@ -166,6 +202,14 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
     setQrSettings(prev => ({
       ...prev,
       design: { ...defaultDesign }
+    }));
+  };
+
+  // Reset logo
+  const handleResetLogo = () => {
+    setQrSettings(prev => ({
+      ...prev,
+      logo: { ...defaultLogo }
     }));
   };
 
@@ -213,6 +257,14 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
     setQrSettings(prev => ({
       ...prev,
       design: { ...prev.design, ...updates }
+    }));
+  };
+
+  // Logo change handlers
+  const updateLogo = (updates: Partial<QRLogoSettings>) => {
+    setQrSettings(prev => ({
+      ...prev,
+      logo: { ...prev.logo, ...updates }
     }));
   };
 
@@ -823,8 +875,135 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
                     <AccordionTrigger className="text-sm font-medium hover:text-primary">
                       Logo
                     </AccordionTrigger>
-                    <AccordionContent className="pt-2">
-                      {/* Logo controls will go here */}
+                    <AccordionContent className="pt-2 space-y-6">
+                      {/* Upload Section */}
+                      <div className="space-y-3">
+                        <Label className="text-sm font-medium">Upload your logo or select a watermark</Label>
+                        
+                        <div className="space-y-2">
+                          <Input
+                            id="logo-upload"
+                            type="file"
+                            accept="image/svg+xml,image/png,image/jpeg"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                const reader = new FileReader();
+                                reader.onload = (e) => {
+                                  const result = e.target?.result as string;
+                                  updateLogo({
+                                    enabled: true,
+                                    source: 'upload',
+                                    file: result,
+                                    presetId: null
+                                  });
+                                };
+                                reader.readAsDataURL(file);
+                              }
+                            }}
+                            className="text-xs"
+                          />
+                          
+                          {qrSettings.logo.source === 'upload' && qrSettings.logo.file && (
+                            <div className="flex items-center space-x-2 p-2 bg-muted/20 rounded border">
+                              <div className="w-8 h-8 bg-white border rounded overflow-hidden">
+                                <img 
+                                  src={qrSettings.logo.file as string} 
+                                  alt="Logo preview" 
+                                  className="w-full h-full object-contain"
+                                />
+                              </div>
+                              <span className="text-xs text-muted-foreground">Custom logo uploaded</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Preset Watermarks */}
+                      <div className="space-y-3">
+                        <Label className="text-sm font-medium">Preset Watermarks</Label>
+                        <div className="grid grid-cols-7 gap-2">
+                          {logoPresets.map((preset) => {
+                            const Icon = preset.icon;
+                            const isSelected = qrSettings.logo.presetId === preset.id;
+                            return (
+                              <button
+                                key={preset.id}
+                                id={preset.id}
+                                onClick={() => {
+                                  if (preset.id === 'logo-clear') {
+                                    updateLogo({
+                                      enabled: false,
+                                      source: null,
+                                      presetId: null,
+                                      file: null
+                                    });
+                                  } else {
+                                    updateLogo({
+                                      enabled: true,
+                                      source: 'preset',
+                                      presetId: preset.id,
+                                      file: null
+                                    });
+                                  }
+                                }}
+                                className={`aspect-square w-full border-2 rounded-md p-2 hover:border-primary/50 transition-colors ${
+                                  isSelected ? 'border-primary bg-primary/10' : 'border-muted'
+                                } ${preset.id === 'logo-clear' ? 'bg-red-50' : 'bg-white'}`}
+                                title={preset.label}
+                                style={{ backgroundColor: preset.id === 'logo-clear' ? '#FEF2F2' : preset.color + '20' }}
+                              >
+                                <Icon 
+                                  className="w-full h-full" 
+                                  style={{ color: preset.color }}
+                                />
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      {/* Remove Background Toggle */}
+                      <div className="space-y-3">
+                        <div className="flex items-center space-x-2">
+                          <Switch
+                            id="toggle-logo-clear-behind"
+                            checked={qrSettings.logo.clearBehind}
+                            onCheckedChange={(checked) => updateLogo({ clearBehind: checked })}
+                          />
+                          <Label htmlFor="toggle-logo-clear-behind" className="text-sm">Remove background behind Logo</Label>
+                        </div>
+                        <p className="text-xs text-muted-foreground ml-6">
+                          Creates a safe area under the logo for best scanning.
+                        </p>
+                      </div>
+
+                      {/* Logo Size Slider */}
+                      <div className="space-y-3">
+                        <Label className="text-sm font-medium">Logo size: {qrSettings.logo.sizePct}%</Label>
+                        <Slider
+                          id="slider-logo-size"
+                          value={[qrSettings.logo.sizePct]}
+                          onValueChange={([value]) => updateLogo({ sizePct: value })}
+                          min={0}
+                          max={100}
+                          step={1}
+                          className="w-full"
+                        />
+                      </div>
+
+                      {/* Reset Button */}
+                      <div className="pt-2">
+                        <Button
+                          id="btn-reset-logo"
+                          variant="ghost"
+                          size="sm"
+                          onClick={handleResetLogo}
+                          className="text-xs text-muted-foreground hover:text-foreground"
+                        >
+                          Reset Logo
+                        </Button>
+                      </div>
                     </AccordionContent>
                   </AccordionItem>
 
