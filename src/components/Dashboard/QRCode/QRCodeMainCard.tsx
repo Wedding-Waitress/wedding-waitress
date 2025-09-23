@@ -173,6 +173,13 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Left Box - QR Code Display and Actions */}
           <div className="border rounded-lg p-6 bg-muted/30 space-y-4">
+            {/* Event Name Display */}
+            <div className="text-center mb-4">
+              <h3 className="text-purple-600 font-bold text-lg">
+                {selectedEvent?.name}
+              </h3>
+            </div>
+
             {/* QR Code Display */}
             <div className="text-center">
               {qrDataUrl ? (
