@@ -166,69 +166,75 @@ export const TableChartPreview: React.FC<TableChartPreviewProps> = ({
               </text>
 
 
-              {/* Guest Names - positioned within table boundaries with 2 names per row */}
-              {settings.includeNames && tableGuests.slice(0, 8).map((guest, guestIndex) => {
-                // Fixed layout: exactly 2 names per row
-                const namesPerRow = 2;
-                const totalRows = Math.ceil(tableGuests.length / namesPerRow);
+              {/* Guest Names - show up to 100 guests with dash formatting */}
+              {settings.includeNames && (() => {
+                // Show up to 100 guests per table
+                const displayedGuests = tableGuests.slice(0, 100);
                 
-                // Calculate available space for text with proper padding
-                const padding = settings.tableShape === 'round' ? scaledWidth * 0.2 : scaledWidth * 0.15;
-                const availableWidth = scaledWidth - (padding * 2);
-                const availableHeight = scaledHeight - (padding * 2);
-                
-                // Dynamic font size based on table size and guest count
-                const baseFontSize = Math.min(availableWidth / 8, availableHeight / (totalRows * 2.5));
-                const dynamicFontSize = Math.max(8, Math.min(14, baseFontSize));
-                
-                // Vertical spacing between rows - increased for better readability
-                const lineHeight = dynamicFontSize * 2; // Doubled spacing between lines
-                
-                // Start positioning - leave more space from top for table number
-                const tableNumberSpace = dynamicFontSize * 2;
-                const startY = scaledY + padding + tableNumberSpace + (lineHeight * 0.7);
-                
-                const row = Math.floor(guestIndex / namesPerRow);
-                const col = guestIndex % namesPerRow;
-                
-                // Calculate X position for 2-column layout
-                const columnWidth = availableWidth / 2;
-                const nameX = scaledX + padding + (col * columnWidth) + (columnWidth / 2);
-                
-                // Calculate Y position with proper vertical spacing
-                const nameY = startY + (row * lineHeight);
-                
-                // Check if position is within table bounds (important for round tables)
-                let isWithinBounds = true;
-                if (settings.tableShape === 'round') {
-                  const centerX = scaledX + scaledWidth / 2;
-                  const centerY = scaledY + scaledHeight / 2;
-                  const radius = (Math.min(scaledWidth, scaledHeight) / 2) - padding;
-                  const distance = Math.sqrt(Math.pow(nameX - centerX, 2) + Math.pow(nameY - centerY, 2));
-                  isWithinBounds = distance <= radius;
-                }
-
-                // Skip if outside bounds or below table area
-                if (!isWithinBounds || nameY > scaledY + scaledHeight - padding) {
+                if (displayedGuests.length === 0) {
                   return null;
                 }
 
-                const colors = getColorScheme(guest, table);
-
-                return (
-                  <text
-                    key={guest.id}
-                    x={nameX}
-                    y={nameY}
-                    textAnchor="middle"
-                    fontSize={dynamicFontSize}
-                    fill={colors.text}
-                    fontFamily="Inter, sans-serif"
-                  >
-                    {`${guest.first_name} ${guest.last_name || ''}`.trim()}
-                  </text>
-                );
-              })}
+                // Calculate dynamic font size based on guest count
+                const baseFontSize = Math.min(scaledWidth * 0.05, 12);
+                const dynamicFontSize = Math.max(baseFontSize / Math.sqrt(displayedGuests.length / 10), 6);
+                
+                // Calculate positioning - closer to table number
+                const tablePadding = settings.tableShape === 'round' ? scaledWidth * 0.15 : scaledWidth * 0.1;
+                const availableWidth = scaledWidth - (tablePadding * 2);
+                const availableHeight = scaledHeight - (tablePadding * 2);
+                
+                // Start names closer to table number
+                const startY = scaledY + tablePadding + dynamicFontSize * 1.5;
+                const lineHeight = dynamicFontSize * 1.2; // Tighter line spacing
+                
+                // Group guests in pairs and display as "Name A - Name B"
+                const guestPairs = [];
+                for (let i = 0; i < displayedGuests.length; i += 2) {
+                  const guest1 = displayedGuests[i];
+                  const guest2 = displayedGuests[i + 1];
+                  guestPairs.push({ guest1, guest2 });
+                }
+                
+                return guestPairs.map((pair, pairIndex) => {
+                  const nameY = startY + (pairIndex * lineHeight);
+                  
+                  // Enhanced boundary checking for round tables
+                  if (settings.tableShape === 'round') {
+                    const centerX = scaledX + scaledWidth / 2;
+                    const centerY = scaledY + scaledHeight / 2;
+                    const radius = (Math.min(scaledWidth, scaledHeight) / 2) - tablePadding;
+                    const distanceFromCenter = Math.sqrt(
+                      Math.pow(scaledX + scaledWidth / 2 - centerX, 2) + Math.pow(nameY - centerY, 2)
+                    );
+                    if (distanceFromCenter > radius) {
+                      return null; // Skip names that would be outside the circle
+                    }
+                  }
+                  
+                  const guest1Colors = getColorScheme(pair.guest1, table);
+                  
+                  // Create combined text with dash separator
+                  const guest1Name = `${pair.guest1.first_name} ${pair.guest1.last_name || ''}`.trim();
+                  const guest2Name = pair.guest2 ? `${pair.guest2.first_name} ${pair.guest2.last_name || ''}`.trim() : '';
+                  const combinedText = guest2Name ? `${guest1Name} - ${guest2Name}` : guest1Name;
+                  
+                  return (
+                    <text
+                      key={`${table.id}-pair-${pairIndex}`}
+                      x={scaledX + scaledWidth / 2}
+                      y={nameY}
+                      textAnchor="middle"
+                      fontSize={dynamicFontSize}
+                      fill={guest1Colors.text}
+                      fontFamily="Inter, sans-serif"
+                      fontWeight="500"
+                    >
+                      {combinedText}
+                    </text>
+                  );
+                });
+              })()}
 
               {/* Color coding indicator */}
               {settings.colorCoding !== 'none' && (

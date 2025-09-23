@@ -235,62 +235,65 @@ export const generateChartSVG = (
     `;
 
 
-    // Guest Names - positioned within table boundaries with 2 names per row
+    // Guest Names - show up to 100 guests with dash formatting
     if (settings.includeNames && tableGuests.length > 0) {
-      tableGuests.slice(0, 8).forEach((guest, guestIndex) => {
-        // Fixed layout: exactly 2 names per row
-        const namesPerRow = 2;
-        const totalRows = Math.ceil(tableGuests.length / namesPerRow);
+      // Show up to 100 guests per table
+      const displayedGuests = tableGuests.slice(0, 100);
+      
+      if (displayedGuests.length > 0) {
+        // Calculate dynamic font size based on guest count
+        const baseFontSize = Math.min(scaledWidth * 0.05, 12);
+        const dynamicFontSize = Math.max(baseFontSize / Math.sqrt(displayedGuests.length / 10), 6);
         
-        // Calculate available space for text with proper padding
-        const padding = isRound ? scaledWidth * 0.2 : scaledWidth * 0.15;
-        const availableWidth = scaledWidth - (padding * 2);
-        const availableHeight = scaledHeight - (padding * 2);
+        // Calculate positioning - closer to table number
+        const tablePadding = isRound ? scaledWidth * 0.15 : scaledWidth * 0.1;
+        const availableWidth = scaledWidth - (tablePadding * 2);
+        const availableHeight = scaledHeight - (tablePadding * 2);
         
-        // Dynamic font size based on table size and guest count
-        const baseFontSize = Math.min(availableWidth / 8, availableHeight / (totalRows * 2.5));
-        const dynamicFontSize = Math.max(fontSize.guest * 0.7, Math.min(fontSize.guest, baseFontSize));
+        // Start names closer to table number
+        const startY = scaledY + tablePadding + dynamicFontSize * 1.5;
+        const lineHeight = dynamicFontSize * 1.2; // Tighter line spacing
         
-        // Vertical spacing between rows - increased for better readability
-        const lineHeight = dynamicFontSize * 2; // Doubled spacing between lines
-        
-        // Start positioning - leave more space from top for table number
-        const tableNumberSpace = dynamicFontSize * 2;
-        const startY = scaledY + padding + tableNumberSpace + (lineHeight * 0.7);
-        
-        const row = Math.floor(guestIndex / namesPerRow);
-        const col = guestIndex % namesPerRow;
-        
-        // Calculate X position for 2-column layout
-        const columnWidth = availableWidth / 2;
-        const nameX = scaledX + padding + (col * columnWidth) + (columnWidth / 2);
-        
-        // Calculate Y position with proper vertical spacing
-        const nameY = startY + (row * lineHeight);
-        
-        // Check if position is within table bounds (important for round tables)
-        let isWithinBounds = true;
-        if (isRound) {
-          const centerX = scaledX + scaledWidth / 2;
-          const centerY = scaledY + scaledHeight / 2;
-          const radius = (Math.min(scaledWidth, scaledHeight) / 2) - padding;
-          const distance = Math.sqrt(Math.pow(nameX - centerX, 2) + Math.pow(nameY - centerY, 2));
-          isWithinBounds = distance <= radius;
+        // Group guests in pairs and display as "Name A - Name B"
+        const guestPairs = [];
+        for (let i = 0; i < displayedGuests.length; i += 2) {
+          const guest1 = displayedGuests[i];
+          const guest2 = displayedGuests[i + 1];
+          guestPairs.push({ guest1, guest2 });
         }
-
-        // Skip if outside bounds or below table area
-        if (isWithinBounds && nameY <= scaledY + scaledHeight - padding) {
-          const colors = getGuestColor(guest, table);
-
+        
+        guestPairs.forEach((pair, pairIndex) => {
+          const nameY = startY + (pairIndex * lineHeight);
+          
+          // Enhanced boundary checking for round tables
+          if (isRound) {
+            const centerX = scaledX + scaledWidth / 2;
+            const centerY = scaledY + scaledHeight / 2;
+            const radius = (Math.min(scaledWidth, scaledHeight) / 2) - tablePadding;
+            const distanceFromCenter = Math.sqrt(
+              Math.pow(scaledX + scaledWidth / 2 - centerX, 2) + Math.pow(nameY - centerY, 2)
+            );
+            if (distanceFromCenter > radius) {
+              return; // Skip names that would be outside the circle
+            }
+          }
+          
+          const guest1Colors = getGuestColor(pair.guest1, table);
+          
+          // Create combined text with dash separator
+          const guest1Name = `${pair.guest1.first_name} ${pair.guest1.last_name || ''}`.trim();
+          const guest2Name = pair.guest2 ? `${pair.guest2.first_name} ${pair.guest2.last_name || ''}`.trim() : '';
+          const combinedText = guest2Name ? `${guest1Name} - ${guest2Name}` : guest1Name;
+          
           svgContent += `
-            <text x="${nameX}" y="${nameY}" 
+            <text x="${scaledX + scaledWidth / 2}" y="${nameY}" 
                   text-anchor="middle" font-family="Arial, sans-serif" 
-                  font-size="${dynamicFontSize}" fill="${colors.text}">
-              ${`${guest.first_name} ${guest.last_name || ''}`.trim()}
+                  font-size="${dynamicFontSize}" fill="${guest1Colors.text}" font-weight="500">
+              ${combinedText}
             </text>
           `;
-        }
-      });
+        });
+      }
     }
 
     // Color coding indicator
