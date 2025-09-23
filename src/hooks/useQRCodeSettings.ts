@@ -78,7 +78,7 @@ export const useQRCodeSettings = (eventId: string | null) => {
           pattern: 'basic',
           pattern_style: 'basic',
           background_color: '#ffffff',
-          foreground_color: '#000000',
+          foreground_color: '#0a0a0a',
           corner_style: 'square',
           has_scan_text: true,
           scan_text: 'SCAN ME',
