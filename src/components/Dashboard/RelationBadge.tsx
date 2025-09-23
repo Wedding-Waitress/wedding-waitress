@@ -41,21 +41,14 @@ export const RelationBadge: React.FC<RelationBadgeProps> = ({
 
   return (
     <div 
-      className="flex items-center gap-1 cursor-pointer group"
+      className="flex items-center cursor-pointer group"
       onClick={onClick}
     >
       <Badge 
         variant="secondary" 
         className="px-2 py-1 text-xs bg-primary/10 text-primary border-primary/20 hover:bg-primary/20 transition-colors"
       >
-        {displayPartner}
-      </Badge>
-      <span className="text-xs text-muted-foreground">—</span>
-      <Badge 
-        variant="outline" 
-        className="px-2 py-1 text-xs hover:bg-muted/50 transition-colors"
-      >
-        {displayRole}
+        {displayPartner}/{displayRole}
       </Badge>
     </div>
   );
