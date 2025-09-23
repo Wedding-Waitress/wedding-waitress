@@ -13,7 +13,8 @@ import { useEvents } from '@/hooks/useEvents';
 import { useToast } from '@/hooks/use-toast';
 import { buildGuestLookupUrl } from '@/lib/urlUtils';
 import { QR_SHAPES, QR_PATTERNS, COLOR_PALETTES, CORNER_STYLES, BORDER_STYLES } from '@/lib/qrShapes';
-import QRCode from 'qrcode';
+import { AdvancedQRGenerator } from '@/lib/advancedQRGenerator';
+import type { QRCodeSettings } from '@/hooks/useQRCodeSettings';
 import jsPDF from 'jspdf';
 
 interface QRCodeMainCardProps {
@@ -167,25 +168,91 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
     return ratio;
   }, []);
 
-  // Debounced QR render function
+  // Create logo data URL from preset
+  const createPresetLogoDataUrl = useCallback(async (presetId: string): Promise<string> => {
+    const preset = logoPresets.find(p => p.id === presetId);
+    if (!preset) return '';
+    
+    // Create a simple SVG icon and convert to data URL
+    const svg = `
+      <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="${preset.color}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        ${preset.id === 'heart' ? '<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5l6 6 6-6z"/>' :
+          preset.id === 'star' ? '<polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/>' :
+          preset.id === 'diamond' ? '<path d="M6 3h12l4 6-10 12L2 9l4-6z"/>' :
+          preset.id === 'users' ? '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>' :
+          preset.id === 'sparkles' ? '<path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.582a.5.5 0 0 1 0 .962L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0L9.937 15.5Z"/><path d="M20 3v4"/><path d="M22 5h-4"/><path d="M4 17v2"/><path d="M5 18H3"/>' :
+          preset.id === 'zap' ? '<polygon points="13,2 3,14 12,14 11,22 21,10 12,10"/>' :
+          preset.id === 'crown' ? '<path d="M2 3h20l-2 14H4L2 3Z"/><path d="M6 3L4 8l4-1 4 4 4-4 4 1L18 3"/>' :
+          '<path d="M5 12s2.545-5 7-5c4.454 0 7 5 7 5s-2.546 5-7 5c-4.455 0-7-5-7-5z"/><path d="M12 13a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/>'
+        }
+      </svg>
+    `;
+    
+    return `data:image/svg+xml;base64,${btoa(svg)}`;
+  }, []);
+
+  // Convert local settings to QRCodeSettings format
+  const convertToQRCodeSettings = useCallback(async (): Promise<QRCodeSettings> => {
+    let centerImage = '';
+    
+    if (qrSettings.logo.enabled) {
+      if (qrSettings.logo.source === 'upload' && qrSettings.logo.file instanceof File) {
+        // Convert uploaded file to data URL
+        const reader = new FileReader();
+        centerImage = await new Promise((resolve) => {
+          reader.onload = (e) => resolve(e.target?.result as string || '');
+          reader.readAsDataURL(qrSettings.logo.file as File);
+        });
+      } else if (qrSettings.logo.source === 'preset' && qrSettings.logo.presetId) {
+        centerImage = await createPresetLogoDataUrl(qrSettings.logo.presetId);
+      }
+    }
+
+    return {
+      event_id: eventId,
+      user_id: '', // Will be filled by the backend
+      background_color: qrSettings.colors.background,
+      foreground_color: qrSettings.colors.foreground,
+      shape: qrSettings.design.shape,
+      pattern: qrSettings.design.pattern,
+      pattern_style: 'default',
+      corner_style: qrSettings.design.cornerStyle,
+      border_style: qrSettings.design.borderStyle,
+      border_width: qrSettings.design.borderWidth,
+      border_color: qrSettings.colors.foreground,
+      center_image_url: centerImage,
+      center_image_size: qrSettings.logo.sizePct,
+      has_scan_text: qrSettings.frame.frameId !== 'none',
+      scan_text: qrSettings.frame.frameId !== 'none' ? qrSettings.frame.label : '',
+      gradient_type: 'none',
+      gradient_colors: [],
+      background_image_url: undefined,
+      shadow_enabled: false,
+      shadow_color: '#000000',
+      shadow_blur: 10,
+      background_opacity: 100,
+      output_size: 512,
+      output_format: 'png',
+      color_palette: 'custom',
+      advanced_settings: {
+        font: qrSettings.frame.font,
+        textSize: qrSettings.frame.textSizePct,
+        useCustomFrameColor: qrSettings.frame.useCustomColor,
+        frameColor: qrSettings.frame.color,
+        clearBehindLogo: qrSettings.logo.clearBehind
+      }
+    };
+  }, [qrSettings, createPresetLogoDataUrl]);
+
+  // Debounced QR render function using AdvancedQRGenerator
   const renderQR = useCallback(async () => {
     if (!eventUrl) return;
 
     try {
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-      if (!ctx) return;
-
-      // Generate QR code
-      const qrDataURL = await QRCode.toDataURL(eventUrl, {
-        width: 400,
-        margin: 2,
-        color: {
-          dark: qrSettings.colors.foreground,
-          light: qrSettings.colors.background
-        }
-      });
-
+      const generator = new AdvancedQRGenerator(512);
+      const settings = await convertToQRCodeSettings();
+      
+      const qrDataURL = await generator.generate(eventUrl, settings);
       setQrDataUrl(qrDataURL);
 
       // Check contrast
@@ -195,7 +262,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
     } catch (error) {
       console.error('Error rendering QR code:', error);
     }
-  }, [eventUrl, qrSettings.colors, qrSettings.design, qrSettings.logo, qrSettings.frame, calculateContrast]);
+  }, [eventUrl, qrSettings, calculateContrast, convertToQRCodeSettings]);
 
   // Debounced render effect
   useEffect(() => {
@@ -268,29 +335,38 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
   }, [qrDataUrl, selectedEvent?.name, toast]);
 
   const handleDownloadSVG = useCallback(async () => {
-    if (!eventUrl) return;
+    if (!eventUrl || !qrDataUrl) return;
     try {
-      const qrSvg = await QRCode.toString(eventUrl, {
-        type: 'svg',
-        width: 512,
-        margin: 2,
-        color: {
-          dark: qrSettings.colors.foreground,
-          light: qrSettings.colors.background
-        }
-      });
-      const blob = new Blob([qrSvg], { type: 'image/svg+xml' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.download = `qr-code-${selectedEvent?.name || 'event'}.svg`;
-      link.href = url;
-      link.click();
-      URL.revokeObjectURL(url);
-      toast({ title: "SVG downloaded successfully!" });
+      // Convert canvas to SVG (simplified approach)
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const img = new Image();
+      img.onload = () => {
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx!.drawImage(img, 0, 0);
+        
+        // Create a simple SVG wrapper
+        const svgContent = `
+          <svg xmlns="http://www.w3.org/2000/svg" width="${img.width}" height="${img.height}">
+            <image href="${qrDataUrl}" width="${img.width}" height="${img.height}"/>
+          </svg>
+        `;
+        
+        const blob = new Blob([svgContent], { type: 'image/svg+xml' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.download = `qr-code-${selectedEvent?.name || 'event'}.svg`;
+        link.href = url;
+        link.click();
+        URL.revokeObjectURL(url);
+        toast({ title: "SVG downloaded successfully!" });
+      };
+      img.src = qrDataUrl;
     } catch (error) {
       toast({ title: "Error downloading SVG", variant: "destructive" });
     }
-  }, [eventUrl, qrSettings.colors, selectedEvent?.name, toast]);
+  }, [qrDataUrl, selectedEvent?.name, toast]);
 
   const handleDownloadPDF = useCallback(async () => {
     if (!qrDataUrl) return;
@@ -826,10 +902,16 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
                                 <input
                                   type="file"
                                   accept="image/*"
-                                  onChange={(e) => {
+                                  onChange={async (e) => {
                                     const file = e.target.files?.[0];
                                     if (file) {
-                                      updateLogo({ file });
+                                      // Convert to data URL immediately for preview
+                                      const reader = new FileReader();
+                                      reader.onload = (event) => {
+                                        const dataUrl = event.target?.result as string;
+                                        updateLogo({ file, source: 'upload' });
+                                      };
+                                      reader.readAsDataURL(file);
                                     }
                                   }}
                                   className="hidden"
