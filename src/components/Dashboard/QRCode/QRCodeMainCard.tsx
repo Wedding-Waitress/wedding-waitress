@@ -161,7 +161,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
       shadow_color: '#00000033',
       center_image_size: 80,
       background_opacity: 1.0,
-      output_size: 512,
+      output_size: 1024,
       output_format: 'png',
       color_palette: 'default',
       advanced_settings: {},
@@ -288,8 +288,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
                 <div className="flex gap-2">
                   <Button 
                     onClick={resetToDefault}
-                    variant="outline"
-                    className="flex-1"
+                    className="flex-1 bg-purple-600 hover:bg-purple-700 text-white"
                     disabled={!settings}
                   >
                     Reset to Default

@@ -92,7 +92,7 @@ export const useQRCodeSettings = (eventId: string | null) => {
           shadow_color: '#00000033',
           center_image_size: 80,
           background_opacity: 1.0,
-          output_size: 512,
+          output_size: 1024,
           output_format: 'png',
           color_palette: 'default',
           advanced_settings: {},
