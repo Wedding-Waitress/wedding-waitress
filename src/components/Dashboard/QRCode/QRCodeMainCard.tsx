@@ -1,17 +1,17 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { useEvents } from '@/hooks/useEvents';
-import { useToast } from '@/hooks/use-toast';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import React, { useEffect, useState, useCallback } from 'react';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { Download, Copy, QrCode as QrCodeIcon, ExternalLink } from 'lucide-react';
+import { toast } from 'sonner';
+import { useEvents } from '@/hooks/useEvents';
+import { useQRCodeSettings } from '@/hooks/useQRCodeSettings';
 import { AdvancedQRGenerator } from '@/lib/advancedQRGenerator';
-import { AdvancedQRCustomizer } from './AdvancedQRCustomizer';
-import { useQRCodeSettings, QRCodeSettings } from '@/hooks/useQRCodeSettings';
+import { QRCodeTypeSelector } from './QRCodeTypeSelector';
+import { QRCodeSidebar } from './QRCodeSidebar';
 import { buildGuestLookupUrl } from '@/lib/urlUtils';
+import { ExternalLink, Copy, Download, Printer } from 'lucide-react';
 
 interface QRCodeMainCardProps {
   eventId: string;
@@ -20,302 +20,276 @@ interface QRCodeMainCardProps {
 export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
   const { settings, loading, saveSettings } = useQRCodeSettings(eventId);
   const { events } = useEvents();
-  const { toast } = useToast();
-  const [qrUrl, setQrUrl] = useState('');
-  const [qrDataUrl, setQrDataUrl] = useState<string>('');
+  const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
+  const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string>('');
+  const [activeType, setActiveType] = useState<string>('url');
+  const [customUrl, setCustomUrl] = useState<string>('');
+  const [trackingEnabled, setTrackingEnabled] = useState<boolean>(false);
 
-  const selectedEvent = events.find(event => event.id === eventId);
+  const selectedEvent = events?.find(event => event.id === eventId);
+
+  // Initialize QR code generator
+  const qrGenerator = new AdvancedQRGenerator(512);
 
   useEffect(() => {
     if (selectedEvent?.slug) {
       const url = buildGuestLookupUrl(selectedEvent.slug);
-      console.log('Generated QR URL:', url); // Debug logging
-      setQrUrl(url);
+      setQrCodeUrl(url);
+      setCustomUrl(url);
     }
   }, [selectedEvent]);
 
+  // Generate QR code when URL or settings change
   const generateQRCode = useCallback(async () => {
-    if (!qrUrl || !settings) return;
-
+    if (!qrCodeUrl || !settings) return;
+    
     try {
-      const generator = new AdvancedQRGenerator(settings.output_size || 512);
-      const dataUrl = await generator.generate(qrUrl, settings);
-      setQrDataUrl(dataUrl);
+      const dataUrl = await qrGenerator.generate(qrCodeUrl, settings);
+      setQrCodeDataUrl(dataUrl);
     } catch (error) {
-      console.error('Error generating QR code:', error);
-      toast({
-        title: "Error",
-        description: "Failed to generate QR code",
-        variant: "destructive",
-      });
+      console.error('Failed to generate QR code:', error);
+      toast.error('Failed to generate QR code');
     }
-  }, [qrUrl, settings, toast]);
+  }, [qrCodeUrl, settings, qrGenerator]);
 
   useEffect(() => {
-    if (qrUrl && settings) {
-      generateQRCode();
-    }
+    generateQRCode();
   }, [generateQRCode]);
 
-  const updateSettings = (newSettings: Partial<QRCodeSettings>) => {
-    if (settings) {
-      const updated = { ...settings, ...newSettings };
-      saveSettings(updated);
-    }
+  const updateSettings = async (newSettings: Partial<typeof settings>) => {
+    if (!settings) return;
+    
+    const updatedSettings = { ...settings, ...newSettings };
+    await saveSettings(updatedSettings);
   };
 
-  const handleDownload = async (format: 'png' | 'jpg' | 'svg') => {
-    if (!qrDataUrl) return;
+  const handleDownload = async (format: 'png' | 'svg' | 'pdf') => {
+    if (!qrCodeDataUrl) {
+      toast.error('QR code not ready');
+      return;
+    }
 
-    const link = document.createElement('a');
-    link.download = `qr-code-${selectedEvent?.name || 'event'}.${format}`;
-    
-    if (format === 'svg') {
-      // Generate SVG version using QRCode library
-      try {
-        const QRCode = await import('qrcode');
-        const svgString = await QRCode.toString(qrUrl, {
-          type: 'svg',
-          errorCorrectionLevel: 'H',
-          margin: 2,
-          width: settings?.output_size || 512,
-          color: {
-            dark: settings?.foreground_color || '#000000',
-            light: settings?.background_color || '#ffffff'
-          }
-        });
-        const blob = new Blob([svgString], { type: 'image/svg+xml' });
-        link.href = URL.createObjectURL(blob);
-        link.click();
-        URL.revokeObjectURL(link.href);
-      } catch (error) {
-        console.error('Error generating SVG:', error);
-        toast({
-          title: "Error",
-          description: "Failed to generate SVG",
-          variant: "destructive",
-        });
+    try {
+      let blob: Blob;
+      let filename: string;
+
+      if (format === 'svg') {
+        toast.error('SVG format not yet supported');
         return;
+      } else if (format === 'pdf') {
+        toast.error('PDF format not yet supported');
+        return;
+      } else {
+        // Convert canvas to blob
+        const canvas = qrGenerator.getCanvas();
+        blob = await new Promise<Blob>((resolve, reject) => {
+          canvas.toBlob((blob) => {
+            if (blob) resolve(blob);
+            else reject(new Error('Failed to create blob'));
+          }, 'image/png', 0.9);
+        });
+        filename = `qr-code-${selectedEvent?.name || 'event'}.${format}`;
       }
-    } else if (format === 'jpg') {
-      // Convert PNG to JPG
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d')!;
-      const img = new Image();
-      
-      img.onload = () => {
-        canvas.width = img.width;
-        canvas.height = img.height;
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(img, 0, 0);
-        link.href = canvas.toDataURL('image/jpeg', 0.9);
-        link.click();
-      };
-      img.src = qrDataUrl;
-    } else {
-      link.href = qrDataUrl;
-      link.click();
-    }
 
-    toast({
-      title: "Success",
-      description: `QR code downloaded as ${format.toUpperCase()}`,
-    });
+      // Create download link
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      toast.success(`QR code downloaded as ${format.toUpperCase()}`);
+    } catch (error) {
+      console.error('Download failed:', error);
+      toast.error('Failed to download QR code');
+    }
   };
 
-  const copyLink = () => {
-    if (!qrUrl) return;
+  const handlePrint = () => {
+    if (!qrCodeDataUrl) {
+      toast.error('QR code not ready');
+      return;
+    }
+
+    const printWindow = window.open('', '_blank');
+    if (printWindow) {
+      printWindow.document.write(`
+        <html>
+          <head><title>QR Code</title></head>
+          <body style="display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0;">
+            <img src="${qrCodeDataUrl}" style="max-width: 100%; max-height: 100%;" />
+          </body>
+        </html>
+      `);
+      printWindow.document.close();
+      printWindow.print();
+    }
+  };
+
+  const copyLink = async () => {
+    if (!qrCodeUrl) return;
     
-    navigator.clipboard.writeText(qrUrl);
-    toast({
-      title: "Success",
-      description: "Live view link copied to clipboard",
-    });
+    try {
+      await navigator.clipboard.writeText(qrCodeUrl);
+      toast.success('Link copied to clipboard');
+    } catch (error) {
+      console.error('Failed to copy link:', error);
+      toast.error('Failed to copy link');
+    }
   };
 
   const openLiveView = () => {
-    if (!qrUrl) return;
-    
-    window.open(qrUrl, '_blank');
+    if (qrCodeUrl) {
+      window.open(qrCodeUrl, '_blank');
+    }
   };
 
-  const resetToDefault = () => {
-    const defaultSettings: Partial<QRCodeSettings> = {
-      event_id: eventId,
-      shape: 'square',
-      pattern: 'basic',
-      pattern_style: 'basic',
-      background_color: '#ffffff',
-      foreground_color: '#0a0a0a',
-      corner_style: 'square',
-      has_scan_text: true,
-      scan_text: 'SCAN ME',
-      gradient_type: 'none',
-      gradient_colors: [],
-      border_style: 'none',
-      border_width: 0,
-      border_color: '#000000',
-      shadow_enabled: false,
-      shadow_blur: 10,
-      shadow_color: '#00000033',
-      center_image_size: 80,
-      background_opacity: 1.0,
-      output_size: 1024,
-      output_format: 'png',
-      color_palette: 'default',
-      advanced_settings: {},
-    };
-    
-    saveSettings(defaultSettings as QRCodeSettings);
-    toast({
-      title: "Success",
-      description: "QR code settings reset to default",
-    });
+  const handleUrlChange = (url: string) => {
+    setCustomUrl(url);
+    setQrCodeUrl(url);
   };
 
   if (loading) {
     return (
-      <Card className="ww-box h-full">
-        <CardContent className="flex items-center justify-center h-64">
-          <div className="animate-spin w-8 h-8 border-2 border-primary border-t-transparent rounded-full"></div>
+      <Card className="w-full">
+        <CardContent className="p-6">
+          <div className="text-center">Loading QR code settings...</div>
         </CardContent>
       </Card>
     );
   }
 
-  if (!settings || !selectedEvent) {
+  if (!selectedEvent || !settings) {
     return (
-      <Card className="ww-box h-full">
-        <CardContent className="flex items-center justify-center h-64">
-          <p className="text-muted-foreground">No event selected or settings not found</p>
+      <Card className="w-full">
+        <CardContent className="p-6">
+          <div className="text-center text-muted-foreground">
+            {!selectedEvent ? "Event not found" : "Settings not available"}
+          </div>
         </CardContent>
       </Card>
     );
   }
 
   return (
-    <Card className="ww-box h-full">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <QrCodeIcon className="h-5 w-5" />
-          QR Code Generator
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        {/* Two-column layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Left Box - QR Code Display and Actions */}
-          <div className="border rounded-lg p-6 bg-muted/30 space-y-4">
-            {/* Event Name Display */}
-            <div className="text-center mb-4">
-              <h3 className="text-purple-600 font-bold text-lg">
-                {selectedEvent?.name}
-              </h3>
-            </div>
+    <div className="w-full h-full flex flex-col bg-background">
+      {/* Top Type Selector */}
+      <QRCodeTypeSelector 
+        activeType={activeType}
+        onTypeChange={setActiveType}
+      />
 
-            {/* QR Code Display */}
-            <div className="text-center">
-              {qrDataUrl ? (
-                <img 
-                  src={qrDataUrl} 
-                  alt="QR Code Preview" 
-                  className="max-w-[280px] mx-auto border rounded-lg bg-white p-2"
+      {/* URL Input Section */}
+      <div className="p-4 border-b bg-background">
+        <div className="space-y-4">
+          <div>
+            <Label htmlFor="url-input" className="text-lg font-medium">URL</Label>
+          </div>
+          <div>
+            <Label htmlFor="url-input" className="text-sm text-muted-foreground">URL</Label>
+            <Input
+              id="url-input"
+              type="url"
+              placeholder="https://www.midnightdjs.com.au/"
+              value={customUrl}
+              onChange={(e) => handleUrlChange(e.target.value)}
+              className="mt-1"
+            />
+          </div>
+          <div className="flex items-center space-x-2">
+            <Switch
+              id="tracking"
+              checked={trackingEnabled}
+              onCheckedChange={setTrackingEnabled}
+            />
+            <Label htmlFor="tracking" className="text-sm text-muted-foreground">
+              Edit QR Code info after print & see how many people scan it (paid feature)
+            </Label>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content Area */}
+      <div className="flex flex-1 overflow-hidden">
+        {/* Left Sidebar */}
+        <QRCodeSidebar 
+          settings={settings}
+          onSettingsChange={updateSettings}
+        />
+
+        {/* Right Content Area - QR Code Preview and Actions */}
+        <div className="flex-1 p-6 flex flex-col">
+          {/* QR Code Preview */}
+          <div className="flex-1 flex items-center justify-center mb-6">
+            <div className="bg-muted/30 p-8 rounded-lg">
+              {qrCodeDataUrl ? (
+                <img
+                  src={qrCodeDataUrl}
+                  alt="QR Code"
+                  className="max-w-full h-auto"
+                  style={{ maxWidth: '300px', maxHeight: '300px' }}
                 />
               ) : (
-                <div className="w-[280px] h-[280px] mx-auto border-2 border-dashed border-muted-foreground/25 rounded-lg flex items-center justify-center bg-white">
-                  <QrCodeIcon className="h-16 w-16 text-muted-foreground" />
+                <div className="w-64 h-64 bg-muted rounded-lg flex items-center justify-center">
+                  <span className="text-muted-foreground">Generating QR Code...</span>
                 </div>
               )}
             </div>
-
-            {/* Action Buttons */}
-            <div className="space-y-3">
-              {/* Live View Buttons */}
-              <div className="flex gap-2">
-                <Button 
-                  onClick={openLiveView}
-                  className="flex-1"
-                  disabled={!qrUrl}
-                >
-                  <ExternalLink className="h-4 w-4 mr-2" />
-                  Open Live View
-                </Button>
-                <Button 
-                  onClick={copyLink} 
-                  variant="outline" 
-                  className="flex-1"
-                  disabled={!qrUrl}
-                >
-                  <Copy className="h-4 w-4 mr-2" />
-                  Copy Live View
-                </Button>
-              </div>
-              
-              {/* Download Options */}
-              <div className="space-y-2">
-                <p className="text-sm font-medium">Download:</p>
-                <div className="flex gap-2">
-                  <Button 
-                    onClick={() => handleDownload('png')} 
-                    variant="outline"
-                    className="flex-1"
-                    disabled={!qrDataUrl}
-                  >
-                    PNG
-                  </Button>
-                  <Button 
-                    onClick={() => handleDownload('jpg')} 
-                    variant="outline" 
-                    className="flex-1"
-                    disabled={!qrDataUrl}
-                  >
-                    JPG
-                  </Button>
-                  <Button 
-                    onClick={() => handleDownload('svg')} 
-                    variant="outline" 
-                    className="flex-1"
-                    disabled={!qrDataUrl}
-                  >
-                    SVG Vector
-                  </Button>
-                </div>
-              </div>
-              
-              {/* Reset Button */}
-              <div className="space-y-2">
-                <div className="flex gap-2">
-                  <Button 
-                    onClick={resetToDefault}
-                    className="flex-1 bg-purple-600 hover:bg-purple-700 text-white"
-                    disabled={!settings}
-                  >
-                    Reset to Default
-                  </Button>
-                </div>
-              </div>
-            </div>
           </div>
 
-          {/* Right Box - Advanced Editor Features */}
-          <div className="border rounded-lg p-6 bg-muted/30">
-            {settings && (
-              <AdvancedQRCustomizer
-                eventId={eventId}
-                settings={settings}
-                onSettingsChange={updateSettings}
-                onSave={async () => {
-                  const success = await saveSettings(settings);
-                  if (success) {
-                    generateQRCode();
-                  }
-                }}
-              />
-            )}
+          {/* Save Button */}
+          <div className="flex justify-center mb-4">
+            <Button
+              size="lg"
+              className="px-8 py-3 bg-primary/20 hover:bg-primary/30 text-primary"
+            >
+              Save
+            </Button>
+          </div>
+
+          {/* Download Buttons */}
+          <div className="flex justify-center gap-4">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handleDownload('png')}
+              className="flex items-center gap-2"
+            >
+              <Download className="h-4 w-4" />
+              PNG
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handleDownload('svg')}
+              className="flex items-center gap-2"
+            >
+              <Download className="h-4 w-4" />
+              SVG
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handleDownload('pdf')}
+              className="flex items-center gap-2"
+            >
+              <Download className="h-4 w-4" />
+              PDF
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handlePrint}
+              className="flex items-center gap-2"
+            >
+              <Printer className="h-4 w-4" />
+            </Button>
           </div>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };

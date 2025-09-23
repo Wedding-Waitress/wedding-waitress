@@ -5,7 +5,7 @@ import { useToast } from '@/hooks/use-toast';
 export interface QRCodeSettings {
   id?: string;
   event_id: string;
-  user_id: string;
+  user_id?: string;
   shape: string;
   pattern: string;
   pattern_style: string;
@@ -30,6 +30,19 @@ export interface QRCodeSettings {
   output_format: string;
   color_palette: string;
   advanced_settings: any;
+  // New properties for enhanced interface
+  has_transparent_background?: boolean;
+  has_gradient_background?: boolean;
+  has_center_image?: boolean;
+  remove_center_image_background?: boolean;
+  has_custom_marker_color?: boolean;
+  has_frame?: boolean;
+  frame_style?: string;
+  frame_text?: string;
+  frame_font?: string;
+  frame_text_size?: number;
+  has_custom_frame_color?: boolean;
+  frame_color?: string;
   created_at?: string;
   updated_at?: string;
 }
