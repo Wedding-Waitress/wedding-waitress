@@ -420,7 +420,9 @@ export const useRealtimeGuests = (eventId: string | null): UseRealtimeGuestsRetu
 
   // Handle realtime updates
   const handleRealtimeUpdate = useCallback((payload: any) => {
-    console.log('Realtime update received:', payload);
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Realtime update received:', payload);
+    }
     
     const { eventType, new: newRecord, old: oldRecord } = payload;
 
@@ -480,9 +482,13 @@ export const useRealtimeGuests = (eventId: string | null): UseRealtimeGuestsRetu
         handleRealtimeUpdate
       )
       .subscribe((status) => {
-        console.log(`Realtime subscription status: ${status}`);
+        if (process.env.NODE_ENV === 'development') {
+          console.log(`Realtime subscription status: ${status}`);
+        }
         if (status === 'SUBSCRIBED') {
-          console.log(`Successfully subscribed to guests:event:${eventId}`);
+          if (process.env.NODE_ENV === 'development') {
+            console.log(`Successfully subscribed to guests:event:${eventId}`);
+          }
         } else if (status === 'CHANNEL_ERROR') {
           console.error('Realtime subscription error, setting up debounced refetch');
           debouncedRefetch();

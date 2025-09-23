@@ -147,7 +147,6 @@ export const SignagePage: React.FC<SignagePageProps> = ({
         onBack={() => setIsCustomizing(false)}
         onSave={(updatedTemplate) => {
           // TODO: Save template to database
-          console.log('Saving template:', updatedTemplate);
           setIsCustomizing(false);
         }}
       />

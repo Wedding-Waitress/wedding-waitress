@@ -8,8 +8,11 @@ export interface AnalyticsEvent {
 
 export const analytics = {
   track: (eventName: string, properties: Record<string, any> = {}) => {
-    // For now, log to console. Can be replaced with actual analytics service
-    console.log(`Analytics: ${eventName}`, properties);
+    // Send to analytics service in production
+    // In development, you can temporarily enable console logging for debugging
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`Analytics: ${eventName}`, properties);
+    }
     
     // Here you would typically send to your analytics service
     // e.g., mixpanel.track(eventName, properties);

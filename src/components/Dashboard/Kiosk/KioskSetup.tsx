@@ -75,7 +75,7 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
         try {
           newWindow.document.documentElement.requestFullscreen?.();
         } catch (error) {
-          console.log('Fullscreen not available');
+          // Silently fail if fullscreen is not available
         }
       }, 1000);
     }

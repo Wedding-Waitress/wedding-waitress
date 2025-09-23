@@ -116,7 +116,6 @@ export const TableSeatingChartPage: React.FC<TableSeatingChartPageProps> = ({
     setIsExporting(true);
     try {
       // Export logic will be handled by TableChartExporter
-      console.log('Exporting as:', format);
     } finally {
       setIsExporting(false);
     }

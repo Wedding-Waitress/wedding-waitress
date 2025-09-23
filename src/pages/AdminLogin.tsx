@@ -28,7 +28,6 @@ export const AdminLogin = () => {
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     // Handle admin login logic here
-    console.log('Admin login:', formData);
   };
 
   return (
