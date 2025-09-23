@@ -1,4 +1,5 @@
 import QRCode from 'qrcode';
+import QRCodeGenerator from 'qrcode-generator';
 import { QRCodeSettings } from '@/hooks/useQRCodeSettings';
 
 export class AdvancedQRGenerator {
@@ -58,36 +59,28 @@ export class AdvancedQRGenerator {
     if (process.env.NODE_ENV === 'development') {
       console.log('Generating QR matrix for URL:', url); // Debug logging
     }
-    const qrDataURL = await QRCode.toDataURL(url, {
-      errorCorrectionLevel: 'H', // Increased error correction for better scanning
-      margin: 0,
-      width: this.canvas.width,
-      color: { dark: '#000000', light: '#FFFFFF' }
-    });
-
-    return new Promise((resolve) => {
-      const img = new Image();
-      img.onload = () => {
-        const tempCanvas = document.createElement('canvas');
-        const tempCtx = tempCanvas.getContext('2d')!;
-        tempCanvas.width = img.width;
-        tempCanvas.height = img.height;
-        tempCtx.drawImage(img, 0, 0);
-        
-        const imageData = tempCtx.getImageData(0, 0, img.width, img.height);
-        const matrix: boolean[][] = [];
-        
-        for (let y = 0; y < img.height; y++) {
-          matrix[y] = [];
-          for (let x = 0; x < img.width; x++) {
-            const i = (y * img.width + x) * 4;
-            matrix[y][x] = imageData.data[i] < 128; // true for dark pixels
-          }
-        }
-        resolve(matrix);
-      };
-      img.src = qrDataURL;
-    });
+    
+    // Use qrcode-generator for module-level QR data
+    const qr = QRCodeGenerator(0, 'H'); // Type 0 (auto), Error correction level H
+    qr.addData(url);
+    qr.make();
+    
+    const moduleCount = qr.getModuleCount();
+    const matrix: boolean[][] = [];
+    
+    for (let row = 0; row < moduleCount; row++) {
+      matrix[row] = [];
+      for (let col = 0; col < moduleCount; col++) {
+        matrix[row][col] = qr.isDark(row, col);
+      }
+    }
+    
+    if (process.env.NODE_ENV === 'development') {
+      console.log('QR Matrix size:', moduleCount, 'x', moduleCount);
+      console.log('Sample matrix data:', matrix.slice(0, 3).map(row => row.slice(0, 3)));
+    }
+    
+    return matrix;
   }
 
   private async applyBackground(settings: QRCodeSettings) {
@@ -150,9 +143,36 @@ export class AdvancedQRGenerator {
   }
 
   private applyQRPattern(matrix: boolean[][], settings: QRCodeSettings) {
-    const cellSize = this.canvas.width / matrix.length;
+    const moduleCount = matrix.length;
+    const cellSize = this.canvas.width / moduleCount;
     this.ctx.fillStyle = settings.foreground_color;
 
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Applying pattern:', settings.pattern, 'Shape:', settings.shape, 'Cell size:', cellSize);
+    }
+
+    // Apply pattern-specific rendering
+    switch (settings.pattern) {
+      case 'dots':
+        this.applyDotsPattern(matrix, cellSize, settings);
+        break;
+      case 'stripes':
+        this.applyStripesPattern(matrix, cellSize, settings);
+        break;
+      case 'checker':
+        this.applyCheckerPattern(matrix, cellSize, settings);
+        break;
+      case 'gradient':
+        this.applyGradientPattern(matrix, cellSize, settings);
+        break;
+      case 'solid':
+      default:
+        this.applySolidPattern(matrix, cellSize, settings);
+        break;
+    }
+  }
+
+  private applySolidPattern(matrix: boolean[][], cellSize: number, settings: QRCodeSettings) {
     for (let y = 0; y < matrix.length; y++) {
       for (let x = 0; x < matrix[y].length; x++) {
         if (matrix[y][x]) {
@@ -162,6 +182,74 @@ export class AdvancedQRGenerator {
     }
   }
 
+  private applyDotsPattern(matrix: boolean[][], cellSize: number, settings: QRCodeSettings) {
+    this.ctx.fillStyle = settings.foreground_color;
+    for (let y = 0; y < matrix.length; y++) {
+      for (let x = 0; x < matrix[y].length; x++) {
+        if (matrix[y][x]) {
+          const centerX = x * cellSize + cellSize / 2;
+          const centerY = y * cellSize + cellSize / 2;
+          this.ctx.beginPath();
+          this.ctx.arc(centerX, centerY, cellSize * 0.3, 0, Math.PI * 2);
+          this.ctx.fill();
+        }
+      }
+    }
+  }
+
+  private applyStripesPattern(matrix: boolean[][], cellSize: number, settings: QRCodeSettings) {
+    this.ctx.fillStyle = settings.foreground_color;
+    for (let y = 0; y < matrix.length; y++) {
+      for (let x = 0; x < matrix[y].length; x++) {
+        if (matrix[y][x]) {
+          if ((x + y) % 2 === 0) {
+            this.ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize * 0.8);
+          } else {
+            this.ctx.fillRect(x * cellSize, y * cellSize, cellSize * 0.8, cellSize);
+          }
+        }
+      }
+    }
+  }
+
+  private applyCheckerPattern(matrix: boolean[][], cellSize: number, settings: QRCodeSettings) {
+    for (let y = 0; y < matrix.length; y++) {
+      for (let x = 0; x < matrix[y].length; x++) {
+        if (matrix[y][x]) {
+          // Alternate between foreground color and a lighter shade
+          this.ctx.fillStyle = (x + y) % 2 === 0 ? settings.foreground_color : this.lightenColor(settings.foreground_color, 0.3);
+          this.ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
+        }
+      }
+    }
+  }
+
+  private applyGradientPattern(matrix: boolean[][], cellSize: number, settings: QRCodeSettings) {
+    const gradient = this.ctx.createLinearGradient(0, 0, this.canvas.width, this.canvas.height);
+    gradient.addColorStop(0, settings.foreground_color);
+    gradient.addColorStop(1, this.lightenColor(settings.foreground_color, 0.4));
+    this.ctx.fillStyle = gradient;
+    
+    for (let y = 0; y < matrix.length; y++) {
+      for (let x = 0; x < matrix[y].length; x++) {
+        if (matrix[y][x]) {
+          this.drawQRCell(x * cellSize, y * cellSize, cellSize, settings);
+        }
+      }
+    }
+  }
+
+  private lightenColor(color: string, amount: number): string {
+    const num = parseInt(color.replace("#", ""), 16);
+    const amt = Math.round(255 * amount);
+    const R = (num >> 16) + amt;
+    const G = (num >> 8 & 0x00FF) + amt;
+    const B = (num & 0x0000FF) + amt;
+    return "#" + (0x1000000 + (R < 255 ? R < 1 ? 0 : R : 255) * 0x10000 +
+      (G < 255 ? G < 1 ? 0 : G : 255) * 0x100 +
+      (B < 255 ? B < 1 ? 0 : B : 255)).toString(16).slice(1);
+  }
+
   private drawQRCell(x: number, y: number, size: number, settings: QRCodeSettings) {
     const centerX = x + size / 2;
     const centerY = y + size / 2;
@@ -169,39 +257,43 @@ export class AdvancedQRGenerator {
     this.ctx.save();
     this.ctx.translate(centerX, centerY);
 
+    // Use smaller padding for better visibility
+    const padding = size * 0.1;
+    const drawSize = size - padding;
+
     switch (settings.shape) {
       case 'circle':
-        this.drawCircle(size);
+        this.drawCircle(drawSize);
         break;
       case 'rounded':
-        this.drawRoundedSquare(size);
+        this.drawRoundedSquare(drawSize);
         break;
       case 'diamond':
-        this.drawDiamond(size);
+        this.drawDiamond(drawSize);
         break;
       case 'hexagon':
-        this.drawPolygon(6, size);
+        this.drawPolygon(6, drawSize);
         break;
       case 'octagon':
-        this.drawPolygon(8, size);
+        this.drawPolygon(8, drawSize);
         break;
       case 'triangle':
-        this.drawPolygon(3, size);
+        this.drawPolygon(3, drawSize);
         break;
       case 'pentagon':
-        this.drawPolygon(5, size);
+        this.drawPolygon(5, drawSize);
         break;
       case 'heart':
-        this.drawHeart(size);
+        this.drawHeart(drawSize);
         break;
       case 'star':
-        this.drawStar(size);
+        this.drawStar(drawSize);
         break;
       case 'flower':
-        this.drawFlower(size);
+        this.drawFlower(drawSize);
         break;
       default:
-        this.drawSquare(size);
+        this.drawSquare(drawSize);
     }
 
     this.ctx.restore();
@@ -209,26 +301,26 @@ export class AdvancedQRGenerator {
 
   private drawCircle(size: number) {
     this.ctx.beginPath();
-    this.ctx.arc(0, 0, size * 0.4, 0, Math.PI * 2);
+    this.ctx.arc(0, 0, size * 0.45, 0, Math.PI * 2);
     this.ctx.fill();
   }
 
   private drawSquare(size: number) {
-    const half = size * 0.4;
-    this.ctx.fillRect(-half, -half, size * 0.8, size * 0.8);
+    const half = size * 0.45;
+    this.ctx.fillRect(-half, -half, size * 0.9, size * 0.9);
   }
 
   private drawRoundedSquare(size: number) {
-    const half = size * 0.4;
-    const radius = size * 0.1;
+    const half = size * 0.45;
+    const radius = size * 0.15;
     
     this.ctx.beginPath();
-    this.ctx.roundRect(-half, -half, size * 0.8, size * 0.8, radius);
+    this.ctx.roundRect(-half, -half, size * 0.9, size * 0.9, radius);
     this.ctx.fill();
   }
 
   private drawDiamond(size: number) {
-    const half = size * 0.4;
+    const half = size * 0.45;
     this.ctx.beginPath();
     this.ctx.moveTo(0, -half);
     this.ctx.lineTo(half, 0);
@@ -239,7 +331,7 @@ export class AdvancedQRGenerator {
   }
 
   private drawPolygon(sides: number, size: number) {
-    const radius = size * 0.4;
+    const radius = size * 0.45;
     this.ctx.beginPath();
     
     for (let i = 0; i < sides; i++) {
@@ -268,7 +360,7 @@ export class AdvancedQRGenerator {
   }
 
   private drawStar(size: number) {
-    const radius = size * 0.4;
+    const radius = size * 0.45;
     const innerRadius = radius * 0.4;
     this.ctx.beginPath();
     
