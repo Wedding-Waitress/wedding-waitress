@@ -289,6 +289,19 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
     return table?.name || null;
   };
 
+  // Helper function to check if a guest has a duplicate seat
+  const isDuplicateSeat = useCallback((guest: any) => {
+    if (!guest.seat_no || !guest.table_id) return false;
+    
+    const duplicates = guests.filter(g => 
+      g.table_id === guest.table_id && 
+      g.seat_no === guest.seat_no &&
+      g.id !== guest.id
+    );
+    
+    return duplicates.length > 0;
+  }, [guests]);
+
   // Manual save function for partner names
   const handleManualSavePartnerNames = useCallback(async () => {
     if (!selectedEvent || isSaving) return;
@@ -1238,8 +1251,29 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                   >
                     <TableCell className="font-medium w-24">{guest.first_name}</TableCell>
                     <TableCell className="font-medium w-24">{guest.last_name}</TableCell>
-                    <TableCell className="w-20">{getTableName(guest) || '–'}</TableCell>
-                    <TableCell className="w-20">{guest.seat_no || '–'}</TableCell>
+                    <TableCell className="w-20">{getTableName(guest) || '—'}</TableCell>
+                    <TableCell className="w-20">
+                      {guest.seat_no ? (
+                        isDuplicateSeat(guest) ? (
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <span className="text-red-600 font-medium cursor-help">
+                                  {guest.seat_no}
+                                </span>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>Duplicate seat on this table. Edit to resolve.</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        ) : (
+                          guest.seat_no
+                        )
+                      ) : (
+                        '—'
+                      )}
+                    </TableCell>
                     <TableCell className="w-20">
                       <Badge variant="outline" className="text-xs">
                         {guest.rsvp}

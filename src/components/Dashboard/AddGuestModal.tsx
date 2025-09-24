@@ -93,6 +93,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
   const [relationSelectorOpen, setRelationSelectorOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [pendingFamilyMembers, setPendingFamilyMembers] = useState<string[]>([]);
+  const [takenSeats, setTakenSeats] = useState<{[key: string]: {seatNo: number, guestName: string}[]}>({});
   const [relationSettings, setRelationSettings] = useState({
     relation_required: true,
     relation_allow_custom_role: false,
@@ -197,6 +198,40 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
     form.clearErrors(['relation_partner', 'relation_role']);
   };
 
+  // Fetch taken seats for a specific table
+  const fetchTakenSeats = useCallback(async (tableId: string) => {
+    if (!tableId || tableId === "none") {
+      setTakenSeats(prev => ({ ...prev, [tableId]: [] }));
+      return;
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from('guests')
+        .select('seat_no, first_name, last_name, id')
+        .eq('event_id', eventId)
+        .eq('table_id', tableId)
+        .not('seat_no', 'is', null);
+
+      if (error) throw error;
+
+      const taken = (data || [])
+        .filter(guest => 
+          // Exclude current guest when editing
+          isEdit && editGuest ? guest.id !== editGuest.id : true
+        )
+        .map(guest => ({
+          seatNo: guest.seat_no!,
+          guestName: `${guest.first_name} ${guest.last_name || ''}`.trim()
+        }));
+
+      setTakenSeats(prev => ({ ...prev, [tableId]: taken }));
+    } catch (error) {
+      console.error('Error fetching taken seats:', error);
+      setTakenSeats(prev => ({ ...prev, [tableId]: [] }));
+    }
+  }, [eventId, isEdit, editGuest]);
+
   const getAvailableSeatNumbers = useCallback((tableId: string): number[] => {
     const selectedTable = tables.find(t => t.id === tableId);
     if (!selectedTable) return [];
@@ -204,6 +239,55 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
     const totalSeats = selectedTable.limit_seats;
     return Array.from({ length: totalSeats }, (_, i) => i + 1);
   }, [tables]);
+
+  const getSeatDisplayInfo = useCallback((tableId: string, seatNo: number) => {
+    const taken = takenSeats[tableId] || [];
+    const takenSeat = taken.find(seat => seat.seatNo === seatNo);
+    const isCurrentSeat = isEdit && editGuest && editGuest.seat_no === seatNo;
+    
+    if (isCurrentSeat) {
+      return {
+        label: `Seat ${seatNo} — Current`,
+        disabled: false
+      };
+    } else if (takenSeat) {
+      return {
+        label: `Seat ${seatNo} — Taken (${takenSeat.guestName})`,
+        disabled: true
+      };
+    } else {
+      return {
+        label: `Seat ${seatNo}`,
+        disabled: false
+      };
+    }
+  }, [takenSeats, isEdit, editGuest]);
+
+  // Auto-select first free seat when table is chosen
+  const handleTableChange = useCallback((newTableId: string) => {
+    if (newTableId && newTableId !== "none") {
+      fetchTakenSeats(newTableId).then(() => {
+        // Only auto-select if guest doesn't already have a seat
+        const currentSeat = form.getValues('seat_no');
+        if (!currentSeat || (isEdit && editGuest && !editGuest.seat_no)) {
+          const availableSeats = getAvailableSeatNumbers(newTableId);
+          const taken = takenSeats[newTableId] || [];
+          
+          // Find first free seat
+          const firstFreeSeat = availableSeats.find(seatNo => {
+            const takenSeat = taken.find(seat => seat.seatNo === seatNo);
+            return !takenSeat;
+          });
+          
+          if (firstFreeSeat) {
+            form.setValue('seat_no', firstFreeSeat);
+          }
+        }
+      });
+    } else {
+      form.setValue('seat_no', undefined);
+    }
+  }, [fetchTakenSeats, getAvailableSeatNumbers, takenSeats, form, isEdit, editGuest]);
 
   const onSubmit = async (data: AddGuestFormData) => {
     setLoading(true);
@@ -298,6 +382,23 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
 
         if (error) {
           console.error('Error updating guest:', error);
+          
+          // Handle unique constraint violation
+          if (error.code === '23505' && error.message?.includes('uniq_event_table_seat')) {
+            // Refresh taken seats data
+            if (data.table_id) {
+              await fetchTakenSeats(data.table_id);
+            }
+            
+            toast({
+              title: "Seat Unavailable",
+              description: "That seat was just taken. Please choose another.",
+              variant: "destructive",
+            });
+            setLoading(false);
+            return;
+          }
+          
           toast({
             title: "Error",
             description: "Failed to update guest. Please try again.",
@@ -321,11 +422,29 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
 
         if (guestError) {
           console.error('Error adding guest:', guestError);
+          
+          // Handle unique constraint violation
+          if (guestError.code === '23505' && guestError.message?.includes('uniq_event_table_seat')) {
+            // Refresh taken seats data
+            if (finalGuestData.table_id) {
+              await fetchTakenSeats(finalGuestData.table_id);
+            }
+            
+            toast({
+              title: "Seat Unavailable",
+              description: "That seat was just taken. Please choose another.",
+              variant: "destructive",
+            });
+            setLoading(false);
+            return;
+          }
+          
           toast({
             title: "Error",
             description: "Failed to add guest. Please try again.",
             variant: "destructive",
           });
+          setLoading(false);
           return;
         }
 
@@ -484,7 +603,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
 
             {/* Table Assignment */}
             <div className="grid grid-cols-2 gap-4">
-              <FormField
+                <FormField
                 control={form.control}
                 name="table_id"
                 render={({ field }) => (
@@ -493,7 +612,10 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                       <MapPin className="w-4 h-4" />
                       Table
                     </FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
+                    <Select onValueChange={(value) => {
+                      field.onChange(value);
+                      handleTableChange(value);
+                    }} value={field.value}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select table" />
@@ -503,7 +625,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                         <SelectItem value="none">No table assigned</SelectItem>
                         {tables.map((table) => (
                           <SelectItem key={table.id} value={table.id}>
-                            Table {table.table_no} - {table.name}
+                            {table.table_no ? `Table ${table.table_no}` : table.name} - {table.name}
                             <Badge variant="secondary" className="ml-2">
                               {table.guest_count}/{table.limit_seats}
                             </Badge>
@@ -533,13 +655,20 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="none">No seat assigned</SelectItem>
+                        <SelectItem value="none">Unassigned (—)</SelectItem>
                         {form.watch('table_id') && form.watch('table_id') !== "none" && 
-                          getAvailableSeatNumbers(form.watch('table_id')!).map((seatNum) => (
-                            <SelectItem key={seatNum} value={seatNum.toString()}>
-                              Seat {seatNum}
-                            </SelectItem>
-                          ))
+                          getAvailableSeatNumbers(form.watch('table_id')!).map((seatNum) => {
+                            const seatInfo = getSeatDisplayInfo(form.watch('table_id')!, seatNum);
+                            return (
+                              <SelectItem 
+                                key={seatNum} 
+                                value={seatNum.toString()}
+                                disabled={seatInfo.disabled}
+                              >
+                                {seatInfo.label}
+                              </SelectItem>
+                            );
+                          })
                         }
                       </SelectContent>
                     </Select>
