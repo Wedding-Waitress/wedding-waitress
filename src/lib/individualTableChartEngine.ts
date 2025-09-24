@@ -146,14 +146,14 @@ const generateIndividualTableSVG = (
       
       const angle = ((i - 1) / seatCount) * 2 * Math.PI - Math.PI / 2;
       
-      const radius = settings.tableShape === 'round' ? 140 : 130; // Adjusted for larger container
+      const radius = settings.tableShape === 'round' ? 160 : 150; // Moved chairs further outside table
       const centerX = 400;
       const centerY = 320;
       const x = centerX + radius * Math.cos(angle);
       const y = centerY + radius * Math.sin(angle);
       
-      // Name positioning outside circles
-      const nameRadius = settings.tableShape === 'round' ? 170 : 160;
+      // Name positioning outside circles - further out for names
+      const nameRadius = settings.tableShape === 'round' ? 190 : 180;
       const nameX = centerX + nameRadius * Math.cos(angle);
       const nameY = centerY + nameRadius * Math.sin(angle);
       
@@ -182,7 +182,7 @@ const generateIndividualTableSVG = (
       </div>
 
       <!-- Line 2: Table Title -->
-      <div style="text-align: center; margin-bottom: 30px; font-size: ${getTitleSize(settings.fontSize)}; font-weight: bold;">
+      <div style="text-align: center; margin-bottom: 20px; font-size: ${getTitleSize(settings.fontSize)}; font-weight: bold;">
         ${settings.title || `TABLE ${table.table_no}`}
       </div>
 
@@ -220,7 +220,7 @@ const generateIndividualTableSVG = (
               transform: translate(-50%, -50%);
               width: 42px;
               height: 42px;
-              border: 3px solid #333;
+              border: 4px solid #000;
               border-radius: 50%;
               background: white;
               display: flex;
@@ -278,13 +278,8 @@ const generateIndividualTableSVG = (
           </h3>
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 11px;">
             ${sortedGuests.map((guest, index) => `
-              <div style="display: flex; justify-content: space-between; align-items: center;">
-                <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${index + 1}. ${guest.first_name} ${guest.last_name}</span>
-                ${settings.includeDietary && guest.dietary && guest.dietary !== 'NA' ? `
-                  <span style="background: #f0f0f0; border: 1px solid #ccc; padding: 1px 6px; border-radius: 10px; font-size: 10px; margin-left: 4px; flex-shrink: 0;">
-                    ${guest.dietary}
-                  </span>
-                ` : ''}
+              <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                ${index + 1}. ${guest.first_name} ${guest.last_name}${settings.includeDietary && guest.dietary && guest.dietary !== 'NA' ? ` - ${guest.dietary}` : ''}
               </div>
             `).join('')}
           </div>

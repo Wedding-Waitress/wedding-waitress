@@ -50,8 +50,8 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
       
       const angle = ((i - 1) / seatCount) * 2 * Math.PI - Math.PI / 2; // Start from top
       
-      // Calculate position on circle (relative to center) - Bring chairs closer to table
-      const radius = settings.tableShape === 'round' ? 32 : 30; // Reduced from 45/40
+      // Calculate position on circle (relative to center) - Move chairs outside table
+      const radius = settings.tableShape === 'round' ? 48 : 46; // Increased to move chairs outside table
       const x = 50 + radius * Math.cos(angle); // Center at 50%
       const y = 50 + radius * Math.sin(angle);
       
@@ -107,7 +107,7 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
             </div>
 
             {/* Line 2: Table Title */}
-            <div className={`text-center mb-8 ${getTitleSize(settings.fontSize)} font-bold`}>
+            <div className={`text-center mb-4 ${getTitleSize(settings.fontSize)} font-bold`}>
               {settings.title || `TABLE ${table.table_no}`}
             </div>
 
@@ -134,16 +134,16 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
 
                 {/* Seats */}
                 {seats.map((seat) => {
-                  // Calculate name positioning outside the circle
-                  const nameRadius = settings.tableShape === 'round' ? 42 : 40; // Further out for names
+                  // Calculate name positioning outside the circle - further out for names
+                  const nameRadius = settings.tableShape === 'round' ? 58 : 56; // Increased for better positioning
                   const nameX = 50 + nameRadius * Math.cos(seat.angle);
                   const nameY = 50 + nameRadius * Math.sin(seat.angle);
                   
                   return (
                     <div key={seat.number}>
-                      {/* Seat Circle */}
+                      {/* Seat Circle with thick black border */}
                       <div
-                        className="absolute w-14 h-14 border-3 border-gray-800 rounded-full bg-white flex items-center justify-center transform -translate-x-1/2 -translate-y-1/2 shadow-md"
+                        className="absolute w-14 h-14 border-4 border-black rounded-full bg-white flex items-center justify-center transform -translate-x-1/2 -translate-y-1/2 shadow-md"
                         style={{
                           left: `${seat.x}%`,
                           top: `${seat.y}%`,
@@ -186,14 +186,10 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
                 </h3>
                 <div className="grid grid-cols-2 gap-1 text-xs">
                   {sortedGuests.map((guest, index) => (
-                    <div key={guest.id} className="flex justify-between items-center">
-                      <span className="truncate">
-                        {index + 1}. {guest.first_name} {guest.last_name}
-                      </span>
+                    <div key={guest.id} className="truncate">
+                      {index + 1}. {guest.first_name} {guest.last_name}
                       {settings.includeDietary && guest.dietary && guest.dietary !== 'NA' && (
-                        <Badge variant="outline" className="text-xs ml-1 flex-shrink-0">
-                          {guest.dietary}
-                        </Badge>
+                        <span> - {guest.dietary}</span>
                       )}
                     </div>
                   ))}
