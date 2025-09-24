@@ -180,8 +180,8 @@ export const useRealtimeGuests = (eventId: string | null): UseRealtimeGuestsRetu
     // Handle seat number assignment for destination table
     let newSeatNo = guestToMove.seat_no;
     
-    if (destTableId && guestToMove.seat_no) {
-      // Check if seat number is already taken in destination table
+    if (destTableId) {
+      // Always assign a seat number when moving to a table
       const destTableGuests = guests.filter(g => 
         g.table_id === destTableId && g.id !== guestId
       );
@@ -191,16 +191,24 @@ export const useRealtimeGuests = (eventId: string | null): UseRealtimeGuestsRetu
         .filter(seatNo => seatNo !== null && seatNo !== undefined)
         .sort((a, b) => a - b);
       
-      // If current seat number is taken, assign next available
-      if (takenSeatNumbers.includes(guestToMove.seat_no)) {
-        const maxSeatNo = Math.max(...takenSeatNumbers, 0);
-        newSeatNo = maxSeatNo + 1;
-        
+      // Find the first available seat number (starting from 1)
+      let availableSeat = 1;
+      while (takenSeatNumbers.includes(availableSeat)) {
+        availableSeat++;
+      }
+      
+      newSeatNo = availableSeat;
+      
+      // Only show toast if seat number actually changed
+      if (newSeatNo !== guestToMove.seat_no) {
         toast({
-          title: "Seat number updated",
-          description: `Seat ${guestToMove.seat_no} was taken. Assigned seat ${newSeatNo}`,
+          title: "Seat assigned",
+          description: `Assigned seat ${newSeatNo}`,
         });
       }
+    } else {
+      // If moving to unassigned, clear seat number
+      newSeatNo = null;
     }
 
     // Optimistic update
