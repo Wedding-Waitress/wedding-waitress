@@ -212,9 +212,9 @@ const generateIndividualTableSVG = (
             break;
         }
       } else if (settings.tableShape === 'round' && guest) {
-        // Position labels 26px outward from chair edge for round tables (+10px adjustment)
+        // Position labels 34px outward from chair edge for round tables (+8px adjustment)
         const chairRadius = 21; // 42px / 2
-        const labelOffset = 26;
+        const labelOffset = 34;
         const baseRadius = (i === 1 || i === 6) ? 135 : 125; // Account for moved chairs
         const labelRadius = baseRadius + chairRadius + labelOffset; // chair radius + chair size + offset
         labelX = centerX + labelRadius * Math.cos(angle);

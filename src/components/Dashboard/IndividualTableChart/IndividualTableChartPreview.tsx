@@ -112,9 +112,9 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
             break;
         }
       } else if (settings.tableShape === 'round' && guest) {
-        // Position labels 26px outward from chair edge for round tables (+10px adjustment)
+        // Position labels 34px outward from chair edge for round tables (+8px adjustment)
         const chairRadius = i === 1 || i === 6 ? 39.5 : 37; // Account for moved chairs
-        const labelOffset = 6.5; // 26px converted to percentage (26/400 * 100)
+        const labelOffset = 8.5; // 34px converted to percentage (34/400 * 100)
         const labelRadius = chairRadius + labelOffset;
         labelX = 50 + labelRadius * Math.cos(angle);
         labelY = 50 + labelRadius * Math.sin(angle);
