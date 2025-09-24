@@ -63,7 +63,8 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
       const angle = ((i - 1) / seatCount) * 2 * Math.PI - Math.PI / 2; // Start from top
       
       // Calculate position on circle (relative to center)
-      let radius = settings.tableShape === 'round' ? 42 : 40;
+      // Reduced chair radius for round tables (closer to table)
+      let radius = settings.tableShape === 'round' ? 37 : 40;
       
       // For square tables, move specific chairs further out to avoid table overlap
       if (settings.tableShape === 'square' && [2, 5, 7, 10].includes(i)) {
@@ -106,10 +107,22 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
             break;
         }
       } else if (settings.tableShape === 'round' && guest) {
-        // Keep existing logic for round tables
-        const nameRadius = 48;
-        labelX = 50 + nameRadius * Math.cos(angle);
-        labelY = 50 + nameRadius * Math.sin(angle);
+        // Position labels 16px outward from chair edge for round tables
+        const chairRadius = 37; // Current chair radius
+        const labelOffset = 4; // 16px converted to percentage (16/400 * 100)
+        const labelRadius = chairRadius + labelOffset;
+        labelX = 50 + labelRadius * Math.cos(angle);
+        labelY = 50 + labelRadius * Math.sin(angle);
+        
+        // Determine text alignment based on angle (hemisphere)
+        const angleDegrees = (angle * 180) / Math.PI;
+        if (angleDegrees >= -90 && angleDegrees <= 90) {
+          // Right hemisphere - left align text
+          textAlign = 'left';
+        } else {
+          // Left hemisphere - right align text
+          textAlign = 'right';
+        }
       }
       
       seats.push({

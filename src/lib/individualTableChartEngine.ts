@@ -156,7 +156,8 @@ const generateIndividualTableSVG = (
       
       const angle = ((i - 1) / seatCount) * 2 * Math.PI - Math.PI / 2;
       
-      let radius = settings.tableShape === 'round' ? 140 : 130;
+      // Reduced chair radius for round tables (closer to table)
+      let radius = settings.tableShape === 'round' ? 125 : 130;
       
       // For square tables, move specific chairs further out to avoid table overlap
       if (settings.tableShape === 'square' && [2, 5, 7, 10].includes(i)) {
@@ -206,10 +207,24 @@ const generateIndividualTableSVG = (
             break;
         }
       } else if (settings.tableShape === 'round' && guest) {
-        // Keep existing logic for round tables - bring names closer
-        const nameRadius = 160;
-        labelX = centerX + nameRadius * Math.cos(angle);
-        labelY = centerY + nameRadius * Math.sin(angle);
+        // Position labels 16px outward from chair edge for round tables
+        const chairRadius = 21; // 42px / 2
+        const labelOffset = 16;
+        const labelRadius = 125 + chairRadius + labelOffset; // chair radius + chair size + offset
+        labelX = centerX + labelRadius * Math.cos(angle);
+        labelY = centerY + labelRadius * Math.sin(angle);
+        
+        // Determine text alignment based on angle (hemisphere)
+        const angleDegrees = (angle * 180) / Math.PI;
+        if (angleDegrees >= -90 && angleDegrees <= 90) {
+          // Right hemisphere - left align text
+          textAlign = 'left';
+          transform = 'translateY(-50%)';
+        } else {
+          // Left hemisphere - right align text
+          textAlign = 'right';
+          transform = 'translate(-100%, -50%)';
+        }
       }
       
       seats.push({
