@@ -1,6 +1,7 @@
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { format } from 'date-fns';
 import { Guest } from '@/hooks/useGuests';
 import { TableWithGuestCount } from '@/hooks/useTables';
@@ -29,6 +30,17 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
     const seatB = b.seat_no || 0;
     return seatA - seatB;
   });
+
+  // Helper function to determine chair side for square tables
+  const getChairSide = (angle: number) => {
+    // Normalize angle to 0-2π
+    const normalizedAngle = ((angle + Math.PI / 2) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI);
+    
+    if (normalizedAngle >= 7 * Math.PI / 4 || normalizedAngle < Math.PI / 4) return 'top';
+    if (normalizedAngle >= Math.PI / 4 && normalizedAngle < 3 * Math.PI / 4) return 'right';
+    if (normalizedAngle >= 3 * Math.PI / 4 && normalizedAngle < 5 * Math.PI / 4) return 'bottom';
+    return 'left';
+  };
 
   // Arrange seats around the table
   const arrangeSeats = () => {
@@ -61,12 +73,54 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
       const x = 50 + radius * Math.cos(angle); // Center at 50%
       const y = 50 + radius * Math.sin(angle);
       
+      // Calculate label position for square tables
+      let labelX = x;
+      let labelY = y;
+      let textAlign = 'center';
+      
+      if (settings.tableShape === 'square' && guest) {
+        const side = getChairSide(angle);
+        const chairSize = 14; // 56px / 4 = 14% (w-14 h-14)
+        const offset = 3.5; // 14px offset converted to percentage
+        
+        switch (side) {
+          case 'right':
+            labelX = x + chairSize/2 + offset;
+            labelY = y;
+            textAlign = 'left';
+            break;
+          case 'left':
+            labelX = x - chairSize/2 - offset;
+            labelY = y;
+            textAlign = 'right';
+            break;
+          case 'top':
+            labelX = x;
+            labelY = y - chairSize/2 - offset;
+            textAlign = 'center';
+            break;
+          case 'bottom':
+            labelX = x;
+            labelY = y + chairSize/2 + offset;
+            textAlign = 'center';
+            break;
+        }
+      } else if (settings.tableShape === 'round' && guest) {
+        // Keep existing logic for round tables
+        const nameRadius = 48;
+        labelX = 50 + nameRadius * Math.cos(angle);
+        labelY = 50 + nameRadius * Math.sin(angle);
+      }
+      
       seats.push({
         number: i,
         guest,
         x,
         y,
-        angle
+        angle,
+        labelX,
+        labelY,
+        textAlign
       });
     }
     
@@ -139,45 +193,54 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
                 </div>
 
                 {/* Seats */}
-                {seats.map((seat) => {
-                  // Calculate name positioning - closer to chairs for both table types
-                  const nameRadius = settings.tableShape === 'round' ? 48 : 46; // Brought closer to chairs
-                  let nameX = 50 + nameRadius * Math.cos(seat.angle);
-                  let nameY = 50 + nameRadius * Math.sin(seat.angle);
-                  
-                  return (
-                    <div key={seat.number}>
-                      {/* Seat Circle with thin black border */}
-                      <div
-                        className="absolute w-14 h-14 border border-black rounded-full bg-white flex items-center justify-center transform -translate-x-1/2 -translate-y-1/2 shadow-md"
-                        style={{
-                          left: `${seat.x}%`,
-                          top: `${seat.y}%`,
-                        }}
-                      >
-                        {settings.showSeatNumbers && (
-                          <span className="font-bold text-sm">{seat.number}</span>
-                        )}
-                      </div>
-
-                      {/* Guest Name - Only first name, positioned to avoid overlaps */}
-                      {seat.guest && (
+                <TooltipProvider>
+                  {seats.map((seat) => {
+                    return (
+                      <div key={seat.number}>
+                        {/* Seat Circle with thin black border */}
                         <div
-                          className={`absolute transform -translate-x-1/2 font-semibold ${getFontSize(settings.fontSize)} text-center max-w-20`}
+                          className="absolute w-14 h-14 border border-black rounded-full bg-white flex items-center justify-center transform -translate-x-1/2 -translate-y-1/2 shadow-md"
                           style={{
-                            left: `${nameX}%`,
-                            top: `${nameY}%`,
-                            whiteSpace: 'nowrap',
+                            left: `${seat.x}%`,
+                            top: `${seat.y}%`,
                           }}
                         >
-                          <div className="bg-white/90 px-2 py-1 rounded text-gray-800 shadow-sm">
-                            {seat.guest.first_name}
-                          </div>
+                          {settings.showSeatNumbers && (
+                            <span className="font-bold text-sm">{seat.number}</span>
+                          )}
                         </div>
-                      )}
-                    </div>
-                  );
-                })}
+
+                        {/* Guest Name - Side-aware positioning for square tables */}
+                        {seat.guest && (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div
+                                className={`absolute font-semibold ${getFontSize(settings.fontSize)} max-w-20 cursor-help`}
+                                style={{
+                                  left: `${seat.labelX}%`,
+                                  top: `${seat.labelY}%`,
+                                  textAlign: seat.textAlign as any,
+                                  transform: seat.textAlign === 'center' ? 'translate(-50%, -50%)' : 
+                                           seat.textAlign === 'right' ? 'translate(-100%, -50%)' : 'translate(0, -50%)',
+                                  whiteSpace: 'nowrap',
+                                  overflow: 'hidden',
+                                  textOverflow: 'ellipsis',
+                                }}
+                              >
+                                <div className="bg-white/90 px-2 py-1 rounded text-gray-800 shadow-sm">
+                                  {seat.guest.first_name}
+                                </div>
+                              </div>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>{seat.guest.first_name} {seat.guest.last_name}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        )}
+                      </div>
+                    );
+                  })}
+                </TooltipProvider>
               </div>
             </div>
 

@@ -128,6 +128,16 @@ const generateIndividualTableSVG = (
     }  
   };
 
+  // Helper function to determine chair side for square tables
+  const getChairSide = (angle: number) => {
+    const normalizedAngle = ((angle + Math.PI / 2) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI);
+    
+    if (normalizedAngle >= 7 * Math.PI / 4 || normalizedAngle < Math.PI / 4) return 'top';
+    if (normalizedAngle >= Math.PI / 4 && normalizedAngle < 3 * Math.PI / 4) return 'right';
+    if (normalizedAngle >= 3 * Math.PI / 4 && normalizedAngle < 5 * Math.PI / 4) return 'bottom';
+    return 'left';
+  };
+
   // Arrange seats around table - Updated to match preview
   const arrangeSeats = () => {
     const seatCount = table.limit_seats;
@@ -158,18 +168,59 @@ const generateIndividualTableSVG = (
       const x = centerX + radius * Math.cos(angle);
       const y = centerY + radius * Math.sin(angle);
       
-      // Name positioning - closer to chairs for both table types
-      const nameRadius = settings.tableShape === 'round' ? 160 : 155; // Brought closer to chairs
-      let nameX = centerX + nameRadius * Math.cos(angle);
-      let nameY = centerY + nameRadius * Math.sin(angle);
+      // Calculate label position for square tables
+      let labelX = x;
+      let labelY = y;
+      let textAlign = 'center';
+      let transform = 'translateX(-50%)';
+      
+      if (settings.tableShape === 'square' && guest) {
+        const side = getChairSide(angle);
+        const chairRadius = 21; // 42px / 2
+        const offset = 14; // 12-16px offset
+        
+        switch (side) {
+          case 'right':
+            labelX = x + chairRadius + offset;
+            labelY = y;
+            textAlign = 'left';
+            transform = 'translateY(-50%)';
+            break;
+          case 'left':
+            labelX = x - chairRadius - offset;
+            labelY = y;
+            textAlign = 'right';
+            transform = 'translate(-100%, -50%)';
+            break;
+          case 'top':
+            labelX = x;
+            labelY = y - chairRadius - offset;
+            textAlign = 'center';
+            transform = 'translate(-50%, -100%)';
+            break;
+          case 'bottom':
+            labelX = x;
+            labelY = y + chairRadius + offset;
+            textAlign = 'center';
+            transform = 'translateX(-50%)';
+            break;
+        }
+      } else if (settings.tableShape === 'round' && guest) {
+        // Keep existing logic for round tables - bring names closer
+        const nameRadius = 160;
+        labelX = centerX + nameRadius * Math.cos(angle);
+        labelY = centerY + nameRadius * Math.sin(angle);
+      }
       
       seats.push({
         number: i,
         guest,
         x,
         y,
-        nameX,
-        nameY,
+        labelX,
+        labelY,
+        textAlign,
+        transform,
         angle
       });
     }
@@ -237,22 +288,26 @@ const generateIndividualTableSVG = (
               ${settings.showSeatNumbers ? seat.number : ''}
             </div>
 
-            <!-- Guest Name - Only first name, positioned to avoid overlaps -->
+            <!-- Guest Name - Side-aware positioning for square tables -->
             ${seat.guest ? `
               <div style="
                 position: absolute;
-                left: ${seat.nameX}px;
-                top: ${seat.nameY}px;
-                transform: translateX(-50%);
-                text-align: center;
+                left: ${seat.labelX}px;
+                top: ${seat.labelY}px;
+                transform: ${seat.transform};
+                text-align: ${seat.textAlign};
                 font-size: ${getFontSize(settings.fontSize)};
                 font-weight: 600;
                 background: rgba(255,255,255,0.95);
                 padding: 4px 8px;
                 border-radius: 4px;
                 white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                max-width: 80px;
                 box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-              ">
+                cursor: help;
+              " title="${seat.guest.first_name} ${seat.guest.last_name}">
                 ${seat.guest.first_name}
               </div>
             ` : ''}
