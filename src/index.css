@@ -278,6 +278,11 @@
 }
 
 @media print {
+  @page {
+    size: A4 portrait;
+    margin: 12mm;
+  }
+  
   body { 
     -webkit-print-color-adjust: exact !important; 
     print-color-adjust: exact !important; 
@@ -287,14 +292,34 @@
     visibility: hidden !important; 
   }
   
+  .no-print,
+  .no-print *,
+  header,
+  nav,
+  aside,
+  .sidebar,
+  button,
+  .btn,
+  .controls,
+  .toolbar,
+  .settings {
+    display: none !important;
+    visibility: hidden !important;
+  }
+  
   #a4Print, #a4Print * { 
     visibility: visible !important; 
+    display: block !important;
   }
   
   #a4Print {
     position: static !important;
-    width: calc(210mm - 24mm) !important;
-    height: calc(297mm - 24mm) !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 210mm !important;
+    height: 297mm !important;
+    min-height: 297mm !important;
+    max-height: 297mm !important;
     box-sizing: border-box !important;
     overflow: hidden !important;
     box-shadow: none !important; 
@@ -302,9 +327,10 @@
     background: #fff !important;
     margin: 0 !important;
     padding: 0 !important;
-  }
-  
-  header, nav, .settings, .controls, .no-print { 
-    display: none !important; 
+    page-break-inside: avoid !important;
+    page-break-before: auto !important;
+    page-break-after: auto !important;
+    -webkit-print-color-adjust: exact;
+    color-adjust: exact;
   }
 }
