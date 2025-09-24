@@ -91,9 +91,10 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
     }
   };
 
-  const printA4 = () => {
-    window.focus();
-    window.print();
+  const handlePrint = () => {
+    if (typeof window !== 'undefined') {
+      window.print();
+    }
   };
 
   const handlePrintAll = () => {
@@ -152,7 +153,7 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between no-print">
+      <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold gradient-text mb-2">Individual Table Seating Chart</h1>
           <p className="text-muted-foreground">
@@ -162,7 +163,7 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
       </div>
 
       {/* Event and Table Selection */}
-      <Card className="ww-box no-print">
+      <Card className="ww-box">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Users className="w-5 h-5" />
@@ -225,7 +226,7 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
               </Button>
               <Button 
                 variant="outline" 
-                onClick={printA4}
+                onClick={handlePrint}
                 className="flex items-center gap-2"
               >
                 <Printer className="w-4 h-4" />
@@ -246,7 +247,7 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
 
       {/* Main Content */}
       {!selectedEventId && (
-        <Card className="ww-box p-8 text-center no-print">
+        <Card className="ww-box p-8 text-center">
           <Users className="w-16 h-16 mx-auto text-primary mb-4" />
           <CardTitle className="mb-2">Select an Event</CardTitle>
           <CardDescription>
@@ -256,7 +257,7 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
       )}
 
       {selectedEventId && !selectedTableId && (
-        <Card className="ww-box p-8 text-center no-print">
+        <Card className="ww-box p-8 text-center">
           <Users className="w-16 h-16 mx-auto text-primary mb-4" />
           <CardTitle className="mb-2">Select a Table</CardTitle>
           <CardDescription>
@@ -268,7 +269,7 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
       {isDataReady && (
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Customizer */}
-          <div className="lg:col-span-1 no-print">
+          <div className="lg:col-span-1">
             <IndividualTableChartCustomizer
               settings={settings}
               onSettingsChange={handleSettingsChange}
