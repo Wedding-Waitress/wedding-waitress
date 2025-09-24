@@ -39,8 +39,8 @@ import { FamilyGroupCombobox } from "./FamilyGroupCombobox";
 const addGuestSchema = z.object({
   first_name: z.string().min(1, "First name is required"),
   last_name: z.string().min(1, "Last name is required"),
-  table_id: z.string().optional(),
-  seat_no: z.coerce.number().optional(),
+  table_id: z.string().min(1, "Table selection is required").refine(val => val !== "none", "Table selection is required"),
+  seat_no: z.coerce.number().min(1, "Seat selection is required"),
   rsvp: z.string(),
   dietary: z.string(),
   mobile: z.string().optional(),
@@ -107,7 +107,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
     defaultValues: {
       first_name: "",
       last_name: "",
-      table_id: "none",
+      table_id: "",
       seat_no: undefined,
       rsvp: "Pending",
       dietary: "NA",
@@ -156,7 +156,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
         form.reset({
           first_name: editGuest.first_name,
           last_name: editGuest.last_name,
-          table_id: editGuest.table_id || "none",
+          table_id: editGuest.table_id || "",
           seat_no: editGuest.seat_no || undefined,
           rsvp: editGuest.rsvp,
           dietary: editGuest.dietary,
@@ -171,7 +171,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
         form.reset({
           first_name: "",
           last_name: "",
-          table_id: "none",
+          table_id: "",
           seat_no: undefined,
           rsvp: "Pending",
           dietary: "NA",
@@ -265,7 +265,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
 
   // Auto-select first free seat when table is chosen
   const handleTableChange = useCallback((newTableId: string) => {
-    if (newTableId && newTableId !== "none") {
+    if (newTableId) {
       fetchTakenSeats(newTableId).then(() => {
         // Only auto-select if guest doesn't already have a seat
         const currentSeat = form.getValues('seat_no');
@@ -316,8 +316,8 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
         }
       }
 
-      // Validate table and seat if provided
-      if (data.table_id && data.table_id !== "none" && data.seat_no) {
+      // Validate table and seat
+      if (data.table_id && data.seat_no) {
         const selectedTable = tables.find(t => t.id === data.table_id);
         if (selectedTable && data.seat_no > selectedTable.limit_seats) {
           form.setError('seat_no', {
@@ -335,7 +335,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
         user_id: (await supabase.auth.getUser()).data.user?.id!,
         first_name: data.first_name,
         last_name: data.last_name,
-        table_id: data.table_id === "none" ? null : data.table_id || null,
+        table_id: data.table_id || null,
         seat_no: data.seat_no || null,
         rsvp: data.rsvp,
         dietary: data.dietary,
@@ -343,7 +343,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
         email: data.email || null,
         family_group: data.family_group || null,
         notes: data.notes || null,
-        assigned: !!(data.table_id && data.table_id !== "none"),
+        assigned: !!(data.table_id),
       };
 
       // Compute relation_display using current event's partner names
@@ -360,7 +360,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
 
       // Get table number if table is selected
       let table_no = null;
-      if (data.table_id && data.table_id !== "none") {
+      if (data.table_id) {
         const selectedTable = tables.find(t => t.id === data.table_id);
         table_no = selectedTable?.table_no || null;
       }
@@ -610,7 +610,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                   <FormItem>
                     <FormLabel className="flex items-center gap-2">
                       <MapPin className="w-4 h-4" />
-                      Table
+                      Table *
                     </FormLabel>
                     <Select onValueChange={(value) => {
                       field.onChange(value);
@@ -622,7 +622,6 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="none">No table assigned</SelectItem>
                         {tables.map((table) => (
                           <SelectItem key={table.id} value={table.id}>
                             {table.table_no ? `Table ${table.table_no}` : table.name} - {table.name}
@@ -643,11 +642,11 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                 name="seat_no"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Seat Number</FormLabel>
+                    <FormLabel>Seat Number *</FormLabel>
                     <Select
                       onValueChange={(value) => field.onChange(!value || value === "none" ? undefined : Number(value))}
                       value={field.value?.toString() || "none"}
-                      disabled={!form.watch('table_id') || form.watch('table_id') === "none"}
+                      disabled={!form.watch('table_id')}
                     >
                       <FormControl>
                         <SelectTrigger>
@@ -655,8 +654,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="none">Unassigned (—)</SelectItem>
-                        {form.watch('table_id') && form.watch('table_id') !== "none" && 
+                        {form.watch('table_id') && 
                           getAvailableSeatNumbers(form.watch('table_id')!).map((seatNum) => {
                             const seatInfo = getSeatDisplayInfo(form.watch('table_id')!, seatNum);
                             return (
