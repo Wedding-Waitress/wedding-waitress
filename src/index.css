@@ -275,13 +275,6 @@
 @page {
   size: A4 portrait;
   margin: 12mm;
-  /* Hide browser headers and footers */
-  @top-left { content: ""; }
-  @top-center { content: ""; }
-  @top-right { content: ""; }
-  @bottom-left { content: ""; }
-  @bottom-center { content: ""; }
-  @bottom-right { content: ""; }
 }
 
 @media print {
