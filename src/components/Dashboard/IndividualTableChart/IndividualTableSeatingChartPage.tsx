@@ -96,6 +96,12 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
     }
   };
 
+  const handlePrintAll = () => {
+    if (typeof window !== 'undefined') {
+      window.print();
+    }
+  };
+
   const selectedTable = tables.find(table => table.id === selectedTableId);
   const isDataReady = selectedEvent && selectedTable && !tablesLoading && !guestsLoading;
 
@@ -180,6 +186,14 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
               >
                 <Printer className="w-4 h-4" />
                 Print
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={handlePrintAll}
+                className="flex items-center gap-2"
+              >
+                <Printer className="w-4 h-4" />
+                Print All
               </Button>
             </div>
           )}
