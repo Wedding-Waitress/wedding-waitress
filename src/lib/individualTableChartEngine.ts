@@ -159,6 +159,11 @@ const generateIndividualTableSVG = (
       // Reduced chair radius for round tables (closer to table)
       let radius = settings.tableShape === 'round' ? 125 : 130;
       
+      // Move seats 1 and 6 outward by additional 10px to avoid touching table
+      if (settings.tableShape === 'round' && (i === 1 || i === 6)) {
+        radius = 135;
+      }
+      
       // For square tables, move specific chairs further out to avoid table overlap
       if (settings.tableShape === 'square' && [2, 5, 7, 10].includes(i)) {
         radius = 160; // Move these chairs further out (equivalent to 48% in preview)
@@ -207,10 +212,11 @@ const generateIndividualTableSVG = (
             break;
         }
       } else if (settings.tableShape === 'round' && guest) {
-        // Position labels 16px outward from chair edge for round tables
+        // Position labels 26px outward from chair edge for round tables (+10px adjustment)
         const chairRadius = 21; // 42px / 2
-        const labelOffset = 16;
-        const labelRadius = 125 + chairRadius + labelOffset; // chair radius + chair size + offset
+        const labelOffset = 26;
+        const baseRadius = (i === 1 || i === 6) ? 135 : 125; // Account for moved chairs
+        const labelRadius = baseRadius + chairRadius + labelOffset; // chair radius + chair size + offset
         labelX = centerX + labelRadius * Math.cos(angle);
         labelY = centerY + labelRadius * Math.sin(angle);
         

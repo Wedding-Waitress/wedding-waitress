@@ -66,6 +66,11 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
       // Reduced chair radius for round tables (closer to table)
       let radius = settings.tableShape === 'round' ? 37 : 40;
       
+      // Move seats 1 and 6 outward by additional 2.5% (~10px) to avoid touching table
+      if (settings.tableShape === 'round' && (i === 1 || i === 6)) {
+        radius = 39.5;
+      }
+      
       // For square tables, move specific chairs further out to avoid table overlap
       if (settings.tableShape === 'square' && [2, 5, 7, 10].includes(i)) {
         radius = 48; // Move these chairs further out
@@ -107,9 +112,9 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
             break;
         }
       } else if (settings.tableShape === 'round' && guest) {
-        // Position labels 16px outward from chair edge for round tables
-        const chairRadius = 37; // Current chair radius
-        const labelOffset = 4; // 16px converted to percentage (16/400 * 100)
+        // Position labels 26px outward from chair edge for round tables (+10px adjustment)
+        const chairRadius = i === 1 || i === 6 ? 39.5 : 37; // Account for moved chairs
+        const labelOffset = 6.5; // 26px converted to percentage (26/400 * 100)
         const labelRadius = chairRadius + labelOffset;
         labelX = 50 + labelRadius * Math.cos(angle);
         labelY = 50 + labelRadius * Math.sin(angle);
