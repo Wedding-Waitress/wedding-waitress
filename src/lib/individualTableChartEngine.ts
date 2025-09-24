@@ -146,16 +146,29 @@ const generateIndividualTableSVG = (
       
       const angle = ((i - 1) / seatCount) * 2 * Math.PI - Math.PI / 2;
       
-      const radius = settings.tableShape === 'round' ? 160 : 150; // Moved chairs further outside table
+      const radius = settings.tableShape === 'round' ? 140 : 130; // Closer to table but not touching
       const centerX = 400;
       const centerY = 320;
       const x = centerX + radius * Math.cos(angle);
       const y = centerY + radius * Math.sin(angle);
       
-      // Name positioning outside circles - further out for names
-      const nameRadius = settings.tableShape === 'round' ? 190 : 180;
-      const nameX = centerX + nameRadius * Math.cos(angle);
-      const nameY = centerY + nameRadius * Math.sin(angle);
+      // Name positioning outside circles with better spacing
+      const nameRadius = settings.tableShape === 'round' ? 170 : 160;
+      let nameX = centerX + nameRadius * Math.cos(angle);
+      let nameY = centerY + nameRadius * Math.sin(angle);
+      
+      // Special positioning adjustments for problem seats (10, 1, 2, 3)
+      if (i === 1) {
+        nameY -= 15; // Move up
+      } else if (i === 2) {
+        nameX += 15; // Move right
+        nameY -= 10; // Move up slightly
+      } else if (i === 3) {
+        nameX += 15; // Move right
+      } else if (i === 10) {
+        nameX -= 15; // Move left
+        nameY -= 10; // Move up slightly
+      }
       
       seats.push({
         number: i,
@@ -181,10 +194,6 @@ const generateIndividualTableSVG = (
         ${event.name} • ${event.venue} • ${eventDate}
       </div>
 
-      <!-- Line 2: Table Title -->
-      <div style="text-align: center; margin-bottom: 20px; font-size: ${getTitleSize(settings.fontSize)}; font-weight: bold;">
-        ${settings.title || `TABLE ${table.table_no}`}
-      </div>
 
       <!-- Line 3: Table Visualization -->
       <div style="flex: 1; display: flex; align-items: center; justify-content: center; margin-bottom: 30px;">
@@ -206,8 +215,9 @@ const generateIndividualTableSVG = (
             font-size: ${getTitleSize(settings.fontSize)};
             font-weight: bold;
             color: #555;
-          ">
-            ${table.table_no}
+            ">
+            <div style="text-align: center;">TABLE</div>
+            <div style="text-align: center;">${table.table_no}</div>
           </div>
 
           <!-- Seats -->
@@ -233,37 +243,23 @@ const generateIndividualTableSVG = (
               ${settings.showSeatNumbers ? seat.number : ''}
             </div>
 
-            <!-- Guest Name - Outside circle -->
+            <!-- Guest Name - Only first name, positioned to avoid overlaps -->
             ${seat.guest ? `
               <div style="
                 position: absolute;
                 left: ${seat.nameX}px;
-                top: ${seat.nameY - 15}px;
+                top: ${seat.nameY}px;
                 transform: translateX(-50%);
                 text-align: center;
                 font-size: ${getFontSize(settings.fontSize)};
                 font-weight: 600;
-                background: rgba(255,255,255,0.9);
-                padding: 2px 6px;
+                background: rgba(255,255,255,0.95);
+                padding: 4px 8px;
                 border-radius: 4px;
                 white-space: nowrap;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.1);
               ">
                 ${seat.guest.first_name}
-              </div>
-              <div style="
-                position: absolute;
-                left: ${seat.nameX}px;
-                top: ${seat.nameY + 5}px;
-                transform: translateX(-50%);
-                text-align: center;
-                font-size: ${getFontSize(settings.fontSize)};
-                font-weight: 600;
-                background: rgba(255,255,255,0.9);
-                padding: 2px 6px;
-                border-radius: 4px;
-                white-space: nowrap;
-              ">
-                ${seat.guest.last_name}
               </div>
             ` : ''}
           `).join('')}

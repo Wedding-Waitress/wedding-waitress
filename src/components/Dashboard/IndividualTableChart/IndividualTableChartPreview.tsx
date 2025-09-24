@@ -50,8 +50,8 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
       
       const angle = ((i - 1) / seatCount) * 2 * Math.PI - Math.PI / 2; // Start from top
       
-      // Calculate position on circle (relative to center) - Move chairs outside table
-      const radius = settings.tableShape === 'round' ? 48 : 46; // Increased to move chairs outside table
+      // Calculate position on circle (relative to center) - Move chairs closer but outside table
+      const radius = settings.tableShape === 'round' ? 42 : 40; // Closer to table but not touching
       const x = 50 + radius * Math.cos(angle); // Center at 50%
       const y = 50 + radius * Math.sin(angle);
       
@@ -106,10 +106,6 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
               </div>
             </div>
 
-            {/* Line 2: Table Title */}
-            <div className={`text-center mb-4 ${getTitleSize(settings.fontSize)} font-bold`}>
-              {settings.title || `TABLE ${table.table_no}`}
-            </div>
 
             {/* Line 3: Table Visualization */}
             <div className="flex-1 flex items-center justify-center mb-6">
@@ -127,17 +123,31 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
                     height: '280px' // Increased from 200px
                   }}
                 >
-                  <div className={`font-bold ${getTitleSize(settings.fontSize)} text-gray-700`}>
-                    {table.table_no}
+                  <div className={`font-bold ${getTitleSize(settings.fontSize)} text-gray-700 text-center`}>
+                    <div>TABLE</div>
+                    <div>{table.table_no}</div>
                   </div>
                 </div>
 
                 {/* Seats */}
                 {seats.map((seat) => {
-                  // Calculate name positioning outside the circle - further out for names
-                  const nameRadius = settings.tableShape === 'round' ? 58 : 56; // Increased for better positioning
-                  const nameX = 50 + nameRadius * Math.cos(seat.angle);
-                  const nameY = 50 + nameRadius * Math.sin(seat.angle);
+                  // Calculate name positioning with better spacing to avoid overlaps
+                  const nameRadius = settings.tableShape === 'round' ? 52 : 50; // Increased spacing
+                  let nameX = 50 + nameRadius * Math.cos(seat.angle);
+                  let nameY = 50 + nameRadius * Math.sin(seat.angle);
+                  
+                  // Special positioning adjustments for problem seats (10, 1, 2, 3)
+                  if (seat.number === 1) {
+                    nameY -= 3; // Move up
+                  } else if (seat.number === 2) {
+                    nameX += 3; // Move right
+                    nameY -= 2; // Move up slightly
+                  } else if (seat.number === 3) {
+                    nameX += 3; // Move right
+                  } else if (seat.number === 10) {
+                    nameX -= 3; // Move left
+                    nameY -= 2; // Move up slightly
+                  }
                   
                   return (
                     <div key={seat.number}>
@@ -154,21 +164,18 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
                         )}
                       </div>
 
-                      {/* Guest Name - Always display outside circle */}
+                      {/* Guest Name - Only first name, positioned to avoid overlaps */}
                       {seat.guest && (
                         <div
-                          className={`absolute transform -translate-x-1/2 font-semibold ${getFontSize(settings.fontSize)} text-center max-w-24`}
+                          className={`absolute transform -translate-x-1/2 font-semibold ${getFontSize(settings.fontSize)} text-center max-w-20`}
                           style={{
                             left: `${nameX}%`,
                             top: `${nameY}%`,
                             whiteSpace: 'nowrap',
                           }}
                         >
-                          <div className="bg-white/80 px-1 py-0.5 rounded text-gray-800">
+                          <div className="bg-white/90 px-2 py-1 rounded text-gray-800 shadow-sm">
                             {seat.guest.first_name}
-                          </div>
-                          <div className="bg-white/80 px-1 py-0.5 rounded text-gray-800 mt-0.5">
-                            {seat.guest.last_name}
                           </div>
                         </div>
                       )}
