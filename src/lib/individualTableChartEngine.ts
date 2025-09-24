@@ -146,29 +146,22 @@ const generateIndividualTableSVG = (
       
       const angle = ((i - 1) / seatCount) * 2 * Math.PI - Math.PI / 2;
       
-      const radius = settings.tableShape === 'round' ? 140 : 130; // Closer to table but not touching
+      let radius = settings.tableShape === 'round' ? 140 : 130;
+      
+      // For square tables, move specific chairs further out to avoid table overlap
+      if (settings.tableShape === 'square' && [2, 5, 7, 10].includes(i)) {
+        radius = 160; // Move these chairs further out (equivalent to 48% in preview)
+      }
+      
       const centerX = 400;
       const centerY = 320;
       const x = centerX + radius * Math.cos(angle);
       const y = centerY + radius * Math.sin(angle);
       
-      // Enhanced name positioning with improved spacing to avoid overlaps
-      const nameRadius = settings.tableShape === 'round' ? 185 : 175;
+      // Name positioning - closer to chairs for both table types
+      const nameRadius = settings.tableShape === 'round' ? 160 : 155; // Brought closer to chairs
       let nameX = centerX + nameRadius * Math.cos(angle);
       let nameY = centerY + nameRadius * Math.sin(angle);
-      
-      // Enhanced positioning adjustments for problematic seats
-      if ([1, 2, 3, 10].includes(i)) {
-        // Move names significantly further out for these seats
-        const extraRadius = 25;
-        nameX = centerX + (nameRadius + extraRadius) * Math.cos(angle);
-        nameY = centerY + (nameRadius + extraRadius) * Math.sin(angle);
-      } else if ([5, 7, 9].includes(i)) {
-        // Move names moderately further out for these seats
-        const extraRadius = 15;
-        nameX = centerX + (nameRadius + extraRadius) * Math.cos(angle);
-        nameY = centerY + (nameRadius + extraRadius) * Math.sin(angle);
-      }
       
       seats.push({
         number: i,
@@ -190,8 +183,9 @@ const generateIndividualTableSVG = (
   return `
     <div style="width: 794px; height: 1123px; background: white; font-family: Arial, sans-serif; padding: 30px; box-sizing: border-box; display: flex; flex-direction: column;">
       <!-- Line 1: Event Info -->
-      <div style="text-align: center; margin-bottom: 20px; font-size: ${getFontSize(settings.fontSize)}; font-weight: 600;">
-        ${event.name} • ${event.venue} • ${eventDate}
+      <div style="text-align: center; margin-bottom: 20px; font-size: 20px; font-weight: 600;">
+        <div style="margin-bottom: 4px;">${event.name} • ${event.venue} • ${eventDate}</div>
+        <div>Table Seating Arrangements</div>
       </div>
 
 

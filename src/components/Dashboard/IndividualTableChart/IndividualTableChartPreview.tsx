@@ -50,8 +50,14 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
       
       const angle = ((i - 1) / seatCount) * 2 * Math.PI - Math.PI / 2; // Start from top
       
-      // Calculate position on circle (relative to center) - Move chairs closer but outside table
-      const radius = settings.tableShape === 'round' ? 42 : 40; // Closer to table but not touching
+      // Calculate position on circle (relative to center)
+      let radius = settings.tableShape === 'round' ? 42 : 40;
+      
+      // For square tables, move specific chairs further out to avoid table overlap
+      if (settings.tableShape === 'square' && [2, 5, 7, 10].includes(i)) {
+        radius = 48; // Move these chairs further out
+      }
+      
       const x = 50 + radius * Math.cos(angle); // Center at 50%
       const y = 50 + radius * Math.sin(angle);
       
@@ -100,9 +106,12 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
         >
           <div className="h-full flex flex-col p-6 relative">
             {/* Line 1: Event Info */}
-            <div className={`text-center mb-4 ${getFontSize(settings.fontSize)}`}>
-              <div className="font-semibold">
+            <div className="text-center mb-4 space-y-1">
+              <div className="font-semibold text-xl">
                 {event.name} • {event.venue} • {event.date ? format(new Date(event.date), 'PPP') : ''}
+              </div>
+              <div className="font-semibold text-xl">
+                Table Seating Arrangements
               </div>
             </div>
 
@@ -131,23 +140,10 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
 
                 {/* Seats */}
                 {seats.map((seat) => {
-                  // Calculate name positioning with enhanced spacing to avoid overlaps
-                  const nameRadius = settings.tableShape === 'round' ? 58 : 56; // Further increased spacing
+                  // Calculate name positioning - closer to chairs for both table types
+                  const nameRadius = settings.tableShape === 'round' ? 48 : 46; // Brought closer to chairs
                   let nameX = 50 + nameRadius * Math.cos(seat.angle);
                   let nameY = 50 + nameRadius * Math.sin(seat.angle);
-                  
-                  // Enhanced positioning adjustments for problematic seats
-                  if ([1, 2, 3, 10].includes(seat.number)) {
-                    // Move names significantly further out for these seats
-                    const extraRadius = 8;
-                    nameX = 50 + (nameRadius + extraRadius) * Math.cos(seat.angle);
-                    nameY = 50 + (nameRadius + extraRadius) * Math.sin(seat.angle);
-                  } else if ([5, 7, 9].includes(seat.number)) {
-                    // Move names moderately further out for these seats
-                    const extraRadius = 4;
-                    nameX = 50 + (nameRadius + extraRadius) * Math.cos(seat.angle);
-                    nameY = 50 + (nameRadius + extraRadius) * Math.sin(seat.angle);
-                  }
                   
                   return (
                     <div key={seat.number}>
