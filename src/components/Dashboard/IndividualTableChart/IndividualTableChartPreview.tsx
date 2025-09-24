@@ -266,10 +266,10 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
             {/* Line 4 & 5: Guest List */}
             {settings.includeGuestList && (
               <div className="mb-6">
-                <h3 className={`font-bold mb-3 ${getFontSize(settings.fontSize)}`}>
+                <h3 className="font-semibold text-xl mb-3">
                   Guests on this Table & Dietary
                 </h3>
-                <div className="grid grid-cols-2 gap-1 text-xs">
+                <div className={`grid grid-cols-2 gap-1 ${getFontSize(settings.fontSize)}`}>
                   {sortedGuests.map((guest, index) => (
                     <div key={guest.id} className="truncate">
                       {index + 1}. {guest.first_name} {guest.last_name}
