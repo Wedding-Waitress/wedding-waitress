@@ -91,10 +91,9 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
     }
   };
 
-  const handlePrint = () => {
-    if (typeof window !== 'undefined') {
-      window.print();
-    }
+  const printA4 = () => {
+    window.focus();
+    window.print();
   };
 
   const handlePrintAll = () => {
@@ -226,7 +225,7 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
               </Button>
               <Button 
                 variant="outline" 
-                onClick={handlePrint}
+                onClick={printA4}
                 className="flex items-center gap-2"
               >
                 <Printer className="w-4 h-4" />

@@ -169,6 +169,7 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
       <CardContent className="p-0">
         {/* A4 Preview Container */}
         <div 
+          id="a4Print"
           className="w-full bg-white text-black print:shadow-none shadow-lg mx-auto"
           style={{ 
             aspectRatio: '210/297', // A4 aspect ratio

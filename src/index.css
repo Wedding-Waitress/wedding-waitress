@@ -270,3 +270,41 @@
     box-shadow: 0 2px 8px rgba(0,0,0,0.06);
   }
 }
+
+/* Print Styles for A4 Individual Table Charts */
+@page { 
+  size: A4 portrait; 
+  margin: 12mm; 
+}
+
+@media print {
+  body { 
+    -webkit-print-color-adjust: exact !important; 
+    print-color-adjust: exact !important; 
+  }
+  
+  body * { 
+    visibility: hidden !important; 
+  }
+  
+  #a4Print, #a4Print * { 
+    visibility: visible !important; 
+  }
+  
+  #a4Print {
+    position: absolute !important; 
+    left: 0 !important; 
+    top: 0 !important;
+    width: 210mm !important; 
+    min-height: 297mm !important;
+    box-shadow: none !important; 
+    border: none !important;
+    background: #fff !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  
+  header, nav, .settings, .controls, .no-print { 
+    display: none !important; 
+  }
+}
