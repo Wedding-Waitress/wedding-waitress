@@ -82,7 +82,7 @@ const SidebarMenuContent = ({ activeTab, onTabChange, onClose }: { activeTab: st
                   onTabChange(item.id);
                   onClose?.();
                 }}
-                className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${
+                className={`w-full flex items-center space-x-3 px-3 py-3 rounded-lg text-left transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 touch-target ${
                   isActive
                     ? 'bg-primary text-primary-foreground shadow-sm'
                     : 'text-muted-foreground hover:bg-primary/10 hover:text-foreground'
@@ -104,7 +104,7 @@ const SidebarMenuContent = ({ activeTab, onTabChange, onClose }: { activeTab: st
             onTabChange('account');
             onClose?.();
           }}
-          className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${
+          className={`w-full flex items-center space-x-3 px-3 py-3 rounded-lg text-left transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 touch-target ${
             activeTab === 'account'
               ? 'bg-primary text-primary-foreground shadow-sm'
               : 'text-muted-foreground hover:bg-primary/10 hover:text-foreground'
@@ -135,7 +135,7 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
           <Button 
             variant="ghost" 
             size="icon" 
-            className="fixed top-4 left-4 z-50 lg:hidden bg-background border border-border shadow-sm"
+            className="fixed top-4 left-4 z-50 lg:hidden bg-background/95 backdrop-blur-sm border border-border shadow-lg min-h-[44px] min-w-[44px]"
             aria-label="Open navigation menu"
           >
             <Menu className="w-5 h-5" />

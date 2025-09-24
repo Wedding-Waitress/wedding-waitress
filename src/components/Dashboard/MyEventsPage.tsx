@@ -323,7 +323,7 @@ export const MyEventsPage: React.FC = () => {
     return (
       <div className="transition-opacity duration-300 ease-in-out">
         {selectedEvent ? (
-          <div className="flex justify-center items-center gap-8 md:gap-16 flex-wrap">
+          <div className="flex justify-center items-center gap-4 sm:gap-6 md:gap-8 lg:gap-16 flex-wrap">
             <CountdownCircle value={localCountdownValues.months} label="Months" type="months" />
             <CountdownCircle value={localCountdownValues.weeks} label="Weeks" type="weeks" />
             <CountdownCircle value={localCountdownValues.hours} label="Hours" type="hours" />
@@ -331,7 +331,7 @@ export const MyEventsPage: React.FC = () => {
           </div>
         ) : (
           <div className="space-y-4">
-            <div className="flex justify-center items-center gap-8 md:gap-16 flex-wrap">
+            <div className="flex justify-center items-center gap-4 sm:gap-6 md:gap-8 lg:gap-16 flex-wrap">
               <CountdownCircle value="--" label="Months" type="months" />
               <CountdownCircle value="--" label="Weeks" type="weeks" />
               <CountdownCircle value="--" label="Hours" type="hours" />
@@ -381,7 +381,7 @@ export const MyEventsPage: React.FC = () => {
 
     return (
       <div className="flex flex-col items-center">
-        <div className="relative w-32 h-32 mb-2">
+        <div className="relative w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 lg:w-32 lg:h-32 mb-2">
           {/* SVG Ring */}
           <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
             {/* Base ring */}
@@ -410,7 +410,7 @@ export const MyEventsPage: React.FC = () => {
           
           {/* Content */}
           <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <span className="text-4xl font-bold text-foreground">{value}</span>
+            <span className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-foreground">{value}</span>
             <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
               {label}
             </span>

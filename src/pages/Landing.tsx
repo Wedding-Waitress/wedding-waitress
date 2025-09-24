@@ -141,12 +141,12 @@ export const Landing = () => {
       {/* Hero Section */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-hero opacity-10"></div>
-        <div className="container mx-auto px-4 py-20 relative z-10">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
+        <div className="container mx-auto px-4 py-10 md:py-16 lg:py-20 relative z-10">
+          <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
             {/* Hero Content */}
             <div className="space-y-8">
               <div className="space-y-4">
-                <div className="inline-flex items-center rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-medium px-[100px] mx-[100px] my-[22px] py-[8px]">
+                <div className="inline-flex items-center rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-medium px-4 md:px-8 lg:px-16 py-2">
                   <Sparkles className="w-4 h-4 mr-2" />
                   Elegant Event Management
                 </div>
@@ -160,23 +160,25 @@ export const Landing = () => {
 Streamline your wedding & event planning with our sophisticated guest management system. Create stunning event managed  arrangement, RSVPs invites and delight your guests with seamless table assignments.</p>
               </div>
               
-              <div className="flex flex-wrap items-center gap-4 my-[50px] mx-[100px]">
-                <Button variant="hero" size="xl" className="btn-glow text-base">
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 my-6 md:my-8">
+                <Button variant="hero" size="lg" className="btn-glow text-sm md:text-base w-full sm:w-auto">
                   Start Planning Today
-                  <ArrowRight className="w-5 h-5 ml-2" />
+                  <ArrowRight className="w-4 h-4 md:w-5 md:h-5 ml-2" />
                 </Button>
-                <Button variant="outline" size="xl" className="glass">
+                <Button variant="outline" size="lg" className="glass w-full sm:w-auto">
                   Watch Demo
                 </Button>
               </div>
 
               {/* Trust Indicators */}
-              <div className="flex items-center space-x-6 pt-8">
-                <div className="flex items-center space-x-1">
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-6 pt-6 md:pt-8">
+                <div className="flex items-center gap-1 flex-wrap justify-center">
                   {[...Array(5)].map((_, i) => <Star key={i} className="w-4 h-4 fill-primary text-primary" />)}
-                  <span className="text-muted-foreground ml-2 text-2xl text-center">5-Star rating from 2,000+ couples
-Australian Made - Servicing Events Worldwide</span>
                 </div>
+                <span className="text-muted-foreground text-sm md:text-base lg:text-lg text-center leading-relaxed">
+                  5-Star rating from 2,000+ couples<br className="sm:hidden" />
+                  Australian Made - Servicing Events Worldwide
+                </span>
               </div>
             </div>
 
@@ -198,33 +200,33 @@ Australian Made - Servicing Events Worldwide</span>
                     </div>
                   )}
                   
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="firstName">First Name *</Label>
-                      <Input id="firstName" name="firstName" value={formData.firstName} onChange={handleInputChange} className="glass" required />
+                      <Input id="firstName" name="firstName" value={formData.firstName} onChange={handleInputChange} className="glass touch-target" required />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="lastName">Last Name *</Label>
-                      <Input id="lastName" name="lastName" value={formData.lastName} onChange={handleInputChange} className="glass" required />
+                      <Input id="lastName" name="lastName" value={formData.lastName} onChange={handleInputChange} className="glass touch-target" required />
                     </div>
                   </div>
                   
                   <div className="space-y-2">
                     <Label htmlFor="email">Email *</Label>
-                    <Input id="email" name="email" type="email" value={formData.email} onChange={handleInputChange} className="glass" required />
+                    <Input id="email" name="email" type="email" value={formData.email} onChange={handleInputChange} className="glass touch-target" required />
                   </div>
                   
                   <div className="space-y-2">
                     <Label htmlFor="mobile">Mobile Number</Label>
-                    <Input id="mobile" name="mobile" type="tel" value={formData.mobile} onChange={handleInputChange} className="glass" />
+                    <Input id="mobile" name="mobile" type="tel" value={formData.mobile} onChange={handleInputChange} className="glass touch-target" />
                   </div>
                   
                   <div className="space-y-2">
                     <Label htmlFor="password">Password * (min 6 characters)</Label>
-                    <Input id="password" name="password" type="password" value={formData.password} onChange={handleInputChange} className="glass" required />
+                    <Input id="password" name="password" type="password" value={formData.password} onChange={handleInputChange} className="glass touch-target" required />
                   </div>
                   
-                  <Button type="submit" variant="gradient" size="lg" className="w-full btn-glow" disabled={loading}>
+                  <Button type="submit" variant="gradient" size="lg" className="w-full btn-glow touch-target" disabled={loading}>
                     {loading ? (
                       <>
                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -263,7 +265,7 @@ It handles every detail of your event's seating chart, RSVP & more so you can fo
           </div>
 
           {/* Four Steps Section */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-16">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-12 md:mb-16">
             <Card className="ww-box group hover:shadow-purple-glow transition-all duration-300">
               <CardHeader className="text-center">
                 <div className="flex flex-col items-center space-y-4">
@@ -336,7 +338,7 @@ It handles every detail of your event's seating chart, RSVP & more so you can fo
             </h2>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
             {features.map((feature, index) => <Card key={index} className="ww-box group hover:shadow-purple-glow transition-all duration-300">
                 <CardHeader>
                   <div className="flex items-start gap-4">
