@@ -102,7 +102,7 @@ export const generateIndividualTableChartImage = async (
 /**
  * Generate SVG content for individual table chart
  */
-const generateIndividualTableSVG = (
+export const generateIndividualTableSVG = (
   settings: IndividualChartSettings,
   table: TableWithGuestCount,
   guests: Guest[],

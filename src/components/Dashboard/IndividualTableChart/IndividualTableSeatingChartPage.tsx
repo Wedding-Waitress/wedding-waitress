@@ -11,6 +11,7 @@ import { format } from 'date-fns';
 import { IndividualTableChartPreview } from './IndividualTableChartPreview';
 import { IndividualTableChartCustomizer } from './IndividualTableChartCustomizer';
 import { IndividualTableChartExporter } from './IndividualTableChartExporter';
+import { generateIndividualTableSVG } from '@/lib/individualTableChartEngine';
 
 export interface IndividualChartSettings {
   tableShape: 'round' | 'square';
@@ -97,8 +98,52 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
   };
 
   const handlePrintAll = () => {
-    if (typeof window !== 'undefined') {
-      window.print();
+    if (!selectedEvent || tables.length === 0) return;
+
+    // Generate HTML for all tables
+    const allTablesHTML = tables.map(table => {
+      const tableGuests = guests.filter(guest => guest.table_id === table.id);
+      const tableSettings = {
+        ...settings,
+        title: `TABLE ${table.table_no || 'Unknown'}`
+      };
+      return generateIndividualTableSVG(tableSettings, table, tableGuests, selectedEvent);
+    }).join('');
+
+    // Create print window with all tables
+    const printWindow = window.open('', '_blank');
+    if (printWindow) {
+      printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <title>All Tables - ${selectedEvent.name}</title>
+            <style>
+              body { margin: 0; padding: 0; font-family: Arial, sans-serif; }
+              .page { page-break-after: always; }
+              .page:last-child { page-break-after: avoid; }
+              @media print {
+                .page { page-break-after: always; }
+                .page:last-child { page-break-after: avoid; }
+              }
+            </style>
+          </head>
+          <body>
+            ${tables.map((table, index) => {
+              const tableGuests = guests.filter(guest => guest.table_id === table.id);
+              const tableSettings = {
+                ...settings,
+                title: `TABLE ${table.table_no || 'Unknown'}`
+              };
+              const isLastTable = index === tables.length - 1;
+              return `<div class="page${isLastTable ? ' last-page' : ''}">${generateIndividualTableSVG(tableSettings, table, tableGuests, selectedEvent)}</div>`;
+            }).join('')}
+          </body>
+        </html>
+      `);
+      printWindow.document.close();
+      printWindow.focus();
+      printWindow.print();
     }
   };
 
