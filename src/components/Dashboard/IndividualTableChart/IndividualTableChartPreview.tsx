@@ -245,7 +245,7 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
                                   textOverflow: 'ellipsis',
                                 }}
                               >
-                                <div className="bg-white/90 px-2 py-1 rounded text-gray-800 shadow-sm">
+                                <div className="text-gray-800">
                                   {seat.guest.first_name}
                                 </div>
                               </div>

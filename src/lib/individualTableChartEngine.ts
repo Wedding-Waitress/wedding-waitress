@@ -319,14 +319,14 @@ const generateIndividualTableSVG = (
                 text-align: ${seat.textAlign};
                 font-size: ${getFontSize(settings.fontSize)};
                 font-weight: 600;
-                background: rgba(255,255,255,0.95);
-                padding: 4px 8px;
-                border-radius: 4px;
+                background: transparent;
                 white-space: nowrap;
                 overflow: hidden;
                 text-overflow: ellipsis;
                 max-width: 80px;
-                box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+                box-shadow: none;
+                text-shadow: none;
+                filter: none;
                 cursor: help;
               " title="${seat.guest.first_name} ${seat.guest.last_name}">
                 ${seat.guest.first_name}
