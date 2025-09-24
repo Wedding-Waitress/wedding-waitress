@@ -152,22 +152,22 @@ const generateIndividualTableSVG = (
       const x = centerX + radius * Math.cos(angle);
       const y = centerY + radius * Math.sin(angle);
       
-      // Name positioning outside circles with better spacing
-      const nameRadius = settings.tableShape === 'round' ? 170 : 160;
+      // Enhanced name positioning with improved spacing to avoid overlaps
+      const nameRadius = settings.tableShape === 'round' ? 185 : 175;
       let nameX = centerX + nameRadius * Math.cos(angle);
       let nameY = centerY + nameRadius * Math.sin(angle);
       
-      // Special positioning adjustments for problem seats (10, 1, 2, 3)
-      if (i === 1) {
-        nameY -= 15; // Move up
-      } else if (i === 2) {
-        nameX += 15; // Move right
-        nameY -= 10; // Move up slightly
-      } else if (i === 3) {
-        nameX += 15; // Move right
-      } else if (i === 10) {
-        nameX -= 15; // Move left
-        nameY -= 10; // Move up slightly
+      // Enhanced positioning adjustments for problematic seats
+      if ([1, 2, 3, 10].includes(i)) {
+        // Move names significantly further out for these seats
+        const extraRadius = 25;
+        nameX = centerX + (nameRadius + extraRadius) * Math.cos(angle);
+        nameY = centerY + (nameRadius + extraRadius) * Math.sin(angle);
+      } else if ([5, 7, 9].includes(i)) {
+        // Move names moderately further out for these seats
+        const extraRadius = 15;
+        nameX = centerX + (nameRadius + extraRadius) * Math.cos(angle);
+        nameY = centerY + (nameRadius + extraRadius) * Math.sin(angle);
       }
       
       seats.push({
@@ -206,7 +206,7 @@ const generateIndividualTableSVG = (
             transform: translate(-50%, -50%);
             width: 260px;
             height: 260px;
-            border: 4px solid #333;
+            border: 1px solid #333;
             background: #f5f5f5;
             ${settings.tableShape === 'round' ? 'border-radius: 50%;' : 'border-radius: 8px;'}
             display: flex;
@@ -230,7 +230,7 @@ const generateIndividualTableSVG = (
               transform: translate(-50%, -50%);
               width: 42px;
               height: 42px;
-              border: 4px solid #000;
+              border: 1px solid #000;
               border-radius: 50%;
               background: white;
               display: flex;

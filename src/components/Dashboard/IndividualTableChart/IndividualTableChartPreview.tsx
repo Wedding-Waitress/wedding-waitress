@@ -112,7 +112,7 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
               <div className="relative" style={{ width: '500px', height: '450px' }}>
                 {/* Table */}
                 <div 
-                  className={`absolute border-4 border-gray-800 flex items-center justify-center bg-gray-50 ${
+                  className={`absolute border border-gray-800 flex items-center justify-center bg-gray-50 ${
                     settings.tableShape === 'round' ? 'rounded-full' : 'rounded-lg'
                   }`}
                   style={{ 
@@ -131,29 +131,29 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
 
                 {/* Seats */}
                 {seats.map((seat) => {
-                  // Calculate name positioning with better spacing to avoid overlaps
-                  const nameRadius = settings.tableShape === 'round' ? 52 : 50; // Increased spacing
+                  // Calculate name positioning with enhanced spacing to avoid overlaps
+                  const nameRadius = settings.tableShape === 'round' ? 58 : 56; // Further increased spacing
                   let nameX = 50 + nameRadius * Math.cos(seat.angle);
                   let nameY = 50 + nameRadius * Math.sin(seat.angle);
                   
-                  // Special positioning adjustments for problem seats (10, 1, 2, 3)
-                  if (seat.number === 1) {
-                    nameY -= 3; // Move up
-                  } else if (seat.number === 2) {
-                    nameX += 3; // Move right
-                    nameY -= 2; // Move up slightly
-                  } else if (seat.number === 3) {
-                    nameX += 3; // Move right
-                  } else if (seat.number === 10) {
-                    nameX -= 3; // Move left
-                    nameY -= 2; // Move up slightly
+                  // Enhanced positioning adjustments for problematic seats
+                  if ([1, 2, 3, 10].includes(seat.number)) {
+                    // Move names significantly further out for these seats
+                    const extraRadius = 8;
+                    nameX = 50 + (nameRadius + extraRadius) * Math.cos(seat.angle);
+                    nameY = 50 + (nameRadius + extraRadius) * Math.sin(seat.angle);
+                  } else if ([5, 7, 9].includes(seat.number)) {
+                    // Move names moderately further out for these seats
+                    const extraRadius = 4;
+                    nameX = 50 + (nameRadius + extraRadius) * Math.cos(seat.angle);
+                    nameY = 50 + (nameRadius + extraRadius) * Math.sin(seat.angle);
                   }
                   
                   return (
                     <div key={seat.number}>
-                      {/* Seat Circle with thick black border */}
+                      {/* Seat Circle with thin black border */}
                       <div
-                        className="absolute w-14 h-14 border-4 border-black rounded-full bg-white flex items-center justify-center transform -translate-x-1/2 -translate-y-1/2 shadow-md"
+                        className="absolute w-14 h-14 border border-black rounded-full bg-white flex items-center justify-center transform -translate-x-1/2 -translate-y-1/2 shadow-md"
                         style={{
                           left: `${seat.x}%`,
                           top: `${seat.y}%`,
