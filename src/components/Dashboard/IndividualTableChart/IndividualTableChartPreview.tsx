@@ -180,23 +180,9 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
           <div className="h-full flex flex-col p-6 relative">
             {/* Header Section */}  
             <div className="text-center mb-4 space-y-2">
-              {/* Top row with print date and title */}
-              <div className="text-xs text-gray-600 flex justify-between items-center">
-                <span>
-                  Printed on - {new Date().toLocaleDateString('en-GB', { 
-                    day: '2-digit', 
-                    month: '2-digit', 
-                    year: 'numeric' 
-                  })} - {new Date().toLocaleTimeString('en-GB', { 
-                    hour: '2-digit', 
-                    minute: '2-digit', 
-                    hour12: false 
-                  })}
-                </span>
-                <span className="text-center flex-1 font-semibold text-xl text-black">
-                  Table Seating Arrangements
-                </span>
-                <span></span>
+              {/* Title */}
+              <div className="text-center font-semibold text-xl text-black">
+                Table Seating Arrangements
               </div>
               {/* Event name */}
               <div className="font-semibold text-xl text-black">
@@ -295,7 +281,15 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
             {settings.includeGuestList && (
               <div className="mb-6">
                 <h3 className="font-semibold text-xl mb-3">
-                  Guests on this Table & Dietary
+                  Guests on this Table & Dietary - Printed on - {new Date().toLocaleDateString('en-GB', { 
+                    day: '2-digit', 
+                    month: '2-digit', 
+                    year: 'numeric' 
+                  })} - {new Date().toLocaleTimeString('en-GB', { 
+                    hour: '2-digit', 
+                    minute: '2-digit', 
+                    hour12: false 
+                  })}
                 </h3>
                 <div className="grid grid-cols-2 gap-1 text-[15px] leading-[1.35] print:text-[12pt] print:leading-[1.35]">
                   {sortedGuests.map((guest, index) => (
