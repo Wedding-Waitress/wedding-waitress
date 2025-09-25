@@ -106,7 +106,7 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
       if (settings.tableShape === 'square' && guest) {
         const side = getChairSide(angle);
         const chairSize = 14; // 56px / 4 = 14% (w-14 h-14)
-        const offset = 3.5; // 14px offset converted to percentage
+        const offset = 2.8; // 14px offset converted to percentage
         
         switch (side) {
           case 'right':
@@ -133,7 +133,7 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
       } else if (settings.tableShape === 'round' && guest) {
         // Position labels further outward (+6mm additional gap from seat edge)
         const chairRadius = i === 1 || i === 6 ? 39.5 : 37; // Account for moved chairs
-        const labelOffset = 14.2; // Increased by 6mm (8.5 + 5.7)
+        const labelOffset = 12.5; // Increased by 6mm (8.5 + 5.7)
         const labelRadius = chairRadius + labelOffset;
         labelX = 50 + labelRadius * Math.cos(angle);
         labelY = 50 + labelRadius * Math.sin(angle);
