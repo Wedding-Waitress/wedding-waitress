@@ -179,16 +179,28 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
         >
           <div className="h-full flex flex-col p-6 relative">
             {/* Header Section */}  
-            <div className="text-center mb-4 space-y-3">
-              {/* Event name with purple border at top */}
-              <div className="inline-block border border-[#A56EFF] text-[#A56EFF] px-6 py-3 rounded-lg bg-white">
-                <div className="font-semibold text-xl">
-                  {event?.name || 'Event'}
-                </div>
+            <div className="text-center mb-4 space-y-2">
+              {/* Top row with print date and title */}
+              <div className="text-xs text-gray-600 flex justify-between items-center">
+                <span>
+                  Printed on - {new Date().toLocaleDateString('en-GB', { 
+                    day: '2-digit', 
+                    month: '2-digit', 
+                    year: 'numeric' 
+                  })} - {new Date().toLocaleTimeString('en-GB', { 
+                    hour: '2-digit', 
+                    minute: '2-digit', 
+                    hour12: false 
+                  })}
+                </span>
+                <span className="text-center flex-1 font-semibold text-xl text-black">
+                  Table Seating Arrangements
+                </span>
+                <span></span>
               </div>
-              {/* Title */}
+              {/* Event name */}
               <div className="font-semibold text-xl text-black">
-                Table Seating Arrangements
+                {event?.name || 'Event'}
               </div>
               {/* Event date */}
               {event?.date && (
@@ -281,46 +293,33 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
 
             {/* Line 4 & 5: Guest List */}
             {settings.includeGuestList && (
-              <div className="mb-6 text-center">
-                <div className="inline-block border border-[#A56EFF] p-5 rounded-lg bg-white">
-                  <h3 className="font-semibold text-xl mb-3 text-[#A56EFF]">
-                    Guests on this Table & Dietary
-                  </h3>
-                  <div className="grid grid-cols-2 gap-1 text-[15px] leading-[1.35] print:text-[12pt] print:leading-[1.35]">
-                    {sortedGuests.map((guest, index) => (
-                      <div key={guest.id} className="truncate">
-                        {index + 1}. {guest.first_name} {guest.last_name}
-                        {settings.includeDietary && guest.dietary && guest.dietary !== 'NA' && (
-                          <span className="text-[#A56EFF]"> - {guest.dietary}</span>
-                        )}
-                      </div>
-                    ))}
-                  </div>
+              <div className="mb-6">
+                <h3 className="font-semibold text-xl mb-3">
+                  Guests on this Table & Dietary
+                </h3>
+                <div className="grid grid-cols-2 gap-1 text-[15px] leading-[1.35] print:text-[12pt] print:leading-[1.35]">
+                  {sortedGuests.map((guest, index) => (
+                    <div key={guest.id} className="truncate">
+                      {index + 1}. {guest.first_name} {guest.last_name}
+                      {settings.includeDietary && guest.dietary && guest.dietary !== 'NA' && (
+                        <span> - {guest.dietary}</span>
+                      )}
+                    </div>
+                  ))}
                 </div>
               </div>
             )}
 
-            {/* Footer: Logo and Print Date */}
-            <div className="flex flex-col items-center mt-auto space-y-2">
-              {settings.showLogo && (
+            {/* Line 6: Logo */}
+            {settings.showLogo && (
+              <div className="flex justify-center mt-auto">
                 <img 
                   src={weddingWaitressLogo} 
                   alt="Wedding Waitress" 
                   className="h-8 opacity-60"
                 />
-              )}
-              <div className="text-xs text-gray-500">
-                Printed on - {new Date().toLocaleDateString('en-GB', { 
-                  day: '2-digit', 
-                  month: '2-digit', 
-                  year: 'numeric' 
-                })} - {new Date().toLocaleTimeString('en-GB', { 
-                  hour: '2-digit', 
-                  minute: '2-digit', 
-                  hour12: false 
-                })}
               </div>
-            </div>
+            )}
           </div>
         </div>
       </CardContent>
