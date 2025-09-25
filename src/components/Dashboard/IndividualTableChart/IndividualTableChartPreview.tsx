@@ -300,17 +300,42 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
                     hour12: false 
                   })}
                 </h3>
-                <div className="grid grid-cols-2 gap-1 text-[15px] leading-[1.35] print:text-[12pt] print:leading-[1.35] text-center">
-                  {sortedGuests.map((guest, index) => (
-                    <div key={guest.id} className="flex items-start justify-center py-1 leading-[1.7] min-h-[20px]">
-                      <span className="break-words">
-                        {index + 1}. {guest.first_name} {guest.last_name}
-                        {settings.includeDietary && guest.dietary && guest.dietary !== 'NA' && (
-                           <span className="text-primary font-bold"> - {guest.dietary}</span>
-                         )}
-                      </span>
-                    </div>
-                  ))}
+                <div className="flex text-[15px] leading-[1.35] print:text-[12pt] print:leading-[1.35]">
+                  {/* Left Column */}
+                  <div className="flex-1 space-y-1">
+                    {sortedGuests.filter((_, index) => index % 2 === 0).map((guest, originalIndex) => {
+                      const actualIndex = sortedGuests.findIndex(g => g.id === guest.id);
+                      return (
+                        <div key={guest.id} className="flex items-start py-1 leading-[1.7] min-h-[20px]">
+                          <span className="w-6 text-left flex-shrink-0">{actualIndex + 1}.</span>
+                          <span className="break-words text-left">
+                            {guest.first_name} {guest.last_name}
+                            {settings.includeDietary && guest.dietary && guest.dietary !== 'NA' && (
+                              <span className="text-primary font-bold"> - {guest.dietary}</span>
+                            )}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  
+                  {/* Right Column */}
+                  <div className="flex-1 space-y-1 ml-4">
+                    {sortedGuests.filter((_, index) => index % 2 === 1).map((guest, originalIndex) => {
+                      const actualIndex = sortedGuests.findIndex(g => g.id === guest.id);
+                      return (
+                        <div key={guest.id} className="flex items-start py-1 leading-[1.7] min-h-[20px]">
+                          <span className="w-6 text-left flex-shrink-0">{actualIndex + 1}.</span>
+                          <span className="break-words text-left">
+                            {guest.first_name} {guest.last_name}
+                            {settings.includeDietary && guest.dietary && guest.dietary !== 'NA' && (
+                              <span className="text-primary font-bold"> - {guest.dietary}</span>
+                            )}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
             )}
