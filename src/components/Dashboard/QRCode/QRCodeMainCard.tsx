@@ -110,7 +110,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
       shadow_enabled: false,
       shadow_color: '#000000',
       shadow_blur: 10,
-      background_opacity: 100,
+      background_opacity: 1.0,
       output_size: 512,
       output_format: 'png',
       color_palette: 'custom',
