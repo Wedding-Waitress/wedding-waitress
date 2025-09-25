@@ -242,7 +242,7 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
                 className="flex items-center gap-2"
               >
                 <Printer className="w-4 h-4" />
-                Print All
+                Print All Tables
               </Button>
             </div>
           )}
