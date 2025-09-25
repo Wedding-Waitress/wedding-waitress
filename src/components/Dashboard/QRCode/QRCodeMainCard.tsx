@@ -23,7 +23,7 @@ interface QRColorsSettings {
 
 const defaultColors: QRColorsSettings = {
   background: "#ffffff",
-  foreground: "#060606"
+  foreground: "#000000"
 };
 
 
@@ -355,10 +355,10 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
                 {/* QR Preview + Actions Wrapper */}
                 <div id="qr-preview-wrap" className="flex flex-col items-center gap-4">
                   {/* QR Preview */}
-                  <div 
-                    id="qr-preview"
-                    className="w-full max-w-[460px] aspect-square min-h-[360px] bg-muted/20 border-2 border-dashed border-muted-foreground/30 rounded-lg flex items-center justify-center"
-                  >
+                    <div 
+                      id="qr-preview"
+                      className="w-full max-w-[460px] aspect-square min-h-[360px] bg-muted/20 rounded-lg flex items-center justify-center"
+                    >
                     {qrDataUrl ? (
                       <img src={qrDataUrl} alt="QR Code Preview" className="max-w-full max-h-full" />
                     ) : (
