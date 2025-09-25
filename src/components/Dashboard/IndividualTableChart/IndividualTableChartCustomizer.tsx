@@ -154,15 +154,6 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
             </Select>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="custom-title">Custom Title</Label>
-            <Input
-              id="custom-title"
-              value={settings.title}
-              onChange={(e) => onSettingsChange({ title: e.target.value })}
-              placeholder="TABLE 1"
-            />
-          </div>
         </div>
       </CardContent>
     </Card>

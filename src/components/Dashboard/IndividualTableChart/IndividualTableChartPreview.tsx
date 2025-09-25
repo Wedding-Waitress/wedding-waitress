@@ -306,8 +306,8 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
                       <span className="break-words">
                         {index + 1}. {guest.first_name} {guest.last_name}
                         {settings.includeDietary && guest.dietary && guest.dietary !== 'NA' && (
-                          <span className="text-success font-bold"> - {guest.dietary}</span>
-                        )}
+                           <span className="text-primary font-bold"> - {guest.dietary}</span>
+                         )}
                       </span>
                     </div>
                   ))}
