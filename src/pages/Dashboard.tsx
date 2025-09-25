@@ -47,7 +47,7 @@ import { FullSeatingChartPage } from '@/components/Dashboard/FullSeatingChart/Fu
 import { IndividualTableSeatingChartPage } from '@/components/Dashboard/IndividualTableChart/IndividualTableSeatingChartPage';
 import { KioskSetup } from '@/components/Dashboard/Kiosk/KioskSetup';
 import { FloorPlanPage } from '@/components/Dashboard/FloorPlan/FloorPlanPage';
-import { Header } from '@/components/Layout/Header';
+
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 
@@ -532,43 +532,32 @@ export const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-subtle flex flex-col">
-      {/* Header */}
-      <Header 
-        user={{
-          first_name: profile?.first_name || 'User',
-          email: profile?.email || ''
-        }}
-        onSignOut={handleSignOut}
-      />
+    <div className="min-h-screen bg-gradient-subtle flex">
+      {/* Sidebar */}
+      <div className="print:hidden">
+        <DashboardSidebar activeTab={activeTab} onTabChange={handleTabChange} onSignOut={handleSignOut} />
+      </div>
       
-      <div className="flex flex-1">
-        {/* Sidebar */}
-        <div className="print:hidden">
-          <DashboardSidebar activeTab={activeTab} onTabChange={handleTabChange} />
-        </div>
-        
-        {/* Main Content */}
-        <div className="flex-1 flex flex-col">
-          <main className="flex-1 lg:px-6 px-4 py-6">
-          <div className="mx-auto max-w-none">
-            {/* Stats Bar excluded from: My Events, QR Code, Dashboard, Vendor Team, Planner, Wishing Well, RSVP, Floor Plan, Kiosk Live View, Printables */}
-            {activeTab !== 'my-events' && activeTab !== 'qr-code' && activeTab !== 'dashboard' && 
-             activeTab !== 'vendor-team' && activeTab !== 'planner' && activeTab !== 'wishing-well' && 
-             activeTab !== 'rsvp-invite' && activeTab !== 'floor-plan' && activeTab !== 'kiosk-live-view' && 
-             activeTab !== 'printables' && (
-              <div className="print:hidden">
-                <StatsBar stats={statsData} />
-              </div>
-            )}
-            
-            {/* Tab Content */}
-            <div className="space-y-6 mt-6">
-              {renderTabContent()}
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col">
+        <main className="flex-1 lg:px-6 px-4 py-6">
+        <div className="mx-auto max-w-none">
+          {/* Stats Bar excluded from: My Events, QR Code, Dashboard, Vendor Team, Planner, Wishing Well, RSVP, Floor Plan, Kiosk Live View, Printables */}
+          {activeTab !== 'my-events' && activeTab !== 'qr-code' && activeTab !== 'dashboard' && 
+           activeTab !== 'vendor-team' && activeTab !== 'planner' && activeTab !== 'wishing-well' && 
+           activeTab !== 'rsvp-invite' && activeTab !== 'floor-plan' && activeTab !== 'kiosk-live-view' && 
+           activeTab !== 'printables' && (
+            <div className="print:hidden">
+              <StatsBar stats={statsData} />
             </div>
+          )}
+          
+          {/* Tab Content */}
+          <div className="space-y-6 mt-6">
+            {renderTabContent()}
           </div>
-          </main>
         </div>
+        </main>
       </div>
 
       {/* Create/Edit Table Modal */}

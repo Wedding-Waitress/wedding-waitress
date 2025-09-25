@@ -10,20 +10,16 @@ import {
   QrCode, 
   ClipboardList, 
   Handshake, 
-  Settings, 
   Heart,
-  Menu,
-  X,
   Printer,
-  Monitor
+  Monitor,
+  LogOut
 } from 'lucide-react';
-import { Button } from "@/components/ui/enhanced-button";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { useIsMobile } from "@/hooks/use-mobile";
 
 interface DashboardSidebarProps {
   activeTab: string;
   onTabChange: (tabId: string) => void;
+  onSignOut: () => void;
 }
 
 const menuItems = [
@@ -41,18 +37,7 @@ const menuItems = [
   { id: "vendor-team", label: "Vendor Team", icon: Handshake },
 ];
 
-const SidebarMenuContent = ({ activeTab, onTabChange, onClose }: { activeTab: string; onTabChange: (tabId: string) => void; onClose?: () => void }) => {
-  React.useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && onClose) {
-        onClose();
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [onClose]);
-
+const SidebarMenuContent = ({ activeTab, onTabChange, onSignOut }: { activeTab: string; onTabChange: (tabId: string) => void; onSignOut: () => void }) => {
   return (
     <div className="h-full flex flex-col bg-card border-r border-border">
       {/* Logo */}
@@ -78,10 +63,7 @@ const SidebarMenuContent = ({ activeTab, onTabChange, onClose }: { activeTab: st
             return (
               <button
                 key={item.id}
-                onClick={() => {
-                  onTabChange(item.id);
-                  onClose?.();
-                }}
+                onClick={() => onTabChange(item.id)}
                 className={`w-full flex items-center space-x-3 px-3 py-3 rounded-lg text-left transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 touch-target ${
                   isActive
                     ? 'bg-primary text-primary-foreground shadow-sm'
@@ -94,6 +76,15 @@ const SidebarMenuContent = ({ activeTab, onTabChange, onClose }: { activeTab: st
               </button>
             );
           })}
+
+          {/* Logout button */}
+          <button
+            onClick={onSignOut}
+            className="w-full flex items-center space-x-3 px-3 py-3 rounded-lg text-left transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 touch-target text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+          >
+            <LogOut className="w-5 h-5 flex-shrink-0" aria-hidden="true" />
+            <span className="text-sm font-medium">Logout</span>
+          </button>
         </nav>
       </div>
 
@@ -103,46 +94,15 @@ const SidebarMenuContent = ({ activeTab, onTabChange, onClose }: { activeTab: st
 
 export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
   activeTab,
-  onTabChange
+  onTabChange,
+  onSignOut
 }) => {
-  const isMobile = useIsMobile();
-  const [isOpen, setIsOpen] = React.useState(false);
-
-  const handleClose = () => setIsOpen(false);
-
-  if (isMobile) {
-    return (
-      <Sheet open={isOpen} onOpenChange={setIsOpen}>
-        <SheetTrigger asChild>
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className="fixed top-4 left-4 z-50 lg:hidden bg-background/95 backdrop-blur-sm border border-border shadow-lg min-h-[44px] min-w-[44px]"
-            aria-label="Open navigation menu"
-          >
-            <Menu className="w-5 h-5" />
-          </Button>
-        </SheetTrigger>
-        <SheetContent 
-          side="left" 
-          className="p-0 w-[252px]"
-          onInteractOutside={handleClose}
-        >
-          <SidebarMenuContent 
-            activeTab={activeTab} 
-            onTabChange={onTabChange}
-            onClose={handleClose}
-          />
-        </SheetContent>
-      </Sheet>
-    );
-  }
-
   return (
     <div className="w-[252px] h-screen sticky top-0">
       <SidebarMenuContent 
         activeTab={activeTab} 
         onTabChange={onTabChange}
+        onSignOut={onSignOut}
       />
     </div>
   );
