@@ -138,10 +138,16 @@ export const generateIndividualTableSVG = (
     return 'left';
   };
 
-  // Arrange seats around table - Updated to match preview
+  // Arrange seats around table - Using same logic as IndividualTableChartPreview
   const arrangeSeats = () => {
     const seatCount = table.limit_seats;
     const seats = [];
+    
+    // Container dimensions for conversion from percentage to pixels
+    const containerWidth = 500;  // Fixed container width
+    const containerHeight = 450; // Fixed container height
+    const centerX = containerWidth / 2;
+    const centerY = containerHeight / 2;
     
     for (let i = 1; i <= seatCount; i++) {
       let guest = sortedGuests.find(g => g.seat_no === i);
@@ -154,69 +160,75 @@ export const generateIndividualTableSVG = (
         }
       }
       
-      const angle = ((i - 1) / seatCount) * 2 * Math.PI - Math.PI / 2;
+      const angle = ((i - 1) / seatCount) * 2 * Math.PI - Math.PI / 2; // Start from top
       
-      // Reduced chair radius for round tables (closer to table)
-      let radius = settings.tableShape === 'round' ? 125 : 130;
+      // Use same radius percentages as IndividualTableChartPreview
+      let radiusPercent = settings.tableShape === 'round' ? 37 : 40;
       
-      // Move seats 1 and 6 outward by additional 10px to avoid touching table
+      // Move seats 1 and 6 outward by additional 2.5% (~10px) to avoid touching table
       if (settings.tableShape === 'round' && (i === 1 || i === 6)) {
-        radius = 135;
+        radiusPercent = 39.5;
       }
       
       // For square tables, move specific chairs further out to avoid table overlap
       if (settings.tableShape === 'square' && [2, 5, 7, 10].includes(i)) {
-        radius = 160; // Move these chairs further out (equivalent to 48% in preview)
+        radiusPercent = 48; // Move these chairs further out
       }
       
-      const centerX = 400;
-      const centerY = 320;
+      // Convert percentage to pixels
+      const radius = (radiusPercent / 100) * Math.min(containerWidth, containerHeight);
+      
       const x = centerX + radius * Math.cos(angle);
       const y = centerY + radius * Math.sin(angle);
       
-      // Calculate label position for square tables
+      // Calculate label position
       let labelX = x;
       let labelY = y;
       let textAlign = 'center';
-      let transform = 'translateX(-50%)';
+      let transform = 'translate(-50%, -50%)';
       
       if (settings.tableShape === 'square' && guest) {
         const side = getChairSide(angle);
-        const chairRadius = 21; // 42px / 2
-        const offset = 14; // 12-16px offset
+        const chairSize = 14; // 56px / 4 = 14% (w-14 h-14)
+        const offset = 3.5; // 14px offset converted to percentage
+        
+        // Convert to pixels
+        const chairSizePixels = (chairSize / 100) * Math.min(containerWidth, containerHeight);
+        const offsetPixels = (offset / 100) * Math.min(containerWidth, containerHeight);
         
         switch (side) {
           case 'right':
-            labelX = x + chairRadius + offset;
+            labelX = x + chairSizePixels/2 + offsetPixels;
             labelY = y;
             textAlign = 'left';
-            transform = 'translateY(-50%)';
+            transform = 'translate(0, -50%)';
             break;
           case 'left':
-            labelX = x - chairRadius - offset;
+            labelX = x - chairSizePixels/2 - offsetPixels;
             labelY = y;
             textAlign = 'right';
             transform = 'translate(-100%, -50%)';
             break;
           case 'top':
             labelX = x;
-            labelY = y - chairRadius - offset;
+            labelY = y - chairSizePixels/2 - offsetPixels;
             textAlign = 'center';
             transform = 'translate(-50%, -100%)';
             break;
           case 'bottom':
             labelX = x;
-            labelY = y + chairRadius + offset;
+            labelY = y + chairSizePixels/2 + offsetPixels;
             textAlign = 'center';
-            transform = 'translateX(-50%)';
+            transform = 'translate(-50%, 0)';
             break;
         }
       } else if (settings.tableShape === 'round' && guest) {
         // Position labels 34px outward from chair edge for round tables (+8px adjustment)
-        const chairRadius = 21; // 42px / 2
-        const labelOffset = 34;
-        const baseRadius = (i === 1 || i === 6) ? 135 : 125; // Account for moved chairs
-        const labelRadius = baseRadius + chairRadius + labelOffset; // chair radius + chair size + offset
+        const chairRadius = i === 1 || i === 6 ? 39.5 : 37; // Account for moved chairs
+        const labelOffset = 8.5; // 34px converted to percentage (34/400 * 100)
+        const labelRadiusPercent = chairRadius + labelOffset;
+        const labelRadius = (labelRadiusPercent / 100) * Math.min(containerWidth, containerHeight);
+        
         labelX = centerX + labelRadius * Math.cos(angle);
         labelY = centerY + labelRadius * Math.sin(angle);
         
@@ -225,7 +237,7 @@ export const generateIndividualTableSVG = (
         if (angleDegrees >= -90 && angleDegrees <= 90) {
           // Right hemisphere - left align text
           textAlign = 'left';
-          transform = 'translateY(-50%)';
+          transform = 'translate(0, -50%)';
         } else {
           // Left hemisphere - right align text
           textAlign = 'right';
@@ -254,26 +266,31 @@ export const generateIndividualTableSVG = (
 
   return `
     <div style="width: 794px; height: 1123px; background: white; font-family: Arial, sans-serif; padding: 30px; box-sizing: border-box; display: flex; flex-direction: column;">
-      <!-- Line 1: Event Info -->
-      <div style="text-align: center; margin-bottom: 20px; font-size: 20px; font-weight: 600;">
-        <div style="margin-bottom: 4px;">${event.name} • ${event.venue} • ${eventDate}</div>
-        <div>Table Seating Arrangements</div>
+      <!-- Small header at top -->
+      <div style="text-align: center; margin-bottom: 20px;">
+        <div style="font-size: 12px; color: #666; display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+          <span>${eventDate}</span>
+          <span style="text-align: center; flex: 1;">Wedding Waitress – Your Dream Wedding, Perfectly Orchestrated</span>
+          <span></span>
+        </div>
+        <div style="font-size: 20px; font-weight: 600;">
+          Table Seating Arrangements
+        </div>
       </div>
 
-
-      <!-- Line 3: Table Visualization -->
+      <!-- Table Visualization -->
       <div style="flex: 1; display: flex; align-items: center; justify-content: center; margin-bottom: 30px;">
-        <div style="position: relative; width: 600px; height: 500px;">
+        <div style="position: relative; width: 500px; height: 450px;">
           <!-- Table -->
           <div style="
             position: absolute;
             left: 50%;
             top: 50%;
             transform: translate(-50%, -50%);
-            width: 260px;
-            height: 260px;
+            width: 280px;
+            height: 280px;
             border: 1px solid #333;
-            background: #f5f5f5;
+            background: #f9f9f9;
             ${settings.tableShape === 'round' ? 'border-radius: 50%;' : 'border-radius: 8px;'}
             display: flex;
             align-items: center;
@@ -281,21 +298,22 @@ export const generateIndividualTableSVG = (
             font-size: ${getTitleSize(settings.fontSize)};
             font-weight: bold;
             color: #555;
+            flex-direction: column;
             ">
-            <div style="text-align: center;">TABLE</div>
-            <div style="text-align: center;">${table.table_no}</div>
+            <div>TABLE</div>
+            <div>${table.table_no}</div>
           </div>
 
           <!-- Seats -->
           ${seats.map(seat => `
-            <!-- Seat Circle -->
+            <!-- Seat Circle with thin black border -->
             <div style="
               position: absolute;
               left: ${seat.x}px;
               top: ${seat.y}px;
               transform: translate(-50%, -50%);
-              width: 42px;
-              height: 42px;
+              width: 56px;
+              height: 56px;
               border: 1px solid #000;
               border-radius: 50%;
               background: white;
@@ -304,12 +322,12 @@ export const generateIndividualTableSVG = (
               justify-content: center;
               font-weight: bold;
               font-size: 14px;
-              box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+              box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             ">
               ${settings.showSeatNumbers ? seat.number : ''}
             </div>
 
-            <!-- Guest Name - Side-aware positioning for square tables -->
+            <!-- Guest Name - Side-aware positioning -->
             ${seat.guest ? `
               <div style="
                 position: absolute;
@@ -319,15 +337,11 @@ export const generateIndividualTableSVG = (
                 text-align: ${seat.textAlign};
                 font-size: ${getFontSize(settings.fontSize)};
                 font-weight: 600;
-                background: transparent;
+                color: #333;
                 white-space: nowrap;
                 overflow: hidden;
                 text-overflow: ellipsis;
                 max-width: 80px;
-                box-shadow: none;
-                text-shadow: none;
-                filter: none;
-                cursor: help;
               " title="${seat.guest.first_name} ${seat.guest.last_name}">
                 ${seat.guest.first_name}
               </div>
@@ -336,13 +350,13 @@ export const generateIndividualTableSVG = (
         </div>
       </div>
 
-      <!-- Line 4 & 5: Guest List -->
+      <!-- Guest List -->
       ${settings.includeGuestList ? `
         <div style="margin-bottom: 30px;">
-          <h3 style="font-size: ${getFontSize(settings.fontSize)}; font-weight: bold; margin-bottom: 12px;">
+          <h3 style="font-size: 20px; font-weight: 600; margin-bottom: 12px;">
             Guests on this Table & Dietary
           </h3>
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 11px;">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: ${getFontSize(settings.fontSize)};">
             ${sortedGuests.map((guest, index) => `
               <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                 ${index + 1}. ${guest.first_name} ${guest.last_name}${settings.includeDietary && guest.dietary && guest.dietary !== 'NA' ? ` - ${guest.dietary}` : ''}
@@ -352,7 +366,7 @@ export const generateIndividualTableSVG = (
         </div>
       ` : ''}
 
-      <!-- Line 6: Logo -->
+      <!-- Logo -->
       ${settings.showLogo ? `
         <div style="display: flex; justify-content: center; margin-top: auto;">
           <div style="font-size: 12px; color: #666; opacity: 0.6;">
