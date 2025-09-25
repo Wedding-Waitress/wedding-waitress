@@ -15,12 +15,7 @@ interface SignInModalProps {
   onBackToSignUp: () => void;
 }
 
-const signInSchema = z.object({
-  email: z.string().email('Please enter a valid email address'),
-  password: z.string().min(1, 'Password is required')
-});
-
-const otpEmailSchema = z.object({
+const emailSchema = z.object({
   email: z.string().email('Please enter a valid email address')
 });
 
@@ -29,11 +24,9 @@ export const SignInModal: React.FC<SignInModalProps> = ({
   onOpenChange, 
   onBackToSignUp 
 }) => {
-  const [method, setMethod] = useState<'password' | 'otp'>('password');
   const [step, setStep] = useState<'form' | 'verify'>('form');
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [verificationCode, setVerificationCode] = useState(['', '', '', '', '', '']);
   const [error, setError] = useState('');
   const [resendTimer, setResendTimer] = useState(0);
@@ -55,63 +48,26 @@ export const SignInModal: React.FC<SignInModalProps> = ({
     if (!error?.message) return 'An unexpected error occurred';
     
     switch (error.message) {
+      case 'email_address_invalid':
+        return 'This email address is restricted in Supabase settings. Please check your Authentication settings.';
       case 'Invalid login credentials':
       case 'invalid_credentials':
-        return 'Invalid email or password';
+        return 'Invalid verification code';
       case 'Email not confirmed':
         return 'Please check your email and click the confirmation link';
       case 'Too many requests':
-        return 'Too many login attempts. Please wait a moment';
-      case 'User not found':
-        return 'No account found with this email';
-      case 'email_address_invalid':
-        return 'This email address is restricted. Try password sign-in or contact support';
+        return 'Too many requests. Please wait a moment';
       default:
         return error.message;
     }
   };
 
-  // Handle password sign in
-  const handlePasswordSubmit = async (e: React.FormEvent) => {
+  // Handle email submission for OTP
+  const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     
-    const validation = signInSchema.safeParse({ email, password });
-    if (!validation.success) {
-      setError(validation.error.errors[0].message);
-      return;
-    }
-
-    setLoading(true);
-    
-    try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: email,
-        password: password
-      });
-
-      if (error) {
-        setError(mapSupabaseError(error));
-      } else if (data.user) {
-        onOpenChange(false);
-        toast({
-          title: "Signed in ✔",
-        });
-        navigate('/dashboard');
-      }
-    } catch (err) {
-      setError('An unexpected error occurred. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Handle OTP email submission
-  const handleOtpSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    
-    const validation = otpEmailSchema.safeParse({ email });
+    const validation = emailSchema.safeParse({ email });
     if (!validation.success) {
       setError(validation.error.errors[0].message);
       return;
@@ -121,7 +77,7 @@ export const SignInModal: React.FC<SignInModalProps> = ({
     
     try {
       const { error } = await supabase.auth.signInWithOtp({
-        email: email
+        email: email.trim().toLowerCase()
       });
 
       if (error) {
@@ -129,43 +85,13 @@ export const SignInModal: React.FC<SignInModalProps> = ({
       } else {
         setStep('verify');
         startResendTimer();
-      }
-    } catch (err) {
-      setError('An unexpected error occurred. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Handle forgot password
-  const handleForgotPassword = async () => {
-    if (!email) {
-      setError('Please enter your email address first');
-      return;
-    }
-
-    const validation = otpEmailSchema.safeParse({ email });
-    if (!validation.success) {
-      setError(validation.error.errors[0].message);
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`
-      });
-
-      if (error) {
-        setError(mapSupabaseError(error));
-      } else {
         toast({
-          title: "Reset email sent!",
-          description: "Check your email for password reset instructions."
+          title: "Code sent!",
+          description: "Check your email for the verification code."
         });
       }
     } catch (err) {
-      setError('Failed to send reset email. Please try again.');
+      setError('An unexpected error occurred. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -249,7 +175,7 @@ export const SignInModal: React.FC<SignInModalProps> = ({
     setLoading(true);
     try {
       const { error } = await supabase.auth.signInWithOtp({
-        email: email
+        email: email.trim().toLowerCase()
       });
 
       if (!error) {
@@ -287,7 +213,6 @@ export const SignInModal: React.FC<SignInModalProps> = ({
     if (!newOpen) {
       setStep('form');
       setEmail('');
-      setPassword('');
       setVerificationCode(['', '', '', '', '', '']);
       setError('');
       setResendTimer(0);
@@ -303,7 +228,7 @@ export const SignInModal: React.FC<SignInModalProps> = ({
           </DialogTitle>
           <DialogDescription className="text-center">
             {step === 'form' 
-              ? 'Choose your preferred sign-in method below' 
+              ? 'Enter your email to get a verification code' 
               : `We've emailed a one-time code to ${email}`
             }
           </DialogDescription>
@@ -311,126 +236,36 @@ export const SignInModal: React.FC<SignInModalProps> = ({
 
         {step === 'form' ? (
           <div className="space-y-4 mt-4">
-            {/* Method Selection */}
-            <div className="flex rounded-lg bg-muted p-1">
-              <button
-                type="button"
-                onClick={() => setMethod('password')}
-                className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors ${
-                  method === 'password' 
-                    ? 'bg-background text-foreground shadow-sm' 
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
+            <form onSubmit={handleEmailSubmit} className="space-y-4">
+              <div>
+                <Label htmlFor="signin-email" className="text-sm font-medium">
+                  Email
+                </Label>
+                <Input
+                  id="signin-email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="mt-1"
+                  disabled={loading}
+                />
+              </div>
+
+              {error && (
+                <div className="text-sm text-destructive bg-destructive/10 p-2 rounded">
+                  {error}
+                </div>
+              )}
+
+              <Button 
+                type="submit" 
+                className="w-full" 
+                disabled={loading || !email}
               >
-                Password
-              </button>
-              <button
-                type="button"
-                onClick={() => setMethod('otp')}
-                className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors ${
-                  method === 'otp' 
-                    ? 'bg-background text-foreground shadow-sm' 
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                Email Code
-              </button>
-            </div>
-
-            {/* Password Method */}
-            {method === 'password' && (
-              <form onSubmit={handlePasswordSubmit} className="space-y-4">
-                <div>
-                  <Label htmlFor="signin-email" className="text-sm font-medium">
-                    Email
-                  </Label>
-                  <Input
-                    id="signin-email"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="mt-1"
-                    disabled={loading}
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="signin-password" className="text-sm font-medium">
-                    Password
-                  </Label>
-                  <Input
-                    id="signin-password"
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="mt-1"
-                    disabled={loading}
-                  />
-                </div>
-
-                {error && (
-                  <div className="text-sm text-destructive bg-destructive/10 p-2 rounded">
-                    {error}
-                  </div>
-                )}
-
-                <div className="space-y-3">
-                  <Button 
-                    type="submit" 
-                    className="w-full" 
-                    disabled={loading || !email || !password}
-                  >
-                    {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                    Sign In
-                  </Button>
-
-                  <div className="text-center">
-                    <button
-                      type="button"
-                      onClick={handleForgotPassword}
-                      disabled={loading}
-                      className="text-sm text-muted-foreground hover:text-foreground disabled:opacity-50"
-                    >
-                      Forgot password?
-                    </button>
-                  </div>
-                </div>
-              </form>
-            )}
-
-            {/* OTP Method */}
-            {method === 'otp' && (
-              <form onSubmit={handleOtpSubmit} className="space-y-4">
-                <div>
-                  <Label htmlFor="signin-email-otp" className="text-sm font-medium">
-                    Email
-                  </Label>
-                  <Input
-                    id="signin-email-otp"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="mt-1"
-                    disabled={loading}
-                  />
-                </div>
-
-                {error && (
-                  <div className="text-sm text-destructive bg-destructive/10 p-2 rounded">
-                    {error}
-                  </div>
-                )}
-
-                <Button 
-                  type="submit" 
-                  className="w-full" 
-                  disabled={loading || !email}
-                >
-                  {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  Email me a code
-                </Button>
-              </form>
-            )}
+                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Email me the code
+              </Button>
+            </form>
 
             <div className="space-y-3">
               <p className="text-xs text-muted-foreground text-center">
