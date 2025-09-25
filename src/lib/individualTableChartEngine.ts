@@ -405,20 +405,48 @@ export const generateIndividualTableSVG = (
   };
 
   const seats = arrangeSeats();
-  const eventDate = event?.date ? format(new Date(event.date), 'PPP') : '';
+  
+  // Helper functions for date formatting
+  const getCurrentDateTime = () => {
+    const now = new Date();
+    const day = now.getDate().toString().padStart(2, '0');
+    const month = (now.getMonth() + 1).toString().padStart(2, '0');
+    const year = now.getFullYear();
+    const hours = now.getHours().toString().padStart(2, '0');
+    const minutes = now.getMinutes().toString().padStart(2, '0');
+    return `${day}/${month}/${year} - ${hours}:${minutes}`;
+  };
+
+  const getEventDate = () => {
+    if (!event?.date) return '';
+    const eventDate = new Date(event.date);
+    const day = eventDate.getDate().toString().padStart(2, '0');
+    const month = (eventDate.getMonth() + 1).toString().padStart(2, '0');
+    const year = eventDate.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
+
+  const eventName = event?.name || 'Event';
+  const formattedEventDate = getEventDate();
 
   return `
     <div style="width: 794px; height: 1123px; background: white; font-family: Arial, sans-serif; padding: 40px; box-sizing: border-box; display: flex; flex-direction: column; line-height: 1.4;">
-      <!-- Small header at top -->
+      <!-- Header Section -->
       <div style="text-align: center; margin-bottom: 25px; padding: 10px 0;">
-        <div style="font-size: 10pt; color: #000000; font-weight: 500; display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; line-height: 1.5; padding: 5px 0;">
-          <span style="display: inline-block; vertical-align: baseline;">${eventDate}</span>
-          <span style="text-align: center; flex: 1; display: inline-block; vertical-align: baseline;">Wedding Waitress – Your Dream Wedding, Perfectly Orchestrated</span>
+        <!-- Top row with print date and title -->
+        <div style="font-size: 10pt; color: #000000; font-weight: 500; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; line-height: 1.5; padding: 5px 0;">
+          <span style="display: inline-block; vertical-align: baseline;">Printed on - ${getCurrentDateTime()}</span>
+          <span style="text-align: center; flex: 1; display: inline-block; vertical-align: baseline; font-size: 18pt; font-weight: 700;">Table Seating Arrangements</span>
           <span></span>
         </div>
-        <div style="font-size: 18pt; font-weight: 700; color: #000000; line-height: 1.3; padding: 5px 0; display: inline-block; vertical-align: baseline;">
-          Table Seating Arrangements
+        <!-- Event name -->
+        <div style="font-size: 18pt; font-weight: 700; color: #000000; line-height: 1.3; padding: 8px 0; display: inline-block; vertical-align: baseline;">
+          ${eventName}
         </div>
+        <!-- Event date -->
+        ${formattedEventDate ? `<div style="font-size: 12pt; font-weight: 500; color: #000000; line-height: 1.3; padding: 5px 0; display: inline-block; vertical-align: baseline;">
+          ${formattedEventDate}
+        </div>` : ''}
       </div>
 
       <!-- Table Visualization -->

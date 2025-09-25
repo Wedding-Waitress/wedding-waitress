@@ -178,16 +178,40 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
           }}
         >
           <div className="h-full flex flex-col p-6 relative">
-            {/* Small header at top */}
-            <div className="text-center mb-4 space-y-1">
+            {/* Header Section */}  
+            <div className="text-center mb-4 space-y-2">
+              {/* Top row with print date and title */}
               <div className="text-xs text-gray-600 flex justify-between items-center">
-                <span>{event.date ? format(new Date(event.date), 'PPP') : ''}</span>
-                <span className="text-center flex-1">Wedding Waitress – Your Dream Wedding, Perfectly Orchestrated</span>
+                <span>
+                  Printed on - {new Date().toLocaleDateString('en-GB', { 
+                    day: '2-digit', 
+                    month: '2-digit', 
+                    year: 'numeric' 
+                  })} - {new Date().toLocaleTimeString('en-GB', { 
+                    hour: '2-digit', 
+                    minute: '2-digit', 
+                    hour12: false 
+                  })}
+                </span>
+                <span className="text-center flex-1 font-semibold text-xl text-black">
+                  Table Seating Arrangements
+                </span>
                 <span></span>
               </div>
-              <div className="font-semibold text-xl">
-                Table Seating Arrangements
+              {/* Event name */}
+              <div className="font-semibold text-xl text-black">
+                {event?.name || 'Event'}
               </div>
+              {/* Event date */}
+              {event?.date && (
+                <div className="font-medium text-base text-black">
+                  {new Date(event.date).toLocaleDateString('en-GB', { 
+                    day: '2-digit', 
+                    month: '2-digit', 
+                    year: 'numeric' 
+                  })}
+                </div>
+              )}
             </div>
 
 
