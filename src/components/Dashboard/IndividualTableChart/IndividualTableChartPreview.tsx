@@ -42,6 +42,25 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
     return 'left';
   };
 
+  const formatEventDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const day = date.getDate();
+    const ordinalSuffix = getOrdinalSuffix(day);
+    const month = date.toLocaleDateString('en-GB', { month: 'long' });
+    const year = date.getFullYear();
+    return `${day}${ordinalSuffix} ${month} ${year}`;
+  };
+
+  const getOrdinalSuffix = (day: number) => {
+    if (day > 3 && day < 21) return 'th';
+    switch (day % 10) {
+      case 1: return 'st';
+      case 2: return 'nd';
+      case 3: return 'rd';
+      default: return 'th';
+    }
+  };
+
   // Arrange seats around the table
   const arrangeSeats = () => {
     const seatCount = table.limit_seats;
@@ -182,22 +201,12 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
             <div className="text-center mb-4 space-y-2">
               {/* Title */}
               <div className="text-center font-semibold text-xl text-black">
-                Table Seating Arrangements
+                {event?.venue_name ? event.venue_name + ' - ' : ''}Table Seating Arrangements
               </div>
-              {/* Event name */}
+              {/* Event name and date */}
               <div className="font-semibold text-xl text-black">
-                {event?.name || 'Event'}
+                {event?.name || 'Event'}{event?.date ? ' - ' + formatEventDate(event.date) : ''}
               </div>
-              {/* Event date */}
-              {event?.date && (
-                <div className="font-medium text-base text-black">
-                  {new Date(event.date).toLocaleDateString('en-GB', { 
-                    day: '2-digit', 
-                    month: '2-digit', 
-                    year: 'numeric' 
-                  })}
-                </div>
-              )}
             </div>
 
 
@@ -280,7 +289,7 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
             {/* Line 4 & 5: Guest List */}
             {settings.includeGuestList && (
               <div className="mb-6">
-                <h3 className="font-semibold text-xl mb-3">
+                <h3 className="font-semibold text-xl mb-3 text-center underline">
                   Guests on this Table & Dietary - Printed on - {new Date().toLocaleDateString('en-GB', { 
                     day: '2-digit', 
                     month: '2-digit', 
@@ -291,13 +300,15 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
                     hour12: false 
                   })}
                 </h3>
-                <div className="grid grid-cols-2 gap-1 text-[15px] leading-[1.35] print:text-[12pt] print:leading-[1.35]">
+                <div className="grid grid-cols-2 gap-1 text-[15px] leading-[1.35] print:text-[12pt] print:leading-[1.35] text-center">
                   {sortedGuests.map((guest, index) => (
-                    <div key={guest.id} className="truncate">
-                      {index + 1}. {guest.first_name} {guest.last_name}
-                      {settings.includeDietary && guest.dietary && guest.dietary !== 'NA' && (
-                        <span> - {guest.dietary}</span>
-                      )}
+                    <div key={guest.id} className="flex items-start justify-center py-1 leading-[1.7] min-h-[20px]">
+                      <span className="break-words">
+                        {index + 1}. {guest.first_name} {guest.last_name}
+                        {settings.includeDietary && guest.dietary && guest.dietary !== 'NA' && (
+                          <span className="text-success font-bold"> - {guest.dietary}</span>
+                        )}
+                      </span>
                     </div>
                   ))}
                 </div>

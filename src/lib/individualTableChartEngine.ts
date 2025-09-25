@@ -406,28 +406,41 @@ export const generateIndividualTableSVG = (
 
   const seats = arrangeSeats();
   
-  // Helper functions for date formatting
   const getCurrentDateTime = () => {
     const now = new Date();
-    const day = now.getDate().toString().padStart(2, '0');
-    const month = (now.getMonth() + 1).toString().padStart(2, '0');
-    const year = now.getFullYear();
-    const hours = now.getHours().toString().padStart(2, '0');
-    const minutes = now.getMinutes().toString().padStart(2, '0');
-    return `${day}/${month}/${year} - ${hours}:${minutes}`;
+    const date = now.toLocaleDateString('en-GB', { 
+      day: '2-digit', 
+      month: '2-digit', 
+      year: 'numeric' 
+    });
+    const time = now.toLocaleTimeString('en-GB', { 
+      hour: '2-digit', 
+      minute: '2-digit', 
+      hour12: false 
+    });
+    return `${date} - ${time}`;
   };
 
-  const getEventDate = () => {
-    if (!event?.date) return '';
-    const eventDate = new Date(event.date);
-    const day = eventDate.getDate().toString().padStart(2, '0');
-    const month = (eventDate.getMonth() + 1).toString().padStart(2, '0');
-    const year = eventDate.getFullYear();
-    return `${day}/${month}/${year}`;
+  const formatEventDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const day = date.getDate();
+    const ordinalSuffix = getOrdinalSuffix(day);
+    const month = date.toLocaleDateString('en-GB', { month: 'long' });
+    const year = date.getFullYear();
+    return `${day}${ordinalSuffix} ${month} ${year}`;
+  };
+
+  const getOrdinalSuffix = (day: number) => {
+    if (day > 3 && day < 21) return 'th';
+    switch (day % 10) {
+      case 1: return 'st';
+      case 2: return 'nd';
+      case 3: return 'rd';
+      default: return 'th';
+    }
   };
 
   const eventName = event?.name || 'Event';
-  const formattedEventDate = getEventDate();
 
   return `
     <div style="width: 794px; height: 1123px; background: white; font-family: Arial, sans-serif; padding: 40px; box-sizing: border-box; display: flex; flex-direction: column; line-height: 1.4;">
@@ -435,16 +448,12 @@ export const generateIndividualTableSVG = (
       <div style="text-align: center; margin-bottom: 25px; padding: 10px 0;">
         <!-- Title -->
         <div style="font-size: 18pt; font-weight: 700; color: #000000; text-align: center; margin-bottom: 15px; line-height: 1.5; padding: 5px 0;">
-          Table Seating Arrangements
+          ${event.venue_name ? event.venue_name + ' - ' : ''}Table Seating Arrangements
         </div>
-        <!-- Event name -->
+        <!-- Event name and date -->
         <div style="font-size: 18pt; font-weight: 700; color: #000000; line-height: 1.3; padding: 8px 0; display: inline-block; vertical-align: baseline;">
-          ${eventName}
+          ${eventName}${event?.date ? ' - ' + formatEventDate(event.date) : ''}
         </div>
-        <!-- Event date -->
-        ${formattedEventDate ? `<div style="font-size: 12pt; font-weight: 500; color: #000000; line-height: 1.3; padding: 5px 0; display: inline-block; vertical-align: baseline;">
-          ${formattedEventDate}
-        </div>` : ''}
       </div>
 
       <!-- Table Visualization -->
@@ -533,13 +542,15 @@ export const generateIndividualTableSVG = (
       <!-- Guest List -->
       ${settings.includeGuestList ? `
         <div style="margin-bottom: 30px;">
-          <h3 style="font-size: 16pt; font-weight: 700; color: #000000; margin-bottom: 15px; padding: 5px 0; line-height: 1.4; display: inline-block; vertical-align: baseline;">
+          <h3 style="font-size: 16pt; font-weight: 700; color: #000000; margin-bottom: 15px; padding: 5px 0; line-height: 1.4; text-align: center; text-decoration: underline;">
             Guests on this Table & Dietary - Printed on - ${getCurrentDateTime()}
           </h3>
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 11pt; line-height: 1.7; padding: 5px 0;">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 11pt; line-height: 1.7; padding: 5px 0; text-align: center;">
             ${sortedGuests.map((guest, index) => `
-              <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #000000; font-weight: 600; padding: 4px 0; min-height: 1.7em; display: inline-block; vertical-align: baseline; text-rendering: optimizeLegibility;">
-                ${index + 1}. ${guest.first_name} ${guest.last_name}${settings.includeDietary && guest.dietary && guest.dietary !== 'NA' ? ` - ${guest.dietary}` : ''}
+              <div style="display: flex; align-items: flex-start; justify-content: center; padding: 2px 0; margin: 0; line-height: 1.7; word-wrap: break-word; overflow-wrap: break-word; min-height: 20px;">
+                <span style="display: inline-block; vertical-align: baseline; margin: 0; padding: 0; line-height: inherit;">
+                  ${index + 1}. ${guest.first_name} ${guest.last_name}${settings.includeDietary && guest.dietary && guest.dietary !== 'NA' ? ` - <span style="color: #22c55e; font-weight: 700;">${guest.dietary}</span>` : ''}
+                </span>
               </div>
             `).join('')}
           </div>
