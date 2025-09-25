@@ -3,16 +3,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
-import { Slider } from '@/components/ui/slider';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { QrCode as QrCodeIcon, Copy, Download, RotateCcw, Save, Printer, FileImage, Upload, RotateCw, Twitter, Instagram, Mail, MapPin, Phone, MessageCircle, Video, Wifi, Globe, Youtube, CreditCard, Bitcoin, X, Square, Circle, RectangleHorizontal, RectangleVertical, Trophy, Ticket, Tag, Palette, Grid3X3, Image as ImageIcon, ChevronDown, FileDown, Code, FileText, Heart, Star, Diamond, Users, Sparkles, Zap, Crown, Gift } from 'lucide-react';
+import { QrCode as QrCodeIcon, Copy, Download, RotateCcw, Save, Printer, FileDown, Palette, ChevronDown, FileText, Code, Image as ImageIcon } from 'lucide-react';
 import { useEvents } from '@/hooks/useEvents';
 import { useToast } from '@/hooks/use-toast';
 import { buildGuestLookupUrl } from '@/lib/urlUtils';
-import { QR_SHAPES, QR_PATTERNS, COLOR_PALETTES, CORNER_STYLES, BORDER_STYLES, QR_MARKER_BORDERS, QR_MARKER_CENTERS } from '@/lib/qrShapes';
 import { AdvancedQRGenerator } from '@/lib/advancedQRGenerator';
 import type { QRCodeSettings } from '@/hooks/useQRCodeSettings';
 import jsPDF from 'jspdf';
@@ -26,81 +21,10 @@ interface QRColorsSettings {
   foreground: string;
 }
 
-interface QRDesignSettings {
-  pattern: string;
-  markerBorder: string;
-  markerCenter: string;
-}
-
-interface QRLogoSettings {
-  enabled: boolean;
-  source: 'upload' | 'preset' | null;
-  file: File | string | null;
-  presetId: string | null;
-  sizePct: number;
-  clearBehind: boolean;
-}
-
-interface QRFrameSettings {
-  frameId: string;
-  label: string;
-  font: string;
-  textSizePct: number;
-  useCustomColor: boolean;
-  color: string;
-}
-
 const defaultColors: QRColorsSettings = {
   background: "#ffffff",
   foreground: "#060606"
 };
-
-const defaultDesign: QRDesignSettings = {
-  pattern: "basic",
-  markerBorder: "square",
-  markerCenter: "solid"
-};
-
-const defaultLogo: QRLogoSettings = {
-  enabled: false,
-  source: null,
-  file: null,
-  presetId: null,
-  sizePct: 100,
-  clearBehind: false
-};
-
-const defaultFrame: QRFrameSettings = {
-  frameId: "none",
-  label: "SCAN ME",
-  font: "Arial",
-  textSizePct: 100,
-  useCustomColor: false,
-  color: "#000000"
-};
-
-const frameOptions = [
-  { id: 'none', label: 'None', icon: X },
-  { id: 'classic', label: 'Classic Border', icon: Square },
-  { id: 'rounded', label: 'Rounded Border', icon: Circle },
-  { id: 'bottom-label', label: 'Bottom Label', icon: RectangleHorizontal },
-  { id: 'elegant', label: 'Elegant Frame', icon: Diamond }
-];
-
-const fontOptions = [
-  'Arial', 'Georgia', 'Times New Roman', 'Helvetica', 'Verdana', 'Courier New'
-];
-
-const logoPresets = [
-  { id: 'heart', label: 'Heart', icon: Heart, color: '#e11d48' },
-  { id: 'star', label: 'Star', icon: Star, color: '#f59e0b' },
-  { id: 'diamond', label: 'Diamond', icon: Diamond, color: '#8b5cf6' },
-  { id: 'users', label: 'People', icon: Users, color: '#3b82f6' },
-  { id: 'sparkles', label: 'Sparkles', icon: Sparkles, color: '#ec4899' },
-  { id: 'zap', label: 'Lightning', icon: Zap, color: '#eab308' },
-  { id: 'crown', label: 'Crown', icon: Crown, color: '#d97706' },
-  { id: 'gift', label: 'Gift', icon: Gift, color: '#10b981' }
-];
 
 
 
@@ -112,11 +36,8 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
   const eventUrl = selectedEvent?.slug ? buildGuestLookupUrl(selectedEvent.slug) : `https://…/live-view/${eventId}`;
 
   // QR Settings State
-  const [qrSettings, setQrSettings] = useState<{ colors: QRColorsSettings; design: QRDesignSettings; logo: QRLogoSettings; frame: QRFrameSettings }>({
-    colors: { ...defaultColors },
-    design: { ...defaultDesign },
-    logo: { ...defaultLogo },
-    frame: { ...defaultFrame }
+  const [qrSettings, setQrSettings] = useState<{ colors: QRColorsSettings }>({
+    colors: { ...defaultColors }
   });
 
   // Preview state
@@ -164,62 +85,25 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
     return ratio;
   }, []);
 
-  // Create logo data URL from preset
-  const createPresetLogoDataUrl = useCallback(async (presetId: string): Promise<string> => {
-    const preset = logoPresets.find(p => p.id === presetId);
-    if (!preset) return '';
-    
-    // Create a simple SVG icon and convert to data URL
-    const svg = `
-      <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="${preset.color}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        ${preset.id === 'heart' ? '<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5l6 6 6-6z"/>' :
-          preset.id === 'star' ? '<polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/>' :
-          preset.id === 'diamond' ? '<path d="M6 3h12l4 6-10 12L2 9l4-6z"/>' :
-          preset.id === 'users' ? '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>' :
-          preset.id === 'sparkles' ? '<path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.582a.5.5 0 0 1 0 .962L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0L9.937 15.5Z"/><path d="M20 3v4"/><path d="M22 5h-4"/><path d="M4 17v2"/><path d="M5 18H3"/>' :
-          preset.id === 'zap' ? '<polygon points="13,2 3,14 12,14 11,22 21,10 12,10"/>' :
-          preset.id === 'crown' ? '<path d="M2 3h20l-2 14H4L2 3Z"/><path d="M6 3L4 8l4-1 4 4 4-4 4 1L18 3"/>' :
-          '<path d="M5 12s2.545-5 7-5c4.454 0 7 5 7 5s-2.546 5-7 5c-4.455 0-7-5-7-5z"/><path d="M12 13a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/>'
-        }
-      </svg>
-    `;
-    
-    return `data:image/svg+xml;base64,${btoa(svg)}`;
-  }, []);
 
   // Convert local settings to QRCodeSettings format
   const convertToQRCodeSettings = useCallback(async (): Promise<QRCodeSettings> => {
-    let centerImage = '';
-    
-    if (qrSettings.logo.enabled) {
-      if (qrSettings.logo.source === 'upload' && qrSettings.logo.file instanceof File) {
-        // Convert uploaded file to data URL
-        const reader = new FileReader();
-        centerImage = await new Promise((resolve) => {
-          reader.onload = (e) => resolve(e.target?.result as string || '');
-          reader.readAsDataURL(qrSettings.logo.file as File);
-        });
-      } else if (qrSettings.logo.source === 'preset' && qrSettings.logo.presetId) {
-        centerImage = await createPresetLogoDataUrl(qrSettings.logo.presetId);
-      }
-    }
-
     return {
       event_id: eventId,
       user_id: '', // Will be filled by the backend
       background_color: qrSettings.colors.background,
       foreground_color: qrSettings.colors.foreground,
       shape: 'square',
-      pattern: qrSettings.design.pattern,
+      pattern: 'basic',
       pattern_style: 'default',
-      corner_style: qrSettings.design.markerBorder,
+      corner_style: 'square',
       border_style: 'none',
       border_width: 0,
       border_color: qrSettings.colors.foreground,
-      center_image_url: centerImage,
-      center_image_size: qrSettings.logo.sizePct,
-      has_scan_text: qrSettings.frame.frameId !== 'none',
-      scan_text: qrSettings.frame.frameId !== 'none' ? qrSettings.frame.label : '',
+      center_image_url: undefined,
+      center_image_size: 80,
+      has_scan_text: false,
+      scan_text: '',
       gradient_type: 'none',
       gradient_colors: [],
       background_image_url: undefined,
@@ -230,16 +114,9 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
       output_size: 512,
       output_format: 'png',
       color_palette: 'custom',
-        advanced_settings: {
-        font: qrSettings.frame.font,
-        textSize: qrSettings.frame.textSizePct,
-        useCustomFrameColor: qrSettings.frame.useCustomColor,
-        frameColor: qrSettings.frame.color,
-        clearBehindLogo: qrSettings.logo.clearBehind,
-        markerCenter: qrSettings.design.markerCenter
-      }
+      advanced_settings: {}
     };
-  }, [qrSettings, createPresetLogoDataUrl]);
+  }, [qrSettings]);
 
   // Debounced QR render function using AdvancedQRGenerator
   const renderQR = useCallback(async () => {
@@ -269,34 +146,9 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
 
   // Reset colors
   const handleResetColors = () => {
-    setQrSettings(prev => ({
-      ...prev,
+    setQrSettings({
       colors: { ...defaultColors }
-    }));
-  };
-
-  // Reset design
-  const handleResetDesign = () => {
-    setQrSettings(prev => ({
-      ...prev,
-      design: { ...defaultDesign }
-    }));
-  };
-
-  // Reset logo
-  const handleResetLogo = () => {
-    setQrSettings(prev => ({
-      ...prev,
-      logo: { ...defaultLogo }
-    }));
-  };
-
-  // Reset frame
-  const handleResetFrame = () => {
-    setQrSettings(prev => ({
-      ...prev,
-      frame: { ...defaultFrame }
-    }));
+    });
   };
 
   // Action button handlers
@@ -389,10 +241,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
 
   const handleResetQR = useCallback(() => {
     setQrSettings({
-      colors: { ...defaultColors },
-      design: { ...defaultDesign },
-      logo: { ...defaultLogo },
-      frame: { ...defaultFrame }
+      colors: { ...defaultColors }
     });
     toast({ title: "QR settings reset to defaults" });
   }, [toast]);
@@ -434,30 +283,6 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
     setQrSettings(prev => ({
       ...prev,
       colors: { ...prev.colors, ...updates }
-    }));
-  };
-
-  // Design change handlers
-  const updateDesign = (updates: Partial<QRDesignSettings>) => {
-    setQrSettings(prev => ({
-      ...prev,
-      design: { ...prev.design, ...updates }
-    }));
-  };
-
-  // Logo change handlers
-  const updateLogo = (updates: Partial<QRLogoSettings>) => {
-    setQrSettings(prev => ({
-      ...prev,
-      logo: { ...prev.logo, ...updates }
-    }));
-  };
-
-  // Frame change handlers
-  const updateFrame = (updates: Partial<QRFrameSettings>) => {
-    setQrSettings(prev => ({
-      ...prev,
-      frame: { ...prev.frame, ...updates }
     }));
   };
 
@@ -739,372 +564,6 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
                     </AccordionContent>
                   </AccordionItem>
 
-                  <AccordionItem value="design" className="qr-acc-item rounded-2xl border-2 border-purple-500 overflow-visible bg-white" data-state={openSections.has('design') ? 'open' : 'closed'}>
-                    <button
-                      onClick={() => toggleSection('design')}
-                      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleSection('design'); }}}
-                      className="qr-acc-header w-full flex items-center justify-between gap-3 px-4 py-3 rounded-2xl bg-transparent border-0 transition hover:bg-purple-50/50"
-                      aria-expanded={openSections.has('design')}
-                      aria-controls="panel-design"
-                      role="button"
-                      data-target="#panel-design"
-                    >
-                      <Grid3X3 className="h-5 w-5 text-purple-600" />
-                      <span className="font-medium text-gray-800">Design</span>
-                      <ChevronDown 
-                        className={`ml-auto h-4 w-4 text-gray-500 transition-transform ${
-                          openSections.has('design') ? 'rotate-180' : ''
-                        }`}
-                      />
-                    </button>
-                    <AccordionContent className="qr-acc-panel pt-2 space-y-6 border-0 bg-white rounded-b-2xl">
-                      {/* Pattern Selection - Visual Grid */}
-                      <div className="space-y-3">
-                        <Label className="text-sm font-medium">Pattern</Label>
-                        <div className="grid grid-cols-4 gap-2">
-                          {QR_PATTERNS.slice(0, 8).map((pattern) => (
-                            <button
-                              key={pattern.value}
-                              onClick={() => updateDesign({ pattern: pattern.value })}
-                              className={`
-                                relative aspect-square p-2 rounded-lg border-2 transition-all
-                                ${qrSettings.design.pattern === pattern.value 
-                                  ? 'border-purple-500 bg-purple-50' 
-                                  : 'border-gray-200 hover:border-gray-300'
-                                }
-                              `}
-                            >
-                              <div className="w-full h-full bg-gradient-to-br from-gray-900 to-gray-700 rounded flex items-center justify-center">
-                                <div className="text-white text-xs font-mono">
-                                  {pattern.value === 'basic' ? '■■■' :
-                                   pattern.value === 'dots' ? '●●●' :
-                                   pattern.value === 'rounded-dots' ? '◯◯◯' :
-                                   pattern.value === 'lines' ? '|||' :
-                                   pattern.value === 'waves' ? '~~~' :
-                                   pattern.value === 'diagonal' ? '///' :
-                                   pattern.value === 'grid' ? '⊞⊞⊞' :
-                                   pattern.value === 'honeycomb' ? '⬡⬡⬡' : '■■■'
-                                  }
-                                </div>
-                              </div>
-                              <div className="absolute -bottom-6 left-0 right-0 text-xs text-center text-gray-600 truncate">
-                                {pattern.label}
-                              </div>
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Marker Border Selection - Visual Grid */}
-                      <div className="space-y-3 pt-4">
-                        <Label className="text-sm font-medium">Marker Border</Label>
-                        <div className="grid grid-cols-4 gap-2">
-                          {QR_MARKER_BORDERS.map((border) => (
-                            <button
-                              key={border.value}
-                              onClick={() => updateDesign({ markerBorder: border.value })}
-                              className={`
-                                relative aspect-square p-2 rounded-lg border-2 transition-all
-                                ${qrSettings.design.markerBorder === border.value 
-                                  ? 'border-purple-500 bg-purple-50' 
-                                  : 'border-gray-200 hover:border-gray-300'
-                                }
-                              `}
-                            >
-                              <div className="w-full h-full bg-gray-100 rounded flex items-center justify-center relative">
-                                <div className="text-gray-900 text-lg">
-                                  {border.preview}
-                                </div>
-                              </div>
-                              <div className="absolute -bottom-6 left-0 right-0 text-xs text-center text-gray-600 truncate">
-                                {border.label}
-                              </div>
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Marker Center Selection - Visual Grid */}
-                      <div className="space-y-3 pt-4">
-                        <Label className="text-sm font-medium">Marker Centre</Label>
-                        <div className="grid grid-cols-4 gap-2">
-                          {QR_MARKER_CENTERS.map((center) => (
-                            <button
-                              key={center.value}
-                              onClick={() => updateDesign({ markerCenter: center.value })}
-                              className={`
-                                relative aspect-square p-2 rounded-lg border-2 transition-all
-                                ${qrSettings.design.markerCenter === center.value 
-                                  ? 'border-purple-500 bg-purple-50' 
-                                  : 'border-gray-200 hover:border-gray-300'
-                                }
-                              `}
-                            >
-                              <div className="w-full h-full bg-gray-100 rounded flex items-center justify-center">
-                                <div className="text-gray-900 text-lg">
-                                  {center.preview}
-                                </div>
-                              </div>
-                              <div className="absolute -bottom-6 left-0 right-0 text-xs text-center text-gray-600 truncate">
-                                {center.label}
-                              </div>
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-
-                  <AccordionItem value="logo" className="qr-acc-item rounded-2xl border-2 border-purple-500 overflow-visible bg-white" data-state={openSections.has('logo') ? 'open' : 'closed'}>
-                    <button
-                      onClick={() => toggleSection('logo')}
-                      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleSection('logo'); }}}
-                      className="qr-acc-header w-full flex items-center justify-between gap-3 px-4 py-3 rounded-2xl bg-transparent border-0 transition hover:bg-purple-50/50"
-                      aria-expanded={openSections.has('logo')}
-                      aria-controls="panel-logo"
-                      role="button"
-                      data-target="#panel-logo"
-                    >
-                      <ImageIcon className="h-5 w-5 text-purple-600" />
-                      <span className="font-medium text-gray-800">Logo</span>
-                      <ChevronDown 
-                        className={`ml-auto h-4 w-4 text-gray-500 transition-transform ${
-                          openSections.has('logo') ? 'rotate-180' : ''
-                        }`}
-                      />
-                    </button>
-                    <AccordionContent className="qr-acc-panel pt-2 space-y-6 border-0 bg-white rounded-b-2xl">
-                      {/* Logo Enable Switch */}
-                      <div className="flex items-center justify-between">
-                        <Label className="text-sm font-medium">Enable Logo</Label>
-                        <Switch
-                          checked={qrSettings.logo.enabled}
-                          onCheckedChange={(checked) => updateLogo({ enabled: checked })}
-                        />
-                      </div>
-
-                      {qrSettings.logo.enabled && (
-                        <>
-                          {/* Logo Source Selection */}
-                          <div className="space-y-4">
-                            <Label className="text-sm font-medium">Logo Source</Label>
-                            <RadioGroup 
-                              value={qrSettings.logo.source || ''} 
-                              onValueChange={(value) => updateLogo({ source: value as 'upload' | 'preset' })}
-                            >
-                              <div className="flex items-center space-x-2">
-                                <RadioGroupItem value="upload" id="upload" />
-                                <Label htmlFor="upload">Upload Custom</Label>
-                              </div>
-                              <div className="flex items-center space-x-2">
-                                <RadioGroupItem value="preset" id="preset" />
-                                <Label htmlFor="preset">Choose Preset</Label>
-                              </div>
-                            </RadioGroup>
-                          </div>
-
-                          {/* File Upload */}
-                          {qrSettings.logo.source === 'upload' && (
-                            <div className="space-y-4">
-                              <Label className="text-sm font-medium">Upload Logo</Label>
-                              <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
-                                <input
-                                  type="file"
-                                  accept="image/*"
-                                  onChange={async (e) => {
-                                    const file = e.target.files?.[0];
-                                    if (file) {
-                                      // Convert to data URL immediately for preview
-                                      const reader = new FileReader();
-                                      reader.onload = (event) => {
-                                        const dataUrl = event.target?.result as string;
-                                        updateLogo({ file, source: 'upload' });
-                                      };
-                                      reader.readAsDataURL(file);
-                                    }
-                                  }}
-                                  className="hidden"
-                                  id="logo-upload"
-                                />
-                                <Label htmlFor="logo-upload" className="cursor-pointer">
-                                  <Upload className="h-8 w-8 mx-auto mb-2 text-gray-400" />
-                                  <p className="text-sm text-gray-600">Click to upload logo</p>
-                                </Label>
-                              </div>
-                            </div>
-                          )}
-
-                          {/* Preset Selection */}
-                          {qrSettings.logo.source === 'preset' && (
-                            <div className="space-y-4">
-                              <Label className="text-sm font-medium">Choose Preset Logo</Label>
-                              <div className="grid grid-cols-2 gap-2">
-                                {logoPresets.map((preset) => {
-                                  const IconComponent = preset.icon;
-                                  return (
-                                    <button
-                                      key={preset.id}
-                                      onClick={() => updateLogo({ presetId: preset.id })}
-                                      className={`p-3 border rounded-lg flex flex-col items-center gap-2 hover:bg-gray-50 transition-colors ${
-                                        qrSettings.logo.presetId === preset.id 
-                                          ? 'border-purple-500 bg-purple-50' 
-                                          : 'border-gray-200'
-                                      }`}
-                                    >
-                                      <IconComponent className="h-6 w-6" style={{ color: preset.color }} />
-                                      <span className="text-xs">{preset.label}</span>
-                                    </button>
-                                  );
-                                })}
-                              </div>
-                            </div>
-                          )}
-
-                          {/* Logo Size */}
-                          <div className="space-y-4">
-                            <Label className="text-sm font-medium">Logo Size: {qrSettings.logo.sizePct}%</Label>
-                            <Slider
-                              value={[qrSettings.logo.sizePct]}
-                              onValueChange={(value) => updateLogo({ sizePct: value[0] })}
-                              max={150}
-                              min={50}
-                              step={5}
-                              className="w-full"
-                            />
-                          </div>
-
-                          {/* Clear Behind Logo */}
-                          <div className="flex items-center justify-between">
-                            <Label className="text-sm font-medium">Clear Background</Label>
-                            <Switch
-                              checked={qrSettings.logo.clearBehind}
-                              onCheckedChange={(checked) => updateLogo({ clearBehind: checked })}
-                            />
-                          </div>
-                        </>
-                      )}
-                    </AccordionContent>
-                  </AccordionItem>
-
-                  <AccordionItem value="frame" className="qr-acc-item rounded-2xl border-2 border-purple-500 overflow-visible bg-white" data-state={openSections.has('frame') ? 'open' : 'closed'}>
-                    <button
-                      onClick={() => toggleSection('frame')}
-                      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleSection('frame'); }}}
-                      className="qr-acc-header w-full flex items-center justify-between gap-3 px-4 py-3 rounded-2xl bg-transparent border-0 transition hover:bg-purple-50/50"
-                      aria-expanded={openSections.has('frame')}
-                      aria-controls="panel-frame"
-                      role="button"
-                      data-target="#panel-frame"
-                    >
-                      <Square className="h-5 w-5 text-purple-600" />
-                      <span className="font-medium text-gray-800">Frame</span>
-                      <ChevronDown 
-                        className={`ml-auto h-4 w-4 text-gray-500 transition-transform ${
-                          openSections.has('frame') ? 'rotate-180' : ''
-                        }`}
-                      />
-                    </button>
-                    <AccordionContent className="qr-acc-panel pt-2 space-y-6 border-0 bg-white rounded-b-2xl">
-                      {/* Frame Style */}
-                      <div className="space-y-4">
-                        <Label className="text-sm font-medium">Frame Style</Label>
-                        <div className="grid grid-cols-1 gap-2">
-                          {frameOptions.map((frame) => {
-                            const IconComponent = frame.icon;
-                            return (
-                              <button
-                                key={frame.id}
-                                onClick={() => updateFrame({ frameId: frame.id })}
-                                className={`p-3 border rounded-lg flex items-center gap-3 hover:bg-gray-50 transition-colors ${
-                                  qrSettings.frame.frameId === frame.id 
-                                    ? 'border-purple-500 bg-purple-50' 
-                                    : 'border-gray-200'
-                                }`}
-                              >
-                                <IconComponent className="h-5 w-5 text-purple-600" />
-                                <span className="text-sm font-medium">{frame.label}</span>
-                              </button>
-                            );
-                          })}
-                        </div>
-                      </div>
-
-                      {/* Custom Text */}
-                      {qrSettings.frame.frameId !== 'none' && (
-                        <>
-                          <div className="space-y-4">
-                            <Label className="text-sm font-medium">Frame Text</Label>
-                            <Input
-                              value={qrSettings.frame.label}
-                              onChange={(e) => updateFrame({ label: e.target.value })}
-                              placeholder="SCAN ME"
-                              className="w-full"
-                            />
-                          </div>
-
-                          {/* Font Selection */}
-                          <div className="space-y-4">
-                            <Label className="text-sm font-medium">Font</Label>
-                            <Select value={qrSettings.frame.font} onValueChange={(value) => updateFrame({ font: value })}>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select font" />
-                              </SelectTrigger>
-                              <SelectContent className="bg-white">
-                                {fontOptions.map((font) => (
-                                  <SelectItem key={font} value={font}>
-                                    <span style={{ fontFamily: font }}>{font}</span>
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
-
-                          {/* Text Size */}
-                          <div className="space-y-4">
-                            <Label className="text-sm font-medium">Text Size: {qrSettings.frame.textSizePct}%</Label>
-                            <Slider
-                              value={[qrSettings.frame.textSizePct]}
-                              onValueChange={(value) => updateFrame({ textSizePct: value[0] })}
-                              max={150}
-                              min={50}
-                              step={5}
-                              className="w-full"
-                            />
-                          </div>
-
-                          {/* Custom Color Toggle */}
-                          <div className="flex items-center justify-between">
-                            <Label className="text-sm font-medium">Custom Color</Label>
-                            <Switch
-                              checked={qrSettings.frame.useCustomColor}
-                              onCheckedChange={(checked) => updateFrame({ useCustomColor: checked })}
-                            />
-                          </div>
-
-                          {/* Frame Color */}
-                          {qrSettings.frame.useCustomColor && (
-                            <div className="space-y-4">
-                              <Label className="text-sm font-medium">Frame Color</Label>
-                              <div className="flex items-center space-x-2">
-                                <input
-                                  type="color"
-                                  value={qrSettings.frame.color}
-                                  onChange={(e) => updateFrame({ color: e.target.value })}
-                                  className="w-8 h-8 rounded border border-input"
-                                />
-                                <Input
-                                  value={qrSettings.frame.color}
-                                  onChange={(e) => updateFrame({ color: e.target.value })}
-                                  className="text-xs font-mono"
-                                  placeholder="#000000"
-                                />
-                              </div>
-                            </div>
-                          )}
-                        </>
-                      )}
-                    </AccordionContent>
-                  </AccordionItem>
                 </Accordion>
               </CardContent>
             </Card>
