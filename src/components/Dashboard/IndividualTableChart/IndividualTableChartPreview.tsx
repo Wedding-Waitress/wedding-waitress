@@ -271,7 +271,7 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
                 <h3 className="font-semibold text-xl mb-3">
                   Guests on this Table & Dietary
                 </h3>
-                <div className={`grid grid-cols-2 gap-1 ${getFontSize(settings.fontSize)}`}>
+                <div className="grid grid-cols-2 gap-1 text-[15px] leading-[1.35] print:text-[12pt] print:leading-[1.35]">
                   {sortedGuests.map((guest, index) => (
                     <div key={guest.id} className="truncate">
                       {index + 1}. {guest.first_name} {guest.last_name}

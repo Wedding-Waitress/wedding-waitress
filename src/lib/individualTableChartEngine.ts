@@ -138,14 +138,14 @@ export const generateIndividualTableSVG = (
     return 'left';
   };
 
-  // Arrange seats around table - Using same logic as IndividualTableChartPreview
+  // Arrange seats around table - Using exact same logic as IndividualTableChartPreview
   const arrangeSeats = () => {
     const seatCount = table.limit_seats;
     const seats = [];
     
-    // Container dimensions for conversion from percentage to pixels
-    const containerWidth = 500;  // Fixed container width
-    const containerHeight = 450; // Fixed container height
+    // Fixed container dimensions - match IndividualTableChartPreview exactly
+    const containerWidth = 500;
+    const containerHeight = 450;
     const centerX = containerWidth / 2;
     const centerY = containerHeight / 2;
     
@@ -162,24 +162,24 @@ export const generateIndividualTableSVG = (
       
       const angle = ((i - 1) / seatCount) * 2 * Math.PI - Math.PI / 2; // Start from top
       
-      // Use same radius percentages as IndividualTableChartPreview
-      let radiusPercent = settings.tableShape === 'round' ? 37 : 40;
+      // Use exact same radius percentages as IndividualTableChartPreview
+      let radius = settings.tableShape === 'round' ? 37 : 40;
       
-      // Move seats 1 and 6 outward by additional 2.5% (~10px) to avoid touching table
+      // Move seats 1 and 6 outward by additional 2.5% to avoid touching table
       if (settings.tableShape === 'round' && (i === 1 || i === 6)) {
-        radiusPercent = 39.5;
+        radius = 39.5;
       }
       
       // For square tables, move specific chairs further out to avoid table overlap
       if (settings.tableShape === 'square' && [2, 5, 7, 10].includes(i)) {
-        radiusPercent = 48; // Move these chairs further out
+        radius = 48;
       }
       
-      // Convert percentage to pixels
-      const radius = (radiusPercent / 100) * Math.min(containerWidth, containerHeight);
-      
-      const x = centerX + radius * Math.cos(angle);
-      const y = centerY + radius * Math.sin(angle);
+      // Calculate position as percentage of container, then convert to pixels
+      const xPercent = 50 + radius * Math.cos(angle);
+      const yPercent = 50 + radius * Math.sin(angle);
+      const x = (xPercent / 100) * containerWidth;
+      const y = (yPercent / 100) * containerHeight;
       
       // Calculate label position
       let labelX = x;
@@ -192,7 +192,7 @@ export const generateIndividualTableSVG = (
         const chairSize = 14; // 56px / 4 = 14% (w-14 h-14)
         const offset = 3.5; // 14px offset converted to percentage
         
-        // Convert to pixels
+        // Convert percentage to pixels
         const chairSizePixels = (chairSize / 100) * Math.min(containerWidth, containerHeight);
         const offsetPixels = (offset / 100) * Math.min(containerWidth, containerHeight);
         
@@ -223,23 +223,21 @@ export const generateIndividualTableSVG = (
             break;
         }
       } else if (settings.tableShape === 'round' && guest) {
-        // Position labels 34px outward from chair edge for round tables (+8px adjustment)
-        const chairRadius = i === 1 || i === 6 ? 39.5 : 37; // Account for moved chairs
-        const labelOffset = 8.5; // 34px converted to percentage (34/400 * 100)
+        // Position labels outward from chair edge for round tables
+        const chairRadius = i === 1 || i === 6 ? 39.5 : 37;
+        const labelOffset = 8.5; // 34px converted to percentage
         const labelRadiusPercent = chairRadius + labelOffset;
-        const labelRadius = (labelRadiusPercent / 100) * Math.min(containerWidth, containerHeight);
+        const labelRadiusPixels = (labelRadiusPercent / 100) * Math.min(containerWidth, containerHeight);
         
-        labelX = centerX + labelRadius * Math.cos(angle);
-        labelY = centerY + labelRadius * Math.sin(angle);
+        labelX = centerX + labelRadiusPixels * Math.cos(angle);
+        labelY = centerY + labelRadiusPixels * Math.sin(angle);
         
         // Determine text alignment based on angle (hemisphere)
         const angleDegrees = (angle * 180) / Math.PI;
         if (angleDegrees >= -90 && angleDegrees <= 90) {
-          // Right hemisphere - left align text
           textAlign = 'left';
           transform = 'translate(0, -50%)';
         } else {
-          // Left hemisphere - right align text
           textAlign = 'right';
           transform = 'translate(-100%, -50%)';
         }
@@ -356,7 +354,7 @@ export const generateIndividualTableSVG = (
           <h3 style="font-size: 20px; font-weight: 600; margin-bottom: 12px;">
             Guests on this Table & Dietary
           </h3>
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: ${getFontSize(settings.fontSize)};">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 12pt; line-height: 1.35;">
             ${sortedGuests.map((guest, index) => `
               <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                 ${index + 1}. ${guest.first_name} ${guest.last_name}${settings.includeDietary && guest.dietary && guest.dietary !== 'NA' ? ` - ${guest.dietary}` : ''}
