@@ -9,6 +9,7 @@ import { AdminLogin } from "./pages/AdminLogin";
 import NotFound from "./pages/NotFound";
 import { GuestLookup } from "./pages/GuestLookup";
 import { KioskView } from "./pages/KioskView";
+import { ResetPassword } from "./pages/ResetPassword";
 
 const queryClient = new QueryClient();
 
@@ -27,6 +28,7 @@ const App = () => (
           <Route path="/" element={<Landing />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/admin" element={<AdminLogin />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/s/:eventSlug" element={<GuestLookup />} />
           <Route path="/kiosk/:eventSlug" element={<KioskView />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

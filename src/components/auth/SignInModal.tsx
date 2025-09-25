@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -7,6 +7,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
+import { z } from 'zod';
 
 interface SignInModalProps {
   open: boolean;
@@ -14,14 +15,25 @@ interface SignInModalProps {
   onBackToSignUp: () => void;
 }
 
+const signInSchema = z.object({
+  email: z.string().email('Please enter a valid email address'),
+  password: z.string().min(1, 'Password is required')
+});
+
+const otpEmailSchema = z.object({
+  email: z.string().email('Please enter a valid email address')
+});
+
 export const SignInModal: React.FC<SignInModalProps> = ({ 
   open, 
   onOpenChange, 
   onBackToSignUp 
 }) => {
-  const [step, setStep] = useState<'email' | 'verify'>('email');
+  const [method, setMethod] = useState<'password' | 'otp'>('password');
+  const [step, setStep] = useState<'form' | 'verify'>('form');
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [verificationCode, setVerificationCode] = useState(['', '', '', '', '', '']);
   const [error, setError] = useState('');
   const [resendTimer, setResendTimer] = useState(0);
@@ -31,7 +43,7 @@ export const SignInModal: React.FC<SignInModalProps> = ({
 
   // Focus first field when modal opens
   useEffect(() => {
-    if (open && step === 'email') {
+    if (open && step === 'form') {
       const emailInput = document.querySelector('#signin-email') as HTMLInputElement;
       if (emailInput) {
         setTimeout(() => emailInput.focus(), 100);
@@ -39,15 +51,69 @@ export const SignInModal: React.FC<SignInModalProps> = ({
     }
   }, [open, step]);
 
-  // Handle email submission
-  const handleEmailSubmit = async (e: React.FormEvent) => {
+  const mapSupabaseError = (error: any) => {
+    if (!error?.message) return 'An unexpected error occurred';
+    
+    switch (error.message) {
+      case 'Invalid login credentials':
+      case 'invalid_credentials':
+        return 'Invalid email or password';
+      case 'Email not confirmed':
+        return 'Please check your email and click the confirmation link';
+      case 'Too many requests':
+        return 'Too many login attempts. Please wait a moment';
+      case 'User not found':
+        return 'No account found with this email';
+      case 'email_address_invalid':
+        return 'This email address is restricted. Try password sign-in or contact support';
+      default:
+        return error.message;
+    }
+  };
+
+  // Handle password sign in
+  const handlePasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     
-    // Email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      setError('Please enter a valid email address');
+    const validation = signInSchema.safeParse({ email, password });
+    if (!validation.success) {
+      setError(validation.error.errors[0].message);
+      return;
+    }
+
+    setLoading(true);
+    
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: email,
+        password: password
+      });
+
+      if (error) {
+        setError(mapSupabaseError(error));
+      } else if (data.user) {
+        onOpenChange(false);
+        toast({
+          title: "Signed in ✔",
+        });
+        navigate('/dashboard');
+      }
+    } catch (err) {
+      setError('An unexpected error occurred. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handle OTP email submission
+  const handleOtpSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    
+    const validation = otpEmailSchema.safeParse({ email });
+    if (!validation.success) {
+      setError(validation.error.errors[0].message);
       return;
     }
 
@@ -59,13 +125,47 @@ export const SignInModal: React.FC<SignInModalProps> = ({
       });
 
       if (error) {
-        setError(error.message);
+        setError(mapSupabaseError(error));
       } else {
         setStep('verify');
         startResendTimer();
       }
     } catch (err) {
       setError('An unexpected error occurred. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handle forgot password
+  const handleForgotPassword = async () => {
+    if (!email) {
+      setError('Please enter your email address first');
+      return;
+    }
+
+    const validation = otpEmailSchema.safeParse({ email });
+    if (!validation.success) {
+      setError(validation.error.errors[0].message);
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`
+      });
+
+      if (error) {
+        setError(mapSupabaseError(error));
+      } else {
+        toast({
+          title: "Reset email sent!",
+          description: "Check your email for password reset instructions."
+        });
+      }
+    } catch (err) {
+      setError('Failed to send reset email. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -90,7 +190,7 @@ export const SignInModal: React.FC<SignInModalProps> = ({
       });
 
       if (error) {
-        setError(error.message);
+        setError(mapSupabaseError(error));
       } else if (data.user) {
         // Success!
         onOpenChange(false);
@@ -159,7 +259,7 @@ export const SignInModal: React.FC<SignInModalProps> = ({
         });
         startResendTimer();
       } else {
-        setError(error.message);
+        setError(mapSupabaseError(error));
       }
     } catch (err) {
       setError('Failed to resend code. Please try again.');
@@ -185,8 +285,9 @@ export const SignInModal: React.FC<SignInModalProps> = ({
   const handleOpenChange = (newOpen: boolean) => {
     onOpenChange(newOpen);
     if (!newOpen) {
-      setStep('email');
+      setStep('form');
       setEmail('');
+      setPassword('');
       setVerificationCode(['', '', '', '', '', '']);
       setError('');
       setResendTimer(0);
@@ -198,47 +299,140 @@ export const SignInModal: React.FC<SignInModalProps> = ({
       <DialogContent className="sm:max-w-[420px] p-6">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold text-center">
-            {step === 'email' ? 'Sign in' : 'Enter the 6-digit code'}
+            {step === 'form' ? 'Sign in' : 'Enter the 6-digit code'}
           </DialogTitle>
-          {step === 'verify' && (
-            <p className="text-sm text-muted-foreground text-center mt-2">
-              We've emailed a one-time code to {email}
-            </p>
-          )}
+          <DialogDescription className="text-center">
+            {step === 'form' 
+              ? 'Choose your preferred sign-in method below' 
+              : `We've emailed a one-time code to ${email}`
+            }
+          </DialogDescription>
         </DialogHeader>
 
-        {step === 'email' ? (
-          <form onSubmit={handleEmailSubmit} className="space-y-4 mt-4">
-            <div>
-              <Label htmlFor="signin-email" className="text-sm font-medium">
-                Email
-              </Label>
-              <Input
-                id="signin-email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="mt-1"
-                disabled={loading}
-              />
+        {step === 'form' ? (
+          <div className="space-y-4 mt-4">
+            {/* Method Selection */}
+            <div className="flex rounded-lg bg-muted p-1">
+              <button
+                type="button"
+                onClick={() => setMethod('password')}
+                className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors ${
+                  method === 'password' 
+                    ? 'bg-background text-foreground shadow-sm' 
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                Password
+              </button>
+              <button
+                type="button"
+                onClick={() => setMethod('otp')}
+                className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors ${
+                  method === 'otp' 
+                    ? 'bg-background text-foreground shadow-sm' 
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                Email Code
+              </button>
             </div>
 
-            {error && (
-              <div className="text-sm text-destructive bg-destructive/10 p-2 rounded">
-                {error}
-              </div>
+            {/* Password Method */}
+            {method === 'password' && (
+              <form onSubmit={handlePasswordSubmit} className="space-y-4">
+                <div>
+                  <Label htmlFor="signin-email" className="text-sm font-medium">
+                    Email
+                  </Label>
+                  <Input
+                    id="signin-email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="mt-1"
+                    disabled={loading}
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="signin-password" className="text-sm font-medium">
+                    Password
+                  </Label>
+                  <Input
+                    id="signin-password"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="mt-1"
+                    disabled={loading}
+                  />
+                </div>
+
+                {error && (
+                  <div className="text-sm text-destructive bg-destructive/10 p-2 rounded">
+                    {error}
+                  </div>
+                )}
+
+                <div className="space-y-3">
+                  <Button 
+                    type="submit" 
+                    className="w-full" 
+                    disabled={loading || !email || !password}
+                  >
+                    {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    Sign In
+                  </Button>
+
+                  <div className="text-center">
+                    <button
+                      type="button"
+                      onClick={handleForgotPassword}
+                      disabled={loading}
+                      className="text-sm text-muted-foreground hover:text-foreground disabled:opacity-50"
+                    >
+                      Forgot password?
+                    </button>
+                  </div>
+                </div>
+              </form>
+            )}
+
+            {/* OTP Method */}
+            {method === 'otp' && (
+              <form onSubmit={handleOtpSubmit} className="space-y-4">
+                <div>
+                  <Label htmlFor="signin-email-otp" className="text-sm font-medium">
+                    Email
+                  </Label>
+                  <Input
+                    id="signin-email-otp"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="mt-1"
+                    disabled={loading}
+                  />
+                </div>
+
+                {error && (
+                  <div className="text-sm text-destructive bg-destructive/10 p-2 rounded">
+                    {error}
+                  </div>
+                )}
+
+                <Button 
+                  type="submit" 
+                  className="w-full" 
+                  disabled={loading || !email}
+                >
+                  {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  Email me a code
+                </Button>
+              </form>
             )}
 
             <div className="space-y-3">
-              <Button 
-                type="submit" 
-                className="w-full" 
-                disabled={loading || !email}
-              >
-                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Email me a code
-              </Button>
-
               <p className="text-xs text-muted-foreground text-center">
                 By continuing you agree to our{' '}
                 <a href="#" className="underline hover:text-foreground">Terms</a>
@@ -256,7 +450,7 @@ export const SignInModal: React.FC<SignInModalProps> = ({
                 </button>
               </div>
             </div>
-          </form>
+          </div>
         ) : (
           <div className="space-y-4 mt-4">
             <div className="flex justify-center gap-2">
