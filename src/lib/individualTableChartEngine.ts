@@ -433,15 +433,15 @@ export const generateIndividualTableSVG = (
     <div style="width: 794px; height: 1123px; background: white; font-family: Arial, sans-serif; padding: 40px; box-sizing: border-box; display: flex; flex-direction: column; line-height: 1.4;">
       <!-- Header Section -->
       <div style="text-align: center; margin-bottom: 25px; padding: 10px 0;">
-        <!-- Top row with print date and title -->
-        <div style="font-size: 10pt; color: #000000; font-weight: 500; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; line-height: 1.5; padding: 5px 0;">
-          <span style="display: inline-block; vertical-align: baseline;">Printed on - ${getCurrentDateTime()}</span>
-          <span style="text-align: center; flex: 1; display: inline-block; vertical-align: baseline; font-size: 18pt; font-weight: 700;">Table Seating Arrangements</span>
-          <span></span>
+        <!-- Event name with purple border at top -->
+        <div style="display: inline-block; border: 1px solid #A56EFF; color: #A56EFF; padding: 12px 24px; margin-bottom: 15px; border-radius: 8px; background: white;">
+          <div style="font-size: 18pt; font-weight: 700; line-height: 1.3; display: inline-block; vertical-align: baseline;">
+            ${eventName}
+          </div>
         </div>
-        <!-- Event name -->
+        <!-- Title -->
         <div style="font-size: 18pt; font-weight: 700; color: #000000; line-height: 1.3; padding: 8px 0; display: inline-block; vertical-align: baseline;">
-          ${eventName}
+          Table Seating Arrangements
         </div>
         <!-- Event date -->
         ${formattedEventDate ? `<div style="font-size: 12pt; font-weight: 500; color: #000000; line-height: 1.3; padding: 5px 0; display: inline-block; vertical-align: baseline;">
@@ -534,28 +534,33 @@ export const generateIndividualTableSVG = (
 
       <!-- Guest List -->
       ${settings.includeGuestList ? `
-        <div style="margin-bottom: 30px;">
-          <h3 style="font-size: 16pt; font-weight: 700; color: #000000; margin-bottom: 15px; padding: 5px 0; line-height: 1.4; display: inline-block; vertical-align: baseline;">
-            Guests on this Table & Dietary
-          </h3>
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 11pt; line-height: 1.7; padding: 5px 0;">
-            ${sortedGuests.map((guest, index) => `
-              <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #000000; font-weight: 600; padding: 4px 0; min-height: 1.7em; display: inline-block; vertical-align: baseline; text-rendering: optimizeLegibility;">
-                ${index + 1}. ${guest.first_name} ${guest.last_name}${settings.includeDietary && guest.dietary && guest.dietary !== 'NA' ? ` - ${guest.dietary}` : ''}
-              </div>
-            `).join('')}
+        <div style="margin-bottom: 30px; text-align: center;">
+          <div style="display: inline-block; border: 1px solid #A56EFF; padding: 20px; border-radius: 8px; background: white;">
+            <h3 style="font-size: 16pt; font-weight: 700; color: #A56EFF; margin-bottom: 15px; padding: 5px 0; line-height: 1.4; display: inline-block; vertical-align: baseline;">
+              Guests on this Table & Dietary
+            </h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 11pt; line-height: 1.7; padding: 5px 0;">
+              ${sortedGuests.map((guest, index) => `
+                <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #000000; font-weight: 600; padding: 4px 0; min-height: 1.7em; display: inline-block; vertical-align: baseline; text-rendering: optimizeLegibility;">
+                  ${index + 1}. ${guest.first_name} ${guest.last_name}${settings.includeDietary && guest.dietary && guest.dietary !== 'NA' ? ` - <span style="color: #A56EFF;">${guest.dietary}</span>` : ''}
+                </div>
+              `).join('')}
+            </div>
           </div>
         </div>
       ` : ''}
 
-      <!-- Logo -->
-      ${settings.showLogo ? `
-        <div style="display: flex; justify-content: center; margin-top: auto; padding: 10px 0;">
+      <!-- Logo and Print Date Footer -->
+      <div style="display: flex; flex-direction: column; align-items: center; margin-top: auto; padding: 10px 0; gap: 10px;">
+        ${settings.showLogo ? `
           <div style="font-size: 10pt; color: #000000; font-weight: 600; padding: 5px 0; display: inline-block; vertical-align: baseline;">
             Wedding Waitress
           </div>
+        ` : ''}
+        <div style="font-size: 9pt; color: #666666; font-weight: 400; padding: 5px 0; display: inline-block; vertical-align: baseline;">
+          Printed on - ${getCurrentDateTime()}
         </div>
-      ` : ''}
+      </div>
     </div>
   `;
 };
