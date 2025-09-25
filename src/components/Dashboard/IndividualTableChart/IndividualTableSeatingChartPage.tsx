@@ -93,7 +93,11 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
 
   const handlePrint = () => {
     if (typeof window !== 'undefined') {
-      window.print();
+      // Focus on the print container to ensure clean printing
+      const printContainer = document.getElementById('printA4-individual-table');
+      if (printContainer) {
+        window.print();
+      }
     }
   };
 

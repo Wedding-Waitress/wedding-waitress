@@ -169,7 +169,7 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
       <CardContent className="p-0">
         {/* A4 Preview Container */}
         <div 
-          id="a4-print-content"
+          id="printA4-individual-table"
           className="w-full bg-white text-black print:shadow-none shadow-lg mx-auto"
           style={{ 
             aspectRatio: '210/297', // A4 aspect ratio
@@ -178,10 +178,12 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
           }}
         >
           <div className="h-full flex flex-col p-6 relative">
-            {/* Line 1: Event Info */}
+            {/* Small header at top */}
             <div className="text-center mb-4 space-y-1">
-              <div className="font-semibold text-xl">
-                {event.name} • {event.venue} • {event.date ? format(new Date(event.date), 'PPP') : ''}
+              <div className="text-xs text-gray-600 flex justify-between items-center">
+                <span>{event.date ? format(new Date(event.date), 'PPP') : ''}</span>
+                <span className="text-center flex-1">Wedding Waitress – Your Dream Wedding, Perfectly Orchestrated</span>
+                <span></span>
               </div>
               <div className="font-semibold text-xl">
                 Table Seating Arrangements
