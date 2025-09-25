@@ -11,7 +11,8 @@ import { format } from 'date-fns';
 import { IndividualTableChartPreview } from './IndividualTableChartPreview';
 import { IndividualTableChartCustomizer } from './IndividualTableChartCustomizer';
 import { IndividualTableChartExporter } from './IndividualTableChartExporter';
-import { generateIndividualTableSVG } from '@/lib/individualTableChartEngine';
+import { generateIndividualTableSVG, generateAllTablesChartPDF } from '@/lib/individualTableChartEngine';
+import { toast } from 'sonner';
 
 export interface IndividualChartSettings {
   tableShape: 'round' | 'square';
@@ -49,6 +50,7 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
   const [selectedTableId, setSelectedTableId] = useState<string | null>(null);
   const [settings, setSettings] = useState<IndividualChartSettings>(defaultSettings);
   const [isExporting, setIsExporting] = useState(false);
+  const [isExportingAll, setIsExportingAll] = useState(false);
   const [showExporter, setShowExporter] = useState(false);
 
   const { events, loading: eventsLoading } = useEvents();
@@ -151,6 +153,34 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
     }
   };
 
+  const handleExportAllTables = async () => {
+    if (!selectedEvent || tables.length === 0) return;
+
+    setIsExportingAll(true);
+    try {
+      toast.info(`Generating PDF for ${tables.length} tables...`);
+      
+      const blob = await generateAllTablesChartPDF(settings, tables, guests, selectedEvent);
+      
+      // Create download
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${selectedEvent.name}-All-Tables-Seating-Charts-${format(new Date(), 'yyyy-MM-dd')}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      
+      toast.success(`Successfully exported ${tables.length} tables to PDF!`);
+    } catch (error) {
+      console.error('Export all tables failed:', error);
+      toast.error('Failed to export all tables. Please try again.');
+    } finally {
+      setIsExportingAll(false);
+    }
+  };
+
   const selectedTable = tables.find(table => table.id === selectedTableId);
   const isDataReady = selectedEvent && selectedTable && !tablesLoading && !guestsLoading;
 
@@ -222,11 +252,19 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
             <div className="flex items-center gap-2 pt-4 border-t">
               <Button 
                 onClick={() => handleExport('pdf')} 
-                disabled={isExporting}
+                disabled={isExporting || isExportingAll}
                 className="flex items-center gap-2"
               >
                 <FileDown className="w-4 h-4" />
                 Export PDF
+              </Button>
+              <Button 
+                onClick={handleExportAllTables}
+                disabled={isExporting || isExportingAll}
+                className="flex items-center gap-2"
+              >
+                <FileDown className="w-4 h-4" />
+                {isExportingAll ? 'Exporting...' : 'Export All Tables'}
               </Button>
               <Button 
                 variant="outline" 

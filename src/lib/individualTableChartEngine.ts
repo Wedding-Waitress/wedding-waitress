@@ -38,7 +38,12 @@ export const generateIndividualTableChartPDF = async (
       height: 1123,
       scale: 2, // Higher quality
       useCORS: true,
-      backgroundColor: '#ffffff'
+      backgroundColor: '#ffffff',
+      // Improved settings for better text rendering
+      allowTaint: false,
+      removeContainer: true,
+      imageTimeout: 15000,
+      logging: false
     });
 
     // Create PDF
@@ -86,7 +91,12 @@ export const generateIndividualTableChartImage = async (
       height: 1123,
       scale: 2,
       useCORS: true,
-      backgroundColor: '#ffffff'
+      backgroundColor: '#ffffff',
+      // Improved settings for better text rendering
+      allowTaint: false,
+      removeContainer: true,
+      imageTimeout: 15000,
+      logging: false
     });
 
     return new Promise((resolve) => {
@@ -97,6 +107,76 @@ export const generateIndividualTableChartImage = async (
   } finally {
     document.body.removeChild(container);
   }
+};
+
+/**
+ * Generate PDF for all tables in an event
+ */
+export const generateAllTablesChartPDF = async (
+  settings: IndividualChartSettings,
+  tables: TableWithGuestCount[],
+  guests: Guest[],
+  event: any
+): Promise<Blob> => {
+  if (tables.length === 0) {
+    throw new Error('No tables to export');
+  }
+
+  const { width, height } = PAPER_SIZES[settings.paperSize];
+  const pdf = new jsPDF({
+    orientation: 'portrait',
+    unit: 'mm',
+    format: [width, height]
+  });
+
+  // Process each table
+  for (let i = 0; i < tables.length; i++) {
+    const table = tables[i];
+    const tableGuests = guests.filter(guest => guest.table_id === table.id);
+    const tableSettings = {
+      ...settings,
+      title: `TABLE ${table.table_no || 'Unknown'}`
+    };
+    
+    const svgContent = generateIndividualTableSVG(tableSettings, table, tableGuests, event);
+    
+    // Create temporary container
+    const container = document.createElement('div');
+    container.innerHTML = svgContent;
+    container.style.position = 'absolute';
+    container.style.left = '-9999px';
+    container.style.width = '794px';
+    container.style.height = '1123px';
+    document.body.appendChild(container);
+
+    try {
+      // Convert to canvas
+      const canvas = await html2canvas(container, {
+        width: 794,
+        height: 1123,
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#ffffff',
+        allowTaint: false,
+        removeContainer: true,
+        imageTimeout: 15000,
+        logging: false
+      });
+
+      // Add new page for each table (except the first one)
+      if (i > 0) {
+        pdf.addPage();
+      }
+
+      // Add the canvas as image to PDF
+      const imgData = canvas.toDataURL('image/png');
+      pdf.addImage(imgData, 'PNG', 0, 0, width, height);
+    } finally {
+      document.body.removeChild(container);
+    }
+  }
+
+  return pdf.output('blob');
 };
 
 /**
@@ -270,12 +350,12 @@ export const generateIndividualTableSVG = (
     <div style="width: 794px; height: 1123px; background: white; font-family: Arial, sans-serif; padding: 30px; box-sizing: border-box; display: flex; flex-direction: column;">
       <!-- Small header at top -->
       <div style="text-align: center; margin-bottom: 20px;">
-        <div style="font-size: 12px; color: #666; display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+        <div style="font-size: 12px; color: #000000; display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
           <span>${eventDate}</span>
           <span style="text-align: center; flex: 1;">Wedding Waitress – Your Dream Wedding, Perfectly Orchestrated</span>
           <span></span>
         </div>
-        <div style="font-size: 20px; font-weight: 600;">
+        <div style="font-size: 20px; font-weight: 700; color: #000000;">
           Table Seating Arrangements
         </div>
       </div>
@@ -298,8 +378,8 @@ export const generateIndividualTableSVG = (
             align-items: center;
             justify-content: center;
             font-size: ${getTitleSize(settings.fontSize)};
-            font-weight: bold;
-            color: #555;
+            font-weight: 700;
+            color: #000000;
             flex-direction: column;
             ">
             <div>TABLE</div>
@@ -339,7 +419,7 @@ export const generateIndividualTableSVG = (
                 text-align: ${seat.textAlign};
                 font-size: 12pt;
                 font-weight: 600;
-                color: #333;
+                color: #000000;
                 line-height: 1.2;
                 word-wrap: break-word;
                 hyphens: auto;
@@ -357,12 +437,12 @@ export const generateIndividualTableSVG = (
       <!-- Guest List -->
       ${settings.includeGuestList ? `
         <div style="margin-bottom: 30px;">
-          <h3 style="font-size: 20px; font-weight: 600; margin-bottom: 12px;">
+          <h3 style="font-size: 20px; font-weight: 700; color: #000000; margin-bottom: 12px;">
             Guests on this Table & Dietary
           </h3>
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 12pt; line-height: 1.35;">
             ${sortedGuests.map((guest, index) => `
-              <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+              <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #000000; font-weight: 500;">
                 ${index + 1}. ${guest.first_name} ${guest.last_name}${settings.includeDietary && guest.dietary && guest.dietary !== 'NA' ? ` - ${guest.dietary}` : ''}
               </div>
             `).join('')}
@@ -373,7 +453,7 @@ export const generateIndividualTableSVG = (
       <!-- Logo -->
       ${settings.showLogo ? `
         <div style="display: flex; justify-content: center; margin-top: auto;">
-          <div style="font-size: 12px; color: #666; opacity: 0.6;">
+          <div style="font-size: 12px; color: #000000; font-weight: 500;">
             Wedding Waitress
           </div>
         </div>
