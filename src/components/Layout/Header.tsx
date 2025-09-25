@@ -32,13 +32,6 @@ export const Header: React.FC<HeaderProps> = ({
         <div className="flex items-center justify-between">
           {/* Logo */}
 
-          {/* Center Welcome Message (for dashboard) */}
-          {user && <div className="flex-1 flex justify-center -ml-8">
-              <h2 className="text-4xl font-semibold text-primary">
-                Welcome {user.first_name}
-              </h2>
-            </div>}
-
           {/* Right Navigation */}
           <div className="flex items-center space-x-4">
             {/* Logo and Navigation Links (for landing page) */}
@@ -129,22 +122,9 @@ export const Header: React.FC<HeaderProps> = ({
             )}
 
             {/* User Actions */}
-            {!hideDashboardElements && (user ? <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="glass min-h-[44px]">
-                    <span className="hidden sm:inline">{user.first_name}'s Dashboard</span>
-                    <span className="sm:hidden">{user.first_name}</span>
-                    <ChevronDown className="w-3 h-3 ml-2" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="glass w-52 bg-background z-50">
-                  <DropdownMenuItem>Account</DropdownMenuItem>
-                  <DropdownMenuItem>Plans & Billing</DropdownMenuItem>
-                  <DropdownMenuItem onClick={onSignOut} className="text-destructive">
-                    Logout
-                  </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu> : <div className="flex items-center gap-2">
+            {!hideDashboardElements && (user ? <Button variant="outline" className="glass min-h-[44px]" onClick={onSignOut}>
+                Logout
+              </Button> : <div className="flex items-center gap-2">
                 <Button variant="outline" size="sm" onClick={() => setSignInOpen(true)} className="min-h-[44px] text-xs sm:text-sm">
                   Sign In
                 </Button>

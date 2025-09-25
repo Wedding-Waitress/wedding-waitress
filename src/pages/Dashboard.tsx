@@ -472,21 +472,6 @@ export const Dashboard = () => {
           </Card>
         );
       
-      case 'account':
-        return (
-          <Card className="p-8 text-center">
-            <Settings className="w-16 h-16 mx-auto text-primary mb-4" />
-            <CardTitle className="mb-2">Account Settings</CardTitle>
-            <CardDescription className="mb-6">
-              Manage your account preferences, billing information, and profile settings.
-            </CardDescription>
-            <Button variant="gradient">
-              <Settings className="w-4 h-4 mr-2" />
-              Update Settings
-            </Button>
-          </Card>
-        );
-      
       default:
         return (
           <Card className="p-8 text-center">

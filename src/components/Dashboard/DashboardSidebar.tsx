@@ -97,24 +97,6 @@ const SidebarMenuContent = ({ activeTab, onTabChange, onClose }: { activeTab: st
         </nav>
       </div>
 
-      {/* Account at bottom */}
-      <div className="p-4 border-t border-border">
-        <button
-          onClick={() => {
-            onTabChange('account');
-            onClose?.();
-          }}
-          className={`w-full flex items-center space-x-3 px-3 py-3 rounded-lg text-left transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 touch-target ${
-            activeTab === 'account'
-              ? 'bg-primary text-primary-foreground shadow-sm'
-              : 'text-muted-foreground hover:bg-primary/10 hover:text-foreground'
-          }`}
-          aria-current={activeTab === 'account' ? 'page' : undefined}
-        >
-          <Settings className="w-5 h-5 flex-shrink-0" aria-hidden="true" />
-          <span className="text-sm font-medium">Account</span>
-        </button>
-      </div>
     </div>
   );
 };
