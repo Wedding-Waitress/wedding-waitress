@@ -196,36 +196,40 @@ export const generateIndividualTableSVG = (
         const chairSizePixels = (chairSize / 100) * Math.min(containerWidth, containerHeight);
         const offsetPixels = (offset / 100) * Math.min(containerWidth, containerHeight);
         
+        // Increase offset by +6mm for better separation
+        const additionalOffset = (5.7 / 100) * Math.min(containerWidth, containerHeight); // 6mm in pixels
+        const totalOffsetPixels = offsetPixels + additionalOffset;
+        
         switch (side) {
           case 'right':
-            labelX = x + chairSizePixels/2 + offsetPixels;
+            labelX = x + chairSizePixels/2 + totalOffsetPixels;
             labelY = y;
             textAlign = 'left';
             transform = 'translate(0, -50%)';
             break;
           case 'left':
-            labelX = x - chairSizePixels/2 - offsetPixels;
+            labelX = x - chairSizePixels/2 - totalOffsetPixels;
             labelY = y;
             textAlign = 'right';
             transform = 'translate(-100%, -50%)';
             break;
           case 'top':
             labelX = x;
-            labelY = y - chairSizePixels/2 - offsetPixels;
+            labelY = y - chairSizePixels/2 - totalOffsetPixels;
             textAlign = 'center';
             transform = 'translate(-50%, -100%)';
             break;
           case 'bottom':
             labelX = x;
-            labelY = y + chairSizePixels/2 + offsetPixels;
+            labelY = y + chairSizePixels/2 + totalOffsetPixels;
             textAlign = 'center';
             transform = 'translate(-50%, 0)';
             break;
         }
       } else if (settings.tableShape === 'round' && guest) {
-        // Position labels outward from chair edge for round tables
+        // Position labels further outward (+6mm additional gap from seat edge)
         const chairRadius = i === 1 || i === 6 ? 39.5 : 37;
-        const labelOffset = 8.5; // 34px converted to percentage
+        const labelOffset = 14.2; // Increased by 6mm (8.5 + 5.7)
         const labelRadiusPercent = chairRadius + labelOffset;
         const labelRadiusPixels = (labelRadiusPercent / 100) * Math.min(containerWidth, containerHeight);
         
@@ -333,13 +337,15 @@ export const generateIndividualTableSVG = (
                 top: ${seat.labelY}px;
                 transform: ${seat.transform};
                 text-align: ${seat.textAlign};
-                font-size: ${getFontSize(settings.fontSize)};
+                font-size: 12pt;
                 font-weight: 600;
                 color: #333;
-                white-space: nowrap;
+                line-height: 1.2;
+                word-wrap: break-word;
+                hyphens: auto;
+                max-height: 2.4em;
                 overflow: hidden;
-                text-overflow: ellipsis;
-                max-width: 80px;
+                max-width: 90px;
               " title="${seat.guest.first_name} ${seat.guest.last_name}">
                 ${seat.guest.first_name}
               </div>

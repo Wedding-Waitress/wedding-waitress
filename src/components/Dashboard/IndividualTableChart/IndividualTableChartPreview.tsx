@@ -112,9 +112,9 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
             break;
         }
       } else if (settings.tableShape === 'round' && guest) {
-        // Position labels 34px outward from chair edge for round tables (+8px adjustment)
+        // Position labels further outward (+6mm additional gap from seat edge)
         const chairRadius = i === 1 || i === 6 ? 39.5 : 37; // Account for moved chairs
-        const labelOffset = 8.5; // 34px converted to percentage (34/400 * 100)
+        const labelOffset = 14.2; // Increased by 6mm (8.5 + 5.7)
         const labelRadius = chairRadius + labelOffset;
         labelX = 50 + labelRadius * Math.cos(angle);
         labelY = 50 + labelRadius * Math.sin(angle);
@@ -236,16 +236,18 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
                           <Tooltip>
                             <TooltipTrigger asChild>
                               <div
-                                className={`absolute font-semibold ${getFontSize(settings.fontSize)} max-w-20 cursor-help`}
+                                className="absolute font-semibold text-[15px] print:text-[12pt] max-w-24 cursor-help"
                                 style={{
                                   left: `${seat.labelX}%`,
                                   top: `${seat.labelY}%`,
                                   textAlign: seat.textAlign as any,
                                   transform: seat.textAlign === 'center' ? 'translate(-50%, -50%)' : 
                                            seat.textAlign === 'right' ? 'translate(-100%, -50%)' : 'translate(0, -50%)',
-                                  whiteSpace: 'nowrap',
+                                  lineHeight: '1.2',
+                                  wordWrap: 'break-word',
+                                  hyphens: 'auto',
+                                  maxHeight: '2.4em', // 2 lines at line-height 1.2
                                   overflow: 'hidden',
-                                  textOverflow: 'ellipsis',
                                 }}
                               >
                                 <div className="text-gray-800">
