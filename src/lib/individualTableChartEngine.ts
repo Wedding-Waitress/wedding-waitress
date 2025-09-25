@@ -483,13 +483,14 @@ export const generateIndividualTableSVG = (
                 font-size: 11pt;
                 font-weight: 700;
                 color: #000000;
-                line-height: 1.4;
+                line-height: 1.6;
                 word-wrap: break-word;
                 hyphens: auto;
-                max-height: 2.8em;
+                max-height: 3.2em;
                 overflow: hidden;
                 max-width: 95px;
-                padding: 3px;
+                padding: 8px;
+                min-height: 1.6em;
                 display: inline-block;
                 vertical-align: baseline;
                 text-rendering: optimizeLegibility;
@@ -509,9 +510,9 @@ export const generateIndividualTableSVG = (
           <h3 style="font-size: 16pt; font-weight: 700; color: #000000; margin-bottom: 15px; padding: 5px 0; line-height: 1.4; display: inline-block; vertical-align: baseline;">
             Guests on this Table & Dietary
           </h3>
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 11pt; line-height: 1.5; padding: 5px 0;">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 11pt; line-height: 1.7; padding: 5px 0;">
             ${sortedGuests.map((guest, index) => `
-              <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #000000; font-weight: 600; padding: 2px 0; display: inline-block; vertical-align: baseline; text-rendering: optimizeLegibility;">
+              <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #000000; font-weight: 600; padding: 4px 0; min-height: 1.7em; display: inline-block; vertical-align: baseline; text-rendering: optimizeLegibility;">
                 ${index + 1}. ${guest.first_name} ${guest.last_name}${settings.includeDietary && guest.dietary && guest.dietary !== 'NA' ? ` - ${guest.dietary}` : ''}
               </div>
             `).join('')}

@@ -35,7 +35,11 @@ export const IndividualTableChartExporter: React.FC<IndividualTableChartExporter
       let blob: Blob;
       let filename: string;
       
-      const baseFilename = `table-${table.table_no}-seating-chart`;
+      // Create formatted filename: "Event Name-Table X-Seating Chart-DD-MM-YYYY"
+      const currentDate = new Date();
+      const formattedDate = `${currentDate.getDate().toString().padStart(2, '0')}-${(currentDate.getMonth() + 1).toString().padStart(2, '0')}-${currentDate.getFullYear()}`;
+      const eventName = event?.name || 'Event';
+      const baseFilename = `${eventName}-Table ${table.table_no}-Seating Chart-${formattedDate}`;
       
       if (exportFormat === 'pdf') {
         blob = await generateIndividualTableChartPDF(settings, table, guests, event);
