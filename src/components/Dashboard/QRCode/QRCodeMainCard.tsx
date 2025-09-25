@@ -12,7 +12,7 @@ import { QrCode as QrCodeIcon, Copy, Download, RotateCcw, Save, Printer, FileIma
 import { useEvents } from '@/hooks/useEvents';
 import { useToast } from '@/hooks/use-toast';
 import { buildGuestLookupUrl } from '@/lib/urlUtils';
-import { QR_SHAPES, QR_PATTERNS, COLOR_PALETTES, CORNER_STYLES, BORDER_STYLES } from '@/lib/qrShapes';
+import { QR_SHAPES, QR_PATTERNS, COLOR_PALETTES, CORNER_STYLES, BORDER_STYLES, QR_MARKER_BORDERS, QR_MARKER_CENTERS } from '@/lib/qrShapes';
 import { AdvancedQRGenerator } from '@/lib/advancedQRGenerator';
 import type { QRCodeSettings } from '@/hooks/useQRCodeSettings';
 import jsPDF from 'jspdf';
@@ -28,10 +28,8 @@ interface QRColorsSettings {
 
 interface QRDesignSettings {
   pattern: string;
-  shape: string;
-  cornerStyle: string;
-  borderStyle: string;
-  borderWidth: number;
+  markerBorder: string;
+  markerCenter: string;
 }
 
 interface QRLogoSettings {
@@ -59,10 +57,8 @@ const defaultColors: QRColorsSettings = {
 
 const defaultDesign: QRDesignSettings = {
   pattern: "basic",
-  shape: "square",
-  cornerStyle: "square",
-  borderStyle: "none",
-  borderWidth: 2
+  markerBorder: "square",
+  markerCenter: "solid"
 };
 
 const defaultLogo: QRLogoSettings = {
@@ -213,12 +209,12 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
       user_id: '', // Will be filled by the backend
       background_color: qrSettings.colors.background,
       foreground_color: qrSettings.colors.foreground,
-      shape: qrSettings.design.shape,
+      shape: 'square',
       pattern: qrSettings.design.pattern,
       pattern_style: 'default',
-      corner_style: qrSettings.design.cornerStyle,
-      border_style: qrSettings.design.borderStyle,
-      border_width: qrSettings.design.borderWidth,
+      corner_style: qrSettings.design.markerBorder,
+      border_style: 'none',
+      border_width: 0,
       border_color: qrSettings.colors.foreground,
       center_image_url: centerImage,
       center_image_size: qrSettings.logo.sizePct,
@@ -234,12 +230,13 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
       output_size: 512,
       output_format: 'png',
       color_palette: 'custom',
-      advanced_settings: {
+        advanced_settings: {
         font: qrSettings.frame.font,
         textSize: qrSettings.frame.textSizePct,
         useCustomFrameColor: qrSettings.frame.useCustomColor,
         frameColor: qrSettings.frame.color,
-        clearBehindLogo: qrSettings.logo.clearBehind
+        clearBehindLogo: qrSettings.logo.clearBehind,
+        markerCenter: qrSettings.design.markerCenter
       }
     };
   }, [qrSettings, createPresetLogoDataUrl]);
@@ -761,88 +758,100 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
                       />
                     </button>
                     <AccordionContent className="qr-acc-panel pt-2 space-y-6 border-0 bg-white rounded-b-2xl">
-                      {/* Pattern Selection */}
-                      <div className="space-y-4">
+                      {/* Pattern Selection - Visual Grid */}
+                      <div className="space-y-3">
                         <Label className="text-sm font-medium">Pattern</Label>
-                        <Select value={qrSettings.design.pattern} onValueChange={(value) => updateDesign({ pattern: value })}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select pattern" />
-                          </SelectTrigger>
-                          <SelectContent className="bg-white">
-                            {QR_PATTERNS.map((pattern) => (
-                              <SelectItem key={pattern.value} value={pattern.value}>
+                        <div className="grid grid-cols-4 gap-2">
+                          {QR_PATTERNS.slice(0, 8).map((pattern) => (
+                            <button
+                              key={pattern.value}
+                              onClick={() => updateDesign({ pattern: pattern.value })}
+                              className={`
+                                relative aspect-square p-2 rounded-lg border-2 transition-all
+                                ${qrSettings.design.pattern === pattern.value 
+                                  ? 'border-purple-500 bg-purple-50' 
+                                  : 'border-gray-200 hover:border-gray-300'
+                                }
+                              `}
+                            >
+                              <div className="w-full h-full bg-gradient-to-br from-gray-900 to-gray-700 rounded flex items-center justify-center">
+                                <div className="text-white text-xs font-mono">
+                                  {pattern.value === 'basic' ? '■■■' :
+                                   pattern.value === 'dots' ? '●●●' :
+                                   pattern.value === 'rounded-dots' ? '◯◯◯' :
+                                   pattern.value === 'lines' ? '|||' :
+                                   pattern.value === 'waves' ? '~~~' :
+                                   pattern.value === 'diagonal' ? '///' :
+                                   pattern.value === 'grid' ? '⊞⊞⊞' :
+                                   pattern.value === 'honeycomb' ? '⬡⬡⬡' : '■■■'
+                                  }
+                                </div>
+                              </div>
+                              <div className="absolute -bottom-6 left-0 right-0 text-xs text-center text-gray-600 truncate">
                                 {pattern.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      {/* Shape Selection */}
-                      <div className="space-y-4">
-                        <Label className="text-sm font-medium">Module Shape</Label>
-                        <Select value={qrSettings.design.shape} onValueChange={(value) => updateDesign({ shape: value })}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select shape" />
-                          </SelectTrigger>
-                          <SelectContent className="bg-white">
-                            {QR_SHAPES.filter(shape => shape.category === 'basic').map((shape) => (
-                              <SelectItem key={shape.value} value={shape.value}>
-                                {shape.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      {/* Corner Style */}
-                      <div className="space-y-4">
-                        <Label className="text-sm font-medium">Corner Style</Label>
-                        <Select value={qrSettings.design.cornerStyle} onValueChange={(value) => updateDesign({ cornerStyle: value })}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select corner style" />
-                          </SelectTrigger>
-                          <SelectContent className="bg-white">
-                            {CORNER_STYLES.map((corner) => (
-                              <SelectItem key={corner.value} value={corner.value}>
-                                {corner.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      {/* Border Style */}
-                      <div className="space-y-4">
-                        <Label className="text-sm font-medium">Border</Label>
-                        <Select value={qrSettings.design.borderStyle} onValueChange={(value) => updateDesign({ borderStyle: value })}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select border style" />
-                          </SelectTrigger>
-                          <SelectContent className="bg-white">
-                            {BORDER_STYLES.map((border) => (
-                              <SelectItem key={border.value} value={border.value}>
-                                {border.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      {/* Border Width */}
-                      {qrSettings.design.borderStyle !== 'none' && (
-                        <div className="space-y-4">
-                          <Label className="text-sm font-medium">Border Width: {qrSettings.design.borderWidth}px</Label>
-                          <Slider
-                            value={[qrSettings.design.borderWidth]}
-                            onValueChange={(value) => updateDesign({ borderWidth: value[0] })}
-                            max={10}
-                            min={1}
-                            step={1}
-                            className="w-full"
-                          />
+                              </div>
+                            </button>
+                          ))}
                         </div>
-                      )}
+                      </div>
+
+                      {/* Marker Border Selection - Visual Grid */}
+                      <div className="space-y-3 pt-4">
+                        <Label className="text-sm font-medium">Marker Border</Label>
+                        <div className="grid grid-cols-4 gap-2">
+                          {QR_MARKER_BORDERS.map((border) => (
+                            <button
+                              key={border.value}
+                              onClick={() => updateDesign({ markerBorder: border.value })}
+                              className={`
+                                relative aspect-square p-2 rounded-lg border-2 transition-all
+                                ${qrSettings.design.markerBorder === border.value 
+                                  ? 'border-purple-500 bg-purple-50' 
+                                  : 'border-gray-200 hover:border-gray-300'
+                                }
+                              `}
+                            >
+                              <div className="w-full h-full bg-gray-100 rounded flex items-center justify-center relative">
+                                <div className="text-gray-900 text-lg">
+                                  {border.preview}
+                                </div>
+                              </div>
+                              <div className="absolute -bottom-6 left-0 right-0 text-xs text-center text-gray-600 truncate">
+                                {border.label}
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Marker Center Selection - Visual Grid */}
+                      <div className="space-y-3 pt-4">
+                        <Label className="text-sm font-medium">Marker Centre</Label>
+                        <div className="grid grid-cols-4 gap-2">
+                          {QR_MARKER_CENTERS.map((center) => (
+                            <button
+                              key={center.value}
+                              onClick={() => updateDesign({ markerCenter: center.value })}
+                              className={`
+                                relative aspect-square p-2 rounded-lg border-2 transition-all
+                                ${qrSettings.design.markerCenter === center.value 
+                                  ? 'border-purple-500 bg-purple-50' 
+                                  : 'border-gray-200 hover:border-gray-300'
+                                }
+                              `}
+                            >
+                              <div className="w-full h-full bg-gray-100 rounded flex items-center justify-center">
+                                <div className="text-gray-900 text-lg">
+                                  {center.preview}
+                                </div>
+                              </div>
+                              <div className="absolute -bottom-6 left-0 right-0 text-xs text-center text-gray-600 truncate">
+                                {center.label}
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
                     </AccordionContent>
                   </AccordionItem>
 

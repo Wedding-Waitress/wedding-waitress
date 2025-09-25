@@ -80,6 +80,28 @@ export const COLOR_PALETTES = [
   }
 ];
 
+export const QR_MARKER_BORDERS = [
+  { value: 'square', label: 'Square', preview: '⬜' },
+  { value: 'rounded', label: 'Rounded', preview: '⬛' },
+  { value: 'circular', label: 'Circular', preview: '●' },
+  { value: 'diamond', label: 'Diamond', preview: '◆' },
+  { value: 'star', label: 'Star', preview: '★' },
+  { value: 'heart', label: 'Heart', preview: '♥' },
+  { value: 'hexagon', label: 'Hexagon', preview: '⬡' },
+  { value: 'triangle', label: 'Triangle', preview: '▲' },
+];
+
+export const QR_MARKER_CENTERS = [
+  { value: 'solid', label: 'Solid Square', preview: '■' },
+  { value: 'dot', label: 'Dot', preview: '●' },
+  { value: 'circle', label: 'Circle', preview: '○' },
+  { value: 'diamond', label: 'Diamond', preview: '◆' },
+  { value: 'star', label: 'Star', preview: '★' },
+  { value: 'plus', label: 'Plus', preview: '✚' },
+  { value: 'cross', label: 'Cross', preview: '✕' },
+  { value: 'heart', label: 'Heart', preview: '♥' },
+];
+
 export const CORNER_STYLES = [
   { value: 'square', label: 'Square' },
   { value: 'rounded', label: 'Rounded' },
