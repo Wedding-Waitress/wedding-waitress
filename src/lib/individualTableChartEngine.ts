@@ -32,18 +32,38 @@ export const generateIndividualTableChartPDF = async (
   document.body.appendChild(container);
 
   try {
-    // Convert to canvas
+    // Wait for fonts to load before capturing
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    if (document.fonts && document.fonts.ready) {
+      await document.fonts.ready;
+    }
+
+    // Convert to canvas with improved settings
     const canvas = await html2canvas(container, {
       width: 794,
       height: 1123,
-      scale: 2, // Higher quality
+      scale: 3, // Higher quality for better text
       useCORS: true,
       backgroundColor: '#ffffff',
-      // Improved settings for better text rendering
+      // Critical settings for text rendering
+      foreignObjectRendering: false,
       allowTaint: false,
       removeContainer: true,
-      imageTimeout: 15000,
-      logging: false
+      imageTimeout: 30000,
+      logging: false,
+      // Force better text quality
+      onclone: (clonedDoc) => {
+        const style = clonedDoc.createElement('style');
+        style.textContent = `
+          * {
+            -webkit-font-smoothing: antialiased !important;
+            -moz-osx-font-smoothing: grayscale !important;
+            text-rendering: optimizeLegibility !important;
+            font-display: swap !important;
+          }
+        `;
+        clonedDoc.head.appendChild(style);
+      }
     });
 
     // Create PDF
@@ -86,17 +106,37 @@ export const generateIndividualTableChartImage = async (
   document.body.appendChild(container);
 
   try {
+    // Wait for fonts to load before capturing
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    if (document.fonts && document.fonts.ready) {
+      await document.fonts.ready;
+    }
+
     const canvas = await html2canvas(container, {
       width: 794,
       height: 1123,
-      scale: 2,
+      scale: 3, // Higher quality for better text
       useCORS: true,
       backgroundColor: '#ffffff',
-      // Improved settings for better text rendering
+      // Critical settings for text rendering
+      foreignObjectRendering: false,
       allowTaint: false,
       removeContainer: true,
-      imageTimeout: 15000,
-      logging: false
+      imageTimeout: 30000,
+      logging: false,
+      // Force better text quality
+      onclone: (clonedDoc) => {
+        const style = clonedDoc.createElement('style');
+        style.textContent = `
+          * {
+            -webkit-font-smoothing: antialiased !important;
+            -moz-osx-font-smoothing: grayscale !important;
+            text-rendering: optimizeLegibility !important;
+            font-display: swap !important;
+          }
+        `;
+        clonedDoc.head.appendChild(style);
+      }
     });
 
     return new Promise((resolve) => {
@@ -150,17 +190,38 @@ export const generateAllTablesChartPDF = async (
     document.body.appendChild(container);
 
     try {
-      // Convert to canvas
+      // Wait for fonts to load before capturing
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      if (document.fonts && document.fonts.ready) {
+        await document.fonts.ready;
+      }
+
+      // Convert to canvas with improved settings
       const canvas = await html2canvas(container, {
         width: 794,
         height: 1123,
-        scale: 2,
+        scale: 3, // Higher quality for better text
         useCORS: true,
         backgroundColor: '#ffffff',
+        // Critical settings for text rendering
+        foreignObjectRendering: false,
         allowTaint: false,
         removeContainer: true,
-        imageTimeout: 15000,
-        logging: false
+        imageTimeout: 30000,
+        logging: false,
+        // Force better text quality
+        onclone: (clonedDoc) => {
+          const style = clonedDoc.createElement('style');
+          style.textContent = `
+            * {
+              -webkit-font-smoothing: antialiased !important;
+              -moz-osx-font-smoothing: grayscale !important;
+              text-rendering: optimizeLegibility !important;
+              font-display: swap !important;
+            }
+          `;
+          clonedDoc.head.appendChild(style);
+        }
       });
 
       // Add new page for each table (except the first one)
@@ -191,20 +252,20 @@ export const generateIndividualTableSVG = (
   const tableGuests = guests.filter(guest => guest.table_id === table.id);
   const sortedGuests = tableGuests.sort((a, b) => (a.seat_no || 0) - (b.seat_no || 0));
 
-  // Get font sizes
+  // Get font sizes - using pt for better PDF rendering
   const getFontSize = (size: string) => {
     switch (size) {
-      case 'small': return '12px';
-      case 'large': return '18px';
-      default: return '14px';
+      case 'small': return '10pt';
+      case 'large': return '14pt';
+      default: return '12pt';
     }
   };
 
   const getTitleSize = (size: string) => {
     switch (size) {
-      case 'small': return '24px';
-      case 'large': return '36px';
-      default: return '28px';
+      case 'small': return '20pt';
+      case 'large': return '28pt';
+      default: return '24pt';
     }  
   };
 
@@ -347,15 +408,15 @@ export const generateIndividualTableSVG = (
   const eventDate = event?.date ? format(new Date(event.date), 'PPP') : '';
 
   return `
-    <div style="width: 794px; height: 1123px; background: white; font-family: Arial, sans-serif; padding: 30px; box-sizing: border-box; display: flex; flex-direction: column;">
+    <div style="width: 794px; height: 1123px; background: white; font-family: Arial, sans-serif; padding: 40px; box-sizing: border-box; display: flex; flex-direction: column; line-height: 1.4;">
       <!-- Small header at top -->
-      <div style="text-align: center; margin-bottom: 20px;">
-        <div style="font-size: 12px; color: #000000; display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-          <span>${eventDate}</span>
-          <span style="text-align: center; flex: 1;">Wedding Waitress – Your Dream Wedding, Perfectly Orchestrated</span>
+      <div style="text-align: center; margin-bottom: 25px; padding: 10px 0;">
+        <div style="font-size: 10pt; color: #000000; font-weight: 500; display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; line-height: 1.5; padding: 5px 0;">
+          <span style="display: inline-block; vertical-align: baseline;">${eventDate}</span>
+          <span style="text-align: center; flex: 1; display: inline-block; vertical-align: baseline;">Wedding Waitress – Your Dream Wedding, Perfectly Orchestrated</span>
           <span></span>
         </div>
-        <div style="font-size: 20px; font-weight: 700; color: #000000;">
+        <div style="font-size: 18pt; font-weight: 700; color: #000000; line-height: 1.3; padding: 5px 0; display: inline-block; vertical-align: baseline;">
           Table Seating Arrangements
         </div>
       </div>
@@ -381,9 +442,11 @@ export const generateIndividualTableSVG = (
             font-weight: 700;
             color: #000000;
             flex-direction: column;
+            line-height: 1.2;
+            text-rendering: optimizeLegibility;
             ">
-            <div>TABLE</div>
-            <div>${table.table_no}</div>
+            <div style="padding: 2px 0; display: inline-block; vertical-align: baseline;">TABLE</div>
+            <div style="padding: 2px 0; display: inline-block; vertical-align: baseline;">${table.table_no}</div>
           </div>
 
           <!-- Seats -->
@@ -417,15 +480,21 @@ export const generateIndividualTableSVG = (
                 top: ${seat.labelY}px;
                 transform: ${seat.transform};
                 text-align: ${seat.textAlign};
-                font-size: 12pt;
-                font-weight: 600;
+                font-size: 11pt;
+                font-weight: 700;
                 color: #000000;
-                line-height: 1.2;
+                line-height: 1.4;
                 word-wrap: break-word;
                 hyphens: auto;
-                max-height: 2.4em;
+                max-height: 2.8em;
                 overflow: hidden;
-                max-width: 90px;
+                max-width: 95px;
+                padding: 3px;
+                display: inline-block;
+                vertical-align: baseline;
+                text-rendering: optimizeLegibility;
+                -webkit-font-smoothing: antialiased;
+                -moz-osx-font-smoothing: grayscale;
               " title="${seat.guest.first_name} ${seat.guest.last_name}">
                 ${seat.guest.first_name}
               </div>
@@ -437,12 +506,12 @@ export const generateIndividualTableSVG = (
       <!-- Guest List -->
       ${settings.includeGuestList ? `
         <div style="margin-bottom: 30px;">
-          <h3 style="font-size: 20px; font-weight: 700; color: #000000; margin-bottom: 12px;">
+          <h3 style="font-size: 16pt; font-weight: 700; color: #000000; margin-bottom: 15px; padding: 5px 0; line-height: 1.4; display: inline-block; vertical-align: baseline;">
             Guests on this Table & Dietary
           </h3>
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 12pt; line-height: 1.35;">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 11pt; line-height: 1.5; padding: 5px 0;">
             ${sortedGuests.map((guest, index) => `
-              <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #000000; font-weight: 500;">
+              <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #000000; font-weight: 600; padding: 2px 0; display: inline-block; vertical-align: baseline; text-rendering: optimizeLegibility;">
                 ${index + 1}. ${guest.first_name} ${guest.last_name}${settings.includeDietary && guest.dietary && guest.dietary !== 'NA' ? ` - ${guest.dietary}` : ''}
               </div>
             `).join('')}
@@ -452,8 +521,8 @@ export const generateIndividualTableSVG = (
 
       <!-- Logo -->
       ${settings.showLogo ? `
-        <div style="display: flex; justify-content: center; margin-top: auto;">
-          <div style="font-size: 12px; color: #000000; font-weight: 500;">
+        <div style="display: flex; justify-content: center; margin-top: auto; padding: 10px 0;">
+          <div style="font-size: 10pt; color: #000000; font-weight: 600; padding: 5px 0; display: inline-block; vertical-align: baseline;">
             Wedding Waitress
           </div>
         </div>
