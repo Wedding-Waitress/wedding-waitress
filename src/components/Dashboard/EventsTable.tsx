@@ -4,27 +4,8 @@ import { Button } from "@/components/ui/enhanced-button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import { 
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { 
-  Edit2, 
-  Trash2, 
-  Calendar,
-  MapPin,
-  Users,
-  Clock,
-  Plus,
-  Save,
-  X,
-  Check,
-  Settings
-} from "lucide-react";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Edit2, Trash2, Calendar, MapPin, Users, Clock, Plus, Save, X, Check, Settings } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { DeleteConfirmationModal } from './DeleteConfirmationModal';
 import { EventDatePicker } from './EventDatePicker';
@@ -55,20 +36,12 @@ interface Event {
 // Format event date as DAY{ordinal}, Month YYYY (e.g., "20th, September 2025")
 const formatEventDate = (date: string | null): string => {
   if (!date) return "No date";
-  
   const d = new Date(date);
   const day = d.getDate();
-  const suffix = (day % 10 === 1 && day !== 11) ? "st"
-              : (day % 10 === 2 && day !== 12) ? "nd"
-              : (day % 10 === 3 && day !== 13) ? "rd" : "th";
-  
-  const monthNames = [
-    "January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December"
-  ];
+  const suffix = day % 10 === 1 && day !== 11 ? "st" : day % 10 === 2 && day !== 12 ? "nd" : day % 10 === 3 && day !== 13 ? "rd" : "th";
+  const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
   const month = monthNames[d.getMonth()];
   const year = d.getFullYear();
-  
   return `${day}${suffix}, ${month} ${year}`;
 };
 
@@ -79,36 +52,33 @@ const formatLocalDate = (localDate: string | null, fallbackDate: string | null, 
     const date = new Date(localDate + 'T00:00:00');
     return format(date, 'dd/MM/yyyy');
   }
-  
   if (fallbackDate) {
     // Fallback: derive from server timestamp using timezone
     const serverDate = new Date(fallbackDate);
     const browserTimezone = timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
-    
+
     // Convert to local date in the specified timezone
-    const localDateString = serverDate.toLocaleDateString('en-GB', { // DD/MM/YYYY format
+    const localDateString = serverDate.toLocaleDateString('en-GB', {
+      // DD/MM/YYYY format
       timeZone: browserTimezone,
       day: '2-digit',
-      month: '2-digit', 
+      month: '2-digit',
       year: 'numeric'
     });
-    
     return localDateString;
   }
-  
   return 'No date';
 };
 
 // Helper to calculate expiry date fallback (12 months from created date)
 const getExpiryDateFallback = (createdDate: string | null, timezone?: string | null): string => {
   if (!createdDate) return 'No date';
-  
   const date = new Date(createdDate);
   const browserTimezone = timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
-  
+
   // Add 12 months
   date.setFullYear(date.getFullYear() + 1);
-  
+
   // Format as DD/MM/YYYY
   const localDateString = date.toLocaleDateString('en-GB', {
     timeZone: browserTimezone,
@@ -116,10 +86,8 @@ const getExpiryDateFallback = (createdDate: string | null, timezone?: string | n
     month: '2-digit',
     year: 'numeric'
   });
-  
   return localDateString;
 };
-
 interface EventsTableProps {
   events: Event[];
   loading: boolean;
@@ -132,7 +100,6 @@ interface EventsTableProps {
   onEventEdit?: (eventId: string) => void;
   onEventDelete?: (eventId: string) => void;
 }
-
 export const EventsTable: React.FC<EventsTableProps> = ({
   events,
   loading,
@@ -146,7 +113,10 @@ export const EventsTable: React.FC<EventsTableProps> = ({
   onEventDelete
 }) => {
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [deleteModal, setDeleteModal] = useState<{isOpen: boolean; event: any}>({
+  const [deleteModal, setDeleteModal] = useState<{
+    isOpen: boolean;
+    event: any;
+  }>({
     isOpen: false,
     event: null
   });
@@ -163,12 +133,10 @@ export const EventsTable: React.FC<EventsTableProps> = ({
   const [isShaking, setIsShaking] = useState(false);
   const newRowRef = useRef<HTMLTableRowElement>(null);
   const nameInputRef = useRef<HTMLInputElement>(null);
-
   const handleEventSelect = (eventId: string) => {
     setActiveEventId(eventId);
     onEventSelect?.(eventId);
   };
-
   const handleEdit = (event: any) => {
     setEditingId(event.id);
     setEditForm({
@@ -180,10 +148,8 @@ export const EventsTable: React.FC<EventsTableProps> = ({
       guest_limit: event.guest_limit
     });
   };
-
   const handleSaveEdit = async () => {
     if (!editingId) return;
-    
     try {
       await updateEvent(editingId, {
         name: editForm.name,
@@ -195,7 +161,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
       });
       setEditingId(null);
       setEditForm({});
-      
+
       // Immediately set this event as active and notify parent
       setActiveEventId(editingId);
       onEventSelect?.(editingId);
@@ -203,31 +169,32 @@ export const EventsTable: React.FC<EventsTableProps> = ({
       console.error('Failed to save event:', error);
     }
   };
-
   const handleCancelEdit = () => {
     setEditingId(null);
     setEditForm({});
   };
-
   const handleDeleteClick = (event: any) => {
-    setDeleteModal({ isOpen: true, event });
+    setDeleteModal({
+      isOpen: true,
+      event
+    });
   };
-
   const handleDeleteConfirm = async () => {
     if (deleteModal.event) {
       try {
         await deleteEvent(deleteModal.event.id);
-        setDeleteModal({ isOpen: false, event: null });
+        setDeleteModal({
+          isOpen: false,
+          event: null
+        });
         onEventDelete?.(deleteModal.event.id);
       } catch (error) {
         console.error('Failed to delete event:', error);
       }
     }
   };
-
   const handleCreateEvent = async () => {
     if (!newEventForm.name.trim()) return;
-    
     try {
       const newEvent = await createEvent({
         name: newEventForm.name,
@@ -237,7 +204,6 @@ export const EventsTable: React.FC<EventsTableProps> = ({
         finish_time: newEventForm.finish_time || null,
         guest_limit: newEventForm.guest_limit
       });
-      
       setIsCreating(false);
       setNewEventForm({
         name: '',
@@ -247,7 +213,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
         finish_time: '',
         guest_limit: 50
       });
-      
+
       // Immediately set the new event as active and notify parent
       if (newEvent?.id) {
         setActiveEventId(newEvent.id);
@@ -257,20 +223,12 @@ export const EventsTable: React.FC<EventsTableProps> = ({
       console.error('Failed to create event:', error);
     }
   };
-
   const handleCancelCreate = () => {
-    const hasChanges = newEventForm.name || 
-                      newEventForm.date || 
-                      newEventForm.venue || 
-                      newEventForm.start_time || 
-                      newEventForm.finish_time || 
-                      newEventForm.guest_limit !== 50;
-
+    const hasChanges = newEventForm.name || newEventForm.date || newEventForm.venue || newEventForm.start_time || newEventForm.finish_time || newEventForm.guest_limit !== 50;
     if (hasChanges) {
       const confirmDiscard = window.confirm('Discard this new event?');
       if (!confirmDiscard) return;
     }
-
     setIsCreating(false);
     setNewEventForm({
       name: '',
@@ -281,7 +239,6 @@ export const EventsTable: React.FC<EventsTableProps> = ({
       guest_limit: 50
     });
   };
-
   const handleCreateEventClick = () => {
     if (isCreating) {
       // Shake existing row if trying to create another
@@ -291,7 +248,6 @@ export const EventsTable: React.FC<EventsTableProps> = ({
     }
     setIsCreating(true);
   };
-
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && newEventForm.name.trim()) {
       e.preventDefault();
@@ -306,32 +262,27 @@ export const EventsTable: React.FC<EventsTableProps> = ({
   useEffect(() => {
     if (isCreating && newRowRef.current && nameInputRef.current) {
       // Auto-scroll to new row
-      newRowRef.current.scrollIntoView({ 
-        behavior: 'smooth', 
-        block: 'nearest' 
+      newRowRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest'
       });
-      
+
       // Focus the name input after a short delay to ensure the row is rendered
       setTimeout(() => {
         nameInputRef.current?.focus();
       }, 100);
     }
   }, [isCreating]);
-
   const isAtCapacity = (event: any) => {
     return event.guests_count >= event.guest_limit;
   };
-
   if (loading) {
-    return (
-      <Card className="ww-box p-8 text-center">
+    return <Card className="ww-box p-8 text-center">
         <div>Loading events...</div>
-      </Card>
-    );
+      </Card>;
   }
-  return (
-    <>
-      <Card className="ww-box overflow-hidden">
+  return <>
+      <Card className="ww-box overflow-hidden mx-[100px]">
         <div className="p-6 border-b border-card-border bg-gradient-subtle">
           <div className="flex items-center justify-between">
             <div>
@@ -344,11 +295,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
               <Badge variant="secondary" className="glass">
                 {events.length} Event{events.length !== 1 ? 's' : ''}
               </Badge>
-              <Button 
-                variant="gradient" 
-                size="sm"
-                onClick={handleCreateEventClick}
-              >
+              <Button variant="gradient" size="sm" onClick={handleCreateEventClick}>
                 <Plus className="w-4 h-4 mr-2" />
                 Create Event
               </Button>
@@ -375,62 +322,45 @@ export const EventsTable: React.FC<EventsTableProps> = ({
             </TableHeader>
             <TableBody>
               {/* Create new event row */}
-              {isCreating && (
-                <TableRow 
-                  ref={newRowRef}
-                  className={`event-row--new ${isShaking ? 'shake' : ''}`}
-                  onKeyDown={handleKeyDown}
-                >
+              {isCreating && <TableRow ref={newRowRef} className={`event-row--new ${isShaking ? 'shake' : ''}`} onKeyDown={handleKeyDown}>
                   <TableCell className="w-20">
                     <span className="text-muted-foreground text-sm">-</span>
                   </TableCell>
                   <TableCell className="w-32">
-                    <Input
-                      ref={nameInputRef}
-                      value={newEventForm.name}
-                      onChange={(e) => setNewEventForm(prev => ({ ...prev, name: e.target.value }))}
-                      placeholder="Event name"
-                      className="min-w-[180px]"
-                      onKeyDown={handleKeyDown}
-                    />
+                    <Input ref={nameInputRef} value={newEventForm.name} onChange={e => setNewEventForm(prev => ({
+                    ...prev,
+                    name: e.target.value
+                  }))} placeholder="Event name" className="min-w-[180px]" onKeyDown={handleKeyDown} />
                   </TableCell>
                   <TableCell className="w-24">
-                    <EventDatePicker
-                      value={newEventForm.date}
-                      onChange={(date) => setNewEventForm(prev => ({ ...prev, date }))}
-                      placeholder="Select date"
-                    />
+                    <EventDatePicker value={newEventForm.date} onChange={date => setNewEventForm(prev => ({
+                    ...prev,
+                    date
+                  }))} placeholder="Select date" />
                   </TableCell>
                   <TableCell className="w-28">
-                    <Input
-                      value={newEventForm.venue}
-                      onChange={(e) => setNewEventForm(prev => ({ ...prev, venue: e.target.value }))}
-                      placeholder="Venue location"
-                      className="min-w-[180px]"
-                    />
+                    <Input value={newEventForm.venue} onChange={e => setNewEventForm(prev => ({
+                    ...prev,
+                    venue: e.target.value
+                  }))} placeholder="Venue location" className="min-w-[180px]" />
                   </TableCell>
                   <TableCell className="w-20">
-                    <TimePicker
-                      value={newEventForm.start_time}
-                      onChange={(time) => setNewEventForm(prev => ({ ...prev, start_time: time }))}
-                      placeholder="Start time"
-                    />
+                    <TimePicker value={newEventForm.start_time} onChange={time => setNewEventForm(prev => ({
+                    ...prev,
+                    start_time: time
+                  }))} placeholder="Start time" />
                   </TableCell>
                   <TableCell className="w-20">
-                    <TimePicker
-                      value={newEventForm.finish_time}
-                      onChange={(time) => setNewEventForm(prev => ({ ...prev, finish_time: time }))}
-                      placeholder="End time"
-                    />
+                    <TimePicker value={newEventForm.finish_time} onChange={time => setNewEventForm(prev => ({
+                    ...prev,
+                    finish_time: time
+                  }))} placeholder="End time" />
                   </TableCell>
                   <TableCell className="w-20">
-                    <Input
-                      type="number"
-                      value={newEventForm.guest_limit}
-                      onChange={(e) => setNewEventForm(prev => ({ ...prev, guest_limit: parseInt(e.target.value) || 50 }))}
-                      className="w-20"
-                      min="1"
-                    />
+                    <Input type="number" value={newEventForm.guest_limit} onChange={e => setNewEventForm(prev => ({
+                    ...prev,
+                    guest_limit: parseInt(e.target.value) || 50
+                  }))} className="w-20" min="1" />
                   </TableCell>
                   <TableCell className="w-24">
                     <span className="text-muted-foreground text-sm">Auto-generated</span>
@@ -440,137 +370,83 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                   </TableCell>
                   <TableCell className="w-20">
                     <div className="flex items-center space-x-1">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={handleCreateEvent}
-                        disabled={!newEventForm.name}
-                        className="w-8 h-8 text-green-600 hover:text-green-700"
-                      >
+                      <Button variant="ghost" size="icon" onClick={handleCreateEvent} disabled={!newEventForm.name} className="w-8 h-8 text-green-600 hover:text-green-700">
                         <Save className="w-3 h-3" />
                       </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={handleCancelCreate}
-                        className="w-8 h-8 text-muted-foreground hover:text-destructive"
-                      >
+                      <Button variant="ghost" size="icon" onClick={handleCancelCreate} className="w-8 h-8 text-muted-foreground hover:text-destructive">
                         <X className="w-3 h-3" />
                       </Button>
                     </div>
                   </TableCell>
-                </TableRow>
-              )}
+                </TableRow>}
 
               {/* Existing events */}
-              {events.map((event) => {
+              {events.map(event => {
                 const isSelected = activeEventId === event.id;
                 const isEditing = editingId === event.id;
                 const atCapacity = isAtCapacity(event);
-
-                return (
-                  <TableRow 
-                    key={event.id} 
-                    className={`
+                return <TableRow key={event.id} className={`
                       border-card-border hover:bg-muted/30 transition-colors
                       ${isSelected ? 'bg-primary/5 border-l-4 border-l-primary' : ''}
                       ${atCapacity ? 'bg-green-50 dark:bg-green-900/20' : ''}
-                    `}
-                  >
+                    `}>
                     <TableCell className="text-center w-20">
                       <div className="flex items-center justify-center">
-                        <RadioGroupItem 
-                          value={event.id} 
-                          id={`countdown-${event.id}`}
-                          className="data-[state=checked]:border-primary data-[state=checked]:text-primary"
-                          onClick={() => handleEventSelect(event.id)}
-                        />
+                        <RadioGroupItem value={event.id} id={`countdown-${event.id}`} className="data-[state=checked]:border-primary data-[state=checked]:text-primary" onClick={() => handleEventSelect(event.id)} />
                       </div>
                     </TableCell>
                     <TableCell className="font-medium w-32">
-                      {isEditing ? (
-                        <Input
-                          value={editForm.name}
-                          onChange={(e) => setEditForm(prev => ({ ...prev, name: e.target.value }))}
-                          className="min-w-[180px]"
-                        />
-                      ) : (
-                        <div className="flex items-center">
+                      {isEditing ? <Input value={editForm.name} onChange={e => setEditForm(prev => ({
+                      ...prev,
+                      name: e.target.value
+                    }))} className="min-w-[180px]" /> : <div className="flex items-center">
                           {event.name}
-                          {atCapacity && (
-                            <Badge variant="secondary" className="ml-2 text-xs bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100">
+                          {atCapacity && <Badge variant="secondary" className="ml-2 text-xs bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100">
                               At capacity
-                            </Badge>
-                          )}
-                        </div>
-                      )}
+                            </Badge>}
+                        </div>}
                     </TableCell>
                     <TableCell className="w-24">
-                      {isEditing ? (
-                        <EventDatePicker
-                          value={editForm.date}
-                          onChange={(date) => setEditForm(prev => ({ ...prev, date }))}
-                        />
-                      ) : (
-                        <span className="text-muted-foreground">
+                      {isEditing ? <EventDatePicker value={editForm.date} onChange={date => setEditForm(prev => ({
+                      ...prev,
+                      date
+                    }))} /> : <span className="text-muted-foreground">
                           {formatEventDate(event.date)}
-                        </span>
-                      )}
+                        </span>}
                     </TableCell>
                     <TableCell className="w-28">
-                      {isEditing ? (
-                        <Input
-                          value={editForm.venue}
-                          onChange={(e) => setEditForm(prev => ({ ...prev, venue: e.target.value }))}
-                          placeholder="Venue location"
-                          className="min-w-[180px]"
-                        />
-                      ) : (
-                        <span className="text-muted-foreground">
+                      {isEditing ? <Input value={editForm.venue} onChange={e => setEditForm(prev => ({
+                      ...prev,
+                      venue: e.target.value
+                    }))} placeholder="Venue location" className="min-w-[180px]" /> : <span className="text-muted-foreground">
                           {event.venue || 'No venue set'}
-                        </span>
-                      )}
+                        </span>}
                     </TableCell>
                     <TableCell className="w-20">
-                      {isEditing ? (
-                        <TimePicker
-                          value={editForm.start_time}
-                          onChange={(time) => setEditForm(prev => ({ ...prev, start_time: time }))}
-                        />
-                      ) : (
-                        <span className="text-muted-foreground">
+                      {isEditing ? <TimePicker value={editForm.start_time} onChange={time => setEditForm(prev => ({
+                      ...prev,
+                      start_time: time
+                    }))} /> : <span className="text-muted-foreground">
                           {formatDisplayTime(event.start_time)}
-                        </span>
-                      )}
+                        </span>}
                     </TableCell>
                     <TableCell className="w-20">
-                      {isEditing ? (
-                        <TimePicker
-                          value={editForm.finish_time}
-                          onChange={(time) => setEditForm(prev => ({ ...prev, finish_time: time }))}
-                        />
-                      ) : (
-                        <span className="text-muted-foreground">
+                      {isEditing ? <TimePicker value={editForm.finish_time} onChange={time => setEditForm(prev => ({
+                      ...prev,
+                      finish_time: time
+                    }))} /> : <span className="text-muted-foreground">
                           {formatDisplayTime(event.finish_time)}
-                        </span>
-                      )}
+                        </span>}
                     </TableCell>
                     <TableCell className="w-20">
-                      {isEditing ? (
-                        <Input
-                          type="number"
-                          value={editForm.guest_limit}
-                          onChange={(e) => setEditForm(prev => ({ ...prev, guest_limit: parseInt(e.target.value) || 50 }))}
-                          className="w-20"
-                          min="1"
-                        />
-                      ) : (
-                        <div className="flex items-center space-x-2">
+                      {isEditing ? <Input type="number" value={editForm.guest_limit} onChange={e => setEditForm(prev => ({
+                      ...prev,
+                      guest_limit: parseInt(e.target.value) || 50
+                    }))} className="w-20" min="1" /> : <div className="flex items-center space-x-2">
                           <span className="text-muted-foreground">
                             {event.guests_count}/{event.guest_limit}
                           </span>
-                        </div>
-                      )}
+                        </div>}
                     </TableCell>
                     <TableCell className="w-24">
                       <span className="text-muted-foreground">
@@ -583,48 +459,23 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                       </span>
                     </TableCell>
                     <TableCell className="w-20">
-                      {isEditing ? (
-                        <div className="flex items-center space-x-1">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={handleSaveEdit}
-                            className="w-8 h-8 text-green-600 hover:text-green-700"
-                          >
+                      {isEditing ? <div className="flex items-center space-x-1">
+                          <Button variant="ghost" size="icon" onClick={handleSaveEdit} className="w-8 h-8 text-green-600 hover:text-green-700">
                             <Save className="w-3 h-3" />
                           </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={handleCancelEdit}
-                            className="w-8 h-8 text-muted-foreground hover:text-destructive"
-                          >
+                          <Button variant="ghost" size="icon" onClick={handleCancelEdit} className="w-8 h-8 text-muted-foreground hover:text-destructive">
                             <X className="w-3 h-3" />
                           </Button>
-                        </div>
-                      ) : (
-                        <div className="flex items-center space-x-1">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleEdit(event)}
-                            className="w-8 h-8 text-muted-foreground hover:text-primary"
-                          >
+                        </div> : <div className="flex items-center space-x-1">
+                          <Button variant="ghost" size="icon" onClick={() => handleEdit(event)} className="w-8 h-8 text-muted-foreground hover:text-primary">
                             <Edit2 className="w-3 h-3" />
                           </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleDeleteClick(event)}
-                            className="w-8 h-8 text-muted-foreground hover:text-destructive"
-                          >
+                          <Button variant="ghost" size="icon" onClick={() => handleDeleteClick(event)} className="w-8 h-8 text-muted-foreground hover:text-destructive">
                             <Trash2 className="w-3 h-3" />
                           </Button>
-                        </div>
-                      )}
+                        </div>}
                     </TableCell>
-                  </TableRow>
-                );
+                  </TableRow>;
               })}
             </TableBody>
             </Table>
@@ -632,12 +483,9 @@ export const EventsTable: React.FC<EventsTableProps> = ({
         </div>
       </Card>
 
-      <DeleteConfirmationModal
-        isOpen={deleteModal.isOpen}
-        onClose={() => setDeleteModal({ isOpen: false, event: null })}
-        onConfirm={handleDeleteConfirm}
-        eventName={deleteModal.event?.name || ''}
-      />
-    </>
-  );
+      <DeleteConfirmationModal isOpen={deleteModal.isOpen} onClose={() => setDeleteModal({
+      isOpen: false,
+      event: null
+    })} onConfirm={handleDeleteConfirm} eventName={deleteModal.event?.name || ''} />
+    </>;
 };
