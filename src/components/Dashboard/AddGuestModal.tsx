@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
+import { secureGuestSchema, type SecureGuestData } from "@/lib/security/validation";
+import { logSecurityEvent, guestAddRateLimiter } from "@/lib/security/monitoring";
+import { sanitize, InputSanitizer } from "@/lib/security/inputSanitizer";
 import {
   Dialog,
   DialogContent,
@@ -36,22 +38,7 @@ import { useEvents } from "@/hooks/useEvents";
 import { RelationSelector } from "./RelationSelector";
 import { FamilyGroupCombobox } from "./FamilyGroupCombobox";
 
-const addGuestSchema = z.object({
-  first_name: z.string().min(1, "First name is required"),
-  last_name: z.string().min(1, "Last name is required"),
-  table_id: z.string().min(1, "Table selection is required").refine(val => val !== "none", "Table selection is required"),
-  seat_no: z.coerce.number().min(1, "Seat selection is required"),
-  rsvp: z.string(),
-  dietary: z.string(),
-  mobile: z.string().optional(),
-  email: z.string().email("Invalid email").optional().or(z.literal("")),
-  family_group: z.string().optional(),
-  notes: z.string().optional(),
-  relation_partner: z.string().min(1, "Please choose one partner and one role."),
-  relation_role: z.string().min(1, "Please choose one partner and one role."),
-});
-
-type AddGuestFormData = z.infer<typeof addGuestSchema>;
+type AddGuestFormData = SecureGuestData;
 
 interface AddGuestModalProps {
   isOpen: boolean;
@@ -103,7 +90,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
   });
 
   const form = useForm<AddGuestFormData>({
-    resolver: zodResolver(addGuestSchema),
+    resolver: zodResolver(secureGuestSchema),
     defaultValues: {
       first_name: "",
       last_name: "",
@@ -158,7 +145,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
           last_name: editGuest.last_name,
           table_id: editGuest.table_id || "",
           seat_no: editGuest.seat_no || undefined,
-          rsvp: editGuest.rsvp,
+          rsvp: editGuest.rsvp as "Pending" | "Attending" | "Not Attending",
           dietary: editGuest.dietary,
           mobile: editGuest.mobile || "",
           email: editGuest.email || "",
@@ -293,6 +280,36 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
     setLoading(true);
     
     try {
+      // Get current user for rate limiting and security monitoring
+      const { data: { user } } = await supabase.auth.getUser();
+      const userId = user?.id;
+      
+      // Check rate limiting for guest creation
+      if (!guestAddRateLimiter.isAllowed(userId || 'anonymous')) {
+        toast({
+          title: "Too many requests",
+          description: "Please slow down. You're adding guests too quickly.",
+          variant: "destructive",
+        });
+        logSecurityEvent.suspiciousDataAccess('guest_creation', 'Rate limit exceeded', userId);
+        setLoading(false);
+        return;
+      }
+
+      // Detect potentially malicious input
+      const fieldsToCheck = [data.first_name, data.last_name, data.notes || '', data.family_group || ''];
+      for (const field of fieldsToCheck) {
+        if (InputSanitizer.detectMaliciousInput(field)) {
+          toast({
+            title: "Invalid input detected",
+            description: "Please check your input for invalid characters.",
+            variant: "destructive",
+          });
+          logSecurityEvent.validationFailure('malicious_input', field, userId);
+          setLoading(false);
+          return;
+        }
+      }
       // Validate required relation if setting is enabled
       if (relationSettings.relation_required) {
         if (!data.relation_partner || !data.relation_role) {

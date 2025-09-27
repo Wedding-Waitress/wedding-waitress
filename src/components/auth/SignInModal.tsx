@@ -7,17 +7,15 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
-import { z } from 'zod';
+import { secureEmailSchema } from '@/lib/security/validation';
+import { logSecurityEvent, loginRateLimiter } from '@/lib/security/monitoring';
+import { sanitize } from '@/lib/security/inputSanitizer';
 
 interface SignInModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onBackToSignUp: () => void;
 }
-
-const emailSchema = z.object({
-  email: z.string().email('Please enter a valid email address')
-});
 
 export const SignInModal: React.FC<SignInModalProps> = ({ 
   open, 
@@ -67,9 +65,21 @@ export const SignInModal: React.FC<SignInModalProps> = ({
     e.preventDefault();
     setError('');
     
-    const validation = emailSchema.safeParse({ email });
+    // Check rate limiting
+    if (!loginRateLimiter.isAllowed(email)) {
+      const remaining = loginRateLimiter.getRemainingAttempts(email);
+      setError(`Too many login attempts. Please try again later.`);
+      logSecurityEvent.authFailure('Rate limit exceeded', email);
+      return;
+    }
+    
+    // Sanitize email input
+    const sanitizedEmail = sanitize.email(email);
+    
+    const validation = secureEmailSchema.safeParse({ email: sanitizedEmail });
     if (!validation.success) {
       setError(validation.error.errors[0].message);
+      logSecurityEvent.validationFailure('email', email, email);
       return;
     }
 
@@ -77,11 +87,12 @@ export const SignInModal: React.FC<SignInModalProps> = ({
     
     try {
       const { error } = await supabase.auth.signInWithOtp({
-        email: email.trim().toLowerCase()
+        email: sanitizedEmail
       });
 
       if (error) {
         setError(mapSupabaseError(error));
+        logSecurityEvent.authFailure(error.message || 'Unknown error', sanitizedEmail);
       } else {
         setStep('verify');
         startResendTimer();
