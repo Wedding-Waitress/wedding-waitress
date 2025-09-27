@@ -7,31 +7,9 @@ import { CreateTableModal } from "@/components/Dashboard/CreateTableModal";
 import { TableCard } from "@/components/Dashboard/TableCard";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/enhanced-button";
-import { 
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { 
-  Calendar, 
-  Users, 
-  MapPin, 
-  QrCode, 
-  Mail,
-  Heart,
-  Settings,
-  TrendingUp,
-  Plus,
-  Printer
-} from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Calendar, Users, MapPin, QrCode, Mail, Heart, Settings, TrendingUp, Plus, Printer } from "lucide-react";
 import { useEvents } from '@/hooks/useEvents';
 import { useTables, TableWithGuestCount } from '@/hooks/useTables';
 import { useRealtimeGuests } from '@/hooks/useRealtimeGuests';
@@ -47,44 +25,46 @@ import { FullSeatingChartPage } from '@/components/Dashboard/FullSeatingChart/Fu
 import { IndividualTableSeatingChartPage } from '@/components/Dashboard/IndividualTableChart/IndividualTableSeatingChartPage';
 import { KioskSetup } from '@/components/Dashboard/Kiosk/KioskSetup';
 import { FloorPlanPage } from '@/components/Dashboard/FloorPlan/FloorPlanPage';
-
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
-
 export const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [showCreateTableModal, setShowCreateTableModal] = useState(false);
   const [editingTable, setEditingTable] = useState<TableWithGuestCount | null>(null);
-  const { 
-    events, 
-    loading: eventsLoading, 
-    activeEventId: eventsActiveEventId, 
+  const {
+    events,
+    loading: eventsLoading,
+    activeEventId: eventsActiveEventId,
     setActiveEventId: setEventsActiveEventId,
-    refetch: refetchEvents 
+    refetch: refetchEvents
   } = useEvents();
-  const { profile, loading: profileLoading, error: profileError } = useProfile();
+  const {
+    profile,
+    loading: profileLoading,
+    error: profileError
+  } = useProfile();
   const navigate = useNavigate();
-  const { 
-    tables: rawTables, 
-    loading: tablesLoading, 
-    createTable, 
-    updateTable, 
+  const {
+    tables: rawTables,
+    loading: tablesLoading,
+    createTable,
+    updateTable,
     deleteTable,
     fetchTables
   } = useTables(selectedEventId);
-  
+
   // Real-time guest management
-  const { 
-    guests, 
-    loading: guestsLoading, 
-    moveGuest 
+  const {
+    guests,
+    loading: guestsLoading,
+    moveGuest
   } = useRealtimeGuests(selectedEventId);
-  
+
   // Real-time tables with live guest counts
-  const { 
-    tables, 
-    getGuestsForTable: getRealtimeGuestsForTable 
+  const {
+    tables,
+    getGuestsForTable: getRealtimeGuestsForTable
   } = useRealtimeTables({
     tables: rawTables,
     guests,
@@ -93,7 +73,7 @@ export const Dashboard = () => {
 
   // Get selected event for tables
   const selectedEvent = selectedEventId ? events.find(e => e.id === selectedEventId) : null;
-  
+
   // Get selected event for My Events countdown (use events active event)
   const selectedCountdownEvent = eventsActiveEventId ? events.find(e => e.id === eventsActiveEventId) : null;
 
@@ -114,7 +94,6 @@ export const Dashboard = () => {
   // Listen for custom events from AddGuestModal with debounced refresh
   useEffect(() => {
     let timer: number | null = null;
-
     const trigger = () => {
       if (!selectedEventId) return;
       if (timer) window.clearTimeout(timer);
@@ -123,13 +102,10 @@ export const Dashboard = () => {
         timer = null;
       }, 250);
     };
-
     const handleGuestAdded = () => trigger();
     const handleGuestUpdated = () => trigger();
-
     window.addEventListener('guest-added', handleGuestAdded);
     window.addEventListener('guest-updated', handleGuestUpdated);
-
     return () => {
       if (timer) window.clearTimeout(timer);
       window.removeEventListener('guest-added', handleGuestAdded);
@@ -143,7 +119,6 @@ export const Dashboard = () => {
     if (eventId === "no-event") {
       return;
     }
-    
     setSelectedEventId(eventId);
     localStorage.setItem('active_event_id', eventId);
   };
@@ -153,13 +128,16 @@ export const Dashboard = () => {
     setEditingTable(null);
     setShowCreateTableModal(true);
   };
-
   const handleEditTable = (table: TableWithGuestCount) => {
     setEditingTable(table);
     setShowCreateTableModal(true);
   };
-
-  const handleSaveTable = async (data: { name: string; limit_seats: number; notes?: string; table_no?: number | null }) => {
+  const handleSaveTable = async (data: {
+    name: string;
+    limit_seats: number;
+    notes?: string;
+    table_no?: number | null;
+  }) => {
     try {
       if (editingTable) {
         return await updateTable(editingTable.id, data);
@@ -176,14 +154,12 @@ export const Dashboard = () => {
   const statsData = useMemo(() => {
     // Always use selectedEvent to ensure both Tables and Guest List pages show the same stats
     const currentEvent = selectedEvent;
-    
     const tablesCreated = tables.length;
     const seatsCreated = tables.reduce((sum, table) => sum + table.limit_seats, 0);
     const seatsFilled = guests.length;
     const eventGuestLimit = currentEvent?.guest_limit || 0;
     const seatsRemaining = Math.max(0, eventGuestLimit - seatsFilled);
     const tablesAtCapacity = tables.filter(table => table.guest_count >= table.limit_seats).length;
-
     return {
       tablesCreated,
       seatsCreated,
@@ -195,15 +171,9 @@ export const Dashboard = () => {
   }, [tables, guests, selectedEvent]);
 
   // Handle guest movement between tables
-  const handleGuestMove = async (
-    guestId: string, 
-    sourceTableId: string | null, 
-    destTableId: string, 
-    guestName: string
-  ): Promise<boolean> => {
+  const handleGuestMove = async (guestId: string, sourceTableId: string | null, destTableId: string, guestName: string): Promise<boolean> => {
     const destTable = tables.find(t => t.id === destTableId);
     if (!destTable) return false;
-
     return await moveGuest({
       guestId,
       sourceTableId,
@@ -212,7 +182,6 @@ export const Dashboard = () => {
       guestName
     });
   };
-
   const handleCloseModal = () => {
     setShowCreateTableModal(false);
     setEditingTable(null);
@@ -222,8 +191,7 @@ export const Dashboard = () => {
   const renderTabContent = () => {
     switch (activeTab) {
       case 'dashboard':
-        return (
-          <Card className="ww-box p-8 text-center">
+        return <Card className="ww-box p-8 text-center py-[32px] px-[32px] my-0 mx-[100px]">
             <TrendingUp className="w-16 h-16 mx-auto text-primary mb-4" />
             <CardTitle className="mb-2">Dashboard Overview</CardTitle>
             <CardDescription className="mb-6">
@@ -233,18 +201,13 @@ export const Dashboard = () => {
               <Plus className="w-4 h-4 mr-2" />
               View Analytics
             </Button>
-          </Card>
-        );
-      
+          </Card>;
       case 'my-events':
         return <MyEventsPage />;
-      
       case 'guest-list':
         return <GuestListTable selectedEventId={selectedEventId} onEventSelect={handleEventSelect} />;
-      
       case 'table-list':
-        return (
-          <div className="space-y-6">
+        return <div className="space-y-6">
             <Card className="ww-box">
               <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-6">
                 <div className="space-y-4 flex-1">
@@ -258,31 +221,23 @@ export const Dashboard = () => {
                         <SelectValue placeholder={eventsLoading ? "Loading events..." : "Select an event..."} />
                       </SelectTrigger>
                       <SelectContent>
-                        {events.length > 0 ? (
-                          events.map((event) => (
-                            <SelectItem key={event.id} value={event.id}>
+                        {events.length > 0 ? events.map(event => <SelectItem key={event.id} value={event.id}>
                               <div className="flex items-center space-x-2">
                                 <Calendar className="w-4 h-4" />
                                 <span>{event.name}</span>
                               </div>
-                            </SelectItem>
-                          ))
-                        ) : (
-                          <SelectItem value="no-events" disabled>
+                            </SelectItem>) : <SelectItem value="no-events" disabled>
                             {eventsLoading ? "Loading events..." : "No events found"}
-                          </SelectItem>
-                        )}
+                          </SelectItem>}
                       </SelectContent>
                     </Select>
                   </div>
                   
                   {/* Contextual title - only show if event is selected */}
-                  {selectedEvent && (
-                    <div className="flex items-center space-x-2">
+                  {selectedEvent && <div className="flex items-center space-x-2">
                       <span className="text-lg font-medium text-foreground">Table Set Up for</span>
                       <span className="text-lg font-bold text-primary">{selectedEvent.name}</span>
-                    </div>
-                  )}
+                    </div>}
                 </div>
                 
                 {/* Right side block */}
@@ -300,22 +255,15 @@ export const Dashboard = () => {
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <div>
-                          <Button 
-                            variant="gradient" 
-                            className="sm:ml-3 sm:flex-shrink-0"
-                            disabled={!selectedEventId}
-                            onClick={handleCreateTable}
-                          >
+                          <Button variant="gradient" className="sm:ml-3 sm:flex-shrink-0" disabled={!selectedEventId} onClick={handleCreateTable}>
                             <Plus className="w-4 h-4 mr-2" />
                             Create Tables
                           </Button>
                         </div>
                       </TooltipTrigger>
-                      {!selectedEventId && (
-                        <TooltipContent>
+                      {!selectedEventId && <TooltipContent>
                           <p>Choose Event first</p>
-                        </TooltipContent>
-                      )}
+                        </TooltipContent>}
                     </Tooltip>
                   </TooltipProvider>
                 </div>
@@ -323,53 +271,26 @@ export const Dashboard = () => {
             </Card>
 
             {/* Tables Grid */}
-            {selectedEventId && (
-              <Card className="ww-box">
+            {selectedEventId && <Card className="ww-box">
                 <CardContent className="p-6">
-                  {tablesLoading ? (
-                    <div className="text-center py-8">
+                  {tablesLoading ? <div className="text-center py-8">
                       <div className="text-muted-foreground">Loading tables...</div>
-                    </div>
-                   ) : tables.length > 0 ? (
-                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-                       {tables.map((table) => (
-                         <TableCard
-                           key={table.id}
-                           table={table}
-                           onEdit={handleEditTable}
-                           onDelete={deleteTable}
-                           guests={guests}
-                           eventId={selectedEventId}
-                           onGuestMove={handleGuestMove}
-                         />
-                       ))}
-                     </div>
-                  ) : (
-                    <div className="text-center py-8">
+                    </div> : tables.length > 0 ? <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                       {tables.map(table => <TableCard key={table.id} table={table} onEdit={handleEditTable} onDelete={deleteTable} guests={guests} eventId={selectedEventId} onGuestMove={handleGuestMove} />)}
+                     </div> : <div className="text-center py-8">
                       <div className="text-muted-foreground mb-4">No tables created yet</div>
                       <Button variant="gradient" onClick={handleCreateTable}>
                         <Plus className="w-4 h-4 mr-2" />
                         Create Your First Table
                       </Button>
-                    </div>
-                  )}
+                    </div>}
                 </CardContent>
-              </Card>
-            )}
-          </div>
-        );
-      
+              </Card>}
+          </div>;
       case 'floor-plan':
-        return (
-          <FloorPlanPage 
-            selectedEventId={selectedEventId}
-            onEventSelect={setSelectedEventId}
-          />
-        );
-      
+        return <FloorPlanPage selectedEventId={selectedEventId} onEventSelect={setSelectedEventId} />;
       case 'rsvp-invite':
-        return (
-          <Card className="ww-box p-8 text-center">
+        return <Card className="ww-box p-8 text-center">
             <Mail className="w-16 h-16 mx-auto text-primary mb-4" />
             <CardTitle className="mb-2">RSVP Invitations</CardTitle>
             <CardDescription className="mb-6">
@@ -379,12 +300,9 @@ export const Dashboard = () => {
               <Mail className="w-4 h-4 mr-2" />
               Send Invites
             </Button>
-          </Card>
-        );
-      
+          </Card>;
       case 'wishing-well':
-        return (
-          <Card className="ww-box p-8 text-center">
+        return <Card className="ww-box p-8 text-center">
             <Heart className="w-16 h-16 mx-auto text-primary mb-4" />
             <CardTitle className="mb-2">Online Wishing Well</CardTitle>
             <CardDescription className="mb-6">
@@ -394,57 +312,38 @@ export const Dashboard = () => {
               <Heart className="w-4 h-4 mr-2" />
               Setup Wishing Well
             </Button>
-          </Card>
-        );
-      
+          </Card>;
       case 'signage':
         return <SignagePage selectedEventId={selectedEventId} onEventSelect={handleEventSelect} />;
-      
       case 'qr-code':
         return <QRCodeSeatingChart selectedEventId={selectedEventId} onEventSelect={handleEventSelect} onNavigateToTab={handleTabChange} />;
-      
       case 'printables':
-        return selectedEventId ? (
-          <QRCodeFeatureGrid eventId={selectedEventId} onNavigateToTab={handleTabChange} />
-        ) : (
-          <Card className="ww-box p-8 text-center">
+        return selectedEventId ? <QRCodeFeatureGrid eventId={selectedEventId} onNavigateToTab={handleTabChange} /> : <Card className="ww-box p-8 text-center">
             <Printer className="w-16 h-16 mx-auto text-primary mb-4" />
             <CardTitle className="mb-2">Printables</CardTitle>
             <CardDescription className="mb-6">
               Select an event to view available printable materials
             </CardDescription>
-          </Card>
-        );
-      
+          </Card>;
       case 'kiosk-live-view':
         return <KioskSetup selectedEventId={selectedEventId} onEventSelect={handleEventSelect} />;
-      
       case 'dietary-chart':
         return selectedEventId ? <KitchenDietaryChart eventId={selectedEventId} /> : null;
-      
       case 'table-chart':
-        return (
-          <div>
+        return <div>
             <TableSeatingChartPageComponent selectedEventId={selectedEventId} onEventSelect={handleEventSelect} />
-          </div>
-        );
-      
+          </div>;
       case 'full-seating-chart':
         return <FullSeatingChartPage selectedEventId={selectedEventId} onEventSelect={handleEventSelect} />;
-      
       case 'place-cards':
         return <PlaceCardsPage />;
-      
       case 'individual-table-chart':
         // Individual table seating chart feature
         return <IndividualTableSeatingChartPage selectedEventId={selectedEventId} onEventSelect={handleEventSelect} />;
-      
       case 'kiosk-setup':
         return <KioskSetup selectedEventId={selectedEventId} onEventSelect={handleEventSelect} />;
-      
       case 'planner':
-        return (
-          <Card className="ww-box p-8 text-center">
+        return <Card className="ww-box p-8 text-center">
             <TrendingUp className="w-16 h-16 mx-auto text-primary mb-4" />
             <CardTitle className="mb-2">Wedding Planner</CardTitle>
             <CardDescription className="mb-6">
@@ -454,12 +353,9 @@ export const Dashboard = () => {
               <Plus className="w-4 h-4 mr-2" />
               Start Planning
             </Button>
-          </Card>
-        );
-      
+          </Card>;
       case 'vendor-team':
-        return (
-          <Card className="ww-box p-8 text-center">
+        return <Card className="ww-box p-8 text-center">
             <Users className="w-16 h-16 mx-auto text-primary mb-4" />
             <CardTitle className="mb-2">Vendor Team</CardTitle>
             <CardDescription className="mb-6">
@@ -469,19 +365,15 @@ export const Dashboard = () => {
               <Plus className="w-4 h-4 mr-2" />
               Add Vendors
             </Button>
-          </Card>
-        );
-      
+          </Card>;
       default:
-        return (
-          <Card className="p-8 text-center">
+        return <Card className="p-8 text-center">
             <TrendingUp className="w-16 h-16 mx-auto text-primary mb-4" />
             <CardTitle className="mb-2">Coming Soon</CardTitle>
             <CardDescription>
               This feature is under development. Stay tuned for updates!
             </CardDescription>
-          </Card>
-        );
+          </Card>;
     }
   };
 
@@ -494,7 +386,7 @@ export const Dashboard = () => {
   // Handle tab changes with refetch for tables page
   const handleTabChange = (tabId: string) => {
     setActiveTab(tabId);
-    
+
     // Explicitly refetch events when navigating to the Tables page
     if (tabId === 'table-list') {
       refetchEvents();
@@ -503,21 +395,18 @@ export const Dashboard = () => {
 
   // Show loading state while checking authentication
   if (profileLoading || eventsLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-subtle flex items-center justify-center">
+    return <div className="min-h-screen bg-gradient-subtle flex items-center justify-center">
         <Card className="ww-box p-8 text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
           <CardTitle>Loading Dashboard...</CardTitle>
           <CardDescription>Please wait while we set up your workspace</CardDescription>
         </Card>
-      </div>
-    );
+      </div>;
   }
 
   // Show authentication error or redirect to landing
   if (profileError || !profile) {
-    return (
-      <div className="min-h-screen bg-gradient-subtle flex items-center justify-center">
+    return <div className="min-h-screen bg-gradient-subtle flex items-center justify-center">
         <Card className="ww-box p-8 text-center max-w-md">
           <CardTitle className="mb-4">Authentication Required</CardTitle>
           <CardDescription className="mb-6">
@@ -527,12 +416,9 @@ export const Dashboard = () => {
             Go to Home Page
           </Button>
         </Card>
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <div className="min-h-screen bg-gradient-subtle flex">
+  return <div className="min-h-screen bg-gradient-subtle flex">
       {/* Sidebar */}
       <div className="print:hidden">
         <DashboardSidebar activeTab={activeTab} onTabChange={handleTabChange} onSignOut={handleSignOut} />
@@ -543,14 +429,9 @@ export const Dashboard = () => {
         <main className="flex-1 lg:px-6 px-4 py-6">
         <div className="mx-auto max-w-none">
           {/* Stats Bar excluded from: My Events, QR Code, Dashboard, Vendor Team, Planner, Wishing Well, RSVP, Floor Plan, Kiosk Live View, Printables */}
-           {activeTab !== 'my-events' && activeTab !== 'qr-code' && activeTab !== 'dashboard' && 
-           activeTab !== 'vendor-team' && activeTab !== 'planner' && activeTab !== 'wishing-well' && 
-           activeTab !== 'rsvp-invite' && activeTab !== 'floor-plan' && activeTab !== 'kiosk-live-view' && 
-           activeTab !== 'printables' && activeTab !== 'individual-table-chart' && (
-            <div className="print:hidden">
+           {activeTab !== 'my-events' && activeTab !== 'qr-code' && activeTab !== 'dashboard' && activeTab !== 'vendor-team' && activeTab !== 'planner' && activeTab !== 'wishing-well' && activeTab !== 'rsvp-invite' && activeTab !== 'floor-plan' && activeTab !== 'kiosk-live-view' && activeTab !== 'printables' && activeTab !== 'individual-table-chart' && <div className="print:hidden">
               <StatsBar stats={statsData} />
-            </div>
-          )}
+            </div>}
           
           {/* Tab Content */}
           <div className="space-y-6 mt-6">
@@ -561,13 +442,6 @@ export const Dashboard = () => {
       </div>
 
       {/* Create/Edit Table Modal */}
-      <CreateTableModal
-        isOpen={showCreateTableModal}
-        onClose={handleCloseModal}
-        onSave={handleSaveTable}
-        editingTable={editingTable}
-        existingTables={tables}
-      />
-    </div>
-  );
+      <CreateTableModal isOpen={showCreateTableModal} onClose={handleCloseModal} onSave={handleSaveTable} editingTable={editingTable} existingTables={tables} />
+    </div>;
 };
