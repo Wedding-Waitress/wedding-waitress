@@ -401,7 +401,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                       name: e.target.value
                     }))} className="min-w-[180px]" /> : <div className="flex items-center">
                           {event.name}
-                          {atCapacity && <Badge variant="success" className="ml-2 text-xs text-white bg-green-600 hover:bg-green-700">
+                          {atCapacity && <Badge variant="success" className="ml-2 text-xs">
                               Full
                             </Badge>}
                         </div>}
