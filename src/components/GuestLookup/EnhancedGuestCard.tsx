@@ -93,10 +93,7 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
         description: `Your RSVP has been updated to ${normalized}`,
       });
       
-      // Add small delay to ensure database consistency before refresh
-      setTimeout(() => {
-        onUpdate();
-      }, 100);
+      // Let realtime subscription handle the sync - no manual refresh needed
     } catch (error) {
       console.error('Error updating RSVP:', error);
       setLocalRsvp(prev);
