@@ -209,6 +209,91 @@ export const GuestLookup: React.FC = () => {
     }
   };
 
+  // Set up realtime subscription for instant RSVP sync
+  useEffect(() => {
+    if (!event?.id) return;
+
+    const channel = supabase
+      .channel(`guests-public:event:${event.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'guests',
+          filter: `event_id=eq.${event.id}`
+        },
+        (payload) => {
+          console.log('Realtime guest update received:', payload);
+          
+          const { eventType, new: newRecord, old: oldRecord } = payload;
+          
+          setGuests(currentGuests => {
+            switch (eventType) {
+              case 'INSERT':
+                if (newRecord && !currentGuests.some(g => g.id === newRecord.id)) {
+                  const transformedGuest = {
+                    id: newRecord.id,
+                    first_name: newRecord.first_name,
+                    last_name: newRecord.last_name,
+                    table_id: newRecord.table_id,
+                    table_no: newRecord.table_no,
+                    seat_no: newRecord.seat_no,
+                    relation_display: newRecord.relation_display,
+                    rsvp: normalizeRsvp(newRecord.rsvp),
+                    dietary: newRecord.dietary,
+                    mobile: newRecord.mobile,
+                    email: newRecord.email,
+                    family_group: newRecord.family_group
+                  };
+                  return [...currentGuests, transformedGuest];
+                }
+                return currentGuests;
+
+              case 'UPDATE':
+                if (newRecord) {
+                  return currentGuests.map(g => 
+                    g.id === newRecord.id 
+                      ? {
+                          ...g,
+                          first_name: newRecord.first_name,
+                          last_name: newRecord.last_name,
+                          table_id: newRecord.table_id,
+                          table_no: newRecord.table_no,
+                          seat_no: newRecord.seat_no,
+                          relation_display: newRecord.relation_display,
+                          rsvp: normalizeRsvp(newRecord.rsvp),
+                          dietary: newRecord.dietary,
+                          mobile: newRecord.mobile,
+                          email: newRecord.email,
+                          family_group: newRecord.family_group
+                        }
+                      : g
+                  );
+                }
+                return currentGuests;
+
+              case 'DELETE':
+                if (oldRecord) {
+                  return currentGuests.filter(g => g.id !== oldRecord.id);
+                }
+                return currentGuests;
+
+              default:
+                return currentGuests;
+            }
+          });
+        }
+      )
+      .subscribe((status) => {
+        console.log(`Realtime subscription status: ${status}`);
+      });
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [event?.id]);
+
   const handleEditGuest = (guest: Guest) => {
     setSelectedGuest(guest);
     setShowProfileModal(true);
