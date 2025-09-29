@@ -24,6 +24,15 @@ export class AdvancedQRGenerator {
     // Clear canvas
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
+    // Reset canvas state to prevent any filters/opacity issues
+    this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+    this.ctx.filter = 'none';
+    this.ctx.globalAlpha = 1;
+    this.ctx.shadowColor = 'transparent';
+    this.ctx.shadowBlur = 0;
+    this.ctx.globalCompositeOperation = 'source-over';
+    this.ctx.imageSmoothingEnabled = false;
+
     // Apply background
     await this.applyBackground(settings);
 
@@ -151,6 +160,10 @@ export class AdvancedQRGenerator {
 
   private applyQRPattern(matrix: boolean[][], settings: QRCodeSettings) {
     const cellSize = this.canvas.width / matrix.length;
+    
+    // Ensure no filters or opacity issues
+    this.ctx.globalAlpha = 1;
+    this.ctx.filter = 'none';
     this.ctx.fillStyle = settings.foreground_color;
 
     for (let y = 0; y < matrix.length; y++) {
@@ -214,8 +227,7 @@ export class AdvancedQRGenerator {
   }
 
   private drawSquare(size: number) {
-    const half = size * 0.4;
-    this.ctx.fillRect(-half, -half, size * 0.8, size * 0.8);
+    this.ctx.fillRect(-size/2, -size/2, size, size);
   }
 
   private drawRoundedSquare(size: number) {

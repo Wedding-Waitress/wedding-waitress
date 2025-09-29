@@ -360,7 +360,12 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
                       className="w-full max-w-[460px] aspect-square min-h-[360px] bg-muted/20 rounded-lg flex items-center justify-center"
                     >
                     {qrDataUrl ? (
-                      <img src={qrDataUrl} alt="QR Code Preview" className="max-w-full max-h-full" />
+                      <img 
+                        src={qrDataUrl} 
+                        alt="QR Code Preview" 
+                        className="max-w-full max-h-full" 
+                        style={{ imageRendering: 'pixelated' }}
+                      />
                     ) : (
                       <QrCodeIcon className="h-24 w-24 text-muted-foreground/50" />
                     )}
