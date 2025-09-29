@@ -711,10 +711,11 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                           <SelectValue placeholder="Select RSVP status" />
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent>
-                         <SelectItem value="Pending">Pending</SelectItem>
-                         <SelectItem value="Not Attending">Not Attending</SelectItem>
-                      </SelectContent>
+                       <SelectContent>
+                          <SelectItem value="Pending">Pending</SelectItem>
+                          <SelectItem value="Attending">Attending</SelectItem>
+                          <SelectItem value="Not Attending">Not Attending</SelectItem>
+                       </SelectContent>
                     </Select>
                     <FormMessage />
                   </FormItem>
