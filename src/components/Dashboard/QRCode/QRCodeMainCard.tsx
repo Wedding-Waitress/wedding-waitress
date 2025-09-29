@@ -381,7 +381,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
                   {/* QR Preview */}
                     <div 
                       id="qr-preview"
-                      className="w-full max-w-[230px] aspect-square min-h-[180px] bg-muted/20 rounded-lg flex items-center justify-center"
+                      className="w-full max-w-[460px] aspect-square min-h-[360px] bg-muted/20 rounded-lg flex items-center justify-center"
                     >
                     {qrDataUrl ? (
                       <img 
@@ -396,7 +396,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
                   </div>
 
                   {/* Color Customization Controls */}
-                  <div className="w-full max-w-[230px] p-4 bg-purple-50/50 border border-purple-200 rounded-lg space-y-3">
+                  <div className="w-full max-w-[460px] p-4 bg-purple-50/50 border border-purple-200 rounded-lg space-y-3">
                     <div className="flex items-center gap-2 mb-3">
                       <Palette className="h-4 w-4 text-purple-600" />
                       <span className="text-sm font-medium text-gray-800">Customise Your QR Code</span>
