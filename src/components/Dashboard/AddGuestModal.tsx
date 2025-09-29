@@ -34,6 +34,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useTables } from "@/hooks/useTables";
 import { computeRelationDisplay, RelationPartner, RelationRole } from "@/lib/relationUtils";
+import { normalizeRsvp } from "@/lib/rsvp";
 import { useEvents } from "@/hooks/useEvents";
 import { RelationSelector } from "./RelationSelector";
 import { FamilyGroupCombobox } from "./FamilyGroupCombobox";
@@ -145,7 +146,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
           last_name: editGuest.last_name,
           table_id: editGuest.table_id || "",
           seat_no: editGuest.seat_no || undefined,
-          rsvp: editGuest.rsvp as "Pending" | "Attending" | "Not Attending",
+          rsvp: normalizeRsvp(editGuest.rsvp),
           dietary: editGuest.dietary,
           mobile: editGuest.mobile || "",
           email: editGuest.email || "",
@@ -711,9 +712,8 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="Pending">Pending</SelectItem>
-                        <SelectItem value="Confirmed">Confirmed</SelectItem>
-                        <SelectItem value="Declined">Declined</SelectItem>
+                         <SelectItem value="Pending">Pending</SelectItem>
+                         <SelectItem value="Not Attending">Not Attending</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />

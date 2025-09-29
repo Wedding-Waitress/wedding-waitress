@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -13,6 +13,7 @@ import {
   Mail 
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { normalizeRsvp, type RsvpStatus } from '@/lib/rsvp';
 import { useToast } from '@/hooks/use-toast';
 
 interface Guest {
@@ -41,6 +42,10 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
 }) => {
   const [updatingRsvp, setUpdatingRsvp] = useState(false);
   const { toast } = useToast();
+  const [localRsvp, setLocalRsvp] = useState<RsvpStatus>(normalizeRsvp(guest.rsvp));
+  useEffect(() => {
+    setLocalRsvp(normalizeRsvp(guest.rsvp));
+  }, [guest.rsvp]);
 
   const getRsvpColor = (rsvp: string) => {
     switch (rsvp?.toLowerCase()) {
@@ -60,22 +65,26 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
 
   const updateRsvp = async (newRsvp: string) => {
     setUpdatingRsvp(true);
+    const prev = localRsvp;
+    const normalized = normalizeRsvp(newRsvp);
+    setLocalRsvp(normalized);
     try {
       const { error } = await supabase
         .from('guests')
-        .update({ rsvp: newRsvp })
+        .update({ rsvp: normalized })
         .eq('id', guest.id);
 
       if (error) throw error;
 
       toast({
         title: "RSVP Updated",
-        description: `Your RSVP has been updated to ${newRsvp}`,
+        description: `Your RSVP has been updated to ${normalized}`,
       });
       
       onUpdate();
     } catch (error) {
       console.error('Error updating RSVP:', error);
+      setLocalRsvp(prev);
       toast({
         title: "Error",
         description: "Failed to update RSVP. Please try again.",
@@ -171,16 +180,16 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span className="text-sm font-medium">RSVP Status:</span>
-                <div className={`flex items-center gap-1 ${getRsvpColor(guest.rsvp)}`}>
-                  {getRsvpIcon(guest.rsvp)}
+                <div className={`flex items-center gap-1 ${getRsvpColor(localRsvp)}`}>
+                  {getRsvpIcon(localRsvp)}
                   <span className="text-sm font-medium capitalize">
-                    {guest.rsvp || 'Pending'}
+                    {localRsvp || 'Pending'}
                   </span>
                 </div>
               </div>
             </div>
             
-            {guest.rsvp !== 'Attending' && (
+            {localRsvp !== 'Attending' && (
               <div className="flex gap-2">
                 <Button
                   variant="default"

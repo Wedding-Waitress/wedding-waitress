@@ -22,6 +22,7 @@ import {
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { EnhancedGuestCard } from '@/components/GuestLookup/EnhancedGuestCard';
+import { normalizeRsvp } from '@/lib/rsvp';
 import { TableVisualization } from '@/components/GuestLookup/TableVisualization';
 import { GuestProfileModal } from '@/components/GuestLookup/GuestProfileModal';
 
@@ -120,7 +121,7 @@ export const GuestLookup: React.FC = () => {
             table_no: row.guest_table_no || row.table_no,
             seat_no: row.guest_seat_no,
             relation_display: row.guest_relation_display,
-            rsvp: row.guest_rsvp,
+            rsvp: normalizeRsvp(row.guest_rsvp),
             dietary: row.guest_dietary,
             mobile: row.guest_mobile,
             email: row.guest_email,
@@ -192,7 +193,7 @@ export const GuestLookup: React.FC = () => {
             table_no: row.guest_table_no || row.table_no,
             seat_no: row.guest_seat_no,
             relation_display: row.guest_relation_display,
-            rsvp: row.guest_rsvp,
+            rsvp: normalizeRsvp(row.guest_rsvp),
             dietary: row.guest_dietary,
             mobile: row.guest_mobile,
             email: row.guest_email,

@@ -20,6 +20,7 @@ import {
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { User, Mail, Phone, Utensils } from 'lucide-react';
+import { normalizeRsvp } from '@/lib/rsvp';
 
 interface Guest {
   id: string;
@@ -53,7 +54,7 @@ export const GuestProfileModal: React.FC<GuestProfileModalProps> = ({
     mobile: guest?.mobile || '',
     email: guest?.email || '',
     notes: guest?.notes || '',
-    rsvp: guest?.rsvp || 'Pending'
+    rsvp: normalizeRsvp(guest?.rsvp)
   });
   const [saving, setSaving] = useState(false);
   const { toast } = useToast();
@@ -65,7 +66,7 @@ export const GuestProfileModal: React.FC<GuestProfileModalProps> = ({
         mobile: guest.mobile || '',
         email: guest.email || '',
         notes: guest.notes || '',
-        rsvp: guest.rsvp || 'Pending'
+        rsvp: normalizeRsvp(guest.rsvp)
       });
     }
   }, [guest]);
@@ -127,14 +128,14 @@ export const GuestProfileModal: React.FC<GuestProfileModalProps> = ({
           {/* RSVP Status */}
           <div className="space-y-2">
             <Label htmlFor="rsvp">RSVP Status</Label>
-            <Select value={formData.rsvp} onValueChange={(value) => setFormData(prev => ({ ...prev, rsvp: value }))}>
+            <Select value={formData.rsvp} onValueChange={(value) => setFormData(prev => ({ ...prev, rsvp: normalizeRsvp(value) }))}>
               <SelectTrigger>
                 <SelectValue placeholder="Select RSVP status" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="Pending">Pending</SelectItem>
-                <SelectItem value="Confirmed">Confirmed</SelectItem>
-                <SelectItem value="Declined">Declined</SelectItem>
+                <SelectItem value="Attending">Attending</SelectItem>
+                <SelectItem value="Not Attending">Not Attending</SelectItem>
               </SelectContent>
             </Select>
           </div>
