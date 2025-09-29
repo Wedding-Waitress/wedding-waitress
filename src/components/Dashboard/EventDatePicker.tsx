@@ -15,13 +15,17 @@ interface EventDatePickerProps {
   onChange: (date: Date | undefined) => void;
   placeholder?: string;
   disabled?: boolean;
+  dateFormat?: string;
+  allowPastDates?: boolean;
 }
 
 export const EventDatePicker: React.FC<EventDatePickerProps> = ({
   value,
   onChange,
   placeholder = "Select date",
-  disabled = false
+  disabled = false,
+  dateFormat = "PPP",
+  allowPastDates = false
 }) => {
   return (
     <Popover>
@@ -35,7 +39,7 @@ export const EventDatePicker: React.FC<EventDatePickerProps> = ({
           disabled={disabled}
         >
           <CalendarIcon className="mr-2 h-4 w-4" />
-          {value ? format(value, "PPP") : <span>{placeholder}</span>}
+          {value ? format(value, dateFormat) : <span>{placeholder}</span>}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0" align="start">
@@ -45,7 +49,7 @@ export const EventDatePicker: React.FC<EventDatePickerProps> = ({
           onSelect={onChange}
           initialFocus
           className={cn("p-3 pointer-events-auto")}
-          disabled={(date) => date < new Date()}
+          disabled={allowPastDates ? undefined : (date) => date < new Date()}
         />
       </PopoverContent>
     </Popover>

@@ -700,6 +700,27 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
               />
             </div>
 
+            {/* RSVP Date */}
+            <FormField
+              control={form.control}
+              name="rsvp_date"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>RSVP Date</FormLabel>
+                  <FormControl>
+                    <EventDatePicker
+                      value={field.value}
+                      onChange={field.onChange}
+                      placeholder="Select RSVP date"
+                      dateFormat="dd/MM/yyyy"
+                      allowPastDates={true}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             {/* RSVP and Dietary */}
             <div className="grid grid-cols-2 gap-4">
               <FormField
