@@ -145,49 +145,6 @@ export const QRCodeSeatingChart: React.FC<QRCodeSeatingChartProps> = ({
         <QRCodeMainCard eventId={currentEventId} />
       )}
 
-      {/* Live View Card */}
-      {selectedEvent && (
-        <Card className="ww-box">
-          <CardHeader>
-            <CardTitle className="text-lg">Live View</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex space-x-2">
-              <Button 
-                variant="outline" 
-                onClick={handleLiveView}
-                disabled={!selectedEvent?.slug}
-              >
-                <ExternalLink className="w-4 h-4 mr-2" />
-                Live View
-              </Button>
-              <Button 
-                variant="default"
-                onClick={handleDownloadLink}
-                disabled={!selectedEvent?.slug}
-              >
-                <Copy className="w-4 h-4 mr-2" />
-                Copy Link
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Guest Live View Options Card */}
-      {selectedEvent && (
-        <Card className="ww-box">
-          <CardHeader>
-            <CardTitle className="text-lg">Guest Live View Options</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">
-              Configure how guests interact with the live view experience.
-            </p>
-            {/* Placeholder for future options */}
-          </CardContent>
-        </Card>
-      )}
 
 
       {/* Placeholder when no event selected */}

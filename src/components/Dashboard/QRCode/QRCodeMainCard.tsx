@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { QrCode as QrCodeIcon, Copy, Download, RotateCcw, Save, Printer, FileDown, Palette, ChevronDown, FileText, Code, Image as ImageIcon } from 'lucide-react';
+import { QrCode as QrCodeIcon, Copy, Download, RotateCcw, Save, Printer, FileDown, Palette, ChevronDown, FileText, Code, Image as ImageIcon, ExternalLink, Link } from 'lucide-react';
 import { useEvents } from '@/hooks/useEvents';
 import { useToast } from '@/hooks/use-toast';
 import { buildGuestLookupUrl } from '@/lib/urlUtils';
@@ -277,6 +277,30 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
     toast({ title: "QR code settings saved!" });
   }, [toast]);
 
+  const handleLiveView = () => {
+    if (selectedEvent?.slug) {
+      const liveViewUrl = buildGuestLookupUrl(selectedEvent.slug);
+      window.open(liveViewUrl, '_blank');
+    }
+  };
+
+  const handleCopyLink = async () => {
+    try {
+      const guestLookupUrl = selectedEvent?.slug ? buildGuestLookupUrl(selectedEvent.slug) : eventUrl;
+      await navigator.clipboard.writeText(guestLookupUrl);
+      toast({
+        title: "Link copied!",
+        description: "The guest lookup link has been copied to your clipboard.",
+      });
+    } catch (error) {
+      toast({
+        title: "Copy failed",
+        description: "Unable to copy link. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
 
   // Color change handlers
   const updateColors = (updates: Partial<QRColorsSettings>) => {
@@ -346,28 +370,30 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
           </div>
         </div>
 
-        {/* QR Preview and Customization */}
-        <div className="space-y-6">
-          <Card className="bg-white border-2 border-primary/20 rounded-lg">
-            <CardContent className="p-6">
-              {/* QR Preview + Actions Wrapper */}
-              <div id="qr-preview-wrap" className="flex flex-col items-center gap-4">
-                {/* QR Preview */}
-                  <div 
-                    id="qr-preview"
-                    className="w-full max-w-[460px] aspect-square min-h-[360px] bg-muted/20 rounded-lg flex items-center justify-center"
-                  >
-                  {qrDataUrl ? (
-                    <img 
-                      src={qrDataUrl} 
-                      alt="QR Code Preview" 
-                      className="max-w-full max-h-full" 
-                      style={{ imageRendering: 'pixelated' }}
-                    />
-                  ) : (
-                    <QrCodeIcon className="h-24 w-24 text-muted-foreground/50" />
-                  )}
-                </div>
+        {/* Two Column Layout: QR Preview & Customization + Live View Sidebar */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Left Column: QR Preview and Customization */}
+          <div className="lg:col-span-2 space-y-6">
+            <Card className="bg-white border-2 border-primary/20 rounded-lg">
+              <CardContent className="p-6">
+                {/* QR Preview + Actions Wrapper */}
+                <div id="qr-preview-wrap" className="flex flex-col items-center gap-4">
+                  {/* QR Preview */}
+                    <div 
+                      id="qr-preview"
+                      className="w-full max-w-[460px] aspect-square min-h-[360px] bg-muted/20 rounded-lg flex items-center justify-center"
+                    >
+                    {qrDataUrl ? (
+                      <img 
+                        src={qrDataUrl} 
+                        alt="QR Code Preview" 
+                        className="max-w-full max-h-full" 
+                        style={{ imageRendering: 'pixelated' }}
+                      />
+                    ) : (
+                      <QrCodeIcon className="h-24 w-24 text-muted-foreground/50" />
+                    )}
+                  </div>
 
                   {/* Color Customization Controls */}
                   <div className="w-full max-w-[460px] p-4 bg-purple-50/50 border border-purple-200 rounded-lg space-y-3">
@@ -531,11 +557,75 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
                       <Save className="h-4 w-4 text-white" />
                       Save
                     </Button>
+                   </div>
+                 </div>
+               </CardContent>
+             </Card>
+           </div>
+
+          {/* Right Column: Live View Sidebar */}
+          <div className="lg:col-span-1 space-y-4">
+            {/* Live View Card */}
+            <Card className="ww-box">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <ExternalLink className="h-4 w-4" />
+                  Live View
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <p className="text-sm text-muted-foreground">
+                  Test your QR code or share the direct link with guests.
+                </p>
+                <div className="space-y-2">
+                  <Button 
+                    onClick={handleLiveView}
+                    className="w-full"
+                    disabled={!selectedEvent?.slug}
+                  >
+                    <ExternalLink className="h-4 w-4 mr-2" />
+                    Open Live View
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    onClick={handleCopyLink}
+                    className="w-full"
+                    disabled={!selectedEvent?.slug}
+                  >
+                    <Link className="h-4 w-4 mr-2" />
+                    Copy Link
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Guest Live View Options Card */}
+            <Card className="ww-box">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg">Guest Live View Options</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <p className="text-sm text-muted-foreground">
+                  Configure how guests interact with your live view.
+                </p>
+                <div className="space-y-2 text-sm text-muted-foreground">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <span>Real-time guest lookup enabled</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <span>Table assignments visible</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <span>Mobile optimized</span>
                   </div>
                 </div>
               </CardContent>
             </Card>
           </div>
+        </div>
 
       </CardContent>
     </Card>
