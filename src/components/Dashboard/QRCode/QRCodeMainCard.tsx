@@ -415,32 +415,30 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
                       </div>
                     </div>
 
-                    {/* Scannability Warning */}
-                    <div
-                      id="color-contrast-helper"
-                      className={`p-2 rounded-md text-xs ${
-                        contrastWarning 
-                          ? 'bg-amber-50 text-amber-800 border border-amber-200' 
-                          : 'bg-green-50 text-green-800 border border-green-200'
-                      }`}
-                    >
-                      {contrastWarning 
-                        ? '⚠️ Low contrast may reduce scan reliability.' 
-                        : '✅ Good contrast for reliable scanning.'
-                      }
-                    </div>
-
-                    {/* Reset Colors Button */}
-                    <div className="flex justify-end">
+                    {/* Scannability Warning and Reset Colors */}
+                    <div className="flex items-center gap-2">
                       <Button
                         id="btn-reset-colors"
                         variant="ghost"
                         size="sm"
                         onClick={handleResetColors}
-                        className="text-xs text-muted-foreground hover:text-foreground h-6 px-2"
+                        className="text-xs text-muted-foreground hover:text-foreground h-6 px-2 shrink-0"
                       >
                         Reset Colors
                       </Button>
+                      <div
+                        id="color-contrast-helper"
+                        className={`flex-1 p-1.5 rounded-md text-xs ${
+                          contrastWarning 
+                            ? 'bg-amber-50 text-amber-800 border border-amber-200' 
+                            : 'bg-green-50 text-green-800 border border-green-200'
+                        }`}
+                      >
+                        {contrastWarning 
+                          ? '⚠️ Low contrast' 
+                          : '✅ Good contrast'
+                        }
+                      </div>
                     </div>
                   </div>
 
