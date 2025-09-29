@@ -145,7 +145,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
           last_name: editGuest.last_name,
           table_id: editGuest.table_id || "",
           seat_no: editGuest.seat_no || undefined,
-          rsvp: editGuest.rsvp as "Pending" | "Attending" | "Not Attending",
+          rsvp: editGuest.rsvp as "Pending" | "Confirmed" | "Declined",
           dietary: editGuest.dietary,
           mobile: editGuest.mobile || "",
           email: editGuest.email || "",

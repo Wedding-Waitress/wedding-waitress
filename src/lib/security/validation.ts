@@ -7,7 +7,7 @@ import { z } from "zod";
 const sanitizeString = (str: string) => 
   str.trim().replace(/[<>]/g, '').substring(0, 255);
 
-const phoneRegex = /^[\+]?[1-9][\d]{0,15}$/;
+const phoneRegex = /^[\+]?[0-9][\d]{0,15}$/;
 const nameRegex = /^[a-zA-Z\s\-'\.àáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžæ]{1,50}$/;
 
 // Enhanced guest validation schema with security measures
@@ -32,7 +32,7 @@ export const secureGuestSchema = z.object({
     .min(1, "Seat selection is required")
     .max(100, "Invalid seat number"),
   
-  rsvp: z.enum(["Pending", "Attending", "Not Attending"], {
+  rsvp: z.enum(["Pending", "Confirmed", "Declined"], {
     errorMap: () => ({ message: "Invalid RSVP status" })
   }),
   
