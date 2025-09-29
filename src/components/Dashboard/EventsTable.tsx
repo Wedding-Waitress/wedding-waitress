@@ -282,7 +282,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
       </Card>;
   }
   return <>
-      <Card className="ww-box overflow-hidden mx-[100px]">
+      <Card className="ww-box overflow-hidden mx-0">
         <div className="p-6 border-b border-card-border bg-gradient-subtle">
           <div className="flex items-center justify-between">
             <div>
