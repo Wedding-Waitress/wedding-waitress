@@ -52,6 +52,7 @@ import { GuestDeleteConfirmationModal } from './GuestDeleteConfirmationModal';
 
 import { RelationBadge } from './RelationBadge';
 import { supabase } from "@/integrations/supabase/client";
+import { getRsvpBadgeVariant, getRsvpDisplayLabel } from "@/lib/rsvp";
 import { RELATION_ROLE_LABELS, computeRelationDisplay } from "@/lib/relationUtils";
 import { DeleteConfirmationModal } from './DeleteConfirmationModal';
 import { RelationSettingsButton, RelationSettings } from './RelationSettingsModal';
@@ -1275,8 +1276,11 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                       )}
                     </TableCell>
                     <TableCell className="w-20">
-                      <Badge variant="outline" className="text-xs">
-                        {guest.rsvp}
+                      <Badge 
+                        variant={getRsvpBadgeVariant(guest.rsvp)} 
+                        className="text-xs text-white"
+                      >
+                        {getRsvpDisplayLabel(guest.rsvp)}
                       </Badge>
                     </TableCell>
                     <TableCell className="w-28">

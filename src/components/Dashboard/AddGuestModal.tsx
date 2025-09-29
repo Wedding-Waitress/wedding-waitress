@@ -713,8 +713,8 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                       </FormControl>
                        <SelectContent>
                           <SelectItem value="Pending">Pending</SelectItem>
-                          <SelectItem value="Attending">Attending</SelectItem>
-                          <SelectItem value="Not Attending">Not Attending</SelectItem>
+                          <SelectItem value="Attending">Accept</SelectItem>
+                          <SelectItem value="Not Attending">Decline</SelectItem>
                        </SelectContent>
                     </Select>
                     <FormMessage />

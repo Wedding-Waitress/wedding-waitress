@@ -1,6 +1,7 @@
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { normalizeRsvp, getRsvpDisplayLabel } from '@/lib/rsvp';
 import { 
   User, 
   MapPin, 
@@ -29,27 +30,27 @@ interface KioskGuestCardProps {
 
 export const KioskGuestCard: React.FC<KioskGuestCardProps> = ({ guest }) => {
   const getRSVPColor = (rsvp: string) => {
-    switch (rsvp.toLowerCase()) {
-      case 'attending':
-      case 'confirmed':
-        return 'bg-green-100 text-green-800 border-green-200';
-      case 'pending':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'declined':
-        return 'bg-red-100 text-red-800 border-red-200';
+    const normalized = normalizeRsvp(rsvp);
+    switch (normalized) {
+      case 'Attending':
+        return 'bg-green-500 text-white border-green-500';
+      case 'Pending':
+        return 'bg-orange-500 text-white border-orange-500';
+      case 'Not Attending':
+        return 'bg-red-500 text-white border-red-500';
       default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
+        return 'bg-orange-500 text-white border-orange-500';
     }
   };
 
   const getRSVPIcon = (rsvp: string) => {
-    switch (rsvp.toLowerCase()) {
-      case 'attending':
-      case 'confirmed':
+    const normalized = normalizeRsvp(rsvp);
+    switch (normalized) {
+      case 'Attending':
         return CheckCircle2;
-      case 'pending':
+      case 'Pending':
         return Clock;
-      case 'declined':
+      case 'Not Attending':
         return XCircle;
       default:
         return Clock;
@@ -120,7 +121,7 @@ export const KioskGuestCard: React.FC<KioskGuestCardProps> = ({ guest }) => {
             <span className="text-lg font-medium text-foreground">RSVP Status:</span>
           </div>
           <Badge className={`px-4 py-2 text-lg font-medium ${getRSVPColor(guest.rsvp)}`}>
-            {guest.rsvp}
+            {getRsvpDisplayLabel(guest.rsvp)}
           </Badge>
         </div>
 

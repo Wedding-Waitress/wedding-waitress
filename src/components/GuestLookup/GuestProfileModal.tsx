@@ -134,8 +134,8 @@ export const GuestProfileModal: React.FC<GuestProfileModalProps> = ({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="Pending">Pending</SelectItem>
-                <SelectItem value="Attending">Attending</SelectItem>
-                <SelectItem value="Not Attending">Not Attending</SelectItem>
+                <SelectItem value="Attending">Accept</SelectItem>
+                <SelectItem value="Not Attending">Decline</SelectItem>
               </SelectContent>
             </Select>
           </div>

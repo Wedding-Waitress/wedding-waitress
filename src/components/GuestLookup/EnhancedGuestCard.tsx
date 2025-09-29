@@ -13,7 +13,7 @@ import {
   Mail 
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { normalizeRsvp, type RsvpStatus } from '@/lib/rsvp';
+import { normalizeRsvp, getRsvpDisplayLabel, type RsvpStatus } from '@/lib/rsvp';
 import { useToast } from '@/hooks/use-toast';
 
 interface Guest {
@@ -47,19 +47,31 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
     setLocalRsvp(normalizeRsvp(guest.rsvp));
   }, [guest.rsvp]);
 
-  const getRsvpColor = (rsvp: string) => {
-    switch (rsvp?.toLowerCase()) {
-      case 'attending': return 'text-success';
-      case 'not attending': return 'text-destructive';
-      default: return 'text-warning';
+  const getRsvpColor = (status: string) => {
+    const normalized = normalizeRsvp(status);
+    switch (normalized) {
+      case "Attending":
+        return "text-green-600";
+      case "Not Attending":
+        return "text-red-600";
+      case "Pending":
+        return "text-yellow-600";
+      default:
+        return "text-gray-600";
     }
   };
 
-  const getRsvpIcon = (rsvp: string) => {
-    switch (rsvp?.toLowerCase()) {
-      case 'attending': return <CheckCircle2 className="w-4 h-4" />;
-      case 'not attending': return <X className="w-4 h-4" />;
-      default: return <Clock className="w-4 h-4" />;
+  const getRsvpIcon = (status: string) => {
+    const normalized = normalizeRsvp(status);
+    switch (normalized) {
+      case "Attending":
+        return CheckCircle2;
+      case "Not Attending":
+        return X;
+      case "Pending":
+        return Clock;
+      default:
+        return Clock;
     }
   };
 
@@ -184,9 +196,9 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
               <div className="flex items-center gap-2">
                 <span className="text-sm font-medium">RSVP Status:</span>
                 <div className={`flex items-center gap-1 ${getRsvpColor(localRsvp)}`}>
-                  {getRsvpIcon(localRsvp)}
-                  <span className="text-sm font-medium capitalize">
-                    {localRsvp || 'Pending'}
+                  {React.createElement(getRsvpIcon(localRsvp), { className: "w-4 h-4" })}
+                  <span className="text-sm font-medium">
+                    {getRsvpDisplayLabel(localRsvp)}
                   </span>
                 </div>
               </div>
@@ -202,7 +214,7 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
                   className="flex-1"
                 >
                   <CheckCircle2 className="w-4 h-4 mr-2" />
-                  Confirm Attendance
+                  Accept
                 </Button>
                 <Button
                   variant="outline"
