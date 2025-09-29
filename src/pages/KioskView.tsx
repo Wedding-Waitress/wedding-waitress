@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { KioskGuestCard } from '@/components/Kiosk/KioskGuestCard';
+import { normalizeRsvp } from '@/lib/rsvp';
 
 interface Guest {
   id: string;
@@ -91,7 +92,7 @@ export const KioskView: React.FC = () => {
         };
         setEvent(eventData);
 
-        // Transform guest data
+        // Transform guest data with normalized RSVP
         const transformedGuests = publicData
           .filter(row => row.guest_id)
           .map(row => ({
@@ -102,7 +103,7 @@ export const KioskView: React.FC = () => {
             table_no: row.guest_table_no || row.table_no,
             seat_no: row.guest_seat_no,
             relation_display: row.guest_relation_display,
-            rsvp: row.guest_rsvp,
+            rsvp: normalizeRsvp(row.guest_rsvp),
             dietary: row.guest_dietary,
             table_name: row.table_name,
           }));
@@ -117,6 +118,86 @@ export const KioskView: React.FC = () => {
 
     fetchEventData();
   }, [eventSlug]);
+
+  // Set up realtime subscription for instant sync with dashboard and QR app
+  useEffect(() => {
+    if (!event?.id) return;
+
+    const channel = supabase
+      .channel(`kiosk-guests:event:${event.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'guests',
+          filter: `event_id=eq.${event.id}`
+        },
+        (payload) => {
+          console.log('Kiosk realtime guest update received:', payload);
+          
+          const { eventType, new: newRecord, old: oldRecord } = payload;
+          
+          setGuests(currentGuests => {
+            switch (eventType) {
+              case 'INSERT':
+                if (newRecord && !currentGuests.some(g => g.id === newRecord.id)) {
+                  const transformedGuest = {
+                    id: newRecord.id,
+                    first_name: newRecord.first_name,
+                    last_name: newRecord.last_name,
+                    table_id: newRecord.table_id,
+                    table_no: newRecord.table_no,
+                    seat_no: newRecord.seat_no,
+                    relation_display: newRecord.relation_display,
+                    rsvp: normalizeRsvp(newRecord.rsvp),
+                    dietary: newRecord.dietary,
+                    table_name: null // Will be updated if needed
+                  };
+                  return [...currentGuests, transformedGuest];
+                }
+                return currentGuests;
+
+              case 'UPDATE':
+                if (newRecord) {
+                  return currentGuests.map(g => 
+                    g.id === newRecord.id 
+                      ? {
+                          ...g,
+                          first_name: newRecord.first_name,
+                          last_name: newRecord.last_name,
+                          table_id: newRecord.table_id,
+                          table_no: newRecord.table_no,
+                          seat_no: newRecord.seat_no,
+                          relation_display: newRecord.relation_display,
+                          rsvp: normalizeRsvp(newRecord.rsvp),
+                          dietary: newRecord.dietary
+                        }
+                      : g
+                  );
+                }
+                return currentGuests;
+
+              case 'DELETE':
+                if (oldRecord) {
+                  return currentGuests.filter(g => g.id !== oldRecord.id);
+                }
+                return currentGuests;
+
+              default:
+                return currentGuests;
+            }
+          });
+        }
+      )
+      .subscribe((status) => {
+        console.log(`Kiosk realtime subscription status: ${status}`);
+      });
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [event?.id]);
 
   // Filter guests - no minimum character requirement for kiosk
   const filteredGuests = useMemo(() => {
