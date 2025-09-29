@@ -19,6 +19,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { EventDatePicker } from "@/components/Dashboard/EventDatePicker";
 import { Button } from "@/components/ui/enhanced-button";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -52,6 +53,7 @@ interface AddGuestModalProps {
     last_name: string;
     table_id: string | null;
     seat_no: number | null;
+    rsvp_date?: string | null;
     rsvp: string;
     dietary: string;
     mobile: string | null;
@@ -97,6 +99,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
       last_name: "",
       table_id: "",
       seat_no: undefined,
+      rsvp_date: undefined,
       rsvp: "Pending",
       dietary: "NA",
       mobile: "",
@@ -146,6 +149,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
           last_name: editGuest.last_name,
           table_id: editGuest.table_id || "",
           seat_no: editGuest.seat_no || undefined,
+          rsvp_date: editGuest.rsvp_date ? new Date(editGuest.rsvp_date) : undefined,
           rsvp: normalizeRsvp(editGuest.rsvp),
           dietary: editGuest.dietary,
           mobile: editGuest.mobile || "",
@@ -161,6 +165,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
           last_name: "",
           table_id: "",
           seat_no: undefined,
+          rsvp_date: undefined,
           rsvp: "Pending",
           dietary: "NA",
           mobile: "",
@@ -355,6 +360,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
         last_name: data.last_name,
         table_id: data.table_id || null,
         seat_no: data.seat_no || null,
+        rsvp_date: data.rsvp_date?.toISOString().split('T')[0] || null,
         rsvp: data.rsvp,
         dietary: data.dietary,
         mobile: data.mobile || null,

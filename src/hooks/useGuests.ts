@@ -11,6 +11,7 @@ export interface Guest {
   table_id: string | null;
   table_no: number | null;
   seat_no: number | null;
+  rsvp_date: string | null;
   assigned: boolean;
   rsvp: string;
   dietary: string;

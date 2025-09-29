@@ -32,6 +32,8 @@ export const secureGuestSchema = z.object({
     .min(1, "Seat selection is required")
     .max(100, "Invalid seat number"),
   
+  rsvp_date: z.date().optional(),
+  
   rsvp: z.enum(["Pending", "Attending", "Not Attending"], {
     errorMap: () => ({ message: "Invalid RSVP status" })
   }),

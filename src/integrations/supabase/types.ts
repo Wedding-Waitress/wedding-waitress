@@ -261,6 +261,7 @@ export type Database = {
           relation_person2: string | null
           relation_role: string
           rsvp: string | null
+          rsvp_date: string | null
           seat_no: number | null
           table_id: string | null
           table_no: number | null
@@ -285,6 +286,7 @@ export type Database = {
           relation_person2?: string | null
           relation_role?: string
           rsvp?: string | null
+          rsvp_date?: string | null
           seat_no?: number | null
           table_id?: string | null
           table_no?: number | null
@@ -309,6 +311,7 @@ export type Database = {
           relation_person2?: string | null
           relation_role?: string
           rsvp?: string | null
+          rsvp_date?: string | null
           seat_no?: number | null
           table_id?: string | null
           table_no?: number | null

@@ -53,6 +53,7 @@ import { GuestDeleteConfirmationModal } from './GuestDeleteConfirmationModal';
 import { RelationBadge } from './RelationBadge';
 import { supabase } from "@/integrations/supabase/client";
 import { getRsvpBadgeVariant, getRsvpDisplayLabel } from "@/lib/rsvp";
+import { formatDisplayDate } from '@/lib/utils';
 import { RELATION_ROLE_LABELS, computeRelationDisplay } from "@/lib/relationUtils";
 import { DeleteConfirmationModal } from './DeleteConfirmationModal';
 import { RelationSettingsButton, RelationSettings } from './RelationSettingsModal';
@@ -1221,6 +1222,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                 <TableHead className="w-24">Last Name</TableHead>
                 <TableHead className="w-20">Table No</TableHead>
                 <TableHead className="w-20">Seat No.</TableHead>
+                <TableHead className="w-28">RSVP Date</TableHead>
                 <TableHead className="w-20">RSVP</TableHead>
                 <TableHead className="w-28">Relation</TableHead>
                 <TableHead className="w-20">Dietary</TableHead>
@@ -1274,6 +1276,9 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                       ) : (
                         '—'
                       )}
+                    </TableCell>
+                    <TableCell className="w-28 text-center">
+                      {guest.rsvp_date ? formatDisplayDate(guest.rsvp_date) : '—'}
                     </TableCell>
                     <TableCell className="w-20">
                       <Badge 
