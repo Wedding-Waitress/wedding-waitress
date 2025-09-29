@@ -366,7 +366,85 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
                     )}
                   </div>
 
-                  {/* Action Buttons Grid */}
+                  {/* Color Customization Controls */}
+                  <div className="w-full max-w-[460px] p-4 bg-purple-50/50 border border-purple-200 rounded-lg space-y-3">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Palette className="h-4 w-4 text-purple-600" />
+                      <span className="text-sm font-medium text-gray-800">Customise Your QR Code</span>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      {/* Background Color */}
+                      <div className="space-y-2">
+                        <Label className="text-xs font-medium">Background</Label>
+                        <div className="flex items-center space-x-2">
+                          <input
+                            id="color-bg"
+                            type="color"
+                            value={qrSettings.colors.background}
+                            onChange={(e) => updateColors({ background: e.target.value })}
+                            className="w-6 h-6 rounded border border-input"
+                          />
+                          <Input
+                            value={qrSettings.colors.background}
+                            onChange={(e) => updateColors({ background: e.target.value })}
+                            className="text-xs font-mono flex-1 h-8"
+                            placeholder="#ffffff"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Foreground Color */}
+                      <div className="space-y-2">
+                        <Label className="text-xs font-medium">Foreground</Label>
+                        <div className="flex items-center space-x-2">
+                          <input
+                            id="color-fg"
+                            type="color"
+                            value={qrSettings.colors.foreground}
+                            onChange={(e) => updateColors({ foreground: e.target.value })}
+                            className="w-6 h-6 rounded border border-input"
+                          />
+                          <Input
+                            value={qrSettings.colors.foreground}
+                            onChange={(e) => updateColors({ foreground: e.target.value })}
+                            className="text-xs font-mono flex-1 h-8"
+                            placeholder="#060606"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Scannability Warning */}
+                    <div
+                      id="color-contrast-helper"
+                      className={`p-2 rounded-md text-xs ${
+                        contrastWarning 
+                          ? 'bg-amber-50 text-amber-800 border border-amber-200' 
+                          : 'bg-green-50 text-green-800 border border-green-200'
+                      }`}
+                    >
+                      {contrastWarning 
+                        ? '⚠️ Low contrast may reduce scan reliability.' 
+                        : '✅ Good contrast for reliable scanning.'
+                      }
+                    </div>
+
+                    {/* Reset Colors Button */}
+                    <div className="flex justify-end">
+                      <Button
+                        id="btn-reset-colors"
+                        variant="ghost"
+                        size="sm"
+                        onClick={handleResetColors}
+                        className="text-xs text-muted-foreground hover:text-foreground h-6 px-2"
+                      >
+                        Reset Colors
+                      </Button>
+                    </div>
+                  </div>
+
+                   {/* Action Buttons Grid */}
                   <div id="qr-action-grid" className="grid grid-cols-2 gap-3 w-full max-w-[460px]">
                     {/* Row 1 */}
                     <Button 
@@ -462,109 +540,11 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
           <div id="qr-right" className="col-span-1">
             <Card className="bg-white border-2 border-primary/20 rounded-lg h-full">
               <CardContent className="p-4">
-                <h3 className="text-2xl font-semibold text-purple-700 mb-4">Customise Your QR Code</h3>
-                <Accordion 
-                  id="qr-controls" 
-                  type="multiple" 
-                  value={Array.from(openSections)}
-                  onValueChange={(values) => setOpenSections(new Set(values))}
-                  className="w-full space-y-4 overflow-visible"
-                >
-                  <AccordionItem value="colors" className="qr-acc-item rounded-2xl border-2 border-purple-500 overflow-visible bg-white" data-state={openSections.has('colors') ? 'open' : 'closed'}>
-                    <button
-                      onClick={() => toggleSection('colors')}
-                      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleSection('colors'); }}}
-                      className="qr-acc-header w-full flex items-center justify-between gap-3 px-4 py-3 rounded-2xl bg-transparent border-0 transition hover:bg-purple-50/50"
-                      aria-expanded={openSections.has('colors')}
-                      aria-controls="panel-colors"
-                      role="button"
-                      data-target="#panel-colors"
-                    >
-                      <Palette className="h-5 w-5 text-purple-600" />
-                      <span className="font-medium text-gray-800">Colors</span>
-                      <ChevronDown 
-                        className={`ml-auto h-4 w-4 text-gray-500 transition-transform ${
-                          openSections.has('colors') ? 'rotate-180' : ''
-                        }`}
-                      />
-                    </button>
-                    <AccordionContent className="qr-acc-panel pt-2 space-y-6 border-0 bg-white rounded-b-2xl">
-                      {/* Background Section */}
-                      <div className="space-y-4">
-                        <Label className="text-sm font-medium">Background</Label>
-                        
-                        <div className="flex items-center space-x-2">
-                          <input
-                            id="color-bg"
-                            type="color"
-                            value={qrSettings.colors.background}
-                            onChange={(e) => updateColors({ background: e.target.value })}
-                            className="w-8 h-8 rounded border border-input"
-                          />
-                          <Input
-                            value={qrSettings.colors.background}
-                            onChange={(e) => updateColors({ background: e.target.value })}
-                            className="text-xs font-mono"
-                            placeholder="#ffffff"
-                          />
-                        </div>
-                      </div>
-
-                      {/* Foreground Section */}
-                      <div className="space-y-4">
-                        <Label className="text-sm font-medium">Foreground</Label>
-                        
-                        <div className="flex items-center space-x-2">
-                          <input
-                            id="color-fg"
-                            type="color"
-                            value={qrSettings.colors.foreground}
-                            onChange={(e) => updateColors({ foreground: e.target.value })}
-                            className="w-8 h-8 rounded border border-input"
-                          />
-                          <Input
-                            value={qrSettings.colors.foreground}
-                            onChange={(e) => updateColors({ foreground: e.target.value })}
-                            className="text-xs font-mono"
-                            placeholder="#060606"
-                          />
-                        </div>
-                      </div>
-
-                      {/* Scannability Section */}
-                      <div className="space-y-3">
-                        <Label className="text-sm font-medium">Scannability</Label>
-                        <div
-                          id="color-contrast-helper"
-                          className={`p-3 rounded-md text-xs ${
-                            contrastWarning 
-                              ? 'bg-amber-50 text-amber-800 border border-amber-200' 
-                              : 'bg-green-50 text-green-800 border border-green-200'
-                          }`}
-                        >
-                          {contrastWarning 
-                            ? '⚠️ Low contrast may reduce scan reliability.' 
-                            : '✅ Good contrast for reliable scanning.'
-                          }
-                        </div>
-                      </div>
-
-                      {/* Reset Button */}
-                      <div className="pt-2">
-                        <Button
-                          id="btn-reset-colors"
-                          variant="ghost"
-                          size="sm"
-                          onClick={handleResetColors}
-                          className="text-xs text-muted-foreground hover:text-foreground"
-                        >
-                          Reset Colors
-                        </Button>
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-
-                </Accordion>
+                <h3 className="text-2xl font-semibold text-purple-700 mb-4">Additional Settings</h3>
+                {/* Additional QR customization options can be added here in the future */}
+                <div className="text-sm text-muted-foreground">
+                  More customization options coming soon...
+                </div>
               </CardContent>
             </Card>
           </div>
