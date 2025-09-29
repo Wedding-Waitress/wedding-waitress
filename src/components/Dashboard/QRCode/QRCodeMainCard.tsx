@@ -374,7 +374,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
           {/* Left Column: QR Preview and Customization */}
           <div className="lg:col-span-3 space-y-6">
-            <Card className="bg-white border-2 border-primary/20 rounded-lg">
+            <Card className="bg-white border-2 border-purple-200 rounded-lg">
               <CardContent className="p-6">
                 {/* QR Preview + Actions Wrapper */}
                 <div id="qr-preview-wrap" className="flex flex-col items-center gap-4">
