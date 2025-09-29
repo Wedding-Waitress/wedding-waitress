@@ -371,9 +371,9 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
         </div>
 
         {/* Two Column Layout: QR Preview & Customization + Live View Sidebar */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
           {/* Left Column: QR Preview and Customization */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="lg:col-span-3 space-y-6">
             <Card className="bg-white border-2 border-primary/20 rounded-lg">
               <CardContent className="p-6">
                 {/* QR Preview + Actions Wrapper */}
@@ -564,7 +564,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
            </div>
 
           {/* Right Column: Live View Sidebar */}
-          <div className="lg:col-span-1 space-y-4">
+          <div className="lg:col-span-2 space-y-4">
             {/* Live View Card */}
             <Card className="ww-box">
               <CardHeader className="pb-3">
