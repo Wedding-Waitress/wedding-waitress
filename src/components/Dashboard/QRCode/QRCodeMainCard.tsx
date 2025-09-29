@@ -409,7 +409,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
                             value={qrSettings.colors.foreground}
                             onChange={(e) => updateColors({ foreground: e.target.value })}
                             className="text-xs font-mono flex-1 h-8"
-                            placeholder="#060606"
+                            placeholder="#000000"
                           />
                         </div>
                       </div>
