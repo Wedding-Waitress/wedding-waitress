@@ -209,12 +209,12 @@ export const GuestLookup: React.FC = () => {
     }
   };
 
-  // Set up realtime subscription for instant RSVP sync
+  // Set up realtime subscription for instant RSVP sync - using same channel name as KioskView
   useEffect(() => {
     if (!event?.id) return;
 
     const channel = supabase
-      .channel(`guests-public:event:${event.id}`)
+      .channel(`kiosk-guests:event:${event.id}`)
       .on(
         'postgres_changes',
         {
@@ -224,7 +224,7 @@ export const GuestLookup: React.FC = () => {
           filter: `event_id=eq.${event.id}`
         },
         (payload) => {
-          console.log('Realtime guest update received:', payload);
+          console.log('QR Code App realtime guest update received:', payload);
           
           const { eventType, new: newRecord, old: oldRecord } = payload;
           
@@ -244,7 +244,8 @@ export const GuestLookup: React.FC = () => {
                     dietary: newRecord.dietary,
                     mobile: newRecord.mobile,
                     email: newRecord.email,
-                    family_group: newRecord.family_group
+                    family_group: newRecord.family_group,
+                    table_name: null // Will be updated if needed
                   };
                   return [...currentGuests, transformedGuest];
                 }
@@ -252,6 +253,7 @@ export const GuestLookup: React.FC = () => {
 
               case 'UPDATE':
                 if (newRecord) {
+                  console.log('QR Code App processing UPDATE for guest:', newRecord.id, 'RSVP:', newRecord.rsvp, 'Normalized:', normalizeRsvp(newRecord.rsvp));
                   return currentGuests.map(g => 
                     g.id === newRecord.id 
                       ? {
@@ -286,7 +288,7 @@ export const GuestLookup: React.FC = () => {
         }
       )
       .subscribe((status) => {
-        console.log(`Realtime subscription status: ${status}`);
+        console.log(`QR Code App realtime subscription status: ${status}`);
       });
 
     return () => {
