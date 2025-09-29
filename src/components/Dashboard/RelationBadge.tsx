@@ -46,7 +46,7 @@ export const RelationBadge: React.FC<RelationBadgeProps> = ({
     >
       <Badge 
         variant="secondary" 
-        className="px-2 py-1 text-xs bg-primary/10 text-primary border-primary/20 hover:bg-primary/20 transition-colors"
+        className="px-2 py-1 text-xs bg-primary text-primary-foreground border-primary hover:bg-primary/90 transition-colors"
       >
         {displayPartner}/{displayRole}
       </Badge>
