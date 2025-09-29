@@ -119,46 +119,74 @@ export const QRCodeSeatingChart: React.FC<QRCodeSeatingChartProps> = ({
             </Select>
           </div>
 
-          {selectedEvent && (
-            <div className="mt-4 p-4 rounded-lg bg-primary/5 border border-primary/20">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="font-semibold text-foreground">
-                    QR Code Seating Chart for: <span className="text-primary">{selectedEvent.name}</span>
-                  </h3>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Event Date: {selectedEvent.date} • Venue: {selectedEvent.venue || 'Not specified'}
-                  </p>
-                </div>
-                <div className="flex space-x-2">
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={handleLiveView}
-                    disabled={!selectedEvent?.slug}
-                  >
-                    <ExternalLink className="w-4 h-4 mr-2" />
-                    Live View
-                  </Button>
-                  <Button 
-                    variant="default" 
-                    size="sm"
-                    onClick={handleDownloadLink}
-                    disabled={!selectedEvent?.slug}
-                  >
-                    <Copy className="w-4 h-4 mr-2" />
-                    Copy Link
-                  </Button>
-                </div>
-              </div>
-            </div>
-          )}
         </CardContent>
       </Card>
+
+      {/* Event Details Card */}
+      {selectedEvent && (
+        <Card className="ww-box">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="font-semibold text-foreground text-lg">
+                  QR Code Seating Chart for: <span className="text-primary">{selectedEvent.name}</span>
+                </h3>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Event Date: {selectedEvent.date} • Venue: {selectedEvent.venue || 'Not specified'}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Main QR Code Card */}
       {currentEventId && (
         <QRCodeMainCard eventId={currentEventId} />
+      )}
+
+      {/* Live View Card */}
+      {selectedEvent && (
+        <Card className="ww-box">
+          <CardHeader>
+            <CardTitle className="text-lg">Live View</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex space-x-2">
+              <Button 
+                variant="outline" 
+                onClick={handleLiveView}
+                disabled={!selectedEvent?.slug}
+              >
+                <ExternalLink className="w-4 h-4 mr-2" />
+                Live View
+              </Button>
+              <Button 
+                variant="default"
+                onClick={handleDownloadLink}
+                disabled={!selectedEvent?.slug}
+              >
+                <Copy className="w-4 h-4 mr-2" />
+                Copy Link
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Guest Live View Options Card */}
+      {selectedEvent && (
+        <Card className="ww-box">
+          <CardHeader>
+            <CardTitle className="text-lg">Guest Live View Options</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground">
+              Configure how guests interact with the live view experience.
+            </p>
+            {/* Placeholder for future options */}
+          </CardContent>
+        </Card>
       )}
 
 
