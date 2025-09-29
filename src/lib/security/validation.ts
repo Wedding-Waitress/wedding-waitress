@@ -32,7 +32,7 @@ export const secureGuestSchema = z.object({
     .min(1, "Seat selection is required")
     .max(100, "Invalid seat number"),
   
-  rsvp: z.enum(["Pending", "Confirmed", "Declined"], {
+  rsvp: z.enum(["Pending", "Attending", "Not Attending"], {
     errorMap: () => ({ message: "Invalid RSVP status" })
   }),
   

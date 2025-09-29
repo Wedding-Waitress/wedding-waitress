@@ -44,16 +44,16 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
 
   const getRsvpColor = (rsvp: string) => {
     switch (rsvp?.toLowerCase()) {
-      case 'confirmed': return 'text-success';
-      case 'declined': return 'text-destructive';
+      case 'attending': return 'text-success';
+      case 'not attending': return 'text-destructive';
       default: return 'text-warning';
     }
   };
 
   const getRsvpIcon = (rsvp: string) => {
     switch (rsvp?.toLowerCase()) {
-      case 'confirmed': return <CheckCircle2 className="w-4 h-4" />;
-      case 'declined': return <X className="w-4 h-4" />;
+      case 'attending': return <CheckCircle2 className="w-4 h-4" />;
+      case 'not attending': return <X className="w-4 h-4" />;
       default: return <Clock className="w-4 h-4" />;
     }
   };
@@ -180,12 +180,12 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
               </div>
             </div>
             
-            {guest.rsvp !== 'Confirmed' && (
+            {guest.rsvp !== 'Attending' && (
               <div className="flex gap-2">
                 <Button
                   variant="default"
                   size="sm"
-                  onClick={() => updateRsvp('Confirmed')}
+                  onClick={() => updateRsvp('Attending')}
                   disabled={updatingRsvp}
                   className="flex-1"
                 >
@@ -195,7 +195,7 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => updateRsvp('Declined')}
+                  onClick={() => updateRsvp('Not Attending')}
                   disabled={updatingRsvp}
                   className="flex-1"
                 >
