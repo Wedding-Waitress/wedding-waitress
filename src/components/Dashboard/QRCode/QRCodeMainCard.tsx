@@ -374,14 +374,14 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
           {/* Left Column: QR Preview and Customization */}
           <div className="lg:col-span-3 space-y-6">
-            <Card className="bg-white border-2 border-purple-200 rounded-lg">
+            <Card className="bg-white border-2 border-primary/20 rounded-lg">
               <CardContent className="p-6">
                 {/* QR Preview + Actions Wrapper */}
                 <div id="qr-preview-wrap" className="flex flex-col items-center gap-4">
                   {/* QR Preview */}
-                    <div 
+                   <div 
                       id="qr-preview"
-                      className="w-full max-w-[320px] aspect-square min-h-[360px] bg-muted/20 rounded-lg flex items-center justify-center"
+                      className="w-full max-w-[320px] aspect-square min-h-[320px] bg-muted/20 rounded-lg flex items-center justify-center"
                     >
                     {qrDataUrl ? (
                       <img 
@@ -472,7 +472,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
                   </div>
 
                    {/* Action Buttons Grid */}
-                  <div id="qr-action-grid" className="grid grid-cols-2 gap-3 w-full max-w-[320px]">
+                  <div id="qr-action-grid" className="grid grid-cols-2 gap-3 w-full max-w-[460px]">
                     {/* Row 1 */}
                     <Button 
                       id="btn-dl-png" 
