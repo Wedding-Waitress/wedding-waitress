@@ -8,21 +8,24 @@ import { useToast } from '@/hooks/use-toast';
 import { QRCodeMainCard } from './QRCodeMainCard';
 import { buildGuestLookupUrl } from '@/lib/urlUtils';
 import { format, parse } from 'date-fns';
-
 interface QRCodeSeatingChartProps {
   selectedEventId?: string | null;
   onEventSelect?: (eventId: string) => void;
   onNavigateToTab?: (tab: string) => void;
 }
-
 export const QRCodeSeatingChart: React.FC<QRCodeSeatingChartProps> = ({
   selectedEventId,
   onEventSelect,
-  onNavigateToTab,
+  onNavigateToTab
 }) => {
-  const { events, loading: eventsLoading } = useEvents();
+  const {
+    events,
+    loading: eventsLoading
+  } = useEvents();
   const [localSelectedEventId, setLocalSelectedEventId] = useState<string | null>(selectedEventId || null);
-  const { toast } = useToast();
+  const {
+    toast
+  } = useToast();
 
   // Auto-select first event when available
   useEffect(() => {
@@ -32,26 +35,21 @@ export const QRCodeSeatingChart: React.FC<QRCodeSeatingChartProps> = ({
       onEventSelect?.(firstId);
     }
   }, [eventsLoading, events, selectedEventId, localSelectedEventId, onEventSelect]);
-
   const selectedEvent = events.find(event => event.id === (selectedEventId || localSelectedEventId));
-
   const handleEventSelect = (eventId: string) => {
     // Filter out placeholder values 
     if (eventId === "no-event") {
       return;
     }
-    
     setLocalSelectedEventId(eventId);
     onEventSelect?.(eventId);
   };
-
   const handleLiveView = () => {
     if (selectedEvent?.slug) {
       const url = `/s/${selectedEvent.slug}`;
       window.open(url, '_blank');
     }
   };
-
   const handleDownloadLink = async () => {
     if (selectedEvent?.slug) {
       const url = buildGuestLookupUrl(selectedEvent.slug);
@@ -59,18 +57,17 @@ export const QRCodeSeatingChart: React.FC<QRCodeSeatingChartProps> = ({
         await navigator.clipboard.writeText(url);
         toast({
           title: "Link copied!",
-          description: "The guest lookup link has been copied to your clipboard.",
+          description: "The guest lookup link has been copied to your clipboard."
         });
       } catch (error) {
         toast({
           title: "Copy failed",
           description: "Unable to copy link. Please try again.",
-          variant: "destructive",
+          variant: "destructive"
         });
       }
     }
   };
-
   const currentEventId = selectedEventId || localSelectedEventId;
 
   // Format date with ordinal suffix
@@ -88,9 +85,7 @@ export const QRCodeSeatingChart: React.FC<QRCodeSeatingChartProps> = ({
       return dateString;
     }
   };
-
-  return (
-    <div className="space-y-8">
+  return <div className="space-y-8">
       {/* Header Section */}
       <Card className="ww-box">
         <CardHeader className="pb-4">
@@ -100,21 +95,17 @@ export const QRCodeSeatingChart: React.FC<QRCodeSeatingChartProps> = ({
             </div>
             <div>
               <CardTitle className="text-2xl gradient-text">QR Code Seating Chart</CardTitle>
-              <CardDescription className="text-base">
-                Create beautiful QR codes for seamless guest seating
-              </CardDescription>
+              
             </div>
           </div>
-          {selectedEvent && (
-            <div className="text-center mt-4">
+          {selectedEvent && <div className="text-center mt-4">
               <h3 className="text-xl font-semibold text-primary/90">
                 {formatEventDate(selectedEvent.date)}
               </h3>
               <h3 className="text-xl font-semibold text-primary/90">
                 {selectedEvent.venue || 'Venue not specified'}
               </h3>
-            </div>
-          )}
+            </div>}
         </CardHeader>
         <CardContent className="pt-0">
           <div className="flex items-center space-x-4">
@@ -126,20 +117,14 @@ export const QRCodeSeatingChart: React.FC<QRCodeSeatingChartProps> = ({
                 <SelectValue placeholder={eventsLoading ? "Loading events..." : "Select an event..."} />
               </SelectTrigger>
               <SelectContent className="bg-popover border-border">
-                {events.length > 0 ? (
-                  events.map((event) => (
-                    <SelectItem key={event.id} value={event.id}>
+                {events.length > 0 ? events.map(event => <SelectItem key={event.id} value={event.id}>
                       <div className="flex items-center space-x-2">
                         <Calendar className="w-4 h-4" />
                         <span>{event.name}</span>
                       </div>
-                    </SelectItem>
-                  ))
-                ) : (
-                  <SelectItem value="no-events" disabled>
+                    </SelectItem>) : <SelectItem value="no-events" disabled>
                     {eventsLoading ? "Loading events..." : "No events found"}
-                  </SelectItem>
-                )}
+                  </SelectItem>}
               </SelectContent>
             </Select>
           </div>
@@ -148,22 +133,17 @@ export const QRCodeSeatingChart: React.FC<QRCodeSeatingChartProps> = ({
       </Card>
 
       {/* Main QR Code Card */}
-      {currentEventId && (
-        <QRCodeMainCard eventId={currentEventId} />
-      )}
+      {currentEventId && <QRCodeMainCard eventId={currentEventId} />}
 
 
 
       {/* Placeholder when no event selected */}
-      {!currentEventId && (
-        <Card className="ww-box p-12 text-center">
+      {!currentEventId && <Card className="ww-box p-12 text-center">
           <QrCode className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
           <CardTitle className="text-xl mb-2 text-muted-foreground">Select an Event</CardTitle>
           <CardDescription className="text-base">
             Choose an event above to start creating your QR Code Seating Chart
           </CardDescription>
-        </Card>
-      )}
-    </div>
-  );
+        </Card>}
+    </div>;
 };
