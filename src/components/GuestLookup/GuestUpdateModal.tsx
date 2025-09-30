@@ -77,6 +77,7 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
   isEditable = true
 }) => {
   const [saving, setSaving] = useState(false);
+  const [initialRsvp, setInitialRsvp] = useState('Pending');
   const [formData, setFormData] = useState({
     rsvp: 'Pending',
     first_name: '',
@@ -90,8 +91,10 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
 
   useEffect(() => {
     if (guest) {
+      const currentRsvp = guest.rsvp || 'Pending';
+      setInitialRsvp(currentRsvp);
       setFormData({
-        rsvp: guest.rsvp || 'Pending',
+        rsvp: currentRsvp,
         first_name: guest.first_name || '',
         last_name: guest.last_name || '',
         mobile: guest.mobile || '',
@@ -100,7 +103,7 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
         notes: guest.notes || ''
       });
     }
-  }, [guest]);
+  }, [guest, open]);
 
   const handleSave = async () => {
     if (!guest) return;
@@ -108,9 +111,8 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
     setSaving(true);
     try {
       // Update guest record
-      // Build update payload without non-existent columns and with proper types
+      // Build update payload - only include RSVP if user changed it in modal
       const updates: Record<string, any> = {
-        rsvp: formData.rsvp,
         first_name: (formData.first_name || '').trim(),
         last_name: (formData.last_name || '').trim(),
         mobile: formData.mobile?.trim() || null,
@@ -119,8 +121,9 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
         notes: formData.notes?.trim() || null,
       };
 
-      // Only set RSVP date when it actually changes (date column expects YYYY-MM-DD)
-      if (formData.rsvp !== guest.rsvp) {
+      // Only update RSVP if user changed it in the modal dropdown
+      if (formData.rsvp !== initialRsvp) {
+        updates.rsvp = formData.rsvp;
         updates.rsvp_date = new Date().toISOString().slice(0, 10);
       }
 
@@ -135,7 +138,7 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
       const { error: logError } = await supabase
         .from('guest_update_logs')
         .insert({
-          event_id: guest.event_id,
+          event_id: event?.id || guest.event_id,
           guest_id: guest.id,
           changed_by: 'guest_live_view',
           payload: {

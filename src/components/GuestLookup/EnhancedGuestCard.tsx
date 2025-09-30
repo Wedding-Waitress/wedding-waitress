@@ -89,7 +89,10 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
     try {
       const { error } = await supabase
         .from('guests')
-        .update({ rsvp: normalized })
+        .update({ 
+          rsvp: normalized,
+          rsvp_date: new Date().toISOString().slice(0, 10)
+        })
         .eq('id', guest.id);
 
       if (error) throw error;
