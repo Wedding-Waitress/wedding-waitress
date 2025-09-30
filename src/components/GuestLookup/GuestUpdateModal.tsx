@@ -108,19 +108,25 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
     setSaving(true);
     try {
       // Update guest record
+      // Build update payload without non-existent columns and with proper types
+      const updates: Record<string, any> = {
+        rsvp: formData.rsvp,
+        first_name: (formData.first_name || '').trim(),
+        last_name: (formData.last_name || '').trim(),
+        mobile: formData.mobile?.trim() || null,
+        email: formData.email?.trim() || null,
+        dietary: formData.dietary,
+        notes: formData.notes?.trim() || null,
+      };
+
+      // Only set RSVP date when it actually changes (date column expects YYYY-MM-DD)
+      if (formData.rsvp !== guest.rsvp) {
+        updates.rsvp_date = new Date().toISOString().slice(0, 10);
+      }
+
       const { error: updateError } = await supabase
         .from('guests')
-        .update({
-          rsvp: formData.rsvp,
-          first_name: formData.first_name,
-          last_name: formData.last_name,
-          mobile: formData.mobile || null,
-          email: formData.email || null,
-          dietary: formData.dietary,
-          notes: formData.notes || null,
-          updated_at: new Date().toISOString(),
-          rsvp_date: formData.rsvp !== guest.rsvp ? new Date().toISOString() : undefined
-        })
+        .update(updates)
         .eq('id', guest.id);
 
       if (updateError) throw updateError;
