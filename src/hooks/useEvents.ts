@@ -52,7 +52,7 @@ export const useEvents = () => {
         return;
       }
 
-      setEvents((data || []).map(event => ({
+      setEvents((data || []).map((event: any) => ({
         ...event,
         partner1_name: event.partner1_name || null,
         partner2_name: event.partner2_name || null,

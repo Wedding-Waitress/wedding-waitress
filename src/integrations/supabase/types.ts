@@ -758,6 +758,7 @@ export type Database = {
           name: string
           partner1_name: string
           partner2_name: string
+          rsvp_deadline: string
           slug: string
           start_time: string
           user_id: string
