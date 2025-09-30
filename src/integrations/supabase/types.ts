@@ -386,30 +386,36 @@ export type Database = {
           event_id: string
           id: string
           show_ceremony: boolean
+          show_invite_video: boolean
           show_reception: boolean
           show_rsvp_invite: boolean
-          show_search_update: boolean
-          show_video_message: boolean
+          show_search: boolean
+          show_update_details: boolean
+          show_welcome_video: boolean
           updated_at: string
         }
         Insert: {
           event_id: string
           id?: string
           show_ceremony?: boolean
+          show_invite_video?: boolean
           show_reception?: boolean
           show_rsvp_invite?: boolean
-          show_search_update?: boolean
-          show_video_message?: boolean
+          show_search?: boolean
+          show_update_details?: boolean
+          show_welcome_video?: boolean
           updated_at?: string
         }
         Update: {
           event_id?: string
           id?: string
           show_ceremony?: boolean
+          show_invite_video?: boolean
           show_reception?: boolean
           show_rsvp_invite?: boolean
-          show_search_update?: boolean
-          show_video_message?: boolean
+          show_search?: boolean
+          show_update_details?: boolean
+          show_welcome_video?: boolean
           updated_at?: string
         }
         Relationships: [

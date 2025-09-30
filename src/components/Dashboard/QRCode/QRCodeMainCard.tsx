@@ -3,10 +3,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
+import { Switch } from '@/components/ui/switch';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { QrCode as QrCodeIcon, Copy, Download, RotateCcw, Save, Printer, FileDown, Palette, ChevronDown, FileText, Code, Image as ImageIcon, ExternalLink, Link } from 'lucide-react';
+import { QrCode as QrCodeIcon, Copy, Download, RotateCcw, Save, Printer, FileDown, Palette, ChevronDown, FileText, Code, Image as ImageIcon, ExternalLink, Link, Eye, EyeOff } from 'lucide-react';
 import { useEvents } from '@/hooks/useEvents';
 import { useToast } from '@/hooks/use-toast';
+import { useLiveViewVisibility } from '@/hooks/useLiveViewVisibility';
 import { buildGuestLookupUrl } from '@/lib/urlUtils';
 import { AdvancedQRGenerator } from '@/lib/advancedQRGenerator';
 import type { QRCodeSettings } from '@/hooks/useQRCodeSettings';
@@ -31,6 +34,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
   const {
     toast
   } = useToast();
+  const { settings: visibilitySettings, updateVisibility } = useLiveViewVisibility(eventId);
   const selectedEvent = events.find(event => event.id === eventId);
   const eventUrl = selectedEvent?.slug ? buildGuestLookupUrl(selectedEvent.slug) : `https://…/live-view/${eventId}`;
 
@@ -473,103 +477,271 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
             </CardContent>
           </Card>
 
-          {/* Row 2, Col 2: Guest Live View Options Card */}
-          <Card className="ww-box w-full lg:w-auto">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg">Guest Live View Options</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <p className="text-sm text-muted-foreground">
-                Configure how guests interact with your live view.
-              </p>
-              
-              {/* Live View Modules Accordion */}
-              <div className="space-y-2">
-                <h4 className="text-sm font-medium">Live View Modules</h4>
-                <Accordion type="single" collapsible className="w-full">
-                  <AccordionItem value="rsvp-invite">
-                    <AccordionTrigger className="text-sm py-2">RSVP Invite</AccordionTrigger>
-                    <AccordionContent>
-                      <div className="p-4 bg-muted/30 rounded-md">
-                        <p className="text-sm text-muted-foreground">
-                          Coming soon — settings will be added here.
-                        </p>
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
+          {/* Row 2, Col 2: Two-column layout for Live View cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Guest Live View Options Card */}
+            <Card className="ww-box w-full">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg">Guest Live View Options</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <p className="text-sm text-muted-foreground">
+                  Configure how guests interact with your live view.
+                </p>
+                
+                {/* Live View Modules Accordion */}
+                <div className="space-y-2">
+                  <h4 className="text-sm font-medium">Live View Modules</h4>
+                  <Accordion type="single" collapsible className="w-full">
+                    <AccordionItem value="rsvp-invite">
+                      <AccordionTrigger className="text-sm py-2 flex justify-between items-center">
+                        <span>RSVP Invite</span>
+                        <Badge 
+                          variant={visibilitySettings?.show_rsvp_invite ? "default" : "destructive"}
+                          className="ml-2"
+                        >
+                          {visibilitySettings?.show_rsvp_invite ? "ON" : "OFF"}
+                        </Badge>
+                      </AccordionTrigger>
+                      <AccordionContent>
+                        <div className="p-4 bg-muted/30 rounded-md">
+                          <p className="text-sm text-muted-foreground">
+                            Coming soon — settings will be added here.
+                          </p>
+                        </div>
+                      </AccordionContent>
+                    </AccordionItem>
 
-                  <AccordionItem value="update-details">
-                    <AccordionTrigger className="text-sm py-2">Update Your Details</AccordionTrigger>
-                    <AccordionContent>
-                      <div className="p-4 bg-muted/30 rounded-md">
-                        <p className="text-sm text-muted-foreground">
-                          Coming soon — settings will be added here.
-                        </p>
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
+                    <AccordionItem value="update-details">
+                      <AccordionTrigger className="text-sm py-2 flex justify-between items-center">
+                        <span>Update Your Details</span>
+                        <Badge 
+                          variant={visibilitySettings?.show_update_details ? "default" : "destructive"}
+                          className="ml-2"
+                        >
+                          {visibilitySettings?.show_update_details ? "ON" : "OFF"}
+                        </Badge>
+                      </AccordionTrigger>
+                      <AccordionContent>
+                        <div className="p-4 bg-muted/30 rounded-md">
+                          <p className="text-sm text-muted-foreground">
+                            Coming soon — settings will be added here.
+                          </p>
+                        </div>
+                      </AccordionContent>
+                    </AccordionItem>
 
-                  <AccordionItem value="search">
-                    <AccordionTrigger className="text-sm py-2">Search</AccordionTrigger>
-                    <AccordionContent>
-                      <div className="p-4 bg-muted/30 rounded-md">
-                        <p className="text-sm text-muted-foreground">
-                          Coming soon — settings will be added here.
-                        </p>
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
+                    <AccordionItem value="search">
+                      <AccordionTrigger className="text-sm py-2 flex justify-between items-center">
+                        <span>Search</span>
+                        <Badge 
+                          variant={visibilitySettings?.show_search ? "default" : "destructive"}
+                          className="ml-2"
+                        >
+                          {visibilitySettings?.show_search ? "ON" : "OFF"}
+                        </Badge>
+                      </AccordionTrigger>
+                      <AccordionContent>
+                        <div className="p-4 bg-muted/30 rounded-md">
+                          <p className="text-sm text-muted-foreground">
+                            Coming soon — settings will be added here.
+                          </p>
+                        </div>
+                      </AccordionContent>
+                    </AccordionItem>
 
-                  <AccordionItem value="ceremony">
-                    <AccordionTrigger className="text-sm py-2">Ceremony</AccordionTrigger>
-                    <AccordionContent>
-                      <div className="p-4 bg-muted/30 rounded-md">
-                        <p className="text-sm text-muted-foreground">
-                          Coming soon — settings will be added here.
-                        </p>
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
+                    <AccordionItem value="ceremony">
+                      <AccordionTrigger className="text-sm py-2 flex justify-between items-center">
+                        <span>Ceremony</span>
+                        <Badge 
+                          variant={visibilitySettings?.show_ceremony ? "default" : "destructive"}
+                          className="ml-2"
+                        >
+                          {visibilitySettings?.show_ceremony ? "ON" : "OFF"}
+                        </Badge>
+                      </AccordionTrigger>
+                      <AccordionContent>
+                        <div className="p-4 bg-muted/30 rounded-md">
+                          <p className="text-sm text-muted-foreground">
+                            Coming soon — settings will be added here.
+                          </p>
+                        </div>
+                      </AccordionContent>
+                    </AccordionItem>
 
-                  <AccordionItem value="reception">
-                    <AccordionTrigger className="text-sm py-2">Reception</AccordionTrigger>
-                    <AccordionContent>
-                      <div className="p-4 bg-muted/30 rounded-md">
-                        <p className="text-sm text-muted-foreground">
-                          Coming soon — settings will be added here.
-                        </p>
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
+                    <AccordionItem value="reception">
+                      <AccordionTrigger className="text-sm py-2 flex justify-between items-center">
+                        <span>Reception</span>
+                        <Badge 
+                          variant={visibilitySettings?.show_reception ? "default" : "destructive"}
+                          className="ml-2"
+                        >
+                          {visibilitySettings?.show_reception ? "ON" : "OFF"}
+                        </Badge>
+                      </AccordionTrigger>
+                      <AccordionContent>
+                        <div className="p-4 bg-muted/30 rounded-md">
+                          <p className="text-sm text-muted-foreground">
+                            Coming soon — settings will be added here.
+                          </p>
+                        </div>
+                      </AccordionContent>
+                    </AccordionItem>
 
-                  <AccordionItem value="invite-video">
-                    <AccordionTrigger className="text-sm py-2">Invite Video</AccordionTrigger>
-                    <AccordionContent>
-                      <div className="p-4 bg-muted/30 rounded-md">
-                        <p className="text-sm text-muted-foreground">
-                          Coming soon — settings will be added here.
-                        </p>
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
+                    <AccordionItem value="invite-video">
+                      <AccordionTrigger className="text-sm py-2 flex justify-between items-center">
+                        <span>Invite Video</span>
+                        <Badge 
+                          variant={visibilitySettings?.show_invite_video ? "default" : "destructive"}
+                          className="ml-2"
+                        >
+                          {visibilitySettings?.show_invite_video ? "ON" : "OFF"}
+                        </Badge>
+                      </AccordionTrigger>
+                      <AccordionContent>
+                        <div className="p-4 bg-muted/30 rounded-md">
+                          <p className="text-sm text-muted-foreground">
+                            Coming soon — settings will be added here.
+                          </p>
+                        </div>
+                      </AccordionContent>
+                    </AccordionItem>
 
-                  <AccordionItem value="welcome-video">
-                    <AccordionTrigger className="text-sm py-2">Welcome Video</AccordionTrigger>
-                    <AccordionContent>
-                      <div className="p-4 bg-muted/30 rounded-md">
-                        <p className="text-sm text-muted-foreground">
-                          Coming soon — settings will be added here.
-                        </p>
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-                </Accordion>
-              </div>
+                    <AccordionItem value="welcome-video">
+                      <AccordionTrigger className="text-sm py-2 flex justify-between items-center">
+                        <span>Welcome Video</span>
+                        <Badge 
+                          variant={visibilitySettings?.show_welcome_video ? "default" : "destructive"}
+                          className="ml-2"
+                        >
+                          {visibilitySettings?.show_welcome_video ? "ON" : "OFF"}
+                        </Badge>
+                      </AccordionTrigger>
+                      <AccordionContent>
+                        <div className="p-4 bg-muted/30 rounded-md">
+                          <p className="text-sm text-muted-foreground">
+                            Coming soon — settings will be added here.
+                          </p>
+                        </div>
+                      </AccordionContent>
+                    </AccordionItem>
+                  </Accordion>
+                </div>
+              </CardContent>
+            </Card>
 
-              {/* Existing bullet list */}
-              
-            </CardContent>
-          </Card>
+            {/* Choose What Your Guests See Card */}
+            <Card className="ww-box w-full">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg">Choose What Your Guests See</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <p className="text-sm text-muted-foreground">
+                  Toggle which sections are visible on the guest live view.
+                </p>
+                
+                <div className="space-y-3">
+                  {/* RSVP Invite Toggle */}
+                  <div className="flex items-center justify-between p-3 rounded-lg border border-border">
+                    <Label htmlFor="toggle-rsvp" className="text-sm font-medium cursor-pointer">
+                      RSVP Invite
+                    </Label>
+                    <Switch
+                      id="toggle-rsvp"
+                      checked={visibilitySettings?.show_rsvp_invite || false}
+                      onCheckedChange={(checked) => updateVisibility('show_rsvp_invite', checked)}
+                      className="data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-red-600"
+                      aria-label="Toggle RSVP Invite visibility"
+                    />
+                  </div>
+
+                  {/* Update Your Details Toggle */}
+                  <div className="flex items-center justify-between p-3 rounded-lg border border-border">
+                    <Label htmlFor="toggle-update-details" className="text-sm font-medium cursor-pointer">
+                      Update Your Details
+                    </Label>
+                    <Switch
+                      id="toggle-update-details"
+                      checked={visibilitySettings?.show_update_details || false}
+                      onCheckedChange={(checked) => updateVisibility('show_update_details', checked)}
+                      className="data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-red-600"
+                      aria-label="Toggle Update Details visibility"
+                    />
+                  </div>
+
+                  {/* Search Toggle */}
+                  <div className="flex items-center justify-between p-3 rounded-lg border border-border">
+                    <Label htmlFor="toggle-search" className="text-sm font-medium cursor-pointer">
+                      Search
+                    </Label>
+                    <Switch
+                      id="toggle-search"
+                      checked={visibilitySettings?.show_search ?? true}
+                      onCheckedChange={(checked) => updateVisibility('show_search', checked)}
+                      className="data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-red-600"
+                      aria-label="Toggle Search visibility"
+                    />
+                  </div>
+
+                  {/* Ceremony Toggle */}
+                  <div className="flex items-center justify-between p-3 rounded-lg border border-border">
+                    <Label htmlFor="toggle-ceremony" className="text-sm font-medium cursor-pointer">
+                      Ceremony
+                    </Label>
+                    <Switch
+                      id="toggle-ceremony"
+                      checked={visibilitySettings?.show_ceremony || false}
+                      onCheckedChange={(checked) => updateVisibility('show_ceremony', checked)}
+                      className="data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-red-600"
+                      aria-label="Toggle Ceremony visibility"
+                    />
+                  </div>
+
+                  {/* Reception Toggle */}
+                  <div className="flex items-center justify-between p-3 rounded-lg border border-border">
+                    <Label htmlFor="toggle-reception" className="text-sm font-medium cursor-pointer">
+                      Reception
+                    </Label>
+                    <Switch
+                      id="toggle-reception"
+                      checked={visibilitySettings?.show_reception || false}
+                      onCheckedChange={(checked) => updateVisibility('show_reception', checked)}
+                      className="data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-red-600"
+                      aria-label="Toggle Reception visibility"
+                    />
+                  </div>
+
+                  {/* Invite Video Toggle */}
+                  <div className="flex items-center justify-between p-3 rounded-lg border border-border">
+                    <Label htmlFor="toggle-invite-video" className="text-sm font-medium cursor-pointer">
+                      Invite Video
+                    </Label>
+                    <Switch
+                      id="toggle-invite-video"
+                      checked={visibilitySettings?.show_invite_video || false}
+                      onCheckedChange={(checked) => updateVisibility('show_invite_video', checked)}
+                      className="data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-red-600"
+                      aria-label="Toggle Invite Video visibility"
+                    />
+                  </div>
+
+                  {/* Welcome Video Toggle */}
+                  <div className="flex items-center justify-between p-3 rounded-lg border border-border">
+                    <Label htmlFor="toggle-welcome-video" className="text-sm font-medium cursor-pointer">
+                      Welcome Video
+                    </Label>
+                    <Switch
+                      id="toggle-welcome-video"
+                      checked={visibilitySettings?.show_welcome_video || false}
+                      onCheckedChange={(checked) => updateVisibility('show_welcome_video', checked)}
+                      className="data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-red-600"
+                      aria-label="Toggle Welcome Video visibility"
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
 
       </CardContent>
