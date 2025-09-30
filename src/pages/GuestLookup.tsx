@@ -614,6 +614,7 @@ export const GuestLookup: React.FC = () => {
                             onUpdate={refreshGuestData}
                             isEditable={isEditable}
                             onEdit={handleEditGuest}
+                            rsvpDeadline={event?.rsvp_deadline}
                           />
                         ))
                       ) : (

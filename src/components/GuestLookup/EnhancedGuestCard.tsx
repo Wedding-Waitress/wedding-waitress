@@ -15,6 +15,7 @@ import {
 import { supabase } from '@/integrations/supabase/client';
 import { normalizeRsvp, getRsvpDisplayLabel, type RsvpStatus } from '@/lib/rsvp';
 import { useToast } from '@/hooks/use-toast';
+import { formatDisplayDate } from '@/lib/utils';
 
 interface Guest {
   id: string;
@@ -35,13 +36,15 @@ interface EnhancedGuestCardProps {
   onUpdate: () => void;
   onEdit?: (guest: Guest) => void;
   isEditable?: boolean;
+  rsvpDeadline?: string | null;
 }
 
 export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
   guest,
   onUpdate,
   onEdit,
-  isEditable = true
+  isEditable = true,
+  rsvpDeadline
 }) => {
   const [updatingRsvp, setUpdatingRsvp] = useState(false);
   const { toast } = useToast();
@@ -237,6 +240,16 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
               </div>
             )}
           </div>
+
+          {/* RSVP Deadline */}
+          {rsvpDeadline && (
+            <div className="flex items-center gap-2 pt-2">
+              <span className="text-sm font-medium">RSVP Deadline:</span>
+              <span className="text-sm font-semibold text-destructive">
+                {formatDisplayDate(rsvpDeadline)}
+              </span>
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>
