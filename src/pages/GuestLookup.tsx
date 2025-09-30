@@ -70,10 +70,14 @@ export const GuestLookup: React.FC = () => {
   const [moduleSettings, setModuleSettings] = useState<any>(null);
   const { toast } = useToast();
   
-  // Compute is_editable based on rsvp_deadline
+  // Compute is_editable based on rsvp_deadline (inclusive through end-of-day)
   const isEditable = useMemo(() => {
     if (!event?.rsvp_deadline) return true; // NULL deadline = always editable
+    
+    // Parse the deadline and set to end of day (23:59:59.999)
     const deadline = new Date(event.rsvp_deadline);
+    deadline.setHours(23, 59, 59, 999);
+    
     const now = new Date();
     return now <= deadline;
   }, [event?.rsvp_deadline]);
@@ -86,6 +90,27 @@ export const GuestLookup: React.FC = () => {
       setActiveTab('rsvp-invite');
     }
   }, []);
+
+  // Handle deep-link for editing a specific guest (?edit=<guest_id>)
+  useEffect(() => {
+    if (guests.length === 0 || !isEditable) return;
+    
+    const params = new URLSearchParams(window.location.search);
+    const editGuestId = params.get('edit');
+    
+    if (editGuestId) {
+      const guestToEdit = guests.find(g => g.id === editGuestId);
+      if (guestToEdit) {
+        setSelectedGuest(guestToEdit);
+        setIsUpdateModalOpen(true);
+        
+        // Clean up URL parameter after opening modal
+        const newUrl = new URL(window.location.href);
+        newUrl.searchParams.delete('edit');
+        window.history.replaceState({}, '', newUrl.toString());
+      }
+    }
+  }, [guests, isEditable]);
 
   // Fetch event and guests data using public RPC function
   useEffect(() => {
@@ -578,7 +603,7 @@ export const GuestLookup: React.FC = () => {
                             guest={guest}
                             onUpdate={refreshGuestData}
                             isEditable={isEditable}
-                            onEdit={liveViewSettings?.show_update_details ? handleEditGuest : undefined}
+                            onEdit={handleEditGuest}
                           />
                         ))
                       ) : (
@@ -663,23 +688,21 @@ export const GuestLookup: React.FC = () => {
       />
 
       {/* Guest Update Modal */}
-      {liveViewSettings?.show_update_details && (
-        <GuestUpdateModal
-          guest={selectedGuest ? {
-            ...selectedGuest,
-            event_id: event?.id || '',
-            notes: ''
-          } : null}
-          event={event}
-          open={isUpdateModalOpen}
-          onOpenChange={setIsUpdateModalOpen}
-          onUpdate={refreshGuestData}
-          helperText={moduleSettings?.update_details_config?.helper_text}
-          allowNameEdit={moduleSettings?.update_details_config?.allow_name_edit ?? false}
-          showMessageField={moduleSettings?.update_details_config?.show_message_field ?? true}
-          isEditable={isEditable}
-        />
-      )}
+      <GuestUpdateModal
+        guest={selectedGuest ? {
+          ...selectedGuest,
+          event_id: event?.id || '',
+          notes: ''
+        } : null}
+        event={event}
+        open={isUpdateModalOpen}
+        onOpenChange={setIsUpdateModalOpen}
+        onUpdate={refreshGuestData}
+        helperText={moduleSettings?.update_details_config?.helper_text}
+        allowNameEdit={moduleSettings?.update_details_config?.allow_name_edit ?? false}
+        showMessageField={moduleSettings?.update_details_config?.show_message_field ?? true}
+        isEditable={isEditable}
+      />
     </div>
   );
 };
