@@ -31,6 +31,7 @@ interface Event {
   event_timezone: string | null;
   partner1_name: string | null;
   partner2_name: string | null;
+  rsvp_deadline: string | null;
 }
 
 // Format event date as DAY{ordinal}, Month YYYY (e.g., "20th, September 2025")
@@ -128,7 +129,8 @@ export const EventsTable: React.FC<EventsTableProps> = ({
     venue: '',
     start_time: '',
     finish_time: '',
-    guest_limit: 50
+    guest_limit: 50,
+    rsvp_deadline: null as Date | null
   });
   const [isShaking, setIsShaking] = useState(false);
   const newRowRef = useRef<HTMLTableRowElement>(null);
@@ -145,7 +147,8 @@ export const EventsTable: React.FC<EventsTableProps> = ({
       venue: event.venue || '',
       start_time: event.start_time || '',
       finish_time: event.finish_time || '',
-      guest_limit: event.guest_limit
+      guest_limit: event.guest_limit,
+      rsvp_deadline: event.rsvp_deadline ? new Date(event.rsvp_deadline) : null
     });
   };
   const handleSaveEdit = async () => {
@@ -157,7 +160,8 @@ export const EventsTable: React.FC<EventsTableProps> = ({
         venue: editForm.venue,
         start_time: editForm.start_time || null,
         finish_time: editForm.finish_time || null,
-        guest_limit: editForm.guest_limit
+        guest_limit: editForm.guest_limit,
+        rsvp_deadline: editForm.rsvp_deadline ? editForm.rsvp_deadline.toISOString() : null
       });
       setEditingId(null);
       setEditForm({});
@@ -202,7 +206,8 @@ export const EventsTable: React.FC<EventsTableProps> = ({
         venue: newEventForm.venue,
         start_time: newEventForm.start_time || null,
         finish_time: newEventForm.finish_time || null,
-        guest_limit: newEventForm.guest_limit
+        guest_limit: newEventForm.guest_limit,
+        rsvp_deadline: newEventForm.rsvp_deadline ? newEventForm.rsvp_deadline.toISOString() : null
       });
       setIsCreating(false);
       setNewEventForm({
@@ -211,7 +216,8 @@ export const EventsTable: React.FC<EventsTableProps> = ({
         venue: '',
         start_time: '',
         finish_time: '',
-        guest_limit: 50
+        guest_limit: 50,
+        rsvp_deadline: null
       });
 
       // Immediately set the new event as active and notify parent
@@ -224,7 +230,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
     }
   };
   const handleCancelCreate = () => {
-    const hasChanges = newEventForm.name || newEventForm.date || newEventForm.venue || newEventForm.start_time || newEventForm.finish_time || newEventForm.guest_limit !== 50;
+    const hasChanges = newEventForm.name || newEventForm.date || newEventForm.venue || newEventForm.start_time || newEventForm.finish_time || newEventForm.guest_limit !== 50 || newEventForm.rsvp_deadline;
     if (hasChanges) {
       const confirmDiscard = window.confirm('Discard this new event?');
       if (!confirmDiscard) return;
@@ -236,7 +242,8 @@ export const EventsTable: React.FC<EventsTableProps> = ({
       venue: '',
       start_time: '',
       finish_time: '',
-      guest_limit: 50
+      guest_limit: 50,
+      rsvp_deadline: null
     });
   };
   const handleCreateEventClick = () => {
@@ -315,6 +322,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                 <TableHead className="w-20">Start Time</TableHead>
                 <TableHead className="w-20">Finish Time</TableHead>
                 <TableHead className="w-20">Guest Limit</TableHead>
+                <TableHead className="w-24">RSVP Deadline</TableHead>
                 <TableHead className="w-24">Created Date:</TableHead>
                 <TableHead className="w-24">Expiry Date:</TableHead>
                 <TableHead className="w-20 rounded-tr-lg">Actions</TableHead>
@@ -361,6 +369,12 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                     ...prev,
                     guest_limit: parseInt(e.target.value) || 50
                   }))} className="w-20" min="1" />
+                  </TableCell>
+                  <TableCell className="w-24">
+                    <EventDatePicker value={newEventForm.rsvp_deadline} onChange={date => setNewEventForm(prev => ({
+                    ...prev,
+                    rsvp_deadline: date
+                  }))} placeholder="RSVP deadline" />
                   </TableCell>
                   <TableCell className="w-24">
                     <span className="text-muted-foreground text-sm">Auto-generated</span>
@@ -447,6 +461,14 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                             {event.guests_count}/{event.guest_limit}
                           </span>
                         </div>}
+                    </TableCell>
+                    <TableCell className="w-24">
+                      {isEditing ? <EventDatePicker value={editForm.rsvp_deadline} onChange={date => setEditForm(prev => ({
+                      ...prev,
+                      rsvp_deadline: date
+                    }))} placeholder="RSVP deadline" /> : <span className="text-muted-foreground">
+                          {event.rsvp_deadline ? formatEventDate(event.rsvp_deadline.split('T')[0]) : 'Not set'}
+                        </span>}
                     </TableCell>
                     <TableCell className="w-24">
                       <span className="text-muted-foreground">

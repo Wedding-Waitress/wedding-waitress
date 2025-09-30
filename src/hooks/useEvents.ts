@@ -22,6 +22,7 @@ export interface Event {
   partner1_name: string | null;
   partner2_name: string | null;
   slug: string | null;
+  rsvp_deadline: string | null;
 }
 
 export const useEvents = () => {
@@ -55,6 +56,7 @@ export const useEvents = () => {
         ...event,
         partner1_name: event.partner1_name || null,
         partner2_name: event.partner2_name || null,
+        rsvp_deadline: event.rsvp_deadline || null,
       })));
     } catch (error) {
       console.error('Error fetching events:', error);
@@ -95,7 +97,8 @@ export const useEvents = () => {
           user_id: user.user.id,
           created_date_local: localDateString,
           expiry_date_local: expiryDateString,
-          event_timezone: timezone
+          event_timezone: timezone,
+          rsvp_deadline: eventData.rsvp_deadline || null
         }])
         .select()
         .single();
