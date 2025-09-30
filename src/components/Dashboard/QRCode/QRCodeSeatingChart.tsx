@@ -94,29 +94,27 @@ export const QRCodeSeatingChart: React.FC<QRCodeSeatingChartProps> = ({
       {/* Header Section */}
       <Card className="ww-box">
         <CardHeader className="pb-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="p-2 rounded-lg bg-primary/10">
-                <QrCode className="w-6 h-6 text-primary" />
-              </div>
-              <div>
-                <CardTitle className="text-2xl gradient-text">QR Code Seating Chart</CardTitle>
-                <CardDescription className="text-base">
-                  Create beautiful QR codes for seamless guest seating
-                </CardDescription>
-              </div>
+          <div className="flex items-center space-x-3">
+            <div className="p-2 rounded-lg bg-primary/10">
+              <QrCode className="w-6 h-6 text-primary" />
             </div>
-            {selectedEvent && (
-              <div className="text-right">
-                <div className="text-sm font-medium text-primary">
-                  {formatEventDate(selectedEvent.date)}
-                </div>
-                <div className="text-sm font-medium text-primary">
-                  {selectedEvent.venue || 'Venue not specified'}
-                </div>
-              </div>
-            )}
+            <div>
+              <CardTitle className="text-2xl gradient-text">QR Code Seating Chart</CardTitle>
+              <CardDescription className="text-base">
+                Create beautiful QR codes for seamless guest seating
+              </CardDescription>
+            </div>
           </div>
+          {selectedEvent && (
+            <div className="text-center mt-4">
+              <h3 className="text-xl font-semibold text-primary/90">
+                {formatEventDate(selectedEvent.date)}
+              </h3>
+              <h3 className="text-xl font-semibold text-primary/90">
+                {selectedEvent.venue || 'Venue not specified'}
+              </h3>
+            </div>
+          )}
         </CardHeader>
         <CardContent className="pt-0">
           <div className="flex items-center space-x-4">
