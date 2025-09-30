@@ -370,201 +370,194 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
           </div>
         </div>
 
-        {/* Two Column Layout: QR Preview & Customization + Live View Sidebar */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left Column: QR Preview and Customization */}
-          <div className="lg:col-span-2 space-y-6">
-            <Card className="bg-white border-2 border-primary/20 rounded-lg">
-              <CardContent className="p-6">
-                {/* QR Preview + Actions Wrapper */}
-                <div id="qr-preview-wrap" className="flex flex-col items-center gap-4">
-                  {/* QR Preview */}
-                    <div 
-                      id="qr-preview"
-                      className="w-full max-w-[460px] aspect-square min-h-[360px] bg-muted/20 rounded-lg flex items-center justify-center"
-                    >
-                    {qrDataUrl ? (
-                      <img 
-                        src={qrDataUrl} 
-                        alt="QR Code Preview" 
-                        className="max-w-full max-h-full" 
-                        style={{ imageRendering: 'pixelated' }}
-                      />
-                    ) : (
-                      <QrCodeIcon className="h-24 w-24 text-muted-foreground/50" />
-                    )}
+        {/* QR Code Box - matches styling of Live View cards below */}
+        <Card className="ww-box">
+          <CardContent className="flex flex-col items-center gap-4">
+            {/* QR Preview */}
+            <div 
+              id="qr-preview"
+              className="w-full aspect-square max-w-md bg-muted/20 rounded-lg flex items-center justify-center"
+            >
+              {qrDataUrl ? (
+                <img 
+                  src={qrDataUrl} 
+                  alt="QR Code Preview" 
+                  className="max-w-full max-h-full" 
+                  style={{ imageRendering: 'pixelated' }}
+                />
+              ) : (
+                <QrCodeIcon className="h-24 w-24 text-muted-foreground/50" />
+              )}
+            </div>
+
+            {/* Color Customization Controls */}
+            <div className="w-full p-4 bg-purple-50/50 border border-purple-200 rounded-lg space-y-3">
+              <div className="flex items-center gap-2 mb-3">
+                <Palette className="h-4 w-4 text-purple-600" />
+                <span className="text-sm font-medium text-gray-800">Customise Your QR Code</span>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                {/* Background Color */}
+                <div className="space-y-2">
+                  <Label className="text-xs font-medium">Background</Label>
+                  <div className="flex items-center space-x-2">
+                    <input
+                      id="color-bg"
+                      type="color"
+                      value={qrSettings.colors.background}
+                      onChange={(e) => updateColors({ background: e.target.value })}
+                      className="w-6 h-6 rounded border border-input"
+                    />
+                    <Input
+                      value={qrSettings.colors.background}
+                      onChange={(e) => updateColors({ background: e.target.value })}
+                      className="text-xs font-mono flex-1 h-8"
+                      placeholder="#ffffff"
+                    />
                   </div>
+                </div>
 
-                  {/* Color Customization Controls */}
-                  <div className="w-full max-w-[460px] p-4 bg-purple-50/50 border border-purple-200 rounded-lg space-y-3">
-                    <div className="flex items-center gap-2 mb-3">
-                      <Palette className="h-4 w-4 text-purple-600" />
-                      <span className="text-sm font-medium text-gray-800">Customise Your QR Code</span>
-                    </div>
-                    
-                    <div className="grid grid-cols-2 gap-4">
-                      {/* Background Color */}
-                      <div className="space-y-2">
-                        <Label className="text-xs font-medium">Background</Label>
-                        <div className="flex items-center space-x-2">
-                          <input
-                            id="color-bg"
-                            type="color"
-                            value={qrSettings.colors.background}
-                            onChange={(e) => updateColors({ background: e.target.value })}
-                            className="w-6 h-6 rounded border border-input"
-                          />
-                          <Input
-                            value={qrSettings.colors.background}
-                            onChange={(e) => updateColors({ background: e.target.value })}
-                            className="text-xs font-mono flex-1 h-8"
-                            placeholder="#ffffff"
-                          />
-                        </div>
-                      </div>
-
-                      {/* Foreground Color */}
-                      <div className="space-y-2">
-                        <Label className="text-xs font-medium">Foreground</Label>
-                        <div className="flex items-center space-x-2">
-                          <input
-                            id="color-fg"
-                            type="color"
-                            value={qrSettings.colors.foreground}
-                            onChange={(e) => updateColors({ foreground: e.target.value })}
-                            className="w-6 h-6 rounded border border-input"
-                          />
-                          <Input
-                            value={qrSettings.colors.foreground}
-                            onChange={(e) => updateColors({ foreground: e.target.value })}
-                            className="text-xs font-mono flex-1 h-8"
-                            placeholder="#000000"
-                          />
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Scannability Warning and Reset Colors */}
-                    <div className="flex items-center gap-2">
-                      <Button
-                        id="btn-reset-colors"
-                        variant="ghost"
-                        size="sm"
-                        onClick={handleResetColors}
-                        className="text-xs text-muted-foreground hover:text-foreground h-6 px-2 shrink-0"
-                      >
-                        Reset Colors
-                      </Button>
-                      <div
-                        id="color-contrast-helper"
-                        className={`flex-1 p-1.5 rounded-md text-xs ${
-                          contrastWarning 
-                            ? 'bg-amber-50 text-amber-800 border border-amber-200' 
-                            : 'bg-green-50 text-green-800 border border-green-200'
-                        }`}
-                      >
-                        {contrastWarning 
-                          ? '⚠️ Low contrast' 
-                          : '✅ Good contrast'
-                        }
-                      </div>
-                    </div>
+                {/* Foreground Color */}
+                <div className="space-y-2">
+                  <Label className="text-xs font-medium">Foreground</Label>
+                  <div className="flex items-center space-x-2">
+                    <input
+                      id="color-fg"
+                      type="color"
+                      value={qrSettings.colors.foreground}
+                      onChange={(e) => updateColors({ foreground: e.target.value })}
+                      className="w-6 h-6 rounded border border-input"
+                    />
+                    <Input
+                      value={qrSettings.colors.foreground}
+                      onChange={(e) => updateColors({ foreground: e.target.value })}
+                      className="text-xs font-mono flex-1 h-8"
+                      placeholder="#000000"
+                    />
                   </div>
+                </div>
+              </div>
 
-                   {/* Action Buttons Grid */}
-                  <div id="qr-action-grid" className="grid grid-cols-2 gap-3 w-full max-w-[460px]">
-                    {/* Row 1 */}
-                    <Button 
-                      id="btn-dl-png" 
-                      variant="outline" 
-                      className="w-full flex items-center justify-center gap-2" 
-                      onClick={handleDownloadPNG}
-                      aria-label="Download PNG"
-                      title="Download PNG"
-                    >
-                      <FileDown className="h-4 w-4 text-purple-600" />
-                      PNG
-                    </Button>
-                    <Button 
-                      id="btn-dl-jpg" 
-                      variant="outline" 
-                      className="w-full flex items-center justify-center gap-2" 
-                      onClick={handleDownloadJPG}
-                      aria-label="Download JPG"
-                      title="Download JPG"
-                    >
-                      <ImageIcon className="h-4 w-4 text-purple-600" />
-                      JPG
-                    </Button>
+              {/* Scannability Warning and Reset Colors */}
+              <div className="flex items-center gap-2">
+                <Button
+                  id="btn-reset-colors"
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleResetColors}
+                  className="text-xs text-muted-foreground hover:text-foreground h-6 px-2 shrink-0"
+                >
+                  Reset Colors
+                </Button>
+                <div
+                  id="color-contrast-helper"
+                  className={`flex-1 p-1.5 rounded-md text-xs ${
+                    contrastWarning 
+                      ? 'bg-amber-50 text-amber-800 border border-amber-200' 
+                      : 'bg-green-50 text-green-800 border border-green-200'
+                  }`}
+                >
+                  {contrastWarning 
+                    ? '⚠️ Low contrast' 
+                    : '✅ Good contrast'
+                  }
+                </div>
+              </div>
+            </div>
 
-                    {/* Row 2 */}
-                    <Button 
-                      id="btn-dl-svg" 
-                      variant="outline" 
-                      className="w-full flex items-center justify-center gap-2" 
-                      onClick={handleDownloadSVG}
-                      aria-label="Download SVG"
-                      title="Download SVG"
-                    >
-                      <Code className="h-4 w-4 text-purple-600" />
-                      SVG
-                    </Button>
-                    <Button 
-                      id="btn-dl-pdf" 
-                      variant="outline" 
-                      className="w-full flex items-center justify-center gap-2" 
-                      onClick={handleDownloadPDF}
-                      aria-label="Download PDF"
-                      title="Download PDF"
-                    >
-                      <FileText className="h-4 w-4 text-purple-600" />
-                      PDF
-                    </Button>
+            {/* Action Buttons Grid */}
+            <div id="qr-action-grid" className="grid grid-cols-2 gap-3 w-full">
+              {/* Row 1 */}
+              <Button 
+                id="btn-dl-png" 
+                variant="outline" 
+                className="w-full flex items-center justify-center gap-2" 
+                onClick={handleDownloadPNG}
+                aria-label="Download PNG"
+                title="Download PNG"
+              >
+                <FileDown className="h-4 w-4 text-purple-600" />
+                PNG
+              </Button>
+              <Button 
+                id="btn-dl-jpg" 
+                variant="outline" 
+                className="w-full flex items-center justify-center gap-2" 
+                onClick={handleDownloadJPG}
+                aria-label="Download JPG"
+                title="Download JPG"
+              >
+                <ImageIcon className="h-4 w-4 text-purple-600" />
+                JPG
+              </Button>
 
-                    {/* Row 3 */}
-                    <Button 
-                      id="btn-reset-qr" 
-                      variant="outline" 
-                      className="w-full flex items-center justify-center gap-2" 
-                      onClick={handleResetQR}
-                      aria-label="Reset QR settings"
-                      title="Reset QR settings"
-                    >
-                      <RotateCcw className="h-4 w-4 text-purple-600" />
-                      Reset
-                    </Button>
-                    <Button 
-                      id="btn-print-qr" 
-                      variant="outline" 
-                      className="w-full flex items-center justify-center gap-2" 
-                      onClick={handlePrintQR}
-                      aria-label="Print QR"
-                      title="Print QR"
-                    >
-                      <Printer className="h-4 w-4 text-purple-600" />
-                      Print
-                    </Button>
+              {/* Row 2 */}
+              <Button 
+                id="btn-dl-svg" 
+                variant="outline" 
+                className="w-full flex items-center justify-center gap-2" 
+                onClick={handleDownloadSVG}
+                aria-label="Download SVG"
+                title="Download SVG"
+              >
+                <Code className="h-4 w-4 text-purple-600" />
+                SVG
+              </Button>
+              <Button 
+                id="btn-dl-pdf" 
+                variant="outline" 
+                className="w-full flex items-center justify-center gap-2" 
+                onClick={handleDownloadPDF}
+                aria-label="Download PDF"
+                title="Download PDF"
+              >
+                <FileText className="h-4 w-4 text-purple-600" />
+                PDF
+              </Button>
 
-                    {/* Row 4 */}
-                    <Button 
-                      id="btn-save-qr" 
-                      variant="default" 
-                      className="col-span-2 w-full flex items-center justify-center gap-2" 
-                      onClick={handleSaveQR}
-                      aria-label="Save QR style"
-                      title="Save QR style"
-                    >
-                      <Save className="h-4 w-4 text-white" />
-                      Save
-                    </Button>
-                   </div>
-                 </div>
-               </CardContent>
-             </Card>
-           </div>
+              {/* Row 3 */}
+              <Button 
+                id="btn-reset-qr" 
+                variant="outline" 
+                className="w-full flex items-center justify-center gap-2" 
+                onClick={handleResetQR}
+                aria-label="Reset QR settings"
+                title="Reset QR settings"
+              >
+                <RotateCcw className="h-4 w-4 text-purple-600" />
+                Reset
+              </Button>
+              <Button 
+                id="btn-print-qr" 
+                variant="outline" 
+                className="w-full flex items-center justify-center gap-2" 
+                onClick={handlePrintQR}
+                aria-label="Print QR"
+                title="Print QR"
+              >
+                <Printer className="h-4 w-4 text-purple-600" />
+                Print
+              </Button>
 
-          {/* Right Column: Live View Sidebar */}
-          <div className="lg:col-span-1 space-y-4">
+              {/* Row 4 */}
+              <Button 
+                id="btn-save-qr" 
+                variant="default" 
+                className="col-span-2 w-full flex items-center justify-center gap-2" 
+                onClick={handleSaveQR}
+                aria-label="Save QR style"
+                title="Save QR style"
+              >
+                <Save className="h-4 w-4 text-white" />
+                Save
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Live View Cards Section */}
+        <div className="space-y-4">
             {/* Live View Card */}
             <Card className="ww-box">
               <CardHeader className="pb-3">
@@ -625,7 +618,6 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
               </CardContent>
             </Card>
           </div>
-        </div>
 
       </CardContent>
     </Card>
