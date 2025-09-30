@@ -553,6 +553,7 @@ export const GuestLookup: React.FC = () => {
             <TabsContent value="search">
               <Card className="ww-box card-elevated">
                 <CardHeader className="text-center">
+                  <p className="text-primary font-semibold text-lg mb-2">You're Invited</p>
                   <CardTitle className="flex items-center justify-center gap-2">
                     <Users className="w-5 h-5 md:w-6 md:h-6 text-primary" />
                     {isEditable ? "Update & Confirm Your Details" : "Type Your Full Name & Find Your Seat"}
