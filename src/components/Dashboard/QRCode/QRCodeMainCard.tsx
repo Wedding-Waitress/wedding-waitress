@@ -377,128 +377,131 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
           </div>
         </div>
 
-        {/* QR Code Box - matches styling of Live View cards below */}
-        <Card className="ww-box">
-          <CardContent className="flex flex-col items-center gap-4">
-            {/* QR Preview */}
-            <div id="qr-preview" className="w-full aspect-square max-w-md bg-muted/20 rounded-lg flex items-center justify-center">
-              {qrDataUrl ? <img src={qrDataUrl} alt="QR Code Preview" className="max-w-full max-h-full" style={{
-              imageRendering: 'pixelated'
-            }} /> : <QrCodeIcon className="h-24 w-24 text-muted-foreground/50" />}
-            </div>
-
-            {/* Color Customization Controls */}
-            <div className="w-full p-4 bg-purple-50/50 border border-purple-200 rounded-lg space-y-3">
-              <div className="flex items-center gap-2 mb-3">
-                <Palette className="h-4 w-4 text-purple-600" />
-                <span className="text-sm font-medium text-gray-800">Customise Your QR Code</span>
+        {/* QR Code and Guest Live View Options - Side by Side */}
+        <div className="flex flex-col lg:flex-row gap-6 items-center lg:items-start justify-center">
+          {/* QR Code Box */}
+          <Card className="ww-box flex-1 max-w-md">
+            <CardContent className="flex flex-col items-center gap-4">
+              {/* QR Preview */}
+              <div id="qr-preview" className="w-full aspect-square bg-muted/20 rounded-lg flex items-center justify-center">
+                {qrDataUrl ? <img src={qrDataUrl} alt="QR Code Preview" className="max-w-full max-h-full" style={{
+                imageRendering: 'pixelated'
+              }} /> : <QrCodeIcon className="h-24 w-24 text-muted-foreground/50" />}
               </div>
-              
-              <div className="grid grid-cols-2 gap-4">
-                {/* Background Color */}
-                <div className="space-y-2">
-                  <Label className="text-xs font-medium">Background</Label>
-                  <div className="flex items-center space-x-2">
-                    <input id="color-bg" type="color" value={qrSettings.colors.background} onChange={e => updateColors({
-                    background: e.target.value
-                  })} className="w-6 h-6 rounded border border-input" />
-                    <Input value={qrSettings.colors.background} onChange={e => updateColors({
-                    background: e.target.value
-                  })} className="text-xs font-mono flex-1 h-8" placeholder="#ffffff" />
+
+              {/* Color Customization Controls */}
+              <div className="w-full p-4 bg-purple-50/50 border border-purple-200 rounded-lg space-y-3">
+                <div className="flex items-center gap-2 mb-3">
+                  <Palette className="h-4 w-4 text-purple-600" />
+                  <span className="text-sm font-medium text-gray-800">Customise Your QR Code</span>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  {/* Background Color */}
+                  <div className="space-y-2">
+                    <Label className="text-xs font-medium">Background</Label>
+                    <div className="flex items-center space-x-2">
+                      <input id="color-bg" type="color" value={qrSettings.colors.background} onChange={e => updateColors({
+                      background: e.target.value
+                    })} className="w-6 h-6 rounded border border-input" />
+                      <Input value={qrSettings.colors.background} onChange={e => updateColors({
+                      background: e.target.value
+                    })} className="text-xs font-mono flex-1 h-8" placeholder="#ffffff" />
+                    </div>
+                  </div>
+
+                  {/* Foreground Color */}
+                  <div className="space-y-2">
+                    <Label className="text-xs font-medium">Foreground</Label>
+                    <div className="flex items-center space-x-2">
+                      <input id="color-fg" type="color" value={qrSettings.colors.foreground} onChange={e => updateColors({
+                      foreground: e.target.value
+                    })} className="w-6 h-6 rounded border border-input" />
+                      <Input value={qrSettings.colors.foreground} onChange={e => updateColors({
+                      foreground: e.target.value
+                    })} className="text-xs font-mono flex-1 h-8" placeholder="#000000" />
+                    </div>
                   </div>
                 </div>
 
-                {/* Foreground Color */}
-                <div className="space-y-2">
-                  <Label className="text-xs font-medium">Foreground</Label>
-                  <div className="flex items-center space-x-2">
-                    <input id="color-fg" type="color" value={qrSettings.colors.foreground} onChange={e => updateColors({
-                    foreground: e.target.value
-                  })} className="w-6 h-6 rounded border border-input" />
-                    <Input value={qrSettings.colors.foreground} onChange={e => updateColors({
-                    foreground: e.target.value
-                  })} className="text-xs font-mono flex-1 h-8" placeholder="#000000" />
+                {/* Scannability Warning and Reset Colors */}
+                <div className="flex items-center gap-2">
+                  <Button id="btn-reset-colors" variant="ghost" size="sm" onClick={handleResetColors} className="text-xs text-muted-foreground hover:text-foreground h-6 px-2 shrink-0">
+                    Reset Colors
+                  </Button>
+                  <div id="color-contrast-helper" className={`flex-1 p-1.5 rounded-md text-xs ${contrastWarning ? 'bg-amber-50 text-amber-800 border border-amber-200' : 'bg-green-50 text-green-800 border border-green-200'}`}>
+                    {contrastWarning ? '⚠️ Low contrast' : '✅ Good contrast'}
                   </div>
                 </div>
               </div>
 
-              {/* Scannability Warning and Reset Colors */}
-              <div className="flex items-center gap-2">
-                <Button id="btn-reset-colors" variant="ghost" size="sm" onClick={handleResetColors} className="text-xs text-muted-foreground hover:text-foreground h-6 px-2 shrink-0">
-                  Reset Colors
+              {/* Action Buttons Grid */}
+              <div id="qr-action-grid" className="grid grid-cols-2 gap-3 w-full">
+                {/* Row 1 */}
+                <Button id="btn-dl-png" variant="outline" className="w-full flex items-center justify-center gap-2" onClick={handleDownloadPNG} aria-label="Download PNG" title="Download PNG">
+                  <FileDown className="h-4 w-4 text-purple-600" />
+                  PNG
                 </Button>
-                <div id="color-contrast-helper" className={`flex-1 p-1.5 rounded-md text-xs ${contrastWarning ? 'bg-amber-50 text-amber-800 border border-amber-200' : 'bg-green-50 text-green-800 border border-green-200'}`}>
-                  {contrastWarning ? '⚠️ Low contrast' : '✅ Good contrast'}
+                <Button id="btn-dl-jpg" variant="outline" className="w-full flex items-center justify-center gap-2" onClick={handleDownloadJPG} aria-label="Download JPG" title="Download JPG">
+                  <ImageIcon className="h-4 w-4 text-purple-600" />
+                  JPG
+                </Button>
+
+                {/* Row 2 */}
+                <Button id="btn-dl-svg" variant="outline" className="w-full flex items-center justify-center gap-2" onClick={handleDownloadSVG} aria-label="Download SVG" title="Download SVG">
+                  <Code className="h-4 w-4 text-purple-600" />
+                  SVG
+                </Button>
+                <Button id="btn-dl-pdf" variant="outline" className="w-full flex items-center justify-center gap-2" onClick={handleDownloadPDF} aria-label="Download PDF" title="Download PDF">
+                  <FileText className="h-4 w-4 text-purple-600" />
+                  PDF
+                </Button>
+
+                {/* Row 3 */}
+                <Button id="btn-reset-qr" variant="outline" className="w-full flex items-center justify-center gap-2" onClick={handleResetQR} aria-label="Reset QR settings" title="Reset QR settings">
+                  <RotateCcw className="h-4 w-4 text-purple-600" />
+                  Reset
+                </Button>
+                <Button id="btn-print-qr" variant="outline" className="w-full flex items-center justify-center gap-2" onClick={handlePrintQR} aria-label="Print QR" title="Print QR">
+                  <Printer className="h-4 w-4 text-purple-600" />
+                  Print
+                </Button>
+
+                {/* Row 4 */}
+                <Button id="btn-save-qr" variant="default" className="col-span-2 w-full flex items-center justify-center gap-2" onClick={handleSaveQR} aria-label="Save QR style" title="Save QR style">
+                  <Save className="h-4 w-4 text-white" />
+                  Save
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Guest Live View Options Card */}
+          <Card className="ww-box flex-1 max-w-md">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg">Guest Live View Options</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <p className="text-sm text-muted-foreground">
+                Configure how guests interact with your live view.
+              </p>
+              <div className="space-y-2 text-sm text-muted-foreground">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  <span>Real-time guest lookup enabled</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  <span>Table assignments visible</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  <span>Mobile optimized</span>
                 </div>
               </div>
-            </div>
-
-            {/* Action Buttons Grid */}
-            <div id="qr-action-grid" className="grid grid-cols-2 gap-3 w-full">
-              {/* Row 1 */}
-              <Button id="btn-dl-png" variant="outline" className="w-full flex items-center justify-center gap-2" onClick={handleDownloadPNG} aria-label="Download PNG" title="Download PNG">
-                <FileDown className="h-4 w-4 text-purple-600" />
-                PNG
-              </Button>
-              <Button id="btn-dl-jpg" variant="outline" className="w-full flex items-center justify-center gap-2" onClick={handleDownloadJPG} aria-label="Download JPG" title="Download JPG">
-                <ImageIcon className="h-4 w-4 text-purple-600" />
-                JPG
-              </Button>
-
-              {/* Row 2 */}
-              <Button id="btn-dl-svg" variant="outline" className="w-full flex items-center justify-center gap-2" onClick={handleDownloadSVG} aria-label="Download SVG" title="Download SVG">
-                <Code className="h-4 w-4 text-purple-600" />
-                SVG
-              </Button>
-              <Button id="btn-dl-pdf" variant="outline" className="w-full flex items-center justify-center gap-2" onClick={handleDownloadPDF} aria-label="Download PDF" title="Download PDF">
-                <FileText className="h-4 w-4 text-purple-600" />
-                PDF
-              </Button>
-
-              {/* Row 3 */}
-              <Button id="btn-reset-qr" variant="outline" className="w-full flex items-center justify-center gap-2" onClick={handleResetQR} aria-label="Reset QR settings" title="Reset QR settings">
-                <RotateCcw className="h-4 w-4 text-purple-600" />
-                Reset
-              </Button>
-              <Button id="btn-print-qr" variant="outline" className="w-full flex items-center justify-center gap-2" onClick={handlePrintQR} aria-label="Print QR" title="Print QR">
-                <Printer className="h-4 w-4 text-purple-600" />
-                Print
-              </Button>
-
-              {/* Row 4 */}
-              <Button id="btn-save-qr" variant="default" className="col-span-2 w-full flex items-center justify-center gap-2" onClick={handleSaveQR} aria-label="Save QR style" title="Save QR style">
-                <Save className="h-4 w-4 text-white" />
-                Save
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Guest Live View Options Card */}
-        <Card className="ww-box">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg">Guest Live View Options</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <p className="text-sm text-muted-foreground">
-              Configure how guests interact with your live view.
-            </p>
-            <div className="space-y-2 text-sm text-muted-foreground">
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <span>Real-time guest lookup enabled</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <span>Table assignments visible</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <span>Mobile optimized</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </div>
 
       </CardContent>
     </Card>;
