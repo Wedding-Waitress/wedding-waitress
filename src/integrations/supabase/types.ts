@@ -35,6 +35,7 @@ export type Database = {
           relation_allow_single_partner: boolean | null
           relation_disable_first_guest_alert: boolean | null
           relation_required: boolean | null
+          rsvp_deadline: string | null
           slug: string | null
           start_time: string | null
           user_id: string
@@ -65,6 +66,7 @@ export type Database = {
           relation_allow_single_partner?: boolean | null
           relation_disable_first_guest_alert?: boolean | null
           relation_required?: boolean | null
+          rsvp_deadline?: string | null
           slug?: string | null
           start_time?: string | null
           user_id: string
@@ -95,6 +97,7 @@ export type Database = {
           relation_allow_single_partner?: boolean | null
           relation_disable_first_guest_alert?: boolean | null
           relation_required?: boolean | null
+          rsvp_deadline?: string | null
           slug?: string | null
           start_time?: string | null
           user_id?: string

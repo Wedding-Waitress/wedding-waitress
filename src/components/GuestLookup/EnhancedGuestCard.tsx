@@ -33,12 +33,14 @@ interface EnhancedGuestCardProps {
   guest: Guest;
   onUpdate: () => void;
   onEdit?: (guest: Guest) => void;
+  isEditable?: boolean;
 }
 
 export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
   guest,
   onUpdate,
-  onEdit
+  onEdit,
+  isEditable = true
 }) => {
   const [updatingRsvp, setUpdatingRsvp] = useState(false);
   const { toast } = useToast();
@@ -123,6 +125,13 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
                 </p>
               )}
               
+              {/* Notice when not editable */}
+              {!isEditable && (
+                <p className="text-xs text-muted-foreground mt-2 italic">
+                  RSVP date has passed. Changes are closed.
+                </p>
+              )}
+              
               {/* Contact Info */}
               <div className="flex flex-wrap gap-4 mt-2 text-xs text-muted-foreground">
                 {guest.email && (
@@ -140,7 +149,7 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
               </div>
             </div>
             
-            {onEdit && (
+            {onEdit && isEditable && (
               <Button
                 variant="ghost"
                 size="sm"

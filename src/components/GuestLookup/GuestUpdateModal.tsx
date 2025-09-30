@@ -49,7 +49,7 @@ interface GuestUpdateModalProps {
   helperText?: string;
   allowNameEdit?: boolean;
   showMessageField?: boolean;
-  lockAfterDeadline?: boolean;
+  isEditable?: boolean;
 }
 
 const dietaryOptions = [
@@ -74,7 +74,7 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
   helperText,
   allowNameEdit = false,
   showMessageField = true,
-  lockAfterDeadline = true
+  isEditable = true
 }) => {
   const [saving, setSaving] = useState(false);
   const [formData, setFormData] = useState({
@@ -87,17 +87,6 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
     notes: ''
   });
   const { toast } = useToast();
-
-  // Check if RSVP deadline has passed
-  const isAfterDeadline = () => {
-    if (!lockAfterDeadline || !event?.date) return false;
-    const eventDate = new Date(event.date);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    return today > eventDate;
-  };
-
-  const deadlinePassed = isAfterDeadline();
 
   useEffect(() => {
     if (guest) {
@@ -186,17 +175,14 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
         <DialogHeader>
           <DialogTitle>Update Your Information</DialogTitle>
           <DialogDescription className="text-sm">
-            {helperText || "Please update-edit your details and save. It will automatically be sent to the event organiser. You can make changes until the RSVP Date. To make changes after that please call the organiser"}
+            {helperText || "Please update-edit your details and save. It will automatically be sent to the event organiser."}
           </DialogDescription>
         </DialogHeader>
 
-        {deadlinePassed ? (
+        {!isEditable ? (
           <div className="py-8 text-center space-y-2">
             <p className="text-sm font-medium text-destructive">
-              RSVP date has passed.
-            </p>
-            <p className="text-sm text-muted-foreground">
-              Please call the organiser to make changes.
+              RSVP date has passed. Please contact the organiser to make changes.
             </p>
           </div>
         ) : (
@@ -207,6 +193,7 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
               <Select
                 value={formData.rsvp}
                 onValueChange={(value) => setFormData({ ...formData, rsvp: value })}
+                disabled={!isEditable}
               >
                 <SelectTrigger id="rsvp">
                   <SelectValue />
@@ -228,6 +215,7 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 placeholder="Enter your email address"
+                disabled={!isEditable}
               />
             </div>
 
@@ -240,6 +228,7 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
                 value={formData.mobile}
                 onChange={(e) => setFormData({ ...formData, mobile: e.target.value })}
                 placeholder="0411569505"
+                disabled={!isEditable}
               />
             </div>
 
@@ -249,6 +238,7 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
               <Select
                 value={formData.dietary}
                 onValueChange={(value) => setFormData({ ...formData, dietary: value })}
+                disabled={!isEditable}
               >
                 <SelectTrigger id="dietary">
                   <SelectValue />
@@ -273,6 +263,7 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
                   onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                   placeholder="Any special requests, allergies, or additional information..."
                   rows={3}
+                  disabled={!isEditable}
                 />
               </div>
             )}
@@ -311,7 +302,7 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
           >
             Cancel
           </Button>
-          {!deadlinePassed && (
+          {isEditable && (
             <Button onClick={handleSave} disabled={saving}>
               {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Save Changes

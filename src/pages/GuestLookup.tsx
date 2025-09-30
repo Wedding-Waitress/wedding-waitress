@@ -52,6 +52,7 @@ interface Event {
   venue: string;
   partner1_name: string | null;
   partner2_name: string | null;
+  rsvp_deadline?: string | null;
 }
 
 export const GuestLookup: React.FC = () => {
@@ -68,6 +69,14 @@ export const GuestLookup: React.FC = () => {
   const [liveViewSettings, setLiveViewSettings] = useState<any>(null);
   const [moduleSettings, setModuleSettings] = useState<any>(null);
   const { toast } = useToast();
+  
+  // Compute is_editable based on rsvp_deadline
+  const isEditable = useMemo(() => {
+    if (!event?.rsvp_deadline) return true; // NULL deadline = always editable
+    const deadline = new Date(event.rsvp_deadline);
+    const now = new Date();
+    return now <= deadline;
+  }, [event?.rsvp_deadline]);
 
   // Check for tab parameter in URL
   useEffect(() => {
@@ -121,6 +130,7 @@ export const GuestLookup: React.FC = () => {
           venue: firstRow.event_venue,
           partner1_name: firstRow.partner1_name,
           partner2_name: firstRow.partner2_name,
+          rsvp_deadline: firstRow.event_rsvp_deadline,
         };
         setEvent(eventData);
 
@@ -567,6 +577,7 @@ export const GuestLookup: React.FC = () => {
                             key={guest.id}
                             guest={guest}
                             onUpdate={refreshGuestData}
+                            isEditable={isEditable}
                             onEdit={liveViewSettings?.show_update_details ? handleEditGuest : undefined}
                           />
                         ))
@@ -666,7 +677,7 @@ export const GuestLookup: React.FC = () => {
           helperText={moduleSettings?.update_details_config?.helper_text}
           allowNameEdit={moduleSettings?.update_details_config?.allow_name_edit ?? false}
           showMessageField={moduleSettings?.update_details_config?.show_message_field ?? true}
-          lockAfterDeadline={moduleSettings?.update_details_config?.lock_after_rsvp_deadline ?? true}
+          isEditable={isEditable}
         />
       )}
     </div>
