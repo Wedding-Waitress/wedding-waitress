@@ -548,20 +548,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
               </div>
 
               {/* Existing bullet list */}
-              <div className="space-y-2 text-sm text-muted-foreground">
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  <span>Real-time guest lookup enabled</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  <span>Table assignments visible</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  <span>Mobile optimized</span>
-                </div>
-              </div>
+              
             </CardContent>
           </Card>
         </div>
