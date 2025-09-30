@@ -6,11 +6,13 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { QrCode as QrCodeIcon, Copy, Download, RotateCcw, Save, Printer, FileDown, Palette, ChevronDown, FileText, Code, Image as ImageIcon, ExternalLink, Link, Eye, EyeOff } from 'lucide-react';
+import { QrCode as QrCodeIcon, Copy, Download, RotateCcw, Save, Printer, FileDown, Palette, ChevronDown, FileText, Code, Image as ImageIcon, ExternalLink, Link, Eye, EyeOff, Upload, Mail } from 'lucide-react';
 import { useEvents } from '@/hooks/useEvents';
 import { useToast } from '@/hooks/use-toast';
 import { useLiveViewVisibility } from '@/hooks/useLiveViewVisibility';
+import { useLiveViewModuleSettings } from '@/hooks/useLiveViewModuleSettings';
 import { buildGuestLookupUrl } from '@/lib/urlUtils';
+import { supabase } from '@/integrations/supabase/client';
 import { AdvancedQRGenerator } from '@/lib/advancedQRGenerator';
 import type { QRCodeSettings } from '@/hooks/useQRCodeSettings';
 import jsPDF from 'jspdf';
@@ -35,7 +37,9 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
     toast
   } = useToast();
   const { settings: visibilitySettings, updateVisibility } = useLiveViewVisibility(eventId);
+  const { settings: moduleSettings, updateModuleConfig } = useLiveViewModuleSettings(eventId);
   const selectedEvent = events.find(event => event.id === eventId);
+  const currentEvent = events.find(event => event.id === eventId);
   const eventUrl = selectedEvent?.slug ? buildGuestLookupUrl(selectedEvent.slug) : `https://…/live-view/${eventId}`;
 
   // QR Settings State
@@ -505,10 +509,201 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                         </Badge>
                       </AccordionTrigger>
                       <AccordionContent>
-                        <div className="p-4 bg-muted/30 rounded-md">
-                          <p className="text-sm text-muted-foreground">
-                            Coming soon — settings will be added here.
+                        <div className="p-4 space-y-4">
+                          <h4 className="text-sm font-semibold">Upload Digital Invitation & Send it to your guests</h4>
+                          
+                          <p className="text-xs text-muted-foreground">
+                            We suggest you create an A4 Size (148W mm X 210H mm) Digital brochure and upload it for your guests to see on their mobile.
                           </p>
+                          
+                          <div className="space-y-2">
+                            <p className="text-xs font-bold">We suggest adding the following details in your Digital Invitation</p>
+                            <ul className="text-xs text-muted-foreground space-y-1 pl-4 list-disc">
+                              <li>Invitation Message "You Are Invited". (to our wedding / Event)</li>
+                              <li>Event Date.</li>
+                              <li>Event Start & Finish Time.</li>
+                              <li>Event Venue Name & Location.</li>
+                              <li>Wedding Couple / Organiser Contact Details.</li>
+                              <li>Event RSVP Date.</li>
+                              <li>Will you attend our wedding / Event?</li>
+                              <li>Please "Update Your Details" in the next tab.</li>
+                            </ul>
+                          </div>
+
+                          {/* Upload Area */}
+                          <div className="space-y-2 pt-2">
+                            <label className="text-xs font-medium">Upload Digital Invitation (PDF / JPG / PNG)</label>
+                            {moduleSettings?.rsvp_invite_config?.file_url ? (
+                              <div className="flex items-center gap-2 p-3 bg-muted rounded-md">
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-xs font-medium truncate">
+                                    {moduleSettings.rsvp_invite_config.file_name}
+                                  </p>
+                                  <p className="text-xs text-muted-foreground">
+                                    Uploaded {new Date(moduleSettings.rsvp_invite_config.uploaded_at).toLocaleDateString()}
+                                  </p>
+                                </div>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => {
+                                    const input = document.createElement('input');
+                                    input.type = 'file';
+                                    input.accept = '.pdf,.jpg,.jpeg,.png';
+                                    input.onchange = async (e) => {
+                                      const file = (e.target as HTMLInputElement).files?.[0];
+                                      if (file && eventId) {
+                                        try {
+                                          const fileExt = file.name.split('.').pop();
+                                          const fileName = `${Date.now()}.${fileExt}`;
+                                          const filePath = `${eventId}/rsvp_invite/${fileName}`;
+                                          
+                                          const { error: uploadError } = await supabase.storage
+                                            .from('invitations')
+                                            .upload(filePath, file);
+                                          
+                                          if (uploadError) throw uploadError;
+                                          
+                                          const { data: { publicUrl } } = supabase.storage
+                                            .from('invitations')
+                                            .getPublicUrl(filePath);
+                                          
+                                          await updateModuleConfig('rsvp_invite_config', {
+                                            file_url: publicUrl,
+                                            file_name: file.name,
+                                            file_type: file.type,
+                                            uploaded_at: new Date().toISOString()
+                                          });
+                                          
+                                          toast({ title: 'Invitation replaced successfully' });
+                                        } catch (error: any) {
+                                          toast({ 
+                                            title: 'Upload failed', 
+                                            description: error.message,
+                                            variant: 'destructive' 
+                                          });
+                                        }
+                                      }
+                                    };
+                                    input.click();
+                                  }}
+                                >
+                                  Replace
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="destructive"
+                                  onClick={async () => {
+                                    if (eventId && moduleSettings?.rsvp_invite_config?.file_url) {
+                                      try {
+                                        const path = moduleSettings.rsvp_invite_config.file_url.split('/invitations/')[1];
+                                        await supabase.storage.from('invitations').remove([path]);
+                                        await updateModuleConfig('rsvp_invite_config', {});
+                                        toast({ title: 'Invitation removed successfully' });
+                                      } catch (error: any) {
+                                        toast({ 
+                                          title: 'Remove failed', 
+                                          description: error.message,
+                                          variant: 'destructive' 
+                                        });
+                                      }
+                                    }
+                                  }}
+                                >
+                                  Remove
+                                </Button>
+                              </div>
+                            ) : (
+                              <div
+                                className="border-2 border-dashed rounded-md p-4 text-center cursor-pointer hover:bg-muted/50 transition-colors"
+                                onClick={() => {
+                                  const input = document.createElement('input');
+                                  input.type = 'file';
+                                  input.accept = '.pdf,.jpg,.jpeg,.png';
+                                  input.onchange = async (e) => {
+                                    const file = (e.target as HTMLInputElement).files?.[0];
+                                    if (file && eventId) {
+                                      try {
+                                        const fileExt = file.name.split('.').pop();
+                                        const fileName = `${Date.now()}.${fileExt}`;
+                                        const filePath = `${eventId}/rsvp_invite/${fileName}`;
+                                        
+                                        const { error: uploadError } = await supabase.storage
+                                          .from('invitations')
+                                          .upload(filePath, file);
+                                        
+                                        if (uploadError) throw uploadError;
+                                        
+                                        const { data: { publicUrl } } = supabase.storage
+                                          .from('invitations')
+                                          .getPublicUrl(filePath);
+                                        
+                                        await updateModuleConfig('rsvp_invite_config', {
+                                          file_url: publicUrl,
+                                          file_name: file.name,
+                                          file_type: file.type,
+                                          uploaded_at: new Date().toISOString()
+                                        });
+                                        
+                                        toast({ title: 'Invitation uploaded successfully' });
+                                      } catch (error: any) {
+                                        toast({ 
+                                          title: 'Upload failed', 
+                                          description: error.message,
+                                          variant: 'destructive' 
+                                        });
+                                      }
+                                    }
+                                  };
+                                  input.click();
+                                }}
+                              >
+                                <Upload className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
+                                <p className="text-xs text-muted-foreground">
+                                  Click to upload or drag and drop
+                                </p>
+                                <p className="text-xs text-muted-foreground mt-1">
+                                  PDF, JPG, or PNG
+                                </p>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Quick Share Actions */}
+                          <div className="flex gap-2 pt-2">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="flex-1"
+                              onClick={() => {
+                                if (currentEvent?.slug) {
+                                  const url = buildGuestLookupUrl(currentEvent.slug) + '?tab=rsvp-invite';
+                                  window.open(url, '_blank');
+                                }
+                              }}
+                            >
+                              <ExternalLink className="h-3 w-3 mr-1" />
+                              Open Live View (RSVP Invite)
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="flex-1"
+                              onClick={() => {
+                                if (currentEvent?.slug) {
+                                  const url = buildGuestLookupUrl(currentEvent.slug) + '?tab=rsvp-invite';
+                                  navigator.clipboard.writeText(url);
+                                  toast({
+                                    title: 'Link copied!',
+                                    description: 'Share link with RSVP Invite tab has been copied to clipboard'
+                                  });
+                                }
+                              }}
+                            >
+                              <Copy className="h-3 w-3 mr-1" />
+                              Copy Share Link (RSVP Invite)
+                            </Button>
+                          </div>
                         </div>
                       </AccordionContent>
                     </AccordionItem>

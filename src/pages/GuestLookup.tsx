@@ -17,7 +17,8 @@ import {
   User,
   Eye,
   Smartphone,
-  Share2
+  Share2,
+  Mail
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -62,7 +63,18 @@ export const GuestLookup: React.FC = () => {
   const [selectedGuest, setSelectedGuest] = useState<Guest | null>(null);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [activeTab, setActiveTab] = useState('search');
+  const [liveViewSettings, setLiveViewSettings] = useState<any>(null);
+  const [moduleSettings, setModuleSettings] = useState<any>(null);
   const { toast } = useToast();
+
+  // Check for tab parameter in URL
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const tabParam = params.get('tab');
+    if (tabParam === 'rsvp-invite') {
+      setActiveTab('rsvp-invite');
+    }
+  }, []);
 
   // Fetch event and guests data using public RPC function
   useEffect(() => {
@@ -131,6 +143,24 @@ export const GuestLookup: React.FC = () => {
           }));
 
         setGuests(transformedGuests);
+
+        // Fetch live view settings
+        const { data: liveSettings } = await supabase
+          .from('live_view_settings')
+          .select('*')
+          .eq('event_id', eventData.id)
+          .maybeSingle();
+        
+        setLiveViewSettings(liveSettings);
+
+        // Fetch module settings
+        const { data: modSettings } = await supabase
+          .from('live_view_module_settings')
+          .select('*')
+          .eq('event_id', eventData.id)
+          .maybeSingle();
+        
+        setModuleSettings(modSettings);
       } catch (error) {
         console.error('Error fetching event data:', error);
         toast({
@@ -406,7 +436,14 @@ export const GuestLookup: React.FC = () => {
       <div className="container mx-auto px-4 py-6 md:py-8">
         <div className="max-w-4xl mx-auto">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-6">
+            <TabsList className={`grid w-full mb-6 ${liveViewSettings?.show_rsvp_invite ? 'grid-cols-3' : 'grid-cols-2'}`}>
+              {liveViewSettings?.show_rsvp_invite && (
+                <TabsTrigger value="rsvp-invite" className="flex items-center gap-2">
+                  <Mail className="w-4 h-4" />
+                  <span className="hidden sm:inline">RSVP Invite</span>
+                  <span className="sm:hidden">RSVP</span>
+                </TabsTrigger>
+              )}
               <TabsTrigger value="search" className="flex items-center gap-2">
                 <Search className="w-4 h-4" />
                 <span className="hidden sm:inline">Find Your Table</span>
@@ -418,6 +455,54 @@ export const GuestLookup: React.FC = () => {
                 <span className="sm:hidden">View</span>
               </TabsTrigger>
             </TabsList>
+
+            {/* RSVP Invite Tab Content */}
+            {liveViewSettings?.show_rsvp_invite && (
+              <TabsContent value="rsvp-invite">
+                <Card className="ww-box card-elevated">
+                  <CardHeader className="text-center">
+                    <CardTitle className="flex items-center justify-center gap-2">
+                      <Mail className="w-5 h-5 md:w-6 md:h-6 text-primary" />
+                      You Are Invited
+                    </CardTitle>
+                    <CardDescription>
+                      View your digital invitation
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {moduleSettings?.rsvp_invite_config?.file_url ? (
+                      <div className="text-center">
+                        {moduleSettings.rsvp_invite_config.file_type?.includes('pdf') ? (
+                          <div className="aspect-[210/297] max-w-md mx-auto border rounded-lg overflow-hidden">
+                            <iframe 
+                              src={moduleSettings.rsvp_invite_config.file_url}
+                              className="w-full h-full"
+                              title="RSVP Invitation"
+                            />
+                          </div>
+                        ) : (
+                          <img 
+                            src={moduleSettings.rsvp_invite_config.file_url} 
+                            alt="RSVP Invitation"
+                            className="max-w-full h-auto mx-auto rounded-lg shadow-lg"
+                          />
+                        )}
+                        <p className="text-sm text-muted-foreground mt-4">
+                          Please review your invitation and RSVP using the tabs above.
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="text-center py-8">
+                        <Mail className="w-12 h-12 mx-auto text-muted-foreground mb-3" />
+                        <p className="text-muted-foreground">
+                          Your invitation will appear here soon.
+                        </p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            )}
 
             <TabsContent value="search">
               <Card className="ww-box card-elevated">
