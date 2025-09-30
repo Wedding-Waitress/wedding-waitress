@@ -7,6 +7,7 @@ import { useEvents } from '@/hooks/useEvents';
 import { useToast } from '@/hooks/use-toast';
 import { QRCodeMainCard } from './QRCodeMainCard';
 import { buildGuestLookupUrl } from '@/lib/urlUtils';
+import { format, parse } from 'date-fns';
 
 interface QRCodeSeatingChartProps {
   selectedEventId?: string | null;
@@ -72,6 +73,22 @@ export const QRCodeSeatingChart: React.FC<QRCodeSeatingChartProps> = ({
 
   const currentEventId = selectedEventId || localSelectedEventId;
 
+  // Format date with ordinal suffix
+  const formatEventDate = (dateString: string) => {
+    try {
+      const date = parse(dateString, 'yyyy-MM-dd', new Date());
+      const day = format(date, 'd');
+      const ordinal = (n: number) => {
+        const s = ['th', 'st', 'nd', 'rd'];
+        const v = n % 100;
+        return n + (s[(v - 20) % 10] || s[v] || s[0]);
+      };
+      return format(date, 'EEEE, ') + ordinal(parseInt(day)) + format(date, ' MMMM yyyy');
+    } catch {
+      return dateString;
+    }
+  };
+
   return (
     <div className="space-y-8">
       {/* Header Section */}
@@ -89,6 +106,16 @@ export const QRCodeSeatingChart: React.FC<QRCodeSeatingChartProps> = ({
                 </CardDescription>
               </div>
             </div>
+            {selectedEvent && (
+              <div className="text-right">
+                <div className="text-sm font-medium text-primary">
+                  {formatEventDate(selectedEvent.date)}
+                </div>
+                <div className="text-sm font-medium text-primary">
+                  {selectedEvent.venue || 'Venue not specified'}
+                </div>
+              </div>
+            )}
           </div>
         </CardHeader>
         <CardContent className="pt-0">
@@ -121,24 +148,6 @@ export const QRCodeSeatingChart: React.FC<QRCodeSeatingChartProps> = ({
 
         </CardContent>
       </Card>
-
-      {/* Event Details Card */}
-      {selectedEvent && (
-        <Card className="ww-box">
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="font-semibold text-foreground text-lg">
-                  QR Code Seating Chart for: <span className="text-primary">{selectedEvent.name}</span>
-                </h3>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Event Date: {selectedEvent.date} • Venue: {selectedEvent.venue || 'Not specified'}
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
 
       {/* Main QR Code Card */}
       {currentEventId && (
