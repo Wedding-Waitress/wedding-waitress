@@ -339,7 +339,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Grid Layout for Top Row and Bottom Cards */}
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_minmax(420px,1fr)] gap-4 lg:gap-6 max-w-[1400px] mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr_0.8fr] gap-4 lg:gap-6 max-w-[1400px] mx-auto">
           {/* Row 1, Col 1: Connection Status Indicators */}
           <div className="flex-1 space-y-3 p-4 bg-green-50 border border-green-200 rounded-lg my-[30px]">
             {/* Connection Status */}
@@ -380,7 +380,10 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
             </div>
           </div>
 
-          {/* Row 2, Col 1: QR Code Box */}
+          {/* Row 1, Col 3: Empty for alignment */}
+          <div className="hidden lg:block"></div>
+
+          {/* Row 2, Col 1: QR Code Card */}
           <Card className="ww-box w-full lg:w-auto">
             <CardContent className="flex flex-col items-center gap-4">
               {/* QR Preview */}
@@ -477,10 +480,8 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
             </CardContent>
           </Card>
 
-          {/* Row 2, Col 2: Two-column layout for Live View cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Guest Live View Options Card */}
-            <Card className="ww-box w-full">
+          {/* Row 2, Col 2: Guest Live View Options Card */}
+          <Card className="ww-box w-full">
               <CardHeader className="pb-3">
                 <CardTitle className="text-lg">Guest Live View Options</CardTitle>
               </CardHeader>
@@ -630,8 +631,8 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
               </CardContent>
             </Card>
 
-            {/* Choose What Your Guests See Card */}
-            <Card className="ww-box w-full">
+          {/* Row 2, Col 3: Choose What Your Guests See Card */}
+          <Card className="ww-box w-full">
               <CardHeader className="pb-3">
                 <CardTitle className="text-lg">Choose What Your Guests See</CardTitle>
               </CardHeader>
@@ -738,10 +739,9 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                       aria-label="Toggle Welcome Video visibility"
                     />
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
       </CardContent>
