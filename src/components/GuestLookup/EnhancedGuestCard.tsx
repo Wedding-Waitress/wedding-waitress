@@ -22,6 +22,7 @@ interface Guest {
   last_name: string;
   table_no: number | null;
   table_id: string | null;
+  seat_no?: number | null;
   relation_display?: string;
   rsvp: string;
   dietary?: string;
@@ -162,37 +163,40 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
           </div>
 
           {/* Table Assignment */}
-          <div className="flex items-center justify-between p-4 bg-background-subtle rounded-lg">
-            <div className="flex items-center gap-2">
-              <Users className="w-5 h-5 text-primary" />
-              <div>
-                {guest.table_no ? (
-                  <>
-                    <div className="font-semibold">Table {guest.table_no}</div>
-                    <div className="text-sm text-muted-foreground">Your assigned table</div>
-                  </>
-                ) : (
-                  <>
-                    <div className="font-semibold">No Table Assigned</div>
-                    <div className="text-sm text-muted-foreground">Please see event staff</div>
-                  </>
-                )}
+          <div className="flex items-start gap-3 p-4 bg-background-subtle rounded-lg">
+            <Users className="w-5 h-5 text-primary mt-0.5" />
+            <div className="flex-1">
+              {guest.table_no ? (
+                <>
+                  <div className="font-semibold text-foreground">Table {guest.table_no}</div>
+                  <div className="text-sm text-muted-foreground">Your assigned table</div>
+                </>
+              ) : (
+                <>
+                  <div className="font-semibold text-foreground">No Table Assigned</div>
+                  <div className="text-sm text-muted-foreground">Please see event staff</div>
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* Seat Assignment */}
+          {guest.seat_no && (
+            <div className="flex items-start gap-3 p-4 bg-background-subtle rounded-lg">
+              <Users className="w-5 h-5 text-primary mt-0.5" />
+              <div className="flex-1">
+                <div className="font-semibold text-foreground">Seat {guest.seat_no}</div>
+                <div className="text-sm text-muted-foreground">Your assigned seat</div>
               </div>
             </div>
-            
-            {guest.table_no && (
-              <Badge variant="default" className="text-lg px-4 py-2">
-                Table {guest.table_no}
-              </Badge>
-            )}
-          </div>
+          )}
 
           {/* Dietary Info */}
           {guest.dietary && guest.dietary !== 'NA' && (
-            <div className="flex items-center gap-2 p-3 bg-accent/50 rounded-lg">
-              <Utensils className="w-4 h-4 text-accent-foreground" />
-              <div>
-                <div className="text-sm font-medium">Dietary Requirements</div>
+            <div className="flex items-start gap-3 p-4 bg-accent/50 rounded-lg">
+              <Utensils className="w-5 h-5 text-accent-foreground mt-0.5" />
+              <div className="flex-1">
+                <div className="font-semibold text-foreground">Dietary Requirements</div>
                 <div className="text-sm text-muted-foreground">{guest.dietary}</div>
               </div>
             </div>
@@ -200,36 +204,32 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
 
           {/* RSVP Section */}
           <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-medium">RSVP Status:</span>
-                <div className={`flex items-center gap-1 ${getRsvpColor(localRsvp)}`}>
-                  {React.createElement(getRsvpIcon(localRsvp), { className: "w-4 h-4" })}
-                  <span className="text-sm font-medium">
-                    {getRsvpDisplayLabel(localRsvp)}
-                  </span>
-                </div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium">RSVP Status:</span>
+              <div className={`flex items-center gap-1 ${getRsvpColor(localRsvp)}`}>
+                {React.createElement(getRsvpIcon(localRsvp), { className: "w-4 h-4" })}
+                <span className="text-sm font-medium">
+                  {getRsvpDisplayLabel(localRsvp)}
+                </span>
               </div>
             </div>
             
-            {localRsvp !== 'Attending' && (
+            {localRsvp !== 'Attending' && isEditable && (
               <div className="flex gap-2">
                 <Button
-                  variant="default"
                   size="sm"
                   onClick={() => updateRsvp('Attending')}
                   disabled={updatingRsvp}
-                  className="flex-1"
+                  className="flex-1 bg-success text-success-foreground hover:bg-success/90"
                 >
                   <CheckCircle2 className="w-4 h-4 mr-2" />
                   Accept
                 </Button>
                 <Button
-                  variant="outline"
                   size="sm"
                   onClick={() => updateRsvp('Not Attending')}
                   disabled={updatingRsvp}
-                  className="flex-1"
+                  className="flex-1 bg-destructive text-destructive-foreground hover:bg-destructive/90"
                 >
                   <X className="w-4 h-4 mr-2" />
                   Decline
