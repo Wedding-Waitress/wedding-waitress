@@ -32,7 +32,7 @@ interface Guest {
 interface EnhancedGuestCardProps {
   guest: Guest;
   onUpdate: () => void;
-  onEdit: (guest: Guest) => void;
+  onEdit?: (guest: Guest) => void;
 }
 
 export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
@@ -140,14 +140,16 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
               </div>
             </div>
             
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => onEdit(guest)}
-              className="ml-2"
-            >
-              <Edit3 className="w-4 h-4" />
-            </Button>
+            {onEdit && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => onEdit(guest)}
+                className="ml-2"
+              >
+                <Edit3 className="w-4 h-4" />
+              </Button>
+            )}
           </div>
 
           {/* Table Assignment */}

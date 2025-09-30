@@ -47,6 +47,9 @@ interface GuestUpdateModalProps {
   onOpenChange: (open: boolean) => void;
   onUpdate: () => void;
   helperText?: string;
+  allowNameEdit?: boolean;
+  showMessageField?: boolean;
+  lockAfterDeadline?: boolean;
 }
 
 const dietaryOptions = [
@@ -68,7 +71,10 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
   open,
   onOpenChange,
   onUpdate,
-  helperText
+  helperText,
+  allowNameEdit = false,
+  showMessageField = true,
+  lockAfterDeadline = true
 }) => {
   const [saving, setSaving] = useState(false);
   const [formData, setFormData] = useState({
@@ -84,7 +90,7 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
 
   // Check if RSVP deadline has passed
   const isAfterDeadline = () => {
-    if (!event?.date) return false;
+    if (!lockAfterDeadline || !event?.date) return false;
     const eventDate = new Date(event.date);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -213,49 +219,27 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
               </Select>
             </div>
 
-            {/* Full Name */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="first_name">First Name</Label>
-                <Input
-                  id="first_name"
-                  value={formData.first_name}
-                  onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
-                  placeholder="First name"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="last_name">Last Name</Label>
-                <Input
-                  id="last_name"
-                  value={formData.last_name}
-                  onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
-                  placeholder="Last name"
-                />
-              </div>
-            </div>
-
-            {/* Mobile */}
-            <div className="space-y-2">
-              <Label htmlFor="mobile">Mobile</Label>
-              <Input
-                id="mobile"
-                type="tel"
-                value={formData.mobile}
-                onChange={(e) => setFormData({ ...formData, mobile: e.target.value })}
-                placeholder="Mobile number"
-              />
-            </div>
-
             {/* Email */}
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">Email Address</Label>
               <Input
                 id="email"
                 type="email"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                placeholder="Email address"
+                placeholder="Enter your email address"
+              />
+            </div>
+
+            {/* Mobile */}
+            <div className="space-y-2">
+              <Label htmlFor="mobile">Mobile Number</Label>
+              <Input
+                id="mobile"
+                type="tel"
+                value={formData.mobile}
+                onChange={(e) => setFormData({ ...formData, mobile: e.target.value })}
+                placeholder="0411569505"
               />
             </div>
 
@@ -280,16 +264,42 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
             </div>
 
             {/* Message / Special Requests */}
-            <div className="space-y-2">
-              <Label htmlFor="notes">Special Requests or Notes</Label>
-              <Textarea
-                id="notes"
-                value={formData.notes}
-                onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                placeholder="Any special requests or notes..."
-                rows={3}
-              />
-            </div>
+            {showMessageField && (
+              <div className="space-y-2">
+                <Label htmlFor="notes">Special Requests or Notes</Label>
+                <Textarea
+                  id="notes"
+                  value={formData.notes}
+                  onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                  placeholder="Any special requests, allergies, or additional information..."
+                  rows={3}
+                />
+              </div>
+            )}
+
+            {/* Full Name - Only show if allowed */}
+            {allowNameEdit && (
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="first_name">First Name</Label>
+                  <Input
+                    id="first_name"
+                    value={formData.first_name}
+                    onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
+                    placeholder="First name"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="last_name">Last Name</Label>
+                  <Input
+                    id="last_name"
+                    value={formData.last_name}
+                    onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
+                    placeholder="Last name"
+                  />
+                </div>
+              </div>
+            )}
           </div>
         )}
 

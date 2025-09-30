@@ -567,7 +567,7 @@ export const GuestLookup: React.FC = () => {
                             key={guest.id}
                             guest={guest}
                             onUpdate={refreshGuestData}
-                            onEdit={handleEditGuest}
+                            onEdit={liveViewSettings?.show_update_details ? handleEditGuest : undefined}
                           />
                         ))
                       ) : (
@@ -652,18 +652,23 @@ export const GuestLookup: React.FC = () => {
       />
 
       {/* Guest Update Modal */}
-      <GuestUpdateModal
-        guest={selectedGuest ? {
-          ...selectedGuest,
-          event_id: event?.id || '',
-          notes: ''
-        } : null}
-        event={event}
-        open={isUpdateModalOpen}
-        onOpenChange={setIsUpdateModalOpen}
-        onUpdate={refreshGuestData}
-        helperText={moduleSettings?.update_details_config?.helperText}
-      />
+      {liveViewSettings?.show_update_details && (
+        <GuestUpdateModal
+          guest={selectedGuest ? {
+            ...selectedGuest,
+            event_id: event?.id || '',
+            notes: ''
+          } : null}
+          event={event}
+          open={isUpdateModalOpen}
+          onOpenChange={setIsUpdateModalOpen}
+          onUpdate={refreshGuestData}
+          helperText={moduleSettings?.update_details_config?.helperText}
+          allowNameEdit={moduleSettings?.update_details_config?.allow_name_edit ?? false}
+          showMessageField={moduleSettings?.update_details_config?.show_message_field ?? true}
+          lockAfterDeadline={moduleSettings?.update_details_config?.lock_after_rsvp_deadline ?? true}
+        />
+      )}
     </div>
   );
 };

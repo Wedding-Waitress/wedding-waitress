@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
+import { Textarea } from '@/components/ui/textarea';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { QrCode as QrCodeIcon, Copy, Download, RotateCcw, Save, Printer, FileDown, Palette, ChevronDown, FileText, Code, Image as ImageIcon, ExternalLink, Link, Eye, EyeOff, Upload, Mail, Edit } from 'lucide-react';
 import { useEvents } from '@/hooks/useEvents';
@@ -770,6 +771,57 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                             <p className="text-xs text-muted-foreground">
                               This text will appear in the search field on the Live View.
                             </p>
+                          </div>
+
+                          {/* Configuration Switches */}
+                          <div className="space-y-3 pt-2">
+                            <div className="flex items-center justify-between">
+                              <Label htmlFor="allow-name-edit" className="text-sm font-normal">
+                                Allow guests to edit their name
+                              </Label>
+                              <Switch
+                                id="allow-name-edit"
+                                checked={moduleSettings?.update_details_config?.allow_name_edit ?? false}
+                                onCheckedChange={(checked) => {
+                                  updateModuleConfig('update_details_config', {
+                                    ...moduleSettings?.update_details_config,
+                                    allow_name_edit: checked
+                                  });
+                                }}
+                              />
+                            </div>
+
+                            <div className="flex items-center justify-between">
+                              <Label htmlFor="show-message-field" className="text-sm font-normal">
+                                Show special requests/notes field
+                              </Label>
+                              <Switch
+                                id="show-message-field"
+                                checked={moduleSettings?.update_details_config?.show_message_field ?? true}
+                                onCheckedChange={(checked) => {
+                                  updateModuleConfig('update_details_config', {
+                                    ...moduleSettings?.update_details_config,
+                                    show_message_field: checked
+                                  });
+                                }}
+                              />
+                            </div>
+
+                            <div className="flex items-center justify-between">
+                              <Label htmlFor="lock-after-deadline" className="text-sm font-normal">
+                                Lock updates after RSVP deadline
+                              </Label>
+                              <Switch
+                                id="lock-after-deadline"
+                                checked={moduleSettings?.update_details_config?.lock_after_rsvp_deadline ?? true}
+                                onCheckedChange={(checked) => {
+                                  updateModuleConfig('update_details_config', {
+                                    ...moduleSettings?.update_details_config,
+                                    lock_after_rsvp_deadline: checked
+                                  });
+                                }}
+                              />
+                            </div>
                           </div>
                         </div>
                       </AccordionContent>
