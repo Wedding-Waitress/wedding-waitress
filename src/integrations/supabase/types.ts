@@ -771,6 +771,7 @@ export type Database = {
           event_finish_time: string
           event_id: string
           event_name: string
+          event_rsvp_deadline: string
           event_start_time: string
           event_venue: string
           guest_dietary: string
