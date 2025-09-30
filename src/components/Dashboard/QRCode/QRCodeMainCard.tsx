@@ -5,10 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { QrCode as QrCodeIcon, Copy, Download, RotateCcw, Save, Printer, FileDown, Palette, ChevronDown, FileText, Code, Image as ImageIcon, ExternalLink, Link } from 'lucide-react';
-import { Switch } from '@/components/ui/switch';
 import { useEvents } from '@/hooks/useEvents';
 import { useToast } from '@/hooks/use-toast';
-import { useLiveViewSettings } from '@/hooks/useLiveViewSettings';
 import { buildGuestLookupUrl } from '@/lib/urlUtils';
 import { AdvancedQRGenerator } from '@/lib/advancedQRGenerator';
 import type { QRCodeSettings } from '@/hooks/useQRCodeSettings';
@@ -33,7 +31,6 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
   const {
     toast
   } = useToast();
-  const { settings: liveViewSettings, loading: settingsLoading, updateSetting } = useLiveViewSettings(eventId);
   const selectedEvent = events.find(event => event.id === eventId);
   const eventUrl = selectedEvent?.slug ? buildGuestLookupUrl(selectedEvent.slug) : `https://…/live-view/${eventId}`;
 
@@ -484,114 +481,11 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
             <CardHeader className="pb-3">
               <CardTitle className="text-lg">Guest Live View Options</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-3">
               <p className="text-sm text-muted-foreground">
                 Configure how guests interact with your live view.
               </p>
-
-              {/* Live View Modules Accordion */}
-              <div className="space-y-2">
-                <h3 className="text-sm font-semibold text-foreground">Live View Modules</h3>
-                <Accordion type="multiple" className="w-full">
-                  {/* RSVP Invite */}
-                  <AccordionItem value="rsvp-invite">
-                    <AccordionTrigger className="text-sm py-3">RSVP Invite</AccordionTrigger>
-                    <AccordionContent className="pb-4 pt-2">
-                      <div className="flex items-center justify-between">
-                        <Label htmlFor="show-rsvp" className="text-sm">
-                          Show on Live View
-                          <span className="block text-xs text-muted-foreground">Tab visible to guests</span>
-                        </Label>
-                        <Switch
-                          id="show-rsvp"
-                          checked={liveViewSettings?.show_rsvp_invite || false}
-                          onCheckedChange={(checked) => updateSetting('show_rsvp_invite', checked)}
-                          disabled={settingsLoading}
-                        />
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-
-                  {/* Search & Update Info */}
-                  <AccordionItem value="search-update">
-                    <AccordionTrigger className="text-sm py-3">Search & Update Info</AccordionTrigger>
-                    <AccordionContent className="pb-4 pt-2">
-                      <div className="flex items-center justify-between">
-                        <Label htmlFor="show-search" className="text-sm">
-                          Show on Live View
-                          <span className="block text-xs text-muted-foreground">Tab visible to guests</span>
-                        </Label>
-                        <Switch
-                          id="show-search"
-                          checked={liveViewSettings?.show_search_update !== false}
-                          onCheckedChange={(checked) => updateSetting('show_search_update', checked)}
-                          disabled={settingsLoading}
-                        />
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-
-                  {/* Ceremony */}
-                  <AccordionItem value="ceremony">
-                    <AccordionTrigger className="text-sm py-3">Ceremony</AccordionTrigger>
-                    <AccordionContent className="pb-4 pt-2">
-                      <div className="flex items-center justify-between">
-                        <Label htmlFor="show-ceremony" className="text-sm">
-                          Show on Live View
-                          <span className="block text-xs text-muted-foreground">Tab visible to guests</span>
-                        </Label>
-                        <Switch
-                          id="show-ceremony"
-                          checked={liveViewSettings?.show_ceremony || false}
-                          onCheckedChange={(checked) => updateSetting('show_ceremony', checked)}
-                          disabled={settingsLoading}
-                        />
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-
-                  {/* Reception */}
-                  <AccordionItem value="reception">
-                    <AccordionTrigger className="text-sm py-3">Reception</AccordionTrigger>
-                    <AccordionContent className="pb-4 pt-2">
-                      <div className="flex items-center justify-between">
-                        <Label htmlFor="show-reception" className="text-sm">
-                          Show on Live View
-                          <span className="block text-xs text-muted-foreground">Tab visible to guests</span>
-                        </Label>
-                        <Switch
-                          id="show-reception"
-                          checked={liveViewSettings?.show_reception || false}
-                          onCheckedChange={(checked) => updateSetting('show_reception', checked)}
-                          disabled={settingsLoading}
-                        />
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-
-                  {/* Video Message */}
-                  <AccordionItem value="video-message">
-                    <AccordionTrigger className="text-sm py-3">Video Message</AccordionTrigger>
-                    <AccordionContent className="pb-4 pt-2">
-                      <div className="flex items-center justify-between">
-                        <Label htmlFor="show-video" className="text-sm">
-                          Show on Live View
-                          <span className="block text-xs text-muted-foreground">Tab visible to guests</span>
-                        </Label>
-                        <Switch
-                          id="show-video"
-                          checked={liveViewSettings?.show_video_message || false}
-                          onCheckedChange={(checked) => updateSetting('show_video_message', checked)}
-                          disabled={settingsLoading}
-                        />
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-                </Accordion>
-              </div>
-
-              {/* Existing options */}
-              <div className="space-y-2 text-sm text-muted-foreground pt-2 border-t">
+              <div className="space-y-2 text-sm text-muted-foreground">
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                   <span>Real-time guest lookup enabled</span>

@@ -334,47 +334,6 @@ export type Database = {
           },
         ]
       }
-      live_view_settings: {
-        Row: {
-          event_id: string
-          id: string
-          show_ceremony: boolean
-          show_reception: boolean
-          show_rsvp_invite: boolean
-          show_search_update: boolean
-          show_video_message: boolean
-          updated_at: string
-        }
-        Insert: {
-          event_id: string
-          id?: string
-          show_ceremony?: boolean
-          show_reception?: boolean
-          show_rsvp_invite?: boolean
-          show_search_update?: boolean
-          show_video_message?: boolean
-          updated_at?: string
-        }
-        Update: {
-          event_id?: string
-          id?: string
-          show_ceremony?: boolean
-          show_reception?: boolean
-          show_rsvp_invite?: boolean
-          show_search_update?: boolean
-          show_video_message?: boolean
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "fk_event"
-            columns: ["event_id"]
-            isOneToOne: true
-            referencedRelation: "events"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       place_card_settings: {
         Row: {
           background_color: string
