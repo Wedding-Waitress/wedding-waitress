@@ -381,7 +381,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
             <CardContent className="flex flex-col items-center gap-4">
               {/* QR Preview */}
               <div id="qr-preview" className="w-full aspect-square bg-muted/20 rounded-lg flex items-center justify-center">
-                {qrDataUrl ? <img src={qrDataUrl} alt="QR Code Preview" className="w-[80%] h-[80%]" style={{
+                {qrDataUrl ? <img src={qrDataUrl} alt="QR Code Preview" className="w-[64%] h-[64%]" style={{
                 imageRendering: 'pixelated'
               }} /> : <QrCodeIcon className="h-24 w-24 text-muted-foreground/50" />}
               </div>
