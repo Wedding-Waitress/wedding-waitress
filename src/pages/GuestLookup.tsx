@@ -40,6 +40,7 @@ interface Guest {
   dietary?: string;
   mobile?: string;
   email?: string;
+  notes?: string;
   family_group?: string;
   table_name?: string;
   table_limit_seats?: number;
@@ -264,6 +265,7 @@ export const GuestLookup: React.FC = () => {
             dietary: row.guest_dietary,
             mobile: row.guest_mobile,
             email: row.guest_email,
+            // notes not available in RPC; will be hydrated by realtime fetch or modal fetch
             family_group: row.guest_family_group,
             table_name: row.table_name,
             table_limit_seats: row.table_limit_seats
@@ -311,6 +313,7 @@ export const GuestLookup: React.FC = () => {
                     dietary: newRecord.dietary,
                     mobile: newRecord.mobile,
                     email: newRecord.email,
+                    notes: newRecord.notes,
                     family_group: newRecord.family_group,
                     table_name: null // Will be updated if needed
                   };
@@ -335,6 +338,7 @@ export const GuestLookup: React.FC = () => {
                           dietary: newRecord.dietary,
                           mobile: newRecord.mobile,
                           email: newRecord.email,
+                          notes: newRecord.notes,
                           family_group: newRecord.family_group
                         }
                       : g
@@ -702,8 +706,7 @@ export const GuestLookup: React.FC = () => {
       <GuestUpdateModal
         guest={selectedGuest ? {
           ...selectedGuest,
-          event_id: event?.id || '',
-          notes: ''
+          event_id: event?.id || ''
         } : null}
         event={event}
         open={isUpdateModalOpen}

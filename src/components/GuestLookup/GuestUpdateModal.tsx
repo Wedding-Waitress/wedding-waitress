@@ -103,7 +103,33 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
         notes: guest.notes || ''
       });
     }
-  }, [guest, open]);
+}, [guest, open]);
+
+  // Fetch the freshest guest row when the modal opens to avoid stale data
+  useEffect(() => {
+    const fetchLatestGuest = async () => {
+      if (!open || !guest?.id) return;
+      const { data, error } = await supabase
+        .from('guests')
+        .select('first_name, last_name, mobile, email, dietary, notes, rsvp')
+        .eq('id', guest.id)
+        .maybeSingle();
+      if (!error && data) {
+        const currentRsvp = data.rsvp || 'Pending';
+        setInitialRsvp(currentRsvp);
+        setFormData({
+          rsvp: currentRsvp,
+          first_name: data.first_name || '',
+          last_name: data.last_name || '',
+          mobile: data.mobile || '',
+          email: data.email || '',
+          dietary: data.dietary || 'NA',
+          notes: data.notes || ''
+        });
+      }
+    };
+    fetchLatestGuest();
+  }, [open, guest?.id]);
 
   const handleSave = async () => {
     if (!guest) return;
