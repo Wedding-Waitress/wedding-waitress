@@ -392,8 +392,8 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
           <Card className="ww-box w-full lg:w-auto">
             <CardContent className="flex flex-col items-center gap-4">
               {/* QR Preview */}
-              <div id="qr-preview" className="w-full aspect-square bg-muted/20 rounded-lg flex items-center justify-center">
-                {qrDataUrl ? <img src={qrDataUrl} alt="QR Code Preview" className="w-[64%] h-[64%]" style={{
+              <div id="qr-preview" className="w-full aspect-square bg-muted/20 rounded-lg flex items-center justify-center p-2">
+                {qrDataUrl ? <img src={qrDataUrl} alt="QR Code Preview" className="w-full h-full" style={{
                 imageRendering: 'pixelated'
               }} /> : <QrCodeIcon className="h-24 w-24 text-muted-foreground/50" />}
               </div>
@@ -709,25 +709,6 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                       </AccordionContent>
                     </AccordionItem>
 
-                    <AccordionItem value="search">
-                      <AccordionTrigger className="text-sm py-2 flex justify-between items-center">
-                        <span>Search</span>
-                        <Badge 
-                          variant={visibilitySettings?.show_search ? "default" : "destructive"}
-                          className="ml-2"
-                        >
-                          {visibilitySettings?.show_search ? "ON" : "OFF"}
-                        </Badge>
-                      </AccordionTrigger>
-                      <AccordionContent>
-                        <div className="p-4 bg-muted/30 rounded-md">
-                          <p className="text-sm text-muted-foreground">
-                            Coming soon — settings will be added here.
-                          </p>
-                        </div>
-                      </AccordionContent>
-                    </AccordionItem>
-
                     <AccordionItem value="reception">
                       <AccordionTrigger className="text-sm py-2 flex justify-between items-center">
                         <span>Reception</span>
@@ -811,20 +792,6 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                       onCheckedChange={(checked) => updateVisibility('show_rsvp_invite', checked)}
                       className="data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-red-600"
                       aria-label="Toggle RSVP Invite visibility"
-                    />
-                  </div>
-
-                  {/* Search Toggle */}
-                  <div className="flex items-center justify-between p-3 rounded-lg border border-border">
-                    <Label htmlFor="toggle-search" className="text-sm font-medium cursor-pointer">
-                      Search
-                    </Label>
-                    <Switch
-                      id="toggle-search"
-                      checked={visibilitySettings?.show_search ?? true}
-                      onCheckedChange={(checked) => updateVisibility('show_search', checked)}
-                      className="data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-red-600"
-                      aria-label="Toggle Search visibility"
                     />
                   </div>
 
