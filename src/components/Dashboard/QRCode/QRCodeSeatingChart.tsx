@@ -95,17 +95,8 @@ export const QRCodeSeatingChart: React.FC<QRCodeSeatingChartProps> = ({
             </div>
             <div>
               <CardTitle className="text-2xl gradient-text">QR Code Seating Chart</CardTitle>
-              
             </div>
           </div>
-          {selectedEvent && <div className="text-center mt-4">
-              <h3 className="text-xl font-semibold text-primary/90">
-                {formatEventDate(selectedEvent.date)}
-              </h3>
-              <h3 className="text-xl font-semibold text-primary/90">
-                {selectedEvent.venue || 'Venue not specified'}
-              </h3>
-            </div>}
         </CardHeader>
         <CardContent className="pt-0">
           <div className="flex items-center space-x-4">
@@ -129,6 +120,14 @@ export const QRCodeSeatingChart: React.FC<QRCodeSeatingChartProps> = ({
             </Select>
           </div>
 
+          {selectedEvent && <div className="text-center mt-4">
+              <h3 className="text-xl font-semibold text-primary/90">
+                {formatEventDate(selectedEvent.date)}
+              </h3>
+              <h3 className="text-xl font-semibold text-primary/90">
+                {selectedEvent.venue || 'Venue not specified'}
+              </h3>
+            </div>}
         </CardContent>
       </Card>
 
