@@ -498,8 +498,19 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                     </AccordionContent>
                   </AccordionItem>
 
-                  <AccordionItem value="search-update">
-                    <AccordionTrigger className="text-sm py-2">Search &amp; Update Info</AccordionTrigger>
+                  <AccordionItem value="update-details">
+                    <AccordionTrigger className="text-sm py-2">Update Your Details</AccordionTrigger>
+                    <AccordionContent>
+                      <div className="p-4 bg-muted/30 rounded-md">
+                        <p className="text-sm text-muted-foreground">
+                          Coming soon — settings will be added here.
+                        </p>
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+
+                  <AccordionItem value="search">
+                    <AccordionTrigger className="text-sm py-2">Search</AccordionTrigger>
                     <AccordionContent>
                       <div className="p-4 bg-muted/30 rounded-md">
                         <p className="text-sm text-muted-foreground">
@@ -531,8 +542,19 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                     </AccordionContent>
                   </AccordionItem>
 
-                  <AccordionItem value="video-message">
-                    <AccordionTrigger className="text-sm py-2">Video Message</AccordionTrigger>
+                  <AccordionItem value="invite-video">
+                    <AccordionTrigger className="text-sm py-2">Invite Video</AccordionTrigger>
+                    <AccordionContent>
+                      <div className="p-4 bg-muted/30 rounded-md">
+                        <p className="text-sm text-muted-foreground">
+                          Coming soon — settings will be added here.
+                        </p>
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+
+                  <AccordionItem value="welcome-video">
+                    <AccordionTrigger className="text-sm py-2">Welcome Video</AccordionTrigger>
                     <AccordionContent>
                       <div className="p-4 bg-muted/30 rounded-md">
                         <p className="text-sm text-muted-foreground">

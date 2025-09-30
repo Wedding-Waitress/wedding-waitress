@@ -339,31 +339,37 @@ export type Database = {
           ceremony_config: Json | null
           event_id: string
           id: string
+          invite_video_config: Json | null
           reception_config: Json | null
           rsvp_invite_config: Json | null
-          search_update_config: Json | null
+          search_config: Json | null
+          update_details_config: Json | null
           updated_at: string
-          video_message_config: Json | null
+          welcome_video_config: Json | null
         }
         Insert: {
           ceremony_config?: Json | null
           event_id: string
           id?: string
+          invite_video_config?: Json | null
           reception_config?: Json | null
           rsvp_invite_config?: Json | null
-          search_update_config?: Json | null
+          search_config?: Json | null
+          update_details_config?: Json | null
           updated_at?: string
-          video_message_config?: Json | null
+          welcome_video_config?: Json | null
         }
         Update: {
           ceremony_config?: Json | null
           event_id?: string
           id?: string
+          invite_video_config?: Json | null
           reception_config?: Json | null
           rsvp_invite_config?: Json | null
-          search_update_config?: Json | null
+          search_config?: Json | null
+          update_details_config?: Json | null
           updated_at?: string
-          video_message_config?: Json | null
+          welcome_video_config?: Json | null
         }
         Relationships: [
           {

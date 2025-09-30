@@ -6,10 +6,12 @@ export interface LiveViewModuleSettings {
   id?: string;
   event_id: string;
   rsvp_invite_config: Record<string, any>;
-  search_update_config: Record<string, any>;
+  update_details_config: Record<string, any>;
+  search_config: Record<string, any>;
   ceremony_config: Record<string, any>;
   reception_config: Record<string, any>;
-  video_message_config: Record<string, any>;
+  invite_video_config: Record<string, any>;
+  welcome_video_config: Record<string, any>;
   updated_at?: string;
 }
 
@@ -41,20 +43,24 @@ export const useLiveViewModuleSettings = (eventId: string | undefined) => {
           setSettings({
             ...data,
             rsvp_invite_config: data.rsvp_invite_config as Record<string, any>,
-            search_update_config: data.search_update_config as Record<string, any>,
+            update_details_config: data.update_details_config as Record<string, any>,
+            search_config: data.search_config as Record<string, any>,
             ceremony_config: data.ceremony_config as Record<string, any>,
             reception_config: data.reception_config as Record<string, any>,
-            video_message_config: data.video_message_config as Record<string, any>
+            invite_video_config: data.invite_video_config as Record<string, any>,
+            welcome_video_config: data.welcome_video_config as Record<string, any>
           });
         } else {
           // Upsert default settings if none exist
           const defaultSettings = {
             event_id: eventId,
             rsvp_invite_config: {},
-            search_update_config: {},
+            update_details_config: {},
+            search_config: {},
             ceremony_config: {},
             reception_config: {},
-            video_message_config: {}
+            invite_video_config: {},
+            welcome_video_config: {}
           };
 
           const { data: newData, error: upsertError } = await supabase
@@ -67,10 +73,12 @@ export const useLiveViewModuleSettings = (eventId: string | undefined) => {
           setSettings({
             ...newData,
             rsvp_invite_config: newData.rsvp_invite_config as Record<string, any>,
-            search_update_config: newData.search_update_config as Record<string, any>,
+            update_details_config: newData.update_details_config as Record<string, any>,
+            search_config: newData.search_config as Record<string, any>,
             ceremony_config: newData.ceremony_config as Record<string, any>,
             reception_config: newData.reception_config as Record<string, any>,
-            video_message_config: newData.video_message_config as Record<string, any>
+            invite_video_config: newData.invite_video_config as Record<string, any>,
+            welcome_video_config: newData.welcome_video_config as Record<string, any>
           });
         }
       } catch (error) {
@@ -129,10 +137,12 @@ export const useLiveViewModuleSettings = (eventId: string | undefined) => {
         setSettings({
           ...data,
           rsvp_invite_config: data.rsvp_invite_config as Record<string, any>,
-          search_update_config: data.search_update_config as Record<string, any>,
+          update_details_config: data.update_details_config as Record<string, any>,
+          search_config: data.search_config as Record<string, any>,
           ceremony_config: data.ceremony_config as Record<string, any>,
           reception_config: data.reception_config as Record<string, any>,
-          video_message_config: data.video_message_config as Record<string, any>
+          invite_video_config: data.invite_video_config as Record<string, any>,
+          welcome_video_config: data.welcome_video_config as Record<string, any>
         });
       }
     }
