@@ -1218,31 +1218,30 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
           <Table className="table-fixed w-full">
             <TableHeader>
               <TableRow>
-                <TableHead className="w-24 rounded-tl-lg">First Name</TableHead>
-                <TableHead className="w-24">Last Name</TableHead>
+                <TableHead className="w-28 rounded-tl-lg">First Name</TableHead>
+                <TableHead className="w-28">Last Name</TableHead>
                 <TableHead className="w-20">Table No</TableHead>
                 <TableHead className="w-20">Seat No.</TableHead>
-                <TableHead className="w-28">RSVP Date</TableHead>
-                <TableHead className="w-20">RSVP</TableHead>
-                <TableHead className="w-28">Relation</TableHead>
-                <TableHead className="w-20">Dietary</TableHead>
+                <TableHead className="w-24">RSVP</TableHead>
+                <TableHead className="w-32">Relation</TableHead>
+                <TableHead className="w-24">Dietary</TableHead>
                 <TableHead className="w-24">Mobile</TableHead>
-                <TableHead className="w-32">Email</TableHead>
-                <TableHead className="w-24">Family/Group</TableHead>
-                <TableHead className="w-16">Notes</TableHead>
-                <TableHead className="w-20 rounded-tr-lg">Actions</TableHead>
+                <TableHead className="w-36">Email</TableHead>
+                <TableHead className="w-28">Family/Group</TableHead>
+                <TableHead className="w-20">Notes</TableHead>
+                <TableHead className="w-24 rounded-tr-lg">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {guestsLoading ? (
                 <TableRow className="border-card-border">
-                  <TableCell colSpan={12} className="text-center py-8">
+                  <TableCell colSpan={11} className="text-center py-8">
                     Loading guests...
                   </TableCell>
                 </TableRow>
               ) : totalGuestCount === 0 ? (
                 <TableRow className="border-card-border">
-                  <TableCell colSpan={12} className="text-center py-8">
+                  <TableCell colSpan={11} className="text-center py-8">
                     {/* Empty - the "No Guests Yet" widget is now in the header */}
                   </TableCell>
                 </TableRow>
@@ -1252,8 +1251,8 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                     key={guest.id} 
                     className="border-card-border hover:bg-muted/50"
                   >
-                    <TableCell className="font-medium w-24">{guest.first_name}</TableCell>
-                    <TableCell className="font-medium w-24">{guest.last_name}</TableCell>
+                    <TableCell className="font-medium w-28">{guest.first_name}</TableCell>
+                    <TableCell className="font-medium w-28">{guest.last_name}</TableCell>
                     <TableCell className="w-20">{getTableName(guest) || '—'}</TableCell>
                     <TableCell className="w-20">
                       {guest.seat_no ? (
@@ -1277,10 +1276,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                         '—'
                       )}
                     </TableCell>
-                    <TableCell className="w-28 text-center">
-                      {guest.rsvp_date ? formatDisplayDate(guest.rsvp_date) : '—'}
-                    </TableCell>
-                    <TableCell className="w-20">
+                    <TableCell className="w-24">
                       <Badge 
                         variant={getRsvpBadgeVariant(guest.rsvp)} 
                         className="text-xs text-white"
@@ -1288,7 +1284,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                         {getRsvpDisplayLabel(guest.rsvp)}
                       </Badge>
                     </TableCell>
-                    <TableCell className="w-28">
+                    <TableCell className="w-32">
                       <RelationBadge
                         display={guest.relation_display || ''}
                         partner={guest.relation_partner || ''}
@@ -1298,14 +1294,14 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                         isEmpty={!guest.relation_display}
                       />
                     </TableCell>
-                    <TableCell className="w-20">
+                    <TableCell className="w-24">
                       <Badge variant="outline" className="text-xs">
                         {guest.dietary}
                       </Badge>
                     </TableCell>
                     <TableCell className="w-24">{renderPill(!!guest.mobile && guest.mobile.trim() !== '')}</TableCell>
-                    <TableCell className="w-32">{renderPill(!!guest.email && guest.email.trim() !== '')}</TableCell>
-                    <TableCell className="w-24">
+                    <TableCell className="w-36">{renderPill(!!guest.email && guest.email.trim() !== '')}</TableCell>
+                    <TableCell className="w-28">
                       {guest.family_group ? (
                         <Badge variant="success" className="text-xs">
                           Grouped
@@ -1316,8 +1312,8 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                         </Badge>
                       )}
                     </TableCell>
-                    <TableCell className="w-16">{renderPill(!!guest.notes && guest.notes.trim() !== '')}</TableCell>
-                    <TableCell className="w-20">
+                    <TableCell className="w-20">{renderPill(!!guest.notes && guest.notes.trim() !== '')}</TableCell>
+                    <TableCell className="w-24">
                       <div className="flex items-center space-x-2">
                         <Button 
                           variant="ghost" 
