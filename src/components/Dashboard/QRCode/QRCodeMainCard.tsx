@@ -481,10 +481,73 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
             <CardHeader className="pb-3">
               <CardTitle className="text-lg">Guest Live View Options</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3">
+            <CardContent className="space-y-4">
               <p className="text-sm text-muted-foreground">
                 Configure how guests interact with your live view.
               </p>
+              
+              {/* Live View Modules Accordion */}
+              <div className="space-y-2">
+                <h4 className="text-sm font-medium">Live View Modules</h4>
+                <Accordion type="single" collapsible className="w-full">
+                  <AccordionItem value="rsvp-invite">
+                    <AccordionTrigger className="text-sm py-2">RSVP Invite</AccordionTrigger>
+                    <AccordionContent>
+                      <div className="p-4 bg-muted/30 rounded-md">
+                        <p className="text-sm text-muted-foreground">
+                          Coming soon — settings will be added here.
+                        </p>
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+
+                  <AccordionItem value="search-update">
+                    <AccordionTrigger className="text-sm py-2">Search &amp; Update Info</AccordionTrigger>
+                    <AccordionContent>
+                      <div className="p-4 bg-muted/30 rounded-md">
+                        <p className="text-sm text-muted-foreground">
+                          Coming soon — settings will be added here.
+                        </p>
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+
+                  <AccordionItem value="ceremony">
+                    <AccordionTrigger className="text-sm py-2">Ceremony</AccordionTrigger>
+                    <AccordionContent>
+                      <div className="p-4 bg-muted/30 rounded-md">
+                        <p className="text-sm text-muted-foreground">
+                          Coming soon — settings will be added here.
+                        </p>
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+
+                  <AccordionItem value="reception">
+                    <AccordionTrigger className="text-sm py-2">Reception</AccordionTrigger>
+                    <AccordionContent>
+                      <div className="p-4 bg-muted/30 rounded-md">
+                        <p className="text-sm text-muted-foreground">
+                          Coming soon — settings will be added here.
+                        </p>
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+
+                  <AccordionItem value="video-message">
+                    <AccordionTrigger className="text-sm py-2">Video Message</AccordionTrigger>
+                    <AccordionContent>
+                      <div className="p-4 bg-muted/30 rounded-md">
+                        <p className="text-sm text-muted-foreground">
+                          Coming soon — settings will be added here.
+                        </p>
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
+              </div>
+
+              {/* Existing bullet list */}
               <div className="space-y-2 text-sm text-muted-foreground">
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-green-500 rounded-full"></div>

@@ -334,6 +334,88 @@ export type Database = {
           },
         ]
       }
+      live_view_module_settings: {
+        Row: {
+          ceremony_config: Json | null
+          event_id: string
+          id: string
+          reception_config: Json | null
+          rsvp_invite_config: Json | null
+          search_update_config: Json | null
+          updated_at: string
+          video_message_config: Json | null
+        }
+        Insert: {
+          ceremony_config?: Json | null
+          event_id: string
+          id?: string
+          reception_config?: Json | null
+          rsvp_invite_config?: Json | null
+          search_update_config?: Json | null
+          updated_at?: string
+          video_message_config?: Json | null
+        }
+        Update: {
+          ceremony_config?: Json | null
+          event_id?: string
+          id?: string
+          reception_config?: Json | null
+          rsvp_invite_config?: Json | null
+          search_update_config?: Json | null
+          updated_at?: string
+          video_message_config?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "live_view_module_settings_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: true
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      live_view_settings: {
+        Row: {
+          event_id: string
+          id: string
+          show_ceremony: boolean
+          show_reception: boolean
+          show_rsvp_invite: boolean
+          show_search_update: boolean
+          show_video_message: boolean
+          updated_at: string
+        }
+        Insert: {
+          event_id: string
+          id?: string
+          show_ceremony?: boolean
+          show_reception?: boolean
+          show_rsvp_invite?: boolean
+          show_search_update?: boolean
+          show_video_message?: boolean
+          updated_at?: string
+        }
+        Update: {
+          event_id?: string
+          id?: string
+          show_ceremony?: boolean
+          show_reception?: boolean
+          show_rsvp_invite?: boolean
+          show_search_update?: boolean
+          show_video_message?: boolean
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_event"
+            columns: ["event_id"]
+            isOneToOne: true
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       place_card_settings: {
         Row: {
           background_color: string
