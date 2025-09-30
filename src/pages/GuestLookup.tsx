@@ -483,8 +483,17 @@ export const GuestLookup: React.FC = () => {
               )}
               <TabsTrigger value="search" className="flex items-center gap-2">
                 <Search className="w-4 h-4" />
-                <span className="hidden sm:inline">Find Your Table</span>
-                <span className="sm:hidden">Search</span>
+                {isEditable ? (
+                  <>
+                    <span className="hidden sm:inline">Update Your Details</span>
+                    <span className="sm:hidden">Update Your Details</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="hidden sm:inline">Find Your Table</span>
+                    <span className="sm:hidden">Search Your Name</span>
+                  </>
+                )}
               </TabsTrigger>
               <TabsTrigger value="visualization" className="flex items-center gap-2">
                 <Eye className="w-4 h-4" />
