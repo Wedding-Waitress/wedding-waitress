@@ -563,7 +563,7 @@ export const GuestLookup: React.FC = () => {
                 </CardHeader>
                 <CardContent className="space-y-6">
                   {/* Search Input */}
-                  <div className="relative">
+                  <div className="relative mt-4">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
                     <Input
                       type="text"
@@ -577,7 +577,7 @@ export const GuestLookup: React.FC = () => {
 
                   {/* Search Instructions */}
                   {searchTerm.length < 2 && (
-                    <div className="text-center py-8">
+                    <div className="text-center py-6">
                       <User className="w-10 h-10 md:w-12 md:h-12 mx-auto text-muted-foreground mb-3" />
                       <p className="text-muted-foreground text-sm md:text-base">
                         Type at least 2 letters of your name to search
