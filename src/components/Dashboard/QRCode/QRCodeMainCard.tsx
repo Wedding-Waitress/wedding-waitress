@@ -319,31 +319,10 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* URL Header Row */}
-        <div className="space-y-2">
-          <Label htmlFor="qr-event-url" className="text-sm font-medium">URL</Label>
-          <div className="flex items-center space-x-2">
-            <Input
-              id="qr-event-url"
-              value={eventUrl}
-              readOnly
-              className="flex-1"
-              placeholder="https://…/live-view/{eventId}"
-            />
-            <Button
-              id="btn-copy-url"
-              variant="outline"
-              size="sm"
-              onClick={handleCopyUrl}
-              className="shrink-0"
-            >
-              <Copy className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-
-        {/* Connection Status Indicators */}
-        <div className="space-y-3 p-4 bg-green-50 border border-green-200 rounded-lg">
+        {/* Connection Status & Live View Row */}
+        <div className="flex flex-col lg:flex-row gap-4">
+          {/* Connection Status Indicators */}
+          <div className="flex-1 space-y-3 p-4 bg-green-50 border border-green-200 rounded-lg">
           {/* Connection Status */}
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
@@ -364,9 +343,33 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
             </div>
           )}
           
-          {/* Scan Instructions */}
-          <div className="text-xs text-green-600 bg-green-100 px-2 py-1 rounded">
-            📱 When scanned, opens guest lookup for this event
+            {/* Scan Instructions */}
+            <div className="text-xs text-green-600 bg-green-100 px-2 py-1 rounded">
+              📱 When scanned, opens guest lookup for this event
+            </div>
+          </div>
+
+          {/* Live View Actions */}
+          <div className="lg:w-auto space-y-3 p-4 bg-purple-50 border border-purple-200 rounded-lg flex flex-col justify-center">
+            <div className="space-y-2">
+              <Button 
+                onClick={handleLiveView}
+                className="w-full lg:w-auto lg:min-w-[180px]"
+                disabled={!selectedEvent?.slug}
+              >
+                <ExternalLink className="h-4 w-4 mr-2" />
+                Open Live View
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={handleCopyLink}
+                className="w-full lg:w-auto lg:min-w-[180px]"
+                disabled={!selectedEvent?.slug}
+              >
+                <Link className="h-4 w-4 mr-2" />
+                Copy Link
+              </Button>
+            </div>
           </div>
         </div>
 
@@ -556,68 +559,31 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({ eventId }) => {
           </CardContent>
         </Card>
 
-        {/* Live View Cards Section */}
-        <div className="space-y-4">
-            {/* Live View Card */}
-            <Card className="ww-box">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <ExternalLink className="h-4 w-4" />
-                  Live View
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <p className="text-sm text-muted-foreground">
-                  Test your QR code or share the direct link with guests.
-                </p>
-                <div className="space-y-2">
-                  <Button 
-                    onClick={handleLiveView}
-                    className="w-full"
-                    disabled={!selectedEvent?.slug}
-                  >
-                    <ExternalLink className="h-4 w-4 mr-2" />
-                    Open Live View
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    onClick={handleCopyLink}
-                    className="w-full"
-                    disabled={!selectedEvent?.slug}
-                  >
-                    <Link className="h-4 w-4 mr-2" />
-                    Copy Link
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Guest Live View Options Card */}
-            <Card className="ww-box">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg">Guest Live View Options</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <p className="text-sm text-muted-foreground">
-                  Configure how guests interact with your live view.
-                </p>
-                <div className="space-y-2 text-sm text-muted-foreground">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <span>Real-time guest lookup enabled</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <span>Table assignments visible</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <span>Mobile optimized</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+        {/* Guest Live View Options Card */}
+        <Card className="ww-box">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg">Guest Live View Options</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <p className="text-sm text-muted-foreground">
+              Configure how guests interact with your live view.
+            </p>
+            <div className="space-y-2 text-sm text-muted-foreground">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <span>Real-time guest lookup enabled</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <span>Table assignments visible</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <span>Mobile optimized</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
       </CardContent>
     </Card>
