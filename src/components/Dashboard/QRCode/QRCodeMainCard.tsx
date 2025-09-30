@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { QrCode as QrCodeIcon, Copy, Download, RotateCcw, Save, Printer, FileDown, Palette, ChevronDown, FileText, Code, Image as ImageIcon, ExternalLink, Link, Eye, EyeOff, Upload, Mail } from 'lucide-react';
+import { QrCode as QrCodeIcon, Copy, Download, RotateCcw, Save, Printer, FileDown, Palette, ChevronDown, FileText, Code, Image as ImageIcon, ExternalLink, Link, Eye, EyeOff, Upload, Mail, Edit } from 'lucide-react';
 import { useEvents } from '@/hooks/useEvents';
 import { useToast } from '@/hooks/use-toast';
 import { useLiveViewVisibility } from '@/hooks/useLiveViewVisibility';
@@ -719,10 +719,58 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                         </Badge>
                       </AccordionTrigger>
                       <AccordionContent>
-                        <div className="p-4 bg-muted/30 rounded-md">
-                          <p className="text-sm text-muted-foreground">
-                            Coming soon — settings will be added here.
-                          </p>
+                        <div className="space-y-6 p-4">
+                          {/* Heading with Edit Icon */}
+                          <div className="flex items-center justify-between">
+                            <h4 className="text-base font-semibold flex items-center gap-2">
+                              Update Your Details
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => {
+                                  const currentHelper = moduleSettings?.update_details_config?.helperText || 
+                                    "Please update-edit your details and save. It will automatically be sent to the event organiser. You can make changes until the RSVP Date. To make changes after that please call the organiser";
+                                  const newHelper = prompt("Edit helper text:", currentHelper);
+                                  if (newHelper !== null && newHelper !== currentHelper) {
+                                    updateModuleConfig('update_details_config', {
+                                      ...moduleSettings?.update_details_config,
+                                      helperText: newHelper
+                                    });
+                                  }
+                                }}
+                                className="h-6 w-6 p-0"
+                              >
+                                <Edit className="h-3 w-3" />
+                              </Button>
+                            </h4>
+                          </div>
+
+                          {/* Helper Text Display */}
+                          <div className="p-4 bg-muted/50 rounded-lg border border-border">
+                            <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                              {moduleSettings?.update_details_config?.helperText || 
+                                "Please update-edit your details and save. It will automatically be sent to the event organiser. You can make changes until the RSVP Date. To make changes after that please call the organiser"}
+                            </p>
+                          </div>
+
+                          {/* Search Placeholder Setting */}
+                          <div className="space-y-2">
+                            <Label htmlFor="update-search-placeholder">Search Field Placeholder</Label>
+                            <Input
+                              id="update-search-placeholder"
+                              value={moduleSettings?.update_details_config?.searchPlaceholder || "Type your full name & update your info"}
+                              onChange={(e) => {
+                                updateModuleConfig('update_details_config', {
+                                  ...moduleSettings?.update_details_config,
+                                  searchPlaceholder: e.target.value
+                                });
+                              }}
+                              placeholder="Type your full name & update your info"
+                            />
+                            <p className="text-xs text-muted-foreground">
+                              This text will appear in the search field on the Live View.
+                            </p>
+                          </div>
                         </div>
                       </AccordionContent>
                     </AccordionItem>

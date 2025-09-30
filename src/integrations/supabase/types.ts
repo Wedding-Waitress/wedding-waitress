@@ -241,6 +241,48 @@ export type Database = {
         }
         Relationships: []
       }
+      guest_update_logs: {
+        Row: {
+          changed_by: string
+          created_at: string
+          event_id: string
+          guest_id: string
+          id: string
+          payload: Json
+        }
+        Insert: {
+          changed_by?: string
+          created_at?: string
+          event_id: string
+          guest_id: string
+          id?: string
+          payload?: Json
+        }
+        Update: {
+          changed_by?: string
+          created_at?: string
+          event_id?: string
+          guest_id?: string
+          id?: string
+          payload?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guest_update_logs_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "guest_update_logs_guest_id_fkey"
+            columns: ["guest_id"]
+            isOneToOne: false
+            referencedRelation: "guests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       guests: {
         Row: {
           assigned: boolean | null

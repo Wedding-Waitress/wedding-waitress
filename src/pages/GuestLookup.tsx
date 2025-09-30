@@ -26,6 +26,7 @@ import { EnhancedGuestCard } from '@/components/GuestLookup/EnhancedGuestCard';
 import { normalizeRsvp } from '@/lib/rsvp';
 import { TableVisualization } from '@/components/GuestLookup/TableVisualization';
 import { GuestProfileModal } from '@/components/GuestLookup/GuestProfileModal';
+import { GuestUpdateModal } from '@/components/GuestLookup/GuestUpdateModal';
 
 interface Guest {
   id: string;
@@ -62,6 +63,7 @@ export const GuestLookup: React.FC = () => {
   const [searching, setSearching] = useState(false);
   const [selectedGuest, setSelectedGuest] = useState<Guest | null>(null);
   const [showProfileModal, setShowProfileModal] = useState(false);
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('search');
   const [liveViewSettings, setLiveViewSettings] = useState<any>(null);
   const [moduleSettings, setModuleSettings] = useState<any>(null);
@@ -328,7 +330,7 @@ export const GuestLookup: React.FC = () => {
 
   const handleEditGuest = (guest: Guest) => {
     setSelectedGuest(guest);
-    setShowProfileModal(true);
+    setIsUpdateModalOpen(true);
   };
 
   // Install PWA prompt
@@ -521,7 +523,7 @@ export const GuestLookup: React.FC = () => {
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
                     <Input
                       type="text"
-                      placeholder="Type your first or last name..."
+                      placeholder={moduleSettings?.update_details_config?.searchPlaceholder || "Type your first or last name..."}
                       value={searchTerm}
                       onChange={(e) => handleSearchChange(e.target.value)}
                       className="pl-10 text-base md:text-lg h-11 md:h-12"
@@ -647,6 +649,20 @@ export const GuestLookup: React.FC = () => {
           setSelectedGuest(null);
         }}
         onUpdate={refreshGuestData}
+      />
+
+      {/* Guest Update Modal */}
+      <GuestUpdateModal
+        guest={selectedGuest ? {
+          ...selectedGuest,
+          event_id: event?.id || '',
+          notes: ''
+        } : null}
+        event={event}
+        open={isUpdateModalOpen}
+        onOpenChange={setIsUpdateModalOpen}
+        onUpdate={refreshGuestData}
+        helperText={moduleSettings?.update_details_config?.helperText}
       />
     </div>
   );
