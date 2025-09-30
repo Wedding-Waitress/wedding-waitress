@@ -555,10 +555,10 @@ export const GuestLookup: React.FC = () => {
                 <CardHeader className="text-center">
                   <CardTitle className="flex items-center justify-center gap-2">
                     <Users className="w-5 h-5 md:w-6 md:h-6 text-primary" />
-                    Find Your Table
+                    {isEditable ? "Update & Confirm Your Details" : "Type Your Full Name & Find Your Seat"}
                   </CardTitle>
                   <CardDescription>
-                    Start typing your name to find your table assignment and manage your RSVP
+                    {isEditable ? "Type your full name & update your info" : "Start typing your name to find your table assignment"}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
