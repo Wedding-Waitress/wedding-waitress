@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useLiveViewSettings } from '@/hooks/useLiveViewSettings';
 import { 
   Search, 
   Users, 
@@ -17,7 +18,11 @@ import {
   User,
   Eye,
   Smartphone,
-  Share2
+  Share2,
+  Mail,
+  Church,
+  PartyPopper,
+  Video
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -61,8 +66,9 @@ export const GuestLookup: React.FC = () => {
   const [searching, setSearching] = useState(false);
   const [selectedGuest, setSelectedGuest] = useState<Guest | null>(null);
   const [showProfileModal, setShowProfileModal] = useState(false);
-  const [activeTab, setActiveTab] = useState('search');
+  const [activeTab, setActiveTab] = useState('');
   const { toast } = useToast();
+  const { settings: liveViewSettings, loading: settingsLoading } = useLiveViewSettings(event?.id || '');
 
   // Fetch event and guests data using public RPC function
   useEffect(() => {
@@ -317,6 +323,41 @@ export const GuestLookup: React.FC = () => {
     };
   }, []);
 
+  // Determine which tabs to show based on settings
+  const visibleTabs = useMemo(() => {
+    if (!liveViewSettings) return [];
+    
+    const tabs = [];
+    
+    if (liveViewSettings.show_rsvp_invite) {
+      tabs.push({ value: 'rsvp-invite', label: 'RSVP Invite', icon: Mail });
+    }
+    if (liveViewSettings.show_search_update) {
+      tabs.push({ value: 'search', label: 'Search', icon: Search });
+    }
+    if (liveViewSettings.show_ceremony) {
+      tabs.push({ value: 'ceremony', label: 'Ceremony', icon: Church });
+    }
+    if (liveViewSettings.show_reception) {
+      tabs.push({ value: 'reception', label: 'Reception', icon: PartyPopper });
+    }
+    if (liveViewSettings.show_video_message) {
+      tabs.push({ value: 'video-message', label: 'Video Message', icon: Video });
+    }
+    
+    // Always show View tab
+    tabs.push({ value: 'visualization', label: 'View', icon: Eye });
+    
+    return tabs;
+  }, [liveViewSettings]);
+
+  // Set default active tab when settings load
+  useEffect(() => {
+    if (visibleTabs.length > 0 && !activeTab) {
+      setActiveTab(visibleTabs[0].value);
+    }
+  }, [visibleTabs, activeTab]);
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-subtle flex items-center justify-center p-4">
@@ -405,21 +446,50 @@ export const GuestLookup: React.FC = () => {
       {/* Main Content */}
       <div className="container mx-auto px-4 py-6 md:py-8">
         <div className="max-w-4xl mx-auto">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-6">
-              <TabsTrigger value="search" className="flex items-center gap-2">
-                <Search className="w-4 h-4" />
-                <span className="hidden sm:inline">Find Your Table</span>
-                <span className="sm:hidden">Search</span>
-              </TabsTrigger>
-              <TabsTrigger value="visualization" className="flex items-center gap-2">
-                <Eye className="w-4 h-4" />
-                <span className="hidden sm:inline">Table View</span>
-                <span className="sm:hidden">View</span>
-              </TabsTrigger>
-            </TabsList>
+          {settingsLoading ? (
+            <div className="text-center py-8">
+              <div className="animate-spin w-6 h-6 border-2 border-primary border-t-transparent rounded-full mx-auto mb-2"></div>
+              <p className="text-sm text-muted-foreground">Loading...</p>
+            </div>
+          ) : (
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <TabsList className={`grid w-full mb-6`} style={{ gridTemplateColumns: `repeat(${visibleTabs.length}, minmax(0, 1fr))` }}>
+                {visibleTabs.map((tab) => (
+                  <TabsTrigger key={tab.value} value={tab.value} className="flex items-center gap-2">
+                    <tab.icon className="w-4 h-4" />
+                    <span className="hidden sm:inline">{tab.label}</span>
+                    <span className="sm:hidden">{tab.label.split(' ')[0]}</span>
+                  </TabsTrigger>
+                ))}
+              </TabsList>
 
-            <TabsContent value="search">
+              {/* RSVP Invite Tab */}
+              {liveViewSettings?.show_rsvp_invite && (
+                <TabsContent value="rsvp-invite">
+                  <Card className="ww-box card-elevated">
+                    <CardHeader className="text-center">
+                      <CardTitle className="flex items-center justify-center gap-2">
+                        <Mail className="w-5 h-5 md:w-6 md:h-6 text-primary" />
+                        RSVP Invite
+                      </CardTitle>
+                      <CardDescription>
+                        Coming soon — settings will be added here
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-center py-8">
+                        <p className="text-muted-foreground">
+                          This module is under development. Check back soon!
+                        </p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+              )}
+
+              {/* Search Tab */}
+              {liveViewSettings?.show_search_update && (
+                <TabsContent value="search">
               <Card className="ww-box card-elevated">
                 <CardHeader className="text-center">
                   <CardTitle className="flex items-center justify-center gap-2">
@@ -505,8 +575,82 @@ export const GuestLookup: React.FC = () => {
                 </CardContent>
               </Card>
             </TabsContent>
+              )}
 
-            <TabsContent value="visualization">
+              {/* Ceremony Tab */}
+              {liveViewSettings?.show_ceremony && (
+                <TabsContent value="ceremony">
+                  <Card className="ww-box card-elevated">
+                    <CardHeader className="text-center">
+                      <CardTitle className="flex items-center justify-center gap-2">
+                        <Church className="w-5 h-5 md:w-6 md:h-6 text-primary" />
+                        Ceremony
+                      </CardTitle>
+                      <CardDescription>
+                        Coming soon — settings will be added here
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-center py-8">
+                        <p className="text-muted-foreground">
+                          This module is under development. Check back soon!
+                        </p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+              )}
+
+              {/* Reception Tab */}
+              {liveViewSettings?.show_reception && (
+                <TabsContent value="reception">
+                  <Card className="ww-box card-elevated">
+                    <CardHeader className="text-center">
+                      <CardTitle className="flex items-center justify-center gap-2">
+                        <PartyPopper className="w-5 h-5 md:w-6 md:h-6 text-primary" />
+                        Reception
+                      </CardTitle>
+                      <CardDescription>
+                        Coming soon — settings will be added here
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-center py-8">
+                        <p className="text-muted-foreground">
+                          This module is under development. Check back soon!
+                        </p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+              )}
+
+              {/* Video Message Tab */}
+              {liveViewSettings?.show_video_message && (
+                <TabsContent value="video-message">
+                  <Card className="ww-box card-elevated">
+                    <CardHeader className="text-center">
+                      <CardTitle className="flex items-center justify-center gap-2">
+                        <Video className="w-5 h-5 md:w-6 md:h-6 text-primary" />
+                        Video Message
+                      </CardTitle>
+                      <CardDescription>
+                        Coming soon — settings will be added here
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-center py-8">
+                        <p className="text-muted-foreground">
+                          This module is under development. Check back soon!
+                        </p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+              )}
+
+              {/* View/Visualization Tab */}
+              <TabsContent value="visualization">
               <div className="space-y-6">
                 {filteredGuests.length > 0 && searchTerm.length >= 2 && (
                   <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
@@ -549,7 +693,8 @@ export const GuestLookup: React.FC = () => {
                 )}
               </div>
             </TabsContent>
-          </Tabs>
+            </Tabs>
+          )}
         </div>
       </div>
 
