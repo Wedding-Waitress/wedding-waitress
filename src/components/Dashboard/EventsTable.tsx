@@ -10,6 +10,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { DeleteConfirmationModal } from './DeleteConfirmationModal';
 import { EventDatePicker } from './EventDatePicker';
 import { TimePicker } from './TimePicker';
+import { EventEditModal } from './EventEditModal';
 import { format } from 'date-fns';
 import { formatDisplayTime, formatDisplayDate } from '@/lib/utils';
 
@@ -113,7 +114,13 @@ export const EventsTable: React.FC<EventsTableProps> = ({
   onEventEdit,
   onEventDelete
 }) => {
-  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editModal, setEditModal] = useState<{
+    isOpen: boolean;
+    event: Event | null;
+  }>({
+    isOpen: false,
+    event: null
+  });
   const [deleteModal, setDeleteModal] = useState<{
     isOpen: boolean;
     event: any;
@@ -121,7 +128,6 @@ export const EventsTable: React.FC<EventsTableProps> = ({
     isOpen: false,
     event: null
   });
-  const [editForm, setEditForm] = useState<any>({});
   const [isCreating, setIsCreating] = useState(false);
   const [newEventForm, setNewEventForm] = useState({
     name: '',
@@ -139,43 +145,22 @@ export const EventsTable: React.FC<EventsTableProps> = ({
     setActiveEventId(eventId);
     onEventSelect?.(eventId);
   };
-  const handleEdit = (event: any) => {
-    setEditingId(event.id);
-    setEditForm({
-      name: event.name,
-      date: event.date ? new Date(event.date) : null,
-      venue: event.venue || '',
-      start_time: event.start_time || '',
-      finish_time: event.finish_time || '',
-      guest_limit: event.guest_limit,
-      rsvp_deadline: event.rsvp_deadline ? new Date(event.rsvp_deadline) : null
+  const handleEdit = (event: Event) => {
+    setEditModal({
+      isOpen: true,
+      event
     });
   };
-  const handleSaveEdit = async () => {
-    if (!editingId) return;
-    try {
-      await updateEvent(editingId, {
-        name: editForm.name,
-        date: editForm.date ? format(editForm.date, 'yyyy-MM-dd') : null,
-        venue: editForm.venue,
-        start_time: editForm.start_time || null,
-        finish_time: editForm.finish_time || null,
-        guest_limit: editForm.guest_limit,
-        rsvp_deadline: editForm.rsvp_deadline ? editForm.rsvp_deadline.toISOString() : null
-      });
-      setEditingId(null);
-      setEditForm({});
 
-      // Immediately set this event as active and notify parent
-      setActiveEventId(editingId);
-      onEventSelect?.(editingId);
-    } catch (error) {
-      console.error('Failed to save event:', error);
-    }
-  };
-  const handleCancelEdit = () => {
-    setEditingId(null);
-    setEditForm({});
+  const handleSaveEdit = async (id: string, eventData: any) => {
+    await updateEvent(id, eventData);
+    setEditModal({
+      isOpen: false,
+      event: null
+    });
+    // Immediately set this event as active and notify parent
+    setActiveEventId(id);
+    onEventSelect?.(id);
   };
   const handleDeleteClick = (event: any) => {
     setDeleteModal({
@@ -397,7 +382,6 @@ export const EventsTable: React.FC<EventsTableProps> = ({
               {/* Existing events */}
               {events.map(event => {
                 const isSelected = activeEventId === event.id;
-                const isEditing = editingId === event.id;
                 const atCapacity = isAtCapacity(event);
                 return <TableRow key={event.id} className={`
                       border-card-border hover:bg-muted/30 transition-colors
@@ -410,65 +394,44 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                       </div>
                     </TableCell>
                     <TableCell className="font-medium w-32">
-                      {isEditing ? <Input value={editForm.name} onChange={e => setEditForm(prev => ({
-                      ...prev,
-                      name: e.target.value
-                    }))} className="min-w-[180px]" /> : <div className="flex items-center">
-                          {event.name}
-                          {atCapacity && <Badge variant="success" className="ml-2 text-xs">
-                              Full
-                            </Badge>}
-                        </div>}
+                      <div className="flex items-center">
+                        {event.name}
+                        {atCapacity && <Badge variant="success" className="ml-2 text-xs">
+                            Full
+                          </Badge>}
+                      </div>
                     </TableCell>
                     <TableCell className="w-24">
-                      {isEditing ? <EventDatePicker value={editForm.date} onChange={date => setEditForm(prev => ({
-                      ...prev,
-                      date
-                    }))} /> : <span className="text-muted-foreground">
-                          {formatEventDate(event.date)}
-                        </span>}
+                      <span className="text-muted-foreground">
+                        {formatEventDate(event.date)}
+                      </span>
                     </TableCell>
                     <TableCell className="w-28">
-                      {isEditing ? <Input value={editForm.venue} onChange={e => setEditForm(prev => ({
-                      ...prev,
-                      venue: e.target.value
-                    }))} placeholder="Venue location" className="min-w-[180px]" /> : <span className="text-muted-foreground">
-                          {event.venue || 'No venue set'}
-                        </span>}
+                      <span className="text-muted-foreground">
+                        {event.venue || 'No venue set'}
+                      </span>
                     </TableCell>
                     <TableCell className="w-20">
-                      {isEditing ? <TimePicker value={editForm.start_time} onChange={time => setEditForm(prev => ({
-                      ...prev,
-                      start_time: time
-                    }))} /> : <span className="text-muted-foreground">
-                          {formatDisplayTime(event.start_time)}
-                        </span>}
+                      <span className="text-muted-foreground">
+                        {formatDisplayTime(event.start_time)}
+                      </span>
                     </TableCell>
                     <TableCell className="w-20">
-                      {isEditing ? <TimePicker value={editForm.finish_time} onChange={time => setEditForm(prev => ({
-                      ...prev,
-                      finish_time: time
-                    }))} /> : <span className="text-muted-foreground">
-                          {formatDisplayTime(event.finish_time)}
-                        </span>}
+                      <span className="text-muted-foreground">
+                        {formatDisplayTime(event.finish_time)}
+                      </span>
                     </TableCell>
                     <TableCell className="w-20">
-                      {isEditing ? <Input type="number" value={editForm.guest_limit} onChange={e => setEditForm(prev => ({
-                      ...prev,
-                      guest_limit: parseInt(e.target.value) || 50
-                    }))} className="w-20" min="1" /> : <div className="flex items-center space-x-2">
-                          <span className="text-muted-foreground">
-                            {event.guests_count}/{event.guest_limit}
-                          </span>
-                        </div>}
+                      <div className="flex items-center space-x-2">
+                        <span className="text-muted-foreground">
+                          {event.guests_count}/{event.guest_limit}
+                        </span>
+                      </div>
                     </TableCell>
                     <TableCell className="w-24">
-                      {isEditing ? <EventDatePicker value={editForm.rsvp_deadline} onChange={date => setEditForm(prev => ({
-                      ...prev,
-                      rsvp_deadline: date
-                    }))} placeholder="RSVP deadline" /> : <span className="text-muted-foreground">
-                          {event.rsvp_deadline ? formatEventDate(event.rsvp_deadline.split('T')[0]) : 'Not set'}
-                        </span>}
+                      <span className="text-muted-foreground">
+                        {event.rsvp_deadline ? formatEventDate(event.rsvp_deadline.split('T')[0]) : 'Not set'}
+                      </span>
                     </TableCell>
                     <TableCell className="w-24">
                       <span className="text-muted-foreground">
@@ -481,21 +444,14 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                       </span>
                     </TableCell>
                     <TableCell className="w-20">
-                      {isEditing ? <div className="flex items-center space-x-1">
-                          <Button variant="ghost" size="icon" onClick={handleSaveEdit} className="w-8 h-8 text-green-600 hover:text-green-700">
-                            <Save className="w-3 h-3" />
-                          </Button>
-                          <Button variant="ghost" size="icon" onClick={handleCancelEdit} className="w-8 h-8 text-muted-foreground hover:text-destructive">
-                            <X className="w-3 h-3" />
-                          </Button>
-                        </div> : <div className="flex items-center space-x-1">
-                          <Button variant="ghost" size="icon" onClick={() => handleEdit(event)} className="w-8 h-8 text-muted-foreground hover:text-primary">
-                            <Edit2 className="w-3 h-3" />
-                          </Button>
-                          <Button variant="ghost" size="icon" onClick={() => handleDeleteClick(event)} className="w-8 h-8 text-muted-foreground hover:text-destructive">
-                            <Trash2 className="w-3 h-3" />
-                          </Button>
-                        </div>}
+                      <div className="flex items-center space-x-1">
+                        <Button variant="ghost" size="icon" onClick={() => handleEdit(event)} className="w-8 h-8 text-muted-foreground hover:text-primary">
+                          <Edit2 className="w-3 h-3" />
+                        </Button>
+                        <Button variant="ghost" size="icon" onClick={() => handleDeleteClick(event)} className="w-8 h-8 text-muted-foreground hover:text-destructive">
+                          <Trash2 className="w-3 h-3" />
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>;
               })}
@@ -504,6 +460,13 @@ export const EventsTable: React.FC<EventsTableProps> = ({
           </RadioGroup>
         </div>
       </Card>
+
+      <EventEditModal
+        isOpen={editModal.isOpen}
+        onClose={() => setEditModal({ isOpen: false, event: null })}
+        event={editModal.event}
+        onSave={handleSaveEdit}
+      />
 
       <DeleteConfirmationModal isOpen={deleteModal.isOpen} onClose={() => setDeleteModal({
       isOpen: false,
