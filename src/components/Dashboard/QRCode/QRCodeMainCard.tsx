@@ -334,35 +334,35 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* Connection Status & Live View Row */}
-        <div className="flex flex-col lg:flex-row gap-4">
-          {/* Connection Status Indicators */}
+        {/* Grid Layout for Top Row and Bottom Cards */}
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_minmax(420px,1fr)] gap-4 lg:gap-6 max-w-[1400px] mx-auto">
+          {/* Row 1, Col 1: Connection Status Indicators */}
           <div className="flex-1 space-y-3 p-4 bg-green-50 border border-green-200 rounded-lg my-[30px]">
-          {/* Connection Status */}
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-            <span className="text-sm font-medium text-green-800">Connected & Synced</span>
-          </div>
-          
-          {/* Event Information */}
-          {selectedEvent && <div className="flex items-center justify-between text-xs text-green-700">
-              <div className="flex items-center gap-2">
-                <QrCodeIcon className="h-3 w-3" />
-                <span>Linked to: <strong>{selectedEvent.name}</strong></span>
-              </div>
-              <div className="flex items-center gap-1">
-                <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
-                <span>Live</span>
-              </div>
-            </div>}
-          
+            {/* Connection Status */}
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+              <span className="text-sm font-medium text-green-800">Connected & Synced</span>
+            </div>
+            
+            {/* Event Information */}
+            {selectedEvent && <div className="flex items-center justify-between text-xs text-green-700">
+                <div className="flex items-center gap-2">
+                  <QrCodeIcon className="h-3 w-3" />
+                  <span>Linked to: <strong>{selectedEvent.name}</strong></span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+                  <span>Live</span>
+                </div>
+              </div>}
+            
             {/* Scan Instructions */}
             <div className="text-xs text-green-600 bg-green-100 px-2 py-1 rounded">
               📱 When scanned, opens guest lookup for this event
             </div>
           </div>
 
-          {/* Live View Actions */}
+          {/* Row 1, Col 2: Live View Actions */}
           <div className="lg:w-auto space-y-3 p-4 bg-purple-50 border border-purple-200 rounded-lg flex flex-col justify-center my-[30px]">
             <div className="space-y-2">
               <Button onClick={handleLiveView} disabled={!selectedEvent?.slug} className="w-full lg:w-auto lg:min-w-[180px] mx-[5px]">
@@ -375,12 +375,9 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
               </Button>
             </div>
           </div>
-        </div>
 
-        {/* QR Code and Guest Live View Options - Side by Side */}
-        <div className="flex flex-col lg:flex-row gap-6 items-center lg:items-start justify-center">
-          {/* QR Code Box */}
-          <Card className="ww-box flex-1 max-w-md">
+          {/* Row 2, Col 1: QR Code Box */}
+          <Card className="ww-box w-full lg:w-auto">
             <CardContent className="flex flex-col items-center gap-4">
               {/* QR Preview */}
               <div id="qr-preview" className="w-full aspect-square bg-muted/20 rounded-lg flex items-center justify-center">
@@ -476,8 +473,8 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
             </CardContent>
           </Card>
 
-          {/* Guest Live View Options Card */}
-          <Card className="ww-box flex-1 max-w-md">
+          {/* Row 2, Col 2: Guest Live View Options Card */}
+          <Card className="ww-box w-full lg:w-auto">
             <CardHeader className="pb-3">
               <CardTitle className="text-lg">Guest Live View Options</CardTitle>
             </CardHeader>
