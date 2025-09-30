@@ -523,7 +523,7 @@ export const GuestLookup: React.FC = () => {
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
                     <Input
                       type="text"
-                      placeholder={moduleSettings?.update_details_config?.searchPlaceholder || "Type your first or last name..."}
+                      placeholder={moduleSettings?.update_details_config?.search_placeholder || "Type your first or last name..."}
                       value={searchTerm}
                       onChange={(e) => handleSearchChange(e.target.value)}
                       className="pl-10 text-base md:text-lg h-11 md:h-12"
@@ -663,7 +663,7 @@ export const GuestLookup: React.FC = () => {
           open={isUpdateModalOpen}
           onOpenChange={setIsUpdateModalOpen}
           onUpdate={refreshGuestData}
-          helperText={moduleSettings?.update_details_config?.helperText}
+          helperText={moduleSettings?.update_details_config?.helper_text}
           allowNameEdit={moduleSettings?.update_details_config?.allow_name_edit ?? false}
           showMessageField={moduleSettings?.update_details_config?.show_message_field ?? true}
           lockAfterDeadline={moduleSettings?.update_details_config?.lock_after_rsvp_deadline ?? true}

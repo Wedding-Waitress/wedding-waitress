@@ -729,13 +729,13 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => {
-                                  const currentHelper = moduleSettings?.update_details_config?.helperText || 
+                                  const currentHelper = moduleSettings?.update_details_config?.helper_text || 
                                     "Please update-edit your details and save. It will automatically be sent to the event organiser. You can make changes until the RSVP Date. To make changes after that please call the organiser";
                                   const newHelper = prompt("Edit helper text:", currentHelper);
                                   if (newHelper !== null && newHelper !== currentHelper) {
                                     updateModuleConfig('update_details_config', {
                                       ...moduleSettings?.update_details_config,
-                                      helperText: newHelper
+                                      helper_text: newHelper
                                     });
                                   }
                                 }}
@@ -749,7 +749,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                           {/* Helper Text Display */}
                           <div className="p-4 bg-muted/50 rounded-lg border border-border">
                             <p className="text-sm text-muted-foreground whitespace-pre-wrap">
-                              {moduleSettings?.update_details_config?.helperText || 
+                              {moduleSettings?.update_details_config?.helper_text || 
                                 "Please update-edit your details and save. It will automatically be sent to the event organiser. You can make changes until the RSVP Date. To make changes after that please call the organiser"}
                             </p>
                           </div>
@@ -759,11 +759,11 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                             <Label htmlFor="update-search-placeholder">Search Field Placeholder</Label>
                             <Input
                               id="update-search-placeholder"
-                              value={moduleSettings?.update_details_config?.searchPlaceholder || "Type your full name & update your info"}
+                              value={moduleSettings?.update_details_config?.search_placeholder || "Type your full name & update your info"}
                               onChange={(e) => {
                                 updateModuleConfig('update_details_config', {
                                   ...moduleSettings?.update_details_config,
-                                  searchPlaceholder: e.target.value
+                                  search_placeholder: e.target.value
                                 });
                               }}
                               placeholder="Type your full name & update your info"
