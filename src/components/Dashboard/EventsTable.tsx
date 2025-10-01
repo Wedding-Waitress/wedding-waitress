@@ -1,19 +1,15 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/enhanced-button";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Edit2, Trash2, Calendar, MapPin, Users, Clock, Plus, Save, X, Check, Settings } from "lucide-react";
+import { Edit2, Trash2, Plus } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { DeleteConfirmationModal } from './DeleteConfirmationModal';
-import { EventDatePicker } from './EventDatePicker';
-import { TimePicker } from './TimePicker';
 import { EventEditModal } from './EventEditModal';
 import { EventCreateModal } from './EventCreateModal';
 import { format } from 'date-fns';
-import { formatDisplayTime, formatDisplayDate } from '@/lib/utils';
+import { formatDisplayTime } from '@/lib/utils';
 
 // Define Event type locally
 interface Event {
