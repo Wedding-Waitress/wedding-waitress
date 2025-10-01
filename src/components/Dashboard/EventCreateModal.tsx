@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,73 +7,16 @@ import { EventDatePicker } from './EventDatePicker';
 import { TimePicker } from './TimePicker';
 import { format } from 'date-fns';
 
-interface Event {
-  id: string;
-  name: string;
-  date: string | null;
-  venue: string | null;
-  start_time: string | null;
-  finish_time: string | null;
-  guest_limit: number;
-  created_at: string;
-  event_created: string | null;
-  expiry_date: string | null;
-  created_date_local: string | null;
-  expiry_date_local: string | null;
-  event_timezone: string | null;
-  rsvp_deadline: string | null;
-}
-
-interface EventEditModalProps {
+interface EventCreateModalProps {
   isOpen: boolean;
   onClose: () => void;
-  event: Event | null;
-  onSave: (id: string, eventData: any) => Promise<void>;
+  onCreate: (eventData: any) => Promise<any>;
 }
 
-// Helper function to format local dates
-const formatDisplayLocalDate = (localDate: string | null, fallbackDate: string | null, timezone?: string | null): string => {
-  if (localDate) {
-    const date = new Date(localDate + 'T00:00:00');
-    return format(date, 'dd/MM/yyyy');
-  }
-  if (fallbackDate) {
-    const serverDate = new Date(fallbackDate);
-    const browserTimezone = timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
-    const localDateString = serverDate.toLocaleDateString('en-GB', {
-      timeZone: browserTimezone,
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
-    });
-    return localDateString;
-  }
-  return 'No date';
-};
-
-// Helper to calculate expiry date fallback
-const getExpiryDateDisplay = (createdDate: string | null, expiryLocal: string | null, timezone?: string | null): string => {
-  if (expiryLocal) {
-    return formatDisplayLocalDate(expiryLocal, null);
-  }
-  if (!createdDate) return 'No date';
-  const date = new Date(createdDate);
-  const browserTimezone = timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
-  date.setFullYear(date.getFullYear() + 1);
-  const localDateString = date.toLocaleDateString('en-GB', {
-    timeZone: browserTimezone,
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric'
-  });
-  return localDateString;
-};
-
-export const EventEditModal: React.FC<EventEditModalProps> = ({
+export const EventCreateModal: React.FC<EventCreateModalProps> = ({
   isOpen,
   onClose,
-  event,
-  onSave
+  onCreate
 }) => {
   const [formData, setFormData] = useState({
     name: '',
@@ -87,27 +30,12 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
 
   const [isSaving, setIsSaving] = useState(false);
 
-  // Populate form when event changes
-  useEffect(() => {
-    if (event) {
-      setFormData({
-        name: event.name,
-        date: event.date ? new Date(event.date) : null,
-        venue: event.venue || '',
-        start_time: event.start_time || '',
-        finish_time: event.finish_time || '',
-        guest_limit: event.guest_limit,
-        rsvp_deadline: event.rsvp_deadline ? new Date(event.rsvp_deadline) : null
-      });
-    }
-  }, [event]);
-
-  const handleSave = async () => {
-    if (!event || !formData.name.trim()) return;
+  const handleCreate = async () => {
+    if (!formData.name.trim()) return;
     
     setIsSaving(true);
     try {
-      await onSave(event.id, {
+      await onCreate({
         name: formData.name,
         date: formData.date ? format(formData.date, 'yyyy-MM-dd') : null,
         venue: formData.venue,
@@ -116,33 +44,45 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
         guest_limit: formData.guest_limit,
         rsvp_deadline: formData.rsvp_deadline ? formData.rsvp_deadline.toISOString() : null
       });
+      
+      // Reset form
+      setFormData({
+        name: '',
+        date: null,
+        venue: '',
+        start_time: '',
+        finish_time: '',
+        guest_limit: 50,
+        rsvp_deadline: null
+      });
+      
       onClose();
     } catch (error) {
-      console.error('Failed to save event:', error);
+      console.error('Failed to create event:', error);
     } finally {
       setIsSaving(false);
     }
   };
 
-  if (!event) return null;
-
-  const createdDateDisplay = formatDisplayLocalDate(
-    event.created_date_local,
-    event.event_created || event.created_at,
-    event.event_timezone
-  );
-
-  const expiryDateDisplay = getExpiryDateDisplay(
-    event.event_created || event.created_at,
-    event.expiry_date_local,
-    event.event_timezone
-  );
+  const handleClose = () => {
+    // Reset form when closing
+    setFormData({
+      name: '',
+      date: null,
+      venue: '',
+      start_time: '',
+      finish_time: '',
+      guest_limit: 50,
+      rsvp_deadline: null
+    });
+    onClose();
+  };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Edit My Events</DialogTitle>
+          <DialogTitle>Create Event</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-6 py-4">
@@ -220,29 +160,17 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
               placeholder="Select RSVP deadline"
             />
           </div>
-
-          {/* Read-only fields */}
-          <div className="grid grid-cols-2 gap-4 pt-4 border-t">
-            <div className="space-y-2">
-              <Label className="text-muted-foreground">Created Date</Label>
-              <div className="text-sm font-medium">{createdDateDisplay}</div>
-            </div>
-            <div className="space-y-2">
-              <Label className="text-muted-foreground">Expiry Date</Label>
-              <div className="text-sm font-medium">{expiryDateDisplay}</div>
-            </div>
-          </div>
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={onClose} disabled={isSaving}>
+          <Button variant="outline" onClick={handleClose} disabled={isSaving}>
             Cancel
           </Button>
           <Button 
-            onClick={handleSave} 
+            onClick={handleCreate} 
             disabled={!formData.name.trim() || isSaving}
           >
-            {isSaving ? 'Saving...' : 'Save Changes'}
+            {isSaving ? 'Creating...' : 'Create Event'}
           </Button>
         </DialogFooter>
       </DialogContent>
