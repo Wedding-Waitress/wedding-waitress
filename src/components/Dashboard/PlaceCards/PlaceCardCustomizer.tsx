@@ -216,6 +216,10 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
     background_color: '#ffffff',
     background_image_url: null,
     background_image_type: 'none' as const,
+    background_image_x_position: 50,
+    background_image_y_position: 50,
+    background_image_scale: 100,
+    background_image_opacity: 20,
     mass_message: '',
     individual_messages: {},
     guest_font_family: 'Inter',
@@ -538,6 +542,60 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                       </div>}
                   </div>
                 </div>}
+
+              {currentSettings.background_image_type === 'full' && currentSettings.background_image_url && (
+                <div className="space-y-4 pt-4 border-t">
+                  <h4 className="text-sm font-medium">Image Positioning</h4>
+                  
+                  {/* X Position Slider */}
+                  <div className="space-y-2">
+                    <Label>Horizontal Position: {currentSettings.background_image_x_position || 50}%</Label>
+                    <Slider
+                      value={[currentSettings.background_image_x_position || 50]}
+                      onValueChange={(value) => handleSettingChange('background_image_x_position', value[0])}
+                      min={0}
+                      max={100}
+                      step={1}
+                    />
+                  </div>
+
+                  {/* Y Position Slider */}
+                  <div className="space-y-2">
+                    <Label>Vertical Position: {currentSettings.background_image_y_position || 50}%</Label>
+                    <Slider
+                      value={[currentSettings.background_image_y_position || 50]}
+                      onValueChange={(value) => handleSettingChange('background_image_y_position', value[0])}
+                      min={0}
+                      max={100}
+                      step={1}
+                    />
+                  </div>
+
+                  {/* Scale Slider */}
+                  <div className="space-y-2">
+                    <Label>Scale/Zoom: {currentSettings.background_image_scale || 100}%</Label>
+                    <Slider
+                      value={[currentSettings.background_image_scale || 100]}
+                      onValueChange={(value) => handleSettingChange('background_image_scale', value[0])}
+                      min={50}
+                      max={200}
+                      step={5}
+                    />
+                  </div>
+
+                  {/* Opacity Slider */}
+                  <div className="space-y-2">
+                    <Label>Image Opacity: {currentSettings.background_image_opacity || 20}%</Label>
+                    <Slider
+                      value={[currentSettings.background_image_opacity || 20]}
+                      onValueChange={(value) => handleSettingChange('background_image_opacity', value[0])}
+                      min={0}
+                      max={100}
+                      step={5}
+                    />
+                  </div>
+                </div>
+              )}
             </div>
           </TabsContent>
 

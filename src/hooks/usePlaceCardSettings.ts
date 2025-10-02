@@ -11,6 +11,10 @@ export interface PlaceCardSettings {
   background_color: string;
   background_image_url?: string | null;
   background_image_type: 'none' | 'decorative' | 'full';
+  background_image_x_position?: number;
+  background_image_y_position?: number;
+  background_image_scale?: number;
+  background_image_opacity?: number;
   mass_message: string;
   individual_messages: Record<string, string>;
   guest_font_family: string;

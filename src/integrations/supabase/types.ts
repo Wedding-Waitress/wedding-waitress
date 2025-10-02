@@ -545,8 +545,12 @@ export type Database = {
       place_card_settings: {
         Row: {
           background_color: string
+          background_image_opacity: number | null
+          background_image_scale: number | null
           background_image_type: string
           background_image_url: string | null
+          background_image_x_position: number | null
+          background_image_y_position: number | null
           created_at: string
           event_id: string
           font_color: string
@@ -567,8 +571,12 @@ export type Database = {
         }
         Insert: {
           background_color?: string
+          background_image_opacity?: number | null
+          background_image_scale?: number | null
           background_image_type?: string
           background_image_url?: string | null
+          background_image_x_position?: number | null
+          background_image_y_position?: number | null
           created_at?: string
           event_id: string
           font_color?: string
@@ -589,8 +597,12 @@ export type Database = {
         }
         Update: {
           background_color?: string
+          background_image_opacity?: number | null
+          background_image_scale?: number | null
           background_image_type?: string
           background_image_url?: string | null
+          background_image_x_position?: number | null
+          background_image_y_position?: number | null
           created_at?: string
           event_id?: string
           font_color?: string
