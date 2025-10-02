@@ -158,66 +158,16 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Palette className="h-5 w-5" />
-          Customize Place Cards
+          Customise Name Place Cards
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <Tabs defaultValue="templates" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="templates">Templates</TabsTrigger>
+        <Tabs defaultValue="design" className="space-y-4">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="design">Design</TabsTrigger>
             <TabsTrigger value="background">Background</TabsTrigger>
             <TabsTrigger value="messages">Messages</TabsTrigger>
           </TabsList>
-
-          <TabsContent value="templates" className="space-y-4">
-            <div className="space-y-4">
-              <div>
-                <Label className="flex items-center gap-2 mb-3">
-                  <Sparkles className="h-4 w-4" />
-                  Design Templates
-                </Label>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Choose from professionally designed templates for your place cards
-                </p>
-              </div>
-
-              {TEMPLATE_CATEGORIES.map((category) => (
-                <div key={category.id} className="space-y-3">
-                  <h4 className="font-medium text-sm flex items-center gap-2">
-                    <span>{category.icon}</span>
-                    {category.name}
-                  </h4>
-                  <div className="grid grid-cols-2 gap-3">
-                    {getTemplatesByCategory(category.id).map((template) => (
-                      <div
-                        key={template.id}
-                        className={`border-2 rounded-lg p-3 cursor-pointer transition-all hover:shadow-md ${
-                          selectedTemplate === template.id
-                            ? 'border-primary bg-primary/5'
-                            : 'border-border hover:border-primary/50'
-                        }`}
-                        onClick={() => applyTemplate(template.id)}
-                      >
-                        <div className="text-sm font-medium mb-1">{template.name}</div>
-                        <div 
-                          className="text-xs p-2 rounded border bg-background/50"
-                          style={{
-                            fontFamily: template.styles.font_family,
-                            color: template.styles.font_color,
-                            backgroundColor: template.styles.background_color,
-                          }}
-                        >
-                          John Smith
-                          <div className="text-xs opacity-70 mt-1">Table 1, Seat 1</div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </TabsContent>
 
           <TabsContent value="design" className="space-y-4">
             <div className="space-y-4">
