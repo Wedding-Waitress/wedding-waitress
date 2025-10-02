@@ -61,90 +61,93 @@ export const PlaceCardsPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Event Selection */}
-      <Card className="ww-box">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Settings className="h-5 w-5" />
-            Event Selection
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div>
-              <label className="text-sm font-medium mb-2 block">Select Event</label>
-              <Select value={selectedEventId || ""} onValueChange={handleEventChange}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Choose an event" />
-                </SelectTrigger>
-                <SelectContent>
-                  {events.map((event) => (
-                    <SelectItem key={event.id} value={event.id}>
-                      {event.name} - {event.date}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {selectedEvent && (
-                <div className="flex items-center gap-2 text-sm text-muted-foreground mt-2">
-                  <Users className="h-4 w-4" />
-                  <span>{assignedGuests.length} assigned guests</span>
+      {/* Top Section - 3 Column Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Event Selection */}
+        <Card className="ww-box">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Settings className="h-5 w-5" />
+              Event Selection
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-medium mb-2 block">Select Event</label>
+                <Select value={selectedEventId || ""} onValueChange={handleEventChange}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Choose an event" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {events.map((event) => (
+                      <SelectItem key={event.id} value={event.id}>
+                        {event.name} - {event.date}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {selectedEvent && (
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground mt-2">
+                    <Users className="h-4 w-4" />
+                    <span>{assignedGuests.length} assigned guests</span>
+                  </div>
+                )}
+              </div>
+              
+              {selectedEvent && assignedGuests.length > 0 && (
+                <div className="text-sm text-muted-foreground space-y-1 pt-2 border-t">
+                  <p><strong>{assignedGuests.length}</strong> place cards ready for export</p>
+                  <p><strong>{totalPages}</strong> A4 page{totalPages !== 1 ? 's' : ''} (6 cards per page)</p>
+                  <p>Standard 105mm × 99mm foldable place cards</p>
                 </div>
               )}
             </div>
-            
-            {selectedEvent && assignedGuests.length > 0 && (
-              <div className="text-sm text-muted-foreground space-y-1 pt-2 border-t">
-                <p><strong>{assignedGuests.length}</strong> place cards ready for export</p>
-                <p><strong>{totalPages}</strong> A4 page{totalPages !== 1 ? 's' : ''} (6 cards per page)</p>
-                <p>Standard 105mm × 99mm foldable place cards</p>
+          </CardContent>
+        </Card>
+
+        {/* Preview, Download & Print */}
+        {selectedEventId && selectedEvent && assignedGuests.length > 0 && (
+          <>
+            {(guestsLoading || settingsLoading) ? (
+              <div className="flex items-center justify-center h-32 col-span-2">
+                <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                <span className="ml-2 text-muted-foreground">Loading...</span>
               </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
+            ) : (
+              <>
+                <PlaceCardExportControls
+                  settings={settings}
+                  guests={assignedGuests}
+                  event={selectedEvent}
+                  totalPages={totalPages}
+                  onPageFocus={setFocusedPage}
+                  onExportStateChange={setIsExporting}
+                />
 
-      {selectedEventId && (
-        <>
-          {(guestsLoading || settingsLoading) ? (
-            <div className="flex items-center justify-center h-32">
-              <Loader2 className="h-6 w-6 animate-spin text-primary" />
-              <span className="ml-2 text-muted-foreground">Loading...</span>
-            </div>
-          ) : (
-            <>
-              {/* Export Controls & Customizer - Top Section */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Left: Preview, Download & Print */}
-                {selectedEvent && assignedGuests.length > 0 && (
-                  <PlaceCardExportControls
-                    settings={settings}
-                    guests={assignedGuests}
-                    event={selectedEvent}
-                    totalPages={totalPages}
-                    onPageFocus={setFocusedPage}
-                    onExportStateChange={setIsExporting}
-                  />
-                )}
-
-                {/* Right: Customise Name Place Cards */}
+                {/* Customise Name Place Cards */}
                 <PlaceCardCustomizer
                   settings={settings}
                   onSettingsChange={updateSettings}
                   guests={assignedGuests}
                 />
-              </div>
+              </>
+            )}
+          </>
+        )}
+      </div>
 
-              {/* Preview - Bottom Section */}
-              <PlaceCardPreview
-                settings={settings}
-                guests={assignedGuests}
-                event={selectedEvent}
-                isExporting={isExporting}
-                focusedPage={focusedPage}
-              />
-            </>
-          )}
+      {selectedEventId && selectedEvent && assignedGuests.length > 0 && !guestsLoading && !settingsLoading && (
+        <>
+
+        {/* Preview - Bottom Section */}
+        <PlaceCardPreview
+          settings={settings}
+          guests={assignedGuests}
+          event={selectedEvent}
+          isExporting={isExporting}
+          focusedPage={focusedPage}
+        />
         </>
       )}
     </div>
