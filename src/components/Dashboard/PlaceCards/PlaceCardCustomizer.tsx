@@ -409,28 +409,44 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
 
               <div>
                 <Label className="flex items-center gap-2 mb-2">
-                  Guest Name Font Size: {currentSettings.guest_name_font_size}pt
+                  Guest Name Font Size
                 </Label>
-                <Slider 
-                  value={[currentSettings.guest_name_font_size]} 
-                  onValueChange={([value]) => handleSettingChange('guest_name_font_size', value)}
-                  min={12}
-                  max={48}
-                  step={1}
-                />
+                <Select 
+                  value={currentSettings.guest_name_font_size.toString()} 
+                  onValueChange={(value) => handleSettingChange('guest_name_font_size', parseInt(value))}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {[12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 36, 40, 44, 48].map(size => (
+                      <SelectItem key={size} value={size.toString()}>
+                        {size}pt
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
               <div>
                 <Label className="flex items-center gap-2 mb-2">
-                  Table & Seat Info Font Size: {currentSettings.info_font_size}pt
+                  Table & Seat Info Font Size
                 </Label>
-                <Slider 
-                  value={[currentSettings.info_font_size]} 
-                  onValueChange={([value]) => handleSettingChange('info_font_size', value)}
-                  min={8}
-                  max={24}
-                  step={1}
-                />
+                <Select 
+                  value={currentSettings.info_font_size.toString()} 
+                  onValueChange={(value) => handleSettingChange('info_font_size', parseInt(value))}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {[8, 9, 10, 11, 12, 13, 14, 16, 18, 20, 22, 24].map(size => (
+                      <SelectItem key={size} value={size.toString()}>
+                        {size}pt
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
               <div>

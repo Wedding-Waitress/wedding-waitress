@@ -214,9 +214,9 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                               {/* Guest Name */}
                               <div 
                                 className="guest-name"
-                                style={{
+                                 style={{
                                   fontFamily: currentSettings.guest_font_family,
-                                  fontWeight: currentSettings.guest_name_bold ? 700 : 600,
+                                  fontWeight: currentSettings.guest_name_bold ? '700' : '600',
                                   fontStyle: currentSettings.guest_name_italic ? 'italic' : 'normal',
                                   textDecoration: currentSettings.guest_name_underline ? 'underline' : 'none',
                                   fontSize: `${currentSettings.guest_name_font_size}pt`,
