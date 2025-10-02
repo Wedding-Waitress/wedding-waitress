@@ -49,33 +49,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
     pages.push(sortedGuests.slice(i, i + cardsPerPage));
   }
 
-  // Auto-fit guest names to one line
-  useEffect(() => {
-    const fitOneLine = (el: HTMLElement, maxPt = 22, minPt = 12) => {
-      el.style.fontSize = maxPt + 'pt';
-      el.style.whiteSpace = 'nowrap';
-      let currentSize = maxPt;
-      while (el.scrollWidth > el.clientWidth && currentSize > minPt) {
-        currentSize -= 0.5;
-        el.style.fontSize = currentSize + 'pt';
-      }
-    };
-
-    const applyFit = () => {
-      document.querySelectorAll('.guest-name').forEach((el) => {
-        if (el instanceof HTMLElement) {
-          fitOneLine(el);
-        }
-      });
-    };
-
-    // Apply immediately
-    setTimeout(applyFit, 0);
-
-    // Reapply on window resize
-    window.addEventListener('resize', applyFit);
-    return () => window.removeEventListener('resize', applyFit);
-  }, [guests, settings]);
+  // Text size is now fixed and uniform for all names
 
   if (!guests.length) {
     return (
@@ -118,13 +92,13 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                   </div>
                 )}
                 
-                {/* A4 Preview Container */}
+                {/* A4 Preview Container - Actual Size */}
                 <div 
-                  className={`place-card-preview-container mx-auto bg-white shadow-lg overflow-hidden ${isExporting ? 'exporting' : ''} ${focusedPage === pageIndex ? 'ring-4 ring-primary' : ''}`}
+                  className={`place-card-preview-container mx-auto bg-white shadow-lg overflow-visible ${isExporting ? 'exporting' : ''} ${focusedPage === pageIndex ? 'ring-4 ring-primary' : ''}`}
                   data-page={pageIndex}
                   style={{
-                    width: 'min(100%, 420px)',
-                    aspectRatio: '210 / 297',
+                    width: '210mm',
+                    height: '297mm',
                     borderRadius: 0,
                   }}
                 >
@@ -276,16 +250,18 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
           background: #FFFFFF;
         }
 
-        .place-card-cell {
-          position: relative;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: flex-end;
-          text-align: center;
-          padding: 8px;
-          overflow: hidden;
-        }
+          .place-card-cell {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            text-align: center;
+            padding: 8mm;
+            overflow: visible;
+            width: 105mm;
+            height: 99mm;
+          }
 
         /* Card content positioned in lower half (below fold) */
         .card-content {
@@ -298,16 +274,16 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
         }
 
         .guest-name {
-          font-size: 22pt;
+          font-size: 24pt;
           font-weight: 600;
           line-height: 1.1;
-          white-space: nowrap;
           text-align: center;
           margin-bottom: 4px;
+          overflow: visible;
         }
 
         .table-info {
-          font-size: clamp(10px, 2vw, 12pt);
+          font-size: 12pt;
           font-weight: 700;
           margin-top: 2mm;
         }
@@ -323,7 +299,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
         }
 
         .message-text {
-          font-size: clamp(8px, 1.5vw, 10pt);
+          font-size: 10pt;
           opacity: 0.7;
           line-height: 1.3;
           max-width: 90%;
