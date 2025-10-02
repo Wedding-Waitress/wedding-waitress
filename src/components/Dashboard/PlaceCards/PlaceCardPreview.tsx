@@ -203,7 +203,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                             )}
 
                             {/* Card Content - positioned in lower half */}
-                            <div className={`card-content ${currentSettings.background_image_url && currentSettings.background_image_type === 'decorative' ? 'has-decorative-image' : ''}`}>
+                            <div className={`card-content ${currentSettings.background_image_url && currentSettings.background_image_type === 'decorative' ? 'has-decorative-image' : ''} ${currentSettings.background_image_url && currentSettings.background_image_type === 'full' ? 'has-full-background' : ''}`}>
                               {/* Large Decorative Image on Right Side */}
                               {currentSettings.background_image_url && currentSettings.background_image_type === 'decorative' && (
                                 <div className="decorative-image-container">
@@ -306,6 +306,11 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
           top: 67%;
           transform: translateY(-50%);
           text-align: center;
+        }
+
+        /* Move text down when full background image is present */
+        .card-content.has-full-background {
+          top: 82%;
         }
 
         /* Split layout when decorative image exists */
@@ -446,6 +451,10 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
             right: 8mm;
             top: 67%;
             transform: translateY(-50%);
+          }
+
+          .card-content.has-full-background {
+            top: 82%;
           }
 
           .card-content.has-decorative-image {
