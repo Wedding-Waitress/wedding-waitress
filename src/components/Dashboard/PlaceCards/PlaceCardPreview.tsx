@@ -305,6 +305,8 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
           line-height: 1.1;
           text-align: center;
           overflow: visible;
+          font-weight: 600;
+          font-synthesis: weight;
         }
 
         .table-info {
