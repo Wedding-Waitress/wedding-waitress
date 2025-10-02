@@ -29,7 +29,7 @@ export const PlaceCardExportControls: React.FC<PlaceCardExportControlsProps> = (
   onExportStateChange
 }) => {
   const [selectedPage, setSelectedPage] = useState<number>(0);
-  const [fileType, setFileType] = useState<'pdf' | 'png' | 'jpeg'>('pdf');
+  const fileType = 'pdf'; // Hardcoded to PDF
   const [isProcessing, setIsProcessing] = useState(false);
   const { toast } = useToast();
 
@@ -365,25 +365,6 @@ export const PlaceCardExportControls: React.FC<PlaceCardExportControlsProps> = (
               ))}
             </SelectContent>
           </Select>
-        </div>
-
-        {/* File Type Selector */}
-        <div className="space-y-2">
-          <Label>Export Format</Label>
-          <RadioGroup value={fileType} onValueChange={(value: any) => setFileType(value)}>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="pdf" id="pdf" />
-              <Label htmlFor="pdf" className="font-normal cursor-pointer">PDF (Recommended)</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="png" id="png" />
-              <Label htmlFor="png" className="font-normal cursor-pointer">PNG (High Quality)</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="jpeg" id="jpeg" />
-              <Label htmlFor="jpeg" className="font-normal cursor-pointer">JPEG (Smaller Size)</Label>
-            </div>
-          </RadioGroup>
         </div>
 
         {/* Preview Controls */}
