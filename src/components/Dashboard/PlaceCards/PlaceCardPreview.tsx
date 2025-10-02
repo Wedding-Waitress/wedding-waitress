@@ -120,11 +120,12 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                 
                 {/* A4 Preview Container */}
                 <div 
-                  className={`place-card-preview-container mx-auto bg-white rounded-lg shadow-lg overflow-hidden ${isExporting ? 'exporting' : ''} ${focusedPage === pageIndex ? 'ring-4 ring-primary' : ''}`}
+                  className={`place-card-preview-container mx-auto bg-white shadow-lg overflow-hidden ${isExporting ? 'exporting' : ''} ${focusedPage === pageIndex ? 'ring-4 ring-primary' : ''}`}
                   data-page={pageIndex}
                   style={{
                     width: 'min(100%, 420px)',
                     aspectRatio: '210 / 297',
+                    borderRadius: 0,
                   }}
                 >
                   <div 
@@ -266,6 +267,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
           position: relative;
           transition: all 0.3s ease;
           background-color: #FFFFFF;
+          border-radius: 0 !important;
         }
 
         .place-card-a4-page {
