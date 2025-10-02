@@ -195,7 +195,7 @@ const FONT_OPTIONS = [
 }, {
   value: 'Pacifico',
   label: 'Pacifico ◆'
-}];
+}].sort((a, b) => a.label.localeCompare(b.label, 'en', { sensitivity: 'base' }));
 
 export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
   settings,
