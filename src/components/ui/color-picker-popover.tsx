@@ -133,28 +133,6 @@ export function ColorPickerPopover({ value, onChange, className }: ColorPickerPo
             </div>
           </div>
 
-          {/* More Colors Button */}
-          <div className="pt-2 border-t">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="w-full justify-start text-xs"
-              onClick={handleMoreColors}
-            >
-              More Colors...
-            </Button>
-            <input
-              ref={colorInputRef}
-              type="color"
-              value={value}
-              onChange={(e) => {
-                onChange(e.target.value);
-                setIsOpen(false);
-              }}
-              className="hidden"
-            />
-          </div>
-
           {/* Hovered Color Display */}
           {hoveredColor && (
             <div className="text-xs text-center text-muted-foreground pt-2 border-t">

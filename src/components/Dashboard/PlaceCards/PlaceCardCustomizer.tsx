@@ -493,10 +493,10 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                   <Palette className="h-4 w-4" />
                   Card Background Color
                 </Label>
-                <div className="flex items-center gap-2">
-                  <Input type="color" value={currentSettings.background_color} onChange={e => handleSettingChange('background_color', e.target.value)} className="w-12 h-10 p-1" />
-                  <Input type="text" value={currentSettings.background_color} onChange={e => handleSettingChange('background_color', e.target.value)} className="flex-1" />
-                </div>
+                <ColorPickerPopover
+                  value={currentSettings.background_color}
+                  onChange={(color) => handleSettingChange('background_color', color)}
+                />
               </div>
             </div>
           </TabsContent>
