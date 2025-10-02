@@ -1,7 +1,7 @@
 import React from 'react';
 import { useProfile } from '@/hooks/useProfile';
 import logoImage from '@/assets/wedding-waitress-header-logo.png';
-import { SmilePlus } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 export const DashboardHeader: React.FC = () => {
   const {
     profile
@@ -24,9 +24,9 @@ export const DashboardHeader: React.FC = () => {
 
         {/* Welcome message in the center */}
         <div className="flex items-center justify-center flex-1">
-          <h2 className="text-lg md:text-xl font-semibold text-primary flex items-center gap-2">
+          <h2 className="text-xl md:text-2xl font-semibold text-primary flex items-center gap-2">
             Welcome {getDisplayName()}
-            <SmilePlus className="w-5 h-5 md:w-6 md:h-6 text-primary" />
+            <Sparkles className="w-6 h-6 md:w-7 md:h-7 text-primary" />
           </h2>
         </div>
 
