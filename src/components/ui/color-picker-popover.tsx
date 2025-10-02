@@ -30,34 +30,34 @@ const THEME_COLORS = [
 ];
 
 const STANDARD_COLORS = [
-  // Black shades
-  ['#000000', '#404040', '#808080'], // Black, Dark Gray, Gray
-  // Red shades
-  ['#8B0000', '#FF0000', '#FF6B6B'], // Dark Red, Red, Light Red
-  // Orange shades
-  ['#CC5500', '#FF7F00', '#FFB366'], // Dark Orange, Orange, Light Orange
-  // Yellow shades
-  ['#CC9900', '#FFFF00', '#FFFF99'], // Dark Yellow, Yellow, Light Yellow
-  // Lime shades
-  ['#66CC00', '#7FFF00', '#CCFF99'], // Dark Lime, Lime, Light Lime
-  // Green shades
-  ['#006400', '#00FF00', '#66FF66'], // Dark Green, Green, Light Green
-  // Spring Green shades
-  ['#00CC66', '#00FF7F', '#99FFCC'], // Dark Spring, Spring Green, Light Spring
-  // Cyan shades
-  ['#00CCCC', '#00FFFF', '#99FFFF'], // Dark Cyan, Cyan, Light Cyan
-  // Azure shades
-  ['#0066CC', '#007FFF', '#66B3FF'], // Dark Azure, Azure, Light Azure
-  // Blue shades
-  ['#000099', '#0000FF', '#6666FF'], // Dark Blue, Blue, Light Blue
-  // Violet shades
-  ['#660099', '#7F00FF', '#CC99FF'], // Dark Violet, Violet, Light Violet
-  // Magenta shades
-  ['#CC00CC', '#FF00FF', '#FF99FF'], // Dark Magenta, Magenta, Light Magenta
-  // Rose shades
-  ['#CC0066', '#FF007F', '#FF99CC'], // Dark Rose, Rose, Light Rose
-  // White (single color)
-  ['#FFFFFF'], // White
+  // Black to Gray shades (5 shades)
+  ['#000000', '#404040', '#808080', '#B0B0B0', '#D0D0D0'],
+  // Red shades (5 shades)
+  ['#660000', '#8B0000', '#FF0000', '#FF6B6B', '#FFB5B5'],
+  // Orange shades (5 shades)
+  ['#994400', '#CC5500', '#FF7F00', '#FFB366', '#FFD9B3'],
+  // Yellow shades (5 shades)
+  ['#997700', '#CC9900', '#FFFF00', '#FFFF66', '#FFFF99'],
+  // Lime shades (5 shades)
+  ['#4D9900', '#66CC00', '#7FFF00', '#B2FF66', '#CCFF99'],
+  // Green shades (5 shades)
+  ['#004D00', '#006400', '#00FF00', '#66FF66', '#B3FFB3'],
+  // Spring Green shades (5 shades)
+  ['#009950', '#00CC66', '#00FF7F', '#66FFAA', '#99FFCC'],
+  // Cyan shades (5 shades)
+  ['#009999', '#00CCCC', '#00FFFF', '#66FFFF', '#99FFFF'],
+  // Azure shades (5 shades)
+  ['#004D99', '#0066CC', '#007FFF', '#66B3FF', '#99CCFF'],
+  // Blue shades (5 shades)
+  ['#000066', '#000099', '#0000FF', '#6666FF', '#9999FF'],
+  // Violet shades (5 shades)
+  ['#4D0066', '#660099', '#7F00FF', '#B366FF', '#CC99FF'],
+  // Magenta shades (5 shades)
+  ['#990099', '#CC00CC', '#FF00FF', '#FF66FF', '#FF99FF'],
+  // Rose shades (5 shades)
+  ['#99004D', '#CC0066', '#FF007F', '#FF66AA', '#FF99CC'],
+  // Gray to White shades (5 shades)
+  ['#A0A0A0', '#C0C0C0', '#E0E0E0', '#F0F0F0', '#FFFFFF'],
 ];
 
 export function ColorPickerPopover({ value, onChange, className }: ColorPickerPopoverProps) {
@@ -114,7 +114,7 @@ export function ColorPickerPopover({ value, onChange, className }: ColorPickerPo
           {/* Standard Colors */}
           <div>
             <p className="text-xs font-medium mb-2 text-muted-foreground">Standard Colors</p>
-            <div className="grid grid-cols-3 gap-1">
+            <div className="grid grid-cols-5 gap-1">
               {STANDARD_COLORS.map((row, rowIndex) => (
                 <React.Fragment key={rowIndex}>
                   {row.map((color, colIndex) => (
