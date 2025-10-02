@@ -216,7 +216,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                                 className="guest-name"
                                  style={{
                                   fontFamily: currentSettings.guest_font_family,
-                                  fontWeight: currentSettings.guest_name_bold ? '700' : '600',
+                                  fontWeight: currentSettings.guest_name_bold ? '700' : '400',
                                   fontStyle: currentSettings.guest_name_italic ? 'italic' : 'normal',
                                   textDecoration: currentSettings.guest_name_underline ? 'underline' : 'none',
                                   fontSize: `${currentSettings.guest_name_font_size}pt`,
@@ -305,7 +305,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
           line-height: 1.1;
           text-align: center;
           overflow: visible;
-          font-weight: 600;
+          font-weight: 400;
           font-synthesis: weight;
         }
 
