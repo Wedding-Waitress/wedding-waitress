@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/enhanced-button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import { useEvents } from '@/hooks/useEvents';
 import { useRealtimeGuests } from '@/hooks/useRealtimeGuests';
 import { Guest } from '@/hooks/useGuests';
@@ -61,8 +62,8 @@ export const PlaceCardsPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Top Section - 3 Column Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      {/* Top Section - 2 Column Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Event Selection */}
         <Card className="ww-box">
           <CardHeader>
@@ -110,45 +111,54 @@ export const PlaceCardsPage: React.FC = () => {
         {selectedEventId && selectedEvent && assignedGuests.length > 0 && (
           <>
             {(guestsLoading || settingsLoading) ? (
-              <div className="flex items-center justify-center h-32 col-span-2">
+              <div className="flex items-center justify-center h-32">
                 <Loader2 className="h-6 w-6 animate-spin text-primary" />
                 <span className="ml-2 text-muted-foreground">Loading...</span>
               </div>
             ) : (
-              <>
-                <PlaceCardExportControls
-                  settings={settings}
-                  guests={assignedGuests}
-                  event={selectedEvent}
-                  totalPages={totalPages}
-                  onPageFocus={setFocusedPage}
-                  onExportStateChange={setIsExporting}
-                />
-
-                {/* Customise Name Place Cards */}
-                <PlaceCardCustomizer
-                  settings={settings}
-                  onSettingsChange={updateSettings}
-                  guests={assignedGuests}
-                />
-              </>
+              <PlaceCardExportControls
+                settings={settings}
+                guests={assignedGuests}
+                event={selectedEvent}
+                totalPages={totalPages}
+                onPageFocus={setFocusedPage}
+                onExportStateChange={setIsExporting}
+              />
             )}
           </>
         )}
       </div>
 
+      {/* Bottom Section - Resizable Layout */}
       {selectedEventId && selectedEvent && assignedGuests.length > 0 && !guestsLoading && !settingsLoading && (
-        <>
+        <ResizablePanelGroup direction="horizontal" className="min-h-[800px] rounded-lg border">
+          {/* Left Panel - Customizer */}
+          <ResizablePanel defaultSize={30} minSize={25} maxSize={40}>
+            <div className="h-full overflow-auto p-4">
+              <PlaceCardCustomizer
+                settings={settings}
+                onSettingsChange={updateSettings}
+                guests={assignedGuests}
+              />
+            </div>
+          </ResizablePanel>
 
-        {/* Preview - Bottom Section */}
-        <PlaceCardPreview
-          settings={settings}
-          guests={assignedGuests}
-          event={selectedEvent}
-          isExporting={isExporting}
-          focusedPage={focusedPage}
-        />
-        </>
+          {/* Resize Handle */}
+          <ResizableHandle withHandle />
+
+          {/* Right Panel - Preview */}
+          <ResizablePanel defaultSize={70} minSize={60} maxSize={75}>
+            <div className="h-full overflow-auto p-4">
+              <PlaceCardPreview
+                settings={settings}
+                guests={assignedGuests}
+                event={selectedEvent}
+                isExporting={isExporting}
+                focusedPage={focusedPage}
+              />
+            </div>
+          </ResizablePanel>
+        </ResizablePanelGroup>
       )}
     </div>
   );
