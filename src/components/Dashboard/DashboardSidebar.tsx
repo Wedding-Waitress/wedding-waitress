@@ -41,7 +41,7 @@ const SidebarMenuContent = ({ activeTab, onTabChange, onSignOut }: { activeTab: 
   return (
     <div className="h-full flex flex-col bg-card border-r border-border">
       {/* Menu Items */}
-      <div className="flex-1 px-4 py-6">
+      <div className="flex-1 px-4 py-6 pt-12">
         <nav className="space-y-2" role="navigation" aria-label="Dashboard navigation">
           {menuItems.map((item) => {
             const Icon = item.icon;
