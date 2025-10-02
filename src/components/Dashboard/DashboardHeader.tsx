@@ -18,7 +18,7 @@ export const DashboardHeader: React.FC = () => {
       <div className="flex h-16 items-center justify-between px-6 my-[10px]">
         {/* Logo on the left */}
         <div className="flex items-center">
-          <img src={logoImage} alt="Wedding Waitress" className="h-12 w-auto" />
+          <img src={logoImage} alt="Wedding Waitress" className="h-14 w-auto" />
         </div>
 
         {/* Welcome message on the right */}
