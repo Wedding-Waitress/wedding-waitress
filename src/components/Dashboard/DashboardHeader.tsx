@@ -17,19 +17,19 @@ export const DashboardHeader: React.FC = () => {
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60 print:hidden">
-      <div className="flex h-16 items-center justify-between px-6">
+      <div className="flex h-16 items-center justify-center px-6 relative">
         {/* Logo on the left */}
-        <div className="flex items-center">
+        <div className="absolute left-6 flex items-center">
           <img 
             src={logoImage} 
             alt="Wedding Waitress" 
-            className="h-10 w-auto"
+            className="h-20 w-auto"
           />
         </div>
 
-        {/* Welcome message on the right */}
+        {/* Welcome message centered */}
         <div className="flex items-center">
-          <h2 className="text-lg md:text-xl font-semibold text-primary">
+          <h2 className="text-2xl md:text-4xl font-semibold text-primary">
             Welcome {getDisplayName()}
           </h2>
         </div>
