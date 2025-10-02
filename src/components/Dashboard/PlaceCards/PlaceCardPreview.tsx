@@ -146,9 +146,10 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                         top: 0,
                         bottom: 0,
                         left: '50%',
-                        width: 0,
-                        borderLeft: '0.5px solid rgba(217, 217, 217, 0.6)',
-                        zIndex: 1,
+                        width: '1px',
+                        borderLeft: '1px solid rgba(150, 150, 150, 0.5)',
+                        zIndex: 10,
+                        transform: 'translateX(-0.5px)',
                       }}
                     />
                     <div 
@@ -363,7 +364,9 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
           /* Print cut lines at exact positions */
           .cutline-v {
             left: 105mm !important;
-            border-left: 0.5px solid rgba(217, 217, 217, 0.6) !important;
+            width: 1px !important;
+            border-left: 1px solid rgba(150, 150, 150, 0.5) !important;
+            transform: translateX(-0.5px) !important;
           }
 
           .cutline-h1 {
