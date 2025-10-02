@@ -213,11 +213,12 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
         .place-card-preview-container {
           position: relative;
           transition: all 0.3s ease;
+          background-color: #FFFFFF;
         }
 
         .place-card-a4-page {
           display: grid;
-          background: white;
+          background: #FFFFFF;
         }
 
         .place-card-cell {
@@ -296,11 +297,13 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
             border-radius: 0;
             overflow: visible;
             page-break-after: always;
+            background-color: #FFFFFF;
           }
 
           .place-card-a4-page {
             width: 210mm;
             height: 297mm;
+            background: #FFFFFF;
           }
 
           .place-card-cell {
