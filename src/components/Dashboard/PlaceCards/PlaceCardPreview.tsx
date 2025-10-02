@@ -191,7 +191,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                             {/* Background Image */}
                             {currentSettings.background_image_url && currentSettings.background_image_type === 'full' && (
                               <div
-                                className="absolute inset-0 pointer-events-none"
+                                className="absolute inset-x-0 top-1/2 bottom-0 pointer-events-none"
                                 style={{
                                   backgroundImage: `url(${currentSettings.background_image_url})`,
                                   backgroundPosition: `${currentSettings.background_image_x_position || 50}% ${currentSettings.background_image_y_position || 50}%`,
