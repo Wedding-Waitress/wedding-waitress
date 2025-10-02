@@ -164,113 +164,149 @@ export const PlaceCardExportControls: React.FC<PlaceCardExportControlsProps> = (
     }
   };
 
-  const printSheets = async (pages: HTMLElement[]) => {
-    // Create hidden iframe for printing
-    const iframe = document.createElement('iframe');
-    iframe.style.position = 'fixed';
-    iframe.style.right = '0';
-    iframe.style.bottom = '0';
-    iframe.style.width = '0';
-    iframe.style.height = '0';
-    iframe.style.border = '0';
-    document.body.appendChild(iframe);
-
-    const idoc = iframe.contentDocument || iframe.contentWindow!.document;
-    idoc.open();
-    idoc.write('<!doctype html><html><head><meta charset="utf-8"><title>Print</title></head><body></body></html>');
-    idoc.close();
-
-    const head = idoc.head;
+  const printWithStyles = (pages: HTMLElement[]) => {
+    // Create temporary print container
+    const printContainer = document.createElement('div');
+    printContainer.id = 'ww-print-container';
+    printContainer.style.position = 'fixed';
+    printContainer.style.top = '-9999px';
+    printContainer.style.left = '-9999px';
     
-    // Copy all stylesheets and inline styles
-    document.querySelectorAll('link[rel="stylesheet"], style').forEach(node => {
-      head.appendChild(node.cloneNode(true));
+    // Clone pages with all computed styles preserved
+    pages.forEach(page => {
+      const clone = page.cloneNode(true) as HTMLElement;
+      printContainer.appendChild(clone);
     });
-
-    // Add strong print CSS overrides
-    const style = idoc.createElement('style');
-    style.textContent = `
-      @page { size: A4; margin: 0; }
-      :root { color-scheme: light; }
-      html, body { 
-        background: #FFFFFF !important; 
-        -webkit-print-color-adjust: exact; 
-        print-color-adjust: exact;
-        margin: 0;
-        padding: 0;
+    
+    // Add print-specific styles to document
+    const printStyles = document.createElement('style');
+    printStyles.id = 'ww-print-styles';
+    printStyles.textContent = `
+      @page { 
+        size: A4 portrait; 
+        margin: 0; 
       }
-      .place-card-preview-container,
-      .a4-sheet { 
-        width: 210mm !important; 
-        height: 297mm !important; 
-        background: #FFFFFF !important; 
-        page-break-after: always; 
-        position: relative; 
-        transform: none !important; 
-        box-shadow: none !important; 
-        border-radius: 0 !important;
-        margin: 0 !important;
-        padding: 0 !important;
-      }
-      .place-card-a4-page {
-        width: 210mm !important;
-        height: 297mm !important;
-        transform: none !important;
-      }
-      .fold-guide, .preview-only, .screen-only { 
-        display: none !important; 
-      }
-      .cutline-v, .cutline-h1, .cutline-h2 { 
-        border-color: rgba(217,217,217,0.6) !important; 
-      }
-      .cutline-v {
-        left: 105mm !important;
-      }
-      .cutline-h1 {
-        top: 99mm !important;
-      }
-      .cutline-h2 {
-        top: 198mm !important;
-      }
-      .place-card-cell {
-        width: 105mm !important;
-        height: 99mm !important;
+      
+      @media print {
+        :root { color-scheme: light !important; }
+        
+        html, body {
+          background: #FFFFFF !important;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+          color-adjust: exact !important;
+        }
+        
+        /* Hide everything except print container */
+        body > *:not(#ww-print-container) {
+          display: none !important;
+        }
+        
+        /* Show print container */
+        #ww-print-container {
+          display: block !important;
+          position: static !important;
+          top: 0 !important;
+          left: 0 !important;
+        }
+        
+        /* Ensure all children are visible */
+        #ww-print-container,
+        #ww-print-container * {
+          visibility: visible !important;
+          opacity: 1 !important;
+        }
+        
+        /* A4 page styling */
+        #ww-print-container .place-card-preview-container {
+          width: 210mm !important;
+          height: 297mm !important;
+          background: #FFFFFF !important;
+          page-break-after: always !important;
+          page-break-inside: avoid !important;
+          transform: none !important;
+          scale: 1 !important;
+          box-shadow: none !important;
+          border: none !important;
+          border-radius: 0 !important;
+          margin: 0 !important;
+          padding: 0 !important;
+          position: relative !important;
+        }
+        
+        /* Ensure A4 page content is correct */
+        #ww-print-container .place-card-a4-page {
+          width: 210mm !important;
+          height: 297mm !important;
+          transform: none !important;
+          position: relative !important;
+        }
+        
+        /* Place card cells - exact A4 dimensions */
+        #ww-print-container .place-card-cell {
+          width: 105mm !important;
+          height: 99mm !important;
+          page-break-inside: avoid !important;
+        }
+        
+        /* Cut lines - subtle but visible */
+        #ww-print-container .cutline-v,
+        #ww-print-container .cutline-h1,
+        #ww-print-container .cutline-h2 {
+          border-color: rgba(217, 217, 217, 0.6) !important;
+          opacity: 1 !important;
+        }
+        
+        #ww-print-container .cutline-v {
+          left: 105mm !important;
+        }
+        
+        #ww-print-container .cutline-h1 {
+          top: 99mm !important;
+        }
+        
+        #ww-print-container .cutline-h2 {
+          top: 198mm !important;
+        }
+        
+        /* Hide fold guides and screen-only elements */
+        .fold-guide,
+        .preview-only,
+        .screen-only {
+          display: none !important;
+        }
+        
+        /* Preserve colors and backgrounds */
+        #ww-print-container * {
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+          color-adjust: exact !important;
+        }
       }
     `;
-    head.appendChild(style);
-
-    // Clone the A4 pages
-    pages.forEach(p => {
-      const clone = p.cloneNode(true) as HTMLElement;
-      idoc.body.appendChild(clone);
-    });
-
-    // Wait for fonts and images to load
-    try {
-      const waitFonts = idoc.fonts ? idoc.fonts.ready.catch(() => {}) : Promise.resolve();
-      const waitImages = Promise.all(
-        Array.from(idoc.images).map(img => 
-          img.complete ? Promise.resolve() : 
-          new Promise(res => { 
-            img.onload = img.onerror = res; 
-          })
-        )
-      );
-      await Promise.all([waitFonts, waitImages]);
-    } catch (e) {
-      console.warn('Resource loading warning:', e);
-    }
-
-    // Trigger print
-    iframe.contentWindow!.focus();
-    iframe.contentWindow!.print();
-
-    // Cleanup after print dialog closes
+    
+    // Append to document
+    document.head.appendChild(printStyles);
+    document.body.appendChild(printContainer);
+    
+    // Trigger print after a brief delay to ensure styles are applied
     setTimeout(() => {
-      if (document.body.contains(iframe)) {
-        document.body.removeChild(iframe);
-      }
-    }, 1500);
+      window.print();
+      
+      // Cleanup after print dialog closes
+      // Use both afterprint event and timeout as fallback
+      const cleanup = () => {
+        if (document.body.contains(printContainer)) {
+          document.body.removeChild(printContainer);
+        }
+        if (document.head.contains(printStyles)) {
+          document.head.removeChild(printStyles);
+        }
+      };
+      
+      window.addEventListener('afterprint', cleanup, { once: true });
+      setTimeout(cleanup, 1000); // Fallback cleanup
+    }, 100);
   };
 
   const handlePrintPage = () => {
@@ -284,7 +320,7 @@ export const PlaceCardExportControls: React.FC<PlaceCardExportControlsProps> = (
       return;
     }
 
-    printSheets([pageElement]);
+    printWithStyles([pageElement]);
   };
 
   const handlePrintAll = () => {
@@ -298,7 +334,7 @@ export const PlaceCardExportControls: React.FC<PlaceCardExportControlsProps> = (
       return;
     }
 
-    printSheets(allPages);
+    printWithStyles(allPages);
   };
 
   return (
