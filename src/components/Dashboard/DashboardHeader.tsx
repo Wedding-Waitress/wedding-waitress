@@ -18,12 +18,12 @@ export const DashboardHeader: React.FC = () => {
       <div className="flex h-16 items-center justify-center px-6 relative my-[30px]">
         {/* Logo on the left */}
         <div className="absolute left-6 flex items-center">
-          <img src={logoImage} alt="Wedding Waitress" className="h-20 w-auto" />
+          <img src={logoImage} alt="Wedding Waitress" className="h-15 w-auto" />
         </div>
 
         {/* Welcome message centered */}
         <div className="flex items-center">
-          <h2 className="text-2xl md:text-4xl font-semibold text-primary">
+          <h2 className="text-xl md:text-3xl font-semibold text-primary">
             Welcome {getDisplayName()}
           </h2>
         </div>
