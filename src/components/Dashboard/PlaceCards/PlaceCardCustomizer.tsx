@@ -25,16 +25,54 @@ interface ExtendedPlaceCardSettings extends PlaceCardSettings {
 }
 
 const FONT_OPTIONS = [
-  { value: 'Inter', label: 'Inter' },
+  // Elegant Script & Calligraphy (Wedding Focused)
+  { value: 'Allura', label: 'Allura ✨' },
+  { value: 'Alex Brush', label: 'Alex Brush ✨' },
+  { value: 'Tangerine', label: 'Tangerine ✨' },
+  { value: 'Pinyon Script', label: 'Pinyon Script ✨' },
+  { value: 'Satisfy', label: 'Satisfy ✨' },
+  { value: 'Parisienne', label: 'Parisienne ✨' },
+  { value: 'Marck Script', label: 'Marck Script ✨' },
+  { value: 'Cookie', label: 'Cookie ✨' },
+  { value: 'Sacramento', label: 'Sacramento ✨' },
+  { value: 'Kaushan Script', label: 'Kaushan Script ✨' },
+  { value: 'Courgette', label: 'Courgette ✨' },
+  { value: 'Yellowtail', label: 'Yellowtail ✨' },
+  { value: 'Dancing Script', label: 'Dancing Script ✨' },
+  { value: 'Great Vibes', label: 'Great Vibes ✨' },
+  { value: 'Amatic SC', label: 'Amatic SC ✨' },
+  
+  // Classic Serif Fonts
   { value: 'Playfair Display', label: 'Playfair Display' },
+  { value: 'Cormorant', label: 'Cormorant' },
+  { value: 'Crimson Text', label: 'Crimson Text' },
+  { value: 'Lora', label: 'Lora' },
+  { value: 'Merriweather', label: 'Merriweather' },
+  { value: 'EB Garamond', label: 'EB Garamond' },
+  { value: 'Libre Baskerville', label: 'Libre Baskerville' },
+  { value: 'Vollkorn', label: 'Vollkorn' },
+  
+  // Modern Sans-Serif Fonts
+  { value: 'Raleway', label: 'Raleway' },
+  { value: 'Josefin Sans', label: 'Josefin Sans' },
+  { value: 'Quicksand', label: 'Quicksand' },
+  { value: 'Nunito', label: 'Nunito' },
+  { value: 'Work Sans', label: 'Work Sans' },
+  { value: 'DM Sans', label: 'DM Sans' },
+  { value: 'Outfit', label: 'Outfit' },
+  { value: 'Montserrat', label: 'Montserrat' },
+  { value: 'Poppins', label: 'Poppins' },
+  { value: 'Inter', label: 'Inter' },
   { value: 'Roboto', label: 'Roboto' },
   { value: 'Open Sans', label: 'Open Sans' },
   { value: 'Lato', label: 'Lato' },
-  { value: 'Montserrat', label: 'Montserrat' },
-  { value: 'Poppins', label: 'Poppins' },
-  { value: 'Dancing Script', label: 'Dancing Script' },
-  { value: 'Great Vibes', label: 'Great Vibes' },
-  { value: 'Pacifico', label: 'Pacifico' },
+  
+  // Display & Decorative Fonts
+  { value: 'Cinzel', label: 'Cinzel ◆' },
+  { value: 'Abril Fatface', label: 'Abril Fatface ◆' },
+  { value: 'Bebas Neue', label: 'Bebas Neue ◆' },
+  { value: 'Righteous', label: 'Righteous ◆' },
+  { value: 'Pacifico', label: 'Pacifico ◆' },
 ];
 
 export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
