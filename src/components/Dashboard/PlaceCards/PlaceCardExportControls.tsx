@@ -367,6 +367,14 @@ export const PlaceCardExportControls: React.FC<PlaceCardExportControlsProps> = (
           </Select>
         </div>
 
+        {/* Export Info */}
+        <div className="text-xs text-muted-foreground space-y-1 pt-2 border-t">
+          <p>• All exports are 300 DPI for professional quality</p>
+          <p>• PDF exports maintain exact A4 dimensions (210×297mm)</p>
+          <p>• Image exports are 2480×3508 pixels (A4 @ 300 DPI)</p>
+          <p>• We have made it easy for you to print & cut at home or get it done at your local printer</p>
+        </div>
+
         {/* File Type Selector */}
         <div className="space-y-2">
           <Label>Export Format</Label>
@@ -461,12 +469,6 @@ export const PlaceCardExportControls: React.FC<PlaceCardExportControlsProps> = (
           </div>
         </div>
 
-        {/* Export Info */}
-        <div className="text-xs text-muted-foreground space-y-1 pt-2 border-t">
-          <p>• All exports are 300 DPI for professional quality</p>
-          <p>• PDF exports maintain exact A4 dimensions (210×297mm)</p>
-          <p>• Image exports are 2480×3508 pixels (A4 @ 300 DPI)</p>
-        </div>
       </CardContent>
     </Card>
   );
