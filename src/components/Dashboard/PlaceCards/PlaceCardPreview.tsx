@@ -146,7 +146,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                         bottom: 0,
                         left: '50%',
                         width: 0,
-                        borderLeft: '2px solid rgba(217, 217, 217, 0.6)',
+                        borderLeft: '0.5px solid rgba(217, 217, 217, 0.6)',
                         zIndex: 1,
                       }}
                     />
@@ -158,7 +158,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                         right: 0,
                         top: '33.333%',
                         height: 0,
-                        borderTop: '2px solid rgba(217, 217, 217, 0.6)',
+                        borderTop: '0.5px solid rgba(217, 217, 217, 0.6)',
                         zIndex: 1,
                       }}
                     />
@@ -170,7 +170,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                         right: 0,
                         top: '66.666%',
                         height: 0,
-                        borderTop: '2px solid rgba(217, 217, 217, 0.6)',
+                        borderTop: '0.5px solid rgba(217, 217, 217, 0.6)',
                         zIndex: 1,
                       }}
                     />
@@ -361,17 +361,17 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
           /* Print cut lines at exact positions */
           .cutline-v {
             left: 105mm !important;
-            border-left: 2px solid rgba(217, 217, 217, 0.6) !important;
+            border-left: 0.5px solid rgba(217, 217, 217, 0.6) !important;
           }
 
           .cutline-h1 {
             top: 99mm !important;
-            border-top: 2px solid rgba(217, 217, 217, 0.6) !important;
+            border-top: 0.5px solid rgba(217, 217, 217, 0.6) !important;
           }
 
           .cutline-h2 {
             top: 198mm !important;
-            border-top: 2px solid rgba(217, 217, 217, 0.6) !important;
+            border-top: 0.5px solid rgba(217, 217, 217, 0.6) !important;
           }
 
           .place-card-cell {
