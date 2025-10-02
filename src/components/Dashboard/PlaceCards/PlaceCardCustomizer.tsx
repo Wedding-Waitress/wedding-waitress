@@ -547,52 +547,76 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                 <div className="space-y-4 pt-4 border-t">
                   <h4 className="text-sm font-medium">Image Positioning</h4>
                   
-                  {/* X Position Slider */}
+                  {/* Horizontal Position Dropdown */}
                   <div className="space-y-2">
-                    <Label>Horizontal Position: {currentSettings.background_image_x_position || 50}%</Label>
-                    <Slider
-                      value={[currentSettings.background_image_x_position || 50]}
-                      onValueChange={(value) => handleSettingChange('background_image_x_position', value[0])}
-                      min={0}
-                      max={100}
-                      step={1}
-                    />
+                    <Label>Horizontal Position</Label>
+                    <Select
+                      value={String(currentSettings.background_image_x_position || 50)}
+                      onValueChange={(value) => handleSettingChange('background_image_x_position', Number(value))}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100].map(val => (
+                          <SelectItem key={val} value={String(val)}>{val}%</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
 
-                  {/* Y Position Slider */}
+                  {/* Vertical Position Dropdown */}
                   <div className="space-y-2">
-                    <Label>Vertical Position: {currentSettings.background_image_y_position || 50}%</Label>
-                    <Slider
-                      value={[currentSettings.background_image_y_position || 50]}
-                      onValueChange={(value) => handleSettingChange('background_image_y_position', value[0])}
-                      min={0}
-                      max={100}
-                      step={1}
-                    />
+                    <Label>Vertical Position</Label>
+                    <Select
+                      value={String(currentSettings.background_image_y_position || 50)}
+                      onValueChange={(value) => handleSettingChange('background_image_y_position', Number(value))}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100].map(val => (
+                          <SelectItem key={val} value={String(val)}>{val}%</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
 
-                  {/* Scale Slider */}
+                  {/* Scale/Zoom Dropdown */}
                   <div className="space-y-2">
-                    <Label>Scale/Zoom: {currentSettings.background_image_scale || 100}%</Label>
-                    <Slider
-                      value={[currentSettings.background_image_scale || 100]}
-                      onValueChange={(value) => handleSettingChange('background_image_scale', value[0])}
-                      min={50}
-                      max={200}
-                      step={5}
-                    />
+                    <Label>Scale/Zoom</Label>
+                    <Select
+                      value={String(currentSettings.background_image_scale || 100)}
+                      onValueChange={(value) => handleSettingChange('background_image_scale', Number(value))}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {[50, 75, 100, 125, 150, 175, 200].map(val => (
+                          <SelectItem key={val} value={String(val)}>{val}%</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
 
-                  {/* Opacity Slider */}
+                  {/* Opacity Dropdown */}
                   <div className="space-y-2">
-                    <Label>Image Opacity: {currentSettings.background_image_opacity || 20}%</Label>
-                    <Slider
-                      value={[currentSettings.background_image_opacity || 20]}
-                      onValueChange={(value) => handleSettingChange('background_image_opacity', value[0])}
-                      min={0}
-                      max={100}
-                      step={5}
-                    />
+                    <Label>Image Opacity</Label>
+                    <Select
+                      value={String(currentSettings.background_image_opacity || 20)}
+                      onValueChange={(value) => handleSettingChange('background_image_opacity', Number(value))}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100].map(val => (
+                          <SelectItem key={val} value={String(val)}>{val}%</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
               )}
