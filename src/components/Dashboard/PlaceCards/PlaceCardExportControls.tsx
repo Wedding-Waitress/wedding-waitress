@@ -164,6 +164,115 @@ export const PlaceCardExportControls: React.FC<PlaceCardExportControlsProps> = (
     }
   };
 
+  const printSheets = async (pages: HTMLElement[]) => {
+    // Create hidden iframe for printing
+    const iframe = document.createElement('iframe');
+    iframe.style.position = 'fixed';
+    iframe.style.right = '0';
+    iframe.style.bottom = '0';
+    iframe.style.width = '0';
+    iframe.style.height = '0';
+    iframe.style.border = '0';
+    document.body.appendChild(iframe);
+
+    const idoc = iframe.contentDocument || iframe.contentWindow!.document;
+    idoc.open();
+    idoc.write('<!doctype html><html><head><meta charset="utf-8"><title>Print</title></head><body></body></html>');
+    idoc.close();
+
+    const head = idoc.head;
+    
+    // Copy all stylesheets and inline styles
+    document.querySelectorAll('link[rel="stylesheet"], style').forEach(node => {
+      head.appendChild(node.cloneNode(true));
+    });
+
+    // Add strong print CSS overrides
+    const style = idoc.createElement('style');
+    style.textContent = `
+      @page { size: A4; margin: 0; }
+      :root { color-scheme: light; }
+      html, body { 
+        background: #FFFFFF !important; 
+        -webkit-print-color-adjust: exact; 
+        print-color-adjust: exact;
+        margin: 0;
+        padding: 0;
+      }
+      .place-card-preview-container,
+      .a4-sheet { 
+        width: 210mm !important; 
+        height: 297mm !important; 
+        background: #FFFFFF !important; 
+        page-break-after: always; 
+        position: relative; 
+        transform: none !important; 
+        box-shadow: none !important; 
+        border-radius: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+      }
+      .place-card-a4-page {
+        width: 210mm !important;
+        height: 297mm !important;
+        transform: none !important;
+      }
+      .fold-guide, .preview-only, .screen-only { 
+        display: none !important; 
+      }
+      .cutline-v, .cutline-h1, .cutline-h2 { 
+        border-color: rgba(217,217,217,0.6) !important; 
+      }
+      .cutline-v {
+        left: 105mm !important;
+      }
+      .cutline-h1 {
+        top: 99mm !important;
+      }
+      .cutline-h2 {
+        top: 198mm !important;
+      }
+      .place-card-cell {
+        width: 105mm !important;
+        height: 99mm !important;
+      }
+    `;
+    head.appendChild(style);
+
+    // Clone the A4 pages
+    pages.forEach(p => {
+      const clone = p.cloneNode(true) as HTMLElement;
+      idoc.body.appendChild(clone);
+    });
+
+    // Wait for fonts and images to load
+    try {
+      const waitFonts = idoc.fonts ? idoc.fonts.ready.catch(() => {}) : Promise.resolve();
+      const waitImages = Promise.all(
+        Array.from(idoc.images).map(img => 
+          img.complete ? Promise.resolve() : 
+          new Promise(res => { 
+            img.onload = img.onerror = res; 
+          })
+        )
+      );
+      await Promise.all([waitFonts, waitImages]);
+    } catch (e) {
+      console.warn('Resource loading warning:', e);
+    }
+
+    // Trigger print
+    iframe.contentWindow!.focus();
+    iframe.contentWindow!.print();
+
+    // Cleanup after print dialog closes
+    setTimeout(() => {
+      if (document.body.contains(iframe)) {
+        document.body.removeChild(iframe);
+      }
+    }, 1500);
+  };
+
   const handlePrintPage = () => {
     const pageElement = document.querySelector(`[data-page="${selectedPage}"]`) as HTMLElement;
     if (!pageElement) {
@@ -175,56 +284,11 @@ export const PlaceCardExportControls: React.FC<PlaceCardExportControlsProps> = (
       return;
     }
 
-    const printWindow = window.open('', '_blank');
-    if (!printWindow) {
-      toast({
-        title: "Error",
-        description: "Unable to open print window",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    const styles = Array.from(document.styleSheets)
-      .map(styleSheet => {
-        try {
-          return Array.from(styleSheet.cssRules)
-            .map(rule => rule.cssText)
-            .join('\n');
-        } catch (e) {
-          return '';
-        }
-      })
-      .join('\n');
-
-    printWindow.document.write(`
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <title>Place Cards - Page ${selectedPage + 1}</title>
-          <style>
-            ${styles}
-            body { margin: 0; padding: 0; }
-            @page { size: A4 portrait; margin: 0; }
-            .fold-guide { display: none !important; }
-          </style>
-        </head>
-        <body>
-          ${pageElement.innerHTML}
-        </body>
-      </html>
-    `);
-    printWindow.document.close();
-    printWindow.focus();
-    
-    setTimeout(() => {
-      printWindow.print();
-      printWindow.close();
-    }, 250);
+    printSheets([pageElement]);
   };
 
   const handlePrintAll = () => {
-    const allPages = Array.from(document.querySelectorAll('[data-page]'));
+    const allPages = Array.from(document.querySelectorAll('[data-page]')) as HTMLElement[];
     if (!allPages.length) {
       toast({
         title: "Error",
@@ -234,60 +298,7 @@ export const PlaceCardExportControls: React.FC<PlaceCardExportControlsProps> = (
       return;
     }
 
-    const printWindow = window.open('', '_blank');
-    if (!printWindow) {
-      toast({
-        title: "Error",
-        description: "Unable to open print window",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    const styles = Array.from(document.styleSheets)
-      .map(styleSheet => {
-        try {
-          return Array.from(styleSheet.cssRules)
-            .map(rule => rule.cssText)
-            .join('\n');
-        } catch (e) {
-          return '';
-        }
-      })
-      .join('\n');
-
-    const pagesHtml = allPages
-      .map((page, index) => `
-        <div style="page-break-after: ${index < allPages.length - 1 ? 'always' : 'auto'};">
-          ${page.innerHTML}
-        </div>
-      `)
-      .join('');
-
-    printWindow.document.write(`
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <title>Place Cards - All Pages</title>
-          <style>
-            ${styles}
-            body { margin: 0; padding: 0; }
-            @page { size: A4 portrait; margin: 0; }
-            .fold-guide { display: none !important; }
-          </style>
-        </head>
-        <body>
-          ${pagesHtml}
-        </body>
-      </html>
-    `);
-    printWindow.document.close();
-    printWindow.focus();
-    
-    setTimeout(() => {
-      printWindow.print();
-      printWindow.close();
-    }, 250);
+    printSheets(allPages);
   };
 
   return (
