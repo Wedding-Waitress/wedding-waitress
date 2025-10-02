@@ -53,6 +53,15 @@ const FONT_OPTIONS = [
 }, {
   value: 'Flagfies',
   label: 'Flagfies 💎'
+}, {
+  value: 'Sphere Memory',
+  label: 'Sphere Memory 💎'
+}, {
+  value: 'ET Emilia Grace Demo',
+  label: 'ET Emilia Grace Demo 💎'
+}, {
+  value: 'Grained',
+  label: 'Grained 💎'
 },
 // Elegant Script & Calligraphy (Wedding Focused)
 {

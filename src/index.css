@@ -2,6 +2,63 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Custom Place Card Fonts */
+@font-face {
+  font-family: 'Beauty Mountains';
+  src: url('/fonts/BeautyMountains.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Valentine Baby';
+  src: url('/fonts/ValentineBaby.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Amsterdam';
+  src: url('/fonts/Amsterdam.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Back to Black Demo';
+  src: url('/fonts/BackToBlackDemo.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Flagfies';
+  src: url('/fonts/Flagfies.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Sphere Memory';
+  src: url('/fonts/SphereMemory.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'ET Emilia Grace Demo';
+  src: url('/fonts/ETEmiliaGrace.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Grained';
+  src: url('/fonts/Grained.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
 /* Wedding Waitress Design System - Futuristic 2026 Purple Theme */
 
 @layer base {
