@@ -184,9 +184,9 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                             className="place-card-cell"
                             style={{
                               backgroundColor: currentSettings.background_color,
-                            color: currentSettings.font_color,
-                          }}
-                        >
+                              color: currentSettings.font_color,
+                            }}
+                          >
 
                             {/* Background Image */}
                             {currentSettings.background_image_url && currentSettings.background_image_type === 'full' && (
