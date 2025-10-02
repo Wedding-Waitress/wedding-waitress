@@ -71,7 +71,7 @@ export const KioskView: React.FC = () => {
       setLoading(true);
       try {
         const { data: publicData, error: rpcError } = await supabase.rpc(
-          'get_public_event_with_data',
+          'get_public_event_with_data_secure',
           { event_slug: eventSlug }
         );
 
@@ -97,15 +97,26 @@ export const KioskView: React.FC = () => {
           .filter(row => row.guest_id)
           .map(row => ({
             id: row.guest_id,
+            event_id: firstRow.event_id,
+            user_id: '', // Not available in public view
             first_name: row.guest_first_name,
             last_name: row.guest_last_name,
-            table_id: row.guest_table_id,
-            table_no: row.guest_table_no || row.table_no,
+            table_id: null,
+            table_no: row.guest_table_no,
             seat_no: row.guest_seat_no,
-            relation_display: row.guest_relation_display,
+            rsvp_date: null,
+            assigned: !!row.guest_table_no,
             rsvp: normalizeRsvp(row.guest_rsvp),
             dietary: row.guest_dietary,
-            table_name: row.table_name,
+            mobile: null,
+            email: null,
+            notes: null,
+            relation_partner: '',
+            relation_role: '',
+            relation_display: '',
+            created_at: '',
+            display_order: null,
+            family_group: null,
           }));
 
         setGuests(transformedGuests);

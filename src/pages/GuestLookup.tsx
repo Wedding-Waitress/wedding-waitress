@@ -122,7 +122,7 @@ export const GuestLookup: React.FC = () => {
       try {
         // Use the new public RPC function that bypasses RLS
         const { data: publicData, error: rpcError } = await supabase.rpc(
-          'get_public_event_with_data',
+          'get_public_event_with_data_secure',
           { event_slug: eventSlug }
         );
 
@@ -156,7 +156,6 @@ export const GuestLookup: React.FC = () => {
           venue: firstRow.event_venue,
           partner1_name: firstRow.partner1_name,
           partner2_name: firstRow.partner2_name,
-          rsvp_deadline: firstRow.event_rsvp_deadline,
         };
         setEvent(eventData);
 
@@ -165,19 +164,26 @@ export const GuestLookup: React.FC = () => {
           .filter(row => row.guest_id) // Only include rows with guest data
           .map(row => ({
             id: row.guest_id,
+            event_id: firstRow.event_id,
+            user_id: '', // Not available in public view
             first_name: row.guest_first_name,
             last_name: row.guest_last_name,
-            table_id: row.guest_table_id,
-            table_no: row.guest_table_no || row.table_no,
+            table_id: null,
+            table_no: row.guest_table_no,
             seat_no: row.guest_seat_no,
-            relation_display: row.guest_relation_display,
+            rsvp_date: null,
+            assigned: !!row.guest_table_no,
             rsvp: normalizeRsvp(row.guest_rsvp),
             dietary: row.guest_dietary,
-            mobile: row.guest_mobile,
-            email: row.guest_email,
-            family_group: row.guest_family_group,
-            table_name: row.table_name,
-            table_limit_seats: row.table_limit_seats
+            mobile: null,
+            email: null,
+            notes: null,
+            relation_partner: '',
+            relation_role: '',
+            relation_display: '',
+            created_at: '',
+            display_order: null,
+            family_group: null,
           }));
 
         setGuests(transformedGuests);
@@ -245,7 +251,7 @@ export const GuestLookup: React.FC = () => {
     try {
       // Use the same public RPC function for refreshing data
       const { data: publicData, error: rpcError } = await supabase.rpc(
-        'get_public_event_with_data',
+        'get_public_event_with_data_secure',
         { event_slug: eventSlug }
       );
 
@@ -255,20 +261,26 @@ export const GuestLookup: React.FC = () => {
           .filter(row => row.guest_id) // Only include rows with guest data
           .map(row => ({
             id: row.guest_id,
+            event_id: event?.id || '',
+            user_id: '', // Not available in public view
             first_name: row.guest_first_name,
             last_name: row.guest_last_name,
-            table_id: row.guest_table_id,
-            table_no: row.guest_table_no || row.table_no,
+            table_id: null,
+            table_no: row.guest_table_no,
             seat_no: row.guest_seat_no,
-            relation_display: row.guest_relation_display,
+            rsvp_date: null,
+            assigned: !!row.guest_table_no,
             rsvp: normalizeRsvp(row.guest_rsvp),
             dietary: row.guest_dietary,
-            mobile: row.guest_mobile,
-            email: row.guest_email,
-            // notes not available in RPC; will be hydrated by realtime fetch or modal fetch
-            family_group: row.guest_family_group,
-            table_name: row.table_name,
-            table_limit_seats: row.table_limit_seats
+            mobile: null,
+            email: null,
+            notes: null,
+            relation_partner: '',
+            relation_role: '',
+            relation_display: '',
+            created_at: '',
+            display_order: null,
+            family_group: null,
           }));
 
         setGuests(transformedGuests);
