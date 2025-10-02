@@ -191,14 +191,15 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                             {/* Background Image */}
                             {currentSettings.background_image_url && currentSettings.background_image_type === 'full' && (
                               <div
-                                className="absolute inset-x-0 top-1/2 bottom-0 pointer-events-none"
+                                className="place-card-background absolute inset-x-0 top-1/2 bottom-0 pointer-events-none"
                                 style={{
                                   backgroundImage: `url(${currentSettings.background_image_url})`,
                                   backgroundPosition: `${currentSettings.background_image_x_position || 50}% ${currentSettings.background_image_y_position || 50}%`,
                                   backgroundSize: `${currentSettings.background_image_scale || 100}%`,
                                   backgroundRepeat: 'no-repeat',
                                   opacity: (currentSettings.background_image_opacity || 100) / 100,
-                                }}
+                                  '--bg-opacity': `${(currentSettings.background_image_opacity || 100) / 100}`,
+                                } as React.CSSProperties & { '--bg-opacity': string }}
                               />
                             )}
 
@@ -464,6 +465,11 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
 
           .decorative-image {
             border: 3px solid #000000;
+          }
+
+          /* Preserve background image opacity in print */
+          .place-card-background {
+            opacity: var(--bg-opacity, 1) !important;
           }
 
           @page {
