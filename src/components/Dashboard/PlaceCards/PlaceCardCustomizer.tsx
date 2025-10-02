@@ -14,15 +14,46 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { PLACE_CARD_TEMPLATES, TEMPLATE_CATEGORIES, getTemplatesByCategory, getTemplateById } from '@/lib/PlaceCardTemplates';
 import { ColorPickerPopover } from '@/components/ui/color-picker-popover';
+
 interface PlaceCardCustomizerProps {
   settings: PlaceCardSettings | null;
   onSettingsChange: (settings: Partial<PlaceCardSettings>) => Promise<boolean>;
   guests: Guest[];
 }
+
 interface ExtendedPlaceCardSettings extends PlaceCardSettings {
   template_id?: string;
 }
+
 const FONT_OPTIONS = [
+// System Fonts - Arial Family
+{
+  value: 'Arial',
+  label: 'Arial'
+}, {
+  value: 'Arial Black',
+  label: 'Arial Black'
+}, {
+  value: 'Arial Narrow',
+  label: 'Arial Narrow'
+},
+// Custom Premium Fonts
+{
+  value: 'Beauty Mountains',
+  label: 'Beauty Mountains 💎'
+}, {
+  value: 'Valentine Baby',
+  label: 'Valentine Baby 💎'
+}, {
+  value: 'Amsterdam',
+  label: 'Amsterdam 💎'
+}, {
+  value: 'Back to Black Demo',
+  label: 'Back to Black Demo 💎'
+}, {
+  value: 'Flagfies',
+  label: 'Flagfies 💎'
+},
 // Elegant Script & Calligraphy (Wedding Focused)
 {
   value: 'Allura',
@@ -154,6 +185,7 @@ const FONT_OPTIONS = [
   value: 'Pacifico',
   label: 'Pacifico ◆'
 }];
+
 export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
   settings,
   onSettingsChange,
