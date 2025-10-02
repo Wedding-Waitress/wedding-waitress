@@ -137,16 +137,40 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                       position: 'relative',
                     }}
                   >
-                    {/* Center vertical cut line */}
+                    {/* Cut lines - vertical center + two horizontals at row breaks */}
                     <div 
-                      className="center-cut-line"
+                      className="cutline-v"
                       style={{
                         position: 'absolute',
                         top: 0,
                         bottom: 0,
                         left: '50%',
-                        width: '1px',
-                        backgroundColor: '#D9D9D9',
+                        width: 0,
+                        borderLeft: '2px solid rgba(217, 217, 217, 0.6)',
+                        zIndex: 1,
+                      }}
+                    />
+                    <div 
+                      className="cutline-h1"
+                      style={{
+                        position: 'absolute',
+                        left: 0,
+                        right: 0,
+                        top: '33.333%',
+                        height: 0,
+                        borderTop: '2px solid rgba(217, 217, 217, 0.6)',
+                        zIndex: 1,
+                      }}
+                    />
+                    <div 
+                      className="cutline-h2"
+                      style={{
+                        position: 'absolute',
+                        left: 0,
+                        right: 0,
+                        top: '66.666%',
+                        height: 0,
+                        borderTop: '2px solid rgba(217, 217, 217, 0.6)',
                         zIndex: 1,
                       }}
                     />
@@ -332,6 +356,22 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
             width: 210mm;
             height: 297mm;
             background: #FFFFFF;
+          }
+
+          /* Print cut lines at exact positions */
+          .cutline-v {
+            left: 105mm !important;
+            border-left: 2px solid rgba(217, 217, 217, 0.6) !important;
+          }
+
+          .cutline-h1 {
+            top: 99mm !important;
+            border-top: 2px solid rgba(217, 217, 217, 0.6) !important;
+          }
+
+          .cutline-h2 {
+            top: 198mm !important;
+            border-top: 2px solid rgba(217, 217, 217, 0.6) !important;
           }
 
           .place-card-cell {
