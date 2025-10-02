@@ -51,7 +51,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
 
   // Auto-fit guest names to one line
   useEffect(() => {
-    const fitOneLine = (el: HTMLElement, maxPt = 18, minPt = 12) => {
+    const fitOneLine = (el: HTMLElement, maxPt = 22, minPt = 12) => {
       el.style.fontSize = maxPt + 'pt';
       el.style.whiteSpace = 'nowrap';
       let currentSize = maxPt;
@@ -291,13 +291,13 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
           position: absolute;
           left: 8mm;
           right: 8mm;
-          top: 62%;
+          top: 67%;
           transform: translateY(-50%);
           text-align: center;
         }
 
         .guest-name {
-          font-size: 18pt;
+          font-size: 22pt;
           font-weight: 600;
           line-height: 1.1;
           white-space: nowrap;
@@ -383,7 +383,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
           }
 
           .guest-name {
-            font-size: 19pt;
+            font-size: 24pt;
           }
 
           .table-info {
@@ -398,7 +398,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
           .card-content {
             left: 8mm;
             right: 8mm;
-            top: 62%;
+            top: 67%;
             transform: translateY(-50%);
           }
 
