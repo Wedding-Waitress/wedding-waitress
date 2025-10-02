@@ -106,8 +106,22 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                       height: '100%',
                       transform: 'scale(1)',
                       transformOrigin: 'top left',
+                      position: 'relative',
                     }}
                   >
+                    {/* Center vertical cut line */}
+                    <div 
+                      className="center-cut-line"
+                      style={{
+                        position: 'absolute',
+                        top: 0,
+                        bottom: 0,
+                        left: '50%',
+                        width: '1px',
+                        backgroundColor: '#D9D9D9',
+                        zIndex: 1,
+                      }}
+                    />
                     {/* 2 columns × 3 rows grid */}
                     <div className="grid grid-cols-2 w-full h-full">
                       {Array.from({ length: 6 }).map((_, cardIndex) => {
@@ -135,27 +149,9 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                             style={{
                               backgroundColor: currentSettings.background_color,
                               fontFamily: currentSettings.font_family,
-                              color: currentSettings.font_color,
-                            }}
-                          >
-                            {/* Cutting markers - one at each corner */}
-                            <svg className="cutting-markers" xmlns="http://www.w3.org/2000/svg">
-                              {/* Top-left */}
-                              <line x1="0" y1="0" x2="4mm" y2="0" stroke="#D0D0D0" strokeWidth="0.5" />
-                              <line x1="0" y1="0" x2="0" y2="4mm" stroke="#D0D0D0" strokeWidth="0.5" />
-                              {/* Top-right */}
-                              <line x1="calc(100% - 4mm)" y1="0" x2="100%" y2="0" stroke="#D0D0D0" strokeWidth="0.5" />
-                              <line x1="100%" y1="0" x2="100%" y2="4mm" stroke="#D0D0D0" strokeWidth="0.5" />
-                              {/* Bottom-left */}
-                              <line x1="0" y1="calc(100% - 4mm)" x2="0" y2="100%" stroke="#D0D0D0" strokeWidth="0.5" />
-                              <line x1="0" y1="100%" x2="4mm" y2="100%" stroke="#D0D0D0" strokeWidth="0.5" />
-                              {/* Bottom-right */}
-                              <line x1="100%" y1="calc(100% - 4mm)" x2="100%" y2="100%" stroke="#D0D0D0" strokeWidth="0.5" />
-                              <line x1="calc(100% - 4mm)" y1="100%" x2="100%" y2="100%" stroke="#D0D0D0" strokeWidth="0.5" />
-                            </svg>
-
-                            {/* Fold guide - screen only */}
-                            <div className="fold-guide" />
+                            color: currentSettings.font_color,
+                          }}
+                        >
 
                             {/* Background Image */}
                             {currentSettings.background_image_url && currentSettings.background_image_type === 'full' && (
@@ -235,38 +231,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
           overflow: hidden;
         }
 
-        .cutting-markers {
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          pointer-events: none;
-          z-index: 10;
-        }
-
-        /* Fold guide - screen only */
-        .fold-guide {
-          position: absolute;
-          left: 0;
-          right: 0;
-          top: 50%;
-          height: 1px;
-          background: #E5E7EB;
-          opacity: 0.7;
-          pointer-events: none;
-          z-index: 5;
-        }
-
-        /* Hide fold guide during export and print */
-        .exporting .fold-guide,
-        @media print {
-          .fold-guide {
-            display: none !important;
-          }
-        }
-
-        /* Card content positioned in lower half */
+        /* Card content positioned in lower half (below fold) */
         .card-content {
           position: relative;
           display: flex;
@@ -274,14 +239,14 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
           align-items: center;
           justify-content: center;
           width: 100%;
-          padding: 0 8px 16px;
+          padding: 0 8mm 10mm;
           margin-top: auto;
         }
 
         .guest-name {
-          font-size: clamp(16px, 3vw, 22pt);
+          font-size: clamp(16px, 3vw, 20pt);
           font-weight: 600;
-          line-height: 1.2;
+          line-height: 1.1;
           margin-bottom: 4px;
           word-wrap: break-word;
           max-width: 90%;
@@ -289,8 +254,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
 
         .table-info {
           font-size: clamp(11px, 2vw, 13pt);
-          opacity: 0.75;
-          font-weight: 400;
+          font-weight: 700;
           margin-top: 2mm;
         }
 
@@ -348,11 +312,12 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
           }
 
           .guest-name {
-            font-size: 22pt;
+            font-size: 20pt;
           }
 
           .table-info {
             font-size: 13pt;
+            font-weight: 700;
           }
 
           .message-text {
