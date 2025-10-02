@@ -339,7 +339,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
           height: 100%;
           max-height: 35mm;
           object-fit: contain;
-          border: 3px solid #000000;
+          border: 0.5px solid #000000;
           border-radius: 4px;
         }
 
