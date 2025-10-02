@@ -13,6 +13,7 @@ import { Palette, Type, Image, MessageSquare, Sparkles, Grid3X3 } from 'lucide-r
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { PLACE_CARD_TEMPLATES, TEMPLATE_CATEGORIES, getTemplatesByCategory, getTemplateById } from '@/lib/PlaceCardTemplates';
+import { ColorPickerPopover } from '@/components/ui/color-picker-popover';
 interface PlaceCardCustomizerProps {
   settings: PlaceCardSettings | null;
   onSettingsChange: (settings: Partial<PlaceCardSettings>) => Promise<boolean>;
@@ -310,10 +311,10 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                   <Palette className="h-4 w-4" />
                   Font Color
                 </Label>
-                <div className="flex items-center gap-2">
-                  <Input type="color" value={currentSettings.font_color} onChange={e => handleSettingChange('font_color', e.target.value)} className="w-12 h-10 p-1" />
-                  <Input type="text" value={currentSettings.font_color} onChange={e => handleSettingChange('font_color', e.target.value)} className="flex-1" />
-                </div>
+                <ColorPickerPopover
+                  value={currentSettings.font_color}
+                  onChange={(color) => handleSettingChange('font_color', color)}
+                />
               </div>
 
               <div>
@@ -336,10 +337,10 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                   <Palette className="h-4 w-4" />
                   Background Color
                 </Label>
-                <div className="flex items-center gap-2">
-                  <Input type="color" value={currentSettings.background_color} onChange={e => handleSettingChange('background_color', e.target.value)} className="w-12 h-10 p-1" />
-                  <Input type="text" value={currentSettings.background_color} onChange={e => handleSettingChange('background_color', e.target.value)} className="flex-1" />
-                </div>
+                <ColorPickerPopover
+                  value={currentSettings.background_color}
+                  onChange={(color) => handleSettingChange('background_color', color)}
+                />
               </div>
 
               <div>
