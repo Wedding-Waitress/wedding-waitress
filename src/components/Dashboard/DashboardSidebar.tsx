@@ -40,19 +40,6 @@ const menuItems = [
 const SidebarMenuContent = ({ activeTab, onTabChange, onSignOut }: { activeTab: string; onTabChange: (tabId: string) => void; onSignOut: () => void }) => {
   return (
     <div className="h-full flex flex-col bg-card border-r border-border">
-      {/* Logo */}
-      <div className="p-4 border-b border-border">
-        <div className="flex items-center space-x-2">
-          <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center shadow-glow">
-            <Heart className="w-5 h-5 text-white" />
-          </div>
-          <div>
-            <h1 className="text-lg font-bold gradient-text">Wedding Waitress</h1>
-            <p className="text-xs text-muted-foreground">Your Wedding & Event Assistant</p>
-          </div>
-        </div>
-      </div>
-
       {/* Menu Items */}
       <div className="flex-1 px-4 py-6">
         <nav className="space-y-2" role="navigation" aria-label="Dashboard navigation">

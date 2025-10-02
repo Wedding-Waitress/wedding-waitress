@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { StatsBar } from "@/components/Dashboard/StatsBar";
 import { DashboardSidebar } from "@/components/Dashboard/DashboardSidebar";
+import { DashboardHeader } from "@/components/Dashboard/DashboardHeader";
 import { MyEventsPage } from "@/components/Dashboard/MyEventsPage";
 import { GuestListTable } from "@/components/Dashboard/GuestListTable";
 import { CreateTableModal } from "@/components/Dashboard/CreateTableModal";
@@ -426,6 +427,8 @@ export const Dashboard = () => {
       
       {/* Main Content */}
       <div className="flex-1 flex flex-col">
+        {/* Universal Header */}
+        <DashboardHeader />
         <main className="flex-1 lg:px-6 px-4 py-6">
         <div className="mx-auto max-w-none">
           {/* Stats Bar excluded from: My Events, QR Code, Dashboard, Vendor Team, Planner, Wishing Well, RSVP, Floor Plan, Kiosk Live View, Printables */}
