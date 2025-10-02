@@ -244,6 +244,75 @@ export type Database = {
         }
         Relationships: []
       }
+      guest_access_attempts: {
+        Row: {
+          access_token: string
+          attempted_at: string
+          id: string
+          ip_address: unknown | null
+          success: boolean
+        }
+        Insert: {
+          access_token: string
+          attempted_at?: string
+          id?: string
+          ip_address?: unknown | null
+          success?: boolean
+        }
+        Update: {
+          access_token?: string
+          attempted_at?: string
+          id?: string
+          ip_address?: unknown | null
+          success?: boolean
+        }
+        Relationships: []
+      }
+      guest_access_tokens: {
+        Row: {
+          access_token: string
+          created_at: string
+          event_id: string
+          expires_at: string
+          guest_id: string
+          id: string
+          last_used_at: string | null
+        }
+        Insert: {
+          access_token: string
+          created_at?: string
+          event_id: string
+          expires_at: string
+          guest_id: string
+          id?: string
+          last_used_at?: string | null
+        }
+        Update: {
+          access_token?: string
+          created_at?: string
+          event_id?: string
+          expires_at?: string
+          guest_id?: string
+          id?: string
+          last_used_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guest_access_tokens_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "guest_access_tokens_guest_id_fkey"
+            columns: ["guest_id"]
+            isOneToOne: false
+            referencedRelation: "guests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       guest_update_logs: {
         Row: {
           changed_by: string
@@ -737,6 +806,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      cleanup_old_access_attempts: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      generate_guest_access_token: {
+        Args: { _event_id: string; _guest_id: string; _validity_days?: number }
+        Returns: string
+      }
       generate_slug: {
         Args: { input_text: string }
         Returns: string
@@ -765,36 +842,66 @@ export type Database = {
           venue: string
         }[]
       }
-      get_public_event_with_data: {
-        Args: { event_slug: string }
+      get_guest_by_token: {
+        Args: { _access_token: string }
+        Returns: {
+          dietary: string
+          event_date: string
+          event_name: string
+          event_venue: string
+          first_name: string
+          guest_id: string
+          last_name: string
+          rsvp: string
+          seat_no: number
+          table_no: number
+        }[]
+      }
+      get_public_event_with_data_secure: {
+        Args: { access_token?: string; event_slug: string }
         Returns: {
           event_date: string
           event_finish_time: string
           event_id: string
           event_name: string
-          event_rsvp_deadline: string
           event_start_time: string
           event_venue: string
           guest_dietary: string
-          guest_email: string
-          guest_family_group: string
           guest_first_name: string
           guest_id: string
           guest_last_name: string
-          guest_mobile: string
-          guest_relation_display: string
           guest_rsvp: string
           guest_seat_no: number
-          guest_table_id: string
           guest_table_no: number
           partner1_name: string
           partner2_name: string
-          table_id: string
-          table_limit_seats: number
-          table_name: string
-          table_no: number
-          table_notes: string
         }[]
+      }
+      get_public_live_view_settings: {
+        Args: { _event_slug: string }
+        Returns: {
+          show_ceremony: boolean
+          show_invite_video: boolean
+          show_reception: boolean
+          show_rsvp_invite: boolean
+          show_search: boolean
+          show_update_details: boolean
+          show_welcome_video: boolean
+        }[]
+      }
+      update_guest_with_token: {
+        Args: {
+          _access_token: string
+          _dietary?: string
+          _email?: string
+          _mobile?: string
+          _rsvp?: string
+        }
+        Returns: boolean
+      }
+      validate_guest_access: {
+        Args: { _access_token: string; _guest_id: string }
+        Returns: boolean
       }
     }
     Enums: {
