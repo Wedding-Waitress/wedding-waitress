@@ -197,7 +197,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                                   backgroundPosition: `${currentSettings.background_image_x_position || 50}% ${currentSettings.background_image_y_position || 50}%`,
                                   backgroundSize: `${currentSettings.background_image_scale || 100}%`,
                                   backgroundRepeat: 'no-repeat',
-                                  opacity: (currentSettings.background_image_opacity || 20) / 100,
+                                  opacity: (currentSettings.background_image_opacity || 100) / 100,
                                 }}
                               />
                             )}

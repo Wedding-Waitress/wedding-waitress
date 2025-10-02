@@ -219,7 +219,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
     background_image_x_position: 50,
     background_image_y_position: 50,
     background_image_scale: 100,
-    background_image_opacity: 20,
+    background_image_opacity: 100,
     mass_message: '',
     individual_messages: {},
     guest_font_family: 'Inter',
@@ -605,7 +605,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                   <div className="space-y-2">
                     <Label>Image Opacity</Label>
                     <Select
-                      value={String(currentSettings.background_image_opacity || 20)}
+                      value={String(currentSettings.background_image_opacity || 100)}
                       onValueChange={(value) => handleSettingChange('background_image_opacity', Number(value))}
                     >
                       <SelectTrigger>
