@@ -1,6 +1,7 @@
 import React from 'react';
 import { useProfile } from '@/hooks/useProfile';
 import logoImage from '@/assets/wedding-waitress-header-logo.png';
+import { SmilePlus } from 'lucide-react';
 export const DashboardHeader: React.FC = () => {
   const {
     profile
@@ -17,16 +18,20 @@ export const DashboardHeader: React.FC = () => {
   return <header className="sticky top-0 z-40 w-full border-b border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60 print:hidden">
       <div className="flex h-16 items-center justify-between px-6 my-[10px]">
         {/* Logo on the left */}
-        <div className="flex items-center">
+        <div className="flex items-center flex-shrink-0">
           <img src={logoImage} alt="Wedding Waitress" className="h-14 w-auto" />
         </div>
 
-        {/* Welcome message on the right */}
-        <div className="flex items-center">
-          <h2 className="text-lg md:text-xl font-semibold text-primary">
+        {/* Welcome message in the center */}
+        <div className="flex items-center justify-center flex-1">
+          <h2 className="text-lg md:text-xl font-semibold text-primary flex items-center gap-2">
             Welcome {getDisplayName()}
+            <SmilePlus className="w-5 h-5 md:w-6 md:h-6 text-primary" />
           </h2>
         </div>
+
+        {/* Empty div for balance */}
+        <div className="flex-shrink-0 w-[56px]"></div>
       </div>
     </header>;
 };
