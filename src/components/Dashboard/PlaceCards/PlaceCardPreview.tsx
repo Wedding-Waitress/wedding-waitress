@@ -29,6 +29,14 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
     background_image_type: 'none' as const,
     mass_message: '',
     individual_messages: {},
+    guest_font_family: 'Inter',
+    info_font_family: 'Inter',
+    guest_name_bold: false,
+    guest_name_italic: false,
+    guest_name_underline: false,
+    guest_name_font_size: 24,
+    info_font_size: 12,
+    name_spacing: 4
   };
 
   // Sort guests by table number then seat number
@@ -176,7 +184,6 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                             className="place-card-cell"
                             style={{
                               backgroundColor: currentSettings.background_color,
-                              fontFamily: currentSettings.font_family,
                             color: currentSettings.font_color,
                           }}
                         >
@@ -205,12 +212,28 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                               )}
 
                               {/* Guest Name */}
-                              <div className="guest-name">
+                              <div 
+                                className="guest-name"
+                                style={{
+                                  fontFamily: currentSettings.guest_font_family,
+                                  fontWeight: currentSettings.guest_name_bold ? 700 : 600,
+                                  fontStyle: currentSettings.guest_name_italic ? 'italic' : 'normal',
+                                  textDecoration: currentSettings.guest_name_underline ? 'underline' : 'none',
+                                  fontSize: `${currentSettings.guest_name_font_size}pt`,
+                                  marginBottom: `${currentSettings.name_spacing}mm`
+                                }}
+                              >
                                 {guest.first_name} {guest.last_name}
                               </div>
 
                               {/* Table & Seat Info */}
-                              <div className="table-info">
+                              <div 
+                                className="table-info"
+                                style={{
+                                  fontFamily: currentSettings.info_font_family,
+                                  fontSize: `${currentSettings.info_font_size}pt`
+                                }}
+                              >
                                 {tableInfo}
                               </div>
                             </div>
@@ -218,7 +241,12 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                             {/* Card Back - for messages (inside fold) */}
                             {message && (
                               <div className="card-back">
-                                <div className="message-text">
+                                <div 
+                                  className="message-text"
+                                  style={{
+                                    fontFamily: currentSettings.info_font_family
+                                  }}
+                                >
                                   {message}
                                 </div>
                               </div>
@@ -274,16 +302,12 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
         }
 
         .guest-name {
-          font-size: 24pt;
-          font-weight: 600;
           line-height: 1.1;
           text-align: center;
-          margin-bottom: 4px;
           overflow: visible;
         }
 
         .table-info {
-          font-size: 12pt;
           font-weight: 700;
           margin-top: 2mm;
         }
@@ -361,12 +385,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
             padding: 8mm;
           }
 
-          .guest-name {
-            font-size: 24pt;
-          }
-
           .table-info {
-            font-size: 12pt;
             font-weight: 700;
           }
 

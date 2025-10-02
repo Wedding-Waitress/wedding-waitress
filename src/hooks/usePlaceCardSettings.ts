@@ -13,6 +13,14 @@ export interface PlaceCardSettings {
   background_image_type: 'none' | 'decorative' | 'full';
   mass_message: string;
   individual_messages: Record<string, string>;
+  guest_font_family: string;
+  info_font_family: string;
+  guest_name_bold: boolean;
+  guest_name_italic: boolean;
+  guest_name_underline: boolean;
+  guest_name_font_size: number;
+  info_font_size: number;
+  name_spacing: number;
   created_at?: string;
   updated_at?: string;
 }

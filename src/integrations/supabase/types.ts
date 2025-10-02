@@ -551,9 +551,17 @@ export type Database = {
           event_id: string
           font_color: string
           font_family: string
+          guest_font_family: string | null
+          guest_name_bold: boolean | null
+          guest_name_font_size: number | null
+          guest_name_italic: boolean | null
+          guest_name_underline: boolean | null
           id: string
           individual_messages: Json | null
+          info_font_family: string | null
+          info_font_size: number | null
           mass_message: string | null
+          name_spacing: number | null
           updated_at: string
           user_id: string
         }
@@ -565,9 +573,17 @@ export type Database = {
           event_id: string
           font_color?: string
           font_family?: string
+          guest_font_family?: string | null
+          guest_name_bold?: boolean | null
+          guest_name_font_size?: number | null
+          guest_name_italic?: boolean | null
+          guest_name_underline?: boolean | null
           id?: string
           individual_messages?: Json | null
+          info_font_family?: string | null
+          info_font_size?: number | null
           mass_message?: string | null
+          name_spacing?: number | null
           updated_at?: string
           user_id: string
         }
@@ -579,9 +595,17 @@ export type Database = {
           event_id?: string
           font_color?: string
           font_family?: string
+          guest_font_family?: string | null
+          guest_name_bold?: boolean | null
+          guest_name_font_size?: number | null
+          guest_name_italic?: boolean | null
+          guest_name_underline?: boolean | null
           id?: string
           individual_messages?: Json | null
+          info_font_family?: string | null
+          info_font_size?: number | null
           mass_message?: string | null
+          name_spacing?: number | null
           updated_at?: string
           user_id?: string
         }
