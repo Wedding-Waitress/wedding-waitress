@@ -233,27 +233,25 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
 
         /* Card content positioned in lower half (below fold) */
         .card-content {
-          position: relative;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          width: 100%;
-          padding: 0 8mm 10mm;
-          margin-top: auto;
+          position: absolute;
+          left: 8mm;
+          right: 8mm;
+          top: 62%;
+          transform: translateY(-50%);
+          text-align: center;
         }
 
         .guest-name {
-          font-size: clamp(16px, 3vw, 20pt);
+          font-size: clamp(14px, 2.5vw, 19pt);
           font-weight: 600;
           line-height: 1.1;
           margin-bottom: 4px;
           word-wrap: break-word;
-          max-width: 90%;
+          word-break: break-word;
         }
 
         .table-info {
-          font-size: clamp(11px, 2vw, 13pt);
+          font-size: clamp(10px, 2vw, 12pt);
           font-weight: 700;
           margin-top: 2mm;
         }
@@ -312,11 +310,11 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
           }
 
           .guest-name {
-            font-size: 20pt;
+            font-size: 19pt;
           }
 
           .table-info {
-            font-size: 13pt;
+            font-size: 12pt;
             font-weight: 700;
           }
 
@@ -325,7 +323,10 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
           }
           
           .card-content {
-            padding: 0 8mm 12mm;
+            left: 8mm;
+            right: 8mm;
+            top: 62%;
+            transform: translateY(-50%);
           }
 
           @page {
