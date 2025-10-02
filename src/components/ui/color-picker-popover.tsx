@@ -30,6 +30,8 @@ const THEME_COLORS = [
 ];
 
 const STANDARD_COLORS = [
+  '#000000', // Black
+  '#FFFFFF', // White
   '#FF0000', // Red
   '#FF7F00', // Orange
   '#FFFF00', // Yellow
@@ -82,7 +84,7 @@ export function ColorPickerPopover({ value, onChange, className }: ColorPickerPo
                   {row.map((color, colIndex) => (
                     <button
                       key={`${rowIndex}-${colIndex}`}
-                      className="h-6 w-full rounded border border-border hover:scale-110 transition-transform relative group"
+                      className="h-6 w-full rounded border border-border hover:ring-2 hover:ring-primary hover:ring-offset-1 transition-all relative group"
                       style={{ backgroundColor: color }}
                       onClick={() => handleColorSelect(color)}
                       onMouseEnter={() => setHoveredColor(color)}
@@ -102,7 +104,7 @@ export function ColorPickerPopover({ value, onChange, className }: ColorPickerPo
               {STANDARD_COLORS.map((color, index) => (
                 <button
                   key={index}
-                  className="h-6 w-full rounded border border-border hover:scale-110 transition-transform"
+                  className="h-6 w-full rounded border border-border hover:ring-2 hover:ring-primary hover:ring-offset-1 transition-all"
                   style={{ backgroundColor: color }}
                   onClick={() => handleColorSelect(color)}
                   onMouseEnter={() => setHoveredColor(color)}
