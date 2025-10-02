@@ -199,42 +199,45 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                             )}
 
                             {/* Card Content - positioned in lower half */}
-                            <div className="card-content">
-                              {/* Decorative Image */}
+                            <div className={`card-content ${currentSettings.background_image_url && currentSettings.background_image_type === 'decorative' ? 'has-decorative-image' : ''}`}>
+                              {/* Large Decorative Image on Right Side */}
                               {currentSettings.background_image_url && currentSettings.background_image_type === 'decorative' && (
-                                <div className="absolute top-2 right-2 w-6 h-6 opacity-60">
+                                <div className="decorative-image-container">
                                   <img
                                     src={currentSettings.background_image_url}
                                     alt=""
-                                    className="w-full h-full object-cover rounded"
+                                    className="decorative-image"
                                   />
                                 </div>
                               )}
 
-                              {/* Guest Name */}
-                              <div 
-                                className="guest-name"
-                                 style={{
-                                  fontFamily: currentSettings.guest_font_family,
-                                  fontWeight: currentSettings.guest_name_bold ? '700' : '400',
-                                  fontStyle: currentSettings.guest_name_italic ? 'italic' : 'normal',
-                                  textDecoration: currentSettings.guest_name_underline ? 'underline' : 'none',
-                                  fontSize: `${currentSettings.guest_name_font_size}pt`,
-                                  marginBottom: `${currentSettings.name_spacing}mm`
-                                }}
-                              >
-                                {guest.first_name} {guest.last_name}
-                              </div>
+                              {/* Text Container - wraps both name and info */}
+                              <div>
+                                {/* Guest Name */}
+                                <div 
+                                  className="guest-name"
+                                   style={{
+                                    fontFamily: currentSettings.guest_font_family,
+                                    fontWeight: currentSettings.guest_name_bold ? '700' : '400',
+                                    fontStyle: currentSettings.guest_name_italic ? 'italic' : 'normal',
+                                    textDecoration: currentSettings.guest_name_underline ? 'underline' : 'none',
+                                    fontSize: `${currentSettings.guest_name_font_size}pt`,
+                                    marginBottom: `${currentSettings.name_spacing}mm`
+                                  }}
+                                >
+                                  {guest.first_name} {guest.last_name}
+                                </div>
 
-                              {/* Table & Seat Info */}
-                              <div 
-                                className="table-info"
-                                style={{
-                                  fontFamily: currentSettings.info_font_family,
-                                  fontSize: `${currentSettings.info_font_size}pt`
-                                }}
-                              >
-                                {tableInfo}
+                                {/* Table & Seat Info */}
+                                <div 
+                                  className="table-info"
+                                  style={{
+                                    fontFamily: currentSettings.info_font_family,
+                                    fontSize: `${currentSettings.info_font_size}pt`
+                                  }}
+                                >
+                                  {tableInfo}
+                                </div>
                               </div>
                             </div>
 
@@ -299,6 +302,45 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
           top: 67%;
           transform: translateY(-50%);
           text-align: center;
+        }
+
+        /* Split layout when decorative image exists */
+        .card-content.has-decorative-image {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 4mm;
+          left: 6mm;
+          right: 6mm;
+        }
+
+        .card-content.has-decorative-image .guest-name,
+        .card-content.has-decorative-image .table-info {
+          text-align: left;
+        }
+
+        /* Text container takes left side when decorative image exists */
+        .card-content.has-decorative-image > div:first-child {
+          flex: 0 0 55%;
+          text-align: left;
+        }
+
+        /* Large decorative image on right side */
+        .decorative-image-container {
+          flex: 0 0 40%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          max-height: 35mm;
+        }
+
+        .decorative-image {
+          width: 100%;
+          height: 100%;
+          max-height: 35mm;
+          object-fit: contain;
+          border: 3px solid #000000;
+          border-radius: 4px;
         }
 
         .guest-name {
@@ -400,6 +442,15 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
             right: 8mm;
             top: 67%;
             transform: translateY(-50%);
+          }
+
+          .card-content.has-decorative-image {
+            left: 6mm;
+            right: 6mm;
+          }
+
+          .decorative-image {
+            border: 3px solid #000000;
           }
 
           @page {

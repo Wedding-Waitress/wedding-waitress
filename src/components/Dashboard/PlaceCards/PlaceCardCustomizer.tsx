@@ -504,17 +504,6 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
           <TabsContent value="background" className="space-y-4">
             <div className="space-y-4">
               <div>
-                <Label className="flex items-center gap-2 mb-2">
-                  <Palette className="h-4 w-4" />
-                  Background Color
-                </Label>
-                <ColorPickerPopover
-                  value={currentSettings.background_color}
-                  onChange={(color) => handleSettingChange('background_color', color)}
-                />
-              </div>
-
-              <div>
                 <Label className="flex items-center gap-2 mb-3">
                   <Image className="h-4 w-4" />
                   Background Image
