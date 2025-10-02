@@ -101,6 +101,13 @@ export const PlaceCardsPage: React.FC = () => {
                   <p><strong>{assignedGuests.length}</strong> place cards ready for export</p>
                   <p><strong>{totalPages}</strong> A4 page{totalPages !== 1 ? 's' : ''} (6 cards per page)</p>
                   <p>Standard 105mm × 99mm foldable place cards</p>
+                  
+                  <div className="space-y-1 pt-4 mt-4 border-t">
+                    <p>• All exports are 300 DPI for professional quality</p>
+                    <p>• PDF exports maintain exact A4 dimensions (210×297mm)</p>
+                    <p>• Image exports are 2480×3508 pixels (A4 @ 300 DPI)</p>
+                    <p>• We have made it easy for you to print & cut at home or get it done at your local printer</p>
+                  </div>
                 </div>
               )}
             </div>
