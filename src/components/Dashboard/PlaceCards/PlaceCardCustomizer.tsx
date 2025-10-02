@@ -233,9 +233,15 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
     }
     setUploading(true);
     try {
+      // Get authenticated user
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      if (authError || !user) {
+        throw new Error('User not authenticated');
+      }
+
       const fileExt = file.name.split('.').pop();
       const fileName = `place-card-bg-${Date.now()}.${fileExt}`;
-      const filePath = `place-cards/${fileName}`;
+      const filePath = `${user.id}/place-cards/${fileName}`;
       const {
         error: uploadError
       } = await supabase.storage.from('qr-assets').upload(filePath, file);
@@ -326,6 +332,17 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
           <TabsContent value="background" className="space-y-4">
             <div className="space-y-4">
               <div>
+                <Label className="flex items-center gap-2 mb-2">
+                  <Palette className="h-4 w-4" />
+                  Background Color
+                </Label>
+                <div className="flex items-center gap-2">
+                  <Input type="color" value={currentSettings.background_color} onChange={e => handleSettingChange('background_color', e.target.value)} className="w-12 h-10 p-1" />
+                  <Input type="text" value={currentSettings.background_color} onChange={e => handleSettingChange('background_color', e.target.value)} className="flex-1" />
+                </div>
+              </div>
+
+              <div>
                 <Label className="flex items-center gap-2 mb-3">
                   <Image className="h-4 w-4" />
                   Background Image
@@ -347,7 +364,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
               </div>
 
               {currentSettings.background_image_type !== 'none' && <div>
-                  <Label className="mb-2 block">Upload Image</Label>
+                  <Label className="mb-2 block">Upload Background Image</Label>
                   <div className="space-y-2">
                     <Input type="file" accept="image/*" onChange={handleImageUpload} disabled={uploading} />
                     {uploading && <p className="text-sm text-muted-foreground">Uploading...</p>}
