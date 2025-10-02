@@ -244,6 +244,34 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
       individual_messages: individualMessages
     });
   };
+
+  const handleResetToDefaults = async () => {
+    const defaultSettings = {
+      font_family: 'Arial',
+      font_color: '#000000',
+      background_color: '#ffffff',
+      background_image_url: null,
+      background_image_type: 'none' as const,
+      mass_message: '',
+      individual_messages: {},
+      guest_font_family: 'Arial',
+      info_font_family: 'Arial',
+      guest_name_bold: false,
+      guest_name_italic: false,
+      guest_name_underline: false,
+      guest_name_font_size: 24,
+      info_font_size: 12,
+      name_spacing: 4
+    };
+    
+    setIndividualMessages({});
+    await onSettingsChange(defaultSettings);
+    
+    toast({
+      title: "Settings Reset",
+      description: "All place card settings have been reset to defaults"
+    });
+  };
   const applyTemplate = async (templateId: string) => {
     const template = getTemplateById(templateId);
     if (!template) return;
@@ -545,7 +573,17 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                   </Button>}
               </div>
             </div>
-          </TabsContent>
+            </TabsContent>
+          
+          <div className="pt-4 border-t">
+            <Button 
+              onClick={handleResetToDefaults} 
+              variant="outline" 
+              className="w-full"
+            >
+              Reset to Default
+            </Button>
+          </div>
         </Tabs>
       </CardContent>
     </Card>;
