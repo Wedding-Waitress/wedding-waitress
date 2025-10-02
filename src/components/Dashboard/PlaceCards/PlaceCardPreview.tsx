@@ -1,4 +1,4 @@
-import React, { forwardRef } from 'react';
+import React, { forwardRef, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PlaceCardSettings } from '@/hooks/usePlaceCardSettings';
 import { Guest } from '@/hooks/useGuests';
@@ -48,6 +48,34 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
   for (let i = 0; i < sortedGuests.length; i += cardsPerPage) {
     pages.push(sortedGuests.slice(i, i + cardsPerPage));
   }
+
+  // Auto-fit guest names to one line
+  useEffect(() => {
+    const fitOneLine = (el: HTMLElement, maxPt = 18, minPt = 12) => {
+      el.style.fontSize = maxPt + 'pt';
+      el.style.whiteSpace = 'nowrap';
+      let currentSize = maxPt;
+      while (el.scrollWidth > el.clientWidth && currentSize > minPt) {
+        currentSize -= 0.5;
+        el.style.fontSize = currentSize + 'pt';
+      }
+    };
+
+    const applyFit = () => {
+      document.querySelectorAll('.guest-name').forEach((el) => {
+        if (el instanceof HTMLElement) {
+          fitOneLine(el);
+        }
+      });
+    };
+
+    // Apply immediately
+    setTimeout(applyFit, 0);
+
+    // Reapply on window resize
+    window.addEventListener('resize', applyFit);
+    return () => window.removeEventListener('resize', applyFit);
+  }, [guests, settings]);
 
   if (!guests.length) {
     return (
@@ -243,12 +271,12 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
         }
 
         .guest-name {
-          font-size: clamp(14px, 2.5vw, 19pt);
+          font-size: 18pt;
           font-weight: 600;
           line-height: 1.1;
+          white-space: nowrap;
+          text-align: center;
           margin-bottom: 4px;
-          word-wrap: break-word;
-          word-break: break-word;
         }
 
         .table-info {
