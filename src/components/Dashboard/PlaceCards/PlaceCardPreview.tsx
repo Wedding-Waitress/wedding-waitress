@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PlaceCardSettings } from '@/hooks/usePlaceCardSettings';
 import { Guest } from '@/hooks/useGuests';
@@ -8,13 +8,17 @@ interface PlaceCardPreviewProps {
   settings: PlaceCardSettings | null;
   guests: Guest[];
   event: any;
+  isExporting?: boolean;
+  focusedPage?: number | null;
 }
 
-export const PlaceCardPreview: React.FC<PlaceCardPreviewProps> = ({
+export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps>(({
   settings,
   guests,
-  event
-}) => {
+  event,
+  isExporting = false,
+  focusedPage = null
+}, ref) => {
   const currentSettings = settings || {
     event_id: '',
     user_id: '',
@@ -66,7 +70,7 @@ export const PlaceCardPreview: React.FC<PlaceCardPreviewProps> = ({
 
   return (
     <>
-      <Card>
+      <Card ref={ref}>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Eye className="h-5 w-5" />
@@ -76,7 +80,7 @@ export const PlaceCardPreview: React.FC<PlaceCardPreviewProps> = ({
             A4 Format • 6 Cards per Page • Page 1 of {totalPages}
           </p>
         </CardHeader>
-        <CardContent>
+        <CardContent className="bg-[#F6F0FF] p-6">
           <div className="space-y-8">
             {pages.map((pageGuests, pageIndex) => (
               <div key={pageIndex} className="space-y-2">
@@ -88,7 +92,8 @@ export const PlaceCardPreview: React.FC<PlaceCardPreviewProps> = ({
                 
                 {/* A4 Preview Container */}
                 <div 
-                  className="place-card-preview-container mx-auto bg-white rounded-lg shadow-lg overflow-hidden"
+                  className={`place-card-preview-container mx-auto bg-white rounded-lg shadow-lg overflow-hidden ${isExporting ? 'exporting' : ''} ${focusedPage === pageIndex ? 'ring-4 ring-primary' : ''}`}
+                  data-page={pageIndex}
                   style={{
                     width: 'min(100%, 420px)',
                     aspectRatio: '210 / 297',
@@ -149,6 +154,9 @@ export const PlaceCardPreview: React.FC<PlaceCardPreviewProps> = ({
                               <line x1="calc(100% - 4mm)" y1="100%" x2="100%" y2="100%" stroke="#D0D0D0" strokeWidth="0.5" />
                             </svg>
 
+                            {/* Fold guide - screen only */}
+                            <div className="fold-guide" />
+
                             {/* Background Image */}
                             {currentSettings.background_image_url && currentSettings.background_image_type === 'full' && (
                               <div
@@ -159,8 +167,8 @@ export const PlaceCardPreview: React.FC<PlaceCardPreviewProps> = ({
                               />
                             )}
 
-                            {/* Card Content - Front face (visible when folded) */}
-                            <div className="card-front">
+                            {/* Card Content - positioned in lower half */}
+                            <div className="card-content">
                               {/* Decorative Image */}
                               {currentSettings.background_image_url && currentSettings.background_image_type === 'decorative' && (
                                 <div className="absolute top-2 right-2 w-6 h-6 opacity-60">
@@ -208,6 +216,7 @@ export const PlaceCardPreview: React.FC<PlaceCardPreviewProps> = ({
         /* Screen preview styles */
         .place-card-preview-container {
           position: relative;
+          transition: all 0.3s ease;
         }
 
         .place-card-a4-page {
@@ -220,7 +229,7 @@ export const PlaceCardPreview: React.FC<PlaceCardPreviewProps> = ({
           display: flex;
           flex-direction: column;
           align-items: center;
-          justify-content: center;
+          justify-content: flex-end;
           text-align: center;
           padding: 8px;
           overflow: hidden;
@@ -236,18 +245,41 @@ export const PlaceCardPreview: React.FC<PlaceCardPreviewProps> = ({
           z-index: 10;
         }
 
-        .card-front {
+        /* Fold guide - screen only */
+        .fold-guide {
+          position: absolute;
+          left: 0;
+          right: 0;
+          top: 50%;
+          height: 1px;
+          background: #E5E7EB;
+          opacity: 0.7;
+          pointer-events: none;
+          z-index: 5;
+        }
+
+        /* Hide fold guide during export and print */
+        .exporting .fold-guide,
+        @media print {
+          .fold-guide {
+            display: none !important;
+          }
+        }
+
+        /* Card content positioned in lower half */
+        .card-content {
           position: relative;
           display: flex;
           flex-direction: column;
           align-items: center;
           justify-content: center;
           width: 100%;
-          height: 50%;
+          padding: 0 8px 16px;
+          margin-top: auto;
         }
 
         .guest-name {
-          font-size: clamp(14px, 2.5vw, 22px);
+          font-size: clamp(16px, 3vw, 22pt);
           font-weight: 600;
           line-height: 1.2;
           margin-bottom: 4px;
@@ -256,9 +288,10 @@ export const PlaceCardPreview: React.FC<PlaceCardPreviewProps> = ({
         }
 
         .table-info {
-          font-size: clamp(9px, 1.5vw, 12px);
+          font-size: clamp(11px, 2vw, 13pt);
           opacity: 0.75;
           font-weight: 400;
+          margin-top: 2mm;
         }
 
         .card-back {
@@ -272,7 +305,7 @@ export const PlaceCardPreview: React.FC<PlaceCardPreviewProps> = ({
         }
 
         .message-text {
-          font-size: clamp(7px, 1.2vw, 10px);
+          font-size: clamp(8px, 1.5vw, 10pt);
           opacity: 0.7;
           line-height: 1.3;
           max-width: 90%;
@@ -315,15 +348,19 @@ export const PlaceCardPreview: React.FC<PlaceCardPreviewProps> = ({
           }
 
           .guest-name {
-            font-size: 20pt;
+            font-size: 22pt;
           }
 
           .table-info {
-            font-size: 11pt;
+            font-size: 13pt;
           }
 
           .message-text {
-            font-size: 9pt;
+            font-size: 10pt;
+          }
+          
+          .card-content {
+            padding: 0 8mm 12mm;
           }
 
           @page {
@@ -334,4 +371,6 @@ export const PlaceCardPreview: React.FC<PlaceCardPreviewProps> = ({
       `}</style>
     </>
   );
-};
+});
+
+PlaceCardPreview.displayName = 'PlaceCardPreview';

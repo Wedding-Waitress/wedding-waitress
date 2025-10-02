@@ -9,16 +9,20 @@ import { usePlaceCardSettings } from '@/hooks/usePlaceCardSettings';
 import { PlaceCardCustomizer } from './PlaceCardCustomizer';
 import { PlaceCardPreview } from './PlaceCardPreview';
 import { PlaceCardExporter } from './PlaceCardExporter';
+import { PlaceCardExportControls } from './PlaceCardExportControls';
 import { Loader2, Users, Settings, FileText } from 'lucide-react';
 
 export const PlaceCardsPage: React.FC = () => {
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
+  const [focusedPage, setFocusedPage] = useState<number | null>(null);
+  const [isExporting, setIsExporting] = useState(false);
   const { events, loading: eventsLoading } = useEvents();
   const { guests, loading: guestsLoading } = useRealtimeGuests(selectedEventId);
   const { settings, loading: settingsLoading, updateSettings } = usePlaceCardSettings(selectedEventId);
 
   const selectedEvent = events.find(event => event.id === selectedEventId);
   const assignedGuests = guests.filter(guest => guest.assigned && guest.table_no && guest.seat_no);
+  const totalPages = Math.ceil(assignedGuests.length / 6);
 
   const handleEventChange = (eventId: string) => {
     setSelectedEventId(eventId);
@@ -57,56 +61,61 @@ export const PlaceCardsPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Event Selection */}
-      <Card className="ww-box">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Settings className="h-5 w-5" />
-            Event Selection
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-            <div>
-              <label className="text-sm font-medium mb-2 block">Select Event</label>
-              <Select value={selectedEventId || ""} onValueChange={handleEventChange}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Choose an event" />
-                </SelectTrigger>
-                <SelectContent>
-                  {events.map((event) => (
-                    <SelectItem key={event.id} value={event.id}>
-                      {event.name} - {event.date}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {selectedEvent && (
-                <div className="flex items-center gap-2 text-sm text-muted-foreground mt-2">
-                  <Users className="h-4 w-4" />
-                  <span>{assignedGuests.length} assigned guests</span>
+      {/* Event Selection & Export Controls */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card className="ww-box">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Settings className="h-5 w-5" />
+              Event Selection
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-medium mb-2 block">Select Event</label>
+                <Select value={selectedEventId || ""} onValueChange={handleEventChange}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Choose an event" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {events.map((event) => (
+                      <SelectItem key={event.id} value={event.id}>
+                        {event.name} - {event.date}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {selectedEvent && (
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground mt-2">
+                    <Users className="h-4 w-4" />
+                    <span>{assignedGuests.length} assigned guests</span>
+                  </div>
+                )}
+              </div>
+              
+              {selectedEvent && assignedGuests.length > 0 && (
+                <div className="text-sm text-muted-foreground space-y-1 pt-2 border-t">
+                  <p><strong>{assignedGuests.length}</strong> place cards ready for export</p>
+                  <p><strong>{totalPages}</strong> A4 page{totalPages !== 1 ? 's' : ''} (6 cards per page)</p>
+                  <p>Standard 105mm × 99mm foldable place cards</p>
                 </div>
               )}
             </div>
-            
-            {selectedEvent && assignedGuests.length > 0 && (
-              <div className="lg:col-span-2 space-y-3">
-                <div className="text-sm text-muted-foreground space-y-1">
-                  <p><strong>{assignedGuests.length}</strong> place cards ready for export</p>
-                  <p><strong>{Math.ceil(assignedGuests.length / 6)}</strong> A4 page{Math.ceil(assignedGuests.length / 6) !== 1 ? 's' : ''} (6 cards per page)</p>
-                  <p>Standard 10cm × 6cm wedding place cards</p>
-                </div>
-                
-                <PlaceCardExporter
-                  settings={settings}
-                  guests={assignedGuests}
-                  event={selectedEvent}
-                />
-              </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+
+        {selectedEvent && assignedGuests.length > 0 && (
+          <PlaceCardExportControls
+            settings={settings}
+            guests={assignedGuests}
+            event={selectedEvent}
+            totalPages={totalPages}
+            onPageFocus={setFocusedPage}
+            onExportStateChange={setIsExporting}
+          />
+        )}
+      </div>
 
       {selectedEventId && (
         <>
@@ -132,6 +141,8 @@ export const PlaceCardsPage: React.FC = () => {
                   settings={settings}
                   guests={assignedGuests}
                   event={selectedEvent}
+                  isExporting={isExporting}
+                  focusedPage={focusedPage}
                 />
               </div>
             </div>
