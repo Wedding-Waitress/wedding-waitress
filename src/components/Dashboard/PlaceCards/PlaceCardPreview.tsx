@@ -310,7 +310,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
         }
 
         .table-info {
-          font-weight: 700;
+          font-weight: 400;
           margin-top: 2mm;
         }
 
