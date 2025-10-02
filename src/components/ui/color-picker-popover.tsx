@@ -30,20 +30,34 @@ const THEME_COLORS = [
 ];
 
 const STANDARD_COLORS = [
-  '#000000', // Black
-  '#FFFFFF', // White
-  '#FF0000', // Red
-  '#FF7F00', // Orange
-  '#FFFF00', // Yellow
-  '#7FFF00', // Lime
-  '#00FF00', // Green
-  '#00FF7F', // Spring Green
-  '#00FFFF', // Cyan
-  '#007FFF', // Azure
-  '#0000FF', // Blue
-  '#7F00FF', // Violet
-  '#FF00FF', // Magenta
-  '#FF007F', // Rose
+  // Black shades
+  ['#000000', '#404040', '#808080'], // Black, Dark Gray, Gray
+  // Red shades
+  ['#8B0000', '#FF0000', '#FF6B6B'], // Dark Red, Red, Light Red
+  // Orange shades
+  ['#CC5500', '#FF7F00', '#FFB366'], // Dark Orange, Orange, Light Orange
+  // Yellow shades
+  ['#CC9900', '#FFFF00', '#FFFF99'], // Dark Yellow, Yellow, Light Yellow
+  // Lime shades
+  ['#66CC00', '#7FFF00', '#CCFF99'], // Dark Lime, Lime, Light Lime
+  // Green shades
+  ['#006400', '#00FF00', '#66FF66'], // Dark Green, Green, Light Green
+  // Spring Green shades
+  ['#00CC66', '#00FF7F', '#99FFCC'], // Dark Spring, Spring Green, Light Spring
+  // Cyan shades
+  ['#00CCCC', '#00FFFF', '#99FFFF'], // Dark Cyan, Cyan, Light Cyan
+  // Azure shades
+  ['#0066CC', '#007FFF', '#66B3FF'], // Dark Azure, Azure, Light Azure
+  // Blue shades
+  ['#000099', '#0000FF', '#6666FF'], // Dark Blue, Blue, Light Blue
+  // Violet shades
+  ['#660099', '#7F00FF', '#CC99FF'], // Dark Violet, Violet, Light Violet
+  // Magenta shades
+  ['#CC00CC', '#FF00FF', '#FF99FF'], // Dark Magenta, Magenta, Light Magenta
+  // Rose shades
+  ['#CC0066', '#FF007F', '#FF99CC'], // Dark Rose, Rose, Light Rose
+  // White (single color)
+  ['#FFFFFF'], // White
 ];
 
 export function ColorPickerPopover({ value, onChange, className }: ColorPickerPopoverProps) {
@@ -84,7 +98,7 @@ export function ColorPickerPopover({ value, onChange, className }: ColorPickerPo
                   {row.map((color, colIndex) => (
                     <button
                       key={`${rowIndex}-${colIndex}`}
-                      className="h-6 w-full rounded border border-border hover:ring-2 hover:ring-primary hover:ring-offset-1 transition-all relative group"
+                      className="h-6 w-full rounded border border-border hover:ring-2 hover:ring-primary transition-all relative group"
                       style={{ backgroundColor: color }}
                       onClick={() => handleColorSelect(color)}
                       onMouseEnter={() => setHoveredColor(color)}
@@ -100,17 +114,21 @@ export function ColorPickerPopover({ value, onChange, className }: ColorPickerPo
           {/* Standard Colors */}
           <div>
             <p className="text-xs font-medium mb-2 text-muted-foreground">Standard Colors</p>
-            <div className="grid grid-cols-12 gap-1">
-              {STANDARD_COLORS.map((color, index) => (
-                <button
-                  key={index}
-                  className="h-6 w-full rounded border border-border hover:ring-2 hover:ring-primary hover:ring-offset-1 transition-all"
-                  style={{ backgroundColor: color }}
-                  onClick={() => handleColorSelect(color)}
-                  onMouseEnter={() => setHoveredColor(color)}
-                  onMouseLeave={() => setHoveredColor(null)}
-                  title={color}
-                />
+            <div className="grid grid-cols-3 gap-1">
+              {STANDARD_COLORS.map((row, rowIndex) => (
+                <React.Fragment key={rowIndex}>
+                  {row.map((color, colIndex) => (
+                    <button
+                      key={`${rowIndex}-${colIndex}`}
+                      className="h-6 w-full rounded border border-border hover:ring-2 hover:ring-primary transition-all"
+                      style={{ backgroundColor: color }}
+                      onClick={() => handleColorSelect(color)}
+                      onMouseEnter={() => setHoveredColor(color)}
+                      onMouseLeave={() => setHoveredColor(null)}
+                      title={color}
+                    />
+                  ))}
+                </React.Fragment>
               ))}
             </div>
           </div>
