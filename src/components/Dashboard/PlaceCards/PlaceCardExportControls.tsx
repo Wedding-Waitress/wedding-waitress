@@ -197,6 +197,7 @@ export const PlaceCardExportControls: React.FC<PlaceCardExportControlsProps> = (
             top: 55%;
             pointer-events: none;
             background-repeat: no-repeat;
+            background-size: 100% auto;
           }
           
           /* Guest name styles */
