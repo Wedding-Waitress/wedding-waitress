@@ -1,3 +1,11 @@
+/**
+ * ⚠️ PRODUCTION-READY - DO NOT MODIFY WITHOUT APPROVAL
+ * Last verified working: 2025-10-04
+ * Contains: Kitchen dietary requirements chart with PDF export and print functionality
+ * Status: Fully tested and production-ready
+ * Features: Dietary requirements display, PDF export with custom spacing, print view, Wedding Waitress branding
+ */
+
 import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
