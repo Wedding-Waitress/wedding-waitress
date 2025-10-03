@@ -215,17 +215,6 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
     setLocalMassMessage(settings?.mass_message || '');
   }, [settings?.mass_message]);
 
-  // Debounced save for mass message
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (localMassMessage !== (settings?.mass_message || '')) {
-        handleSettingChange('mass_message', localMassMessage);
-      }
-    }, 300);
-    
-    return () => clearTimeout(timer);
-  }, [localMassMessage]);
-
   const currentSettings = settings || {
     event_id: '',
     user_id: '',
@@ -264,6 +253,14 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
   const saveIndividualMessages = async () => {
     await onSettingsChange({
       individual_messages: individualMessages
+    });
+  };
+
+  const saveMassMessage = async () => {
+    await handleSettingChange('mass_message', localMassMessage);
+    toast({
+      title: "Success",
+      description: "Mass message saved"
     });
   };
 
@@ -649,6 +646,9 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                   Mass Message (applies to all cards)
                 </Label>
                 <Textarea placeholder="Enter a message for all place cards..." value={localMassMessage} onChange={e => setLocalMassMessage(e.target.value)} rows={3} />
+                <Button onClick={saveMassMessage} variant="outline" className="w-full mt-3">
+                  Save Mass Message
+                </Button>
               </div>
 
               <div>
