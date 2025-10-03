@@ -378,7 +378,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
           right: 0;
           height: 49.5mm;
           display: flex;
-          align-items: center;
+          align-items: flex-end;
           justify-content: center;
           padding: 8mm 12mm;
           transform: rotate(180deg);
