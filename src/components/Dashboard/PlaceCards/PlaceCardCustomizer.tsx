@@ -691,7 +691,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                   Mass Message (applies to all cards)
                 </Label>
                 <Textarea placeholder="Enter a message for all place cards..." value={localMassMessage} onChange={e => setLocalMassMessage(e.target.value)} rows={3} />
-                <Button onClick={saveMassMessage} variant="outline" className="w-full mt-3">
+                <Button onClick={saveMassMessage} variant="success" className="w-full mt-3">
                   Save Mass Message
                 </Button>
               </div>
@@ -706,7 +706,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                       <Input placeholder="Personal message for this guest..." value={individualMessages[guest.id] || ''} onChange={e => handleIndividualMessageChange(guest.id, e.target.value)} />
                     </div>)}
                 </div>
-                {guests.length > 0 && <Button onClick={saveIndividualMessages} variant="outline" className="w-full mt-3">
+                {guests.length > 0 && <Button onClick={saveIndividualMessages} variant="success" className="w-full mt-3">
                     Save Individual Messages
                   </Button>}
               </div>
