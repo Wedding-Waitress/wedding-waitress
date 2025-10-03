@@ -612,6 +612,7 @@ export const PlaceCardExportControls: React.FC<PlaceCardExportControlsProps> = (
           grid-template-columns: repeat(2, 105mm) !important;
           grid-template-rows: repeat(3, 99mm) !important;
           gap: 0 !important;
+          align-content: start !important;
         }
         
         /* Place card cells - exact A4 dimensions */
@@ -619,6 +620,11 @@ export const PlaceCardExportControls: React.FC<PlaceCardExportControlsProps> = (
           width: 105mm !important;
           height: 99mm !important;
           page-break-inside: avoid !important;
+          display: flex !important;
+          flex-direction: column !important;
+          align-items: center !important;
+          justify-content: flex-end !important;
+          padding: 8mm !important;
         }
         
         /* Cut lines - subtle but visible */
