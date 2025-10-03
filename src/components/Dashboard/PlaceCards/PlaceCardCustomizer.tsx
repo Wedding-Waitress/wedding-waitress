@@ -274,8 +274,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
       guest_name_font_size: 24,
       info_font_size: 12,
       name_spacing: 4,
-      font_color: '#000000',
-      background_color: '#ffffff'
+      font_color: '#000000'
     };
     
     await onSettingsChange(designDefaults);
@@ -288,6 +287,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
 
   const handleResetBackgroundDefaults = async () => {
     const backgroundDefaults = {
+      background_color: '#ffffff',
       background_image_url: null,
       background_image_type: 'none' as const,
       background_image_x_position: 50,
@@ -535,17 +535,6 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                 />
               </div>
 
-              <div>
-                <Label className="flex items-center gap-2 mb-2">
-                  <Palette className="h-4 w-4" />
-                  Card Background Color
-                </Label>
-                <ColorPickerPopover
-                  value={currentSettings.background_color}
-                  onChange={(color) => handleSettingChange('background_color', color)}
-                />
-              </div>
-
               <div className="pt-4 border-t">
                 <Button 
                   onClick={handleResetDesignDefaults} 
@@ -673,6 +662,14 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                   </div>
                 </div>
               )}
+
+              <div className="space-y-2 pt-4 border-t">
+                <Label>Card Background Color</Label>
+                <ColorPickerPopover
+                  value={settings?.background_color || '#ffffff'}
+                  onChange={(color) => handleSettingChange('background_color', color)}
+                />
+              </div>
 
               <div className="pt-4 border-t">
                 <Button 
