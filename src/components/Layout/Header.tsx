@@ -41,7 +41,7 @@ export const Header: React.FC<HeaderProps> = ({
                 <div className="hidden md:flex items-center">
                   <Link to="/" className="flex items-center pr-6">
                     <img 
-                      src="/lovable-uploads/651b28f4-e011-4478-a6c7-f4f0a576b92d.png" 
+                      src="/lovable-uploads/wedding-waitress-header-logo-new.jpg" 
                       alt="Wedding Waitress Logo" 
                       className="h-20 md:h-24 lg:h-36 w-auto hover:opacity-80 transition-opacity"
                     />
@@ -83,7 +83,7 @@ export const Header: React.FC<HeaderProps> = ({
                 <div className="md:hidden flex items-center justify-between w-full">
                   <Link to="/" className="flex items-center">
                     <img 
-                      src="/lovable-uploads/651b28f4-e011-4478-a6c7-f4f0a576b92d.png" 
+                      src="/lovable-uploads/wedding-waitress-header-logo-new.jpg" 
                       alt="Wedding Waitress Logo" 
                       className="h-16 w-auto hover:opacity-80 transition-opacity"
                     />
