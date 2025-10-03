@@ -4,6 +4,7 @@ import { Guest } from '@/hooks/useGuests';
 import { TableWithGuestCount } from '@/hooks/useTables';
 import { IndividualChartSettings } from '@/components/Dashboard/IndividualTableChart/IndividualTableSeatingChartPage';
 import { format } from 'date-fns';
+import weddingWaitressLogoFull from '@/assets/wedding-waitress-logo-full.jpg';
 
 // Paper size constants (in mm)
 const PAPER_SIZES = {
@@ -560,9 +561,11 @@ export const generateIndividualTableSVG = (
       <!-- Logo -->
       ${settings.showLogo ? `
         <div style="display: flex; justify-content: center; margin-top: auto; padding: 10px 0;">
-          <div style="font-size: 10pt; color: #000000; font-weight: 600; padding: 5px 0; display: inline-block; vertical-align: baseline;">
-            Wedding Waitress
-          </div>
+          <img 
+            src="${weddingWaitressLogoFull}" 
+            alt="Wedding Waitress" 
+            style="height: 48px; object-fit: contain;"
+          />
         </div>
       ` : ''}
     </div>

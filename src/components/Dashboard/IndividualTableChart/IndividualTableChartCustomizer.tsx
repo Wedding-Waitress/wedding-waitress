@@ -52,7 +52,7 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
             <Label htmlFor="paper-size">Paper Size</Label>
             <Select
               value={settings.paperSize}
-              onValueChange={(value: 'A4' | 'A3') => 
+              onValueChange={(value: 'A4') => 
                 onSettingsChange({ paperSize: value })
               }
             >
@@ -61,7 +61,6 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="A4">A4</SelectItem>
-                <SelectItem value="A3">A3</SelectItem>
               </SelectContent>
             </Select>
           </div>

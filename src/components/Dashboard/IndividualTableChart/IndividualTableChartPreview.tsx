@@ -6,7 +6,7 @@ import { format } from 'date-fns';
 import { Guest } from '@/hooks/useGuests';
 import { TableWithGuestCount } from '@/hooks/useTables';
 import { IndividualChartSettings } from './IndividualTableSeatingChartPage';
-import weddingWaitressLogo from '@/assets/wedding-waitress-logo.png';
+import weddingWaitressLogo from '@/assets/wedding-waitress-logo-full.jpg';
 
 interface IndividualTableChartPreviewProps {
   settings: IndividualChartSettings;
@@ -346,7 +346,7 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
                 <img 
                   src={weddingWaitressLogo} 
                   alt="Wedding Waitress" 
-                  className="h-8 opacity-60"
+                  className="h-12 object-contain"
                 />
               </div>
             )}

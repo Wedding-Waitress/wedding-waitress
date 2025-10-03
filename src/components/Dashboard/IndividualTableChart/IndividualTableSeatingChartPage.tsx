@@ -21,7 +21,7 @@ export interface IndividualChartSettings {
   includeDietary: boolean;
   includeGuestList: boolean;
   showSeatNumbers: boolean;
-  paperSize: 'A4' | 'A3';
+  paperSize: 'A4';
   title: string;
   showLogo: boolean;
 }
