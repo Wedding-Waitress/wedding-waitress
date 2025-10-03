@@ -559,6 +559,8 @@ export const PlaceCardExportControls: React.FC<PlaceCardExportControlsProps> = (
         :root { color-scheme: light !important; }
         
         html, body {
+          margin: 0 !important;
+          padding: 0 !important;
           background: #FFFFFF !important;
           -webkit-print-color-adjust: exact !important;
           print-color-adjust: exact !important;
@@ -606,6 +608,8 @@ export const PlaceCardExportControls: React.FC<PlaceCardExportControlsProps> = (
         #ww-print-container .place-card-a4-page {
           width: 210mm !important;
           height: 297mm !important;
+          margin: 0 !important;
+          padding: 0 !important;
           transform: none !important;
           position: relative !important;
           display: grid !important;
@@ -615,16 +619,29 @@ export const PlaceCardExportControls: React.FC<PlaceCardExportControlsProps> = (
           align-content: start !important;
         }
         
+        /* Also enforce grid on inner wrapper if present */
+        #ww-print-container .place-card-a4-page .grid {
+          display: grid !important;
+          grid-template-columns: repeat(2, 105mm) !important;
+          grid-template-rows: repeat(3, 99mm) !important;
+          width: 210mm !important;
+          height: 297mm !important;
+          gap: 0 !important;
+          align-content: start !important;
+        }
+        
         /* Place card cells - exact A4 dimensions */
         #ww-print-container .place-card-cell {
           width: 105mm !important;
           height: 99mm !important;
+          box-sizing: border-box !important;
           page-break-inside: avoid !important;
           display: flex !important;
           flex-direction: column !important;
           align-items: center !important;
           justify-content: flex-end !important;
           padding: 8mm !important;
+          overflow: hidden !important;
         }
         
         /* Cut lines - subtle but visible */
