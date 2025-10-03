@@ -381,29 +381,38 @@ export const PlaceCardExportControls: React.FC<PlaceCardExportControlsProps> = (
   };
 
   const capturePageAsCanvas = async (pageElement: HTMLElement): Promise<HTMLCanvasElement> => {
-    // Create temporary container with proper A4 dimensions
+    // Create temporary container at 300 DPI resolution (2480 × 3508 pixels for A4)
+    const dpi = 300;
+    const a4WidthInches = 8.27;
+    const a4HeightInches = 11.69;
+    const targetWidth = Math.floor(a4WidthInches * dpi);  // 2481px
+    const targetHeight = Math.floor(a4HeightInches * dpi); // 3507px
+    
     const tempContainer = document.createElement('div');
     tempContainer.style.position = 'fixed';
     tempContainer.style.top = '-9999px';
     tempContainer.style.left = '-9999px';
-    tempContainer.style.width = '210mm';
-    tempContainer.style.height = '297mm';
+    tempContainer.style.width = `${targetWidth}px`;
+    tempContainer.style.height = `${targetHeight}px`;
     tempContainer.style.backgroundColor = '#FFFFFF';
     
     // Clone the page with all styles
     const clone = pageElement.cloneNode(true) as HTMLElement;
     tempContainer.appendChild(clone);
     
-    // Add container-specific styles
+    // Add container-specific styles - scale everything to match pixel dimensions
     const styleElement = document.createElement('style');
+    const mmToPx = dpi / 25.4; // Convert mm to pixels at target DPI
     styleElement.textContent = `
       #temp-capture-container {
-        width: 210mm !important;
-        height: 297mm !important;
+        width: ${targetWidth}px !important;
+        height: ${targetHeight}px !important;
         background: #FFFFFF !important;
         -webkit-font-smoothing: antialiased !important;
         -moz-osx-font-smoothing: grayscale !important;
         text-rendering: optimizeLegibility !important;
+        image-rendering: crisp-edges !important;
+        image-rendering: -webkit-optimize-contrast !important;
       }
       
       #temp-capture-container * {
@@ -413,8 +422,8 @@ export const PlaceCardExportControls: React.FC<PlaceCardExportControlsProps> = (
       }
       
       #temp-capture-container .place-card-preview-container {
-        width: 210mm !important;
-        height: 297mm !important;
+        width: ${targetWidth}px !important;
+        height: ${targetHeight}px !important;
         background: #FFFFFF !important;
         box-shadow: none !important;
         border-radius: 0 !important;
@@ -423,18 +432,26 @@ export const PlaceCardExportControls: React.FC<PlaceCardExportControlsProps> = (
       }
       
       #temp-capture-container .place-card-a4-page {
-        width: 210mm !important;
-        height: 297mm !important;
+        width: ${targetWidth}px !important;
+        height: ${targetHeight}px !important;
         background: #FFFFFF !important;
         display: grid !important;
-        grid-template-columns: repeat(2, 105mm) !important;
-        grid-template-rows: repeat(3, 99mm) !important;
+        grid-template-columns: repeat(2, ${targetWidth / 2}px) !important;
+        grid-template-rows: repeat(3, ${targetHeight / 3}px) !important;
         gap: 0 !important;
       }
       
       #temp-capture-container .place-card-cell {
-        width: 105mm !important;
-        height: 99mm !important;
+        width: ${targetWidth / 2}px !important;
+        height: ${targetHeight / 3}px !important;
+      }
+      
+      #temp-capture-container .guest-name {
+        font-size: ${Math.floor(24 * mmToPx / 3.7795)}px !important;
+      }
+      
+      #temp-capture-container .table-info {
+        font-size: ${Math.floor(18 * mmToPx / 3.7795)}px !important;
       }
       
       #temp-capture-container .fold-guide,
@@ -451,16 +468,24 @@ export const PlaceCardExportControls: React.FC<PlaceCardExportControlsProps> = (
     await new Promise(resolve => requestAnimationFrame(resolve));
     await new Promise(resolve => setTimeout(resolve, 100));
 
-    // Capture at high resolution (A4 at 300 DPI = 2480 × 3508 px)
+    // Capture at native high resolution (no scaling needed - already at 300 DPI)
     const canvas = await html2canvas(tempContainer, {
-      scale: 4,
+      scale: 1,
       backgroundColor: '#FFFFFF',
       logging: false,
       useCORS: true,
       allowTaint: true,
-      width: 794, // 210mm in pixels at 96 DPI
-      height: 1123, // 297mm in pixels at 96 DPI
+      // Don't specify width/height - let it capture at natural size
     });
+    
+    // Disable image smoothing for crisp text
+    const ctx = canvas.getContext('2d');
+    if (ctx) {
+      ctx.imageSmoothingEnabled = false;
+      (ctx as any).webkitImageSmoothingEnabled = false;
+      (ctx as any).mozImageSmoothingEnabled = false;
+      (ctx as any).msImageSmoothingEnabled = false;
+    }
 
     // Cleanup
     document.body.removeChild(tempContainer);
