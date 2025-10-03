@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/enhanced-button";
 import { Input } from "@/components/ui/input";
@@ -205,9 +205,27 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
   const [individualMessages, setIndividualMessages] = useState<Record<string, string>>(settings?.individual_messages || {});
   const [uploading, setUploading] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
+  const [localMassMessage, setLocalMassMessage] = useState<string>(settings?.mass_message || '');
   const {
     toast
   } = useToast();
+
+  // Sync local mass message with settings changes
+  useEffect(() => {
+    setLocalMassMessage(settings?.mass_message || '');
+  }, [settings?.mass_message]);
+
+  // Debounced save for mass message
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (localMassMessage !== (settings?.mass_message || '')) {
+        handleSettingChange('mass_message', localMassMessage);
+      }
+    }, 300);
+    
+    return () => clearTimeout(timer);
+  }, [localMassMessage]);
+
   const currentSettings = settings || {
     event_id: '',
     user_id: '',
@@ -630,7 +648,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                   <MessageSquare className="h-4 w-4" />
                   Mass Message (applies to all cards)
                 </Label>
-                <Textarea placeholder="Enter a message for all place cards..." value={currentSettings.mass_message} onChange={e => handleSettingChange('mass_message', e.target.value)} rows={3} />
+                <Textarea placeholder="Enter a message for all place cards..." value={localMassMessage} onChange={e => setLocalMassMessage(e.target.value)} rows={3} />
               </div>
 
               <div>
