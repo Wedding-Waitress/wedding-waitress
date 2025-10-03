@@ -8,27 +8,13 @@
  * current origin when testing on different domains
  */
 export function getPublicBaseUrl(): string {
-  // Check for environment variable first
+  // If production URL is configured, ALWAYS use it for QR codes and external links
+  // This ensures QR codes point to your custom domain regardless of preview environment
   if (import.meta.env.VITE_PUBLIC_BASE_URL) {
-    try {
-      // Extract hostname from configured production URL
-      const configuredUrl = new URL(import.meta.env.VITE_PUBLIC_BASE_URL);
-      const currentHostname = window.location.hostname;
-      
-      // If we're on the production domain, use the configured URL
-      if (currentHostname === configuredUrl.hostname) {
-        return import.meta.env.VITE_PUBLIC_BASE_URL;
-      }
-      
-      // Otherwise, use current origin for testing environments
-      return window.location.origin;
-    } catch (error) {
-      // If URL parsing fails, fallback to current origin
-      return window.location.origin;
-    }
+    return import.meta.env.VITE_PUBLIC_BASE_URL;
   }
   
-  // Fallback to current origin for development/testing
+  // Fallback to current origin only if no production URL is configured
   return window.location.origin;
 }
 
