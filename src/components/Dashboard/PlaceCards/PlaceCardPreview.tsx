@@ -159,7 +159,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                       }}
                     />
                     {/* 2 columns × 3 rows grid */}
-                    <div className="grid grid-cols-2 w-full h-full">
+                    <div className="grid w-full h-full">
                       {Array.from({ length: 6 }).map((_, cardIndex) => {
                         const guest = pageGuests[cardIndex];
                         if (!guest) {
