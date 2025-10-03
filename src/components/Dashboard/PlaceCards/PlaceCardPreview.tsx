@@ -158,9 +158,8 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                         zIndex: 1,
                       }}
                     />
-                    {/* 2 columns × 3 rows grid */}
-                    <div className="grid w-full h-full">
-                      {Array.from({ length: 6 }).map((_, cardIndex) => {
+                    {/* 2 columns × 3 rows grid - cards render directly in place-card-a4-page */}
+                    {Array.from({ length: 6 }).map((_, cardIndex) => {
                         const guest = pageGuests[cardIndex];
                         if (!guest) {
                           return (
@@ -262,7 +261,6 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                           </div>
                         );
                       })}
-                    </div>
                   </div>
                 </div>
               </div>
