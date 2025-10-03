@@ -54,14 +54,6 @@ const featureCards = [
     action: 'Generate',
   },
   {
-    id: 'individual-table-chart',
-    title: 'Individual Table Seating Chart',
-    description: 'Generate detailed seating charts for individual tables',
-    icon: Users,
-    status: 'active',
-    action: 'Generate',
-  },
-  {
     id: 'additional',
     title: 'Additional Features',
     description: 'More features and customization options',
@@ -81,8 +73,6 @@ export const QRCodeFeatureGrid: React.FC<QRCodeFeatureGridProps> = ({ eventId, o
       onNavigateToTab?.('dietary-chart');
     } else if (cardId === 'full-seating-chart') {
       onNavigateToTab?.('full-seating-chart');
-    } else if (cardId === 'individual-table-chart') {
-      onNavigateToTab?.('individual-table-chart');
     }
   };
   return (
@@ -179,7 +169,7 @@ export const QRCodeFeatureGrid: React.FC<QRCodeFeatureGridProps> = ({ eventId, o
               </p>
             </div>
             <div className="flex items-center gap-2">
-              <Badge variant="default" className="text-xs">5/6 Active</Badge>
+              <Badge variant="default" className="text-xs">4/5 Active</Badge>
               <Badge variant="secondary" className="text-xs">1 Planned</Badge>
             </div>
           </div>

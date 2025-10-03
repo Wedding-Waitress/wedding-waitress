@@ -31,6 +31,7 @@ const menuItems = [
   { id: "qr-code", label: "QR Code Seating Chart", icon: QrCode },
   { id: "printables", label: "Printables", icon: Printer },
   { id: "place-cards", label: "Place Cards", icon: CreditCard },
+  { id: "individual-table-chart", label: "Individual Table Charts", icon: Users },
   { id: "kiosk-live-view", label: "Kiosk Live View", icon: Monitor },
   { id: "floor-plan", label: "Floor Plan", icon: MapPin },
   { id: "rsvp-invite", label: "RSVP Invite", icon: Mail },
