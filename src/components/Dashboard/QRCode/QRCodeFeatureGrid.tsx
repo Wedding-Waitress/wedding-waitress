@@ -38,14 +38,6 @@ const featureCards = [
     action: 'Generate',
   },
   {
-    id: 'kitchen-dietary-chart',
-    title: 'Kitchen Dietary Requirement Chart',
-    description: 'Staff dietary requirements and allergies sheet',
-    icon: ChefHat,
-    status: 'active',
-    action: 'Export',
-  },
-  {
     id: 'full-seating-chart',
     title: 'Full Seating Chart',
     description: 'Complete guest list with check-off boxes',
@@ -69,8 +61,6 @@ export const QRCodeFeatureGrid: React.FC<QRCodeFeatureGridProps> = ({ eventId, o
       onNavigateToTab?.('signage');
     } else if (cardId === 'table-seating-chart') {
       onNavigateToTab?.('table-chart');
-    } else if (cardId === 'kitchen-dietary-chart') {
-      onNavigateToTab?.('dietary-chart');
     } else if (cardId === 'full-seating-chart') {
       onNavigateToTab?.('full-seating-chart');
     }
@@ -169,7 +159,7 @@ export const QRCodeFeatureGrid: React.FC<QRCodeFeatureGridProps> = ({ eventId, o
               </p>
             </div>
             <div className="flex items-center gap-2">
-              <Badge variant="default" className="text-xs">4/5 Active</Badge>
+              <Badge variant="default" className="text-xs">3/4 Active</Badge>
               <Badge variant="secondary" className="text-xs">1 Planned</Badge>
             </div>
           </div>
