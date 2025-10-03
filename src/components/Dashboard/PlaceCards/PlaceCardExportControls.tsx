@@ -219,7 +219,7 @@ export const PlaceCardExportControls: React.FC<PlaceCardExportControlsProps> = (
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 8mm 12mm;
+            padding: 8mm 20mm;
             transform: rotate(180deg);
           }
 
@@ -341,7 +341,7 @@ export const PlaceCardExportControls: React.FC<PlaceCardExportControlsProps> = (
         display: flex;
         align-items: center;
         justify-content: center;
-        padding: 8mm 12mm;
+        padding: 8mm 20mm;
         transform: rotate(180deg);
       }
 
