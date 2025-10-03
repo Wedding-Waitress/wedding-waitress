@@ -246,11 +246,11 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                               </div>
                             </div>
 
-                            {/* Card Back - for messages (inside fold) */}
+                            {/* Folded Message Section - Top Half (Upside Down) */}
                             {message && (
-                              <div className="card-back">
+                              <div className="folded-message-section">
                                 <div 
-                                  className="message-text"
+                                  className="folded-message-text"
                                   style={{
                                     fontFamily: currentSettings.info_font_family
                                   }}
@@ -370,21 +370,25 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
           margin-top: 2mm;
         }
 
-        .card-back {
-          position: relative;
-          width: 100%;
-          height: 50%;
+        /* Folded message section - top half of card, upside down */
+        .folded-message-section {
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 49.5mm;
           display: flex;
           align-items: center;
           justify-content: center;
-          padding: 4px;
+          padding: 8mm 12mm;
+          transform: rotate(180deg);
         }
 
-        .message-text {
-          font-size: 10pt;
-          opacity: 0.7;
-          line-height: 1.3;
-          max-width: 90%;
+        .folded-message-text {
+          font-size: 11pt;
+          line-height: 1.4;
+          text-align: center;
+          max-width: 100%;
         }
 
         /* Print styles - exact A4 measurements */
@@ -451,8 +455,8 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
             font-weight: 700;
           }
 
-          .message-text {
-            font-size: 10pt;
+          .folded-message-text {
+            font-size: 11pt;
           }
           
           .card-content {

@@ -209,6 +209,27 @@ export const PlaceCardExportControls: React.FC<PlaceCardExportControlsProps> = (
             margin-top: 2mm;
           }
           
+          /* Folded message section - top half of card, upside down */
+          .folded-message-section {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 49.5mm;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8mm 12mm;
+            transform: rotate(180deg);
+          }
+
+          .folded-message-text {
+            font-size: 11pt;
+            line-height: 1.4;
+            text-align: center;
+            max-width: 100%;
+          }
+          
           /* Card back for messages */
           .card-back {
             position: relative;
@@ -306,8 +327,33 @@ export const PlaceCardExportControls: React.FC<PlaceCardExportControlsProps> = (
               top: 198mm !important;
             }
             
-            .decorative-image {
-              border: none;
+      .decorative-image {
+        border: none;
+      }
+      
+      /* Folded message section - top half of card, upside down */
+      #temp-capture-container .folded-message-section {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 49.5mm;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 8mm 12mm;
+        transform: rotate(180deg);
+      }
+
+      #temp-capture-container .folded-message-text {
+        font-size: 11pt;
+        line-height: 1.4;
+        text-align: center;
+        max-width: 100%;
+      }
+            
+            .folded-message-text {
+              font-size: 11pt;
             }
             
             .table-info {
