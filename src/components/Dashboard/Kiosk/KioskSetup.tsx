@@ -23,7 +23,7 @@ import {
 } from 'lucide-react';
 import { useEvents } from '@/hooks/useEvents';
 import { useToast } from '@/hooks/use-toast';
-import { buildGuestLookupUrl } from '@/lib/urlUtils';
+import { buildKioskUrl } from '@/lib/urlUtils';
 import QRCode from 'qrcode';
 
 interface KioskSetupProps {
@@ -41,7 +41,7 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
   const [isGeneratingQR, setIsGeneratingQR] = useState(false);
 
   const selectedEvent = selectedEventId ? events.find(e => e.id === selectedEventId) : null;
-  const kioskUrl = selectedEvent?.slug ? `${window.location.origin}/kiosk/${selectedEvent.slug}` : '';
+  const kioskUrl = selectedEvent?.slug ? buildKioskUrl(selectedEvent.slug) : '';
 
   const handleCopyUrl = async () => {
     if (!kioskUrl) return;

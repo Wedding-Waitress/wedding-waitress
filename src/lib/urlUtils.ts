@@ -25,3 +25,11 @@ export function buildGuestLookupUrl(eventSlug: string): string {
   const baseUrl = getPublicBaseUrl();
   return `${baseUrl}/s/${eventSlug}`;
 }
+
+/**
+ * Builds a kiosk URL for the given event slug
+ */
+export function buildKioskUrl(eventSlug: string): string {
+  const baseUrl = getPublicBaseUrl();
+  return `${baseUrl}/kiosk/${eventSlug}`;
+}

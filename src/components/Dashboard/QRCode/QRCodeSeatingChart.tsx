@@ -46,7 +46,7 @@ export const QRCodeSeatingChart: React.FC<QRCodeSeatingChartProps> = ({
   };
   const handleLiveView = () => {
     if (selectedEvent?.slug) {
-      const url = `/s/${selectedEvent.slug}`;
+      const url = buildGuestLookupUrl(selectedEvent.slug);
       window.open(url, '_blank');
     }
   };
