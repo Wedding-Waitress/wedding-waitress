@@ -283,6 +283,11 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
 
         .place-card-a4-page {
           display: grid;
+          grid-template-columns: repeat(2, 105mm);
+          grid-template-rows: repeat(3, 99mm);
+          width: 210mm;
+          height: 297mm;
+          gap: 0;
           background: #FFFFFF;
         }
 
@@ -410,8 +415,12 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
           }
 
           .place-card-a4-page {
+            display: grid;
+            grid-template-columns: repeat(2, 105mm);
+            grid-template-rows: repeat(3, 99mm);
             width: 210mm;
             height: 297mm;
+            gap: 0;
             background: #FFFFFF;
           }
 
