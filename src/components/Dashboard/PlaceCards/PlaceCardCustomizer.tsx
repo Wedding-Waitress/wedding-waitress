@@ -264,15 +264,8 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
     });
   };
 
-  const handleResetToDefaults = async () => {
-    const defaultSettings = {
-      font_family: 'Arial',
-      font_color: '#000000',
-      background_color: '#ffffff',
-      background_image_url: null,
-      background_image_type: 'none' as const,
-      mass_message: '',
-      individual_messages: {},
+  const handleResetDesignDefaults = async () => {
+    const designDefaults = {
       guest_font_family: 'Arial',
       info_font_family: 'Arial',
       guest_name_bold: false,
@@ -280,15 +273,50 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
       guest_name_underline: false,
       guest_name_font_size: 24,
       info_font_size: 12,
-      name_spacing: 4
+      name_spacing: 4,
+      font_color: '#000000',
+      background_color: '#ffffff'
+    };
+    
+    await onSettingsChange(designDefaults);
+    
+    toast({
+      title: "Design Settings Reset",
+      description: "Design settings have been reset to defaults"
+    });
+  };
+
+  const handleResetBackgroundDefaults = async () => {
+    const backgroundDefaults = {
+      background_image_url: null,
+      background_image_type: 'none' as const,
+      background_image_x_position: 50,
+      background_image_y_position: 50,
+      background_image_scale: 100,
+      background_image_opacity: 100
+    };
+    
+    await onSettingsChange(backgroundDefaults);
+    
+    toast({
+      title: "Background Settings Reset",
+      description: "Background settings have been reset to defaults"
+    });
+  };
+
+  const handleResetMessagesDefaults = async () => {
+    const messagesDefaults = {
+      mass_message: '',
+      individual_messages: {}
     };
     
     setIndividualMessages({});
-    await onSettingsChange(defaultSettings);
+    setLocalMassMessage('');
+    await onSettingsChange(messagesDefaults);
     
     toast({
-      title: "Settings Reset",
-      description: "All place card settings have been reset to defaults"
+      title: "Messages Reset",
+      description: "All messages have been cleared"
     });
   };
   const applyTemplate = async (templateId: string) => {
@@ -517,6 +545,16 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                   onChange={(color) => handleSettingChange('background_color', color)}
                 />
               </div>
+
+              <div className="pt-4 border-t">
+                <Button 
+                  onClick={handleResetDesignDefaults} 
+                  variant="outline" 
+                  className="w-full"
+                >
+                  Reset to Default
+                </Button>
+              </div>
             </div>
           </TabsContent>
 
@@ -635,6 +673,16 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                   </div>
                 </div>
               )}
+
+              <div className="pt-4 border-t">
+                <Button 
+                  onClick={handleResetBackgroundDefaults} 
+                  variant="outline" 
+                  className="w-full"
+                >
+                  Reset to Default
+                </Button>
+              </div>
             </div>
           </TabsContent>
 
@@ -665,18 +713,18 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                     Save Individual Messages
                   </Button>}
               </div>
+
+              <div className="pt-4 border-t">
+                <Button 
+                  onClick={handleResetMessagesDefaults} 
+                  variant="outline" 
+                  className="w-full"
+                >
+                  Reset to Default
+                </Button>
+              </div>
             </div>
-            </TabsContent>
-          
-          <div className="pt-4 border-t">
-            <Button 
-              onClick={handleResetToDefaults} 
-              variant="outline" 
-              className="w-full"
-            >
-              Reset to Default
-            </Button>
-          </div>
+          </TabsContent>
         </Tabs>
       </CardContent>
     </Card>;
