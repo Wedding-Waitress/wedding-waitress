@@ -63,7 +63,7 @@ export const PlaceCardExportControls: React.FC<PlaceCardExportControlsProps> = (
     const clonedPages = pageElements.map(page => page.cloneNode(true) as HTMLElement);
     const pagesHtml = clonedPages.map(page => page.outerHTML).join('');
 
-    // Write complete HTML document with styles
+    // Write complete HTML document with comprehensive styles
     previewWindow.document.write(`
       <!DOCTYPE html>
       <html>
@@ -79,16 +79,13 @@ export const PlaceCardExportControls: React.FC<PlaceCardExportControlsProps> = (
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-          }
-          
-          html, body {
-            background: #FFFFFF;
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
             color-adjust: exact;
           }
           
-          body {
+          html, body {
+            background: #FFFFFF;
             font-family: system-ui, -apple-system, sans-serif;
           }
           
@@ -104,26 +101,135 @@ export const PlaceCardExportControls: React.FC<PlaceCardExportControlsProps> = (
             position: relative;
           }
           
-          /* A4 page content */
+          /* A4 page content with explicit grid */
           .place-card-a4-page {
             width: 210mm;
             height: 297mm;
-            display: grid;
-            grid-template-columns: repeat(2, 105mm);
-            grid-template-rows: repeat(3, 99mm);
+            background: #FFFFFF;
             position: relative;
+          }
+          
+          /* Grid container - critical for 2x3 layout */
+          .place-card-a4-page .grid {
+            display: grid !important;
+            grid-template-columns: repeat(2, 105mm) !important;
+            grid-template-rows: repeat(3, 99mm) !important;
+            width: 210mm !important;
+            height: 297mm !important;
+            gap: 0 !important;
           }
           
           /* Place card cells */
           .place-card-cell {
-            width: 105mm;
-            height: 99mm;
+            width: 105mm !important;
+            height: 99mm !important;
             page-break-inside: avoid;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            text-align: center;
+            padding: 8mm;
+            overflow: visible;
+          }
+          
+          /* Card content positioned in lower half (below fold) */
+          .card-content {
+            position: absolute;
+            left: 8mm;
+            right: 8mm;
+            top: 67%;
+            transform: translateY(-50%);
+            text-align: center;
+          }
+          
+          /* Move text down when full background image is present */
+          .card-content.has-full-background {
+            top: 82%;
+          }
+          
+          /* Split layout when decorative image exists */
+          .card-content.has-decorative-image {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 4mm;
+            left: 6mm;
+            right: 6mm;
+          }
+          
+          .card-content.has-decorative-image .guest-name,
+          .card-content.has-decorative-image .table-info {
+            text-align: left;
+          }
+          
+          /* Text container takes left side when decorative image exists */
+          .card-content.has-decorative-image > div:first-child {
+            flex: 0 0 55%;
+            text-align: left;
+          }
+          
+          /* Large decorative image on right side */
+          .decorative-image-container {
+            flex: 0 0 40%;
             display: flex;
             align-items: center;
             justify-content: center;
+            max-height: 35mm;
+          }
+          
+          .decorative-image {
+            width: 100%;
+            height: 100%;
+            max-height: 35mm;
+            object-fit: contain;
+            border: 0.5px solid #000000;
+            border-radius: 4px;
+          }
+          
+          /* Background Image */
+          .place-card-background {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            top: 50%;
+            pointer-events: none;
+            background-repeat: no-repeat;
+          }
+          
+          /* Guest name styles */
+          .guest-name {
+            line-height: 1.1;
+            text-align: center;
+            overflow: visible;
+            font-weight: 400;
+            font-synthesis: weight;
+          }
+          
+          /* Table info styles */
+          .table-info {
+            font-weight: 400;
+            margin-top: 2mm;
+          }
+          
+          /* Card back for messages */
+          .card-back {
             position: relative;
-            overflow: hidden;
+            width: 100%;
+            height: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4px;
+          }
+          
+          .message-text {
+            font-size: 10pt;
+            opacity: 0.7;
+            line-height: 1.3;
+            max-width: 90%;
           }
           
           /* Cut lines */
@@ -133,38 +239,86 @@ export const PlaceCardExportControls: React.FC<PlaceCardExportControlsProps> = (
           }
           
           .cutline-v {
-            left: 105mm;
+            left: 50%;
             top: 0;
             bottom: 0;
-            border-left: 1px dashed;
+            width: 1px;
+            border-left: 1px solid rgba(150, 150, 150, 0.5);
+            z-index: 10;
+            transform: translateX(-0.5px);
           }
           
           .cutline-h1 {
-            top: 99mm;
             left: 0;
             right: 0;
-            border-top: 1px dashed;
+            top: 33.333%;
+            height: 0;
+            border-top: 0.5px solid rgba(217, 217, 217, 0.6);
+            z-index: 1;
           }
           
           .cutline-h2 {
-            top: 198mm;
             left: 0;
             right: 0;
-            border-top: 1px dashed;
+            top: 66.666%;
+            height: 0;
+            border-top: 0.5px solid rgba(217, 217, 217, 0.6);
+            z-index: 1;
           }
           
-          /* Preserve all colors and backgrounds */
-          * {
-            -webkit-print-color-adjust: exact;
-            print-color-adjust: exact;
-            color-adjust: exact;
+          /* Utility classes */
+          .grid-cols-2 {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
           }
           
+          /* Print-specific styles */
           @media print {
-            body { margin: 0; }
+            body { 
+              margin: 0; 
+            }
+            
             .place-card-preview-container {
               margin: 0;
               box-shadow: none;
+              page-break-after: always;
+            }
+            
+            .place-card-a4-page {
+              width: 210mm;
+              height: 297mm;
+            }
+            
+            .place-card-a4-page .grid {
+              display: grid !important;
+              grid-template-columns: repeat(2, 105mm) !important;
+              grid-template-rows: repeat(3, 99mm) !important;
+            }
+            
+            .place-card-cell {
+              width: 105mm !important;
+              height: 99mm !important;
+            }
+            
+            .cutline-v {
+              left: 105mm !important;
+              transform: translateX(-0.5px) !important;
+            }
+            
+            .cutline-h1 {
+              top: 99mm !important;
+            }
+            
+            .cutline-h2 {
+              top: 198mm !important;
+            }
+            
+            .decorative-image {
+              border: 3px solid #000000;
+            }
+            
+            .table-info {
+              font-weight: 700;
             }
           }
         </style>
