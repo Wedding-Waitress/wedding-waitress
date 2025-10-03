@@ -538,7 +538,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
               <div className="pt-4 border-t">
                 <Button 
                   onClick={handleResetDesignDefaults} 
-                  variant="outline" 
+                  variant="destructive" 
                   className="w-full"
                 >
                   Reset to Default
@@ -674,7 +674,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
               <div className="pt-4 border-t">
                 <Button 
                   onClick={handleResetBackgroundDefaults} 
-                  variant="outline" 
+                  variant="destructive" 
                   className="w-full"
                 >
                   Reset to Default
@@ -714,7 +714,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
               <div className="pt-4 border-t">
                 <Button 
                   onClick={handleResetMessagesDefaults} 
-                  variant="outline" 
+                  variant="destructive" 
                   className="w-full"
                 >
                   Reset to Default
