@@ -304,7 +304,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
           position: absolute;
           left: 8mm;
           right: 8mm;
-          top: 67%;
+          top: 70%;
           transform: translateY(-50%);
           text-align: center;
         }
@@ -349,7 +349,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
           height: 100%;
           max-height: 35mm;
           object-fit: contain;
-          border: 0.5px solid #000000;
+          border: none;
           border-radius: 4px;
         }
 
@@ -450,7 +450,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
           .card-content {
             left: 8mm;
             right: 8mm;
-            top: 67%;
+            top: 70%;
             transform: translateY(-50%);
           }
 
@@ -464,7 +464,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
           }
 
           .decorative-image {
-            border: 3px solid #000000;
+            border: none;
           }
 
           /* Preserve background image opacity in print */

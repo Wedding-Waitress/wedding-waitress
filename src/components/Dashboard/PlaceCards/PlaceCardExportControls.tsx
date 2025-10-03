@@ -139,7 +139,7 @@ export const PlaceCardExportControls: React.FC<PlaceCardExportControlsProps> = (
             position: absolute;
             left: 8mm;
             right: 8mm;
-            top: 67%;
+            top: 70%;
             transform: translateY(-50%);
             text-align: center;
           }
@@ -184,7 +184,7 @@ export const PlaceCardExportControls: React.FC<PlaceCardExportControlsProps> = (
             height: 100%;
             max-height: 35mm;
             object-fit: contain;
-            border: 0.5px solid #000000;
+            border: none;
             border-radius: 4px;
           }
           
@@ -314,7 +314,7 @@ export const PlaceCardExportControls: React.FC<PlaceCardExportControlsProps> = (
             }
             
             .decorative-image {
-              border: 3px solid #000000;
+              border: none;
             }
             
             .table-info {
