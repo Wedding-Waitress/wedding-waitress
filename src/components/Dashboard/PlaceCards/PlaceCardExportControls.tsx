@@ -608,9 +608,16 @@ export const PlaceCardExportControls: React.FC<PlaceCardExportControlsProps> = (
           height: 297mm !important;
           transform: none !important;
           position: relative !important;
+        }
+        
+        /* Apply grid to inner container */
+        #ww-print-container .place-card-a4-page .grid {
           display: grid !important;
           grid-template-columns: repeat(2, 105mm) !important;
           grid-template-rows: repeat(3, 99mm) !important;
+          width: 210mm !important;
+          height: 297mm !important;
+          gap: 0 !important;
         }
         
         /* Place card cells - exact A4 dimensions */
