@@ -107,15 +107,9 @@ export const PlaceCardExportControls: React.FC<PlaceCardExportControlsProps> = (
             height: 297mm;
             background: #FFFFFF;
             position: relative;
-          }
-          
-          /* Grid container - critical for 2x3 layout */
-          .place-card-a4-page .grid {
             display: grid !important;
             grid-template-columns: repeat(2, 105mm) !important;
             grid-template-rows: repeat(3, 99mm) !important;
-            width: 210mm !important;
-            height: 297mm !important;
             gap: 0 !important;
           }
           
@@ -288,12 +282,10 @@ export const PlaceCardExportControls: React.FC<PlaceCardExportControlsProps> = (
             .place-card-a4-page {
               width: 210mm;
               height: 297mm;
-            }
-            
-            .place-card-a4-page .grid {
               display: grid !important;
               grid-template-columns: repeat(2, 105mm) !important;
               grid-template-rows: repeat(3, 99mm) !important;
+              gap: 0 !important;
             }
             
             .place-card-cell {
@@ -377,14 +369,9 @@ export const PlaceCardExportControls: React.FC<PlaceCardExportControlsProps> = (
         width: 210mm !important;
         height: 297mm !important;
         background: #FFFFFF !important;
-      }
-      
-      #temp-capture-container .place-card-a4-page .grid {
         display: grid !important;
         grid-template-columns: repeat(2, 105mm) !important;
         grid-template-rows: repeat(3, 99mm) !important;
-        width: 210mm !important;
-        height: 297mm !important;
         gap: 0 !important;
       }
       
