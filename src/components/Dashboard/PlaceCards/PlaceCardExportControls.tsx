@@ -401,6 +401,15 @@ export const PlaceCardExportControls: React.FC<PlaceCardExportControlsProps> = (
         width: 210mm !important;
         height: 297mm !important;
         background: #FFFFFF !important;
+        -webkit-font-smoothing: antialiased !important;
+        -moz-osx-font-smoothing: grayscale !important;
+        text-rendering: optimizeLegibility !important;
+      }
+      
+      #temp-capture-container * {
+        -webkit-font-smoothing: antialiased !important;
+        -moz-osx-font-smoothing: grayscale !important;
+        text-rendering: optimizeLegibility !important;
       }
       
       #temp-capture-container .place-card-preview-container {
@@ -444,7 +453,7 @@ export const PlaceCardExportControls: React.FC<PlaceCardExportControlsProps> = (
 
     // Capture at high resolution (A4 at 300 DPI = 2480 × 3508 px)
     const canvas = await html2canvas(tempContainer, {
-      scale: 3,
+      scale: 4,
       backgroundColor: '#FFFFFF',
       logging: false,
       useCORS: true,
@@ -479,8 +488,8 @@ export const PlaceCardExportControls: React.FC<PlaceCardExportControlsProps> = (
           format: 'a4',
         });
 
-        const imgData = canvas.toDataURL('image/jpeg', 1.0);
-        pdf.addImage(imgData, 'JPEG', 0, 0, 210, 297);
+        const imgData = canvas.toDataURL('image/png');
+        pdf.addImage(imgData, 'PNG', 0, 0, 210, 297);
         pdf.save(`${event.name}-place-cards-page-${selectedPage + 1}.pdf`);
       } else {
         const mimeType = fileType === 'png' ? 'image/png' : 'image/jpeg';
@@ -527,12 +536,12 @@ export const PlaceCardExportControls: React.FC<PlaceCardExportControlsProps> = (
 
         for (let i = 0; i < allPages.length; i++) {
           const canvas = await capturePageAsCanvas(allPages[i]);
-          const imgData = canvas.toDataURL('image/jpeg', 1.0);
+          const imgData = canvas.toDataURL('image/png');
           
           if (i > 0) {
             pdf.addPage();
           }
-          pdf.addImage(imgData, 'JPEG', 0, 0, 210, 297);
+          pdf.addImage(imgData, 'PNG', 0, 0, 210, 297);
         }
 
         pdf.save(`${event.name}-place-cards-all.pdf`);
