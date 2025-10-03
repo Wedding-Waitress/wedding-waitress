@@ -380,7 +380,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
           display: flex;
           align-items: center;
           justify-content: center;
-          padding: 8mm 20mm;
+          padding: 8mm 12mm;
           transform: rotate(180deg);
         }
 
