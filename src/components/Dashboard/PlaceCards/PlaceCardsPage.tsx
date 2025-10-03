@@ -25,8 +25,20 @@ export const PlaceCardsPage: React.FC = () => {
   const assignedGuests = guests.filter(guest => guest.assigned && guest.table_no && guest.seat_no);
   const totalPages = Math.ceil(assignedGuests.length / 6);
 
+  // Load saved event selection from localStorage
+  React.useEffect(() => {
+    const savedEventId = localStorage.getItem('place_cards_event_id');
+    if (savedEventId && !selectedEventId && events.length > 0) {
+      const eventExists = events.find(e => e.id === savedEventId);
+      if (eventExists) {
+        setSelectedEventId(savedEventId);
+      }
+    }
+  }, [events, selectedEventId]);
+
   const handleEventChange = (eventId: string) => {
     setSelectedEventId(eventId);
+    localStorage.setItem('place_cards_event_id', eventId);
   };
 
   if (eventsLoading) {
