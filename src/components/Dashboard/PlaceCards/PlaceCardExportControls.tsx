@@ -339,37 +339,102 @@ export const PlaceCardExportControls: React.FC<PlaceCardExportControlsProps> = (
     openPrintPreview(Array.from({ length: totalPages }, (_, i) => i));
   };
 
-  const capturePageAsCanvas = async (pageIndex: number): Promise<HTMLCanvasElement> => {
-    const pageElement = document.querySelector(`[data-page="${pageIndex}"]`) as HTMLElement;
-    if (!pageElement) {
-      throw new Error(`Page ${pageIndex} not found`);
-    }
-
-    // Set exporting state to hide fold guides
-    onExportStateChange(true);
-
-    // Wait for next frame to ensure styles are applied
+  const capturePageAsCanvas = async (pageElement: HTMLElement): Promise<HTMLCanvasElement> => {
+    // Create temporary container with proper A4 dimensions
+    const tempContainer = document.createElement('div');
+    tempContainer.style.position = 'fixed';
+    tempContainer.style.top = '-9999px';
+    tempContainer.style.left = '-9999px';
+    tempContainer.style.width = '210mm';
+    tempContainer.style.height = '297mm';
+    tempContainer.style.backgroundColor = '#FFFFFF';
+    
+    // Clone the page with all styles
+    const clone = pageElement.cloneNode(true) as HTMLElement;
+    tempContainer.appendChild(clone);
+    
+    // Add container-specific styles
+    const styleElement = document.createElement('style');
+    styleElement.textContent = `
+      #temp-capture-container {
+        width: 210mm !important;
+        height: 297mm !important;
+        background: #FFFFFF !important;
+      }
+      
+      #temp-capture-container .place-card-preview-container {
+        width: 210mm !important;
+        height: 297mm !important;
+        background: #FFFFFF !important;
+        box-shadow: none !important;
+        border-radius: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+      }
+      
+      #temp-capture-container .place-card-a4-page {
+        width: 210mm !important;
+        height: 297mm !important;
+        background: #FFFFFF !important;
+      }
+      
+      #temp-capture-container .place-card-a4-page .grid {
+        display: grid !important;
+        grid-template-columns: repeat(2, 105mm) !important;
+        grid-template-rows: repeat(3, 99mm) !important;
+        width: 210mm !important;
+        height: 297mm !important;
+        gap: 0 !important;
+      }
+      
+      #temp-capture-container .place-card-cell {
+        width: 105mm !important;
+        height: 99mm !important;
+      }
+      
+      #temp-capture-container .fold-guide,
+      #temp-capture-container .preview-only {
+        display: none !important;
+      }
+    `;
+    
+    tempContainer.id = 'temp-capture-container';
+    document.head.appendChild(styleElement);
+    document.body.appendChild(tempContainer);
+    
+    // Wait for styles to apply
     await new Promise(resolve => requestAnimationFrame(resolve));
+    await new Promise(resolve => setTimeout(resolve, 100));
 
-    // Capture at 300 DPI (A4 = 2480 × 3508 px)
-    const canvas = await html2canvas(pageElement, {
-      scale: 5.9, // 420px width * 5.9 ≈ 2480px for 300 DPI
+    // Capture at high resolution (A4 at 300 DPI = 2480 × 3508 px)
+    const canvas = await html2canvas(tempContainer, {
+      scale: 3,
       backgroundColor: '#FFFFFF',
       logging: false,
       useCORS: true,
       allowTaint: true,
-      width: 420,
-      height: Math.floor(420 * (297 / 210)), // A4 aspect ratio
+      width: 794, // 210mm in pixels at 96 DPI
+      height: 1123, // 297mm in pixels at 96 DPI
     });
 
-    onExportStateChange(false);
+    // Cleanup
+    document.body.removeChild(tempContainer);
+    document.head.removeChild(styleElement);
+    
     return canvas;
   };
 
   const handleDownloadPage = async () => {
     setIsProcessing(true);
+    onExportStateChange(true);
+    
     try {
-      const canvas = await capturePageAsCanvas(selectedPage);
+      const pageElement = document.querySelector(`[data-page="${selectedPage}"]`) as HTMLElement;
+      if (!pageElement) {
+        throw new Error(`Page ${selectedPage} not found`);
+      }
+
+      const canvas = await capturePageAsCanvas(pageElement);
 
       if (fileType === 'pdf') {
         const pdf = new jsPDF({
@@ -402,12 +467,21 @@ export const PlaceCardExportControls: React.FC<PlaceCardExportControlsProps> = (
       });
     } finally {
       setIsProcessing(false);
+      onExportStateChange(false);
     }
   };
 
   const handleDownloadAll = async () => {
     setIsProcessing(true);
+    onExportStateChange(true);
+    
     try {
+      const allPages = Array.from(document.querySelectorAll('[data-page]')) as HTMLElement[];
+      
+      if (!allPages.length) {
+        throw new Error('No pages found');
+      }
+
       if (fileType === 'pdf') {
         const pdf = new jsPDF({
           orientation: 'portrait',
@@ -415,8 +489,8 @@ export const PlaceCardExportControls: React.FC<PlaceCardExportControlsProps> = (
           format: 'a4',
         });
 
-        for (let i = 0; i < totalPages; i++) {
-          const canvas = await capturePageAsCanvas(i);
+        for (let i = 0; i < allPages.length; i++) {
+          const canvas = await capturePageAsCanvas(allPages[i]);
           const imgData = canvas.toDataURL('image/jpeg', 1.0);
           
           if (i > 0) {
@@ -427,9 +501,9 @@ export const PlaceCardExportControls: React.FC<PlaceCardExportControlsProps> = (
 
         pdf.save(`${event.name}-place-cards-all.pdf`);
       } else {
-        // For PNG/JPEG, create a zip would be ideal, but for now download individually
-        for (let i = 0; i < totalPages; i++) {
-          const canvas = await capturePageAsCanvas(i);
+        // For PNG/JPEG, download individually
+        for (let i = 0; i < allPages.length; i++) {
+          const canvas = await capturePageAsCanvas(allPages[i]);
           const mimeType = fileType === 'png' ? 'image/png' : 'image/jpeg';
           const link = document.createElement('a');
           link.download = `${event.name}-place-cards-page-${i + 1}.${fileType}`;
@@ -454,6 +528,7 @@ export const PlaceCardExportControls: React.FC<PlaceCardExportControlsProps> = (
       });
     } finally {
       setIsProcessing(false);
+      onExportStateChange(false);
     }
   };
 
