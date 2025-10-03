@@ -33,17 +33,156 @@ export const PlaceCardExportControls: React.FC<PlaceCardExportControlsProps> = (
   const [isProcessing, setIsProcessing] = useState(false);
   const { toast } = useToast();
 
-  const handlePreviewPage = () => {
-    onPageFocus(selectedPage);
-    const pageElement = document.querySelector(`[data-page="${selectedPage}"]`);
-    if (pageElement) {
-      pageElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  const openPrintPreview = (pageIndexes: number[]) => {
+    // Get the page elements
+    const pageElements = pageIndexes.map(i => 
+      document.querySelector(`[data-page="${i}"]`) as HTMLElement
+    ).filter(Boolean);
+
+    if (!pageElements.length) {
+      toast({
+        title: "Error",
+        description: "Pages not found",
+        variant: "destructive",
+      });
+      return;
     }
+
+    // Open new window
+    const previewWindow = window.open('', '_blank');
+    if (!previewWindow) {
+      toast({
+        title: "Error",
+        description: "Please allow pop-ups to preview pages",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Clone pages and build HTML document
+    const clonedPages = pageElements.map(page => page.cloneNode(true) as HTMLElement);
+    const pagesHtml = clonedPages.map(page => page.outerHTML).join('');
+
+    // Write complete HTML document with styles
+    previewWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>${event.name} - Place Cards Preview</title>
+        <style>
+          @page { 
+            size: A4 portrait; 
+            margin: 0; 
+          }
+          
+          * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+          }
+          
+          html, body {
+            background: #FFFFFF;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+            color-adjust: exact;
+          }
+          
+          body {
+            font-family: system-ui, -apple-system, sans-serif;
+          }
+          
+          /* A4 page container */
+          .place-card-preview-container {
+            width: 210mm;
+            height: 297mm;
+            background: #FFFFFF;
+            page-break-after: always;
+            page-break-inside: avoid;
+            margin: 20px auto;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            position: relative;
+          }
+          
+          /* A4 page content */
+          .place-card-a4-page {
+            width: 210mm;
+            height: 297mm;
+            display: grid;
+            grid-template-columns: repeat(2, 105mm);
+            grid-template-rows: repeat(3, 99mm);
+            position: relative;
+          }
+          
+          /* Place card cells */
+          .place-card-cell {
+            width: 105mm;
+            height: 99mm;
+            page-break-inside: avoid;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+          }
+          
+          /* Cut lines */
+          .cutline-v, .cutline-h1, .cutline-h2 {
+            position: absolute;
+            border-color: rgba(217, 217, 217, 0.6);
+          }
+          
+          .cutline-v {
+            left: 105mm;
+            top: 0;
+            bottom: 0;
+            border-left: 1px dashed;
+          }
+          
+          .cutline-h1 {
+            top: 99mm;
+            left: 0;
+            right: 0;
+            border-top: 1px dashed;
+          }
+          
+          .cutline-h2 {
+            top: 198mm;
+            left: 0;
+            right: 0;
+            border-top: 1px dashed;
+          }
+          
+          /* Preserve all colors and backgrounds */
+          * {
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+            color-adjust: exact;
+          }
+          
+          @media print {
+            body { margin: 0; }
+            .place-card-preview-container {
+              margin: 0;
+              box-shadow: none;
+            }
+          }
+        </style>
+      </head>
+      <body>
+        ${pagesHtml}
+      </body>
+      </html>
+    `);
+    previewWindow.document.close();
+  };
+
+  const handlePreviewPage = () => {
+    openPrintPreview([selectedPage]);
   };
 
   const handlePreviewAll = () => {
-    onPageFocus(null);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    openPrintPreview(Array.from({ length: totalPages }, (_, i) => i));
   };
 
   const capturePageAsCanvas = async (pageIndex: number): Promise<HTMLCanvasElement> => {
@@ -240,6 +379,9 @@ export const PlaceCardExportControls: React.FC<PlaceCardExportControlsProps> = (
           height: 297mm !important;
           transform: none !important;
           position: relative !important;
+          display: grid !important;
+          grid-template-columns: repeat(2, 105mm) !important;
+          grid-template-rows: repeat(3, 99mm) !important;
         }
         
         /* Place card cells - exact A4 dimensions */
