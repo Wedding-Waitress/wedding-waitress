@@ -9,7 +9,7 @@ import { useEvents } from '@/hooks/useEvents';
 import { useTables } from '@/hooks/useTables';
 import jsPDF from 'jspdf';
 import { format } from 'date-fns';
-import weddingWaitressLogo from '@/assets/wedding-waitress-logo.png';
+import weddingWaitressLogo from '@/assets/wedding-waitress-logo-new.jpg';
 
 interface KitchenDietaryChartProps {
   eventId: string;
@@ -88,8 +88,8 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
       pdf.setFontSize(12);
       pdf.setFont('helvetica', 'bold');
       
-      const colWidths = [30, 15, 15, 40, 30, 40]; // Name, Table, Seat, Dietary, Mobile, Relation
-      const colPositions = [10, 40, 55, 70, 110, 140];
+      const colWidths = [32, 15, 15, 42, 32, 38]; // Name, Table, Seat, Dietary, Mobile, Relation
+      const colPositions = [10, 45, 62, 80, 125, 160];
       
       pdf.text('Guest Name', colPositions[0], yPosition);
       pdf.text('Table', colPositions[1], yPosition);
@@ -152,7 +152,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
         
         // Wedding Waitress logo
         try {
-          pdf.addImage(weddingWaitressLogo, 'PNG', pageWidth / 2 - 10, pageHeight - 25, 20, 10);
+          pdf.addImage(weddingWaitressLogo, 'JPEG', pageWidth / 2 - 30, pageHeight - 25, 60, 15);
         } catch (error) {
           console.warn('Could not add logo to PDF:', error);
         }
