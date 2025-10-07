@@ -138,7 +138,8 @@ export const FullSeatingChartPrintTemplate: React.FC<FullSeatingChartPrintTempla
       <div style={{ 
         display: 'flex', 
         gap: '10mm',
-        marginBottom: '10mm'
+        maxHeight: '222mm',
+        overflow: 'hidden'
       }}>
         {/* Left Column */}
         <div style={{ flex: 1 }}>
@@ -147,7 +148,7 @@ export const FullSeatingChartPrintTemplate: React.FC<FullSeatingChartPrintTempla
             const tableInfo = guest.table_no ? `Table ${guest.table_no}` : 'Unassigned';
             
             return (
-              <div key={guest.id} style={{ marginBottom: '2mm', breakInside: 'avoid' }}>
+              <div key={guest.id} style={{ marginBottom: '1.5mm', breakInside: 'avoid' }}>
                 {/* Name line with checkbox and table */}
                 <div style={{ 
                   display: 'flex', 
@@ -209,7 +210,7 @@ export const FullSeatingChartPrintTemplate: React.FC<FullSeatingChartPrintTempla
             const tableInfo = guest.table_no ? `Table ${guest.table_no}` : 'Unassigned';
             
             return (
-              <div key={guest.id} style={{ marginBottom: '2mm', breakInside: 'avoid' }}>
+              <div key={guest.id} style={{ marginBottom: '1.5mm', breakInside: 'avoid' }}>
                 {/* Name line with checkbox and table */}
                 <div style={{ 
                   display: 'flex', 
