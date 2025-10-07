@@ -35,6 +35,17 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
     }
   };
 
+  // Get print font sizes based on settings
+  const getPrintFontSizes = () => {
+    switch (settings.fontSize) {
+      case 'small': return { main: '12px', checkbox: '10px' };
+      case 'large': return { main: '16px', checkbox: '13px' };
+      default: return { main: '14px', checkbox: '11px' }; // medium
+    }
+  };
+
+  const printFontSizes = getPrintFontSizes();
+
   // Safety check: return null if event is not provided
   if (!event) {
     return null;
@@ -264,7 +275,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
           
           .print-guest-item {
             break-inside: avoid;
-            font-size: 16px;
+            font-size: ${printFontSizes.main};
             line-height: 1.2;
             margin-bottom: 2px;
             color: #000;
@@ -272,7 +283,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
           
           .print-checkbox {
             font-family: monospace;
-            font-size: 14px;
+            font-size: ${printFontSizes.checkbox};
             margin-right: 4px;
           }
           
@@ -338,7 +349,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
             }
             
             .print-guest-list {
-              font-size: 16px !important;
+              font-size: ${printFontSizes.main} !important;
               line-height: 1.1 !important;
             }
             
