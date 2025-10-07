@@ -22,8 +22,6 @@ export const NavigationTabs: React.FC<NavigationTabsProps> = ({
     { id: "guest-list", label: "Guest List" },
     { id: "table-list", label: "Table List" },
     { id: "floor-plan", label: "Floor Plan" },
-    { id: "rsvp-invite", label: "RSVP Invite" },
-    { id: "wishing-well", label: "Online Wishing Well" },
     { id: "signage", label: "Signage" },
     { id: "venue-charts", label: "Venue Charts" },
     { id: "qr-code", label: "QR Code" }

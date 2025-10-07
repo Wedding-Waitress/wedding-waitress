@@ -36,10 +36,6 @@ const menuItems = [
   { id: "dietary-chart", label: "Dietary Requirements", icon: ChefHat },
   { id: "kiosk-live-view", label: "Kiosk Live View", icon: Monitor },
   { id: "floor-plan", label: "Floor Plan", icon: MapPin },
-  { id: "rsvp-invite", label: "RSVP Invite", icon: Mail },
-  { id: "wishing-well", label: "Online Wishing Well", icon: Gift },
-  { id: "planner", label: "Planner", icon: ClipboardList },
-  { id: "vendor-team", label: "Vendor Team", icon: Handshake },
 ];
 
 const SidebarMenuContent = ({ activeTab, onTabChange, onSignOut }: { activeTab: string; onTabChange: (tabId: string) => void; onSignOut: () => void }) => {

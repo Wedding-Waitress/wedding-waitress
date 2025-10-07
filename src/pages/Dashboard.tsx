@@ -290,30 +290,6 @@ export const Dashboard = () => {
           </div>;
       case 'floor-plan':
         return <FloorPlanPage selectedEventId={selectedEventId} onEventSelect={setSelectedEventId} />;
-      case 'rsvp-invite':
-        return <Card className="ww-box p-8 text-center">
-            <Mail className="w-16 h-16 mx-auto text-primary mb-4" />
-            <CardTitle className="mb-2">RSVP Invitations</CardTitle>
-            <CardDescription className="mb-6">
-              Send beautiful digital invitations and track RSVPs
-            </CardDescription>
-            <Button variant="gradient">
-              <Mail className="w-4 h-4 mr-2" />
-              Send Invites
-            </Button>
-          </Card>;
-      case 'wishing-well':
-        return <Card className="ww-box p-8 text-center">
-            <Heart className="w-16 h-16 mx-auto text-primary mb-4" />
-            <CardTitle className="mb-2">Online Wishing Well</CardTitle>
-            <CardDescription className="mb-6">
-              Set up your digital gift registry and money collection
-            </CardDescription>
-            <Button variant="gradient">
-              <Heart className="w-4 h-4 mr-2" />
-              Setup Wishing Well
-            </Button>
-          </Card>;
       case 'signage':
         return <SignagePage selectedEventId={selectedEventId} onEventSelect={handleEventSelect} />;
       case 'qr-code':
@@ -343,30 +319,6 @@ export const Dashboard = () => {
         return <IndividualTableSeatingChartPage selectedEventId={selectedEventId} onEventSelect={handleEventSelect} />;
       case 'kiosk-setup':
         return <KioskSetup selectedEventId={selectedEventId} onEventSelect={handleEventSelect} />;
-      case 'planner':
-        return <Card className="ww-box p-8 text-center">
-            <TrendingUp className="w-16 h-16 mx-auto text-primary mb-4" />
-            <CardTitle className="mb-2">Wedding Planner</CardTitle>
-            <CardDescription className="mb-6">
-              Plan and organize every detail of your wedding with our comprehensive planning tools.
-            </CardDescription>
-            <Button variant="gradient">
-              <Plus className="w-4 h-4 mr-2" />
-              Start Planning
-            </Button>
-          </Card>;
-      case 'vendor-team':
-        return <Card className="ww-box p-8 text-center">
-            <Users className="w-16 h-16 mx-auto text-primary mb-4" />
-            <CardTitle className="mb-2">Vendor Team</CardTitle>
-            <CardDescription className="mb-6">
-              Manage your wedding vendor team and coordinate with photographers, caterers, and more.
-            </CardDescription>
-            <Button variant="gradient">
-              <Plus className="w-4 h-4 mr-2" />
-              Add Vendors
-            </Button>
-          </Card>;
       default:
         return <Card className="p-8 text-center">
             <TrendingUp className="w-16 h-16 mx-auto text-primary mb-4" />
