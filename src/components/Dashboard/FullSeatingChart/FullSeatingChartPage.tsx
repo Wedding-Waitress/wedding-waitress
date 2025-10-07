@@ -7,9 +7,11 @@ import { Printer, Download, FileText, Users, Layout } from 'lucide-react';
 import { useEvents } from '@/hooks/useEvents';
 import { useRealtimeGuests } from '@/hooks/useRealtimeGuests';
 import { useFullSeatingChartSettings } from '@/hooks/useFullSeatingChartSettings';
+import { useToast } from '@/hooks/use-toast';
 import { FullSeatingChartPreview } from './FullSeatingChartPreview';
 import { FullSeatingChartExporter } from './FullSeatingChartExporter';
 import { FullSeatingChartCustomizer } from './FullSeatingChartCustomizer';
+import { FullSeatingChartPrintTemplate } from './FullSeatingChartPrintTemplate';
 
 interface FullSeatingChartPageProps {
   selectedEventId: string | null;
@@ -22,9 +24,11 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
 }) => {
   const [isExporting, setIsExporting] = useState(false);
   const [showExporter, setShowExporter] = useState(false);
+  const [printToastShown, setPrintToastShown] = useState(false);
   const { events, loading: eventsLoading } = useEvents();
   const { guests, loading: guestsLoading } = useRealtimeGuests(selectedEventId);
   const { settings, loading: settingsLoading, updateSettings } = useFullSeatingChartSettings(selectedEventId);
+  const { toast } = useToast();
 
   const selectedEvent = selectedEventId ? events.find(e => e.id === selectedEventId) : null;
 
@@ -34,7 +38,17 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
   };
 
   const handlePrintFullSeating = () => {
-    // ensure layout settles before printing
+    // Show helper toast once per session
+    if (!printToastShown) {
+      toast({
+        title: "Print Settings Tip",
+        description: "For perfect output: in the print dialog turn OFF 'Headers and footers' and turn ON 'Background graphics'.",
+        duration: 8000,
+      });
+      setPrintToastShown(true);
+    }
+    
+    // Ensure layout settles before printing
     requestAnimationFrame(() => setTimeout(() => window.print(), 0));
   };
 
@@ -219,6 +233,15 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
           onClose={() => setShowExporter(false)}
           onExportStart={() => setIsExporting(true)}
           onExportEnd={() => setIsExporting(false)}
+        />
+      )}
+
+      {/* Print Template - Hidden on screen, shown only during print */}
+      {selectedEvent && isDataReady && (
+        <FullSeatingChartPrintTemplate
+          event={selectedEvent}
+          guests={sortedGuests}
+          settings={settings}
         />
       )}
     </div>
