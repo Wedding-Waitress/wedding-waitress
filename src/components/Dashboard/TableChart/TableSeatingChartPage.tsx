@@ -259,15 +259,6 @@ export const TableSeatingChartPage: React.FC<TableSeatingChartPageProps> = ({
                     Export PDF
                   </Button>
                   <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleExport('png')}
-                    disabled={isExporting}
-                  >
-                    <Download className="w-4 h-4 mr-2" />
-                    Export PNG
-                  </Button>
-                  <Button
                     variant="secondary"
                     size="sm"
                     onClick={handlePrint}
