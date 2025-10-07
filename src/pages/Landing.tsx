@@ -141,7 +141,7 @@ export const Landing = () => {
       {/* Hero Section */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-hero opacity-10"></div>
-        <div className="container mx-auto px-4 py-10 md:py-16 lg:py-20 relative z-10">
+        <div className="w-full px-4 py-10 md:py-16 lg:py-20 relative z-10">
           <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
             {/* Hero Content */}
             <div className="space-y-8">
@@ -252,7 +252,7 @@ Streamline your wedding & event planning with our sophisticated guest management
 
       {/* Features Section */}
       <section id="how-it-works" className="py-20 bg-background">
-        <div className="container mx-auto px-4">
+        <div className="w-full px-4">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold mb-4">
               How <span className="gradient-text">Wedding Waitress</span> Works
@@ -364,7 +364,7 @@ It handles every detail of your event's seating chart, RSVP & more so you can fo
       {/* CTA Section */}
       <section className="py-20 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-hero opacity-5"></div>
-        <div className="container mx-auto px-4 text-center relative z-10">
+        <div className="w-full px-4 text-center relative z-10">
           <div className="max-w-3xl mx-auto space-y-8">
             <h2 className="text-4xl font-bold">
               Ready to Plan Your Perfect Wedding?
@@ -391,7 +391,7 @@ It handles every detail of your event's seating chart, RSVP & more so you can fo
         {/* CTA Footer Section */}
         <section className="py-20 relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-hero opacity-5"></div>
-          <div className="container mx-auto px-4 text-center relative z-10">
+          <div className="w-full px-4 text-center relative z-10">
             <div className="max-w-4xl mx-auto space-y-8">
               <h2 className="text-4xl font-bold">
                 Ready to Plan Smarter & Stress-Free?
@@ -408,7 +408,7 @@ It handles every detail of your event's seating chart, RSVP & more so you can fo
 
         {/* Footer Links */}
         <div className="bg-card border-t">
-          <div className="container mx-auto px-4 py-16">
+          <div className="w-full px-4 py-16">
             <div className="grid md:grid-cols-4 gap-8">
               {/* Wedding Waitress Column */}
               <div className="space-y-4">

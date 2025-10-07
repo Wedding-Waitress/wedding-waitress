@@ -433,7 +433,7 @@ export const GuestLookup: React.FC = () => {
     <div className="min-h-screen bg-gradient-subtle">
       {/* Hero Section */}
       <div className="bg-gradient-hero text-white">
-        <div className="container mx-auto px-4 py-8 md:py-12">
+        <div className="w-full px-4 py-8 md:py-12">
           <div className="text-center">
             <div className="flex items-center justify-center mb-4">
               <Heart className="w-6 h-6 md:w-8 md:h-8 mr-3" />
@@ -486,7 +486,7 @@ export const GuestLookup: React.FC = () => {
       </div>
 
       {/* Main Content */}
-      <div className="container mx-auto px-4 py-6 md:py-8">
+      <div className="w-full px-4 py-6 md:py-8">
         <div className="max-w-4xl mx-auto">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className={`grid w-full mb-6 ${liveViewSettings?.show_rsvp_invite ? 'grid-cols-3' : 'grid-cols-2'}`}>

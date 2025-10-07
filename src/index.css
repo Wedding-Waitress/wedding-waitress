@@ -169,6 +169,11 @@
   .mobile-flex {
     @apply flex flex-col sm:flex-row items-center gap-4;
   }
+
+  /* Force full-width for Tailwind container */
+  .container {
+    max-width: 100% !important;
+  }
 }
 
 @layer components {

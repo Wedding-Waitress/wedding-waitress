@@ -28,7 +28,7 @@ export const Header: React.FC<HeaderProps> = ({
     }, 100);
   };
   return <header className="bg-background/95 backdrop-blur-sm border-b border-card-border sticky top-0 z-50">
-      <div className="container mx-auto px-4 py-4">
+      <div className="w-full px-4 py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
 

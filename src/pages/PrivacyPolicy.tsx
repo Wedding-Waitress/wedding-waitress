@@ -9,7 +9,7 @@ export const PrivacyPolicy = () => {
     <div className="min-h-screen bg-gradient-subtle">
       {/* Header */}
       <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+        <div className="w-full px-4 py-4 flex items-center justify-between">
           <Link to="/" className="flex items-center space-x-2">
             <Shield className="w-6 h-6 text-primary" />
             <span className="font-bold text-xl">Wedding Waitress</span>
@@ -252,7 +252,7 @@ export const PrivacyPolicy = () => {
 
       {/* Footer */}
       <footer className="border-t bg-background/95">
-        <div className="container mx-auto px-4 py-8">
+        <div className="w-full px-4 py-8">
           <div className="text-center text-sm text-muted-foreground">
             <p>© 2025 Wedding Waitress. All rights reserved.</p>
             <div className="flex items-center justify-center gap-4 mt-4">

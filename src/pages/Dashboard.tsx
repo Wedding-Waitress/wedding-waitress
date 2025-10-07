@@ -401,7 +401,7 @@ export const Dashboard = () => {
       
       {/* Footer */}
       <footer className="border-t bg-background/95 print:hidden mt-auto">
-        <div className="container mx-auto px-4 py-6">
+        <div className="w-full px-4 py-6">
           <div className="text-center text-sm text-muted-foreground">
             <p>© 2025 Wedding Waitress. All rights reserved.</p>
             <div className="flex items-center justify-center gap-4 mt-2">

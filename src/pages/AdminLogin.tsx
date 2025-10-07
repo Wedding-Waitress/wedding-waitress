@@ -34,7 +34,7 @@ export const AdminLogin = () => {
     <div className="min-h-screen bg-gradient-subtle">
       <Header />
       
-      <div className="container mx-auto px-4 py-20">
+      <div className="w-full px-4 py-20">
         <div className="max-w-md mx-auto">
           <Card>
             <CardHeader className="text-center pb-6">

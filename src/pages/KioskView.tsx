@@ -260,7 +260,7 @@ export const KioskView: React.FC = () => {
     <div className="min-h-screen bg-gradient-hero text-white overflow-hidden">
       {/* Header */}
       <div className="bg-white/10 backdrop-blur-sm border-b border-white/20">
-        <div className="container mx-auto px-8 py-6">
+        <div className="w-full px-8 py-6">
           <div className="text-center">
             <div className="flex items-center justify-center mb-3">
               <Heart className="w-8 h-8 mr-4" />
@@ -293,7 +293,7 @@ export const KioskView: React.FC = () => {
       </div>
 
       {/* Main Content */}
-      <div className="container mx-auto px-8 py-12">
+      <div className="w-full px-8 py-12">
         <div className="max-w-6xl mx-auto">
           {/* Search Section */}
           <Card className="ww-box bg-white/95 backdrop-blur-sm shadow-2xl mb-8">
@@ -375,7 +375,7 @@ export const KioskView: React.FC = () => {
 
       {/* Footer Help */}
       <div className="fixed bottom-0 left-0 right-0 bg-black/20 backdrop-blur-sm border-t border-white/20">
-        <div className="container mx-auto px-8 py-4">
+        <div className="w-full px-8 py-4">
           <div className="text-center">
             <p className="text-lg text-white/90">
               Need assistance? Please contact event staff
