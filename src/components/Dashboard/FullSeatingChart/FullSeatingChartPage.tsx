@@ -48,8 +48,20 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
       setPrintToastShown(true);
     }
     
+    // Temporarily clear document title to avoid browser header
+    const originalTitle = document.title;
+    document.title = '';
+    
     // Ensure layout settles before printing
-    requestAnimationFrame(() => setTimeout(() => window.print(), 0));
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        window.print();
+        // Restore title after print dialog closes
+        setTimeout(() => {
+          document.title = originalTitle;
+        }, 100);
+      }, 0);
+    });
   };
 
   const handleExport = () => {
