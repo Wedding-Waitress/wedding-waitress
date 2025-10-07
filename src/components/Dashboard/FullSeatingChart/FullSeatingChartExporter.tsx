@@ -11,7 +11,8 @@ import { Progress } from '@/components/ui/progress';
 import { Download, FileText, Loader2 } from 'lucide-react';
 import { Guest } from '@/hooks/useGuests';
 import { FullSeatingChartSettings } from '@/hooks/useFullSeatingChartSettings';
-import { generateFullSeatingChartPDF } from '@/lib/fullSeatingChartPdfGenerator';
+import { normalizeRsvp } from '@/lib/rsvp';
+import jsPDF from 'jspdf';
 
 interface FullSeatingChartExporterProps {
   event: any;
@@ -33,28 +34,262 @@ export const FullSeatingChartExporter: React.FC<FullSeatingChartExporterProps> =
   const [isExporting, setIsExporting] = useState(false);
   const [progress, setProgress] = useState(0);
 
+  const formatGuestName = (guest: Guest) => {
+    if (settings.sortBy === 'lastName') {
+      return `${guest.last_name || ''}, ${guest.first_name}`.trim();
+    }
+    return `${guest.first_name} ${guest.last_name || ''}`.trim();
+  };
+
+  const getOrdinalSuffix = (day: number) => {
+    if (day > 3 && day < 21) return 'th';
+    switch (day % 10) {
+      case 1: return 'st';
+      case 2: return 'nd';
+      case 3: return 'rd';
+      default: return 'th';
+    }
+  };
+
+  const formatDateWithOrdinal = (dateString: string) => {
+    if (!dateString) return '';
+    try {
+      const date = new Date(dateString);
+      const day = date.getDate();
+      const ordinal = getOrdinalSuffix(day);
+      const weekday = date.toLocaleDateString('en-US', { weekday: 'long' });
+      const month = date.toLocaleDateString('en-US', { month: 'long' });
+      const year = date.getFullYear();
+      return `${weekday} ${day}${ordinal}, ${month} ${year}`;
+    } catch {
+      return dateString;
+    }
+  };
+
   const exportToPDF = async () => {
     try {
       setIsExporting(true);
       onExportStart();
       setProgress(10);
 
-      // Generate PDF using shared generator
+      // Get paper dimensions based on settings
+      const paperFormats: Record<'A4' | 'A3' | 'A2' | 'A1', [number, number]> = {
+        'A4': [210, 297],
+        'A3': [297, 420],
+        'A2': [420, 594],
+        'A1': [594, 841]
+      };
+
+      const [pageWidth, pageHeight] = paperFormats[settings.paperSize];
+
+      // Create PDF
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: settings.paperSize.toLowerCase() as 'a4' | 'a3' | 'a2' | 'a1'
+      });
+      const margin = 15;
+      const contentWidth = pageWidth - margin * 2;
+      const columnGap = 10;
+      const columnWidth = contentWidth / 2 - columnGap / 2; // gap between columns
+      const footerReserved = 38; // space reserved for footer (mm)
+
+      setProgress(25);
+
+      // Split guests into two columns
+      const midPoint = Math.ceil(guests.length / 2);
+      const leftColumn = guests.slice(0, midPoint);
+      const rightColumn = guests.slice(midPoint);
+
+      // Helpers
+      const drawHeader = () => {
+        let y = margin + 2;
+        pdf.setFontSize(18);
+        pdf.setFont('helvetica', 'bold');
+        pdf.setTextColor(139, 92, 246); // Purple color
+        pdf.text(event.name, pageWidth / 2, y, { align: 'center' });
+        y += 6;
+
+        // Subtitle
+        pdf.setFontSize(12);
+        pdf.setFont('helvetica', 'normal');
+        pdf.setTextColor(0, 0, 0);
+        let subtitle = '';
+        if (event.date) subtitle += formatDateWithOrdinal(event.date);
+        if (event.venue) subtitle += (subtitle ? ' - ' : '') + event.venue;
+        subtitle += (subtitle ? ' - ' : '') + 'Full Seating Chart';
+        pdf.text(subtitle, pageWidth / 2, y, { align: 'center' });
+        y += 6;
+
+        // Column headers
+        pdf.setFontSize(9);
+        pdf.setFont('helvetica', 'bold');
+        pdf.text(`GUESTS 1-${leftColumn.length}`, margin, y);
+        pdf.text(`GUESTS ${leftColumn.length + 1}-${guests.length}`, margin + columnWidth + columnGap, y);
+        y += 8;
+
+        // Underlines
+        pdf.setLineWidth(0.3);
+        pdf.line(margin, y - 2, margin + columnWidth, y - 2);
+        pdf.line(margin + columnWidth + columnGap, y - 2, margin + columnWidth + columnGap + columnWidth, y - 2);
+        y += 3;
+        return y;
+      };
+
+      const drawFooter = () => {
+        // Position footer at bottom with proper spacing
+        const logoHeight = 12; // mm
+        const logoWidth = 40; // mm
+        const textHeight = 5; // mm
+        const lineY = pageHeight - margin - logoHeight - textHeight - 5;
+        const textY = lineY + 5;
+        const logoY = textY + 3;
+        
+        pdf.setFontSize(8);
+        pdf.setFont('helvetica', 'normal');
+        pdf.setTextColor(102, 102, 102);
+        // line above footer
+        pdf.setLineWidth(0.3);
+        pdf.line(margin, lineY, pageWidth - margin, lineY);
+        const footerText = `Total Guests: ${guests.length} - Generated on: ${new Date().toLocaleDateString()}`;
+        pdf.text(footerText, pageWidth / 2, textY, { align: 'center' });
+        try {
+          const logoUrl = '/wedding-waitress-new-logo.png';
+          pdf.addImage(logoUrl, 'PNG', (pageWidth - logoWidth) / 2, logoY, logoWidth, logoHeight);
+        } catch (error) {
+          console.log('Could not add logo to PDF:', error);
+        }
+      };
+
+      // Header on first page
+      let yPosition = drawHeader();
+
       setProgress(50);
-      const pdfBlob = await generateFullSeatingChartPDF(event, guests, settings);
-      
+
+      // Get font sizes based on settings - aligned with print for true-to-size
+      const fontSizes = {
+        small: { name: 10.5, details: 9.5 },
+        medium: { name: 12, details: 11 },
+        large: { name: 13.5, details: 12.5 }
+      };
+      const currentFontSize = fontSizes[settings.fontSize];
+      const baseLineHeight = currentFontSize.name * 0.352778; // pt -> mm
+
+      // Calculate lines per guest block
+      let linesPerGuest = 1; // name line
+      if (settings.showDietary) linesPerGuest += 1;
+      if (settings.showRsvp) linesPerGuest += 1;
+      if (settings.showRelation) linesPerGuest += 1;
+      const blockHeight = baseLineHeight * linesPerGuest + 2;
+
+      setProgress(75);
+
+      for (let i = 0; i < Math.max(leftColumn.length, rightColumn.length); i++) {
+        // Page break check (reserve space for footer)
+        if (yPosition + blockHeight > pageHeight - footerReserved) {
+          drawFooter();
+          pdf.addPage();
+          yPosition = drawHeader();
+        }
+
+        const startY = yPosition;
+
+        // Left column guest
+        if (i < leftColumn.length) {
+          const guest = leftColumn[i];
+          const guestName = formatGuestName(guest);
+          const tableInfo = guest.table_no ? `Table ${guest.table_no}` : 'Unassigned';
+          let currentY = startY;
+
+          // Checkbox
+          pdf.rect(margin, currentY - 2, 3, 3);
+
+          // Name
+          pdf.setFontSize(currentFontSize.name);
+          pdf.setFont('helvetica', 'bold');
+          pdf.text(guestName, margin + 6, currentY);
+
+          // Table (right aligned)
+          pdf.setFont('helvetica', 'normal');
+          pdf.text(tableInfo, margin + columnWidth - 2, currentY, { align: 'right' });
+          currentY += baseLineHeight;
+
+          // Details with colors
+          pdf.setFontSize(currentFontSize.details);
+          pdf.setFont('helvetica', 'normal');
+          if (settings.showDietary && guest.dietary) {
+            pdf.setTextColor(37, 99, 235);
+            pdf.text(`Dietary: ${guest.dietary}`, margin + 6, currentY);
+            currentY += baseLineHeight;
+          }
+          if (settings.showRsvp) {
+            const rsvpStatus = normalizeRsvp(guest.rsvp);
+            if (rsvpStatus === 'Attending') pdf.setTextColor(34, 197, 94);
+            else if (rsvpStatus === 'Not Attending') pdf.setTextColor(239, 68, 68);
+            else pdf.setTextColor(245, 158, 11);
+            pdf.text(`RSVP: ${rsvpStatus}`, margin + 6, currentY);
+            currentY += baseLineHeight;
+          }
+          if (settings.showRelation && guest.relation_display) {
+            pdf.setTextColor(139, 92, 246);
+            pdf.text(`Relation: ${guest.relation_display}`, margin + 6, currentY);
+            currentY += baseLineHeight;
+          }
+          pdf.setTextColor(0, 0, 0);
+        }
+
+        // Right column guest
+        if (i < rightColumn.length) {
+          const guest = rightColumn[i];
+          const guestName = formatGuestName(guest);
+          const tableInfo = guest.table_no ? `Table ${guest.table_no}` : 'Unassigned';
+          const rightX = margin + columnWidth + columnGap;
+          let currentY = startY;
+
+          pdf.rect(rightX, currentY - 2, 3, 3);
+          pdf.setFontSize(currentFontSize.name);
+          pdf.setFont('helvetica', 'bold');
+          pdf.text(guestName, rightX + 6, currentY);
+          pdf.setFont('helvetica', 'normal');
+          pdf.text(tableInfo, rightX + columnWidth - 2, currentY, { align: 'right' });
+          currentY += baseLineHeight;
+
+          pdf.setFontSize(currentFontSize.details);
+          pdf.setFont('helvetica', 'normal');
+          if (settings.showDietary && guest.dietary) {
+            pdf.setTextColor(37, 99, 235);
+            pdf.text(`Dietary: ${guest.dietary}`, rightX + 6, currentY);
+            currentY += baseLineHeight;
+          }
+          if (settings.showRsvp) {
+            const rsvpStatus = normalizeRsvp(guest.rsvp);
+            if (rsvpStatus === 'Attending') pdf.setTextColor(34, 197, 94);
+            else if (rsvpStatus === 'Not Attending') pdf.setTextColor(239, 68, 68);
+            else pdf.setTextColor(245, 158, 11);
+            pdf.text(`RSVP: ${rsvpStatus}`, rightX + 6, currentY);
+            currentY += baseLineHeight;
+          }
+          if (settings.showRelation && guest.relation_display) {
+            pdf.setTextColor(139, 92, 246);
+            pdf.text(`Relation: ${guest.relation_display}`, rightX + 6, currentY);
+            currentY += baseLineHeight;
+          }
+          pdf.setTextColor(0, 0, 0);
+        }
+
+        yPosition += blockHeight;
+      }
+
       setProgress(90);
+
+      // Footer on last page
+      drawFooter();
+
+      setProgress(100);
 
       // Save PDF
       const fileName = `${event.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_seating_chart.pdf`;
-      const url = URL.createObjectURL(pdfBlob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = fileName;
-      link.click();
-      URL.revokeObjectURL(url);
-
-      setProgress(100);
+      pdf.save(fileName);
 
       // Complete
       setTimeout(() => {

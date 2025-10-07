@@ -11,7 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { FullSeatingChartPreview } from './FullSeatingChartPreview';
 import { FullSeatingChartExporter } from './FullSeatingChartExporter';
 import { FullSeatingChartCustomizer } from './FullSeatingChartCustomizer';
-import { generateFullSeatingChartPDF } from '@/lib/fullSeatingChartPdfGenerator';
+import { FullSeatingChartPrintTemplate } from './FullSeatingChartPrintTemplate';
 
 interface FullSeatingChartPageProps {
   selectedEventId: string | null;
@@ -24,6 +24,7 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
 }) => {
   const [isExporting, setIsExporting] = useState(false);
   const [showExporter, setShowExporter] = useState(false);
+  const [printToastShown, setPrintToastShown] = useState(false);
   const { events, loading: eventsLoading } = useEvents();
   const { guests, loading: guestsLoading } = useRealtimeGuests(selectedEventId);
   const { settings, loading: settingsLoading, updateSettings } = useFullSeatingChartSettings(selectedEventId);
@@ -36,45 +37,19 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
     onEventSelect(eventId);
   };
 
-  const handlePrintFullSeating = async () => {
-    try {
+  const handlePrintFullSeating = () => {
+    // Show helper toast once per session
+    if (!printToastShown) {
       toast({
-        title: "Preparing PDF...",
-        description: "Opening print preview in new tab..."
+        title: "Print Settings Tip",
+        description: "For perfect output: in the print dialog turn OFF 'Headers and footers' and turn ON 'Background graphics'.",
+        duration: 8000,
       });
-
-      // Generate the exact same PDF used for export
-      const pdfBlob = await generateFullSeatingChartPDF(
-        selectedEvent,
-        sortedGuests,
-        settings
-      );
-
-      // Create object URL
-      const url = URL.createObjectURL(pdfBlob);
-
-      // Open PDF in new window - user can print from there
-      const printWindow = window.open(url, '_blank');
-
-      if (!printWindow) {
-        toast({
-          title: "Pop-up Blocked",
-          description: "Please allow pop-ups and try again",
-          variant: "destructive"
-        });
-      }
-
-      // Cleanup after 60 seconds
-      setTimeout(() => URL.revokeObjectURL(url), 60000);
-
-    } catch (error) {
-      console.error('Print error:', error);
-      toast({
-        title: "Print Failed",
-        description: "Could not generate PDF. Please try again.",
-        variant: "destructive"
-      });
+      setPrintToastShown(true);
     }
+    
+    // Ensure layout settles before printing
+    requestAnimationFrame(() => setTimeout(() => window.print(), 0));
   };
 
   const handleExport = () => {
@@ -261,6 +236,14 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
         />
       )}
 
+      {/* Print Template - Hidden on screen, shown only during print */}
+      {selectedEvent && isDataReady && (
+        <FullSeatingChartPrintTemplate
+          event={selectedEvent}
+          guests={sortedGuests}
+          settings={settings}
+        />
+      )}
     </div>
   );
 };

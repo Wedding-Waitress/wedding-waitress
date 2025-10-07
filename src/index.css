@@ -142,6 +142,54 @@
     print-color-adjust: exact;
   }
 
+  /* PAGE & COLOR CONTROL FOR PRINTING */
+  @page { 
+    size: A4 portrait; 
+    margin: 0; 
+  }
+
+  /* PRINT STYLES */
+  @media print {
+    html, body { 
+      height: 100%; 
+      background: #fff !important; 
+    }
+
+    /* Hide everything by default */
+    body * { 
+      visibility: hidden !important; 
+    }
+
+    /* Reveal only our print content */
+    #full-seating-print-content,
+    #full-seating-print-content * { 
+      visibility: visible !important; 
+    }
+
+    /* Lay out exactly like the PDF canvas */
+    #full-seating-print-content {
+      position: absolute !important;
+      inset: 0 0 auto 0;
+      width: 210mm; 
+      height: 297mm;
+      padding: 10mm;
+      box-sizing: border-box;
+      overflow: hidden !important;
+      background: #ffffff;
+      transform: none !important;
+    }
+
+    /* App shells must not interfere */
+    header, nav, aside, .sidebar, .app-toolbar, .no-print { 
+      display: none !important; 
+    }
+    
+    [data-app-root], .app, .page { 
+      overflow: visible !important; 
+      transform: none !important; 
+      position: static !important; 
+    }
+  }
 
   /* Mobile-First Touch Targets */
   .touch-target {
