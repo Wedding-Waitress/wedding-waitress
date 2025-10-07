@@ -293,7 +293,7 @@ export const generateChartSVG = (
 
   // Wedding Waitress Logo at bottom - larger for better visibility
   svgContent += `
-    <image href="/wedding-waitress-logo.png" x="${width / 2 - 120}" y="${height - 130}" width="240" height="120" preserveAspectRatio="xMidYMid meet" />
+    <image href="/wedding-waitress-new-logo.png" x="${width / 2 - 120}" y="${height - 130}" width="240" height="120" preserveAspectRatio="xMidYMid meet" />
   `;
 
   svgContent += '</svg>';

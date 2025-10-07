@@ -17,7 +17,7 @@ import { useEvents } from '@/hooks/useEvents';
 import { useTables } from '@/hooks/useTables';
 import jsPDF from 'jspdf';
 import { format } from 'date-fns';
-import weddingWaitressLogo from '@/assets/wedding-waitress-logo-new.jpg';
+import weddingWaitressLogo from '@/assets/wedding-waitress-new-logo.png';
 
 interface KitchenDietaryChartProps {
   eventId: string;

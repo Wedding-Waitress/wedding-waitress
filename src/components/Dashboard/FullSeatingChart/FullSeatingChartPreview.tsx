@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Guest } from '@/hooks/useGuests';
-import weddingWaitressLogo from '@/assets/wedding-waitress-logo-medium.png';
+import weddingWaitressLogo from '@/assets/wedding-waitress-new-logo.png';
 
 interface FullSeatingChartPreviewProps {
   event: any;

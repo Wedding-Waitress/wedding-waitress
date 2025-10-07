@@ -19,7 +19,7 @@ import { format } from 'date-fns';
 import { Guest } from '@/hooks/useGuests';
 import { TableWithGuestCount } from '@/hooks/useTables';
 import { IndividualChartSettings } from './IndividualTableSeatingChartPage';
-import weddingWaitressLogo from '@/assets/wedding-waitress-logo-full.jpg';
+import weddingWaitressLogo from '@/assets/wedding-waitress-new-logo.png';
 
 interface IndividualTableChartPreviewProps {
   settings: IndividualChartSettings;

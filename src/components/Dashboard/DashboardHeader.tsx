@@ -1,6 +1,6 @@
 import React from 'react';
 import { useProfile } from '@/hooks/useProfile';
-import logoImage from '@/assets/wedding-waitress-header-logo.png';
+import logoImage from '@/assets/wedding-waitress-new-logo.png';
 import { Sparkles } from 'lucide-react';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { useIsMobile } from '@/hooks/use-mobile';

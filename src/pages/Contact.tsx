@@ -11,7 +11,7 @@ export const Contact = () => {
         <div className="w-full max-w-7xl mx-auto px-4 md:px-6 lg:px-8 h-16 flex items-center justify-between">
           <Link to="/" className="flex items-center space-x-3">
             <img 
-              src="/wedding-waitress-logo.png" 
+              src="/wedding-waitress-new-logo.png" 
               alt="Wedding Waitress Logo" 
               className="h-10 w-auto"
             />
