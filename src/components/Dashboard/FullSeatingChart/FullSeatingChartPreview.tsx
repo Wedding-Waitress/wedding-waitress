@@ -15,6 +15,11 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
 }) => {
   const [checkedGuests, setCheckedGuests] = useState<Set<string>>(new Set());
 
+  // Safety check: return null if event is not provided
+  if (!event) {
+    return null;
+  }
+
   const handleGuestCheck = (guestId: string, checked: boolean) => {
     const newChecked = new Set(checkedGuests);
     if (checked) {
