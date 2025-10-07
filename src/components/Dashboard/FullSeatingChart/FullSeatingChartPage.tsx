@@ -11,7 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { FullSeatingChartPreview } from './FullSeatingChartPreview';
 import { FullSeatingChartExporter } from './FullSeatingChartExporter';
 import { FullSeatingChartCustomizer } from './FullSeatingChartCustomizer';
-import { FullSeatingChartPrintTemplate } from './FullSeatingChartPrintTemplate';
+import { generateFullSeatingChartPDF } from '@/lib/fullSeatingChartPdfGenerator';
 
 interface FullSeatingChartPageProps {
   selectedEventId: string | null;
@@ -24,7 +24,6 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
 }) => {
   const [isExporting, setIsExporting] = useState(false);
   const [showExporter, setShowExporter] = useState(false);
-  const [printToastShown, setPrintToastShown] = useState(false);
   const { events, loading: eventsLoading } = useEvents();
   const { guests, loading: guestsLoading } = useRealtimeGuests(selectedEventId);
   const { settings, loading: settingsLoading, updateSettings } = useFullSeatingChartSettings(selectedEventId);
@@ -37,19 +36,57 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
     onEventSelect(eventId);
   };
 
-  const handlePrintFullSeating = () => {
-    // Show helper toast once per session
-    if (!printToastShown) {
+  const handlePrintFullSeating = async () => {
+    try {
       toast({
-        title: "Print Settings Tip",
-        description: "For perfect output: in the print dialog turn OFF 'Headers and footers' and turn ON 'Background graphics'.",
-        duration: 8000,
+        title: "Preparing print...",
+        description: "Generating PDF for printing..."
       });
-      setPrintToastShown(true);
+
+      // Generate the exact same PDF used for export
+      const pdfBlob = await generateFullSeatingChartPDF(
+        selectedEvent,
+        sortedGuests,
+        settings
+      );
+
+      // Create object URL
+      const url = URL.createObjectURL(pdfBlob);
+
+      // Create hidden iframe to print PDF
+      const iframe = document.createElement('iframe');
+      iframe.style.position = 'fixed';
+      iframe.style.right = '0';
+      iframe.style.bottom = '0';
+      iframe.style.width = '0';
+      iframe.style.height = '0';
+      iframe.style.border = '0';
+      document.body.appendChild(iframe);
+
+      // Load PDF and print
+      iframe.onload = () => {
+        try {
+          iframe.contentWindow!.focus();
+          iframe.contentWindow!.print();
+        } finally {
+          // Cleanup after print dialog closes
+          setTimeout(() => {
+            URL.revokeObjectURL(url);
+            document.body.removeChild(iframe);
+          }, 2000);
+        }
+      };
+
+      iframe.src = url;
+
+    } catch (error) {
+      console.error('Print error:', error);
+      toast({
+        title: "Print Failed",
+        description: "Could not generate print preview. Please try Export PDF instead.",
+        variant: "destructive"
+      });
     }
-    
-    // Ensure layout settles before printing
-    requestAnimationFrame(() => setTimeout(() => window.print(), 0));
   };
 
   const handleExport = () => {
@@ -236,14 +273,6 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
         />
       )}
 
-      {/* Print Template - Hidden on screen, shown only during print */}
-      {selectedEvent && isDataReady && (
-        <FullSeatingChartPrintTemplate
-          event={selectedEvent}
-          guests={sortedGuests}
-          settings={settings}
-        />
-      )}
     </div>
   );
 };
