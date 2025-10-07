@@ -13,7 +13,7 @@ export interface FullSeatingChartSettings {
 
 const DEFAULT_SETTINGS: FullSeatingChartSettings = {
   sortBy: 'firstName',
-  fontSize: 'small',
+  fontSize: 'medium',
   showDietary: false,
   showRsvp: false,
   showRelation: false,
