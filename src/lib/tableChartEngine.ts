@@ -141,11 +141,11 @@ export const generateChartSVG = (
     guests: guests.filter(guest => guest.table_id === pos.table.id)
   }));
 
-    // Font sizes based on setting - increased guest name sizes
+    // Font sizes based on setting - in points for true-to-size rendering
     const fontSize = {
-      small: { title: 18, subtitle: 14, table: 12, guest: 12, legend: 8 },
-      medium: { title: 24, subtitle: 18, table: 16, guest: 14, legend: 10 },
-      large: { title: 32, subtitle: 24, table: 20, guest: 16, legend: 12 }
+      small: { title: 13.5, subtitle: 10.5, table: 9, guest: 9, legend: 6 },
+      medium: { title: 18, subtitle: 13.5, table: 12, guest: 10.5, legend: 7.5 },
+      large: { title: 24, subtitle: 18, table: 15, guest: 12, legend: 9 }
     }[settings.fontSize];
 
   // Color schemes

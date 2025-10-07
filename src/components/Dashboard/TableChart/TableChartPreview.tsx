@@ -94,7 +94,7 @@ export const TableChartPreview: React.FC<TableChartPreviewProps> = ({
             y={30} 
             textAnchor="middle" 
             className="fill-current text-foreground font-bold"
-            fontSize={settings.fontSize === 'large' ? '20' : settings.fontSize === 'medium' ? '16' : '14'}
+            fontSize={settings.fontSize === 'large' ? '24' : settings.fontSize === 'medium' ? '18' : '13.5'}
           >
             {settings.title}
           </text>
@@ -107,7 +107,7 @@ export const TableChartPreview: React.FC<TableChartPreviewProps> = ({
             y={settings.title ? 50 : 30} 
             textAnchor="middle" 
             className="fill-current text-muted-foreground"
-            fontSize={settings.fontSize === 'large' ? '14' : settings.fontSize === 'medium' ? '12' : '10'}
+            fontSize={settings.fontSize === 'large' ? '18' : settings.fontSize === 'medium' ? '13.5' : '10.5'}
           >
             {settings.subtitle}
           </text>
@@ -155,7 +155,7 @@ export const TableChartPreview: React.FC<TableChartPreviewProps> = ({
                 y={scaledY + 20}
                 textAnchor="middle"
                 className="fill-current text-foreground"
-                fontSize={settings.fontSize === 'large' ? '16' : settings.fontSize === 'medium' ? '14' : '12'}
+                fontSize={settings.fontSize === 'large' ? '15' : settings.fontSize === 'medium' ? '12' : '9'}
               >
                 <tspan className="font-bold">
                   {settings.showTableNumbers ? `Table ${table.table_no || table.name}` : 'Table'}
@@ -175,8 +175,8 @@ export const TableChartPreview: React.FC<TableChartPreviewProps> = ({
                   return null;
                 }
 
-                // Use fixed font size based on typography setting
-                const guestFontSize = settings.fontSize === 'small' ? 10 : settings.fontSize === 'large' ? 14 : 12;
+                // Use fixed font size based on typography setting (in points for true-to-size)
+                const guestFontSize = settings.fontSize === 'small' ? 9 : settings.fontSize === 'large' ? 12 : 10.5;
                 
                 // Calculate positioning - closer to table number
                 const tablePadding = settings.tableShape === 'round' ? scaledWidth * 0.15 : scaledWidth * 0.1;
