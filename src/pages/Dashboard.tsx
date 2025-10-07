@@ -295,14 +295,6 @@ export const Dashboard = () => {
         return <SignagePage selectedEventId={selectedEventId} onEventSelect={handleEventSelect} />;
       case 'qr-code':
         return <QRCodeSeatingChart selectedEventId={selectedEventId} onEventSelect={handleEventSelect} onNavigateToTab={handleTabChange} />;
-      case 'printables':
-        return selectedEventId ? <QRCodeFeatureGrid eventId={selectedEventId} onNavigateToTab={handleTabChange} /> : <Card className="ww-box p-8 text-center">
-            <Printer className="w-16 h-16 mx-auto text-primary mb-4" />
-            <CardTitle className="mb-2">Printables</CardTitle>
-            <CardDescription className="mb-6">
-              Select an event to view available printable materials
-            </CardDescription>
-          </Card>;
       case 'kiosk-live-view':
         return <KioskSetup selectedEventId={selectedEventId} onEventSelect={handleEventSelect} />;
       case 'dietary-chart':
