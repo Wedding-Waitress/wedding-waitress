@@ -8,7 +8,7 @@ import {
   CreditCard,
   ChefHat,
   Monitor,
-  FileImage,
+  
   LayoutGrid,
   FileText,
   LogOut
@@ -41,7 +41,7 @@ const menuItems = [
   { id: "individual-table-chart", label: "Individual Table Charts", icon: Users },
   { id: "dietary-chart", label: "Dietary Requirements", icon: ChefHat },
   { id: "kiosk-live-view", label: "Kiosk Live View", icon: Monitor },
-  { id: "signage", label: "Signage", icon: FileImage },
+  
   { id: "table-chart", label: "Table Seating Chart", icon: LayoutGrid },
   { id: "full-seating-chart", label: "Full Seating Chart", icon: FileText },
 ];
