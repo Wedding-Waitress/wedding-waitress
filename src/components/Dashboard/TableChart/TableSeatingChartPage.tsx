@@ -177,9 +177,9 @@ export const TableSeatingChartPage: React.FC<TableSeatingChartPageProps> = ({
     <div className="space-y-6">
       {/* Header */}
       <Card>
-        <CardHeader className="pb-6">
-          <div className="flex flex-col gap-4">
-            {/* Top Row: Event Selector */}
+        <CardHeader className="space-y-4">
+          {/* Event Selector and Header Icon */}
+          <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <label className="text-sm font-medium text-foreground">
                 Choose Event:
@@ -207,50 +207,52 @@ export const TableSeatingChartPage: React.FC<TableSeatingChartPageProps> = ({
               </Select>
             </div>
 
-            {/* Event Title Row */}
-            {selectedEvent && (
-              <div className="flex items-center space-x-2">
+            {/* Header Icon & Info */}
+            <div className="flex items-center gap-4">
+              <TableIcon className="w-12 h-12 text-primary" />
+              <div>
+                <CardTitle className="text-right">Table Seating Chart</CardTitle>
+                <CardDescription className="text-right">
+                  Generate professional seating charts for your venue staff and coordinators
+                </CardDescription>
+              </div>
+            </div>
+          </div>
+
+          {/* Event Details with Status & Actions */}
+          {selectedEvent && (
+            <div className="flex items-center justify-between pt-2 border-t">
+              <div className="flex items-center gap-4">
                 <span className="text-lg font-medium text-foreground">Table Seating Chart for</span>
                 <span className="text-lg font-bold text-primary">{selectedEvent.name}</span>
-              </div>
-            )}
-
-            {/* Main Title Row: Icon, Description, Guest Count, and Buttons */}
-            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-              {/* Header Icon & Description */}
-              <div className="flex items-start gap-3">
-                <TableIcon className="w-16 h-16 text-primary flex-shrink-0" />
-                <div className="flex flex-col">
-                  <CardTitle className="mb-2 text-left">Table Seating Chart</CardTitle>
-                  <CardDescription className="text-left">
-                    Generate professional seating charts for your venue staff and coordinators
-                  </CardDescription>
-                  
-                  {/* Guest Count and Status Badge */}
-                  {selectedEventId && (
-                    <div className="flex items-center gap-4 mt-3">
-                      <div className="flex items-center gap-2">
-                        <Users className="w-4 h-4 text-muted-foreground" />
-                        <span className="text-sm text-muted-foreground">
-                          {guests.length} guests across {tables.length} tables
-                        </span>
-                      </div>
-                      <Badge 
-                        variant={isDataReady ? "default" : "secondary"}
-                        className="text-xs"
-                      >
-                        {isDataReady ? 'Ready to Generate' : 'Loading Data...'}
-                      </Badge>
-                    </div>
-                  )}
+                <div className="flex items-center gap-2 ml-4">
+                  <Users className="w-4 h-4 text-muted-foreground" />
+                  <span className="text-sm text-muted-foreground">
+                    {guestsLoading ? "Loading..." : `${guests.length} guests across ${tables.length} tables`}
+                  </span>
                 </div>
+                <Badge 
+                  variant={isDataReady ? "default" : "secondary"}
+                  className="text-xs"
+                >
+                  {isDataReady ? 'Ready to Generate' : 'Loading Data...'}
+                </Badge>
               </div>
 
-              {/* Export and Print Buttons */}
+              {/* Action Buttons */}
               {isDataReady && (
-                <div className="flex gap-2 lg:self-start">
+                <div className="flex items-center gap-2">
                   <Button
                     variant="outline"
+                    size="sm"
+                    onClick={handlePrint}
+                  >
+                    <Download className="w-4 h-4 mr-2" />
+                    Print
+                  </Button>
+                  
+                  <Button
+                    variant="default"
                     size="sm"
                     onClick={() => handleExport('pdf')}
                     disabled={isExporting}
@@ -258,18 +260,10 @@ export const TableSeatingChartPage: React.FC<TableSeatingChartPageProps> = ({
                     <Download className="w-4 h-4 mr-2" />
                     Export PDF
                   </Button>
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    onClick={handlePrint}
-                  >
-                    <Download className="w-4 h-4 mr-2" />
-                    Print
-                  </Button>
                 </div>
               )}
             </div>
-          </div>
+          )}
         </CardHeader>
       </Card>
 
