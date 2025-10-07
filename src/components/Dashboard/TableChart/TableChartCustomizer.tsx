@@ -198,18 +198,6 @@ export const TableChartCustomizer: React.FC<TableChartCustomizerProps> = ({
             </div>
 
             <div>
-              <Label htmlFor="chart-title" className="text-xs text-muted-foreground">
-                Chart Title
-              </Label>
-              <Input
-                id="chart-title"
-                value={settings.title}
-                onChange={(e) => onSettingsChange({ title: e.target.value })}
-                placeholder="Seating Chart"
-              />
-            </div>
-
-            <div>
               <Label htmlFor="chart-subtitle" className="text-xs text-muted-foreground">
                 Subtitle
               </Label>

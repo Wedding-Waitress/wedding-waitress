@@ -33,7 +33,6 @@ export interface ChartSettings {
   showCapacity: boolean;
   paperSize: 'A4' | 'A3' | 'A2' | 'A1';
   fontSize: 'small' | 'medium' | 'large';
-  title: string;
   subtitle: string;
 }
 
@@ -47,7 +46,6 @@ const DEFAULT_SETTINGS: ChartSettings = {
   showCapacity: true,
   paperSize: 'A4',
   fontSize: 'medium',
-  title: 'Seating Chart',
   subtitle: ''
 };
 

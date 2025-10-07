@@ -178,17 +178,9 @@ export const generateChartSVG = (
     <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
       <rect width="${width}" height="${height}" fill="#ffffff"/>
       
-      <!-- Title -->
-      ${settings.title ? `
-        <text x="${width / 2}" y="40" text-anchor="middle" font-family="Arial, sans-serif" 
-              font-size="${fontSize.title}" font-weight="bold" fill="#1f2937">
-          ${settings.title}
-        </text>
-      ` : ''}
-      
       <!-- Subtitle -->
       ${settings.subtitle ? `
-        <text x="${width / 2}" y="${settings.title ? '70' : '40'}" text-anchor="middle" 
+        <text x="${width / 2}" y="40" text-anchor="middle" 
               font-family="Arial, sans-serif" font-size="${fontSize.subtitle}" fill="#6b7280">
           ${settings.subtitle}
         </text>
@@ -197,7 +189,7 @@ export const generateChartSVG = (
       <!-- Tables -->
   `;
 
-  const chartStartY = settings.title && settings.subtitle ? 90 : settings.title || settings.subtitle ? 60 : 20;
+  const chartStartY = settings.subtitle ? 60 : 20;
   const availableHeight = height - chartStartY - 100; // Leave space for legend
 
   tablePositions.forEach((tablePos, index) => {
