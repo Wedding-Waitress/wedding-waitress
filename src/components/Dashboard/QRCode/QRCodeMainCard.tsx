@@ -344,7 +344,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Grid Layout for Top Row and Bottom Cards */}
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr_0.8fr] gap-4 lg:gap-6 max-w-[1400px] mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr_0.8fr] gap-4 lg:gap-6 w-full">
           {/* Row 1, Col 1: Connection Status Indicators */}
           <div className="flex-1 space-y-3 p-4 bg-green-50 border border-green-200 rounded-lg my-[30px]">
             {/* Connection Status */}

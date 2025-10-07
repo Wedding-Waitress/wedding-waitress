@@ -382,7 +382,7 @@ export const Dashboard = () => {
         {/* Universal Header */}
         <DashboardHeader />
         <main className="flex-1 lg:px-6 px-4 py-6">
-        <div className="mx-auto max-w-none">
+        <div className="w-full">
           {/* Stats Bar excluded from: My Events, QR Code, Dashboard, Vendor Team, Planner, Wishing Well, RSVP, Floor Plan, Kiosk Live View, Printables, Place Cards, Dietary Requirements */}
            {activeTab !== 'my-events' && activeTab !== 'qr-code' && activeTab !== 'dashboard' && activeTab !== 'vendor-team' && activeTab !== 'planner' && activeTab !== 'wishing-well' && activeTab !== 'rsvp-invite' && activeTab !== 'floor-plan' && activeTab !== 'kiosk-live-view' && activeTab !== 'printables' && activeTab !== 'individual-table-chart' && activeTab !== 'place-cards' && activeTab !== 'dietary-chart' && <div className="print:hidden">
               <StatsBar stats={statsData} />
