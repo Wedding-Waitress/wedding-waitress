@@ -85,17 +85,6 @@ export const FullSeatingChartCustomizer: React.FC<FullSeatingChartCustomizerProp
             </div>
             
             <div className="flex items-center justify-between">
-              <Label htmlFor="show-rsvp" className="text-xs text-muted-foreground">
-                Show RSVP Status
-              </Label>
-              <Switch
-                id="show-rsvp"
-                checked={settings.showRsvp}
-                onCheckedChange={(checked) => onSettingsChange({ showRsvp: checked })}
-              />
-            </div>
-            
-            <div className="flex items-center justify-between">
               <Label htmlFor="show-relation" className="text-xs text-muted-foreground">
                 Show Relationship
               </Label>

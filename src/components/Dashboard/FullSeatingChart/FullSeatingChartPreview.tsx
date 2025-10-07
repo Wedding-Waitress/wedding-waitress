@@ -229,20 +229,6 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
       <div className="print:hidden">
         {/* Interactive Version */}
         <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Eye className="h-5 w-5 text-muted-foreground" />
-                <CardTitle>Chart Preview</CardTitle>
-              </div>
-              <div className="flex items-center gap-2">
-                <Users className="h-4 w-4 text-muted-foreground" />
-                <Badge variant="outline" className="font-normal">
-                  {guests.length} {guests.length === 1 ? 'Guest' : 'Guests'}
-                </Badge>
-              </div>
-            </div>
-          </CardHeader>
           <CardContent className="p-6">
             {/* Header */}
             <div className="text-center mb-8 space-y-2">
