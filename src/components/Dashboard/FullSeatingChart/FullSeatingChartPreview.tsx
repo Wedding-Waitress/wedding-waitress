@@ -182,7 +182,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
         
         .print-header {
           text-align: center;
-          margin-bottom: 6mm;
+          margin-bottom: 4mm;
         }
         
         .print-event-name {

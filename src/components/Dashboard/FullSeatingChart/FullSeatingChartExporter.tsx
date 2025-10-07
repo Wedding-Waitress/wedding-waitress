@@ -92,7 +92,7 @@ export const FullSeatingChartExporter: React.FC<FullSeatingChartExporterProps> =
       const contentWidth = pageWidth - margin * 2;
       const columnGap = 10;
       const columnWidth = contentWidth / 2 - columnGap / 2; // gap between columns
-      const footerReserved = 22; // space reserved for footer (mm)
+      const footerReserved = 38; // space reserved for footer (mm)
 
       setProgress(25);
 
@@ -103,12 +103,12 @@ export const FullSeatingChartExporter: React.FC<FullSeatingChartExporterProps> =
 
       // Helpers
       const drawHeader = () => {
-        let y = margin + 10;
+        let y = margin + 2;
         pdf.setFontSize(18);
         pdf.setFont('helvetica', 'bold');
         pdf.setTextColor(139, 92, 246); // Purple color
         pdf.text(event.name, pageWidth / 2, y, { align: 'center' });
-        y += 8;
+        y += 6;
 
         // Subtitle
         pdf.setFontSize(12);
@@ -119,7 +119,7 @@ export const FullSeatingChartExporter: React.FC<FullSeatingChartExporterProps> =
         if (event.venue) subtitle += (subtitle ? ' - ' : '') + event.venue;
         subtitle += (subtitle ? ' - ' : '') + 'Full Seating Chart';
         pdf.text(subtitle, pageWidth / 2, y, { align: 'center' });
-        y += 10;
+        y += 6;
 
         // Column headers
         pdf.setFontSize(9);
@@ -137,20 +137,25 @@ export const FullSeatingChartExporter: React.FC<FullSeatingChartExporterProps> =
       };
 
       const drawFooter = () => {
-        const y = pageHeight - footerReserved + 10;
+        // Position footer at bottom with proper spacing
+        const logoHeight = 12; // mm
+        const logoWidth = 40; // mm
+        const textHeight = 5; // mm
+        const lineY = pageHeight - margin - logoHeight - textHeight - 5;
+        const textY = lineY + 5;
+        const logoY = textY + 3;
+        
         pdf.setFontSize(8);
         pdf.setFont('helvetica', 'normal');
         pdf.setTextColor(102, 102, 102);
         // line above footer
         pdf.setLineWidth(0.3);
-        pdf.line(margin, y - 5, pageWidth - margin, y - 5);
+        pdf.line(margin, lineY, pageWidth - margin, lineY);
         const footerText = `Total Guests: ${guests.length} - Generated on: ${new Date().toLocaleDateString()}`;
-        pdf.text(footerText, pageWidth / 2, y, { align: 'center' });
+        pdf.text(footerText, pageWidth / 2, textY, { align: 'center' });
         try {
           const logoUrl = '/wedding-waitress-new-logo.png';
-          const logoHeight = 12; // mm
-          const logoWidth = 40; // mm
-          pdf.addImage(logoUrl, 'PNG', (pageWidth - logoWidth) / 2, y + 2, logoWidth, logoHeight);
+          pdf.addImage(logoUrl, 'PNG', (pageWidth - logoWidth) / 2, logoY, logoWidth, logoHeight);
         } catch (error) {
           console.log('Could not add logo to PDF:', error);
         }
