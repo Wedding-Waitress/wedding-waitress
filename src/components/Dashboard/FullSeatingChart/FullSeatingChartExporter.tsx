@@ -11,6 +11,7 @@ import { Progress } from '@/components/ui/progress';
 import { Download, FileText, Loader2 } from 'lucide-react';
 import { Guest } from '@/hooks/useGuests';
 import { FullSeatingChartSettings } from '@/hooks/useFullSeatingChartSettings';
+import { normalizeRsvp } from '@/lib/rsvp';
 import jsPDF from 'jspdf';
 
 interface FullSeatingChartExporterProps {
@@ -147,11 +148,22 @@ export const FullSeatingChartExporter: React.FC<FullSeatingChartExporterProps> =
 
       setProgress(75);
 
-      // Guest lists
-      pdf.setFontSize(8);
-      pdf.setFont('helvetica', 'normal');
+      // Get font sizes based on settings
+      const fontSizes = {
+        small: { name: 7, details: 6 },
+        medium: { name: 8, details: 7 },
+        large: { name: 9, details: 8 }
+      };
+      const currentFontSize = fontSizes[settings.fontSize];
+
+      // Calculate line height based on what's being shown
+      let linesPerGuest = 1; // Name + table always shown
+      if (settings.showDietary) linesPerGuest += 1;
+      if (settings.showRsvp) linesPerGuest += 1;
+      if (settings.showRelation) linesPerGuest += 1;
       
-      const lineHeight = 6;
+      const baseLineHeight = currentFontSize.name * 0.35; // Convert pt to mm
+      const lineHeight = baseLineHeight * linesPerGuest + 2; // Add spacing between guests
       const maxGuestsPerPage = Math.floor((pageHeight - yPosition - 20) / lineHeight);
 
       for (let i = 0; i < Math.max(leftColumn.length, rightColumn.length); i++) {
@@ -161,20 +173,52 @@ export const FullSeatingChartExporter: React.FC<FullSeatingChartExporterProps> =
           yPosition = margin + 10;
         }
 
+        const startYPosition = yPosition;
+
         // Left column guest
         if (i < leftColumn.length) {
           const guest = leftColumn[i];
           const guestName = formatGuestName(guest);
           const tableInfo = guest.table_no ? `Table ${guest.table_no}` : 'Unassigned';
           
+          let currentY = startYPosition;
+          
           // Checkbox
-          pdf.rect(margin, yPosition - 2, 3, 3);
+          pdf.rect(margin, currentY - 2, 3, 3);
           
           // Guest name
-          pdf.text(guestName, margin + 6, yPosition);
+          pdf.setFontSize(currentFontSize.name);
+          pdf.setFont('helvetica', 'bold');
+          pdf.text(guestName, margin + 6, currentY);
           
           // Table number (right-aligned in column)
-          pdf.text(tableInfo, margin + columnWidth - 2, yPosition, { align: 'right' });
+          pdf.setFont('helvetica', 'normal');
+          pdf.text(tableInfo, margin + columnWidth - 2, currentY, { align: 'right' });
+          
+          currentY += baseLineHeight;
+          
+          // Additional details
+          pdf.setFontSize(currentFontSize.details);
+          pdf.setFont('helvetica', 'normal');
+          pdf.setTextColor(80, 80, 80);
+          
+          if (settings.showDietary && guest.dietary) {
+            pdf.text(`Dietary: ${guest.dietary}`, margin + 6, currentY);
+            currentY += baseLineHeight;
+          }
+          
+          if (settings.showRsvp) {
+            const rsvpStatus = normalizeRsvp(guest.rsvp);
+            pdf.text(`RSVP: ${rsvpStatus}`, margin + 6, currentY);
+            currentY += baseLineHeight;
+          }
+          
+          if (settings.showRelation && guest.relation_display) {
+            pdf.text(`Relation: ${guest.relation_display}`, margin + 6, currentY);
+            currentY += baseLineHeight;
+          }
+          
+          pdf.setTextColor(0, 0, 0);
         }
 
         // Right column guest
@@ -184,15 +228,44 @@ export const FullSeatingChartExporter: React.FC<FullSeatingChartExporterProps> =
           const tableInfo = guest.table_no ? `Table ${guest.table_no}` : 'Unassigned';
           
           const rightColumnStart = margin + columnWidth + 10;
+          let currentY = startYPosition;
           
           // Checkbox
-          pdf.rect(rightColumnStart, yPosition - 2, 3, 3);
+          pdf.rect(rightColumnStart, currentY - 2, 3, 3);
           
           // Guest name
-          pdf.text(guestName, rightColumnStart + 6, yPosition);
+          pdf.setFontSize(currentFontSize.name);
+          pdf.setFont('helvetica', 'bold');
+          pdf.text(guestName, rightColumnStart + 6, currentY);
           
           // Table number (right-aligned in column)
-          pdf.text(tableInfo, rightColumnStart + columnWidth - 2, yPosition, { align: 'right' });
+          pdf.setFont('helvetica', 'normal');
+          pdf.text(tableInfo, rightColumnStart + columnWidth - 2, currentY, { align: 'right' });
+          
+          currentY += baseLineHeight;
+          
+          // Additional details
+          pdf.setFontSize(currentFontSize.details);
+          pdf.setFont('helvetica', 'normal');
+          pdf.setTextColor(80, 80, 80);
+          
+          if (settings.showDietary && guest.dietary) {
+            pdf.text(`Dietary: ${guest.dietary}`, rightColumnStart + 6, currentY);
+            currentY += baseLineHeight;
+          }
+          
+          if (settings.showRsvp) {
+            const rsvpStatus = normalizeRsvp(guest.rsvp);
+            pdf.text(`RSVP: ${rsvpStatus}`, rightColumnStart + 6, currentY);
+            currentY += baseLineHeight;
+          }
+          
+          if (settings.showRelation && guest.relation_display) {
+            pdf.text(`Relation: ${guest.relation_display}`, rightColumnStart + 6, currentY);
+            currentY += baseLineHeight;
+          }
+          
+          pdf.setTextColor(0, 0, 0);
         }
 
         yPosition += lineHeight;
