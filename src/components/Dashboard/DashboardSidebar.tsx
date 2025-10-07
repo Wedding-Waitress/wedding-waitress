@@ -5,16 +5,13 @@ import {
   Calendar, 
   Users, 
   MapPin, 
-  Mail, 
-  Gift, 
   QrCode, 
-  ClipboardList, 
-  Handshake, 
-  Heart,
-  Printer,
-  Monitor,
   CreditCard,
   ChefHat,
+  Monitor,
+  FileImage,
+  LayoutGrid,
+  FileText,
   LogOut
 } from 'lucide-react';
 
@@ -30,12 +27,13 @@ const menuItems = [
   { id: "table-list", label: "Tables", icon: MapPin },
   { id: "guest-list", label: "Guest List", icon: Users },
   { id: "qr-code", label: "QR Code Seating Chart", icon: QrCode },
-  { id: "printables", label: "Printables", icon: Printer },
   { id: "place-cards", label: "Place Cards", icon: CreditCard },
   { id: "individual-table-chart", label: "Individual Table Charts", icon: Users },
   { id: "dietary-chart", label: "Dietary Requirements", icon: ChefHat },
   { id: "kiosk-live-view", label: "Kiosk Live View", icon: Monitor },
-  { id: "floor-plan", label: "Floor Plan", icon: MapPin },
+  { id: "signage", label: "Signage", icon: FileImage },
+  { id: "table-chart", label: "Table Seating Chart", icon: LayoutGrid },
+  { id: "full-seating-chart", label: "Full Seating Chart", icon: FileText },
 ];
 
 const SidebarMenuContent = ({ activeTab, onTabChange, onSignOut }: { activeTab: string; onTabChange: (tabId: string) => void; onSignOut: () => void }) => {
