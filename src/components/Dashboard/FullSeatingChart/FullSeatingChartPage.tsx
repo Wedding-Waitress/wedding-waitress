@@ -145,10 +145,17 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
               {/* Action Buttons */}
               <div className="flex items-center gap-2">
                 <div className="flex items-center gap-2 mr-2">
-                  <ArrowUpDown className="w-4 h-4 text-muted-foreground" />
+                  <ArrowUpDown className="w-4 h-4 text-primary-foreground" />
                   <Select value={sortBy} onValueChange={(value: 'firstName' | 'lastName' | 'tableNo') => setSortBy(value)}>
-                    <SelectTrigger className="w-[140px] bg-primary text-primary-foreground border-primary hover:bg-primary/90">
-                      <SelectValue />
+                    <SelectTrigger className="w-[180px] bg-primary text-primary-foreground border-primary hover:bg-primary/90">
+                      <div className="flex items-center gap-2">
+                        <span>Sort By:</span>
+                        <SelectValue>
+                          {sortBy === 'firstName' && 'First Name'}
+                          {sortBy === 'lastName' && 'Last Name'}
+                          {sortBy === 'tableNo' && 'Table No.'}
+                        </SelectValue>
+                      </div>
                     </SelectTrigger>
                     <SelectContent className="bg-popover z-50">
                       <SelectItem value="firstName">First Name</SelectItem>
