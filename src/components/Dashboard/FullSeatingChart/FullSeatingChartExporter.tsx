@@ -148,11 +148,11 @@ export const FullSeatingChartExporter: React.FC<FullSeatingChartExporterProps> =
 
       setProgress(75);
 
-      // Get font sizes based on settings
+      // Get font sizes based on settings - larger differences for visibility
       const fontSizes = {
-        small: { name: 7, details: 6 },
-        medium: { name: 8, details: 7 },
-        large: { name: 9, details: 8 }
+        small: { name: 10, details: 9 },
+        medium: { name: 12, details: 11 },
+        large: { name: 14, details: 13 }
       };
       const currentFontSize = fontSizes[settings.fontSize];
 
@@ -162,7 +162,7 @@ export const FullSeatingChartExporter: React.FC<FullSeatingChartExporterProps> =
       if (settings.showRsvp) linesPerGuest += 1;
       if (settings.showRelation) linesPerGuest += 1;
       
-      const baseLineHeight = currentFontSize.name * 0.35; // Convert pt to mm
+      const baseLineHeight = currentFontSize.name * 0.352778; // Proper pt to mm conversion
       const lineHeight = baseLineHeight * linesPerGuest + 2; // Add spacing between guests
       const maxGuestsPerPage = Math.floor((pageHeight - yPosition - 20) / lineHeight);
 
@@ -197,28 +197,37 @@ export const FullSeatingChartExporter: React.FC<FullSeatingChartExporterProps> =
           
           currentY += baseLineHeight;
           
-          // Additional details
+          // Additional details with color
           pdf.setFontSize(currentFontSize.details);
           pdf.setFont('helvetica', 'normal');
-          pdf.setTextColor(80, 80, 80);
           
           if (settings.showDietary && guest.dietary) {
+            pdf.setTextColor(37, 99, 235); // Blue for dietary
             pdf.text(`Dietary: ${guest.dietary}`, margin + 6, currentY);
             currentY += baseLineHeight;
           }
           
           if (settings.showRsvp) {
             const rsvpStatus = normalizeRsvp(guest.rsvp);
+            // Color based on RSVP status
+            if (rsvpStatus === 'Attending') {
+              pdf.setTextColor(34, 197, 94); // Green
+            } else if (rsvpStatus === 'Not Attending') {
+              pdf.setTextColor(239, 68, 68); // Red
+            } else {
+              pdf.setTextColor(245, 158, 11); // Orange/Amber for Pending
+            }
             pdf.text(`RSVP: ${rsvpStatus}`, margin + 6, currentY);
             currentY += baseLineHeight;
           }
           
           if (settings.showRelation && guest.relation_display) {
+            pdf.setTextColor(139, 92, 246); // Purple for relation
             pdf.text(`Relation: ${guest.relation_display}`, margin + 6, currentY);
             currentY += baseLineHeight;
           }
           
-          pdf.setTextColor(0, 0, 0);
+          pdf.setTextColor(0, 0, 0); // Reset to black
         }
 
         // Right column guest
@@ -244,28 +253,37 @@ export const FullSeatingChartExporter: React.FC<FullSeatingChartExporterProps> =
           
           currentY += baseLineHeight;
           
-          // Additional details
+          // Additional details with color
           pdf.setFontSize(currentFontSize.details);
           pdf.setFont('helvetica', 'normal');
-          pdf.setTextColor(80, 80, 80);
           
           if (settings.showDietary && guest.dietary) {
+            pdf.setTextColor(37, 99, 235); // Blue for dietary
             pdf.text(`Dietary: ${guest.dietary}`, rightColumnStart + 6, currentY);
             currentY += baseLineHeight;
           }
           
           if (settings.showRsvp) {
             const rsvpStatus = normalizeRsvp(guest.rsvp);
+            // Color based on RSVP status
+            if (rsvpStatus === 'Attending') {
+              pdf.setTextColor(34, 197, 94); // Green
+            } else if (rsvpStatus === 'Not Attending') {
+              pdf.setTextColor(239, 68, 68); // Red
+            } else {
+              pdf.setTextColor(245, 158, 11); // Orange/Amber for Pending
+            }
             pdf.text(`RSVP: ${rsvpStatus}`, rightColumnStart + 6, currentY);
             currentY += baseLineHeight;
           }
           
           if (settings.showRelation && guest.relation_display) {
+            pdf.setTextColor(139, 92, 246); // Purple for relation
             pdf.text(`Relation: ${guest.relation_display}`, rightColumnStart + 6, currentY);
             currentY += baseLineHeight;
           }
           
-          pdf.setTextColor(0, 0, 0);
+          pdf.setTextColor(0, 0, 0); // Reset to black
         }
 
         yPosition += lineHeight;

@@ -189,7 +189,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
       </div>
 
       {/* Print Version - Hidden until printing */}
-      <div id="full-seating-print" className="hidden print:block">
+      <div id="full-seating-print" className="print-version hidden print:block">
         <style>{`
           @page {
             size: A4 portrait;
@@ -328,18 +328,20 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
               visibility: hidden;
             }
             
-            #full-seating-print,
-            #full-seating-print * {
+            .print-version,
+            .print-version * {
               visibility: visible !important;
             }
             
-            #full-seating-print {
+            .print-version {
               position: absolute !important;
               left: 0 !important;
               top: 0 !important;
               width: 100% !important;
               background: white !important;
               display: block !important;
+              -webkit-print-color-adjust: exact !important;
+              print-color-adjust: exact !important;
             }
             
             .print-preview-content {
