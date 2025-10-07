@@ -2,7 +2,7 @@ import React from 'react';
 import { Guest } from '@/hooks/useGuests';
 import { FullSeatingChartSettings } from '@/hooks/useFullSeatingChartSettings';
 import { normalizeRsvp } from '@/lib/rsvp';
-import weddingWaitressLogo from '@/assets/wedding-waitress-new-logo.png';
+
 
 interface FullSeatingChartPrintTemplateProps {
   event: any;
@@ -276,24 +276,15 @@ export const FullSeatingChartPrintTemplate: React.FC<FullSeatingChartPrintTempla
       }}>
         <div style={{ 
           borderTop: '0.3mm solid #ddd',
-          paddingTop: '5mm',
-          marginBottom: '3mm'
+          paddingTop: '3mm'
         }}>
           <p style={{ 
             fontSize: '8pt', 
             color: '#666666',
-            margin: '0 0 3mm 0'
+            margin: '0'
           }}>
-            Total Guests: {guests.length} - Generated on: {new Date().toLocaleDateString()}
+            Total Guests: {guests.length}
           </p>
-          <img 
-            src={weddingWaitressLogo} 
-            alt="Wedding Waitress" 
-            style={{ 
-              height: '12mm',
-              opacity: 0.6
-            }}
-          />
         </div>
       </div>
     </div>
