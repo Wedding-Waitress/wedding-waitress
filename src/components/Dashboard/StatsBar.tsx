@@ -78,22 +78,24 @@ export const StatsBar: React.FC<StatsBarProps> = ({
 
   return (
     <Card className="mb-6 border-2 border-primary shadow-sm" style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-        {statItems.map((item, index) => (
-          <div key={index} className="flex flex-col items-center text-center space-y-2 min-w-0">
-            <div className={`flex-shrink-0 ${item.color}`}>
-              {item.icon}
+      <div className="p-4 md:p-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+          {statItems.map((item, index) => (
+            <div key={index} className="flex flex-col items-center text-center space-y-2 min-w-0">
+              <div className={`flex-shrink-0 ${item.color}`}>
+                {item.icon}
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs text-muted-foreground truncate">
+                  {item.label}
+                </p>
+                <p className={`text-lg font-bold ${item.color}`}>
+                  {item.value}
+                </p>
+              </div>
             </div>
-            <div className="min-w-0">
-              <p className="text-xs text-muted-foreground truncate">
-                {item.label}
-              </p>
-              <p className={`text-lg font-bold ${item.color}`}>
-                {item.value}
-              </p>
-            </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </Card>
   );

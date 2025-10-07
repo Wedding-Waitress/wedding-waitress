@@ -400,6 +400,8 @@ export const MyEventsPage: React.FC = () => {
       </Card>
 
       {/* Events Table with controlled radios */}
-      <EventsTable events={events} loading={loading} activeEventId={activeEventId} setActiveEventId={setActiveEventId} createEvent={createEvent} updateEvent={updateEvent} deleteEvent={deleteEvent} onEventSelect={handleCountdownEventSelect} />
+      <div className="overflow-x-auto">
+        <EventsTable events={events} loading={loading} activeEventId={activeEventId} setActiveEventId={setActiveEventId} createEvent={createEvent} updateEvent={updateEvent} deleteEvent={deleteEvent} onEventSelect={handleCountdownEventSelect} />
+      </div>
     </div>;
 };

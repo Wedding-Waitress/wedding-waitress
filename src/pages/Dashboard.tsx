@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { StatsBar } from "@/components/Dashboard/StatsBar";
-import { DashboardSidebar } from "@/components/Dashboard/DashboardSidebar";
+import { AppSidebar } from "@/components/Dashboard/AppSidebar";
 import { DashboardHeader } from "@/components/Dashboard/DashboardHeader";
+import { SidebarProvider } from "@/components/ui/sidebar";
 import { MyEventsPage } from "@/components/Dashboard/MyEventsPage";
 import { GuestListTable } from "@/components/Dashboard/GuestListTable";
 import { CreateTableModal } from "@/components/Dashboard/CreateTableModal";
@@ -371,28 +372,29 @@ export const Dashboard = () => {
         </Card>
       </div>;
   }
-  return <div className="min-h-screen bg-gradient-subtle flex">
+  return <SidebarProvider>
+    <div className="min-h-screen bg-gradient-subtle flex w-full">
       {/* Sidebar */}
       <div className="print:hidden">
-        <DashboardSidebar activeTab={activeTab} onTabChange={handleTabChange} onSignOut={handleSignOut} />
+        <AppSidebar activeTab={activeTab} onTabChange={handleTabChange} onSignOut={handleSignOut} />
       </div>
       
       {/* Main Content */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col min-w-0">
         {/* Universal Header */}
         <DashboardHeader />
-        <main className="flex-1 lg:px-6 px-4 py-6">
-        <div className="w-full">
-          {/* Stats Bar excluded from: My Events, QR Code, Dashboard, Vendor Team, Planner, Wishing Well, RSVP, Floor Plan, Kiosk Live View, Printables, Place Cards, Dietary Requirements */}
-           {activeTab !== 'my-events' && activeTab !== 'qr-code' && activeTab !== 'dashboard' && activeTab !== 'vendor-team' && activeTab !== 'planner' && activeTab !== 'wishing-well' && activeTab !== 'rsvp-invite' && activeTab !== 'floor-plan' && activeTab !== 'kiosk-live-view' && activeTab !== 'printables' && activeTab !== 'individual-table-chart' && activeTab !== 'place-cards' && activeTab !== 'dietary-chart' && <div className="print:hidden">
+        <main className="flex-1 w-full px-4 md:px-6 lg:px-8 py-6">
+          <div className="w-full max-w-none">
+            {/* Stats Bar excluded from: My Events, QR Code, Dashboard, Vendor Team, Planner, Wishing Well, RSVP, Floor Plan, Kiosk Live View, Printables, Place Cards, Dietary Requirements */}
+            {activeTab !== 'my-events' && activeTab !== 'qr-code' && activeTab !== 'dashboard' && activeTab !== 'vendor-team' && activeTab !== 'planner' && activeTab !== 'wishing-well' && activeTab !== 'rsvp-invite' && activeTab !== 'floor-plan' && activeTab !== 'kiosk-live-view' && activeTab !== 'printables' && activeTab !== 'individual-table-chart' && activeTab !== 'place-cards' && activeTab !== 'dietary-chart' && <div className="print:hidden">
               <StatsBar stats={statsData} />
             </div>}
-          
-          {/* Tab Content */}
-          <div className="space-y-6 mt-6">
-            {renderTabContent()}
+            
+            {/* Tab Content */}
+            <div className="space-y-6 mt-6">
+              {renderTabContent()}
+            </div>
           </div>
-        </div>
         </main>
       </div>
 
@@ -414,5 +416,6 @@ export const Dashboard = () => {
           </div>
         </div>
       </footer>
-    </div>;
+    </div>
+  </SidebarProvider>;
 };

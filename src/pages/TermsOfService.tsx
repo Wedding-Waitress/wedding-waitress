@@ -24,8 +24,9 @@ export const TermsOfService = () => {
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-12 max-w-4xl">
-        <Card className="ww-box">
+      <main className="w-full px-4 py-12">
+        <div className="max-w-4xl mx-auto">
+          <Card className="ww-box">
           <CardHeader className="text-center border-b pb-6">
             <div className="flex items-center justify-center mb-4">
               <FileText className="w-12 h-12 text-primary" />
@@ -503,6 +504,7 @@ export const TermsOfService = () => {
             </div>
           </CardContent>
         </Card>
+        </div>
       </main>
 
       {/* Footer */}
