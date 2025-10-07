@@ -240,7 +240,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
           }
           
           .print-preview-content {
-            padding: 12mm;
+            padding: 6mm 12mm 6mm 12mm;
             height: 100%;
             display: flex;
             flex-direction: column;
@@ -248,7 +248,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
           
           .print-header {
             text-align: center;
-            margin-bottom: 8mm;
+            margin-bottom: 4mm;
           }
           
           .print-event-name {
@@ -313,9 +313,9 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
             text-align: center;
             font-size: 10px;
             color: #666;
-            padding-top: 4mm;
+            padding-top: 2mm;
             border-top: 1px solid #ddd;
-            gap: 2mm;
+            gap: 1mm;
           }
           
           .print-footer-stats {
