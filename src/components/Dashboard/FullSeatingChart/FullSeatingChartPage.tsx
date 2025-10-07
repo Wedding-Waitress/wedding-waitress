@@ -73,9 +73,9 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
     <div className="space-y-6">
       {/* Header */}
       <Card className="ww-box print:hidden">
-        <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div className="space-y-4">
-            {/* Event Selector */}
+        <CardHeader className="space-y-4">
+          {/* Event Selector */}
+          <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <label className="text-sm font-medium text-foreground">
                 Choose Event:
@@ -102,35 +102,25 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
               </Select>
             </div>
 
-            {/* Event Details */}
-            {selectedEvent && (
-              <div className="flex items-center space-x-2">
-                <span className="text-lg font-medium text-foreground">Full Seating Chart for</span>
-                <span className="text-lg font-bold text-primary">{selectedEvent.name}</span>
+            {/* Header Icon & Info */}
+            <div className="flex items-center gap-4">
+              <FileText className="w-12 h-12 text-primary" />
+              <div>
+                <CardTitle className="text-right">Full Seating Chart</CardTitle>
+                <CardDescription className="text-right">
+                  Complete guest list with check-off boxes
+                </CardDescription>
               </div>
-            )}
-          </div>
-
-          {/* Header Icon & Info */}
-          <div className="flex items-center gap-4">
-            <FileText className="w-12 h-12 text-primary" />
-            <div>
-              <CardTitle className="text-right">Full Seating Chart</CardTitle>
-              <CardDescription className="text-right">
-                Complete guest list with check-off boxes
-              </CardDescription>
             </div>
           </div>
-        </CardHeader>
-      </Card>
 
-      {/* Data Status & Actions */}
-      {selectedEventId && (
-        <Card className="ww-box print:hidden">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
+          {/* Event Details with Status & Actions */}
+          {selectedEvent && (
+            <div className="flex items-center justify-between pt-2 border-t">
               <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2">
+                <span className="text-lg font-medium text-foreground">Full Seating Chart for</span>
+                <span className="text-lg font-bold text-primary">{selectedEvent.name}</span>
+                <div className="flex items-center gap-2 ml-4">
                   <Users className="w-4 h-4 text-muted-foreground" />
                   <span className="text-sm text-muted-foreground">
                     {guestsLoading ? "Loading..." : `${guests.length} guests`}
@@ -168,9 +158,9 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
                 </div>
               )}
             </div>
-          </CardContent>
-        </Card>
-      )}
+          )}
+        </CardHeader>
+      </Card>
 
       {/* Main Content */}
       {selectedEventId ? (
