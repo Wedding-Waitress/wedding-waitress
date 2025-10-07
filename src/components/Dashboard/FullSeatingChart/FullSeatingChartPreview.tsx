@@ -64,12 +64,12 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
         className="w-4 h-4"
       />
       <div className="flex-1 min-w-0">
-        <div className="font-medium text-sm text-foreground">
+        <div className="font-bold text-base text-foreground">
           {formatGuestName(guest)}
         </div>
       </div>
       <div className="flex-shrink-0">
-        <span className="text-xs px-2 py-1 bg-muted rounded">
+        <span className="font-bold text-base px-2 py-1 bg-muted rounded">
           {guest.table_no ? `Table ${guest.table_no}` : 'Unassigned'}
         </span>
       </div>
@@ -252,7 +252,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
           
           .print-guest-item {
             break-inside: avoid;
-            font-size: 13px;
+            font-size: 16px;
             line-height: 1.2;
             margin-bottom: 2px;
             color: #000;
@@ -265,7 +265,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
           }
           
           .print-guest-name {
-            font-weight: 500;
+            font-weight: 700;
           }
           
           .print-separator {
@@ -273,7 +273,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
           }
           
           .print-table {
-            font-weight: 400;
+            font-weight: 700;
           }
           
           .print-footer {
@@ -319,7 +319,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
             }
             
             .print-guest-list {
-              font-size: 12px !important;
+              font-size: 16px !important;
               line-height: 1.1 !important;
             }
             
