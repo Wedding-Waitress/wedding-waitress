@@ -89,64 +89,77 @@ export const FullSeatingChartExporter: React.FC<FullSeatingChartExporterProps> =
         format: settings.paperSize.toLowerCase() as 'a4' | 'a3' | 'a2' | 'a1'
       });
       const margin = 15;
-      const contentWidth = pageWidth - (margin * 2);
-      const columnWidth = contentWidth / 2 - 5; // 5mm gap between columns
+      const contentWidth = pageWidth - margin * 2;
+      const columnGap = 10;
+      const columnWidth = contentWidth / 2 - columnGap / 2; // gap between columns
+      const footerReserved = 22; // space reserved for footer (mm)
 
       setProgress(25);
-
-      // Header
-      pdf.setFontSize(18);
-      pdf.setFont('helvetica', 'bold');
-      pdf.setTextColor(139, 92, 246); // Purple color
-      let yPosition = margin + 10;
-      
-      // Event name (Line 1)
-      pdf.text(event.name, pageWidth / 2, yPosition, { align: 'center' });
-      yPosition += 8;
-
-      // Combined subtitle (Line 2)
-      pdf.setFontSize(12);
-      pdf.setFont('helvetica', 'normal');
-      pdf.setTextColor(0, 0, 0); // Black
-      
-      let subtitle = '';
-      if (event.date) {
-        subtitle += formatDateWithOrdinal(event.date);
-      }
-      if (event.venue) {
-        subtitle += (subtitle ? ' - ' : '') + event.venue;
-      }
-      subtitle += (subtitle ? ' - ' : '') + 'Full Seating Chart';
-      
-      pdf.text(subtitle, pageWidth / 2, yPosition, { align: 'center' });
-      yPosition += 10;
-
-      setProgress(50);
 
       // Split guests into two columns
       const midPoint = Math.ceil(guests.length / 2);
       const leftColumn = guests.slice(0, midPoint);
       const rightColumn = guests.slice(midPoint);
 
-      // Column headers
-      pdf.setFontSize(9);
-      pdf.setFont('helvetica', 'bold');
-      
-      // Left column header
-      pdf.text(`GUESTS 1-${leftColumn.length}`, margin, yPosition);
-      // Right column header
-      pdf.text(`GUESTS ${leftColumn.length + 1}-${guests.length}`, margin + columnWidth + 10, yPosition);
-      
-      yPosition += 8;
+      // Helpers
+      const drawHeader = () => {
+        let y = margin + 10;
+        pdf.setFontSize(18);
+        pdf.setFont('helvetica', 'bold');
+        pdf.setTextColor(139, 92, 246); // Purple color
+        pdf.text(event.name, pageWidth / 2, y, { align: 'center' });
+        y += 8;
 
-      // Draw underlines for headers
-      pdf.setLineWidth(0.3);
-      pdf.line(margin, yPosition - 2, margin + columnWidth, yPosition - 2);
-      pdf.line(margin + columnWidth + 10, yPosition - 2, margin + columnWidth + 10 + columnWidth, yPosition - 2);
+        // Subtitle
+        pdf.setFontSize(12);
+        pdf.setFont('helvetica', 'normal');
+        pdf.setTextColor(0, 0, 0);
+        let subtitle = '';
+        if (event.date) subtitle += formatDateWithOrdinal(event.date);
+        if (event.venue) subtitle += (subtitle ? ' - ' : '') + event.venue;
+        subtitle += (subtitle ? ' - ' : '') + 'Full Seating Chart';
+        pdf.text(subtitle, pageWidth / 2, y, { align: 'center' });
+        y += 10;
 
-      yPosition += 3;
+        // Column headers
+        pdf.setFontSize(9);
+        pdf.setFont('helvetica', 'bold');
+        pdf.text(`GUESTS 1-${leftColumn.length}`, margin, y);
+        pdf.text(`GUESTS ${leftColumn.length + 1}-${guests.length}`, margin + columnWidth + columnGap, y);
+        y += 8;
 
-      setProgress(75);
+        // Underlines
+        pdf.setLineWidth(0.3);
+        pdf.line(margin, y - 2, margin + columnWidth, y - 2);
+        pdf.line(margin + columnWidth + columnGap, y - 2, margin + columnWidth + columnGap + columnWidth, y - 2);
+        y += 3;
+        return y;
+      };
+
+      const drawFooter = () => {
+        const y = pageHeight - footerReserved + 10;
+        pdf.setFontSize(8);
+        pdf.setFont('helvetica', 'normal');
+        pdf.setTextColor(102, 102, 102);
+        // line above footer
+        pdf.setLineWidth(0.3);
+        pdf.line(margin, y - 5, pageWidth - margin, y - 5);
+        const footerText = `Total Guests: ${guests.length} - Generated on: ${new Date().toLocaleDateString()}`;
+        pdf.text(footerText, pageWidth / 2, y, { align: 'center' });
+        try {
+          const logoUrl = '/wedding-waitress-new-logo.png';
+          const logoHeight = 12; // mm
+          const logoWidth = 40; // mm
+          pdf.addImage(logoUrl, 'PNG', (pageWidth - logoWidth) / 2, y + 2, logoWidth, logoHeight);
+        } catch (error) {
+          console.log('Could not add logo to PDF:', error);
+        }
+      };
+
+      // Header on first page
+      let yPosition = drawHeader();
+
+      setProgress(50);
 
       // Get font sizes based on settings - aligned with print for true-to-size
       const fontSizes = {
@@ -155,79 +168,69 @@ export const FullSeatingChartExporter: React.FC<FullSeatingChartExporterProps> =
         large: { name: 13.5, details: 12.5 }
       };
       const currentFontSize = fontSizes[settings.fontSize];
+      const baseLineHeight = currentFontSize.name * 0.352778; // pt -> mm
 
-      // Calculate line height based on what's being shown
-      let linesPerGuest = 1; // Name + table always shown
+      // Calculate lines per guest block
+      let linesPerGuest = 1; // name line
       if (settings.showDietary) linesPerGuest += 1;
       if (settings.showRsvp) linesPerGuest += 1;
       if (settings.showRelation) linesPerGuest += 1;
-      
-      const baseLineHeight = currentFontSize.name * 0.352778; // Proper pt to mm conversion
-      const lineHeight = baseLineHeight * linesPerGuest + 2; // Add spacing between guests
-      const maxGuestsPerPage = Math.floor((pageHeight - yPosition - 20) / lineHeight);
+      const blockHeight = baseLineHeight * linesPerGuest + 2;
+
+      setProgress(75);
 
       for (let i = 0; i < Math.max(leftColumn.length, rightColumn.length); i++) {
-        // Check if we need a new page
-        if (yPosition > pageHeight - 30) {
+        // Page break check (reserve space for footer)
+        if (yPosition + blockHeight > pageHeight - footerReserved) {
+          drawFooter();
           pdf.addPage();
-          yPosition = margin + 10;
+          yPosition = drawHeader();
         }
 
-        const startYPosition = yPosition;
+        const startY = yPosition;
 
         // Left column guest
         if (i < leftColumn.length) {
           const guest = leftColumn[i];
           const guestName = formatGuestName(guest);
           const tableInfo = guest.table_no ? `Table ${guest.table_no}` : 'Unassigned';
-          
-          let currentY = startYPosition;
-          
+          let currentY = startY;
+
           // Checkbox
           pdf.rect(margin, currentY - 2, 3, 3);
-          
-          // Guest name
+
+          // Name
           pdf.setFontSize(currentFontSize.name);
           pdf.setFont('helvetica', 'bold');
           pdf.text(guestName, margin + 6, currentY);
-          
-          // Table number (right-aligned in column)
+
+          // Table (right aligned)
           pdf.setFont('helvetica', 'normal');
           pdf.text(tableInfo, margin + columnWidth - 2, currentY, { align: 'right' });
-          
           currentY += baseLineHeight;
-          
-          // Additional details with color
+
+          // Details with colors
           pdf.setFontSize(currentFontSize.details);
           pdf.setFont('helvetica', 'normal');
-          
           if (settings.showDietary && guest.dietary) {
-            pdf.setTextColor(37, 99, 235); // Blue for dietary
+            pdf.setTextColor(37, 99, 235);
             pdf.text(`Dietary: ${guest.dietary}`, margin + 6, currentY);
             currentY += baseLineHeight;
           }
-          
           if (settings.showRsvp) {
             const rsvpStatus = normalizeRsvp(guest.rsvp);
-            // Color based on RSVP status
-            if (rsvpStatus === 'Attending') {
-              pdf.setTextColor(34, 197, 94); // Green
-            } else if (rsvpStatus === 'Not Attending') {
-              pdf.setTextColor(239, 68, 68); // Red
-            } else {
-              pdf.setTextColor(245, 158, 11); // Orange/Amber for Pending
-            }
+            if (rsvpStatus === 'Attending') pdf.setTextColor(34, 197, 94);
+            else if (rsvpStatus === 'Not Attending') pdf.setTextColor(239, 68, 68);
+            else pdf.setTextColor(245, 158, 11);
             pdf.text(`RSVP: ${rsvpStatus}`, margin + 6, currentY);
             currentY += baseLineHeight;
           }
-          
           if (settings.showRelation && guest.relation_display) {
-            pdf.setTextColor(139, 92, 246); // Purple for relation
+            pdf.setTextColor(139, 92, 246);
             pdf.text(`Relation: ${guest.relation_display}`, margin + 6, currentY);
             currentY += baseLineHeight;
           }
-          
-          pdf.setTextColor(0, 0, 0); // Reset to black
+          pdf.setTextColor(0, 0, 0);
         }
 
         // Right column guest
@@ -235,87 +238,47 @@ export const FullSeatingChartExporter: React.FC<FullSeatingChartExporterProps> =
           const guest = rightColumn[i];
           const guestName = formatGuestName(guest);
           const tableInfo = guest.table_no ? `Table ${guest.table_no}` : 'Unassigned';
-          
-          const rightColumnStart = margin + columnWidth + 10;
-          let currentY = startYPosition;
-          
-          // Checkbox
-          pdf.rect(rightColumnStart, currentY - 2, 3, 3);
-          
-          // Guest name
+          const rightX = margin + columnWidth + columnGap;
+          let currentY = startY;
+
+          pdf.rect(rightX, currentY - 2, 3, 3);
           pdf.setFontSize(currentFontSize.name);
           pdf.setFont('helvetica', 'bold');
-          pdf.text(guestName, rightColumnStart + 6, currentY);
-          
-          // Table number (right-aligned in column)
+          pdf.text(guestName, rightX + 6, currentY);
           pdf.setFont('helvetica', 'normal');
-          pdf.text(tableInfo, rightColumnStart + columnWidth - 2, currentY, { align: 'right' });
-          
+          pdf.text(tableInfo, rightX + columnWidth - 2, currentY, { align: 'right' });
           currentY += baseLineHeight;
-          
-          // Additional details with color
+
           pdf.setFontSize(currentFontSize.details);
           pdf.setFont('helvetica', 'normal');
-          
           if (settings.showDietary && guest.dietary) {
-            pdf.setTextColor(37, 99, 235); // Blue for dietary
-            pdf.text(`Dietary: ${guest.dietary}`, rightColumnStart + 6, currentY);
+            pdf.setTextColor(37, 99, 235);
+            pdf.text(`Dietary: ${guest.dietary}`, rightX + 6, currentY);
             currentY += baseLineHeight;
           }
-          
           if (settings.showRsvp) {
             const rsvpStatus = normalizeRsvp(guest.rsvp);
-            // Color based on RSVP status
-            if (rsvpStatus === 'Attending') {
-              pdf.setTextColor(34, 197, 94); // Green
-            } else if (rsvpStatus === 'Not Attending') {
-              pdf.setTextColor(239, 68, 68); // Red
-            } else {
-              pdf.setTextColor(245, 158, 11); // Orange/Amber for Pending
-            }
-            pdf.text(`RSVP: ${rsvpStatus}`, rightColumnStart + 6, currentY);
+            if (rsvpStatus === 'Attending') pdf.setTextColor(34, 197, 94);
+            else if (rsvpStatus === 'Not Attending') pdf.setTextColor(239, 68, 68);
+            else pdf.setTextColor(245, 158, 11);
+            pdf.text(`RSVP: ${rsvpStatus}`, rightX + 6, currentY);
             currentY += baseLineHeight;
           }
-          
           if (settings.showRelation && guest.relation_display) {
-            pdf.setTextColor(139, 92, 246); // Purple for relation
-            pdf.text(`Relation: ${guest.relation_display}`, rightColumnStart + 6, currentY);
+            pdf.setTextColor(139, 92, 246);
+            pdf.text(`Relation: ${guest.relation_display}`, rightX + 6, currentY);
             currentY += baseLineHeight;
           }
-          
-          pdf.setTextColor(0, 0, 0); // Reset to black
+          pdf.setTextColor(0, 0, 0);
         }
 
-        yPosition += lineHeight;
+        yPosition += blockHeight;
       }
 
       setProgress(90);
 
-      // Footer
-      yPosition = Math.max(yPosition + 10, pageHeight - 30);
-      pdf.setFontSize(8);
-      pdf.setFont('helvetica', 'normal');
-      pdf.setTextColor(102, 102, 102); // Gray
-      
-      // Draw line
-      pdf.setLineWidth(0.3);
-      pdf.line(margin, yPosition - 5, pageWidth - margin, yPosition - 5);
-      
-      // Combined footer stats (Line 1)
-      const footerText = `Total Guests: ${guests.length} - Generated on: ${new Date().toLocaleDateString()}`;
-      pdf.text(footerText, pageWidth / 2, yPosition, { align: 'center' });
-      
-      // Add logo (Line 2)
-      yPosition += 6;
-      try {
-        // Load and add the Wedding Waitress logo
-        const logoUrl = '/wedding-waitress-new-logo.png';
-        const logoHeight = 12; // mm
-        const logoWidth = 40; // mm (approximate)
-        pdf.addImage(logoUrl, 'PNG', (pageWidth - logoWidth) / 2, yPosition, logoWidth, logoHeight);
-      } catch (error) {
-        console.log('Could not add logo to PDF:', error);
-      }
+      // Footer on last page
+      drawFooter();
 
       setProgress(100);
 

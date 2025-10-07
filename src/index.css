@@ -349,10 +349,16 @@
   body * {
     visibility: hidden !important;
   }
-  
+
   /* Show only the A4 print content and its children */
   #printA4-individual-table,
   #printA4-individual-table * {
+    visibility: visible !important;
+  }
+
+  /* Also show Full Seating Chart print container and its children */
+  #full-seating-print-content,
+  #full-seating-print-content * {
     visibility: visible !important;
   }
   
