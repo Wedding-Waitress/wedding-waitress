@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/enhanced-button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Printer, Download, FileText, Users } from 'lucide-react';
+import { Printer, Download, FileText, Users, ArrowUpDown } from 'lucide-react';
 import { useEvents } from '@/hooks/useEvents';
 import { useRealtimeGuests } from '@/hooks/useRealtimeGuests';
 import { FullSeatingChartPreview } from './FullSeatingChartPreview';
@@ -19,6 +19,7 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
 }) => {
   const [isExporting, setIsExporting] = useState(false);
   const [showExporter, setShowExporter] = useState(false);
+  const [sortBy, setSortBy] = useState<'firstName' | 'lastName' | 'tableNo'>('firstName');
   const { events, loading: eventsLoading } = useEvents();
   const { guests, loading: guestsLoading } = useRealtimeGuests(selectedEventId);
 
@@ -37,14 +38,31 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
     setShowExporter(true);
   };
 
-  // Sort guests alphabetically by full name
+  // Sort guests based on selected sort option
   const sortedGuests = React.useMemo(() => {
     return [...guests].sort((a, b) => {
-      const nameA = `${a.first_name} ${a.last_name || ''}`.trim();
-      const nameB = `${b.first_name} ${b.last_name || ''}`.trim();
-      return nameA.localeCompare(nameB);
+      if (sortBy === 'firstName') {
+        const nameA = `${a.first_name} ${a.last_name || ''}`.trim();
+        const nameB = `${b.first_name} ${b.last_name || ''}`.trim();
+        return nameA.localeCompare(nameB);
+      } else if (sortBy === 'lastName') {
+        const lastNameA = a.last_name || '';
+        const lastNameB = b.last_name || '';
+        if (lastNameA === lastNameB) {
+          return a.first_name.localeCompare(b.first_name);
+        }
+        return lastNameA.localeCompare(lastNameB);
+      } else {
+        // sortBy === 'tableNo'
+        const tableA = a.table_no || Number.MAX_SAFE_INTEGER;
+        const tableB = b.table_no || Number.MAX_SAFE_INTEGER;
+        if (tableA === tableB) {
+          return a.first_name.localeCompare(b.first_name);
+        }
+        return tableA - tableB;
+      }
     });
-  }, [guests]);
+  }, [guests, sortBy]);
 
   const isDataReady = selectedEventId && !guestsLoading && guests.length > 0;
 
@@ -126,6 +144,20 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
 
               {/* Action Buttons */}
               <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 mr-2">
+                  <ArrowUpDown className="w-4 h-4 text-muted-foreground" />
+                  <Select value={sortBy} onValueChange={(value: 'firstName' | 'lastName' | 'tableNo') => setSortBy(value)}>
+                    <SelectTrigger className="w-[140px] bg-primary text-primary-foreground border-primary hover:bg-primary/90">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-popover z-50">
+                      <SelectItem value="firstName">First Name</SelectItem>
+                      <SelectItem value="lastName">Last Name</SelectItem>
+                      <SelectItem value="tableNo">Table No.</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
                 <Button
                   variant="outline"
                   size="sm"
