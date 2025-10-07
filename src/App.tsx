@@ -12,6 +12,7 @@ import { KioskView } from "./pages/KioskView";
 import { ResetPassword } from "./pages/ResetPassword";
 import { PrivacyPolicy } from "./pages/PrivacyPolicy";
 import { TermsOfService } from "./pages/TermsOfService";
+import { Contact } from "./pages/Contact";
 
 const queryClient = new QueryClient();
 
@@ -33,6 +34,7 @@ const App = () => (
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/terms" element={<TermsOfService />} />
+          <Route path="/contact" element={<Contact />} />
           <Route path="/s/:eventSlug" element={<GuestLookup />} />
           <Route path="/kiosk/:eventSlug" element={<KioskView />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

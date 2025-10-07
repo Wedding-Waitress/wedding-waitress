@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Heart, Users, Calendar, MapPin, Mail, QrCode, Sparkles, ArrowRight, Check, Star, Instagram, Facebook, Linkedin, Youtube, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 export const Landing = () => {
   const [formData, setFormData] = useState({
     firstName: '',
@@ -440,9 +440,9 @@ It handles every detail of your event's seating chart, RSVP & more so you can fo
               <div className="space-y-4">
                 <h3 className="font-semibold text-foreground">Support</h3>
                 <ul className="space-y-2 text-sm text-muted-foreground">
-                  <li><a href="/privacy" className="hover:text-primary transition-colors">Privacy Policy</a></li>
-                  <li><a href="/terms" className="hover:text-primary transition-colors">Terms of Service</a></li>
-                  <li><a href="mailto:support@weddingwaitress.com" className="hover:text-primary transition-colors">Contact</a></li>
+                  <li><Link to="/privacy" className="hover:text-primary transition-colors">Privacy Policy</Link></li>
+                  <li><Link to="/terms" className="hover:text-primary transition-colors">Terms of Service</Link></li>
+                  <li><Link to="/contact" className="hover:text-primary transition-colors">Contact</Link></li>
                 </ul>
               </div>
 

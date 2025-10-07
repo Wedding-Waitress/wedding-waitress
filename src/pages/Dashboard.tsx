@@ -400,22 +400,6 @@ export const Dashboard = () => {
 
       {/* Create/Edit Table Modal */}
       <CreateTableModal isOpen={showCreateTableModal} onClose={handleCloseModal} onSave={handleSaveTable} editingTable={editingTable} existingTables={tables} />
-      
-      {/* Footer */}
-      <footer className="border-t bg-background/95 print:hidden mt-auto">
-        <div className="w-full px-4 py-6">
-          <div className="text-center text-sm text-muted-foreground">
-            <p>© 2025 Wedding Waitress. All rights reserved.</p>
-            <div className="flex items-center justify-center gap-4 mt-2">
-              <a href="/privacy" className="hover:text-primary transition-colors">Privacy Policy</a>
-              <span>•</span>
-              <a href="/terms" className="hover:text-primary transition-colors">Terms of Service</a>
-              <span>•</span>
-              <a href="mailto:support@weddingwaitress.com" className="hover:text-primary transition-colors">Contact</a>
-            </div>
-          </div>
-        </div>
-      </footer>
     </div>
   </SidebarProvider>;
 };
