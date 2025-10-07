@@ -152,7 +152,14 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
               <div className="a4-preview border shadow-lg">
                 <div className="print-preview-content">
                   <div className="print-header">
-                    <h1>{event.name} - Full Seating Chart</h1>
+                    <h1 className="print-event-name">{event.name}</h1>
+                    <h2 className="print-title">Full Seating Chart</h2>
+                    {event.date && (
+                      <p className="print-date">{formatDate(event.date)}</p>
+                    )}
+                    {event.venue && (
+                      <p className="print-venue">{event.venue}</p>
+                    )}
                   </div>
                   <div className="print-guest-list">
                     {guests.map((guest) => (
@@ -160,8 +167,16 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
                     ))}
                   </div>
                   <div className="print-footer">
-                    <span>Total: {guests.length} guests</span>
-                    <span>{new Date().toLocaleDateString()}</span>
+                    <div className="print-footer-stats">
+                      <span>Total Guests: {guests.length}</span>
+                      <span className="print-separator">|</span>
+                      <span>Checked: {checkedGuests.size}</span>
+                      <span className="print-separator">|</span>
+                      <span>Remaining: {guests.length - checkedGuests.size}</span>
+                    </div>
+                    <div className="print-footer-date">
+                      Generated on {new Date().toLocaleDateString()}
+                    </div>
                     <img src={weddingWaitressLogo} alt="Wedding Waitress" />
                   </div>
                 </div>
@@ -236,11 +251,25 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
             margin-bottom: 8mm;
           }
           
-          .print-header h1 {
-            font-size: 16px;
+          .print-event-name {
+            font-size: 18px;
             font-weight: bold;
-            margin: 0;
+            margin: 0 0 4px 0;
+            color: #8B5CF6;
+          }
+          
+          .print-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin: 0 0 4px 0;
             color: #000;
+          }
+          
+          .print-date,
+          .print-venue {
+            font-size: 12px;
+            margin: 2px 0;
+            color: #666;
           }
           
           .print-guest-list {
@@ -279,12 +308,25 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
           .print-footer {
             margin-top: auto;
             display: flex;
-            justify-content: space-between;
+            flex-direction: column;
             align-items: center;
+            text-align: center;
             font-size: 10px;
             color: #666;
             padding-top: 4mm;
             border-top: 1px solid #ddd;
+            gap: 2mm;
+          }
+          
+          .print-footer-stats {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+          }
+          
+          .print-footer-date {
+            font-size: 9px;
+            color: #999;
           }
           
           .print-footer img {
@@ -339,7 +381,14 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
         
         <div className="print-preview-content">
           <div className="print-header">
-            <h1>{event.name} - Full Seating Chart</h1>
+            <h1 className="print-event-name">{event.name}</h1>
+            <h2 className="print-title">Full Seating Chart</h2>
+            {event.date && (
+              <p className="print-date">{formatDate(event.date)}</p>
+            )}
+            {event.venue && (
+              <p className="print-venue">{event.venue}</p>
+            )}
           </div>
           <div className="print-guest-list">
             {guests.map((guest) => (
@@ -347,8 +396,16 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
             ))}
           </div>
           <div className="print-footer">
-            <span>Total: {guests.length} guests</span>
-            <span>{new Date().toLocaleDateString()}</span>
+            <div className="print-footer-stats">
+              <span>Total Guests: {guests.length}</span>
+              <span className="print-separator">|</span>
+              <span>Checked: {checkedGuests.size}</span>
+              <span className="print-separator">|</span>
+              <span>Remaining: {guests.length - checkedGuests.size}</span>
+            </div>
+            <div className="print-footer-date">
+              Generated on {new Date().toLocaleDateString()}
+            </div>
             <img src={weddingWaitressLogo} alt="Wedding Waitress" />
           </div>
         </div>
