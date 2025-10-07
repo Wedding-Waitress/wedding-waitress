@@ -7,13 +7,22 @@ import weddingWaitressLogo from '@/assets/wedding-waitress-logo-medium.png';
 interface FullSeatingChartPreviewProps {
   event: any;
   guests: Guest[];
+  sortBy: 'firstName' | 'lastName' | 'tableNo';
 }
 
 export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = ({
   event,
-  guests
+  guests,
+  sortBy
 }) => {
   const [checkedGuests, setCheckedGuests] = useState<Set<string>>(new Set());
+
+  const formatGuestName = (guest: Guest) => {
+    if (sortBy === 'lastName') {
+      return `${guest.last_name || ''}, ${guest.first_name}`.trim();
+    }
+    return `${guest.first_name} ${guest.last_name || ''}`.trim();
+  };
 
   // Safety check: return null if event is not provided
   if (!event) {
@@ -56,7 +65,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
       />
       <div className="flex-1 min-w-0">
         <div className="font-medium text-sm text-foreground">
-          {guest.first_name} {guest.last_name || ''}
+          {formatGuestName(guest)}
         </div>
       </div>
       <div className="flex-shrink-0">
@@ -71,7 +80,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
   const PrintGuestRow = ({ guest }: { guest: Guest }) => (
     <div className="print-guest-item">
       <span className="print-checkbox">☐</span>
-      <span className="print-guest-name">{guest.first_name} {guest.last_name || ''}</span>
+      <span className="print-guest-name">{formatGuestName(guest)}</span>
       <span className="print-separator"> — </span>
       <span className="print-table">
         {guest.table_no ? `Table ${guest.table_no}` : 'Unassigned'}

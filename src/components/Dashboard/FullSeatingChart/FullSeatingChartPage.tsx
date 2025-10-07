@@ -196,7 +196,8 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
         isDataReady ? (
           <FullSeatingChartPreview 
             event={selectedEvent!} 
-            guests={sortedGuests} 
+            guests={sortedGuests}
+            sortBy={sortBy}
           />
         ) : (
           <Card className="ww-box print:hidden">
@@ -231,6 +232,7 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
         <FullSeatingChartExporter
           event={selectedEvent}
           guests={sortedGuests}
+          sortBy={sortBy}
           onClose={() => setShowExporter(false)}
           onExportStart={() => setIsExporting(true)}
           onExportEnd={() => setIsExporting(false)}

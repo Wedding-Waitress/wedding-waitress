@@ -15,6 +15,7 @@ import jsPDF from 'jspdf';
 interface FullSeatingChartExporterProps {
   event: any;
   guests: Guest[];
+  sortBy: 'firstName' | 'lastName' | 'tableNo';
   onClose: () => void;
   onExportStart: () => void;
   onExportEnd: () => void;
@@ -23,12 +24,20 @@ interface FullSeatingChartExporterProps {
 export const FullSeatingChartExporter: React.FC<FullSeatingChartExporterProps> = ({
   event,
   guests,
+  sortBy,
   onClose,
   onExportStart,
   onExportEnd
 }) => {
   const [isExporting, setIsExporting] = useState(false);
   const [progress, setProgress] = useState(0);
+
+  const formatGuestName = (guest: Guest) => {
+    if (sortBy === 'lastName') {
+      return `${guest.last_name || ''}, ${guest.first_name}`.trim();
+    }
+    return `${guest.first_name} ${guest.last_name || ''}`.trim();
+  };
 
   const formatDate = (dateString: string) => {
     if (!dateString) return '';
@@ -140,7 +149,7 @@ export const FullSeatingChartExporter: React.FC<FullSeatingChartExporterProps> =
         // Left column guest
         if (i < leftColumn.length) {
           const guest = leftColumn[i];
-          const guestName = `${guest.first_name} ${guest.last_name || ''}`.trim();
+          const guestName = formatGuestName(guest);
           const tableInfo = guest.table_no ? `Table ${guest.table_no}` : 'Unassigned';
           
           // Checkbox
@@ -156,7 +165,7 @@ export const FullSeatingChartExporter: React.FC<FullSeatingChartExporterProps> =
         // Right column guest
         if (i < rightColumn.length) {
           const guest = rightColumn[i];
-          const guestName = `${guest.first_name} ${guest.last_name || ''}`.trim();
+          const guestName = formatGuestName(guest);
           const tableInfo = guest.table_no ? `Table ${guest.table_no}` : 'Unassigned';
           
           const rightColumnStart = margin + columnWidth + 10;
