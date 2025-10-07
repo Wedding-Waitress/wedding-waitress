@@ -40,7 +40,6 @@ const menuItems = [
   { id: "individual-table-chart", label: "Individual Table Charts", icon: Users },
   { id: "dietary-chart", label: "Dietary Requirements", icon: ChefHat },
   { id: "kiosk-live-view", label: "Kiosk Live View", icon: Monitor },
-  { id: "floor-plan", label: "Floor Plan", icon: MapPin },
 ];
 
 export const AppSidebar: React.FC<AppSidebarProps> = ({
