@@ -197,151 +197,25 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
           }
           
           @media print {
-            /* Hide everything except print version */
-            body * {
-              visibility: hidden;
-            }
-            
-            .print-version, .print-version * {
-              visibility: visible;
-            }
-            
-            .print-version {
-              position: absolute;
-              left: 0;
-              top: 0;
-              width: 100%;
-              height: 100%;
-              background: white;
-            }
-            
-            /* Hide all dashboard elements completely */
-            .dashboard-sidebar,
-            .stats-bar, 
-            .dashboard-header,
-            .dashboard-nav,
-            .print\\:hidden,
-            [class*="dashboard"],
-            [class*="sidebar"],
-            nav,
-            header:not(.print-header),
-            .card:not(.print-version *) {
+            /* Hide non-print elements */
+            body > *:not(.print-version) {
               display: none !important;
-              visibility: hidden !important;
-            }
-          }
-          
-          /* A4 Preview Styles */
-          .a4-preview {
-            width: 210mm;
-            height: 297mm;
-            background: #fff;
-            overflow: hidden;
-            transform: scale(0.6);
-            transform-origin: top left;
-          }
-          
-          .print-preview-content {
-            padding: 6mm 12mm 6mm 12mm;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-          }
-          
-          .print-header {
-            text-align: center;
-            margin-bottom: 4mm;
-          }
-          
-          .print-event-name {
-            font-size: 18px;
-            font-weight: bold;
-            margin: 0 0 4px 0;
-            color: #8B5CF6;
-          }
-          
-          .print-subtitle {
-            font-size: 14px;
-            margin: 0;
-            color: #000;
-          }
-          
-          .print-guest-list {
-            flex: 1;
-            columns: 2;
-            column-gap: 12mm;
-            column-fill: balance;
-          }
-          
-          .print-guest-item {
-            break-inside: avoid;
-            font-size: ${printFontSizes.main};
-            line-height: 1.2;
-            margin-bottom: 2px;
-            color: #000;
-          }
-          
-          .print-checkbox {
-            font-family: monospace;
-            font-size: ${printFontSizes.checkbox};
-            margin-right: 4px;
-          }
-          
-          .print-guest-name {
-            font-weight: 700;
-          }
-          
-          .print-separator {
-            margin: 0 2px;
-          }
-          
-          .print-table {
-            font-weight: 700;
-          }
-          
-          .print-footer {
-            margin-top: auto;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            font-size: 10px;
-            color: #666;
-            padding-top: 2mm;
-            border-top: 1px solid #ddd;
-            gap: 1mm;
-          }
-          
-          .print-footer-stats {
-            font-size: 10px;
-            color: #666;
-          }
-          
-          .print-footer img {
-            height: 12mm;
-            opacity: 0.6;
-          }
-          
-          /* Print-specific styles */
-          @media print {
-            body * {
-              visibility: hidden;
             }
             
-            .print-version,
-            .print-version * {
-              visibility: visible !important;
-            }
-            
+            /* Show only print version */
             .print-version {
+              display: block !important;
               position: absolute !important;
               left: 0 !important;
               top: 0 !important;
               width: 100% !important;
               background: white !important;
-              display: block !important;
               -webkit-print-color-adjust: exact !important;
               print-color-adjust: exact !important;
+            }
+            
+            .print-version * {
+              display: revert !important;
             }
             
             .print-preview-content {
@@ -366,6 +240,8 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
               background: white;
             }
           }
+          
+          /* Screen preview styles */
         `}</style>
         
         <div className="print-preview-content">
