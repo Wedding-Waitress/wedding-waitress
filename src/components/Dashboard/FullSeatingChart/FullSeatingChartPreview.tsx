@@ -149,8 +149,8 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
         }
         
         @media print {
-          /* Hide all non-print content */
-          body > *:not(#full-seating-print-content) {
+          /* Hide all non-print content but keep the print container and its descendants */
+          body *:not(#full-seating-print-content):not(#full-seating-print-content *) {
             display: none !important;
           }
           
