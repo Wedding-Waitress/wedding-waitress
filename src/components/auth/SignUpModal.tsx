@@ -341,9 +341,9 @@ export const SignUpModal: React.FC<SignUpModalProps> = ({ children }) => {
 
               <p className="text-xs text-muted-foreground text-center">
                 By continuing you agree to our{' '}
-                <a href="#" className="underline hover:text-foreground">Terms</a>
+                <a href="/terms" className="underline hover:text-foreground">Terms of Service</a>
                 {' '}&{' '}
-                <a href="#" className="underline hover:text-foreground">Privacy Policy</a>
+                <a href="/privacy" className="underline hover:text-foreground">Privacy Policy</a>
               </p>
 
               <div className="text-center">

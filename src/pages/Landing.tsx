@@ -241,7 +241,7 @@ Streamline your wedding & event planning with our sophisticated guest management
                   </Button>
                   
                   <p className="text-xs text-center text-muted-foreground">
-                    By signing up, you agree to our terms and privacy policy
+                    By signing up, you agree to our <a href="/terms" className="text-primary hover:underline">Terms of Service</a> and <a href="/privacy" className="text-primary hover:underline">Privacy Policy</a>
                   </p>
                 </form>
               </CardContent>
@@ -440,9 +440,9 @@ It handles every detail of your event's seating chart, RSVP & more so you can fo
               <div className="space-y-4">
                 <h3 className="font-semibold text-foreground">Support</h3>
                 <ul className="space-y-2 text-sm text-muted-foreground">
-                  <li><a href="#" className="hover:text-primary transition-colors">Privacy</a></li>
-                  <li><a href="#" className="hover:text-primary transition-colors">Terms</a></li>
-                  <li><a href="#" className="hover:text-primary transition-colors">Contact</a></li>
+                  <li><a href="/privacy" className="hover:text-primary transition-colors">Privacy Policy</a></li>
+                  <li><a href="/terms" className="hover:text-primary transition-colors">Terms of Service</a></li>
+                  <li><a href="mailto:support@weddingwaitress.com" className="hover:text-primary transition-colors">Contact</a></li>
                 </ul>
               </div>
 
