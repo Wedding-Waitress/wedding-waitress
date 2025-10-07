@@ -10,12 +10,13 @@ import { Button } from '@/components/ui/enhanced-button';
 import { Progress } from '@/components/ui/progress';
 import { Download, FileText, Loader2 } from 'lucide-react';
 import { Guest } from '@/hooks/useGuests';
+import { FullSeatingChartSettings } from '@/hooks/useFullSeatingChartSettings';
 import jsPDF from 'jspdf';
 
 interface FullSeatingChartExporterProps {
   event: any;
   guests: Guest[];
-  sortBy: 'firstName' | 'lastName' | 'tableNo';
+  settings: FullSeatingChartSettings;
   onClose: () => void;
   onExportStart: () => void;
   onExportEnd: () => void;
@@ -24,7 +25,7 @@ interface FullSeatingChartExporterProps {
 export const FullSeatingChartExporter: React.FC<FullSeatingChartExporterProps> = ({
   event,
   guests,
-  sortBy,
+  settings,
   onClose,
   onExportStart,
   onExportEnd
@@ -33,7 +34,7 @@ export const FullSeatingChartExporter: React.FC<FullSeatingChartExporterProps> =
   const [progress, setProgress] = useState(0);
 
   const formatGuestName = (guest: Guest) => {
-    if (sortBy === 'lastName') {
+    if (settings.sortBy === 'lastName') {
       return `${guest.last_name || ''}, ${guest.first_name}`.trim();
     }
     return `${guest.first_name} ${guest.last_name || ''}`.trim();
@@ -70,15 +71,22 @@ export const FullSeatingChartExporter: React.FC<FullSeatingChartExporterProps> =
       onExportStart();
       setProgress(10);
 
+      // Get paper dimensions based on settings
+      const paperFormats: Record<'A4' | 'A3' | 'A2' | 'A1', [number, number]> = {
+        'A4': [210, 297],
+        'A3': [297, 420],
+        'A2': [420, 594],
+        'A1': [594, 841]
+      };
+
+      const [pageWidth, pageHeight] = paperFormats[settings.paperSize];
+
       // Create PDF
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
-        format: 'a4'
+        format: settings.paperSize.toLowerCase() as 'a4' | 'a3' | 'a2' | 'a1'
       });
-
-      const pageWidth = 210; // A4 width in mm
-      const pageHeight = 297; // A4 height in mm
       const margin = 15;
       const contentWidth = pageWidth - (margin * 2);
       const columnWidth = contentWidth / 2 - 5; // 5mm gap between columns
@@ -264,7 +272,7 @@ export const FullSeatingChartExporter: React.FC<FullSeatingChartExporterProps> =
             </div>
             <div className="flex justify-between">
               <span className="text-muted-foreground">Format:</span>
-              <span className="font-medium">PDF (A4)</span>
+              <span className="font-medium">PDF ({settings.paperSize})</span>
             </div>
           </div>
 

@@ -2,26 +2,37 @@ import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Guest } from '@/hooks/useGuests';
+import { FullSeatingChartSettings } from '@/hooks/useFullSeatingChartSettings';
+import { Badge } from '@/components/ui/badge';
 import weddingWaitressLogo from '@/assets/wedding-waitress-new-logo.png';
 
 interface FullSeatingChartPreviewProps {
   event: any;
   guests: Guest[];
-  sortBy: 'firstName' | 'lastName' | 'tableNo';
+  settings: FullSeatingChartSettings;
 }
 
 export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = ({
   event,
   guests,
-  sortBy
+  settings
 }) => {
   const [checkedGuests, setCheckedGuests] = useState<Set<string>>(new Set());
 
   const formatGuestName = (guest: Guest) => {
-    if (sortBy === 'lastName') {
+    if (settings.sortBy === 'lastName') {
       return `${guest.last_name || ''}, ${guest.first_name}`.trim();
     }
     return `${guest.first_name} ${guest.last_name || ''}`.trim();
+  };
+
+  // Get font size class based on settings
+  const getFontSizeClass = () => {
+    switch (settings.fontSize) {
+      case 'small': return 'text-sm';
+      case 'large': return 'text-lg';
+      default: return 'text-base';
+    }
   };
 
   // Safety check: return null if event is not provided
@@ -74,12 +85,27 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
         className="w-4 h-4"
       />
       <div className="flex-1 min-w-0">
-        <div className="font-bold text-base text-foreground">
+        <div className={`font-bold ${getFontSizeClass()} text-foreground`}>
           {formatGuestName(guest)}
         </div>
+        {settings.showDietary && guest.dietary && guest.dietary !== 'NA' && (
+          <div className="text-xs text-muted-foreground mt-0.5">
+            Dietary: {guest.dietary}
+          </div>
+        )}
+        {settings.showRsvp && guest.rsvp && (
+          <Badge variant={guest.rsvp === 'Accepted' ? 'default' : guest.rsvp === 'Declined' ? 'destructive' : 'secondary'} className="text-xs mt-1">
+            {guest.rsvp}
+          </Badge>
+        )}
+        {settings.showRelation && guest.relation_display && (
+          <div className="text-xs text-muted-foreground mt-0.5">
+            {guest.relation_display}
+          </div>
+        )}
       </div>
       <div className="flex-shrink-0">
-        <span className="font-bold text-base px-2 py-1 bg-muted rounded">
+        <span className={`font-bold ${getFontSizeClass()} px-2 py-1 bg-muted rounded`}>
           {guest.table_no ? `Table ${guest.table_no}` : 'Unassigned'}
         </span>
       </div>

@@ -2,11 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/enhanced-button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Printer, Download, FileText, Users, ArrowUpDown } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Printer, Download, FileText, Users, Layout } from 'lucide-react';
 import { useEvents } from '@/hooks/useEvents';
 import { useRealtimeGuests } from '@/hooks/useRealtimeGuests';
+import { useFullSeatingChartSettings } from '@/hooks/useFullSeatingChartSettings';
 import { FullSeatingChartPreview } from './FullSeatingChartPreview';
 import { FullSeatingChartExporter } from './FullSeatingChartExporter';
+import { FullSeatingChartCustomizer } from './FullSeatingChartCustomizer';
 
 interface FullSeatingChartPageProps {
   selectedEventId: string | null;
@@ -19,9 +22,9 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
 }) => {
   const [isExporting, setIsExporting] = useState(false);
   const [showExporter, setShowExporter] = useState(false);
-  const [sortBy, setSortBy] = useState<'firstName' | 'lastName' | 'tableNo'>('firstName');
   const { events, loading: eventsLoading } = useEvents();
   const { guests, loading: guestsLoading } = useRealtimeGuests(selectedEventId);
+  const { settings, loading: settingsLoading, updateSettings } = useFullSeatingChartSettings(selectedEventId);
 
   const selectedEvent = selectedEventId ? events.find(e => e.id === selectedEventId) : null;
 
@@ -38,14 +41,14 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
     setShowExporter(true);
   };
 
-  // Sort guests based on selected sort option
+  // Sort guests based on selected sort option from settings
   const sortedGuests = React.useMemo(() => {
     return [...guests].sort((a, b) => {
-      if (sortBy === 'firstName') {
+      if (settings.sortBy === 'firstName') {
         const nameA = `${a.first_name} ${a.last_name || ''}`.trim();
         const nameB = `${b.first_name} ${b.last_name || ''}`.trim();
         return nameA.localeCompare(nameB);
-      } else if (sortBy === 'lastName') {
+      } else if (settings.sortBy === 'lastName') {
         const lastNameA = a.last_name || '';
         const lastNameB = b.last_name || '';
         if (lastNameA === lastNameB) {
@@ -62,7 +65,7 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
         return tableA - tableB;
       }
     });
-  }, [guests, sortBy]);
+  }, [guests, settings.sortBy]);
 
   const isDataReady = selectedEventId && !guestsLoading && guests.length > 0;
 
@@ -126,66 +129,44 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
         <Card className="ww-box print:hidden">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-6">
+              <div className="flex items-center gap-4">
                 <div className="flex items-center gap-2">
-                  <Users className="w-5 h-5 text-primary" />
-                  <span className="text-sm font-medium">
+                  <Users className="w-4 h-4 text-muted-foreground" />
+                  <span className="text-sm text-muted-foreground">
                     {guestsLoading ? "Loading..." : `${guests.length} guests`}
                   </span>
                 </div>
-                
-                <div className="flex items-center gap-2">
-                  <div className={`w-3 h-3 rounded-full ${isDataReady ? 'bg-green-500' : 'bg-yellow-500'}`} />
-                  <span className="text-sm text-muted-foreground">
-                    {isDataReady ? "Ready for generation" : "Preparing data..."}
-                  </span>
-                </div>
+                <Badge 
+                  variant={isDataReady ? "default" : "secondary"}
+                  className="text-xs"
+                >
+                  {isDataReady ? 'Ready to Generate' : 'Loading Data...'}
+                </Badge>
               </div>
 
               {/* Action Buttons */}
-              <div className="flex items-center gap-2">
-                <div className="flex items-center gap-2 mr-2">
-                  <ArrowUpDown className="w-4 h-4 text-primary-foreground" />
-                  <Select value={sortBy} onValueChange={(value: 'firstName' | 'lastName' | 'tableNo') => setSortBy(value)}>
-                    <SelectTrigger className="w-[180px] bg-primary text-primary-foreground border-primary hover:bg-primary/90">
-                      <div className="flex items-center gap-2">
-                        <span>Sort By:</span>
-                        <SelectValue>
-                          {sortBy === 'firstName' && 'First Name'}
-                          {sortBy === 'lastName' && 'Last Name'}
-                          {sortBy === 'tableNo' && 'Table No.'}
-                        </SelectValue>
-                      </div>
-                    </SelectTrigger>
-                    <SelectContent className="bg-popover z-50">
-                      <SelectItem value="firstName">First Name</SelectItem>
-                      <SelectItem value="lastName">Last Name</SelectItem>
-                      <SelectItem value="tableNo">Table No.</SelectItem>
-                    </SelectContent>
-                  </Select>
+              {isDataReady && (
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handlePrint}
+                  >
+                    <Printer className="w-4 h-4 mr-2" />
+                    Print
+                  </Button>
+                  
+                  <Button
+                    variant="default"
+                    size="sm"
+                    onClick={handleExport}
+                    disabled={isExporting}
+                  >
+                    <Download className="w-4 h-4 mr-2" />
+                    Export PDF
+                  </Button>
                 </div>
-                
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handlePrint}
-                  disabled={!isDataReady}
-                  className=""
-                >
-                  <Printer className="w-4 h-4 mr-2" />
-                  Print Seating Chart
-                </Button>
-                
-                <Button
-                  variant="default"
-                  size="sm"
-                  onClick={handleExport}
-                  disabled={!isDataReady || isExporting}
-                >
-                  <Download className="w-4 h-4 mr-2" />
-                  Export PDF
-                </Button>
-              </div>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -194,18 +175,29 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
       {/* Main Content */}
       {selectedEventId ? (
         isDataReady ? (
-          <FullSeatingChartPreview 
-            event={selectedEvent!} 
-            guests={sortedGuests}
-            sortBy={sortBy}
-          />
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            {/* Customization Panel */}
+            <div className="lg:col-span-1">
+              <FullSeatingChartCustomizer
+                settings={settings}
+                onSettingsChange={updateSettings}
+              />
+            </div>
+
+            {/* Preview */}
+            <div className="lg:col-span-3">
+              <FullSeatingChartPreview 
+                event={selectedEvent!} 
+                guests={sortedGuests}
+                settings={settings}
+              />
+            </div>
+          </div>
         ) : (
           <Card className="ww-box print:hidden">
-            <CardContent className="p-12 text-center">
-              <FileText className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
-              <CardTitle className="mb-2 text-muted-foreground">
-                {guestsLoading ? "Loading guest data..." : "No guests found"}
-              </CardTitle>
+            <CardContent className="p-8 text-center">
+              <Layout className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
+              <CardTitle className="mb-2">Loading Event Data</CardTitle>
               <CardDescription>
                 {guestsLoading 
                   ? "Please wait while we load your guest information."
@@ -217,11 +209,11 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
         )
       ) : (
         <Card className="ww-box print:hidden">
-          <CardContent className="p-12 text-center">
+          <CardContent className="p-8 text-center">
             <FileText className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
-            <CardTitle className="mb-2 text-muted-foreground">Select an Event</CardTitle>
+            <CardTitle className="mb-2">Select an Event</CardTitle>
             <CardDescription>
-              Choose an event to generate your full seating chart with guest check-off boxes.
+              Choose an event from the dropdown above to generate your full seating chart
             </CardDescription>
           </CardContent>
         </Card>
@@ -232,7 +224,7 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
         <FullSeatingChartExporter
           event={selectedEvent}
           guests={sortedGuests}
-          sortBy={sortBy}
+          settings={settings}
           onClose={() => setShowExporter(false)}
           onExportStart={() => setIsExporting(true)}
           onExportEnd={() => setIsExporting(false)}

@@ -244,6 +244,48 @@ export type Database = {
         }
         Relationships: []
       }
+      full_seating_chart_settings: {
+        Row: {
+          created_at: string
+          event_id: string
+          font_size: string
+          id: string
+          paper_size: string
+          show_dietary: boolean
+          show_relation: boolean
+          show_rsvp: boolean
+          sort_by: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          font_size?: string
+          id?: string
+          paper_size?: string
+          show_dietary?: boolean
+          show_relation?: boolean
+          show_rsvp?: boolean
+          sort_by?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          font_size?: string
+          id?: string
+          paper_size?: string
+          show_dietary?: boolean
+          show_relation?: boolean
+          show_rsvp?: boolean
+          sort_by?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       guest_access_attempts: {
         Row: {
           access_token: string
