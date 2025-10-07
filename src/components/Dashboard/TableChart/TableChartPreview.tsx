@@ -33,6 +33,31 @@ export const TableChartPreview: React.FC<TableChartPreviewProps> = ({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
+  const getOrdinalSuffix = (day: number) => {
+    if (day > 3 && day < 21) return 'th';
+    switch (day % 10) {
+      case 1: return 'st';
+      case 2: return 'nd';
+      case 3: return 'rd';
+      default: return 'th';
+    }
+  };
+
+  const formatDateWithOrdinal = (dateString: string) => {
+    if (!dateString) return '';
+    try {
+      const date = new Date(dateString);
+      const day = date.getDate();
+      const ordinal = getOrdinalSuffix(day);
+      const weekday = date.toLocaleDateString('en-US', { weekday: 'long' });
+      const month = date.toLocaleDateString('en-US', { month: 'long' });
+      const year = date.getFullYear();
+      return `${weekday} ${day}${ordinal}, ${month} ${year}`;
+    } catch {
+      return dateString;
+    }
+  };
+
   // Generate table positions based on layout algorithm
   const tablePositions: TablePosition[] = React.useMemo(() => {
     if (!tables.length) return [];
@@ -87,31 +112,32 @@ export const TableChartPreview: React.FC<TableChartPreviewProps> = ({
         {/* Background */}
         <rect width={svgWidth} height={svgHeight} fill="#ffffff" />
         
-        {/* Title */}
-        {settings.title && (
-          <text 
-            x={svgWidth / 2} 
-            y={30} 
-            textAnchor="middle" 
-            className="fill-current text-foreground font-bold"
-            fontSize={settings.fontSize === 'large' ? '24' : settings.fontSize === 'medium' ? '18' : '13.5'}
-          >
-            {settings.title}
-          </text>
-        )}
+        {/* Header - Event Name */}
+        <text 
+          x={svgWidth / 2} 
+          y={30} 
+          textAnchor="middle" 
+          fill="#8B5CF6"
+          fontWeight="bold"
+          fontSize="18"
+        >
+          {event?.name || 'Event'}
+        </text>
         
-        {/* Subtitle */}
-        {settings.subtitle && (
-          <text 
-            x={svgWidth / 2} 
-            y={settings.title ? 50 : 30} 
-            textAnchor="middle" 
-            className="fill-current text-muted-foreground"
-            fontSize={settings.fontSize === 'large' ? '18' : settings.fontSize === 'medium' ? '13.5' : '10.5'}
-          >
-            {settings.subtitle}
-          </text>
-        )}
+        {/* Header - Date, Venue, Chart Type */}
+        <text 
+          x={svgWidth / 2} 
+          y={50} 
+          textAnchor="middle" 
+          fill="#000000"
+          fontSize="14"
+        >
+          {event?.date && formatDateWithOrdinal(event.date)}
+          {event?.date && event?.venue && ' - '}
+          {event?.venue && event.venue}
+          {(event?.date || event?.venue) && ' - '}
+          Table Seating Chart
+        </text>
 
         {/* Tables */}
         {tablePositions.map((tablePos, index) => {
@@ -237,12 +263,23 @@ export const TableChartPreview: React.FC<TableChartPreviewProps> = ({
           );
         })}
 
+        {/* Footer Stats */}
+        <text 
+          x={svgWidth / 2} 
+          y={svgHeight - 140} 
+          textAnchor="middle" 
+          fill="#666666"
+          fontSize="10"
+        >
+          Total Guests: {guests.length} - Generated on: {new Date().toLocaleDateString()}
+        </text>
+
         {/* Wedding Waitress Logo at bottom - larger for better visibility */}
         <image
           href="/wedding-waitress-new-logo.png"
-          x={svgWidth / 2 - 120}
+          x={svgWidth / 2 - 60}
           y={svgHeight - 130}
-          width="240"
+          width="120"
           height="120"
           preserveAspectRatio="xMidYMid meet"
         />
