@@ -148,11 +148,11 @@ export const FullSeatingChartExporter: React.FC<FullSeatingChartExporterProps> =
 
       setProgress(75);
 
-      // Get font sizes based on settings - larger differences for visibility
+      // Get font sizes based on settings - aligned with print for true-to-size
       const fontSizes = {
-        small: { name: 10, details: 9 },
+        small: { name: 10.5, details: 9.5 },
         medium: { name: 12, details: 11 },
-        large: { name: 14, details: 13 }
+        large: { name: 13.5, details: 12.5 }
       };
       const currentFontSize = fontSizes[settings.fontSize];
 

@@ -35,12 +35,12 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
     }
   };
 
-  // Get print font sizes based on settings
+  // Get print font sizes based on settings (in points for true-to-size printing)
   const getPrintFontSizes = () => {
     switch (settings.fontSize) {
-      case 'small': return { main: '12px', checkbox: '10px' };
-      case 'large': return { main: '16px', checkbox: '13px' };
-      default: return { main: '14px', checkbox: '11px' }; // medium
+      case 'small': return { main: '10.5pt', checkbox: '9pt' };
+      case 'large': return { main: '13.5pt', checkbox: '12pt' };
+      default: return { main: '12pt', checkbox: '10.5pt' }; // medium
     }
   };
 
@@ -347,7 +347,6 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
             .print-preview-content {
               transform: none !important;
               padding: 0 !important;
-              height: 100vh !important;
             }
             
             .print-guest-list {
