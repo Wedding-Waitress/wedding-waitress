@@ -261,6 +261,8 @@ export const PrivacyPolicy = () => {
               <Link to="/privacy" className="hover:text-primary transition-colors">Privacy Policy</Link>
               <span>•</span>
               <Link to="/terms" className="hover:text-primary transition-colors">Terms of Service</Link>
+              <span>•</span>
+              <Link to="/contact" className="hover:text-primary transition-colors">Contact</Link>
             </div>
           </div>
         </div>
