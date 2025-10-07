@@ -39,16 +39,26 @@ export const FullSeatingChartExporter: React.FC<FullSeatingChartExporterProps> =
     return `${guest.first_name} ${guest.last_name || ''}`.trim();
   };
 
-  const formatDate = (dateString: string) => {
+  const getOrdinalSuffix = (day: number) => {
+    if (day > 3 && day < 21) return 'th';
+    switch (day % 10) {
+      case 1: return 'st';
+      case 2: return 'nd';
+      case 3: return 'rd';
+      default: return 'th';
+    }
+  };
+
+  const formatDateWithOrdinal = (dateString: string) => {
     if (!dateString) return '';
     try {
       const date = new Date(dateString);
-      return date.toLocaleDateString('en-US', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-      });
+      const day = date.getDate();
+      const ordinal = getOrdinalSuffix(day);
+      const weekday = date.toLocaleDateString('en-US', { weekday: 'long' });
+      const month = date.toLocaleDateString('en-US', { month: 'long' });
+      const year = date.getFullYear();
+      return `${weekday} ${day}${ordinal}, ${month} ${year}`;
     } catch {
       return dateString;
     }
@@ -78,32 +88,29 @@ export const FullSeatingChartExporter: React.FC<FullSeatingChartExporterProps> =
       // Header
       pdf.setFontSize(18);
       pdf.setFont('helvetica', 'bold');
+      pdf.setTextColor(139, 92, 246); // Purple color
       let yPosition = margin + 10;
       
-      // Event name
+      // Event name (Line 1)
       pdf.text(event.name, pageWidth / 2, yPosition, { align: 'center' });
       yPosition += 8;
 
-      // Chart title
-      pdf.setFontSize(14);
-      pdf.text('Full Seating Chart', pageWidth / 2, yPosition, { align: 'center' });
-      yPosition += 6;
-
-      // Event details
-      pdf.setFontSize(10);
+      // Combined subtitle (Line 2)
+      pdf.setFontSize(12);
       pdf.setFont('helvetica', 'normal');
+      pdf.setTextColor(0, 0, 0); // Black
       
+      let subtitle = '';
       if (event.date) {
-        pdf.text(formatDate(event.date), pageWidth / 2, yPosition, { align: 'center' });
-        yPosition += 4;
+        subtitle += formatDateWithOrdinal(event.date);
       }
-      
       if (event.venue) {
-        pdf.text(event.venue, pageWidth / 2, yPosition, { align: 'center' });
-        yPosition += 4;
+        subtitle += (subtitle ? ' - ' : '') + event.venue;
       }
-
-      yPosition += 10; // Extra space before content
+      subtitle += (subtitle ? ' - ' : '') + 'Full Seating Chart';
+      
+      pdf.text(subtitle, pageWidth / 2, yPosition, { align: 'center' });
+      yPosition += 10;
 
       setProgress(50);
 
@@ -186,16 +193,30 @@ export const FullSeatingChartExporter: React.FC<FullSeatingChartExporterProps> =
       setProgress(90);
 
       // Footer
-      yPosition = Math.max(yPosition + 10, pageHeight - 25);
+      yPosition = Math.max(yPosition + 10, pageHeight - 30);
       pdf.setFontSize(8);
       pdf.setFont('helvetica', 'normal');
+      pdf.setTextColor(102, 102, 102); // Gray
       
       // Draw line
       pdf.setLineWidth(0.3);
       pdf.line(margin, yPosition - 5, pageWidth - margin, yPosition - 5);
       
-      pdf.text(`Total Guests: ${guests.length}`, pageWidth / 2, yPosition, { align: 'center' });
-      pdf.text(`Generated on ${new Date().toLocaleDateString()}`, pageWidth / 2, yPosition + 4, { align: 'center' });
+      // Combined footer stats (Line 1)
+      const footerText = `Total Guests: ${guests.length} - Generated on: ${new Date().toLocaleDateString()}`;
+      pdf.text(footerText, pageWidth / 2, yPosition, { align: 'center' });
+      
+      // Add logo (Line 2)
+      yPosition += 6;
+      try {
+        // Load and add the Wedding Waitress logo
+        const logoUrl = '/wedding-waitress-new-logo.png';
+        const logoHeight = 12; // mm
+        const logoWidth = 40; // mm (approximate)
+        pdf.addImage(logoUrl, 'PNG', (pageWidth - logoWidth) / 2, yPosition, logoWidth, logoHeight);
+      } catch (error) {
+        console.log('Could not add logo to PDF:', error);
+      }
 
       setProgress(100);
 
