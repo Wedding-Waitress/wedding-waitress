@@ -178,81 +178,77 @@ export const TableSeatingChartPage: React.FC<TableSeatingChartPageProps> = ({
       {/* Header */}
       <Card>
         <CardHeader className="pb-6">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-            <div className="space-y-4 flex-1">
-              {/* Event Selector */}
-              <div className="flex items-center space-x-4">
-                <label className="text-sm font-medium text-foreground">
-                  Choose Event:
-                </label>
-                <Select value={selectedEventId || "no-event"} onValueChange={handleEventSelect}>
-                  <SelectTrigger className="w-[300px]">
-                    <SelectValue placeholder={eventsLoading ? "Loading events..." : "Select an event..."} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {events.length > 0 ? (
-                      events.map((event) => (
-                        <SelectItem key={event.id} value={event.id}>
-                          <div className="flex items-center space-x-2">
-                            <Calendar className="w-4 h-4" />
-                            <span>{event.name}</span>
-                          </div>
-                        </SelectItem>
-                      ))
-                    ) : (
-                      <SelectItem value="no-events" disabled>
-                        {eventsLoading ? "Loading events..." : "No events found"}
+          <div className="flex flex-col gap-4">
+            {/* Top Row: Event Selector */}
+            <div className="flex items-center space-x-4">
+              <label className="text-sm font-medium text-foreground">
+                Choose Event:
+              </label>
+              <Select value={selectedEventId || "no-event"} onValueChange={handleEventSelect}>
+                <SelectTrigger className="w-[300px]">
+                  <SelectValue placeholder={eventsLoading ? "Loading events..." : "Select an event..."} />
+                </SelectTrigger>
+                <SelectContent>
+                  {events.length > 0 ? (
+                    events.map((event) => (
+                      <SelectItem key={event.id} value={event.id}>
+                        <div className="flex items-center space-x-2">
+                          <Calendar className="w-4 h-4" />
+                          <span>{event.name}</span>
+                        </div>
                       </SelectItem>
-                    )}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Event Title */}
-              {selectedEvent && (
-                <div className="flex items-center space-x-2">
-                  <span className="text-lg font-medium text-foreground">Table Seating Chart for</span>
-                  <span className="text-lg font-bold text-primary">{selectedEvent.name}</span>
-                </div>
-              )}
+                    ))
+                  ) : (
+                    <SelectItem value="no-events" disabled>
+                      {eventsLoading ? "Loading events..." : "No events found"}
+                    </SelectItem>
+                  )}
+                </SelectContent>
+              </Select>
             </div>
 
-            {/* Header Icon & Description */}
-            <div className="flex items-start gap-3">
-              <TableIcon className="w-16 h-16 text-primary flex-shrink-0" />
-              <div className="flex flex-col">
-                <CardTitle className="mb-2 text-left">Table Seating Chart</CardTitle>
-                <CardDescription className="text-left">
-                  Generate professional seating charts for your venue staff and coordinators
-                </CardDescription>
+            {/* Event Title Row */}
+            {selectedEvent && (
+              <div className="flex items-center space-x-2">
+                <span className="text-lg font-medium text-foreground">Table Seating Chart for</span>
+                <span className="text-lg font-bold text-primary">{selectedEvent.name}</span>
               </div>
-            </div>
-          </div>
-        </CardHeader>
-      </Card>
+            )}
 
-      {/* Data Status */}
-      {selectedEventId && (
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2">
-                  <Users className="w-4 h-4 text-muted-foreground" />
-                  <span className="text-sm text-muted-foreground">
-                    {guests.length} guests across {tables.length} tables
-                  </span>
+            {/* Main Title Row: Icon, Description, Guest Count, and Buttons */}
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+              {/* Header Icon & Description */}
+              <div className="flex items-start gap-3">
+                <TableIcon className="w-16 h-16 text-primary flex-shrink-0" />
+                <div className="flex flex-col">
+                  <CardTitle className="mb-2 text-left">Table Seating Chart</CardTitle>
+                  <CardDescription className="text-left">
+                    Generate professional seating charts for your venue staff and coordinators
+                  </CardDescription>
+                  
+                  {/* Guest Count and Status Badge */}
+                  {selectedEventId && (
+                    <div className="flex items-center gap-4 mt-3">
+                      <div className="flex items-center gap-2">
+                        <Users className="w-4 h-4 text-muted-foreground" />
+                        <span className="text-sm text-muted-foreground">
+                          {guests.length} guests across {tables.length} tables
+                        </span>
+                      </div>
+                      <Badge 
+                        variant={isDataReady ? "default" : "secondary"}
+                        className="text-xs"
+                      >
+                        {isDataReady ? 'Ready to Generate' : 'Loading Data...'}
+                      </Badge>
+                    </div>
+                  )}
                 </div>
-                <Badge 
-                  variant={isDataReady ? "default" : "secondary"}
-                  className="text-xs"
-                >
-                  {isDataReady ? 'Ready to Generate' : 'Loading Data...'}
-                </Badge>
               </div>
-              
+
+              {/* Export and Print Buttons */}
               {isDataReady && (
-                <div className="flex gap-2">
+                <div className="flex gap-2 lg:self-start">
                   <Button
                     variant="outline"
                     size="sm"
@@ -282,9 +278,9 @@ export const TableSeatingChartPage: React.FC<TableSeatingChartPageProps> = ({
                 </div>
               )}
             </div>
-          </CardContent>
-        </Card>
-      )}
+          </div>
+        </CardHeader>
+      </Card>
 
       {selectedEventId ? (
         isDataReady ? (
