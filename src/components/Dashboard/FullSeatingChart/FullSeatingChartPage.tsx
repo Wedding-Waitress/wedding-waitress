@@ -39,8 +39,8 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
   const handlePrintFullSeating = async () => {
     try {
       toast({
-        title: "Preparing print...",
-        description: "Generating PDF for printing..."
+        title: "Preparing PDF...",
+        description: "Opening print preview in new tab..."
       });
 
       // Generate the exact same PDF used for export
@@ -53,37 +53,25 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
       // Create object URL
       const url = URL.createObjectURL(pdfBlob);
 
-      // Create hidden iframe to print PDF
-      const iframe = document.createElement('iframe');
-      iframe.style.position = 'fixed';
-      iframe.style.right = '0';
-      iframe.style.bottom = '0';
-      iframe.style.width = '0';
-      iframe.style.height = '0';
-      iframe.style.border = '0';
-      document.body.appendChild(iframe);
+      // Open PDF in new window - user can print from there
+      const printWindow = window.open(url, '_blank');
 
-      // Load PDF and print
-      iframe.onload = () => {
-        try {
-          iframe.contentWindow!.focus();
-          iframe.contentWindow!.print();
-        } finally {
-          // Cleanup after print dialog closes
-          setTimeout(() => {
-            URL.revokeObjectURL(url);
-            document.body.removeChild(iframe);
-          }, 2000);
-        }
-      };
+      if (!printWindow) {
+        toast({
+          title: "Pop-up Blocked",
+          description: "Please allow pop-ups and try again",
+          variant: "destructive"
+        });
+      }
 
-      iframe.src = url;
+      // Cleanup after 60 seconds
+      setTimeout(() => URL.revokeObjectURL(url), 60000);
 
     } catch (error) {
       console.error('Print error:', error);
       toast({
         title: "Print Failed",
-        description: "Could not generate print preview. Please try Export PDF instead.",
+        description: "Could not generate PDF. Please try again.",
         variant: "destructive"
       });
     }
