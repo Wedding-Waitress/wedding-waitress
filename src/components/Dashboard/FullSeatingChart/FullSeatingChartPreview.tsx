@@ -100,8 +100,8 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
 
   return (
     <>
-      {/* Screen Version with A4 Preview */}
-      <div className="space-y-6 print:hidden">
+      {/* Screen Version */}
+      <div className="print:hidden">
         {/* Interactive Version */}
         <Card>
           <CardContent className="p-6">
@@ -146,40 +146,6 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
                 Total Guests: {guests.length} - Generated on: {new Date().toLocaleDateString()}
               </p>
               <img src={weddingWaitressLogo} alt="Wedding Waitress" className="h-12 mx-auto opacity-60" />
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* A4 Preview Container */}
-        <Card>
-          <CardContent className="p-6">
-            <h3 className="text-lg font-semibold text-foreground mb-4">Print Preview (A4)</h3>
-            <div className="flex justify-center">
-              <div className="a4-preview border shadow-lg">
-                <div className="print-preview-content">
-                  <div className="print-header">
-                    <h1 className="print-event-name">{event.name}</h1>
-                    <p className="print-subtitle">
-                      {event.date && formatDateWithOrdinal(event.date)}
-                      {event.date && event.venue && ' - '}
-                      {event.venue && event.venue}
-                      {(event.date || event.venue) && ' - '}
-                      Full Seating Chart
-                    </p>
-                  </div>
-                  <div className="print-guest-list">
-                    {guests.map((guest) => (
-                      <PrintGuestRow key={guest.id} guest={guest} />
-                    ))}
-                  </div>
-                  <div className="print-footer">
-                    <div className="print-footer-stats">
-                      Total Guests: {guests.length} - Generated on: {new Date().toLocaleDateString()}
-                    </div>
-                    <img src={weddingWaitressLogo} alt="Wedding Waitress" />
-                  </div>
-                </div>
-              </div>
             </div>
           </CardContent>
         </Card>
