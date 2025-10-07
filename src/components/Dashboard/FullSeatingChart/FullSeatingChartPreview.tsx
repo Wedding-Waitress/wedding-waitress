@@ -137,6 +137,121 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
 
   return (
     <>
+      {/* Print Styles - Must be at component root */}
+      <style>{`
+        @page {
+          size: A4 portrait;
+          margin: 12mm;
+        }
+        
+        #full-seating-print-content {
+          display: none;
+        }
+        
+        @media print {
+          /* Hide all non-print content */
+          body > *:not(#full-seating-print-content) {
+            display: none !important;
+          }
+          
+          /* Show only print content */
+          #full-seating-print-content {
+            display: block !important;
+            position: absolute !important;
+            left: 0 !important;
+            top: 0 !important;
+            width: 100% !important;
+            background: white !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+          
+          body {
+            margin: 0;
+            padding: 0;
+            background: white;
+          }
+        }
+        
+        .print-preview-content {
+          padding: 0;
+          display: flex;
+          flex-direction: column;
+          min-height: 100vh;
+        }
+        
+        .print-header {
+          text-align: center;
+          margin-bottom: 6mm;
+        }
+        
+        .print-event-name {
+          font-size: 18px;
+          font-weight: bold;
+          margin: 0 0 4px 0;
+          color: #8B5CF6;
+        }
+        
+        .print-subtitle {
+          font-size: 14px;
+          margin: 0;
+          color: #000;
+        }
+        
+        .print-guest-list {
+          flex: 1;
+          columns: 2;
+          column-gap: 12mm;
+          column-fill: balance;
+        }
+        
+        .print-guest-item {
+          break-inside: avoid;
+          font-size: ${printFontSizes.main};
+          line-height: 1.2;
+          margin-bottom: 2px;
+          color: #000;
+        }
+        
+        .print-checkbox {
+          font-family: monospace;
+          font-size: ${printFontSizes.checkbox};
+          margin-right: 4px;
+        }
+        
+        .print-guest-name {
+          font-weight: 700;
+        }
+        
+        .print-separator {
+          margin: 0 2px;
+        }
+        
+        .print-table {
+          font-weight: 700;
+        }
+        
+        .print-footer {
+          margin-top: auto;
+          padding-top: 4mm;
+          border-top: 1px solid #ddd;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 2mm;
+        }
+        
+        .print-footer-stats {
+          font-size: 10px;
+          color: #666;
+        }
+        
+        .print-footer img {
+          height: 12mm;
+          opacity: 0.6;
+        }
+      `}</style>
+
       {/* Screen Version */}
       <div className="print:hidden">
         {/* Interactive Version */}
@@ -189,61 +304,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
       </div>
 
       {/* Print Version - Hidden until printing */}
-      <div id="full-seating-print" className="print-version hidden print:block">
-        <style>{`
-          @page {
-            size: A4 portrait;
-            margin: 12mm;
-          }
-          
-          @media print {
-            /* Hide non-print elements */
-            body > *:not(.print-version) {
-              display: none !important;
-            }
-            
-            /* Show only print version */
-            .print-version {
-              display: block !important;
-              position: absolute !important;
-              left: 0 !important;
-              top: 0 !important;
-              width: 100% !important;
-              background: white !important;
-              -webkit-print-color-adjust: exact !important;
-              print-color-adjust: exact !important;
-            }
-            
-            .print-version * {
-              display: revert !important;
-            }
-            
-            .print-preview-content {
-              transform: none !important;
-              padding: 0 !important;
-            }
-            
-            .print-guest-list {
-              font-size: ${printFontSizes.main} !important;
-              line-height: 1.1 !important;
-            }
-            
-            .print-guest-item {
-              margin-bottom: 1px !important;
-            }
-            
-            .print-footer {
-              position: fixed;
-              bottom: 0;
-              left: 0;
-              right: 0;
-              background: white;
-            }
-          }
-          
-          /* Screen preview styles */
-        `}</style>
-        
+      <div id="full-seating-print-content">
         <div className="print-preview-content">
           <div className="print-header">
             <h1 className="print-event-name">{event.name}</h1>
