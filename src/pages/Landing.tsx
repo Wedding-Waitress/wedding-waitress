@@ -387,10 +387,10 @@ It handles every detail of your event's seating chart, RSVP & more so you can fo
 
       {/* Footer Section */}
       <footer className="relative border-t">
-        <div className="absolute inset-0 bg-gradient-hero opacity-10"></div>
+        <div className="absolute inset-0 bg-gradient-hero opacity-10 pointer-events-none"></div>
         {/* CTA Footer Section */}
         <section className="py-20 relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-hero opacity-5"></div>
+          <div className="absolute inset-0 bg-gradient-hero opacity-5 pointer-events-none"></div>
           <div className="w-full px-4 text-center relative z-10">
             <div className="max-w-4xl mx-auto space-y-8">
               <h2 className="text-4xl font-bold">
@@ -407,7 +407,7 @@ It handles every detail of your event's seating chart, RSVP & more so you can fo
         </section>
 
         {/* Footer Links */}
-        <div className="bg-card border-t">
+        <div className="bg-card border-t relative z-10">
           <div className="w-full px-4 py-16">
             <div className="grid md:grid-cols-4 gap-8">
               {/* Wedding Waitress Column */}
@@ -440,9 +440,9 @@ It handles every detail of your event's seating chart, RSVP & more so you can fo
               <div className="space-y-4">
                 <h3 className="font-semibold text-foreground">Support</h3>
                 <ul className="space-y-2 text-sm text-muted-foreground">
-                  <li><Link to="/privacy" className="hover:text-primary transition-colors">Privacy Policy</Link></li>
-                  <li><Link to="/terms" className="hover:text-primary transition-colors">Terms of Service</Link></li>
-                  <li><Link to="/contact" className="hover:text-primary transition-colors">Contact</Link></li>
+                  <li><Link to="/privacy" className="hover:text-primary transition-colors cursor-pointer">Privacy Policy</Link></li>
+                  <li><Link to="/terms" className="hover:text-primary transition-colors cursor-pointer">Terms of Service</Link></li>
+                  <li><Link to="/contact" className="hover:text-primary transition-colors cursor-pointer">Contact</Link></li>
                 </ul>
               </div>
 
