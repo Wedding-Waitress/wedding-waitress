@@ -144,34 +144,6 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
           margin: 12mm;
         }
         
-        #full-seating-print-content {
-          display: none;
-        }
-        
-        @media print {
-          /* Hide all non-print content but keep the print container and its descendants */
-          body *:not(#full-seating-print-content):not(#full-seating-print-content *) {
-            display: none !important;
-          }
-          
-          /* Show only print content */
-          #full-seating-print-content {
-            display: block !important;
-            position: absolute !important;
-            left: 0 !important;
-            top: 0 !important;
-            width: 100% !important;
-            background: white !important;
-            -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
-          }
-          
-          body {
-            margin: 0;
-            padding: 0;
-            background: white;
-          }
-        }
         
         .print-preview-content {
           padding: 0;
@@ -304,7 +276,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
       </div>
 
       {/* Print Version - Hidden until printing */}
-      <div id="full-seating-print-content">
+      <div id="full-seating-print-content" className="hidden print:block">
         <div className="print-preview-content">
           <div className="print-header">
             <h1 className="print-event-name">{event.name}</h1>

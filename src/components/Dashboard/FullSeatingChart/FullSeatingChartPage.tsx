@@ -33,8 +33,9 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
     onEventSelect(eventId);
   };
 
-  const handlePrint = () => {
-    window.print();
+  const handlePrintFullSeating = () => {
+    // ensure layout settles before printing
+    requestAnimationFrame(() => setTimeout(() => window.print(), 0));
   };
 
   const handleExport = () => {
@@ -140,11 +141,11 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={handlePrint}
+                    onClick={handlePrintFullSeating}
                   >
-                    <Printer className="w-4 h-4 mr-2" />
-                    Print
-                  </Button>
+                      <Printer className="w-4 h-4 mr-2" />
+                      Print
+                    </Button>
                   
                   <Button
                     variant="default"
