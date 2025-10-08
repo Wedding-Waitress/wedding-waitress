@@ -396,16 +396,32 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
         {currentEvent && (
           <Card className="ww-box print-hide">
             <CardContent className="p-6">
-              <div className="flex items-center justify-between">
+              {/* Title and Description */}
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-primary/10">
+                  <ChefHat className="w-5 h-5 text-primary" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-semibold gradient-text">Kitchen Dietary Requirements</h2>
+                  <p className="text-muted-foreground text-sm">
+                    Staff reference sheet for guests with dietary requirements and allergies
+                  </p>
+                </div>
+              </div>
+
+              {/* Event Info and Action Buttons Row */}
+              <div className="flex items-center justify-between pt-4">
                 {/* Left Side: Event Info & Guest Count */}
-                <div className="space-y-1">
-                  <h3 className="font-semibold text-lg">{currentEvent.name}</h3>
-                  {currentEvent.date && (
-                    <p className="text-sm text-muted-foreground">
-                      {format(new Date(currentEvent.date), 'EEEE, MMMM do, yyyy')}
-                    </p>
-                  )}
-                  <div className="flex items-center gap-2 pt-1">
+                <div className="flex items-center gap-4">
+                  <div>
+                    <h3 className="font-semibold text-lg">{currentEvent.name}</h3>
+                    {currentEvent.date && (
+                      <p className="text-sm text-muted-foreground">
+                        {format(new Date(currentEvent.date), 'EEEE, MMMM do, yyyy')}
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2">
                     <Badge variant="secondary">
                       {dietaryGuests.length} Guest{dietaryGuests.length !== 1 ? 's' : ''}
                     </Badge>
@@ -434,25 +450,12 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                     className="gap-2"
                   >
                     <Download className="w-4 h-4" />
-                    {isExporting ? 'Exporting...' : 'Export PDF'}
+                    {isExporting ? 'Downloading...' : 'Download PDF'}
                   </Button>
                 </div>
               </div>
 
               <Separator className="my-4" />
-
-              {/* Title and Description */}
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-primary/10">
-                  <ChefHat className="w-5 h-5 text-primary" />
-                </div>
-                <div>
-                  <h2 className="text-xl font-semibold gradient-text">Kitchen Dietary Requirements</h2>
-                  <p className="text-muted-foreground text-sm">
-                    Staff reference sheet for guests with dietary requirements and allergies
-                  </p>
-                </div>
-              </div>
 
               {/* Event Selector */}
               <div className="flex items-center gap-3 pt-4">
