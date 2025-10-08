@@ -117,12 +117,17 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
   }, [guests, settings.sortBy]);
 
   // Pagination logic - calculate guests per page for A4
-  const guestsPerPage = 22; // Fits well on A4 with header
+  const guestsPerPage = useMemo(() => {
+    let base = settings.fontSize === 'small' ? 22 : settings.fontSize === 'large' ? 18 : 20;
+    if (settings.showLogo) base -= 1; // header is taller when logo is shown
+    return Math.max(12, base); // safety floor
+  }, [settings.fontSize, settings.showLogo]);
+
   const totalPages = Math.ceil(dietaryGuests.length / guestsPerPage);
-  const paginatedGuests = dietaryGuests.slice(
-    (currentPage - 1) * guestsPerPage,
-    currentPage * guestsPerPage
-  );
+  const paginatedGuests = useMemo(() => {
+    const start = (currentPage - 1) * guestsPerPage;
+    return dietaryGuests.slice(start, start + guestsPerPage);
+  }, [dietaryGuests, currentPage, guestsPerPage]);
 
   // Reset to page 1 when event changes
   React.useEffect(() => {
@@ -336,13 +341,18 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
             padding: 8mm 10mm 10mm 10mm !important;
             margin: 0 auto !important;
             background: white !important;
-            break-after: page !important;
-            page-break-after: always !important;
+            page-break-after: auto !important; /* allow auto, no forced blank page */
+            break-after: auto !important;
+          }
+
+          .print-page + .print-page {
+            page-break-before: always !important; /* ensure each page starts on new sheet */
+            break-before: page !important;
           }
 
           .print-page:last-of-type {
+            page-break-after: auto !important; /* prevent trailing blank page */
             break-after: auto !important;
-            page-break-after: auto !important;
           }
 
           .print-page > *:first-child {
@@ -395,6 +405,21 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
           .print-table th {
             background-color: #f0f0f0 !important;
             font-weight: 600 !important;
+          }
+
+          /* Keep rows and table sections together on one page */
+          .print-table,
+          .print-table thead,
+          .print-table tbody,
+          .print-table tr {
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+          }
+          .print-table thead {
+            display: table-header-group !important;
+          }
+          .print-table tbody {
+            display: table-row-group !important;
           }
 
           .print-hide {
