@@ -126,6 +126,17 @@ export const FullSeatingChartCustomizer: React.FC<FullSeatingChartCustomizerProp
                 onCheckedChange={(checked) => onSettingsChange({ showRelation: checked })}
               />
             </div>
+            
+            <div className="flex items-center justify-between">
+              <Label htmlFor="show-logo" className="text-xs text-muted-foreground">
+                Show Logo
+              </Label>
+              <Switch
+                id="show-logo"
+                checked={settings.showLogo}
+                onCheckedChange={(checked) => onSettingsChange({ showLogo: checked })}
+              />
+            </div>
           </div>
         </div>
 

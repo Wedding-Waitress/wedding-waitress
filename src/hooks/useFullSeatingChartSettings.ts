@@ -8,6 +8,7 @@ export interface FullSeatingChartSettings {
   showDietary: boolean;
   showRsvp: boolean;
   showRelation: boolean;
+  showLogo: boolean;
   paperSize: 'A4' | 'A3' | 'A2' | 'A1';
 }
 
@@ -17,6 +18,7 @@ const DEFAULT_SETTINGS: FullSeatingChartSettings = {
   showDietary: false,
   showRsvp: false,
   showRelation: false,
+  showLogo: true,
   paperSize: 'A4',
 };
 
@@ -51,6 +53,7 @@ export const useFullSeatingChartSettings = (eventId: string | null) => {
             showDietary: data.show_dietary,
             showRsvp: data.show_rsvp,
             showRelation: data.show_relation,
+            showLogo: data.show_logo ?? true,
             paperSize: data.paper_size as 'A4' | 'A3' | 'A2' | 'A1',
           });
         }
@@ -85,6 +88,7 @@ export const useFullSeatingChartSettings = (eventId: string | null) => {
           show_dietary: updatedSettings.showDietary,
           show_rsvp: updatedSettings.showRsvp,
           show_relation: updatedSettings.showRelation,
+          show_logo: updatedSettings.showLogo,
           paper_size: updatedSettings.paperSize,
         }, {
           onConflict: 'event_id,user_id'
