@@ -40,9 +40,9 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
     
     // Calculate pixel height per guest based on font size and displayed info
     const fontSizeMap = {
-      small: { lineHeight: 18, extraLine: 12 },    // Actual: ~30px total with all info
-      medium: { lineHeight: 22, extraLine: 14 },   // Actual: ~36px total with all info
-      large: { lineHeight: 26, extraLine: 16 }     // Actual: ~42px total with all info
+      small: { lineHeight: 28, extraLine: 14 },    // Conservative: includes row padding + gaps
+      medium: { lineHeight: 32, extraLine: 16 },   // Ensures no overflow into footer line
+      large: { lineHeight: 38, extraLine: 18 }     // Slightly overestimates for safety
     };
     
     const currentFont = fontSizeMap[settings.fontSize];
@@ -51,8 +51,10 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
     if (settings.showRsvp) pixelsPerGuest += currentFont.extraLine;
     if (settings.showRelation) pixelsPerGuest += currentFont.extraLine;
     
-    // Calculate guests per column
-    const guestsPerColumn = Math.floor(guestListHeight / pixelsPerGuest);
+    // Calculate guests per column with safety so we never cross the footer's top border line
+    const SAFETY_PIXELS = 8; // keep above the footer border-top line
+    const calculatedGuestsPerColumn = Math.floor((guestListHeight - SAFETY_PIXELS) / pixelsPerGuest);
+    const guestsPerColumn = Math.max(1, calculatedGuestsPerColumn - 1); // extra buffer of 1 row
     const maxGuestsPerPage = guestsPerColumn * 2; // Two columns
     
     // Split guests into pages
