@@ -320,27 +320,39 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
             visibility: visible !important;
           }
 
-          body {
+          html, body {
             margin: 0 !important;
             padding: 0 !important;
             background: white !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
           }
 
           .print-page {
             position: relative !important;
             width: 210mm !important;
-            min-height: 297mm !important;
-            padding: 12mm !important;
+            height: 297mm !important;
+            box-sizing: border-box !important;
+            padding: 8mm 10mm 10mm 10mm !important;
             margin: 0 auto !important;
             background: white !important;
-            box-sizing: border-box !important;
+            break-after: page !important;
             page-break-after: always !important;
+          }
+
+          .print-page:last-of-type {
+            break-after: auto !important;
+            page-break-after: auto !important;
+          }
+
+          .print-page > *:first-child {
+            margin-top: 0 !important;
           }
 
           .print-header-logo img {
             height: 48px !important;
             display: block;
-            margin: 0 auto 8px auto;
+            margin: 0 auto 4px auto !important;
           }
 
           .print-event-name {
@@ -348,21 +360,21 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
             font-weight: 600 !important;
             color: #8B5CF6 !important;
             text-align: center !important;
-            margin-bottom: 6px !important;
+            margin-bottom: 4px !important;
           }
 
           .print-chart-title {
             font-size: 15px !important;
             font-weight: 600 !important;
             text-align: center !important;
-            margin-bottom: 4px !important;
+            margin-bottom: 2px !important;
           }
 
           .print-meta-line {
             font-size: 13px !important;
             text-align: center !important;
-            margin-bottom: 10px !important;
-            padding-bottom: 8px !important;
+            margin-bottom: 6px !important;
+            padding-bottom: 6px !important;
             border-bottom: 1px solid #000 !important;
           }
 
