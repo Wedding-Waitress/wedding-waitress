@@ -252,6 +252,7 @@ export type Database = {
           id: string
           paper_size: string
           show_dietary: boolean
+          show_logo: boolean | null
           show_relation: boolean
           show_rsvp: boolean
           sort_by: string
@@ -265,6 +266,7 @@ export type Database = {
           id?: string
           paper_size?: string
           show_dietary?: boolean
+          show_logo?: boolean | null
           show_relation?: boolean
           show_rsvp?: boolean
           sort_by?: string
@@ -278,6 +280,7 @@ export type Database = {
           id?: string
           paper_size?: string
           show_dietary?: boolean
+          show_logo?: boolean | null
           show_relation?: boolean
           show_rsvp?: boolean
           sort_by?: string

@@ -154,14 +154,16 @@ export const FullSeatingChartExporter: React.FC<FullSeatingChartExporterProps> =
       const drawHeader = (pageInfo: { leftColumn: Guest[], rightColumn: Guest[], pageNum: number, totalPages: number }, startGuestNum: number) => {
         let y = margin - 2;
         
-        // Logo
-        try {
-          const logoUrl = '/wedding-waitress-new-logo.png';
-          pdf.addImage(logoUrl, 'PNG', (pageWidth - 35) / 2, y, 35, 10.5);
-          y += 22;
-        } catch (error) {
-          console.log('Could not add logo to PDF:', error);
-          y += 2;
+        // Logo (conditional)
+        if (settings.showLogo) {
+          try {
+            const logoUrl = '/wedding-waitress-new-logo.png';
+            pdf.addImage(logoUrl, 'PNG', (pageWidth - 35) / 2, y, 35, 10.5);
+            y += 22;
+          } catch (error) {
+            console.log('Could not add logo to PDF:', error);
+            y += 2;
+          }
         }
         
         // Event name

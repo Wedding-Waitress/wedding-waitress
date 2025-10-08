@@ -400,13 +400,15 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
               {/* Header - 120px reserved */}
               <div className="text-center mb-8" style={{ minHeight: '120px' }}>
                 {/* Logo */}
-                <div className="flex justify-center mb-3">
-                  <img 
-                    src={weddingWaitressLogoFull} 
-                    alt="Wedding Waitress" 
-                    className="h-12 w-auto object-contain"
-                  />
-                </div>
+                {settings.showLogo && (
+                  <div className="flex justify-center mb-3">
+                    <img 
+                      src={weddingWaitressLogoFull} 
+                      alt="Wedding Waitress" 
+                      className="h-12 w-auto object-contain"
+                    />
+                  </div>
+                )}
                 
                 {/* Line 1: Event Name */}
                 <h1 className="text-xl font-bold text-primary mb-1">
@@ -501,9 +503,11 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
           >
             <div className="print-header">
               {/* Logo - print version */}
-              <div className="print-logo">
-                <img src={weddingWaitressLogoFull} alt="Wedding Waitress" />
-              </div>
+              {settings.showLogo && (
+                <div className="print-logo">
+                  <img src={weddingWaitressLogoFull} alt="Wedding Waitress" />
+                </div>
+              )}
               
               {/* Line 1: Event Name */}
               <h1 className="print-event-name">
