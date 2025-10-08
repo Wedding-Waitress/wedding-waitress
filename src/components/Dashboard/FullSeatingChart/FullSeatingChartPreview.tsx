@@ -6,7 +6,7 @@ import { FullSeatingChartSettings } from '@/hooks/useFullSeatingChartSettings';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Eye, Users, ChevronLeft, ChevronRight } from 'lucide-react';
-import weddingWaitressLogo from '@/assets/wedding-waitress-new-logo.png';
+import weddingWaitressLogoFull from '@/assets/wedding-waitress-logo-full.png';
 
 interface FullSeatingChartPreviewProps {
   event: any;
@@ -34,9 +34,9 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
     const contentHeight = A4_HEIGHT - (MARGIN * 2); // 1033px
     
     // Reserve space for header only (footer removed)
-    const headerHeight = 80; // px - compact two-line header
+    const headerHeight = 120; // px - increased to fit logo + text
     const footerHeight = 0; // px - no footer
-    const guestListHeight = contentHeight - headerHeight - footerHeight; // 953px
+    const guestListHeight = contentHeight - headerHeight - footerHeight; // 913px
     
     // Calculate pixel height per guest based on font size and displayed info
     const fontSizeMap = {
@@ -209,17 +209,29 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
             background-color: white !important;
           }
           
-          .print-header {
-            text-align: center;
-            margin-bottom: 6mm;
-          }
-          
-          .print-event-name {
-            font-size: 18px;
-            font-weight: bold;
-            margin: 0 0 4px 0;
-            color: #8B5CF6;
-          }
+        .print-header {
+          text-align: center;
+          margin-bottom: 6mm;
+        }
+
+        .print-logo {
+          display: flex;
+          justify-content: center;
+          margin-bottom: 8px;
+        }
+
+        .print-logo img {
+          height: 48px;
+          width: auto;
+          object-fit: contain;
+        }
+
+        .print-event-name {
+          font-size: 18px;
+          font-weight: bold;
+          margin: 0 0 4px 0;
+          color: #8B5CF6;
+        }
           
           .print-subtitle {
             font-size: 14px;
@@ -305,8 +317,17 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
           >
             {/* Content with 12mm margins (45px) */}
             <div className="p-[45px] h-full flex flex-col">
-              {/* Header - 80px reserved */}
-              <div className="text-center mb-6" style={{ minHeight: '80px' }}>
+              {/* Header - 120px reserved */}
+              <div className="text-center mb-6" style={{ minHeight: '120px' }}>
+                {/* Logo */}
+                <div className="flex justify-center mb-3">
+                  <img 
+                    src={weddingWaitressLogoFull} 
+                    alt="Wedding Waitress" 
+                    className="h-12 w-auto object-contain"
+                  />
+                </div>
+                
                 <h1 className="text-lg font-bold text-foreground mb-1">
                   Full Seating Chart - {event.name} - {event.date && formatDateWithOrdinal(event.date)}
                 </h1>
@@ -315,8 +336,8 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
                 </p>
               </div>
 
-              {/* Guest List - 953px available */}
-              <div className="flex-1 grid grid-cols-2 gap-8" style={{ minHeight: '953px' }}>
+              {/* Guest List - 913px available */}
+              <div className="flex-1 grid grid-cols-2 gap-8" style={{ minHeight: '913px' }}>
                 {/* Left Column */}
                 <div className="space-y-1">
                   <h3 className="font-semibold text-xs text-muted-foreground mb-3 uppercase tracking-wide">
@@ -383,6 +404,11 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
             style={{ pageBreakAfter: pageIndex < paginationInfo.pages.length - 1 ? 'always' : 'auto' }}
           >
             <div className="print-header">
+              {/* Logo - print version */}
+              <div className="print-logo">
+                <img src={weddingWaitressLogoFull} alt="Wedding Waitress" />
+              </div>
+              
               <h1 className="print-event-name">
                 Full Seating Chart - {event.name} - {event.date && formatDateWithOrdinal(event.date)}
               </h1>
