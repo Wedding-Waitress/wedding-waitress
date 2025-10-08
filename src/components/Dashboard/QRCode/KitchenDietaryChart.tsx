@@ -334,14 +334,15 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
           }
 
           .kitchen-dietary-chart .print-page {
-            position: relative !important;
-            width: 794px !important;
-            height: 1123px !important;
+            width: 210mm !important;
+            height: 297mm !important;
             box-sizing: border-box !important;
-            padding: 45px !important;
+            padding: 12mm !important;
             margin: 0 auto !important;
+            display: flex !important;
+            flex-direction: column !important;
             background: white !important;
-            overflow: hidden !important;
+            page-break-after: auto !important;
           }
 
           .print-hide {
@@ -639,7 +640,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                   pageBreakAfter: pageIndex < totalPages - 1 ? 'always' : 'auto'
                 }}
               >
-                <div className="p-[45px] h-full flex flex-col">
+                <div className="h-full flex flex-col">
                   {/* Header */}
                   <div className="text-center space-y-2 mb-6">
                     {/* Logo */}
