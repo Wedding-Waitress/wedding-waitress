@@ -47,6 +47,14 @@ export const FullSeatingChartPrintTemplate: React.FC<FullSeatingChartPrintTempla
     }
   };
 
+  const formatGeneratedDate = () => {
+    const now = new Date();
+    const day = String(now.getDate()).padStart(2, '0');
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const year = now.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
+
   // Split guests into two columns
   const midPoint = Math.ceil(guests.length / 2);
   const leftColumn = guests.slice(0, midPoint);
@@ -285,18 +293,33 @@ export const FullSeatingChartPrintTemplate: React.FC<FullSeatingChartPrintTempla
         right: '10mm',
         textAlign: 'center'
       }}>
+        {/* Grey border line */}
         <div style={{ 
-          borderTop: '0.3mm solid #ddd',
-          paddingTop: '3mm'
+          height: '1px',
+          background: '#D9D9D9',
+          marginBottom: '4mm'
+        }}></div>
+        
+        {/* Meta text with guest count and date */}
+        <div style={{ 
+          fontSize: '10pt', 
+          color: '#000000',
+          marginBottom: '3mm'
         }}>
-          <p style={{ 
-            fontSize: '8pt', 
-            color: '#666666',
-            margin: '0'
-          }}>
-            Total Guests: {guests.length}
-          </p>
+          Total Guests: {guests.length} – Generated on: {formatGeneratedDate()}
         </div>
+        
+        {/* Wedding Waitress Logo */}
+        <img 
+          src="/wedding-waitress-new-logo.png"
+          alt="Wedding Waitress"
+          style={{
+            width: '120mm',
+            height: 'auto',
+            display: 'block',
+            margin: '0 auto'
+          }}
+        />
       </div>
     </div>
     </>
