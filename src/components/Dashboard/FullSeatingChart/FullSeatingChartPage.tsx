@@ -179,7 +179,7 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
                     disabled={isExporting}
                   >
                     <Download className="w-4 h-4 mr-2" />
-                    Export PDF
+                    Download PDF
                   </Button>
                 </div>
               )}
