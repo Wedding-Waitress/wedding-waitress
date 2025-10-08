@@ -152,12 +152,19 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
     </div>
   );
 
-  // Print version guest row - exactly as specified: [ ] {first_name} {last_name} — Table {table_number | Unassigned}
+  // Print version guest row - matches screen layout exactly
   const PrintGuestRow = ({ guest }: { guest: Guest }) => (
     <div className="print-guest-item">
       <span className="print-checkbox">☐</span>
-      <span className="print-guest-name">{formatGuestName(guest)}</span>
-      <span className="print-separator"> — </span>
+      <div className="print-guest-details">
+        <div className="print-guest-name">{formatGuestName(guest)}</div>
+        {settings.showDietary && guest.dietary && guest.dietary !== 'NA' && (
+          <div className="print-dietary">Dietary: {guest.dietary}</div>
+        )}
+        {settings.showRelation && guest.relation_display && (
+          <div className="print-relation">{guest.relation_display}</div>
+        )}
+      </div>
       <span className="print-table">
         {guest.table_no ? `Table ${guest.table_no}` : 'Unassigned'}
       </span>
@@ -241,29 +248,53 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
           }
           
           .print-guest-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
             break-inside: avoid;
             font-size: ${printFontSizes.main};
-            line-height: 1.2;
-            margin-bottom: 2px;
+            line-height: 1.4;
+            margin-bottom: 6px;
             color: #000;
+            padding: 4px 2px;
           }
           
           .print-checkbox {
             font-family: monospace;
             font-size: ${printFontSizes.checkbox};
-            margin-right: 4px;
+            flex-shrink: 0;
+            padding-top: 1px;
+          }
+          
+          .print-guest-details {
+            flex: 1;
+            min-width: 0;
           }
           
           .print-guest-name {
             font-weight: 700;
+            color: #000;
           }
           
-          .print-separator {
-            margin: 0 2px;
+          .print-dietary {
+            font-size: ${printFontSizes.checkbox};
+            color: #666;
+            margin-top: 1px;
+          }
+          
+          .print-relation {
+            font-size: ${printFontSizes.checkbox};
+            color: #666;
+            margin-top: 1px;
           }
           
           .print-table {
             font-weight: 700;
+            background-color: #f3f4f6;
+            padding: 2px 8px;
+            border-radius: 4px;
+            white-space: nowrap;
+            flex-shrink: 0;
           }
           
         }

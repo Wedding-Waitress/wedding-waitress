@@ -11,7 +11,6 @@ import { useToast } from '@/hooks/use-toast';
 import { FullSeatingChartPreview } from './FullSeatingChartPreview';
 import { FullSeatingChartExporter } from './FullSeatingChartExporter';
 import { FullSeatingChartCustomizer } from './FullSeatingChartCustomizer';
-import { FullSeatingChartPrintTemplate } from './FullSeatingChartPrintTemplate';
 
 interface FullSeatingChartPageProps {
   selectedEventId: string | null;
@@ -248,14 +247,7 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
         />
       )}
 
-      {/* Print Template - Hidden on screen, shown only during print */}
-      {selectedEvent && isDataReady && (
-        <FullSeatingChartPrintTemplate
-          event={selectedEvent}
-          guests={sortedGuests}
-          settings={settings}
-        />
-      )}
+      {/* Print Template - REMOVED: Using @media print styles in FullSeatingChartPreview instead */}
     </div>
   );
 };
