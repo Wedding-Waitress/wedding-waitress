@@ -49,24 +49,16 @@ export const FullSeatingChartPrintTemplate: React.FC<FullSeatingChartPrintTempla
 
   const formatGeneratedDate = () => {
     const now = new Date();
-    const day = String(now.getDate()).padStart(2, '0');
-    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = now.getDate();
+    const ordinal = getOrdinalSuffix(day);
+    const month = now.toLocaleDateString('en-US', { month: 'long' });
     const year = now.getFullYear();
-    return `${day}/${month}/${year}`;
+    return `${month} ${day}${ordinal}, ${year}`;
   };
 
-  // Split guests into two columns
-  const midPoint = Math.ceil(guests.length / 2);
-  const leftColumn = guests.slice(0, midPoint);
-  const rightColumn = guests.slice(midPoint);
-
-  // Font size mapping to match PDF output
-  const fontSizeMap = {
-    small: { name: '10.5pt', details: '9.5pt', lineHeight: 1.2 },
-    medium: { name: '12pt', details: '11pt', lineHeight: 1.2 },
-    large: { name: '13.5pt', details: '12.5pt', lineHeight: 1.2 }
-  };
-  const currentFontSize = fontSizeMap[settings.fontSize];
+  // Split guests into exactly 11 per column
+  const leftColumn = guests.slice(0, 11);
+  const rightColumn = guests.slice(11, 22);
 
   return (
     <>
@@ -89,219 +81,290 @@ export const FullSeatingChartPrintTemplate: React.FC<FullSeatingChartPrintTempla
           left: 0,
           width: '210mm',
           height: '297mm',
-          padding: '5mm 10mm 10mm 10mm',
+          padding: '20mm 15mm',
           boxSizing: 'border-box',
           overflow: 'hidden',
           background: '#ffffff',
           fontFamily: 'Arial, Helvetica, sans-serif'
         }}
       >
-      {/* Header */}
-      <div style={{ textAlign: 'center', marginBottom: '4mm' }}>
-        <h1 style={{ 
-          fontSize: '18pt', 
-          fontWeight: 'bold', 
-          color: '#8B5CF6',
-          margin: '0 0 4pt 0'
-        }}>
-          {event.name}
-        </h1>
-        <p style={{ 
-          fontSize: '12pt', 
-          margin: '0',
-          color: '#000000'
-        }}>
-          {event.date && formatDateWithOrdinal(event.date)}
-          {event.date && event.venue && ' - '}
-          {event.venue && event.venue}
-          {(event.date || event.venue) && ' - '}
-          Full Seating Chart
-        </p>
-      </div>
-
-      {/* Column Headers */}
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'space-between',
-        marginBottom: '2mm'
-      }}>
-        <div style={{ width: 'calc(50% - 5mm)' }}>
-          <div style={{ 
-            fontSize: '9pt', 
-            fontWeight: 'bold',
-            marginBottom: '2mm'
-          }}>
-            GUESTS 1-{leftColumn.length}
+        {/* Header */}
+        <div style={{ textAlign: 'center', marginBottom: '12mm' }}>
+          {/* Logo */}
+          <div style={{ marginBottom: '8mm' }}>
+            <img
+              src="/wedding-waitress-print-logo.png"
+              alt="Wedding Waitress"
+              style={{
+                width: '160px',
+                height: 'auto',
+                margin: '0 auto',
+                display: 'block',
+              }}
+            />
           </div>
-          <div style={{ 
-            borderBottom: '0.3mm solid #000', 
-            marginBottom: '3mm' 
-          }}></div>
-        </div>
-        <div style={{ width: 'calc(50% - 5mm)' }}>
-          <div style={{ 
-            fontSize: '9pt', 
-            fontWeight: 'bold',
-            marginBottom: '2mm'
-          }}>
-            GUESTS {leftColumn.length + 1}-{guests.length}
+
+          {/* Event Name */}
+          <h1
+            style={{
+              fontSize: '32px',
+              fontWeight: 'bold',
+              color: '#8B5CF6',
+              margin: '0 0 6mm 0',
+              lineHeight: '1.2',
+            }}
+          >
+            {event.name}
+          </h1>
+
+          {/* Subtitle - Full Seating Chart */}
+          <div
+            style={{
+              fontSize: '20px',
+              color: '#8B5CF6',
+              fontWeight: '600',
+              marginBottom: '6mm',
+            }}
+          >
+            Full Seating Chart – {event.date && formatDateWithOrdinal(event.date)}
           </div>
-          <div style={{ 
-            borderBottom: '0.3mm solid #000', 
-            marginBottom: '3mm' 
-          }}></div>
-        </div>
-      </div>
 
-      {/* Guest List - Two Columns */}
-      <div style={{ 
-        display: 'flex', 
-        gap: '10mm',
-        maxHeight: '235mm',
-        overflow: 'hidden'
-      }}>
-        {/* Left Column */}
-        <div style={{ flex: 1 }}>
-          {leftColumn.map((guest) => {
-            const guestName = formatGuestName(guest);
-            const tableInfo = guest.table_no ? `Table ${guest.table_no}` : 'Unassigned';
-            
-            return (
-              <div key={guest.id} style={{ marginBottom: '1.5mm', breakInside: 'avoid' }}>
-                {/* Name line with checkbox and table */}
-                <div style={{ 
-                  display: 'flex', 
-                  alignItems: 'center',
-                  fontSize: currentFontSize.name,
-                  lineHeight: currentFontSize.lineHeight
-                }}>
-                  <div style={{ 
-                    width: '3mm', 
-                    height: '3mm', 
-                    border: '0.3mm solid #000',
-                    marginRight: '3mm',
-                    flexShrink: 0
-                  }}></div>
-                  <span style={{ fontWeight: 'bold', flex: 1 }}>{guestName}</span>
-                  <span style={{ fontWeight: 'normal', marginLeft: '2mm' }}>{tableInfo}</span>
-                </div>
+          {/* Meta Information Line */}
+          <div
+            style={{
+              fontSize: '11px',
+              color: '#666',
+              marginBottom: '4mm',
+            }}
+          >
+            {event.venue || 'Venue TBD'} – Total Guests: {guests.length} – Page 1 of{' '}
+            {Math.ceil(guests.length / 22)} – Generated on: {formatGeneratedDate()}
+          </div>
 
-                {/* Details */}
-                <div style={{ marginLeft: '6mm' }}>
-                  {settings.showDietary && guest.dietary && (
-                    <div style={{ 
-                      fontSize: currentFontSize.details,
-                      color: '#2563eb',
-                      lineHeight: currentFontSize.lineHeight
-                    }}>
-                      Dietary: {guest.dietary}
-                    </div>
-                  )}
-                  {settings.showRelation && guest.relation_display && (
-                    <div style={{ 
-                      fontSize: currentFontSize.details,
-                      color: '#8B5CF6',
-                      lineHeight: currentFontSize.lineHeight
-                    }}>
-                      Relation: {guest.relation_display}
-                    </div>
-                  )}
-                </div>
-              </div>
-            );
-          })}
+          {/* Separator Line */}
+          <div
+            style={{
+              borderBottom: '1px solid #000',
+              margin: '0',
+            }}
+          />
         </div>
 
-        {/* Right Column */}
-        <div style={{ flex: 1 }}>
-          {rightColumn.map((guest) => {
-            const guestName = formatGuestName(guest);
-            const tableInfo = guest.table_no ? `Table ${guest.table_no}` : 'Unassigned';
-            
-            return (
-              <div key={guest.id} style={{ marginBottom: '1.5mm', breakInside: 'avoid' }}>
-                {/* Name line with checkbox and table */}
-                <div style={{ 
-                  display: 'flex', 
-                  alignItems: 'center',
-                  fontSize: currentFontSize.name,
-                  lineHeight: currentFontSize.lineHeight
-                }}>
-                  <div style={{ 
-                    width: '3mm', 
-                    height: '3mm', 
-                    border: '0.3mm solid #000',
-                    marginRight: '3mm',
-                    flexShrink: 0
-                  }}></div>
-                  <span style={{ fontWeight: 'bold', flex: 1 }}>{guestName}</span>
-                  <span style={{ fontWeight: 'normal', marginLeft: '2mm' }}>{tableInfo}</span>
-                </div>
-
-                {/* Details */}
-                <div style={{ marginLeft: '6mm' }}>
-                  {settings.showDietary && guest.dietary && (
-                    <div style={{ 
-                      fontSize: currentFontSize.details,
-                      color: '#2563eb',
-                      lineHeight: currentFontSize.lineHeight
-                    }}>
-                      Dietary: {guest.dietary}
-                    </div>
-                  )}
-                  {settings.showRelation && guest.relation_display && (
-                    <div style={{ 
-                      fontSize: currentFontSize.details,
-                      color: '#8B5CF6',
-                      lineHeight: currentFontSize.lineHeight
-                    }}>
-                      Relation: {guest.relation_display}
-                    </div>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Footer */}
-      <div style={{
-        position: 'absolute',
-        bottom: '10mm',
-        left: '10mm',
-        right: '10mm',
-        textAlign: 'center'
-      }}>
-        {/* Grey border line */}
-        <div style={{ 
-          height: '1px',
-          background: '#D9D9D9',
-          marginBottom: '4mm'
-        }}></div>
-        
-        {/* Meta text with guest count and date */}
-        <div style={{ 
-          fontSize: '10pt', 
-          color: '#000000',
-          marginBottom: '3mm'
-        }}>
-          Total Guests: {guests.length} – Generated on: {formatGeneratedDate()}
-        </div>
-        
-        {/* Wedding Waitress Logo */}
-        <img 
-          src="/wedding-waitress-new-logo.png"
-          alt="Wedding Waitress"
+        {/* Column Headers */}
+        <div
           style={{
-            width: '60mm',
-            height: 'auto',
-            display: 'block',
-            margin: '0 auto'
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr',
+            gap: '10mm',
+            marginBottom: '5mm',
           }}
-        />
+        >
+          <div
+            style={{
+              fontSize: '12px',
+              fontWeight: 'bold',
+              color: '#333',
+              textAlign: 'center',
+            }}
+          >
+            GUESTS 1-11
+          </div>
+          <div
+            style={{
+              fontSize: '12px',
+              fontWeight: 'bold',
+              color: '#333',
+              textAlign: 'center',
+            }}
+          >
+            GUESTS 12-22
+          </div>
+        </div>
+
+        {/* Guest Lists in Two Columns */}
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr',
+            gap: '10mm',
+          }}
+        >
+          {/* Left Column */}
+          <div>
+            {leftColumn.map((guest) => (
+              <div
+                key={guest.id}
+                style={{
+                  marginBottom: '4mm',
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: '3mm',
+                }}
+              >
+                {/* Radio Circle */}
+                <div
+                  style={{
+                    width: '5mm',
+                    height: '5mm',
+                    border: '1.5px solid #999',
+                    borderRadius: '50%',
+                    flexShrink: 0,
+                    marginTop: '1mm',
+                  }}
+                />
+                
+                {/* Guest Info */}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  {/* Guest Name */}
+                  <div style={{ 
+                    fontWeight: '700', 
+                    color: '#000', 
+                    fontSize: '14px',
+                    marginBottom: '2mm',
+                    lineHeight: '1.2',
+                  }}>
+                    {formatGuestName(guest)}
+                  </div>
+                  
+                  {/* Relationship Badge */}
+                  {settings.showRelation && guest.relation_display && (
+                    <div style={{ marginBottom: '2mm' }}>
+                      <span style={{
+                        display: 'inline-block',
+                        fontSize: '10px',
+                        color: '#666',
+                        backgroundColor: '#f3f4f6',
+                        padding: '1.5mm 3mm',
+                        borderRadius: '3mm',
+                      }}>
+                        {guest.relation_display}
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Table Badge */}
+                <div style={{
+                  flexShrink: 0,
+                  marginTop: '1mm',
+                }}>
+                  <span style={{
+                    display: 'inline-block',
+                    fontSize: '11px',
+                    color: '#666',
+                    backgroundColor: '#e5e7eb',
+                    padding: '2mm 4mm',
+                    borderRadius: '4mm',
+                    fontWeight: '500',
+                  }}>
+                    Table {guest.table_no || '—'}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Right Column */}
+          <div>
+            {rightColumn.map((guest) => (
+              <div
+                key={guest.id}
+                style={{
+                  marginBottom: '4mm',
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: '3mm',
+                }}
+              >
+                {/* Radio Circle */}
+                <div
+                  style={{
+                    width: '5mm',
+                    height: '5mm',
+                    border: '1.5px solid #999',
+                    borderRadius: '50%',
+                    flexShrink: 0,
+                    marginTop: '1mm',
+                  }}
+                />
+                
+                {/* Guest Info */}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  {/* Guest Name */}
+                  <div style={{ 
+                    fontWeight: '700', 
+                    color: '#000', 
+                    fontSize: '14px',
+                    marginBottom: '2mm',
+                    lineHeight: '1.2',
+                  }}>
+                    {formatGuestName(guest)}
+                  </div>
+                  
+                  {/* Relationship Badge */}
+                  {settings.showRelation && guest.relation_display && (
+                    <div style={{ marginBottom: '2mm' }}>
+                      <span style={{
+                        display: 'inline-block',
+                        fontSize: '10px',
+                        color: '#666',
+                        backgroundColor: '#f3f4f6',
+                        padding: '1.5mm 3mm',
+                        borderRadius: '3mm',
+                      }}>
+                        {guest.relation_display}
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Table Badge */}
+                <div style={{
+                  flexShrink: 0,
+                  marginTop: '1mm',
+                }}>
+                  <span style={{
+                    display: 'inline-block',
+                    fontSize: '11px',
+                    color: '#666',
+                    backgroundColor: '#e5e7eb',
+                    padding: '2mm 4mm',
+                    borderRadius: '4mm',
+                    fontWeight: '500',
+                  }}>
+                    Table {guest.table_no || '—'}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div
+          style={{
+            position: 'absolute',
+            bottom: '15mm',
+            left: '15mm',
+            right: '15mm',
+            textAlign: 'center',
+            fontSize: '10px',
+            color: '#999',
+          }}
+        >
+          <img
+            src="/wedding-waitress-print-logo.png"
+            alt="Wedding Waitress"
+            style={{
+              width: '100px',
+              height: 'auto',
+              margin: '0 auto',
+              display: 'block',
+              opacity: 0.5,
+            }}
+          />
+        </div>
       </div>
-    </div>
     </>
   );
 };
