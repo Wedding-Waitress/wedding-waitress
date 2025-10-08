@@ -227,14 +227,21 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
         }
 
         .print-event-name {
-          font-size: 18px;
+          font-size: 20px;
           font-weight: bold;
           margin: 0 0 4px 0;
           color: #8B5CF6;
         }
+
+        .print-chart-date {
+          font-size: 15px;
+          font-weight: 600;
+          margin: 0 0 4px 0;
+          color: #000;
+        }
           
           .print-subtitle {
-            font-size: 14px;
+            font-size: 13px;
             margin: 0;
             color: #000;
           }
@@ -328,9 +335,17 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
                   />
                 </div>
                 
-                <h1 className="text-lg font-bold text-foreground mb-1">
-                  Full Seating Chart - {event.name} - {event.date && formatDateWithOrdinal(event.date)}
+                {/* Line 1: Event Name */}
+                <h1 className="text-xl font-bold text-primary mb-1">
+                  {event.name}
                 </h1>
+                
+                {/* Line 2: Chart Type + Date */}
+                <p className="text-base font-semibold text-foreground mb-1">
+                  Full Seating Chart - {event.date && formatDateWithOrdinal(event.date)}
+                </p>
+                
+                {/* Line 3: Venue + Stats + Page + Generated */}
                 <p className="text-sm text-foreground">
                   {event.venue} - Total Guests: {guests.length} - Page {currentPage} of {totalPages} - Generated on: {new Date().toLocaleDateString('en-GB')}
                 </p>
@@ -409,9 +424,17 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
                 <img src={weddingWaitressLogoFull} alt="Wedding Waitress" />
               </div>
               
+              {/* Line 1: Event Name */}
               <h1 className="print-event-name">
-                Full Seating Chart - {event.name} - {event.date && formatDateWithOrdinal(event.date)}
+                {event.name}
               </h1>
+              
+              {/* Line 2: Chart Type + Date */}
+              <p className="print-chart-date">
+                Full Seating Chart - {event.date && formatDateWithOrdinal(event.date)}
+              </p>
+              
+              {/* Line 3: Venue + Stats + Page + Generated */}
               <p className="print-subtitle">
                 {event.venue} - Total Guests: {guests.length} - Page {pageIndex + 1} of {paginationInfo.pages.length} - Generated on: {new Date().toLocaleDateString('en-GB')}
               </p>
