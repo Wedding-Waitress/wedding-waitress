@@ -409,36 +409,50 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                 </div>
               </div>
 
-              {/* Event Info and Action Buttons Row */}
-              <div className="flex items-center justify-between pt-4">
-                {/* Left Side: Event Info & Guest Count */}
-                <div className="flex items-center gap-4">
-                  <div>
-                    <h3 className="font-semibold text-lg">{currentEvent.name}</h3>
-                    {currentEvent.date && (
-                      <p className="text-sm text-muted-foreground">
-                        {format(new Date(currentEvent.date), 'EEEE, MMMM do, yyyy')}
-                      </p>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Badge variant="secondary">
-                      {dietaryGuests.length} Guest{dietaryGuests.length !== 1 ? 's' : ''}
-                    </Badge>
-                    <span className="text-xs text-muted-foreground">
-                      with dietary requirements
-                    </span>
-                  </div>
+              {/* Event Info Row */}
+              <div className="flex items-center gap-4 pt-4">
+                <div>
+                  <h3 className="font-semibold text-lg">{currentEvent.name}</h3>
+                  {currentEvent.date && (
+                    <p className="text-sm text-muted-foreground">
+                      {format(new Date(currentEvent.date), 'EEEE, MMMM do, yyyy')}
+                    </p>
+                  )}
+                </div>
+                <div className="flex items-center gap-2">
+                  <Badge variant="secondary">
+                    {dietaryGuests.length} Guest{dietaryGuests.length !== 1 ? 's' : ''}
+                  </Badge>
+                  <span className="text-xs text-muted-foreground">
+                    with dietary requirements
+                  </span>
+                </div>
+              </div>
+
+              <Separator className="my-4" />
+
+              {/* Event Selector and Action Buttons */}
+              <div className="flex items-center justify-between">
+                {/* Left Side: Event Selector */}
+                <div className="flex items-center gap-3">
+                  <span className="text-sm font-medium whitespace-nowrap">Choose Event:</span>
+                  <Select value={selectedEventId} onValueChange={setSelectedEventId}>
+                    <SelectTrigger className="w-full max-w-md">
+                      <SelectValue placeholder="Select an event..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {events.map(event => (
+                        <SelectItem key={event.id} value={event.id}>
+                          {event.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 {/* Right Side: Action Buttons */}
                 <div className="flex items-center gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handlePrint}
-                    className="gap-2"
-                  >
+                  <Button variant="outline" size="sm" onClick={handlePrint} className="gap-2">
                     <Printer className="w-4 h-4" />
                     Print
                   </Button>
@@ -453,25 +467,6 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                     {isExporting ? 'Downloading...' : 'Download PDF'}
                   </Button>
                 </div>
-              </div>
-
-              <Separator className="my-4" />
-
-              {/* Event Selector */}
-              <div className="flex items-center gap-3 pt-4">
-                <span className="text-sm font-medium whitespace-nowrap">Choose Event:</span>
-                <Select value={selectedEventId} onValueChange={setSelectedEventId}>
-                  <SelectTrigger className="w-full max-w-md">
-                    <SelectValue placeholder="Select an event..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {events.map(event => (
-                      <SelectItem key={event.id} value={event.id}>
-                        {event.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
               </div>
             </CardContent>
           </Card>
