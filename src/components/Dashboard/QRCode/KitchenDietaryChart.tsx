@@ -394,30 +394,55 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
       <div className="space-y-6 kitchen-dietary-chart">
         {/* Combined Header Card */}
         {currentEvent && (
-          <Card className="ww-box border-primary/20 bg-gradient-subtle print-hide">
-            <CardContent className="p-6 space-y-4">
-              {/* Event Info and Guest Count */}
+          <Card className="ww-box print-hide">
+            <CardContent className="p-6">
               <div className="flex items-center justify-between">
-                <div>
+                {/* Left Side: Event Info & Guest Count */}
+                <div className="space-y-1">
                   <h3 className="font-semibold text-lg">{currentEvent.name}</h3>
                   {currentEvent.date && (
                     <p className="text-sm text-muted-foreground">
                       {format(new Date(currentEvent.date), 'EEEE, MMMM do, yyyy')}
                     </p>
                   )}
+                  <div className="flex items-center gap-2 pt-1">
+                    <Badge variant="secondary">
+                      {dietaryGuests.length} Guest{dietaryGuests.length !== 1 ? 's' : ''}
+                    </Badge>
+                    <span className="text-xs text-muted-foreground">
+                      with dietary requirements
+                    </span>
+                  </div>
                 </div>
-                <div className="text-right">
-                  <Badge variant="secondary" className="mb-1">
-                    {dietaryGuests.length} Guest{dietaryGuests.length !== 1 ? 's' : ''}
-                  </Badge>
-                  <p className="text-xs text-muted-foreground">
-                    with dietary requirements
-                  </p>
+
+                {/* Right Side: Action Buttons */}
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handlePrint}
+                    className="gap-2"
+                  >
+                    <Printer className="w-4 h-4" />
+                    Print
+                  </Button>
+                  <Button
+                    variant="default"
+                    size="sm"
+                    onClick={handleExportPDF}
+                    disabled={isExporting || dietaryGuests.length === 0}
+                    className="gap-2"
+                  >
+                    <Download className="w-4 h-4" />
+                    {isExporting ? 'Exporting...' : 'Export PDF'}
+                  </Button>
                 </div>
               </div>
 
+              <Separator className="my-4" />
+
               {/* Title and Description */}
-              <div className="flex items-center gap-3 pt-2">
+              <div className="flex items-center gap-3">
                 <div className="p-2 rounded-lg bg-primary/10">
                   <ChefHat className="w-5 h-5 text-primary" />
                 </div>
@@ -430,7 +455,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
               </div>
 
               {/* Event Selector */}
-              <div className="flex items-center gap-3 pt-2">
+              <div className="flex items-center gap-3 pt-4">
                 <span className="text-sm font-medium whitespace-nowrap">Choose Event:</span>
                 <Select value={selectedEventId} onValueChange={setSelectedEventId}>
                   <SelectTrigger className="w-full max-w-md">
@@ -444,29 +469,6 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                     ))}
                   </SelectContent>
                 </Select>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex items-center justify-end gap-2 pt-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handlePrint}
-                  className="gap-2"
-                >
-                  <Printer className="w-4 h-4" />
-                  Print
-                </Button>
-                <Button
-                  variant="default"
-                  size="sm"
-                  onClick={handleExportPDF}
-                  disabled={isExporting || dietaryGuests.length === 0}
-                  className="gap-2"
-                >
-                  <Download className="w-4 h-4" />
-                  {isExporting ? 'Exporting...' : 'Export PDF'}
-                </Button>
               </div>
             </CardContent>
           </Card>
