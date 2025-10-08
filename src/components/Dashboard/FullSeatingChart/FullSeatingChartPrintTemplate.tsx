@@ -89,7 +89,7 @@ export const FullSeatingChartPrintTemplate: React.FC<FullSeatingChartPrintTempla
           left: 0,
           width: '210mm',
           height: '297mm',
-          padding: '10mm',
+          padding: '5mm 10mm 10mm 10mm',
           boxSizing: 'border-box',
           overflow: 'hidden',
           background: '#ffffff',
@@ -97,7 +97,7 @@ export const FullSeatingChartPrintTemplate: React.FC<FullSeatingChartPrintTempla
         }}
       >
       {/* Header */}
-      <div style={{ textAlign: 'center', marginBottom: '8mm' }}>
+      <div style={{ textAlign: 'center', marginBottom: '4mm' }}>
         <h1 style={{ 
           fontSize: '18pt', 
           fontWeight: 'bold', 
@@ -123,7 +123,7 @@ export const FullSeatingChartPrintTemplate: React.FC<FullSeatingChartPrintTempla
       <div style={{ 
         display: 'flex', 
         justifyContent: 'space-between',
-        marginBottom: '4mm'
+        marginBottom: '2mm'
       }}>
         <div style={{ width: 'calc(50% - 5mm)' }}>
           <div style={{ 
@@ -157,7 +157,7 @@ export const FullSeatingChartPrintTemplate: React.FC<FullSeatingChartPrintTempla
       <div style={{ 
         display: 'flex', 
         gap: '10mm',
-        maxHeight: '222mm',
+        maxHeight: '235mm',
         overflow: 'hidden'
       }}>
         {/* Left Column */}
