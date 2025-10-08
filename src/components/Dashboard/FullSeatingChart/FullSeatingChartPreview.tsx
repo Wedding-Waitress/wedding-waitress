@@ -188,9 +188,15 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
         }
         
         @media print {
-          body {
+          * {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+          
+          html, body {
             margin: 0;
             padding: 0;
+            background: white !important;
           }
           
           .print-page {
@@ -198,6 +204,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
             min-height: 273mm; /* A4 height (297mm) - margins (12mm × 2) */
             display: flex;
             flex-direction: column;
+            background-color: white !important;
           }
           
           .print-header {
@@ -306,7 +313,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
         {/* A4 Paper Container - 794px × 1123px (210mm × 297mm at 96 DPI) */}
         <div className="flex justify-center">
           <div 
-            className="bg-background border border-border shadow-lg overflow-auto"
+            className="bg-white border border-gray-300 shadow-lg overflow-auto"
             style={{ 
               width: '794px', 
               height: '1123px',
