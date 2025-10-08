@@ -60,7 +60,7 @@ export const QRCodeFeatureGrid: React.FC<QRCodeFeatureGridProps> = ({ eventId, o
     if (cardId === 'qr-seating-chart-signage') {
       onNavigateToTab?.('signage');
     } else if (cardId === 'table-seating-chart') {
-      onNavigateToTab?.('table-chart');
+      onNavigateToTab?.('full-seating-chart');
     } else if (cardId === 'full-seating-chart') {
       onNavigateToTab?.('full-seating-chart');
     }

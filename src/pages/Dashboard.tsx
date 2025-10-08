@@ -21,7 +21,6 @@ import { QRCodeSeatingChart } from '@/components/Dashboard/QRCode/QRCodeSeatingC
 import { QRCodeFeatureGrid } from '@/components/Dashboard/QRCode/QRCodeFeatureGrid';
 import { KitchenDietaryChart } from '@/components/Dashboard/QRCode/KitchenDietaryChart';
 import { SignagePage } from '@/components/Dashboard/Signage/SignagePage';
-import { TableSeatingChartPage as TableSeatingChartPageComponent } from '@/components/Dashboard/TableChart/TableSeatingChartPage';
 import { PlaceCardsPage } from '@/components/Dashboard/PlaceCards/PlaceCardsPage';
 import { FullSeatingChartPage } from '@/components/Dashboard/FullSeatingChart/FullSeatingChartPage';
 import { IndividualTableSeatingChartPage } from '@/components/Dashboard/IndividualTableChart/IndividualTableSeatingChartPage';
@@ -299,10 +298,6 @@ export const Dashboard = () => {
         return <KioskSetup selectedEventId={selectedEventId} onEventSelect={handleEventSelect} />;
       case 'dietary-chart':
         return selectedEventId ? <KitchenDietaryChart eventId={selectedEventId} /> : null;
-      case 'table-chart':
-        return <div>
-            <TableSeatingChartPageComponent selectedEventId={selectedEventId} onEventSelect={handleEventSelect} />
-          </div>;
       case 'full-seating-chart':
         return <FullSeatingChartPage selectedEventId={selectedEventId} onEventSelect={handleEventSelect} />;
       case 'place-cards':
@@ -377,8 +372,8 @@ export const Dashboard = () => {
         <DashboardHeader />
         <main className="flex-1 w-full px-4 md:px-6 lg:px-8 py-6">
           <div className="w-full max-w-none">
-            {/* Stats Bar excluded from: My Events, QR Code, Dashboard, Vendor Team, Planner, Wishing Well, RSVP, Floor Plan, Kiosk Live View, Printables, Place Cards, Dietary Requirements, Full Seating Chart, Table Seating Chart */}
-            {activeTab !== 'my-events' && activeTab !== 'qr-code' && activeTab !== 'dashboard' && activeTab !== 'vendor-team' && activeTab !== 'planner' && activeTab !== 'wishing-well' && activeTab !== 'rsvp-invite' && activeTab !== 'floor-plan' && activeTab !== 'kiosk-live-view' && activeTab !== 'printables' && activeTab !== 'individual-table-chart' && activeTab !== 'place-cards' && activeTab !== 'dietary-chart' && activeTab !== 'full-seating-chart' && activeTab !== 'table-chart' && <div className="print:hidden">
+            {/* Stats Bar excluded from: My Events, QR Code, Dashboard, Vendor Team, Planner, Wishing Well, RSVP, Floor Plan, Kiosk Live View, Printables, Place Cards, Dietary Requirements, Full Seating Chart */}
+            {activeTab !== 'my-events' && activeTab !== 'qr-code' && activeTab !== 'dashboard' && activeTab !== 'vendor-team' && activeTab !== 'planner' && activeTab !== 'wishing-well' && activeTab !== 'rsvp-invite' && activeTab !== 'floor-plan' && activeTab !== 'kiosk-live-view' && activeTab !== 'printables' && activeTab !== 'individual-table-chart' && activeTab !== 'place-cards' && activeTab !== 'dietary-chart' && activeTab !== 'full-seating-chart' && <div className="print:hidden">
               <StatsBar stats={statsData} />
             </div>}
             
