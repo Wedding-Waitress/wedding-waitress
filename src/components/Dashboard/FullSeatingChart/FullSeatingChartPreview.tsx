@@ -22,91 +22,30 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
   const [checkedGuests, setCheckedGuests] = useState<Set<string>>(new Set());
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Content-aware pagination based on actual guest content
+  // Fixed pagination: 11 guests per column (22 total per page)
   const paginationInfo = useMemo(() => {
-    // A4 dimensions at 96 DPI
-    const A4_HEIGHT = 1123; // px
-    const MARGIN = 45; // 12mm ≈ 45px
-    const contentHeight = A4_HEIGHT - (MARGIN * 2); // 1033px
-    const headerHeight = 120; // px
-    const guestListHeight = contentHeight - headerHeight; // 913px
-    const COL_HEADER_PX = 34; // Height of "Guests X-Y" header per column
+    const GUESTS_PER_COLUMN = 11;
+    const GUESTS_PER_PAGE = GUESTS_PER_COLUMN * 2; // 22 total
     
-    // Accurate row metrics per font size
-    const metrics = {
-      small: { base: 28, extra: 14, spacing: 2 },
-      medium: { base: 30, extra: 16, spacing: 2 },
-      large: { base: 32, extra: 18, spacing: 2 },
-    };
-    
-    const currentMetrics = metrics[settings.fontSize];
-    
-    // Calculate exact height for each guest
-    const guestRowHeight = (guest: Guest): number => {
-      let h = currentMetrics.base;
-      if (settings.showDietary && guest.dietary && guest.dietary !== 'NA') {
-        h += currentMetrics.extra;
-      }
-      if (settings.showRelation && guest.relation_display) {
-        h += currentMetrics.extra;
-      }
-      return h + currentMetrics.spacing;
-    };
-    
-    const SAFETY_BUFFER = 150; // Reserve blank space at bottom of page (~150px ≈ 40mm)
-    const availablePerColumn = guestListHeight - COL_HEADER_PX - SAFETY_BUFFER;
-    
-    // Build pages by filling columns to available height
     interface PageInfo {
       guests: Guest[];
       col1Count: number;
     }
     
     const pages: PageInfo[] = [];
-    let currentIndex = 0;
     
-    while (currentIndex < guests.length) {
-      let col1Height = 0;
-      let col1Count = 0;
-      
-      // Fill column 1
-      while (currentIndex + col1Count < guests.length) {
-        const guest = guests[currentIndex + col1Count];
-        const rowHeight = guestRowHeight(guest);
-        
-        if (col1Height + rowHeight > availablePerColumn) break;
-        
-        col1Height += rowHeight;
-        col1Count++;
-      }
-      
-      let col2Height = 0;
-      let col2Count = 0;
-      
-      // Fill column 2
-      while (currentIndex + col1Count + col2Count < guests.length) {
-        const guest = guests[currentIndex + col1Count + col2Count];
-        const rowHeight = guestRowHeight(guest);
-        
-        if (col2Height + rowHeight > availablePerColumn) break;
-        
-        col2Height += rowHeight;
-        col2Count++;
-      }
-      
-      const totalCount = col1Count + col2Count;
-      if (totalCount === 0) break; // Safety: prevent infinite loop
+    for (let i = 0; i < guests.length; i += GUESTS_PER_PAGE) {
+      const pageGuests = guests.slice(i, i + GUESTS_PER_PAGE);
+      const col1Count = Math.min(GUESTS_PER_COLUMN, pageGuests.length);
       
       pages.push({
-        guests: guests.slice(currentIndex, currentIndex + totalCount),
+        guests: pageGuests,
         col1Count
       });
-      
-      currentIndex += totalCount;
     }
     
     return { pages };
-  }, [guests, settings.fontSize, settings.showDietary, settings.showRelation]);
+  }, [guests]);
 
   const totalPages = paginationInfo.pages.length;
   const currentPageInfo = paginationInfo.pages[currentPage - 1] || { guests: [], col1Count: 0 };
@@ -287,8 +226,10 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
           
           .print-subtitle {
             font-size: 13px;
-            margin: 0;
+            margin: 0 0 8px 0;
             color: #000;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #000;
           }
           
           .print-guest-list {
@@ -371,7 +312,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
             {/* Content with 12mm margins (45px) */}
             <div className="p-[45px] h-full flex flex-col">
               {/* Header - 120px reserved */}
-              <div className="text-center mb-6" style={{ minHeight: '120px' }}>
+              <div className="text-center mb-8" style={{ minHeight: '120px' }}>
                 {/* Logo */}
                 <div className="flex justify-center mb-3">
                   <img 
@@ -392,7 +333,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
                 </p>
                 
                 {/* Line 3: Venue + Stats + Page + Generated */}
-                <p className="text-sm text-foreground">
+                <p className="text-sm text-foreground pb-3 mb-3 border-b border-black">
                   {event.venue} - Total Guests: {guests.length} - Page {currentPage} of {totalPages} - Generated on: {new Date().toLocaleDateString('en-GB')}
                 </p>
               </div>
