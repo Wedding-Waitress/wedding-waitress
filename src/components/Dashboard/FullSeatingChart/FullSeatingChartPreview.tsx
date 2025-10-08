@@ -40,9 +40,9 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
     
     // Calculate pixel height per guest based on font size and displayed info
     const fontSizeMap = {
-      small: { lineHeight: 20, extraLine: 18 },    // 10.5pt ≈ 14px + padding
-      medium: { lineHeight: 24, extraLine: 20 },   // 12pt ≈ 16px + padding
-      large: { lineHeight: 28, extraLine: 24 }     // 13.5pt ≈ 18px + padding
+      small: { lineHeight: 18, extraLine: 12 },    // Actual: ~30px total with all info
+      medium: { lineHeight: 22, extraLine: 14 },   // Actual: ~36px total with all info
+      large: { lineHeight: 26, extraLine: 16 }     // Actual: ~42px total with all info
     };
     
     const currentFont = fontSizeMap[settings.fontSize];
