@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Guest } from '@/hooks/useGuests';
 import { FullSeatingChartSettings } from '@/hooks/useFullSeatingChartSettings';
 import { Badge } from '@/components/ui/badge';
-import { Eye, Users } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Eye, Users, ChevronLeft, ChevronRight } from 'lucide-react';
 import weddingWaitressLogo from '@/assets/wedding-waitress-new-logo.png';
 
 interface FullSeatingChartPreviewProps {
@@ -19,6 +20,46 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
   settings
 }) => {
   const [checkedGuests, setCheckedGuests] = useState<Set<string>>(new Set());
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // Calculate pagination based on same logic as PDF exporter
+  const paginationInfo = useMemo(() => {
+    // Font sizes in points (same as exporter)
+    const fontSizes = {
+      small: { name: 10.5, details: 9.5 },
+      medium: { name: 12, details: 11 },
+      large: { name: 13.5, details: 12.5 }
+    };
+    const currentFontSize = fontSizes[settings.fontSize];
+    const baseLineHeight = currentFontSize.name * 0.352778; // pt -> mm
+
+    // Calculate lines per guest block
+    let linesPerGuest = 1; // name line
+    if (settings.showDietary) linesPerGuest += 1;
+    if (settings.showRsvp) linesPerGuest += 1;
+    if (settings.showRelation) linesPerGuest += 1;
+    const blockHeight = baseLineHeight * linesPerGuest + 2;
+
+    // Page dimensions (A4 in mm)
+    const pageHeight = 297;
+    const headerHeight = 30; // approximate header space
+    const footerReserved = 38;
+    const contentHeight = pageHeight - headerHeight - footerReserved; // ~229mm
+
+    // Calculate max guests per page (divided by 2 for two columns)
+    const maxGuestsPerPage = Math.floor(contentHeight / blockHeight) * 2;
+
+    // Split guests into pages
+    const pages: Guest[][] = [];
+    for (let i = 0; i < guests.length; i += maxGuestsPerPage) {
+      pages.push(guests.slice(i, i + maxGuestsPerPage));
+    }
+
+    return { pages, maxGuestsPerPage };
+  }, [guests, settings.fontSize, settings.showDietary, settings.showRsvp, settings.showRelation]);
+
+  const totalPages = paginationInfo.pages.length;
+  const currentGuests = paginationInfo.pages[currentPage - 1] || [];
 
   const formatGuestName = (guest: Guest) => {
     if (settings.sortBy === 'lastName') {
@@ -225,6 +266,33 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
         {/* Interactive Version */}
         <Card>
           <CardContent className="p-6">
+            {/* Page Navigation */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-between mb-6 pb-4 border-b">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                  disabled={currentPage === 1}
+                >
+                  <ChevronLeft className="w-4 h-4 mr-1" />
+                  Previous
+                </Button>
+                <div className="text-sm font-medium">
+                  Page {currentPage} of {totalPages}
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                  disabled={currentPage === totalPages}
+                >
+                  Next
+                  <ChevronRight className="w-4 h-4 ml-1" />
+                </Button>
+              </div>
+            )}
+
             {/* Header */}
             <div className="text-center mb-8 space-y-2">
               <h1 className="text-2xl font-bold text-primary">{event.name}</h1>
@@ -242,9 +310,9 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
               {/* Left Column */}
               <div className="space-y-1">
                 <h3 className="font-semibold text-sm text-muted-foreground mb-3 uppercase tracking-wide">
-                  Guests 1-{Math.ceil(guests.length / 2)}
+                  Guests {((currentPage - 1) * paginationInfo.maxGuestsPerPage) + 1}-{((currentPage - 1) * paginationInfo.maxGuestsPerPage) + Math.ceil(currentGuests.length / 2)}
                 </h3>
-                {guests.slice(0, Math.ceil(guests.length / 2)).map((guest) => (
+                {currentGuests.slice(0, Math.ceil(currentGuests.length / 2)).map((guest) => (
                   <ScreenGuestRow key={guest.id} guest={guest} />
                 ))}
               </div>
@@ -252,9 +320,9 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
               {/* Right Column */}
               <div className="space-y-1">
                 <h3 className="font-semibold text-sm text-muted-foreground mb-3 uppercase tracking-wide">
-                  Guests {Math.ceil(guests.length / 2) + 1}-{guests.length}
+                  Guests {((currentPage - 1) * paginationInfo.maxGuestsPerPage) + Math.ceil(currentGuests.length / 2) + 1}-{((currentPage - 1) * paginationInfo.maxGuestsPerPage) + currentGuests.length}
                 </h3>
-                {guests.slice(Math.ceil(guests.length / 2)).map((guest) => (
+                {currentGuests.slice(Math.ceil(currentGuests.length / 2)).map((guest) => (
                   <ScreenGuestRow key={guest.id} guest={guest} />
                 ))}
               </div>
@@ -267,6 +335,33 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
               </p>
               <img src={weddingWaitressLogo} alt="Wedding Waitress" className="h-12 mx-auto opacity-60" />
             </div>
+
+            {/* Bottom Page Navigation */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-between mt-6 pt-4 border-t">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                  disabled={currentPage === 1}
+                >
+                  <ChevronLeft className="w-4 h-4 mr-1" />
+                  Previous
+                </Button>
+                <div className="text-sm font-medium">
+                  Page {currentPage} of {totalPages}
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                  disabled={currentPage === totalPages}
+                >
+                  Next
+                  <ChevronRight className="w-4 h-4 ml-1" />
+                </Button>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
