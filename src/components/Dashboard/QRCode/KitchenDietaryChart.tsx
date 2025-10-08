@@ -225,7 +225,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
           
           @page { 
             size: A4; 
-            margin: 0.8in; 
+            margin: 0.8in 0.8in 0.5in 0.8in;
           }
           
           /* Hide all dashboard elements */
@@ -317,20 +317,6 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
             font-weight: 700 !important;
           }
           
-          .kitchen-dietary-print .logo-footer {
-            position: fixed !important;
-            bottom: 0.5in !important;
-            left: 50% !important;
-            transform: translateX(-50%) !important;
-            text-align: center !important;
-            visibility: visible !important;
-          }
-          
-          .kitchen-dietary-print .logo-footer img {
-            max-width: 150px !important;
-            height: auto !important;
-            opacity: 0.8 !important;
-          }
         }
       `}</style>
       
@@ -529,10 +515,6 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
           </CardContent>
         </Card>
 
-        {/* Print Footer */}
-        <div className="hidden print-show logo-footer">
-          <img src={weddingWaitressLogo} alt="Wedding Waitress" />
-        </div>
       </div>
     </>
   );
