@@ -61,22 +61,33 @@ export const FullSeatingChartPrintTemplate: React.FC<FullSeatingChartPrintTempla
   const currentFontSize = fontSizeMap[settings.fontSize];
 
   return (
-    <div 
-      id="full-seating-print-content"
-      className="hidden print:block"
-      style={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        width: '210mm',
-        height: '297mm',
-        padding: '10mm',
-        boxSizing: 'border-box',
-        overflow: 'hidden',
-        background: '#ffffff',
-        fontFamily: 'Arial, Helvetica, sans-serif'
-      }}
-    >
+    <>
+      <style>{`
+        @page {
+          margin: 0;
+        }
+        @media print {
+          body {
+            margin: 0;
+          }
+        }
+      `}</style>
+      <div 
+        id="full-seating-print-content"
+        className="hidden print:block"
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '210mm',
+          height: '297mm',
+          padding: '10mm',
+          boxSizing: 'border-box',
+          overflow: 'hidden',
+          background: '#ffffff',
+          fontFamily: 'Arial, Helvetica, sans-serif'
+        }}
+      >
       {/* Header */}
       <div style={{ textAlign: 'center', marginBottom: '8mm' }}>
         <h1 style={{ 
@@ -288,5 +299,6 @@ export const FullSeatingChartPrintTemplate: React.FC<FullSeatingChartPrintTempla
         </div>
       </div>
     </div>
+    </>
   );
 };
