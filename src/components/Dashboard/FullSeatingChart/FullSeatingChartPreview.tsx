@@ -22,52 +22,97 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
   const [checkedGuests, setCheckedGuests] = useState<Set<string>>(new Set());
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Calculate pagination based on A4 pixel dimensions (794px × 1123px at 96 DPI)
+  // Content-aware pagination based on actual guest content
   const paginationInfo = useMemo(() => {
     // A4 dimensions at 96 DPI
-    const A4_WIDTH = 794; // px
     const A4_HEIGHT = 1123; // px
     const MARGIN = 45; // 12mm ≈ 45px
-    
-    // Available content area after margins
-    const contentWidth = A4_WIDTH - (MARGIN * 2); // 704px
     const contentHeight = A4_HEIGHT - (MARGIN * 2); // 1033px
+    const headerHeight = 120; // px
+    const guestListHeight = contentHeight - headerHeight; // 913px
+    const COL_HEADER_PX = 34; // Height of "Guests X-Y" header per column
     
-    // Reserve space for header only (footer removed)
-    const headerHeight = 120; // px - increased to fit logo + text
-    const footerHeight = 0; // px - no footer
-    const guestListHeight = contentHeight - headerHeight - footerHeight; // 913px
-    
-    // Calculate pixel height per guest based on font size and displayed info
-    const fontSizeMap = {
-      small: { lineHeight: 30, extraLine: 16 },    // Measured: text-sm + py-2 padding
-      medium: { lineHeight: 32, extraLine: 18 },   // Measured: text-base + py-2 padding
-      large: { lineHeight: 34, extraLine: 20 }     // Measured: text-lg + py-2 padding
+    // Accurate row metrics per font size
+    const metrics = {
+      small: { base: 28, extra: 14, spacing: 2 },
+      medium: { base: 30, extra: 16, spacing: 2 },
+      large: { base: 32, extra: 18, spacing: 2 },
     };
     
-    const currentFont = fontSizeMap[settings.fontSize];
-    let pixelsPerGuest = currentFont.lineHeight; // Base: name line
-    if (settings.showDietary) pixelsPerGuest += currentFont.extraLine;
-    if (settings.showRsvp) pixelsPerGuest += currentFont.extraLine;
-    if (settings.showRelation) pixelsPerGuest += currentFont.extraLine;
+    const currentMetrics = metrics[settings.fontSize];
     
-    // Calculate guests per column - more space available now with no footer
-    const SAFETY_PIXELS = 10; // Small buffer for spacing
-    const availableHeight = guestListHeight - SAFETY_PIXELS;
-    const guestsPerColumn = Math.floor(availableHeight / pixelsPerGuest);
-    const maxGuestsPerPage = guestsPerColumn * 2; // Two columns
+    // Calculate exact height for each guest
+    const guestRowHeight = (guest: Guest): number => {
+      let h = currentMetrics.base;
+      if (settings.showDietary && guest.dietary && guest.dietary !== 'NA') {
+        h += currentMetrics.extra;
+      }
+      if (settings.showRelation && guest.relation_display) {
+        h += currentMetrics.extra;
+      }
+      return h + currentMetrics.spacing;
+    };
     
-    // Split guests into pages
-    const pages: Guest[][] = [];
-    for (let i = 0; i < guests.length; i += maxGuestsPerPage) {
-      pages.push(guests.slice(i, i + maxGuestsPerPage));
+    const SAFETY_BUFFER = 3; // Small buffer to prevent overflow
+    const availablePerColumn = guestListHeight - COL_HEADER_PX - SAFETY_BUFFER;
+    
+    // Build pages by filling columns to available height
+    interface PageInfo {
+      guests: Guest[];
+      col1Count: number;
     }
-
-    return { pages, maxGuestsPerPage, guestsPerColumn };
-  }, [guests, settings.fontSize, settings.showDietary, settings.showRsvp, settings.showRelation]);
+    
+    const pages: PageInfo[] = [];
+    let currentIndex = 0;
+    
+    while (currentIndex < guests.length) {
+      let col1Height = 0;
+      let col1Count = 0;
+      
+      // Fill column 1
+      while (currentIndex + col1Count < guests.length) {
+        const guest = guests[currentIndex + col1Count];
+        const rowHeight = guestRowHeight(guest);
+        
+        if (col1Height + rowHeight > availablePerColumn) break;
+        
+        col1Height += rowHeight;
+        col1Count++;
+      }
+      
+      let col2Height = 0;
+      let col2Count = 0;
+      
+      // Fill column 2
+      while (currentIndex + col1Count + col2Count < guests.length) {
+        const guest = guests[currentIndex + col1Count + col2Count];
+        const rowHeight = guestRowHeight(guest);
+        
+        if (col2Height + rowHeight > availablePerColumn) break;
+        
+        col2Height += rowHeight;
+        col2Count++;
+      }
+      
+      const totalCount = col1Count + col2Count;
+      if (totalCount === 0) break; // Safety: prevent infinite loop
+      
+      pages.push({
+        guests: guests.slice(currentIndex, currentIndex + totalCount),
+        col1Count
+      });
+      
+      currentIndex += totalCount;
+    }
+    
+    return { pages };
+  }, [guests, settings.fontSize, settings.showDietary, settings.showRelation]);
 
   const totalPages = paginationInfo.pages.length;
-  const currentGuests = paginationInfo.pages[currentPage - 1] || [];
+  const currentPageInfo = paginationInfo.pages[currentPage - 1] || { guests: [], col1Count: 0 };
+  const currentGuests = currentPageInfo.guests;
+  const col1Guests = currentGuests.slice(0, currentPageInfo.col1Count);
+  const col2Guests = currentGuests.slice(currentPageInfo.col1Count);
 
   const formatGuestName = (guest: Guest) => {
     if (settings.sortBy === 'lastName') {
@@ -355,26 +400,34 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
               <div className="flex-1 grid grid-cols-2 gap-8" style={{ minHeight: '913px' }}>
                 {/* Left Column */}
                 <div className="space-y-1">
-                  <h3 className="font-semibold text-xs text-muted-foreground mb-3 uppercase tracking-wide">
-                    Guests {((currentPage - 1) * paginationInfo.maxGuestsPerPage) + 1}-{((currentPage - 1) * paginationInfo.maxGuestsPerPage) + Math.ceil(currentGuests.length / 2)}
-                  </h3>
-                  <div className="space-y-0.5">
-                    {currentGuests.slice(0, Math.ceil(currentGuests.length / 2)).map((guest) => (
-                      <ScreenGuestRow key={guest.id} guest={guest} />
-                    ))}
-                  </div>
+                  {col1Guests.length > 0 && (
+                    <>
+                      <h3 className="font-semibold text-xs text-muted-foreground mb-3 uppercase tracking-wide">
+                        Guests {paginationInfo.pages.slice(0, currentPage - 1).reduce((sum, p) => sum + p.guests.length, 0) + 1}-{paginationInfo.pages.slice(0, currentPage - 1).reduce((sum, p) => sum + p.guests.length, 0) + col1Guests.length}
+                      </h3>
+                      <div className="space-y-0.5">
+                        {col1Guests.map((guest) => (
+                          <ScreenGuestRow key={guest.id} guest={guest} />
+                        ))}
+                      </div>
+                    </>
+                  )}
                 </div>
 
                 {/* Right Column */}
                 <div className="space-y-1">
-                  <h3 className="font-semibold text-xs text-muted-foreground mb-3 uppercase tracking-wide">
-                    Guests {((currentPage - 1) * paginationInfo.maxGuestsPerPage) + Math.ceil(currentGuests.length / 2) + 1}-{((currentPage - 1) * paginationInfo.maxGuestsPerPage) + currentGuests.length}
-                  </h3>
-                  <div className="space-y-0.5">
-                    {currentGuests.slice(Math.ceil(currentGuests.length / 2)).map((guest) => (
-                      <ScreenGuestRow key={guest.id} guest={guest} />
-                    ))}
-                  </div>
+                  {col2Guests.length > 0 && (
+                    <>
+                      <h3 className="font-semibold text-xs text-muted-foreground mb-3 uppercase tracking-wide">
+                        Guests {paginationInfo.pages.slice(0, currentPage - 1).reduce((sum, p) => sum + p.guests.length, 0) + col1Guests.length + 1}-{paginationInfo.pages.slice(0, currentPage - 1).reduce((sum, p) => sum + p.guests.length, 0) + currentGuests.length}
+                      </h3>
+                      <div className="space-y-0.5">
+                        {col2Guests.map((guest) => (
+                          <ScreenGuestRow key={guest.id} guest={guest} />
+                        ))}
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
 
@@ -412,7 +465,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
 
       {/* Print Version - Multi-page with proper pagination */}
       <div id="full-seating-print-content" className="hidden print:block">
-        {paginationInfo.pages.map((pageGuests, pageIndex) => (
+        {paginationInfo.pages.map((pageInfo, pageIndex) => (
           <div 
             key={pageIndex}
             className="print-page"
@@ -441,7 +494,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
             </div>
             
             <div className="print-guest-list">
-              {pageGuests.map((guest) => (
+              {pageInfo.guests.map((guest) => (
                 <PrintGuestRow key={guest.id} guest={guest} />
               ))}
             </div>
