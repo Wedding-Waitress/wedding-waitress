@@ -289,11 +289,6 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
               <PrintGuestRow key={guest.id} guest={guest} />
             ))}
           </div>
-          <div className="print-footer">
-            <div className="print-footer-stats">
-              Total Guests: {guests.length} - Generated on: {new Date().toLocaleDateString()}
-            </div>
-          </div>
         </div>
       </div>
     </>
