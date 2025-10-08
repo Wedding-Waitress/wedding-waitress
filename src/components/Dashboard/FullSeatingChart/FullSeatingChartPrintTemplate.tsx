@@ -197,16 +197,6 @@ export const FullSeatingChartPrintTemplate: React.FC<FullSeatingChartPrintTempla
                       Dietary: {guest.dietary}
                     </div>
                   )}
-                  {settings.showRsvp && guest.rsvp && (
-                    <div style={{ 
-                      fontSize: currentFontSize.details,
-                      color: normalizeRsvp(guest.rsvp) === 'Attending' ? '#22c55e' :
-                             normalizeRsvp(guest.rsvp) === 'Not Attending' ? '#ef4444' : '#f59e0b',
-                      lineHeight: currentFontSize.lineHeight
-                    }}>
-                      RSVP: {normalizeRsvp(guest.rsvp)}
-                    </div>
-                  )}
                   {settings.showRelation && guest.relation_display && (
                     <div style={{ 
                       fontSize: currentFontSize.details,
@@ -257,16 +247,6 @@ export const FullSeatingChartPrintTemplate: React.FC<FullSeatingChartPrintTempla
                       lineHeight: currentFontSize.lineHeight
                     }}>
                       Dietary: {guest.dietary}
-                    </div>
-                  )}
-                  {settings.showRsvp && guest.rsvp && (
-                    <div style={{ 
-                      fontSize: currentFontSize.details,
-                      color: normalizeRsvp(guest.rsvp) === 'Attending' ? '#22c55e' :
-                             normalizeRsvp(guest.rsvp) === 'Not Attending' ? '#ef4444' : '#f59e0b',
-                      lineHeight: currentFontSize.lineHeight
-                    }}>
-                      RSVP: {normalizeRsvp(guest.rsvp)}
                     </div>
                   )}
                   {settings.showRelation && guest.relation_display && (
