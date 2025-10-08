@@ -122,8 +122,8 @@ export const FullSeatingChartExporter: React.FC<FullSeatingChartExporterProps> =
         // Logo
         try {
           const logoUrl = '/wedding-waitress-new-logo.png';
-          pdf.addImage(logoUrl, 'PNG', (pageWidth - 20) / 2, y, 20, 6);
-          y += 9;
+          pdf.addImage(logoUrl, 'PNG', (pageWidth - 30) / 2, y, 30, 9);
+          y += 12;
         } catch (error) {
           console.log('Could not add logo to PDF:', error);
           y += 2;
@@ -156,7 +156,7 @@ export const FullSeatingChartExporter: React.FC<FullSeatingChartExporterProps> =
         // Black separator line
         pdf.setLineWidth(0.3);
         pdf.line(margin, y, pageWidth - margin, y);
-        y += 6; // Reduced spacing after the line to match print
+        y += 9; // Spacing after the line before guest numbers
 
         return y;
       };
