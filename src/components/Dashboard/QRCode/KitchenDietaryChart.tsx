@@ -501,7 +501,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
               <>
                 {/* Page Navigation */}
                 {totalPages > 1 && (
-                  <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center justify-center gap-4 mb-4">
                     <Button
                       variant="outline"
                       size="sm"
@@ -635,7 +635,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
 
                 {/* Page Navigation Bottom */}
                 {totalPages > 1 && (
-                  <div className="flex items-center justify-between mt-4">
+                  <div className="flex items-center justify-center gap-4 mt-4">
                     <Button
                       variant="outline"
                       size="sm"
