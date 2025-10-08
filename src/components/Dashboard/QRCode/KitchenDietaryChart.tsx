@@ -321,22 +321,45 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
       `}</style>
       
       <div className="space-y-6 kitchen-dietary-chart">
-        {/* Header Card */}
-        <Card className="ww-box border-primary/20 bg-gradient-subtle print-hide">
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
+        {/* Combined Header Card */}
+        {currentEvent && (
+          <Card className="ww-box border-primary/20 bg-gradient-subtle print-hide">
+            <CardContent className="p-6 space-y-4">
+              {/* Event Info and Guest Count */}
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-semibold text-lg">{currentEvent.name}</h3>
+                  {currentEvent.date && (
+                    <p className="text-sm text-muted-foreground">
+                      {format(new Date(currentEvent.date), 'EEEE, MMMM do, yyyy')}
+                    </p>
+                  )}
+                </div>
+                <div className="text-right">
+                  <Badge variant="secondary" className="mb-1">
+                    {dietaryGuests.length} Guest{dietaryGuests.length !== 1 ? 's' : ''}
+                  </Badge>
+                  <p className="text-xs text-muted-foreground">
+                    with dietary requirements
+                  </p>
+                </div>
+              </div>
+
+              {/* Title and Description */}
+              <div className="flex items-center gap-3 pt-2">
                 <div className="p-2 rounded-lg bg-primary/10">
                   <ChefHat className="w-5 h-5 text-primary" />
                 </div>
                 <div>
-                  <CardTitle className="text-xl gradient-text">Kitchen Dietary Requirements</CardTitle>
+                  <h2 className="text-xl font-semibold gradient-text">Kitchen Dietary Requirements</h2>
                   <p className="text-muted-foreground text-sm">
                     Staff reference sheet for guests with dietary requirements and allergies
                   </p>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
+
+              {/* Action Buttons */}
+              <div className="flex items-center justify-end gap-2 pt-2">
                 <Button
                   variant="outline"
                   size="sm"
@@ -356,32 +379,6 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                   <Download className="w-4 h-4" />
                   {isExporting ? 'Exporting...' : 'Export PDF'}
                 </Button>
-              </div>
-            </div>
-          </CardHeader>
-        </Card>
-
-        {/* Event Info */}
-        {currentEvent && (
-          <Card className="ww-box print-hide">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="font-semibold">{currentEvent.name}</h3>
-                  {currentEvent.date && (
-                    <p className="text-sm text-muted-foreground">
-                      {format(new Date(currentEvent.date), 'EEEE, MMMM do, yyyy')}
-                    </p>
-                  )}
-                </div>
-                <div className="text-right">
-                  <Badge variant="secondary" className="mb-1">
-                    {dietaryGuests.length} Guest{dietaryGuests.length !== 1 ? 's' : ''}
-                  </Badge>
-                  <p className="text-xs text-muted-foreground">
-                    with dietary requirements
-                  </p>
-                </div>
               </div>
             </CardContent>
           </Card>
