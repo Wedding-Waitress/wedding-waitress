@@ -177,7 +177,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
       <style>{`
         @page {
           size: A4 portrait;
-          margin: 12mm;
+          margin: 0; /* Remove browser headers/footers */
         }
         
         @media print {
@@ -194,10 +194,13 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
           
           .print-page {
             position: relative;
-            min-height: 273mm; /* A4 height (297mm) - margins (12mm × 2) */
+            width: 210mm;
+            height: 297mm;
+            padding: 12mm;
             display: flex;
             flex-direction: column;
             background-color: white !important;
+            box-sizing: border-box;
           }
           
         .print-header {
@@ -241,10 +244,15 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
           
           .print-guest-list {
             flex: 1;
-            columns: 2;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
             column-gap: 12mm;
-            column-fill: auto;
-            max-height: 252mm; /* Reserve space for compact header (21mm) only */
+            align-items: start;
+          }
+          
+          .print-guest-column {
+            display: flex;
+            flex-direction: column;
           }
           
           .print-guest-item {
@@ -467,9 +475,16 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
             </div>
             
             <div className="print-guest-list">
-              {pageInfo.guests.map((guest) => (
-                <PrintGuestRow key={guest.id} guest={guest} />
-              ))}
+              <div className="print-guest-column">
+                {pageInfo.guests.slice(0, 11).map((guest) => (
+                  <PrintGuestRow key={guest.id} guest={guest} />
+                ))}
+              </div>
+              <div className="print-guest-column">
+                {pageInfo.guests.slice(11, 22).map((guest) => (
+                  <PrintGuestRow key={guest.id} guest={guest} />
+                ))}
+              </div>
             </div>
             
           </div>
