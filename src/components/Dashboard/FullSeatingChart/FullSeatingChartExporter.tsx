@@ -1,3 +1,38 @@
+/**
+ * ============================================================================
+ * FINALIZED COMPONENT - DO NOT MODIFY WITHOUT OWNER APPROVAL
+ * ============================================================================
+ * 
+ * This component generates PDF exports for Full Seating Charts with exact
+ * measurements and spacing that have been carefully calibrated.
+ * 
+ * CRITICAL MEASUREMENTS (DO NOT CHANGE):
+ * - Logo size: 35mm × 10.5mm
+ * - Logo position: margin - 2mm
+ * - Gap after logo: 22mm
+ * - Gap after header line: 9mm
+ * - Gap after guest count header: 10mm (increased from 5mm)
+ * - Guests per column: 11
+ * - Guests per page: 22 (2 columns)
+ * - Page margins: 12mm
+ * 
+ * FONT SIZE MAPPINGS:
+ * - small: 10.5pt (guest names), 9pt (details)
+ * - medium: 12pt (guest names), 10.5pt (details)
+ * - large: 13.5pt (guest names), 12pt (details)
+ * 
+ * LAYOUT FEATURES:
+ * - Multi-page support with automatic pagination
+ * - Professional header on each page
+ * - Two-column layout with proper spacing
+ * - Optional dietary and relationship information
+ * - Dynamic filename with event name and date
+ * 
+ * Last modified: 2025-10-08
+ * Owner approval required for any changes
+ * ============================================================================
+ */
+
 import React, { useState } from 'react';
 import {
   Dialog,

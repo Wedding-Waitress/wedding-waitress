@@ -1,3 +1,35 @@
+/**
+ * ============================================================================
+ * FINALIZED COMPONENT - DO NOT MODIFY WITHOUT OWNER APPROVAL
+ * ============================================================================
+ * 
+ * Settings panel for Full Seating Chart customization. Provides controls for
+ * sorting, display options, typography, and export settings.
+ * 
+ * AVAILABLE SETTINGS:
+ * 
+ * Sort Order:
+ * - firstName: First name, then last name
+ * - lastName: Last name, then first name
+ * - tableNo: Table number, then first name
+ * 
+ * Display Options:
+ * - showDietary: Display dietary requirements
+ * - showRelation: Display guest relationships
+ * 
+ * Typography:
+ * - small: 14px (10.5pt PDF)
+ * - medium: 16px (12pt PDF)
+ * - large: 18px (13.5pt PDF)
+ * 
+ * Export Settings:
+ * - paperSize: A4, A3, A2, A1
+ * 
+ * Last modified: 2025-10-08
+ * Owner approval required for any changes
+ * ============================================================================
+ */
+
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';

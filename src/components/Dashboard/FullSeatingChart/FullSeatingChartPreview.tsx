@@ -1,3 +1,38 @@
+/**
+ * ============================================================================
+ * FINALIZED COMPONENT - DO NOT MODIFY WITHOUT OWNER APPROVAL
+ * ============================================================================
+ * 
+ * This component renders the Full Seating Chart preview with screen and print
+ * versions, using exact A4 dimensions and carefully calibrated spacing.
+ * 
+ * CRITICAL MEASUREMENTS (DO NOT CHANGE):
+ * - A4 dimensions: 794px × 1123px (210mm × 297mm at 96 DPI)
+ * - Page margins: 45px (12mm)
+ * - Header height: 120px minimum
+ * - Guest list height: 913px available
+ * - Column gap: 12mm
+ * - Guests per column: 11
+ * - Guests per page: 22
+ * 
+ * PRINT SPECIFICATIONS:
+ * - Paper size: A4 portrait
+ * - Margins: 12mm
+ * - Logo height: 48px (screen), appropriate print size
+ * - Font sizes: Configurable via settings (small/medium/large)
+ * 
+ * FEATURES:
+ * - Interactive checkboxes for guest check-off
+ * - Multi-page pagination support
+ * - Professional print layout with exact measurements
+ * - Optional dietary and relationship display
+ * - Date formatting with ordinal suffixes
+ * 
+ * Last modified: 2025-10-08
+ * Owner approval required for any changes
+ * ============================================================================
+ */
+
 import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';

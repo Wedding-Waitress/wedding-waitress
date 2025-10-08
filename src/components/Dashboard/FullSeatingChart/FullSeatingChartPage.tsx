@@ -1,3 +1,34 @@
+/**
+ * ============================================================================
+ * FINALIZED COMPONENT - DO NOT MODIFY WITHOUT OWNER APPROVAL
+ * ============================================================================
+ * 
+ * Main page component for Full Seating Chart feature. Handles event selection,
+ * guest sorting, and coordinates between customizer, preview, and exporter.
+ * 
+ * CORE FUNCTIONALITY:
+ * - Event selection and data loading
+ * - Guest sorting (firstName, lastName, tableNo)
+ * - Print functionality with helper toast
+ * - PDF export coordination
+ * - Settings management via custom hook
+ * 
+ * SORTING OPTIONS:
+ * - firstName: Sort by "First Last" alphabetically
+ * - lastName: Sort by "Last, First" alphabetically
+ * - tableNo: Sort by table number, then first name
+ * 
+ * LAYOUT:
+ * - 4-column grid: 1 col customizer, 3 cols preview
+ * - Event selector in header
+ * - Action buttons (Print, Download PDF)
+ * - Loading states and empty states
+ * 
+ * Last modified: 2025-10-08
+ * Owner approval required for any changes
+ * ============================================================================
+ */
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/enhanced-button';
