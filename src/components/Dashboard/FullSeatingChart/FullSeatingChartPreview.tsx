@@ -22,40 +22,46 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
   const [checkedGuests, setCheckedGuests] = useState<Set<string>>(new Set());
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Calculate pagination based on same logic as PDF exporter
+  // Calculate pagination based on A4 pixel dimensions (794px × 1123px at 96 DPI)
   const paginationInfo = useMemo(() => {
-    // Font sizes in points (same as exporter)
-    const fontSizes = {
-      small: { name: 10.5, details: 9.5 },
-      medium: { name: 12, details: 11 },
-      large: { name: 13.5, details: 12.5 }
+    // A4 dimensions at 96 DPI
+    const A4_WIDTH = 794; // px
+    const A4_HEIGHT = 1123; // px
+    const MARGIN = 45; // 12mm ≈ 45px
+    
+    // Available content area after margins
+    const contentWidth = A4_WIDTH - (MARGIN * 2); // 704px
+    const contentHeight = A4_HEIGHT - (MARGIN * 2); // 1033px
+    
+    // Reserve space for header and footer
+    const headerHeight = 100; // px
+    const footerHeight = 120; // px
+    const guestListHeight = contentHeight - headerHeight - footerHeight; // 813px
+    
+    // Calculate pixel height per guest based on font size and displayed info
+    const fontSizeMap = {
+      small: { lineHeight: 20, extraLine: 18 },    // 10.5pt ≈ 14px + padding
+      medium: { lineHeight: 24, extraLine: 20 },   // 12pt ≈ 16px + padding
+      large: { lineHeight: 28, extraLine: 24 }     // 13.5pt ≈ 18px + padding
     };
-    const currentFontSize = fontSizes[settings.fontSize];
-    const baseLineHeight = currentFontSize.name * 0.352778; // pt -> mm
-
-    // Calculate lines per guest block
-    let linesPerGuest = 1; // name line
-    if (settings.showDietary) linesPerGuest += 1;
-    if (settings.showRsvp) linesPerGuest += 1;
-    if (settings.showRelation) linesPerGuest += 1;
-    const blockHeight = baseLineHeight * linesPerGuest + 2;
-
-    // Page dimensions (A4 in mm)
-    const pageHeight = 297;
-    const headerHeight = 30; // approximate header space
-    const footerReserved = 38;
-    const contentHeight = pageHeight - headerHeight - footerReserved; // ~229mm
-
-    // Calculate max guests per page (divided by 2 for two columns)
-    const maxGuestsPerPage = Math.floor(contentHeight / blockHeight) * 2;
-
+    
+    const currentFont = fontSizeMap[settings.fontSize];
+    let pixelsPerGuest = currentFont.lineHeight; // Base: name line
+    if (settings.showDietary) pixelsPerGuest += currentFont.extraLine;
+    if (settings.showRsvp) pixelsPerGuest += currentFont.extraLine;
+    if (settings.showRelation) pixelsPerGuest += currentFont.extraLine;
+    
+    // Calculate guests per column
+    const guestsPerColumn = Math.floor(guestListHeight / pixelsPerGuest);
+    const maxGuestsPerPage = guestsPerColumn * 2; // Two columns
+    
     // Split guests into pages
     const pages: Guest[][] = [];
     for (let i = 0; i < guests.length; i += maxGuestsPerPage) {
       pages.push(guests.slice(i, i + maxGuestsPerPage));
     }
 
-    return { pages, maxGuestsPerPage };
+    return { pages, maxGuestsPerPage, guestsPerColumn };
   }, [guests, settings.fontSize, settings.showDietary, settings.showRsvp, settings.showRelation]);
 
   const totalPages = paginationInfo.pages.length;
@@ -181,122 +187,223 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
           margin: 12mm;
         }
         
-        
-        .print-preview-content {
-          padding: 0;
-          display: flex;
-          flex-direction: column;
-          min-height: 100vh;
-        }
-        
-        .print-header {
-          text-align: center;
-          margin-bottom: 4mm;
-        }
-        
-        .print-event-name {
-          font-size: 18px;
-          font-weight: bold;
-          margin: 0 0 4px 0;
-          color: #8B5CF6;
-        }
-        
-        .print-subtitle {
-          font-size: 14px;
-          margin: 0;
-          color: #000;
-        }
-        
-        .print-guest-list {
-          flex: 1;
-          columns: 2;
-          column-gap: 12mm;
-          column-fill: balance;
-        }
-        
-        .print-guest-item {
-          break-inside: avoid;
-          font-size: ${printFontSizes.main};
-          line-height: 1.2;
-          margin-bottom: 2px;
-          color: #000;
-        }
-        
-        .print-checkbox {
-          font-family: monospace;
-          font-size: ${printFontSizes.checkbox};
-          margin-right: 4px;
-        }
-        
-        .print-guest-name {
-          font-weight: 700;
-        }
-        
-        .print-separator {
-          margin: 0 2px;
-        }
-        
-        .print-table {
-          font-weight: 700;
-        }
-        
-        .print-footer {
-          margin-top: auto;
-          padding-top: 4mm;
-          border-top: 1px solid #ddd;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 2mm;
-        }
-        
-        .print-footer-stats {
-          font-size: 10px;
-          color: #666;
-        }
-        
-        .print-footer img {
-          height: 12mm;
-          opacity: 0.6;
+        @media print {
+          body {
+            margin: 0;
+            padding: 0;
+          }
+          
+          .print-page {
+            position: relative;
+            min-height: 273mm; /* A4 height (297mm) - margins (12mm × 2) */
+            display: flex;
+            flex-direction: column;
+          }
+          
+          .print-header {
+            text-align: center;
+            margin-bottom: 6mm;
+          }
+          
+          .print-event-name {
+            font-size: 18px;
+            font-weight: bold;
+            margin: 0 0 4px 0;
+            color: #8B5CF6;
+          }
+          
+          .print-subtitle {
+            font-size: 14px;
+            margin: 0;
+            color: #000;
+          }
+          
+          .print-guest-list {
+            flex: 1;
+            columns: 2;
+            column-gap: 12mm;
+            column-fill: auto;
+            max-height: 229mm; /* Reserve space for header (30mm) and footer (38mm) */
+          }
+          
+          .print-guest-item {
+            break-inside: avoid;
+            font-size: ${printFontSizes.main};
+            line-height: 1.2;
+            margin-bottom: 2px;
+            color: #000;
+          }
+          
+          .print-checkbox {
+            font-family: monospace;
+            font-size: ${printFontSizes.checkbox};
+            margin-right: 4px;
+          }
+          
+          .print-guest-name {
+            font-weight: 700;
+          }
+          
+          .print-separator {
+            margin: 0 2px;
+          }
+          
+          .print-table {
+            font-weight: 700;
+          }
+          
+          .print-footer {
+            margin-top: 4mm;
+            padding-top: 4mm;
+            border-top: 1px solid #ddd;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2mm;
+          }
+          
+          .print-footer-stats {
+            font-size: 10px;
+            color: #666;
+          }
+          
+          .print-footer img {
+            height: 12mm;
+            opacity: 0.6;
+          }
         }
       `}</style>
 
-      {/* Screen Version */}
+      {/* Screen Version - A4 Paper Preview */}
       <div className="print:hidden">
-        {/* Interactive Version */}
-        <Card>
-          <CardContent className="p-6">
-            {/* Page Navigation */}
-            {totalPages > 1 && (
-              <div className="flex items-center justify-between mb-6 pb-4 border-b">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                  disabled={currentPage === 1}
-                >
-                  <ChevronLeft className="w-4 h-4 mr-1" />
-                  Previous
-                </Button>
-                <div className="text-sm font-medium">
-                  Page {currentPage} of {totalPages}
-                </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                  disabled={currentPage === totalPages}
-                >
-                  Next
-                  <ChevronRight className="w-4 h-4 ml-1" />
-                </Button>
-              </div>
-            )}
+        {/* Page Navigation Controls */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-center gap-4 mb-6">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+              disabled={currentPage === 1}
+            >
+              <ChevronLeft className="w-4 h-4 mr-1" />
+              Previous
+            </Button>
+            <div className="text-sm font-medium">
+              Page {currentPage} of {totalPages}
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+              disabled={currentPage === totalPages}
+            >
+              Next
+              <ChevronRight className="w-4 h-4 ml-1" />
+            </Button>
+          </div>
+        )}
 
-            {/* Header */}
-            <div className="text-center mb-8 space-y-2">
-              <h1 className="text-2xl font-bold text-primary">{event.name}</h1>
-              <p className="text-base text-foreground">
+        {/* A4 Paper Container - 794px × 1123px (210mm × 297mm at 96 DPI) */}
+        <div className="flex justify-center">
+          <div 
+            className="bg-background border border-border shadow-lg overflow-auto"
+            style={{ 
+              width: '794px', 
+              height: '1123px',
+              maxWidth: '100%'
+            }}
+          >
+            {/* Content with 12mm margins (45px) */}
+            <div className="p-[45px] h-full flex flex-col">
+              {/* Header - 100px reserved */}
+              <div className="text-center mb-4" style={{ minHeight: '100px' }}>
+                <h1 className="text-2xl font-bold text-primary mb-2">{event.name}</h1>
+                <p className="text-base text-foreground">
+                  {event.date && formatDateWithOrdinal(event.date)}
+                  {event.date && event.venue && ' - '}
+                  {event.venue && event.venue}
+                  {(event.date || event.venue) && ' - '}
+                  Full Seating Chart
+                </p>
+              </div>
+
+              {/* Guest List - 813px available */}
+              <div className="flex-1 grid grid-cols-2 gap-8" style={{ minHeight: '813px' }}>
+                {/* Left Column */}
+                <div className="space-y-1">
+                  <h3 className="font-semibold text-xs text-muted-foreground mb-3 uppercase tracking-wide">
+                    Guests {((currentPage - 1) * paginationInfo.maxGuestsPerPage) + 1}-{((currentPage - 1) * paginationInfo.maxGuestsPerPage) + Math.ceil(currentGuests.length / 2)}
+                  </h3>
+                  <div className="space-y-0.5">
+                    {currentGuests.slice(0, Math.ceil(currentGuests.length / 2)).map((guest) => (
+                      <ScreenGuestRow key={guest.id} guest={guest} />
+                    ))}
+                  </div>
+                </div>
+
+                {/* Right Column */}
+                <div className="space-y-1">
+                  <h3 className="font-semibold text-xs text-muted-foreground mb-3 uppercase tracking-wide">
+                    Guests {((currentPage - 1) * paginationInfo.maxGuestsPerPage) + Math.ceil(currentGuests.length / 2) + 1}-{((currentPage - 1) * paginationInfo.maxGuestsPerPage) + currentGuests.length}
+                  </h3>
+                  <div className="space-y-0.5">
+                    {currentGuests.slice(Math.ceil(currentGuests.length / 2)).map((guest) => (
+                      <ScreenGuestRow key={guest.id} guest={guest} />
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Footer - 120px reserved */}
+              <div className="mt-auto pt-4 border-t text-center space-y-2" style={{ minHeight: '120px' }}>
+                <p className="text-sm text-muted-foreground">
+                  Total Guests: {guests.length} - Page {currentPage} of {totalPages} - Generated on: {new Date().toLocaleDateString()}
+                </p>
+                <img src={weddingWaitressLogo} alt="Wedding Waitress" className="h-12 mx-auto opacity-60" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom Page Navigation */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-center gap-4 mt-6">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+              disabled={currentPage === 1}
+            >
+              <ChevronLeft className="w-4 h-4 mr-1" />
+              Previous
+            </Button>
+            <div className="text-sm font-medium">
+              Page {currentPage} of {totalPages}
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+              disabled={currentPage === totalPages}
+            >
+              Next
+              <ChevronRight className="w-4 h-4 ml-1" />
+            </Button>
+          </div>
+        )}
+      </div>
+
+      {/* Print Version - Multi-page with proper pagination */}
+      <div id="full-seating-print-content" className="hidden print:block">
+        {paginationInfo.pages.map((pageGuests, pageIndex) => (
+          <div 
+            key={pageIndex}
+            className="print-page"
+            style={{ pageBreakAfter: pageIndex < paginationInfo.pages.length - 1 ? 'always' : 'auto' }}
+          >
+            <div className="print-header">
+              <h1 className="print-event-name">{event.name}</h1>
+              <p className="print-subtitle">
                 {event.date && formatDateWithOrdinal(event.date)}
                 {event.date && event.venue && ' - '}
                 {event.venue && event.venue}
@@ -304,87 +411,21 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
                 Full Seating Chart
               </p>
             </div>
-
-            {/* Two Column Layout */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {/* Left Column */}
-              <div className="space-y-1">
-                <h3 className="font-semibold text-sm text-muted-foreground mb-3 uppercase tracking-wide">
-                  Guests {((currentPage - 1) * paginationInfo.maxGuestsPerPage) + 1}-{((currentPage - 1) * paginationInfo.maxGuestsPerPage) + Math.ceil(currentGuests.length / 2)}
-                </h3>
-                {currentGuests.slice(0, Math.ceil(currentGuests.length / 2)).map((guest) => (
-                  <ScreenGuestRow key={guest.id} guest={guest} />
-                ))}
-              </div>
-
-              {/* Right Column */}
-              <div className="space-y-1">
-                <h3 className="font-semibold text-sm text-muted-foreground mb-3 uppercase tracking-wide">
-                  Guests {((currentPage - 1) * paginationInfo.maxGuestsPerPage) + Math.ceil(currentGuests.length / 2) + 1}-{((currentPage - 1) * paginationInfo.maxGuestsPerPage) + currentGuests.length}
-                </h3>
-                {currentGuests.slice(Math.ceil(currentGuests.length / 2)).map((guest) => (
-                  <ScreenGuestRow key={guest.id} guest={guest} />
-                ))}
-              </div>
+            
+            <div className="print-guest-list">
+              {pageGuests.map((guest) => (
+                <PrintGuestRow key={guest.id} guest={guest} />
+              ))}
             </div>
-
-            {/* Footer */}
-            <div className="mt-8 pt-4 border-t text-center space-y-2">
-              <p className="text-sm text-muted-foreground">
-                Total Guests: {guests.length} - Generated on: {new Date().toLocaleDateString()}
+            
+            <div className="print-footer">
+              <p className="print-footer-stats">
+                Total Guests: {guests.length} - Page {pageIndex + 1} of {paginationInfo.pages.length} - Generated on: {new Date().toLocaleDateString()}
               </p>
-              <img src={weddingWaitressLogo} alt="Wedding Waitress" className="h-12 mx-auto opacity-60" />
+              <img src={weddingWaitressLogo} alt="Wedding Waitress" />
             </div>
-
-            {/* Bottom Page Navigation */}
-            {totalPages > 1 && (
-              <div className="flex items-center justify-between mt-6 pt-4 border-t">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                  disabled={currentPage === 1}
-                >
-                  <ChevronLeft className="w-4 h-4 mr-1" />
-                  Previous
-                </Button>
-                <div className="text-sm font-medium">
-                  Page {currentPage} of {totalPages}
-                </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                  disabled={currentPage === totalPages}
-                >
-                  Next
-                  <ChevronRight className="w-4 h-4 ml-1" />
-                </Button>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Print Version - Hidden until printing */}
-      <div id="full-seating-print-content" className="hidden print:block">
-        <div className="print-preview-content">
-          <div className="print-header">
-            <h1 className="print-event-name">{event.name}</h1>
-            <p className="print-subtitle">
-              {event.date && formatDateWithOrdinal(event.date)}
-              {event.date && event.venue && ' - '}
-              {event.venue && event.venue}
-              {(event.date || event.venue) && ' - '}
-              Full Seating Chart
-            </p>
           </div>
-          <div className="print-guest-list">
-            {guests.map((guest) => (
-              <PrintGuestRow key={guest.id} guest={guest} />
-            ))}
-          </div>
-        </div>
+        ))}
       </div>
     </>
   );
