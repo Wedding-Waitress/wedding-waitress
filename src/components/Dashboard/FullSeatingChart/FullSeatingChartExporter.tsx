@@ -123,7 +123,7 @@ export const FullSeatingChartExporter: React.FC<FullSeatingChartExporterProps> =
         try {
           const logoUrl = '/wedding-waitress-new-logo.png';
           pdf.addImage(logoUrl, 'PNG', (pageWidth - 35) / 2, y, 35, 10.5);
-          y += 15;
+          y += 22;
         } catch (error) {
           console.log('Could not add logo to PDF:', error);
           y += 2;
