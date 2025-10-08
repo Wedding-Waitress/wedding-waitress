@@ -14,6 +14,51 @@ export type Database = {
   }
   public: {
     Tables: {
+      dietary_chart_settings: {
+        Row: {
+          created_at: string
+          event_id: string
+          font_size: string
+          id: string
+          paper_size: string
+          show_logo: boolean
+          show_mobile: boolean
+          show_relation: boolean
+          show_seat_no: boolean
+          sort_by: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          font_size?: string
+          id?: string
+          paper_size?: string
+          show_logo?: boolean
+          show_mobile?: boolean
+          show_relation?: boolean
+          show_seat_no?: boolean
+          sort_by?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          font_size?: string
+          id?: string
+          paper_size?: string
+          show_logo?: boolean
+          show_mobile?: boolean
+          show_relation?: boolean
+          show_seat_no?: boolean
+          sort_by?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       events: {
         Row: {
           created_at: string

@@ -16,6 +16,8 @@ import { Download, Printer, ChefHat, AlertCircle } from 'lucide-react';
 import { useRealtimeGuests } from '@/hooks/useRealtimeGuests';
 import { useEvents } from '@/hooks/useEvents';
 import { useTables } from '@/hooks/useTables';
+import { useDietaryChartSettings } from '@/hooks/useDietaryChartSettings';
+import { DietaryChartCustomizer } from './DietaryChartCustomizer';
 import jsPDF from 'jspdf';
 import { format } from 'date-fns';
 import weddingWaitressLogo from '@/assets/wedding-waitress-new-logo.png';
@@ -40,13 +42,14 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
   const { guests, loading: guestsLoading } = useRealtimeGuests(selectedEventId);
   const { events, loading: eventsLoading } = useEvents();
   const { tables, loading: tablesLoading } = useTables(selectedEventId);
+  const { settings, loading: settingsLoading, updateSettings } = useDietaryChartSettings(selectedEventId);
   const [isExporting, setIsExporting] = useState(false);
 
   const currentEvent = events.find(event => event.id === selectedEventId);
 
   // Filter guests with dietary requirements (not 'NA', not empty, and not null)
   const dietaryGuests = useMemo(() => {
-    return guests
+    const filtered = guests
       .filter(guest => 
         guest.dietary && 
         guest.dietary.trim() !== '' && 
@@ -62,22 +65,49 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
         dietary: guest.dietary,
         relation_display: guest.relation_display,
         mobile: guest.mobile
-      }))
-      .sort((a, b) => {
-        // Sort by table number first, then by name
+      }));
+
+    // Apply sorting based on settings
+    return filtered.sort((a, b) => {
+      if (settings.sortBy === 'tableNo') {
         if (a.table_no !== b.table_no) {
           return (a.table_no || 999) - (b.table_no || 999);
         }
         return a.first_name.localeCompare(b.first_name);
-      });
-  }, [guests]);
+      } else if (settings.sortBy === 'lastName') {
+        const lastNameA = a.last_name || '';
+        const lastNameB = b.last_name || '';
+        if (lastNameA !== lastNameB) {
+          return lastNameA.localeCompare(lastNameB);
+        }
+        return a.first_name.localeCompare(b.first_name);
+      } else {
+        // firstName (default)
+        return a.first_name.localeCompare(b.first_name);
+      }
+    });
+  }, [guests, settings.sortBy]);
 
   const handleExportPDF = async () => {
     if (!currentEvent || dietaryGuests.length === 0) return;
 
     setIsExporting(true);
     try {
-      const pdf = new jsPDF();
+      // Determine PDF size based on settings
+      const paperSizes: Record<string, [number, number]> = {
+        'A4': [210, 297],
+        'A3': [297, 420],
+        'A2': [420, 594],
+        'A1': [594, 841],
+      };
+      const [width, height] = paperSizes[settings.paperSize] || paperSizes['A4'];
+      
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: [width, height]
+      });
+      
       const pageWidth = pdf.internal.pageSize.getWidth();
       const pageHeight = pdf.internal.pageSize.getHeight();
       
@@ -93,20 +123,34 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
         pdf.text(eventDate, pageWidth / 2, 30, { align: 'center' });
       }
 
-      // Table headers
+      // Table headers with dynamic columns based on settings
       let yPosition = 50;
-      pdf.setFontSize(12);
+      const baseFontSize = settings.fontSize === 'small' ? 10 : settings.fontSize === 'large' ? 14 : 12;
+      pdf.setFontSize(baseFontSize);
       pdf.setFont('helvetica', 'bold');
       
-      const colWidths = [32, 15, 15, 42, 32, 38]; // Name, Table, Seat, Dietary, Mobile, Relation
-      const colPositions = [10, 45, 62, 80, 125, 160];
+      // Build column configuration based on settings
+      const columns = [
+        { label: 'Guest Name', width: 32, key: 'name', show: true },
+        { label: 'Table', width: 15, key: 'table', show: true },
+        { label: 'Seat', width: 15, key: 'seat', show: settings.showSeatNo },
+        { label: 'Dietary Requirements', width: 42, key: 'dietary', show: true },
+        { label: 'Mobile', width: 32, key: 'mobile', show: settings.showMobile },
+        { label: 'Relation', width: 38, key: 'relation', show: settings.showRelation },
+      ].filter(col => col.show);
       
-      pdf.text('Guest Name', colPositions[0], yPosition);
-      pdf.text('Table', colPositions[1], yPosition);
-      pdf.text('Seat', colPositions[2], yPosition);
-      pdf.text('Dietary Requirements', colPositions[3], yPosition);
-      pdf.text('Mobile', colPositions[4], yPosition);
-      pdf.text('Relation', colPositions[5], yPosition);
+      // Calculate column positions
+      let currentX = 10;
+      const colData = columns.map(col => {
+        const pos = currentX;
+        currentX += col.width + 3;
+        return { ...col, position: pos };
+      });
+      
+      // Draw headers
+      colData.forEach(col => {
+        pdf.text(col.label, col.position, yPosition);
+      });
       
       // Draw line under headers
       yPosition += 5;
@@ -115,7 +159,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
 
       // Guest data
       pdf.setFont('helvetica', 'normal');
-      pdf.setFontSize(11);
+      pdf.setFontSize(baseFontSize - 1);
 
       dietaryGuests.forEach((guest, index) => {
         if (yPosition > pageHeight - 40) {
@@ -127,25 +171,30 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
         const tableText = guest.table_no ? guest.table_no.toString() : '-';
         const seatText = guest.seat_no ? guest.seat_no.toString() : '-';
         const mobileText = guest.mobile || '-';
+        const relationText = guest.relation_display || 'Guest';
         
-        pdf.text(fullName, colPositions[0], yPosition);
-        pdf.text(tableText, colPositions[1], yPosition);
-        pdf.text(seatText, colPositions[2], yPosition);
+        // Build data array based on visible columns
+        const rowData = colData.map(col => {
+          switch (col.key) {
+            case 'name': return { text: fullName, width: col.width };
+            case 'table': return { text: tableText, width: col.width };
+            case 'seat': return { text: seatText, width: col.width };
+            case 'dietary': return { text: guest.dietary, width: col.width };
+            case 'mobile': return { text: mobileText, width: col.width };
+            case 'relation': return { text: relationText, width: col.width };
+            default: return { text: '', width: col.width };
+          }
+        });
         
-        // Handle long dietary text with wrapping
-        const dietaryLines = pdf.splitTextToSize(guest.dietary, colWidths[3]);
-        pdf.text(dietaryLines, colPositions[3], yPosition);
+        // Draw each cell with text wrapping
+        const wrappedLines = rowData.map(data => pdf.splitTextToSize(data.text, data.width));
+        const maxLines = Math.max(...wrappedLines.map(lines => lines.length));
         
-        // Handle mobile text
-        const mobileLines = pdf.splitTextToSize(mobileText, colWidths[4]);
-        pdf.text(mobileLines, colPositions[4], yPosition);
+        rowData.forEach((data, idx) => {
+          pdf.text(wrappedLines[idx], colData[idx].position, yPosition);
+        });
         
-        // Handle long who_is text with wrapping
-        const relationLines = pdf.splitTextToSize(guest.relation_display || 'Guest', colWidths[5]);
-        pdf.text(relationLines, colPositions[5], yPosition);
-        
-        const maxLines = Math.max(dietaryLines.length, mobileLines.length, relationLines.length);
-        yPosition += maxLines * 6 + 4;
+        yPosition += maxLines * (baseFontSize / 2 + 2) + 4;
 
         // Add separator line every few entries
         if ((index + 1) % 3 === 0) {
@@ -155,16 +204,18 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
         }
       });
 
-      // Footer with logo
+      // Footer with optional logo
       const totalPages = pdf.getNumberOfPages();
       for (let i = 1; i <= totalPages; i++) {
         pdf.setPage(i);
         
-        // Wedding Waitress logo
-        try {
-          pdf.addImage(weddingWaitressLogo, 'JPEG', pageWidth / 2 - 30, pageHeight - 25, 60, 15);
-        } catch (error) {
-          console.warn('Could not add logo to PDF:', error);
+        // Wedding Waitress logo (only if showLogo is enabled)
+        if (settings.showLogo) {
+          try {
+            pdf.addImage(weddingWaitressLogo, 'JPEG', pageWidth / 2 - 30, pageHeight - 25, 60, 15);
+          } catch (error) {
+            console.warn('Could not add logo to PDF:', error);
+          }
         }
         
         pdf.setFontSize(8);
@@ -415,9 +466,20 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
           )}
         </div>
 
-        {/* Dietary Requirements List */}
-        <Card className="ww-box print:shadow-none print:border-0">
-          <CardContent className="p-6 print:p-0">
+        {/* Main Content Grid: Settings + Dietary Requirements */}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          {/* Settings Panel (Left - 1 column) */}
+          <div className="lg:col-span-1 print-hide">
+            <DietaryChartCustomizer
+              settings={settings}
+              onSettingsChange={updateSettings}
+            />
+          </div>
+
+          {/* Dietary Requirements List (Right - 3 columns) */}
+          <div className="lg:col-span-3">
+            <Card className="ww-box print:shadow-none print:border-0">
+              <CardContent className="p-6 print:p-0">
             {dietaryGuests.length === 0 ? (
               <div className="text-center py-8 print-hide">
                 <AlertCircle className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
@@ -427,17 +489,17 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                 </p>
               </div>
             ) : (
-              <>
+                <>
                 {/* Screen View */}
-                <div className="space-y-1 print-hide">
+                <div className={`space-y-1 print-hide ${settings.fontSize === 'small' ? 'text-sm' : settings.fontSize === 'large' ? 'text-base' : 'text-sm'}`}>
                   {/* Headers */}
                   <div className="grid grid-cols-12 gap-4 pb-3 border-b font-semibold text-sm text-muted-foreground">
                     <div className="col-span-3">Guest Name</div>
                     <div className="col-span-1">Table</div>
-                    <div className="col-span-1">Seat</div>
-                    <div className="col-span-3">Dietary Requirements</div>
-                    <div className="col-span-2">Mobile</div>
-                    <div className="col-span-2">Relation</div>
+                    {settings.showSeatNo && <div className="col-span-1">Seat</div>}
+                    <div className={settings.showSeatNo ? "col-span-3" : "col-span-4"}>Dietary Requirements</div>
+                    {settings.showMobile && <div className="col-span-2">Mobile</div>}
+                    {settings.showRelation && <div className="col-span-2">Relation</div>}
                   </div>
                   
                   {/* Guest Rows */}
@@ -456,26 +518,32 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                             <span className="text-muted-foreground text-xs">-</span>
                           )}
                         </div>
-                        <div className="col-span-1">
-                          {guest.seat_no ? (
-                            <Badge variant="outline" className="text-xs">
-                              {guest.seat_no}
-                            </Badge>
-                          ) : (
-                            <span className="text-muted-foreground text-xs">-</span>
-                          )}
-                        </div>
-                        <div className="col-span-3">
+                        {settings.showSeatNo && (
+                          <div className="col-span-1">
+                            {guest.seat_no ? (
+                              <Badge variant="outline" className="text-xs">
+                                {guest.seat_no}
+                              </Badge>
+                            ) : (
+                              <span className="text-muted-foreground text-xs">-</span>
+                            )}
+                          </div>
+                        )}
+                        <div className={settings.showSeatNo ? "col-span-3" : "col-span-4"}>
                           <span className="bg-gray-100 text-gray-800 px-3 py-1.5 rounded-full text-xs font-medium">
                             {guest.dietary}
                           </span>
                         </div>
-                        <div className="col-span-2 text-muted-foreground text-xs">
-                          {guest.mobile || '-'}
-                        </div>
-                        <div className="col-span-2 text-muted-foreground text-xs">
-                          {guest.relation_display || 'Guest'}
-                        </div>
+                        {settings.showMobile && (
+                          <div className="col-span-2 text-muted-foreground text-xs">
+                            {guest.mobile || '-'}
+                          </div>
+                        )}
+                        {settings.showRelation && (
+                          <div className="col-span-2 text-muted-foreground text-xs">
+                            {guest.relation_display || 'Guest'}
+                          </div>
+                        )}
                       </div>
                       {index < dietaryGuests.length - 1 && (
                         <Separator className="my-1 opacity-30" />
@@ -491,10 +559,10 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                       <tr>
                         <th style={{ width: '18%' }}>Guest Name</th>
                         <th style={{ width: '8%' }}>Table</th>
-                        <th style={{ width: '8%' }}>Seat</th>
-                        <th style={{ width: '25%' }}>Dietary Requirements</th>
-                        <th style={{ width: '18%' }}>Mobile</th>
-                        <th style={{ width: '23%' }}>Relation</th>
+                        {settings.showSeatNo && <th style={{ width: '8%' }}>Seat</th>}
+                        <th style={{ width: settings.showSeatNo ? '25%' : '33%' }}>Dietary Requirements</th>
+                        {settings.showMobile && <th style={{ width: '18%' }}>Mobile</th>}
+                        {settings.showRelation && <th style={{ width: '23%' }}>Relation</th>}
                       </tr>
                     </thead>
                     <tbody>
@@ -504,10 +572,10 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                             {guest.first_name} {guest.last_name}
                           </td>
                           <td>{guest.table_no || '-'}</td>
-                          <td>{guest.seat_no || '-'}</td>
+                          {settings.showSeatNo && <td>{guest.seat_no || '-'}</td>}
                           <td className="dietary-cell">{guest.dietary}</td>
-                          <td>{guest.mobile || '-'}</td>
-                          <td>{guest.relation_display || 'Guest'}</td>
+                          {settings.showMobile && <td>{guest.mobile || '-'}</td>}
+                          {settings.showRelation && <td>{guest.relation_display || 'Guest'}</td>}
                         </tr>
                       ))}
                     </tbody>
@@ -515,8 +583,10 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                 </div>
               </>
             )}
-          </CardContent>
-        </Card>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
 
         {/* Instructions for Kitchen Staff */}
         <Card className="bg-muted/30 print-hide">
