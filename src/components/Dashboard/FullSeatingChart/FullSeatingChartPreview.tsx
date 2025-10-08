@@ -33,16 +33,16 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
     const contentWidth = A4_WIDTH - (MARGIN * 2); // 704px
     const contentHeight = A4_HEIGHT - (MARGIN * 2); // 1033px
     
-    // Reserve space for header and footer
-    const headerHeight = 100; // px
-    const footerHeight = 120; // px
-    const guestListHeight = contentHeight - headerHeight - footerHeight; // 813px
+    // Reserve space for header only (footer removed)
+    const headerHeight = 80; // px - compact two-line header
+    const footerHeight = 0; // px - no footer
+    const guestListHeight = contentHeight - headerHeight - footerHeight; // 953px
     
     // Calculate pixel height per guest based on font size and displayed info
     const fontSizeMap = {
-      small: { lineHeight: 28, extraLine: 14 },    // Conservative: includes row padding + gaps
-      medium: { lineHeight: 32, extraLine: 16 },   // Ensures no overflow into footer line
-      large: { lineHeight: 38, extraLine: 18 }     // Slightly overestimates for safety
+      small: { lineHeight: 30, extraLine: 16 },    // Measured: text-sm + py-2 padding
+      medium: { lineHeight: 32, extraLine: 18 },   // Measured: text-base + py-2 padding
+      large: { lineHeight: 34, extraLine: 20 }     // Measured: text-lg + py-2 padding
     };
     
     const currentFont = fontSizeMap[settings.fontSize];
@@ -51,10 +51,10 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
     if (settings.showRsvp) pixelsPerGuest += currentFont.extraLine;
     if (settings.showRelation) pixelsPerGuest += currentFont.extraLine;
     
-    // Calculate guests per column with safety so we never cross the footer's top border line
-    const SAFETY_PIXELS = 8; // keep above the footer border-top line
-    const calculatedGuestsPerColumn = Math.floor((guestListHeight - SAFETY_PIXELS) / pixelsPerGuest);
-    const guestsPerColumn = Math.max(1, calculatedGuestsPerColumn - 1); // extra buffer of 1 row
+    // Calculate guests per column - more space available now with no footer
+    const SAFETY_PIXELS = 10; // Small buffer for spacing
+    const availableHeight = guestListHeight - SAFETY_PIXELS;
+    const guestsPerColumn = Math.floor(availableHeight / pixelsPerGuest);
     const maxGuestsPerPage = guestsPerColumn * 2; // Two columns
     
     // Split guests into pages
@@ -232,7 +232,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
             columns: 2;
             column-gap: 12mm;
             column-fill: auto;
-            max-height: 229mm; /* Reserve space for header (30mm) and footer (38mm) */
+            max-height: 252mm; /* Reserve space for compact header (21mm) only */
           }
           
           .print-guest-item {
@@ -261,25 +261,6 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
             font-weight: 700;
           }
           
-          .print-footer {
-            margin-top: 4mm;
-            padding-top: 4mm;
-            border-top: 1px solid #ddd;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 2mm;
-          }
-          
-          .print-footer-stats {
-            font-size: 10px;
-            color: #666;
-          }
-          
-          .print-footer img {
-            height: 12mm;
-            opacity: 0.6;
-          }
         }
       `}</style>
 
@@ -324,20 +305,18 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
           >
             {/* Content with 12mm margins (45px) */}
             <div className="p-[45px] h-full flex flex-col">
-              {/* Header - 100px reserved */}
-              <div className="text-center mb-4" style={{ minHeight: '100px' }}>
-                <h1 className="text-2xl font-bold text-primary mb-2">{event.name}</h1>
-                <p className="text-base text-foreground">
-                  {event.date && formatDateWithOrdinal(event.date)}
-                  {event.date && event.venue && ' - '}
-                  {event.venue && event.venue}
-                  {(event.date || event.venue) && ' - '}
-                  Full Seating Chart
+              {/* Header - 80px reserved */}
+              <div className="text-center mb-6" style={{ minHeight: '80px' }}>
+                <h1 className="text-lg font-bold text-foreground mb-1">
+                  Full Seating Chart - {event.name} - {event.date && formatDateWithOrdinal(event.date)}
+                </h1>
+                <p className="text-sm text-foreground">
+                  {event.venue} - Total Guests: {guests.length} - Page {currentPage} of {totalPages} - Generated on: {new Date().toLocaleDateString('en-GB')}
                 </p>
               </div>
 
-              {/* Guest List - 813px available */}
-              <div className="flex-1 grid grid-cols-2 gap-8" style={{ minHeight: '813px' }}>
+              {/* Guest List - 953px available */}
+              <div className="flex-1 grid grid-cols-2 gap-8" style={{ minHeight: '953px' }}>
                 {/* Left Column */}
                 <div className="space-y-1">
                   <h3 className="font-semibold text-xs text-muted-foreground mb-3 uppercase tracking-wide">
@@ -363,13 +342,6 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
                 </div>
               </div>
 
-              {/* Footer - 120px reserved */}
-              <div className="mt-auto pt-4 border-t text-center space-y-2" style={{ minHeight: '120px' }}>
-                <p className="text-sm text-muted-foreground">
-                  Total Guests: {guests.length} - Page {currentPage} of {totalPages} - Generated on: {new Date().toLocaleDateString()}
-                </p>
-                <img src={weddingWaitressLogo} alt="Wedding Waitress" className="h-12 mx-auto opacity-60" />
-              </div>
             </div>
           </div>
         </div>
@@ -411,13 +383,11 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
             style={{ pageBreakAfter: pageIndex < paginationInfo.pages.length - 1 ? 'always' : 'auto' }}
           >
             <div className="print-header">
-              <h1 className="print-event-name">{event.name}</h1>
+              <h1 className="print-event-name">
+                Full Seating Chart - {event.name} - {event.date && formatDateWithOrdinal(event.date)}
+              </h1>
               <p className="print-subtitle">
-                {event.date && formatDateWithOrdinal(event.date)}
-                {event.date && event.venue && ' - '}
-                {event.venue && event.venue}
-                {(event.date || event.venue) && ' - '}
-                Full Seating Chart
+                {event.venue} - Total Guests: {guests.length} - Page {pageIndex + 1} of {paginationInfo.pages.length} - Generated on: {new Date().toLocaleDateString('en-GB')}
               </p>
             </div>
             
@@ -427,12 +397,6 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
               ))}
             </div>
             
-            <div className="print-footer">
-              <p className="print-footer-stats">
-                Total Guests: {guests.length} - Page {pageIndex + 1} of {paginationInfo.pages.length} - Generated on: {new Date().toLocaleDateString()}
-              </p>
-              <img src={weddingWaitressLogo} alt="Wedding Waitress" />
-            </div>
           </div>
         ))}
       </div>
