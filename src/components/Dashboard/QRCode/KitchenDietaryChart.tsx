@@ -11,6 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Download, Printer, ChefHat, AlertCircle } from 'lucide-react';
 import { useRealtimeGuests } from '@/hooks/useRealtimeGuests';
 import { useEvents } from '@/hooks/useEvents';
@@ -35,12 +36,13 @@ interface DietaryGuest {
 }
 
 export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventId }) => {
-  const { guests, loading: guestsLoading } = useRealtimeGuests(eventId);
+  const [selectedEventId, setSelectedEventId] = useState(eventId);
+  const { guests, loading: guestsLoading } = useRealtimeGuests(selectedEventId);
   const { events, loading: eventsLoading } = useEvents();
-  const { tables, loading: tablesLoading } = useTables(eventId);
+  const { tables, loading: tablesLoading } = useTables(selectedEventId);
   const [isExporting, setIsExporting] = useState(false);
 
-  const currentEvent = events.find(event => event.id === eventId);
+  const currentEvent = events.find(event => event.id === selectedEventId);
 
   // Filter guests with dietary requirements (not 'NA', not empty, and not null)
   const dietaryGuests = useMemo(() => {
@@ -356,6 +358,23 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                     Staff reference sheet for guests with dietary requirements and allergies
                   </p>
                 </div>
+              </div>
+
+              {/* Event Selector */}
+              <div className="flex items-center gap-3 pt-2">
+                <span className="text-sm font-medium whitespace-nowrap">Choose Event:</span>
+                <Select value={selectedEventId} onValueChange={setSelectedEventId}>
+                  <SelectTrigger className="w-full max-w-md">
+                    <SelectValue placeholder="Select an event..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {events.map(event => (
+                      <SelectItem key={event.id} value={event.id}>
+                        {event.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
               {/* Action Buttons */}
