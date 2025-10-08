@@ -105,11 +105,6 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
             Dietary: {guest.dietary}
           </div>
         )}
-        {settings.showRsvp && guest.rsvp && (
-          <Badge variant={guest.rsvp === 'Accepted' ? 'default' : guest.rsvp === 'Declined' ? 'destructive' : 'secondary'} className="text-xs mt-1">
-            {guest.rsvp}
-          </Badge>
-        )}
         {settings.showRelation && guest.relation_display && (
           <div className="text-xs text-muted-foreground mt-0.5">
             {guest.relation_display}
