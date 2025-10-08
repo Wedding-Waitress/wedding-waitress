@@ -184,7 +184,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
         { label: 'Guest Name', width: 32, key: 'name', show: true },
         { label: 'Table', width: 15, key: 'table', show: true },
         { label: 'Seat', width: 15, key: 'seat', show: settings.showSeatNo },
-        { label: 'Dietary Requirements', width: 42, key: 'dietary', show: true },
+        { label: 'Dietary', width: 42, key: 'dietary', show: true },
         { label: 'Mobile', width: 32, key: 'mobile', show: settings.showMobile },
         { label: 'Relation', width: 38, key: 'relation', show: settings.showRelation },
       ].filter(col => col.show);
@@ -584,7 +584,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                               {settings.showSeatNo && (
                                 <th className="text-left py-2 px-2 font-semibold">Seat</th>
                               )}
-                              <th className="text-left py-2 px-2 font-semibold">Dietary Requirements</th>
+                              <th className="text-left py-2 px-2 font-semibold">Dietary</th>
                               {settings.showMobile && (
                                 <th className="text-left py-2 px-2 font-semibold">Mobile</th>
                               )}
@@ -716,7 +716,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                       <th>Guest Name</th>
                       <th>Table</th>
                       {settings.showSeatNo && <th>Seat</th>}
-                      <th>Dietary Requirements</th>
+                      <th>Dietary</th>
                       {settings.showMobile && <th>Mobile</th>}
                       {settings.showRelation && <th>Relation</th>}
                     </tr>
