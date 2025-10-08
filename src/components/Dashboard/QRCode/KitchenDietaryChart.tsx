@@ -327,14 +327,14 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
           }
 
           .print-page {
-            position: absolute !important;
-            left: 0 !important;
-            top: 0 !important;
+            position: relative !important;
             width: 210mm !important;
-            height: 297mm !important;
+            min-height: 297mm !important;
             padding: 12mm !important;
+            margin: 0 auto !important;
             background: white !important;
-            page-break-after: always;
+            box-sizing: border-box !important;
+            page-break-after: always !important;
           }
 
           .print-header-logo img {
