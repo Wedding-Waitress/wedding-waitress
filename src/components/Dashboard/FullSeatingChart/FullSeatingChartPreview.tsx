@@ -53,7 +53,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
       return h + currentMetrics.spacing;
     };
     
-    const SAFETY_BUFFER = 70; // Reserve blank space at bottom of page (~70px ≈ 18mm)
+    const SAFETY_BUFFER = 120; // Reserve blank space at bottom of page (~120px ≈ 32mm)
     const availablePerColumn = guestListHeight - COL_HEADER_PX - SAFETY_BUFFER;
     
     // Build pages by filling columns to available height
