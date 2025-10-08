@@ -30,6 +30,8 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
     interface PageInfo {
       guests: Guest[];
       col1Count: number;
+      startIndex: number;
+      endIndex: number;
     }
     
     const pages: PageInfo[] = [];
@@ -40,7 +42,9 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
       
       pages.push({
         guests: pageGuests,
-        col1Count
+        col1Count,
+        startIndex: i,
+        endIndex: i + pageGuests.length
       });
     }
     
@@ -205,7 +209,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
           
         .print-header {
           text-align: center;
-          margin-bottom: 12mm;
+          margin-bottom: 6mm;
         }
 
         .print-logo {
@@ -240,6 +244,14 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
             color: #000;
             padding-bottom: 8px;
             border-bottom: 1px solid #000;
+          }
+
+          .print-column-header {
+            font-size: 11pt;
+            font-weight: bold;
+            color: #000;
+            text-transform: uppercase;
+            margin-bottom: 8px;
           }
           
           .print-guest-list {
@@ -476,11 +488,17 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
             
             <div className="print-guest-list">
               <div className="print-guest-column">
+                <div className="print-column-header">
+                  GUESTS {pageInfo.startIndex + 1}-{Math.min(pageInfo.startIndex + 11, guests.length)}
+                </div>
                 {pageInfo.guests.slice(0, 11).map((guest) => (
                   <PrintGuestRow key={guest.id} guest={guest} />
                 ))}
               </div>
               <div className="print-guest-column">
+                <div className="print-column-header">
+                  GUESTS {Math.min(pageInfo.startIndex + 12, guests.length + 1)}-{Math.min(pageInfo.startIndex + 22, guests.length)}
+                </div>
                 {pageInfo.guests.slice(11, 22).map((guest) => (
                   <PrintGuestRow key={guest.id} guest={guest} />
                 ))}
