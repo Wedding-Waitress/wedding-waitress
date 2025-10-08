@@ -136,55 +136,31 @@ export const FullSeatingChartExporter: React.FC<FullSeatingChartExporterProps> =
         pdf.text(event.name, pageWidth / 2, y, { align: 'center' });
         y += 6;
 
-        // Date
+        // Date with "Full Seating Chart -" prefix
         pdf.setFontSize(13);
         pdf.setFont('helvetica', 'bold');
         pdf.setTextColor(0, 0, 0);
         if (event.date) {
-          pdf.text(formatDateWithOrdinal(event.date), pageWidth / 2, y, { align: 'center' });
+          pdf.text(`Full Seating Chart - ${formatDateWithOrdinal(event.date)}`, pageWidth / 2, y, { align: 'center' });
           y += 6;
         }
         
-        // Venue + Stats + Page + Generated (with black line below)
+        // Venue + Stats + Page + Generated on one line (with black line below)
         pdf.setFontSize(10);
         pdf.setFont('helvetica', 'normal');
         pdf.setTextColor(0, 0, 0);
         const statsLine = `${event.venue || ''} - Total Guests: ${guests.length} - Page ${pageInfo.pageNum} of ${pageInfo.totalPages} - Generated on: ${new Date().toLocaleDateString('en-GB')}`;
         pdf.text(statsLine, pageWidth / 2, y, { align: 'center' });
-        y += 5;
+        y += 3;
         
         // Black separator line
         pdf.setLineWidth(0.3);
         pdf.line(margin, y, pageWidth - margin, y);
-        y += 8; // Extra spacing after the line
+        y += 6; // Reduced spacing after the line to match print
 
         return y;
       };
 
-      const drawFooter = () => {
-        // Position footer at bottom with proper spacing
-        const logoHeight = 12; // mm
-        const logoWidth = 40; // mm
-        const textHeight = 5; // mm
-        const lineY = pageHeight - margin - logoHeight - textHeight - 5;
-        const textY = lineY + 5;
-        const logoY = textY + 3;
-        
-        pdf.setFontSize(8);
-        pdf.setFont('helvetica', 'normal');
-        pdf.setTextColor(102, 102, 102);
-        // line above footer
-        pdf.setLineWidth(0.3);
-        pdf.line(margin, lineY, pageWidth - margin, lineY);
-        const footerText = `Total Guests: ${guests.length} - Generated on: ${new Date().toLocaleDateString()}`;
-        pdf.text(footerText, pageWidth / 2, textY, { align: 'center' });
-        try {
-          const logoUrl = '/wedding-waitress-new-logo.png';
-          pdf.addImage(logoUrl, 'PNG', (pageWidth - logoWidth) / 2, logoY, logoWidth, logoHeight);
-        } catch (error) {
-          console.log('Could not add logo to PDF:', error);
-        }
-      };
 
       setProgress(50);
 
@@ -217,7 +193,7 @@ export const FullSeatingChartExporter: React.FC<FullSeatingChartExporterProps> =
         let yPosition = drawHeader(pageInfo, startGuestNum);
         
         // Draw column headers
-        pdf.setFontSize(9);
+        pdf.setFontSize(11);
         pdf.setFont('helvetica', 'bold');
         pdf.setTextColor(0, 0, 0);
         const leftEndNum = startGuestNum + pageInfo.leftColumn.length - 1;
@@ -320,16 +296,10 @@ export const FullSeatingChartExporter: React.FC<FullSeatingChartExporterProps> =
           yPosition += blockHeight;
         }
 
-        // Draw footer for this page
-        drawFooter();
-
         startGuestNum += pageInfo.leftColumn.length + pageInfo.rightColumn.length;
       });
 
       setProgress(90);
-
-      // Footer on last page
-      drawFooter();
 
       setProgress(100);
 
