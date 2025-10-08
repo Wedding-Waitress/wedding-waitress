@@ -92,7 +92,7 @@ export const FullSeatingChartExporter: React.FC<FullSeatingChartExporterProps> =
       const contentWidth = pageWidth - margin * 2;
       const columnGap = 10;
       const columnWidth = contentWidth / 2 - columnGap / 2; // gap between columns
-      const footerReserved = 38; // space reserved for footer (mm)
+      const footerReserved = 56; // space reserved for footer + bottom margin (mm)
 
       setProgress(25);
 
