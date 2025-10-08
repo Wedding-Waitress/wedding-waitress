@@ -314,7 +314,7 @@ export const FullSeatingChartPrintTemplate: React.FC<FullSeatingChartPrintTempla
           src="/wedding-waitress-new-logo.png"
           alt="Wedding Waitress"
           style={{
-            width: '120mm',
+            width: '60mm',
             height: 'auto',
             display: 'block',
             margin: '0 auto'
