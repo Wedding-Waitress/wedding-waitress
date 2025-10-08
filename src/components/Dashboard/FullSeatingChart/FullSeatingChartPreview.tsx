@@ -30,6 +30,8 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
     interface PageInfo {
       guests: Guest[];
       col1Count: number;
+      startIndex: number;
+      endIndex: number;
     }
     
     const pages: PageInfo[] = [];
@@ -40,7 +42,9 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
       
       pages.push({
         guests: pageGuests,
-        col1Count
+        col1Count,
+        startIndex: i + 1, // 1-based index
+        endIndex: Math.min(i + GUESTS_PER_PAGE, guests.length)
       });
     }
     
@@ -253,6 +257,22 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
           .print-guest-column {
             display: flex;
             flex-direction: column;
+          }
+          
+          .print-column-headers {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            column-gap: 12mm;
+            background-color: #FCD34D;
+            padding: 8px 12px;
+            margin-bottom: 8px;
+            font-weight: bold;
+            font-size: 11pt;
+            color: #000;
+          }
+          
+          .print-column-header {
+            text-transform: uppercase;
           }
           
           .print-guest-item {
@@ -472,6 +492,16 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
               <p className="print-subtitle">
                 {event.venue} - Total Guests: {guests.length} - Page {pageIndex + 1} of {paginationInfo.pages.length} - Generated on: {new Date().toLocaleDateString('en-GB')}
               </p>
+            </div>
+            
+            {/* Column Headers */}
+            <div className="print-column-headers">
+              <div className="print-column-header">
+                GUESTS {pageInfo.startIndex + 1}-{Math.min(pageInfo.startIndex + 11, pageInfo.endIndex)}
+              </div>
+              <div className="print-column-header">
+                GUESTS {Math.min(pageInfo.startIndex + 12, pageInfo.endIndex)}-{pageInfo.endIndex}
+              </div>
             </div>
             
             <div className="print-guest-list">
