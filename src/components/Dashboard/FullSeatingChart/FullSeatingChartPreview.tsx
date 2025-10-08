@@ -53,7 +53,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
       return h + currentMetrics.spacing;
     };
     
-    const SAFETY_BUFFER = 120; // Reserve blank space at bottom of page (~120px ≈ 32mm)
+    const SAFETY_BUFFER = 150; // Reserve blank space at bottom of page (~150px ≈ 40mm)
     const availablePerColumn = guestListHeight - COL_HEADER_PX - SAFETY_BUFFER;
     
     // Build pages by filling columns to available height
@@ -360,11 +360,12 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
         {/* A4 Paper Container - 794px × 1123px (210mm × 297mm at 96 DPI) */}
         <div className="flex justify-center">
           <div 
-            className="bg-white border border-gray-300 shadow-lg overflow-auto"
+            className="bg-white border border-gray-300 shadow-lg overflow-hidden"
             style={{ 
               width: '794px', 
               height: '1123px',
-              maxWidth: '100%'
+              minWidth: '794px',
+              maxWidth: '794px'
             }}
           >
             {/* Content with 12mm margins (45px) */}
