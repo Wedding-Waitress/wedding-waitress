@@ -202,7 +202,7 @@ export const FullSeatingChartExporter: React.FC<FullSeatingChartExporterProps> =
         if (pageInfo.rightColumn.length > 0) {
           pdf.text(`GUESTS ${startGuestNum + pageInfo.leftColumn.length}-${rightEndNum}`, margin + columnWidth + columnGap, yPosition);
         }
-        yPosition += 5;
+        yPosition += 10;
 
         // Draw guests
         for (let i = 0; i < Math.max(pageInfo.leftColumn.length, pageInfo.rightColumn.length); i++) {
