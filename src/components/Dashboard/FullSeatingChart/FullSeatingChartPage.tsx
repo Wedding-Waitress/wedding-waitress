@@ -11,6 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { FullSeatingChartPreview } from './FullSeatingChartPreview';
 import { FullSeatingChartExporter } from './FullSeatingChartExporter';
 import { FullSeatingChartCustomizer } from './FullSeatingChartCustomizer';
+import { FullSeatingChartPrintOptions } from './FullSeatingChartPrintOptions';
 
 interface FullSeatingChartPageProps {
   selectedEventId: string | null;
@@ -23,6 +24,7 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
 }) => {
   const [isExporting, setIsExporting] = useState(false);
   const [showExporter, setShowExporter] = useState(false);
+  const [showPrintOptions, setShowPrintOptions] = useState(false);
   const [printToastShown, setPrintToastShown] = useState(false);
   const { events, loading: eventsLoading } = useEvents();
   const { guests, loading: guestsLoading } = useRealtimeGuests(selectedEventId);
@@ -160,28 +162,16 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
                 </Badge>
               </div>
 
-              {/* Action Buttons */}
+              {/* Action Button */}
               {isDataReady && (
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handlePrintFullSeating}
-                  >
-                      <Printer className="w-4 h-4 mr-2" />
-                      Print
-                    </Button>
-                  
-                  <Button
-                    variant="default"
-                    size="sm"
-                    onClick={handleExport}
-                    disabled={isExporting}
-                  >
-                    <Download className="w-4 h-4 mr-2" />
-                    Export PDF
-                  </Button>
-                </div>
+                <Button
+                  variant="default"
+                  size="sm"
+                  onClick={() => setShowPrintOptions(true)}
+                >
+                  <Printer className="w-4 h-4 mr-2" />
+                  Print
+                </Button>
               )}
             </div>
           )}
@@ -234,6 +224,14 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
           </CardContent>
         </Card>
       )}
+
+      {/* Print Options Dialog */}
+      <FullSeatingChartPrintOptions
+        open={showPrintOptions}
+        onClose={() => setShowPrintOptions(false)}
+        onPrint={handlePrintFullSeating}
+        onDownloadPDF={handleExport}
+      />
 
       {/* Export Modal */}
       {showExporter && selectedEvent && (
