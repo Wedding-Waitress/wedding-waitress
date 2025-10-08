@@ -293,7 +293,6 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
             <div className="print-footer-stats">
               Total Guests: {guests.length} - Generated on: {new Date().toLocaleDateString()}
             </div>
-            <img src={weddingWaitressLogo} alt="Wedding Waitress" />
           </div>
         </div>
       </div>
