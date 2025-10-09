@@ -319,10 +319,10 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
                     day: '2-digit', 
                     month: '2-digit', 
                     year: 'numeric' 
-                  })} - {new Date().toLocaleTimeString('en-GB', { 
-                    hour: '2-digit', 
+                  })} - {new Date().toLocaleTimeString('en-US', { 
+                    hour: 'numeric', 
                     minute: '2-digit', 
-                    hour12: false 
+                    hour12: true 
                   })}
                 </h3>
                 <div className="flex text-[15px] leading-[1.35] print:text-[12pt] print:leading-[1.35]">
