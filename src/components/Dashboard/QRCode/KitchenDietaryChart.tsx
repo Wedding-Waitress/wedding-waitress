@@ -18,6 +18,7 @@ import { useEvents } from '@/hooks/useEvents';
 import { useTables } from '@/hooks/useTables';
 import { useDietaryChartSettings } from '@/hooks/useDietaryChartSettings';
 import { DietaryChartCustomizer } from './DietaryChartCustomizer';
+import { useToast } from '@/hooks/use-toast';
 import jsPDF from 'jspdf';
 import { format } from 'date-fns';
 import weddingWaitressLogo from '@/assets/wedding-waitress-new-logo.png';
@@ -46,6 +47,8 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
   const { settings, loading: settingsLoading, updateSettings } = useDietaryChartSettings(selectedEventId);
   const [isExporting, setIsExporting] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [printToastShown, setPrintToastShown] = useState(false);
+  const { toast } = useToast();
 
   const currentEvent = events.find(event => event.id === selectedEventId);
 
@@ -293,7 +296,26 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
   };
 
   const handlePrint = () => {
-    window.print();
+    if (!printToastShown) {
+      toast({
+        title: "Print Settings Tip",
+        description: "For perfect output: in the print dialog turn OFF 'Headers and footers' and turn ON 'Background graphics'.",
+        duration: 8000,
+      });
+      setPrintToastShown(true);
+    }
+    
+    const originalTitle = document.title;
+    document.title = '';
+    
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        window.print();
+        setTimeout(() => {
+          document.title = originalTitle;
+        }, 100);
+      }, 0);
+    });
   };
 
   if (guestsLoading || eventsLoading) {
@@ -311,60 +333,33 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
   return (
     <>
       <style>{`
+        @page {
+          size: A4 portrait;
+          margin: 0;
+        }
+        
         @media print {
-          @page {
-            size: A4 portrait;
-            margin: 0;
-          }
-
-          /* Hide everything except print pages */
-          body > *:not(.kitchen-dietary-chart) {
-            display: none !important;
-          }
-
-          .kitchen-dietary-chart > *:not(.hidden) {
-            display: none !important;
-          }
-
-          .kitchen-dietary-chart .hidden.print\\:block {
-            display: block !important;
-          }
-
-          /* Reset spacing */
-          html, body {
-            margin: 0 !important;
-            padding: 0 !important;
-            background: white !important;
+          * {
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
-            height: auto !important;
-          }
-
-          .kitchen-dietary-chart {
-            margin: 0 !important;
-            padding: 0 !important;
-          }
-
-          /* Format print pages properly */
-          .print-page {
-            width: 210mm !important;
-            height: 297mm !important;
-            box-sizing: border-box !important;
-            padding: 12mm !important;
-            margin: 0 !important;
-            display: flex !important;
-            flex-direction: column !important;
-            background: white !important;
-            page-break-after: avoid !important;
-            page-break-inside: avoid !important;
           }
           
-          .print-page:not(:first-child) {
-            page-break-before: always !important;
+          html, body {
+            margin: 0;
+            padding: 0;
+            background: white !important;
           }
-
-          .print-hide {
-            display: none !important;
+          
+          .print-page {
+            position: relative;
+            width: 210mm;
+            height: 297mm;
+            padding: 12mm;
+            display: flex;
+            flex-direction: column;
+            background-color: white !important;
+            box-sizing: border-box;
+            page-break-inside: avoid;
           }
         }
       `}</style>
@@ -372,7 +367,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
       <div className="space-y-6 kitchen-dietary-chart">
         {/* Combined Header Card */}
         {currentEvent && (
-          <Card className="ww-box print-hide">
+          <Card className="ww-box print:hidden">
             <CardContent className="p-6">
               {/* Top Row: Event Selector (Left) + Title & Description (Right) */}
               <div className="flex items-start justify-between gap-6">
@@ -454,7 +449,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
         {/* Main Content Grid: Settings + A4 Display */}
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Settings Panel (Left - 1 column) */}
-          <div className="lg:col-span-1 print-hide">
+          <div className="lg:col-span-1 print:hidden">
             <DietaryChartCustomizer
               settings={settings}
               onSettingsChange={updateSettings}
@@ -462,7 +457,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
           </div>
 
           {/* A4 Page Display (Right - 3 columns) */}
-          <div className="lg:col-span-3 print-hide">
+          <div className="lg:col-span-3 print:hidden">
             {dietaryGuests.length === 0 ? (
               <Card className="ww-box">
                 <CardContent className="p-6">
@@ -647,7 +642,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
         </div>
 
         {/* Print Version - A4 Pages */}
-        <div className="hidden print:block">
+        <div id="dietary-print-content" className="hidden print:block">
           {Array.from({ length: totalPages }, (_, pageIndex) => {
             const pageGuests = dietaryGuests.slice(
               pageIndex * guestsPerPage,
@@ -658,6 +653,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
               <div 
                 key={pageIndex} 
                 className="print-page"
+                style={{ pageBreakAfter: pageIndex < totalPages - 1 ? 'always' : 'auto' }}
               >
                 <div className="h-full flex flex-col">
                   {/* Header */}
