@@ -223,13 +223,14 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
                 </div>
               )}
               
-              {/* Title */}
-              <div className="text-center font-semibold text-xl text-black">
-                {event?.venue_name ? event.venue_name + ' - ' : ''}Table Seating Arrangements
+              {/* Event Name - Purple and Bold */}
+              <div className="text-center font-semibold text-xl text-primary">
+                {event?.name || 'Event'}
               </div>
-              {/* Event name and date */}
-              <div className="font-semibold text-xl text-black">
-                {event?.name || 'Event'}{event?.date ? ' - ' + formatEventDate(event.date) : ''}
+
+              {/* Title and Date - Smaller, not bold */}
+              <div className="text-center text-sm text-black font-normal">
+                Table Seating Arrangements{event?.date ? ' - ' + formatEventDate(event.date) : ''}
               </div>
             </div>
 
