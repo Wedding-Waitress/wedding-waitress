@@ -317,26 +317,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
             margin: 0;
           }
 
-          /* Hide everything */
-          body * {
-            visibility: hidden !important;
-          }
-
-          /* Show only print pages */
-          .print-page,
-          .print-page * {
-            visibility: visible !important;
-          }
-
-          /* Position print pages at the top to eliminate blank pages */
-          .kitchen-dietary-chart {
-            position: absolute !important;
-            left: 0 !important;
-            top: 0 !important;
-            margin: 0 !important;
-            padding: 0 !important;
-          }
-
+          /* Reset base */
           html, body {
             margin: 0 !important;
             padding: 0 !important;
@@ -346,6 +327,22 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
             height: auto !important;
           }
 
+          /* Hide everything on the page except the dietary chart container and its descendants */
+          body *:not(.kitchen-dietary-chart):not(.kitchen-dietary-chart *) {
+            display: none !important;
+          }
+
+          /* Inside the chart, hide everything except the explicit print container */
+          .kitchen-dietary-chart *:not(.print\:block):not(.print\:block *) {
+            display: none !important;
+          }
+
+          /* Ensure Tailwind's print:block wrappers are visible in print */
+          .kitchen-dietary-chart .print\:block {
+            display: block !important;
+          }
+
+          /* Format print pages */
           .kitchen-dietary-chart .print-page {
             width: 210mm !important;
             height: 297mm !important;
@@ -358,8 +355,9 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
             page-break-after: avoid !important;
             page-break-inside: avoid !important;
           }
-          
-          .kitchen-dietary-chart .print-page:not(:first-child) {
+
+          /* Add page breaks between pages */
+          .kitchen-dietary-chart .print-page + .print-page {
             page-break-before: always !important;
           }
 
