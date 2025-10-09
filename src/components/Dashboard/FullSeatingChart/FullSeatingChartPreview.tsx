@@ -169,8 +169,9 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
         className="w-4 h-4"
       />
       <div className="flex-1 min-w-0">
-        <div className={`font-bold ${getFontSizeClass()} text-foreground`}>
-          {formatGuestName(guest)}
+        <div className={`${getFontSizeClass()} text-foreground`}>
+          <div className="font-bold">{guest.first_name}</div>
+          <div className="font-bold">{guest.last_name}</div>
         </div>
         {settings.showDietary && guest.dietary && guest.dietary !== 'NA' && (
           <div className="text-xs text-muted-foreground mt-0.5">
@@ -196,7 +197,10 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
     <div className="print-guest-item">
       <span className="print-checkbox">☐</span>
       <div className="print-guest-details">
-        <div className="print-guest-name">{formatGuestName(guest)}</div>
+        <div className="print-guest-name">
+          <div>{guest.first_name}</div>
+          <div>{guest.last_name}</div>
+        </div>
         {settings.showDietary && guest.dietary && guest.dietary !== 'NA' && (
           <div className="print-dietary">Dietary: {guest.dietary}</div>
         )}

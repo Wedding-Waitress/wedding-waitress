@@ -540,7 +540,8 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                         <table className="w-full border-collapse">
                           <thead>
                             <tr className="border-b-2 border-foreground">
-                              <th className="text-left py-2 px-2 font-semibold">Guest Name</th>
+                              <th className="text-left py-2 px-2 font-semibold">First Name</th>
+                              <th className="text-left py-2 px-2 font-semibold">Last Name</th>
                               <th className="text-left py-2 px-2 font-semibold">Table</th>
                               {settings.showSeatNo && (
                                 <th className="text-left py-2 px-2 font-semibold">Seat</th>
@@ -561,7 +562,10 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                                 className={index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}
                               >
                                 <td className="py-2 px-2 border-b">
-                                  {guest.first_name} {guest.last_name}
+                                  {guest.first_name}
+                                </td>
+                                <td className="py-2 px-2 border-b">
+                                  {guest.last_name}
                                 </td>
                                 <td className="py-2 px-2 border-b">
                                   {guest.table_no || '-'}
@@ -681,9 +685,10 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                   {/* Guest Table */}
                   <div className={`flex-1 overflow-hidden ${getFontSizeClass()}`}>
                     <table className="w-full border-collapse">
-                      <thead>
+                       <thead>
                         <tr className="border-b-2 border-foreground">
-                          <th className="text-left py-2 px-2 font-semibold">Guest Name</th>
+                          <th className="text-left py-2 px-2 font-semibold">First Name</th>
+                          <th className="text-left py-2 px-2 font-semibold">Last Name</th>
                           <th className="text-left py-2 px-2 font-semibold">Table</th>
                           {settings.showSeatNo && (
                             <th className="text-left py-2 px-2 font-semibold">Seat</th>
@@ -704,7 +709,10 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                             className={index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}
                           >
                             <td className="py-2 px-2 border-b">
-                              {guest.first_name} {guest.last_name}
+                              {guest.first_name}
+                            </td>
+                            <td className="py-2 px-2 border-b">
+                              {guest.last_name}
                             </td>
                             <td className="py-2 px-2 border-b">
                               {guest.table_no || '-'}
