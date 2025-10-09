@@ -528,17 +528,17 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
             <div className="print-guest-list">
               <div className="print-guest-column">
                 <div className="print-column-header">
-                  GUESTS {pageInfo.startIndex + 1}-{Math.min(pageInfo.startIndex + 11, guests.length)}
+                  GUESTS {pageInfo.startIndex + 1}-{Math.min(pageInfo.startIndex + 10, guests.length)}
                 </div>
-                {pageInfo.guests.slice(0, 11).map((guest) => (
+                {pageInfo.guests.slice(0, 10).map((guest) => (
                   <PrintGuestRow key={guest.id} guest={guest} />
                 ))}
               </div>
               <div className="print-guest-column">
                 <div className="print-column-header">
-                  GUESTS {Math.min(pageInfo.startIndex + 12, guests.length + 1)}-{Math.min(pageInfo.startIndex + 22, guests.length)}
+                  GUESTS {Math.min(pageInfo.startIndex + 11, guests.length + 1)}-{Math.min(pageInfo.startIndex + 20, guests.length)}
                 </div>
-                {pageInfo.guests.slice(11, 22).map((guest) => (
+                {pageInfo.guests.slice(10, 20).map((guest) => (
                   <PrintGuestRow key={guest.id} guest={guest} />
                 ))}
               </div>

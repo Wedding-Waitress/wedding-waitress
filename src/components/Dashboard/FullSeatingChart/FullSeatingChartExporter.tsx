@@ -12,8 +12,8 @@
  * - Gap after logo: 22mm
  * - Gap after header line: 9mm
  * - Gap after guest count header: 10mm (increased from 5mm)
- * - Guests per column: 11
- * - Guests per page: 22 (2 columns)
+ * - Guests per column: 10
+ * - Guests per page: 20 (2 columns)
  * - Page margins: 12mm
  * 
  * FONT SIZE MAPPINGS:
@@ -131,9 +131,9 @@ export const FullSeatingChartExporter: React.FC<FullSeatingChartExporterProps> =
 
       setProgress(25);
 
-      // Fixed pagination: 11 guests per column (22 per page)
-      const GUESTS_PER_COLUMN = 11;
-      const GUESTS_PER_PAGE = GUESTS_PER_COLUMN * 2; // 22 total
+      // Fixed pagination: 10 guests per column (20 per page)
+      const GUESTS_PER_COLUMN = 10;
+      const GUESTS_PER_PAGE = GUESTS_PER_COLUMN * 2; // 20 total
       
       // Split guests into pages
       const pages: { leftColumn: Guest[], rightColumn: Guest[], pageNum: number, totalPages: number }[] = [];
