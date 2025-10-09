@@ -162,14 +162,17 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
   const formatGeneratedTimestamp = () => {
     const now = new Date();
     
-    // Format time in 12-hour format with AM/PM only
+    // Format date in DD/MM/YYYY format
+    const dateStr = now.toLocaleDateString('en-GB');
+    
+    // Format time in 12-hour format with AM/PM
     const timeStr = now.toLocaleTimeString('en-US', { 
       hour: 'numeric', 
       minute: '2-digit', 
       hour12: true 
     });
     
-    return timeStr; // Returns just "12:24 AM"
+    return `${dateStr} Time: ${timeStr}`;
   };
 
   // Screen version guest row
