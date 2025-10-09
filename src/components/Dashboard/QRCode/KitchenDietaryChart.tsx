@@ -317,26 +317,20 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
             margin: 0;
           }
 
-          /* Hide everything */
-          body * {
-            visibility: hidden !important;
+          /* Hide everything except print pages */
+          body > *:not(.kitchen-dietary-chart) {
+            display: none !important;
           }
 
-          /* Show only print pages */
-          .print-page,
-          .print-page * {
-            visibility: visible !important;
+          .kitchen-dietary-chart > *:not(.hidden) {
+            display: none !important;
           }
 
-          /* Position print pages at the top to eliminate blank pages */
-          .kitchen-dietary-chart {
-            position: absolute !important;
-            left: 0 !important;
-            top: 0 !important;
-            margin: 0 !important;
-            padding: 0 !important;
+          .kitchen-dietary-chart .hidden.print\\:block {
+            display: block !important;
           }
 
+          /* Reset spacing */
           html, body {
             margin: 0 !important;
             padding: 0 !important;
@@ -346,7 +340,13 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
             height: auto !important;
           }
 
-          .kitchen-dietary-chart .print-page {
+          .kitchen-dietary-chart {
+            margin: 0 !important;
+            padding: 0 !important;
+          }
+
+          /* Format print pages properly */
+          .print-page {
             width: 210mm !important;
             height: 297mm !important;
             box-sizing: border-box !important;
@@ -359,7 +359,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
             page-break-inside: avoid !important;
           }
           
-          .kitchen-dietary-chart .print-page:not(:first-child) {
+          .print-page:not(:first-child) {
             page-break-before: always !important;
           }
 
