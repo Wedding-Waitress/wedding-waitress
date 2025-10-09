@@ -12,8 +12,8 @@
  * - Header height: 120px minimum
  * - Guest list height: 913px available
  * - Column gap: 12mm
- * - Guests per column: 11
- * - Guests per page: 22
+ * - Guests per column: 10
+ * - Guests per page: 20
  * 
  * PRINT SPECIFICATIONS:
  * - Paper size: A4 portrait
@@ -59,8 +59,8 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
 
   // Fixed pagination: 11 guests per column (22 total per page)
   const paginationInfo = useMemo(() => {
-    const GUESTS_PER_COLUMN = 11;
-    const GUESTS_PER_PAGE = GUESTS_PER_COLUMN * 2; // 22 total
+    const GUESTS_PER_COLUMN = 10;
+    const GUESTS_PER_PAGE = GUESTS_PER_COLUMN * 2; // 20 total
     
     interface PageInfo {
       guests: Guest[];
