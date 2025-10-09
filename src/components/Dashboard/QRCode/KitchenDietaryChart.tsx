@@ -333,36 +333,31 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
   return (
     <>
       <style>{`
-        @page {
-          size: A4 portrait;
-          margin: 0;
-        }
-        
-        @media print {
-          * {
-            -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
-          }
-          
-          html, body {
-            margin: 0;
-            padding: 0;
-            background: white !important;
-          }
-          
-          .print-page {
-            position: relative;
-            width: 210mm;
-            height: 297mm;
-            padding: 12mm;
-            display: flex;
-            flex-direction: column;
-            background-color: white !important;
-            box-sizing: border-box;
-            page-break-inside: avoid;
-          }
-        }
-      `}</style>
+  @media print {
+    @page { size: A4; margin: 10mm; }
+
+    body * { visibility: hidden; }
+    #print-area, #print-area * { visibility: visible; }
+    #print-area { position: static !important; width: 190mm; min-height: auto !important; }
+
+    /* Only create page breaks between real pages */
+    .page { break-after: page; }
+    .page:last-child { break-after: auto; }    /* no extra page at the end (deletes page 5) */
+    .page:first-child { break-before: avoid; } /* no blank cover page (deletes page 1) */
+
+    /* Remove any spacers / decorative blocks in print */
+    .spacer, .gap, .print-intro, .print-outro, .no-print { display: none !important; }
+
+    /* Keep table intact across pages */
+    table { width:100%; border-collapse: collapse; }
+    thead { display: table-header-group; }
+    tfoot { display: table-footer-group; }
+    tr, td, th { break-inside: avoid; }
+
+    /* Ensure colors render */
+    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  }
+`}</style>
       
       <div className="space-y-6 kitchen-dietary-chart">
         {/* Combined Header Card */}
@@ -642,7 +637,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
         </div>
 
         {/* Print Version - A4 Pages */}
-        <div id="dietary-print-content" className="hidden print:block">
+        <div id="print-area" className="hidden print:block">
           {Array.from({ length: totalPages }, (_, pageIndex) => {
             const pageGuests = dietaryGuests.slice(
               pageIndex * guestsPerPage,
@@ -652,8 +647,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
             return (
               <div 
                 key={pageIndex} 
-                className="print-page"
-                style={{ pageBreakAfter: pageIndex < totalPages - 1 ? 'always' : 'auto' }}
+                className="page"
               >
                 <div className="h-full flex flex-col">
                   {/* Header */}
