@@ -404,28 +404,29 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
 
               <Separator className="my-4" />
 
-              {/* Bottom Row: Event Info (Left) + Action Buttons (Right) */}
-              <div className="flex items-start justify-between">
-                {/* Left Side: Event Info */}
-                <div className="space-y-1">
-                  <h3 className="font-semibold text-lg">{currentEvent.name}</h3>
+              {/* Bottom Row: Single line with Event Info + Buttons */}
+              <div className="flex items-center justify-between gap-4">
+                {/* Left Side: Event Info on one line */}
+                <div className="flex items-center gap-2 text-sm flex-wrap">
+                  <span className="font-semibold text-primary text-base">
+                    {currentEvent.name}
+                  </span>
                   {currentEvent.date && (
-                    <p className="text-sm text-muted-foreground">
-                      {format(new Date(currentEvent.date), 'EEEE, MMMM do, yyyy')}
-                    </p>
+                    <>
+                      <span className="text-muted-foreground">-</span>
+                      <span className="text-muted-foreground">
+                        {format(new Date(currentEvent.date), 'EEEE, MMMM do, yyyy')}
+                      </span>
+                    </>
                   )}
-                  <div className="flex items-center gap-2 pt-1">
-                    <Badge variant="secondary">
-                      {dietaryGuests.length} Guest{dietaryGuests.length !== 1 ? 's' : ''}
-                    </Badge>
-                    <span className="text-xs text-muted-foreground">
-                      with dietary requirements
-                    </span>
-                  </div>
+                  <span className="text-muted-foreground">-</span>
+                  <span className="text-muted-foreground">
+                    {dietaryGuests.length} Guest{dietaryGuests.length !== 1 ? 's' : ''} with dietary requirements
+                  </span>
                 </div>
 
                 {/* Right Side: Action Buttons */}
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-shrink-0">
                   <Button variant="outline" size="sm" onClick={handlePrint} className="gap-2">
                     <Printer className="w-4 h-4" />
                     Print
