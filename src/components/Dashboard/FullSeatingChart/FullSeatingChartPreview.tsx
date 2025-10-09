@@ -159,6 +159,27 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
     }
   };
 
+  const formatGeneratedTimestamp = () => {
+    const now = new Date();
+    
+    // Format date in GB format (DD/MM/YYYY)
+    const dateStr = now.toLocaleDateString('en-GB');
+    
+    // Format time in 12-hour format with AM/PM
+    const timeStr = now.toLocaleTimeString('en-US', { 
+      hour: 'numeric', 
+      minute: '2-digit', 
+      hour12: true 
+    });
+    
+    // Get timezone abbreviation
+    const timezone = now.toLocaleTimeString('en-US', { 
+      timeZoneName: 'short' 
+    }).split(' ').pop(); // Extracts "AEDT", "EST", etc.
+    
+    return `${dateStr} - ${timeStr} ${timezone}`;
+  };
+
   // Screen version guest row
   const ScreenGuestRow = ({ guest }: { guest: Guest }) => (
     <div className="flex items-center gap-3 py-2 px-1 hover:bg-muted/30 rounded-sm">
@@ -422,7 +443,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
                 
                 {/* Line 3: Venue + Stats + Page + Generated */}
                 <p className="text-sm text-foreground pb-3 mb-3 border-b border-black">
-                  {event.venue} - Total Guests: {guests.length} - Page {currentPage} of {totalPages} - Generated on: {new Date().toLocaleDateString('en-GB')}
+                  {event.venue} - Total Guests: {guests.length} - Page {currentPage} of {totalPages} - Generated on: {formatGeneratedTimestamp()}
                 </p>
               </div>
 
@@ -521,7 +542,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
               
               {/* Line 3: Venue + Stats + Page + Generated */}
               <p className="print-subtitle">
-                {event.venue} - Total Guests: {guests.length} - Page {pageIndex + 1} of {paginationInfo.pages.length} - Generated on: {new Date().toLocaleDateString('en-GB')}
+                {event.venue} - Total Guests: {guests.length} - Page {pageIndex + 1} of {paginationInfo.pages.length} - Generated on: {formatGeneratedTimestamp()}
               </p>
             </div>
             
