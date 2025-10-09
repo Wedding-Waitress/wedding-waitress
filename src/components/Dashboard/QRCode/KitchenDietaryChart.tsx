@@ -317,21 +317,21 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
             margin: 0;
           }
 
-          /* Hide everything outside the dietary chart container */
-          body > *:not(.kitchen-dietary-chart) {
-            display: none !important;
+          /* Hide everything first */
+          * {
+            visibility: hidden !important;
           }
 
-          /* Within the container, show only the print block */
-          .kitchen-dietary-chart > :not(.print\:block) {
-            display: none !important;
+          /* Show only print pages and their contents */
+          .kitchen-dietary-chart .print-page,
+          .kitchen-dietary-chart .print-page * {
+            visibility: visible !important;
           }
 
           /* Reset container spacing to avoid blank pages */
           .kitchen-dietary-chart {
             margin: 0 !important;
             padding: 0 !important;
-            background: white !important;
           }
 
           html, body {
