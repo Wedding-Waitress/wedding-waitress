@@ -317,7 +317,20 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
             margin: 0;
           }
 
-          /* Reset base */
+          /* Hide everything except print pages */
+          body > *:not(.kitchen-dietary-chart) {
+            display: none !important;
+          }
+
+          .kitchen-dietary-chart > *:not(.hidden) {
+            display: none !important;
+          }
+
+          .kitchen-dietary-chart .hidden.print\\:block {
+            display: block !important;
+          }
+
+          /* Reset spacing */
           html, body {
             margin: 0 !important;
             padding: 0 !important;
@@ -327,23 +340,13 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
             height: auto !important;
           }
 
-          /* Hide everything on the page except the dietary chart container and its descendants */
-          body *:not(.kitchen-dietary-chart):not(.kitchen-dietary-chart *) {
-            display: none !important;
+          .kitchen-dietary-chart {
+            margin: 0 !important;
+            padding: 0 !important;
           }
 
-          /* Inside the chart, hide everything except the explicit print container */
-          .kitchen-dietary-chart *:not(.print\:block):not(.print\:block *) {
-            display: none !important;
-          }
-
-          /* Ensure Tailwind's print:block wrappers are visible in print */
-          .kitchen-dietary-chart .print\:block {
-            display: block !important;
-          }
-
-          /* Format print pages */
-          .kitchen-dietary-chart .print-page {
+          /* Format print pages properly */
+          .print-page {
             width: 210mm !important;
             height: 297mm !important;
             box-sizing: border-box !important;
@@ -355,9 +358,8 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
             page-break-after: avoid !important;
             page-break-inside: avoid !important;
           }
-
-          /* Add page breaks between pages */
-          .kitchen-dietary-chart .print-page + .print-page {
+          
+          .print-page:not(:first-child) {
             page-break-before: always !important;
           }
 
