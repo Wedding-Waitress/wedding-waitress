@@ -28,11 +28,16 @@ import { KioskSetup } from '@/components/Dashboard/Kiosk/KioskSetup';
 import { FloorPlanPage } from '@/components/Dashboard/FloorPlan/FloorPlanPage';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
+import type { Session } from '@supabase/supabase-js';
+
 export const Dashboard = () => {
+  const [session, setSession] = useState<Session | null>(null);
+  const [authLoading, setAuthLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('dashboard');
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [showCreateTableModal, setShowCreateTableModal] = useState(false);
   const [editingTable, setEditingTable] = useState<TableWithGuestCount | null>(null);
+  const navigate = useNavigate();
   const {
     events,
     loading: eventsLoading,
@@ -45,7 +50,28 @@ export const Dashboard = () => {
     loading: profileLoading,
     error: profileError
   } = useProfile();
-  const navigate = useNavigate();
+
+  // Check session and set up auth listener
+  useEffect(() => {
+    // Check current session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setAuthLoading(false);
+      if (!session) {
+        navigate('/');
+      }
+    });
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+      if (!session) {
+        navigate('/');
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [navigate]);
   const {
     tables: rawTables,
     loading: tablesLoading,
@@ -335,7 +361,7 @@ export const Dashboard = () => {
   };
 
   // Show loading state while checking authentication
-  if (profileLoading || eventsLoading) {
+  if (authLoading || profileLoading || eventsLoading) {
     return <div className="min-h-screen bg-gradient-subtle flex items-center justify-center">
         <Card className="ww-box p-8 text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
@@ -346,7 +372,7 @@ export const Dashboard = () => {
   }
 
   // Show authentication error or redirect to landing
-  if (profileError || !profile) {
+  if (!session || profileError || !profile) {
     return <div className="min-h-screen bg-gradient-subtle flex items-center justify-center">
         <Card className="ww-box p-8 text-center max-w-md">
           <CardTitle className="mb-4">Authentication Required</CardTitle>
