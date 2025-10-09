@@ -73,9 +73,20 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
     return `${weekday}, ${day}${ordinal}, ${month} ${year}`;
   };
 
-  const formatGeneratedDate = () => {
-    const date = new Date();
-    return date.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  const formatGeneratedTimestamp = () => {
+    const now = new Date();
+    
+    // Format date in DD/MM/YYYY format
+    const dateStr = now.toLocaleDateString('en-GB');
+    
+    // Format time in 12-hour format with AM/PM
+    const timeStr = now.toLocaleTimeString('en-US', { 
+      hour: 'numeric', 
+      minute: '2-digit', 
+      hour12: true 
+    });
+    
+    return `${dateStr} Time: ${timeStr}`;
   };
 
   // Filter guests with dietary requirements (not 'NA', not empty, and not null)
@@ -543,7 +554,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                               {currentEvent.venue && `${currentEvent.venue} - `}
                               Total Dietary Guests: {dietaryGuests.length}
                               {totalPages > 1 && ` - Page ${currentPage} of ${totalPages}`}
-                              {` - Generated on: ${formatGeneratedDate()}`}
+                              {` - Generated on: ${formatGeneratedTimestamp()}`}
                             </div>
                           </>
                         )}
@@ -688,7 +699,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                           {currentEvent.venue && `${currentEvent.venue} - `}
                           Total Dietary Guests: {dietaryGuests.length}
                           {totalPages > 1 && ` - Page ${pageIndex + 1} of ${totalPages}`}
-                          {` - Generated on: ${formatGeneratedDate()}`}
+                          {` - Generated on: ${formatGeneratedTimestamp()}`}
                         </div>
                       </>
                     )}
