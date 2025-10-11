@@ -355,6 +355,106 @@ export type Database = {
         }
         Relationships: []
       }
+      galleries: {
+        Row: {
+          created_at: string
+          event_date: string | null
+          event_id: string | null
+          event_type: string | null
+          id: string
+          is_active: boolean
+          owner_id: string
+          require_approval: boolean
+          slug: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          event_date?: string | null
+          event_id?: string | null
+          event_type?: string | null
+          id?: string
+          is_active?: boolean
+          owner_id: string
+          require_approval?: boolean
+          slug: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          event_date?: string | null
+          event_id?: string | null
+          event_type?: string | null
+          id?: string
+          is_active?: boolean
+          owner_id?: string
+          require_approval?: boolean
+          slug?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "galleries_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      gallery_settings: {
+        Row: {
+          allow_photos: boolean
+          allow_videos: boolean
+          created_at: string
+          gallery_id: string
+          id: string
+          max_photo_size_mb: number
+          max_uploads_per_guest: number
+          max_video_size_mb: number
+          show_captions: boolean
+          slideshow_interval_seconds: number
+          updated_at: string
+        }
+        Insert: {
+          allow_photos?: boolean
+          allow_videos?: boolean
+          created_at?: string
+          gallery_id: string
+          id?: string
+          max_photo_size_mb?: number
+          max_uploads_per_guest?: number
+          max_video_size_mb?: number
+          show_captions?: boolean
+          slideshow_interval_seconds?: number
+          updated_at?: string
+        }
+        Update: {
+          allow_photos?: boolean
+          allow_videos?: boolean
+          created_at?: string
+          gallery_id?: string
+          id?: string
+          max_photo_size_mb?: number
+          max_uploads_per_guest?: number
+          max_video_size_mb?: number
+          show_captions?: boolean
+          slideshow_interval_seconds?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gallery_settings_gallery_id_fkey"
+            columns: ["gallery_id"]
+            isOneToOne: true
+            referencedRelation: "galleries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       guest_access_attempts: {
         Row: {
           access_token: string
@@ -727,8 +827,9 @@ export type Database = {
       media_upload_tokens: {
         Row: {
           created_at: string
-          event_id: string
+          event_id: string | null
           expires_at: string
+          gallery_id: string | null
           id: string
           is_active: boolean | null
           last_used_at: string | null
@@ -738,8 +839,9 @@ export type Database = {
         }
         Insert: {
           created_at?: string
-          event_id: string
+          event_id?: string | null
           expires_at: string
+          gallery_id?: string | null
           id?: string
           is_active?: boolean | null
           last_used_at?: string | null
@@ -749,8 +851,9 @@ export type Database = {
         }
         Update: {
           created_at?: string
-          event_id?: string
+          event_id?: string | null
           expires_at?: string
+          gallery_id?: string | null
           id?: string
           is_active?: boolean | null
           last_used_at?: string | null
@@ -766,6 +869,13 @@ export type Database = {
             referencedRelation: "events"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "media_upload_tokens_gallery_id_fkey"
+            columns: ["gallery_id"]
+            isOneToOne: false
+            referencedRelation: "galleries"
+            referencedColumns: ["id"]
+          },
         ]
       }
       media_uploads: {
@@ -776,9 +886,10 @@ export type Database = {
           cloudflare_stream_uid: string | null
           created_at: string
           duration_seconds: number | null
-          event_id: string
+          event_id: string | null
           file_size_bytes: number | null
           file_url: string
+          gallery_id: string | null
           height: number | null
           id: string
           mime_type: string | null
@@ -800,9 +911,10 @@ export type Database = {
           cloudflare_stream_uid?: string | null
           created_at?: string
           duration_seconds?: number | null
-          event_id: string
+          event_id?: string | null
           file_size_bytes?: number | null
           file_url: string
+          gallery_id?: string | null
           height?: number | null
           id?: string
           mime_type?: string | null
@@ -824,9 +936,10 @@ export type Database = {
           cloudflare_stream_uid?: string | null
           created_at?: string
           duration_seconds?: number | null
-          event_id?: string
+          event_id?: string | null
           file_size_bytes?: number | null
           file_url?: string
+          gallery_id?: string | null
           height?: number | null
           id?: string
           mime_type?: string | null
@@ -847,6 +960,13 @@ export type Database = {
             columns: ["event_id"]
             isOneToOne: false
             referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "media_uploads_gallery_id_fkey"
+            columns: ["gallery_id"]
+            isOneToOne: false
+            referencedRelation: "galleries"
             referencedColumns: ["id"]
           },
         ]
@@ -1155,6 +1275,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      generate_gallery_slug: {
+        Args: { _title: string }
+        Returns: string
+      }
       generate_guest_access_token: {
         Args: { _event_id: string; _guest_id: string; _validity_days?: number }
         Returns: string
@@ -1228,6 +1352,22 @@ export type Database = {
           guest_table_no: number
           partner1_name: string
           partner2_name: string
+        }[]
+      }
+      get_public_gallery_data: {
+        Args: { _gallery_slug: string }
+        Returns: {
+          caption: string
+          cloudflare_stream_uid: string
+          created_at: string
+          event_date: string
+          file_url: string
+          gallery_id: string
+          gallery_title: string
+          is_active: boolean
+          media_id: string
+          post_type: string
+          thumbnail_url: string
         }[]
       }
       get_public_gallery_media: {
