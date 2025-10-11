@@ -66,7 +66,10 @@ export type Database = {
           custom_roles: Json | null
           date: string | null
           event_created: string
+          event_date_override: string | null
+          event_display_name: string | null
           event_timezone: string | null
+          event_type: string | null
           expiry_date: string | null
           expiry_date_local: string | null
           finish_time: string | null
@@ -84,6 +87,7 @@ export type Database = {
           relation_disable_first_guest_alert: boolean | null
           relation_required: boolean | null
           rsvp_deadline: string | null
+          setup_completed: boolean | null
           slug: string | null
           start_time: string | null
           user_id: string
@@ -100,7 +104,10 @@ export type Database = {
           custom_roles?: Json | null
           date?: string | null
           event_created?: string
+          event_date_override?: string | null
+          event_display_name?: string | null
           event_timezone?: string | null
+          event_type?: string | null
           expiry_date?: string | null
           expiry_date_local?: string | null
           finish_time?: string | null
@@ -118,6 +125,7 @@ export type Database = {
           relation_disable_first_guest_alert?: boolean | null
           relation_required?: boolean | null
           rsvp_deadline?: string | null
+          setup_completed?: boolean | null
           slug?: string | null
           start_time?: string | null
           user_id: string
@@ -134,7 +142,10 @@ export type Database = {
           custom_roles?: Json | null
           date?: string | null
           event_created?: string
+          event_date_override?: string | null
+          event_display_name?: string | null
           event_timezone?: string | null
+          event_type?: string | null
           expiry_date?: string | null
           expiry_date_local?: string | null
           finish_time?: string | null
@@ -152,6 +163,7 @@ export type Database = {
           relation_disable_first_guest_alert?: boolean | null
           relation_required?: boolean | null
           rsvp_deadline?: string | null
+          setup_completed?: boolean | null
           slug?: string | null
           start_time?: string | null
           user_id?: string
@@ -770,9 +782,12 @@ export type Database = {
           height: number | null
           id: string
           mime_type: string | null
+          post_type: string | null
           rejected_at: string | null
           rejected_by: string | null
           status: string
+          text_content: string | null
+          theme_id: string | null
           thumbnail_url: string | null
           type: string
           uploader_token: string
@@ -791,9 +806,12 @@ export type Database = {
           height?: number | null
           id?: string
           mime_type?: string | null
+          post_type?: string | null
           rejected_at?: string | null
           rejected_by?: string | null
           status?: string
+          text_content?: string | null
+          theme_id?: string | null
           thumbnail_url?: string | null
           type: string
           uploader_token: string
@@ -812,9 +830,12 @@ export type Database = {
           height?: number | null
           id?: string
           mime_type?: string | null
+          post_type?: string | null
           rejected_at?: string | null
           rejected_by?: string | null
           status?: string
+          text_content?: string | null
+          theme_id?: string | null
           thumbnail_url?: string | null
           type?: string
           uploader_token?: string

@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Camera, Settings, Image as ImageIcon } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useEvents } from '@/hooks/useEvents';
+import { supabase } from '@/integrations/supabase/client';
+import { SetupWizard } from './SetupWizard';
 import { PendingUploadsTab } from './PendingUploadsTab';
 import { ApprovedGalleryTab } from './ApprovedGalleryTab';
 import { GallerySettingsTab } from './GallerySettingsTab';
@@ -17,8 +19,37 @@ export const PhotoVideoSharingPage: React.FC<PhotoVideoSharingPageProps> = ({
   selectedEventId,
   onEventSelect,
 }) => {
-  const { events, loading: eventsLoading } = useEvents();
+  const { events, loading: eventsLoading, refetch: refetchEvents } = useEvents();
   const [activeTab, setActiveTab] = useState('pending');
+  const [needsSetup, setNeedsSetup] = useState(false);
+  const [eventSlug, setEventSlug] = useState('');
+
+  useEffect(() => {
+    if (selectedEventId) {
+      checkSetupStatus(selectedEventId);
+    }
+  }, [selectedEventId]);
+
+  const checkSetupStatus = async (eventId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('events')
+        .select('setup_completed, slug')
+        .eq('id', eventId)
+        .single();
+      
+      if (error) throw error;
+      setNeedsSetup(!data?.setup_completed);
+      setEventSlug(data?.slug || '');
+    } catch (error) {
+      console.error('Error checking setup status:', error);
+    }
+  };
+
+  const handleSetupComplete = () => {
+    setNeedsSetup(false);
+    refetchEvents();
+  };
 
   return (
     <div className="space-y-6">
@@ -56,9 +87,16 @@ export const PhotoVideoSharingPage: React.FC<PhotoVideoSharingPageProps> = ({
 
       {/* Main Content Tabs */}
       {selectedEventId ? (
-        <Card className="ww-box">
-          <CardContent className="p-6">
-            <Tabs value={activeTab} onValueChange={setActiveTab}>
+        needsSetup ? (
+          <SetupWizard 
+            eventId={selectedEventId} 
+            eventSlug={eventSlug}
+            onComplete={handleSetupComplete}
+          />
+        ) : (
+          <Card className="ww-box">
+            <CardContent className="p-6">
+              <Tabs value={activeTab} onValueChange={setActiveTab}>
               <TabsList className="grid w-full grid-cols-3 mb-6">
                 <TabsTrigger value="pending" className="flex items-center gap-2">
                   <Camera className="w-4 h-4" />
@@ -88,6 +126,7 @@ export const PhotoVideoSharingPage: React.FC<PhotoVideoSharingPageProps> = ({
             </Tabs>
           </CardContent>
         </Card>
+        )
       ) : (
         <Card className="ww-box p-8 text-center">
           <Camera className="w-16 h-16 mx-auto text-muted-foreground mb-4" />

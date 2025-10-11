@@ -26,7 +26,10 @@ serve(async (req) => {
       width,
       height,
       file_size,
-      mime_type
+      mime_type,
+      post_type,
+      text_content,
+      theme_id
     } = await req.json();
 
     console.log('Confirm upload request:', { event_id, token, file_path, type });
@@ -51,8 +54,11 @@ serve(async (req) => {
         event_id,
         uploader_token: token,
         type,
+        post_type: post_type || type,
         caption: caption || null,
-        file_url: file_path,
+        file_url: file_path || '',
+        text_content: text_content || null,
+        theme_id: theme_id || null,
         status: requireApproval ? 'pending' : 'approved',
         file_size_bytes: file_size,
         mime_type,
