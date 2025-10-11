@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Camera, Plus, BarChart3, Trash2, Copy, Download, QrCode } from 'lucide-react';
+import { Camera, Plus, BarChart3, Trash2, Copy, Download, QrCode, FolderOpen } from 'lucide-react';
 import { SetupWizard } from './SetupWizard';
 import { useGalleries } from '@/hooks/useGalleries';
 import { useGalleryStats } from '@/hooks/useGalleryStats';
@@ -161,42 +161,62 @@ export const PhotoVideoSharingPage: React.FC = () => {
       <Card className="ww-box">
         <CardContent className="p-6">
           <div className="space-y-6">
-            {/* Title and Create Button */}
-            <div className="flex items-start justify-between gap-4">
-              <div className="flex items-start gap-4">
-                <Camera className="w-12 h-12 text-primary flex-shrink-0 mt-1" />
-                <div>
-                  <h2 className="text-2xl font-bold">Photo & Video Sharing</h2>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Let your guests share their favorite moments from your event
-                  </p>
-                </div>
+            {/* Title */}
+            <div className="flex items-start gap-4">
+              <Camera className="w-12 h-12 text-primary flex-shrink-0 mt-1" />
+              <div>
+                <h2 className="text-2xl font-bold">Photo & Video Sharing</h2>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Let your guests share their favorite moments from your event
+                </p>
               </div>
-              
-              <Button
-                size="lg"
-                className="bg-green-600 hover:bg-green-700 text-white rounded-xl whitespace-nowrap"
-                onClick={() => setShowCreateWizard(true)}
-              >
-                <Plus className="w-5 h-5 mr-2" />
-                Create Gallery
-              </Button>
-            </div>
-
-            <div className="text-xs text-muted-foreground bg-blue-50 dark:bg-blue-950/20 p-3 rounded-lg border border-blue-200 dark:border-blue-800">
-              💡 A unique QR/link will be generated for this gallery. This QR is separate from Seating Chart QRs.
             </div>
 
             {galleries.length > 0 ? (
-              <div className="space-y-6">
-                {/* Box 1: Gallery Management */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {/* Box 1: Create Gallery */}
                 <Card className="ww-box border-2 border-primary/20">
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-4">
-                      <Label className="text-sm font-medium whitespace-nowrap">Select Gallery:</Label>
-                      <Select value={selectedGalleryId || ''} onValueChange={setSelectedGalleryId}>
-                        <SelectTrigger className="flex-1">
-                          <SelectValue placeholder="Choose a gallery" />
+                  <CardContent className="p-6 space-y-4 flex flex-col h-full">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Camera className="w-5 h-5 text-primary" />
+                      <h3 className="text-lg font-semibold">Create Gallery</h3>
+                    </div>
+                    <p className="text-sm text-muted-foreground flex-grow">
+                      Create a new photo & video gallery for your event
+                    </p>
+                    <Button
+                      size="lg"
+                      className="w-full bg-green-600 hover:bg-green-700 text-white"
+                      onClick={() => setShowCreateWizard(true)}
+                    >
+                      <Plus className="w-5 h-5 mr-2" />
+                      Create Photo & Video Gallery
+                    </Button>
+                    <div className="text-xs text-muted-foreground bg-blue-50 dark:bg-blue-950/20 p-3 rounded-lg border border-blue-200 dark:border-blue-800">
+                      💡 A unique QR/link will be generated for this gallery. This QR is separate from Seating Chart QRs.
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Box 2: Select Gallery & Delete */}
+                <Card className="ww-box border-2 border-primary/20">
+                  <CardContent className="p-6 space-y-4 flex flex-col h-full">
+                    <div className="flex items-center gap-2 mb-2">
+                      <FolderOpen className="w-5 h-5 text-primary" />
+                      <h3 className="text-lg font-semibold">Select Gallery</h3>
+                    </div>
+                    <div className="space-y-3 flex-grow">
+                      <Label className="text-sm">Choose a gallery:</Label>
+                      <Select
+                        value={selectedGalleryId || 'no-gallery'}
+                        onValueChange={(value) => {
+                          if (value !== 'no-gallery') {
+                            setSelectedGalleryId(value);
+                          }
+                        }}
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select a gallery..." />
                         </SelectTrigger>
                         <SelectContent>
                           {galleries.map((gallery) => (
@@ -206,164 +226,128 @@ export const PhotoVideoSharingPage: React.FC = () => {
                           ))}
                         </SelectContent>
                       </Select>
-                      <Button
-                        variant="destructive"
-                        onClick={() => setShowDeleteDialog(true)}
-                        disabled={!selectedGalleryId}
-                      >
-                        <Trash2 className="w-4 h-4 mr-2" />
-                        Delete Gallery
-                      </Button>
                     </div>
+                    <Button
+                      variant="destructive"
+                      className="w-full"
+                      onClick={() => setShowDeleteDialog(true)}
+                      disabled={!selectedGalleryId}
+                    >
+                      <Trash2 className="w-4 h-4 mr-2" />
+                      Delete Gallery
+                    </Button>
                   </CardContent>
                 </Card>
 
+                {/* Box 3: Photo & Video QR Code (only show if gallery selected) */}
                 {selectedGalleryId && (
-                  <>
-                    {/* Box 2: Photo & Video QR Code */}
-                    <Card className="ww-box border-2 border-primary/20">
-                      <CardContent className="p-6">
-                        <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                          <QrCode className="w-5 h-5" />
-                          Photo & Video QR Code
-                        </h3>
-                        <p className="text-sm text-muted-foreground mb-4">
-                          Download this high-resolution QR code for printing on signage
-                        </p>
-                        
-                        {/* QR Code Display */}
-                        <div className="flex justify-center mb-4 bg-white p-4 rounded-lg border">
-                          {qrCodeDataUrl ? (
-                            <img 
-                              src={qrCodeDataUrl} 
-                              alt="Photo & Video Gallery QR Code"
-                              className="w-full max-w-[300px] h-auto"
-                            />
-                          ) : (
-                            <div className="w-[300px] h-[300px] flex items-center justify-center bg-muted rounded">
-                              <p className="text-sm text-muted-foreground">Generating QR code...</p>
-                            </div>
-                          )}
-                        </div>
-                        
-                        {/* Download Button */}
-                        <Button 
-                          variant="default" 
-                          className="w-full bg-primary hover:bg-primary/90"
-                          onClick={downloadQRCode}
-                          disabled={!qrCodeDataUrl}
-                        >
-                          <Download className="w-4 h-4 mr-2" />
-                          Download QR Code
-                        </Button>
-                      </CardContent>
-                    </Card>
-
-                    {/* Box 3: Guest Upload Link & QR Code Combined */}
-                    <Card className="ww-box border-2 border-primary/20">
-                      <CardContent className="p-6">
-                        <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                          <QrCode className="w-5 h-5" />
-                          Guest Upload Link
-                        </h3>
-                        <p className="text-sm text-muted-foreground mb-4">
-                          Share this link or QR code with your guests so they can upload photos and videos
-                        </p>
-                        
-                        {/* URL Input */}
-                        <div className="flex gap-2 mb-4">
-                          <Input value={uploadUrl} readOnly className="flex-1" />
-                          <Button variant="outline" onClick={copyUploadUrl}>
-                            <Copy className="w-4 h-4 mr-2" />
-                            Copy
-                          </Button>
-                        </div>
-
-                        {/* QR Code (smaller) */}
-                        <div className="flex justify-center mb-4 bg-white p-4 rounded-lg border">
-                          {qrCodeDataUrl ? (
-                            <img 
-                              src={qrCodeDataUrl} 
-                              alt="Upload QR Code"
-                              className="w-full max-w-[200px] h-auto"
-                            />
-                          ) : (
-                            <div className="w-[200px] h-[200px] flex items-center justify-center bg-muted rounded">
-                              <p className="text-sm text-muted-foreground">Generating...</p>
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Action Buttons */}
-                        <div className="grid grid-cols-2 gap-3">
-                          <Button 
-                            variant="outline"
-                            onClick={copyUploadUrl}
-                            disabled={!uploadUrl}
-                          >
-                            <Copy className="w-4 h-4 mr-2" />
-                            Copy Link
-                          </Button>
-                          <Button 
-                            variant="default"
-                            onClick={downloadQRCode}
-                            disabled={!qrCodeDataUrl}
-                          >
-                            <Download className="w-4 h-4 mr-2" />
-                            Download QR
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-
-                    {/* Box 4: Enhanced Stats */}
-                    <Card className="ww-box border-2 border-primary/20">
-                      <CardHeader className="pb-3">
-                        <div className="flex items-center justify-between">
-                          <CardTitle className="flex items-center gap-2 text-lg">
-                            <BarChart3 className="w-5 h-5" />
-                            Stats
-                          </CardTitle>
-                          <div className="flex items-center gap-2">
-                            <Label className="text-xs">Scope:</Label>
-                            <Select value={statsScope} onValueChange={(value: 'all' | 'current') => setStatsScope(value)}>
-                              <SelectTrigger className="w-[120px] h-8 text-xs">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="all">All</SelectItem>
-                                <SelectItem value="current" disabled={!selectedGalleryId}>
-                                  This Gallery
-                                </SelectItem>
-                              </SelectContent>
-                            </Select>
+                  <Card className="ww-box border-2 border-primary/20">
+                    <CardContent className="p-6 space-y-4 flex flex-col h-full">
+                      <div className="flex items-center gap-2 mb-2">
+                        <QrCode className="w-5 h-5 text-primary" />
+                        <h3 className="text-lg font-semibold">Photo & Video QR Code</h3>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        Share this link or QR code with your guests so they can upload photos and videos
+                      </p>
+                      
+                      {/* QR Code Display */}
+                      <div className="flex justify-center bg-white p-4 rounded-lg border flex-grow">
+                        {qrCodeDataUrl ? (
+                          <img
+                            src={qrCodeDataUrl}
+                            alt="Gallery QR Code"
+                            className="w-full max-w-[250px] h-auto object-contain"
+                          />
+                        ) : (
+                          <div className="w-[250px] h-[250px] flex items-center justify-center bg-muted rounded">
+                            <p className="text-sm text-muted-foreground">Generating...</p>
                           </div>
+                        )}
+                      </div>
+
+                      {/* Guest Upload Link */}
+                      <div className="space-y-2">
+                        <Label className="text-xs">Guest Upload Link</Label>
+                        <div className="flex gap-2">
+                          <Input value={uploadUrl} readOnly className="flex-1 text-xs" />
+                          <Button variant="outline" size="sm" onClick={copyUploadUrl}>
+                            <Copy className="w-4 h-4" />
+                          </Button>
                         </div>
-                      </CardHeader>
-                      <CardContent className="space-y-2">
-                        <div className="flex items-center justify-between p-2.5 bg-purple-50 dark:bg-purple-950/20 rounded-lg">
-                          <span className="text-xs text-muted-foreground">Galleries Created</span>
-                          <span className="text-xl font-bold text-primary">{stats.galleriesCount}</span>
+                      </div>
+
+                      {/* Action Buttons */}
+                      <div className="grid grid-cols-2 gap-3">
+                        <Button variant="outline" onClick={copyUploadUrl} disabled={!uploadUrl}>
+                          <Copy className="w-4 h-4 mr-2" />
+                          Copy Link
+                        </Button>
+                        <Button variant="default" onClick={downloadQRCode} disabled={!qrCodeDataUrl}>
+                          <Download className="w-4 h-4 mr-2" />
+                          Download QR
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Box 4: Stats (only show if gallery selected) */}
+                {selectedGalleryId && (
+                  <Card className="ww-box border-2 border-primary/20">
+                    <CardContent className="p-6 flex flex-col h-full">
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-2">
+                          <BarChart3 className="w-5 h-5 text-primary" />
+                          <h3 className="text-lg font-semibold">Stats</h3>
                         </div>
-                        <div className="flex items-center justify-between p-2.5 bg-blue-50 dark:bg-blue-950/20 rounded-lg">
-                          <span className="text-xs text-muted-foreground">Photos Added</span>
-                          <span className="text-xl font-bold text-blue-600">{stats.photosCount}</span>
+                        <Select
+                          value={statsScope}
+                          onValueChange={(value: 'all' | 'current') => setStatsScope(value)}
+                        >
+                          <SelectTrigger className="w-[140px]">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="current">This Gallery</SelectItem>
+                            <SelectItem value="all">All Galleries</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-3 flex-grow">
+                        <div className="flex items-center justify-between p-3 rounded-lg bg-blue-50 dark:bg-blue-950/20">
+                          <span className="text-sm font-medium">Galleries Created</span>
+                          <span className="text-lg font-bold text-blue-600 dark:text-blue-400">
+                            {stats.galleriesCount}
+                          </span>
                         </div>
-                        <div className="flex items-center justify-between p-2.5 bg-green-50 dark:bg-green-950/20 rounded-lg">
-                          <span className="text-xs text-muted-foreground">Videos Added</span>
-                          <span className="text-xl font-bold text-green-600">{stats.videosCount}</span>
+                        <div className="flex items-center justify-between p-3 rounded-lg bg-green-50 dark:bg-green-950/20">
+                          <span className="text-sm font-medium">Photos Added</span>
+                          <span className="text-lg font-bold text-green-600 dark:text-green-400">
+                            {stats.photosCount}
+                          </span>
                         </div>
-                        <div className="flex items-center justify-between p-2.5 bg-orange-50 dark:bg-orange-950/20 rounded-lg">
-                          <span className="text-xs text-muted-foreground">Guest Book Messages</span>
-                          <span className="text-xl font-bold text-orange-600">{stats.messagesCount}</span>
+                        <div className="flex items-center justify-between p-3 rounded-lg bg-orange-50 dark:bg-orange-950/20">
+                          <span className="text-sm font-medium">Videos Added</span>
+                          <span className="text-lg font-bold text-orange-600 dark:text-orange-400">
+                            {stats.videosCount}
+                          </span>
                         </div>
-                        <div className="flex items-center justify-between p-2.5 bg-primary/10 rounded-lg border-2 border-primary/20">
-                          <span className="text-xs font-semibold text-primary">Total Uploads</span>
-                          <span className="text-xl font-bold text-primary">{totalUploads}</span>
+                        <div className="flex items-center justify-between p-3 rounded-lg bg-purple-50 dark:bg-purple-950/20">
+                          <span className="text-sm font-medium">Guest Book Messages</span>
+                          <span className="text-lg font-bold text-purple-600 dark:text-purple-400">
+                            {stats.messagesCount}
+                          </span>
                         </div>
-                      </CardContent>
-                    </Card>
-                  </>
+                        <div className="flex items-center justify-between p-3 rounded-lg bg-primary/10 border-2 border-primary/20">
+                          <span className="text-sm font-semibold">Total Uploads</span>
+                          <span className="text-lg font-bold text-primary">
+                            {stats.photosCount + stats.videosCount + stats.messagesCount}
+                          </span>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
                 )}
               </div>
             ) : (
