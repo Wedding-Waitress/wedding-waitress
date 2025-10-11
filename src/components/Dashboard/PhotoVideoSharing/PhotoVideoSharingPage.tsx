@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Camera, Plus, BarChart3, Trash2, Copy, Download, QrCode, FolderOpen } from 'lucide-react';
+import { Camera, Plus, BarChart3, Trash2, Copy, Download, QrCode, FolderOpen, Image, Video, MessageSquare } from 'lucide-react';
 import { SetupWizard } from './SetupWizard';
 import { useGalleries } from '@/hooks/useGalleries';
 import { useGalleryStats } from '@/hooks/useGalleryStats';
@@ -173,7 +173,77 @@ export const PhotoVideoSharingPage: React.FC = () => {
             </div>
 
             {galleries.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <>
+                {/* Stats Summary Bar - Full Width Horizontal */}
+                <Card className="ww-box border-2 border-primary/20">
+                  <CardContent className="p-4">
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                      {/* Left: Stats displayed horizontally */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:flex lg:items-center gap-4 lg:gap-6 flex-1">
+                        {/* Stat 1: Galleries Created */}
+                        <div className="flex items-center gap-2">
+                          <FolderOpen className="w-5 h-5 text-blue-600" />
+                          <div>
+                            <p className="text-xs text-muted-foreground">Galleries Created</p>
+                            <p className="text-lg font-bold text-blue-600">{stats.galleriesCount}</p>
+                          </div>
+                        </div>
+                        
+                        {/* Stat 2: Photos Added */}
+                        <div className="flex items-center gap-2">
+                          <Image className="w-5 h-5 text-green-600" />
+                          <div>
+                            <p className="text-xs text-muted-foreground">Photos Added</p>
+                            <p className="text-lg font-bold text-green-600">{stats.photosCount}</p>
+                          </div>
+                        </div>
+                        
+                        {/* Stat 3: Videos Added */}
+                        <div className="flex items-center gap-2">
+                          <Video className="w-5 h-5 text-orange-600" />
+                          <div>
+                            <p className="text-xs text-muted-foreground">Videos Added</p>
+                            <p className="text-lg font-bold text-orange-600">{stats.videosCount}</p>
+                          </div>
+                        </div>
+                        
+                        {/* Stat 4: Guest Book Messages */}
+                        <div className="flex items-center gap-2">
+                          <MessageSquare className="w-5 h-5 text-purple-600" />
+                          <div>
+                            <p className="text-xs text-muted-foreground">Guest Book Messages</p>
+                            <p className="text-lg font-bold text-purple-600">{stats.messagesCount}</p>
+                          </div>
+                        </div>
+                        
+                        {/* Stat 5: Total Uploads (highlighted) */}
+                        <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary/10 border border-primary/30">
+                          <BarChart3 className="w-5 h-5 text-primary" />
+                          <div>
+                            <p className="text-xs text-muted-foreground font-semibold">Total Uploads</p>
+                            <p className="text-lg font-bold text-primary">{totalUploads}</p>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* Right: Scope Selector */}
+                      <Select
+                        value={statsScope}
+                        onValueChange={(value: 'all' | 'current') => setStatsScope(value)}
+                      >
+                        <SelectTrigger className="w-full md:w-[160px]">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="current">This Gallery</SelectItem>
+                          <SelectItem value="all">All Galleries</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {/* Box 1: Create Gallery */}
                 <Card className="ww-box border-2 border-primary/20">
                   <CardContent className="p-6 space-y-4 flex flex-col h-full">
@@ -291,65 +361,8 @@ export const PhotoVideoSharingPage: React.FC = () => {
                     </CardContent>
                   </Card>
                 )}
-
-                {/* Box 4: Stats (only show if gallery selected) */}
-                {selectedGalleryId && (
-                  <Card className="ww-box border-2 border-primary/20">
-                    <CardContent className="p-6 flex flex-col h-full">
-                      <div className="flex items-center justify-between mb-4">
-                        <div className="flex items-center gap-2">
-                          <BarChart3 className="w-5 h-5 text-primary" />
-                          <h3 className="text-lg font-semibold">Stats</h3>
-                        </div>
-                        <Select
-                          value={statsScope}
-                          onValueChange={(value: 'all' | 'current') => setStatsScope(value)}
-                        >
-                          <SelectTrigger className="w-[140px]">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="current">This Gallery</SelectItem>
-                            <SelectItem value="all">All Galleries</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="space-y-3 flex-grow">
-                        <div className="flex items-center justify-between p-3 rounded-lg bg-blue-50 dark:bg-blue-950/20">
-                          <span className="text-sm font-medium">Galleries Created</span>
-                          <span className="text-lg font-bold text-blue-600 dark:text-blue-400">
-                            {stats.galleriesCount}
-                          </span>
-                        </div>
-                        <div className="flex items-center justify-between p-3 rounded-lg bg-green-50 dark:bg-green-950/20">
-                          <span className="text-sm font-medium">Photos Added</span>
-                          <span className="text-lg font-bold text-green-600 dark:text-green-400">
-                            {stats.photosCount}
-                          </span>
-                        </div>
-                        <div className="flex items-center justify-between p-3 rounded-lg bg-orange-50 dark:bg-orange-950/20">
-                          <span className="text-sm font-medium">Videos Added</span>
-                          <span className="text-lg font-bold text-orange-600 dark:text-orange-400">
-                            {stats.videosCount}
-                          </span>
-                        </div>
-                        <div className="flex items-center justify-between p-3 rounded-lg bg-purple-50 dark:bg-purple-950/20">
-                          <span className="text-sm font-medium">Guest Book Messages</span>
-                          <span className="text-lg font-bold text-purple-600 dark:text-purple-400">
-                            {stats.messagesCount}
-                          </span>
-                        </div>
-                        <div className="flex items-center justify-between p-3 rounded-lg bg-primary/10 border-2 border-primary/20">
-                          <span className="text-sm font-semibold">Total Uploads</span>
-                          <span className="text-lg font-bold text-primary">
-                            {stats.photosCount + stats.videosCount + stats.messagesCount}
-                          </span>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                )}
               </div>
+              </>
             ) : (
               <div className="text-center py-12">
                 <Camera className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
