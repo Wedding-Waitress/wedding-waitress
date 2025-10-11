@@ -26,13 +26,13 @@ export const useMediaGallery = (galleryId: string | null) => {
     setLoading(true);
     try {
       const { data, error } = await supabase
-        .from('media_uploads')
+        .from('media_uploads' as any)
         .select('*')
         .eq('gallery_id', galleryId)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setMedia((data || []) as MediaItem[]);
+      setMedia((data || []) as any as MediaItem[]);
     } catch (error: any) {
       console.error('Error fetching media:', error);
       toast({

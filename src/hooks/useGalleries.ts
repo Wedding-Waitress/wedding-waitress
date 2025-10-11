@@ -28,13 +28,13 @@ export const useGalleries = () => {
       if (!user.user) return;
 
       const { data, error } = await supabase
-        .from('galleries')
+        .from('galleries' as any)
         .select('*')
         .eq('owner_id', user.user.id)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setGalleries((data || []) as Gallery[]);
+      setGalleries(data as any as Gallery[]);
     } catch (error: any) {
       console.error('Error fetching galleries:', error);
       toast({

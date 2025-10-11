@@ -26,13 +26,13 @@ export const useGalleryStats = (galleryId: string | null, scope: 'all' | 'curren
 
         // Get galleries count
         const { count: galleriesCount } = await supabase
-          .from('galleries')
+          .from('galleries' as any)
           .select('*', { count: 'exact', head: true })
           .eq('owner_id', user.user.id);
 
         // Get media counts with proper join
         let mediaQuery = supabase
-          .from('media_uploads')
+          .from('media_uploads' as any)
           .select('post_type, gallery_id!inner(owner_id)')
           .eq('gallery_id.owner_id', user.user.id);
 
@@ -42,9 +42,9 @@ export const useGalleryStats = (galleryId: string | null, scope: 'all' | 'curren
 
         const { data: mediaData } = await mediaQuery;
 
-        const photosCount = mediaData?.filter(m => m.post_type === 'photo').length || 0;
-        const videosCount = mediaData?.filter(m => m.post_type === 'video').length || 0;
-        const messagesCount = mediaData?.filter(m => m.post_type === 'text').length || 0;
+        const photosCount = (mediaData as any)?.filter((m: any) => m.post_type === 'photo').length || 0;
+        const videosCount = (mediaData as any)?.filter((m: any) => m.post_type === 'video').length || 0;
+        const messagesCount = (mediaData as any)?.filter((m: any) => m.post_type === 'text').length || 0;
 
         setStats({
           galleriesCount: galleriesCount || 0,

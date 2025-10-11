@@ -27,13 +27,13 @@ export const useGallerySettings = (galleryId: string | null) => {
     setLoading(true);
     try {
       const { data, error } = await supabase
-        .from('gallery_settings')
+        .from('gallery_settings' as any)
         .select('*')
         .eq('gallery_id', galleryId)
         .maybeSingle();
 
       if (error) throw error;
-      setSettings(data);
+      setSettings(data as any);
     } catch (error: any) {
       console.error('Error fetching gallery settings:', error);
     } finally {
@@ -46,11 +46,11 @@ export const useGallerySettings = (galleryId: string | null) => {
 
     try {
       const { error } = await supabase
-        .from('gallery_settings')
+        .from('gallery_settings' as any)
         .upsert({
           gallery_id: galleryId,
           ...newSettings,
-        });
+        } as any);
 
       if (error) throw error;
 

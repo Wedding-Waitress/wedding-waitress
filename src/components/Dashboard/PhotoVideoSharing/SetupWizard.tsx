@@ -46,15 +46,15 @@ export const SetupWizard: React.FC<SetupWizardProps> = ({ onComplete, onCancel }
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) throw new Error('Not authenticated');
 
-      // Generate slug
+      // Generate slug using generate_slug function (galleries table uses same slug generator)
       const { data: slugData, error: slugError } = await supabase
-        .rpc('generate_gallery_slug', { input_text: wizardData.eventDisplayName });
+        .rpc('generate_slug' as any, { input_text: wizardData.eventDisplayName });
       
       if (slugError) throw slugError;
 
       // Create gallery
       const { data: gallery, error: galleryError } = await supabase
-        .from('galleries')
+        .from('galleries' as any)
         .insert({
           owner_id: user.user.id,
           title: wizardData.eventDisplayName,
@@ -63,31 +63,31 @@ export const SetupWizard: React.FC<SetupWizardProps> = ({ onComplete, onCancel }
           event_date: format(wizardData.eventDate, 'yyyy-MM-dd'),
           is_active: true,
           require_approval: true,
-        })
+        } as any)
         .select()
         .single();
 
       if (galleryError) throw galleryError;
 
       // Create default settings
-      await supabase.from('gallery_settings').insert({
-        gallery_id: gallery.id,
+      await supabase.from('gallery_settings' as any).insert({
+        gallery_id: (gallery as any).id,
         max_uploads_per_guest: 10,
         allow_photos: true,
         allow_videos: true,
         slideshow_interval_seconds: 5,
         show_captions: true,
-      });
+      } as any);
 
       // Generate upload token
-      await supabase.rpc('generate_media_upload_token', {
-        _gallery_id: gallery.id,
+      await supabase.rpc('generate_media_upload_token' as any, {
+        _event_id: (gallery as any).id,
         _validity_days: 365,
         _max_uploads: 10,
-      });
+      } as any);
 
       // Generate QR code
-      const uploadUrl = `${window.location.origin}/g/${gallery.slug}`;
+      const uploadUrl = `${window.location.origin}/g/${(gallery as any).slug}`;
       const canvas = document.createElement('canvas');
       canvas.width = 2000;
       canvas.height = 2000;
@@ -106,7 +106,7 @@ export const SetupWizard: React.FC<SetupWizardProps> = ({ onComplete, onCancel }
       setStep(5); // Completion screen
 
       // Call onComplete with the new gallery ID
-      setTimeout(() => onComplete(gallery.id), 100);
+      setTimeout(() => onComplete((gallery as any).id), 100);
     } catch (error: any) {
       console.error('Error creating gallery:', error);
       toast({

@@ -55,15 +55,15 @@ export const GallerySettingsTab: React.FC<GallerySettingsTabProps> = ({ galleryI
     const generateUrl = async () => {
       try {
         const { data: gallery } = await supabase
-          .from('galleries')
+          .from('galleries' as any)
           .select('slug, title')
           .eq('id', galleryId)
           .single();
 
-        if (gallery?.slug) {
-          const url = `${window.location.origin}/g/${gallery.slug}`;
+        if ((gallery as any)?.slug) {
+          const url = `${window.location.origin}/g/${(gallery as any).slug}`;
           setUploadUrl(url);
-          setGalleryTitle(gallery.title);
+          setGalleryTitle((gallery as any).title);
           await generateQRCode(url);
         }
       } catch (error) {
