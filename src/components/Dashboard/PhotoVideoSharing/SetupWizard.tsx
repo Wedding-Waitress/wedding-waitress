@@ -15,12 +15,11 @@ import QRCodeLib from 'qrcode';
 import { buildGuestLookupUrl } from '@/lib/urlUtils';
 
 interface SetupWizardProps {
-  eventId: string;
-  eventSlug: string;
-  onComplete: () => void;
+  onComplete: (galleryId: string) => void;
+  onCancel: () => void;
 }
 
-export const SetupWizard: React.FC<SetupWizardProps> = ({ eventId, eventSlug, onComplete }) => {
+export const SetupWizard: React.FC<SetupWizardProps> = ({ onComplete, onCancel }) => {
   const [step, setStep] = useState(1);
   const [wizardData, setWizardData] = useState({
     eventType: null as string | null,
@@ -44,21 +43,51 @@ export const SetupWizard: React.FC<SetupWizardProps> = ({ eventId, eventSlug, on
 
     setIsSubmitting(true);
     try {
-      // Update event with wizard data
-      const { error: updateError } = await supabase
-        .from('events')
-        .update({
+      const { data: user } = await supabase.auth.getUser();
+      if (!user.user) throw new Error('Not authenticated');
+
+      // Generate slug
+      const { data: slugData, error: slugError } = await supabase
+        .rpc('generate_gallery_slug', { input_text: wizardData.eventDisplayName });
+      
+      if (slugError) throw slugError;
+
+      // Create gallery
+      const { data: gallery, error: galleryError } = await supabase
+        .from('galleries')
+        .insert({
+          owner_id: user.user.id,
+          title: wizardData.eventDisplayName,
+          slug: slugData,
           event_type: wizardData.eventType,
-          event_display_name: wizardData.eventDisplayName,
-          event_date_override: format(wizardData.eventDate, 'yyyy-MM-dd'),
-          setup_completed: true,
+          event_date: format(wizardData.eventDate, 'yyyy-MM-dd'),
+          is_active: true,
+          require_approval: true,
         })
-        .eq('id', eventId);
+        .select()
+        .single();
 
-      if (updateError) throw updateError;
+      if (galleryError) throw galleryError;
 
-      // Generate QR code for confirmation screen
-      const uploadUrl = `${window.location.origin}/media/${eventSlug}`;
+      // Create default settings
+      await supabase.from('gallery_settings').insert({
+        gallery_id: gallery.id,
+        max_uploads_per_guest: 10,
+        allow_photos: true,
+        allow_videos: true,
+        slideshow_interval_seconds: 5,
+        show_captions: true,
+      });
+
+      // Generate upload token
+      await supabase.rpc('generate_media_upload_token', {
+        _gallery_id: gallery.id,
+        _validity_days: 365,
+        _max_uploads: 10,
+      });
+
+      // Generate QR code
+      const uploadUrl = `${window.location.origin}/g/${gallery.slug}`;
       const canvas = document.createElement('canvas');
       canvas.width = 2000;
       canvas.height = 2000;
@@ -75,11 +104,14 @@ export const SetupWizard: React.FC<SetupWizardProps> = ({ eventId, eventSlug, on
       
       setQrCodeDataUrl(canvas.toDataURL('image/png'));
       setStep(5); // Completion screen
+
+      // Call onComplete with the new gallery ID
+      setTimeout(() => onComplete(gallery.id), 100);
     } catch (error: any) {
-      console.error('Error completing setup:', error);
+      console.error('Error creating gallery:', error);
       toast({
         title: 'Error',
-        description: 'Failed to complete setup',
+        description: 'Failed to create gallery',
         variant: 'destructive',
       });
     } finally {
@@ -273,9 +305,9 @@ export const SetupWizard: React.FC<SetupWizardProps> = ({ eventId, eventSlug, on
           <Button
             size="lg"
             className="bg-gradient-to-r from-primary to-purple-600 hover:opacity-90 text-lg px-8 py-6"
-            onClick={onComplete}
+            onClick={() => {}}
           >
-            Continue to Dashboard
+            View Gallery Settings
           </Button>
         </CardContent>
       </Card>

@@ -2,20 +2,22 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
-export interface MediaGallerySettings {
+export interface GallerySettings {
   id: string;
   gallery_id: string;
-  is_active: boolean;
-  require_approval: boolean;
   max_uploads_per_guest: number;
   allow_photos: boolean;
   allow_videos: boolean;
+  max_photo_size_mb: number;
+  max_video_size_mb: number;
   slideshow_interval_seconds: number;
   show_captions: boolean;
+  created_at: string;
+  updated_at: string;
 }
 
-export const useMediaGallerySettings = (galleryId: string | null) => {
-  const [settings, setSettings] = useState<MediaGallerySettings | null>(null);
+export const useGallerySettings = (galleryId: string | null) => {
+  const [settings, setSettings] = useState<GallerySettings | null>(null);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
@@ -31,15 +33,15 @@ export const useMediaGallerySettings = (galleryId: string | null) => {
         .maybeSingle();
 
       if (error) throw error;
-      setSettings(data as MediaGallerySettings | null);
+      setSettings(data);
     } catch (error: any) {
-      console.error('Error fetching settings:', error);
+      console.error('Error fetching gallery settings:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  const saveSettings = async (newSettings: Partial<MediaGallerySettings>) => {
+  const saveSettings = async (newSettings: Partial<GallerySettings>) => {
     if (!galleryId) return;
 
     try {

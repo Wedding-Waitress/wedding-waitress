@@ -15,20 +15,20 @@ export interface MediaItem {
   height?: number;
 }
 
-export const useMediaGallery = (eventId: string | null) => {
+export const useMediaGallery = (galleryId: string | null) => {
   const [media, setMedia] = useState<MediaItem[]>([]);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
   const fetchMedia = async () => {
-    if (!eventId) return;
+    if (!galleryId) return;
     
     setLoading(true);
     try {
       const { data, error } = await supabase
         .from('media_uploads')
         .select('*')
-        .eq('event_id', eventId)
+        .eq('gallery_id', galleryId)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -47,21 +47,21 @@ export const useMediaGallery = (eventId: string | null) => {
 
   useEffect(() => {
     fetchMedia();
-  }, [eventId]);
+  }, [galleryId]);
 
   // Setup realtime subscription
   useEffect(() => {
-    if (!eventId) return;
+    if (!galleryId) return;
 
     const channel = supabase
-      .channel(`media-uploads:${eventId}`)
+      .channel(`media-uploads:gallery:${galleryId}`)
       .on(
         'postgres_changes',
         {
           event: '*',
           schema: 'public',
           table: 'media_uploads',
-          filter: `event_id=eq.${eventId}`,
+          filter: `gallery_id=eq.${galleryId}`,
         },
         (payload) => {
           console.log('Media update:', payload);
@@ -73,7 +73,7 @@ export const useMediaGallery = (eventId: string | null) => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [eventId]);
+  }, [galleryId]);
 
   return { media, loading, refetch: fetchMedia };
 };

@@ -1271,12 +1271,12 @@ export type Database = {
         Returns: boolean
       }
       validate_media_token: {
-        Args: { _event_id: string; _token: string }
+        Args: { _gallery_id: string; _token: string }
         Returns: {
           allow_photos: boolean
           allow_videos: boolean
           can_upload: boolean
-          event_name: string
+          gallery_title: string
           is_valid: boolean
           max_photo_size_mb: number
           max_video_size_mb: number

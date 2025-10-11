@@ -18,12 +18,12 @@ import {
 } from '@/components/ui/alert-dialog';
 
 interface ApprovedGalleryTabProps {
-  eventId: string;
+  galleryId: string;
 }
 
-export const ApprovedGalleryTab: React.FC<ApprovedGalleryTabProps> = ({ eventId }) => {
-  const { media, loading, refetch } = useMediaGallery(eventId);
-  const { settings } = useMediaGallerySettings(eventId);
+export const ApprovedGalleryTab: React.FC<ApprovedGalleryTabProps> = ({ galleryId }) => {
+  const { media, loading, refetch } = useMediaGallery(galleryId);
+  const { settings } = useMediaGallerySettings(galleryId);
   const { toast } = useToast();
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [slideshowActive, setSlideshowActive] = useState(false);

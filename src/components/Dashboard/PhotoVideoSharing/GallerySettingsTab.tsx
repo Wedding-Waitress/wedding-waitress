@@ -12,14 +12,14 @@ import { buildGuestLookupUrl } from '@/lib/urlUtils';
 import QRCodeLib from 'qrcode';
 
 interface GallerySettingsTabProps {
-  eventId: string;
+  galleryId: string;
 }
 
-export const GallerySettingsTab: React.FC<GallerySettingsTabProps> = ({ eventId }) => {
-  const { settings, loading, saveSettings } = useMediaGallerySettings(eventId);
+export const GallerySettingsTab: React.FC<GallerySettingsTabProps> = ({ galleryId }) => {
+  const { settings, loading, saveSettings } = useMediaGallerySettings(galleryId);
   const { toast } = useToast();
   const [uploadUrl, setUploadUrl] = React.useState('');
-  const [eventName, setEventName] = React.useState('');
+  const [galleryTitle, setGalleryTitle] = React.useState('');
   const [qrCodeDataUrl, setQrCodeDataUrl] = React.useState('');
 
   // Generate QR code
@@ -54,16 +54,16 @@ export const GallerySettingsTab: React.FC<GallerySettingsTabProps> = ({ eventId 
   React.useEffect(() => {
     const generateUrl = async () => {
       try {
-        const { data: event } = await supabase
-          .from('events')
-          .select('slug, name')
-          .eq('id', eventId)
+        const { data: gallery } = await supabase
+          .from('galleries')
+          .select('slug, title')
+          .eq('id', galleryId)
           .single();
 
-        if (event?.slug) {
-          const url = buildGuestLookupUrl(event.slug);
+        if (gallery?.slug) {
+          const url = `${window.location.origin}/g/${gallery.slug}`;
           setUploadUrl(url);
-          setEventName(event.name);
+          setGalleryTitle(gallery.title);
           await generateQRCode(url);
         }
       } catch (error) {
@@ -72,7 +72,7 @@ export const GallerySettingsTab: React.FC<GallerySettingsTabProps> = ({ eventId 
     };
 
     generateUrl();
-  }, [eventId]);
+  }, [galleryId]);
 
   const copyUploadUrl = () => {
     navigator.clipboard.writeText(uploadUrl);
@@ -86,7 +86,7 @@ export const GallerySettingsTab: React.FC<GallerySettingsTabProps> = ({ eventId 
     if (!qrCodeDataUrl) return;
     
     const link = document.createElement('a');
-    link.download = `${eventName.replace(/\s+/g, '-').toLowerCase()}-photo-video-qr.png`;
+    link.download = `${galleryTitle.replace(/\s+/g, '-').toLowerCase()}-photo-video-qr.png`;
     link.href = qrCodeDataUrl;
     link.click();
     
@@ -129,7 +129,7 @@ export const GallerySettingsTab: React.FC<GallerySettingsTabProps> = ({ eventId 
           <CardContent className="p-6">
             <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
               <QrCode className="w-5 h-5" />
-              {eventName} – Photo & Video Gallery QR Code
+              {galleryTitle} – Photo & Video Gallery QR Code
             </h3>
             <p className="text-sm text-muted-foreground mb-4">
               Download this high-resolution QR code for printing on signage

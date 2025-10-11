@@ -320,7 +320,7 @@ export const Dashboard = () => {
       case 'signage':
         return <SignagePage selectedEventId={selectedEventId} onEventSelect={handleEventSelect} />;
       case 'photo-video-sharing':
-        return <PhotoVideoSharingPage selectedEventId={selectedEventId} onEventSelect={handleEventSelect} />;
+        return <PhotoVideoSharingPage />;
       case 'qr-code':
         return <QRCodeSeatingChart selectedEventId={selectedEventId} onEventSelect={handleEventSelect} onNavigateToTab={handleTabChange} />;
       case 'kiosk-live-view':

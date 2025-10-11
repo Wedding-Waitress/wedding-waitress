@@ -38,8 +38,8 @@ const App = () => (
           <Route path="/terms" element={<TermsOfService />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/s/:eventSlug" element={<GuestLookup />} />
-          <Route path="/media/:eventSlug" element={<GuestMediaUpload />} />
-          <Route path="/gallery/:eventSlug" element={<MediaGalleryPublic />} />
+          <Route path="/g/:gallerySlug" element={<GuestMediaUpload />} />
+          <Route path="/gallery/:gallerySlug" element={<MediaGalleryPublic />} />
           <Route path="/kiosk/:eventSlug" element={<KioskView />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

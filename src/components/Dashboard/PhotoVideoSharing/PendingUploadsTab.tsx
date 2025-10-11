@@ -7,11 +7,11 @@ import { useToast } from '@/hooks/use-toast';
 import { Card } from '@/components/ui/card';
 
 interface PendingUploadsTabProps {
-  eventId: string;
+  galleryId: string;
 }
 
-export const PendingUploadsTab: React.FC<PendingUploadsTabProps> = ({ eventId }) => {
-  const { media, loading, refetch } = useMediaGallery(eventId);
+export const PendingUploadsTab: React.FC<PendingUploadsTabProps> = ({ galleryId }) => {
+  const { media, loading, refetch } = useMediaGallery(galleryId);
   const { toast } = useToast();
   
   const pendingMedia = media.filter(m => m.status === 'pending');
