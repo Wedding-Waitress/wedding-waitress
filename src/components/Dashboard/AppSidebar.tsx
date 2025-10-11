@@ -8,7 +8,7 @@ import {
   CreditCard,
   ChefHat,
   Monitor,
-  
+  Camera,
   LayoutGrid,
   FileText,
   LogOut
@@ -36,6 +36,7 @@ const menuItems = [
   { id: "my-events", label: "My Events", icon: Calendar },
   { id: "table-list", label: "Tables", icon: MapPin },
   { id: "guest-list", label: "Guest List", icon: Users },
+  { id: "photo-video-sharing", label: "Photo & Video Sharing", icon: Camera },
   { id: "qr-code", label: "QR Code Seating Chart", icon: QrCode },
   { id: "place-cards", label: "Place Cards", icon: CreditCard },
   { id: "individual-table-chart", label: "Individual Table Charts", icon: Users },

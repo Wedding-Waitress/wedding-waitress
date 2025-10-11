@@ -1,1 +1,10 @@
 project_id = "xytxkidpourwdbzzwcdp"
+
+[functions.create-media-upload-url]
+verify_jwt = false
+
+[functions.confirm-media-upload]
+verify_jwt = false
+
+[functions.moderate-media]
+verify_jwt = true

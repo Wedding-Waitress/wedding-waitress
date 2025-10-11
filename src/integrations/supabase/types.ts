@@ -72,6 +72,9 @@ export type Database = {
           finish_time: string | null
           guest_limit: number | null
           id: string
+          media_photos_count: number | null
+          media_total_size_mb: number | null
+          media_videos_count: number | null
           name: string
           partner1_name: string | null
           partner2_name: string | null
@@ -103,6 +106,9 @@ export type Database = {
           finish_time?: string | null
           guest_limit?: number | null
           id?: string
+          media_photos_count?: number | null
+          media_total_size_mb?: number | null
+          media_videos_count?: number | null
           name: string
           partner1_name?: string | null
           partner2_name?: string | null
@@ -134,6 +140,9 @@ export type Database = {
           finish_time?: string | null
           guest_limit?: number | null
           id?: string
+          media_photos_count?: number | null
+          media_total_size_mb?: number | null
+          media_videos_count?: number | null
           name?: string
           partner1_name?: string | null
           partner2_name?: string | null
@@ -632,6 +641,195 @@ export type Database = {
           },
         ]
       }
+      media_gallery_settings: {
+        Row: {
+          album_expires_at: string | null
+          allow_photos: boolean | null
+          allow_videos: boolean | null
+          created_at: string
+          event_id: string
+          id: string
+          is_active: boolean | null
+          max_photo_size_mb: number | null
+          max_uploads_per_guest: number | null
+          max_video_duration_seconds: number | null
+          max_video_size_mb: number | null
+          require_approval: boolean | null
+          show_captions: boolean | null
+          slideshow_interval_seconds: number | null
+          updated_at: string
+          user_id: string
+          watermark_enabled: boolean | null
+          watermark_text: string | null
+        }
+        Insert: {
+          album_expires_at?: string | null
+          allow_photos?: boolean | null
+          allow_videos?: boolean | null
+          created_at?: string
+          event_id: string
+          id?: string
+          is_active?: boolean | null
+          max_photo_size_mb?: number | null
+          max_uploads_per_guest?: number | null
+          max_video_duration_seconds?: number | null
+          max_video_size_mb?: number | null
+          require_approval?: boolean | null
+          show_captions?: boolean | null
+          slideshow_interval_seconds?: number | null
+          updated_at?: string
+          user_id: string
+          watermark_enabled?: boolean | null
+          watermark_text?: string | null
+        }
+        Update: {
+          album_expires_at?: string | null
+          allow_photos?: boolean | null
+          allow_videos?: boolean | null
+          created_at?: string
+          event_id?: string
+          id?: string
+          is_active?: boolean | null
+          max_photo_size_mb?: number | null
+          max_uploads_per_guest?: number | null
+          max_video_duration_seconds?: number | null
+          max_video_size_mb?: number | null
+          require_approval?: boolean | null
+          show_captions?: boolean | null
+          slideshow_interval_seconds?: number | null
+          updated_at?: string
+          user_id?: string
+          watermark_enabled?: boolean | null
+          watermark_text?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "media_gallery_settings_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: true
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      media_upload_tokens: {
+        Row: {
+          created_at: string
+          event_id: string
+          expires_at: string
+          id: string
+          is_active: boolean | null
+          last_used_at: string | null
+          max_uploads: number | null
+          token: string
+          uploads_used: number | null
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          expires_at: string
+          id?: string
+          is_active?: boolean | null
+          last_used_at?: string | null
+          max_uploads?: number | null
+          token: string
+          uploads_used?: number | null
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          expires_at?: string
+          id?: string
+          is_active?: boolean | null
+          last_used_at?: string | null
+          max_uploads?: number | null
+          token?: string
+          uploads_used?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "media_upload_tokens_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      media_uploads: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          caption: string | null
+          cloudflare_stream_uid: string | null
+          created_at: string
+          duration_seconds: number | null
+          event_id: string
+          file_size_bytes: number | null
+          file_url: string
+          height: number | null
+          id: string
+          mime_type: string | null
+          rejected_at: string | null
+          rejected_by: string | null
+          status: string
+          thumbnail_url: string | null
+          type: string
+          uploader_token: string
+          width: number | null
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          caption?: string | null
+          cloudflare_stream_uid?: string | null
+          created_at?: string
+          duration_seconds?: number | null
+          event_id: string
+          file_size_bytes?: number | null
+          file_url: string
+          height?: number | null
+          id?: string
+          mime_type?: string | null
+          rejected_at?: string | null
+          rejected_by?: string | null
+          status?: string
+          thumbnail_url?: string | null
+          type: string
+          uploader_token: string
+          width?: number | null
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          caption?: string | null
+          cloudflare_stream_uid?: string | null
+          created_at?: string
+          duration_seconds?: number | null
+          event_id?: string
+          file_size_bytes?: number | null
+          file_url?: string
+          height?: number | null
+          id?: string
+          mime_type?: string | null
+          rejected_at?: string | null
+          rejected_by?: string | null
+          status?: string
+          thumbnail_url?: string | null
+          type?: string
+          uploader_token?: string
+          width?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "media_uploads_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       place_card_settings: {
         Row: {
           background_color: string
@@ -940,6 +1138,14 @@ export type Database = {
         Args: { _event_id: string; _guest_id: string; _validity_days?: number }
         Returns: string
       }
+      generate_media_upload_token: {
+        Args: {
+          _event_id: string
+          _max_uploads?: number
+          _validity_days?: number
+        }
+        Returns: string
+      }
       generate_slug: {
         Args: { input_text: string }
         Returns: string
@@ -1003,6 +1209,20 @@ export type Database = {
           partner2_name: string
         }[]
       }
+      get_public_gallery_media: {
+        Args: { _event_slug: string }
+        Returns: {
+          caption: string
+          cloudflare_stream_uid: string
+          created_at: string
+          file_url: string
+          height: number
+          id: string
+          thumbnail_url: string
+          type: string
+          width: number
+        }[]
+      }
       get_public_live_view_settings: {
         Args: { _event_slug: string }
         Returns: {
@@ -1028,6 +1248,20 @@ export type Database = {
       validate_guest_access: {
         Args: { _access_token: string; _guest_id: string }
         Returns: boolean
+      }
+      validate_media_token: {
+        Args: { _event_id: string; _token: string }
+        Returns: {
+          allow_photos: boolean
+          allow_videos: boolean
+          can_upload: boolean
+          event_name: string
+          is_valid: boolean
+          max_photo_size_mb: number
+          max_video_size_mb: number
+          remaining_uploads: number
+          require_approval: boolean
+        }[]
       }
     }
     Enums: {
