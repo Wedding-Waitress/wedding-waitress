@@ -17,81 +17,93 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    const {
-      event_id,
-      token,
+    const { 
+      gallery_id,
+      upload_token,
       file_path,
       type,
+      post_type,
       caption,
       width,
       height,
+      duration_seconds,
       file_size,
       mime_type,
-      post_type,
+      cloudflare_stream_uid,
       text_content,
       theme_id
     } = await req.json();
 
-    console.log('Confirm upload request:', { event_id, token, file_path, type });
+    console.log('Confirm media upload:', { 
+      gallery_id, 
+      file_path, 
+      type, 
+      post_type,
+      file_size,
+      mime_type
+    });
 
-    // Validate token
-    const { data: validation } = await supabase
-      .rpc('validate_media_token', { _event_id: event_id, _token: token });
+    // Validate gallery exists and get settings
+    const { data: gallery, error: galleryError } = await supabase
+      .from('galleries')
+      .select('id, require_approval, owner_id, is_active, show_public_gallery')
+      .eq('id', gallery_id)
+      .single();
 
-    if (!validation || !validation[0]?.is_valid) {
+    if (galleryError || !gallery) {
+      console.error('Gallery not found:', galleryError);
       return new Response(
-        JSON.stringify({ error: 'Invalid token' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        JSON.stringify({ error: 'Gallery not found' }),
+        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    const requireApproval = validation[0].require_approval;
+    // Validate file path is within expected gallery prefix
+    const expectedPrefix = `galleries/${gallery_id}/`;
+    if (file_path && !file_path.startsWith(expectedPrefix)) {
+      console.error('Invalid file path:', file_path);
+      return new Response(
+        JSON.stringify({ error: 'Invalid file path' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
-    // Create media record
-    const { data: mediaRecord, error: mediaError } = await supabase
+    // Insert media record
+    const { data: media, error: mediaError } = await supabase
       .from('media_uploads')
       .insert({
-        event_id,
-        uploader_token: token,
+        gallery_id,
+        uploader_token: upload_token,
         type,
         post_type: post_type || type,
         caption: caption || null,
         file_url: file_path || '',
+        thumbnail_url: null,
+        cloudflare_stream_uid: cloudflare_stream_uid || null,
+        status: gallery.require_approval ? 'pending' : 'approved',
+        file_size_bytes: file_size || null,
+        mime_type: mime_type || null,
+        width: width || null,
+        height: height || null,
+        duration_seconds: duration_seconds || null,
         text_content: text_content || null,
         theme_id: theme_id || null,
-        status: requireApproval ? 'pending' : 'approved',
-        file_size_bytes: file_size,
-        mime_type,
-        width,
-        height,
-        approved_at: requireApproval ? null : new Date().toISOString(),
+        approved_at: gallery.require_approval ? null : new Date().toISOString(),
       })
       .select()
       .single();
 
     if (mediaError) {
-      console.error('Media record creation error:', mediaError);
+      console.error('Media insert error:', mediaError);
       throw mediaError;
     }
 
-    // Increment token usage
-    await supabase
-      .from('media_upload_tokens')
-      .update({
-        uploads_used: supabase.sql`uploads_used + 1`,
-        last_used_at: new Date().toISOString(),
-      })
-      .eq('event_id', event_id)
-      .eq('token', token);
-
-    console.log('Upload confirmed successfully:', mediaRecord.id);
+    console.log('Media record created:', media.id);
 
     return new Response(
       JSON.stringify({
-        success: true,
-        media_id: mediaRecord.id,
-        status: mediaRecord.status,
-        requires_approval: requireApproval,
+        id: media.id,
+        status: media.status,
       }),
       {
         status: 200,

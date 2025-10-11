@@ -28,6 +28,7 @@ interface MediaItem {
   text_content?: string | null;
   theme_id?: string | null;
   created_at?: string;
+  uploadError?: string;
 }
 
 interface GalleryData {
@@ -58,6 +59,9 @@ export const GuestGalleryPublic: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [token, setToken] = useState('');
   const [retryCount, setRetryCount] = useState(0);
+  const [debugInfo, setDebugInfo] = useState<any>(null);
+
+  const MAX_VIDEO_SIZE_MB = 200;
 
   // 5-second watchdog
   useEffect(() => {
@@ -148,16 +152,101 @@ export const GuestGalleryPublic: React.FC = () => {
     setRetryCount(prev => prev + 1);
   };
 
-  const handleFileSelection = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const convertHeicToJpeg = async (file: File): Promise<File> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      
+      reader.onload = async (e) => {
+        try {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            canvas.width = img.width;
+            canvas.height = img.height;
+            
+            ctx?.drawImage(img, 0, 0);
+            
+            canvas.toBlob((blob) => {
+              if (!blob) {
+                reject(new Error('Failed to convert image'));
+                return;
+              }
+              
+              const newFileName = file.name.replace(/\.(heic|heif)$/i, '.jpg');
+              const jpegFile = new File([blob], newFileName, { 
+                type: 'image/jpeg',
+                lastModified: file.lastModified 
+              });
+              
+              resolve(jpegFile);
+            }, 'image/jpeg', 0.9);
+          };
+          
+          img.onerror = () => reject(new Error('Failed to load image'));
+          img.src = e.target?.result as string;
+        } catch (error) {
+          reject(error);
+        }
+      };
+      
+      reader.onerror = () => reject(new Error('Failed to read file'));
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleFileSelection = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
-    const newItems: MediaItem[] = files.map(file => ({
-      file,
-      type: file.type.startsWith('video/') ? 'video' : 'photo',
-      preview: URL.createObjectURL(file),
-      caption: '',
-    }));
     
-    setSelectedItems([...selectedItems, ...newItems]);
+    const processedFiles = await Promise.all(
+      files.map(async (file) => {
+        // Check video size limit
+        if (file.type.startsWith('video/')) {
+          const sizeMB = file.size / (1024 * 1024);
+          if (sizeMB > MAX_VIDEO_SIZE_MB) {
+            toast({
+              title: 'Video Too Large',
+              description: `This video is too large for direct upload (${Math.round(sizeMB)} MB). Please trim it or upload a shorter clip. Max: ${MAX_VIDEO_SIZE_MB} MB`,
+              variant: 'destructive',
+            });
+            return null;
+          }
+        }
+
+        let processedFile = file;
+        
+        // Convert HEIC/HEIF to JPEG
+        if (file.type === 'image/heic' || file.type === 'image/heif' || 
+            file.name.match(/\.(heic|heif)$/i)) {
+          try {
+            processedFile = await convertHeicToJpeg(file);
+            toast({
+              title: 'Converted',
+              description: `${file.name} converted to JPEG`,
+            });
+          } catch (error) {
+            console.error('HEIC conversion error:', error);
+            toast({
+              title: 'Warning',
+              description: `Failed to convert ${file.name}`,
+              variant: 'destructive',
+            });
+            return null;
+          }
+        }
+        
+        return {
+          file: processedFile,
+          type: processedFile.type.startsWith('video/') ? 'video' : 'photo',
+          preview: URL.createObjectURL(processedFile),
+          caption: '',
+        };
+      })
+    );
+    
+    const validItems = processedFiles.filter(item => item !== null) as MediaItem[];
+    setSelectedItems([...selectedItems, ...validItems]);
     setFlowStep('preview');
   };
 
@@ -178,6 +267,12 @@ export const GuestGalleryPublic: React.FC = () => {
     setSelectedItems(selectedItems.filter((_, i) => i !== index));
   };
 
+  interface UploadResult {
+    item: MediaItem;
+    success: boolean;
+    error?: string;
+  }
+
   const handleUploadAll = async () => {
     if (!galleryData || selectedItems.length === 0) return;
 
@@ -185,32 +280,84 @@ export const GuestGalleryPublic: React.FC = () => {
     setUploadProgress(0);
     setCurrentUploadIndex(0);
 
+    const results: UploadResult[] = [];
+
     try {
       for (let i = 0; i < selectedItems.length; i++) {
         const item = selectedItems[i];
         setCurrentUploadIndex(i + 1);
 
-        if (item.type === 'text') {
-          await uploadTextPost(item);
-        } else {
-          await uploadMediaFile(item);
+        try {
+          if (item.type === 'text') {
+            await uploadTextPost(item);
+          } else {
+            await uploadMediaFile(item);
+          }
+
+          results.push({ item, success: true });
+        } catch (error: any) {
+          console.error(`Upload error for item ${i}:`, error);
+
+          let errorMsg = 'Upload failed';
+          if (error.message === 'FILE_TOO_LARGE') {
+            errorMsg = item.type === 'photo' 
+              ? 'File too large. Max: 15 MB' 
+              : 'File too large. Max: 200 MB';
+          } else if (error.message === 'CORS_ERROR') {
+            errorMsg = 'Upload blocked by browser (CORS). Please reload and try again.';
+          } else if (error.message === 'UNSUPPORTED_TYPE') {
+            errorMsg = 'File type not supported';
+          } else if (error.message === 'UPLOADS_DISABLED') {
+            errorMsg = 'Gallery is not accepting uploads';
+          }
+
+          results.push({ item, success: false, error: errorMsg });
         }
 
         setUploadProgress(Math.round(((i + 1) / selectedItems.length) * 100));
       }
 
-      // Analytics: successful upload
-      analytics.track('guest_upload_success', {
-        gallery_id: galleryData.id,
-        count: selectedItems.length,
-      });
+      const successCount = results.filter(r => r.success).length;
+      const failCount = results.filter(r => !r.success).length;
 
-      setFlowStep('success');
+      if (successCount > 0) {
+        analytics.track('guest_upload_success', {
+          gallery_id: galleryData.id,
+          count: successCount,
+        });
+      }
+
+      if (failCount === 0) {
+        setSelectedItems([]);
+        setFlowStep('success');
+        fetchGalleryData();
+      } else if (successCount > 0) {
+        toast({
+          title: 'Partial Success',
+          description: `${successCount} uploaded, ${failCount} failed. Check items for details.`,
+        });
+
+        const failedItems = results
+          .filter(r => !r.success)
+          .map(r => ({ ...r.item, uploadError: r.error }));
+
+        setSelectedItems(failedItems);
+        setFlowStep('preview');
+        fetchGalleryData();
+      } else {
+        toast({
+          title: 'Upload Failed',
+          description: 'All uploads failed. Please try again.',
+          variant: 'destructive',
+        });
+        setFlowStep('preview');
+      }
+
     } catch (error: any) {
-      console.error('Upload error:', error);
+      console.error('Upload batch error:', error);
       toast({
         title: 'Error',
-        description: 'Failed to upload some items',
+        description: 'Upload process failed',
         variant: 'destructive',
       });
       setFlowStep('preview');
@@ -221,7 +368,7 @@ export const GuestGalleryPublic: React.FC = () => {
     const { error } = await supabase.functions.invoke('confirm-media-upload', {
       body: {
         gallery_id: galleryData!.id,
-        token: token,
+        upload_token: token,
         post_type: 'text',
         type: 'text',
         text_content: item.textContent,
@@ -234,62 +381,118 @@ export const GuestGalleryPublic: React.FC = () => {
   };
 
   const uploadMediaFile = async (item: MediaItem) => {
-    if (!item.file) return;
+    if (!item.file || !galleryData) return;
 
-    const { data: urlData, error: urlError } = await supabase.functions.invoke(
-      'create-media-upload-url',
-      {
-        body: {
-          gallery_id: galleryData!.id,
-          token: token,
-          type: item.type,
-          file_name: item.file.name,
-          file_size: item.file.size,
-        },
+    let retryCount = 0;
+    const MAX_RETRIES = 1;
+
+    while (retryCount <= MAX_RETRIES) {
+      try {
+        // Get signed upload URL
+        const { data: urlData, error: urlError } = await supabase.functions.invoke(
+          'create-media-upload-url',
+          {
+            body: {
+              gallerySlug: gallerySlug,
+              filename: item.file.name,
+              contentType: item.file.type,
+              file_size: item.file.size,
+            },
+          }
+        );
+
+        if (urlError) {
+          if (urlError.message?.includes('too large')) {
+            throw new Error('FILE_TOO_LARGE');
+          }
+          if (urlError.message?.includes('not accepting uploads')) {
+            throw new Error('UPLOADS_DISABLED');
+          }
+          if (urlError.message?.includes('not supported')) {
+            throw new Error('UNSUPPORTED_TYPE');
+          }
+          throw urlError;
+        }
+
+        // Upload to signed URL
+        const uploadResponse = await fetch(urlData.signed_url, {
+          method: 'PUT',
+          body: item.file,
+          headers: {
+            'Content-Type': urlData.content_type || item.file.type,
+          },
+        });
+
+        if (!uploadResponse.ok) {
+          if (uploadResponse.status === 413) {
+            throw new Error('FILE_TOO_LARGE');
+          }
+          if (uploadResponse.status === 0) {
+            throw new Error('CORS_ERROR');
+          }
+          if (uploadResponse.status === 403 && retryCount < MAX_RETRIES) {
+            retryCount++;
+            toast({
+              title: 'Retrying',
+              description: 'Upload link expired, requesting new one...',
+            });
+            continue;
+          }
+          throw new Error(`Upload failed: ${uploadResponse.status}`);
+        }
+
+        // Get image dimensions if photo
+        let width, height;
+        if (item.type === 'photo' && item.preview) {
+          const img = new Image();
+          await new Promise((resolve) => {
+            img.onload = () => {
+              width = img.width;
+              height = img.height;
+              resolve(null);
+            };
+            img.src = item.preview;
+          });
+        }
+
+        // Confirm upload
+        const { error: confirmError } = await supabase.functions.invoke('confirm-media-upload', {
+          body: {
+            gallery_id: urlData.gallery_id,
+            upload_token: urlData.token,
+            file_path: urlData.file_path,
+            type: item.type,
+            post_type: item.type,
+            caption: item.caption || null,
+            width,
+            height,
+            file_size: item.file.size,
+            mime_type: urlData.content_type || item.file.type,
+          },
+        });
+
+        if (confirmError) throw confirmError;
+
+        // Debug info (dev only)
+        if (import.meta.env.DEV) {
+          setDebugInfo({
+            filename: item.file.name,
+            type: item.file.type,
+            size: item.file.size,
+            contentType: urlData.content_type,
+            signedUrlStatus: uploadResponse.status,
+            confirmStatus: 'success',
+          });
+        }
+
+        break;
+      } catch (error: any) {
+        if (retryCount >= MAX_RETRIES) {
+          throw error;
+        }
+        retryCount++;
       }
-    );
-
-    if (urlError) throw urlError;
-
-    const uploadResponse = await fetch(urlData.signed_url, {
-      method: 'PUT',
-      body: item.file,
-      headers: {
-        'Content-Type': item.file.type,
-      },
-    });
-
-    if (!uploadResponse.ok) throw new Error('Upload failed');
-
-    let width, height;
-    if (item.type === 'photo' && item.preview) {
-      const img = new Image();
-      await new Promise((resolve) => {
-        img.onload = () => {
-          width = img.width;
-          height = img.height;
-          resolve(null);
-        };
-        img.src = item.preview;
-      });
     }
-
-    const { error: confirmError } = await supabase.functions.invoke('confirm-media-upload', {
-      body: {
-        gallery_id: galleryData!.id,
-        token: token,
-        file_path: urlData.file_path,
-        type: item.type,
-        post_type: item.type,
-        caption: item.caption || null,
-        width,
-        height,
-        file_size: item.file.size,
-        mime_type: item.file.type,
-      },
-    });
-
-    if (confirmError) throw confirmError;
   };
 
   const getMediaUrl = (filePath: string) => {
@@ -488,6 +691,12 @@ export const GuestGalleryPublic: React.FC = () => {
                     </div>
                   )}
                 </div>
+                
+                {item.uploadError && (
+                  <div className="absolute bottom-2 left-2 right-2 bg-destructive text-destructive-foreground text-xs p-2 rounded">
+                    {item.uploadError}
+                  </div>
+                )}
                 
                 <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                   <Button
@@ -721,6 +930,24 @@ export const GuestGalleryPublic: React.FC = () => {
           <p className="text-sm text-muted-foreground">
             Made with ❤️ Wedding Waitress
           </p>
+        </div>
+      )}
+
+      {/* Debug Overlay (Dev Only) */}
+      {import.meta.env.DEV && debugInfo && (
+        <div className="fixed bottom-4 right-4 bg-black/90 text-white text-xs p-4 rounded-lg max-w-md z-50">
+          <h4 className="font-bold mb-2">Debug Info</h4>
+          <pre className="overflow-auto max-h-48">
+            {JSON.stringify(debugInfo, null, 2)}
+          </pre>
+          <Button 
+            size="sm" 
+            variant="outline" 
+            onClick={() => setDebugInfo(null)}
+            className="mt-2"
+          >
+            Close
+          </Button>
         </div>
       )}
     </div>
