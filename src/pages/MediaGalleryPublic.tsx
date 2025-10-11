@@ -34,6 +34,7 @@ export const MediaGalleryPublic = () => {
   const [media, setMedia] = useState<MediaItem[]>([]);
   const [eventData, setEventData] = useState<EventData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showFooter, setShowFooter] = useState(true);
 
   useEffect(() => {
     if (eventSlug) {
@@ -43,6 +44,24 @@ export const MediaGalleryPublic = () => {
 
   const fetchGalleryData = async () => {
     try {
+      // Fetch gallery settings first
+      const { data: gallery, error: galleryError } = await supabase
+        .from('galleries' as any)
+        .select('id, title, event_date, show_footer, show_public_gallery, is_active')
+        .eq('slug', eventSlug)
+        .single();
+
+      if (galleryError) throw galleryError;
+
+      // Check if gallery is visible
+      if (!(gallery as any).is_active || !(gallery as any).show_public_gallery) {
+        setEventData(null);
+        setLoading(false);
+        return;
+      }
+
+      setShowFooter((gallery as any).show_footer ?? true);
+
       // Fetch event data
       const { data: event, error: eventError } = await supabase
         .from('events')
@@ -88,8 +107,12 @@ export const MediaGalleryPublic = () => {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-secondary">
         <Card className="ww-box max-w-md">
-          <CardContent className="p-8 text-center">
-            <p className="text-lg">Event not found</p>
+          <CardContent className="p-8 text-center space-y-4">
+            <div className="text-6xl">🔒</div>
+            <h3 className="text-xl font-semibold">Gallery Not Available</h3>
+            <p className="text-muted-foreground">
+              This gallery isn't visible right now. Please check back later.
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -192,11 +215,13 @@ export const MediaGalleryPublic = () => {
       </div>
 
       {/* Footer */}
-      <div className="py-8 text-center">
-        <p className="text-sm text-muted-foreground">
-          Made with ❤️ Wedding Waitress
-        </p>
-      </div>
+        {showFooter && (
+          <div className="py-8 text-center">
+            <p className="text-sm text-muted-foreground">
+              Made with ❤️ Wedding Waitress
+            </p>
+          </div>
+        )}
     </div>
   );
 };

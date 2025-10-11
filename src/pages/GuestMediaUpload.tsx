@@ -39,12 +39,17 @@ export const GuestMediaUpload: React.FC = () => {
 
   const [flowStep, setFlowStep] = useState<FlowStep>('landing');
   const [eventData, setEventData] = useState<EventData | null>(null);
+  const [galleryId, setGalleryId] = useState<string | null>(null);
+  const [galleryTitle, setGalleryTitle] = useState('');
   const [token, setToken] = useState('');
   const [selectedItems, setSelectedItems] = useState<MediaItem[]>([]);
   const [showTextPostModal, setShowTextPostModal] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [currentUploadIndex, setCurrentUploadIndex] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showFooter, setShowFooter] = useState(true);
+  const [showPublicGallery, setShowPublicGallery] = useState(true);
 
   useEffect(() => {
     if (eventSlug) {
@@ -55,6 +60,29 @@ export const GuestMediaUpload: React.FC = () => {
 
   const fetchEventData = async () => {
     try {
+      const { data: gallery } = await supabase
+        .from('galleries' as any)
+        .select('id, title, show_footer, show_public_gallery, is_active')
+        .eq('slug', eventSlug)
+        .maybeSingle();
+
+      if (!gallery) {
+        throw new Error('Gallery not found');
+      }
+
+      // Check if gallery is visible
+      if (!(gallery as any).is_active || !(gallery as any).show_public_gallery) {
+        setEventData(null);
+        setLoading(false);
+        return;
+      }
+
+      setGalleryId((gallery as any).id);
+      setGalleryTitle((gallery as any).title);
+      setShowFooter((gallery as any).show_footer ?? true);
+      setShowPublicGallery((gallery as any).show_public_gallery ?? true);
+      
+      // Fetch event data - just for display
       const { data, error } = await supabase
         .from('events')
         .select('*')
@@ -70,6 +98,7 @@ export const GuestMediaUpload: React.FC = () => {
         description: 'Failed to load event',
         variant: 'destructive',
       });
+      setEventData(null);
     } finally {
       setLoading(false);
     }
@@ -237,8 +266,12 @@ export const GuestMediaUpload: React.FC = () => {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-secondary">
         <Card className="ww-box max-w-md">
-          <CardContent className="p-8 text-center">
-            <p className="text-lg">Event not found</p>
+          <CardContent className="p-8 text-center space-y-4">
+            <div className="text-6xl">🔒</div>
+            <h3 className="text-xl font-semibold">Gallery Not Available</h3>
+            <p className="text-muted-foreground">
+              This gallery isn't visible right now. Please check back later.
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -270,9 +303,11 @@ export const GuestMediaUpload: React.FC = () => {
               Add to Album
             </Button>
             
+          {showFooter && (
             <p className="text-sm text-muted-foreground mt-8">
               Made with ❤️ Wedding Waitress
             </p>
+          )}
           </div>
         </div>
       </div>

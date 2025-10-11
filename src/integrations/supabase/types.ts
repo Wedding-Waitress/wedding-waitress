@@ -365,6 +365,8 @@ export type Database = {
           is_active: boolean
           owner_id: string
           require_approval: boolean
+          show_footer: boolean
+          show_public_gallery: boolean
           slug: string
           title: string
           updated_at: string
@@ -378,6 +380,8 @@ export type Database = {
           is_active?: boolean
           owner_id: string
           require_approval?: boolean
+          show_footer?: boolean
+          show_public_gallery?: boolean
           slug: string
           title: string
           updated_at?: string
@@ -391,6 +395,8 @@ export type Database = {
           is_active?: boolean
           owner_id?: string
           require_approval?: boolean
+          show_footer?: boolean
+          show_public_gallery?: boolean
           slug?: string
           title?: string
           updated_at?: string
