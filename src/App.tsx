@@ -1,7 +1,7 @@
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import { Landing } from "./pages/Landing";
 import { Dashboard } from "./pages/Dashboard";
@@ -9,8 +9,8 @@ import { AdminLogin } from "./pages/AdminLogin";
 import NotFound from "./pages/NotFound";
 import { GuestLookup } from "./pages/GuestLookup";
 import { KioskView } from "./pages/KioskView";
-import { GuestMediaUpload } from "./pages/GuestMediaUpload";
-import { MediaGalleryPublic } from "./pages/MediaGalleryPublic";
+import { GuestGalleryPublic } from "./pages/GuestGalleryPublic";
+import { LegacyGalleryRedirect } from "./components/Redirect";
 import { ResetPassword } from "./pages/ResetPassword";
 import { PrivacyPolicy } from "./pages/PrivacyPolicy";
 import { TermsOfService } from "./pages/TermsOfService";
@@ -37,9 +37,14 @@ const App = () => (
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/terms" element={<TermsOfService />} />
           <Route path="/contact" element={<Contact />} />
+          {/* Guest seating lookup */}
           <Route path="/s/:eventSlug" element={<GuestLookup />} />
-          <Route path="/g/:gallerySlug" element={<GuestMediaUpload />} />
-          <Route path="/gallery/:gallerySlug" element={<MediaGalleryPublic />} />
+          {/* Main guest gallery route */}
+          <Route path="/g/:gallerySlug" element={<GuestGalleryPublic />} />
+          {/* Legacy redirects - 301 to new /g/ route */}
+          <Route path="/upload/:gallerySlug" element={<LegacyGalleryRedirect />} />
+          <Route path="/gallery/:gallerySlug" element={<LegacyGalleryRedirect />} />
+          {/* Kiosk mode */}
           <Route path="/kiosk/:eventSlug" element={<KioskView />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
