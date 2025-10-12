@@ -33,3 +33,29 @@ export function buildKioskUrl(eventSlug: string): string {
   const baseUrl = getPublicBaseUrl();
   return `${baseUrl}/kiosk/${eventSlug}`;
 }
+
+/**
+ * Builds a short link URL for the given event short slug
+ * @param shortSlug - 5-character base62 slug (e.g., "AB12C")
+ */
+export function buildShortLinkUrl(shortSlug: string): string {
+  const baseUrl = getPublicBaseUrl();
+  return `${baseUrl}/e/${shortSlug}`;
+}
+
+/**
+ * Gets the QR code URL for an event (short or full based on settings)
+ * @param eventSlug - Full event slug (e.g., "wedding-2025")
+ * @param shortSlug - Short slug (e.g., "AB12C")
+ * @param useSimplified - Whether to use simplified short link
+ */
+export function buildQRCodeUrl(
+  eventSlug: string, 
+  shortSlug: string | null, 
+  useSimplified: boolean
+): string {
+  if (useSimplified && shortSlug) {
+    return buildShortLinkUrl(shortSlug);
+  }
+  return buildGuestLookupUrl(eventSlug);
+}

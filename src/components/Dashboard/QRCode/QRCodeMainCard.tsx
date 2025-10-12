@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -12,7 +12,9 @@ import { useEvents } from '@/hooks/useEvents';
 import { useToast } from '@/hooks/use-toast';
 import { useLiveViewVisibility } from '@/hooks/useLiveViewVisibility';
 import { useLiveViewModuleSettings } from '@/hooks/useLiveViewModuleSettings';
-import { buildGuestLookupUrl } from '@/lib/urlUtils';
+import { useEventShortlink } from '@/hooks/useEventShortlink';
+import { useQRCodeSettings } from '@/hooks/useQRCodeSettings';
+import { buildGuestLookupUrl, buildQRCodeUrl, buildShortLinkUrl } from '@/lib/urlUtils';
 import { supabase } from '@/integrations/supabase/client';
 import { AdvancedQRGenerator } from '@/lib/advancedQRGenerator';
 import type { QRCodeSettings } from '@/hooks/useQRCodeSettings';
@@ -39,9 +41,23 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
   } = useToast();
   const { settings: visibilitySettings, updateVisibility } = useLiveViewVisibility(eventId);
   const { settings: moduleSettings, updateModuleConfig } = useLiveViewModuleSettings(eventId);
+  const { shortlink, loading: shortlinkLoading } = useEventShortlink(eventId);
+  const { settings: qrCodeSettings, saveSettings: saveQRSettings, loading: qrSettingsLoading } = useQRCodeSettings(eventId);
+  
   const selectedEvent = events.find(event => event.id === eventId);
   const currentEvent = events.find(event => event.id === eventId);
-  const eventUrl = selectedEvent?.slug ? buildGuestLookupUrl(selectedEvent.slug) : `https://…/live-view/${eventId}`;
+  
+  // Calculate event URL based on simplified QR setting
+  const eventUrl = useMemo(() => {
+    if (!selectedEvent?.slug) return `https://…/live-view/${eventId}`;
+    
+    const useSimplified = qrCodeSettings?.use_simplified_qr ?? true;
+    return buildQRCodeUrl(
+      selectedEvent.slug, 
+      shortlink?.slug || null, 
+      useSimplified
+    );
+  }, [selectedEvent, shortlink, qrCodeSettings?.use_simplified_qr, eventId]);
 
   // QR Settings State
   const [qrSettings, setQrSettings] = useState<{
@@ -125,9 +141,10 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
       output_size: 512,
       output_format: 'png',
       color_palette: 'custom',
-      advanced_settings: {}
+      advanced_settings: {},
+      use_simplified_qr: qrCodeSettings?.use_simplified_qr ?? true // NEW: Include simplified setting
     };
-  }, [qrSettings]);
+  }, [qrSettings, qrCodeSettings, eventId]);
 
   // Debounced QR render function using AdvancedQRGenerator
   const renderQR = useCallback(async () => {
@@ -391,6 +408,50 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
           {/* Row 2, Col 1: QR Code Card */}
           <Card className="ww-box w-full lg:w-auto">
             <CardContent className="flex flex-col items-center gap-4">
+              {/* Simplified QR Toggle Section */}
+              <div className="w-full p-4 bg-primary/5 rounded-lg border border-primary/20 space-y-3 mt-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <QrCodeIcon className="w-5 h-5 text-primary" />
+                    <div>
+                      <Label className="text-sm font-medium">Use Simplified QR</Label>
+                      <p className="text-xs text-muted-foreground">
+                        Generate clean, minimal QR codes with short links (e.g., /e/AB12C)
+                      </p>
+                    </div>
+                  </div>
+                  <Switch
+                    checked={qrCodeSettings?.use_simplified_qr ?? true}
+                    onCheckedChange={async (checked) => {
+                      await saveQRSettings({ use_simplified_qr: checked });
+                      toast({
+                        title: checked ? "Simplified QR enabled" : "Standard QR enabled",
+                        description: checked 
+                          ? "Using short link for cleaner QR codes" 
+                          : "Using full event URL"
+                      });
+                    }}
+                    disabled={qrSettingsLoading}
+                  />
+                </div>
+                
+                {/* Short Link Info Display */}
+                {qrCodeSettings?.use_simplified_qr && shortlink && (
+                  <div className="p-3 bg-background rounded-lg border border-primary/20">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Link className="w-4 h-4 text-primary" />
+                      <span className="text-xs font-medium text-primary">Short Link</span>
+                    </div>
+                    <code className="text-sm font-mono text-foreground break-all block">
+                      {buildShortLinkUrl(shortlink.slug)}
+                    </code>
+                    <p className="text-xs text-muted-foreground mt-2">
+                      {shortlink.click_count || 0} scans • Redirects to /s/{selectedEvent?.slug}
+                    </p>
+                  </div>
+                )}
+              </div>
+
               {/* QR Preview */}
               <div id="qr-preview" className="w-full aspect-square bg-muted/20 rounded-lg flex items-center justify-center p-2">
                 {qrDataUrl ? <img src={qrDataUrl} alt="QR Code Preview" className="w-full h-full" style={{

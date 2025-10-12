@@ -11,6 +11,7 @@ import { GuestLookup } from "./pages/GuestLookup";
 import { KioskView } from "./pages/KioskView";
 import { GuestGalleryPublic } from "./pages/GuestGalleryPublic";
 import { LegacyGalleryRedirect } from "./components/Redirect";
+import { ShortLinkRedirect } from "./components/ShortLinkRedirect";
 import { ResetPassword } from "./pages/ResetPassword";
 import { PrivacyPolicy } from "./pages/PrivacyPolicy";
 import { TermsOfService } from "./pages/TermsOfService";
@@ -39,6 +40,8 @@ const App = () => (
           <Route path="/contact" element={<Contact />} />
           {/* Guest seating lookup */}
           <Route path="/s/:eventSlug" element={<GuestLookup />} />
+          {/* Short link redirect for QR codes */}
+          <Route path="/e/:slug" element={<ShortLinkRedirect />} />
           {/* Main guest gallery route */}
           <Route path="/g/:gallerySlug" element={<GuestGalleryPublic />} />
           {/* Legacy redirects - 301 to new /g/ route */}

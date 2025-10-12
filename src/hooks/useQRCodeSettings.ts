@@ -30,6 +30,7 @@ export interface QRCodeSettings {
   output_format: string;
   color_palette: string;
   advanced_settings: any;
+  use_simplified_qr?: boolean; // NEW: Toggle for simplified QR codes
   created_at?: string;
   updated_at?: string;
 }
@@ -96,6 +97,7 @@ export const useQRCodeSettings = (eventId: string | null) => {
           output_format: 'png',
           color_palette: 'default',
           advanced_settings: {},
+          use_simplified_qr: true, // NEW: Default to simplified mode
         };
         setSettings(defaultSettings as QRCodeSettings);
       }
