@@ -111,55 +111,123 @@ serve(async (req) => {
       );
     }
 
-    // Generate unique file path
-    const uuid = crypto.randomUUID();
-    const safeName = targetFilename.replace(/[^a-zA-Z0-9.-]/g, '_');
-    const filePath = `galleries/${gallery.id}/${uuid}/${safeName}`;
+    // Handle videos with Cloudflare Stream, photos with Supabase Storage
+    if (isVideo) {
+      // === CLOUDFLARE STREAM FOR VIDEOS ===
+      console.log('Creating Cloudflare Stream upload URL for video');
+      
+      const accountId = Deno.env.get('CLOUDFLARE_ACCOUNT_ID');
+      const apiToken = Deno.env.get('CLOUDFLARE_STREAM_API_TOKEN');
 
-    // Create signed upload URL (valid for 1 hour)
-    const { data: uploadData, error: uploadError } = await supabase
-      .storage
-      .from('event-media')
-      .createSignedUploadUrl(filePath, {
-        upsert: false,
-      });
+      if (!accountId || !apiToken) {
+        console.error('Cloudflare credentials missing');
+        return new Response(
+          JSON.stringify({ error: 'Video upload service not configured' }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
 
-    if (uploadError) {
-      console.error('Upload URL creation error:', uploadError);
-      // Return detailed error message
+      // Create Direct Creator Upload URL
+      const streamResponse = await fetch(
+        `https://api.cloudflare.com/client/v4/accounts/${accountId}/stream/direct_upload`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${apiToken}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            maxDurationSeconds: 600, // 10 minutes max
+            requireSignedURLs: false,
+            allowedOrigins: ['*'],
+            meta: {
+              gallery_id: gallery.id,
+              filename: targetFilename,
+            },
+          }),
+        }
+      );
+
+      const streamData = await streamResponse.json();
+
+      if (!streamResponse.ok || !streamData.success) {
+        console.error('Cloudflare Stream error:', streamData);
+        return new Response(
+          JSON.stringify({ 
+            error: 'Failed to create video upload URL',
+            details: streamData.errors?.[0]?.message || 'Unknown error',
+          }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      console.log('Cloudflare Stream upload URL created:', streamData.result.uid);
+
       return new Response(
-        JSON.stringify({ 
-          error: 'Failed to create upload URL',
-          details: uploadError.message,
-          code: (uploadError as any).statusCode,
-          troubleshooting: uploadError.message?.includes('bucket')
-            ? 'Storage bucket may not exist or is misconfigured'
-            : uploadError.message?.includes('policy')
-            ? 'Storage permissions may not allow this operation'
-            : 'Please try again or contact support'
+        JSON.stringify({
+          uploadURL: streamData.result.uploadURL,
+          uid: streamData.result.uid,
+          gallery_id: gallery.id,
+          content_type: targetContentType,
         }),
-        { 
-          status: 500, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        {
+          status: 200,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      );
+
+    } else {
+      // === SUPABASE STORAGE FOR PHOTOS ===
+      console.log('Creating Supabase Storage upload URL for photo');
+      
+      const uuid = crypto.randomUUID();
+      const safeName = targetFilename.replace(/[^a-zA-Z0-9.-]/g, '_');
+      const filePath = `galleries/${gallery.id}/${uuid}/${safeName}`;
+
+      // Create signed upload URL (valid for 1 hour)
+      const { data: uploadData, error: uploadError } = await supabase
+        .storage
+        .from('event-media')
+        .createSignedUploadUrl(filePath, {
+          upsert: false,
+        });
+
+      if (uploadError) {
+        console.error('Upload URL creation error:', uploadError);
+        return new Response(
+          JSON.stringify({ 
+            error: 'Failed to create upload URL',
+            details: uploadError.message,
+            code: (uploadError as any).statusCode,
+            troubleshooting: uploadError.message?.includes('bucket')
+              ? 'Storage bucket may not exist or is misconfigured'
+              : uploadError.message?.includes('policy')
+              ? 'Storage permissions may not allow this operation'
+              : 'Please try again or contact support'
+          }),
+          { 
+            status: 500, 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+          }
+        );
+      }
+
+      console.log('Upload URL created successfully:', filePath);
+
+      return new Response(
+        JSON.stringify({
+          signed_url: uploadData.signedUrl,
+          file_path: filePath,
+          token: uploadData.token,
+          gallery_id: gallery.id,
+          content_type: targetContentType,
+        }),
+        {
+          status: 200,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         }
       );
     }
-
-    console.log('Upload URL created successfully:', filePath);
-
-    return new Response(
-      JSON.stringify({
-        signed_url: uploadData.signedUrl,
-        file_path: filePath,
-        token: uploadData.token,
-        gallery_id: gallery.id,
-        content_type: targetContentType,
-      }),
-      {
-        status: 200,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      }
-    );
 
   } catch (error) {
     console.error('Error in create-media-upload-url:', error);

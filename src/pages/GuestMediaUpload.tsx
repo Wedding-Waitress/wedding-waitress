@@ -197,8 +197,8 @@ export const GuestMediaUpload: React.FC = () => {
   const uploadTextPost = async (item: MediaItem) => {
     const { error } = await supabase.functions.invoke('confirm-media-upload', {
       body: {
-        event_id: eventData!.id,
-        token: token,
+        gallery_id: galleryId,
+        upload_token: token,
         post_type: 'text',
         type: 'text',
         text_content: item.textContent,
@@ -217,10 +217,9 @@ export const GuestMediaUpload: React.FC = () => {
       'create-media-upload-url',
       {
         body: {
-          event_id: eventData!.id,
-          token: token,
-          type: item.type,
-          file_name: item.file.name,
+          gallerySlug: eventSlug,
+          filename: item.file.name,
+          contentType: item.file.type,
           file_size: item.file.size,
         },
       }
@@ -228,7 +227,9 @@ export const GuestMediaUpload: React.FC = () => {
 
     if (urlError) throw urlError;
 
-    const uploadResponse = await fetch(urlData.signed_url, {
+    // Upload to the returned URL (works for both Supabase Storage and Cloudflare Stream)
+    const uploadUrl = urlData.signed_url || urlData.uploadURL;
+    const uploadResponse = await fetch(uploadUrl, {
       method: 'PUT',
       body: item.file,
       headers: {
@@ -238,32 +239,40 @@ export const GuestMediaUpload: React.FC = () => {
 
     if (!uploadResponse.ok) throw new Error('Upload failed');
 
-    let width, height;
-    if (item.type === 'photo' && item.preview) {
-      const img = new Image();
-      await new Promise((resolve) => {
-        img.onload = () => {
-          width = img.width;
-          height = img.height;
-          resolve(null);
-        };
-        img.src = item.preview;
-      });
+    // Prepare confirmation data based on media type
+    const confirmBody: any = {
+      gallery_id: galleryId,
+      upload_token: token,
+      type: item.type === 'video' ? 'video' : 'image',
+      post_type: item.type,
+      caption: item.caption || null,
+      file_size: item.file.size,
+      mime_type: item.file.type,
+    };
+
+    if (item.type === 'video') {
+      // Video: use Cloudflare Stream UID
+      confirmBody.cloudflare_stream_uid = urlData.uid;
+    } else {
+      // Photo: use Supabase file path + dimensions
+      confirmBody.file_path = urlData.file_path;
+      
+      // Get image dimensions
+      if (item.preview) {
+        const img = new Image();
+        await new Promise((resolve) => {
+          img.onload = () => {
+            confirmBody.width = img.width;
+            confirmBody.height = img.height;
+            resolve(null);
+          };
+          img.src = item.preview;
+        });
+      }
     }
 
     const { error: confirmError } = await supabase.functions.invoke('confirm-media-upload', {
-      body: {
-        event_id: eventData!.id,
-        token: token,
-        file_path: urlData.file_path,
-        type: item.type,
-        post_type: item.type,
-        caption: item.caption || null,
-        width,
-        height,
-        file_size: item.file.size,
-        mime_type: item.file.type,
-      },
+      body: confirmBody,
     });
 
     if (confirmError) throw confirmError;

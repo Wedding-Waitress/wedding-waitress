@@ -58,9 +58,9 @@ serve(async (req) => {
       );
     }
 
-    // Validate file path is within expected gallery prefix
+    // Validate file path is within expected gallery prefix (only for non-video uploads)
     const expectedPrefix = `galleries/${gallery_id}/`;
-    if (file_path && !file_path.startsWith(expectedPrefix)) {
+    if (file_path && !file_path.startsWith(expectedPrefix) && post_type !== 'video') {
       console.error('Invalid file path:', file_path);
       return new Response(
         JSON.stringify({ error: 'Invalid file path' }),
@@ -84,28 +84,47 @@ serve(async (req) => {
       mediaType = type === 'photo' ? 'image' : type;
     }
 
-    // Insert media record
+    // Insert media record with appropriate fields based on media type
+    const insertData: any = {
+      gallery_id,
+      uploader_token: upload_token,
+      type: mediaType,
+      post_type: post_type || type,
+      caption: caption || null,
+      status: gallery.require_approval ? 'pending' : 'approved',
+      file_size_bytes: file_size || null,
+      mime_type: mime_type || null,
+      text_content: text_content || null,
+      theme_id: theme_id || null,
+      approved_at: gallery.require_approval ? null : new Date().toISOString(),
+    };
+
+    // For videos uploaded to Cloudflare Stream
+    if (post_type === 'video' && cloudflare_stream_uid) {
+      insertData.cloudflare_stream_uid = cloudflare_stream_uid;
+      insertData.stream_status = 'queued';
+      insertData.stream_ready = false;
+      insertData.file_url = ''; // No file URL for Stream videos
+      insertData.thumbnail_url = null;
+    } 
+    // For photos uploaded to Supabase Storage
+    else if (post_type === 'photo' || post_type === 'image') {
+      insertData.file_url = file_path || '';
+      insertData.thumbnail_url = null;
+      insertData.cloudflare_stream_uid = null;
+      insertData.width = width || null;
+      insertData.height = height || null;
+    }
+    // For text posts
+    else if (post_type === 'text') {
+      insertData.file_url = '';
+      insertData.thumbnail_url = null;
+      insertData.cloudflare_stream_uid = null;
+    }
+
     const { data: media, error: mediaError } = await supabase
       .from('media_uploads')
-      .insert({
-        gallery_id,
-        uploader_token: upload_token,
-        type: mediaType,
-        post_type: post_type || type,
-        caption: caption || null,
-        file_url: file_path || '',
-        thumbnail_url: null,
-        cloudflare_stream_uid: cloudflare_stream_uid || null,
-        status: gallery.require_approval ? 'pending' : 'approved',
-        file_size_bytes: file_size || null,
-        mime_type: mime_type || null,
-        width: width || null,
-        height: height || null,
-        duration_seconds: duration_seconds || null,
-        text_content: text_content || null,
-        theme_id: theme_id || null,
-        approved_at: gallery.require_approval ? null : new Date().toISOString(),
-      })
+      .insert(insertData)
       .select()
       .single();
 

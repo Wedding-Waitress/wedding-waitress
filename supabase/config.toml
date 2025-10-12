@@ -6,6 +6,9 @@ verify_jwt = false
 [functions.confirm-media-upload]
 verify_jwt = false
 
+[functions.check-stream-video-status]
+verify_jwt = false
+
 [functions.moderate-media]
 verify_jwt = true
 

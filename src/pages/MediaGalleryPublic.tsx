@@ -6,6 +6,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { getThemeById } from '@/lib/mediaConstants';
+import { VideoStatusPoller } from '@/components/Dashboard/PhotoVideoSharing/VideoStatusPoller';
 
 interface MediaItem {
   id: string;
@@ -17,6 +18,10 @@ interface MediaItem {
   text_content: string | null;
   theme_id: string | null;
   created_at: string;
+  cloudflare_stream_uid: string | null;
+  stream_ready: boolean;
+  stream_status: string;
+  stream_preview_image: string | null;
 }
 
 interface EventData {
@@ -33,6 +38,7 @@ export const MediaGalleryPublic = () => {
   const navigate = useNavigate();
   const [media, setMedia] = useState<MediaItem[]>([]);
   const [eventData, setEventData] = useState<EventData | null>(null);
+  const [galleryId, setGalleryId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [showFooter, setShowFooter] = useState(true);
 
@@ -61,6 +67,7 @@ export const MediaGalleryPublic = () => {
       }
 
       setShowFooter((gallery as any).show_footer ?? true);
+      setGalleryId((gallery as any).id);
 
       // Fetch event data
       const { data: event, error: eventError } = await supabase
@@ -82,6 +89,10 @@ export const MediaGalleryPublic = () => {
         post_type: item.type || 'photo',
         text_content: null,
         theme_id: null,
+        cloudflare_stream_uid: item.cloudflare_stream_uid || null,
+        stream_ready: item.stream_ready || false,
+        stream_status: item.stream_status || 'pending',
+        stream_preview_image: item.stream_preview_image || null,
       })) || []);
     } catch (error) {
       console.error('Error fetching gallery:', error);
@@ -124,6 +135,12 @@ export const MediaGalleryPublic = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-secondary">
+      {/* Video Status Poller - automatically checks video processing status */}
+      <VideoStatusPoller 
+        galleryId={galleryId} 
+        onStatusUpdate={fetchGalleryData} 
+      />
+
       {/* Header */}
       <div className="bg-gradient-to-r from-primary to-purple-600 text-white py-12 px-4">
         <div className="max-w-6xl mx-auto text-center space-y-4">
@@ -183,11 +200,49 @@ export const MediaGalleryPublic = () => {
                     />
                   )}
                   {item.post_type === 'video' && (
-                    <video
-                      src={getMediaUrl(item.file_url)}
-                      className="w-full h-auto"
-                      controls
-                    />
+                    <>
+                      {item.cloudflare_stream_uid && item.stream_ready ? (
+                        // Use Cloudflare Stream Player
+                        <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+                          <iframe
+                            src={`https://iframe.cloudflare.com/${item.cloudflare_stream_uid}`}
+                            className="absolute inset-0 w-full h-full"
+                            allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;"
+                            allowFullScreen
+                            style={{ border: 'none' }}
+                          />
+                        </div>
+                      ) : item.cloudflare_stream_uid ? (
+                        // Show processing status for Cloudflare Stream videos
+                        <div className="relative w-full bg-muted" style={{ paddingBottom: '56.25%' }}>
+                          <div className="absolute inset-0 flex flex-col items-center justify-center p-8 space-y-3">
+                            {item.stream_preview_image && (
+                              <img 
+                                src={item.stream_preview_image} 
+                                alt="Video thumbnail"
+                                className="absolute inset-0 w-full h-full object-cover opacity-30"
+                              />
+                            )}
+                            <div className="relative z-10 text-center space-y-2">
+                              <div className="animate-pulse text-5xl">🎬</div>
+                              <p className="text-sm font-medium">
+                                {item.stream_status === 'queued' && 'Video queued for processing...'}
+                                {item.stream_status === 'encoding' && 'Processing video...'}
+                                {item.stream_status === 'error' && 'Video processing failed'}
+                                {!item.stream_status && 'Processing video...'}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        // Fallback to Supabase Storage video (legacy)
+                        <video
+                          src={getMediaUrl(item.file_url)}
+                          className="w-full h-auto"
+                          controls
+                        />
+                      )}
+                    </>
                   )}
                   {item.post_type === 'text' && theme && (
                     <div
