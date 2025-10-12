@@ -199,7 +199,7 @@ export const GuestMediaUpload: React.FC = () => {
 
   const handleFileSelection = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
-    const MAX_IMAGE_SIZE = 15 * 1024 * 1024; // 15 MB
+    const MAX_IMAGE_SIZE = 25 * 1024 * 1024; // 25 MB
     const MAX_VIDEO_SIZE = 200 * 1024 * 1024; // 200 MB
     
     const validFiles: MediaItem[] = [];
@@ -208,11 +208,21 @@ export const GuestMediaUpload: React.FC = () => {
       const isVideo = file.type.startsWith('video/');
       const isImage = file.type.startsWith('image/');
       
+      // Validate file type
+      if (!isVideo && !isImage) {
+        toast({
+          title: 'File type not supported',
+          description: `${file.name} is not a supported format`,
+          variant: 'destructive',
+        });
+        continue;
+      }
+      
       // Validate file size
       if (isImage && file.size > MAX_IMAGE_SIZE) {
         toast({
           title: 'Image too large',
-          description: `${file.name} exceeds 15 MB limit`,
+          description: `${file.name} exceeds 25 MB limit`,
           variant: 'destructive',
         });
         continue;
@@ -290,30 +300,22 @@ export const GuestMediaUpload: React.FC = () => {
     } catch (error: any) {
       console.error('Upload error:', error);
       
-      // Extract detailed error message
-      let errorMsg = 'Upload failed';
-      let errorTitle = 'Error';
+      // Extract specific error message
+      let errorMsg = 'Upload failed. Please try again.';
+      let errorTitle = 'Upload Error';
       
       if (error.message) {
-        if (error.message.includes('too large') || error.message.includes('exceeds')) {
+        if (error.message.includes('too large') || error.message.includes('exceeds') || error.message.includes('Max:')) {
           errorTitle = 'File too large';
           errorMsg = error.message;
-        } else if (error.message.includes('Invalid') || error.message.includes('format')) {
-          errorTitle = 'Invalid format';
+        } else if (error.message.includes('type') || error.message.includes('format') || error.message.includes('supported')) {
+          errorTitle = 'Invalid file type';
           errorMsg = error.message;
-        } else if (error.message.includes('network') || error.message.includes('Network')) {
-          errorTitle = 'Network error';
-          errorMsg = 'Check your connection and try again';
-        } else {
+        } else if (error.message.toLowerCase().includes('network') || error.message.toLowerCase().includes('connection')) {
+          errorTitle = 'Connection error';
+          errorMsg = 'Check your internet connection and try again.';
+        } else if (error.message) {
           errorMsg = error.message;
-        }
-      } else if (error.context?.body) {
-        const body = error.context.body;
-        if (body.error) {
-          errorMsg = body.error;
-          if (body.troubleshooting) {
-            errorMsg += `. ${body.troubleshooting}`;
-          }
         }
       }
       
@@ -358,8 +360,7 @@ export const GuestMediaUpload: React.FC = () => {
     );
 
     if (urlError) {
-      const errorMsg = urlError.message || 'Failed to get upload URL';
-      throw new Error(errorMsg);
+      throw new Error(urlError.message || 'Failed to create upload URL');
     }
 
     // Upload to the returned URL (works for both Supabase Storage and Cloudflare Stream)
@@ -373,8 +374,8 @@ export const GuestMediaUpload: React.FC = () => {
     });
 
     if (!uploadResponse.ok) {
-      const errorText = await uploadResponse.text().catch(() => 'Unknown error');
-      throw new Error(`Upload failed: ${errorText}`);
+      const errorText = await uploadResponse.text().catch(() => '');
+      throw new Error(errorText || 'Upload failed. Please try again.');
     }
 
     // Prepare confirmation data based on media type
@@ -404,6 +405,7 @@ export const GuestMediaUpload: React.FC = () => {
             confirmBody.height = img.height;
             resolve(null);
           };
+          img.onerror = () => resolve(null);
           img.src = item.preview;
         });
       }
@@ -413,7 +415,9 @@ export const GuestMediaUpload: React.FC = () => {
       body: confirmBody,
     });
 
-    if (confirmError) throw confirmError;
+    if (confirmError) {
+      throw new Error(confirmError.message || 'Failed to save upload');
+    }
   };
 
   if (loading) {
@@ -574,7 +578,7 @@ export const GuestMediaUpload: React.FC = () => {
           <input
             ref={fileInputRef}
             type="file"
-            accept="image/jpeg,image/png,image/heic,video/mp4,video/quicktime,video/webm"
+            accept="image/jpeg,image/png,image/heic,image/heif,video/mp4,video/quicktime"
             multiple
             onChange={handleFileSelection}
             className="hidden"
