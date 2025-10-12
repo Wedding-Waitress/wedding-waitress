@@ -8,7 +8,7 @@ import { useMediaGallerySettings } from '@/hooks/useMediaGallerySettings';
 import { Copy, QrCode, Download } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { buildGuestLookupUrl } from '@/lib/urlUtils';
+import { buildGalleryUploadUrl } from '@/lib/urlUtils';
 import QRCodeLib from 'qrcode';
 
 interface GallerySettingsTabProps {
@@ -61,7 +61,7 @@ export const GallerySettingsTab: React.FC<GallerySettingsTabProps> = ({ galleryI
           .single();
 
         if ((gallery as any)?.slug) {
-          const url = `${window.location.origin}/g/${(gallery as any).slug}`;
+          const url = buildGalleryUploadUrl((gallery as any).slug);
           setUploadUrl(url);
           setGalleryTitle((gallery as any).title);
           await generateQRCode(url);

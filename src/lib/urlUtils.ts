@@ -33,3 +33,24 @@ export function buildKioskUrl(eventSlug: string): string {
   const baseUrl = getPublicBaseUrl();
   return `${baseUrl}/kiosk/${eventSlug}`;
 }
+
+/**
+ * Gets the gallery upload base URL for QR codes and sharing
+ */
+export function getGalleryBaseUrl(): string {
+  // Use dedicated gallery subdomain
+  if (import.meta.env.VITE_GALLERY_BASE_URL) {
+    return import.meta.env.VITE_GALLERY_BASE_URL;
+  }
+  
+  // Fallback to main domain
+  return getPublicBaseUrl();
+}
+
+/**
+ * Builds a gallery/upload URL for the given gallery slug
+ */
+export function buildGalleryUploadUrl(gallerySlug: string): string {
+  const baseUrl = getGalleryBaseUrl();
+  return `${baseUrl}/g/${gallerySlug}`;
+}

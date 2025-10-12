@@ -64,6 +64,17 @@ export const GuestGalleryPublic: React.FC = () => {
 
   const MAX_VIDEO_SIZE_MB = 200;
 
+  // Redirect from Lovable preview domains to production gallery domain
+  useEffect(() => {
+    const currentHost = window.location.hostname;
+    
+    // If on Lovable preview domains, redirect to production gallery domain
+    if (currentHost.includes('lovable.app') || currentHost.includes('lovableproject.com')) {
+      const targetUrl = `https://share.weddingwaitress.com${window.location.pathname}${window.location.search}`;
+      window.location.replace(targetUrl); // 301-like behavior
+    }
+  }, []);
+
   // Set page title
   useEffect(() => {
     if (galleryData) {
@@ -664,7 +675,7 @@ export const GuestGalleryPublic: React.FC = () => {
         
         <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4">
           <div className="text-center space-y-8 max-w-2xl">
-            <h1 className="text-4xl md:text-6xl font-bold text-white drop-shadow-lg">{galleryData.title}</h1>
+            <h1 className="text-4xl md:text-6xl font-bold text-black bg-white/90 backdrop-blur-sm px-8 py-4 rounded-2xl shadow-xl">{galleryData.title}</h1>
             {galleryData.event_date && (
               <p className="text-xl text-white drop-shadow-md">
                 {format(new Date(galleryData.event_date), 'MMMM d, yyyy')}

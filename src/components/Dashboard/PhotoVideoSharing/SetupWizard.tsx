@@ -12,7 +12,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { EVENT_TYPES } from '@/lib/mediaConstants';
 import { cn } from '@/lib/utils';
 import QRCodeLib from 'qrcode';
-import { buildGuestLookupUrl } from '@/lib/urlUtils';
+import { buildGalleryUploadUrl } from '@/lib/urlUtils';
 
 interface SetupWizardProps {
   onComplete: (galleryId: string) => void;
@@ -87,7 +87,7 @@ export const SetupWizard: React.FC<SetupWizardProps> = ({ onComplete, onCancel }
       } as any);
 
       // Generate QR code
-      const uploadUrl = `${window.location.origin}/g/${(gallery as any).slug}`;
+      const uploadUrl = buildGalleryUploadUrl((gallery as any).slug);
       const canvas = document.createElement('canvas');
       canvas.width = 2000;
       canvas.height = 2000;
