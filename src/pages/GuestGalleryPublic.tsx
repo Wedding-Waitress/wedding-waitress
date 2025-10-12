@@ -11,6 +11,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { TextPostModal } from '@/components/Dashboard/PhotoVideoSharing/TextPostModal';
 import { getThemeById } from '@/lib/mediaConstants';
 import { analytics } from '@/lib/analytics';
+import weddingWaitressLogo from '@/assets/wedding-waitress-badge-logo.png';
 
 interface MediaItem {
   id?: string;
@@ -59,8 +60,28 @@ export const GuestGalleryPublic: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [token, setToken] = useState('');
   const [retryCount, setRetryCount] = useState(0);
+  const [latestMedia, setLatestMedia] = useState<MediaItem | null>(null);
 
   const MAX_VIDEO_SIZE_MB = 200;
+
+  // Set page title
+  useEffect(() => {
+    if (galleryData) {
+      document.title = `${galleryData.title} | Wedding Waitress`;
+    }
+  }, [galleryData]);
+
+  // Track latest media for background
+  useEffect(() => {
+    if (mediaItems.length > 0) {
+      const sorted = [...mediaItems].sort((a, b) => 
+        new Date(b.created_at!).getTime() - new Date(a.created_at!).getTime()
+      );
+      setLatestMedia(sorted[0]);
+    } else {
+      setLatestMedia(null);
+    }
+  }, [mediaItems]);
 
   // 5-second watchdog
   useEffect(() => {
@@ -596,14 +617,56 @@ export const GuestGalleryPublic: React.FC = () => {
   if (flowStep === 'landing') {
     return (
       <div className="min-h-screen relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-purple-600/20 blur-3xl" />
+        {/* Full-screen background - latest media */}
+        {latestMedia && (
+          <div className="fixed inset-0 z-0">
+            {latestMedia.post_type === 'photo' && latestMedia.file_url && (
+              <img 
+                src={getMediaUrl(latestMedia.file_url)}
+                className="w-full h-full object-cover"
+                alt=""
+              />
+            )}
+            {latestMedia.post_type === 'video' && latestMedia.thumbnail_url && (
+              <img 
+                src={latestMedia.thumbnail_url}
+                className="w-full h-full object-cover"
+                alt=""
+              />
+            )}
+            {latestMedia.post_type === 'text' && latestMedia.theme_id && (
+              <div 
+                className="w-full h-full"
+                style={{ background: getThemeById(latestMedia.theme_id).bgColor }}
+              />
+            )}
+            <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
+          </div>
+        )}
+        
+        {/* Fallback gradient if no media */}
+        {!latestMedia && (
+          <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-purple-600/20 blur-3xl" />
+        )}
+        
+        {/* Sticky header badge */}
+        <div className="sticky top-0 z-20 flex justify-center pt-4 pb-2">
+          <a
+            href="https://www.weddingwaitress.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="bg-white rounded-full px-4 py-2 shadow-lg hover:shadow-xl transition-shadow flex items-center gap-2"
+          >
+            <span className="text-sm font-medium">💜 Made with</span>
+            <img src={weddingWaitressLogo} alt="Wedding Waitress" className="h-5" />
+          </a>
+        </div>
         
         <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4">
           <div className="text-center space-y-8 max-w-2xl">
-            <div className="text-6xl mb-4">📸</div>
-            <h1 className="text-4xl md:text-6xl font-bold">{galleryData.title}</h1>
+            <h1 className="text-4xl md:text-6xl font-bold text-white drop-shadow-lg">{galleryData.title}</h1>
             {galleryData.event_date && (
-              <p className="text-xl text-muted-foreground">
+              <p className="text-xl text-white drop-shadow-md">
                 {format(new Date(galleryData.event_date), 'MMMM d, yyyy')}
               </p>
             )}
@@ -630,11 +693,11 @@ export const GuestGalleryPublic: React.FC = () => {
               )}
             </div>
 
-            {/* Recent Media Strip */}
+            {/* Recent Media Count */}
             {mediaItems.length > 0 && (
               <div className="mt-12 w-full max-w-4xl mx-auto">
-                <p className="text-sm text-muted-foreground mb-4 text-left">
-                  {mediaItems.length} photos, videos & posts
+                <p className="text-sm text-white drop-shadow-md mb-4 text-center">
+                  {mediaItems.length} photos, videos & posts ⬇️
                 </p>
                 <div className="overflow-x-auto pb-4 snap-x snap-mandatory scroll-smooth -mx-4 px-4">
                   <div className="flex gap-3 min-w-min">
@@ -680,17 +743,17 @@ export const GuestGalleryPublic: React.FC = () => {
             )}
             
             {galleryData.show_footer && (
-              <p className="text-sm text-muted-foreground mt-8">
-                Made with 💜{' '}
+              <div className="text-sm text-white drop-shadow-md mt-8 flex items-center justify-center gap-2">
+                <span>Made with 💜</span>
                 <a
-                  href="https://theweddingwaitress.com"
+                  href="https://www.weddingwaitress.com/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hover:text-primary transition-colors underline-offset-4 hover:underline"
+                  className="hover:opacity-80 transition-opacity"
                 >
-                  Wedding Waitress
+                  <img src={weddingWaitressLogo} alt="Wedding Waitress" className="h-4 inline-block" />
                 </a>
-              </p>
+              </div>
             )}
           </div>
         </div>
@@ -910,129 +973,154 @@ export const GuestGalleryPublic: React.FC = () => {
 
   // View gallery page
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background to-secondary">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-primary to-purple-600 text-white py-12 px-4">
-        <div className="max-w-6xl mx-auto text-center space-y-4">
-          <h1 className="text-4xl md:text-5xl font-bold">{galleryData.title}</h1>
-          {galleryData.event_date && (
-            <p className="text-xl opacity-90">
-              {format(new Date(galleryData.event_date), 'MMMM d, yyyy')}
-            </p>
+    <div className="min-h-screen relative overflow-hidden">
+      {/* Full-screen background - latest media */}
+      {latestMedia && (
+        <div className="fixed inset-0 z-0">
+          {latestMedia.post_type === 'photo' && latestMedia.file_url && (
+            <img 
+              src={getMediaUrl(latestMedia.file_url)}
+              className="w-full h-full object-cover"
+              alt=""
+            />
           )}
+          {latestMedia.post_type === 'video' && latestMedia.thumbnail_url && (
+            <img 
+              src={latestMedia.thumbnail_url}
+              className="w-full h-full object-cover"
+              alt=""
+            />
+          )}
+          {latestMedia.post_type === 'text' && latestMedia.theme_id && (
+            <div 
+              className="w-full h-full"
+              style={{ background: getThemeById(latestMedia.theme_id).bgColor }}
+            />
+          )}
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
         </div>
-      </div>
+      )}
+      
+      {/* Fallback gradient if no media */}
+      {!latestMedia && (
+        <div className="absolute inset-0 bg-gradient-to-br from-background to-secondary" />
+      )}
 
-      {/* Sticky Add Button */}
-      <div className="sticky top-4 z-50 px-4 py-4 flex justify-center">
-        <Button
-          size="lg"
-          className="bg-gradient-to-r from-primary to-purple-600 hover:opacity-90 shadow-lg"
-          onClick={() => setFlowStep('add')}
-        >
-          <Plus className="w-5 h-5 mr-2" />
-          Add to Album
-        </Button>
-      </div>
+      {/* Content layer */}
+      <div className="relative z-10 min-h-screen">
+        {/* Sticky header badge */}
+        <div className="sticky top-0 z-20 flex justify-center pt-4 pb-2 bg-gradient-to-b from-black/20 to-transparent backdrop-blur-sm">
+          <a
+            href="https://www.weddingwaitress.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="bg-white rounded-full px-4 py-2 shadow-lg hover:shadow-xl transition-shadow flex items-center gap-2"
+          >
+            <span className="text-sm font-medium">💜 Made with</span>
+            <img src={weddingWaitressLogo} alt="Wedding Waitress" className="h-5" />
+          </a>
+        </div>
 
-      {/* Masonry Grid */}
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        {mediaItems.length === 0 ? (
-          <Card className="ww-box max-w-md mx-auto">
-            <CardContent className="p-12 text-center space-y-4">
-              <div className="text-6xl mb-4">📸</div>
-              <h3 className="text-xl font-semibold">No photos yet</h3>
-              <p className="text-muted-foreground">
-                Be the first to add memories to this album!
+        {/* Header */}
+        <div className="text-white py-12 px-4 text-center">
+          <div className="max-w-6xl mx-auto space-y-4">
+            <h1 className="text-4xl md:text-5xl font-bold drop-shadow-lg">{galleryData.title}</h1>
+            {galleryData.event_date && (
+              <p className="text-xl drop-shadow-md">
+                {format(new Date(galleryData.event_date), 'MMMM d, yyyy')}
               </p>
-              <Button
-                className="bg-gradient-to-r from-primary to-purple-600 hover:opacity-90 mt-4"
-                onClick={() => setFlowStep('add')}
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Add Photos
-              </Button>
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="columns-2 md:columns-3 lg:columns-4 gap-4 space-y-4">
-            {mediaItems.map((item) => {
-              const theme = item.theme_id ? getThemeById(item.theme_id) : null;
-              
-              return (
-                <Card
-                  key={item.id}
-                  className="break-inside-avoid mb-4 overflow-hidden hover:scale-[1.02] transition-transform cursor-pointer"
+            )}
+            <p className="text-sm drop-shadow-md">
+              {mediaItems.length} photos, videos & posts ⬇️
+            </p>
+          </div>
+        </div>
+
+        {/* Sticky Add Button */}
+        <div className="sticky top-20 z-10 px-4 pb-4 flex justify-center">
+          <Button
+            size="lg"
+            className="bg-white text-primary hover:bg-white/90 shadow-lg font-semibold"
+            onClick={() => setFlowStep('add')}
+          >
+            <Plus className="w-5 h-5 mr-2" />
+            Add to Album
+          </Button>
+        </div>
+
+        {/* 3-Column Grid with White Borders */}
+        <div className="max-w-7xl mx-auto px-4 py-8">
+          {mediaItems.length === 0 ? (
+            <Card className="ww-box max-w-md mx-auto bg-white">
+              <CardContent className="p-12 text-center space-y-4">
+                <div className="text-6xl mb-4">📸</div>
+                <h3 className="text-xl font-semibold">No photos yet</h3>
+                <p className="text-muted-foreground">
+                  Be the first to share a memory!
+                </p>
+                <Button
+                  size="lg"
+                  className="bg-gradient-to-r from-primary to-purple-600 hover:opacity-90"
+                  onClick={() => setFlowStep('add')}
                 >
-                  {item.post_type === 'photo' && (
+                  <Plus className="w-5 h-5 mr-2" />
+                  Add Photos
+                </Button>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="grid grid-cols-3 gap-2 md:gap-4">
+              {mediaItems.map((item) => (
+                <div
+                  key={item.id}
+                  className="aspect-square bg-white rounded-lg border-4 border-white shadow-lg overflow-hidden cursor-pointer hover:scale-[1.02] transition-transform"
+                >
+                  {item.post_type === 'photo' && item.file_url ? (
                     <img
-                      src={getMediaUrl(item.file_url!)}
-                      alt={item.caption || ''}
-                      className="w-full h-auto"
+                      src={getMediaUrl(item.file_url)}
+                      alt={item.caption || 'Gallery photo'}
+                      className="w-full h-full object-cover"
                     />
-                  )}
-                  {item.post_type === 'video' && (
-                    <>
-                      {item.cloudflare_stream_uid ? (
-                        <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
-                          <iframe
-                            src={`https://customer-${item.cloudflare_stream_uid}.cloudflarestream.com/${item.cloudflare_stream_uid}/iframe`}
-                            className="absolute top-0 left-0 w-full h-full"
-                            allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;"
-                            allowFullScreen
-                          />
-                        </div>
-                      ) : (
-                        <video
-                          src={getMediaUrl(item.file_url!)}
-                          className="w-full h-auto"
-                          controls
-                        />
-                      )}
-                    </>
-                  )}
-                  {item.post_type === 'text' && theme && (
-                    <div
-                      className="p-8 min-h-[200px] flex items-center justify-center"
-                      style={{ background: theme.bgColor }}
+                  ) : item.post_type === 'video' && item.cloudflare_stream_uid ? (
+                    <iframe
+                      src={`https://customer-${item.cloudflare_stream_uid?.split('/')[0]}.cloudflarestream.com/${item.cloudflare_stream_uid}/iframe`}
+                      className="w-full h-full"
+                      allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;"
+                      allowFullScreen
+                    />
+                  ) : item.post_type === 'text' && item.text_content ? (
+                    <div 
+                      className="w-full h-full flex items-center justify-center p-4"
+                      style={{ background: item.theme_id ? getThemeById(item.theme_id).bgColor : '#f0f0f0' }}
                     >
-                      <p 
-                        className="text-xl text-center font-medium break-words"
-                        style={{ color: theme.textColor }}
-                      >
+                      <p className="text-center font-medium text-sm line-clamp-6" style={{ color: item.theme_id ? getThemeById(item.theme_id).textColor : '#000' }}>
                         {item.text_content}
                       </p>
                     </div>
-                  )}
-                  {item.caption && (
-                    <CardContent className="p-4">
-                      <p className="text-sm text-muted-foreground">{item.caption}</p>
-                    </CardContent>
-                  )}
-                </Card>
-              );
-            })}
+                  ) : null}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        {galleryData.show_footer && (
+          <div className="py-8 text-center">
+            <div className="text-sm text-white drop-shadow-md flex items-center justify-center gap-2">
+              <span>Made with 💜</span>
+              <a
+                href="https://www.weddingwaitress.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:opacity-80 transition-opacity"
+              >
+                <img src={weddingWaitressLogo} alt="Wedding Waitress" className="h-4 inline-block" />
+              </a>
+            </div>
           </div>
         )}
       </div>
-
-      {/* Footer */}
-      {galleryData.show_footer && (
-        <div className="py-8 text-center">
-          <p className="text-sm text-muted-foreground">
-            Made with 💜{' '}
-            <a
-              href="https://theweddingwaitress.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:text-primary transition-colors underline-offset-4 hover:underline"
-            >
-              Wedding Waitress
-            </a>
-          </p>
-        </div>
-      )}
-
     </div>
   );
 };
