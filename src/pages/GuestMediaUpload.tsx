@@ -53,6 +53,22 @@ export const GuestMediaUpload: React.FC = () => {
   const [showPublicGallery, setShowPublicGallery] = useState(true);
   const [latestMedia, setLatestMedia] = useState<any>(null);
 
+  // Enforce canonical domain redirect
+  useEffect(() => {
+    const photoShareUrl = import.meta.env.VITE_PHOTO_SHARE_BASE_URL;
+    
+    if (photoShareUrl) {
+      const currentHost = window.location.host;
+      const canonicalHost = new URL(photoShareUrl).host;
+      
+      // Redirect if not on canonical domain (exclude localhost for development)
+      if (currentHost !== canonicalHost && !currentHost.includes('localhost')) {
+        const newUrl = `${photoShareUrl}${window.location.pathname}${window.location.search}${window.location.hash}`;
+        window.location.replace(newUrl); // 301-like permanent redirect
+      }
+    }
+  }, []);
+
   useEffect(() => {
     if (eventSlug) {
       fetchEventData();
@@ -389,7 +405,12 @@ export const GuestMediaUpload: React.FC = () => {
                 <div className="w-20 h-20 bg-gradient-to-r from-primary to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Camera className="w-10 h-10 text-white" />
                 </div>
-                <h1 className="text-3xl font-bold mb-2">{displayName}</h1>
+                <h1 
+                  className="text-3xl font-bold mb-2" 
+                  style={{ color: '#000000', textShadow: 'none' }}
+                >
+                  {displayName}
+                </h1>
                 {displayDate && (
                   <p className="text-muted-foreground">
                     {format(new Date(displayDate), 'MMMM d, yyyy')}
