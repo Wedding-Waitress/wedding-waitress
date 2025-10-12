@@ -38,6 +38,7 @@ export const GalleryViewModal: React.FC<GalleryViewModalProps> = ({
   const [videos, setVideos] = useState<MediaItem[]>([]);
   const [messages, setMessages] = useState<MediaItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedItem, setSelectedItem] = useState<MediaItem | null>(null);
 
   useEffect(() => {
     if (isOpen && galleryId) {
@@ -154,31 +155,40 @@ export const GalleryViewModal: React.FC<GalleryViewModalProps> = ({
               ) : (
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                   {photos.map((photo) => (
-                    <Card key={photo.id} className="overflow-hidden">
-                      <div className="aspect-square relative">
-                        <img
-                          src={(photo as any).thumbnailDisplayUrl || (photo as any).displayUrl}
-                          alt={photo.caption || 'Gallery photo'}
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            const target = e.currentTarget as HTMLImageElement;
-                            if ((photo as any).displayUrl && target.src !== (photo as any).displayUrl) {
-                              target.src = (photo as any).displayUrl;
-                            } else {
-                              console.error('Image failed to load', { id: photo.id, srcTried: target.src });
-                              target.style.visibility = 'hidden';
-                            }
-                          }}
-                        />
+                    <div key={photo.id} className="group cursor-pointer" onClick={() => setSelectedItem(photo)}>
+                      <div className="relative aspect-square rounded-2xl overflow-hidden bg-white border border-border">
+                        {photo.thumbnailDisplayUrl || photo.displayUrl ? (
+                          <img
+                            src={photo.thumbnailDisplayUrl || photo.displayUrl}
+                            alt={photo.caption || ''}
+                            className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                            onError={(e) => {
+                              const target = e.currentTarget as HTMLImageElement;
+                              if (photo.displayUrl && target.src !== photo.displayUrl) {
+                                target.src = photo.displayUrl;
+                              } else {
+                                console.error('Image failed to load', { id: photo.id });
+                                target.style.display = 'none';
+                                const parent = target.parentElement;
+                                if (parent && !parent.querySelector('.placeholder-icon')) {
+                                  const placeholder = document.createElement('div');
+                                  placeholder.className = 'placeholder-icon w-full h-full flex items-center justify-center text-muted-foreground text-4xl';
+                                  placeholder.textContent = '📷';
+                                  parent.appendChild(placeholder);
+                                }
+                              }
+                            }}
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                            <span className="text-4xl">📷</span>
+                          </div>
+                        )}
                       </div>
                       {photo.caption && (
-                        <CardContent className="p-2">
-                          <p className="text-xs text-muted-foreground line-clamp-2">
-                            {photo.caption}
-                          </p>
-                        </CardContent>
+                        <p className="text-sm text-muted-foreground mt-2 line-clamp-2">{photo.caption}</p>
                       )}
-                    </Card>
+                    </div>
                   ))}
                 </div>
               )}
@@ -192,29 +202,31 @@ export const GalleryViewModal: React.FC<GalleryViewModalProps> = ({
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {videos.map((video) => (
-                    <Card key={video.id} className="overflow-hidden">
-                      {video.cloudflare_stream_uid ? (
-                        <div className="aspect-video">
+                    <div key={video.id} className="group cursor-pointer" onClick={() => setSelectedItem(video)}>
+                      <div className="relative aspect-video rounded-2xl overflow-hidden bg-white border border-border">
+                        {video.cloudflare_stream_uid ? (
                           <iframe
                             src={`https://iframe.videodelivery.net/${video.cloudflare_stream_uid}`}
                             className="w-full h-full"
                             allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;"
                             allowFullScreen
                           />
-                        </div>
-                      ) : (
-                        <div className="aspect-video bg-muted flex items-center justify-center">
-                          <Video className="w-8 h-8 text-muted-foreground" />
-                        </div>
-                      )}
+                        ) : video.displayUrl ? (
+                          <video
+                            src={video.displayUrl}
+                            controls
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                            <span className="text-4xl">🎥</span>
+                          </div>
+                        )}
+                      </div>
                       {video.caption && (
-                        <CardContent className="p-3">
-                          <p className="text-sm text-muted-foreground">
-                            {video.caption}
-                          </p>
-                        </CardContent>
+                        <p className="text-sm text-muted-foreground mt-2 line-clamp-2">{video.caption}</p>
                       )}
-                    </Card>
+                    </div>
                   ))}
                 </div>
               )}
@@ -243,6 +255,42 @@ export const GalleryViewModal: React.FC<GalleryViewModalProps> = ({
           </Tabs>
         )}
       </DialogContent>
+
+      {/* Lightbox Modal */}
+      {selectedItem && (
+        <Dialog open={!!selectedItem} onOpenChange={() => setSelectedItem(null)}>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-auto">
+            <DialogHeader>
+              <DialogTitle>{selectedItem.caption || 'Media Preview'}</DialogTitle>
+            </DialogHeader>
+            <div className="mt-4">
+              {selectedItem.post_type === 'photo' ? (
+                <img
+                  src={selectedItem.displayUrl}
+                  alt={selectedItem.caption || ''}
+                  className="w-full h-auto rounded-lg"
+                />
+              ) : selectedItem.cloudflare_stream_uid ? (
+                <div className="aspect-video">
+                  <iframe
+                    src={`https://iframe.videodelivery.net/${selectedItem.cloudflare_stream_uid}`}
+                    className="w-full h-full rounded-lg"
+                    allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;"
+                    allowFullScreen
+                  />
+                </div>
+              ) : selectedItem.displayUrl ? (
+                <video
+                  src={selectedItem.displayUrl}
+                  controls
+                  autoPlay
+                  className="w-full h-auto rounded-lg"
+                />
+              ) : null}
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </Dialog>
   );
 };
