@@ -45,6 +45,25 @@ export const GalleryViewModal: React.FC<GalleryViewModalProps> = ({
     }
   }, [isOpen, galleryId]);
 
+  const signStorageUrl = async (
+    maybePath: string | null | undefined, 
+    opts?: { transform?: { width?: number; quality?: number } }
+  ): Promise<string | null> => {
+    if (!maybePath) return null;
+    if (/^https?:\/\//i.test(maybePath)) return maybePath;
+    
+    const path = maybePath.replace(/^event-media\//, '');
+    const { data, error } = await supabase.storage
+      .from('event-media')
+      .createSignedUrl(path, 3600, opts);
+    
+    if (error) {
+      console.error('createSignedUrl error', { path, error });
+      return null;
+    }
+    return data?.signedUrl ?? null;
+  };
+
   const fetchGalleryContent = async () => {
     setLoading(true);
     try {
@@ -58,38 +77,32 @@ export const GalleryViewModal: React.FC<GalleryViewModalProps> = ({
       if (error) throw error;
 
       if (data) {
-        // Generate signed URLs for private bucket files
+        // Process media items to generate signed URLs for private storage
         const processedData = await Promise.all(
           data.map(async (item: MediaItem) => {
-            let displayUrl = item.file_url;
-            let thumbnailDisplayUrl = item.thumbnail_url;
+            let displayUrl: string | null | undefined = item.file_url;
+            let thumbnailDisplayUrl: string | null | undefined = item.thumbnail_url;
 
-            // Create signed URL for private event-media files
-            if (item.file_url && item.file_url.startsWith('event-media/')) {
-              const path = item.file_url.replace('event-media/', '');
-              const { data: signedData } = await supabase.storage
-                .from('event-media')
-                .createSignedUrl(path, 3600); // 1 hour expiry
-              if (signedData?.signedUrl) {
-                displayUrl = signedData.signedUrl;
-              }
+            // For photos, generate signed URLs with transformation
+            if (item.post_type === 'photo') {
+              const thumb = await signStorageUrl(
+                item.thumbnail_url || item.file_url, 
+                { transform: { width: 800, quality: 75 } }
+              );
+              const full = await signStorageUrl(item.file_url);
+              thumbnailDisplayUrl = thumb || full || undefined;
+              displayUrl = full || undefined;
             }
 
-            // Create signed URL for thumbnail if exists
-            if (item.thumbnail_url && item.thumbnail_url.startsWith('event-media/')) {
-              const path = item.thumbnail_url.replace('event-media/', '');
-              const { data: signedData } = await supabase.storage
-                .from('event-media')
-                .createSignedUrl(path, 3600);
-              if (signedData?.signedUrl) {
-                thumbnailDisplayUrl = signedData.signedUrl;
-              }
+            // For direct video uploads (non-Cloudflare Stream)
+            if (item.post_type === 'video' && !item.cloudflare_stream_uid && item.file_url) {
+              displayUrl = await signStorageUrl(item.file_url);
             }
 
             return {
               ...item,
-              displayUrl,
-              thumbnailDisplayUrl: thumbnailDisplayUrl || displayUrl,
+              displayUrl: displayUrl || undefined,
+              thumbnailDisplayUrl: thumbnailDisplayUrl || displayUrl || undefined
             };
           })
         );
@@ -147,6 +160,15 @@ export const GalleryViewModal: React.FC<GalleryViewModalProps> = ({
                           src={(photo as any).thumbnailDisplayUrl || (photo as any).displayUrl}
                           alt={photo.caption || 'Gallery photo'}
                           className="w-full h-full object-cover"
+                          onError={(e) => {
+                            const target = e.currentTarget as HTMLImageElement;
+                            if ((photo as any).displayUrl && target.src !== (photo as any).displayUrl) {
+                              target.src = (photo as any).displayUrl;
+                            } else {
+                              console.error('Image failed to load', { id: photo.id, srcTried: target.src });
+                              target.style.visibility = 'hidden';
+                            }
+                          }}
                         />
                       </div>
                       {photo.caption && (
