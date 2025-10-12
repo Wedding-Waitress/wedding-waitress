@@ -299,7 +299,17 @@ export const GuestGalleryPublic: React.FC = () => {
           console.error(`Upload error for item ${i}:`, error);
 
           let errorMsg = 'Upload failed';
-          if (error.message === 'FILE_TOO_LARGE') {
+          
+          // Try to extract detailed error from function response
+          if (error.context?.body) {
+            const body = error.context.body;
+            if (body.error) {
+              errorMsg = body.error;
+              if (body.troubleshooting) {
+                errorMsg += ` (${body.troubleshooting})`;
+              }
+            }
+          } else if (error.message === 'FILE_TOO_LARGE') {
             errorMsg = item.type === 'photo' 
               ? 'File too large. Max: 15 MB' 
               : 'File too large. Max: 200 MB';
@@ -309,6 +319,8 @@ export const GuestGalleryPublic: React.FC = () => {
             errorMsg = 'File type not supported';
           } else if (error.message === 'UPLOADS_DISABLED') {
             errorMsg = 'Gallery is not accepting uploads';
+          } else if (error.message) {
+            errorMsg = error.message;
           }
 
           results.push({ item, success: false, error: errorMsg });

@@ -126,7 +126,23 @@ serve(async (req) => {
 
     if (uploadError) {
       console.error('Upload URL creation error:', uploadError);
-      throw uploadError;
+      // Return detailed error message
+      return new Response(
+        JSON.stringify({ 
+          error: 'Failed to create upload URL',
+          details: uploadError.message,
+          code: (uploadError as any).statusCode,
+          troubleshooting: uploadError.message?.includes('bucket')
+            ? 'Storage bucket may not exist or is misconfigured'
+            : uploadError.message?.includes('policy')
+            ? 'Storage permissions may not allow this operation'
+            : 'Please try again or contact support'
+        }),
+        { 
+          status: 500, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
     }
 
     console.log('Upload URL created successfully:', filePath);
@@ -148,7 +164,11 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error in create-media-upload-url:', error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ 
+        error: error.message || 'Failed to create upload URL',
+        details: error.toString(),
+        troubleshooting: 'Check that the gallery exists and is active'
+      }),
       {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

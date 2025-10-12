@@ -170,9 +170,24 @@ export const GuestMediaUpload: React.FC = () => {
       setFlowStep('success');
     } catch (error: any) {
       console.error('Upload error:', error);
+      
+      // Extract detailed error message
+      let errorMsg = 'Failed to upload some items';
+      if (error.context?.body) {
+        const body = error.context.body;
+        if (body.error) {
+          errorMsg = body.error;
+          if (body.troubleshooting) {
+            errorMsg += `. ${body.troubleshooting}`;
+          }
+        }
+      } else if (error.message) {
+        errorMsg = error.message;
+      }
+      
       toast({
         title: 'Error',
-        description: 'Failed to upload some items',
+        description: errorMsg,
         variant: 'destructive',
       });
       setFlowStep('preview');

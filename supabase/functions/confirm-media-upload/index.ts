@@ -68,13 +68,29 @@ serve(async (req) => {
       );
     }
 
+    // Map post_type to correct type value for database constraint
+    // type can only be 'image' or 'video' (NOT 'photo' or 'text')
+    let mediaType: string;
+    if (post_type === 'photo') {
+      mediaType = 'image';
+    } else if (post_type === 'video') {
+      mediaType = 'video';
+    } else if (post_type === 'text') {
+      // Text posts don't have files, so we use 'image' as a placeholder
+      // The post_type field will correctly identify it as 'text'
+      mediaType = 'image';
+    } else {
+      // Fallback to the type passed in (should be 'image' or 'video')
+      mediaType = type === 'photo' ? 'image' : type;
+    }
+
     // Insert media record
     const { data: media, error: mediaError } = await supabase
       .from('media_uploads')
       .insert({
         gallery_id,
         uploader_token: upload_token,
-        type,
+        type: mediaType,
         post_type: post_type || type,
         caption: caption || null,
         file_url: file_path || '',
@@ -95,7 +111,23 @@ serve(async (req) => {
 
     if (mediaError) {
       console.error('Media insert error:', mediaError);
-      throw mediaError;
+      // Return detailed error message to client
+      const errorMsg = mediaError.message || 'Failed to save media record';
+      const errorCode = (mediaError as any).code;
+      const errorDetails = (mediaError as any).details || '';
+      
+      return new Response(
+        JSON.stringify({ 
+          error: errorMsg,
+          code: errorCode,
+          details: errorDetails,
+          troubleshooting: 'Check that the gallery is active and accepting uploads'
+        }),
+        { 
+          status: 400, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
     }
 
     console.log('Media record created:', media.id);
@@ -113,8 +145,18 @@ serve(async (req) => {
 
   } catch (error) {
     console.error('Error in confirm-media-upload:', error);
+    
+    // Return detailed error to help with debugging
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ 
+        error: error.message || 'Upload confirmation failed',
+        details: error.toString(),
+        troubleshooting: error.message?.includes('RLS') 
+          ? 'This gallery may not be accepting public uploads. Ask the host to check gallery settings.'
+          : error.message?.includes('CORS')
+          ? 'Storage CORS configuration may be incorrect. Contact support.'
+          : 'Please try again or contact support if the problem persists.'
+      }),
       {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
