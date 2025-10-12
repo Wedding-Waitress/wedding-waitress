@@ -8,3 +8,6 @@ verify_jwt = false
 
 [functions.moderate-media]
 verify_jwt = true
+
+[functions.export-gallery-zip]
+verify_jwt = true

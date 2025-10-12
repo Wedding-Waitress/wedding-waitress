@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Camera, Plus, BarChart3, Trash2, Copy, Download, QrCode, FolderOpen, Image, Video, MessageSquare, Share2, Facebook, Instagram } from 'lucide-react';
+import { Camera, Plus, BarChart3, Trash2, Copy, Download, QrCode, FolderOpen, Image, Video, MessageSquare, Share2, Facebook, Instagram, Loader2, ChevronDown } from 'lucide-react';
 import { SetupWizard } from './SetupWizard';
 import { useGalleries } from '@/hooks/useGalleries';
 import { useGalleryStats } from '@/hooks/useGalleryStats';
+import { useGalleryExports } from '@/hooks/useGalleryExports';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
@@ -29,6 +31,7 @@ export const PhotoVideoSharingPage: React.FC = () => {
   
   const { galleries, refetch: refetchGalleries } = useGalleries();
   const { stats } = useGalleryStats(selectedGalleryId, statsScope);
+  const { exports, activeExport, startExport } = useGalleryExports(selectedGalleryId);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -474,6 +477,121 @@ export const PhotoVideoSharingPage: React.FC = () => {
                         </SelectContent>
                       </Select>
                     </div>
+
+                    {/* Export Section */}
+                    {selectedGalleryId && (
+                      <div className="space-y-3 pt-4 border-t">
+                        <Label className="text-sm font-medium">Download All</Label>
+                        
+                        {!activeExport ? (
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button 
+                                variant="outline" 
+                                className="w-full justify-between"
+                              >
+                                <span className="flex items-center gap-2">
+                                  <Download className="w-4 h-4" />
+                                  Download All (ZIP)
+                                </span>
+                                <ChevronDown className="w-4 h-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-56">
+                              <DropdownMenuItem onClick={() => startExport('approved')}>
+                                <span className="flex flex-col">
+                                  <span className="font-medium">Approved items only</span>
+                                  <span className="text-xs text-muted-foreground">Download approved photos & videos</span>
+                                </span>
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => startExport('all')}>
+                                <span className="flex flex-col">
+                                  <span className="font-medium">Everything</span>
+                                  <span className="text-xs text-muted-foreground">Including pending items</span>
+                                </span>
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        ) : (
+                          <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                            <div className="flex items-center gap-2 mb-2">
+                              <Loader2 className="w-4 h-4 animate-spin text-blue-600" />
+                              <span className="text-sm font-medium text-blue-900">Preparing ZIP...</span>
+                            </div>
+                            <p className="text-xs text-blue-700">
+                              You can keep using the app. We'll update this when it's ready.
+                            </p>
+                          </div>
+                        )}
+                        
+                        <p className="text-xs text-muted-foreground">
+                          We'll build your ZIP and notify you when it's ready.
+                        </p>
+
+                        {/* Recent Exports */}
+                        {exports.length > 0 && (
+                          <div className="space-y-2 mt-4">
+                            <Label className="text-xs font-medium text-muted-foreground">Recent Exports</Label>
+                            {exports.slice(0, 3).map((exp) => (
+                              <div 
+                                key={exp.id} 
+                                className="p-2 bg-muted rounded-lg text-xs space-y-1"
+                              >
+                                <div className="flex items-center justify-between">
+                                  <span className="font-medium">
+                                    {exp.scope === 'approved' ? 'Approved only' : 'Everything'}
+                                  </span>
+                                  {exp.status === 'ready' && (
+                                    <span className="text-green-600 font-medium">Ready</span>
+                                  )}
+                                  {exp.status === 'error' && (
+                                    <span className="text-red-600 font-medium">Failed</span>
+                                  )}
+                                </div>
+                                
+                                <div className="text-muted-foreground">
+                                  {format(new Date(exp.created_at), 'MMM d, h:mm a')}
+                                  {exp.items_count && ` • ${exp.items_count} items`}
+                                  {exp.file_size_bytes && ` • ${(exp.file_size_bytes / 1024 / 1024).toFixed(1)} MB`}
+                                </div>
+                                
+                                {exp.status === 'ready' && exp.download_url && (
+                                  <div className="flex gap-2 mt-2">
+                                    <Button 
+                                      size="sm" 
+                                      variant="outline"
+                                      onClick={() => window.open(exp.download_url!, '_blank')}
+                                      className="flex-1"
+                                    >
+                                      <Download className="w-3 h-3 mr-1" />
+                                      Download
+                                    </Button>
+                                    <Button 
+                                      size="sm" 
+                                      variant="ghost"
+                                      onClick={() => {
+                                        navigator.clipboard.writeText(exp.download_url!);
+                                        toast({
+                                          title: 'Copied!',
+                                          description: 'Download link copied to clipboard',
+                                        });
+                                      }}
+                                    >
+                                      <Copy className="w-3 h-3" />
+                                    </Button>
+                                  </div>
+                                )}
+                                
+                                {exp.status === 'error' && exp.error_message && (
+                                  <p className="text-red-600 text-xs mt-1">{exp.error_message}</p>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
+
                     <Button
                       variant="destructive"
                       className="w-full"

@@ -411,6 +411,62 @@ export type Database = {
           },
         ]
       }
+      gallery_exports: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          created_by: string | null
+          download_url: string | null
+          error_message: string | null
+          expires_at: string | null
+          file_path: string | null
+          file_size_bytes: number | null
+          gallery_id: string
+          id: string
+          items_count: number | null
+          scope: string
+          status: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          download_url?: string | null
+          error_message?: string | null
+          expires_at?: string | null
+          file_path?: string | null
+          file_size_bytes?: number | null
+          gallery_id: string
+          id?: string
+          items_count?: number | null
+          scope: string
+          status?: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          download_url?: string | null
+          error_message?: string | null
+          expires_at?: string | null
+          file_path?: string | null
+          file_size_bytes?: number | null
+          gallery_id?: string
+          id?: string
+          items_count?: number | null
+          scope?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gallery_exports_gallery_id_fkey"
+            columns: ["gallery_id"]
+            isOneToOne: false
+            referencedRelation: "galleries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       gallery_settings: {
         Row: {
           allow_photos: boolean
@@ -903,6 +959,9 @@ export type Database = {
           rejected_at: string | null
           rejected_by: string | null
           status: string
+          stream_preview_image: string | null
+          stream_ready: boolean | null
+          stream_status: string | null
           text_content: string | null
           theme_id: string | null
           thumbnail_url: string | null
@@ -928,6 +987,9 @@ export type Database = {
           rejected_at?: string | null
           rejected_by?: string | null
           status?: string
+          stream_preview_image?: string | null
+          stream_ready?: boolean | null
+          stream_status?: string | null
           text_content?: string | null
           theme_id?: string | null
           thumbnail_url?: string | null
@@ -953,6 +1015,9 @@ export type Database = {
           rejected_at?: string | null
           rejected_by?: string | null
           status?: string
+          stream_preview_image?: string | null
+          stream_ready?: boolean | null
+          stream_status?: string | null
           text_content?: string | null
           theme_id?: string | null
           thumbnail_url?: string | null
