@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Image, Video, MessageSquare, Loader2, Play, Download, Share2, X, ChevronLeft, ChevronRight, Check } from 'lucide-react';
@@ -146,13 +146,15 @@ export const GalleryViewModal: React.FC<GalleryViewModalProps> = ({
     }
   };
 
-  const getSortedItems = (items: MediaItem[]) => {
-    return [...items].sort((a, b) => {
-      const dateA = new Date(a.created_at).getTime();
-      const dateB = new Date(b.created_at).getTime();
-      return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
-    });
-  };
+  const getSortedItems = useMemo(() => {
+    return (items: MediaItem[]) => {
+      return [...items].sort((a, b) => {
+        const dateA = new Date(a.created_at).getTime();
+        const dateB = new Date(b.created_at).getTime();
+        return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
+      });
+    };
+  }, [sortOrder]);
 
   const toggleSelection = (id: string) => {
     setSelectedItems(prev => {
@@ -236,28 +238,61 @@ export const GalleryViewModal: React.FC<GalleryViewModalProps> = ({
     const [imageLoaded, setImageLoaded] = useState(false);
     const isSelected = selectedItems.has(item.id);
 
+    // Pre-decode images for smooth loading
+    useEffect(() => {
+      if (type === 'photo' && item.thumbnailDisplayUrl) {
+        const img = document.createElement('img');
+        img.src = item.thumbnailDisplayUrl || item.displayUrl || '';
+        
+        img.decode()
+          .then(() => setImageLoaded(true))
+          .catch(() => setImageLoaded(true));
+          
+        return () => {
+          img.src = '';
+        };
+      }
+    }, [item.thumbnailDisplayUrl, item.displayUrl, type]);
+
+    // Pre-decode video posters
+    useEffect(() => {
+      if (type === 'video' && item.cloudflare_stream_uid) {
+        const posterUrl = item.stream_preview_image || `https://customer-xvug97yzqxwnmtgg.cloudflarestream.com/${item.cloudflare_stream_uid}/thumbnails/thumbnail.jpg`;
+        const img = document.createElement('img');
+        img.src = posterUrl;
+        
+        img.decode()
+          .then(() => setImageLoaded(true))
+          .catch(() => setImageLoaded(true));
+          
+        return () => {
+          img.src = '';
+        };
+      } else if (type === 'video') {
+        setImageLoaded(true);
+      }
+    }, [item.cloudflare_stream_uid, item.stream_preview_image, type]);
+
     return (
       <div className="group relative">
         <div
-          className="relative aspect-square rounded-lg overflow-hidden bg-white border border-[#E6E6E6] shadow-sm cursor-pointer transition-all duration-200 hover:scale-[1.02] hover:shadow-md"
+          className="relative aspect-square rounded-lg overflow-hidden bg-white border border-[#E6E6E6] shadow-sm cursor-pointer transition-shadow hover:shadow-md"
           onClick={() => openLightbox(item, items)}
         >
           {!imageLoaded && (
-            <Skeleton className="absolute inset-0" />
+            <div className="absolute inset-0 bg-gray-100" />
           )}
           
-          {type === 'photo' ? (
+          {type === 'photo' && imageLoaded ? (
             <img
               src={item.thumbnailDisplayUrl || item.displayUrl}
               alt={`${galleryTitle} - Photo ${index + 1}`}
-              className={`w-full h-full object-cover transition-opacity ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
-              onLoad={() => setImageLoaded(true)}
+              className="w-full h-full object-cover"
               onError={(e) => {
                 const target = e.currentTarget as HTMLImageElement;
                 if (item.displayUrl && target.src !== item.displayUrl) {
                   target.src = item.displayUrl;
                 } else {
-                  setImageLoaded(true);
                   const parent = target.parentElement;
                   if (parent && !parent.querySelector('.placeholder-icon')) {
                     const placeholder = document.createElement('div');
@@ -268,34 +303,32 @@ export const GalleryViewModal: React.FC<GalleryViewModalProps> = ({
                 }
               }}
             />
-          ) : item.cloudflare_stream_uid ? (
+          ) : type === 'video' && item.cloudflare_stream_uid && imageLoaded ? (
             <div className="relative w-full h-full">
               <img
                 src={item.stream_preview_image || `https://customer-xvug97yzqxwnmtgg.cloudflarestream.com/${item.cloudflare_stream_uid}/thumbnails/thumbnail.jpg`}
                 alt={`${galleryTitle} - Video ${index + 1}`}
-                className={`w-full h-full object-cover transition-opacity ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
-                onLoad={() => setImageLoaded(true)}
+                className="w-full h-full object-cover"
               />
               <div className="absolute bottom-2 left-2 bg-black/70 rounded-full p-1.5">
                 <Play className="w-4 h-4 text-white" />
               </div>
             </div>
-          ) : item.displayUrl ? (
+          ) : type === 'video' && item.displayUrl && imageLoaded ? (
             <>
               <video
                 src={item.displayUrl}
                 className="w-full h-full object-cover"
-                onLoadedData={() => setImageLoaded(true)}
               />
               <div className="absolute bottom-2 left-2 bg-black/70 rounded-full p-1.5">
                 <Play className="w-4 h-4 text-white" />
               </div>
             </>
-          ) : (
+          ) : type === 'video' && imageLoaded ? (
             <div className="w-full h-full flex items-center justify-center text-muted-foreground">
               <span className="text-4xl">🎥</span>
             </div>
-          )}
+          ) : null}
 
           <div
             className="absolute top-2 right-2 z-10"
