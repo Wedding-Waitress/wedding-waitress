@@ -132,14 +132,19 @@ async function processExport(
   try {
     console.log(`Processing export ${exportId}`);
 
-    // Fetch media items matching the same filter as the gallery viewer
-    const { data: mediaItems, error: mediaError } = await supabase
+    let query = supabase
       .from('media_uploads')
       .select('*')
       .eq('gallery_id', galleryId)
-      .in('post_type', ['photo', 'video', 'text'])
-      .in('status', ['pending', 'approved'])
       .order('created_at', { ascending: true });
+
+    if (scope === 'approved') {
+      query = query.in('status', ['pending', 'approved']);
+    } else {
+      query = query.in('status', ['pending', 'approved']);
+    }
+
+    const { data: mediaItems, error: mediaError } = await query;
     if (mediaError) throw mediaError;
 
     console.log(`Found ${mediaItems.length} items to export`);

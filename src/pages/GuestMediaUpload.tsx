@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Plus, X, Camera, ArrowLeft, Trash2, Play } from 'lucide-react';
+import { Plus, X, Camera, ArrowLeft, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -15,7 +15,6 @@ interface MediaItem {
   file?: File;
   type: 'photo' | 'video' | 'text';
   preview?: string;
-  previewPoster?: string;
   caption?: string;
   textContent?: string;
   themeId?: string;
@@ -83,17 +82,6 @@ export const GuestMediaUpload: React.FC = () => {
       document.title = `${eventData.name} | Wedding Waitress`;
     }
   }, [eventData?.name]);
-
-  // Cleanup object URLs on unmount
-  useEffect(() => {
-    return () => {
-      selectedItems.forEach(item => {
-        if (item.preview) {
-          URL.revokeObjectURL(item.preview);
-        }
-      });
-    };
-  }, [selectedItems]);
 
   const fetchEventData = async () => {
     try {
@@ -165,93 +153,17 @@ export const GuestMediaUpload: React.FC = () => {
     setToken(existingToken);
   };
 
-  const generateVideoThumbnail = (file: File): Promise<string> => {
-    return new Promise((resolve) => {
-      const video = document.createElement('video');
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-      
-      video.preload = 'metadata';
-      video.muted = true;
-      video.playsInline = true;
-      
-      video.onloadeddata = () => {
-        video.currentTime = 0.5; // Seek to 0.5s
-      };
-      
-      video.onseeked = () => {
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        ctx?.drawImage(video, 0, 0, canvas.width, canvas.height);
-        const posterUrl = canvas.toDataURL('image/jpeg', 0.8);
-        URL.revokeObjectURL(video.src);
-        resolve(posterUrl);
-      };
-      
-      video.onerror = () => {
-        URL.revokeObjectURL(video.src);
-        resolve(''); // Return empty if thumbnail generation fails
-      };
-      
-      video.src = URL.createObjectURL(file);
-    });
-  };
-
-  const handleFileSelection = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelection = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
-    const MAX_IMAGE_SIZE = 25 * 1024 * 1024; // 25 MB
-    const MAX_VIDEO_SIZE = 200 * 1024 * 1024; // 200 MB
+    const newItems: MediaItem[] = files.map(file => ({
+      file,
+      type: file.type.startsWith('video/') ? 'video' : 'photo',
+      preview: URL.createObjectURL(file),
+      caption: '',
+    }));
     
-    const validFiles: MediaItem[] = [];
-    
-    for (const file of files) {
-      const isVideo = file.type.startsWith('video/');
-      const isImage = file.type.startsWith('image/');
-      
-      // Validate file type
-      if (!isVideo && !isImage) {
-        toast({
-          title: 'File type not supported',
-          description: `${file.name} is not a supported format`,
-          variant: 'destructive',
-        });
-        continue;
-      }
-      
-      // Validate file size
-      if (isImage && file.size > MAX_IMAGE_SIZE) {
-        toast({
-          title: 'Image too large',
-          description: `${file.name} exceeds 25 MB limit`,
-          variant: 'destructive',
-        });
-        continue;
-      }
-      
-      if (isVideo && file.size > MAX_VIDEO_SIZE) {
-        toast({
-          title: 'Video too large',
-          description: `${file.name} exceeds 200 MB limit`,
-          variant: 'destructive',
-        });
-        continue;
-      }
-      
-      const preview = URL.createObjectURL(file);
-      const item: MediaItem = {
-        file,
-        type: isVideo ? 'video' : 'photo',
-        preview,
-        caption: '',
-      };
-      
-      validFiles.push(item);
-    }
-    
-    if (validFiles.length > 0) {
-      setSelectedItems([...selectedItems, ...validFiles]);
-      setFlowStep('preview');
-    }
+    setSelectedItems([...selectedItems, ...newItems]);
+    setFlowStep('preview');
   };
 
   const handleTextPostSubmit = (data: { textContent: string; themeId: string }) => {
@@ -268,10 +180,6 @@ export const GuestMediaUpload: React.FC = () => {
   };
 
   const handleRemoveItem = (index: number) => {
-    const item = selectedItems[index];
-    if (item.preview) {
-      URL.revokeObjectURL(item.preview);
-    }
     setSelectedItems(selectedItems.filter((_, i) => i !== index));
   };
 
@@ -300,27 +208,22 @@ export const GuestMediaUpload: React.FC = () => {
     } catch (error: any) {
       console.error('Upload error:', error);
       
-      // Extract specific error message
-      let errorMsg = 'Upload failed. Please try again.';
-      let errorTitle = 'Upload Error';
-      
-      if (error.message) {
-        if (error.message.includes('too large') || error.message.includes('exceeds') || error.message.includes('Max:')) {
-          errorTitle = 'File too large';
-          errorMsg = error.message;
-        } else if (error.message.includes('type') || error.message.includes('format') || error.message.includes('supported')) {
-          errorTitle = 'Invalid file type';
-          errorMsg = error.message;
-        } else if (error.message.toLowerCase().includes('network') || error.message.toLowerCase().includes('connection')) {
-          errorTitle = 'Connection error';
-          errorMsg = 'Check your internet connection and try again.';
-        } else if (error.message) {
-          errorMsg = error.message;
+      // Extract detailed error message
+      let errorMsg = 'Failed to upload some items';
+      if (error.context?.body) {
+        const body = error.context.body;
+        if (body.error) {
+          errorMsg = body.error;
+          if (body.troubleshooting) {
+            errorMsg += `. ${body.troubleshooting}`;
+          }
         }
+      } else if (error.message) {
+        errorMsg = error.message;
       }
       
       toast({
-        title: errorTitle,
+        title: 'Error',
         description: errorMsg,
         variant: 'destructive',
       });
@@ -359,9 +262,7 @@ export const GuestMediaUpload: React.FC = () => {
       }
     );
 
-    if (urlError) {
-      throw new Error(urlError.message || 'Failed to create upload URL');
-    }
+    if (urlError) throw urlError;
 
     // Upload to the returned URL (works for both Supabase Storage and Cloudflare Stream)
     const uploadUrl = urlData.signed_url || urlData.uploadURL;
@@ -373,10 +274,7 @@ export const GuestMediaUpload: React.FC = () => {
       },
     });
 
-    if (!uploadResponse.ok) {
-      const errorText = await uploadResponse.text().catch(() => '');
-      throw new Error(errorText || 'Upload failed. Please try again.');
-    }
+    if (!uploadResponse.ok) throw new Error('Upload failed');
 
     // Prepare confirmation data based on media type
     const confirmBody: any = {
@@ -405,7 +303,6 @@ export const GuestMediaUpload: React.FC = () => {
             confirmBody.height = img.height;
             resolve(null);
           };
-          img.onerror = () => resolve(null);
           img.src = item.preview;
         });
       }
@@ -415,9 +312,7 @@ export const GuestMediaUpload: React.FC = () => {
       body: confirmBody,
     });
 
-    if (confirmError) {
-      throw new Error(confirmError.message || 'Failed to save upload');
-    }
+    if (confirmError) throw confirmError;
   };
 
   if (loading) {
@@ -578,7 +473,7 @@ export const GuestMediaUpload: React.FC = () => {
           <input
             ref={fileInputRef}
             type="file"
-            accept="image/jpeg,image/png,image/heic,image/heif,video/mp4,video/quicktime"
+            accept="image/*,video/*"
             multiple
             onChange={handleFileSelection}
             className="hidden"
@@ -608,33 +503,17 @@ export const GuestMediaUpload: React.FC = () => {
 
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             {selectedItems.map((item, index) => (
-              <Card key={index} className="relative group overflow-hidden border-2 border-primary/20">
-                <div className="aspect-square rounded-lg overflow-hidden">
+              <Card key={index} className="relative group overflow-hidden">
+                <div className="aspect-square">
                   {item.type === 'photo' && item.preview && (
-                    <img 
-                      src={item.preview} 
-                      className="w-full h-full object-cover rounded-lg" 
-                      style={{ imageRendering: 'auto' }}
-                      alt="" 
-                    />
+                    <img src={item.preview} className="w-full h-full object-cover" alt="" />
                   )}
                   {item.type === 'video' && item.preview && (
-                    <div className="relative w-full h-full">
-                      <video 
-                        src={item.preview}
-                        muted
-                        playsInline
-                        preload="metadata"
-                        className="w-full h-full object-cover rounded-lg"
-                      />
-                      <div className="absolute bottom-2 left-2 bg-black/70 rounded-full p-1.5">
-                        <Play className="w-4 h-4 text-white" fill="white" />
-                      </div>
-                    </div>
+                    <video src={item.preview} className="w-full h-full object-cover" />
                   )}
                   {item.type === 'text' && (
                     <div 
-                      className="w-full h-full flex items-center justify-center p-4 rounded-lg"
+                      className="w-full h-full flex items-center justify-center p-4"
                       style={{ background: item.themeBg }}
                     >
                       <p className="text-center font-medium text-sm line-clamp-6">
@@ -644,7 +523,7 @@ export const GuestMediaUpload: React.FC = () => {
                   )}
                 </div>
                 
-                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 rounded-lg">
+                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                   <Button
                     size="sm"
                     variant="ghost"

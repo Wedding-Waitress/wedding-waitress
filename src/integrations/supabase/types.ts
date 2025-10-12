@@ -59,47 +59,6 @@ export type Database = {
         }
         Relationships: []
       }
-      event_shortlinks: {
-        Row: {
-          click_count: number | null
-          created_at: string
-          event_id: string
-          id: string
-          last_clicked_at: string | null
-          slug: string
-          target_url: string
-          updated_at: string
-        }
-        Insert: {
-          click_count?: number | null
-          created_at?: string
-          event_id: string
-          id?: string
-          last_clicked_at?: string | null
-          slug: string
-          target_url: string
-          updated_at?: string
-        }
-        Update: {
-          click_count?: number | null
-          created_at?: string
-          event_id?: string
-          id?: string
-          last_clicked_at?: string | null
-          slug?: string
-          target_url?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "event_shortlinks_event_id_fkey"
-            columns: ["event_id"]
-            isOneToOne: false
-            referencedRelation: "events"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       events: {
         Row: {
           created_at: string
@@ -553,47 +512,6 @@ export type Database = {
             foreignKeyName: "gallery_settings_gallery_id_fkey"
             columns: ["gallery_id"]
             isOneToOne: true
-            referencedRelation: "galleries"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      gallery_shortlinks: {
-        Row: {
-          click_count: number
-          created_at: string
-          gallery_id: string
-          id: string
-          last_clicked_at: string | null
-          slug: string
-          target_path: string
-          updated_at: string
-        }
-        Insert: {
-          click_count?: number
-          created_at?: string
-          gallery_id: string
-          id?: string
-          last_clicked_at?: string | null
-          slug: string
-          target_path: string
-          updated_at?: string
-        }
-        Update: {
-          click_count?: number
-          created_at?: string
-          gallery_id?: string
-          id?: string
-          last_clicked_at?: string | null
-          slug?: string
-          target_path?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "gallery_shortlinks_gallery_id_fkey"
-            columns: ["gallery_id"]
-            isOneToOne: false
             referencedRelation: "galleries"
             referencedColumns: ["id"]
           },
@@ -1275,7 +1193,6 @@ export type Database = {
           shadow_enabled: boolean | null
           shape: string | null
           updated_at: string
-          use_simplified_qr: boolean | null
           user_id: string
         }
         Insert: {
@@ -1309,7 +1226,6 @@ export type Database = {
           shadow_enabled?: boolean | null
           shape?: string | null
           updated_at?: string
-          use_simplified_qr?: boolean | null
           user_id: string
         }
         Update: {
@@ -1343,7 +1259,6 @@ export type Database = {
           shadow_enabled?: boolean | null
           shape?: string | null
           updated_at?: string
-          use_simplified_qr?: boolean | null
           user_id?: string
         }
         Relationships: [
@@ -1445,10 +1360,6 @@ export type Database = {
           _max_uploads?: number
           _validity_days?: number
         }
-        Returns: string
-      }
-      generate_short_slug: {
-        Args: Record<PropertyKey, never>
         Returns: string
       }
       generate_slug: {

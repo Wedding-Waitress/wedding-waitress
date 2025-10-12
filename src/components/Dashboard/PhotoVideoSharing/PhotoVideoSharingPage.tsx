@@ -237,21 +237,29 @@ export const PhotoVideoSharingPage: React.FC = () => {
 
     setIsDownloading(true);
     try {
-      await startExport('all');
+      const { data, error } = await supabase.functions.invoke('export-gallery-zip', {
+        body: {
+          galleryId: selectedGalleryId,
+          scope: 'approved',
+        },
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: 'Export Started',
+        description: 'Your gallery is being prepared. This may take a few moments.',
+      });
 
       // Poll for completion
-      const pollInterval = setInterval(async () => {
+      const checkExport = async (exportId: string) => {
         const { data: exportData } = await supabase
           .from('gallery_exports')
           .select('status, download_url')
-          .eq('gallery_id', selectedGalleryId)
-          .order('created_at', { ascending: false })
-          .limit(1)
+          .eq('id', exportId)
           .single();
 
         if (exportData?.status === 'ready' && exportData.download_url) {
-          clearInterval(pollInterval);
-          
           const link = document.createElement('a');
           link.href = exportData.download_url;
           link.download = `${galleryTitle.replace(/\s+/g, '-').toLowerCase()}-gallery.zip`;
@@ -263,23 +271,15 @@ export const PhotoVideoSharingPage: React.FC = () => {
           });
           setIsDownloading(false);
         } else if (exportData?.status === 'error') {
-          clearInterval(pollInterval);
           throw new Error('Export failed');
+        } else {
+          setTimeout(() => checkExport(exportId), 2000);
         }
-      }, 2000);
+      };
 
-      // Timeout after 2 minutes
-      setTimeout(() => {
-        clearInterval(pollInterval);
-        if (isDownloading) {
-          setIsDownloading(false);
-          toast({
-            title: 'Taking longer than expected',
-            description: 'The export is still processing. Check back in a moment.',
-          });
-        }
-      }, 120000);
-      
+      if (data?.export_id) {
+        checkExport(data.export_id);
+      }
     } catch (error: any) {
       console.error('Error downloading gallery:', error);
       toast({
