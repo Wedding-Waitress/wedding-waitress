@@ -15,26 +15,6 @@ export class AdvancedQRGenerator {
   async generate(url: string, settings: QRCodeSettings): Promise<string> {
     const { output_size = 512 } = settings;
     
-    // Check if simplified mode is enabled
-    const isSimplified = settings.use_simplified_qr ?? false;
-    
-    // Override settings for simplified QR codes
-    if (isSimplified) {
-      settings = {
-        ...settings,
-        shape: 'rounded', // Rounded modules for modern look
-        background_color: '#ffffff',
-        foreground_color: '#000000',
-        center_image_url: undefined, // No logo
-        has_scan_text: false, // No scan text
-        border_style: 'none',
-        shadow_enabled: false,
-        gradient_type: 'none',
-        pattern: 'basic',
-        pattern_style: 'basic',
-      };
-    }
-    
     // Resize canvas if needed
     if (this.canvas.width !== output_size) {
       this.canvas.width = output_size;
@@ -56,8 +36,8 @@ export class AdvancedQRGenerator {
     // Apply background
     await this.applyBackground(settings);
 
-    // Generate base QR code data with appropriate error correction
-    const qrMatrix = await this.getQRMatrix(url, isSimplified);
+    // Generate base QR code data
+    const qrMatrix = await this.getQRMatrix(url);
     
     // Apply QR pattern with shape and style
     this.applyQRPattern(qrMatrix, settings);
@@ -83,13 +63,13 @@ export class AdvancedQRGenerator {
     return this.canvas.toDataURL(`image/${settings.output_format}`, 0.9);
   }
 
-  private async getQRMatrix(url: string, isSimplified: boolean = false): Promise<boolean[][]> {
+  private async getQRMatrix(url: string): Promise<boolean[][]> {
     if (process.env.NODE_ENV === 'development') {
       console.log('Generating QR matrix for URL:', url); // Debug logging
     }
     const qrDataURL = await QRCode.toDataURL(url, {
-      errorCorrectionLevel: isSimplified ? 'M' : 'H', // M for simplified (balance), H for standard
-      margin: 4, // 4 modules quiet zone (critical for scanning reliability)
+      errorCorrectionLevel: 'H', // Increased error correction for better scanning
+      margin: 0,
       width: this.canvas.width,
       color: { dark: '#000000', light: '#FFFFFF' }
     });

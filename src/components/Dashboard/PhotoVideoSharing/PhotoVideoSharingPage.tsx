@@ -16,8 +16,7 @@ import { format } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { AdvancedQRGenerator } from '@/lib/advancedQRGenerator';
-import { QRCodeSettings } from '@/hooks/useQRCodeSettings';
+import QRCodeLib from 'qrcode';
 
 export const PhotoVideoSharingPage: React.FC = () => {
   const [selectedGalleryId, setSelectedGalleryId] = useState<string | null>(null);
@@ -41,41 +40,24 @@ export const PhotoVideoSharingPage: React.FC = () => {
     }
   }, [galleries, selectedGalleryId]);
 
-  // Generate QR code with simplified settings
+  // Generate QR code
   const generateQRCode = async (url: string) => {
     try {
-      // Force simplified QR code settings for Photo & Video Sharing
-      const simplifiedSettings: QRCodeSettings = {
-        event_id: '',
-        user_id: '',
-        shape: 'rounded',
-        pattern: 'basic',
-        pattern_style: 'basic',
-        background_color: '#ffffff',
-        foreground_color: '#000000',
-        corner_style: 'square',
-        has_scan_text: false,
-        scan_text: '',
-        gradient_type: 'none',
-        gradient_colors: [],
-        border_style: 'none',
-        border_width: 0,
-        border_color: '#000000',
-        shadow_enabled: false,
-        shadow_blur: 0,
-        shadow_color: '#00000033',
-        center_image_size: 0,
-        background_opacity: 1.0,
-        output_size: 2000,
-        output_format: 'png',
-        color_palette: 'default',
-        advanced_settings: {},
-        use_simplified_qr: true,
-      };
-
-      const generator = new AdvancedQRGenerator(2000);
-      const dataUrl = await generator.generate(url, simplifiedSettings);
-      setQrCodeDataUrl(dataUrl);
+      const canvas = document.createElement('canvas');
+      canvas.width = 2000;
+      canvas.height = 2000;
+      
+      await QRCodeLib.toCanvas(canvas, url, {
+        errorCorrectionLevel: 'H',
+        margin: 4,
+        width: 2000,
+        color: {
+          dark: '#000000',
+          light: '#FFFFFF'
+        }
+      });
+      
+      setQrCodeDataUrl(canvas.toDataURL('image/png'));
     } catch (error) {
       console.error('Error generating QR code:', error);
     }
@@ -92,26 +74,14 @@ export const PhotoVideoSharingPage: React.FC = () => {
 
     const generateUrl = async () => {
       try {
-        // Fetch gallery info
         const { data: gallery } = await supabase
           .from('galleries' as any)
           .select('slug, title, show_footer, show_public_gallery')
           .eq('id', selectedGalleryId)
           .single();
 
-        // Fetch short link
-        const { data: shortlink } = await supabase
-          .from('gallery_shortlinks' as any)
-          .select('slug')
-          .eq('gallery_id', selectedGalleryId)
-          .single();
-
         if ((gallery as any)?.slug) {
-          // Use short link if available, otherwise fall back to full slug
-          const url = (shortlink as any)?.slug
-            ? `${window.location.origin}/p/${(shortlink as any).slug}`
-            : `${window.location.origin}/g/${(gallery as any).slug}`;
-          
+          const url = `${window.location.origin}/g/${(gallery as any).slug}`;
           setUploadUrl(url);
           setGalleryTitle((gallery as any).title);
           setShowFooter((gallery as any).show_footer ?? true);
