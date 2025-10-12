@@ -594,7 +594,15 @@ export const GuestGalleryPublic: React.FC = () => {
             
             {galleryData.show_footer && (
               <p className="text-sm text-muted-foreground mt-8">
-                Made with ❤️ Wedding Waitress
+                Made with 💜{' '}
+                <a
+                  href="https://theweddingwaitress.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-primary transition-colors underline-offset-4 hover:underline"
+                >
+                  Wedding Waitress
+                </a>
               </p>
             )}
           </div>
@@ -928,7 +936,15 @@ export const GuestGalleryPublic: React.FC = () => {
       {galleryData.show_footer && (
         <div className="py-8 text-center">
           <p className="text-sm text-muted-foreground">
-            Made with ❤️ Wedding Waitress
+            Made with 💜{' '}
+            <a
+              href="https://theweddingwaitress.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-primary transition-colors underline-offset-4 hover:underline"
+            >
+              Wedding Waitress
+            </a>
           </p>
         </div>
       )}

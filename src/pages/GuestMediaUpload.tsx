@@ -305,7 +305,15 @@ export const GuestMediaUpload: React.FC = () => {
             
           {showFooter && (
             <p className="text-sm text-muted-foreground mt-8">
-              Made with ❤️ Wedding Waitress
+              Made with 💜{' '}
+              <a
+                href="https://theweddingwaitress.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-primary transition-colors underline-offset-4 hover:underline"
+              >
+                Wedding Waitress
+              </a>
             </p>
           )}
           </div>
