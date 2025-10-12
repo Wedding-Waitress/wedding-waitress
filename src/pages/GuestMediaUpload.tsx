@@ -84,6 +84,17 @@ export const GuestMediaUpload: React.FC = () => {
     }
   }, [eventData?.name]);
 
+  // Cleanup object URLs on unmount
+  useEffect(() => {
+    return () => {
+      selectedItems.forEach(item => {
+        if (item.preview) {
+          URL.revokeObjectURL(item.preview);
+        }
+      });
+    };
+  }, [selectedItems]);
+
   const fetchEventData = async () => {
     try {
       const { data: gallery } = await supabase
@@ -224,11 +235,6 @@ export const GuestMediaUpload: React.FC = () => {
         caption: '',
       };
       
-      // Generate video thumbnail
-      if (isVideo) {
-        item.previewPoster = await generateVideoThumbnail(file);
-      }
-      
       validFiles.push(item);
     }
     
@@ -252,6 +258,10 @@ export const GuestMediaUpload: React.FC = () => {
   };
 
   const handleRemoveItem = (index: number) => {
+    const item = selectedItems[index];
+    if (item.preview) {
+      URL.revokeObjectURL(item.preview);
+    }
     setSelectedItems(selectedItems.filter((_, i) => i !== index));
   };
 
@@ -600,22 +610,19 @@ export const GuestMediaUpload: React.FC = () => {
                     <img 
                       src={item.preview} 
                       className="w-full h-full object-cover rounded-lg" 
+                      style={{ imageRendering: 'auto' }}
                       alt="" 
                     />
                   )}
-                  {item.type === 'video' && (
+                  {item.type === 'video' && item.preview && (
                     <div className="relative w-full h-full">
-                      {item.previewPoster ? (
-                        <img 
-                          src={item.previewPoster} 
-                          className="w-full h-full object-cover rounded-lg" 
-                          alt="" 
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-muted flex items-center justify-center rounded-lg">
-                          <Play className="w-12 h-12 text-muted-foreground" />
-                        </div>
-                      )}
+                      <video 
+                        src={item.preview}
+                        muted
+                        playsInline
+                        preload="metadata"
+                        className="w-full h-full object-cover rounded-lg"
+                      />
                       <div className="absolute bottom-2 left-2 bg-black/70 rounded-full p-1.5">
                         <Play className="w-4 h-4 text-white" fill="white" />
                       </div>
