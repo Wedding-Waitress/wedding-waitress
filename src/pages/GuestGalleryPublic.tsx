@@ -59,7 +59,6 @@ export const GuestGalleryPublic: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [token, setToken] = useState('');
   const [retryCount, setRetryCount] = useState(0);
-  const [debugInfo, setDebugInfo] = useState<any>(null);
 
   const MAX_VIDEO_SIZE_MB = 200;
 
@@ -147,6 +146,40 @@ export const GuestGalleryPublic: React.FC = () => {
       setLoading(false);
     }
   };
+
+  // Setup real-time subscription for live updates
+  useEffect(() => {
+    if (!galleryData?.id) return;
+
+    const channel = supabase
+      .channel(`media-gallery:${galleryData.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'media_uploads',
+          filter: `gallery_id=eq.${galleryData.id}`,
+        },
+        (payload) => {
+          console.log('Real-time media update:', payload);
+          
+          if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
+            const newItem = payload.new as any;
+            if (newItem.status === 'approved') {
+              fetchGalleryData();
+            }
+          } else if (payload.eventType === 'DELETE') {
+            fetchGalleryData();
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [galleryData?.id]);
 
   const handleRetry = () => {
     setRetryCount(prev => prev + 1);
@@ -342,7 +375,12 @@ export const GuestGalleryPublic: React.FC = () => {
       if (failCount === 0) {
         setSelectedItems([]);
         setFlowStep('success');
-        fetchGalleryData();
+        await fetchGalleryData();
+
+        // Auto-navigate to landing after 3 seconds to show new uploads
+        setTimeout(() => {
+          setFlowStep('landing');
+        }, 3000);
       } else if (successCount > 0) {
         toast({
           title: 'Partial Success',
@@ -485,18 +523,6 @@ export const GuestGalleryPublic: React.FC = () => {
 
         if (confirmError) throw confirmError;
 
-        // Debug info (dev only)
-        if (import.meta.env.DEV) {
-          setDebugInfo({
-            filename: item.file.name,
-            type: item.file.type,
-            size: item.file.size,
-            contentType: urlData.content_type,
-            signedUrlStatus: uploadResponse.status,
-            confirmStatus: 'success',
-          });
-        }
-
         break;
       } catch (error: any) {
         if (retryCount >= MAX_RETRIES) {
@@ -603,6 +629,55 @@ export const GuestGalleryPublic: React.FC = () => {
                 </Button>
               )}
             </div>
+
+            {/* Recent Media Strip */}
+            {mediaItems.length > 0 && (
+              <div className="mt-12 w-full max-w-4xl mx-auto">
+                <p className="text-sm text-muted-foreground mb-4 text-left">
+                  {mediaItems.length} photos, videos & posts
+                </p>
+                <div className="overflow-x-auto pb-4 snap-x snap-mandatory scroll-smooth -mx-4 px-4">
+                  <div className="flex gap-3 min-w-min">
+                    {mediaItems.slice(0, 30).map((item) => (
+                      <div
+                        key={item.id}
+                        className="snap-start shrink-0 cursor-pointer transition-transform hover:scale-105"
+                        onClick={() => setFlowStep('view-gallery')}
+                      >
+                        <div className="w-32 h-32 md:w-40 md:h-40 rounded-lg shadow-md overflow-hidden bg-muted">
+                          {item.post_type === 'photo' && item.file_url ? (
+                            <img
+                              src={getMediaUrl(item.file_url)}
+                              alt={item.caption || 'Gallery photo'}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : item.post_type === 'video' && item.thumbnail_url ? (
+                            <div className="relative w-full h-full">
+                              <img
+                                src={item.thumbnail_url}
+                                alt={item.caption || 'Video thumbnail'}
+                                className="w-full h-full object-cover"
+                              />
+                              <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+                                <div className="w-12 h-12 rounded-full bg-white/90 flex items-center justify-center">
+                                  <div className="w-0 h-0 border-l-[8px] border-l-primary border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent ml-1"></div>
+                                </div>
+                              </div>
+                            </div>
+                          ) : item.post_type === 'text' ? (
+                            <div className="w-full h-full flex items-center justify-center p-4 bg-gradient-to-br from-primary/10 to-primary/5">
+                              <p className="text-sm text-center line-clamp-4">
+                                {item.text_content}
+                              </p>
+                            </div>
+                          ) : null}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
             
             {galleryData.show_footer && (
               <p className="text-sm text-muted-foreground mt-8">
@@ -809,25 +884,22 @@ export const GuestGalleryPublic: React.FC = () => {
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button
-                variant="outline"
                 size="lg"
-                onClick={() => {
-                  setFlowStep('add');
-                  setSelectedItems([]);
-                  setUploadProgress(0);
-                }}
+                className="bg-gradient-to-r from-primary to-purple-600 hover:opacity-90"
+                onClick={() => setFlowStep('view-gallery')}
               >
-                Add More
+                View Album
               </Button>
               <Button
                 size="lg"
-                className="bg-gradient-to-r from-primary to-purple-600 hover:opacity-90"
+                variant="outline"
                 onClick={() => {
-                  setFlowStep('view-gallery');
-                  fetchGalleryData(); // Refresh media
+                  setSelectedItems([]);
+                  setFlowStep('landing');
                 }}
               >
-                View Album
+                <Plus className="w-5 h-5 mr-2" />
+                Add More
               </Button>
             </div>
           </CardContent>
@@ -961,23 +1033,6 @@ export const GuestGalleryPublic: React.FC = () => {
         </div>
       )}
 
-      {/* Debug Overlay (Dev Only) */}
-      {import.meta.env.DEV && debugInfo && (
-        <div className="fixed bottom-4 right-4 bg-black/90 text-white text-xs p-4 rounded-lg max-w-md z-50">
-          <h4 className="font-bold mb-2">Debug Info</h4>
-          <pre className="overflow-auto max-h-48">
-            {JSON.stringify(debugInfo, null, 2)}
-          </pre>
-          <Button 
-            size="sm" 
-            variant="outline" 
-            onClick={() => setDebugInfo(null)}
-            className="mt-2"
-          >
-            Close
-          </Button>
-        </div>
-      )}
     </div>
   );
 };
