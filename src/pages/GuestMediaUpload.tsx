@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Plus, X, Camera, ArrowLeft, Trash2 } from 'lucide-react';
+import { Plus, X, Camera, ArrowLeft, Trash2, Play } from 'lucide-react';
 import { format } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -15,6 +15,7 @@ interface MediaItem {
   file?: File;
   type: 'photo' | 'video' | 'text';
   preview?: string;
+  previewPoster?: string;
   caption?: string;
   textContent?: string;
   themeId?: string;
@@ -153,17 +154,88 @@ export const GuestMediaUpload: React.FC = () => {
     setToken(existingToken);
   };
 
-  const handleFileSelection = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const generateVideoThumbnail = (file: File): Promise<string> => {
+    return new Promise((resolve) => {
+      const video = document.createElement('video');
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      
+      video.preload = 'metadata';
+      video.muted = true;
+      video.playsInline = true;
+      
+      video.onloadeddata = () => {
+        video.currentTime = 0.5; // Seek to 0.5s
+      };
+      
+      video.onseeked = () => {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        ctx?.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const posterUrl = canvas.toDataURL('image/jpeg', 0.8);
+        URL.revokeObjectURL(video.src);
+        resolve(posterUrl);
+      };
+      
+      video.onerror = () => {
+        URL.revokeObjectURL(video.src);
+        resolve(''); // Return empty if thumbnail generation fails
+      };
+      
+      video.src = URL.createObjectURL(file);
+    });
+  };
+
+  const handleFileSelection = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
-    const newItems: MediaItem[] = files.map(file => ({
-      file,
-      type: file.type.startsWith('video/') ? 'video' : 'photo',
-      preview: URL.createObjectURL(file),
-      caption: '',
-    }));
+    const MAX_IMAGE_SIZE = 15 * 1024 * 1024; // 15 MB
+    const MAX_VIDEO_SIZE = 200 * 1024 * 1024; // 200 MB
     
-    setSelectedItems([...selectedItems, ...newItems]);
-    setFlowStep('preview');
+    const validFiles: MediaItem[] = [];
+    
+    for (const file of files) {
+      const isVideo = file.type.startsWith('video/');
+      const isImage = file.type.startsWith('image/');
+      
+      // Validate file size
+      if (isImage && file.size > MAX_IMAGE_SIZE) {
+        toast({
+          title: 'Image too large',
+          description: `${file.name} exceeds 15 MB limit`,
+          variant: 'destructive',
+        });
+        continue;
+      }
+      
+      if (isVideo && file.size > MAX_VIDEO_SIZE) {
+        toast({
+          title: 'Video too large',
+          description: `${file.name} exceeds 200 MB limit`,
+          variant: 'destructive',
+        });
+        continue;
+      }
+      
+      const preview = URL.createObjectURL(file);
+      const item: MediaItem = {
+        file,
+        type: isVideo ? 'video' : 'photo',
+        preview,
+        caption: '',
+      };
+      
+      // Generate video thumbnail
+      if (isVideo) {
+        item.previewPoster = await generateVideoThumbnail(file);
+      }
+      
+      validFiles.push(item);
+    }
+    
+    if (validFiles.length > 0) {
+      setSelectedItems([...selectedItems, ...validFiles]);
+      setFlowStep('preview');
+    }
   };
 
   const handleTextPostSubmit = (data: { textContent: string; themeId: string }) => {
@@ -209,8 +281,23 @@ export const GuestMediaUpload: React.FC = () => {
       console.error('Upload error:', error);
       
       // Extract detailed error message
-      let errorMsg = 'Failed to upload some items';
-      if (error.context?.body) {
+      let errorMsg = 'Upload failed';
+      let errorTitle = 'Error';
+      
+      if (error.message) {
+        if (error.message.includes('too large') || error.message.includes('exceeds')) {
+          errorTitle = 'File too large';
+          errorMsg = error.message;
+        } else if (error.message.includes('Invalid') || error.message.includes('format')) {
+          errorTitle = 'Invalid format';
+          errorMsg = error.message;
+        } else if (error.message.includes('network') || error.message.includes('Network')) {
+          errorTitle = 'Network error';
+          errorMsg = 'Check your connection and try again';
+        } else {
+          errorMsg = error.message;
+        }
+      } else if (error.context?.body) {
         const body = error.context.body;
         if (body.error) {
           errorMsg = body.error;
@@ -218,12 +305,10 @@ export const GuestMediaUpload: React.FC = () => {
             errorMsg += `. ${body.troubleshooting}`;
           }
         }
-      } else if (error.message) {
-        errorMsg = error.message;
       }
       
       toast({
-        title: 'Error',
+        title: errorTitle,
         description: errorMsg,
         variant: 'destructive',
       });
@@ -262,7 +347,10 @@ export const GuestMediaUpload: React.FC = () => {
       }
     );
 
-    if (urlError) throw urlError;
+    if (urlError) {
+      const errorMsg = urlError.message || 'Failed to get upload URL';
+      throw new Error(errorMsg);
+    }
 
     // Upload to the returned URL (works for both Supabase Storage and Cloudflare Stream)
     const uploadUrl = urlData.signed_url || urlData.uploadURL;
@@ -274,7 +362,10 @@ export const GuestMediaUpload: React.FC = () => {
       },
     });
 
-    if (!uploadResponse.ok) throw new Error('Upload failed');
+    if (!uploadResponse.ok) {
+      const errorText = await uploadResponse.text().catch(() => 'Unknown error');
+      throw new Error(`Upload failed: ${errorText}`);
+    }
 
     // Prepare confirmation data based on media type
     const confirmBody: any = {
@@ -473,7 +564,7 @@ export const GuestMediaUpload: React.FC = () => {
           <input
             ref={fileInputRef}
             type="file"
-            accept="image/*,video/*"
+            accept="image/jpeg,image/png,image/heic,video/mp4,video/quicktime,video/webm"
             multiple
             onChange={handleFileSelection}
             className="hidden"
@@ -503,17 +594,36 @@ export const GuestMediaUpload: React.FC = () => {
 
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             {selectedItems.map((item, index) => (
-              <Card key={index} className="relative group overflow-hidden">
-                <div className="aspect-square">
+              <Card key={index} className="relative group overflow-hidden border-2 border-primary/20">
+                <div className="aspect-square rounded-lg overflow-hidden">
                   {item.type === 'photo' && item.preview && (
-                    <img src={item.preview} className="w-full h-full object-cover" alt="" />
+                    <img 
+                      src={item.preview} 
+                      className="w-full h-full object-cover rounded-lg" 
+                      alt="" 
+                    />
                   )}
-                  {item.type === 'video' && item.preview && (
-                    <video src={item.preview} className="w-full h-full object-cover" />
+                  {item.type === 'video' && (
+                    <div className="relative w-full h-full">
+                      {item.previewPoster ? (
+                        <img 
+                          src={item.previewPoster} 
+                          className="w-full h-full object-cover rounded-lg" 
+                          alt="" 
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-muted flex items-center justify-center rounded-lg">
+                          <Play className="w-12 h-12 text-muted-foreground" />
+                        </div>
+                      )}
+                      <div className="absolute bottom-2 left-2 bg-black/70 rounded-full p-1.5">
+                        <Play className="w-4 h-4 text-white" fill="white" />
+                      </div>
+                    </div>
                   )}
                   {item.type === 'text' && (
                     <div 
-                      className="w-full h-full flex items-center justify-center p-4"
+                      className="w-full h-full flex items-center justify-center p-4 rounded-lg"
                       style={{ background: item.themeBg }}
                     >
                       <p className="text-center font-medium text-sm line-clamp-6">
@@ -523,7 +633,7 @@ export const GuestMediaUpload: React.FC = () => {
                   )}
                 </div>
                 
-                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 rounded-lg">
                   <Button
                     size="sm"
                     variant="ghost"
