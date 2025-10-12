@@ -22,7 +22,7 @@ export const PhotoVideoSharingPage: React.FC = () => {
   const [selectedGalleryId, setSelectedGalleryId] = useState<string | null>(null);
   const [showCreateWizard, setShowCreateWizard] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [statsScope, setStatsScope] = useState<'all' | 'current'>('current');
+  const statsScope = 'all';
   const [showFooter, setShowFooter] = useState(true);
   const [showPublicGallery, setShowPublicGallery] = useState(true);
   const [uploadUrl, setUploadUrl] = useState('');
@@ -254,22 +254,13 @@ export const PhotoVideoSharingPage: React.FC = () => {
 
             {galleries.length > 0 ? (
               <>
-                {/* Stats Bar + Engagement Box - Side by Side on Desktop */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Stats Bar */}
+                <div className="grid grid-cols-1 gap-6">
                   {/* Left: Stats Bar - Redesigned 3-Line Layout */}
                   <Card className="ww-box border-2 border-primary/20">
                     <CardContent className="p-4">
-                      <div className="flex items-center justify-between mb-4">
+                      <div className="mb-4">
                         <h3 className="text-lg font-semibold">Statistics</h3>
-                        <Select value={statsScope} onValueChange={(value: 'all' | 'current') => setStatsScope(value)}>
-                          <SelectTrigger className="w-[140px]">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="current">This Gallery</SelectItem>
-                            <SelectItem value="all">All Galleries</SelectItem>
-                          </SelectContent>
-                        </Select>
                       </div>
                       
                       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
@@ -308,28 +299,13 @@ export const PhotoVideoSharingPage: React.FC = () => {
                           <p className="text-2xl font-bold text-primary">{totalUploads}</p>
                         </div>
                       </div>
-                    </CardContent>
-                  </Card>
 
-                  {/* Right: Engagement & Sharing Box */}
-                  {selectedGalleryId && (
-                    <Card className="ww-box border-2 border-primary/20">
-                      <CardContent className="p-4 space-y-4">
-                        <h3 className="text-lg font-semibold">Engagement & Sharing</h3>
-                        
-                        {/* Gallery Visibility Toggles */}
-                        <div className="space-y-3">
-                          <div className="flex items-center justify-between">
-                            <Label htmlFor="show-footer" className="text-sm cursor-pointer">
-                              Show 'Made with 💜 Wedding Waitress' footer
-                            </Label>
-                            <Switch
-                              id="show-footer"
-                              checked={showFooter}
-                              onCheckedChange={(checked) => updateGallerySetting('show_footer', checked)}
-                            />
-                          </div>
-                          
+                      {/* Separator Line */}
+                      {selectedGalleryId && (
+                        <>
+                          <div className="border-t border-border my-4"></div>
+
+                          {/* Moved: Show Gallery to Guests Toggle */}
                           <div className="flex items-center justify-between">
                             <Label htmlFor="show-public" className="text-sm cursor-pointer">
                               Show gallery to guests tonight
@@ -340,87 +316,29 @@ export const PhotoVideoSharingPage: React.FC = () => {
                               onCheckedChange={(checked) => updateGallerySetting('show_public_gallery', checked)}
                             />
                           </div>
-                        </div>
-                        
-                        {/* Share to Socials */}
-                        <div className="space-y-3">
-                          <Label className="text-sm font-medium">Share to Socials</Label>
-                          <div className="grid grid-cols-3 gap-2">
-                            <TooltipProvider>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <Button
-                                    variant="default"
-                                    size="sm"
-                                    onClick={handleWebShare}
-                                    className="w-full"
-                                  >
-                                    <Share2 className="w-4 h-4" />
-                                  </Button>
-                                </TooltipTrigger>
-                                <TooltipContent>Share via Web Share API</TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
-                            
-                            <TooltipProvider>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={shareToFacebook}
-                                    className="w-full border-blue-600 text-blue-600 hover:bg-blue-50"
-                                  >
-                                    <Facebook className="w-4 h-4" />
-                                  </Button>
-                                </TooltipTrigger>
-                                <TooltipContent>Share on Facebook</TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
-                            
-                            <TooltipProvider>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={shareToInstagram}
-                                    className="w-full border-pink-600 text-pink-600 hover:bg-pink-50"
-                                  >
-                                    <Instagram className="w-4 h-4" />
-                                  </Button>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                  <p className="max-w-xs text-xs">
-                                    Instagram doesn't allow web share; use 'Share' to copy the link or share via your device
-                                  </p>
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
+
+                          {/* Moved: Guest Upload Link */}
+                          <div className="space-y-2 mt-3">
+                            <Label className="text-xs">Guest Upload Link</Label>
+                            <div className="flex gap-2">
+                              <Input
+                                value={uploadUrl}
+                                readOnly
+                                className="flex-1 text-xs"
+                              />
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={copyUploadUrl}
+                              >
+                                <Copy className="w-4 h-4" />
+                              </Button>
+                            </div>
                           </div>
-                        </div>
-                        
-                        {/* Guest Upload Link - Quick Copy */}
-                        <div className="space-y-2">
-                          <Label className="text-xs">Guest Upload Link</Label>
-                          <div className="flex gap-2">
-                            <Input
-                              value={uploadUrl}
-                              readOnly
-                              className="flex-1 text-xs"
-                            />
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={copyUploadUrl}
-                            >
-                              <Copy className="w-4 h-4" />
-                            </Button>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  )}
+                        </>
+                      )}
+                    </CardContent>
+                  </Card>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
