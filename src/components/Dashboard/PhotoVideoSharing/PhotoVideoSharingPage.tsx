@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Camera, Plus, BarChart3, Trash2, Copy, Download, QrCode, FolderOpen, Image, Video, MessageSquare, Share2, Facebook, Instagram, Loader2, ChevronDown } from 'lucide-react';
+import { Camera, Plus, BarChart3, Trash2, Copy, Download, QrCode, FolderOpen, Image, Video, MessageSquare, Share2, Facebook, Instagram, Loader2, ChevronDown, Eye } from 'lucide-react';
 import { SetupWizard } from './SetupWizard';
+import { GalleryViewModal } from './GalleryViewModal';
 import { useGalleries } from '@/hooks/useGalleries';
 import { useGalleryStats } from '@/hooks/useGalleryStats';
 import { useGalleryExports } from '@/hooks/useGalleryExports';
@@ -22,12 +23,14 @@ export const PhotoVideoSharingPage: React.FC = () => {
   const [selectedGalleryId, setSelectedGalleryId] = useState<string | null>(null);
   const [showCreateWizard, setShowCreateWizard] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showViewModal, setShowViewModal] = useState(false);
   const statsScope = 'all';
   const [showFooter, setShowFooter] = useState(true);
   const [showPublicGallery, setShowPublicGallery] = useState(true);
   const [uploadUrl, setUploadUrl] = useState('');
   const [galleryTitle, setGalleryTitle] = useState('');
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState('');
+  const [isDownloading, setIsDownloading] = useState(false);
   
   const { galleries, refetch: refetchGalleries } = useGalleries();
   const { stats } = useGalleryStats(selectedGalleryId, statsScope);
@@ -224,6 +227,70 @@ export const PhotoVideoSharingPage: React.FC = () => {
     });
   };
 
+  const handleViewGallery = () => {
+    if (!selectedGalleryId) return;
+    setShowViewModal(true);
+  };
+
+  const handleDownloadGallery = async () => {
+    if (!selectedGalleryId || isDownloading) return;
+
+    setIsDownloading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('export-gallery-zip', {
+        body: {
+          galleryId: selectedGalleryId,
+          scope: 'approved',
+        },
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: 'Export Started',
+        description: 'Your gallery is being prepared. This may take a few moments.',
+      });
+
+      // Poll for completion
+      const checkExport = async (exportId: string) => {
+        const { data: exportData } = await supabase
+          .from('gallery_exports')
+          .select('status, download_url')
+          .eq('id', exportId)
+          .single();
+
+        if (exportData?.status === 'ready' && exportData.download_url) {
+          const link = document.createElement('a');
+          link.href = exportData.download_url;
+          link.download = `${galleryTitle.replace(/\s+/g, '-').toLowerCase()}-gallery.zip`;
+          link.click();
+
+          toast({
+            title: 'Download Ready!',
+            description: 'Your gallery ZIP file is downloading now.',
+          });
+          setIsDownloading(false);
+        } else if (exportData?.status === 'error') {
+          throw new Error('Export failed');
+        } else {
+          setTimeout(() => checkExport(exportId), 2000);
+        }
+      };
+
+      if (data?.export_id) {
+        checkExport(data.export_id);
+      }
+    } catch (error: any) {
+      console.error('Error downloading gallery:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to download gallery',
+        variant: 'destructive',
+      });
+      setIsDownloading(false);
+    }
+  };
+
   const totalUploads = stats.photosCount + stats.videosCount + stats.messagesCount;
 
   if (showCreateWizard) {
@@ -358,15 +425,41 @@ export const PhotoVideoSharingPage: React.FC = () => {
                       </Select>
                     </div>
 
-                    <Button
-                      variant="destructive"
-                      className="w-full"
-                      onClick={() => setShowDeleteDialog(true)}
-                      disabled={!selectedGalleryId}
-                    >
-                      <Trash2 className="w-4 h-4 mr-2" />
-                      Delete Gallery
-                    </Button>
+                    <div className="space-y-2">
+                      <Button
+                        variant="default"
+                        className="w-full"
+                        onClick={handleViewGallery}
+                        disabled={!selectedGalleryId}
+                      >
+                        <Eye className="w-4 h-4 mr-2" />
+                        View Gallery
+                      </Button>
+
+                      <Button
+                        variant="outline"
+                        className="w-full"
+                        onClick={handleDownloadGallery}
+                        disabled={!selectedGalleryId || isDownloading}
+                      >
+                        {isDownloading ? (
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        ) : (
+                          <Download className="w-4 h-4 mr-2" />
+                        )}
+                        {isDownloading ? 'Preparing...' : 'Download Gallery'}
+                      </Button>
+
+                      <Button
+                        variant="destructive"
+                        className="w-full"
+                        onClick={() => setShowDeleteDialog(true)}
+                        disabled={!selectedGalleryId}
+                      >
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        Delete Gallery
+                      </Button>
+                    </div>
                   </CardContent>
                 </Card>
 
@@ -452,16 +545,27 @@ export const PhotoVideoSharingPage: React.FC = () => {
             <AlertDialogTitle>Delete Gallery?</AlertDialogTitle>
             <AlertDialogDescription>
               Are you sure you want to delete this gallery? This action cannot be undone.
+              All photos, videos, and guest messages will be permanently deleted.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={handleDeleteGallery} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-              Delete
+              Delete Gallery
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Gallery View Modal */}
+      {selectedGalleryId && (
+        <GalleryViewModal
+          isOpen={showViewModal}
+          onClose={() => setShowViewModal(false)}
+          galleryId={selectedGalleryId}
+          galleryTitle={galleryTitle}
+        />
+      )}
     </div>
   );
 };
