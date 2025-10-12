@@ -24,6 +24,8 @@ interface MediaItem {
   width?: number;
   height?: number;
   status?: string;
+  displayUrl?: string;
+  thumbnailDisplayUrl?: string;
 }
 
 export const GalleryViewModal: React.FC<GalleryViewModalProps> = ({
@@ -56,22 +58,51 @@ export const GalleryViewModal: React.FC<GalleryViewModalProps> = ({
       if (error) throw error;
 
       if (data) {
-        setPhotos(data.filter((item: MediaItem) => item.post_type === 'photo'));
-        setVideos(data.filter((item: MediaItem) => item.post_type === 'video'));
-        setMessages(data.filter((item: MediaItem) => item.post_type === 'text'));
+        // Generate signed URLs for private bucket files
+        const processedData = await Promise.all(
+          data.map(async (item: MediaItem) => {
+            let displayUrl = item.file_url;
+            let thumbnailDisplayUrl = item.thumbnail_url;
+
+            // Create signed URL for private event-media files
+            if (item.file_url && item.file_url.startsWith('event-media/')) {
+              const path = item.file_url.replace('event-media/', '');
+              const { data: signedData } = await supabase.storage
+                .from('event-media')
+                .createSignedUrl(path, 3600); // 1 hour expiry
+              if (signedData?.signedUrl) {
+                displayUrl = signedData.signedUrl;
+              }
+            }
+
+            // Create signed URL for thumbnail if exists
+            if (item.thumbnail_url && item.thumbnail_url.startsWith('event-media/')) {
+              const path = item.thumbnail_url.replace('event-media/', '');
+              const { data: signedData } = await supabase.storage
+                .from('event-media')
+                .createSignedUrl(path, 3600);
+              if (signedData?.signedUrl) {
+                thumbnailDisplayUrl = signedData.signedUrl;
+              }
+            }
+
+            return {
+              ...item,
+              displayUrl,
+              thumbnailDisplayUrl: thumbnailDisplayUrl || displayUrl,
+            };
+          })
+        );
+
+        setPhotos(processedData.filter((item: any) => item.post_type === 'photo'));
+        setVideos(processedData.filter((item: any) => item.post_type === 'video'));
+        setMessages(processedData.filter((item: any) => item.post_type === 'text'));
       }
     } catch (error) {
       console.error('Error fetching gallery content:', error);
     } finally {
       setLoading(false);
     }
-  };
-
-  const getImageUrl = (item: MediaItem) => {
-    if (item.file_url && item.file_url.startsWith('event-media/')) {
-      return supabase.storage.from('event-media').getPublicUrl(item.file_url.replace('event-media/', '')).data.publicUrl;
-    }
-    return item.file_url;
   };
 
   return (
@@ -113,7 +144,7 @@ export const GalleryViewModal: React.FC<GalleryViewModalProps> = ({
                     <Card key={photo.id} className="overflow-hidden">
                       <div className="aspect-square relative">
                         <img
-                          src={getImageUrl(photo)}
+                          src={(photo as any).thumbnailDisplayUrl || (photo as any).displayUrl}
                           alt={photo.caption || 'Gallery photo'}
                           className="w-full h-full object-cover"
                         />
