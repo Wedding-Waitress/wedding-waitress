@@ -1,14 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Image, Video, MessageSquare, Loader2, Play, Download, Share2, X, ChevronLeft, ChevronRight, Check } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import React, { useState, useEffect, useRef } from 'react';
+import { Download, Share2, ChevronLeft, ChevronRight, X, Play } from 'lucide-react';
+import { format } from 'date-fns';
+import { Dialog, DialogContent, DialogClose } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Checkbox } from '@/components/ui/checkbox';
-import { useToast } from '@/hooks/use-toast';
-import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Skeleton } from '@/components/ui/skeleton';
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import { getThemeById } from '@/lib/mediaConstants';
 
 interface GalleryViewModalProps {
   isOpen: boolean;
@@ -25,13 +26,16 @@ interface MediaItem {
   cloudflare_stream_uid?: string;
   caption?: string;
   text_content?: string;
+  theme_id?: string;
   created_at: string;
   width?: number;
   height?: number;
   status?: string;
   displayUrl?: string;
   thumbnailDisplayUrl?: string;
-  stream_preview_image?: string;
+  thumb512Url?: string;
+  thumb1280Url?: string;
+  poster_url?: string;
 }
 
 export const GalleryViewModal: React.FC<GalleryViewModalProps> = ({
@@ -43,12 +47,10 @@ export const GalleryViewModal: React.FC<GalleryViewModalProps> = ({
   const [photos, setPhotos] = useState<MediaItem[]>([]);
   const [videos, setVideos] = useState<MediaItem[]>([]);
   const [messages, setMessages] = useState<MediaItem[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [selectedItem, setSelectedItem] = useState<MediaItem | null>(null);
-  const [lightboxIndex, setLightboxIndex] = useState<number>(-1);
-  const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
   const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
-  const [loadedImages, setLoadedImages] = useState<Set<string>>(new Set());
   const { toast } = useToast();
 
   useEffect(() => {
@@ -57,49 +59,18 @@ export const GalleryViewModal: React.FC<GalleryViewModalProps> = ({
     }
   }, [isOpen, galleryId]);
 
-  useEffect(() => {
-    if (!isOpen) {
-      setSelectedItem(null);
-      setLightboxIndex(-1);
-    }
-  }, [isOpen]);
-
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (lightboxIndex === -1) return;
-      if (e.key === 'ArrowLeft') navigateLightbox(-1);
-      if (e.key === 'ArrowRight') navigateLightbox(1);
-      if (e.key === 'Escape') setLightboxIndex(-1);
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [lightboxIndex, photos, videos]);
-
-  const signStorageUrl = async (
-    maybePath: string | null | undefined, 
-    opts?: { transform?: { width?: number; quality?: number } }
-  ): Promise<string | null> => {
-    if (!maybePath) return null;
-    if (/^https?:\/\//i.test(maybePath)) return maybePath;
-    
-    const path = maybePath.replace(/^event-media\//, '');
-    const { data, error } = await supabase.storage
+  const signStorageUrl = async (path: string, opts?: any) => {
+    const { data } = await supabase.storage
       .from('event-media')
-      .createSignedUrl(path, 3600, opts);
-    
-    if (error) {
-      console.error('createSignedUrl error', { path, error });
-      return null;
-    }
-    return data?.signedUrl ?? null;
+      .createSignedUrl(path, 86400, opts); // 24 hour cache
+    return data?.signedUrl || '';
   };
 
   const fetchGalleryContent = async () => {
     setLoading(true);
     try {
       const { data, error } = await supabase
-        .from('media_uploads')
+        .from('media_uploads' as any)
         .select('*')
         .eq('gallery_id', galleryId)
         .in('status', ['pending', 'approved'])
@@ -107,40 +78,47 @@ export const GalleryViewModal: React.FC<GalleryViewModalProps> = ({
 
       if (error) throw error;
 
-      if (data) {
-        const processedData = await Promise.all(
-          data.map(async (item: MediaItem) => {
-            let displayUrl: string | null | undefined = item.file_url;
-            let thumbnailDisplayUrl: string | null | undefined = item.thumbnail_url;
+      const processedItems = await Promise.all(
+        (data as any[]).map(async (item) => {
+          let displayUrl = '';
+          let thumbnailDisplayUrl = '';
+          let thumb512Url = '';
+          let thumb1280Url = '';
 
-            if (item.post_type === 'photo') {
-              const thumb = await signStorageUrl(
-                item.thumbnail_url || item.file_url, 
-                { transform: { width: 800, quality: 75 } }
-              );
-              const full = await signStorageUrl(item.file_url);
-              thumbnailDisplayUrl = thumb || full || undefined;
-              displayUrl = full || undefined;
-            }
+          if (item.post_type === 'photo' && item.file_url) {
+            // Generate responsive image URLs
+            [thumb512Url, thumb1280Url, displayUrl] = await Promise.all([
+              signStorageUrl(item.file_url, { transform: { width: 512, quality: 80 } }),
+              signStorageUrl(item.file_url, { transform: { width: 1280, quality: 85 } }),
+              signStorageUrl(item.file_url),
+            ]);
+            thumbnailDisplayUrl = thumb512Url;
+          } else if (item.post_type === 'video' && item.cloudflare_stream_uid) {
+            displayUrl = `https://customer-xvug97yzqxwnmtgg.cloudflarestream.com/${item.cloudflare_stream_uid}/iframe`;
+            thumbnailDisplayUrl = item.poster_url || 
+              `https://customer-xvug97yzqxwnmtgg.cloudflarestream.com/${item.cloudflare_stream_uid}/thumbnails/thumbnail.jpg?width=512&height=512&fit=crop`;
+          }
 
-            if (item.post_type === 'video' && !item.cloudflare_stream_uid && item.file_url) {
-              displayUrl = await signStorageUrl(item.file_url);
-            }
+          return {
+            ...item,
+            displayUrl,
+            thumbnailDisplayUrl,
+            thumb512Url,
+            thumb1280Url,
+          };
+        })
+      );
 
-            return {
-              ...item,
-              displayUrl: displayUrl || undefined,
-              thumbnailDisplayUrl: thumbnailDisplayUrl || displayUrl || undefined
-            };
-          })
-        );
-
-        setPhotos(processedData.filter((item: any) => item.post_type === 'photo'));
-        setVideos(processedData.filter((item: any) => item.post_type === 'video'));
-        setMessages(processedData.filter((item: any) => item.post_type === 'text'));
-      }
-    } catch (error) {
-      console.error('Error fetching gallery content:', error);
+      setPhotos(processedItems.filter((item) => item.post_type === 'photo'));
+      setVideos(processedItems.filter((item) => item.post_type === 'video'));
+      setMessages(processedItems.filter((item) => item.post_type === 'text'));
+    } catch (error: any) {
+      console.error('Error fetching gallery:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to load gallery',
+        variant: 'destructive',
+      });
     } finally {
       setLoading(false);
     }
@@ -154,39 +132,27 @@ export const GalleryViewModal: React.FC<GalleryViewModalProps> = ({
     });
   };
 
-  const toggleSelection = (id: string) => {
-    setSelectedItems(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(id)) {
-        newSet.delete(id);
-      } else {
-        newSet.add(id);
-      }
-      return newSet;
-    });
-  };
-
-  const toggleSelectAll = (items: MediaItem[]) => {
-    if (selectedItems.size === items.length) {
-      setSelectedItems(new Set());
-    } else {
-      setSelectedItems(new Set(items.map(item => item.id)));
-    }
-  };
-
-  const navigateLightbox = (direction: number) => {
-    const allMedia = [...photos, ...videos];
-    const newIndex = lightboxIndex + direction;
-    if (newIndex >= 0 && newIndex < allMedia.length) {
+  const navigateLightbox = (direction: 'prev' | 'next') => {
+    if (lightboxIndex === null || !selectedItem) return;
+    
+    const items = getSortedItems(
+      selectedItem.post_type === 'photo' ? photos :
+      selectedItem.post_type === 'video' ? videos : messages
+    );
+    
+    const newIndex = direction === 'next' ? lightboxIndex + 1 : lightboxIndex - 1;
+    if (newIndex >= 0 && newIndex < items.length) {
       setLightboxIndex(newIndex);
-      setSelectedItem(allMedia[newIndex]);
+      setSelectedItem(items[newIndex]);
     }
   };
 
-  const openLightbox = (item: MediaItem, items: MediaItem[]) => {
-    const index = items.findIndex(i => i.id === item.id);
+  const openLightbox = (index: number, type: 'photo' | 'video' | 'message') => {
+    const items = getSortedItems(
+      type === 'photo' ? photos : type === 'video' ? videos : messages
+    );
     setLightboxIndex(index);
-    setSelectedItem(item);
+    setSelectedItem(items[index]);
   };
 
   const handleDownload = async (item: MediaItem) => {
@@ -218,8 +184,8 @@ export const GalleryViewModal: React.FC<GalleryViewModalProps> = ({
       } catch (error) {
         console.error('Share failed:', error);
       }
-    } else {
-      navigator.clipboard.writeText(item.displayUrl || '');
+    } else if (item.displayUrl) {
+      navigator.clipboard.writeText(item.displayUrl);
       toast({ title: 'Link copied to clipboard' });
     }
   };
@@ -232,312 +198,284 @@ export const GalleryViewModal: React.FC<GalleryViewModalProps> = ({
     });
   };
 
-  const MediaCard = ({ item, index, items, type }: { item: MediaItem; index: number; items: MediaItem[]; type: 'photo' | 'video' }) => {
+  const MediaCard = ({ item, index, type }: { item: MediaItem; index: number; type: 'photo' | 'video' | 'message' }) => {
     const [imageLoaded, setImageLoaded] = useState(false);
-    const isSelected = selectedItems.has(item.id);
+    const imgRef = useRef<HTMLImageElement>(null);
+
+    // Pre-decode images to prevent flicker
+    useEffect(() => {
+      if (!item.thumbnailDisplayUrl || type === 'message') return;
+      
+      const img = new Image();
+      img.src = item.thumbnailDisplayUrl;
+      img.decode()
+        .then(() => {
+          if (imgRef.current) {
+            imgRef.current.src = item.thumbnailDisplayUrl;
+            setImageLoaded(true);
+          }
+        })
+        .catch(() => setImageLoaded(true));
+    }, [item.thumbnailDisplayUrl, type]);
 
     return (
-      <div className="group relative">
-        <div
-          className="relative aspect-square rounded-lg overflow-hidden bg-white border border-[#E6E6E6] shadow-sm cursor-pointer transition-all duration-200 hover:scale-[1.02] hover:shadow-md"
-          onClick={() => openLightbox(item, items)}
-        >
-          {!imageLoaded && (
-            <Skeleton className="absolute inset-0" />
-          )}
+      <Card 
+        key={item.id} 
+        className="relative overflow-hidden cursor-pointer transition-shadow hover:shadow-md"
+        onClick={() => openLightbox(index, type)}
+      >
+        <CardContent className="p-0 aspect-square relative">
+          {!imageLoaded && type !== 'message' && <Skeleton className="absolute inset-0 bg-gray-100" />}
           
           {type === 'photo' ? (
             <img
-              src={item.thumbnailDisplayUrl || item.displayUrl}
+              ref={imgRef}
+              srcSet={item.thumb512Url && item.thumb1280Url ? 
+                `${item.thumb512Url} 512w, ${item.thumb1280Url} 1280w` : 
+                undefined
+              }
+              sizes="(min-width: 1024px) 33vw, (min-width: 640px) 45vw, 90vw"
+              src={item.thumbnailDisplayUrl}
               alt={`${galleryTitle} - Photo ${index + 1}`}
-              className={`w-full h-full object-cover transition-opacity ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
+              className={`w-full h-full object-cover rounded-lg transition-opacity ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
+              style={{ imageRendering: 'auto' }}
               onLoad={() => setImageLoaded(true)}
-              onError={(e) => {
-                const target = e.currentTarget as HTMLImageElement;
-                if (item.displayUrl && target.src !== item.displayUrl) {
-                  target.src = item.displayUrl;
-                } else {
-                  setImageLoaded(true);
-                  const parent = target.parentElement;
-                  if (parent && !parent.querySelector('.placeholder-icon')) {
-                    const placeholder = document.createElement('div');
-                    placeholder.className = 'placeholder-icon w-full h-full flex items-center justify-center text-muted-foreground text-4xl';
-                    placeholder.textContent = '📷';
-                    parent.appendChild(placeholder);
-                  }
-                }
-              }}
             />
-          ) : item.cloudflare_stream_uid ? (
-            <div className="relative w-full h-full">
+          ) : type === 'video' ? (
+            <div className="relative w-full h-full bg-black rounded-lg overflow-hidden">
               <img
-                src={item.stream_preview_image || `https://customer-xvug97yzqxwnmtgg.cloudflarestream.com/${item.cloudflare_stream_uid}/thumbnails/thumbnail.jpg`}
+                ref={imgRef}
+                src={item.thumbnailDisplayUrl}
                 alt={`${galleryTitle} - Video ${index + 1}`}
-                className={`w-full h-full object-cover transition-opacity ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
+                className="w-full h-full object-cover"
+                style={{ imageRendering: 'auto' }}
                 onLoad={() => setImageLoaded(true)}
               />
-              <div className="absolute bottom-2 left-2 bg-black/70 rounded-full p-1.5">
-                <Play className="w-4 h-4 text-white" />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-16 h-16 rounded-full bg-black/50 flex items-center justify-center">
+                  <Play className="h-8 w-8 text-white" fill="white" />
+                </div>
               </div>
             </div>
-          ) : item.displayUrl ? (
-            <>
-              <video
-                src={item.displayUrl}
-                className="w-full h-full object-cover"
-                onLoadedData={() => setImageLoaded(true)}
-              />
-              <div className="absolute bottom-2 left-2 bg-black/70 rounded-full p-1.5">
-                <Play className="w-4 h-4 text-white" />
-              </div>
-            </>
           ) : (
-            <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-              <span className="text-4xl">🎥</span>
+            <div 
+              className="w-full h-full p-6 flex items-center justify-center text-center rounded-lg"
+              style={{ 
+                backgroundColor: item.theme_id ? getThemeById(item.theme_id)?.bgColor : '#f3f4f6',
+              }}
+            >
+              <p className="text-lg font-medium line-clamp-6 whitespace-pre-wrap break-words">
+                {item.text_content}
+              </p>
             </div>
           )}
-
-          <div
-            className="absolute top-2 right-2 z-10"
-            onClick={(e) => {
-              e.stopPropagation();
-              toggleSelection(item.id);
-            }}
-          >
-            <div className={`w-6 h-6 rounded border-2 flex items-center justify-center transition-all ${isSelected ? 'bg-primary border-primary' : 'bg-white/90 border-white hover:border-primary'}`}>
-              {isSelected && <Check className="w-4 h-4 text-white" />}
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-1 px-1 flex items-center justify-between text-[10px] text-muted-foreground">
-          <span className="truncate">{formatTimestamp(item.created_at)}</span>
-          {item.caption && <span className="ml-1 truncate max-w-[60%]">{item.caption}</span>}
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     );
   };
 
-  const Toolbar = ({ items, type }: { items: MediaItem[]; type: string }) => {
-    const sortedItems = getSortedItems(items);
-    const allSelected = selectedItems.size === sortedItems.length && sortedItems.length > 0;
-
-    return (
-      <div className="flex items-center justify-between mb-4 pb-3 border-b">
-        <div className="flex items-center gap-4">
-          <span className="text-sm font-medium">
-            {sortedItems.length} {type}{sortedItems.length !== 1 ? 's' : ''}
-            {selectedItems.size > 0 && ` • ${selectedItems.size} selected`}
-          </span>
-          
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => toggleSelectAll(sortedItems)}
-            className="text-xs"
-          >
-            {allSelected ? 'Clear All' : 'Select All'}
-          </Button>
-        </div>
-
-        <Select value={sortOrder} onValueChange={(v: any) => setSortOrder(v)}>
-          <SelectTrigger className="w-[140px] h-8 text-xs">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="newest">Newest First</SelectItem>
-            <SelectItem value="oldest">Oldest First</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-    );
-  };
+  const Toolbar = ({ items, type }: { items: MediaItem[]; type: string }) => (
+    <div className="flex items-center justify-end mb-4 px-1 gap-2">
+      <span className="text-sm text-muted-foreground">
+        {items.length} {type}
+      </span>
+      <Select value={sortOrder} onValueChange={(v: any) => setSortOrder(v)}>
+        <SelectTrigger className="w-32">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="newest">Newest</SelectItem>
+          <SelectItem value="oldest">Oldest</SelectItem>
+        </SelectContent>
+      </Select>
+    </div>
+  );
 
   return (
     <>
       <Dialog open={isOpen} onOpenChange={onClose}>
         <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="text-2xl">{galleryTitle}</DialogTitle>
-          </DialogHeader>
+          <div className="space-y-4">
+            <h2 className="text-2xl font-bold">{galleryTitle}</h2>
 
-          {loading ? (
-            <div className="flex items-center justify-center py-12">
-              <Loader2 className="w-8 h-8 animate-spin text-primary" />
-            </div>
-          ) : (
-            <Tabs defaultValue="photos" className="w-full">
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="photos" className="gap-2">
-                  <Image className="w-4 h-4" />
-                  Photos ({photos.length})
-                </TabsTrigger>
-                <TabsTrigger value="videos" className="gap-2">
-                  <Video className="w-4 h-4" />
-                  Videos ({videos.length})
-                </TabsTrigger>
-                <TabsTrigger value="messages" className="gap-2">
-                  <MessageSquare className="w-4 h-4" />
-                  Messages ({messages.length})
-                </TabsTrigger>
-              </TabsList>
+            {loading ? (
+              <div className="flex items-center justify-center py-12">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+              </div>
+            ) : (
+              <Tabs defaultValue="photos" className="w-full">
+                <TabsList className="grid w-full grid-cols-3">
+                  <TabsTrigger value="photos">Photos ({photos.length})</TabsTrigger>
+                  <TabsTrigger value="videos">Videos ({videos.length})</TabsTrigger>
+                  <TabsTrigger value="messages">Messages ({messages.length})</TabsTrigger>
+                </TabsList>
 
-              <TabsContent value="photos" className="mt-4">
-                {photos.length === 0 ? (
-                  <div className="text-center py-8 text-muted-foreground">
-                    No photos yet
-                  </div>
-                ) : (
-                  <>
-                    <Toolbar items={photos} type="Photo" />
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                      {getSortedItems(photos).map((photo, idx) => (
-                        <MediaCard key={photo.id} item={photo} index={idx} items={getSortedItems(photos)} type="photo" />
+                <TabsContent value="photos" className="mt-4">
+                  {photos.length === 0 ? (
+                    <div className="text-center py-8 text-muted-foreground">No photos yet</div>
+                  ) : (
+                    <>
+                      <Toolbar items={photos} type="photo" />
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                        {getSortedItems(photos).map((photo, idx) => (
+                          <MediaCard key={photo.id} item={photo} index={idx} type="photo" />
+                        ))}
+                      </div>
+                    </>
+                  )}
+                </TabsContent>
+
+                <TabsContent value="videos" className="mt-4">
+                  {videos.length === 0 ? (
+                    <div className="text-center py-8 text-muted-foreground">No videos yet</div>
+                  ) : (
+                    <>
+                      <Toolbar items={videos} type="video" />
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                        {getSortedItems(videos).map((video, idx) => (
+                          <MediaCard key={video.id} item={video} index={idx} type="video" />
+                        ))}
+                      </div>
+                    </>
+                  )}
+                </TabsContent>
+
+                <TabsContent value="messages" className="mt-4">
+                  {messages.length === 0 ? (
+                    <div className="text-center py-8 text-muted-foreground">No messages yet</div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {getSortedItems(messages).map((msg, idx) => (
+                        <MediaCard key={msg.id} item={msg} index={idx} type="message" />
                       ))}
                     </div>
-                  </>
-                )}
-              </TabsContent>
-
-              <TabsContent value="videos" className="mt-4">
-                {videos.length === 0 ? (
-                  <div className="text-center py-8 text-muted-foreground">
-                    No videos yet
-                  </div>
-                ) : (
-                  <>
-                    <Toolbar items={videos} type="Video" />
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                      {getSortedItems(videos).map((video, idx) => (
-                        <MediaCard key={video.id} item={video} index={idx} items={getSortedItems(videos)} type="video" />
-                      ))}
-                    </div>
-                  </>
-                )}
-              </TabsContent>
-
-              <TabsContent value="messages" className="mt-4">
-                {messages.length === 0 ? (
-                  <div className="text-center py-8 text-muted-foreground">
-                    No messages yet
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {messages.map((message) => (
-                      <Card key={message.id}>
-                        <CardContent className="p-4">
-                          <p className="text-sm whitespace-pre-wrap">{message.text_content}</p>
-                          <p className="text-xs text-muted-foreground mt-2">
-                            {new Date(message.created_at).toLocaleDateString()}
-                          </p>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                )}
-              </TabsContent>
-            </Tabs>
-          )}
+                  )}
+                </TabsContent>
+              </Tabs>
+            )}
+          </div>
         </DialogContent>
       </Dialog>
 
       {/* Fullscreen Lightbox */}
-      {selectedItem && lightboxIndex >= 0 && (
-        <Dialog open={!!selectedItem} onOpenChange={() => { setSelectedItem(null); setLightboxIndex(-1); }}>
-          <DialogContent className="max-w-[100vw] max-h-[100vh] w-full h-full p-0 bg-black/95 border-0">
-            <div className="relative w-full h-full flex flex-col">
-              {/* Top Actions Bar */}
-              <div className="absolute top-0 left-0 right-0 z-50 flex items-center justify-between p-4 bg-gradient-to-b from-black/50 to-transparent">
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-white hover:bg-white/20"
-                    onClick={() => handleDownload(selectedItem)}
-                  >
-                    <Download className="w-5 h-5" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-white hover:bg-white/20"
-                    onClick={() => handleShare(selectedItem)}
-                  >
-                    <Share2 className="w-5 h-5" />
-                  </Button>
+      {selectedItem && (
+        <Dialog open={!!selectedItem} onOpenChange={() => setSelectedItem(null)}>
+          <DialogContent className="max-w-screen-lg w-full h-[90vh] p-0">
+            <div className="relative w-full h-full flex flex-col bg-black">
+              {/* Header */}
+              <div className="absolute top-0 left-0 right-0 z-10 bg-gradient-to-b from-black/80 to-transparent p-4 flex items-center justify-between">
+                <div className="flex-1">
+                  {selectedItem.caption && (
+                    <p className="text-white text-sm line-clamp-2">{selectedItem.caption}</p>
+                  )}
                 </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="text-white hover:bg-white/20"
-                  onClick={() => { setSelectedItem(null); setLightboxIndex(-1); }}
-                >
-                  <X className="w-5 h-5" />
-                </Button>
+                <div className="flex gap-2">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleDownload(selectedItem)}
+                    className="text-white hover:bg-white/20"
+                  >
+                    <Download className="h-5 w-5" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleShare(selectedItem)}
+                    className="text-white hover:bg-white/20"
+                  >
+                    <Share2 className="h-5 w-5" />
+                  </Button>
+                  <DialogClose asChild>
+                    <Button variant="ghost" size="icon" className="text-white hover:bg-white/20">
+                      <X className="h-5 w-5" />
+                    </Button>
+                  </DialogClose>
+                </div>
               </div>
 
-              {/* Main Content */}
-              <div className="flex-1 flex items-center justify-center p-4 md:p-8">
+              {/* Media Content */}
+              <div className="flex-1 flex items-center justify-center p-16">
                 {selectedItem.post_type === 'photo' ? (
                   <img
-                    src={selectedItem.displayUrl}
-                    alt={selectedItem.caption || `${galleryTitle} media`}
-                    className="max-w-full max-h-full object-contain"
+                    src={selectedItem.thumb1280Url || selectedItem.displayUrl}
+                    alt={selectedItem.caption || 'Photo'}
+                    className="max-w-full max-h-full object-contain rounded-lg"
+                    style={{ imageRendering: 'auto' }}
+                    onLoad={(e) => {
+                      // Preload full resolution in background
+                      if (selectedItem.displayUrl && selectedItem.thumb1280Url) {
+                        const highRes = new Image();
+                        highRes.src = selectedItem.displayUrl;
+                        highRes.onload = () => {
+                          (e.target as HTMLImageElement).src = selectedItem.displayUrl;
+                        };
+                      }
+                    }}
                   />
-                ) : selectedItem.cloudflare_stream_uid ? (
-                  <div className="w-full max-w-4xl aspect-video">
-                    <iframe
-                      src={`https://iframe.videodelivery.net/${selectedItem.cloudflare_stream_uid}`}
-                      className="w-full h-full rounded-lg"
-                      allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;"
-                      allowFullScreen
-                    />
-                  </div>
-                ) : selectedItem.displayUrl ? (
-                  <video
+                ) : selectedItem.post_type === 'video' ? (
+                  <iframe
                     src={selectedItem.displayUrl}
-                    controls
-                    autoPlay
-                    className="max-w-full max-h-full rounded-lg"
+                    className="w-full h-full rounded-lg"
+                    allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;"
+                    allowFullScreen
                   />
                 ) : null}
               </div>
 
-              {/* Navigation Arrows */}
-              {lightboxIndex > 0 && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="absolute left-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/20 w-12 h-12"
-                  onClick={() => navigateLightbox(-1)}
-                >
-                  <ChevronLeft className="w-8 h-8" />
-                </Button>
-              )}
-              {lightboxIndex < [...photos, ...videos].length - 1 && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/20 w-12 h-12"
-                  onClick={() => navigateLightbox(1)}
-                >
-                  <ChevronRight className="w-8 h-8" />
-                </Button>
+              {/* Navigation arrows */}
+              {lightboxIndex !== null && (
+                <>
+                  {lightboxIndex > 0 && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="absolute left-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/20 rounded-full"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigateLightbox('prev');
+                      }}
+                    >
+                      <ChevronLeft className="h-8 w-8" />
+                    </Button>
+                  )}
+                  {lightboxIndex < getSortedItems(
+                    selectedItem.post_type === 'photo' ? photos :
+                    selectedItem.post_type === 'video' ? videos : messages
+                  ).length - 1 && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/20 rounded-full"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigateLightbox('next');
+                      }}
+                    >
+                      <ChevronRight className="h-8 w-8" />
+                    </Button>
+                  )}
+                </>
               )}
 
-              {/* Bottom Caption Area */}
-              {(selectedItem.caption || selectedItem.created_at) && (
-                <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/70 to-transparent">
-                  <div className="max-w-4xl mx-auto text-white">
-                    {selectedItem.caption && (
-                      <p className="text-base mb-1">{selectedItem.caption}</p>
-                    )}
-                    <p className="text-sm text-white/70">
+              {/* Footer */}
+              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
+                <div className="text-white text-sm flex items-center justify-between">
+                  <span>
+                    {lightboxIndex !== null && `${lightboxIndex + 1} of ${
+                      getSortedItems(
+                        selectedItem.post_type === 'photo' ? photos :
+                        selectedItem.post_type === 'video' ? videos : messages
+                      ).length
+                    }`}
+                  </span>
+                  {selectedItem.created_at && (
+                    <span className="text-xs text-white/70">
                       {formatTimestamp(selectedItem.created_at)}
-                    </p>
-                  </div>
+                    </span>
+                  )}
                 </div>
-              )}
+              </div>
             </div>
           </DialogContent>
         </Dialog>

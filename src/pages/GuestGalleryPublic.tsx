@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Navigate } from 'react-router-dom';
-import { Plus, ArrowLeft, X, Camera, Trash2 } from 'lucide-react';
+import { Plus, ArrowLeft, X, Camera, Trash2, Play } from 'lucide-react';
 import { format } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -1073,24 +1073,34 @@ export const GuestGalleryPublic: React.FC = () => {
               {mediaItems.map((item) => (
                 <div
                   key={item.id}
-                  className="aspect-square bg-white rounded-lg border-4 border-white shadow-lg overflow-hidden cursor-pointer hover:scale-[1.02] transition-transform"
+                  className="aspect-square bg-white rounded-lg border-4 border-white shadow-lg overflow-hidden cursor-pointer transition-shadow hover:shadow-xl"
                 >
                   {item.post_type === 'photo' && item.file_url ? (
                     <img
                       src={getMediaUrl(item.file_url)}
                       alt={item.caption || 'Gallery photo'}
                       className="w-full h-full object-cover"
+                      style={{ imageRendering: 'auto' }}
+                      loading="lazy"
                     />
                   ) : item.post_type === 'video' && item.cloudflare_stream_uid ? (
-                    <iframe
-                      src={`https://customer-${item.cloudflare_stream_uid?.split('/')[0]}.cloudflarestream.com/${item.cloudflare_stream_uid}/iframe`}
-                      className="w-full h-full"
-                      allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;"
-                      allowFullScreen
-                    />
+                    <div className="relative w-full h-full bg-black">
+                      <img
+                        src={`https://customer-xvug97yzqxwnmtgg.cloudflarestream.com/${item.cloudflare_stream_uid}/thumbnails/thumbnail.jpg?width=512&height=512&fit=crop`}
+                        alt={item.caption || 'Video thumbnail'}
+                        className="w-full h-full object-cover"
+                        style={{ imageRendering: 'auto' }}
+                        loading="lazy"
+                      />
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="w-16 h-16 rounded-full bg-primary/20 backdrop-blur-sm flex items-center justify-center">
+                          <Play className="h-8 w-8 text-white" fill="white" />
+                        </div>
+                      </div>
+                    </div>
                   ) : item.post_type === 'text' && item.text_content ? (
                     <div 
-                      className="w-full h-full flex items-center justify-center p-4"
+                      className="w-full h-full flex items-center justify-center p-4 rounded-lg"
                       style={{ background: item.theme_id ? getThemeById(item.theme_id).bgColor : '#f0f0f0' }}
                     >
                       <p className="text-center font-medium text-sm line-clamp-6" style={{ color: item.theme_id ? getThemeById(item.theme_id).textColor : '#000' }}>

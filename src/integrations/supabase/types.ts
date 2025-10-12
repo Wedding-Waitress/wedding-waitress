@@ -1038,6 +1038,7 @@ export type Database = {
           id: string
           mime_type: string | null
           post_type: string | null
+          poster_url: string | null
           rejected_at: string | null
           rejected_by: string | null
           status: string
@@ -1046,6 +1047,8 @@ export type Database = {
           stream_status: string | null
           text_content: string | null
           theme_id: string | null
+          thumb_1280_url: string | null
+          thumb_512_url: string | null
           thumbnail_url: string | null
           type: string
           uploader_token: string
@@ -1066,6 +1069,7 @@ export type Database = {
           id?: string
           mime_type?: string | null
           post_type?: string | null
+          poster_url?: string | null
           rejected_at?: string | null
           rejected_by?: string | null
           status?: string
@@ -1074,6 +1078,8 @@ export type Database = {
           stream_status?: string | null
           text_content?: string | null
           theme_id?: string | null
+          thumb_1280_url?: string | null
+          thumb_512_url?: string | null
           thumbnail_url?: string | null
           type: string
           uploader_token: string
@@ -1094,6 +1100,7 @@ export type Database = {
           id?: string
           mime_type?: string | null
           post_type?: string | null
+          poster_url?: string | null
           rejected_at?: string | null
           rejected_by?: string | null
           status?: string
@@ -1102,6 +1109,8 @@ export type Database = {
           stream_status?: string | null
           text_content?: string | null
           theme_id?: string | null
+          thumb_1280_url?: string | null
+          thumb_512_url?: string | null
           thumbnail_url?: string | null
           type?: string
           uploader_token?: string

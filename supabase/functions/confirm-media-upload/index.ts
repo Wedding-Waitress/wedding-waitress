@@ -106,7 +106,9 @@ serve(async (req) => {
       insertData.stream_ready = false;
       insertData.file_url = ''; // No file URL for Stream videos
       insertData.thumbnail_url = null;
-    } 
+      // Store high-quality poster URL
+      insertData.poster_url = `https://customer-xvug97yzqxwnmtgg.cloudflarestream.com/${cloudflare_stream_uid}/thumbnails/thumbnail.jpg?width=1280&height=1280&fit=crop`;
+    }
     // For photos uploaded to Supabase Storage
     else if (post_type === 'photo' || post_type === 'image') {
       insertData.file_url = file_path || '';
@@ -114,6 +116,9 @@ serve(async (req) => {
       insertData.cloudflare_stream_uid = null;
       insertData.width = width || null;
       insertData.height = height || null;
+      // Store paths for responsive images (Supabase will transform on-the-fly)
+      insertData.thumb_512_url = file_path;
+      insertData.thumb_1280_url = file_path;
     }
     // For text posts
     else if (post_type === 'text') {
