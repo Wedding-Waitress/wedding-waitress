@@ -616,7 +616,7 @@ export const GuestGalleryPublic: React.FC = () => {
   // Landing page
   if (flowStep === 'landing') {
     return (
-      <div className="min-h-screen relative overflow-hidden">
+      <div className="h-screen relative overflow-hidden">
         {/* Full-screen background - latest media */}
         {latestMedia && (
           <div className="fixed inset-0 z-0">
@@ -662,12 +662,12 @@ export const GuestGalleryPublic: React.FC = () => {
           </a>
         </div>
         
-        <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4">
+        <div className="relative z-10 flex flex-col items-center justify-center h-screen overflow-y-hidden px-4">
           <div className="text-center space-y-8 max-w-2xl">
             <h1 className="text-4xl md:text-6xl font-bold text-black bg-white/90 backdrop-blur-sm px-8 py-4 rounded-2xl shadow-xl">{galleryData.title}</h1>
             {galleryData.event_date && (
-              <p className="text-xl text-white drop-shadow-md">
-                {format(new Date(galleryData.event_date), 'MMMM d, yyyy')}
+              <p className="text-xl text-black drop-shadow-md">
+                {format(new Date(galleryData.event_date), 'd/MM/yyyy')}
               </p>
             )}
             
