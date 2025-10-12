@@ -23,6 +23,7 @@ interface MediaItem {
   created_at: string;
   width?: number;
   height?: number;
+  status?: string;
 }
 
 export const GalleryViewModal: React.FC<GalleryViewModalProps> = ({
@@ -49,7 +50,7 @@ export const GalleryViewModal: React.FC<GalleryViewModalProps> = ({
         .from('media_uploads')
         .select('*')
         .eq('gallery_id', galleryId)
-        .eq('status', 'approved')
+        .in('status', ['pending', 'approved'])
         .order('created_at', { ascending: false });
 
       if (error) throw error;

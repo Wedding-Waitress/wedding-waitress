@@ -139,7 +139,9 @@ async function processExport(
       .order('created_at', { ascending: true });
 
     if (scope === 'approved') {
-      query = query.eq('status', 'approved');
+      query = query.in('status', ['pending', 'approved']);
+    } else {
+      query = query.in('status', ['pending', 'approved']);
     }
 
     const { data: mediaItems, error: mediaError } = await query;
