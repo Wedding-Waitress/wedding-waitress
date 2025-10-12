@@ -11,8 +11,9 @@ import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { EVENT_TYPES } from '@/lib/mediaConstants';
 import { cn } from '@/lib/utils';
-import QRCodeLib from 'qrcode';
-import { buildGuestLookupUrl } from '@/lib/urlUtils';
+import { AdvancedQRGenerator } from '@/lib/advancedQRGenerator';
+import { QRCodeSettings } from '@/hooks/useQRCodeSettings';
+import { getPublicBaseUrl } from '@/lib/urlUtils';
 
 interface SetupWizardProps {
   onComplete: (galleryId: string) => void;
@@ -86,23 +87,85 @@ export const SetupWizard: React.FC<SetupWizardProps> = ({ onComplete, onCancel }
         _max_uploads: 10,
       } as any);
 
-      // Generate QR code
-      const uploadUrl = `${window.location.origin}/g/${(gallery as any).slug}`;
-      const canvas = document.createElement('canvas');
-      canvas.width = 2000;
-      canvas.height = 2000;
-      
-      await QRCodeLib.toCanvas(canvas, uploadUrl, {
-        errorCorrectionLevel: 'H',
-        margin: 4,
-        width: 2000,
-        color: {
-          dark: '#000000',
-          light: '#FFFFFF'
+      // Create or fetch shortlink for simplified QR
+      let shortSlug = '';
+      let shortlinkAttempts = 0;
+      const maxAttempts = 3;
+
+      while (!shortSlug && shortlinkAttempts < maxAttempts) {
+        try {
+          const { data: existingShortlink } = await supabase
+            .from('gallery_shortlinks' as any)
+            .select('slug')
+            .eq('gallery_id', (gallery as any).id)
+            .maybeSingle();
+
+          if (existingShortlink) {
+            shortSlug = (existingShortlink as any).slug;
+            break;
+          }
+
+          // Generate new shortlink
+          const { data: newSlugData } = await supabase.rpc('generate_short_slug' as any);
+          const newSlug = newSlugData as string;
+
+          const { error: insertError } = await supabase
+            .from('gallery_shortlinks' as any)
+            .insert({
+              gallery_id: (gallery as any).id,
+              slug: newSlug,
+              target_path: `/g/${(gallery as any).slug}`,
+            } as any);
+
+          if (!insertError) {
+            shortSlug = newSlug;
+            break;
+          }
+
+          shortlinkAttempts++;
+        } catch (error) {
+          console.error('Shortlink creation attempt failed:', error);
+          shortlinkAttempts++;
         }
-      });
-      
-      setQrCodeDataUrl(canvas.toDataURL('image/png'));
+      }
+
+      // Build upload URL (prefer short link)
+      const uploadUrl = shortSlug 
+        ? `${getPublicBaseUrl()}/p/${shortSlug}`
+        : `${getPublicBaseUrl()}/g/${(gallery as any).slug}`;
+
+      // Generate simplified QR code using AdvancedQRGenerator
+      const simplifiedSettings: QRCodeSettings = {
+        event_id: '',
+        user_id: '',
+        shape: 'rounded',
+        pattern: 'basic',
+        pattern_style: 'basic',
+        background_color: '#ffffff',
+        foreground_color: '#000000',
+        corner_style: 'square',
+        has_scan_text: false,
+        scan_text: '',
+        gradient_type: 'none',
+        gradient_colors: [],
+        border_style: 'none',
+        border_width: 0,
+        border_color: '#000000',
+        shadow_enabled: false,
+        shadow_blur: 0,
+        shadow_color: '#00000033',
+        center_image_size: 0,
+        background_opacity: 1.0,
+        output_size: 2000,
+        output_format: 'png',
+        color_palette: 'default',
+        advanced_settings: {},
+        use_simplified_qr: true,
+      };
+
+      const generator = new AdvancedQRGenerator(2000);
+      const dataUrl = await generator.generate(uploadUrl, simplifiedSettings);
+      setQrCodeDataUrl(dataUrl);
       setStep(5); // Completion screen
 
       // Call onComplete with the new gallery ID
