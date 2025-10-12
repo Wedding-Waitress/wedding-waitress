@@ -22,6 +22,7 @@ export const GallerySettingsTab: React.FC<GallerySettingsTabProps> = ({ galleryI
   const [uploadUrl, setUploadUrl] = React.useState('');
   const [galleryTitle, setGalleryTitle] = React.useState('');
   const [qrCodeDataUrl, setQrCodeDataUrl] = React.useState('');
+  const [shortSlug, setShortSlug] = React.useState('');
 
   // Generate QR code with simplified settings
   const generateQRCode = async (url: string) => {
@@ -71,15 +72,29 @@ export const GallerySettingsTab: React.FC<GallerySettingsTabProps> = ({ galleryI
   // Generate upload URL and QR code
   React.useEffect(() => {
     const generateUrl = async () => {
+      if (!galleryId) return;
+      
       try {
+        // Fetch gallery info
         const { data: gallery } = await supabase
           .from('galleries' as any)
           .select('slug, title')
           .eq('id', galleryId)
           .single();
 
+        // Fetch short link
+        const { data: shortlink } = await supabase
+          .from('gallery_shortlinks' as any)
+          .select('slug')
+          .eq('gallery_id', galleryId)
+          .single();
+
         if ((gallery as any)?.slug) {
-          const url = `${window.location.origin}/g/${(gallery as any).slug}`;
+          // Use short link if available, otherwise fall back to full slug
+          const url = (shortlink as any)?.slug
+            ? `${window.location.origin}/p/${(shortlink as any).slug}`
+            : `${window.location.origin}/g/${(gallery as any).slug}`;
+          
           setUploadUrl(url);
           setGalleryTitle((gallery as any).title);
           await generateQRCode(url);

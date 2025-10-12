@@ -558,6 +558,47 @@ export type Database = {
           },
         ]
       }
+      gallery_shortlinks: {
+        Row: {
+          click_count: number
+          created_at: string
+          gallery_id: string
+          id: string
+          last_clicked_at: string | null
+          slug: string
+          target_path: string
+          updated_at: string
+        }
+        Insert: {
+          click_count?: number
+          created_at?: string
+          gallery_id: string
+          id?: string
+          last_clicked_at?: string | null
+          slug: string
+          target_path: string
+          updated_at?: string
+        }
+        Update: {
+          click_count?: number
+          created_at?: string
+          gallery_id?: string
+          id?: string
+          last_clicked_at?: string | null
+          slug?: string
+          target_path?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gallery_shortlinks_gallery_id_fkey"
+            columns: ["gallery_id"]
+            isOneToOne: false
+            referencedRelation: "galleries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       guest_access_attempts: {
         Row: {
           access_token: string

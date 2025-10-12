@@ -92,14 +92,26 @@ export const PhotoVideoSharingPage: React.FC = () => {
 
     const generateUrl = async () => {
       try {
+        // Fetch gallery info
         const { data: gallery } = await supabase
           .from('galleries' as any)
           .select('slug, title, show_footer, show_public_gallery')
           .eq('id', selectedGalleryId)
           .single();
 
+        // Fetch short link
+        const { data: shortlink } = await supabase
+          .from('gallery_shortlinks' as any)
+          .select('slug')
+          .eq('gallery_id', selectedGalleryId)
+          .single();
+
         if ((gallery as any)?.slug) {
-          const url = `${window.location.origin}/g/${(gallery as any).slug}`;
+          // Use short link if available, otherwise fall back to full slug
+          const url = (shortlink as any)?.slug
+            ? `${window.location.origin}/p/${(shortlink as any).slug}`
+            : `${window.location.origin}/g/${(gallery as any).slug}`;
+          
           setUploadUrl(url);
           setGalleryTitle((gallery as any).title);
           setShowFooter((gallery as any).show_footer ?? true);
