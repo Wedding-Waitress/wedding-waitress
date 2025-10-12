@@ -299,44 +299,6 @@ export const PhotoVideoSharingPage: React.FC = () => {
                           <p className="text-2xl font-bold text-primary">{totalUploads}</p>
                         </div>
                       </div>
-
-                      {/* Separator Line */}
-                      {selectedGalleryId && (
-                        <>
-                          <div className="border-t border-border my-4"></div>
-
-                          {/* Moved: Show Gallery to Guests Toggle */}
-                          <div className="flex items-center justify-between">
-                            <Label htmlFor="show-public" className="text-sm cursor-pointer">
-                              Show gallery to guests tonight
-                            </Label>
-                            <Switch
-                              id="show-public"
-                              checked={showPublicGallery}
-                              onCheckedChange={(checked) => updateGallerySetting('show_public_gallery', checked)}
-                            />
-                          </div>
-
-                          {/* Moved: Guest Upload Link */}
-                          <div className="space-y-2 mt-3">
-                            <Label className="text-xs">Guest Upload Link</Label>
-                            <div className="flex gap-2">
-                              <Input
-                                value={uploadUrl}
-                                readOnly
-                                className="flex-1 text-xs"
-                              />
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={copyUploadUrl}
-                              >
-                                <Copy className="w-4 h-4" />
-                              </Button>
-                            </div>
-                          </div>
-                        </>
-                      )}
                     </CardContent>
                   </Card>
                 </div>
