@@ -9,7 +9,8 @@ import { Copy, QrCode, Download } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { buildGuestLookupUrl } from '@/lib/urlUtils';
-import QRCodeLib from 'qrcode';
+import { AdvancedQRGenerator } from '@/lib/advancedQRGenerator';
+import { QRCodeSettings } from '@/hooks/useQRCodeSettings';
 
 interface GallerySettingsTabProps {
   galleryId: string;
@@ -22,24 +23,41 @@ export const GallerySettingsTab: React.FC<GallerySettingsTabProps> = ({ galleryI
   const [galleryTitle, setGalleryTitle] = React.useState('');
   const [qrCodeDataUrl, setQrCodeDataUrl] = React.useState('');
 
-  // Generate QR code
+  // Generate QR code with simplified settings
   const generateQRCode = async (url: string) => {
     try {
-      const canvas = document.createElement('canvas');
-      canvas.width = 2000;
-      canvas.height = 2000;
-      
-      await QRCodeLib.toCanvas(canvas, url, {
-        errorCorrectionLevel: 'H',
-        margin: 4,
-        width: 2000,
-        color: {
-          dark: '#000000',
-          light: '#FFFFFF'
-        }
-      });
-      
-      setQrCodeDataUrl(canvas.toDataURL('image/png'));
+      // Force simplified QR code settings for Photo & Video Sharing
+      const simplifiedSettings: QRCodeSettings = {
+        event_id: '',
+        user_id: '',
+        shape: 'rounded',
+        pattern: 'basic',
+        pattern_style: 'basic',
+        background_color: '#ffffff',
+        foreground_color: '#000000',
+        corner_style: 'square',
+        has_scan_text: false,
+        scan_text: '',
+        gradient_type: 'none',
+        gradient_colors: [],
+        border_style: 'none',
+        border_width: 0,
+        border_color: '#000000',
+        shadow_enabled: false,
+        shadow_blur: 0,
+        shadow_color: '#00000033',
+        center_image_size: 0,
+        background_opacity: 1.0,
+        output_size: 2000,
+        output_format: 'png',
+        color_palette: 'default',
+        advanced_settings: {},
+        use_simplified_qr: true,
+      };
+
+      const generator = new AdvancedQRGenerator(2000);
+      const dataUrl = await generator.generate(url, simplifiedSettings);
+      setQrCodeDataUrl(dataUrl);
     } catch (error) {
       console.error('Error generating QR code:', error);
       toast({
