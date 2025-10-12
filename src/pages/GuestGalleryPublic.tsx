@@ -64,17 +64,6 @@ export const GuestGalleryPublic: React.FC = () => {
 
   const MAX_VIDEO_SIZE_MB = 200;
 
-  // Redirect from Lovable preview domains to production main domain
-  useEffect(() => {
-    const currentHost = window.location.hostname;
-    
-    // If on Lovable preview domains, redirect to main production domain
-    if (currentHost.includes('lovable.app') || currentHost.includes('lovableproject.com')) {
-      const targetUrl = `https://weddingwaitress.com${window.location.pathname}${window.location.search}`;
-      window.location.replace(targetUrl); // 301-like behavior
-    }
-  }, []);
-
   // Set page title
   useEffect(() => {
     if (galleryData) {
