@@ -34,6 +34,7 @@ interface MediaItem {
   theme_id?: string | null;
   created_at?: string;
   uploadError?: string;
+  mime_type?: string;
 }
 
 interface GalleryData {
@@ -95,7 +96,7 @@ export const GuestGalleryPublic: React.FC = () => {
   // Extract photo URLs for slideshow background
   useEffect(() => {
     const photos = mediaItems.filter(item => 
-      item.post_type === 'photo' && 
+      item.mime_type?.startsWith('image/') && 
       item.file_url
     );
     
@@ -104,6 +105,14 @@ export const GuestGalleryPublic: React.FC = () => {
       .slice(0, 20);
     
     const urls = sortedPhotos.map(photo => getMediaUrl(photo.file_url!));
+    
+    console.log('Slideshow debug:', {
+      totalItems: mediaItems.length,
+      photosFound: photos.length,
+      urls: urls.length,
+      firstUrl: urls[0],
+      sampleItem: mediaItems[0]
+    });
     
     const newestUrlChanged = urls.length > 0 && urls[0] !== photoUrls[0];
     
@@ -235,7 +244,7 @@ export const GuestGalleryPublic: React.FC = () => {
       // Fetch approved media
       const { data: mediaData, error: mediaError } = await supabase
         .from('media_uploads' as any)
-        .select('id, post_type, type, caption, file_url, thumbnail_url, cloudflare_stream_uid, text_content, theme_id, created_at')
+        .select('id, post_type, type, caption, file_url, thumbnail_url, cloudflare_stream_uid, text_content, theme_id, created_at, mime_type')
         .eq('gallery_id', (gallery as any).id)
         .eq('status', 'approved')
         .order('created_at', { ascending: false });
