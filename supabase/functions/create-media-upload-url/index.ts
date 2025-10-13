@@ -7,10 +7,21 @@ const corsHeaders = {
 };
 
 const MAX_PHOTO_SIZE_MB = 250;
-const MAX_VIDEO_SIZE_MB = 250;
-const CHUNKED_UPLOAD_THRESHOLD_MB = 50;
+const MAX_VIDEO_SIZE_MB = 1024; // 1 GB for videos
+const CHUNKED_UPLOAD_THRESHOLD_MB = 100; // Use chunked upload for videos over 100 MB
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif'];
-const ALLOWED_VIDEO_TYPES = ['video/mp4', 'video/quicktime', 'video/webm', 'video/x-m4v'];
+const ALLOWED_VIDEO_TYPES = [
+  'video/mp4',
+  'video/quicktime',  // .mov files from iPhone
+  'video/webm',
+  'video/x-m4v',
+  'video/hevc',       // HEVC encoded
+  'video/h265',       // H.265 codec
+  'video/h264',       // H.264 codec
+  'video/mpeg',       // Sometimes used for mobile
+  'video/3gpp',       // Old Android
+  'video/3gpp2'       // Old Android
+];
 
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
 
@@ -69,7 +80,9 @@ serve(async (req) => {
     
     if (!isImage && !isVideo) {
       return new Response(
-        JSON.stringify({ error: 'That file type isn\'t supported.' }),
+        JSON.stringify({ 
+          error: `File type "${contentType}" isn't supported. Please use JPG, PNG, MP4, or MOV.` 
+        }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }

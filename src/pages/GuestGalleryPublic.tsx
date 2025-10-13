@@ -9,6 +9,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getThemeById } from '@/lib/mediaConstants';
+import { useVideoProcessingPoller } from '@/hooks/useVideoProcessingPoller';
 import { analytics } from '@/lib/analytics';
 import weddingWaitressLogo from '@/assets/wedding-waitress-badge-logo.png';
 
@@ -35,6 +36,7 @@ interface MediaItem {
   created_at?: string;
   uploadError?: string;
   mime_type?: string;
+  stream_ready?: boolean;
 }
 
 interface GalleryData {
@@ -188,8 +190,14 @@ export const GuestGalleryPublic: React.FC = () => {
     }
   }, [loading]);
 
+  // Use video processing poller to update gallery when videos finish encoding
+  useVideoProcessingPoller(galleryData?.id || null, (mediaId) => {
+    console.log('Video ready:', mediaId);
+    fetchGalleryData(); // Refresh gallery to show processed video
+  });
+
   useEffect(() => {
-    if (gallerySlug) {
+    if (galleryData?.id) {
       fetchGalleryData();
       generateOrGetToken();
       
@@ -1170,12 +1178,23 @@ export const GuestGalleryPublic: React.FC = () => {
                       className="w-full h-full object-cover"
                     />
                   ) : item.post_type === 'video' && item.cloudflare_stream_uid ? (
-                    <iframe
-                      src={`https://customer-${item.cloudflare_stream_uid?.split('/')[0]}.cloudflarestream.com/${item.cloudflare_stream_uid}/iframe`}
-                      className="w-full h-full"
-                      allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;"
-                      allowFullScreen
-                    />
+                    <div className="relative w-full h-full">
+                      {(!item.stream_ready && item.cloudflare_stream_uid) && (
+                        <div className="absolute inset-0 bg-black/80 flex items-center justify-center z-10">
+                          <div className="text-center text-white">
+                            <div className="w-8 h-8 border-4 border-white border-t-transparent rounded-full animate-spin mx-auto mb-2" />
+                            <p className="text-sm font-medium">Processing video...</p>
+                            <p className="text-xs text-gray-300 mt-1">This may take a minute</p>
+                          </div>
+                        </div>
+                      )}
+                      <iframe
+                        src={`https://customer-${item.cloudflare_stream_uid?.split('/')[0]}.cloudflarestream.com/${item.cloudflare_stream_uid}/iframe`}
+                        className="w-full h-full"
+                        allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;"
+                        allowFullScreen
+                      />
+                    </div>
                   ) : item.post_type === 'text' && item.text_content ? (
                     <div 
                       className="w-full h-full flex items-center justify-center p-4"

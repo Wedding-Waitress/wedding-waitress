@@ -84,6 +84,14 @@ export const GuestMediaUpload: React.FC = () => {
   const [showFooter, setShowFooter] = useState(true);
   const [showPublicGallery, setShowPublicGallery] = useState(true);
   
+  // Constants for validation
+  const MAX_VIDEO_SIZE_MB = 1024; // 1 GB max
+  const MAX_VIDEO_DURATION_SECONDS = 180; // 3 minutes
+  const SUPPORTED_VIDEO_TYPES = [
+    'video/mp4', 'video/quicktime', 'video/webm', 'video/x-m4v',
+    'video/hevc', 'video/h265', 'video/h264', 'video/mpeg'
+  ];
+  
   // Photo slideshow for background
   const { photos, currentIndex, hasPhotos } = usePhotoSlideshow(galleryId);
 
@@ -188,12 +196,82 @@ export const GuestMediaUpload: React.FC = () => {
     setToken(existingToken);
   };
 
+  const validateVideo = (file: File): Promise<{ valid: boolean; error?: string; duration?: number }> => {
+    return new Promise((resolve) => {
+      const video = document.createElement('video');
+      video.preload = 'metadata';
+      
+      const timeout = setTimeout(() => {
+        URL.revokeObjectURL(video.src);
+        resolve({ valid: false, error: `Cannot read video "${file.name}". File may be corrupted.` });
+      }, 8000);
+      
+      video.onloadedmetadata = () => {
+        clearTimeout(timeout);
+        const duration = video.duration;
+        URL.revokeObjectURL(video.src);
+        
+        if (duration > MAX_VIDEO_DURATION_SECONDS) {
+          resolve({ 
+            valid: false, 
+            error: `Video "${file.name}" is too long (${Math.round(duration)}s). Max: ${Math.round(MAX_VIDEO_DURATION_SECONDS / 60)} minutes.` 
+          });
+        } else {
+          resolve({ valid: true, duration });
+        }
+      };
+      
+      video.onerror = () => {
+        clearTimeout(timeout);
+        URL.revokeObjectURL(video.src);
+        resolve({ valid: false, error: `Cannot read video "${file.name}". File may be corrupted.` });
+      };
+      
+      video.src = URL.createObjectURL(file);
+    });
+  };
+
   const handleFileSelection = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     const newItems: MediaItem[] = [];
 
     for (const file of files) {
       const isVideo = file.type.startsWith('video/');
+      
+      // Validate video format
+      if (isVideo && !SUPPORTED_VIDEO_TYPES.includes(file.type)) {
+        toast({
+          title: 'Unsupported Video Format',
+          description: `${file.name} isn't supported. Please use MP4, MOV, or WebM.`,
+          variant: 'destructive',
+        });
+        continue;
+      }
+      
+      // Validate video size
+      if (isVideo) {
+        const sizeMB = file.size / (1024 * 1024);
+        if (sizeMB > MAX_VIDEO_SIZE_MB) {
+          toast({
+            title: 'Video Too Large',
+            description: `${file.name} exceeds ${MAX_VIDEO_SIZE_MB} MB limit (${Math.round(sizeMB)} MB). Please trim it.`,
+            variant: 'destructive',
+          });
+          continue;
+        }
+        
+        // Validate video duration
+        const validation = await validateVideo(file);
+        if (!validation.valid) {
+          toast({
+            title: 'Video Validation Failed',
+            description: validation.error,
+            variant: 'destructive',
+          });
+          continue;
+        }
+      }
+      
       const preview = URL.createObjectURL(file);
 
       // For videos, generate a thumbnail from the first frame
@@ -203,7 +281,8 @@ export const GuestMediaUpload: React.FC = () => {
           thumbnail = await generateVideoThumbnail(file);
         } catch (error) {
           console.error('Failed to generate video thumbnail:', error);
-          // Fall back to video preview
+          // Use play icon fallback
+          thumbnail = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgdmlld0JveD0iMCAwIDUxMiA1MTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiBmaWxsPSIjMDAwIi8+Cjxwb2x5Z29uIHBvaW50cz0iMjAwLDE1MCAzNTAsMjU2IDIwMCwzNjIiIGZpbGw9IiNmZmYiLz4KPC9zdmc+';
         }
       }
 
@@ -216,7 +295,9 @@ export const GuestMediaUpload: React.FC = () => {
     }
     
     setSelectedItems([...selectedItems, ...newItems]);
-    setFlowStep('preview');
+    if (newItems.length > 0) {
+      setFlowStep('preview');
+    }
   };
 
   const generateVideoThumbnail = (file: File): Promise<string> => {
@@ -224,37 +305,60 @@ export const GuestMediaUpload: React.FC = () => {
       const video = document.createElement('video');
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
+      
+      if (!ctx) {
+        reject(new Error('Canvas context unavailable'));
+        return;
+      }
 
       video.preload = 'metadata';
       video.muted = true;
       video.playsInline = true;
+      video.crossOrigin = 'anonymous';
+      
+      // Timeout fallback
+      const timeout = setTimeout(() => {
+        URL.revokeObjectURL(video.src);
+        reject(new Error('Thumbnail generation timeout'));
+      }, 10000);
 
       video.onloadeddata = () => {
-        // Seek to 1 second or start of video
-        video.currentTime = Math.min(1, video.duration / 2);
+        // Seek to 0.1 seconds (better for short videos)
+        video.currentTime = Math.min(0.1, video.duration / 4);
       };
 
       video.onseeked = () => {
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        ctx?.drawImage(video, 0, 0);
+        clearTimeout(timeout);
+        
+        // Set canvas size to reasonable thumbnail
+        const targetWidth = 512;
+        const aspectRatio = video.videoHeight / video.videoWidth;
+        canvas.width = targetWidth;
+        canvas.height = targetWidth * aspectRatio;
+        
+        // Draw with black background
+        ctx.fillStyle = '#000';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
         
         canvas.toBlob((blob) => {
+          URL.revokeObjectURL(video.src);
           if (blob) {
             resolve(URL.createObjectURL(blob));
           } else {
             reject(new Error('Failed to create thumbnail blob'));
           }
-          URL.revokeObjectURL(video.src);
-        }, 'image/jpeg', 0.8);
+        }, 'image/jpeg', 0.85);
       };
 
-      video.onerror = () => {
-        reject(new Error('Failed to load video'));
+      video.onerror = (e) => {
+        clearTimeout(timeout);
         URL.revokeObjectURL(video.src);
+        reject(new Error(`Video load error: ${video.error?.message || 'Unknown'}`));
       };
 
       video.src = URL.createObjectURL(file);
+      video.load();
     });
   };
 

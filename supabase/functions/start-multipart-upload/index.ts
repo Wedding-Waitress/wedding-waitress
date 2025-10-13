@@ -5,10 +5,10 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const MAX_VIDEO_SIZE_GB = 2;
-const CHUNK_SIZE_MB = 8;
-const MAX_CHUNKS = 256;
-const SESSION_EXPIRY_HOURS = 24;
+const MAX_VIDEO_SIZE_MB = 2048; // 2 GB max
+const CHUNK_SIZE_MB = 10; // 10 MB chunks for better network tolerance
+const MAX_CHUNKS = 256; // 2 GB / 10 MB
+const SESSION_EXPIRY_HOURS = 48; // Longer session for slow uploads
 
 // Rate limiting map
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
