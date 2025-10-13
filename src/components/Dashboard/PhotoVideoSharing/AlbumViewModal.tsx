@@ -172,7 +172,7 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-2xl">{galleryTitle}</DialogTitle>
         </DialogHeader>
