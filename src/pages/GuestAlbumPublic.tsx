@@ -13,8 +13,8 @@ import { useVideoProcessingPoller } from '@/hooks/useVideoProcessingPoller';
 import { useChunkedUpload } from '@/hooks/useChunkedUpload';
 import { analytics } from '@/lib/analytics';
 import { MediaLightbox } from '@/components/MediaLightbox';
-import { ShareGalleryModal } from '@/components/ShareGalleryModal';
-import { GalleryMetaTags } from '@/components/GalleryMetaTags';
+import { ShareAlbumModal } from '@/components/ShareAlbumModal';
+import { AlbumMetaTags } from '@/components/AlbumMetaTags';
 import { useTrackAnalytics } from '@/hooks/useTrackAnalytics';
 import weddingWaitressLogo from '@/assets/wedding-waitress-badge-logo.png';
 
@@ -62,7 +62,7 @@ interface GalleryData {
 type FlowStep = 'landing' | 'add' | 'preview' | 'uploading' | 'success';
 type ViewMode = 'upload' | 'gallery';
 
-export const GuestGalleryPublic: React.FC = () => {
+export const GuestAlbumPublic: React.FC = () => {
   const { gallerySlug } = useParams<{ gallerySlug: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -980,9 +980,9 @@ export const GuestGalleryPublic: React.FC = () => {
   };
 
   const handleShareGallery = async () => {
-    const galleryUrl = `${window.location.origin}/g/${gallerySlug}?utm_source=share_button`;
+    const galleryUrl = `${window.location.origin}/a/${gallerySlug}?utm_source=share_button`;
     const shareData = {
-      title: `🎉 ${galleryData?.title || 'Gallery'} — Wedding Waitress Gallery`,
+      title: `🎉 ${galleryData?.title || 'Album'} — Wedding Waitress Album`,
       text: 'View the full album of photos & videos',
       url: galleryUrl,
     };
@@ -1068,7 +1068,7 @@ export const GuestGalleryPublic: React.FC = () => {
     return (
       <>
         {galleryData && (
-          <GalleryMetaTags
+          <AlbumMetaTags
             galleryTitle={galleryData.title}
             eventDate={galleryData.event_date}
             gallerySlug={gallerySlug || ''}
@@ -1111,7 +1111,7 @@ export const GuestGalleryPublic: React.FC = () => {
   if (flowStep === 'landing') {
     return (
       <>
-        <GalleryMetaTags
+        <AlbumMetaTags
           galleryTitle={galleryData.title}
           eventDate={galleryData.event_date}
           gallerySlug={gallerySlug || ''}
@@ -1186,7 +1186,7 @@ export const GuestGalleryPublic: React.FC = () => {
               </Button>
             </div>
 
-            {/* Share Gallery Button */}
+            {/* Share Album Button */}
             <div className="flex justify-center mt-4">
               <Button
                 variant="ghost"
@@ -1194,7 +1194,7 @@ export const GuestGalleryPublic: React.FC = () => {
                 onClick={handleShareGallery}
               >
                 <Share2 className="w-5 h-5" />
-                Share Gallery
+                Share Album
               </Button>
             </div>
 
@@ -1732,12 +1732,12 @@ export const GuestGalleryPublic: React.FC = () => {
         }}
       />
 
-      {/* Share Gallery Modal */}
-      <ShareGalleryModal
+      {/* Share Album Modal */}
+      <ShareAlbumModal
         open={shareModalOpen}
         onClose={() => setShareModalOpen(false)}
-        galleryUrl={`${window.location.origin}/g/${gallerySlug}`}
-        galleryTitle={galleryData?.title || 'Gallery'}
+        galleryUrl={`${window.location.origin}/a/${gallerySlug}`}
+        galleryTitle={galleryData?.title || 'Album'}
       />
     </div>
   );

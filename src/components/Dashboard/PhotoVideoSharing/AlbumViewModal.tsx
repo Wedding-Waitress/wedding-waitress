@@ -8,7 +8,7 @@ import { MediaLightbox } from '@/components/MediaLightbox';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
-interface GalleryViewModalProps {
+interface AlbumViewModalProps {
   isOpen: boolean;
   onClose: () => void;
   galleryId: string;
@@ -37,7 +37,7 @@ interface AudioItem {
   created_at: string;
 }
 
-export const GalleryViewModal: React.FC<GalleryViewModalProps> = ({
+export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
   isOpen,
   onClose,
   galleryId,

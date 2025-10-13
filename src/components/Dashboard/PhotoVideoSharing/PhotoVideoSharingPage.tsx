@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Camera, Plus, BarChart3, Trash2, Copy, Download, QrCode, FolderOpen, Image, Video, MessageSquare, Share2, Facebook, Instagram, Loader2, ChevronDown, Eye, Phone } from 'lucide-react';
 import { SetupWizard } from './SetupWizard';
-import { GalleryViewModal } from './GalleryViewModal';
+import { AlbumViewModal } from './AlbumViewModal';
 import { GalleryAnalyticsWidget } from './GalleryAnalyticsWidget';
 import { useGalleries } from '@/hooks/useGalleries';
 import { useGalleryStats } from '@/hooks/useGalleryStats';
@@ -68,7 +68,7 @@ export const PhotoVideoSharingPage: React.FC = () => {
     }
   };
 
-  // Generate upload URL and QR code when gallery changes
+  // Generate upload URL and QR code when album changes
   useEffect(() => {
     if (!selectedGalleryId) {
       setUploadUrl('');
@@ -127,10 +127,10 @@ export const PhotoVideoSharingPage: React.FC = () => {
       setSelectedGalleryId(null);
       setShowDeleteDialog(false);
     } catch (error: any) {
-      console.error('Error deleting gallery:', error);
+      console.error('Error deleting album:', error);
       toast({
         title: 'Error',
-        description: 'Failed to delete gallery',
+        description: 'Failed to delete album',
         variant: 'destructive',
       });
     }
@@ -283,10 +283,10 @@ export const PhotoVideoSharingPage: React.FC = () => {
         checkExport(data.export_id);
       }
     } catch (error: any) {
-      console.error('Error downloading gallery:', error);
+      console.error('Error downloading album:', error);
       toast({
         title: 'Error',
-        description: 'Failed to download gallery',
+        description: 'Failed to download album',
         variant: 'destructive',
       });
       setIsDownloading(false);
@@ -386,7 +386,7 @@ export const PhotoVideoSharingPage: React.FC = () => {
                   </Card>
                 </div>
 
-                {/* Gallery Analytics Widget */}
+                {/* Album Analytics Widget */}
                 <GalleryAnalyticsWidget galleryId={selectedGalleryId} />
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -452,7 +452,7 @@ export const PhotoVideoSharingPage: React.FC = () => {
                         disabled={!selectedGalleryId}
                       >
                         <Eye className="w-4 h-4 mr-2" />
-                        View Gallery
+                        View Album
                       </Button>
 
                       <Button
@@ -466,7 +466,7 @@ export const PhotoVideoSharingPage: React.FC = () => {
                         ) : (
                           <Download className="w-4 h-4 mr-2" />
                         )}
-                        {isDownloading ? 'Preparing...' : 'Download Gallery'}
+                        {isDownloading ? 'Preparing...' : 'Download Album'}
                       </Button>
 
                       <Button
@@ -476,7 +476,7 @@ export const PhotoVideoSharingPage: React.FC = () => {
                         disabled={!selectedGalleryId}
                       >
                         <Trash2 className="w-4 h-4 mr-2" />
-                        Delete Gallery
+                        Delete Album
                       </Button>
                     </div>
                   </CardContent>
@@ -561,24 +561,24 @@ export const PhotoVideoSharingPage: React.FC = () => {
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Gallery?</AlertDialogTitle>
+            <AlertDialogTitle>Delete Album?</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete this gallery? This action cannot be undone.
+              Are you sure you want to delete this album? This action cannot be undone.
               All photos, videos, and guest messages will be permanently deleted.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={handleDeleteGallery} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-              Delete Gallery
+              Delete Album
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Gallery View Modal */}
+      {/* Album View Modal */}
       {selectedGalleryId && (
-        <GalleryViewModal
+        <AlbumViewModal
           isOpen={showViewModal}
           onClose={() => setShowViewModal(false)}
           galleryId={selectedGalleryId}

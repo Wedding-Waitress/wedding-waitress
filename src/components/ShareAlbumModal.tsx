@@ -5,14 +5,14 @@ import { Input } from '@/components/ui/input';
 import { Copy, Check } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
-interface ShareGalleryModalProps {
+interface ShareAlbumModalProps {
   open: boolean;
   onClose: () => void;
   galleryUrl: string;
   galleryTitle: string;
 }
 
-export const ShareGalleryModal: React.FC<ShareGalleryModalProps> = ({
+export const ShareAlbumModal: React.FC<ShareAlbumModalProps> = ({
   open,
   onClose,
   galleryUrl,

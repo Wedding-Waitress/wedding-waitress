@@ -108,10 +108,10 @@ export const SetupWizard: React.FC<SetupWizardProps> = ({ onComplete, onCancel }
       // Call onComplete with the new gallery ID
       setTimeout(() => onComplete((gallery as any).id), 100);
     } catch (error: any) {
-      console.error('Error creating gallery:', error);
+      console.error('Error creating album:', error);
       toast({
         title: 'Error',
-        description: 'Failed to create gallery',
+        description: 'Failed to create album',
         variant: 'destructive',
       });
     } finally {
