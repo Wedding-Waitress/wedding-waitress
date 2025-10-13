@@ -340,11 +340,11 @@ export const PhotoVideoSharingPage: React.FC = () => {
                       <Separator className="mb-4" />
                       
                       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-                        {/* Stat 1: Total Uploads */}
+                        {/* Stat 1: Albums Created */}
                         <div className="flex flex-col items-start gap-1 border-2 border-primary rounded-lg p-3">
-                          <BarChart3 className="w-5 h-5 text-primary" />
-                          <p className="text-xs text-muted-foreground font-semibold">Total Uploads</p>
-                          <p className="text-2xl font-bold text-primary">{totalUploads}</p>
+                          <FolderOpen className="w-5 h-5 text-blue-600" />
+                          <p className="text-xs text-muted-foreground">Albums Created</p>
+                          <p className="text-2xl font-bold text-blue-600">{stats.galleriesCount}</p>
                         </div>
                         
                         {/* Stat 2: Photos */}
@@ -375,11 +375,11 @@ export const PhotoVideoSharingPage: React.FC = () => {
                           <p className="text-2xl font-bold text-pink-600">{stats.audioCount}</p>
                         </div>
                         
-                        {/* Stat 6: Galleries Created */}
+                        {/* Stat 6: Total Uploads */}
                         <div className="flex flex-col items-start gap-1">
-                          <FolderOpen className="w-5 h-5 text-blue-600" />
-                          <p className="text-xs text-muted-foreground">Galleries Created</p>
-                          <p className="text-2xl font-bold text-blue-600">{stats.galleriesCount}</p>
+                          <BarChart3 className="w-5 h-5 text-primary" />
+                          <p className="text-xs text-muted-foreground font-semibold">Total Uploads</p>
+                          <p className="text-2xl font-bold text-primary">{totalUploads}</p>
                         </div>
                       </div>
                     </CardContent>
