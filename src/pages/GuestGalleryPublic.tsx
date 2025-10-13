@@ -923,45 +923,44 @@ export const GuestGalleryPublic: React.FC = () => {
             </Button>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
             {selectedItems.map((item, index) => (
-              <Card key={index} className="relative group overflow-hidden">
-                <div className="aspect-square">
+              <div key={index} className="relative group">
+                <div className={`relative border-2 border-primary rounded-none overflow-hidden ${
+                  item.type === 'text' 
+                    ? 'aspect-square flex items-center justify-center p-3' 
+                    : 'aspect-square bg-black'
+                }`} style={item.type === 'text' ? { background: item.themeBg } : undefined}>
                   {item.type === 'photo' && item.preview && (
-                    <img src={item.preview} className="w-full h-full object-cover" alt="" />
+                    <img src={item.preview} className="w-full h-full object-contain" alt="" />
                   )}
                   {item.type === 'video' && item.preview && (
-                    <video src={item.preview} className="w-full h-full object-cover" />
+                    <video src={item.preview} className="w-full h-full object-contain" />
                   )}
                   {item.type === 'text' && (
-                    <div 
-                      className="w-full h-full flex items-center justify-center p-4"
-                      style={{ background: item.themeBg }}
-                    >
-                      <p className="text-center font-medium text-sm line-clamp-6">
-                        {item.textContent}
-                      </p>
+                    <p className="text-center font-medium text-sm line-clamp-6">
+                      {item.textContent}
+                    </p>
+                  )}
+                  
+                  {item.uploadError && (
+                    <div className="absolute bottom-2 left-2 right-2 bg-destructive text-destructive-foreground text-xs p-2 rounded z-10">
+                      {item.uploadError}
                     </div>
                   )}
-                </div>
-                
-                {item.uploadError && (
-                  <div className="absolute bottom-2 left-2 right-2 bg-destructive text-destructive-foreground text-xs p-2 rounded">
-                    {item.uploadError}
+                  
+                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 z-10">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="text-white hover:bg-white/20"
+                      onClick={() => handleRemoveItem(index)}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
                   </div>
-                )}
-                
-                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="text-white hover:bg-white/20"
-                    onClick={() => handleRemoveItem(index)}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
                 </div>
-              </Card>
+              </div>
             ))}
           </div>
 

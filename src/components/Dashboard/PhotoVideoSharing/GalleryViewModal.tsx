@@ -116,25 +116,25 @@ export const GalleryViewModal: React.FC<GalleryViewModalProps> = ({
                   No photos yet
                 </div>
               ) : (
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                  {photos.map((photo) => (
-                    <Card key={photo.id} className="overflow-hidden">
-                      <div className="aspect-square relative bg-gray-900">
-                        <img
-                          src={getImageUrl(photo)}
-                          alt={photo.caption || 'Gallery photo'}
-                          className="w-full h-full object-contain"
-                        />
-                      </div>
-                      {photo.caption && (
-                        <CardContent className="p-2">
-                          <p className="text-xs text-muted-foreground line-clamp-2">
+                <div className="space-y-2">
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                    {photos.map((photo) => (
+                      <div key={photo.id}>
+                        <div className="aspect-square relative border-2 border-primary rounded-none overflow-hidden bg-black">
+                          <img
+                            src={getImageUrl(photo)}
+                            alt={photo.caption || 'Gallery photo'}
+                            className="w-full h-full object-contain"
+                          />
+                        </div>
+                        {photo.caption && (
+                          <p className="text-xs text-muted-foreground mt-1 px-1">
                             {photo.caption}
                           </p>
-                        </CardContent>
-                      )}
-                    </Card>
-                  ))}
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
             </TabsContent>
@@ -145,32 +145,32 @@ export const GalleryViewModal: React.FC<GalleryViewModalProps> = ({
                   No videos yet
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {videos.map((video) => (
-                    <Card key={video.id} className="overflow-hidden">
-                      {video.cloudflare_stream_uid ? (
-                        <div className="aspect-video">
-                          <iframe
-                            src={`https://iframe.videodelivery.net/${video.cloudflare_stream_uid}`}
-                            className="w-full h-full"
-                            allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;"
-                            allowFullScreen
-                          />
+                <div className="space-y-2">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    {videos.map((video) => (
+                      <div key={video.id}>
+                        <div className="aspect-video border-2 border-primary rounded-none overflow-hidden bg-black">
+                          {video.cloudflare_stream_uid ? (
+                            <iframe
+                              src={`https://iframe.videodelivery.net/${video.cloudflare_stream_uid}`}
+                              className="w-full h-full border-0"
+                              allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;"
+                              allowFullScreen
+                            />
+                          ) : (
+                            <div className="w-full h-full bg-muted flex items-center justify-center">
+                              <Video className="w-8 h-8 text-muted-foreground" />
+                            </div>
+                          )}
                         </div>
-                      ) : (
-                        <div className="aspect-video bg-muted flex items-center justify-center">
-                          <Video className="w-8 h-8 text-muted-foreground" />
-                        </div>
-                      )}
-                      {video.caption && (
-                        <CardContent className="p-3">
-                          <p className="text-sm text-muted-foreground">
+                        {video.caption && (
+                          <p className="text-sm text-muted-foreground mt-1 px-1">
                             {video.caption}
                           </p>
-                        </CardContent>
-                      )}
-                    </Card>
-                  ))}
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
             </TabsContent>
@@ -181,16 +181,14 @@ export const GalleryViewModal: React.FC<GalleryViewModalProps> = ({
                   No messages yet
                 </div>
               ) : (
-                <div className="space-y-4">
+                <div className="space-y-2">
                   {messages.map((message) => (
-                    <Card key={message.id}>
-                      <CardContent className="p-4">
-                        <p className="text-sm whitespace-pre-wrap">{message.text_content}</p>
-                        <p className="text-xs text-muted-foreground mt-2">
-                          {new Date(message.created_at).toLocaleDateString()}
-                        </p>
-                      </CardContent>
-                    </Card>
+                    <div key={message.id} className="border-2 border-primary rounded-none p-3 bg-card">
+                      <p className="text-sm whitespace-pre-wrap">{message.text_content}</p>
+                      <p className="text-xs text-muted-foreground mt-2">
+                        {new Date(message.created_at).toLocaleDateString()}
+                      </p>
+                    </div>
                   ))}
                 </div>
               )}
