@@ -9,6 +9,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { getThemeById } from '@/lib/mediaConstants';
 import weddingWaitressLogo from '@/assets/wedding-waitress-badge-logo.png';
+import { usePhotoSlideshow } from '@/hooks/usePhotoSlideshow';
+import { PhotoSlideshowBackground } from '@/components/PhotoSlideshowBackground';
 
 // Lazy load TextPostModal for better performance
 const TextPostModal = React.lazy(() => 
@@ -57,7 +59,9 @@ export const GuestMediaUpload: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showFooter, setShowFooter] = useState(true);
   const [showPublicGallery, setShowPublicGallery] = useState(true);
-  const [latestMedia, setLatestMedia] = useState<any>(null);
+  
+  // Photo slideshow for background
+  const { photos, currentIndex, hasPhotos } = usePhotoSlideshow(galleryId);
 
   // Enforce canonical domain redirect
   useEffect(() => {
@@ -135,18 +139,6 @@ export const GuestMediaUpload: React.FC = () => {
 
       if (error) throw error;
       setEventData(data);
-      
-      // Fetch latest media for background
-      const { data: mediaData } = await supabase.rpc('get_public_gallery_media', {
-        _event_slug: eventSlug
-      });
-      
-      if (mediaData && (mediaData as any[]).length > 0) {
-        const sorted = [...(mediaData as any[])].sort((a: any, b: any) => 
-          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-        );
-        setLatestMedia(sorted[0]);
-      }
     } catch (error) {
       console.error('Error fetching event:', error);
       toast({
@@ -425,40 +417,8 @@ export const GuestMediaUpload: React.FC = () => {
   if (flowStep === 'landing') {
     return (
       <div className="min-h-screen relative">
-        {/* Pure CSS gradient fallback - shows immediately */}
-        <div className="fixed inset-0 z-0 bg-gradient-to-br from-purple-100 via-purple-50 to-blue-50" />
-        
-        {/* Full-screen background layer - lazy loaded */}
-        {latestMedia && (
-          <div className="fixed inset-0 z-0">
-            {latestMedia.type === 'image' && (
-              <img 
-                src={getMediaUrl(latestMedia.file_url)}
-                className="w-full h-full object-cover"
-                alt=""
-                loading="lazy"
-                decoding="async"
-              />
-            )}
-            {latestMedia.type === 'video' && latestMedia.stream_preview_image && (
-              <img 
-                src={latestMedia.stream_preview_image}
-                className="w-full h-full object-cover"
-                alt=""
-                loading="lazy"
-                decoding="async"
-              />
-            )}
-            {latestMedia.type === 'text' && latestMedia.theme_id && (
-              <div 
-                className="w-full h-full"
-                style={{ background: getThemeById(latestMedia.theme_id).bgColor }}
-              />
-            )}
-            {/* Dark overlay for readability */}
-            <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
-          </div>
-        )}
+        {/* Photo slideshow background with fallback gradient */}
+        <PhotoSlideshowBackground photos={photos} currentIndex={currentIndex} />
 
         {/* Content layer */}
         <div className="relative z-10 min-h-screen flex flex-col">
