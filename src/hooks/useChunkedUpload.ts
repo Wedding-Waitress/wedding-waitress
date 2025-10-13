@@ -140,6 +140,14 @@ export const useChunkedUpload = ({ gallerySlug, onComplete, onError }: UseChunke
         );
 
         // Start multipart upload
+        console.log('Starting multipart upload:', {
+          filename: file.name,
+          contentType: file.type,
+          file_size: file.size,
+          chunkCount: chunks.length,
+          gallerySlug,
+        });
+
         const { data: sessionData, error: sessionError } = await supabase.functions.invoke(
           'start-multipart-upload',
           {
@@ -154,7 +162,26 @@ export const useChunkedUpload = ({ gallerySlug, onComplete, onError }: UseChunke
         );
 
         if (sessionError || !sessionData) {
-          throw new Error(sessionError?.message || 'Failed to start upload');
+          console.error('Failed to start multipart upload:', {
+            error: sessionError,
+            status: sessionError?.status,
+            message: sessionError?.message,
+            request: {
+              gallerySlug,
+              filename: file.name,
+              contentType: file.type,
+              file_size: file.size,
+              chunkCount: chunks.length,
+            }
+          });
+          
+          // Parse error message
+          let errorMessage = sessionError?.message || 'Failed to start upload';
+          if (sessionError?.status === 400) {
+            errorMessage = `Upload request invalid: ${sessionError.message}. Please try again or contact support.`;
+          }
+          
+          throw new Error(errorMessage);
         }
 
         const { session_id, gallery_id, chunk_urls } = sessionData;

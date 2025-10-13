@@ -2,7 +2,9 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, upload-offset, upload-length, tus-resumable',
+  'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, DELETE, OPTIONS',
+  'Access-Control-Max-Age': '86400',
 };
 
 Deno.serve(async (req) => {
@@ -15,11 +17,43 @@ Deno.serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    const { session_id, gallery_id, uploaded_parts, caption } = await req.json();
-
-    if (!session_id || !gallery_id || !uploaded_parts) {
+    let body;
+    try {
+      body = await req.json();
+    } catch (e) {
+      console.error('Invalid JSON received:', e);
       return new Response(
-        JSON.stringify({ error: 'Missing required fields' }),
+        JSON.stringify({ 
+          error: 'Invalid JSON in request body',
+          details: 'Request body must be valid JSON'
+        }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const { session_id, gallery_id, uploaded_parts, caption } = body;
+
+    console.log('Complete multipart upload:', {
+      session_id,
+      gallery_id,
+      uploaded_parts_count: uploaded_parts?.length,
+      caption
+    });
+
+    // Validate required fields
+    const missingFields = [];
+    if (!session_id) missingFields.push('session_id');
+    if (!gallery_id) missingFields.push('gallery_id');
+    if (!uploaded_parts) missingFields.push('uploaded_parts');
+
+    if (missingFields.length > 0) {
+      console.error('Missing required fields:', missingFields);
+      return new Response(
+        JSON.stringify({ 
+          error: `Missing required fields: ${missingFields.join(', ')}`,
+          required_fields: ['session_id', 'gallery_id', 'uploaded_parts'],
+          received_fields: Object.keys(body)
+        }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }

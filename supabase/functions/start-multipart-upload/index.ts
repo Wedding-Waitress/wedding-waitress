@@ -2,7 +2,9 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, upload-offset, upload-length, tus-resumable',
+  'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, DELETE, OPTIONS',
+  'Access-Control-Max-Age': '86400',
 };
 
 const MAX_VIDEO_SIZE_MB = 2048; // 2 GB max
@@ -53,21 +55,116 @@ Deno.serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseKey);
 
     // Parse request
-    const { gallerySlug, filename, contentType, file_size, chunkCount } = await req.json();
-
-    if (!gallerySlug || !filename || !contentType || !file_size || !chunkCount) {
+    let body;
+    try {
+      body = await req.json();
+    } catch (e) {
+      console.error('Invalid JSON received:', e);
       return new Response(
-        JSON.stringify({ error: 'Missing required fields' }),
+        JSON.stringify({ 
+          error: 'Invalid JSON in request body',
+          details: 'Request body must be valid JSON',
+          received_content_type: req.headers.get('content-type')
+        }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const { gallerySlug, filename, contentType, file_size, chunkCount } = body;
+
+    console.log('Start multipart upload request:', {
+      gallerySlug,
+      filename,
+      contentType,
+      file_size,
+      chunkCount,
+      headers: Object.fromEntries(req.headers.entries())
+    });
+
+    // Validate each required field individually
+    const missingFields = [];
+    if (!gallerySlug) missingFields.push('gallerySlug');
+    if (!filename) missingFields.push('filename');
+    if (!contentType) missingFields.push('contentType');
+    if (file_size === undefined || file_size === null) missingFields.push('file_size');
+    if (chunkCount === undefined || chunkCount === null) missingFields.push('chunkCount');
+
+    if (missingFields.length > 0) {
+      console.error('Missing required fields:', missingFields);
+      return new Response(
+        JSON.stringify({ 
+          error: `Missing required fields: ${missingFields.join(', ')}`,
+          required_fields: ['gallerySlug', 'filename', 'contentType', 'file_size', 'chunkCount'],
+          received_fields: Object.keys(body),
+          details: 'Ensure all required fields are included in the request body'
+        }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Validate field types
+    if (typeof file_size !== 'number' || file_size <= 0) {
+      console.error('Invalid file_size:', { file_size, type: typeof file_size });
+      return new Response(
+        JSON.stringify({ 
+          error: 'Invalid file_size',
+          details: 'file_size must be a positive number',
+          received: { file_size, type: typeof file_size }
+        }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    if (typeof chunkCount !== 'number' || chunkCount <= 0) {
+      console.error('Invalid chunkCount:', { chunkCount, type: typeof chunkCount });
+      return new Response(
+        JSON.stringify({ 
+          error: 'Invalid chunkCount',
+          details: 'chunkCount must be a positive number',
+          received: { chunkCount, type: typeof chunkCount }
+        }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Validate content type is a supported video format
+    const ALLOWED_VIDEO_TYPES = [
+      'video/mp4',
+      'video/quicktime',
+      'video/webm',
+      'video/x-m4v',
+      'video/hevc',
+      'video/h265',
+      'video/h264',
+      'video/mpeg',
+      'video/3gpp',
+      'video/3gpp2'
+    ];
+
+    if (!ALLOWED_VIDEO_TYPES.includes(contentType)) {
+      console.error('Unsupported video format:', contentType);
+      return new Response(
+        JSON.stringify({ 
+          error: `Unsupported video format: ${contentType}`,
+          details: 'Please use MP4, MOV, WebM, or other supported formats',
+          allowed_types: ALLOWED_VIDEO_TYPES
+        }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
     // Validate file size
     const sizeMB = file_size / (1024 * 1024);
-    const maxSizeMB = MAX_VIDEO_SIZE_GB * 1024;
+    const maxSizeMB = MAX_VIDEO_SIZE_MB;
     if (sizeMB > maxSizeMB) {
+      console.error('File too large:', { sizeMB, maxSizeMB });
       return new Response(
-        JSON.stringify({ error: `File too large. Max size: ${MAX_VIDEO_SIZE_GB} GB` }),
+        JSON.stringify({ 
+          error: `File too large. Max size: ${Math.round(maxSizeMB / 1024)} GB`,
+          details: `Your file is ${Math.round(sizeMB)} MB, but the limit is ${Math.round(maxSizeMB)} MB`,
+          received_size_mb: Math.round(sizeMB),
+          max_size_mb: maxSizeMB
+        }),
         { status: 413, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }

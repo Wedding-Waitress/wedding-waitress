@@ -445,80 +445,142 @@ export const GuestMediaUpload: React.FC = () => {
   const uploadMediaFile = async (item: MediaItem) => {
     if (!item.file) return;
 
-    // Check if we should use chunked upload
-    const { data: urlData, error: urlError } = await supabase.functions.invoke(
-      'create-media-upload-url',
-      {
-        body: {
-          gallerySlug: eventSlug,
-          filename: item.file.name,
-          contentType: item.file.type,
-          file_size: item.file.size,
-        },
-      }
-    );
-
-    if (urlError) throw urlError;
-
-    // If response indicates multipart upload
-    if (urlData.use_multipart) {
-      setIsChunkedUpload(true);
-      const mediaId = await uploadChunked(item.file, item.caption || undefined);
-      if (!mediaId) {
-        throw new Error('Chunked upload failed');
-      }
-      return;
-    }
-
-    // Standard single-file upload for smaller files
-    setIsChunkedUpload(false);
-    const uploadUrl = urlData.signed_url;
-    if (!uploadUrl) {
-      throw new Error('No upload URL received');
-    }
-
-    const uploadResponse = await fetch(uploadUrl, {
-      method: 'PUT',
-      body: item.file,
-      headers: {
-        'Content-Type': item.file.type,
-      },
-    });
-
-    if (!uploadResponse.ok) {
-      throw new Error(`Upload failed with status ${uploadResponse.status}`);
-    }
-
-    // Prepare confirmation data
-    const confirmBody: any = {
-      gallery_id: galleryId,
-      upload_token: token,
-      type: item.type === 'video' ? 'video' : 'image',
-      post_type: item.type,
-      caption: item.caption || null,
-      file_size: item.file.size,
-      mime_type: item.file.type,
-      file_path: urlData.file_path,
-    };
-
-    // Get dimensions for images
-    if (item.type === 'photo' && item.preview) {
-      const img = new Image();
-      await new Promise((resolve) => {
-        img.onload = () => {
-          confirmBody.width = img.width;
-          confirmBody.height = img.height;
-          resolve(null);
-        };
-        img.src = item.preview;
+    try {
+      // Log request for debugging
+      console.log('Requesting upload URL:', {
+        filename: item.file.name,
+        contentType: item.file.type,
+        file_size: item.file.size,
+        gallerySlug: eventSlug,
       });
+
+      // Check if we should use chunked upload
+      const { data: urlData, error: urlError } = await supabase.functions.invoke(
+        'create-media-upload-url',
+        {
+          body: {
+            gallerySlug: eventSlug,
+            filename: item.file.name,
+            contentType: item.file.type,
+            file_size: item.file.size,
+          },
+        }
+      );
+
+      if (urlError) {
+        // Enhanced error logging
+        console.error('Upload URL error:', {
+          error: urlError,
+          status: urlError.status,
+          message: urlError.message,
+          context: urlError.context,
+          request: {
+            gallerySlug: eventSlug,
+            filename: item.file.name,
+            contentType: item.file.type,
+            file_size: item.file.size,
+          }
+        });
+
+        // Parse specific error types
+        if (urlError.status === 400) {
+          const errorMsg = urlError.message || '';
+          
+          if (errorMsg.includes('Missing required fields')) {
+            throw new Error(`Invalid request to server: ${errorMsg}. Please try again.`);
+          } else if (errorMsg.includes('type') || errorMsg.includes('format')) {
+            throw new Error(`File type "${item.file.type}" isn't supported. Please use MP4, MOV, JPG, or PNG.`);
+          } else {
+            throw new Error(`Request validation failed: ${errorMsg}`);
+          }
+        } else if (urlError.status === 413) {
+          throw new Error(`File "${item.file.name}" is too large. Max: 1 GB for videos, 250 MB for photos.`);
+        } else if (urlError.status === 429) {
+          throw new Error('Too many upload attempts. Please wait a minute and try again.');
+        } else if (urlError.status >= 500) {
+          throw new Error('Server error. Please try again in a few minutes.');
+        }
+
+        throw urlError;
+      }
+
+      // If response indicates multipart upload
+      if (urlData.use_multipart) {
+        setIsChunkedUpload(true);
+        const mediaId = await uploadChunked(item.file, item.caption || undefined);
+        if (!mediaId) {
+          throw new Error('Chunked upload failed');
+        }
+        return;
+      }
+
+      // Standard single-file upload for smaller files
+      setIsChunkedUpload(false);
+      const uploadUrl = urlData.signed_url;
+      if (!uploadUrl) {
+        throw new Error('No upload URL received');
+      }
+
+      const uploadResponse = await fetch(uploadUrl, {
+        method: 'PUT',
+        body: item.file,
+        headers: {
+          'Content-Type': item.file.type,
+        },
+      });
+
+      if (!uploadResponse.ok) {
+        console.error('Upload failed:', {
+          status: uploadResponse.status,
+          statusText: uploadResponse.statusText,
+        });
+        throw new Error(`Upload failed with status ${uploadResponse.status}`);
+      }
+
+      // Prepare confirmation data
+      const confirmBody: any = {
+        gallery_id: galleryId,
+        upload_token: token,
+        type: item.type === 'video' ? 'video' : 'image',
+        post_type: item.type,
+        caption: item.caption || null,
+        file_size: item.file.size,
+        mime_type: item.file.type,
+        file_path: urlData.file_path,
+      };
+
+      // Get dimensions for images
+      if (item.type === 'photo' && item.preview) {
+        const img = new Image();
+        await new Promise((resolve) => {
+          img.onload = () => {
+            confirmBody.width = img.width;
+            confirmBody.height = img.height;
+            resolve(null);
+          };
+          img.src = item.preview;
+        });
+      }
+
+      const { error: confirmError } = await supabase.functions.invoke('confirm-media-upload', {
+        body: confirmBody,
+      });
+
+      if (confirmError) throw confirmError;
+    } catch (error: any) {
+      // Log full error details
+      console.error('Upload failed:', {
+        error,
+        file: {
+          name: item.file?.name,
+          type: item.file?.type,
+          size: item.file?.size,
+        },
+        stack: error.stack,
+      });
+      
+      throw error;
     }
-
-    const { error: confirmError } = await supabase.functions.invoke('confirm-media-upload', {
-      body: confirmBody,
-    });
-
-    if (confirmError) throw confirmError;
   };
 
   if (loading) {

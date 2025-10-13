@@ -3,7 +3,9 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, upload-offset, upload-length, tus-resumable',
+  'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, DELETE, OPTIONS',
+  'Access-Control-Max-Age': '86400',
 };
 
 const MAX_PHOTO_SIZE_MB = 250;
@@ -61,9 +63,62 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    const { gallerySlug, filename, contentType, file_size } = await req.json();
+    let body;
+    try {
+      body = await req.json();
+    } catch (e) {
+      console.error('Invalid JSON received:', e);
+      return new Response(
+        JSON.stringify({ 
+          error: 'Invalid JSON in request body',
+          details: 'Request body must be valid JSON',
+          received_content_type: req.headers.get('content-type')
+        }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
-    console.log('Create upload URL request:', { gallerySlug, filename, contentType, file_size });
+    const { gallerySlug, filename, contentType, file_size } = body;
+
+    console.log('Create upload URL request:', { 
+      gallerySlug, 
+      filename, 
+      contentType, 
+      file_size,
+      headers: Object.fromEntries(req.headers.entries())
+    });
+
+    // Validate required fields
+    const missingFields = [];
+    if (!gallerySlug) missingFields.push('gallerySlug');
+    if (!filename) missingFields.push('filename');
+    if (!contentType) missingFields.push('contentType');
+    if (file_size === undefined || file_size === null) missingFields.push('file_size');
+
+    if (missingFields.length > 0) {
+      console.error('Missing required fields:', missingFields);
+      return new Response(
+        JSON.stringify({ 
+          error: `Missing required fields: ${missingFields.join(', ')}`,
+          required_fields: ['gallerySlug', 'filename', 'contentType', 'file_size'],
+          received_fields: Object.keys(body)
+        }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Validate field types
+    if (typeof file_size !== 'number' || file_size <= 0) {
+      console.error('Invalid file_size:', { file_size, type: typeof file_size });
+      return new Response(
+        JSON.stringify({ 
+          error: 'Invalid file_size',
+          details: 'file_size must be a positive number',
+          received: { file_size, type: typeof file_size }
+        }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
     // Normalize HEIC/HEIF to JPEG
     let targetContentType = contentType;
