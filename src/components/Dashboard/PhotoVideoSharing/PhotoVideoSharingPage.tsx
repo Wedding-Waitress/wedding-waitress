@@ -390,15 +390,15 @@ export const PhotoVideoSharingPage: React.FC = () => {
                 <GalleryAnalyticsWidget galleryId={selectedGalleryId} />
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {/* Box 1: Create Gallery */}
+                {/* Box 1: Create Album */}
                 <Card className="ww-box border-2 border-primary/20">
                   <CardContent className="p-6 space-y-4 flex flex-col h-full">
                     <div className="flex items-center gap-2 mb-2">
                       <Camera className="w-5 h-5 text-primary" />
-                      <h3 className="text-lg font-semibold">Create Gallery</h3>
+                      <h3 className="text-lg font-semibold">Create Album</h3>
                     </div>
                     <p className="text-sm text-muted-foreground flex-grow">
-                      Create a new photo & video gallery for your event
+                      Create a new photo & video album for your event
                     </p>
                     <Button
                       size="lg"
@@ -406,20 +406,20 @@ export const PhotoVideoSharingPage: React.FC = () => {
                       onClick={() => setShowCreateWizard(true)}
                     >
                       <Plus className="w-5 h-5 mr-2" />
-                      Create Photo & Video Gallery
+                      Create Album
                     </Button>
                     <div className="text-xs text-muted-foreground bg-blue-50 dark:bg-blue-950/20 p-3 rounded-lg border border-blue-200 dark:border-blue-800">
-                      💡 A unique QR/link will be generated for this gallery. This QR is separate from Seating Chart QRs.
+                      💡 A unique QR/link will be generated for this album. This QR is separate from Seating Chart QRs.
                     </div>
                   </CardContent>
                 </Card>
 
-                {/* Box 2: Select Gallery & Delete */}
+                {/* Box 2: Select Album & Delete */}
                 <Card className="ww-box border-2 border-primary/20">
                   <CardContent className="p-6 space-y-4 flex flex-col h-full">
                     <div className="flex items-center gap-2 mb-2">
                       <FolderOpen className="w-5 h-5 text-primary" />
-                      <h3 className="text-lg font-semibold">Select Gallery</h3>
+                      <h3 className="text-lg font-semibold">Select Album</h3>
                     </div>
                     <div className="space-y-3 flex-grow">
                       <Label className="text-sm">Choose a gallery:</Label>

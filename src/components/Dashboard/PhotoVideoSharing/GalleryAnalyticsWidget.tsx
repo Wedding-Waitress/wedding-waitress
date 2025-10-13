@@ -16,7 +16,7 @@ export const GalleryAnalyticsWidget: React.FC<GalleryAnalyticsWidgetProps> = ({ 
   return (
     <Card className="ww-box">
       <CardHeader className="pb-3">
-        <CardTitle className="text-lg">Gallery Insights</CardTitle>
+        <CardTitle className="text-lg">Album Insights</CardTitle>
       </CardHeader>
       <CardContent>
         {loading ? (
@@ -40,7 +40,7 @@ export const GalleryAnalyticsWidget: React.FC<GalleryAnalyticsWidgetProps> = ({ 
                   </div>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>Unique guests who opened your gallery link</p>
+                  <p>Unique guests who opened your album link</p>
                 </TooltipContent>
               </Tooltip>
 
@@ -58,7 +58,7 @@ export const GalleryAnalyticsWidget: React.FC<GalleryAnalyticsWidgetProps> = ({ 
                   </div>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>Times guests used Share Gallery</p>
+                  <p>Times guests used Share Album</p>
                 </TooltipContent>
               </Tooltip>
 
