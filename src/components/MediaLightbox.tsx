@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { X, ChevronLeft, ChevronRight, ZoomIn, ZoomOut } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight, ZoomIn, ZoomOut, Download, Share2 } from 'lucide-react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 
 interface MediaLightboxProps {
@@ -32,6 +33,7 @@ export const MediaLightbox: React.FC<MediaLightboxProps> = ({
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [touchStart, setTouchStart] = useState<number | null>(null);
+  const { toast } = useToast();
 
   const currentItem = items[currentIndex];
   const isVideo = currentItem?.type === 'video';
@@ -165,6 +167,90 @@ export const MediaLightbox: React.FC<MediaLightboxProps> = ({
       return `https://videodelivery.net/${currentItem.cloudflare_stream_uid}/thumbnails/thumbnail.jpg`;
     }
     return undefined;
+  };
+
+  const handleDownload = async () => {
+    try {
+      const url = isVideo ? getVideoUrl() : currentItem.file_url;
+      if (!url) return;
+
+      const filename = `${currentItem.caption || 'media'}-${currentItem.id}.${isVideo ? 'mp4' : 'jpg'}`;
+      
+      // For Cloudflare Stream, we need to download the video differently
+      if (currentItem.cloudflare_stream_uid && isVideo) {
+        // Stream doesn't allow direct downloads, so we open in new tab
+        window.open(url, '_blank');
+        toast({
+          title: 'Opening video',
+          description: 'Video will open in a new tab. Use browser controls to download.',
+        });
+        return;
+      }
+
+      // For regular files, trigger download
+      const response = await fetch(url);
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(blobUrl);
+
+      toast({
+        title: 'Download started',
+        description: `Downloading ${isVideo ? 'video' : 'photo'}...`,
+      });
+    } catch (error) {
+      console.error('Download failed:', error);
+      toast({
+        title: 'Download failed',
+        description: 'Could not download the file. Please try again.',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleShare = async () => {
+    try {
+      const url = isVideo ? getVideoUrl() : currentItem.file_url;
+      if (!url) return;
+
+      const shareData = {
+        title: currentItem.caption || 'Shared from gallery',
+        text: `Check out this ${isVideo ? 'video' : 'photo'}!`,
+        url: url,
+      };
+
+      // Try Web Share API first (mobile)
+      if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
+        await navigator.share(shareData);
+        toast({
+          title: 'Shared successfully',
+          description: 'Content shared!',
+        });
+      } else {
+        // Fallback: Copy to clipboard
+        await navigator.clipboard.writeText(url);
+        toast({
+          title: '✅ Link copied!',
+          description: 'Share link copied to clipboard',
+        });
+      }
+    } catch (error: any) {
+      // User cancelled share or clipboard failed
+      if (error.name !== 'AbortError') {
+        console.error('Share failed:', error);
+        toast({
+          title: 'Share failed',
+          description: 'Could not share the content. Please try again.',
+          variant: 'destructive',
+        });
+      }
+    }
   };
 
   if (!currentItem) return null;
@@ -302,6 +388,29 @@ export const MediaLightbox: React.FC<MediaLightboxProps> = ({
                 <ChevronRight className="w-6 h-6" />
               </Button>
             </div>
+          </div>
+
+          {/* Action Buttons (Download & Share) */}
+          <div className="absolute bottom-6 right-6 z-20 flex gap-3 animate-fade-in">
+            {/* Download Button */}
+            <Button
+              size="icon"
+              className="w-11 h-11 min-h-[44px] min-w-[44px] rounded-full bg-white hover:bg-white/90 text-primary shadow-lg hover:shadow-xl transition-all"
+              onClick={handleDownload}
+              title="Download"
+            >
+              <Download className="w-5 h-5" />
+            </Button>
+
+            {/* Share Button */}
+            <Button
+              size="icon"
+              className="w-11 h-11 min-h-[44px] min-w-[44px] rounded-full bg-white hover:bg-white/90 text-primary shadow-lg hover:shadow-xl transition-all"
+              onClick={handleShare}
+              title="Share"
+            >
+              <Share2 className="w-5 h-5" />
+            </Button>
           </div>
         </div>
       </DialogContent>
