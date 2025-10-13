@@ -197,7 +197,7 @@ export const GuestGalleryPublic: React.FC = () => {
   });
 
   useEffect(() => {
-    if (galleryData?.id) {
+    if (gallerySlug) {
       fetchGalleryData();
       generateOrGetToken();
       
