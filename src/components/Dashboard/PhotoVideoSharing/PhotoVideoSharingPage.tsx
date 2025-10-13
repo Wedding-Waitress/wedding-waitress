@@ -397,9 +397,14 @@ export const PhotoVideoSharingPage: React.FC = () => {
                 {/* Box 1: Create Album */}
                 <Card className="ww-box border-2 border-primary/20">
                   <CardContent className="p-6 space-y-4 flex flex-col h-full">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Camera className="w-5 h-5 text-primary" />
-                      <h3 className="text-lg font-semibold">Create Album</h3>
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <Camera className="w-5 h-5 text-primary" />
+                        <h3 className="text-lg font-semibold">Create Album</h3>
+                      </div>
+                      <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary text-white text-sm font-semibold shadow-md">
+                        Step 1
+                      </div>
                     </div>
                     <p className="text-sm text-muted-foreground flex-grow">
                       Create a new photo & video album for your event
@@ -418,12 +423,75 @@ export const PhotoVideoSharingPage: React.FC = () => {
                   </CardContent>
                 </Card>
 
-                {/* Box 2: Select Album & Delete */}
+                {/* Box 2: Photo & Video QR Code (only show if gallery selected) */}
+                {selectedGalleryId && (
+                  <Card className="ww-box border-2 border-primary/20">
+                    <CardContent className="p-6 space-y-4 flex flex-col h-full">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <QrCode className="w-5 h-5 text-primary" />
+                          <h3 className="text-lg font-semibold">Photo & Video QR Code</h3>
+                        </div>
+                        <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary text-white text-sm font-semibold shadow-md">
+                          Step 2
+                        </div>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        Share this link or QR code with your guests so they can upload photos and videos
+                      </p>
+                      
+                      {/* QR Code Display */}
+                      <div className="flex justify-center bg-white p-4 rounded-lg border flex-grow">
+                        {qrCodeDataUrl ? (
+                          <img
+                            src={qrCodeDataUrl}
+                            alt="Gallery QR Code"
+                            className="w-full max-w-[250px] h-auto object-contain"
+                          />
+                        ) : (
+                          <div className="w-[250px] h-[250px] flex items-center justify-center bg-muted rounded">
+                            <p className="text-sm text-muted-foreground">Generating...</p>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Guest Upload Link */}
+                      <div className="space-y-2">
+                        <Label className="text-xs">Guest Upload Link</Label>
+                        <div className="flex gap-2">
+                          <Input value={uploadUrl} readOnly className="flex-1 text-xs" />
+                          <Button variant="outline" size="sm" onClick={copyUploadUrl}>
+                            <Copy className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </div>
+
+                      {/* Action Buttons */}
+                      <div className="grid grid-cols-2 gap-3">
+                        <Button variant="outline" onClick={copyUploadUrl} disabled={!uploadUrl}>
+                          <Copy className="w-4 h-4 mr-2" />
+                          Copy Link
+                        </Button>
+                        <Button variant="default" onClick={downloadQRCode} disabled={!qrCodeDataUrl}>
+                          <Download className="w-4 h-4 mr-2" />
+                          Download QR
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Box 3: Select Album & Delete */}
                 <Card className="ww-box border-2 border-primary/20">
                   <CardContent className="p-6 space-y-4 flex flex-col h-full">
-                    <div className="flex items-center gap-2 mb-2">
-                      <FolderOpen className="w-5 h-5 text-primary" />
-                      <h3 className="text-lg font-semibold">Select Album</h3>
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <FolderOpen className="w-5 h-5 text-primary" />
+                        <h3 className="text-lg font-semibold">Select Album</h3>
+                      </div>
+                      <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary text-white text-sm font-semibold shadow-md">
+                        Step 3
+                      </div>
                     </div>
                     <div className="space-y-3 flex-grow">
                       <Label className="text-sm">Choose Album</Label>
@@ -485,59 +553,6 @@ export const PhotoVideoSharingPage: React.FC = () => {
                     </div>
                   </CardContent>
                 </Card>
-
-                {/* Box 3: Photo & Video QR Code (only show if gallery selected) */}
-                {selectedGalleryId && (
-                  <Card className="ww-box border-2 border-primary/20">
-                    <CardContent className="p-6 space-y-4 flex flex-col h-full">
-                      <div className="flex items-center gap-2 mb-2">
-                        <QrCode className="w-5 h-5 text-primary" />
-                        <h3 className="text-lg font-semibold">Photo & Video QR Code</h3>
-                      </div>
-                      <p className="text-sm text-muted-foreground">
-                        Share this link or QR code with your guests so they can upload photos and videos
-                      </p>
-                      
-                      {/* QR Code Display */}
-                      <div className="flex justify-center bg-white p-4 rounded-lg border flex-grow">
-                        {qrCodeDataUrl ? (
-                          <img
-                            src={qrCodeDataUrl}
-                            alt="Gallery QR Code"
-                            className="w-full max-w-[250px] h-auto object-contain"
-                          />
-                        ) : (
-                          <div className="w-[250px] h-[250px] flex items-center justify-center bg-muted rounded">
-                            <p className="text-sm text-muted-foreground">Generating...</p>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Guest Upload Link */}
-                      <div className="space-y-2">
-                        <Label className="text-xs">Guest Upload Link</Label>
-                        <div className="flex gap-2">
-                          <Input value={uploadUrl} readOnly className="flex-1 text-xs" />
-                          <Button variant="outline" size="sm" onClick={copyUploadUrl}>
-                            <Copy className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </div>
-
-                      {/* Action Buttons */}
-                      <div className="grid grid-cols-2 gap-3">
-                        <Button variant="outline" onClick={copyUploadUrl} disabled={!uploadUrl}>
-                          <Copy className="w-4 h-4 mr-2" />
-                          Copy Link
-                        </Button>
-                        <Button variant="default" onClick={downloadQRCode} disabled={!qrCodeDataUrl}>
-                          <Download className="w-4 h-4 mr-2" />
-                          Download QR
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                )}
               </div>
               </>
             ) : (
