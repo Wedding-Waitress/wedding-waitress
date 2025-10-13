@@ -1253,8 +1253,22 @@ export const GuestGalleryPublic: React.FC = () => {
           </Button>
         </div>
 
-        {/* 3-Column Grid with White Borders */}
+        {/* Gallery Grid */}
         <div className="max-w-7xl mx-auto px-4 py-8">
+          {/* View Mode Toggle */}
+          {mediaItems.length > 12 && (
+            <div className="flex justify-center mb-6">
+              <Button
+                size="lg"
+                variant="outline"
+                className="border-2 border-white text-white hover:bg-white/20 hover:text-white shadow-lg backdrop-blur-sm"
+                onClick={() => setViewMode(viewMode === 'upload' ? 'gallery' : 'upload')}
+              >
+                {viewMode === 'upload' ? 'View All' : 'Show Less'}
+              </Button>
+            </div>
+          )}
+          
           {mediaItems.length === 0 ? (
             <Card className="ww-box max-w-md mx-auto bg-white">
               <CardContent className="p-12 text-center space-y-4">
@@ -1275,7 +1289,7 @@ export const GuestGalleryPublic: React.FC = () => {
             </Card>
           ) : (
             <div className="grid grid-cols-3 gap-2 md:gap-4">
-              {mediaItems.slice(0, 12).map((item) => (
+              {(viewMode === 'gallery' ? mediaItems : mediaItems.slice(0, 12)).map((item) => (
                 <div
                   key={item.id}
                   className="aspect-square bg-white rounded-lg border-4 border-white shadow-lg overflow-hidden cursor-pointer hover:scale-[1.02] transition-transform"
@@ -1345,162 +1359,6 @@ export const GuestGalleryPublic: React.FC = () => {
           </div>
         )}
       </div>
-
-      {/* Gallery Modal Overlay */}
-      {viewMode === 'gallery' && (
-        <div className="fixed inset-0 z-50 bg-black/95 overflow-y-auto">
-          <div className="min-h-screen">
-            {/* Sticky header with close button */}
-            <div className="sticky top-0 z-20 flex items-center justify-between px-4 py-4 bg-gradient-to-b from-black to-transparent backdrop-blur-sm">
-              <div className="flex items-center gap-3">
-                <a
-                  href="https://www.weddingwaitress.com/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="bg-white rounded-full px-4 py-2 shadow-lg hover:shadow-xl transition-shadow flex items-center gap-2"
-                >
-                  <span className="text-xs md:text-sm font-medium">💜 Made with</span>
-                  <img src={weddingWaitressLogo} alt="Wedding Waitress" className="h-8" />
-                </a>
-              </div>
-              
-              <Button
-                size="lg"
-                variant="ghost"
-                className="text-white hover:bg-white/20"
-                onClick={() => setViewMode('upload')}
-              >
-                <X className="w-6 h-6" />
-              </Button>
-            </div>
-
-            {/* Header */}
-            <div className="text-white py-8 px-4 text-center">
-              <div className="max-w-6xl mx-auto space-y-3">
-                <h1 className="text-3xl md:text-4xl font-bold drop-shadow-lg">{galleryData.title}</h1>
-                {galleryData.event_date && (
-                  <p className="text-lg drop-shadow-md">
-                    {format(new Date(galleryData.event_date), 'MMMM d, yyyy')}
-                  </p>
-                )}
-                <p className="text-sm drop-shadow-md">
-                  {mediaItems.length} photos, videos & posts
-                </p>
-              </div>
-            </div>
-
-            {/* Add Button */}
-            <div className="px-4 pb-6 flex justify-center">
-              <Button
-                size="lg"
-                className="bg-white text-primary hover:bg-white/90 shadow-lg font-semibold"
-                onClick={() => {
-                  setViewMode('upload');
-                  setFlowStep('add');
-                }}
-              >
-                <Plus className="w-5 h-5 mr-2" />
-                Add to Album
-              </Button>
-            </div>
-
-            {/* Full Gallery Grid */}
-            <div className="max-w-7xl mx-auto px-4 py-4 pb-12">
-              {mediaItems.length === 0 ? (
-                <Card className="ww-box max-w-md mx-auto bg-white">
-                  <CardContent className="p-12 text-center space-y-4">
-                    <div className="text-6xl mb-4">📸</div>
-                    <h3 className="text-xl font-semibold">No photos yet</h3>
-                    <p className="text-muted-foreground">
-                      Be the first to share a memory!
-                    </p>
-                    <Button
-                      size="lg"
-                      className="bg-gradient-to-r from-primary to-purple-600 hover:opacity-90"
-                      onClick={() => {
-                        setViewMode('upload');
-                        setFlowStep('add');
-                      }}
-                    >
-                      <Plus className="w-5 h-5 mr-2" />
-                      Add Photos
-                    </Button>
-                  </CardContent>
-                </Card>
-              ) : (
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-4">
-                  {mediaItems.map((item) => (
-                    <div
-                      key={item.id}
-                      className="aspect-square bg-white rounded-lg border-4 border-white shadow-lg overflow-hidden cursor-pointer hover:scale-[1.02] transition-transform"
-                      onClick={() => {
-                        if (item.post_type === 'video') {
-                          setSelectedVideo(item);
-                        }
-                      }}
-                    >
-                      {item.post_type === 'photo' && item.file_url ? (
-                        <img
-                          src={getMediaUrl(item.file_url)}
-                          alt={item.caption || 'Gallery photo'}
-                          className="w-full h-full object-cover"
-                          loading="lazy"
-                        />
-                      ) : item.post_type === 'video' ? (
-                        <div className="relative w-full h-full">
-                          {item.thumbnail_url ? (
-                            <img
-                              src={getMediaUrl(item.thumbnail_url)}
-                              alt={item.caption || 'Video thumbnail'}
-                              className="w-full h-full object-cover"
-                              loading="lazy"
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-purple-900 to-blue-900">
-                              <Play className="w-12 h-12 text-white/50" />
-                            </div>
-                          )}
-                          <div className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/40 transition-colors">
-                            <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-white/90 flex items-center justify-center group-hover:scale-110 transition-transform">
-                              <Play className="w-8 h-8 md:w-10 md:h-10 text-primary ml-1" fill="currentColor" />
-                            </div>
-                          </div>
-                        </div>
-                      ) : item.post_type === 'text' ? (
-                        <div 
-                          className="w-full h-full flex items-center justify-center p-4"
-                          style={item.theme_id ? { background: getThemeById(item.theme_id).bgColor } : {}}
-                        >
-                          <p className="text-sm text-center line-clamp-6 font-medium" style={item.theme_id ? { color: getThemeById(item.theme_id).textColor } : {}}>
-                            {item.text_content}
-                          </p>
-                        </div>
-                      ) : null}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Footer */}
-            {galleryData.show_footer && (
-              <footer className="mt-8 py-8 px-4 text-center text-white/60">
-                <p className="text-sm">
-                  Powered by{' '}
-                  <a
-                    href="https://www.weddingwaitress.com/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="font-semibold underline hover:text-white transition-colors"
-                  >
-                    Wedding Waitress
-                  </a>
-                </p>
-              </footer>
-            )}
-          </div>
-        </div>
-      )}
 
       {/* Video Lightbox */}
       {selectedVideo && (
