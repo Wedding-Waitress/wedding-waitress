@@ -78,13 +78,14 @@ serve(async (req) => {
       );
     }
 
-    const { gallerySlug, filename, contentType, file_size } = body;
+    const { gallerySlug, filename, contentType, file_size, duration_seconds } = body;
 
     console.log('Create upload URL request:', { 
       gallerySlug, 
       filename, 
       contentType, 
       file_size,
+      duration_seconds,
       headers: Object.fromEntries(req.headers.entries())
     });
 
@@ -158,21 +159,61 @@ serve(async (req) => {
       );
     }
 
-    // Check if video should use chunked upload
+    // Prefer Cloudflare Stream Direct Upload for videos ≤ 5 minutes
     const sizeMB = file_size / (1024 * 1024);
-    if (isVideo && sizeMB >= CHUNKED_UPLOAD_THRESHOLD_MB) {
-      const chunkSize = 8 * 1024 * 1024; // 8 MB chunks
-      const chunkCount = Math.ceil(file_size / chunkSize);
-      
-      return new Response(
-        JSON.stringify({
-          use_multipart: true,
-          chunk_size: chunkSize,
-          chunk_count: chunkCount,
-          message: `This video is large (${Math.round(sizeMB)} MB). Use chunked upload for better reliability.`
-        }),
-        { status: 200, headers: {...corsHeaders, 'Content-Type': 'application/json'} }
-      );
+    if (isVideo) {
+      const accountId = Deno.env.get('CLOUDFLARE_ACCOUNT_ID');
+      const apiToken = Deno.env.get('CLOUDFLARE_STREAM_API_TOKEN');
+
+      if (!accountId || !apiToken) {
+        console.warn('Cloudflare credentials missing, falling back to Supabase Storage for videos');
+      } else if (!duration_seconds || duration_seconds <= 300) {
+        // Create a direct upload URL valid for a short time
+        const cfRes = await fetch(`https://api.cloudflare.com/client/v4/accounts/${accountId}/stream/direct_upload`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${apiToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            maxDurationSeconds: 300,
+            creator: gallerySlug,
+            requireSignedURLs: false,
+          })
+        });
+
+        const cfJson = await cfRes.json();
+        if (!cfRes.ok || !cfJson.success) {
+          console.error('Cloudflare direct upload error:', cfJson);
+        } else {
+          // Resolve gallery to include id in response
+          const { data: gallery } = await supabase
+            .from('galleries')
+            .select('id')
+            .eq('slug', gallerySlug)
+            .single();
+
+          return new Response(
+            JSON.stringify({
+              stream_upload_url: cfJson.result.uploadURL,
+              stream_uid: cfJson.result.uid,
+              gallery_id: gallery?.id,
+              content_type: targetContentType,
+            }),
+            { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+      }
+
+      // If we get here, we fall back to Supabase Storage (small clips or CF failed)
+      if (sizeMB >= CHUNKED_UPLOAD_THRESHOLD_MB) {
+        const chunkSize = 8 * 1024 * 1024; // 8 MB chunks
+        const chunkCount = Math.ceil(file_size / chunkSize);
+        return new Response(
+          JSON.stringify({ use_multipart: true, chunk_size: chunkSize, chunk_count: chunkCount }),
+          { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
     }
 
     // Resolve gallery from slug

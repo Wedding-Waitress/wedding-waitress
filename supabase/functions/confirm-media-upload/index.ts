@@ -103,16 +103,27 @@ serve(async (req) => {
       approved_at: gallery.require_approval ? null : new Date().toISOString(),
     };
 
-    // For videos and photos uploaded to Supabase Storage
-    if (post_type === 'video' || post_type === 'photo' || post_type === 'image') {
-      insertData.file_url = file_path || '';
-      insertData.thumbnail_url = thumbnail_url || null; // Include thumbnail URL
-      insertData.cloudflare_stream_uid = null;
+    // For videos/photos uploaded to Supabase Storage OR Cloudflare Stream
+    if (post_type === 'video') {
+      if (cloudflare_stream_uid) {
+        insertData.cloudflare_stream_uid = cloudflare_stream_uid;
+        insertData.file_url = '';
+        insertData.thumbnail_url = thumbnail_url || null;
+        insertData.stream_status = 'queued';
+        insertData.stream_ready = false;
+        insertData.duration_seconds = duration_seconds || null;
+      } else {
+        insertData.file_url = file_path || '';
+        insertData.thumbnail_url = thumbnail_url || null;
+      }
       insertData.width = width || null;
       insertData.height = height || null;
-    }
-    // For text posts
-    else if (post_type === 'text') {
+    } else if (post_type === 'photo' || post_type === 'image') {
+      insertData.file_url = file_path || '';
+      insertData.thumbnail_url = thumbnail_url || null;
+      insertData.width = width || null;
+      insertData.height = height || null;
+    } else if (post_type === 'text') {
       insertData.file_url = '';
       insertData.thumbnail_url = null;
       insertData.cloudflare_stream_uid = null;

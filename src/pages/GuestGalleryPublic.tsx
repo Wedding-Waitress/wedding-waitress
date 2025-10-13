@@ -25,6 +25,7 @@ interface MediaItem {
   file?: File;
   type: 'photo' | 'video' | 'text';
   preview?: string;
+  localPoster?: string; // Local captured poster for preview and immediate gallery poster
   caption?: string;
   textContent?: string;
   themeId?: string;
@@ -39,6 +40,7 @@ interface MediaItem {
   uploadError?: string;
   mime_type?: string;
   stream_ready?: boolean;
+  duration_seconds?: number;
 }
 
 interface GalleryData {
@@ -382,6 +384,8 @@ export const GuestGalleryPublic: React.FC = () => {
     return new Promise((resolve) => {
       const video = document.createElement('video');
       video.preload = 'metadata';
+      video.muted = true;
+      video.playsInline = true as any;
       
       const timeout = setTimeout(() => {
         URL.revokeObjectURL(video.src);
@@ -392,15 +396,11 @@ export const GuestGalleryPublic: React.FC = () => {
         clearTimeout(timeout);
         const duration = video.duration;
         URL.revokeObjectURL(video.src);
-        
         if (duration > MAX_VIDEO_DURATION_SECONDS) {
           const minutes = Math.floor(duration / 60);
           const seconds = Math.round(duration % 60);
           const maxMinutes = Math.floor(MAX_VIDEO_DURATION_SECONDS / 60);
-          resolve({ 
-            valid: false, 
-            error: `Video is too long (${minutes}:${String(seconds).padStart(2, '0')}). Maximum duration: ${maxMinutes} minutes.` 
-          });
+          resolve({ valid: false, error: `Video is too long (${minutes}:${String(seconds).padStart(2, '0')}). Maximum duration: ${maxMinutes} minutes.` });
         } else {
           resolve({ valid: true, duration });
         }
@@ -416,66 +416,97 @@ export const GuestGalleryPublic: React.FC = () => {
     });
   };
 
+  const createVideoPoster = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const video = document.createElement('video');
+      video.preload = 'metadata';
+      video.muted = true;
+      video.playsInline = true as any;
+      const url = URL.createObjectURL(file);
+      video.src = url;
+
+      video.onloadeddata = () => {
+        try {
+          const canvas = document.createElement('canvas');
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+          const ctx = canvas.getContext('2d');
+          if (!ctx) return reject('No canvas context');
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+          canvas.toBlob((blob) => {
+            if (!blob) return reject('Poster creation failed');
+            const posterUrl = URL.createObjectURL(blob);
+            URL.revokeObjectURL(url);
+            resolve(posterUrl);
+          }, 'image/jpeg', 0.8);
+        } catch (e) {
+          URL.revokeObjectURL(url);
+          reject(e);
+        }
+      };
+
+      video.onerror = (e) => {
+        URL.revokeObjectURL(url);
+        reject(e);
+      };
+    });
+  };
+
   const handleFileSelection = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
-    
     const processedFiles = await Promise.all(
       files.map(async (file) => {
         // Check video size limit
+        let durationSec: number | undefined;
         if (file.type.startsWith('video/')) {
           const sizeMB = file.size / (1024 * 1024);
           if (sizeMB > MAX_VIDEO_SIZE_MB) {
-            toast({
-              title: 'Video Too Large',
-              description: `Video exceeds ${MAX_VIDEO_SIZE_MB} MB limit (${Math.round(sizeMB)} MB). Please trim it.`,
-              variant: 'destructive',
-            });
+            toast({ title: 'Video Too Large', description: `Video exceeds ${MAX_VIDEO_SIZE_MB} MB limit (${Math.round(sizeMB)} MB).`, variant: 'destructive' });
             return null;
           }
-
-          // Validate video duration
           const validation = await validateVideo(file);
           if (!validation.valid) {
-            toast({
-              title: 'Video Validation Failed',
-              description: validation.error,
-              variant: 'destructive',
-            });
+            toast({ title: 'Video Validation Failed', description: validation.error, variant: 'destructive' });
             return null;
           }
+          durationSec = validation.duration;
         }
 
         let processedFile = file;
-        
         // Convert HEIC/HEIF to JPEG
-        if (file.type === 'image/heic' || file.type === 'image/heif' || 
-            file.name.match(/\.(heic|heif)$/i)) {
+        if (file.type === 'image/heic' || file.type === 'image/heif' || file.name.match(/\.(heic|heif)$/i)) {
           try {
             processedFile = await convertHeicToJpeg(file);
-            toast({
-              title: 'Converted',
-              description: `${file.name} converted to JPEG`,
-            });
+            toast({ title: 'Converted', description: `${file.name} converted to JPEG` });
           } catch (error) {
             console.error('HEIC conversion error:', error);
-            toast({
-              title: 'Warning',
-              description: `Failed to convert ${file.name}`,
-              variant: 'destructive',
-            });
+            toast({ title: 'Warning', description: `Failed to convert ${file.name}`, variant: 'destructive' });
             return null;
           }
         }
-        
+
+        // Create preview URL and local poster for videos
+        let previewUrl = URL.createObjectURL(processedFile);
+        let localPoster: string | undefined;
+        if (processedFile.type.startsWith('video/')) {
+          try {
+            localPoster = await createVideoPoster(processedFile);
+          } catch (err) {
+            console.warn('Failed to capture video poster:', err);
+          }
+        }
+
         return {
           file: processedFile,
           type: processedFile.type.startsWith('video/') ? 'video' : 'photo',
-          preview: URL.createObjectURL(processedFile),
+          preview: previewUrl,
+          localPoster,
           caption: '',
-        };
+          duration_seconds: durationSec,
+        } as MediaItem;
       })
     );
-    
+
     const validItems = processedFiles.filter(item => item !== null) as MediaItem[];
     setSelectedItems([...selectedItems, ...validItems]);
     setFlowStep('preview');
@@ -631,98 +662,115 @@ export const GuestGalleryPublic: React.FC = () => {
   const uploadMediaFile = async (item: MediaItem) => {
     if (!item.file || !galleryData) return;
 
-    try {
-      // Get signed upload URL or multipart info
-      const { data: urlData, error: urlError } = await supabase.functions.invoke(
-        'create-media-upload-url',
-        {
-          body: {
-            gallerySlug: gallerySlug,
-            filename: item.file.name,
-            contentType: item.file.type,
-            file_size: item.file.size,
-          },
+    // Helper to compute overall progress across batch
+    const updateOverallProgress = (loaded: number, total: number) => {
+      const doneItems = currentUploadIndex - 1; // items already completed
+      const fraction = (doneItems + loaded / total) / Math.max(selectedItems.length, 1);
+      setUploadProgress(Math.max(1, Math.min(100, Math.round(fraction * 100))));
+    };
+
+    // Helper to upload local poster to storage and return path
+    const uploadLocalPosterToStorage = async (): Promise<string | null> => {
+      if (!item.localPoster) return null;
+      try {
+        const blob = await fetch(item.localPoster).then(r => r.blob());
+        const uuid = crypto.randomUUID();
+        const thumbPath = `thumbnails/${galleryData.id}/${uuid}.jpg`;
+        const { error: upErr } = await supabase.storage.from('event-media').upload(thumbPath, blob, { contentType: 'image/jpeg', upsert: true });
+        if (upErr) { console.warn('Poster upload error:', upErr); return null; }
+        return thumbPath;
+      } catch (err) {
+        console.warn('Poster upload failed:', err);
+        return null;
+      }
+    };
+
+    // XHR upload with progress (supports CORS/PUT/POST)
+    const xhrUpload = (url: string, method: 'PUT' | 'POST', body: Blob | FormData, headers?: Record<string, string>) => {
+      return new Promise<void>((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open(method, url, true);
+        if (headers) {
+          Object.entries(headers).forEach(([k, v]) => xhr.setRequestHeader(k, v));
         }
-      );
+        xhr.upload.onprogress = (e) => {
+          if (e.lengthComputable) updateOverallProgress(e.loaded, e.total);
+        };
+        xhr.onerror = () => reject(new Error('NETWORK_ERROR'));
+        xhr.onabort = () => reject(new Error('ABORTED'));
+        xhr.onload = () => {
+          if (xhr.status >= 200 && xhr.status < 300) resolve();
+          else reject(new Error(`Upload failed: ${xhr.status}`));
+        };
+        xhr.send(body);
+      });
+    };
+
+    try {
+      // Get upload URL details (now includes duration_seconds)
+      const { data: urlData, error: urlError } = await supabase.functions.invoke('create-media-upload-url', {
+        body: {
+          gallerySlug: gallerySlug,
+          filename: item.file.name,
+          contentType: item.file.type,
+          file_size: item.file.size,
+          duration_seconds: item.duration_seconds,
+        },
+      });
 
       if (urlError) {
         console.error('Upload URL error:', urlError);
-        
-        if (urlError.status === 400) {
-          const errorMsg = urlError.message || '';
-          if (errorMsg.includes('type') || errorMsg.includes('format')) {
-            throw new Error(`File type "${item.file.type}" isn't supported. Please use MP4, MOV, JPG, or PNG.`);
-          }
-          throw new Error(`Request validation failed: ${errorMsg}`);
-        } else if (urlError.status === 413) {
-          throw new Error('FILE_TOO_LARGE');
-        } else if (urlError.status === 429) {
-          throw new Error('Too many upload attempts. Please wait a minute and try again.');
-        } else if (urlError.status >= 500) {
-          throw new Error('Server error. Please try again in a few minutes.');
-        }
-        
-        if (urlError.message?.includes('too large')) {
-          throw new Error('FILE_TOO_LARGE');
-        }
-        if (urlError.message?.includes('not accepting uploads')) {
-          throw new Error('UPLOADS_DISABLED');
-        }
-        if (urlError.message?.includes('not supported')) {
-          throw new Error('UNSUPPORTED_TYPE');
-        }
+        if (urlError.status === 400) throw new Error(urlError.message || 'Validation error');
+        if (urlError.status === 413) throw new Error('FILE_TOO_LARGE');
+        if (urlError.status === 403) throw new Error('UPLOADS_DISABLED');
+        if (urlError.status >= 500) throw new Error('Server error. Please try again.');
         throw urlError;
       }
 
-      // If response indicates multipart upload (for large videos)
-      if (urlData.use_multipart && item.type === 'video') {
-        console.log('Using chunked upload for video:', item.file.name);
-        const mediaId = await uploadChunked(item.file, item.caption || undefined);
-        if (!mediaId) {
-          throw new Error('Chunked upload failed');
-        }
-        return; // Chunked upload handles confirmation automatically
-      }
+      // Cloudflare direct upload path
+      if (urlData.stream_upload_url && item.type === 'video') {
+        // Upload local poster immediately (so gallery can show a thumbnail)
+        const thumbPath = await uploadLocalPosterToStorage();
 
-      // Standard single-file upload for smaller files
-      const uploadResponse = await Promise.race([
-        fetch(urlData.signed_url, {
-          method: 'PUT',
-          body: item.file,
-          headers: {
-            'Content-Type': urlData.content_type || item.file.type,
+        // Use FormData for Cloudflare direct upload
+        const form = new FormData();
+        form.append('file', item.file);
+        await xhrUpload(urlData.stream_upload_url, 'POST', form);
+
+        // Confirm record with Cloudflare UID
+        const { error: confirmErr } = await supabase.functions.invoke('confirm-media-upload', {
+          body: {
+            gallery_id: urlData.gallery_id,
+            upload_token: 'stream-direct',
+            file_path: '',
+            type: 'video',
+            post_type: 'video',
+            caption: item.caption || null,
+            file_size: item.file.size,
+            mime_type: item.file.type,
+            duration_seconds: item.duration_seconds,
+            cloudflare_stream_uid: urlData.stream_uid,
+            thumbnail_url: thumbPath,
           },
-        }),
-        new Promise<Response>((_, reject) => 
-          setTimeout(() => reject(new Error('NETWORK_TIMEOUT')), 5 * 60 * 1000) // 5 min timeout
-        )
-      ]);
-
-      if (!uploadResponse.ok) {
-        if (uploadResponse.status === 413) {
-          throw new Error('FILE_TOO_LARGE');
-        }
-        if (uploadResponse.status === 0) {
-          throw new Error('CORS_ERROR');
-        }
-        throw new Error(`Upload failed: ${uploadResponse.status}`);
-      }
-
-      // Get image dimensions if photo
-      let width, height;
-      if (item.type === 'photo' && item.preview) {
-        const img = new Image();
-        await new Promise((resolve) => {
-          img.onload = () => {
-            width = img.width;
-            height = img.height;
-            resolve(null);
-          };
-          img.src = item.preview;
         });
+        if (confirmErr) throw confirmErr;
+        return;
       }
 
-      // Confirm upload
+      // Chunked upload path for large videos
+      if (urlData.use_multipart && item.type === 'video') {
+        const mediaId = await uploadChunked(item.file, item.caption || undefined);
+        if (!mediaId) throw new Error('Chunked upload failed');
+        return;
+      }
+
+      // Supabase Storage signed URL upload
+      await xhrUpload(urlData.signed_url, 'PUT', item.file, { 'Content-Type': urlData.content_type || item.file.type });
+
+      // If video, upload poster and include in confirmation
+      let thumbPath: string | null = null;
+      if (item.type === 'video') thumbPath = await uploadLocalPosterToStorage();
+
       const { error: confirmError } = await supabase.functions.invoke('confirm-media-upload', {
         body: {
           gallery_id: urlData.gallery_id,
@@ -731,23 +779,20 @@ export const GuestGalleryPublic: React.FC = () => {
           type: item.type,
           post_type: item.type,
           caption: item.caption || null,
-          width,
-          height,
+          width: undefined,
+          height: undefined,
           file_size: item.file.size,
           mime_type: urlData.content_type || item.file.type,
+          thumbnail_url: thumbPath,
         },
       });
-
       if (confirmError) throw confirmError;
 
     } catch (error: any) {
       console.error('Upload error:', error);
-      
-      // Handle network timeout
-      if (error.message === 'NETWORK_TIMEOUT') {
-        throw new Error('Upload timed out after 5 minutes. Please check your internet connection and try again.');
-      }
-      
+      if (error.message === 'NETWORK_TIMEOUT') throw new Error('Upload timed out after 5 minutes.');
+      if (error.message?.includes('413')) throw new Error('FILE_TOO_LARGE');
+      if (error.message?.includes('CORS')) throw new Error('CORS_ERROR');
       throw error;
     }
   };
@@ -1043,7 +1088,7 @@ export const GuestGalleryPublic: React.FC = () => {
                     <img src={item.preview} className="w-full h-full object-contain" alt="" />
                   )}
                   {item.type === 'video' && item.preview && (
-                    <video src={item.preview} className="w-full h-full object-contain" />
+                    <img src={item.localPoster || item.preview} className="w-full h-full object-cover" alt="Video preview" />
                   )}
                   {item.type === 'text' && (
                     <p className="text-center font-medium text-sm line-clamp-6">
