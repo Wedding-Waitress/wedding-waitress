@@ -689,44 +689,6 @@ export const GuestMediaUpload: React.FC = () => {
       </div>
     );
   }
-                  cx="100" cy="100" r="90"
-                  stroke="url(#gradient)"
-                  strokeWidth="12"
-                  fill="none"
-                  strokeDasharray={`${2 * Math.PI * 90}`}
-                  strokeDashoffset={`${2 * Math.PI * 90 * (1 - uploadProgress / 100)}`}
-                  strokeLinecap="round"
-                  transform="rotate(-90 100 100)"
-                  className="transition-all duration-300"
-                />
-                <defs>
-                  <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="hsl(var(--primary))" />
-                    <stop offset="100%" stopColor="#764ba2" />
-                  </linearGradient>
-                </defs>
-                <text x="100" y="110" textAnchor="middle" className="text-4xl font-bold fill-foreground">
-                  {uploadProgress}%
-                </text>
-              </svg>
-            </div>
-
-            <div className="space-y-2">
-              <h3 className="text-2xl font-bold">Uploading...</h3>
-              <p className="text-muted-foreground">Keep this page open until uploads are complete</p>
-            </div>
-
-            <div className="space-y-2">
-              <p className="text-sm text-muted-foreground">
-                Uploading {currentUploadIndex} of {selectedItems.length}
-              </p>
-              <Progress value={(currentUploadIndex / selectedItems.length) * 100} />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
 
   const successCount = selectedItems.filter(item => item.uploadSuccess === true).length;
   const failureCount = selectedItems.filter(item => item.uploadSuccess === false).length;
