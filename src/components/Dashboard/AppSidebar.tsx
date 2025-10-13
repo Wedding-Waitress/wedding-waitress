@@ -53,8 +53,8 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
   const { open } = useSidebar();
 
   return (
-    <Sidebar collapsible="icon" className="border-r border-border">
-      <SidebarContent>
+    <Sidebar collapsible="icon" className="border-r border-border pt-16">
+      <SidebarContent className="pt-2">
         <SidebarGroup>
           <SidebarGroupLabel>Menu</SidebarGroupLabel>
           <SidebarGroupContent>

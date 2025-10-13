@@ -389,17 +389,19 @@ export const Dashboard = () => {
       </div>;
   }
   return <SidebarProvider>
-    <div className="min-h-screen bg-gradient-subtle flex w-full">
-      {/* Sidebar */}
-      <div className="print:hidden">
-        <AppSidebar activeTab={activeTab} onTabChange={handleTabChange} onSignOut={handleSignOut} />
-      </div>
+    <div className="relative min-h-screen bg-gradient-subtle w-full">
+      {/* Universal Header - Full Width */}
+      <DashboardHeader />
       
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col min-w-0">
-        {/* Universal Header */}
-        <DashboardHeader />
-        <main className="flex-1 w-full px-4 md:px-6 lg:px-8 py-6">
+      {/* Sidebar and Main Content */}
+      <div className="flex pt-16 w-full">
+        {/* Sidebar */}
+        <div className="print:hidden">
+          <AppSidebar activeTab={activeTab} onTabChange={handleTabChange} onSignOut={handleSignOut} />
+        </div>
+        
+        {/* Main Content */}
+        <main className="flex-1 w-full px-4 md:px-6 lg:px-8 py-6 min-w-0">
           <div className="w-full max-w-none">
             {/* Stats Bar excluded from: My Events, QR Code, Dashboard, Vendor Team, Planner, Wishing Well, RSVP, Floor Plan, Kiosk Live View, Printables, Place Cards, Dietary Requirements, Full Seating Chart, Photo & Video Sharing */}
             {activeTab !== 'my-events' && activeTab !== 'qr-code' && activeTab !== 'dashboard' && activeTab !== 'vendor-team' && activeTab !== 'planner' && activeTab !== 'wishing-well' && activeTab !== 'rsvp-invite' && activeTab !== 'floor-plan' && activeTab !== 'kiosk-live-view' && activeTab !== 'printables' && activeTab !== 'individual-table-chart' && activeTab !== 'place-cards' && activeTab !== 'dietary-chart' && activeTab !== 'full-seating-chart' && activeTab !== 'photo-video-sharing' && <div className="print:hidden">
@@ -413,7 +415,7 @@ export const Dashboard = () => {
           </div>
         </main>
       </div>
-
+      
       {/* Create/Edit Table Modal */}
       <CreateTableModal isOpen={showCreateTableModal} onClose={handleCloseModal} onSave={handleSaveTable} editingTable={editingTable} existingTables={tables} />
     </div>

@@ -18,31 +18,28 @@ export const DashboardHeader: React.FC = () => {
     return 'User';
   };
   
-  return <header className="sticky top-0 z-40 w-full border-b border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60 print:hidden">
-      <div className="flex h-16 items-center justify-between px-4 md:px-6 my-[10px] gap-2">
-        {/* Mobile hamburger trigger */}
-        {isMobile && (
-          <div className="flex items-center">
-            <SidebarTrigger className="mr-2" />
-          </div>
-        )}
-        
-        {/* Logo on the left */}
-        <div className="flex items-center flex-shrink-0">
+  return <header className="fixed top-0 left-0 right-0 z-50 w-full border-b border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60 print:hidden">
+      <div className="relative flex h-16 items-center px-4 md:px-6 my-[10px]">
+        {/* Logo - absolute positioned far left */}
+        <div className="absolute left-4 md:left-6 flex items-center">
           <img src={logoImage} alt="Wedding Waitress" className="h-12 md:h-14 w-auto" />
         </div>
-
-        {/* Welcome message in the center */}
-        <div className="flex items-center justify-center flex-1 min-w-0">
-          <h2 className="text-base md:text-xl lg:text-2xl font-semibold text-primary flex items-center gap-2 truncate">
+        
+        {/* Welcome message - centered */}
+        <div className="flex items-center justify-center w-full">
+          <h2 className="text-base md:text-xl lg:text-2xl font-semibold text-primary flex items-center gap-2">
             <span className="hidden sm:inline">Welcome </span>
-            <span className="truncate">{getDisplayName()}</span>
+            <span>{getDisplayName()}</span>
             <Sparkles className="w-5 h-5 md:w-6 md:h-6 lg:w-7 lg:h-7 text-primary flex-shrink-0" />
           </h2>
         </div>
-
-        {/* Empty div for balance on desktop */}
-        {!isMobile && <div className="flex-shrink-0 w-[56px]"></div>}
+        
+        {/* Mobile hamburger - absolute positioned */}
+        {isMobile && (
+          <div className="absolute right-4">
+            <SidebarTrigger />
+          </div>
+        )}
       </div>
     </header>;
 };
