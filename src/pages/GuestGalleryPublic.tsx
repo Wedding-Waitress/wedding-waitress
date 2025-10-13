@@ -8,10 +8,14 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
-import { TextPostModal } from '@/components/Dashboard/PhotoVideoSharing/TextPostModal';
 import { getThemeById } from '@/lib/mediaConstants';
 import { analytics } from '@/lib/analytics';
 import weddingWaitressLogo from '@/assets/wedding-waitress-badge-logo.png';
+
+// Lazy load TextPostModal for better initial page performance
+const TextPostModal = React.lazy(() => 
+  import('@/components/Dashboard/PhotoVideoSharing/TextPostModal').then(m => ({ default: m.TextPostModal }))
+);
 
 interface MediaItem {
   id?: string;
@@ -63,6 +67,20 @@ export const GuestGalleryPublic: React.FC = () => {
   const [latestMedia, setLatestMedia] = useState<MediaItem | null>(null);
 
   const MAX_VIDEO_SIZE_MB = 200;
+
+  // Preload logo for instant badge display
+  useEffect(() => {
+    const link = document.createElement('link');
+    link.rel = 'preload';
+    link.as = 'image';
+    link.href = weddingWaitressLogo;
+    document.head.appendChild(link);
+    return () => {
+      if (document.head.contains(link)) {
+        document.head.removeChild(link);
+      }
+    };
+  }, []);
 
   // Set page title
   useEffect(() => {
@@ -617,6 +635,9 @@ export const GuestGalleryPublic: React.FC = () => {
   if (flowStep === 'landing') {
     return (
       <div className="h-screen relative overflow-hidden">
+        {/* Base CSS gradient - paints immediately */}
+        <div className="fixed inset-0 z-0 bg-gradient-to-br from-purple-100 via-purple-50 to-blue-50" />
+        
         {/* Full-screen background - latest media */}
         {latestMedia && (
           <div className="fixed inset-0 z-0">
@@ -625,6 +646,8 @@ export const GuestGalleryPublic: React.FC = () => {
                 src={getMediaUrl(latestMedia.file_url)}
                 className="w-full h-full object-cover"
                 alt=""
+                loading="lazy"
+                decoding="async"
               />
             )}
             {latestMedia.post_type === 'video' && latestMedia.thumbnail_url && (
@@ -632,6 +655,8 @@ export const GuestGalleryPublic: React.FC = () => {
                 src={latestMedia.thumbnail_url}
                 className="w-full h-full object-cover"
                 alt=""
+                loading="lazy"
+                decoding="async"
               />
             )}
             {latestMedia.post_type === 'text' && latestMedia.theme_id && (
@@ -644,21 +669,16 @@ export const GuestGalleryPublic: React.FC = () => {
           </div>
         )}
         
-        {/* Fallback gradient if no media */}
-        {!latestMedia && (
-          <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-purple-600/20 blur-3xl" />
-        )}
-        
         {/* Sticky header badge */}
         <div className="sticky top-0 z-20 flex justify-center pt-4 pb-2">
           <a
             href="https://www.weddingwaitress.com/"
             target="_blank"
             rel="noopener noreferrer"
-            className="bg-white rounded-full px-4 py-2 shadow-lg hover:shadow-xl transition-shadow flex items-center gap-2"
+            className="bg-white rounded-full px-5 py-3 shadow-lg hover:shadow-xl transition-shadow flex items-center gap-3"
           >
             <span className="text-sm font-medium">💜 Made with</span>
-            <img src={weddingWaitressLogo} alt="Wedding Waitress" className="h-5" />
+            <img src={weddingWaitressLogo} alt="Wedding Waitress" className="h-10" />
           </a>
         </div>
         
@@ -713,6 +733,8 @@ export const GuestGalleryPublic: React.FC = () => {
                               src={getMediaUrl(item.file_url)}
                               alt={item.caption || 'Gallery photo'}
                               className="w-full h-full object-cover"
+                              loading="lazy"
+                              decoding="async"
                             />
                           ) : item.post_type === 'video' && item.thumbnail_url ? (
                             <div className="relative w-full h-full">
@@ -720,6 +742,8 @@ export const GuestGalleryPublic: React.FC = () => {
                                 src={item.thumbnail_url}
                                 alt={item.caption || 'Video thumbnail'}
                                 className="w-full h-full object-cover"
+                                loading="lazy"
+                                decoding="async"
                               />
                               <div className="absolute inset-0 flex items-center justify-center bg-black/30">
                                 <div className="w-12 h-12 rounded-full bg-white/90 flex items-center justify-center">
@@ -743,7 +767,7 @@ export const GuestGalleryPublic: React.FC = () => {
             )}
             
             {galleryData.show_footer && (
-              <div className="text-sm text-white drop-shadow-md mt-8 flex items-center justify-center gap-2">
+              <div className="text-sm text-white drop-shadow-md mt-8 flex items-center justify-center gap-3">
                 <span>Made with 💜</span>
                 <a
                   href="https://www.weddingwaitress.com/"
@@ -751,7 +775,7 @@ export const GuestGalleryPublic: React.FC = () => {
                   rel="noopener noreferrer"
                   className="hover:opacity-80 transition-opacity"
                 >
-                  <img src={weddingWaitressLogo} alt="Wedding Waitress" className="h-4 inline-block" />
+                  <img src={weddingWaitressLogo} alt="Wedding Waitress" className="h-8 inline-block" />
                 </a>
               </div>
             )}
@@ -806,11 +830,13 @@ export const GuestGalleryPublic: React.FC = () => {
           />
         </div>
 
-        <TextPostModal
-          open={showTextPostModal}
-          onClose={() => setShowTextPostModal(false)}
-          onSubmit={handleTextPostSubmit}
-        />
+        <React.Suspense fallback={null}>
+          <TextPostModal
+            open={showTextPostModal}
+            onClose={() => setShowTextPostModal(false)}
+            onSubmit={handleTextPostSubmit}
+          />
+        </React.Suspense>
       </div>
     );
   }
@@ -974,6 +1000,9 @@ export const GuestGalleryPublic: React.FC = () => {
   // View gallery page
   return (
     <div className="min-h-screen relative overflow-hidden">
+      {/* Base CSS gradient - paints immediately */}
+      <div className="fixed inset-0 z-0 bg-gradient-to-br from-purple-100 via-purple-50 to-blue-50" />
+      
       {/* Full-screen background - latest media */}
       {latestMedia && (
         <div className="fixed inset-0 z-0">
@@ -982,6 +1011,8 @@ export const GuestGalleryPublic: React.FC = () => {
               src={getMediaUrl(latestMedia.file_url)}
               className="w-full h-full object-cover"
               alt=""
+              loading="lazy"
+              decoding="async"
             />
           )}
           {latestMedia.post_type === 'video' && latestMedia.thumbnail_url && (
@@ -989,6 +1020,8 @@ export const GuestGalleryPublic: React.FC = () => {
               src={latestMedia.thumbnail_url}
               className="w-full h-full object-cover"
               alt=""
+              loading="lazy"
+              decoding="async"
             />
           )}
           {latestMedia.post_type === 'text' && latestMedia.theme_id && (
@@ -1000,11 +1033,6 @@ export const GuestGalleryPublic: React.FC = () => {
           <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
         </div>
       )}
-      
-      {/* Fallback gradient if no media */}
-      {!latestMedia && (
-        <div className="absolute inset-0 bg-gradient-to-br from-background to-secondary" />
-      )}
 
       {/* Content layer */}
       <div className="relative z-10 min-h-screen">
@@ -1014,10 +1042,10 @@ export const GuestGalleryPublic: React.FC = () => {
             href="https://www.weddingwaitress.com/"
             target="_blank"
             rel="noopener noreferrer"
-            className="bg-white rounded-full px-4 py-2 shadow-lg hover:shadow-xl transition-shadow flex items-center gap-2"
+            className="bg-white rounded-full px-5 py-3 shadow-lg hover:shadow-xl transition-shadow flex items-center gap-3"
           >
             <span className="text-sm font-medium">💜 Made with</span>
-            <img src={weddingWaitressLogo} alt="Wedding Waitress" className="h-5" />
+            <img src={weddingWaitressLogo} alt="Wedding Waitress" className="h-10" />
           </a>
         </div>
 
@@ -1107,7 +1135,7 @@ export const GuestGalleryPublic: React.FC = () => {
         {/* Footer */}
         {galleryData.show_footer && (
           <div className="py-8 text-center">
-            <div className="text-sm text-white drop-shadow-md flex items-center justify-center gap-2">
+            <div className="text-sm text-white drop-shadow-md flex items-center justify-center gap-3">
               <span>Made with 💜</span>
               <a
                 href="https://www.weddingwaitress.com/"
@@ -1115,7 +1143,7 @@ export const GuestGalleryPublic: React.FC = () => {
                 rel="noopener noreferrer"
                 className="hover:opacity-80 transition-opacity"
               >
-                <img src={weddingWaitressLogo} alt="Wedding Waitress" className="h-4 inline-block" />
+                <img src={weddingWaitressLogo} alt="Wedding Waitress" className="h-8 inline-block" />
               </a>
             </div>
           </div>
