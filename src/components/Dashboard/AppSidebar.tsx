@@ -24,6 +24,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from '@/components/ui/sidebar';
+import { Separator } from '@/components/ui/separator';
 
 interface AppSidebarProps {
   activeTab: string;
@@ -54,11 +55,12 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
 
   return (
     <Sidebar collapsible="icon" className="border-r border-border pt-16">
-      <SidebarContent className="pt-2">
+      <SidebarContent className="pt-6">
         <SidebarGroup>
-          <SidebarGroupLabel className="text-base font-bold text-black dark:text-black">
+          <SidebarGroupLabel className="text-base font-bold text-black dark:text-black mb-3">
             Dashboard Menu
           </SidebarGroupLabel>
+          <Separator className="mb-3" />
           <SidebarGroupContent>
             <SidebarMenu>
               {menuItems.map((item) => {
