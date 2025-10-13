@@ -20,6 +20,8 @@ interface MediaLightboxProps {
   }>;
   initialIndex: number;
   onShareGallery?: () => void;
+  galleryId?: string;
+  onTrackDownload?: (type: 'single' | 'bulk') => void;
 }
 
 export const MediaLightbox: React.FC<MediaLightboxProps> = ({
@@ -28,6 +30,8 @@ export const MediaLightbox: React.FC<MediaLightboxProps> = ({
   items,
   initialIndex,
   onShareGallery,
+  galleryId,
+  onTrackDownload,
 }) => {
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const [zoom, setZoom] = useState(1);
@@ -175,6 +179,11 @@ export const MediaLightbox: React.FC<MediaLightboxProps> = ({
     try {
       const url = isVideo ? getVideoUrl() : currentItem.file_url;
       if (!url) return;
+
+      // Track download
+      if (onTrackDownload) {
+        onTrackDownload('single');
+      }
 
       const filename = `${currentItem.caption || 'media'}-${currentItem.id}.${isVideo ? 'mp4' : 'jpg'}`;
       

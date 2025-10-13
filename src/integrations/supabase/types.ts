@@ -452,6 +452,63 @@ export type Database = {
           },
         ]
       }
+      gallery_analytics: {
+        Row: {
+          created_at: string
+          device_type: string | null
+          event_id: string | null
+          gallery_id: string
+          id: string
+          ip_address: unknown | null
+          referrer: string | null
+          session_id: string | null
+          source: string | null
+          type: string
+          user_agent: string | null
+        }
+        Insert: {
+          created_at?: string
+          device_type?: string | null
+          event_id?: string | null
+          gallery_id: string
+          id?: string
+          ip_address?: unknown | null
+          referrer?: string | null
+          session_id?: string | null
+          source?: string | null
+          type: string
+          user_agent?: string | null
+        }
+        Update: {
+          created_at?: string
+          device_type?: string | null
+          event_id?: string | null
+          gallery_id?: string
+          id?: string
+          ip_address?: unknown | null
+          referrer?: string | null
+          session_id?: string | null
+          source?: string | null
+          type?: string
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gallery_analytics_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "gallery_analytics_gallery_id_fkey"
+            columns: ["gallery_id"]
+            isOneToOne: false
+            referencedRelation: "galleries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       gallery_exports: {
         Row: {
           completed_at: string | null
@@ -1518,6 +1575,21 @@ export type Database = {
         Args: { input_text: string }
         Returns: string
       }
+      get_all_gallery_analytics: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          event_date: string
+          event_name: string
+          gallery_id: string
+          gallery_title: string
+          last_activity: string
+          owner_email: string
+          total_downloads: number
+          total_shares: number
+          total_views: number
+          unique_sessions: number
+        }[]
+      }
       get_events_with_guest_count: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -1540,6 +1612,16 @@ export type Database = {
           start_time: string
           user_id: string
           venue: string
+        }[]
+      }
+      get_gallery_analytics_summary: {
+        Args: { _gallery_id: string }
+        Returns: {
+          last_activity: string
+          total_downloads: number
+          total_shares: number
+          total_views: number
+          unique_sessions: number
         }[]
       }
       get_guest_by_token: {

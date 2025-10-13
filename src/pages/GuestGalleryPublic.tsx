@@ -15,6 +15,7 @@ import { analytics } from '@/lib/analytics';
 import { MediaLightbox } from '@/components/MediaLightbox';
 import { ShareGalleryModal } from '@/components/ShareGalleryModal';
 import { GalleryMetaTags } from '@/components/GalleryMetaTags';
+import { useTrackAnalytics } from '@/hooks/useTrackAnalytics';
 import weddingWaitressLogo from '@/assets/wedding-waitress-badge-logo.png';
 
 // Lazy load TextPostModal for better initial page performance
@@ -82,6 +83,8 @@ export const GuestGalleryPublic: React.FC = () => {
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [shareModalOpen, setShareModalOpen] = useState(false);
+  const { trackEvent } = useTrackAnalytics();
+  const [hasTrackedView, setHasTrackedView] = useState(false);
 
   const MAX_VIDEO_SIZE_MB = 2048; // 2 GB max
   const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes
@@ -282,6 +285,15 @@ export const GuestGalleryPublic: React.FC = () => {
       }
 
       setGalleryData(gallery as any);
+
+      // Track gallery view (only once per session)
+      if (!hasTrackedView) {
+        trackEvent({
+          galleryId: (gallery as any).id,
+          type: 'view',
+        });
+        setHasTrackedView(true);
+      }
 
       // Fetch all media (show immediately without approval requirement)
       const { data: mediaData, error: mediaError } = await supabase
@@ -813,6 +825,15 @@ export const GuestGalleryPublic: React.FC = () => {
       text: 'View the full album of photos & videos',
       url: galleryUrl,
     };
+
+    // Track share event
+    if (galleryData?.id) {
+      trackEvent({
+        galleryId: galleryData.id,
+        type: 'share',
+        source: 'share_button',
+      });
+    }
 
     try {
       // Try Web Share API first (mobile)
@@ -1485,6 +1506,15 @@ export const GuestGalleryPublic: React.FC = () => {
         }))}
         initialIndex={lightboxIndex}
         onShareGallery={handleShareGallery}
+        galleryId={galleryData?.id || ''}
+        onTrackDownload={(type) => {
+          if (galleryData?.id) {
+            trackEvent({
+              galleryId: galleryData.id,
+              type: type === 'bulk' ? 'bulk_download' : 'download',
+            });
+          }
+        }}
       />
 
       {/* Share Gallery Modal */}

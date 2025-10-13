@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Camera, Plus, BarChart3, Trash2, Copy, Download, QrCode, FolderOpen, Image, Video, MessageSquare, Share2, Facebook, Instagram, Loader2, ChevronDown, Eye } from 'lucide-react';
 import { SetupWizard } from './SetupWizard';
 import { GalleryViewModal } from './GalleryViewModal';
+import { GalleryAnalyticsWidget } from './GalleryAnalyticsWidget';
 import { useGalleries } from '@/hooks/useGalleries';
 import { useGalleryStats } from '@/hooks/useGalleryStats';
 import { useGalleryExports } from '@/hooks/useGalleryExports';
@@ -377,6 +378,9 @@ export const PhotoVideoSharingPage: React.FC = () => {
                     </CardContent>
                   </Card>
                 </div>
+
+                {/* Gallery Analytics Widget */}
+                <GalleryAnalyticsWidget galleryId={selectedGalleryId} />
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {/* Box 1: Create Gallery */}

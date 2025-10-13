@@ -10,6 +10,7 @@ import NotFound from "./pages/NotFound";
 import { GuestLookup } from "./pages/GuestLookup";
 import { KioskView } from "./pages/KioskView";
 import { GuestGalleryPublic } from "./pages/GuestGalleryPublic";
+import { AdminGalleryInsights } from "./pages/AdminGalleryInsights";
 import { LegacyGalleryRedirect } from "./components/Redirect";
 import { ResetPassword } from "./pages/ResetPassword";
 import { PrivacyPolicy } from "./pages/PrivacyPolicy";
@@ -33,6 +34,7 @@ const App = () => (
           <Route path="/" element={<Landing />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/admin" element={<AdminLogin />} />
+          <Route path="/admin/gallery-insights" element={<AdminGalleryInsights />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/terms" element={<TermsOfService />} />
