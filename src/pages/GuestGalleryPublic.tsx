@@ -241,12 +241,11 @@ export const GuestGalleryPublic: React.FC = () => {
 
       setGalleryData(gallery as any);
 
-      // Fetch approved media
+      // Fetch all media (show immediately without approval requirement)
       const { data: mediaData, error: mediaError } = await supabase
         .from('media_uploads' as any)
         .select('id, post_type, type, caption, file_url, thumbnail_url, cloudflare_stream_uid, text_content, theme_id, created_at, mime_type')
         .eq('gallery_id', (gallery as any).id)
-        .eq('status', 'approved')
         .order('created_at', { ascending: false });
 
       if (mediaError) throw mediaError;
@@ -648,8 +647,25 @@ export const GuestGalleryPublic: React.FC = () => {
   };
 
   const getMediaUrl = (filePath: string) => {
-    const { data } = supabase.storage.from('event-media').getPublicUrl(filePath);
-    return data.publicUrl;
+    if (!filePath) return '';
+    
+    // Remove 'event-media/' prefix if present
+    const cleanPath = filePath.startsWith('event-media/') 
+      ? filePath.replace('event-media/', '') 
+      : filePath;
+    
+    // Get public URL with responsive transforms for high quality
+    const { data } = supabase.storage
+      .from('event-media')
+      .getPublicUrl(cleanPath, {
+        transform: {
+          width: 1920,
+          quality: 85,
+          resize: 'contain'
+        }
+      });
+    
+    return data?.publicUrl || '';
   };
 
   // Loading skeleton

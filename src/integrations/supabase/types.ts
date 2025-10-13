@@ -59,6 +59,47 @@ export type Database = {
         }
         Relationships: []
       }
+      event_shortlinks: {
+        Row: {
+          click_count: number | null
+          created_at: string
+          event_id: string
+          id: string
+          last_clicked_at: string | null
+          slug: string
+          target_url: string
+          updated_at: string
+        }
+        Insert: {
+          click_count?: number | null
+          created_at?: string
+          event_id: string
+          id?: string
+          last_clicked_at?: string | null
+          slug: string
+          target_url: string
+          updated_at?: string
+        }
+        Update: {
+          click_count?: number | null
+          created_at?: string
+          event_id?: string
+          id?: string
+          last_clicked_at?: string | null
+          slug?: string
+          target_url?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_shortlinks_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       events: {
         Row: {
           created_at: string
@@ -517,6 +558,47 @@ export type Database = {
           },
         ]
       }
+      gallery_shortlinks: {
+        Row: {
+          click_count: number
+          created_at: string
+          gallery_id: string
+          id: string
+          last_clicked_at: string | null
+          slug: string
+          target_path: string
+          updated_at: string
+        }
+        Insert: {
+          click_count?: number
+          created_at?: string
+          gallery_id: string
+          id?: string
+          last_clicked_at?: string | null
+          slug: string
+          target_path: string
+          updated_at?: string
+        }
+        Update: {
+          click_count?: number
+          created_at?: string
+          gallery_id?: string
+          id?: string
+          last_clicked_at?: string | null
+          slug?: string
+          target_path?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gallery_shortlinks_gallery_id_fkey"
+            columns: ["gallery_id"]
+            isOneToOne: false
+            referencedRelation: "galleries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       guest_access_attempts: {
         Row: {
           access_token: string
@@ -956,6 +1038,7 @@ export type Database = {
           id: string
           mime_type: string | null
           post_type: string | null
+          poster_url: string | null
           rejected_at: string | null
           rejected_by: string | null
           status: string
@@ -964,6 +1047,8 @@ export type Database = {
           stream_status: string | null
           text_content: string | null
           theme_id: string | null
+          thumb_1280_url: string | null
+          thumb_512_url: string | null
           thumbnail_url: string | null
           type: string
           uploader_token: string
@@ -984,6 +1069,7 @@ export type Database = {
           id?: string
           mime_type?: string | null
           post_type?: string | null
+          poster_url?: string | null
           rejected_at?: string | null
           rejected_by?: string | null
           status?: string
@@ -992,6 +1078,8 @@ export type Database = {
           stream_status?: string | null
           text_content?: string | null
           theme_id?: string | null
+          thumb_1280_url?: string | null
+          thumb_512_url?: string | null
           thumbnail_url?: string | null
           type: string
           uploader_token: string
@@ -1012,6 +1100,7 @@ export type Database = {
           id?: string
           mime_type?: string | null
           post_type?: string | null
+          poster_url?: string | null
           rejected_at?: string | null
           rejected_by?: string | null
           status?: string
@@ -1020,6 +1109,8 @@ export type Database = {
           stream_status?: string | null
           text_content?: string | null
           theme_id?: string | null
+          thumb_1280_url?: string | null
+          thumb_512_url?: string | null
           thumbnail_url?: string | null
           type?: string
           uploader_token?: string
@@ -1193,6 +1284,7 @@ export type Database = {
           shadow_enabled: boolean | null
           shape: string | null
           updated_at: string
+          use_simplified_qr: boolean | null
           user_id: string
         }
         Insert: {
@@ -1226,6 +1318,7 @@ export type Database = {
           shadow_enabled?: boolean | null
           shape?: string | null
           updated_at?: string
+          use_simplified_qr?: boolean | null
           user_id: string
         }
         Update: {
@@ -1259,6 +1352,7 @@ export type Database = {
           shadow_enabled?: boolean | null
           shape?: string | null
           updated_at?: string
+          use_simplified_qr?: boolean | null
           user_id?: string
         }
         Relationships: [
@@ -1360,6 +1454,10 @@ export type Database = {
           _max_uploads?: number
           _validity_days?: number
         }
+        Returns: string
+      }
+      generate_short_slug: {
+        Args: Record<PropertyKey, never>
         Returns: string
       }
       generate_slug: {

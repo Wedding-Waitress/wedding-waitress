@@ -15,6 +15,7 @@ interface GalleryViewModalProps {
 interface MediaItem {
   id: string;
   post_type: string;
+  mime_type?: string;
   file_url?: string;
   thumbnail_url?: string;
   cloudflare_stream_uid?: string;
@@ -50,14 +51,17 @@ export const GalleryViewModal: React.FC<GalleryViewModalProps> = ({
         .from('media_uploads')
         .select('*')
         .eq('gallery_id', galleryId)
-        .in('status', ['pending', 'approved'])
         .order('created_at', { ascending: false });
 
       if (error) throw error;
 
       if (data) {
-        setPhotos(data.filter((item: MediaItem) => item.post_type === 'photo'));
-        setVideos(data.filter((item: MediaItem) => item.post_type === 'video'));
+        setPhotos(data.filter((item: MediaItem) => 
+          item.mime_type?.startsWith('image/') || item.post_type === 'photo'
+        ));
+        setVideos(data.filter((item: MediaItem) => 
+          item.mime_type?.startsWith('video/') || item.post_type === 'video'
+        ));
         setMessages(data.filter((item: MediaItem) => item.post_type === 'text'));
       }
     } catch (error) {
@@ -68,10 +72,14 @@ export const GalleryViewModal: React.FC<GalleryViewModalProps> = ({
   };
 
   const getImageUrl = (item: MediaItem) => {
-    if (item.file_url && item.file_url.startsWith('event-media/')) {
-      return supabase.storage.from('event-media').getPublicUrl(item.file_url.replace('event-media/', '')).data.publicUrl;
-    }
-    return item.file_url;
+    if (!item.file_url) return '';
+    
+    // Remove 'event-media/' prefix if present, then get public URL
+    const filePath = item.file_url.startsWith('event-media/') 
+      ? item.file_url.replace('event-media/', '') 
+      : item.file_url;
+    
+    return supabase.storage.from('event-media').getPublicUrl(filePath).data.publicUrl;
   };
 
   return (
@@ -111,11 +119,11 @@ export const GalleryViewModal: React.FC<GalleryViewModalProps> = ({
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                   {photos.map((photo) => (
                     <Card key={photo.id} className="overflow-hidden">
-                      <div className="aspect-square relative">
+                      <div className="aspect-square relative bg-gray-900">
                         <img
                           src={getImageUrl(photo)}
                           alt={photo.caption || 'Gallery photo'}
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-contain"
                         />
                       </div>
                       {photo.caption && (

@@ -46,7 +46,7 @@ serve(async (req) => {
     // Validate gallery exists and get settings
     const { data: gallery, error: galleryError } = await supabase
       .from('galleries')
-      .select('id, require_approval, owner_id, is_active, show_public_gallery')
+      .select('id, require_approval, owner_id, is_active, show_public_gallery, event_id')
       .eq('id', gallery_id)
       .single();
 
@@ -87,6 +87,7 @@ serve(async (req) => {
     // Insert media record with appropriate fields based on media type
     const insertData: any = {
       gallery_id,
+      event_id: gallery.event_id || null,
       uploader_token: upload_token,
       type: mediaType,
       post_type: post_type || type,
