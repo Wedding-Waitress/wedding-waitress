@@ -269,7 +269,28 @@
     -webkit-text-fill-color: transparent;
   }
   
-  /* Custom scrollbar */
+/* Hero slideshow background layers */
+.hero-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  opacity: 0;
+  transition: opacity 400ms ease;
+  pointer-events: none;
+}
+
+.hero-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.25), rgba(0,0,0,0.05));
+  pointer-events: none;
+}
+
+/* Custom scrollbar */
   .custom-scrollbar::-webkit-scrollbar {
     width: 6px;
   }

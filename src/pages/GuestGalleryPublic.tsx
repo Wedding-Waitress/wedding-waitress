@@ -64,7 +64,10 @@ export const GuestGalleryPublic: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [token, setToken] = useState('');
   const [retryCount, setRetryCount] = useState(0);
-  const [latestMedia, setLatestMedia] = useState<MediaItem | null>(null);
+  const [photoUrls, setPhotoUrls] = useState<string[]>([]);
+  const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
+  const [activeLayer, setActiveLayer] = useState<'a' | 'b'>('a');
+  const [preloadedIndices, setPreloadedIndices] = useState<Set<number>>(new Set());
 
   const MAX_VIDEO_SIZE_MB = 200;
 
@@ -89,17 +92,80 @@ export const GuestGalleryPublic: React.FC = () => {
     }
   }, [galleryData]);
 
-  // Track latest media for background
+  // Extract photo URLs for slideshow background
   useEffect(() => {
-    if (mediaItems.length > 0) {
-      const sorted = [...mediaItems].sort((a, b) => 
-        new Date(b.created_at!).getTime() - new Date(a.created_at!).getTime()
-      );
-      setLatestMedia(sorted[0]);
-    } else {
-      setLatestMedia(null);
+    const photos = mediaItems.filter(item => 
+      item.post_type === 'photo' && 
+      item.file_url
+    );
+    
+    const sortedPhotos = photos
+      .sort((a, b) => new Date(b.created_at!).getTime() - new Date(a.created_at!).getTime())
+      .slice(0, 20);
+    
+    const urls = sortedPhotos.map(photo => getMediaUrl(photo.file_url!));
+    
+    const newestUrlChanged = urls.length > 0 && urls[0] !== photoUrls[0];
+    
+    setPhotoUrls(urls);
+    
+    if (newestUrlChanged) {
+      setCurrentPhotoIndex(0);
+      setActiveLayer('a');
+      preloadImage(urls[0], 0);
+    }
+    
+    if (urls.length > 0 && !preloadedIndices.has(0)) {
+      preloadImage(urls[0], 0);
     }
   }, [mediaItems]);
+
+  // Preload image helper
+  const preloadImage = (url: string, index: number) => {
+    if (preloadedIndices.has(index)) return;
+    
+    const img = new Image();
+    img.onload = () => {
+      setPreloadedIndices(prev => new Set(prev).add(index));
+      
+      if (index === 0 && currentPhotoIndex === 0) {
+        setActiveLayer('a');
+      }
+    };
+    img.src = url;
+  };
+
+  // Slideshow interval (5 seconds)
+  useEffect(() => {
+    if (photoUrls.length <= 1) return;
+    
+    const handleVisibilityChange = () => {
+      // Interval will be cleaned up and restarted
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    const interval = setInterval(() => {
+      if (!document.hidden) {
+        setCurrentPhotoIndex(prev => {
+          const nextIndex = (prev + 1) % photoUrls.length;
+          
+          // Preload next image
+          const nextNextIndex = (nextIndex + 1) % photoUrls.length;
+          preloadImage(photoUrls[nextNextIndex], nextNextIndex);
+          
+          // Toggle layer for cross-fade
+          setActiveLayer(current => current === 'a' ? 'b' : 'a');
+          
+          return nextIndex;
+        });
+      }
+    }, 5000);
+    
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [photoUrls, currentPhotoIndex]);
 
   // 5-second watchdog
   useEffect(() => {
@@ -635,38 +701,30 @@ export const GuestGalleryPublic: React.FC = () => {
   if (flowStep === 'landing') {
     return (
       <div className="h-screen relative overflow-hidden">
-        {/* Base CSS gradient - paints immediately */}
+        {/* Base gradient fallback */}
         <div className="fixed inset-0 z-0 bg-gradient-to-br from-purple-100 via-purple-50 to-blue-50" />
         
-        {/* Full-screen background - latest media */}
-        {latestMedia && (
-          <div className="fixed inset-0 z-0">
-            {latestMedia.post_type === 'photo' && latestMedia.file_url && (
-              <img 
-                src={getMediaUrl(latestMedia.file_url)}
-                className="w-full h-full object-cover"
-                alt=""
-                loading="lazy"
-                decoding="async"
-              />
-            )}
-            {latestMedia.post_type === 'video' && latestMedia.thumbnail_url && (
-              <img 
-                src={latestMedia.thumbnail_url}
-                className="w-full h-full object-cover"
-                alt=""
-                loading="lazy"
-                decoding="async"
-              />
-            )}
-            {latestMedia.post_type === 'text' && latestMedia.theme_id && (
-              <div 
-                className="w-full h-full"
-                style={{ background: getThemeById(latestMedia.theme_id).bgColor }}
-              />
-            )}
-            <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
-          </div>
+        {/* Slideshow background layers */}
+        {photoUrls.length > 0 && (
+          <>
+            <div 
+              id="hero-bg-a" 
+              className="hero-bg" 
+              style={{ 
+                backgroundImage: activeLayer === 'a' ? `url(${photoUrls[currentPhotoIndex]})` : 'none',
+                opacity: activeLayer === 'a' ? 1 : 0 
+              }} 
+            />
+            <div 
+              id="hero-bg-b" 
+              className="hero-bg" 
+              style={{ 
+                backgroundImage: activeLayer === 'b' ? `url(${photoUrls[currentPhotoIndex]})` : 'none',
+                opacity: activeLayer === 'b' ? 1 : 0 
+              }} 
+            />
+            <div className="hero-overlay" />
+          </>
         )}
         
         {/* Sticky header badge */}
@@ -986,38 +1044,30 @@ export const GuestGalleryPublic: React.FC = () => {
   // View gallery page
   return (
     <div className="min-h-screen relative overflow-hidden">
-      {/* Base CSS gradient - paints immediately */}
+      {/* Base gradient fallback */}
       <div className="fixed inset-0 z-0 bg-gradient-to-br from-purple-100 via-purple-50 to-blue-50" />
       
-      {/* Full-screen background - latest media */}
-      {latestMedia && (
-        <div className="fixed inset-0 z-0">
-          {latestMedia.post_type === 'photo' && latestMedia.file_url && (
-            <img 
-              src={getMediaUrl(latestMedia.file_url)}
-              className="w-full h-full object-cover"
-              alt=""
-              loading="lazy"
-              decoding="async"
-            />
-          )}
-          {latestMedia.post_type === 'video' && latestMedia.thumbnail_url && (
-            <img 
-              src={latestMedia.thumbnail_url}
-              className="w-full h-full object-cover"
-              alt=""
-              loading="lazy"
-              decoding="async"
-            />
-          )}
-          {latestMedia.post_type === 'text' && latestMedia.theme_id && (
-            <div 
-              className="w-full h-full"
-              style={{ background: getThemeById(latestMedia.theme_id).bgColor }}
-            />
-          )}
-          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
-        </div>
+      {/* Slideshow background layers */}
+      {photoUrls.length > 0 && (
+        <>
+          <div 
+            id="hero-bg-a" 
+            className="hero-bg" 
+            style={{ 
+              backgroundImage: activeLayer === 'a' ? `url(${photoUrls[currentPhotoIndex]})` : 'none',
+              opacity: activeLayer === 'a' ? 1 : 0 
+            }} 
+          />
+          <div 
+            id="hero-bg-b" 
+            className="hero-bg" 
+            style={{ 
+              backgroundImage: activeLayer === 'b' ? `url(${photoUrls[currentPhotoIndex]})` : 'none',
+              opacity: activeLayer === 'b' ? 1 : 0 
+            }} 
+          />
+          <div className="hero-overlay" />
+        </>
       )}
 
       {/* Content layer */}
