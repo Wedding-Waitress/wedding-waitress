@@ -330,9 +330,17 @@ export const PhotoVideoSharingPage: React.FC = () => {
                         <h3 className="text-lg font-semibold">Statistics</h3>
                       </div>
                       
+                      {galleryTitle && (
+                        <div className="mb-2">
+                          <p className="text-sm font-medium text-primary">
+                            {galleryTitle}
+                          </p>
+                        </div>
+                      )}
+                      
                       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
                         {/* Stat 1: Galleries Created */}
-                        <div className="flex flex-col items-start gap-1">
+                        <div className="flex flex-col items-start gap-1 border-2 border-primary rounded-lg p-3">
                           <FolderOpen className="w-5 h-5 text-blue-600" />
                           <p className="text-xs text-muted-foreground">Galleries Created</p>
                           <p className="text-2xl font-bold text-blue-600">{stats.galleriesCount}</p>
