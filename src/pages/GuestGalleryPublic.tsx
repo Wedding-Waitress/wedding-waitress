@@ -469,63 +469,125 @@ export const GuestGalleryPublic: React.FC = () => {
   };
 
   const handleFileSelection = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    const processedFiles = await Promise.all(
-      files.map(async (file) => {
-        // Check video size limit
-        let durationSec: number | undefined;
-        if (file.type.startsWith('video/')) {
-          const sizeMB = file.size / (1024 * 1024);
-          if (sizeMB > MAX_VIDEO_SIZE_MB) {
-            toast({ title: 'Video Too Large', description: `Video exceeds ${MAX_VIDEO_SIZE_MB} MB limit (${Math.round(sizeMB)} MB).`, variant: 'destructive' });
-            return null;
-          }
-          const validation = await validateVideo(file);
-          if (!validation.valid) {
-            toast({ title: 'Video Validation Failed', description: validation.error, variant: 'destructive' });
-            return null;
-          }
-          durationSec = validation.duration;
-        }
-
-        let processedFile = file;
-        // Convert HEIC/HEIF to JPEG
-        if (file.type === 'image/heic' || file.type === 'image/heif' || file.name.match(/\.(heic|heif)$/i)) {
+    try {
+      console.log('📁 File selection started');
+      const files = Array.from(e.target.files || []);
+      console.log(`📁 ${files.length} files selected`);
+      
+      const processedFiles = await Promise.all(
+        files.map(async (file) => {
           try {
-            processedFile = await convertHeicToJpeg(file);
-            toast({ title: 'Converted', description: `${file.name} converted to JPEG` });
-          } catch (error) {
-            console.error('HEIC conversion error:', error);
-            toast({ title: 'Warning', description: `Failed to convert ${file.name}`, variant: 'destructive' });
+            console.log(`Processing ${file.name} (${file.type})`);
+            
+            // Detect video by type OR extension (iOS sometimes gives empty type)
+            const isVideo = file.type.startsWith('video/') || 
+                           file.name.match(/\.(mov|mp4|m4v|webm)$/i);
+            
+            // Check video size limit
+            let durationSec: number | undefined;
+            if (isVideo) {
+              const sizeMB = file.size / (1024 * 1024);
+              if (sizeMB > MAX_VIDEO_SIZE_MB) {
+                toast({ 
+                  title: 'Video Too Large', 
+                  description: `${file.name} exceeds ${MAX_VIDEO_SIZE_MB} MB limit (${Math.round(sizeMB)} MB).`, 
+                  variant: 'destructive' 
+                });
+                return null;
+              }
+              const validation = await validateVideo(file);
+              if (!validation.valid) {
+                toast({ 
+                  title: 'Video Validation Failed', 
+                  description: validation.error, 
+                  variant: 'destructive' 
+                });
+                return null;
+              }
+              durationSec = validation.duration;
+            }
+
+            let processedFile = file;
+            // Convert HEIC/HEIF to JPEG
+            if (file.type === 'image/heic' || file.type === 'image/heif' || file.name.match(/\.(heic|heif)$/i)) {
+              try {
+                processedFile = await convertHeicToJpeg(file);
+                toast({ title: 'Converted', description: `${file.name} converted to JPEG` });
+              } catch (error) {
+                console.error('HEIC conversion error:', error);
+                toast({ 
+                  title: 'Warning', 
+                  description: `Failed to convert ${file.name}`, 
+                  variant: 'destructive' 
+                });
+                return null;
+              }
+            }
+
+            // Create preview URL and local poster for videos
+            let previewUrl = URL.createObjectURL(processedFile);
+            let localPoster: string | undefined;
+            if (isVideo || processedFile.type.startsWith('video/')) {
+              try {
+                localPoster = await createVideoPoster(processedFile);
+              } catch (err) {
+                console.warn('Failed to capture video poster:', err);
+                // Continue without poster - use fallback
+              }
+            }
+
+            const mediaItem = {
+              file: processedFile,
+              type: (isVideo || processedFile.type.startsWith('video/')) ? 'video' : 'photo',
+              preview: previewUrl,
+              localPoster,
+              caption: '',
+              duration_seconds: durationSec,
+            } as MediaItem;
+            
+            console.log(`✅ Processed ${file.name} as ${mediaItem.type}`);
+            return mediaItem;
+          } catch (fileError) {
+            console.error(`Error processing ${file.name}:`, fileError);
+            toast({
+              title: 'File Processing Error',
+              description: `Couldn't process ${file.name}. Please try again.`,
+              variant: 'destructive',
+            });
             return null;
           }
-        }
+        })
+      );
 
-        // Create preview URL and local poster for videos
-        let previewUrl = URL.createObjectURL(processedFile);
-        let localPoster: string | undefined;
-        if (processedFile.type.startsWith('video/')) {
-          try {
-            localPoster = await createVideoPoster(processedFile);
-          } catch (err) {
-            console.warn('Failed to capture video poster:', err);
-          }
-        }
-
-        return {
-          file: processedFile,
-          type: processedFile.type.startsWith('video/') ? 'video' : 'photo',
-          preview: previewUrl,
-          localPoster,
-          caption: '',
-          duration_seconds: durationSec,
-        } as MediaItem;
-      })
-    );
-
-    const validItems = processedFiles.filter(item => item !== null) as MediaItem[];
-    setSelectedItems([...selectedItems, ...validItems]);
-    setFlowStep('preview');
+      const validItems = processedFiles.filter(item => item !== null) as MediaItem[];
+      console.log(`✅ ${validItems.length} valid items after processing`);
+      
+      if (validItems.length === 0) {
+        toast({
+          title: 'No Files Added',
+          description: 'Files were unsupported, too large (>2 GB), or too long (>5 min).',
+          variant: 'destructive',
+        });
+        return;
+      }
+      
+      // Use functional state update to avoid stale state
+      setSelectedItems(prev => [...prev, ...validItems]);
+      setFlowStep('preview');
+      console.log(`✅ Moving to preview with ${validItems.length} items`);
+    } catch (error) {
+      console.error('File selection error:', error);
+      toast({
+        title: 'Selection Error',
+        description: 'Couldn\'t read selected files. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      // Reset input value so same file can be picked again
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
   };
 
   const handleTextPostSubmit = (data: { textContent: string; themeId: string }) => {
@@ -1175,7 +1237,7 @@ export const GuestGalleryPublic: React.FC = () => {
           <input
             ref={fileInputRef}
             type="file"
-            accept="image/*,video/*"
+            accept="image/jpeg,image/jpg,image/png,image/heic,image/heif,video/mp4,video/quicktime,video/x-m4v,video/webm"
             multiple
             onChange={handleFileSelection}
             className="hidden"

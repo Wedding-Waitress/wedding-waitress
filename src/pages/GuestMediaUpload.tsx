@@ -255,78 +255,124 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
   };
 
   const handleFileSelection = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    const newItems: MediaItem[] = [];
+    try {
+      console.log('📁 File selection started');
+      const files = Array.from(e.target.files || []);
+      console.log(`📁 ${files.length} files selected`);
+      const newItems: MediaItem[] = [];
 
-    for (const file of files) {
-      const isVideo = file.type.startsWith('video/');
+      for (const file of files) {
+        try {
+          console.log(`Processing ${file.name} (${file.type})`);
+          
+          // Detect video by type OR extension (iOS sometimes gives empty type)
+          const isVideo = file.type.startsWith('video/') || 
+                         file.name.match(/\.(mov|mp4|m4v|webm)$/i);
+          
+          // Validate video format
+          if (isVideo && file.type && !SUPPORTED_VIDEO_TYPES.includes(file.type)) {
+            toast({
+              title: 'Unsupported Video Format',
+              description: `${file.name} isn't supported. Please use MP4, MOV, or WebM.`,
+              variant: 'destructive',
+            });
+            continue;
+          }
+          
+          // Validate video size
+          if (isVideo) {
+            const sizeMB = file.size / (1024 * 1024);
+            if (sizeMB > MAX_VIDEO_SIZE_MB) {
+              toast({
+                title: 'Video Too Large',
+                description: `${file.name} exceeds ${MAX_VIDEO_SIZE_MB} MB limit (${Math.round(sizeMB)} MB). Please trim it.`,
+                variant: 'destructive',
+              });
+              continue;
+            }
+            
+            // Validate video duration - show loading state
+            console.log(`🎬 Validating video: ${file.name}`);
+            toast({
+              title: 'Validating Video...',
+              description: `Checking ${file.name}`,
+            });
+            
+            const validation = await validateVideo(file);
+            if (!validation.valid) {
+              console.error(`❌ Video validation failed: ${validation.error}`);
+              toast({
+                title: '❌ Video Invalid',
+                description: validation.error,
+                variant: 'destructive',
+              });
+              continue;
+            }
+            
+            console.log(`✅ Video validated: ${file.name} (${validation.duration?.toFixed(1)}s)`);
+            toast({
+              title: '✅ Video Ready',
+              description: `${file.name} is ready to upload`,
+            });
+          }
+          
+          const preview = URL.createObjectURL(file);
+
+          // For videos, generate a thumbnail from the first frame
+          let thumbnail = preview;
+          if (isVideo) {
+            try {
+              thumbnail = await generateVideoThumbnail(file);
+            } catch (thumbError) {
+              console.warn('Thumbnail generation failed, using fallback:', thumbError);
+              // Continue with video preview URL as fallback
+            }
+          }
+
+          newItems.push({
+            file,
+            type: isVideo ? 'video' : 'photo',
+            preview: thumbnail,
+            caption: '',
+          });
+          console.log(`✅ Added ${file.name} as ${isVideo ? 'video' : 'photo'}`);
+        } catch (fileError) {
+          console.error(`Error processing ${file.name}:`, fileError);
+          toast({
+            title: 'File Processing Error',
+            description: `Couldn't process ${file.name}. Please try again.`,
+            variant: 'destructive',
+          });
+        }
+      }
       
-      // Validate video format
-      if (isVideo && !SUPPORTED_VIDEO_TYPES.includes(file.type)) {
+      console.log(`✅ ${newItems.length} valid items after processing`);
+      
+      if (newItems.length === 0) {
         toast({
-          title: 'Unsupported Video Format',
-          description: `${file.name} isn't supported. Please use MP4, MOV, or WebM.`,
+          title: 'No Files Added',
+          description: 'Files were unsupported, too large (>200 MB), or too long (>5 min).',
           variant: 'destructive',
         });
-        continue;
+        return;
       }
       
-      // Validate video size
-      if (isVideo) {
-        const sizeMB = file.size / (1024 * 1024);
-        if (sizeMB > MAX_VIDEO_SIZE_MB) {
-          toast({
-            title: 'Video Too Large',
-            description: `${file.name} exceeds ${MAX_VIDEO_SIZE_MB} MB limit (${Math.round(sizeMB)} MB). Please trim it.`,
-            variant: 'destructive',
-          });
-          continue;
-        }
-        
-      // Validate video duration - show loading state
-        console.log(`🎬 Validating video: ${file.name}`);
-        toast({
-          title: 'Validating Video...',
-          description: `Checking ${file.name}`,
-        });
-        
-        const validation = await validateVideo(file);
-        if (!validation.valid) {
-          console.error(`❌ Video validation failed: ${validation.error}`);
-          toast({
-            title: '❌ Video Invalid',
-            description: validation.error,
-            variant: 'destructive',
-          });
-          continue;
-        }
-        
-        console.log(`✅ Video validated: ${file.name} (${validation.duration?.toFixed(1)}s)`);
-        toast({
-          title: '✅ Video Ready',
-          description: `${file.name} is ready to upload`,
-        });
-      }
-      
-      const preview = URL.createObjectURL(file);
-
-      // For videos, generate a thumbnail from the first frame
-      let thumbnail = preview;
-      if (isVideo) {
-        thumbnail = await generateVideoThumbnail(file);
-      }
-
-      newItems.push({
-        file,
-        type: isVideo ? 'video' : 'photo',
-        preview: thumbnail,
-        caption: '',
-      });
-    }
-    
-    setSelectedItems([...selectedItems, ...newItems]);
-    if (newItems.length > 0) {
+      // Use functional state update to avoid stale state
+      setSelectedItems(prev => [...prev, ...newItems]);
       setFlowStep('preview');
+      console.log(`✅ Moving to preview with ${newItems.length} items`);
+    } catch (error) {
+      console.error('File selection error:', error);
+      toast({
+        title: 'Selection Error',
+        description: 'Couldn\'t read selected files. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      // Reset input value so same file can be picked again
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
     }
   };
 
@@ -899,7 +945,7 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
           <input
             ref={fileInputRef}
             type="file"
-            accept="image/jpeg,image/jpg,image/png,image/heic,video/mp4,video/quicktime,video/x-m4v"
+            accept="image/jpeg,image/jpg,image/png,image/heic,image/heif,video/mp4,video/quicktime,video/x-m4v,video/webm"
             multiple
             onChange={handleFileSelection}
             className="hidden"
