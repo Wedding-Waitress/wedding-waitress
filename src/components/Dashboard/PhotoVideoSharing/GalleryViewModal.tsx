@@ -3,6 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Image, Video, MessageSquare, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { MediaLightbox } from '@/components/MediaLightbox';
 import { Card, CardContent } from '@/components/ui/card';
 
 interface GalleryViewModalProps {
@@ -37,6 +38,9 @@ export const GalleryViewModal: React.FC<GalleryViewModalProps> = ({
   const [videos, setVideos] = useState<MediaItem[]>([]);
   const [messages, setMessages] = useState<MediaItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
+  const [lightboxItems, setLightboxItems] = useState<any[]>([]);
 
   useEffect(() => {
     if (isOpen && galleryId) {
@@ -82,6 +86,21 @@ export const GalleryViewModal: React.FC<GalleryViewModalProps> = ({
     return supabase.storage.from('event-media').getPublicUrl(filePath).data.publicUrl;
   };
 
+  const openLightbox = (items: MediaItem[], index: number) => {
+    const formattedItems = items.map(item => ({
+      id: item.id,
+      type: item.post_type === 'photo' ? 'photo' : 'video',
+      file_url: getImageUrl(item),
+      thumbnail_url: item.thumbnail_url,
+      cloudflare_stream_uid: item.cloudflare_stream_uid,
+      caption: item.caption,
+      created_at: item.created_at,
+    }));
+    setLightboxItems(formattedItems);
+    setLightboxIndex(index);
+    setLightboxOpen(true);
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
@@ -118,9 +137,9 @@ export const GalleryViewModal: React.FC<GalleryViewModalProps> = ({
               ) : (
                 <div className="space-y-2">
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                    {photos.map((photo) => (
-                      <div key={photo.id}>
-                        <div className="aspect-square relative border-2 border-primary rounded-none overflow-hidden bg-black">
+                    {photos.map((photo, index) => (
+                      <div key={photo.id} className="cursor-pointer" onClick={() => openLightbox(photos, index)}>
+                        <div className="aspect-square relative border-2 border-primary rounded-none overflow-hidden bg-black hover:border-primary-glow transition-colors">
                           <img
                             src={getImageUrl(photo)}
                             alt={photo.caption || 'Gallery photo'}
@@ -147,21 +166,25 @@ export const GalleryViewModal: React.FC<GalleryViewModalProps> = ({
               ) : (
                 <div className="space-y-2">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                    {videos.map((video) => (
-                      <div key={video.id}>
-                        <div className="aspect-video border-2 border-primary rounded-none overflow-hidden bg-black">
-                          {video.cloudflare_stream_uid ? (
-                            <iframe
-                              src={`https://iframe.videodelivery.net/${video.cloudflare_stream_uid}`}
-                              className="w-full h-full border-0"
-                              allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;"
-                              allowFullScreen
+                    {videos.map((video, index) => (
+                      <div key={video.id} className="cursor-pointer" onClick={() => openLightbox(videos, index)}>
+                        <div className="aspect-video border-2 border-primary rounded-none overflow-hidden bg-black hover:border-primary-glow transition-colors relative group">
+                          {video.thumbnail_url ? (
+                            <img
+                              src={video.thumbnail_url}
+                              alt={video.caption || 'Video thumbnail'}
+                              className="w-full h-full object-cover"
                             />
                           ) : (
                             <div className="w-full h-full bg-muted flex items-center justify-center">
                               <Video className="w-8 h-8 text-muted-foreground" />
                             </div>
                           )}
+                          <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/40 transition-colors">
+                            <div className="w-12 h-12 rounded-full bg-white/90 flex items-center justify-center">
+                              <div className="w-0 h-0 border-l-[12px] border-l-primary border-y-[8px] border-y-transparent ml-1" />
+                            </div>
+                          </div>
                         </div>
                         {video.caption && (
                           <p className="text-sm text-muted-foreground mt-1 px-1">
@@ -196,6 +219,14 @@ export const GalleryViewModal: React.FC<GalleryViewModalProps> = ({
           </Tabs>
         )}
       </DialogContent>
+
+      {/* Media Lightbox */}
+      <MediaLightbox
+        open={lightboxOpen}
+        onClose={() => setLightboxOpen(false)}
+        items={lightboxItems}
+        initialIndex={lightboxIndex}
+      />
     </Dialog>
   );
 };

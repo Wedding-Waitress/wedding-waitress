@@ -12,7 +12,7 @@ import { getThemeById } from '@/lib/mediaConstants';
 import { useVideoProcessingPoller } from '@/hooks/useVideoProcessingPoller';
 import { useChunkedUpload } from '@/hooks/useChunkedUpload';
 import { analytics } from '@/lib/analytics';
-import { VideoLightbox } from '@/components/VideoLightbox';
+import { MediaLightbox } from '@/components/MediaLightbox';
 import weddingWaitressLogo from '@/assets/wedding-waitress-badge-logo.png';
 
 // Lazy load TextPostModal for better initial page performance
@@ -77,7 +77,8 @@ export const GuestGalleryPublic: React.FC = () => {
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
   const [activeLayer, setActiveLayer] = useState<'a' | 'b'>('a');
   const [preloadedIndices, setPreloadedIndices] = useState<Set<number>>(new Set());
-  const [selectedVideo, setSelectedVideo] = useState<MediaItem | null>(null);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
 
   const MAX_VIDEO_SIZE_MB = 2048; // 2 GB max
   const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes
@@ -797,8 +798,9 @@ export const GuestGalleryPublic: React.FC = () => {
     }
   };
 
-  const openVideoModal = (video: MediaItem) => {
-    setSelectedVideo(video);
+  const openMediaLightbox = (index: number) => {
+    setLightboxIndex(index);
+    setLightboxOpen(true);
   };
 
   const getMediaUrl = (filePath: string) => {
@@ -1334,15 +1336,11 @@ export const GuestGalleryPublic: React.FC = () => {
             </Card>
           ) : (
             <div className="grid grid-cols-3 gap-2 md:gap-4">
-              {(viewMode === 'gallery' ? mediaItems : mediaItems.slice(0, 12)).map((item) => (
+              {(viewMode === 'gallery' ? mediaItems : mediaItems.slice(0, 12)).map((item, index) => (
                 <div
                   key={item.id}
                   className="aspect-square bg-white rounded-lg border-4 border-white shadow-lg overflow-hidden cursor-pointer hover:scale-[1.02] transition-transform"
-                  onClick={() => {
-                    if (item.post_type === 'video') {
-                      setSelectedVideo(item);
-                    }
-                  }}
+                  onClick={() => openMediaLightbox(index)}
                 >
                   {item.post_type === 'photo' && item.file_url ? (
                     <img
@@ -1405,17 +1403,22 @@ export const GuestGalleryPublic: React.FC = () => {
         )}
       </div>
 
-      {/* Video Lightbox */}
-      {selectedVideo && (
-        <VideoLightbox
-          open={!!selectedVideo}
-          onClose={() => setSelectedVideo(null)}
-          videoUrl={selectedVideo.file_url ? getMediaUrl(selectedVideo.file_url) : ''}
-          posterUrl={selectedVideo.thumbnail_url ? getMediaUrl(selectedVideo.thumbnail_url) : undefined}
-          caption={selectedVideo.caption || undefined}
-          cloudflareStreamUid={selectedVideo.cloudflare_stream_uid}
-        />
-      )}
+      {/* Media Lightbox */}
+      <MediaLightbox
+        open={lightboxOpen}
+        onClose={() => setLightboxOpen(false)}
+        items={mediaItems.map(item => ({
+          id: item.id || '',
+          type: item.type,
+          file_url: item.file_url ? getMediaUrl(item.file_url) : item.preview,
+          thumbnail_url: item.thumbnail_url ? getMediaUrl(item.thumbnail_url) : null,
+          cloudflare_stream_uid: item.cloudflare_stream_uid,
+          caption: item.caption || item.text_content || undefined,
+          created_at: item.created_at,
+          mime_type: item.mime_type,
+        }))}
+        initialIndex={lightboxIndex}
+      />
     </div>
   );
 };
