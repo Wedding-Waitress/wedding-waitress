@@ -426,7 +426,7 @@ export const PhotoVideoSharingPage: React.FC = () => {
                       <h3 className="text-lg font-semibold">Select Album</h3>
                     </div>
                     <div className="space-y-3 flex-grow">
-                      <Label className="text-sm">Choose an Album:</Label>
+                      <Label className="text-sm">Choose Album</Label>
                       <Select
                         value={selectedGalleryId || 'no-gallery'}
                         onValueChange={(value) => {
