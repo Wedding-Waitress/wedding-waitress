@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Navigate } from 'react-router-dom';
-import { Plus, ArrowLeft, X, Camera, Trash2, Play, Video, Loader2, Images } from 'lucide-react';
+import { Plus, ArrowLeft, X, Camera, Trash2, Play, Video, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { useChunkedUpload } from '@/hooks/useChunkedUpload';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
@@ -76,21 +75,6 @@ export const GuestGalleryPublic: React.FC = () => {
   const [selectedVideo, setSelectedVideo] = useState<MediaItem | null>(null);
 
   const MAX_VIDEO_SIZE_MB = 2048; // 2 GB max
-  
-  // Chunked upload hook for large videos
-  const {
-    uploadFile: uploadChunked,
-    overallProgress: chunkProgress,
-    status: chunkStatus
-  } = useChunkedUpload({
-    gallerySlug: gallerySlug || '',
-    onComplete: () => {
-      console.log('✅ Chunked upload completed');
-    },
-    onError: (error) => {
-      console.error('❌ Chunked upload error:', error);
-    }
-  });
 
   // Preload logo for instant badge display
   useEffect(() => {
@@ -603,18 +587,7 @@ export const GuestGalleryPublic: React.FC = () => {
           throw urlError;
         }
 
-        // If multipart/chunked upload is required for large videos
-        if (urlData.use_multipart && item.type === 'video') {
-          console.log('🎬 Using chunked upload for large video');
-          const uploadedPath = await uploadChunked(item.file, item.caption || undefined);
-          if (!uploadedPath) {
-            throw new Error('Chunked upload failed');
-          }
-          console.log('✅ Chunked upload completed:', uploadedPath);
-          return; // Chunked upload already confirmed via complete-multipart-upload
-        }
-
-        // Standard single upload for photos and small videos
+        // Upload to signed URL
         const uploadResponse = await fetch(urlData.signed_url, {
           method: 'PUT',
           body: item.file,
@@ -627,14 +600,8 @@ export const GuestGalleryPublic: React.FC = () => {
           if (uploadResponse.status === 413) {
             throw new Error('FILE_TOO_LARGE');
           }
-          if (uploadResponse.status === 400) {
-            throw new Error('UNSUPPORTED_TYPE');
-          }
           if (uploadResponse.status === 0) {
             throw new Error('CORS_ERROR');
-          }
-          if (uploadResponse.status >= 500) {
-            throw new Error('Server error – please try again');
           }
           if (uploadResponse.status === 403 && retryCount < MAX_RETRIES) {
             retryCount++;
@@ -831,15 +798,16 @@ export const GuestGalleryPublic: React.FC = () => {
                 Add to Album
               </Button>
               
-              <Button
-                size="lg"
-                variant="outline"
-                className="text-xl px-12 py-8 rounded-2xl bg-white/90 hover:bg-white"
-                onClick={() => setFlowStep('view-gallery')}
-              >
-                <Images className="w-6 h-6 mr-3" />
-                View Album
-              </Button>
+              {mediaItems.length > 0 && (
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="text-xl px-12 py-8 rounded-2xl"
+                  onClick={() => setFlowStep('view-gallery')}
+                >
+                  View Album
+                </Button>
+              )}
             </div>
 
             {/* Recent Media Count */}
@@ -1059,9 +1027,6 @@ export const GuestGalleryPublic: React.FC = () => {
             <div className="space-y-2">
               <h3 className="text-2xl font-bold">Uploading...</h3>
               <p className="text-muted-foreground">Keep this page open until uploads are complete</p>
-              {chunkStatus === 'uploading' && (
-                <p className="text-sm text-muted-foreground">Processing video in chunks...</p>
-              )}
             </div>
 
             <div className="space-y-2">
@@ -1069,12 +1034,6 @@ export const GuestGalleryPublic: React.FC = () => {
                 Uploading {currentUploadIndex} of {selectedItems.length}
               </p>
               <Progress value={(currentUploadIndex / selectedItems.length) * 100} />
-              {chunkStatus === 'uploading' && (
-                <div className="mt-2">
-                  <p className="text-xs text-muted-foreground mb-1">Chunk upload: {chunkProgress}%</p>
-                  <Progress value={chunkProgress} className="h-1" />
-                </div>
-              )}
             </div>
           </CardContent>
         </Card>
