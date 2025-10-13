@@ -172,7 +172,7 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-[90vw] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-2xl">{galleryTitle}</DialogTitle>
         </DialogHeader>
@@ -208,7 +208,7 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
                   No photos yet
                 </div>
               ) : (
-                <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-1">
+                <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-1">
                   {photos.map((photo, index) => (
                     <div 
                       key={photo.id} 
@@ -265,7 +265,7 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
                   No videos yet
                 </div>
               ) : (
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-1">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-1">
                   {videos.map((video, index) => (
                     <div 
                       key={video.id} 
