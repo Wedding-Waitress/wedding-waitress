@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Image, Video, MessageSquare, Loader2, Phone, Play, Pause } from 'lucide-react';
+import { Image, Video, MessageSquare, Loader2, Phone, Play, Pause, Download, Share2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { MediaLightbox } from '@/components/MediaLightbox';
@@ -202,76 +202,132 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="photos" className="mt-4">
+            <TabsContent value="photos" className="mt-4 animate-fade-in">
               {photos.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">
                   No photos yet
                 </div>
               ) : (
-                <div className="space-y-2">
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                    {photos.map((photo, index) => (
-                      <div key={photo.id} className="cursor-pointer" onClick={() => openLightbox(photos, index)}>
-                        <div className="aspect-square relative border-2 border-primary rounded-none overflow-hidden bg-black hover:border-primary-glow transition-colors">
-                          <img
-                            src={getImageUrl(photo)}
-                            alt={photo.caption || 'Gallery photo'}
-                            className="w-full h-full object-contain"
-                          />
+                <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-1">
+                  {photos.map((photo, index) => (
+                    <div 
+                      key={photo.id} 
+                      className="relative group cursor-pointer overflow-hidden rounded-sm aspect-square bg-black"
+                      onClick={() => openLightbox(photos, index)}
+                    >
+                      <img
+                        src={getImageUrl(photo)}
+                        alt={photo.caption || 'Gallery photo'}
+                        className="w-full h-full object-cover transition-all duration-300"
+                        loading="lazy"
+                      />
+                      
+                      {/* Hover Overlay */}
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all duration-300">
+                        <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                          {/* Download Button - Bottom Left */}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              const link = document.createElement('a');
+                              link.href = getImageUrl(photo);
+                              link.download = `photo-${photo.id}.jpg`;
+                              link.click();
+                            }}
+                            className="absolute bottom-2 left-2 w-8 h-8 rounded-full bg-white/90 hover:bg-white flex items-center justify-center transition-colors"
+                            aria-label="Download photo"
+                          >
+                            <Download className="w-4 h-4 text-gray-800" />
+                          </button>
+                          
+                          {/* Share Button - Bottom Right */}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleShareGallery();
+                            }}
+                            className="absolute bottom-2 right-2 w-8 h-8 rounded-full bg-white/90 hover:bg-white flex items-center justify-center transition-colors"
+                            aria-label="Share photo"
+                          >
+                            <Share2 className="w-4 h-4 text-gray-800" />
+                          </button>
                         </div>
-                        {photo.caption && (
-                          <p className="text-xs text-muted-foreground mt-1 px-1">
-                            {photo.caption}
-                          </p>
-                        )}
                       </div>
-                    ))}
-                  </div>
+                    </div>
+                  ))}
                 </div>
               )}
             </TabsContent>
 
-            <TabsContent value="videos" className="mt-4">
+            <TabsContent value="videos" className="mt-4 animate-fade-in">
               {videos.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">
                   No videos yet
                 </div>
               ) : (
-                <div className="space-y-2">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                    {videos.map((video, index) => (
-                      <div key={video.id} className="cursor-pointer" onClick={() => openLightbox(videos, index)}>
-                        <div className="aspect-video border-2 border-primary rounded-none overflow-hidden bg-black hover:border-primary-glow transition-colors relative group">
-                          {video.thumbnail_url ? (
-                            <img
-                              src={video.thumbnail_url}
-                              alt={video.caption || 'Video thumbnail'}
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <div className="w-full h-full bg-muted flex items-center justify-center">
-                              <Video className="w-8 h-8 text-muted-foreground" />
-                            </div>
-                          )}
-                          <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/40 transition-colors">
-                            <div className="w-12 h-12 rounded-full bg-white/90 flex items-center justify-center">
-                              <div className="w-0 h-0 border-l-[12px] border-l-primary border-y-[8px] border-y-transparent ml-1" />
-                            </div>
-                          </div>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-1">
+                  {videos.map((video, index) => (
+                    <div 
+                      key={video.id} 
+                      className="relative group cursor-pointer overflow-hidden rounded-sm aspect-video bg-black"
+                      onClick={() => openLightbox(videos, index)}
+                    >
+                      {video.thumbnail_url ? (
+                        <img
+                          src={video.thumbnail_url}
+                          alt={video.caption || 'Video thumbnail'}
+                          className="w-full h-full object-cover transition-all duration-300"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-muted flex items-center justify-center">
+                          <Video className="w-8 h-8 text-muted-foreground" />
                         </div>
-                        {video.caption && (
-                          <p className="text-sm text-muted-foreground mt-1 px-1">
-                            {video.caption}
-                          </p>
-                        )}
+                      )}
+                      
+                      {/* Play Icon - Bottom Right Corner */}
+                      <div className="absolute bottom-2 right-2 w-10 h-10 rounded-full bg-white/90 flex items-center justify-center">
+                        <Play className="w-5 h-5 text-gray-800 ml-0.5" />
                       </div>
-                    ))}
-                  </div>
+                      
+                      {/* Hover Overlay */}
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all duration-300">
+                        <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                          {/* Download Button - Bottom Left */}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              const link = document.createElement('a');
+                              link.href = video.thumbnail_url || '';
+                              link.download = `video-${video.id}.mp4`;
+                              link.click();
+                            }}
+                            className="absolute bottom-2 left-2 w-8 h-8 rounded-full bg-white/90 hover:bg-white flex items-center justify-center transition-colors z-10"
+                            aria-label="Download video"
+                          >
+                            <Download className="w-4 h-4 text-gray-800" />
+                          </button>
+                          
+                          {/* Share Button - Bottom Right (pushed left to avoid play icon) */}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleShareGallery();
+                            }}
+                            className="absolute bottom-14 right-2 w-8 h-8 rounded-full bg-white/90 hover:bg-white flex items-center justify-center transition-colors z-10"
+                            aria-label="Share video"
+                          >
+                            <Share2 className="w-4 h-4 text-gray-800" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               )}
             </TabsContent>
 
-            <TabsContent value="messages" className="mt-4">
+            <TabsContent value="messages" className="mt-4 animate-fade-in">
               {messages.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">
                   No messages yet
@@ -290,7 +346,7 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
               )}
             </TabsContent>
 
-            <TabsContent value="audio" className="mt-4">
+            <TabsContent value="audio" className="mt-4 animate-fade-in">
               {audioMessages.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">
                   No audio messages yet
