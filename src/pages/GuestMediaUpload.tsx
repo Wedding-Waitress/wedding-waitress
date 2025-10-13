@@ -23,6 +23,8 @@ interface MediaItem {
   textContent?: string;
   themeId?: string;
   themeBg?: string;
+  uploadSuccess?: boolean;
+  uploadError?: string;
 }
 
 interface EventData {
@@ -170,17 +172,74 @@ export const GuestMediaUpload: React.FC = () => {
     setToken(existingToken);
   };
 
-  const handleFileSelection = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelection = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
-    const newItems: MediaItem[] = files.map(file => ({
-      file,
-      type: file.type.startsWith('video/') ? 'video' : 'photo',
-      preview: URL.createObjectURL(file),
-      caption: '',
-    }));
+    const newItems: MediaItem[] = [];
+
+    for (const file of files) {
+      const isVideo = file.type.startsWith('video/');
+      const preview = URL.createObjectURL(file);
+
+      // For videos, generate a thumbnail from the first frame
+      let thumbnail = preview;
+      if (isVideo) {
+        try {
+          thumbnail = await generateVideoThumbnail(file);
+        } catch (error) {
+          console.error('Failed to generate video thumbnail:', error);
+          // Fall back to video preview
+        }
+      }
+
+      newItems.push({
+        file,
+        type: isVideo ? 'video' : 'photo',
+        preview: thumbnail,
+        caption: '',
+      });
+    }
     
     setSelectedItems([...selectedItems, ...newItems]);
     setFlowStep('preview');
+  };
+
+  const generateVideoThumbnail = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const video = document.createElement('video');
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+
+      video.preload = 'metadata';
+      video.muted = true;
+      video.playsInline = true;
+
+      video.onloadeddata = () => {
+        // Seek to 1 second or start of video
+        video.currentTime = Math.min(1, video.duration / 2);
+      };
+
+      video.onseeked = () => {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        ctx?.drawImage(video, 0, 0);
+        
+        canvas.toBlob((blob) => {
+          if (blob) {
+            resolve(URL.createObjectURL(blob));
+          } else {
+            reject(new Error('Failed to create thumbnail blob'));
+          }
+          URL.revokeObjectURL(video.src);
+        }, 'image/jpeg', 0.8);
+      };
+
+      video.onerror = () => {
+        reject(new Error('Failed to load video'));
+        URL.revokeObjectURL(video.src);
+      };
+
+      video.src = URL.createObjectURL(file);
+    });
   };
 
   const handleTextPostSubmit = (data: { textContent: string; themeId: string }) => {
@@ -207,44 +266,43 @@ export const GuestMediaUpload: React.FC = () => {
     setUploadProgress(0);
     setCurrentUploadIndex(0);
 
-    try {
-      for (let i = 0; i < selectedItems.length; i++) {
-        const item = selectedItems[i];
-        setCurrentUploadIndex(i + 1);
+    const uploadedItems = [...selectedItems];
+    let successCount = 0;
+    let failureCount = 0;
 
+    for (let i = 0; i < uploadedItems.length; i++) {
+      const item = uploadedItems[i];
+      setCurrentUploadIndex(i + 1);
+
+      try {
         if (item.type === 'text') {
           await uploadTextPost(item);
         } else {
           await uploadMediaFile(item);
         }
-
-        setUploadProgress(Math.round(((i + 1) / selectedItems.length) * 100));
+        uploadedItems[i].uploadSuccess = true;
+        successCount++;
+      } catch (error: any) {
+        console.error(`Upload error for item ${i}:`, error);
+        uploadedItems[i].uploadSuccess = false;
+        uploadedItems[i].uploadError = error.message || 'Upload failed';
+        failureCount++;
       }
 
-      setFlowStep('success');
-    } catch (error: any) {
-      console.error('Upload error:', error);
-      
-      // Extract detailed error message
-      let errorMsg = 'Failed to upload some items';
-      if (error.context?.body) {
-        const body = error.context.body;
-        if (body.error) {
-          errorMsg = body.error;
-          if (body.troubleshooting) {
-            errorMsg += `. ${body.troubleshooting}`;
-          }
-        }
-      } else if (error.message) {
-        errorMsg = error.message;
-      }
-      
+      setUploadProgress(Math.round(((i + 1) / uploadedItems.length) * 100));
+    }
+
+    setSelectedItems(uploadedItems);
+
+    if (failureCount > 0) {
       toast({
-        title: 'Error',
-        description: errorMsg,
+        title: 'Upload Issues',
+        description: `${failureCount} ${failureCount === 1 ? 'file' : 'files'} failed to upload — please try again.`,
         variant: 'destructive',
       });
       setFlowStep('preview');
+    } else {
+      setFlowStep('success');
     }
   };
 
@@ -281,8 +339,12 @@ export const GuestMediaUpload: React.FC = () => {
 
     if (urlError) throw urlError;
 
-    // Upload to the returned URL (works for both Supabase Storage and Cloudflare Stream)
-    const uploadUrl = urlData.signed_url || urlData.uploadURL;
+    // Upload to Supabase Storage (now handles both photos and videos)
+    const uploadUrl = urlData.signed_url;
+    if (!uploadUrl) {
+      throw new Error('No upload URL received');
+    }
+
     const uploadResponse = await fetch(uploadUrl, {
       method: 'PUT',
       body: item.file,
@@ -291,9 +353,11 @@ export const GuestMediaUpload: React.FC = () => {
       },
     });
 
-    if (!uploadResponse.ok) throw new Error('Upload failed');
+    if (!uploadResponse.ok) {
+      throw new Error(`Upload failed with status ${uploadResponse.status}`);
+    }
 
-    // Prepare confirmation data based on media type
+    // Prepare confirmation data
     const confirmBody: any = {
       gallery_id: galleryId,
       upload_token: token,
@@ -302,27 +366,20 @@ export const GuestMediaUpload: React.FC = () => {
       caption: item.caption || null,
       file_size: item.file.size,
       mime_type: item.file.type,
+      file_path: urlData.file_path,
     };
 
-    if (item.type === 'video') {
-      // Video: use Cloudflare Stream UID
-      confirmBody.cloudflare_stream_uid = urlData.uid;
-    } else {
-      // Photo: use Supabase file path + dimensions
-      confirmBody.file_path = urlData.file_path;
-      
-      // Get image dimensions
-      if (item.preview) {
-        const img = new Image();
-        await new Promise((resolve) => {
-          img.onload = () => {
-            confirmBody.width = img.width;
-            confirmBody.height = img.height;
-            resolve(null);
-          };
-          img.src = item.preview;
-        });
-      }
+    // Get dimensions for images
+    if (item.type === 'photo' && item.preview) {
+      const img = new Image();
+      await new Promise((resolve) => {
+        img.onload = () => {
+          confirmBody.width = img.width;
+          confirmBody.height = img.height;
+          resolve(null);
+        };
+        img.src = item.preview;
+      });
     }
 
     const { error: confirmError } = await supabase.functions.invoke('confirm-media-upload', {
@@ -497,7 +554,7 @@ export const GuestMediaUpload: React.FC = () => {
           <input
             ref={fileInputRef}
             type="file"
-            accept="image/*,video/*"
+            accept="image/jpeg,image/jpg,image/png,image/heic,video/mp4,video/quicktime,video/x-m4v"
             multiple
             onChange={handleFileSelection}
             className="hidden"
@@ -531,11 +588,8 @@ export const GuestMediaUpload: React.FC = () => {
             {selectedItems.map((item, index) => (
               <Card key={index} className="relative group overflow-hidden">
                 <div className="aspect-square">
-                  {item.type === 'photo' && item.preview && (
+                  {(item.type === 'photo' || item.type === 'video') && item.preview && (
                     <img src={item.preview} className="w-full h-full object-cover" alt="" />
-                  )}
-                  {item.type === 'video' && item.preview && (
-                    <video src={item.preview} className="w-full h-full object-cover" />
                   )}
                   {item.type === 'text' && (
                     <div 
@@ -548,6 +602,16 @@ export const GuestMediaUpload: React.FC = () => {
                     </div>
                   )}
                 </div>
+                
+                {/* Upload status indicator */}
+                {item.uploadSuccess === false && (
+                  <div className="absolute inset-0 bg-red-500/80 flex items-center justify-center">
+                    <div className="text-center text-white p-2">
+                      <X className="w-8 h-8 mx-auto mb-1" />
+                      <p className="text-xs">Failed</p>
+                    </div>
+                  </div>
+                )}
                 
                 <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                   <Button
@@ -625,14 +689,22 @@ export const GuestMediaUpload: React.FC = () => {
     );
   }
 
+  const successCount = selectedItems.filter(item => item.uploadSuccess === true).length;
+  const failureCount = selectedItems.filter(item => item.uploadSuccess === false).length;
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-secondary p-4">
       <Card className="ww-box max-w-2xl w-full">
         <CardContent className="p-12 text-center space-y-8">
-          <div className="text-6xl">✅</div>
-          <h1 className="text-4xl font-bold">Your uploads are all in!</h1>
+          <div className="text-6xl">{failureCount === 0 ? '✅' : '⚠️'}</div>
+          <h1 className="text-4xl font-bold">
+            {failureCount === 0 ? 'Your uploads are all in!' : 'Upload Complete with Issues'}
+          </h1>
           <p className="text-xl text-muted-foreground">
-            Your uploads will show up in the album shortly.
+            {failureCount === 0 
+              ? 'Your uploads will show up in the album shortly.'
+              : `${successCount} ${successCount === 1 ? 'file' : 'files'} uploaded successfully. ${failureCount} ${failureCount === 1 ? 'file' : 'files'} failed — please try again.`
+            }
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center">

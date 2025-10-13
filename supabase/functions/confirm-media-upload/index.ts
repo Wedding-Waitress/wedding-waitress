@@ -58,9 +58,9 @@ serve(async (req) => {
       );
     }
 
-    // Validate file path is within expected gallery prefix (only for non-video uploads)
+    // Validate file path is within expected gallery prefix (only for file uploads)
     const expectedPrefix = `galleries/${gallery_id}/`;
-    if (file_path && !file_path.startsWith(expectedPrefix) && post_type !== 'video') {
+    if (file_path && !file_path.startsWith(expectedPrefix) && post_type !== 'text') {
       console.error('Invalid file path:', file_path);
       return new Response(
         JSON.stringify({ error: 'Invalid file path' }),
@@ -99,16 +99,8 @@ serve(async (req) => {
       approved_at: gallery.require_approval ? null : new Date().toISOString(),
     };
 
-    // For videos uploaded to Cloudflare Stream
-    if (post_type === 'video' && cloudflare_stream_uid) {
-      insertData.cloudflare_stream_uid = cloudflare_stream_uid;
-      insertData.stream_status = 'queued';
-      insertData.stream_ready = false;
-      insertData.file_url = ''; // No file URL for Stream videos
-      insertData.thumbnail_url = null;
-    } 
-    // For photos uploaded to Supabase Storage
-    else if (post_type === 'photo' || post_type === 'image') {
+    // For videos and photos uploaded to Supabase Storage
+    if (post_type === 'video' || post_type === 'photo' || post_type === 'image') {
       insertData.file_url = file_path || '';
       insertData.thumbnail_url = null;
       insertData.cloudflare_stream_uid = null;

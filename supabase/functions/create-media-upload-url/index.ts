@@ -6,10 +6,10 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const MAX_PHOTO_SIZE_MB = 15;
-const MAX_VIDEO_SIZE_MB = 200;
+const MAX_PHOTO_SIZE_MB = 250;
+const MAX_VIDEO_SIZE_MB = 250;
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif'];
-const ALLOWED_VIDEO_TYPES = ['video/mp4', 'video/quicktime', 'video/webm'];
+const ALLOWED_VIDEO_TYPES = ['video/mp4', 'video/quicktime', 'video/webm', 'video/x-m4v'];
 
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
 
@@ -111,74 +111,10 @@ serve(async (req) => {
       );
     }
 
-    // Handle videos with Cloudflare Stream, photos with Supabase Storage
-    if (isVideo) {
-      // === CLOUDFLARE STREAM FOR VIDEOS ===
-      console.log('Creating Cloudflare Stream upload URL for video');
-      
-      const accountId = Deno.env.get('CLOUDFLARE_ACCOUNT_ID');
-      const apiToken = Deno.env.get('CLOUDFLARE_STREAM_API_TOKEN');
-
-      if (!accountId || !apiToken) {
-        console.error('Cloudflare credentials missing');
-        return new Response(
-          JSON.stringify({ error: 'Video upload service not configured' }),
-          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
-
-      // Create Direct Creator Upload URL
-      const streamResponse = await fetch(
-        `https://api.cloudflare.com/client/v4/accounts/${accountId}/stream/direct_upload`,
-        {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${apiToken}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            maxDurationSeconds: 600, // 10 minutes max
-            requireSignedURLs: false,
-            allowedOrigins: ['*'],
-            meta: {
-              gallery_id: gallery.id,
-              filename: targetFilename,
-            },
-          }),
-        }
-      );
-
-      const streamData = await streamResponse.json();
-
-      if (!streamResponse.ok || !streamData.success) {
-        console.error('Cloudflare Stream error:', streamData);
-        return new Response(
-          JSON.stringify({ 
-            error: 'Failed to create video upload URL',
-            details: streamData.errors?.[0]?.message || 'Unknown error',
-          }),
-          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
-
-      console.log('Cloudflare Stream upload URL created:', streamData.result.uid);
-
-      return new Response(
-        JSON.stringify({
-          uploadURL: streamData.result.uploadURL,
-          uid: streamData.result.uid,
-          gallery_id: gallery.id,
-          content_type: targetContentType,
-        }),
-        {
-          status: 200,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        }
-      );
-
-    } else {
-      // === SUPABASE STORAGE FOR PHOTOS ===
-      console.log('Creating Supabase Storage upload URL for photo');
+    // Use Supabase Storage for both photos and videos
+    if (isVideo || isImage) {
+      // === SUPABASE STORAGE FOR PHOTOS AND VIDEOS ===
+      console.log(`Creating Supabase Storage upload URL for ${isVideo ? 'video' : 'photo'}`);
       
       const uuid = crypto.randomUUID();
       const safeName = targetFilename.replace(/[^a-zA-Z0-9.-]/g, '_');
