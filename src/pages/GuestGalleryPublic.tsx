@@ -1062,13 +1062,23 @@ export const GuestGalleryPublic: React.FC = () => {
                             />
                           ) : item.post_type === 'video' && item.thumbnail_url ? (
                             <div className="relative w-full h-full">
-                              <img
-                                src={item.thumbnail_url}
-                                alt={item.caption || 'Video thumbnail'}
-                                className="w-full h-full object-cover"
-                                loading="lazy"
-                                decoding="async"
-                              />
+                              {item.cloudflare_stream_uid ? (
+                                <img
+                                  src={item.thumbnail_url || `https://customer-${item.cloudflare_stream_uid.split('/')[0]}.cloudflarestream.com/${item.cloudflare_stream_uid}/thumbnails/thumbnail.jpg`}
+                                  alt={item.caption || 'Video thumbnail'}
+                                  className="w-full h-full object-cover"
+                                  loading="lazy"
+                                  decoding="async"
+                                />
+                              ) : (
+                                <img
+                                  src={item.thumbnail_url}
+                                  alt={item.caption || 'Video thumbnail'}
+                                  className="w-full h-full object-cover"
+                                  loading="lazy"
+                                  decoding="async"
+                                />
+                              )}
                               <div className="absolute inset-0 flex items-center justify-center bg-black/30">
                                 <div className="w-12 h-12 rounded-full bg-white/90 flex items-center justify-center">
                                   <div className="w-0 h-0 border-l-[8px] border-l-primary border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent ml-1"></div>
@@ -1437,24 +1447,50 @@ export const GuestGalleryPublic: React.FC = () => {
                       loading="lazy"
                     />
                   ) : item.post_type === 'video' ? (
-                    <div className="relative w-full h-full">
-                      {item.thumbnail_url ? (
-                        <img 
-                          src={getMediaUrl(item.thumbnail_url)} 
-                          alt="Video thumbnail"
-                          className="w-full h-full object-cover"
-                          loading="lazy"
-                        />
+                    <div className="relative w-full h-full group">
+                      {item.cloudflare_stream_uid ? (
+                        <div className="relative w-full h-full">
+                          <img
+                            src={item.thumbnail_url || `https://customer-${item.cloudflare_stream_uid.split('/')[0]}.cloudflarestream.com/${item.cloudflare_stream_uid}/thumbnails/thumbnail.jpg`}
+                            alt={item.caption || 'Video thumbnail'}
+                            className="w-full h-full object-cover"
+                            loading="lazy"
+                          />
+                          <div className="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div className="w-16 h-16 rounded-full bg-white/90 flex items-center justify-center">
+                              <Play className="w-8 h-8 text-primary ml-1" fill="currentColor" />
+                            </div>
+                          </div>
+                        </div>
+                      ) : item.thumbnail_url ? (
+                        <div className="relative w-full h-full">
+                          <img 
+                            src={getMediaUrl(item.thumbnail_url)} 
+                            alt="Video thumbnail"
+                            className="w-full h-full object-cover"
+                            loading="lazy"
+                          />
+                          <div className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/40 transition-colors">
+                            <div className="w-16 h-16 rounded-full bg-white/90 flex items-center justify-center group-hover:scale-110 transition-transform">
+                              <Play className="w-8 h-8 text-primary ml-1" fill="currentColor" />
+                            </div>
+                          </div>
+                        </div>
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-purple-900 to-blue-900">
-                          <Play className="w-12 h-12 text-white/50" />
+                        <div className="relative w-full h-full">
+                          <video
+                            src={getMediaUrl(item.file_url)}
+                            className="w-full h-full object-cover"
+                            playsInline
+                            preload="metadata"
+                          />
+                          <div className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/40 transition-colors">
+                            <div className="w-16 h-16 rounded-full bg-white/90 flex items-center justify-center group-hover:scale-110 transition-transform">
+                              <Play className="w-8 h-8 text-primary ml-1" fill="currentColor" />
+                            </div>
+                          </div>
                         </div>
                       )}
-                      <div className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/40 transition-colors">
-                        <div className="w-16 h-16 rounded-full bg-white/90 flex items-center justify-center group-hover:scale-110 transition-transform">
-                          <Play className="w-8 h-8 text-primary ml-1" fill="currentColor" />
-                        </div>
-                      </div>
                     </div>
                   ) : item.post_type === 'text' && item.text_content ? (
                     <div 

@@ -48,9 +48,14 @@ export const VideoLightbox: React.FC<VideoLightboxProps> = ({
               poster={posterUrl}
               controls
               autoPlay
-              className="w-full aspect-video"
+              playsInline
+              preload="auto"
+              className="w-full aspect-video bg-black"
               controlsList="nodownload"
-            />
+            >
+              <source src={videoUrl} type="video/mp4" />
+              Your browser doesn't support video playback.
+            </video>
           )}
           
           {/* Caption */}

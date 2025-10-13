@@ -280,13 +280,7 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
       // For videos, generate a thumbnail from the first frame
       let thumbnail = preview;
       if (isVideo) {
-        try {
-          thumbnail = await generateVideoThumbnail(file);
-        } catch (error) {
-          console.error('Failed to generate video thumbnail:', error);
-          // Use play icon fallback
-          thumbnail = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgdmlld0JveD0iMCAwIDUxMiA1MTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiBmaWxsPSIjMDAwIi8+Cjxwb2x5Z29uIHBvaW50cz0iMjAwLDE1MCAzNTAsMjU2IDIwMCwzNjIiIGZpbGw9IiNmZmYiLz4KPC9zdmc+';
-        }
+        thumbnail = await generateVideoThumbnail(file);
       }
 
       newItems.push({
@@ -305,63 +299,107 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
 
   const generateVideoThumbnail = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
+  const generateVideoThumbnail = (file: File): Promise<string> => {
+    return new Promise((resolve) => {
       const video = document.createElement('video');
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
-      
-      if (!ctx) {
-        reject(new Error('Canvas context unavailable'));
-        return;
-      }
 
       video.preload = 'metadata';
       video.muted = true;
       video.playsInline = true;
       video.crossOrigin = 'anonymous';
-      
-      // Timeout fallback
+
       const timeout = setTimeout(() => {
+        cleanup();
+        // Fallback: return play button overlay SVG
+        const fallback = 'data:image/svg+xml;base64,' + btoa(`
+          <svg width="400" height="300" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+            <rect width="400" height="300" fill="#1a1a1a"/>
+            <circle cx="200" cy="150" r="40" fill="rgba(255,255,255,0.9)"/>
+            <polygon points="185,135 185,165 215,150" fill="#1a1a1a"/>
+          </svg>
+        `);
+        resolve(fallback);
+      }, 8000);
+
+      const cleanup = () => {
+        clearTimeout(timeout);
         URL.revokeObjectURL(video.src);
-        reject(new Error('Thumbnail generation timeout'));
-      }, 10000);
+        video.remove();
+      };
 
       video.onloadeddata = () => {
-        // Seek to 0.1 seconds (better for short videos)
-        video.currentTime = Math.min(0.1, video.duration / 4);
+        // Seek to 0.1 seconds for a better first frame
+        video.currentTime = Math.min(0.1, video.duration * 0.05);
       };
 
       video.onseeked = () => {
-        clearTimeout(timeout);
-        
-        // Set canvas size to reasonable thumbnail
-        const targetWidth = 512;
-        const aspectRatio = video.videoHeight / video.videoWidth;
-        canvas.width = targetWidth;
-        canvas.height = targetWidth * aspectRatio;
-        
-        // Draw with black background
-        ctx.fillStyle = '#000';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-        
-        canvas.toBlob((blob) => {
-          URL.revokeObjectURL(video.src);
-          if (blob) {
-            resolve(URL.createObjectURL(blob));
-          } else {
-            reject(new Error('Failed to create thumbnail blob'));
+        try {
+          if (video.videoWidth === 0 || video.videoHeight === 0) {
+            throw new Error('Invalid video dimensions');
           }
-        }, 'image/jpeg', 0.85);
+
+          // Set canvas size to video dimensions
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+          
+          if (!ctx) throw new Error('Canvas context unavailable');
+          
+          // Draw video frame
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+          
+          // Convert to blob and create URL
+          canvas.toBlob((blob) => {
+            if (blob) {
+              const url = URL.createObjectURL(blob);
+              cleanup();
+              resolve(url);
+            } else {
+              cleanup();
+              // Fallback if blob creation fails
+              const fallback = 'data:image/svg+xml;base64,' + btoa(`
+                <svg width="400" height="300" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+                  <rect width="400" height="300" fill="#2a2a2a"/>
+                  <circle cx="200" cy="150" r="40" fill="rgba(255,255,255,0.9)"/>
+                  <polygon points="185,135 185,165 215,150" fill="#2a2a2a"/>
+                </svg>
+              `);
+              resolve(fallback);
+            }
+          }, 'image/jpeg', 0.85);
+        } catch (error) {
+          console.error('Thumbnail generation error:', error);
+          cleanup();
+          // Fallback on error
+          const fallback = 'data:image/svg+xml;base64,' + btoa(`
+            <svg width="400" height="300" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+              <rect width="400" height="300" fill="#333"/>
+              <circle cx="200" cy="150" r="40" fill="rgba(255,255,255,0.9)"/>
+              <polygon points="185,135 185,165 215,150" fill="#333"/>
+            </svg>
+          `);
+          resolve(fallback);
+        }
       };
 
       video.onerror = (e) => {
-        clearTimeout(timeout);
-        URL.revokeObjectURL(video.src);
-        reject(new Error(`Video load error: ${video.error?.message || 'Unknown'}`));
+        console.error('Video loading error:', e);
+        cleanup();
+        // Fallback on load error
+        const fallback = 'data:image/svg+xml;base64,' + btoa(`
+          <svg width="400" height="300" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+            <rect width="400" height="300" fill="#444"/>
+            <circle cx="200" cy="150" r="40" fill="rgba(255,255,255,0.9)"/>
+            <polygon points="185,135 185,165 215,150" fill="#444"/>
+          </svg>
+        `);
+        resolve(fallback);
       };
 
       video.src = URL.createObjectURL(file);
-      video.load();
+    });
+  };
     });
   };
 
@@ -448,56 +486,60 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
   const uploadMediaFile = async (item: MediaItem) => {
     if (!item.file) return;
 
-    try {
-      // Log request for debugging
-      console.log('Requesting upload URL:', {
-        filename: item.file.name,
-        contentType: item.file.type,
-        file_size: item.file.size,
-        gallerySlug: eventSlug,
-      });
+    const MAX_RETRIES = 3;
+    let retryCount = 0;
 
-      // Check if we should use chunked upload
-      const { data: urlData, error: urlError } = await supabase.functions.invoke(
-        'create-media-upload-url',
-        {
-          body: {
-            gallerySlug: eventSlug,
-            filename: item.file.name,
-            contentType: item.file.type,
-            file_size: item.file.size,
-          },
-        }
-      );
-
-      if (urlError) {
-        // Enhanced error logging
-        console.error('Upload URL error:', {
-          error: urlError,
-          status: urlError.status,
-          message: urlError.message,
-          context: urlError.context,
-          request: {
-            gallerySlug: eventSlug,
-            filename: item.file.name,
-            contentType: item.file.type,
-            file_size: item.file.size,
-          }
+    while (retryCount < MAX_RETRIES) {
+      try {
+        // Log request for debugging
+        console.log('Requesting upload URL (attempt ' + (retryCount + 1) + '):', {
+          filename: item.file.name,
+          contentType: item.file.type,
+          file_size: item.file.size,
+          gallerySlug: eventSlug,
         });
 
-        // Parse specific error types
-        if (urlError.status === 400) {
-          const errorMsg = urlError.message || '';
-          
-          if (errorMsg.includes('Missing required fields')) {
-            throw new Error(`Invalid request to server: ${errorMsg}. Please try again.`);
-          } else if (errorMsg.includes('type') || errorMsg.includes('format')) {
-            throw new Error(`File type "${item.file.type}" isn't supported. Please use MP4, MOV, JPG, or PNG.`);
-          } else {
-            throw new Error(`Request validation failed: ${errorMsg}`);
+        // Check if we should use chunked upload
+        const { data: urlData, error: urlError } = await supabase.functions.invoke(
+          'create-media-upload-url',
+          {
+            body: {
+              gallerySlug: eventSlug,
+              filename: item.file.name,
+              contentType: item.file.type,
+              file_size: item.file.size,
+            },
           }
-        } else if (urlError.status === 413) {
-          throw new Error(`File "${item.file.name}" is too large. Max: 1 GB for videos, 250 MB for photos.`);
+        );
+
+        if (urlError) {
+          // Enhanced error logging
+          console.error('Upload URL error:', {
+            error: urlError,
+            status: urlError.status,
+            message: urlError.message,
+            context: urlError.context,
+            request: {
+              gallerySlug: eventSlug,
+              filename: item.file.name,
+              contentType: item.file.type,
+              file_size: item.file.size,
+            }
+          });
+
+          // Parse specific error types
+          if (urlError.status === 400) {
+            const errorMsg = urlError.message || '';
+            
+            if (errorMsg.includes('Missing required fields')) {
+              throw new Error(`Invalid request to server: ${errorMsg}. Please try again.`);
+            } else if (errorMsg.includes('type') || errorMsg.includes('format')) {
+              throw new Error(`File type "${item.file.type}" isn't supported. Please use MP4, MOV, JPG, or PNG.`);
+            } else {
+              throw new Error(`Request validation failed: ${errorMsg}`);
+            }
+          } else if (urlError.status === 413) {
+            throw new Error(`File "${item.file.name}" is too large. Max: 2 GB for videos, 250 MB for photos.`);
         } else if (urlError.status === 429) {
           throw new Error('Too many upload attempts. Please wait a minute and try again.');
         } else if (urlError.status >= 500) {
@@ -624,25 +666,34 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
         body: confirmBody,
       });
 
-      if (confirmError) throw confirmError;
-    } catch (error: any) {
-      // Log full error details
-      console.error('Upload failed:', {
-        error,
-        file: {
-          name: item.file?.name,
-          type: item.file?.type,
-          size: item.file?.size,
-        },
-        stack: error.stack,
-      });
-      
-      // Handle network timeout
-      if (error.message === 'NETWORK_TIMEOUT') {
-        throw new Error('Upload timed out after 5 minutes. Please check your internet connection and try again.');
+        if (confirmError) throw confirmError;
+        
+        // Success - break out of retry loop
+        return;
+      } catch (error: any) {
+        retryCount++;
+        
+        // Log full error details
+        console.error(`Upload failed (attempt ${retryCount}/${MAX_RETRIES}):`, {
+          error,
+          file: {
+            name: item.file?.name,
+            type: item.file?.type,
+            size: item.file?.size,
+          },
+          stack: error.stack,
+        });
+        
+        // If this is the last retry, throw the error
+        if (retryCount >= MAX_RETRIES) {
+          throw new Error(`Upload failed after ${MAX_RETRIES} attempts: ${error.message || 'Unknown error'}`);
+        }
+        
+        // Wait before retrying (exponential backoff)
+        const delay = Math.min(1000 * Math.pow(2, retryCount - 1), 5000);
+        console.log(`Retrying in ${delay}ms...`);
+        await new Promise(resolve => setTimeout(resolve, delay));
       }
-      
-      throw error;
     }
   };
 
