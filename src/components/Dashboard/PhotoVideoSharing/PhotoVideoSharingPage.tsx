@@ -402,7 +402,7 @@ export const PhotoVideoSharingPage: React.FC = () => {
                         <Camera className="w-5 h-5 text-primary" />
                         <h3 className="text-lg font-semibold">Create Album</h3>
                       </div>
-                      <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary text-white text-sm font-semibold shadow-md">
+                      <div className="flex items-center justify-center w-20 h-20 rounded-full bg-white border-2 border-primary text-primary text-base font-bold shadow-sm">
                         Step 1
                       </div>
                     </div>
@@ -432,7 +432,7 @@ export const PhotoVideoSharingPage: React.FC = () => {
                           <QrCode className="w-5 h-5 text-primary" />
                           <h3 className="text-lg font-semibold">Photo & Video QR Code</h3>
                         </div>
-                        <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary text-white text-sm font-semibold shadow-md">
+                        <div className="flex items-center justify-center w-20 h-20 rounded-full bg-white border-2 border-primary text-primary text-base font-bold shadow-sm">
                           Step 2
                         </div>
                       </div>
@@ -489,7 +489,7 @@ export const PhotoVideoSharingPage: React.FC = () => {
                         <FolderOpen className="w-5 h-5 text-primary" />
                         <h3 className="text-lg font-semibold">Select Album</h3>
                       </div>
-                      <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary text-white text-sm font-semibold shadow-md">
+                      <div className="flex items-center justify-center w-20 h-20 rounded-full bg-white border-2 border-primary text-primary text-base font-bold shadow-sm">
                         Step 3
                       </div>
                     </div>
