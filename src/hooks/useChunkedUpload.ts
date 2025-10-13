@@ -47,8 +47,8 @@ export const useChunkedUpload = ({ gallerySlug, onComplete, onError }: UseChunke
     async (
       chunk: Blob,
       chunkIndex: number,
-      uploadUrl: string,
-      token: string
+      chunkPath: string,
+      chunkToken: string
     ): Promise<boolean> => {
       let retries = 0;
 
@@ -59,39 +59,22 @@ export const useChunkedUpload = ({ gallerySlug, onComplete, onError }: UseChunke
         }
 
         try {
-          updateChunkProgress(chunkIndex, { status: 'uploading', retries });
+          updateChunkProgress(chunkIndex, { status: 'uploading', retries, progress: 0 });
 
-          const xhr = new XMLHttpRequest();
-          const uploadPromise = new Promise<void>((resolve, reject) => {
-            xhr.upload.addEventListener('progress', (e) => {
-              if (e.lengthComputable) {
-                const progress = (e.loaded / e.total) * 100;
-                updateChunkProgress(chunkIndex, { progress });
-              }
-            });
+          // Use Supabase's official uploadToSignedUrl method
+          const { error: uploadError } = await supabase.storage
+            .from('event-media')
+            .uploadToSignedUrl(
+              chunkPath,
+              chunkToken,
+              chunk,
+              { contentType: 'application/octet-stream' }
+            );
 
-            xhr.addEventListener('load', () => {
-              if (xhr.status >= 200 && xhr.status < 300) {
-                resolve();
-              } else {
-                reject(new Error(`Upload failed: ${xhr.status}`));
-              }
-            });
-
-            xhr.addEventListener('error', () => reject(new Error('Network error')));
-            xhr.addEventListener('abort', () => reject(new Error('Upload aborted')));
-
-            xhr.open('PUT', uploadUrl);
-            xhr.setRequestHeader('Content-Type', 'application/octet-stream');
-            xhr.setRequestHeader('Authorization', `Bearer ${token}`);
-            xhr.send(chunk);
-          });
-
-          if (abortController.current) {
-            abortController.current.signal.addEventListener('abort', () => xhr.abort());
+          if (uploadError) {
+            throw new Error(uploadError.message || 'Chunk upload failed');
           }
 
-          await uploadPromise;
           updateChunkProgress(chunkIndex, { status: 'success', progress: 100 });
           return true;
         } catch (error: any) {
@@ -186,13 +169,19 @@ export const useChunkedUpload = ({ gallerySlug, onComplete, onError }: UseChunke
 
         const { session_id, gallery_id, chunk_urls } = sessionData;
 
-        // Upload all chunks
-        const uploadPromises = chunks.map((chunk, index) => {
+        // Upload chunks sequentially for stable progress tracking
+        const results: boolean[] = [];
+        for (let index = 0; index < chunks.length; index++) {
+          const chunk = chunks[index];
           const chunkUrl = chunk_urls[index];
-          return uploadChunk(chunk, index, chunkUrl.upload_url, chunkUrl.token);
-        });
+          const success = await uploadChunk(chunk, index, chunkUrl.file_path, chunkUrl.token);
+          results.push(success);
+          
+          if (!success) {
+            throw new Error(`Chunk ${index + 1} failed after retries`);
+          }
+        }
 
-        const results = await Promise.all(uploadPromises);
         const allSuccess = results.every((r) => r);
 
         if (!allSuccess) {

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { Plus, X, Camera, ArrowLeft, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
@@ -609,30 +610,24 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
 
       // Standard single-file upload for smaller files
       setIsChunkedUpload(false);
-      const uploadUrl = urlData.signed_url;
-      if (!uploadUrl) {
-        throw new Error('No upload URL received');
+      
+      if (!urlData.file_path || !urlData.token) {
+        throw new Error('Invalid upload credentials received');
       }
 
-      const uploadResponse = await Promise.race([
-        fetch(uploadUrl, {
-          method: 'PUT',
-          body: item.file,
-          headers: {
-            'Content-Type': item.file.type,
-          },
-        }),
-        new Promise<Response>((_, reject) => 
-          setTimeout(() => reject(new Error('NETWORK_TIMEOUT')), 5 * 60 * 1000) // 5 min timeout
-        )
-      ]);
+      // Use Supabase's official uploadToSignedUrl method
+      const { error: uploadError } = await supabase.storage
+        .from('event-media')
+        .uploadToSignedUrl(
+          urlData.file_path,
+          urlData.token,
+          item.file,
+          { contentType: item.file.type }
+        );
 
-      if (!uploadResponse.ok) {
-        console.error('Upload failed:', {
-          status: uploadResponse.status,
-          statusText: uploadResponse.statusText,
-        });
-        throw new Error(`Upload failed with status ${uploadResponse.status}`);
+      if (uploadError) {
+        console.error('Upload failed:', uploadError);
+        throw new Error(`Upload failed: ${uploadError.message}`);
       }
 
       // Generate and upload thumbnail for videos
@@ -663,17 +658,20 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
             }
           );
           
-          if (!thumbUrlError && thumbUrlData?.signed_url) {
+          if (!thumbUrlError && thumbUrlData?.file_path && thumbUrlData?.token) {
             console.log('📤 Uploading thumbnail...');
             
-            // Upload thumbnail
-            const thumbUploadResponse = await fetch(thumbUrlData.signed_url, {
-              method: 'PUT',
-              body: thumbnailBlob,
-              headers: { 'Content-Type': 'image/jpeg' },
-            });
+            // Upload thumbnail using Supabase's official method
+            const { error: thumbUploadError } = await supabase.storage
+              .from('event-media')
+              .uploadToSignedUrl(
+                thumbUrlData.file_path,
+                thumbUrlData.token,
+                thumbnailBlob,
+                { contentType: 'image/jpeg' }
+              );
             
-            if (thumbUploadResponse.ok) {
+            if (!thumbUploadError) {
               thumbnailUrl = thumbUrlData.file_path;
               console.log('✅ Thumbnail uploaded:', thumbnailUrl);
             }
@@ -747,25 +745,37 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-secondary">
-        <p className="text-lg text-muted-foreground">Loading...</p>
-      </div>
+      <>
+        <Helmet>
+          <title>Add to Album - Wedding Waitress</title>
+          <meta name="description" content="Upload your photos and videos to the event album" />
+        </Helmet>
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-secondary">
+          <p className="text-lg text-muted-foreground">Loading...</p>
+        </div>
+      </>
     );
   }
 
   if (!eventData) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-secondary">
-        <Card className="ww-box max-w-md">
-          <CardContent className="p-8 text-center space-y-4">
-            <div className="text-6xl">🔒</div>
-            <h3 className="text-xl font-semibold">Gallery Not Available</h3>
-            <p className="text-muted-foreground">
-              This gallery isn't visible right now. Please check back later.
-            </p>
-          </CardContent>
-        </Card>
-      </div>
+      <>
+        <Helmet>
+          <title>Gallery Not Available - Wedding Waitress</title>
+          <meta name="description" content="This gallery is not currently available" />
+        </Helmet>
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-secondary">
+          <Card className="ww-box max-w-md">
+            <CardContent className="p-8 text-center space-y-4">
+              <div className="text-6xl">🔒</div>
+              <h3 className="text-xl font-semibold">Gallery Not Available</h3>
+              <p className="text-muted-foreground">
+                This gallery isn't visible right now. Please check back later.
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      </>
     );
   }
 
@@ -780,7 +790,12 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
 
   if (flowStep === 'landing') {
     return (
-      <div className="min-h-screen relative">
+      <>
+        <Helmet>
+          <title>{displayName} - Add to Album - Wedding Waitress</title>
+          <meta name="description" content={`Upload your photos and videos to ${displayName}'s event album`} />
+        </Helmet>
+        <div className="min-h-screen relative">
         {/* Photo slideshow background with fallback gradient */}
         <PhotoSlideshowBackground photos={photos} currentIndex={currentIndex} />
 
@@ -838,12 +853,18 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
           </div>
         </div>
       </div>
+      </>
     );
   }
 
   if (flowStep === 'add') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background to-secondary p-4 md:p-8">
+      <>
+        <Helmet>
+          <title>Add Photos & Videos - Wedding Waitress</title>
+          <meta name="description" content="Select photos and videos to upload to the event album" />
+        </Helmet>
+        <div className="min-h-screen bg-gradient-to-br from-background to-secondary p-4 md:p-8">
         <div className="max-w-4xl mx-auto space-y-6">
           <div className="flex items-center justify-between">
             <h1 className="text-2xl md:text-3xl font-bold">{displayName}</h1>
@@ -893,12 +914,18 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
           />
         </React.Suspense>
       </div>
+      </>
     );
   }
 
   if (flowStep === 'preview') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background to-secondary p-4 md:p-8">
+      <>
+        <Helmet>
+          <title>Preview - Wedding Waitress</title>
+          <meta name="description" content="Preview your photos and videos before uploading" />
+        </Helmet>
+        <div className="min-h-screen bg-gradient-to-br from-background to-secondary p-4 md:p-8">
         <div className="max-w-4xl mx-auto space-y-6 pb-24">
           <div className="flex items-center justify-between">
             <h2 className="text-2xl font-bold">Preview Your Uploads</h2>
@@ -964,12 +991,18 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
           </div>
         </div>
       </div>
+      </>
     );
   }
 
   if (flowStep === 'uploading') {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-secondary p-4">
+      <>
+        <Helmet>
+          <title>Uploading - Wedding Waitress</title>
+          <meta name="description" content="Uploading your photos and videos" />
+        </Helmet>
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-secondary p-4">
         <Card className="ww-box max-w-md w-full">
           <CardContent className="p-12 text-center space-y-8">
             <div className="relative w-48 h-48 mx-auto">
@@ -1015,6 +1048,7 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
           </CardContent>
         </Card>
       </div>
+      </>
     );
   }
 
@@ -1022,7 +1056,12 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
   const failureCount = selectedItems.filter(item => item.uploadSuccess === false).length;
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-secondary p-4">
+    <>
+      <Helmet>
+        <title>Upload Complete - Wedding Waitress</title>
+        <meta name="description" content="Your photos and videos have been uploaded" />
+      </Helmet>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-secondary p-4">
       <Card className="ww-box max-w-2xl w-full">
         <CardContent className="p-12 text-center space-y-8">
           <div className="text-6xl">{failureCount === 0 ? '✅' : '⚠️'}</div>
@@ -1077,5 +1116,6 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
         </CardContent>
       </Card>
     </div>
+    </>
   );
 };
