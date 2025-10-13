@@ -10,6 +10,7 @@ import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getThemeById } from '@/lib/mediaConstants';
 import { useVideoProcessingPoller } from '@/hooks/useVideoProcessingPoller';
+import { useChunkedUpload } from '@/hooks/useChunkedUpload';
 import { analytics } from '@/lib/analytics';
 import { VideoLightbox } from '@/components/VideoLightbox';
 import weddingWaitressLogo from '@/assets/wedding-waitress-badge-logo.png';
@@ -75,6 +76,29 @@ export const GuestGalleryPublic: React.FC = () => {
   const [selectedVideo, setSelectedVideo] = useState<MediaItem | null>(null);
 
   const MAX_VIDEO_SIZE_MB = 2048; // 2 GB max
+  const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes
+
+  // Chunked upload state
+  const { 
+    uploadFile: uploadChunked, 
+    chunkProgresses, 
+    overallProgress: chunkedProgress,
+    status: chunkedStatus,
+    retryFailedChunks
+  } = useChunkedUpload({
+    gallerySlug: gallerySlug || '',
+    onComplete: (mediaId) => {
+      console.log('Chunked upload complete:', mediaId);
+    },
+    onError: (error) => {
+      console.error('Chunked upload error:', error);
+      toast({
+        title: 'Upload Failed',
+        description: error,
+        variant: 'destructive',
+      });
+    },
+  });
 
   // Preload logo for instant badge display
   useEffect(() => {
@@ -352,6 +376,44 @@ export const GuestGalleryPublic: React.FC = () => {
     });
   };
 
+  const validateVideo = (file: File): Promise<{ valid: boolean; error?: string; duration?: number }> => {
+    return new Promise((resolve) => {
+      const video = document.createElement('video');
+      video.preload = 'metadata';
+      
+      const timeout = setTimeout(() => {
+        URL.revokeObjectURL(video.src);
+        resolve({ valid: false, error: `Cannot read video "${file.name}". File may be corrupted.` });
+      }, 8000);
+      
+      video.onloadedmetadata = () => {
+        clearTimeout(timeout);
+        const duration = video.duration;
+        URL.revokeObjectURL(video.src);
+        
+        if (duration > MAX_VIDEO_DURATION_SECONDS) {
+          const minutes = Math.floor(duration / 60);
+          const seconds = Math.round(duration % 60);
+          const maxMinutes = Math.floor(MAX_VIDEO_DURATION_SECONDS / 60);
+          resolve({ 
+            valid: false, 
+            error: `Video is too long (${minutes}:${String(seconds).padStart(2, '0')}). Maximum duration: ${maxMinutes} minutes.` 
+          });
+        } else {
+          resolve({ valid: true, duration });
+        }
+      };
+      
+      video.onerror = () => {
+        clearTimeout(timeout);
+        URL.revokeObjectURL(video.src);
+        resolve({ valid: false, error: `Cannot read video "${file.name}". File may be corrupted.` });
+      };
+      
+      video.src = URL.createObjectURL(file);
+    });
+  };
+
   const handleFileSelection = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     
@@ -363,7 +425,18 @@ export const GuestGalleryPublic: React.FC = () => {
           if (sizeMB > MAX_VIDEO_SIZE_MB) {
             toast({
               title: 'Video Too Large',
-              description: `This video is too large for direct upload (${Math.round(sizeMB)} MB). Please trim it or upload a shorter clip. Max: ${MAX_VIDEO_SIZE_MB} MB`,
+              description: `Video exceeds ${MAX_VIDEO_SIZE_MB} MB limit (${Math.round(sizeMB)} MB). Please trim it.`,
+              variant: 'destructive',
+            });
+            return null;
+          }
+
+          // Validate video duration
+          const validation = await validateVideo(file);
+          if (!validation.valid) {
+            toast({
+              title: 'Video Validation Failed',
+              description: validation.error,
               variant: 'destructive',
             });
             return null;
@@ -556,103 +629,124 @@ export const GuestGalleryPublic: React.FC = () => {
   const uploadMediaFile = async (item: MediaItem) => {
     if (!item.file || !galleryData) return;
 
-    let retryCount = 0;
-    const MAX_RETRIES = 1;
-
-    while (retryCount <= MAX_RETRIES) {
-      try {
-        // Get signed upload URL
-        const { data: urlData, error: urlError } = await supabase.functions.invoke(
-          'create-media-upload-url',
-          {
-            body: {
-              gallerySlug: gallerySlug,
-              filename: item.file.name,
-              contentType: item.file.type,
-              file_size: item.file.size,
-            },
-          }
-        );
-
-        if (urlError) {
-          if (urlError.message?.includes('too large')) {
-            throw new Error('FILE_TOO_LARGE');
-          }
-          if (urlError.message?.includes('not accepting uploads')) {
-            throw new Error('UPLOADS_DISABLED');
-          }
-          if (urlError.message?.includes('not supported')) {
-            throw new Error('UNSUPPORTED_TYPE');
-          }
-          throw urlError;
+    try {
+      // Get signed upload URL or multipart info
+      const { data: urlData, error: urlError } = await supabase.functions.invoke(
+        'create-media-upload-url',
+        {
+          body: {
+            gallerySlug: gallerySlug,
+            filename: item.file.name,
+            contentType: item.file.type,
+            file_size: item.file.size,
+          },
         }
+      );
 
-        // Upload to signed URL
-        const uploadResponse = await fetch(urlData.signed_url, {
+      if (urlError) {
+        console.error('Upload URL error:', urlError);
+        
+        if (urlError.status === 400) {
+          const errorMsg = urlError.message || '';
+          if (errorMsg.includes('type') || errorMsg.includes('format')) {
+            throw new Error(`File type "${item.file.type}" isn't supported. Please use MP4, MOV, JPG, or PNG.`);
+          }
+          throw new Error(`Request validation failed: ${errorMsg}`);
+        } else if (urlError.status === 413) {
+          throw new Error('FILE_TOO_LARGE');
+        } else if (urlError.status === 429) {
+          throw new Error('Too many upload attempts. Please wait a minute and try again.');
+        } else if (urlError.status >= 500) {
+          throw new Error('Server error. Please try again in a few minutes.');
+        }
+        
+        if (urlError.message?.includes('too large')) {
+          throw new Error('FILE_TOO_LARGE');
+        }
+        if (urlError.message?.includes('not accepting uploads')) {
+          throw new Error('UPLOADS_DISABLED');
+        }
+        if (urlError.message?.includes('not supported')) {
+          throw new Error('UNSUPPORTED_TYPE');
+        }
+        throw urlError;
+      }
+
+      // If response indicates multipart upload (for large videos)
+      if (urlData.use_multipart && item.type === 'video') {
+        console.log('Using chunked upload for video:', item.file.name);
+        const mediaId = await uploadChunked(item.file, item.caption || undefined);
+        if (!mediaId) {
+          throw new Error('Chunked upload failed');
+        }
+        return; // Chunked upload handles confirmation automatically
+      }
+
+      // Standard single-file upload for smaller files
+      const uploadResponse = await Promise.race([
+        fetch(urlData.signed_url, {
           method: 'PUT',
           body: item.file,
           headers: {
             'Content-Type': urlData.content_type || item.file.type,
           },
-        });
+        }),
+        new Promise<Response>((_, reject) => 
+          setTimeout(() => reject(new Error('NETWORK_TIMEOUT')), 5 * 60 * 1000) // 5 min timeout
+        )
+      ]);
 
-        if (!uploadResponse.ok) {
-          if (uploadResponse.status === 413) {
-            throw new Error('FILE_TOO_LARGE');
-          }
-          if (uploadResponse.status === 0) {
-            throw new Error('CORS_ERROR');
-          }
-          if (uploadResponse.status === 403 && retryCount < MAX_RETRIES) {
-            retryCount++;
-            toast({
-              title: 'Retrying',
-              description: 'Upload link expired, requesting new one...',
-            });
-            continue;
-          }
-          throw new Error(`Upload failed: ${uploadResponse.status}`);
+      if (!uploadResponse.ok) {
+        if (uploadResponse.status === 413) {
+          throw new Error('FILE_TOO_LARGE');
         }
-
-        // Get image dimensions if photo
-        let width, height;
-        if (item.type === 'photo' && item.preview) {
-          const img = new Image();
-          await new Promise((resolve) => {
-            img.onload = () => {
-              width = img.width;
-              height = img.height;
-              resolve(null);
-            };
-            img.src = item.preview;
-          });
+        if (uploadResponse.status === 0) {
+          throw new Error('CORS_ERROR');
         }
-
-        // Confirm upload
-        const { error: confirmError } = await supabase.functions.invoke('confirm-media-upload', {
-          body: {
-            gallery_id: urlData.gallery_id,
-            upload_token: urlData.token,
-            file_path: urlData.file_path,
-            type: item.type,
-            post_type: item.type,
-            caption: item.caption || null,
-            width,
-            height,
-            file_size: item.file.size,
-            mime_type: urlData.content_type || item.file.type,
-          },
-        });
-
-        if (confirmError) throw confirmError;
-
-        break;
-      } catch (error: any) {
-        if (retryCount >= MAX_RETRIES) {
-          throw error;
-        }
-        retryCount++;
+        throw new Error(`Upload failed: ${uploadResponse.status}`);
       }
+
+      // Get image dimensions if photo
+      let width, height;
+      if (item.type === 'photo' && item.preview) {
+        const img = new Image();
+        await new Promise((resolve) => {
+          img.onload = () => {
+            width = img.width;
+            height = img.height;
+            resolve(null);
+          };
+          img.src = item.preview;
+        });
+      }
+
+      // Confirm upload
+      const { error: confirmError } = await supabase.functions.invoke('confirm-media-upload', {
+        body: {
+          gallery_id: urlData.gallery_id,
+          upload_token: urlData.token,
+          file_path: urlData.file_path,
+          type: item.type,
+          post_type: item.type,
+          caption: item.caption || null,
+          width,
+          height,
+          file_size: item.file.size,
+          mime_type: urlData.content_type || item.file.type,
+        },
+      });
+
+      if (confirmError) throw confirmError;
+
+    } catch (error: any) {
+      console.error('Upload error:', error);
+      
+      // Handle network timeout
+      if (error.message === 'NETWORK_TIMEOUT') {
+        throw new Error('Upload timed out after 5 minutes. Please check your internet connection and try again.');
+      }
+      
+      throw error;
     }
   };
 
@@ -798,16 +892,14 @@ export const GuestGalleryPublic: React.FC = () => {
                 Add to Album
               </Button>
               
-              {mediaItems.length > 0 && (
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="text-xl px-12 py-8 rounded-2xl"
-                  onClick={() => setFlowStep('view-gallery')}
-                >
-                  View Album
-                </Button>
-              )}
+              <Button
+                size="lg"
+                variant="outline"
+                className="text-xl px-12 py-8 rounded-2xl bg-white/90 hover:bg-white"
+                onClick={() => setFlowStep('view-gallery')}
+              >
+                View Album
+              </Button>
             </div>
 
             {/* Recent Media Count */}
@@ -1027,13 +1119,19 @@ export const GuestGalleryPublic: React.FC = () => {
             <div className="space-y-2">
               <h3 className="text-2xl font-bold">Uploading...</h3>
               <p className="text-muted-foreground">Keep this page open until uploads are complete</p>
+              
+              {chunkedStatus === 'uploading' && chunkProgresses.length > 0 && (
+                <p className="text-sm text-primary mt-2">
+                  Processing video in chunks... ({Math.round(chunkedProgress)}%)
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">
               <p className="text-sm text-muted-foreground">
                 Uploading {currentUploadIndex} of {selectedItems.length}
               </p>
-              <Progress value={(currentUploadIndex / selectedItems.length) * 100} />
+              <Progress value={chunkedStatus === 'uploading' ? chunkedProgress : uploadProgress} />
             </div>
           </CardContent>
         </Card>
