@@ -7,9 +7,13 @@ import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { TextPostModal } from '@/components/Dashboard/PhotoVideoSharing/TextPostModal';
 import { getThemeById } from '@/lib/mediaConstants';
 import weddingWaitressLogo from '@/assets/wedding-waitress-badge-logo.png';
+
+// Lazy load TextPostModal for better performance
+const TextPostModal = React.lazy(() => 
+  import('@/components/Dashboard/PhotoVideoSharing/TextPostModal').then(m => ({ default: m.TextPostModal }))
+);
 
 interface MediaItem {
   file?: File;
@@ -66,6 +70,19 @@ export const GuestMediaUpload: React.FC = () => {
         const newUrl = `${photoShareUrl}${window.location.pathname}${window.location.search}${window.location.hash}`;
         window.location.replace(newUrl); // 301-like permanent redirect
       }
+    }
+  }, []);
+
+  // Track page load performance
+  useEffect(() => {
+    if (typeof window !== 'undefined' && 'performance' in window) {
+      window.addEventListener('load', () => {
+        const perfData = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
+        if (perfData) {
+          console.log('Page Load Time:', perfData.loadEventEnd - perfData.fetchStart, 'ms');
+          console.log('DOM Content Loaded:', perfData.domContentLoadedEventEnd - perfData.fetchStart, 'ms');
+        }
+      });
     }
   }, []);
 
@@ -351,7 +368,10 @@ export const GuestMediaUpload: React.FC = () => {
   if (flowStep === 'landing') {
     return (
       <div className="min-h-screen relative">
-        {/* Full-screen background layer */}
+        {/* Pure CSS gradient fallback - shows immediately */}
+        <div className="fixed inset-0 z-0 bg-gradient-to-br from-purple-100 via-purple-50 to-blue-50" />
+        
+        {/* Full-screen background layer - lazy loaded */}
         {latestMedia && (
           <div className="fixed inset-0 z-0">
             {latestMedia.type === 'image' && (
@@ -359,6 +379,8 @@ export const GuestMediaUpload: React.FC = () => {
                 src={getMediaUrl(latestMedia.file_url)}
                 className="w-full h-full object-cover"
                 alt=""
+                loading="lazy"
+                decoding="async"
               />
             )}
             {latestMedia.type === 'video' && latestMedia.stream_preview_image && (
@@ -366,6 +388,8 @@ export const GuestMediaUpload: React.FC = () => {
                 src={latestMedia.stream_preview_image}
                 className="w-full h-full object-cover"
                 alt=""
+                loading="lazy"
+                decoding="async"
               />
             )}
             {latestMedia.type === 'text' && latestMedia.theme_id && (
@@ -387,13 +411,13 @@ export const GuestMediaUpload: React.FC = () => {
               href="https://www.weddingwaitress.com/"
               target="_blank"
               rel="noopener noreferrer"
-              className="bg-white rounded-full px-4 py-2 shadow-lg hover:shadow-xl transition-shadow flex items-center gap-2"
+              className="bg-white rounded-full px-5 py-3 shadow-lg hover:shadow-xl transition-shadow flex items-center gap-3"
             >
               <span className="text-sm">💜 Made with</span>
               <img 
                 src={weddingWaitressLogo} 
                 alt="Wedding Waitress" 
-                className="h-5"
+                className="h-10"
               />
             </a>
           </div>
@@ -480,11 +504,13 @@ export const GuestMediaUpload: React.FC = () => {
           />
         </div>
 
-        <TextPostModal
-          open={showTextPostModal}
-          onClose={() => setShowTextPostModal(false)}
-          onSubmit={handleTextPostSubmit}
-        />
+        <React.Suspense fallback={null}>
+          <TextPostModal
+            open={showTextPostModal}
+            onClose={() => setShowTextPostModal(false)}
+            onSubmit={handleTextPostSubmit}
+          />
+        </React.Suspense>
       </div>
     );
   }
@@ -636,13 +662,13 @@ export const GuestMediaUpload: React.FC = () => {
                 href="https://www.weddingwaitress.com/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-muted-foreground hover:text-primary transition-colors inline-flex items-center gap-2 text-sm"
+                className="text-muted-foreground hover:text-primary transition-colors inline-flex items-center gap-3 text-sm"
               >
                 <span>Made with 💜</span>
                 <img 
                   src={weddingWaitressLogo} 
                   alt="Wedding Waitress" 
-                  className="h-4 inline-block"
+                  className="h-8 inline-block"
                 />
               </a>
             </div>
