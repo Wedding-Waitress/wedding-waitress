@@ -19,6 +19,7 @@ interface MediaLightboxProps {
     mime_type?: string;
   }>;
   initialIndex: number;
+  onShareGallery?: () => void;
 }
 
 export const MediaLightbox: React.FC<MediaLightboxProps> = ({
@@ -26,6 +27,7 @@ export const MediaLightbox: React.FC<MediaLightboxProps> = ({
   onClose,
   items,
   initialIndex,
+  onShareGallery,
 }) => {
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const [zoom, setZoom] = useState(1);
@@ -392,6 +394,18 @@ export const MediaLightbox: React.FC<MediaLightboxProps> = ({
 
           {/* Action Buttons (Download & Share) */}
           <div className="absolute bottom-6 right-6 z-20 flex gap-3 animate-fade-in">
+            {/* Share Gallery Button (if handler provided) */}
+            {onShareGallery && (
+              <Button
+                size="icon"
+                className="w-11 h-11 min-h-[44px] min-w-[44px] rounded-full bg-white/90 hover:bg-white text-primary shadow-lg hover:shadow-xl transition-all"
+                onClick={onShareGallery}
+                title="Share Gallery"
+              >
+                <Share2 className="w-5 h-5" />
+              </Button>
+            )}
+
             {/* Download Button */}
             <Button
               size="icon"
@@ -402,7 +416,7 @@ export const MediaLightbox: React.FC<MediaLightboxProps> = ({
               <Download className="w-5 h-5" />
             </Button>
 
-            {/* Share Button */}
+            {/* Share Item Button */}
             <Button
               size="icon"
               className="w-11 h-11 min-h-[44px] min-w-[44px] rounded-full bg-white hover:bg-white/90 text-primary shadow-lg hover:shadow-xl transition-all"

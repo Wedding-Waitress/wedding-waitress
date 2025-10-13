@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Navigate } from 'react-router-dom';
-import { Plus, ArrowLeft, X, Camera, Trash2, Play, Video, Loader2 } from 'lucide-react';
+import { Plus, ArrowLeft, X, Camera, Trash2, Play, Video, Loader2, Share2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -13,6 +13,8 @@ import { useVideoProcessingPoller } from '@/hooks/useVideoProcessingPoller';
 import { useChunkedUpload } from '@/hooks/useChunkedUpload';
 import { analytics } from '@/lib/analytics';
 import { MediaLightbox } from '@/components/MediaLightbox';
+import { ShareGalleryModal } from '@/components/ShareGalleryModal';
+import { GalleryMetaTags } from '@/components/GalleryMetaTags';
 import weddingWaitressLogo from '@/assets/wedding-waitress-badge-logo.png';
 
 // Lazy load TextPostModal for better initial page performance
@@ -79,6 +81,7 @@ export const GuestGalleryPublic: React.FC = () => {
   const [preloadedIndices, setPreloadedIndices] = useState<Set<number>>(new Set());
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
+  const [shareModalOpen, setShareModalOpen] = useState(false);
 
   const MAX_VIDEO_SIZE_MB = 2048; // 2 GB max
   const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes
@@ -803,6 +806,36 @@ export const GuestGalleryPublic: React.FC = () => {
     setLightboxOpen(true);
   };
 
+  const handleShareGallery = async () => {
+    const galleryUrl = `${window.location.origin}/g/${gallerySlug}?utm_source=share_button`;
+    const shareData = {
+      title: `🎉 ${galleryData?.title || 'Gallery'} — Wedding Waitress Gallery`,
+      text: 'View the full album of photos & videos',
+      url: galleryUrl,
+    };
+
+    try {
+      // Try Web Share API first (mobile)
+      if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
+        await navigator.share(shareData);
+        toast({
+          title: 'Shared successfully',
+          description: 'Gallery shared!',
+        });
+      } else {
+        // Fallback: Show modal with copy link
+        setShareModalOpen(true);
+      }
+    } catch (error: any) {
+      // User cancelled share
+      if (error.name !== 'AbortError') {
+        console.error('Share failed:', error);
+        // Show modal as fallback
+        setShareModalOpen(true);
+      }
+    }
+  };
+
   const getMediaUrl = (filePath: string) => {
     if (!filePath) return '';
     
@@ -845,10 +878,22 @@ export const GuestGalleryPublic: React.FC = () => {
     );
   }
 
+  // Get first photo URL for Open Graph
+  const firstPhotoUrl = mediaItems.find(item => item.type === 'photo' && item.file_url)?.file_url;
+
   // Error states
   if (error || !galleryData) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-secondary p-4">
+      <>
+        {galleryData && (
+          <GalleryMetaTags
+            galleryTitle={galleryData.title}
+            eventDate={galleryData.event_date}
+            gallerySlug={gallerySlug || ''}
+            firstPhotoUrl={firstPhotoUrl ? getMediaUrl(firstPhotoUrl) : undefined}
+          />
+        )}
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-secondary p-4">
         <Card className="ww-box max-w-md">
           <CardContent className="p-8 text-center space-y-4">
             <div className="text-6xl">
@@ -876,13 +921,21 @@ export const GuestGalleryPublic: React.FC = () => {
           </CardContent>
         </Card>
       </div>
+      </>
     );
   }
 
   // Landing page
   if (flowStep === 'landing') {
     return (
-      <div className="h-screen relative overflow-hidden">
+      <>
+        <GalleryMetaTags
+          galleryTitle={galleryData.title}
+          eventDate={galleryData.event_date}
+          gallerySlug={gallerySlug || ''}
+          firstPhotoUrl={firstPhotoUrl ? getMediaUrl(firstPhotoUrl) : undefined}
+        />
+        <div className="h-screen relative overflow-hidden">
         {/* Base gradient fallback */}
         <div className="fixed inset-0 z-0 bg-gradient-to-br from-purple-100 via-purple-50 to-blue-50" />
         
@@ -951,6 +1004,18 @@ export const GuestGalleryPublic: React.FC = () => {
               </Button>
             </div>
 
+            {/* Share Gallery Button */}
+            <div className="flex justify-center mt-4">
+              <Button
+                variant="ghost"
+                className="text-black hover:bg-white/20 rounded-full gap-2"
+                onClick={handleShareGallery}
+              >
+                <Share2 className="w-5 h-5" />
+                Share Gallery
+              </Button>
+            </div>
+
             {/* Recent Media Count */}
             {mediaItems.length > 0 && (
               <div className="mt-12 w-full max-w-4xl mx-auto">
@@ -1006,6 +1071,7 @@ export const GuestGalleryPublic: React.FC = () => {
           </div>
         </div>
       </div>
+      </>
     );
   }
 
@@ -1418,6 +1484,15 @@ export const GuestGalleryPublic: React.FC = () => {
           mime_type: item.mime_type,
         }))}
         initialIndex={lightboxIndex}
+        onShareGallery={handleShareGallery}
+      />
+
+      {/* Share Gallery Modal */}
+      <ShareGalleryModal
+        open={shareModalOpen}
+        onClose={() => setShareModalOpen(false)}
+        galleryUrl={`${window.location.origin}/g/${gallerySlug}`}
+        galleryTitle={galleryData?.title || 'Gallery'}
       />
     </div>
   );

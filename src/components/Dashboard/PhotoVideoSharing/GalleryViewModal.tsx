@@ -3,6 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Image, Video, MessageSquare, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 import { MediaLightbox } from '@/components/MediaLightbox';
 import { Card, CardContent } from '@/components/ui/card';
 
@@ -41,6 +42,7 @@ export const GalleryViewModal: React.FC<GalleryViewModalProps> = ({
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [lightboxItems, setLightboxItems] = useState<any[]>([]);
+  const { toast } = useToast();
 
   useEffect(() => {
     if (isOpen && galleryId) {
@@ -99,6 +101,48 @@ export const GalleryViewModal: React.FC<GalleryViewModalProps> = ({
     setLightboxItems(formattedItems);
     setLightboxIndex(index);
     setLightboxOpen(true);
+  };
+
+  const handleShareGallery = async () => {
+    const { data: gallery } = await supabase
+      .from('galleries' as any)
+      .select('slug')
+      .eq('id', galleryId)
+      .single();
+
+    if (!gallery) return;
+
+    const galleryUrl = `${window.location.origin}/g/${(gallery as any).slug}?utm_source=share_button`;
+    const shareData = {
+      title: `🎉 ${galleryTitle} — Wedding Waitress Gallery`,
+      text: 'View the full album of photos & videos',
+      url: galleryUrl,
+    };
+
+    try {
+      if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
+        await navigator.share(shareData);
+        toast({
+          title: 'Shared successfully',
+          description: 'Gallery shared!',
+        });
+      } else {
+        await navigator.clipboard.writeText(galleryUrl);
+        toast({
+          title: '✅ Gallery link copied!',
+          description: 'Share link copied to clipboard',
+        });
+      }
+    } catch (error: any) {
+      if (error.name !== 'AbortError') {
+        console.error('Share failed:', error);
+        toast({
+          title: 'Share failed',
+          description: 'Could not share the gallery. Please try again.',
+          variant: 'destructive',
+        });
+      }
+    }
   };
 
   return (
@@ -226,6 +270,7 @@ export const GalleryViewModal: React.FC<GalleryViewModalProps> = ({
         onClose={() => setLightboxOpen(false)}
         items={lightboxItems}
         initialIndex={lightboxIndex}
+        onShareGallery={handleShareGallery}
       />
     </Dialog>
   );
