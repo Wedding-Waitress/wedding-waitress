@@ -685,16 +685,39 @@ export const GuestGalleryPublic: React.FC = () => {
       setUploadProgress(Math.max(1, Math.min(100, Math.round(fraction * 100))));
     };
 
-    // Helper to upload local poster to storage and return path
+    // Helper to upload local poster to storage using signed upload URL and return path
     const uploadLocalPosterToStorage = async (): Promise<string | null> => {
       if (!item.localPoster) return null;
       try {
         const blob = await fetch(item.localPoster).then(r => r.blob());
-        const uuid = crypto.randomUUID();
-        const thumbPath = `thumbnails/${galleryData.id}/${uuid}.jpg`;
-        const { error: upErr } = await supabase.storage.from('event-media').upload(thumbPath, blob, { contentType: 'image/jpeg', upsert: true });
-        if (upErr) { console.warn('Poster upload error:', upErr); return null; }
-        return thumbPath;
+        const filename = `${crypto.randomUUID()}-thumb.jpg`;
+        // Request a signed upload URL for the thumbnail
+        const { data: thumbUrlData, error: thumbUrlError } = await supabase.functions.invoke('create-media-upload-url', {
+          body: {
+            gallerySlug: gallerySlug,
+            filename,
+            contentType: 'image/jpeg',
+            file_size: blob.size,
+          },
+        });
+        if (thumbUrlError) {
+          console.warn('Poster signed URL error:', thumbUrlError);
+          return null;
+        }
+        // Upload thumbnail using Supabase SDK signed upload
+        const { error: uploadErr } = await supabase.storage
+          .from('event-media')
+          .uploadToSignedUrl(
+            thumbUrlData.file_path,
+            thumbUrlData.token,
+            blob,
+            { contentType: 'image/jpeg' }
+          );
+        if (uploadErr) {
+          console.warn('Poster signed upload error:', uploadErr);
+          return null;
+        }
+        return thumbUrlData.file_path as string;
       } catch (err) {
         console.warn('Poster upload failed:', err);
         return null;
@@ -780,8 +803,16 @@ export const GuestGalleryPublic: React.FC = () => {
         return;
       }
 
-      // Supabase Storage signed URL upload
-      await xhrUpload(urlData.signed_url, 'PUT', item.file, { 'Content-Type': urlData.content_type || item.file.type });
+      // Supabase Storage signed URL upload (SDK)
+      const { error: supaUploadErr } = await supabase.storage
+        .from('event-media')
+        .uploadToSignedUrl(
+          urlData.file_path,
+          urlData.token,
+          item.file,
+          { contentType: urlData.content_type || item.file.type }
+        );
+      if (supaUploadErr) throw supaUploadErr;
 
       // If video, upload poster and include in confirmation
       let thumbPath: string | null = null;
