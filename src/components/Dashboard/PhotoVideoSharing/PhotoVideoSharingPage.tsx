@@ -331,7 +331,7 @@ export const PhotoVideoSharingPage: React.FC = () => {
                       </div>
                       
                       {galleryTitle && (
-                        <div className="mb-2">
+                        <div className="mb-4 flex justify-center">
                           <p className="text-sm font-medium text-primary">
                             {galleryTitle}
                           </p>
