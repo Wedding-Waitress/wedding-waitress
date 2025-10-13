@@ -17,6 +17,7 @@ import { format } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { Separator } from '@/components/ui/separator';
 import QRCodeLib from 'qrcode';
 
 export const PhotoVideoSharingPage: React.FC = () => {
@@ -326,17 +327,16 @@ export const PhotoVideoSharingPage: React.FC = () => {
                   {/* Left: Stats Bar - Redesigned 3-Line Layout */}
                   <Card className="ww-box border-2 border-primary/20">
                     <CardContent className="p-4">
-                      <div className="mb-4">
+                      <div className="flex items-center justify-between mb-3">
                         <h3 className="text-lg font-semibold">Statistics</h3>
-                      </div>
-                      
-                      {galleryTitle && (
-                        <div className="mb-4 flex justify-center">
-                          <p className="text-sm font-medium text-primary">
+                        {galleryTitle && (
+                          <p className="text-xl font-medium text-primary">
                             {galleryTitle}
                           </p>
-                        </div>
-                      )}
+                        )}
+                      </div>
+                      
+                      <Separator className="mb-4" />
                       
                       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
                         {/* Stat 1: Galleries Created */}
