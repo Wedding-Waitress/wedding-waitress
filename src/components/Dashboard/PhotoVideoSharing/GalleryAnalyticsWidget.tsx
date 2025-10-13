@@ -14,18 +14,17 @@ export const GalleryAnalyticsWidget: React.FC<GalleryAnalyticsWidgetProps> = ({ 
   if (!galleryId) return null;
 
   return (
-    <Card className="ww-box">
-      <CardHeader className="pb-3">
-        <CardTitle className="text-lg">Album Insights</CardTitle>
-      </CardHeader>
-      <CardContent>
+    <Card className="ww-box border-2 border-primary/20">
+      <CardContent className="p-3">
         {loading ? (
           <div className="flex items-center justify-center py-4">
             <Loader2 className="w-6 h-6 animate-spin text-primary" />
           </div>
         ) : (
           <TooltipProvider>
-            <div className="flex items-center justify-around gap-4">
+            <div className="flex items-center justify-between gap-6">
+              <h3 className="text-lg font-semibold whitespace-nowrap">Album Insights</h3>
+              <div className="flex items-center justify-around gap-6 flex-1">
               {/* Views */}
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -79,6 +78,7 @@ export const GalleryAnalyticsWidget: React.FC<GalleryAnalyticsWidgetProps> = ({ 
                   <p>Total files downloaded by guests</p>
                 </TooltipContent>
               </Tooltip>
+            </div>
             </div>
           </TooltipProvider>
         )}

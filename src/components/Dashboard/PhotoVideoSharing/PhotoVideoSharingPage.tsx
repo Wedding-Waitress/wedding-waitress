@@ -330,8 +330,8 @@ export const PhotoVideoSharingPage: React.FC = () => {
                 <div className="grid grid-cols-1 gap-6">
                   {/* Left: Stats Bar - Redesigned 3-Line Layout */}
                   <Card className="ww-box border-2 border-primary/20">
-                    <CardContent className="p-4">
-                      <div className="flex items-center justify-between mb-3">
+                    <CardContent className="p-3">
+                      <div className="flex items-center justify-between mb-2">
                         <h3 className="text-lg font-semibold">Statistics</h3>
                         {galleryTitle && (
                           <p className="text-xl font-medium text-primary">
@@ -341,7 +341,7 @@ export const PhotoVideoSharingPage: React.FC = () => {
                         )}
                       </div>
                       
-                      <Separator className="mb-4" />
+                      <Separator className="mb-2" />
                       
                       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
                         {/* Stat 1: Albums Created */}
