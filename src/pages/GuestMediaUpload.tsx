@@ -140,42 +140,61 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
 
   const fetchEventData = async () => {
     try {
+      console.log('🔍 Fetching gallery data for slug:', eventSlug);
+      
       const { data: gallery } = await supabase
         .from('galleries' as any)
-        .select('id, title, show_footer, show_public_gallery, is_active')
+        .select('id, title, show_footer, show_public_gallery, is_active, event_date')
         .eq('slug', eventSlug)
         .maybeSingle();
 
       if (!gallery) {
+        console.error('❌ Gallery not found for slug:', eventSlug);
         throw new Error('Gallery not found');
       }
 
+      console.log('✅ Gallery found:', gallery);
+
       // Check if gallery is visible
       if (!(gallery as any).is_active || !(gallery as any).show_public_gallery) {
+        console.warn('⚠️ Gallery is not active or not public');
         setEventData(null);
         setLoading(false);
         return;
       }
 
+      // Set gallery data immediately - this is what we need for uploads
       setGalleryId((gallery as any).id);
       setGalleryTitle((gallery as any).title);
       setShowFooter((gallery as any).show_footer ?? true);
       setShowPublicGallery((gallery as any).show_public_gallery ?? true);
       
-      // Fetch event data - just for display
-      const { data, error } = await supabase
+      // Create a fallback event data object from gallery info
+      const fallbackEventData: EventData = {
+        id: (gallery as any).id,
+        name: (gallery as any).title,
+        event_display_name: (gallery as any).title,
+        date: (gallery as any).event_date || new Date().toISOString().split('T')[0],
+        event_date_override: null,
+        slug: eventSlug!,
+      };
+      
+      // Try to fetch event data for display purposes, but don't fail if not found
+      const { data: eventDataFromDB } = await supabase
         .from('events')
         .select('*')
         .eq('slug', eventSlug)
-        .single();
+        .maybeSingle();
 
-      if (error) throw error;
-      setEventData(data);
+      // Use event data if found, otherwise use fallback from gallery
+      setEventData(eventDataFromDB || fallbackEventData);
+      console.log('✅ Event data set:', eventDataFromDB || fallbackEventData);
+      
     } catch (error) {
-      console.error('Error fetching event:', error);
+      console.error('❌ Error fetching gallery/event:', error);
       toast({
         title: 'Error',
-        description: 'Failed to load event',
+        description: 'Failed to load gallery. Please check the link and try again.',
         variant: 'destructive',
       });
       setEventData(null);
@@ -263,16 +282,29 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
           continue;
         }
         
-        // Validate video duration
+      // Validate video duration - show loading state
+        console.log(`🎬 Validating video: ${file.name}`);
+        toast({
+          title: 'Validating Video...',
+          description: `Checking ${file.name}`,
+        });
+        
         const validation = await validateVideo(file);
         if (!validation.valid) {
+          console.error(`❌ Video validation failed: ${validation.error}`);
           toast({
-            title: 'Video Validation Failed',
+            title: '❌ Video Invalid',
             description: validation.error,
             variant: 'destructive',
           });
           continue;
         }
+        
+        console.log(`✅ Video validated: ${file.name} (${validation.duration?.toFixed(1)}s)`);
+        toast({
+          title: '✅ Video Ready',
+          description: `${file.name} is ready to upload`,
+        });
       }
       
       const preview = URL.createObjectURL(file);
@@ -297,8 +329,6 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
     }
   };
 
-  const generateVideoThumbnail = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
   const generateVideoThumbnail = (file: File): Promise<string> => {
     return new Promise((resolve) => {
       const video = document.createElement('video');
@@ -400,8 +430,6 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
       video.src = URL.createObjectURL(file);
     });
   };
-    });
-  };
 
   const handleTextPostSubmit = (data: { textContent: string; themeId: string }) => {
     const theme = getThemeById(data.themeId);
@@ -421,8 +449,28 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
   };
 
   const handleUploadAll = async () => {
-    if (!eventData || selectedItems.length === 0) return;
+    // Validate we have necessary data
+    if (!galleryId) {
+      toast({
+        title: 'Error',
+        description: 'Gallery not loaded. Please refresh the page.',
+        variant: 'destructive',
+      });
+      return;
+    }
 
+    if (selectedItems.length === 0) {
+      toast({
+        title: 'No Items',
+        description: 'Please select photos or videos to upload.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    console.log('🚀 Starting upload for', selectedItems.length, 'items');
+    console.log('📦 Gallery ID:', galleryId);
+    
     setFlowStep('uploading');
     setUploadProgress(0);
     setCurrentUploadIndex(0);
