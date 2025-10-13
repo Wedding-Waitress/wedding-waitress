@@ -684,7 +684,7 @@ export const GuestGalleryPublic: React.FC = () => {
         
         <div className="relative z-10 flex flex-col items-center justify-center h-screen overflow-y-hidden px-4">
           <div className="text-center space-y-8 max-w-2xl">
-            <h1 className="text-3xl md:text-5xl font-bold text-white drop-shadow-lg">{galleryData.title}</h1>
+            <h1 className="text-3xl md:text-5xl font-bold text-black drop-shadow-lg">{galleryData.title}</h1>
             {galleryData.event_date && (
               <p className="text-xl text-black drop-shadow-md">
                 {format(new Date(galleryData.event_date), 'do MMMM yyyy')}
