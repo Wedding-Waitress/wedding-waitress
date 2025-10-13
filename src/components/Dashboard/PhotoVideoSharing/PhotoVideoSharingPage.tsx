@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Camera, Plus, BarChart3, Trash2, Copy, Download, QrCode, FolderOpen, Image, Video, MessageSquare, Share2, Facebook, Instagram, Loader2, ChevronDown, Eye } from 'lucide-react';
+import { Camera, Plus, BarChart3, Trash2, Copy, Download, QrCode, FolderOpen, Image, Video, MessageSquare, Share2, Facebook, Instagram, Loader2, ChevronDown, Eye, Phone } from 'lucide-react';
 import { SetupWizard } from './SetupWizard';
 import { GalleryViewModal } from './GalleryViewModal';
 import { GalleryAnalyticsWidget } from './GalleryAnalyticsWidget';
@@ -293,7 +293,7 @@ export const PhotoVideoSharingPage: React.FC = () => {
     }
   };
 
-  const totalUploads = stats.photosCount + stats.videosCount + stats.messagesCount;
+  const totalUploads = stats.photosCount + stats.videosCount + stats.messagesCount + stats.audioCount;
 
   if (showCreateWizard) {
     return (
@@ -339,25 +339,25 @@ export const PhotoVideoSharingPage: React.FC = () => {
                       
                       <Separator className="mb-4" />
                       
-                      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-                        {/* Stat 1: Galleries Created */}
+                      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+                        {/* Stat 1: Total Uploads */}
                         <div className="flex flex-col items-start gap-1 border-2 border-primary rounded-lg p-3">
-                          <FolderOpen className="w-5 h-5 text-blue-600" />
-                          <p className="text-xs text-muted-foreground">Galleries Created</p>
-                          <p className="text-2xl font-bold text-blue-600">{stats.galleriesCount}</p>
+                          <BarChart3 className="w-5 h-5 text-primary" />
+                          <p className="text-xs text-muted-foreground font-semibold">Total Uploads</p>
+                          <p className="text-2xl font-bold text-primary">{totalUploads}</p>
                         </div>
                         
-                        {/* Stat 2: Photos Added */}
+                        {/* Stat 2: Photos */}
                         <div className="flex flex-col items-start gap-1">
                           <Image className="w-5 h-5 text-green-600" />
-                          <p className="text-xs text-muted-foreground">Photos Added</p>
+                          <p className="text-xs text-muted-foreground">Photos</p>
                           <p className="text-2xl font-bold text-green-600">{stats.photosCount}</p>
                         </div>
                         
-                        {/* Stat 3: Videos Added */}
+                        {/* Stat 3: Videos */}
                         <div className="flex flex-col items-start gap-1">
                           <Video className="w-5 h-5 text-orange-600" />
-                          <p className="text-xs text-muted-foreground">Videos Added</p>
+                          <p className="text-xs text-muted-foreground">Videos</p>
                           <p className="text-2xl font-bold text-orange-600">{stats.videosCount}</p>
                         </div>
                         
@@ -368,11 +368,18 @@ export const PhotoVideoSharingPage: React.FC = () => {
                           <p className="text-2xl font-bold text-purple-600">{stats.messagesCount}</p>
                         </div>
                         
-                        {/* Stat 5: Total Uploads */}
+                        {/* Stat 5: Audio Guestbook */}
                         <div className="flex flex-col items-start gap-1">
-                          <BarChart3 className="w-5 h-5 text-primary" />
-                          <p className="text-xs text-muted-foreground font-semibold">Total Uploads</p>
-                          <p className="text-2xl font-bold text-primary">{totalUploads}</p>
+                          <Phone className="w-5 h-5 text-pink-600" />
+                          <p className="text-xs text-muted-foreground">Audio Guestbook</p>
+                          <p className="text-2xl font-bold text-pink-600">{stats.audioCount}</p>
+                        </div>
+                        
+                        {/* Stat 6: Galleries Created */}
+                        <div className="flex flex-col items-start gap-1">
+                          <FolderOpen className="w-5 h-5 text-blue-600" />
+                          <p className="text-xs text-muted-foreground">Galleries Created</p>
+                          <p className="text-2xl font-bold text-blue-600">{stats.galleriesCount}</p>
                         </div>
                       </div>
                     </CardContent>

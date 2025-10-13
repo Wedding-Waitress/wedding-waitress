@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Image, Video, MessageSquare, Loader2 } from 'lucide-react';
+import { Image, Video, MessageSquare, Loader2, Phone, Play, Pause } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { MediaLightbox } from '@/components/MediaLightbox';
 import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 
 interface GalleryViewModalProps {
   isOpen: boolean;
@@ -29,6 +30,13 @@ interface MediaItem {
   status?: string;
 }
 
+interface AudioItem {
+  id: string;
+  file_url: string;
+  duration_seconds: number;
+  created_at: string;
+}
+
 export const GalleryViewModal: React.FC<GalleryViewModalProps> = ({
   isOpen,
   onClose,
@@ -38,10 +46,13 @@ export const GalleryViewModal: React.FC<GalleryViewModalProps> = ({
   const [photos, setPhotos] = useState<MediaItem[]>([]);
   const [videos, setVideos] = useState<MediaItem[]>([]);
   const [messages, setMessages] = useState<MediaItem[]>([]);
+  const [audioMessages, setAudioMessages] = useState<AudioItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [lightboxItems, setLightboxItems] = useState<any[]>([]);
+  const [playingAudioId, setPlayingAudioId] = useState<string | null>(null);
+  const audioRefs = useRef<{ [key: string]: HTMLAudioElement }>({});
   const { toast } = useToast();
 
   useEffect(() => {
@@ -53,6 +64,7 @@ export const GalleryViewModal: React.FC<GalleryViewModalProps> = ({
   const fetchGalleryContent = async () => {
     setLoading(true);
     try {
+      // Fetch media uploads
       const { data, error } = await supabase
         .from('media_uploads')
         .select('*')
@@ -69,6 +81,19 @@ export const GalleryViewModal: React.FC<GalleryViewModalProps> = ({
           item.mime_type?.startsWith('video/') || item.post_type === 'video'
         ));
         setMessages(data.filter((item: MediaItem) => item.post_type === 'text'));
+      }
+
+      // Fetch audio guestbook messages
+      const { data: audioData, error: audioError } = await supabase
+        .from('audio_guestbook' as any)
+        .select('*')
+        .eq('gallery_id', galleryId)
+        .order('created_at', { ascending: false });
+
+      if (audioError) {
+        console.error('Error fetching audio:', audioError);
+      } else if (audioData) {
+        setAudioMessages((audioData as any) || []);
       }
     } catch (error) {
       console.error('Error fetching gallery content:', error);
@@ -158,7 +183,7 @@ export const GalleryViewModal: React.FC<GalleryViewModalProps> = ({
           </div>
         ) : (
           <Tabs defaultValue="photos" className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="photos" className="gap-2">
                 <Image className="w-4 h-4" />
                 Photos ({photos.length})
@@ -170,6 +195,10 @@ export const GalleryViewModal: React.FC<GalleryViewModalProps> = ({
               <TabsTrigger value="messages" className="gap-2">
                 <MessageSquare className="w-4 h-4" />
                 Messages ({messages.length})
+              </TabsTrigger>
+              <TabsTrigger value="audio" className="gap-2">
+                <Phone className="w-4 h-4" />
+                Audio ({audioMessages.length})
               </TabsTrigger>
             </TabsList>
 
@@ -257,6 +286,92 @@ export const GalleryViewModal: React.FC<GalleryViewModalProps> = ({
                       </p>
                     </div>
                   ))}
+                </div>
+              )}
+            </TabsContent>
+
+            <TabsContent value="audio" className="mt-4">
+              {audioMessages.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  No audio messages yet
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {audioMessages.map((audio) => {
+                    const isPlaying = playingAudioId === audio.id;
+                    const formatDuration = (seconds: number) => {
+                      const mins = Math.floor(seconds / 60);
+                      const secs = seconds % 60;
+                      return `${mins}:${secs.toString().padStart(2, '0')}`;
+                    };
+
+                    const handlePlayPause = () => {
+                      const audioElement = audioRefs.current[audio.id];
+                      
+                      // Pause any currently playing audio
+                      if (playingAudioId && playingAudioId !== audio.id) {
+                        const currentAudio = audioRefs.current[playingAudioId];
+                        if (currentAudio) currentAudio.pause();
+                      }
+
+                      if (isPlaying) {
+                        audioElement?.pause();
+                        setPlayingAudioId(null);
+                      } else {
+                        audioElement?.play();
+                        setPlayingAudioId(audio.id);
+                      }
+                    };
+
+                    const getAudioUrl = () => {
+                      return supabase.storage
+                        .from('audio-uploads')
+                        .getPublicUrl(audio.file_url).data.publicUrl;
+                    };
+
+                    return (
+                      <Card key={audio.id} className="border-2 border-primary rounded-lg">
+                        <CardContent className="p-4">
+                          <div className="flex items-center gap-4">
+                            <Button
+                              size="lg"
+                              variant={isPlaying ? "default" : "outline"}
+                              className="rounded-full w-14 h-14 flex-shrink-0"
+                              onClick={handlePlayPause}
+                            >
+                              {isPlaying ? (
+                                <Pause className="w-6 h-6" />
+                              ) : (
+                                <Play className="w-6 h-6 ml-1" />
+                              )}
+                            </Button>
+
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-3">
+                                <Phone className="w-5 h-5 text-pink-600 flex-shrink-0" />
+                                <span className="text-sm text-muted-foreground">
+                                  {formatDuration(audio.duration_seconds)}
+                                </span>
+                                <span className="text-xs text-muted-foreground ml-auto">
+                                  {new Date(audio.created_at).toLocaleDateString()}
+                                </span>
+                              </div>
+                              
+                              {/* Hidden audio element */}
+                              <audio
+                                ref={(el) => {
+                                  if (el) audioRefs.current[audio.id] = el;
+                                }}
+                                src={getAudioUrl()}
+                                onEnded={() => setPlayingAudioId(null)}
+                                preload="none"
+                              />
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
                 </div>
               )}
             </TabsContent>

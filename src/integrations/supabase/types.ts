@@ -14,6 +14,47 @@ export type Database = {
   }
   public: {
     Tables: {
+      audio_guestbook: {
+        Row: {
+          created_at: string
+          duration_seconds: number | null
+          file_size_bytes: number | null
+          file_url: string
+          gallery_id: string | null
+          id: string
+          mime_type: string | null
+          uploader_token: string
+        }
+        Insert: {
+          created_at?: string
+          duration_seconds?: number | null
+          file_size_bytes?: number | null
+          file_url: string
+          gallery_id?: string | null
+          id?: string
+          mime_type?: string | null
+          uploader_token: string
+        }
+        Update: {
+          created_at?: string
+          duration_seconds?: number | null
+          file_size_bytes?: number | null
+          file_url?: string
+          gallery_id?: string | null
+          id?: string
+          mime_type?: string | null
+          uploader_token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "audio_guestbook_gallery_id_fkey"
+            columns: ["gallery_id"]
+            isOneToOne: false
+            referencedRelation: "galleries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       dietary_chart_settings: {
         Row: {
           created_at: string

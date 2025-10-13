@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Navigate } from 'react-router-dom';
-import { Plus, ArrowLeft, X, Camera, Trash2, Play, Video, Loader2, Share2 } from 'lucide-react';
+import { Plus, ArrowLeft, X, Camera, Trash2, Play, Video, Loader2, Share2, Mic } from 'lucide-react';
 import { format } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -18,9 +18,13 @@ import { GalleryMetaTags } from '@/components/GalleryMetaTags';
 import { useTrackAnalytics } from '@/hooks/useTrackAnalytics';
 import weddingWaitressLogo from '@/assets/wedding-waitress-badge-logo.png';
 
-// Lazy load TextPostModal for better initial page performance
+// Lazy load TextPostModal and AudioRecorderModal for better initial page performance
 const TextPostModal = React.lazy(() => 
   import('@/components/Dashboard/PhotoVideoSharing/TextPostModal').then(m => ({ default: m.TextPostModal }))
+);
+
+const AudioRecorderModal = React.lazy(() =>
+  import('@/components/Dashboard/PhotoVideoSharing/AudioRecorderModal').then(m => ({ default: m.AudioRecorderModal }))
 );
 
 interface MediaItem {
@@ -70,6 +74,8 @@ export const GuestGalleryPublic: React.FC = () => {
   const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
   const [selectedItems, setSelectedItems] = useState<MediaItem[]>([]);
   const [showTextPostModal, setShowTextPostModal] = useState(false);
+  const [showAudioRecorder, setShowAudioRecorder] = useState(false);
+  const [uploadingAudio, setUploadingAudio] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [currentUploadIndex, setCurrentUploadIndex] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -601,6 +607,68 @@ export const GuestGalleryPublic: React.FC = () => {
     
     setSelectedItems([...selectedItems, newItem]);
     setFlowStep('preview');
+    setShowTextPostModal(false);
+  };
+
+  const handleAudioUpload = async (audioBlob: Blob, duration: number) => {
+    if (!galleryData || !token) return;
+
+    setUploadingAudio(true);
+    try {
+      console.log('🎤 Uploading audio guestbook message...');
+      
+      // Generate unique filename
+      const filename = `audio-${Date.now()}-${Math.random().toString(36).substr(2, 9)}.webm`;
+      const filePath = `${galleryData.id}/${filename}`;
+
+      // Upload to Supabase Storage
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('audio-uploads')
+        .upload(filePath, audioBlob, {
+          contentType: audioBlob.type,
+          upsert: false,
+        });
+
+      if (uploadError) throw uploadError;
+
+      // Insert record into audio_guestbook table
+      const { error: insertError } = await supabase
+        .from('audio_guestbook' as any)
+        .insert({
+          gallery_id: galleryData.id,
+          uploader_token: token,
+          file_url: filePath,
+          duration_seconds: Math.round(duration),
+          file_size_bytes: audioBlob.size,
+          mime_type: audioBlob.type,
+        });
+
+      if (insertError) throw insertError;
+
+      toast({
+        title: '✅ Success!',
+        description: 'Your audio guestbook message has been uploaded successfully!',
+      });
+
+      setShowAudioRecorder(false);
+      setFlowStep('success');
+
+      // Refresh gallery
+      setTimeout(() => {
+        fetchGalleryData();
+        setFlowStep('landing');
+      }, 2000);
+
+    } catch (error: any) {
+      console.error('Audio upload error:', error);
+      toast({
+        title: 'Upload Failed',
+        description: error.message || 'Failed to upload audio message',
+        variant: 'destructive',
+      });
+    } finally {
+      setUploadingAudio(false);
+    }
   };
 
   const handleRemoveItem = (index: number) => {
@@ -1224,13 +1292,22 @@ export const GuestGalleryPublic: React.FC = () => {
             </CardContent>
           </Card>
 
-          <div className="text-center">
+          <div className="text-center space-y-3">
             <Button
               variant="link"
               className="text-primary text-lg"
               onClick={() => setShowTextPostModal(true)}
             >
               Or add a text message
+            </Button>
+
+            <Button
+              variant="link"
+              className="text-primary text-lg flex items-center gap-2 mx-auto"
+              onClick={() => setShowAudioRecorder(true)}
+            >
+              <Mic className="w-5 h-5" />
+              Or record Audio Guestbook
             </Button>
           </div>
 
@@ -1249,6 +1326,15 @@ export const GuestGalleryPublic: React.FC = () => {
             open={showTextPostModal}
             onClose={() => setShowTextPostModal(false)}
             onSubmit={handleTextPostSubmit}
+          />
+        </React.Suspense>
+
+        <React.Suspense fallback={null}>
+          <AudioRecorderModal
+            open={showAudioRecorder}
+            onClose={() => setShowAudioRecorder(false)}
+            onUploadComplete={handleAudioUpload}
+            uploading={uploadingAudio}
           />
         </React.Suspense>
       </div>

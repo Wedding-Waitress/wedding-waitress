@@ -6,6 +6,7 @@ export interface GalleryStats {
   photosCount: number;
   videosCount: number;
   messagesCount: number;
+  audioCount: number;
 }
 
 export const useGalleryStats = (galleryId: string | null, scope: 'all' | 'current') => {
@@ -14,6 +15,7 @@ export const useGalleryStats = (galleryId: string | null, scope: 'all' | 'curren
     photosCount: 0,
     videosCount: 0,
     messagesCount: 0,
+    audioCount: 0,
   });
   const [loading, setLoading] = useState(false);
 
@@ -46,11 +48,24 @@ export const useGalleryStats = (galleryId: string | null, scope: 'all' | 'curren
         const videosCount = (mediaData as any)?.filter((m: any) => m.post_type === 'video').length || 0;
         const messagesCount = (mediaData as any)?.filter((m: any) => m.post_type === 'text').length || 0;
 
+        // Get audio count
+        let audioQuery = supabase
+          .from('audio_guestbook' as any)
+          .select('id', { count: 'exact', head: true })
+          .eq('gallery_id.owner_id', user.user.id);
+
+        if (scope === 'current' && galleryId) {
+          audioQuery = audioQuery.eq('gallery_id', galleryId);
+        }
+
+        const { count: audioCount } = await audioQuery;
+
         setStats({
           galleriesCount: galleriesCount || 0,
           photosCount,
           videosCount,
           messagesCount,
+          audioCount: audioCount || 0,
         });
       } catch (error) {
         console.error('Error fetching stats:', error);
