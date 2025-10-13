@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Navigate } from 'react-router-dom';
-import { Plus, ArrowLeft, X, Camera, Trash2 } from 'lucide-react';
+import { Plus, ArrowLeft, X, Camera, Trash2, Play, Video, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -11,6 +11,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { getThemeById } from '@/lib/mediaConstants';
 import { useVideoProcessingPoller } from '@/hooks/useVideoProcessingPoller';
 import { analytics } from '@/lib/analytics';
+import { VideoLightbox } from '@/components/VideoLightbox';
 import weddingWaitressLogo from '@/assets/wedding-waitress-badge-logo.png';
 
 // Lazy load TextPostModal for better initial page performance
@@ -71,8 +72,9 @@ export const GuestGalleryPublic: React.FC = () => {
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
   const [activeLayer, setActiveLayer] = useState<'a' | 'b'>('a');
   const [preloadedIndices, setPreloadedIndices] = useState<Set<number>>(new Set());
+  const [selectedVideo, setSelectedVideo] = useState<MediaItem | null>(null);
 
-  const MAX_VIDEO_SIZE_MB = 200;
+  const MAX_VIDEO_SIZE_MB = 2048; // 2 GB max
 
   // Preload logo for instant badge display
   useEffect(() => {
@@ -654,6 +656,10 @@ export const GuestGalleryPublic: React.FC = () => {
     }
   };
 
+  const openVideoModal = (video: MediaItem) => {
+    setSelectedVideo(video);
+  };
+
   const getMediaUrl = (filePath: string) => {
     if (!filePath) return '';
     
@@ -1177,23 +1183,59 @@ export const GuestGalleryPublic: React.FC = () => {
                       alt={item.caption || 'Gallery photo'}
                       className="w-full h-full object-cover"
                     />
-                  ) : item.post_type === 'video' && item.cloudflare_stream_uid ? (
-                    <div className="relative w-full h-full">
-                      {(!item.stream_ready && item.cloudflare_stream_uid) && (
+                  ) : item.post_type === 'video' ? (
+                    <div className="relative w-full h-full group">
+                      {/* Processing badge */}
+                      {item.cloudflare_stream_uid && !item.stream_ready && (
                         <div className="absolute inset-0 bg-black/80 flex items-center justify-center z-10">
                           <div className="text-center text-white">
-                            <div className="w-8 h-8 border-4 border-white border-t-transparent rounded-full animate-spin mx-auto mb-2" />
+                            <Loader2 className="w-8 h-8 animate-spin mx-auto mb-2" />
                             <p className="text-sm font-medium">Processing video...</p>
-                            <p className="text-xs text-gray-300 mt-1">This may take a minute</p>
                           </div>
                         </div>
                       )}
-                      <iframe
-                        src={`https://customer-${item.cloudflare_stream_uid?.split('/')[0]}.cloudflarestream.com/${item.cloudflare_stream_uid}/iframe`}
-                        className="w-full h-full"
-                        allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;"
-                        allowFullScreen
-                      />
+                      
+                      {/* Cloudflare Stream video (if exists and ready) */}
+                      {item.cloudflare_stream_uid && item.stream_ready ? (
+                        <iframe
+                          src={`https://customer-${item.cloudflare_stream_uid.split('/')[0]}.cloudflarestream.com/${item.cloudflare_stream_uid}/iframe`}
+                          className="w-full h-full"
+                          allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;"
+                          allowFullScreen
+                        />
+                      ) : item.file_url ? (
+                        /* Supabase Storage video (fallback) */
+                        <div 
+                          className="relative w-full h-full bg-black cursor-pointer"
+                          onClick={() => openVideoModal(item)}
+                        >
+                          {/* Poster/thumbnail */}
+                          {item.thumbnail_url ? (
+                            <img 
+                              src={getMediaUrl(item.thumbnail_url)} 
+                              alt="Video thumbnail"
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center bg-muted">
+                              <Play className="w-12 h-12 text-white/80" />
+                            </div>
+                          )}
+                          
+                          {/* Play button overlay */}
+                          <div className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/50 transition-colors">
+                            <div className="w-16 h-16 rounded-full bg-white/90 flex items-center justify-center">
+                              <Play className="w-8 h-8 text-primary ml-1" />
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        /* Fallback for videos without file_url */
+                        <div className="w-full h-full flex flex-col items-center justify-center bg-muted">
+                          <Video className="w-8 h-8 text-muted-foreground" />
+                          <p className="text-xs text-muted-foreground mt-2">Video unavailable</p>
+                        </div>
+                      )}
                     </div>
                   ) : item.post_type === 'text' && item.text_content ? (
                     <div 
@@ -1228,6 +1270,16 @@ export const GuestGalleryPublic: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Video Lightbox Modal */}
+      <VideoLightbox
+        open={!!selectedVideo}
+        onClose={() => setSelectedVideo(null)}
+        videoUrl={selectedVideo?.file_url ? getMediaUrl(selectedVideo.file_url) : ''}
+        posterUrl={selectedVideo?.thumbnail_url ? getMediaUrl(selectedVideo.thumbnail_url) : undefined}
+        caption={selectedVideo?.caption || undefined}
+        cloudflareStreamUid={selectedVideo?.cloudflare_stream_uid}
+      />
     </div>
   );
 };

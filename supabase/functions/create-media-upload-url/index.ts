@@ -9,7 +9,7 @@ const corsHeaders = {
 };
 
 const MAX_PHOTO_SIZE_MB = 250;
-const MAX_VIDEO_SIZE_MB = 1024; // 1 GB for videos
+const MAX_VIDEO_SIZE_MB = 2048; // 2 GB max (increased from 1 GB) // 1 GB for videos
 const CHUNKED_UPLOAD_THRESHOLD_MB = 100; // Use chunked upload for videos over 100 MB
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif'];
 const ALLOWED_VIDEO_TYPES = [

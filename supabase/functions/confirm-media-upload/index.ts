@@ -33,7 +33,8 @@ serve(async (req) => {
       mime_type,
       cloudflare_stream_uid,
       text_content,
-      theme_id
+      theme_id,
+      thumbnail_url
     } = await req.json();
 
     console.log('Confirm media upload:', { 
@@ -105,7 +106,7 @@ serve(async (req) => {
     // For videos and photos uploaded to Supabase Storage
     if (post_type === 'video' || post_type === 'photo' || post_type === 'image') {
       insertData.file_url = file_path || '';
-      insertData.thumbnail_url = null;
+      insertData.thumbnail_url = thumbnail_url || null; // Include thumbnail URL
       insertData.cloudflare_stream_uid = null;
       insertData.width = width || null;
       insertData.height = height || null;

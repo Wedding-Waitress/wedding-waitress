@@ -85,8 +85,8 @@ export const GuestMediaUpload: React.FC = () => {
   const [showPublicGallery, setShowPublicGallery] = useState(true);
   
   // Constants for validation
-  const MAX_VIDEO_SIZE_MB = 1024; // 1 GB max
-  const MAX_VIDEO_DURATION_SECONDS = 180; // 3 minutes
+const MAX_VIDEO_SIZE_MB = 2048; // 2 GB max (increased from 1 GB)
+const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
   const SUPPORTED_VIDEO_TYPES = [
     'video/mp4', 'video/quicktime', 'video/webm', 'video/x-m4v',
     'video/hevc', 'video/h265', 'video/h264', 'video/mpeg'
@@ -212,9 +212,12 @@ export const GuestMediaUpload: React.FC = () => {
         URL.revokeObjectURL(video.src);
         
         if (duration > MAX_VIDEO_DURATION_SECONDS) {
+          const minutes = Math.floor(duration / 60);
+          const seconds = Math.round(duration % 60);
+          const maxMinutes = Math.floor(MAX_VIDEO_DURATION_SECONDS / 60);
           resolve({ 
             valid: false, 
-            error: `Video "${file.name}" is too long (${Math.round(duration)}s). Max: ${Math.round(MAX_VIDEO_DURATION_SECONDS / 60)} minutes.` 
+            error: `Video is too long (${minutes}:${String(seconds).padStart(2, '0')}). Maximum duration: ${maxMinutes} minutes.` 
           });
         } else {
           resolve({ valid: true, duration });
@@ -521,13 +524,18 @@ export const GuestMediaUpload: React.FC = () => {
         throw new Error('No upload URL received');
       }
 
-      const uploadResponse = await fetch(uploadUrl, {
-        method: 'PUT',
-        body: item.file,
-        headers: {
-          'Content-Type': item.file.type,
-        },
-      });
+      const uploadResponse = await Promise.race([
+        fetch(uploadUrl, {
+          method: 'PUT',
+          body: item.file,
+          headers: {
+            'Content-Type': item.file.type,
+          },
+        }),
+        new Promise<Response>((_, reject) => 
+          setTimeout(() => reject(new Error('NETWORK_TIMEOUT')), 5 * 60 * 1000) // 5 min timeout
+        )
+      ]);
 
       if (!uploadResponse.ok) {
         console.error('Upload failed:', {
@@ -535,6 +543,55 @@ export const GuestMediaUpload: React.FC = () => {
           statusText: uploadResponse.statusText,
         });
         throw new Error(`Upload failed with status ${uploadResponse.status}`);
+      }
+
+      // Generate and upload thumbnail for videos
+      let thumbnailUrl: string | null = null;
+      if (item.type === 'video' && item.file) {
+        try {
+          console.log('🖼️ Generating video thumbnail...');
+          
+          // Generate thumbnail blob (reuse existing generateVideoThumbnail function)
+          const thumbnailDataUrl = await generateVideoThumbnail(item.file);
+          
+          // Convert data URL to blob
+          const response = await fetch(thumbnailDataUrl);
+          const thumbnailBlob = await response.blob();
+          
+          console.log('📤 Requesting thumbnail upload URL...');
+          
+          // Request upload URL for thumbnail
+          const { data: thumbUrlData, error: thumbUrlError } = await supabase.functions.invoke(
+            'create-media-upload-url',
+            {
+              body: {
+                gallerySlug: eventSlug,
+                filename: `${item.file.name}_thumb.jpg`,
+                contentType: 'image/jpeg',
+                file_size: thumbnailBlob.size,
+              },
+            }
+          );
+          
+          if (!thumbUrlError && thumbUrlData?.signed_url) {
+            console.log('📤 Uploading thumbnail...');
+            
+            // Upload thumbnail
+            const thumbUploadResponse = await fetch(thumbUrlData.signed_url, {
+              method: 'PUT',
+              body: thumbnailBlob,
+              headers: { 'Content-Type': 'image/jpeg' },
+            });
+            
+            if (thumbUploadResponse.ok) {
+              thumbnailUrl = thumbUrlData.file_path;
+              console.log('✅ Thumbnail uploaded:', thumbnailUrl);
+            }
+          }
+        } catch (error) {
+          console.error('⚠️ Failed to generate/upload thumbnail:', error);
+          // Non-fatal error - continue with upload
+        }
       }
 
       // Prepare confirmation data
@@ -547,6 +604,7 @@ export const GuestMediaUpload: React.FC = () => {
         file_size: item.file.size,
         mime_type: item.file.type,
         file_path: urlData.file_path,
+        thumbnail_url: thumbnailUrl, // Include thumbnail URL
       };
 
       // Get dimensions for images
@@ -578,6 +636,11 @@ export const GuestMediaUpload: React.FC = () => {
         },
         stack: error.stack,
       });
+      
+      // Handle network timeout
+      if (error.message === 'NETWORK_TIMEOUT') {
+        throw new Error('Upload timed out after 5 minutes. Please check your internet connection and try again.');
+      }
       
       throw error;
     }
