@@ -11,6 +11,7 @@ import { getThemeById } from '@/lib/mediaConstants';
 import weddingWaitressLogo from '@/assets/wedding-waitress-badge-logo.png';
 import { usePhotoSlideshow } from '@/hooks/usePhotoSlideshow';
 import { PhotoSlideshowBackground } from '@/components/PhotoSlideshowBackground';
+import { useChunkedUpload } from '@/hooks/useChunkedUpload';
 
 // Lazy load TextPostModal for better performance
 const TextPostModal = React.lazy(() => 
@@ -53,6 +54,29 @@ export const GuestMediaUpload: React.FC = () => {
   const [token, setToken] = useState('');
   const [selectedItems, setSelectedItems] = useState<MediaItem[]>([]);
   const [showTextPostModal, setShowTextPostModal] = useState(false);
+  
+  // Chunked upload state
+  const [isChunkedUpload, setIsChunkedUpload] = useState(false);
+  const { 
+    uploadFile: uploadChunked, 
+    chunkProgresses, 
+    overallProgress: chunkedProgress,
+    status: chunkedStatus,
+    retryFailedChunks
+  } = useChunkedUpload({
+    gallerySlug: eventSlug || '',
+    onComplete: (mediaId) => {
+      console.log('Chunked upload complete:', mediaId);
+    },
+    onError: (error) => {
+      console.error('Chunked upload error:', error);
+      toast({
+        title: 'Upload Failed',
+        description: error,
+        variant: 'destructive',
+      });
+    },
+  });
   const [uploadProgress, setUploadProgress] = useState(0);
   const [currentUploadIndex, setCurrentUploadIndex] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -317,6 +341,7 @@ export const GuestMediaUpload: React.FC = () => {
   const uploadMediaFile = async (item: MediaItem) => {
     if (!item.file) return;
 
+    // Check if we should use chunked upload
     const { data: urlData, error: urlError } = await supabase.functions.invoke(
       'create-media-upload-url',
       {
@@ -331,7 +356,18 @@ export const GuestMediaUpload: React.FC = () => {
 
     if (urlError) throw urlError;
 
-    // Upload to Supabase Storage (now handles both photos and videos)
+    // If response indicates multipart upload
+    if (urlData.use_multipart) {
+      setIsChunkedUpload(true);
+      const mediaId = await uploadChunked(item.file, item.caption || undefined);
+      if (!mediaId) {
+        throw new Error('Chunked upload failed');
+      }
+      return;
+    }
+
+    // Standard single-file upload for smaller files
+    setIsChunkedUpload(false);
     const uploadUrl = urlData.signed_url;
     if (!uploadUrl) {
       throw new Error('No upload URL received');
@@ -612,6 +648,47 @@ export const GuestMediaUpload: React.FC = () => {
               <svg className="w-full h-full" viewBox="0 0 200 200">
                 <circle cx="100" cy="100" r="90" stroke="hsl(var(--muted))" strokeWidth="12" fill="none" />
                 <circle
+                  cx="100"
+                  cy="100"
+                  r="90"
+                  stroke="hsl(var(--primary))"
+                  strokeWidth="12"
+                  fill="none"
+                  strokeDasharray="565.48"
+                  strokeDashoffset={565.48 - (565.48 * (isChunkedUpload ? chunkedProgress : uploadProgress)) / 100}
+                  className="transition-all duration-300"
+                  transform="rotate(-90 100 100)"
+                  strokeLinecap="round"
+                />
+              </svg>
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <span className="text-4xl font-bold text-primary">
+                  {Math.round(isChunkedUpload ? chunkedProgress : uploadProgress)}%
+                </span>
+                <span className="text-sm text-muted-foreground mt-2">
+                  {isChunkedUpload ? 'Chunked upload' : 'Uploading'}
+                </span>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <Progress value={isChunkedUpload ? chunkedProgress : uploadProgress} className="h-3" />
+              <p className="text-muted-foreground">
+                {isChunkedUpload 
+                  ? `Uploading chunk ${chunkProgresses.filter(c => c.status === 'success').length} / ${chunkProgresses.length}`
+                  : `Uploading ${currentUploadIndex} of ${selectedItems.length}`
+                }
+              </p>
+            </div>
+
+            <p className="text-sm text-muted-foreground">
+              Please keep this page open while your memories are being uploaded...
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
                   cx="100" cy="100" r="90"
                   stroke="url(#gradient)"
                   strokeWidth="12"

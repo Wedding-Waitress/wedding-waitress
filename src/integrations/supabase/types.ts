@@ -1431,11 +1431,65 @@ export type Database = {
         }
         Relationships: []
       }
+      upload_sessions: {
+        Row: {
+          created_at: string | null
+          expires_at: string | null
+          file_name: string
+          file_path: string
+          file_size: number
+          gallery_id: string
+          id: string
+          mime_type: string
+          total_chunks: number
+          upload_id: string | null
+          uploaded_chunks: number[] | null
+        }
+        Insert: {
+          created_at?: string | null
+          expires_at?: string | null
+          file_name: string
+          file_path: string
+          file_size: number
+          gallery_id: string
+          id?: string
+          mime_type: string
+          total_chunks: number
+          upload_id?: string | null
+          uploaded_chunks?: number[] | null
+        }
+        Update: {
+          created_at?: string | null
+          expires_at?: string | null
+          file_name?: string
+          file_path?: string
+          file_size?: number
+          gallery_id?: string
+          id?: string
+          mime_type?: string
+          total_chunks?: number
+          upload_id?: string | null
+          uploaded_chunks?: number[] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "upload_sessions_gallery_id_fkey"
+            columns: ["gallery_id"]
+            isOneToOne: false
+            referencedRelation: "galleries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      cleanup_expired_upload_sessions: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       cleanup_old_access_attempts: {
         Args: Record<PropertyKey, never>
         Returns: undefined

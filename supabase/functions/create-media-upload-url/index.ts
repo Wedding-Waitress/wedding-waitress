@@ -8,6 +8,7 @@ const corsHeaders = {
 
 const MAX_PHOTO_SIZE_MB = 250;
 const MAX_VIDEO_SIZE_MB = 250;
+const CHUNKED_UPLOAD_THRESHOLD_MB = 50;
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif'];
 const ALLOWED_VIDEO_TYPES = ['video/mp4', 'video/quicktime', 'video/webm', 'video/x-m4v'];
 
@@ -86,6 +87,23 @@ serve(async (req) => {
             : `That file is too large. Max: ${MAX_VIDEO_SIZE_MB} MB videos.`
         }),
         { status: 413, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Check if video should use chunked upload
+    const sizeMB = file_size / (1024 * 1024);
+    if (isVideo && sizeMB >= CHUNKED_UPLOAD_THRESHOLD_MB) {
+      const chunkSize = 8 * 1024 * 1024; // 8 MB chunks
+      const chunkCount = Math.ceil(file_size / chunkSize);
+      
+      return new Response(
+        JSON.stringify({
+          use_multipart: true,
+          chunk_size: chunkSize,
+          chunk_count: chunkCount,
+          message: `This video is large (${Math.round(sizeMB)} MB). Use chunked upload for better reliability.`
+        }),
+        { status: 200, headers: {...corsHeaders, 'Content-Type': 'application/json'} }
       );
     }
 
