@@ -330,7 +330,7 @@ export const PhotoVideoSharingPage: React.FC = () => {
                 <div className="grid grid-cols-1 gap-6">
                   {/* Left: Stats Bar - Redesigned 3-Line Layout */}
                   <Card className="ww-box border-2 border-primary/20">
-                    <CardContent className="py-2 px-3">
+                    <CardContent className="pt-2 pb-1.5 px-3">
                       <div className="flex items-center justify-between mb-1.5">
                         <h3 className="text-lg font-semibold">Statistics</h3>
                         {galleryTitle && (
@@ -343,7 +343,7 @@ export const PhotoVideoSharingPage: React.FC = () => {
                       
                       <Separator className="mb-1.5" />
                       
-                      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+                      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
                         {/* Stat 1: Albums Created */}
                         <div className="flex flex-col items-start gap-1 rounded-lg p-3">
                           <FolderOpen className="w-5 h-5 text-blue-600" />
