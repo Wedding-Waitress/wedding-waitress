@@ -330,8 +330,8 @@ export const PhotoVideoSharingPage: React.FC = () => {
                 <div className="grid grid-cols-1 gap-6">
                   {/* Left: Stats Bar - Redesigned 3-Line Layout */}
                   <Card className="ww-box border-2 border-primary/20">
-                    <CardContent className="p-3">
-                      <div className="flex items-center justify-between mb-2">
+                    <CardContent className="py-2 px-3">
+                      <div className="flex items-center justify-between mb-1.5">
                         <h3 className="text-lg font-semibold">Statistics</h3>
                         {galleryTitle && (
                           <p className="text-xl font-medium text-primary">
@@ -341,11 +341,11 @@ export const PhotoVideoSharingPage: React.FC = () => {
                         )}
                       </div>
                       
-                      <Separator className="mb-2" />
+                      <Separator className="mb-1.5" />
                       
                       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
                         {/* Stat 1: Albums Created */}
-                        <div className="flex flex-col items-start gap-1 border-2 border-primary rounded-lg p-3">
+                        <div className="flex flex-col items-start gap-1 rounded-lg p-3">
                           <FolderOpen className="w-5 h-5 text-blue-600" />
                           <p className="text-xs text-muted-foreground">Albums Created</p>
                           <p className="text-2xl font-bold text-blue-600">{stats.galleriesCount}</p>

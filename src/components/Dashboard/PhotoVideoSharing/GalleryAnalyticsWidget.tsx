@@ -15,7 +15,7 @@ export const GalleryAnalyticsWidget: React.FC<GalleryAnalyticsWidgetProps> = ({ 
 
   return (
     <Card className="ww-box border-2 border-primary/20">
-      <CardContent className="p-3">
+      <CardContent className="py-2 px-3">
         {loading ? (
           <div className="flex items-center justify-center py-4">
             <Loader2 className="w-6 h-6 animate-spin text-primary" />
