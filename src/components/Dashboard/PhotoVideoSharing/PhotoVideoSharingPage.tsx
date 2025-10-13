@@ -31,6 +31,7 @@ export const PhotoVideoSharingPage: React.FC = () => {
   const [showPublicGallery, setShowPublicGallery] = useState(true);
   const [uploadUrl, setUploadUrl] = useState('');
   const [galleryTitle, setGalleryTitle] = useState('');
+  const [galleryEventDate, setGalleryEventDate] = useState<string | null>(null);
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState('');
   const [isDownloading, setIsDownloading] = useState(false);
   
@@ -73,6 +74,7 @@ export const PhotoVideoSharingPage: React.FC = () => {
     if (!selectedGalleryId) {
       setUploadUrl('');
       setGalleryTitle('');
+      setGalleryEventDate(null);
       setQrCodeDataUrl('');
       return;
     }
@@ -81,7 +83,7 @@ export const PhotoVideoSharingPage: React.FC = () => {
       try {
         const { data: gallery } = await supabase
           .from('galleries' as any)
-          .select('slug, title, show_footer, show_public_gallery')
+          .select('slug, title, event_date, show_footer, show_public_gallery')
           .eq('id', selectedGalleryId)
           .single();
 
@@ -89,6 +91,7 @@ export const PhotoVideoSharingPage: React.FC = () => {
           const url = `${window.location.origin}/g/${(gallery as any).slug}`;
           setUploadUrl(url);
           setGalleryTitle((gallery as any).title);
+          setGalleryEventDate((gallery as any).event_date);
           setShowFooter((gallery as any).show_footer ?? true);
           setShowPublicGallery((gallery as any).show_public_gallery ?? true);
           await generateQRCode(url);
@@ -333,6 +336,7 @@ export const PhotoVideoSharingPage: React.FC = () => {
                         {galleryTitle && (
                           <p className="text-xl font-medium text-primary">
                             {galleryTitle}
+                            {galleryEventDate && ` - ${format(new Date(galleryEventDate), 'EEEE do, MMMM yyyy')}`}
                           </p>
                         )}
                       </div>
@@ -361,10 +365,10 @@ export const PhotoVideoSharingPage: React.FC = () => {
                           <p className="text-2xl font-bold text-orange-600">{stats.videosCount}</p>
                         </div>
                         
-                        {/* Stat 4: Guest Book Messages */}
+                        {/* Stat 4: Online Guest Book */}
                         <div className="flex flex-col items-start gap-1">
                           <MessageSquare className="w-5 h-5 text-purple-600" />
-                          <p className="text-xs text-muted-foreground">Guest Book Messages</p>
+                          <p className="text-xs text-muted-foreground">Online Guest Book</p>
                           <p className="text-2xl font-bold text-purple-600">{stats.messagesCount}</p>
                         </div>
                         
@@ -422,7 +426,7 @@ export const PhotoVideoSharingPage: React.FC = () => {
                       <h3 className="text-lg font-semibold">Select Album</h3>
                     </div>
                     <div className="space-y-3 flex-grow">
-                      <Label className="text-sm">Choose a gallery:</Label>
+                      <Label className="text-sm">Choose an Album:</Label>
                       <Select
                         value={selectedGalleryId || 'no-gallery'}
                         onValueChange={(value) => {
