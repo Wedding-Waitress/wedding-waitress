@@ -85,7 +85,6 @@ Deno.serve(async (req) => {
     const missingFields = [];
     if (!gallerySlug) missingFields.push('gallerySlug');
     if (!filename) missingFields.push('filename');
-    if (!contentType) missingFields.push('contentType');
     if (file_size === undefined || file_size === null) missingFields.push('file_size');
     if (chunkCount === undefined || chunkCount === null) missingFields.push('chunkCount');
 
@@ -94,7 +93,7 @@ Deno.serve(async (req) => {
       return new Response(
         JSON.stringify({ 
           error: `Missing required fields: ${missingFields.join(', ')}`,
-          required_fields: ['gallerySlug', 'filename', 'contentType', 'file_size', 'chunkCount'],
+          required_fields: ['gallerySlug', 'filename', 'file_size', 'chunkCount'],
           received_fields: Object.keys(body),
           details: 'Ensure all required fields are included in the request body'
         }),
@@ -127,7 +126,7 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Validate content type is a supported video format
+    // Normalize and validate content type (be lenient for mobile)
     const ALLOWED_VIDEO_TYPES = [
       'video/mp4',
       'video/quicktime',
@@ -141,11 +140,37 @@ Deno.serve(async (req) => {
       'video/3gpp2'
     ];
 
-    if (!ALLOWED_VIDEO_TYPES.includes(contentType)) {
-      console.error('Unsupported video format:', contentType);
+    let normalizedContentType = (contentType || '').toLowerCase();
+
+    // Infer from filename extension if missing or unsupported
+    if (!normalizedContentType || !ALLOWED_VIDEO_TYPES.includes(normalizedContentType)) {
+      const ext = (filename?.split('.')?.pop() || '').toLowerCase();
+      const extMap: Record<string, string> = {
+        mov: 'video/quicktime',
+        mp4: 'video/mp4',
+        m4v: 'video/x-m4v',
+        webm: 'video/webm',
+        '3gp': 'video/3gpp',
+        '3gpp': 'video/3gpp',
+        '3g2': 'video/3gpp2',
+        '3gpp2': 'video/3gpp2',
+        mpeg: 'video/mpeg'
+      };
+      const derived = extMap[ext];
+      if (derived) {
+        normalizedContentType = derived;
+      }
+    }
+
+    console.log('Normalized content type:', { original: contentType, normalizedContentType, filename });
+
+    // Final validation: allow any video/* as last resort
+    const isVideoType = ALLOWED_VIDEO_TYPES.includes(normalizedContentType) || normalizedContentType.startsWith('video/');
+    if (!isVideoType) {
+      console.error('Unsupported video format after normalization:', normalizedContentType);
       return new Response(
         JSON.stringify({ 
-          error: `Unsupported video format: ${contentType}`,
+          error: `Unsupported video format: ${normalizedContentType || contentType}`,
           details: 'Please use MP4, MOV, WebM, or other supported formats',
           allowed_types: ALLOWED_VIDEO_TYPES
         }),
@@ -212,7 +237,7 @@ Deno.serve(async (req) => {
         file_path: filePath,
         file_name: filename,
         file_size: file_size,
-        mime_type: contentType,
+        mime_type: normalizedContentType,
         total_chunks: chunkCount,
         expires_at: expiresAt,
       });

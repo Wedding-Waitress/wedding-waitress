@@ -122,10 +122,28 @@ export const useChunkedUpload = ({ gallerySlug, onComplete, onError }: UseChunke
           }))
         );
 
+        // Determine safe content type (iOS often leaves File.type empty)
+        const getSafeVideoContentType = (name: string, type: string): string => {
+          if (type && type !== '') return type.toLowerCase();
+          const ext = name.split('.').pop()?.toLowerCase() || '';
+          const map: Record<string, string> = {
+            mov: 'video/quicktime',
+            mp4: 'video/mp4',
+            m4v: 'video/x-m4v',
+            webm: 'video/webm',
+            '3gp': 'video/3gpp',
+            '3gpp': 'video/3gpp',
+            '3g2': 'video/3gpp2',
+            '3gpp2': 'video/3gpp2',
+          };
+          return map[ext] || (type && type.startsWith('video/') ? type : 'video/mp4');
+        };
+        const safeContentType = getSafeVideoContentType(file.name, file.type);
+
         // Start multipart upload
         console.log('Starting multipart upload:', {
           filename: file.name,
-          contentType: file.type,
+          contentType: safeContentType,
           file_size: file.size,
           chunkCount: chunks.length,
           gallerySlug,
@@ -137,7 +155,7 @@ export const useChunkedUpload = ({ gallerySlug, onComplete, onError }: UseChunke
             body: {
               gallerySlug,
               filename: file.name,
-              contentType: file.type,
+              contentType: safeContentType,
               file_size: file.size,
               chunkCount: chunks.length,
             },
@@ -152,7 +170,7 @@ export const useChunkedUpload = ({ gallerySlug, onComplete, onError }: UseChunke
             request: {
               gallerySlug,
               filename: file.name,
-              contentType: file.type,
+              contentType: safeContentType,
               file_size: file.size,
               chunkCount: chunks.length,
             }
