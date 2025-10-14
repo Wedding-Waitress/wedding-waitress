@@ -9,6 +9,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { format } from 'date-fns';
 import logoImage from '@/assets/wedding-waitress-logo.png';
+import { generateMediaFilename, getMediaTypeLabel } from '@/lib/mediaFilenames';
 
 interface AlbumViewModalProps {
   isOpen: boolean;
@@ -668,12 +669,37 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
                         <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                           {/* Download Button - Bottom Left */}
                           <button
-                            onClick={(e) => {
+                            onClick={async (e) => {
                               e.stopPropagation();
-                              const link = document.createElement('a');
-                              link.href = video.thumbnail_url || '';
-                              link.download = `video-${video.id}.mp4`;
-                              link.click();
+                              
+                              // Generate sequential filename
+                              const filename = generateMediaFilename({
+                                seqNumber: video.seq_number || 0,
+                                type: 'Video',
+                                albumTitle: galleryTitle,
+                                mimeType: video.mime_type,
+                                fileUrl: video.file_url
+                              });
+                              
+                              // Get video URL (Cloudflare Stream or direct upload)
+                              let videoUrl = '';
+                              if (video.cloudflare_stream_uid) {
+                                // For Cloudflare Stream videos, use download endpoint
+                                videoUrl = `https://videodelivery.net/${video.cloudflare_stream_uid}/downloads/default.mp4`;
+                              } else if (video.file_url) {
+                                // For direct uploads, use storage URL
+                                const { data } = supabase.storage
+                                  .from('media-uploads')
+                                  .getPublicUrl(video.file_url);
+                                videoUrl = data.publicUrl;
+                              }
+                              
+                              if (videoUrl) {
+                                const link = document.createElement('a');
+                                link.href = videoUrl;
+                                link.download = filename;
+                                link.click();
+                              }
                             }}
                             className="absolute bottom-2 left-2 w-8 h-8 rounded-full bg-white/90 hover:bg-white flex items-center justify-center transition-colors z-10"
                             aria-label="Download video"
