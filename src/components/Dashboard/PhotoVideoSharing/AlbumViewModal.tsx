@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Image, Video, MessageSquare, Loader2, Phone, Play, Pause, Download, Share2, Presentation, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Image, Video, MessageSquare, Loader2, Phone, Play, Pause, Download, Share2, Presentation, X, ChevronLeft, ChevronRight, Archive } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { MediaLightbox } from '@/components/MediaLightbox';
@@ -58,6 +58,8 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
   const [slideshowIndex, setSlideshowIndex] = useState(0);
   const [slideshowPlaying, setSlideshowPlaying] = useState(true);
   const [eventDate, setEventDate] = useState<string | null>(null);
+  const [isOwner, setIsOwner] = useState(false);
+  const [downloadingZip, setDownloadingZip] = useState(false);
   const audioRefs = useRef<{ [key: string]: HTMLAudioElement }>({});
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const slideshowTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -72,17 +74,23 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
   const fetchGalleryContent = async () => {
     setLoading(true);
     try {
-      // Fetch gallery info including event_date
+      // Fetch gallery info including event_date and owner_id
       const { data: galleryData, error: galleryError } = await supabase
         .from('galleries')
-        .select('event_date')
+        .select('event_date, owner_id')
         .eq('id', galleryId)
         .single();
 
       if (galleryError) {
         console.error('Error fetching gallery:', galleryError);
-      } else if (galleryData?.event_date) {
-        setEventDate(galleryData.event_date);
+      } else if (galleryData) {
+        if (galleryData.event_date) {
+          setEventDate(galleryData.event_date);
+        }
+        
+        // Check if current user is owner
+        const { data: { user } } = await supabase.auth.getUser();
+        setIsOwner(user?.id === galleryData.owner_id);
       }
 
       // Fetch media uploads
@@ -132,6 +140,49 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
       : item.file_url;
     
     return supabase.storage.from('event-media').getPublicUrl(filePath).data.publicUrl;
+  };
+
+  const handleDownloadEntireAlbum = async () => {
+    setDownloadingZip(true);
+    try {
+      toast({
+        title: 'Preparing download...',
+        description: 'Creating ZIP archive of all media',
+      });
+
+      const { data, error } = await supabase.functions.invoke('export-gallery-zip', {
+        body: { 
+          galleryId,
+          scope: 'all'
+        }
+      });
+
+      if (error) throw error;
+
+      if (data?.download_url) {
+        // Download the ZIP file
+        const link = document.createElement('a');
+        link.href = data.download_url;
+        link.download = `${galleryTitle.replace(/[^a-z0-9]/gi, '_')}_complete.zip`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        toast({
+          title: 'Download started',
+          description: 'Your album is being downloaded as a ZIP file',
+        });
+      }
+    } catch (error) {
+      console.error('Download failed:', error);
+      toast({
+        title: 'Download failed',
+        description: 'Could not create the album archive. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setDownloadingZip(false);
+    }
   };
 
   const formatEventDate = (dateString: string) => {
@@ -317,7 +368,43 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
             <Loader2 className="w-8 h-8 animate-spin text-primary" />
           </div>
         ) : (
-          <Tabs defaultValue="photos" className="w-full">
+          <>
+            {/* Owner Actions - Only visible to gallery owner */}
+            {isOwner && photos.length > 0 && (
+              <div className="mb-4 flex flex-wrap gap-2 justify-end">
+                <Button
+                  onClick={startSlideshow}
+                  variant="outline"
+                  className="gap-2"
+                >
+                  <Presentation className="w-4 h-4" />
+                  Play Slide Show
+                </Button>
+                <Button
+                  onClick={handleShareGallery}
+                  variant="outline"
+                  className="gap-2"
+                >
+                  <Share2 className="w-4 h-4" />
+                  Share Album
+                </Button>
+                <Button
+                  onClick={handleDownloadEntireAlbum}
+                  variant="outline"
+                  className="gap-2"
+                  disabled={downloadingZip}
+                >
+                  {downloadingZip ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Archive className="w-4 h-4" />
+                  )}
+                  Download Entire Album
+                </Button>
+              </div>
+            )}
+
+            <Tabs defaultValue="photos" className="w-full">
             <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="photos" className="gap-2">
                 <Image className="w-4 h-4" />
@@ -343,20 +430,7 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
                   No photos yet
                 </div>
               ) : (
-                <>
-                  {/* Slideshow Button */}
-                  <div className="mb-4 flex justify-end">
-                    <Button
-                      onClick={startSlideshow}
-                      className="gap-2"
-                      variant="outline"
-                    >
-                      <Presentation className="w-4 h-4" />
-                      Start Slideshow
-                    </Button>
-                  </div>
-
-                  <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-1">
+                <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-1">
                   {photos.map((photo, index) => (
                     <div 
                       key={photo.id} 
@@ -405,7 +479,6 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
                     </div>
                    ))}
                   </div>
-                </>
               )}
             </TabsContent>
 
@@ -582,6 +655,7 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
               )}
             </TabsContent>
           </Tabs>
+          </>
         )}
       </DialogContent>
 
