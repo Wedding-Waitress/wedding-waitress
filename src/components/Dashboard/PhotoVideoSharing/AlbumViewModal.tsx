@@ -70,6 +70,7 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
   const [loadingMessage, setLoadingMessage] = useState('Preparing your memories…');
   const [totalItems, setTotalItems] = useState(0);
   const [loadedItems, setLoadedItems] = useState(0);
+  const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const audioRefs = useRef<{ [key: string]: HTMLAudioElement }>({});
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const slideshowTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -381,6 +382,33 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [slideshowActive]);
 
+  const downloadFile = async (url: string, filename: string) => {
+    try {
+      // Fetch as blob for iOS Safari compatibility
+      const response = await fetch(url);
+      const blob = await response.blob();
+      
+      // Create object URL and trigger download
+      const blobUrl = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      // Clean up blob URL
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
+    } catch (error) {
+      console.error('Download failed:', error);
+      toast({
+        title: 'Download Failed',
+        description: 'Unable to download file',
+        variant: 'destructive',
+      });
+    }
+  };
+
   const handleShareGallery = async () => {
     const { data: gallery } = await supabase
       .from('galleries' as any)
@@ -585,8 +613,20 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
                   {photos.map((photo, index) => (
                     <div 
                       key={photo.id} 
-                      className="relative group cursor-pointer overflow-hidden rounded-sm aspect-square bg-black"
-                      onDoubleClick={() => openLightbox(photos, index)}
+                      className={`relative group cursor-pointer overflow-hidden rounded-sm aspect-square bg-black ${
+                        selectedItemId === photo.id ? 'ring-4 ring-blue-500' : ''
+                      }`}
+                      onClick={() => setSelectedItemId(photo.id)}
+                      onDoubleClick={() => {
+                        setSelectedItemId(null);
+                        openLightbox(photos, index);
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && selectedItemId === photo.id) {
+                          openLightbox(photos, index);
+                        }
+                      }}
+                      tabIndex={0}
                     >
                       <img
                         src={getImageUrl(photo)}
@@ -601,14 +641,21 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
                         <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                           {/* Download Button - Bottom Left */}
                           <button
-                            onClick={(e) => {
+                            onClick={async (e) => {
+                              e.preventDefault();
                               e.stopPropagation();
-                              const link = document.createElement('a');
-                              link.href = getImageUrl(photo);
-                              link.download = `photo-${photo.id}.jpg`;
-                              link.click();
+                              
+                              const filename = generateMediaFilename({
+                                seqNumber: photo.seq_number || 0,
+                                type: 'Photo',
+                                albumTitle: galleryTitle,
+                                mimeType: photo.mime_type,
+                                fileUrl: photo.file_url
+                              });
+                              
+                              await downloadFile(getImageUrl(photo), filename);
                             }}
-                            className="absolute bottom-2 left-2 w-8 h-8 rounded-full bg-white/90 hover:bg-white flex items-center justify-center transition-colors"
+                            className="absolute bottom-2 left-2 w-8 h-8 rounded-full bg-white/90 hover:bg-white flex items-center justify-center transition-colors z-10"
                             aria-label="Download photo"
                           >
                             <Download className="w-4 h-4 text-gray-800" />
@@ -617,6 +664,7 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
                           {/* Share Button - Bottom Right */}
                           <button
                             onClick={(e) => {
+                              e.preventDefault();
                               e.stopPropagation();
                               handleShareGallery();
                             }}
@@ -643,8 +691,20 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
                   {videos.map((video, index) => (
                     <div 
                       key={video.id} 
-                      className="relative group cursor-pointer overflow-hidden rounded-sm aspect-video bg-black"
-                      onDoubleClick={() => openLightbox(videos, index)}
+                      className={`relative group cursor-pointer overflow-hidden rounded-sm aspect-video bg-black ${
+                        selectedItemId === video.id ? 'ring-4 ring-blue-500' : ''
+                      }`}
+                      onClick={() => setSelectedItemId(video.id)}
+                      onDoubleClick={() => {
+                        setSelectedItemId(null);
+                        openLightbox(videos, index);
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && selectedItemId === video.id) {
+                          openLightbox(videos, index);
+                        }
+                      }}
+                      tabIndex={0}
                     >
                       {video.thumbnail_url ? (
                         <img
@@ -670,6 +730,7 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
                           {/* Download Button - Bottom Left */}
                           <button
                             onClick={async (e) => {
+                              e.preventDefault();
                               e.stopPropagation();
                               
                               // Generate sequential filename
@@ -695,10 +756,7 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
                               }
                               
                               if (videoUrl) {
-                                const link = document.createElement('a');
-                                link.href = videoUrl;
-                                link.download = filename;
-                                link.click();
+                                await downloadFile(videoUrl, filename);
                               }
                             }}
                             className="absolute bottom-2 left-2 w-8 h-8 rounded-full bg-white/90 hover:bg-white flex items-center justify-center transition-colors z-10"
@@ -710,6 +768,7 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
                           {/* Share Button - Bottom Right (pushed left to avoid play icon) */}
                           <button
                             onClick={(e) => {
+                              e.preventDefault();
                               e.stopPropagation();
                               handleShareGallery();
                             }}
