@@ -196,7 +196,7 @@ async function processExport(
           if (!downloadError && fileData) {
             const seqPadded = String(item.seq_number || ++photoCount).padStart(6, '0');
             const ext = item.mime_type?.split('/')[1] || 'jpg';
-            const filename = `${seqPadded}-Photo-(Event Name)${albumTitle}.${ext}`;
+            const filename = `${seqPadded}-Photo-${albumTitle}.${ext}`;
             photosFolder?.file(filename, await fileData.arrayBuffer());
             itemData.exported_filename = `1_Photos/${filename}`;
 
@@ -219,7 +219,7 @@ async function processExport(
           if (!downloadError && fileData) {
             const seqPadded = String(item.seq_number || ++videoCount).padStart(6, '0');
             const ext = item.mime_type?.split('/')[1] || 'mp4';
-            const filename = `${seqPadded}-Video-(Event Name)${albumTitle}.${ext}`;
+            const filename = `${seqPadded}-Video-${albumTitle}.${ext}`;
             videosFolder?.file(filename, await fileData.arrayBuffer());
             itemData.exported_filename = `2_Videos/${filename}`;
 
@@ -250,7 +250,7 @@ async function processExport(
             if (thumbnailResponse.ok) {
               const thumbnailBlob = await thumbnailResponse.arrayBuffer();
               const seqPadded = String(item.seq_number || videoCount).padStart(6, '0');
-              const thumbnailFilename = `${seqPadded}-Video-Thumbnail-(Event Name)${albumTitle}.jpg`;
+              const thumbnailFilename = `${seqPadded}-Video-Thumbnail-${albumTitle}.jpg`;
               videosFolder?.file(thumbnailFilename, thumbnailBlob);
             }
           } catch (err) {
@@ -261,7 +261,7 @@ async function processExport(
 
       if (item.post_type === 'text' && item.text_content) {
         const seqPadded = String(item.seq_number || ++textCount).padStart(6, '0');
-        const filename = `${seqPadded}-Guest Book-(Event Name)${albumTitle}.txt`;
+        const filename = `${seqPadded}-Guest Book-${albumTitle}.txt`;
         messagesFolder?.file(filename, item.text_content);
         itemData.exported_filename = `3_Guest_Book_Messages/${filename}`;
       }

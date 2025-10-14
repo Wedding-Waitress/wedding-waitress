@@ -51,7 +51,7 @@ export function generateMediaFilename(params: MediaFileNameParams): string {
   }
   
   // Compose filename with exact album title (preserve spaces, apostrophes, ampersands)
-  return `${seqPadded}-${type}-(Event Name)${albumTitle}.${ext}`;
+  return `${seqPadded}-${type}-${albumTitle}.${ext}`;
 }
 
 /**
