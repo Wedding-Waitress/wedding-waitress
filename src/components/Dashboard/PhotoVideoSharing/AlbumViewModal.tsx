@@ -901,6 +901,7 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
         items={lightboxItems}
         initialIndex={lightboxIndex}
         onShareGallery={handleShareGallery}
+        galleryId={galleryId}
       />
 
       {/* Slideshow Dialog */}
