@@ -483,30 +483,7 @@ export const MediaLightbox: React.FC<MediaLightboxProps> = ({
                 <ChevronLeft className="w-6 h-6" />
               </Button>
 
-              {/* View Mode Toggle (Photos Only) */}
-              {isPhoto && imageNeedsToggle && (
-                <div className="flex flex-col items-center gap-1">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-white hover:bg-white/20 rounded-full px-3"
-                    onClick={toggleViewMode}
-                  >
-                    {viewMode === 'true-size' ? (
-                      <>
-                        <ZoomOut className="w-4 h-4 mr-2" />
-                        Fit Screen
-                      </>
-                    ) : (
-                      <>
-                        <ZoomIn className="w-4 h-4 mr-2" />
-                        Actual Size
-                      </>
-                    )}
-                  </Button>
-                  <span className="text-white/70 text-xs">Press Z</span>
-                </div>
-              )}
+              {/* View Mode Toggle removed - Z key still works */}
 
               {/* Counter */}
               <div className="text-white text-sm">
@@ -528,18 +505,6 @@ export const MediaLightbox: React.FC<MediaLightboxProps> = ({
 
           {/* Action Buttons (Download & Share) */}
           <div className="absolute bottom-6 right-6 z-20 flex gap-3 animate-fade-in">
-            {/* Share Gallery Button (if handler provided) */}
-            {onShareGallery && (
-              <Button
-                size="icon"
-                className="w-11 h-11 min-h-[44px] min-w-[44px] rounded-full bg-white/90 hover:bg-white text-primary shadow-lg hover:shadow-xl transition-all"
-                onClick={onShareGallery}
-                title="Share Gallery"
-              >
-                <Share2 className="w-5 h-5" />
-              </Button>
-            )}
-
             {/* Download Button */}
             <Button
               size="icon"
