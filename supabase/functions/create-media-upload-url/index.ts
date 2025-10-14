@@ -223,10 +223,25 @@ serve(async (req) => {
       .eq('slug', gallerySlug)
       .single();
 
+    // Enhanced error logging and response
+    console.log('🔍 Gallery lookup result', { 
+      slug_received: gallerySlug, 
+      gallery_found: !!gallery,
+      gallery_id: gallery?.id,
+      is_active: gallery?.is_active,
+      show_public_gallery: gallery?.show_public_gallery,
+      error: galleryError?.message 
+    });
+
     if (galleryError || !gallery) {
-      console.error('Gallery not found:', galleryError);
+      console.error('❌ Gallery not found or error:', galleryError);
       return new Response(
-        JSON.stringify({ error: 'Gallery not found' }),
+        JSON.stringify({ 
+          error: 'Gallery not found',
+          slug_received: gallerySlug,
+          details: galleryError?.message ?? 'No gallery matches this identifier',
+          troubleshooting: 'Verify the QR code or album link is correct'
+        }),
         { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -275,7 +290,23 @@ serve(async (req) => {
         );
       }
 
-      console.log('Upload URL created successfully:', filePath);
+      // Ensure token is never empty for standard uploads
+      if (!uploadData.token) {
+        console.error('❌ Token generation failed');
+        return new Response(
+          JSON.stringify({ 
+            error: 'Failed to generate upload credentials',
+            details: 'Token was not returned from storage',
+          }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      console.log('✅ Upload URL created successfully:', { 
+        file_path: filePath,
+        has_token: !!uploadData.token,
+        gallery_id: gallery.id 
+      });
 
       return new Response(
         JSON.stringify({
@@ -284,6 +315,7 @@ serve(async (req) => {
           token: uploadData.token,
           gallery_id: gallery.id,
           content_type: targetContentType,
+          use_multipart: false, // Explicitly set for clarity
         }),
         {
           status: 200,

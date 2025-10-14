@@ -43,7 +43,7 @@ interface EventData {
 type FlowStep = 'landing' | 'add' | 'preview' | 'uploading' | 'success';
 
 export const GuestMediaUpload: React.FC = () => {
-  const { eventSlug } = useParams<{ eventSlug: string }>();
+  const { gallerySlug } = useParams<{ gallerySlug: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -65,7 +65,7 @@ export const GuestMediaUpload: React.FC = () => {
     status: chunkedStatus,
     retryFailedChunks
   } = useChunkedUpload({
-    gallerySlug: eventSlug || '',
+    gallerySlug: gallerySlug || '',
     onComplete: (mediaId) => {
       console.log('Chunked upload complete:', mediaId);
     },
@@ -126,11 +126,11 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
   }, []);
 
   useEffect(() => {
-    if (eventSlug) {
+    if (gallerySlug) {
       fetchEventData();
       generateOrGetToken();
     }
-  }, [eventSlug]);
+  }, [gallerySlug]);
 
   // Set page title
   useEffect(() => {
@@ -141,16 +141,16 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
 
   const fetchEventData = async () => {
     try {
-      console.log('🔍 Fetching gallery data for slug:', eventSlug);
+      console.log('🔍 Fetching gallery data for slug:', gallerySlug);
       
       const { data: gallery } = await supabase
         .from('galleries' as any)
         .select('id, title, show_footer, show_public_gallery, is_active, event_date')
-        .eq('slug', eventSlug)
+        .eq('slug', gallerySlug)
         .maybeSingle();
 
       if (!gallery) {
-        console.error('❌ Gallery not found for slug:', eventSlug);
+        console.error('❌ Gallery not found for slug:', gallerySlug);
         throw new Error('Gallery not found');
       }
 
@@ -177,14 +177,14 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
         event_display_name: (gallery as any).title,
         date: (gallery as any).event_date || new Date().toISOString().split('T')[0],
         event_date_override: null,
-        slug: eventSlug!,
+        slug: gallerySlug!,
       };
       
       // Try to fetch event data for display purposes, but don't fail if not found
       const { data: eventDataFromDB } = await supabase
         .from('events')
         .select('*')
-        .eq('slug', eventSlug)
+        .eq('slug', gallerySlug)
         .maybeSingle();
 
       // Use event data if found, otherwise use fallback from gallery
@@ -205,7 +205,7 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
   };
 
   const generateOrGetToken = () => {
-    const storageKey = `guest_token_${eventSlug}`;
+    const storageKey = `guest_token_${gallerySlug}`;
     let existingToken = localStorage.getItem(storageKey);
     
     if (!existingToken) {
@@ -581,6 +581,37 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
   const uploadMediaFile = async (item: MediaItem) => {
     if (!item.file) return;
 
+    // Guard: Validate required parameters before upload
+    if (!gallerySlug) {
+      console.error('❌ Gallery identifier missing from URL');
+      toast({
+        title: 'Invalid Album Link',
+        description: 'Album link is invalid. Please rescan the QR code.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (!galleryId) {
+      console.error('❌ Gallery ID not loaded');
+      toast({
+        title: 'Upload Error',
+        description: 'Gallery not ready. Please refresh and try again.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // Enhanced logging for upload start
+    console.log('📤 Guest upload starting', {
+      gallerySlug,
+      galleryId,
+      filename: item.file?.name,
+      size: item.file?.size,
+      type: item.file?.type,
+      sizeMB: (item.file?.size || 0) / (1024 * 1024),
+    });
+
     const MAX_RETRIES = 3;
     let retryCount = 0;
 
@@ -591,7 +622,7 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
           filename: item.file.name,
           contentType: item.file.type,
           file_size: item.file.size,
-          gallerySlug: eventSlug,
+          gallerySlug: gallerySlug,
         });
 
         // Check if we should use chunked upload
@@ -599,7 +630,7 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
           'create-media-upload-url',
           {
             body: {
-              gallerySlug: eventSlug,
+              gallerySlug: gallerySlug,
               filename: item.file.name,
               contentType: item.file.type,
               file_size: item.file.size,
@@ -615,7 +646,7 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
             message: urlError.message,
             context: urlError.context,
             request: {
-              gallerySlug: eventSlug,
+              gallerySlug: gallerySlug,
               filename: item.file.name,
               contentType: item.file.type,
               file_size: item.file.size,
@@ -652,14 +683,29 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
           throw new Error('Chunked upload failed');
         }
         return;
+      } else if (!urlData?.file_path || !urlData?.token) {
+        console.error('❌ Invalid upload credentials received', { 
+          urlData,
+          has_file_path: !!urlData?.file_path,
+          has_token: !!urlData?.token,
+          has_signed_url: !!urlData?.signed_url
+        });
+        toast({
+          title: 'Upload Error',
+          description: 'Could not start upload. Please try again or contact support.',
+          variant: 'destructive',
+        });
+        return;
       }
+
+      console.log('✅ Valid upload credentials received', {
+        file_path: urlData.file_path,
+        has_token: true,
+        gallery_id: urlData.gallery_id
+      });
 
       // Standard single-file upload for smaller files
       setIsChunkedUpload(false);
-      
-      if (!urlData.file_path || !urlData.token) {
-        throw new Error('Invalid upload credentials received');
-      }
 
       // Use Supabase's official uploadToSignedUrl method
       const { error: uploadError } = await supabase.storage
@@ -696,7 +742,7 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
             'create-media-upload-url',
             {
               body: {
-                gallerySlug: eventSlug,
+                gallerySlug: gallerySlug,
                 filename: `${item.file.name}_thumb.jpg`,
                 contentType: 'image/jpeg',
                 file_size: thumbnailBlob.size,
@@ -1136,7 +1182,7 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
             <Button
               size="lg"
               className="bg-gradient-to-r from-primary to-purple-600 hover:opacity-90"
-              onClick={() => navigate(`/gallery/${eventSlug}`)}
+              onClick={() => navigate(`/gallery/${gallerySlug}`)}
             >
               View Album
             </Button>
