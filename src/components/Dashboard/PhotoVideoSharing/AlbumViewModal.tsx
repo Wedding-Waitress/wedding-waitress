@@ -689,7 +689,7 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
                               } else if (video.file_url) {
                                 // For direct uploads, use storage URL
                                 const { data } = supabase.storage
-                                  .from('media-uploads')
+                                  .from('event-media')
                                   .getPublicUrl(video.file_url);
                                 videoUrl = data.publicUrl;
                               }
