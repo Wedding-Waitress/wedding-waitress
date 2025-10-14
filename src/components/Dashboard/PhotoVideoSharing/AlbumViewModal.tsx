@@ -7,6 +7,7 @@ import { useToast } from '@/hooks/use-toast';
 import { MediaLightbox } from '@/components/MediaLightbox';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { format } from 'date-fns';
 
 interface AlbumViewModalProps {
   isOpen: boolean;
@@ -56,6 +57,7 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
   const [slideshowActive, setSlideshowActive] = useState(false);
   const [slideshowIndex, setSlideshowIndex] = useState(0);
   const [slideshowPlaying, setSlideshowPlaying] = useState(true);
+  const [eventDate, setEventDate] = useState<string | null>(null);
   const audioRefs = useRef<{ [key: string]: HTMLAudioElement }>({});
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const slideshowTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -70,6 +72,19 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
   const fetchGalleryContent = async () => {
     setLoading(true);
     try {
+      // Fetch gallery info including event_date
+      const { data: galleryData, error: galleryError } = await supabase
+        .from('galleries')
+        .select('event_date')
+        .eq('id', galleryId)
+        .single();
+
+      if (galleryError) {
+        console.error('Error fetching gallery:', galleryError);
+      } else if (galleryData?.event_date) {
+        setEventDate(galleryData.event_date);
+      }
+
       // Fetch media uploads
       const { data, error } = await supabase
         .from('media_uploads')
@@ -117,6 +132,27 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
       : item.file_url;
     
     return supabase.storage.from('event-media').getPublicUrl(filePath).data.publicUrl;
+  };
+
+  const formatEventDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const dayName = format(date, 'EEEE'); // Full day name
+    const day = format(date, 'd'); // Day number
+    const month = format(date, 'MMMM'); // Full month name
+    const year = format(date, 'yyyy'); // Full year
+    
+    // Add ordinal suffix (st, nd, rd, th)
+    const getOrdinalSuffix = (day: number) => {
+      if (day > 3 && day < 21) return 'th';
+      switch (day % 10) {
+        case 1: return 'st';
+        case 2: return 'nd';
+        case 3: return 'rd';
+        default: return 'th';
+      }
+    };
+    
+    return `${dayName} ${day}${getOrdinalSuffix(parseInt(day))}, ${month} ${year}`;
   };
 
   const openLightbox = (items: MediaItem[], index: number) => {
@@ -266,7 +302,14 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
         className="max-w-[90vw] max-h-[90vh] overflow-y-auto"
       >
         <DialogHeader>
-          <DialogTitle className="text-2xl">{galleryTitle}</DialogTitle>
+          <DialogTitle className="text-2xl flex flex-col gap-1">
+            <span>{galleryTitle}</span>
+            {eventDate && (
+              <span className="text-lg font-normal text-primary">
+                {formatEventDate(eventDate)}
+              </span>
+            )}
+          </DialogTitle>
         </DialogHeader>
 
         {loading ? (
