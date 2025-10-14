@@ -451,6 +451,47 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
     }
   };
 
+  const handleDeleteMedia = async (itemId: string) => {
+    try {
+      // Get the media item to find its file_url
+      const { data: mediaItem, error: fetchError } = await supabase
+        .from('media_uploads')
+        .select('file_url, cloudflare_stream_uid')
+        .eq('id', itemId)
+        .single();
+
+      if (fetchError) throw fetchError;
+
+      // Delete from storage if it's a regular file
+      if (mediaItem.file_url && !mediaItem.cloudflare_stream_uid) {
+        const filePath = mediaItem.file_url.split('/').pop();
+        if (filePath) {
+          await supabase.storage
+            .from('event-media')
+            .remove([filePath]);
+        }
+      }
+
+      // Delete from database
+      const { error: deleteError } = await supabase
+        .from('media_uploads')
+        .delete()
+        .eq('id', itemId);
+
+      if (deleteError) throw deleteError;
+
+      // Update local state to remove the deleted item
+      setPhotos(prev => prev.filter(item => item.id !== itemId));
+      setVideos(prev => prev.filter(item => item.id !== itemId));
+      setMessages(prev => prev.filter(item => item.id !== itemId));
+      setLightboxItems(prev => prev.filter(item => item.id !== itemId));
+
+    } catch (error) {
+      console.error('Error deleting media:', error);
+      throw error;
+    }
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent 
@@ -902,6 +943,8 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
         initialIndex={lightboxIndex}
         onShareGallery={handleShareGallery}
         galleryId={galleryId}
+        canDelete={isOwner}
+        onDelete={handleDeleteMedia}
       />
 
       {/* Slideshow Dialog */}

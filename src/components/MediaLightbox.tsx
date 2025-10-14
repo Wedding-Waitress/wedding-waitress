@@ -1,9 +1,19 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { X, ChevronLeft, ChevronRight, ZoomIn, ZoomOut, Download, Share2 } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight, ZoomIn, ZoomOut, Download, Share2, Trash2 } from 'lucide-react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 interface MediaLightboxProps {
   open: boolean;
@@ -23,6 +33,8 @@ interface MediaLightboxProps {
   onShareGallery?: () => void;
   galleryId?: string;
   onTrackDownload?: (type: 'single' | 'bulk') => void;
+  canDelete?: boolean;
+  onDelete?: (itemId: string) => Promise<void>;
 }
 
 export const MediaLightbox: React.FC<MediaLightboxProps> = ({
@@ -33,6 +45,8 @@ export const MediaLightbox: React.FC<MediaLightboxProps> = ({
   onShareGallery,
   galleryId,
   onTrackDownload,
+  canDelete = false,
+  onDelete,
 }) => {
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const [viewMode, setViewMode] = useState<'true-size' | 'fit-to-screen'>('true-size');
@@ -45,6 +59,8 @@ export const MediaLightbox: React.FC<MediaLightboxProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const imageRef = useRef<HTMLImageElement>(null);
   const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const { toast } = useToast();
 
   const currentItem = items[currentIndex];
@@ -376,6 +392,43 @@ export const MediaLightbox: React.FC<MediaLightboxProps> = ({
     }
   };
 
+  const handleDeleteClick = () => {
+    setShowDeleteConfirm(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!onDelete || !currentItem?.id || isDeleting) return;
+
+    setIsDeleting(true);
+    try {
+      await onDelete(currentItem.id);
+      
+      toast({
+        title: "File deleted successfully",
+        description: "The file has been permanently removed.",
+      });
+
+      setShowDeleteConfirm(false);
+
+      // Navigate to next item or close lightbox
+      if (items.length > 1) {
+        const nextIndex = currentIndex < items.length - 1 ? currentIndex : currentIndex - 1;
+        setCurrentIndex(nextIndex);
+      } else {
+        onClose();
+      }
+    } catch (error) {
+      console.error('Delete failed:', error);
+      toast({
+        title: "Delete failed",
+        description: "Could not delete the file. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   if (!currentItem) return null;
 
   return (
@@ -529,8 +582,20 @@ export const MediaLightbox: React.FC<MediaLightboxProps> = ({
             </div>
           </div>
 
-          {/* Action Buttons (Download & Share) */}
+          {/* Action Buttons (Delete, Download & Share) */}
           <div className="absolute bottom-6 right-6 z-20 flex gap-3 animate-fade-in">
+            {/* Delete Button - Only visible for authorized users */}
+            {canDelete && onDelete && (
+              <Button
+                size="icon"
+                className="w-11 h-11 min-h-[44px] min-w-[44px] rounded-full bg-white hover:bg-red-50 text-[#FF4D4D] shadow-lg hover:shadow-xl transition-all"
+                onClick={handleDeleteClick}
+                title="Delete"
+              >
+                <Trash2 className="w-5 h-5" />
+              </Button>
+            )}
+
             {/* Download Button */}
             <Button
               size="icon"
@@ -553,6 +618,28 @@ export const MediaLightbox: React.FC<MediaLightboxProps> = ({
           </div>
         </div>
       </DialogContent>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this {isVideo ? 'video' : 'photo'}?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this {isVideo ? 'video' : 'photo'}? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteConfirm}
+              disabled={isDeleting}
+              className="bg-[#FF4D4D] hover:bg-[#FF3333] text-white"
+            >
+              {isDeleting ? 'Deleting...' : 'Delete'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Dialog>
   );
 };
