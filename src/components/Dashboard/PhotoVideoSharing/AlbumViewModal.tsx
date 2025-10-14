@@ -8,6 +8,7 @@ import { MediaLightbox } from '@/components/MediaLightbox';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { format } from 'date-fns';
+import logoImage from '@/assets/wedding-waitress-logo.png';
 
 interface AlbumViewModalProps {
   isOpen: boolean;
@@ -62,23 +63,54 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
   const [downloadingZip, setDownloadingZip] = useState(false);
   const [loadProgress, setLoadProgress] = useState(0);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const [loadingMessage, setLoadingMessage] = useState('Preparing your memories…');
+  const [totalItems, setTotalItems] = useState(0);
+  const [loadedItems, setLoadedItems] = useState(0);
   const audioRefs = useRef<{ [key: string]: HTMLAudioElement }>({});
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const slideshowTimerRef = useRef<NodeJS.Timeout | null>(null);
   const { toast } = useToast();
 
+  // Rotating loading messages
+  const loadingMessages = [
+    'Preparing your memories…',
+    'Loading your special moments…',
+    'Almost there…',
+    'Gathering beautiful photos…',
+    'Just a moment…',
+    'Making everything perfect…'
+  ];
+
   useEffect(() => {
     if (isOpen && galleryId) {
+      setIsInitialLoad(true);
+      setLoadProgress(0);
+      setLoadedItems(0);
       fetchGalleryContent();
     }
   }, [isOpen, galleryId]);
 
+  // Rotate loading messages
+  useEffect(() => {
+    if (loading && isInitialLoad) {
+      const interval = setInterval(() => {
+        setLoadingMessage(prev => {
+          const currentIndex = loadingMessages.indexOf(prev);
+          const nextIndex = (currentIndex + 1) % loadingMessages.length;
+          return loadingMessages[nextIndex];
+        });
+      }, 2500);
+      return () => clearInterval(interval);
+    }
+  }, [loading, isInitialLoad]);
+
   const fetchGalleryContent = async () => {
     setLoading(true);
     setLoadProgress(0);
+    setLoadedItems(0);
     try {
       // Simulate progress
-      setLoadProgress(20);
+      setLoadProgress(10);
       
       // Fetch gallery info including event_date and owner_id
       const { data: galleryData, error: galleryError } = await supabase
@@ -99,7 +131,7 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
         setIsOwner(user?.id === galleryData.owner_id);
       }
       
-      setLoadProgress(50);
+      setLoadProgress(30);
 
       // Fetch media uploads
       const { data, error } = await supabase
@@ -110,19 +142,27 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
 
       if (error) throw error;
 
-      setLoadProgress(75);
+      setLoadProgress(60);
 
       if (data) {
-        setPhotos(data.filter((item: MediaItem) => 
+        const photosData = data.filter((item: MediaItem) => 
           item.mime_type?.startsWith('image/') || item.post_type === 'photo'
-        ));
-        setVideos(data.filter((item: MediaItem) => 
+        );
+        const videosData = data.filter((item: MediaItem) => 
           item.mime_type?.startsWith('video/') || item.post_type === 'video'
-        ));
-        setMessages(data.filter((item: MediaItem) => item.post_type === 'text'));
+        );
+        const messagesData = data.filter((item: MediaItem) => item.post_type === 'text');
+        
+        setPhotos(photosData);
+        setVideos(videosData);
+        setMessages(messagesData);
+        
+        const total = photosData.length + videosData.length + messagesData.length;
+        setTotalItems(total);
+        setLoadedItems(total);
       }
 
-      setLoadProgress(90);
+      setLoadProgress(85);
 
       // Fetch audio guestbook messages
       const { data: audioData, error: audioError } = await supabase
@@ -135,6 +175,8 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
         console.error('Error fetching audio:', audioError);
       } else if (audioData) {
         setAudioMessages((audioData as any) || []);
+        setTotalItems(prev => prev + ((audioData as any)?.length || 0));
+        setLoadedItems(prev => prev + ((audioData as any)?.length || 0));
       }
       
       setLoadProgress(100);
@@ -142,16 +184,22 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
       // Keep showing 100% briefly before fade out
       setTimeout(() => {
         setIsInitialLoad(false);
-      }, 500);
+      }, 800);
     } catch (error) {
       console.error('Error fetching gallery content:', error);
       setLoadProgress(100);
       setTimeout(() => {
         setIsInitialLoad(false);
-      }, 500);
+      }, 800);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleCancelLoading = () => {
+    setIsInitialLoad(false);
+    setLoading(false);
+    onClose();
   };
 
   const getImageUrl = (item: MediaItem) => {
@@ -387,58 +435,85 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
         </DialogHeader>
 
         <>
-          {/* Loading Album Overlay - Only on initial load */}
+          {/* Cinematic Loading Album Overlay - Only on initial load */}
           {loading && isInitialLoad && (
-            <div className="mb-6 p-6 bg-gradient-to-r from-primary/5 to-primary/10 rounded-xl border border-primary/20 shadow-soft animate-fade-in">
-              <div className="flex items-center gap-6">
-                {/* Circular Progress Loader */}
-                <div className="relative flex-shrink-0">
-                  <svg className="w-16 h-16 transform -rotate-90" viewBox="0 0 64 64">
-                    {/* Background circle */}
-                    <circle
-                      cx="32"
-                      cy="32"
-                      r="28"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                      className="text-gray-200"
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-md animate-fade-in">
+              <div className="relative flex flex-col items-center gap-8 p-8 max-w-md w-full mx-4">
+                {/* Pulsing Wedding Waitress Logo */}
+                <div className="relative">
+                  <div className="absolute inset-0 bg-primary/20 rounded-full blur-2xl animate-pulse" />
+                  <img 
+                    src={logoImage} 
+                    alt="Wedding Waitress" 
+                    className="relative w-20 h-20 object-contain animate-pulse"
+                    style={{ animationDuration: '2s' }}
+                  />
+                </div>
+
+                {/* Progress Section */}
+                <div className="w-full space-y-4">
+                  {/* Rotating Message */}
+                  <h3 className="text-xl font-semibold text-center text-foreground transition-all duration-500 animate-fade-in">
+                    {loadingMessage}
+                  </h3>
+                  
+                  {/* Dynamic Counter */}
+                  {totalItems > 0 && (
+                    <p className="text-sm text-center text-muted-foreground animate-fade-in">
+                      Loading {loadedItems} of {totalItems} {totalItems === 1 ? 'item' : 'items'}…
+                    </p>
+                  )}
+
+                  {/* Gradient Progress Bar */}
+                  <div className="relative w-full h-3 bg-secondary/50 rounded-full overflow-hidden shadow-inner">
+                    <div 
+                      className="absolute inset-y-0 left-0 rounded-full transition-all duration-500 ease-out"
+                      style={{
+                        width: `${loadProgress}%`,
+                        background: 'linear-gradient(90deg, #6D28D9 0%, #EC4899 100%)',
+                        boxShadow: '0 0 20px rgba(109, 40, 217, 0.5), 0 0 40px rgba(236, 72, 153, 0.3)'
+                      }}
                     />
-                    {/* Progress circle */}
-                    <circle
-                      cx="32"
-                      cy="32"
-                      r="28"
-                      fill="none"
-                      stroke="#6D28D9"
-                      strokeWidth="4"
-                      strokeDasharray={`${(loadProgress / 100) * 175.93} 175.93`}
-                      strokeLinecap="round"
-                      className="transition-all duration-500 ease-out"
-                    />
-                  </svg>
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-sm font-semibold text-primary">
+                  </div>
+
+                  {/* Progress Percentage */}
+                  <div className="flex items-center justify-center gap-2">
+                    <span className="text-2xl font-bold text-primary">
                       {loadProgress}%
                     </span>
                   </div>
+
+                  {/* Album Name */}
+                  <div className="text-center mt-4">
+                    <p className="text-base font-medium text-primary/80">
+                      {galleryTitle}
+                    </p>
+                    {eventDate && (
+                      <p className="text-sm text-muted-foreground mt-1">
+                        {formatEventDate(eventDate)}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Cancel Loading Link */}
+                  <div className="text-center mt-6">
+                    <button
+                      onClick={handleCancelLoading}
+                      className="text-sm text-muted-foreground hover:text-foreground transition-colors underline-offset-4 hover:underline"
+                    >
+                      Cancel Loading
+                    </button>
+                  </div>
                 </div>
-                
-                {/* Loading Text */}
-                <div className="flex-1">
-                  <h3 className="text-lg font-semibold text-foreground mb-1">
-                    Loading Album…
-                  </h3>
-                  <p className="text-sm text-primary font-medium">
-                    {galleryTitle}
-                  </p>
-                </div>
+
+                {/* Decorative glow effect */}
+                <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 w-64 h-32 bg-gradient-to-t from-primary/10 to-transparent blur-3xl pointer-events-none" />
               </div>
             </div>
           )}
 
           {/* Content area with fade-in when loading completes */}
-          <div className={`transition-opacity duration-700 ${loading && isInitialLoad ? 'opacity-0' : 'opacity-100'}`}>
+          <div className={`transition-opacity duration-1000 ease-out ${loading && isInitialLoad ? 'opacity-0' : 'opacity-100'}`}>
             {/* Owner Actions - Only visible to gallery owner */}
             {isOwner && photos.length > 0 && (
               <div className="mb-4 flex flex-wrap gap-2 justify-end">
