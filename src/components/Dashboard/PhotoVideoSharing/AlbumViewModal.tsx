@@ -52,7 +52,9 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [lightboxItems, setLightboxItems] = useState<any[]>([]);
   const [playingAudioId, setPlayingAudioId] = useState<string | null>(null);
+  const [scrollPosition, setScrollPosition] = useState(0);
   const audioRefs = useRef<{ [key: string]: HTMLAudioElement }>({});
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -114,6 +116,11 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
   };
 
   const openLightbox = (items: MediaItem[], index: number) => {
+    // Save current scroll position
+    if (scrollContainerRef.current) {
+      setScrollPosition(scrollContainerRef.current.scrollTop);
+    }
+    
     const formattedItems = items.map(item => ({
       id: item.id,
       type: item.post_type === 'photo' ? 'photo' : 'video',
@@ -126,6 +133,16 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
     setLightboxItems(formattedItems);
     setLightboxIndex(index);
     setLightboxOpen(true);
+  };
+
+  const closeLightbox = () => {
+    setLightboxOpen(false);
+    // Restore scroll position after lightbox closes
+    setTimeout(() => {
+      if (scrollContainerRef.current) {
+        scrollContainerRef.current.scrollTop = scrollPosition;
+      }
+    }, 50);
   };
 
   const handleShareGallery = async () => {
@@ -172,7 +189,10 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-[90vw] max-h-[90vh] overflow-y-auto">
+      <DialogContent 
+        ref={scrollContainerRef}
+        className="max-w-[90vw] max-h-[90vh] overflow-y-auto"
+      >
         <DialogHeader>
           <DialogTitle className="text-2xl">{galleryTitle}</DialogTitle>
         </DialogHeader>
@@ -213,7 +233,7 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
                     <div 
                       key={photo.id} 
                       className="relative group cursor-pointer overflow-hidden rounded-sm aspect-square bg-black"
-                      onClick={() => openLightbox(photos, index)}
+                      onDoubleClick={() => openLightbox(photos, index)}
                     >
                       <img
                         src={getImageUrl(photo)}
@@ -271,7 +291,7 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
                     <div 
                       key={video.id} 
                       className="relative group cursor-pointer overflow-hidden rounded-sm aspect-video bg-black"
-                      onClick={() => openLightbox(videos, index)}
+                      onDoubleClick={() => openLightbox(videos, index)}
                     >
                       {video.thumbnail_url ? (
                         <img
@@ -439,7 +459,7 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
       {/* Media Lightbox */}
       <MediaLightbox
         open={lightboxOpen}
-        onClose={() => setLightboxOpen(false)}
+        onClose={closeLightbox}
         items={lightboxItems}
         initialIndex={lightboxIndex}
         onShareGallery={handleShareGallery}
