@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Image, Video, MessageSquare, Loader2, Phone, Play, Pause, Download, Share2 } from 'lucide-react';
+import { Image, Video, MessageSquare, Loader2, Phone, Play, Pause, Download, Share2, Presentation, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { MediaLightbox } from '@/components/MediaLightbox';
@@ -53,8 +53,12 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
   const [lightboxItems, setLightboxItems] = useState<any[]>([]);
   const [playingAudioId, setPlayingAudioId] = useState<string | null>(null);
   const [scrollPosition, setScrollPosition] = useState(0);
+  const [slideshowActive, setSlideshowActive] = useState(false);
+  const [slideshowIndex, setSlideshowIndex] = useState(0);
+  const [slideshowPlaying, setSlideshowPlaying] = useState(true);
   const audioRefs = useRef<{ [key: string]: HTMLAudioElement }>({});
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const slideshowTimerRef = useRef<NodeJS.Timeout | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -145,6 +149,74 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
     }, 50);
   };
 
+  const startSlideshow = () => {
+    if (photos.length === 0) return;
+    setSlideshowIndex(0);
+    setSlideshowActive(true);
+    setSlideshowPlaying(true);
+  };
+
+  const stopSlideshow = () => {
+    setSlideshowActive(false);
+    setSlideshowPlaying(false);
+    if (slideshowTimerRef.current) {
+      clearTimeout(slideshowTimerRef.current);
+    }
+  };
+
+  const toggleSlideshowPlayPause = () => {
+    setSlideshowPlaying(!slideshowPlaying);
+  };
+
+  const nextSlide = () => {
+    setSlideshowIndex((prev) => (prev + 1) % photos.length);
+  };
+
+  const previousSlide = () => {
+    setSlideshowIndex((prev) => (prev - 1 + photos.length) % photos.length);
+  };
+
+  // Auto-advance slideshow
+  useEffect(() => {
+    if (slideshowActive && slideshowPlaying && photos.length > 0) {
+      slideshowTimerRef.current = setTimeout(() => {
+        nextSlide();
+      }, 5000); // 5 seconds per photo
+
+      return () => {
+        if (slideshowTimerRef.current) {
+          clearTimeout(slideshowTimerRef.current);
+        }
+      };
+    }
+  }, [slideshowActive, slideshowPlaying, slideshowIndex, photos.length]);
+
+  // Keyboard controls for slideshow
+  useEffect(() => {
+    if (!slideshowActive) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      switch (e.key) {
+        case 'Escape':
+          stopSlideshow();
+          break;
+        case 'ArrowLeft':
+          previousSlide();
+          break;
+        case 'ArrowRight':
+          nextSlide();
+          break;
+        case ' ':
+          e.preventDefault();
+          toggleSlideshowPlayPause();
+          break;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [slideshowActive]);
+
   const handleShareGallery = async () => {
     const { data: gallery } = await supabase
       .from('galleries' as any)
@@ -228,7 +300,20 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
                   No photos yet
                 </div>
               ) : (
-                <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-1">
+                <>
+                  {/* Slideshow Button */}
+                  <div className="mb-4 flex justify-end">
+                    <Button
+                      onClick={startSlideshow}
+                      className="gap-2"
+                      variant="outline"
+                    >
+                      <Presentation className="w-4 h-4" />
+                      Start Slideshow
+                    </Button>
+                  </div>
+
+                  <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-1">
                   {photos.map((photo, index) => (
                     <div 
                       key={photo.id} 
@@ -275,8 +360,9 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
                         </div>
                       </div>
                     </div>
-                  ))}
-                </div>
+                   ))}
+                  </div>
+                </>
               )}
             </TabsContent>
 
@@ -464,6 +550,84 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
         initialIndex={lightboxIndex}
         onShareGallery={handleShareGallery}
       />
+
+      {/* Slideshow Dialog */}
+      {slideshowActive && (
+        <Dialog open={slideshowActive} onOpenChange={stopSlideshow}>
+          <DialogContent className="max-w-full w-full h-full p-0 bg-black border-0">
+            <div className="relative w-full h-full flex items-center justify-center animate-fade-in">
+              {/* Close Button */}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute top-4 right-4 z-50 text-white hover:bg-white/20 rounded-full w-12 h-12"
+                onClick={stopSlideshow}
+              >
+                <X className="w-6 h-6" />
+              </Button>
+
+              {/* Current Photo */}
+              <img
+                src={getImageUrl(photos[slideshowIndex])}
+                alt={photos[slideshowIndex]?.caption || 'Slideshow photo'}
+                className="max-w-full max-h-full object-contain animate-fade-in"
+                key={slideshowIndex}
+              />
+
+              {/* Left Navigation Arrow */}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute left-4 top-1/2 -translate-y-1/2 z-40 w-16 h-16 text-white bg-black/30 hover:bg-black/50 rounded-full transition-all"
+                onClick={previousSlide}
+              >
+                <ChevronLeft className="w-10 h-10" />
+              </Button>
+
+              {/* Right Navigation Arrow */}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute right-4 top-1/2 -translate-y-1/2 z-40 w-16 h-16 text-white bg-black/30 hover:bg-black/50 rounded-full transition-all"
+                onClick={nextSlide}
+              >
+                <ChevronRight className="w-10 h-10" />
+              </Button>
+
+              {/* Bottom Controls */}
+              <div className="absolute bottom-6 left-0 right-0 z-40 flex items-center justify-center gap-4">
+                {/* Play/Pause Button */}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="w-12 h-12 text-white bg-black/50 hover:bg-black/70 rounded-full"
+                  onClick={toggleSlideshowPlayPause}
+                >
+                  {slideshowPlaying ? (
+                    <Pause className="w-6 h-6" />
+                  ) : (
+                    <Play className="w-6 h-6 ml-1" />
+                  )}
+                </Button>
+
+                {/* Counter */}
+                <div className="text-white text-sm font-medium bg-black/50 px-4 py-2 rounded-full">
+                  {slideshowIndex + 1} / {photos.length}
+                </div>
+              </div>
+
+              {/* Caption */}
+              {photos[slideshowIndex]?.caption && (
+                <div className="absolute bottom-20 left-0 right-0 z-40 text-center">
+                  <p className="text-white text-lg font-medium bg-black/50 px-6 py-3 rounded-full inline-block max-w-2xl">
+                    {photos[slideshowIndex].caption}
+                  </p>
+                </div>
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </Dialog>
   );
 };
