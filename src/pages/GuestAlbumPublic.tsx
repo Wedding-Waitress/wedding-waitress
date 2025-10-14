@@ -16,6 +16,7 @@ import { MediaLightbox } from '@/components/MediaLightbox';
 import { ShareAlbumModal } from '@/components/ShareAlbumModal';
 import { AlbumMetaTags } from '@/components/AlbumMetaTags';
 import { useTrackAnalytics } from '@/hooks/useTrackAnalytics';
+import { AlbumViewModal } from '@/components/Dashboard/PhotoVideoSharing/AlbumViewModal';
 import weddingWaitressLogo from '@/assets/wedding-waitress-badge-logo.png';
 
 // Lazy load TextPostModal and AudioRecorderModal for better initial page performance
@@ -89,6 +90,7 @@ export const GuestAlbumPublic: React.FC = () => {
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [shareModalOpen, setShareModalOpen] = useState(false);
+  const [albumViewerOpen, setAlbumViewerOpen] = useState(false);
   const { trackEvent } = useTrackAnalytics();
   const [hasTrackedView, setHasTrackedView] = useState(false);
 
@@ -608,6 +610,27 @@ export const GuestAlbumPublic: React.FC = () => {
         fileInputRef.current.value = '';
       }
     }
+  };
+
+  const handleViewAlbum = (e: React.MouseEvent) => {
+    e.preventDefault();
+    
+    if (!galleryData?.id) {
+      toast({
+        title: 'Album not found',
+        description: 'Unable to open album viewer',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // Track album view
+    analytics.track('album_view_opened', {
+      gallery_id: galleryData.id,
+      source: 'guest_landing',
+    });
+
+    setAlbumViewerOpen(true);
   };
 
   const handleTextPostSubmit = (data: { textContent: string; themeId: string }) => {
@@ -1217,7 +1240,7 @@ export const GuestAlbumPublic: React.FC = () => {
                 size="lg"
                 variant="outline"
                 className="text-xl px-12 py-8 rounded-2xl bg-white/90 hover:bg-white"
-                onClick={() => setViewMode('gallery')}
+                onClick={handleViewAlbum}
               >
                 View Album
               </Button>
@@ -1248,7 +1271,7 @@ export const GuestAlbumPublic: React.FC = () => {
                       <div
                         key={item.id}
                         className="snap-start shrink-0 cursor-pointer transition-transform hover:scale-105"
-                       onClick={() => setViewMode('gallery')}
+                       onClick={handleViewAlbum}
                       >
                         <div className="w-32 h-32 md:w-40 md:h-40 rounded-lg shadow-md overflow-hidden bg-muted">
                           {item.post_type === 'photo' && item.file_url ? (
@@ -1549,10 +1572,7 @@ export const GuestAlbumPublic: React.FC = () => {
               <Button
                 size="lg"
                 className="bg-gradient-to-r from-primary to-purple-600 hover:opacity-90"
-                onClick={() => {
-                  setViewMode('gallery');
-                  setFlowStep('landing');
-                }}
+                onClick={handleViewAlbum}
               >
                 View Album
               </Button>
@@ -1808,6 +1828,16 @@ export const GuestAlbumPublic: React.FC = () => {
         galleryUrl={`${window.location.origin}/a/${gallerySlug}`}
         galleryTitle={galleryData?.title || 'Album'}
       />
+
+      {/* Album Viewer Modal */}
+      {galleryData && (
+        <AlbumViewModal
+          isOpen={albumViewerOpen}
+          onClose={() => setAlbumViewerOpen(false)}
+          galleryId={galleryData.id}
+          galleryTitle={galleryData.title}
+        />
+      )}
     </div>
   );
 };
