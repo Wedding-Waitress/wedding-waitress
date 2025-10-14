@@ -485,26 +485,40 @@ export const GuestAlbumPublic: React.FC = () => {
           try {
             console.log(`Processing ${file.name} (${file.type})`);
             
-            // Detect video by type OR extension (iOS sometimes gives empty type)
+            // Detect video by type OR extension (iOS/Android sometimes gives empty type)
             const isVideo = file.type.startsWith('video/') || 
-                           file.name.match(/\.(mov|mp4|m4v|webm)$/i);
+                           file.name.match(/\.(mov|mp4|m4v|webm|3gp|3gpp|3g2)$/i);
+            
+            // Log for debugging mobile uploads
+            console.log(`📹 File detection: ${file.name}`, {
+              declaredType: file.type || '(empty)',
+              detectedAsVideo: isVideo,
+              size: `${(file.size / (1024 * 1024)).toFixed(1)} MB`
+            });
             
             // Check video size limit
             let durationSec: number | undefined;
             if (isVideo) {
               const sizeMB = file.size / (1024 * 1024);
               if (sizeMB > MAX_VIDEO_SIZE_MB) {
+                const sizeGB = (sizeMB / 1024).toFixed(1);
+                const limitGB = (MAX_VIDEO_SIZE_MB / 1024).toFixed(0);
                 toast({ 
                   title: 'Video Too Large', 
-                  description: `${file.name} exceeds ${MAX_VIDEO_SIZE_MB} MB limit (${Math.round(sizeMB)} MB).`, 
+                  description: `"${file.name}" is ${sizeGB} GB. Maximum size: ${limitGB} GB. Please trim your video and try again.`, 
                   variant: 'destructive' 
                 });
                 return null;
               }
               const validation = await validateVideo(file);
               if (!validation.valid) {
+                // Customize error title based on error type
+                const title = validation.error?.includes('too long') 
+                  ? '⏱️ Video Too Long' 
+                  : '❌ Video Error';
+                
                 toast({ 
-                  title: 'Video Validation Failed', 
+                  title, 
                   description: validation.error, 
                   variant: 'destructive' 
                 });
@@ -1311,7 +1325,7 @@ export const GuestAlbumPublic: React.FC = () => {
           <input
             ref={fileInputRef}
             type="file"
-            accept="image/jpeg,image/jpg,image/png,image/heic,image/heif,video/mp4,video/quicktime,video/x-m4v,video/webm"
+            accept="image/*,video/*"
             multiple
             onChange={handleFileSelection}
             className="hidden"
@@ -1363,7 +1377,25 @@ export const GuestAlbumPublic: React.FC = () => {
                     <img src={item.preview} className="w-full h-full object-contain" alt="" />
                   )}
                   {item.type === 'video' && item.preview && (
-                    <img src={item.localPoster || item.preview} className="w-full h-full object-cover" alt="Video preview" />
+                    <div className="relative w-full h-full">
+                      <img 
+                        src={item.localPoster || item.preview} 
+                        className="w-full h-full object-cover" 
+                        alt="Video preview" 
+                      />
+                      {/* Play icon overlay */}
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+                        <div className="w-16 h-16 rounded-full bg-white/90 flex items-center justify-center shadow-lg">
+                          <Play className="w-8 h-8 text-primary ml-1" fill="currentColor" />
+                        </div>
+                      </div>
+                      {/* Duration badge */}
+                      {item.duration_seconds && (
+                        <div className="absolute bottom-2 right-2 bg-black/80 text-white text-xs px-2 py-1 rounded">
+                          {Math.floor(item.duration_seconds / 60)}:{String(Math.floor(item.duration_seconds % 60)).padStart(2, '0')}
+                        </div>
+                      )}
+                    </div>
                   )}
                   {item.type === 'text' && (
                     <p className="text-center font-medium text-sm line-clamp-6">
@@ -1372,8 +1404,19 @@ export const GuestAlbumPublic: React.FC = () => {
                   )}
                   
                   {item.uploadError && (
-                    <div className="absolute bottom-2 left-2 right-2 bg-destructive text-destructive-foreground text-xs p-2 rounded z-10">
-                      {item.uploadError}
+                    <div className="absolute inset-0 bg-destructive/90 text-destructive-foreground flex flex-col items-center justify-center p-3 z-10">
+                      <p className="text-sm font-medium text-center mb-2">{item.uploadError}</p>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="bg-white text-destructive hover:bg-white/90"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleUploadAll();
+                        }}
+                      >
+                        Retry Upload
+                      </Button>
                     </div>
                   )}
                   

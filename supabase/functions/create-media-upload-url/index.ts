@@ -18,6 +18,9 @@ const ALLOWED_VIDEO_TYPES = [
   'video/webm',
   'video/x-m4v',
   'video/hevc',       // HEVC encoded
+  'video/3gpp',       // Android 3GP
+  'video/3gpp2',      // Android 3G2
+  'video/x-matroska', // MKV (some Android devices)
   'video/h265',       // H.265 codec
   'video/h264',       // H.264 codec
   'video/mpeg',       // Sometimes used for mobile
@@ -131,13 +134,18 @@ serve(async (req) => {
     }
 
     // Validate file type
-    const isImage = ALLOWED_IMAGE_TYPES.includes(contentType);
-    const isVideo = ALLOWED_VIDEO_TYPES.includes(contentType);
+    const targetContentType = contentType.toLowerCase();
+    const isImage = ALLOWED_IMAGE_TYPES.includes(targetContentType);
+    const isVideo = ALLOWED_VIDEO_TYPES.includes(targetContentType) || 
+                    targetContentType.startsWith('video/');
     
     if (!isImage && !isVideo) {
+      console.error('Invalid content type:', targetContentType);
       return new Response(
         JSON.stringify({ 
-          error: `File type "${contentType}" isn't supported. Please use JPG, PNG, MP4, or MOV.` 
+          error: 'Unsupported file type',
+          details: `Type "${targetContentType}" is not supported. Please use common photo or video formats.`,
+          allowed_types: 'JPEG, PNG, HEIC, MP4, MOV, WebM'
         }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
