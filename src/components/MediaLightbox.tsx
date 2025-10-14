@@ -34,10 +34,15 @@ export const MediaLightbox: React.FC<MediaLightboxProps> = ({
   onTrackDownload,
 }) => {
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
-  const [zoom, setZoom] = useState(1);
+  const [viewMode, setViewMode] = useState<'true-size' | 'fit-to-screen'>('true-size');
+  const [naturalDimensions, setNaturalDimensions] = useState<{width: number, height: number} | null>(null);
+  const [panPosition, setPanPosition] = useState({ x: 0, y: 0 });
+  const [isPanning, setIsPanning] = useState(false);
+  const [panStart, setPanStart] = useState<{ x: number, y: number } | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const imageRef = useRef<HTMLImageElement>(null);
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const { toast } = useToast();
 
@@ -45,14 +50,35 @@ export const MediaLightbox: React.FC<MediaLightboxProps> = ({
   const isVideo = currentItem?.type === 'video';
   const isPhoto = currentItem?.type === 'photo';
 
-  // Reset zoom and index when opened
+  // Reset state when opened
   useEffect(() => {
     if (open) {
       setCurrentIndex(initialIndex);
-      setZoom(1);
+      setViewMode('true-size');
+      setPanPosition({ x: 0, y: 0 });
+      setNaturalDimensions(null);
       setIsPlaying(false);
     }
   }, [open, initialIndex]);
+
+  // Detect image natural dimensions
+  useEffect(() => {
+    if (!open || !isPhoto || !currentItem?.file_url) return;
+    
+    const img = new Image();
+    img.onload = () => {
+      setNaturalDimensions({ width: img.naturalWidth, height: img.naturalHeight });
+      
+      // Auto-switch to fit-to-screen if image is smaller than viewport
+      if (img.naturalWidth <= window.innerWidth && img.naturalHeight <= window.innerHeight) {
+        setViewMode('fit-to-screen');
+      } else {
+        setViewMode('true-size');
+      }
+      setPanPosition({ x: 0, y: 0 });
+    };
+    img.src = currentItem.file_url;
+  }, [currentIndex, open, currentItem, isPhoto]);
 
   // Autoplay videos when opened/changed
   useEffect(() => {
@@ -77,6 +103,9 @@ export const MediaLightbox: React.FC<MediaLightboxProps> = ({
     };
   }, [open]);
 
+  const imageNeedsToggle = naturalDimensions && 
+    (naturalDimensions.width > window.innerWidth || naturalDimensions.height > window.innerHeight);
+
   // Keyboard shortcuts
   useEffect(() => {
     if (!open) return;
@@ -91,6 +120,13 @@ export const MediaLightbox: React.FC<MediaLightboxProps> = ({
           break;
         case 'ArrowRight':
           handleNext();
+          break;
+        case 'z':
+        case 'Z':
+          if (isPhoto && imageNeedsToggle) {
+            e.preventDefault();
+            toggleViewMode();
+          }
           break;
         case ' ':
           e.preventDefault();
@@ -109,32 +145,87 @@ export const MediaLightbox: React.FC<MediaLightboxProps> = ({
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [open, currentIndex, isVideo]);
+  }, [open, currentIndex, isVideo, viewMode, imageNeedsToggle]);
 
   const handlePrevious = useCallback(() => {
     setCurrentIndex((prev) => (prev > 0 ? prev - 1 : items.length - 1));
-    setZoom(1);
+    setPanPosition({ x: 0, y: 0 });
   }, [items.length]);
 
   const handleNext = useCallback(() => {
     setCurrentIndex((prev) => (prev < items.length - 1 ? prev + 1 : 0));
-    setZoom(1);
+    setPanPosition({ x: 0, y: 0 });
   }, [items.length]);
 
-  const handleZoomIn = () => {
-    setZoom((prev) => Math.min(prev + 0.5, 3));
+  const toggleViewMode = () => {
+    setViewMode(prev => prev === 'true-size' ? 'fit-to-screen' : 'true-size');
+    setPanPosition({ x: 0, y: 0 });
   };
 
-  const handleZoomOut = () => {
-    setZoom((prev) => Math.max(prev - 0.5, 1));
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (isPhoto && imageNeedsToggle && viewMode === 'true-size') {
+      e.preventDefault();
+      setIsPanning(true);
+      setPanStart({ x: e.clientX - panPosition.x, y: e.clientY - panPosition.y });
+    }
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (isPanning && panStart && naturalDimensions) {
+      const newX = e.clientX - panStart.x;
+      const newY = e.clientY - panStart.y;
+      
+      // Calculate bounds
+      const maxX = Math.max(0, (naturalDimensions.width - window.innerWidth) / 2);
+      const maxY = Math.max(0, (naturalDimensions.height - window.innerHeight) / 2);
+      
+      setPanPosition({
+        x: Math.max(-maxX, Math.min(maxX, newX)),
+        y: Math.max(-maxY, Math.min(maxY, newY))
+      });
+    }
+  };
+
+  const handleMouseUp = () => {
+    setIsPanning(false);
+    setPanStart(null);
   };
 
   // Touch/swipe support
   const handleTouchStart = (e: React.TouchEvent) => {
-    setTouchStart(e.touches[0].clientX);
+    if (isPhoto && imageNeedsToggle && viewMode === 'true-size') {
+      const touch = e.touches[0];
+      setPanStart({ x: touch.clientX - panPosition.x, y: touch.clientY - panPosition.y });
+      setIsPanning(true);
+    } else {
+      setTouchStart(e.touches[0].clientX);
+    }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (isPanning && panStart && naturalDimensions) {
+      const touch = e.touches[0];
+      const newX = touch.clientX - panStart.x;
+      const newY = touch.clientY - panStart.y;
+      
+      // Calculate bounds
+      const maxX = Math.max(0, (naturalDimensions.width - window.innerWidth) / 2);
+      const maxY = Math.max(0, (naturalDimensions.height - window.innerHeight) / 2);
+      
+      setPanPosition({
+        x: Math.max(-maxX, Math.min(maxX, newX)),
+        y: Math.max(-maxY, Math.min(maxY, newY))
+      });
+    }
   };
 
   const handleTouchEnd = (e: React.TouchEvent) => {
+    if (isPanning) {
+      setIsPanning(false);
+      setPanStart(null);
+      return;
+    }
+
     if (!touchStart) return;
     const touchEnd = e.changedTouches[0].clientX;
     const diff = touchStart - touchEnd;
@@ -149,14 +240,9 @@ export const MediaLightbox: React.FC<MediaLightboxProps> = ({
     setTouchStart(null);
   };
 
-  // Wheel zoom for photos
-  const handleWheel = (e: React.WheelEvent) => {
-    if (!isPhoto) return;
-    e.preventDefault();
-    if (e.deltaY < 0) {
-      handleZoomIn();
-    } else {
-      handleZoomOut();
+  const handleImageClick = () => {
+    if (isPhoto && imageNeedsToggle && !isPanning) {
+      toggleViewMode();
     }
   };
 
@@ -270,9 +356,6 @@ export const MediaLightbox: React.FC<MediaLightboxProps> = ({
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent 
         className="max-w-full w-full h-full p-0 bg-gradient-to-br from-primary/95 via-primary-dark/95 to-primary-darker/95 border-0"
-        onWheel={handleWheel}
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleTouchEnd}
       >
         <div className="relative w-full h-full flex flex-col animate-fade-in">
           {/* Header */}
@@ -303,6 +386,13 @@ export const MediaLightbox: React.FC<MediaLightboxProps> = ({
           <div 
             ref={containerRef}
             className="flex-1 flex items-center justify-center overflow-hidden touch-none"
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+            onMouseLeave={handleMouseUp}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
           >
             {/* Left Navigation Arrow */}
             {items.length > 1 && (
@@ -333,12 +423,22 @@ export const MediaLightbox: React.FC<MediaLightboxProps> = ({
             {isPhoto && currentItem.file_url && (
               <div className="relative w-full h-full flex items-center justify-center">
                 <img
+                  ref={imageRef}
                   src={currentItem.file_url}
                   alt={currentItem.caption || 'Photo'}
-                  className="max-w-full max-h-full object-contain transition-transform duration-200"
-                  style={{ transform: `scale(${zoom})` }}
+                  className={viewMode === 'fit-to-screen' ? 'max-w-full max-h-full object-contain' : 'transition-all duration-200'}
+                  style={viewMode === 'true-size' ? {
+                    maxWidth: '100vw',
+                    maxHeight: '100vh',
+                    width: 'auto',
+                    height: 'auto',
+                    transform: `translate(${panPosition.x}px, ${panPosition.y}px)`,
+                    cursor: imageNeedsToggle ? (isPanning ? 'grabbing' : 'grab') : 'default',
+                    userSelect: 'none',
+                  } : undefined}
                   draggable={false}
                   decoding="async"
+                  onClick={handleImageClick}
                 />
               </div>
             )}
@@ -383,30 +483,28 @@ export const MediaLightbox: React.FC<MediaLightboxProps> = ({
                 <ChevronLeft className="w-6 h-6" />
               </Button>
 
-              {/* Zoom Controls (Photos Only) */}
-              {isPhoto && (
-                <div className="flex items-center gap-2">
+              {/* View Mode Toggle (Photos Only) */}
+              {isPhoto && imageNeedsToggle && (
+                <div className="flex flex-col items-center gap-1">
                   <Button
                     variant="ghost"
-                    size="icon"
-                    className="text-white hover:bg-white/20 rounded-full"
-                    onClick={handleZoomOut}
-                    disabled={zoom <= 1}
+                    size="sm"
+                    className="text-white hover:bg-white/20 rounded-full px-3"
+                    onClick={toggleViewMode}
                   >
-                    <ZoomOut className="w-5 h-5" />
+                    {viewMode === 'true-size' ? (
+                      <>
+                        <ZoomOut className="w-4 h-4 mr-2" />
+                        Fit Screen
+                      </>
+                    ) : (
+                      <>
+                        <ZoomIn className="w-4 h-4 mr-2" />
+                        Actual Size
+                      </>
+                    )}
                   </Button>
-                  <span className="text-white text-sm min-w-[3rem] text-center">
-                    {Math.round(zoom * 100)}%
-                  </span>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-white hover:bg-white/20 rounded-full"
-                    onClick={handleZoomIn}
-                    disabled={zoom >= 3}
-                  >
-                    <ZoomIn className="w-5 h-5" />
-                  </Button>
+                  <span className="text-white/70 text-xs">Press Z</span>
                 </div>
               )}
 
