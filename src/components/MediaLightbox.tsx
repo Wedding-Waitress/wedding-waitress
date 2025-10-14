@@ -249,7 +249,7 @@ export const MediaLightbox: React.FC<MediaLightboxProps> = ({
 
   const getVideoUrl = () => {
     if (currentItem.cloudflare_stream_uid) {
-      return `https://customer-${currentItem.cloudflare_stream_uid.split('/')[0]}.cloudflarestream.com/${currentItem.cloudflare_stream_uid}/manifest/video.m3u8`;
+      return `https://iframe.videodelivery.net/${currentItem.cloudflare_stream_uid}`;
     }
     return currentItem.file_url || '';
   };

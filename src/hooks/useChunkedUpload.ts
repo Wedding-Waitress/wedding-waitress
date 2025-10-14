@@ -174,7 +174,7 @@ export const useChunkedUpload = ({ gallerySlug, onComplete, onError }: UseChunke
         for (let index = 0; index < chunks.length; index++) {
           const chunk = chunks[index];
           const chunkUrl = chunk_urls[index];
-          const success = await uploadChunk(chunk, index, chunkUrl.file_path, chunkUrl.token);
+          const success = await uploadChunk(chunk, index, chunkUrl.path, chunkUrl.token);
           results.push(success);
           
           if (!success) {

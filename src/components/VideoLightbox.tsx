@@ -37,7 +37,7 @@ export const VideoLightbox: React.FC<VideoLightboxProps> = ({
           {/* Video player */}
           {cloudflareStreamUid ? (
             <iframe
-              src={`https://customer-${cloudflareStreamUid.split('/')[0]}.cloudflarestream.com/${cloudflareStreamUid}/iframe`}
+              src={`https://iframe.videodelivery.net/${cloudflareStreamUid}`}
               className="w-full aspect-video"
               allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;"
               allowFullScreen

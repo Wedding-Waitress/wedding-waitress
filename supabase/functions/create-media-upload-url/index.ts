@@ -124,17 +124,17 @@ serve(async (req) => {
       );
     }
 
-    // Normalize HEIC/HEIF to JPEG
-    let targetContentType = contentType;
+    // Normalize content type and filename
+    let targetContentType = (contentType || '').toLowerCase();
     let targetFilename = filename;
     
-    if (contentType === 'image/heic' || contentType === 'image/heif') {
+    // Convert HEIC/HEIF to JPEG
+    if (targetContentType === 'image/heic' || targetContentType === 'image/heif') {
       targetContentType = 'image/jpeg';
       targetFilename = filename.replace(/\.(heic|heif)$/i, '.jpg');
     }
 
     // Validate file type
-    const targetContentType = contentType.toLowerCase();
     const isImage = ALLOWED_IMAGE_TYPES.includes(targetContentType);
     const isVideo = ALLOWED_VIDEO_TYPES.includes(targetContentType) || 
                     targetContentType.startsWith('video/');

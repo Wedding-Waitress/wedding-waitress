@@ -889,13 +889,42 @@ export const GuestAlbumPublic: React.FC = () => {
       });
     };
 
+    // Helper: Derive safe content type from filename when MIME is empty/unknown
+    const getSafeContentType = (file: File): string => {
+      if (file.type && file.type !== '') return file.type;
+      
+      // Fallback to extension-based detection for mobile videos
+      const ext = file.name.split('.').pop()?.toLowerCase() || '';
+      const extMap: Record<string, string> = {
+        'mov': 'video/quicktime',
+        'mp4': 'video/mp4',
+        'm4v': 'video/x-m4v',
+        'webm': 'video/webm',
+        '3gp': 'video/3gpp',
+        '3gpp': 'video/3gpp',
+        '3g2': 'video/3gpp2',
+        '3gpp2': 'video/3gpp2',
+        'jpg': 'image/jpeg',
+        'jpeg': 'image/jpeg',
+        'png': 'image/png',
+        'heic': 'image/heic',
+        'heif': 'image/heif',
+      };
+      
+      const derived = extMap[ext] || 'application/octet-stream';
+      console.log(`⚠️ Empty MIME type for ${file.name}, derived: ${derived}`);
+      return derived;
+    };
+
     try {
+      const safeContentType = getSafeContentType(item.file);
+      
       // Get upload URL details (now includes duration_seconds)
       const { data: urlData, error: urlError } = await supabase.functions.invoke('create-media-upload-url', {
         body: {
           gallerySlug: gallerySlug,
           filename: item.file.name,
-          contentType: item.file.type,
+          contentType: safeContentType,
           file_size: item.file.size,
           duration_seconds: item.duration_seconds,
         },
