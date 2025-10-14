@@ -1181,13 +1181,14 @@ export const GuestAlbumPublic: React.FC = () => {
             </div>
 
             {/* Share Album Button */}
-            <div className="flex justify-center mt-4">
+            <div className="flex justify-center mt-4 pb-6">
               <Button
-                variant="ghost"
-                className="text-black hover:bg-white/20 rounded-full gap-2"
+                size="lg"
+                variant="outline"
+                className="w-full max-w-md text-xl px-12 py-8 rounded-2xl bg-white hover:bg-white/90 border-2 border-primary shadow-md"
                 onClick={handleShareGallery}
               >
-                <Share2 className="w-5 h-5" />
+                <Share2 className="w-6 h-6 mr-3" />
                 Share Album
               </Button>
             </div>
