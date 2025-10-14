@@ -304,6 +304,32 @@ export const MediaLightbox: React.FC<MediaLightboxProps> = ({
             ref={containerRef}
             className="flex-1 flex items-center justify-center overflow-hidden touch-none"
           >
+            {/* Left Navigation Arrow */}
+            {items.length > 1 && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute left-4 top-1/2 -translate-y-1/2 z-30 w-14 h-14 text-white bg-black/30 hover:bg-black/50 rounded-full transition-all animate-fade-in"
+                onClick={handlePrevious}
+                title="Previous (←)"
+              >
+                <ChevronLeft className="w-8 h-8" />
+              </Button>
+            )}
+
+            {/* Right Navigation Arrow */}
+            {items.length > 1 && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute right-4 top-1/2 -translate-y-1/2 z-30 w-14 h-14 text-white bg-black/30 hover:bg-black/50 rounded-full transition-all animate-fade-in"
+                onClick={handleNext}
+                title="Next (→)"
+              >
+                <ChevronRight className="w-8 h-8" />
+              </Button>
+            )}
+
             {isPhoto && currentItem.file_url && (
               <div className="relative w-full h-full flex items-center justify-center">
                 <img
