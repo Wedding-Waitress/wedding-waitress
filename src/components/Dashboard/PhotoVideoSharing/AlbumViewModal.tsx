@@ -30,6 +30,7 @@ interface MediaItem {
   width?: number;
   height?: number;
   status?: string;
+  seq_number?: number;
 }
 
 interface AudioItem {
@@ -37,6 +38,8 @@ interface AudioItem {
   file_url: string;
   duration_seconds: number;
   created_at: string;
+  mime_type?: string;
+  seq_number?: number;
 }
 
 export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
@@ -291,6 +294,8 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
       cloudflare_stream_uid: item.cloudflare_stream_uid,
       caption: item.caption,
       created_at: item.created_at,
+      mime_type: item.mime_type,
+      seq_number: item.seq_number,
     }));
     setLightboxItems(formattedItems);
     setLightboxIndex(index);

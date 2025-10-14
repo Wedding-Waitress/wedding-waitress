@@ -17,6 +17,7 @@ interface MediaLightboxProps {
     caption?: string;
     created_at?: string;
     mime_type?: string;
+    seq_number?: number;
   }>;
   initialIndex: number;
   onShareGallery?: () => void;
@@ -271,20 +272,45 @@ export const MediaLightbox: React.FC<MediaLightboxProps> = ({
         onTrackDownload('single');
       }
 
-      const filename = `${currentItem.caption || 'media'}-${currentItem.id}.${isVideo ? 'mp4' : 'jpg'}`;
+      // Import filename utility dynamically
+      const { generateMediaFilename } = await import('@/lib/mediaFilenames');
+      const { supabase } = await import('@/integrations/supabase/client');
+
+      // Fetch gallery info for filename
+      let albumTitle = 'Album';
+      if (galleryId) {
+        const { data: gallery } = await supabase
+          .from('galleries')
+          .select('title')
+          .eq('id', galleryId)
+          .single();
+        if (gallery) albumTitle = gallery.title;
+      }
+
+      // Determine type and generate filename
+      const type = isVideo ? 'Video' : 'Photo';
+      const seqNumber = currentItem.seq_number || 0;
+      const mimeType = currentItem.mime_type;
       
-      // For Cloudflare Stream, we need to download the video differently
+      const filename = generateMediaFilename({
+        seqNumber,
+        type,
+        albumTitle,
+        mimeType,
+        fileUrl: url,
+      });
+
+      // For Cloudflare Stream videos, open in new tab (they handle their own download)
       if (currentItem.cloudflare_stream_uid && isVideo) {
-        // Stream doesn't allow direct downloads, so we open in new tab
         window.open(url, '_blank');
         toast({
-          title: 'Opening video',
-          description: 'Video will open in a new tab. Use browser controls to download.',
+          title: "Opening video",
+          description: "Video will open in a new tab. Use browser controls to download.",
         });
         return;
       }
 
-      // For regular files, trigger download
+      // For regular files, download directly with proper filename
       const response = await fetch(url);
       const blob = await response.blob();
       const blobUrl = window.URL.createObjectURL(blob);
@@ -298,15 +324,15 @@ export const MediaLightbox: React.FC<MediaLightboxProps> = ({
       window.URL.revokeObjectURL(blobUrl);
 
       toast({
-        title: 'Download started',
-        description: `Downloading ${isVideo ? 'video' : 'photo'}...`,
+        title: "Download started",
+        description: filename,
       });
     } catch (error) {
       console.error('Download failed:', error);
       toast({
-        title: 'Download failed',
-        description: 'Could not download the file. Please try again.',
-        variant: 'destructive',
+        title: "Download failed",
+        description: "Could not download the file",
+        variant: "destructive",
       });
     }
   };

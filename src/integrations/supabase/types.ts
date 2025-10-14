@@ -23,6 +23,7 @@ export type Database = {
           gallery_id: string | null
           id: string
           mime_type: string | null
+          seq_number: number | null
           uploader_token: string
         }
         Insert: {
@@ -33,6 +34,7 @@ export type Database = {
           gallery_id?: string | null
           id?: string
           mime_type?: string | null
+          seq_number?: number | null
           uploader_token: string
         }
         Update: {
@@ -43,6 +45,7 @@ export type Database = {
           gallery_id?: string | null
           id?: string
           mime_type?: string | null
+          seq_number?: number | null
           uploader_token?: string
         }
         Relationships: [
@@ -1139,6 +1142,7 @@ export type Database = {
           poster_url: string | null
           rejected_at: string | null
           rejected_by: string | null
+          seq_number: number | null
           status: string
           stream_preview_image: string | null
           stream_ready: boolean | null
@@ -1170,6 +1174,7 @@ export type Database = {
           poster_url?: string | null
           rejected_at?: string | null
           rejected_by?: string | null
+          seq_number?: number | null
           status?: string
           stream_preview_image?: string | null
           stream_ready?: boolean | null
@@ -1201,6 +1206,7 @@ export type Database = {
           poster_url?: string | null
           rejected_at?: string | null
           rejected_by?: string | null
+          seq_number?: number | null
           status?: string
           stream_preview_image?: string | null
           stream_ready?: boolean | null
@@ -1679,6 +1685,10 @@ export type Database = {
           seat_no: number
           table_no: number
         }[]
+      }
+      get_next_media_seq_number: {
+        Args: { _gallery_id: string; _table_name: string }
+        Returns: number
       }
       get_public_event_with_data_secure: {
         Args: { access_token?: string; event_slug: string }

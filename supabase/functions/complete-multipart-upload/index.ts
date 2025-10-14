@@ -147,6 +147,23 @@ Deno.serve(async (req) => {
 
     const status = gallery?.require_approval ? 'pending' : 'approved';
 
+    // Get next sequence number atomically
+    const { data: seqData, error: seqError } = await supabase
+      .rpc('get_next_media_seq_number', {
+        _gallery_id: gallery_id,
+        _table_name: 'media_uploads'
+      });
+
+    if (seqError) {
+      console.error('Error getting sequence number:', seqError);
+      return new Response(
+        JSON.stringify({ error: 'Failed to generate sequence number' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const seq_number = seqData as number;
+
     // Create media upload record
     const { data: media, error: mediaError } = await supabase
       .from('media_uploads')
@@ -160,6 +177,7 @@ Deno.serve(async (req) => {
         mime_type: session.mime_type,
         file_size_bytes: session.file_size,
         uploader_token: 'chunked-upload',
+        seq_number,
       })
       .select()
       .single();

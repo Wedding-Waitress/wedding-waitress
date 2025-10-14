@@ -59,6 +59,8 @@ Deno.serve(async (req) => {
       });
     }
 
+    const albumTitle = gallery.title;
+
     // Rate limiting
     const now = Date.now();
     const lastExport = activeExports.get(galleryId);
@@ -192,7 +194,9 @@ async function processExport(
             .download(item.file_url.replace('event-media/', ''));
 
           if (!downloadError && fileData) {
-            const filename = `photo_${++photoCount}_${item.id.substring(0, 8)}.${item.mime_type?.split('/')[1] || 'jpg'}`;
+            const seqPadded = String(item.seq_number || ++photoCount).padStart(6, '0');
+            const ext = item.mime_type?.split('/')[1] || 'jpg';
+            const filename = `${seqPadded}-Photo-(Event Name)${albumTitle}.${ext}`;
             photosFolder?.file(filename, await fileData.arrayBuffer());
             itemData.exported_filename = `1_Photos/${filename}`;
 
@@ -213,7 +217,9 @@ async function processExport(
             .download(item.file_url.replace('event-media/', ''));
 
           if (!downloadError && fileData) {
-            const filename = `video_${++videoCount}_${item.id.substring(0, 8)}.${item.mime_type?.split('/')[1] || 'mp4'}`;
+            const seqPadded = String(item.seq_number || ++videoCount).padStart(6, '0');
+            const ext = item.mime_type?.split('/')[1] || 'mp4';
+            const filename = `${seqPadded}-Video-(Event Name)${albumTitle}.${ext}`;
             videosFolder?.file(filename, await fileData.arrayBuffer());
             itemData.exported_filename = `2_Videos/${filename}`;
 
@@ -243,7 +249,9 @@ async function processExport(
             const thumbnailResponse = await fetch(item.stream_preview_image);
             if (thumbnailResponse.ok) {
               const thumbnailBlob = await thumbnailResponse.arrayBuffer();
-              videosFolder?.file(`stream_thumbnail_${item.cloudflare_stream_uid}.jpg`, thumbnailBlob);
+              const seqPadded = String(item.seq_number || videoCount).padStart(6, '0');
+              const thumbnailFilename = `${seqPadded}-Video-Thumbnail-(Event Name)${albumTitle}.jpg`;
+              videosFolder?.file(thumbnailFilename, thumbnailBlob);
             }
           } catch (err) {
             console.error(`Failed to download thumbnail for ${item.cloudflare_stream_uid}:`, err);
@@ -252,7 +260,8 @@ async function processExport(
       }
 
       if (item.post_type === 'text' && item.text_content) {
-        const filename = `message_${++textCount}_${item.id.substring(0, 8)}.txt`;
+        const seqPadded = String(item.seq_number || ++textCount).padStart(6, '0');
+        const filename = `${seqPadded}-Guest Book-(Event Name)${albumTitle}.txt`;
         messagesFolder?.file(filename, item.text_content);
         itemData.exported_filename = `3_Guest_Book_Messages/${filename}`;
       }

@@ -87,6 +87,23 @@ serve(async (req) => {
       mediaType = type === 'photo' ? 'image' : type;
     }
 
+    // Get next sequence number atomically
+    const { data: seqData, error: seqError } = await supabase
+      .rpc('get_next_media_seq_number', {
+        _gallery_id: gallery_id,
+        _table_name: 'media_uploads'
+      });
+
+    if (seqError) {
+      console.error('Error getting sequence number:', seqError);
+      return new Response(
+        JSON.stringify({ error: 'Failed to generate sequence number' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const seq_number = seqData as number;
+
     // Insert media record with appropriate fields based on media type
     const insertData: any = {
       gallery_id,
@@ -101,6 +118,7 @@ serve(async (req) => {
       text_content: text_content || null,
       theme_id: theme_id || null,
       approved_at: gallery.require_approval ? null : new Date().toISOString(),
+      seq_number,
     };
 
     // For videos/photos uploaded to Supabase Storage OR Cloudflare Stream
