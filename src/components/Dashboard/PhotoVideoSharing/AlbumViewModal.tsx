@@ -60,6 +60,8 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
   const [eventDate, setEventDate] = useState<string | null>(null);
   const [isOwner, setIsOwner] = useState(false);
   const [downloadingZip, setDownloadingZip] = useState(false);
+  const [loadProgress, setLoadProgress] = useState(0);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
   const audioRefs = useRef<{ [key: string]: HTMLAudioElement }>({});
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const slideshowTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -73,7 +75,11 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
 
   const fetchGalleryContent = async () => {
     setLoading(true);
+    setLoadProgress(0);
     try {
+      // Simulate progress
+      setLoadProgress(20);
+      
       // Fetch gallery info including event_date and owner_id
       const { data: galleryData, error: galleryError } = await supabase
         .from('galleries')
@@ -92,6 +98,8 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
         const { data: { user } } = await supabase.auth.getUser();
         setIsOwner(user?.id === galleryData.owner_id);
       }
+      
+      setLoadProgress(50);
 
       // Fetch media uploads
       const { data, error } = await supabase
@@ -102,6 +110,8 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
 
       if (error) throw error;
 
+      setLoadProgress(75);
+
       if (data) {
         setPhotos(data.filter((item: MediaItem) => 
           item.mime_type?.startsWith('image/') || item.post_type === 'photo'
@@ -111,6 +121,8 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
         ));
         setMessages(data.filter((item: MediaItem) => item.post_type === 'text'));
       }
+
+      setLoadProgress(90);
 
       // Fetch audio guestbook messages
       const { data: audioData, error: audioError } = await supabase
@@ -124,8 +136,19 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
       } else if (audioData) {
         setAudioMessages((audioData as any) || []);
       }
+      
+      setLoadProgress(100);
+      
+      // Keep showing 100% briefly before fade out
+      setTimeout(() => {
+        setIsInitialLoad(false);
+      }, 500);
     } catch (error) {
       console.error('Error fetching gallery content:', error);
+      setLoadProgress(100);
+      setTimeout(() => {
+        setIsInitialLoad(false);
+      }, 500);
     } finally {
       setLoading(false);
     }
@@ -363,12 +386,59 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
           </DialogTitle>
         </DialogHeader>
 
-        {loading ? (
-          <div className="flex items-center justify-center py-12">
-            <Loader2 className="w-8 h-8 animate-spin text-primary" />
-          </div>
-        ) : (
-          <>
+        <>
+          {/* Loading Album Overlay - Only on initial load */}
+          {loading && isInitialLoad && (
+            <div className="mb-6 p-6 bg-gradient-to-r from-primary/5 to-primary/10 rounded-xl border border-primary/20 shadow-soft animate-fade-in">
+              <div className="flex items-center gap-6">
+                {/* Circular Progress Loader */}
+                <div className="relative flex-shrink-0">
+                  <svg className="w-16 h-16 transform -rotate-90" viewBox="0 0 64 64">
+                    {/* Background circle */}
+                    <circle
+                      cx="32"
+                      cy="32"
+                      r="28"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                      className="text-gray-200"
+                    />
+                    {/* Progress circle */}
+                    <circle
+                      cx="32"
+                      cy="32"
+                      r="28"
+                      fill="none"
+                      stroke="#6D28D9"
+                      strokeWidth="4"
+                      strokeDasharray={`${(loadProgress / 100) * 175.93} 175.93`}
+                      strokeLinecap="round"
+                      className="transition-all duration-500 ease-out"
+                    />
+                  </svg>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="text-sm font-semibold text-primary">
+                      {loadProgress}%
+                    </span>
+                  </div>
+                </div>
+                
+                {/* Loading Text */}
+                <div className="flex-1">
+                  <h3 className="text-lg font-semibold text-foreground mb-1">
+                    Loading Album…
+                  </h3>
+                  <p className="text-sm text-primary font-medium">
+                    {galleryTitle}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Content area with fade-in when loading completes */}
+          <div className={`transition-opacity duration-700 ${loading && isInitialLoad ? 'opacity-0' : 'opacity-100'}`}>
             {/* Owner Actions - Only visible to gallery owner */}
             {isOwner && photos.length > 0 && (
               <div className="mb-4 flex flex-wrap gap-2 justify-end">
@@ -653,10 +723,10 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
                   })}
                 </div>
               )}
-            </TabsContent>
-          </Tabs>
-          </>
-        )}
+              </TabsContent>
+            </Tabs>
+          </div>
+        </>
       </DialogContent>
 
       {/* Media Lightbox */}
