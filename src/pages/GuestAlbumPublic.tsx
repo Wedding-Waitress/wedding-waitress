@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Navigate } from 'react-router-dom';
-import { Plus, ArrowLeft, X, Camera, Trash2, Play, Video, Loader2, Share2, Mic } from 'lucide-react';
+import { Plus, ArrowLeft, X, Camera, Trash2, Play, Video, Loader2, Share2, Mic, MessageSquare } from 'lucide-react';
 import { format } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -1287,22 +1287,24 @@ export const GuestAlbumPublic: React.FC = () => {
             </CardContent>
           </Card>
 
-          <div className="text-center space-y-3">
+          <div className="flex flex-col items-center gap-4 w-full max-w-md mx-auto">
             <Button
-              variant="link"
-              className="text-primary text-lg"
+              size="lg"
+              className="w-full bg-gradient-to-r from-primary to-purple-600 hover:opacity-90 text-lg py-6 rounded-2xl min-h-[48px]"
               onClick={() => setShowTextPostModal(true)}
             >
-              Or add a text message
+              <MessageSquare className="w-6 h-6 mr-3" />
+              Add a Text Message
             </Button>
 
             <Button
-              variant="link"
-              className="text-primary text-lg flex items-center gap-2 mx-auto"
+              size="lg"
+              variant="outline"
+              className="w-full text-lg py-6 rounded-2xl border-2 border-primary bg-white hover:bg-white/90 min-h-[48px]"
               onClick={() => setShowAudioRecorder(true)}
             >
-              <Mic className="w-5 h-5" />
-              Or record Audio Guestbook
+              <Mic className="w-6 h-6 mr-3" />
+              Record Audio Guestbook
             </Button>
           </div>
 
