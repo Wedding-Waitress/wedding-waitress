@@ -312,6 +312,7 @@ export const MediaLightbox: React.FC<MediaLightboxProps> = ({
                   className="max-w-full max-h-full object-contain transition-transform duration-200"
                   style={{ transform: `scale(${zoom})` }}
                   draggable={false}
+                  decoding="async"
                 />
               </div>
             )}

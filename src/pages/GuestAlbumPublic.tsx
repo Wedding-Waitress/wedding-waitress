@@ -1026,16 +1026,10 @@ export const GuestAlbumPublic: React.FC = () => {
       ? filePath.replace('event-media/', '') 
       : filePath;
     
-    // Get public URL with responsive transforms for high quality
+    // Get original full-resolution image without transformations
     const { data } = supabase.storage
       .from('event-media')
-      .getPublicUrl(cleanPath, {
-        transform: {
-          width: 1920,
-          quality: 85,
-          resize: 'contain'
-        }
-      });
+      .getPublicUrl(cleanPath);
     
     return data?.publicUrl || '';
   };

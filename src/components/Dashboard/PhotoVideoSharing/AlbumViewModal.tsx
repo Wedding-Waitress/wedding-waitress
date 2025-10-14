@@ -220,6 +220,7 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
                         alt={photo.caption || 'Gallery photo'}
                         className="w-full h-full object-cover transition-all duration-300"
                         loading="lazy"
+                        decoding="async"
                       />
                       
                       {/* Hover Overlay */}
