@@ -70,7 +70,7 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
   const [loadingMessage, setLoadingMessage] = useState('Preparing your memories…');
   const [totalItems, setTotalItems] = useState(0);
   const [loadedItems, setLoadedItems] = useState(0);
-  const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
+  const [currentMediaId, setCurrentMediaId] = useState<string | null>(null);
   const audioRefs = useRef<{ [key: string]: HTMLAudioElement }>({});
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const slideshowTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -651,37 +651,40 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
                 </div>
               ) : (
                 <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-1">
-                  {photos.map((photo, index) => (
-                    <div 
-                      key={photo.id} 
-                      className={`relative group cursor-pointer overflow-hidden rounded-sm aspect-square bg-black ${
-                        selectedItemId === photo.id ? 'ring-4 ring-blue-500' : ''
-                      }`}
-                      onClick={() => setSelectedItemId(photo.id)}
-                      onDoubleClick={() => {
-                        setSelectedItemId(null);
-                        openLightbox(photos, index);
-                      }}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' && selectedItemId === photo.id) {
+                  {photos.map((photo, index) => {
+                    const isActive = currentMediaId === photo.id;
+                    return (
+                      <button
+                        type="button"
+                        key={photo.id}
+                        className={`relative group overflow-hidden rounded-sm aspect-square bg-black transition-all select-none ${
+                          isActive ? 'ring-2 ring-primary' : ''
+                        }`}
+                        style={{
+                          WebkitTapHighlightColor: 'transparent',
+                          userSelect: 'none',
+                        }}
+                        onClick={() => {
+                          setCurrentMediaId(photo.id);
                           openLightbox(photos, index);
-                        }
-                      }}
-                      tabIndex={0}
-                    >
+                        }}
+                        aria-pressed={isActive}
+                      >
                       <img
                         src={getImageUrl(photo)}
                         alt={photo.caption || 'Gallery photo'}
-                        className="w-full h-full object-cover transition-all duration-300"
+                        className="w-full h-full object-cover transition-all duration-300 pointer-events-none"
                         loading="lazy"
                         decoding="async"
+                        draggable={false}
                       />
                       
                       {/* Hover Overlay */}
-                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all duration-300">
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all duration-300 pointer-events-none">
                         <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                           {/* Download Button - Bottom Left */}
                           <button
+                            type="button"
                             onClick={async (e) => {
                               e.preventDefault();
                               e.stopPropagation();
@@ -696,7 +699,7 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
                               
                               await downloadFile(getImageUrl(photo), filename);
                             }}
-                            className="absolute bottom-2 left-2 w-8 h-8 rounded-full bg-white/90 hover:bg-white flex items-center justify-center transition-colors z-10"
+                            className="absolute bottom-2 left-2 w-8 h-8 rounded-full bg-white/90 hover:bg-white flex items-center justify-center transition-colors z-10 pointer-events-auto"
                             aria-label="Download photo"
                           >
                             <Download className="w-4 h-4 text-gray-800" />
@@ -704,20 +707,22 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
                           
                           {/* Share Button - Bottom Right */}
                           <button
+                            type="button"
                             onClick={(e) => {
                               e.preventDefault();
                               e.stopPropagation();
                               handleShareGallery();
                             }}
-                            className="absolute bottom-2 right-2 w-8 h-8 rounded-full bg-white/90 hover:bg-white flex items-center justify-center transition-colors"
+                            className="absolute bottom-2 right-2 w-8 h-8 rounded-full bg-white/90 hover:bg-white flex items-center justify-center transition-colors pointer-events-auto"
                             aria-label="Share photo"
                           >
                             <Share2 className="w-4 h-4 text-gray-800" />
                           </button>
                         </div>
                       </div>
-                    </div>
-                   ))}
+                    </button>
+                  );
+                  })}
                   </div>
               )}
             </TabsContent>
@@ -729,47 +734,50 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
                 </div>
               ) : (
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-1">
-                  {videos.map((video, index) => (
-                    <div 
-                      key={video.id} 
-                      className={`relative group cursor-pointer overflow-hidden rounded-sm aspect-video bg-black ${
-                        selectedItemId === video.id ? 'ring-4 ring-blue-500' : ''
-                      }`}
-                      onClick={() => setSelectedItemId(video.id)}
-                      onDoubleClick={() => {
-                        setSelectedItemId(null);
-                        openLightbox(videos, index);
-                      }}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' && selectedItemId === video.id) {
+                  {videos.map((video, index) => {
+                    const isActive = currentMediaId === video.id;
+                    return (
+                      <button
+                        type="button"
+                        key={video.id}
+                        className={`relative group overflow-hidden rounded-sm aspect-video bg-black transition-all select-none ${
+                          isActive ? 'ring-2 ring-primary' : ''
+                        }`}
+                        style={{
+                          WebkitTapHighlightColor: 'transparent',
+                          userSelect: 'none',
+                        }}
+                        onClick={() => {
+                          setCurrentMediaId(video.id);
                           openLightbox(videos, index);
-                        }
-                      }}
-                      tabIndex={0}
-                    >
+                        }}
+                        aria-pressed={isActive}
+                      >
                       {video.thumbnail_url ? (
                         <img
                           src={video.thumbnail_url}
                           alt={video.caption || 'Video thumbnail'}
-                          className="w-full h-full object-cover transition-all duration-300"
+                          className="w-full h-full object-cover transition-all duration-300 pointer-events-none"
                           loading="lazy"
+                          draggable={false}
                         />
                       ) : (
-                        <div className="w-full h-full bg-muted flex items-center justify-center">
+                        <div className="w-full h-full bg-muted flex items-center justify-center pointer-events-none">
                           <Video className="w-8 h-8 text-muted-foreground" />
                         </div>
                       )}
                       
                       {/* Play Icon - Bottom Right Corner */}
-                      <div className="absolute bottom-2 right-2 w-10 h-10 rounded-full bg-white/90 flex items-center justify-center">
+                      <div className="absolute bottom-2 right-2 w-10 h-10 rounded-full bg-white/90 flex items-center justify-center pointer-events-none">
                         <Play className="w-5 h-5 text-gray-800 ml-0.5" />
                       </div>
                       
                       {/* Hover Overlay */}
-                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all duration-300">
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all duration-300 pointer-events-none">
                         <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                           {/* Download Button - Bottom Left */}
                           <button
+                            type="button"
                             onClick={async (e) => {
                               e.preventDefault();
                               e.stopPropagation();
@@ -820,8 +828,9 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
                           </button>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    </button>
+                  );
+                  })}
                 </div>
               )}
             </TabsContent>
