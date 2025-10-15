@@ -218,11 +218,29 @@ export const PhotoVideoSharingPage: React.FC = () => {
     });
   };
 
+  // Helper function to format filename with capitalized words and event date
+  const formatFilename = (title: string, suffix: string, extension: string): string => {
+    // Capitalize each word and replace spaces with hyphens
+    const formattedTitle = title
+      .split(/\s+/)
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join('-');
+    
+    // Format date if available
+    const dateStr = galleryEventDate 
+      ? format(new Date(galleryEventDate), 'MMM-dd-yyyy')
+      : '';
+    
+    return dateStr 
+      ? `${formattedTitle}-${suffix}-(${dateStr}).${extension}`
+      : `${formattedTitle}-${suffix}.${extension}`;
+  };
+
   const downloadQRCode = () => {
     if (!qrCodeDataUrl) return;
     
     const link = document.createElement('a');
-    link.download = `${galleryTitle.replace(/\s+/g, '-').toLowerCase()}-photo-video-qr.png`;
+    link.download = formatFilename(galleryTitle, 'Photo-Video-QR', 'png');
     link.href = qrCodeDataUrl;
     link.click();
     
@@ -267,7 +285,7 @@ export const PhotoVideoSharingPage: React.FC = () => {
         if (exportData?.status === 'ready' && exportData.download_url) {
           const link = document.createElement('a');
           link.href = exportData.download_url;
-          link.download = `${galleryTitle.replace(/\s+/g, '-').toLowerCase()}-gallery.zip`;
+          link.download = formatFilename(galleryTitle, 'Photo-Video-Album', 'zip');
           link.click();
 
           toast({
@@ -474,7 +492,7 @@ export const PhotoVideoSharingPage: React.FC = () => {
                         </Button>
                         <Button variant="default" onClick={downloadQRCode} disabled={!qrCodeDataUrl}>
                           <Download className="w-4 h-4 mr-2" />
-                          Download QR
+                          QR Code Download
                         </Button>
                       </div>
                     </CardContent>
