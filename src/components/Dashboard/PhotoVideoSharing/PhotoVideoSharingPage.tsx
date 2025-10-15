@@ -219,22 +219,47 @@ export const PhotoVideoSharingPage: React.FC = () => {
     });
   };
 
-  // Helper function to format filename with capitalized words and event date
+  // Helper function to format filename: EventName-EventDate format
   const formatFilename = (title: string, suffix: string, extension: string): string => {
+    // Replace spaces with hyphens, keep special characters like &
+    const formattedTitle = title.replace(/\s+/g, '-');
+    
+    // For album downloads, use EventName-EventDate format (e.g., Jack-&-Jill-29th-November-2025.zip)
+    if (suffix === 'Photo-Video-Album' && galleryEventDate) {
+      const date = new Date(galleryEventDate);
+      const day = format(date, 'd');
+      const month = format(date, 'MMMM');
+      const year = format(date, 'yyyy');
+      
+      // Add ordinal suffix (st, nd, rd, th)
+      const getOrdinalSuffix = (dayNum: number) => {
+        if (dayNum > 3 && dayNum < 21) return 'th';
+        switch (dayNum % 10) {
+          case 1: return 'st';
+          case 2: return 'nd';
+          case 3: return 'rd';
+          default: return 'th';
+        }
+      };
+      
+      const dateStr = `${day}${getOrdinalSuffix(parseInt(day))}-${month}-${year}`;
+      return `${formattedTitle}-${dateStr}.${extension}`;
+    }
+    
+    // For other downloads (QR codes, etc.), keep existing format
     // Capitalize each word and replace spaces with hyphens
-    const formattedTitle = title
+    const capitalizedTitle = title
       .split(/\s+/)
       .map(word => word.charAt(0).toUpperCase() + word.slice(1))
       .join('-');
     
-    // Format date if available
     const dateStr = galleryEventDate 
       ? format(new Date(galleryEventDate), 'MMM-dd-yyyy')
       : '';
     
     return dateStr 
-      ? `${formattedTitle}-${suffix}-(${dateStr}).${extension}`
-      : `${formattedTitle}-${suffix}.${extension}`;
+      ? `${capitalizedTitle}-${suffix}-(${dateStr}).${extension}`
+      : `${capitalizedTitle}-${suffix}.${extension}`;
   };
 
   const downloadQRCode = () => {
