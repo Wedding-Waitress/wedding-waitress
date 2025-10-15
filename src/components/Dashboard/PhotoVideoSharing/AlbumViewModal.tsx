@@ -611,7 +611,7 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
                   No photos yet
                 </div>
               ) : (
-                <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-1">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
                   {photos.map((photo, index) => {
                     const isActive = currentMediaId === photo.id;
                     return (
@@ -694,7 +694,7 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
                   No videos yet
                 </div>
               ) : (
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-1">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
                   {videos.map((video, index) => {
                     const isActive = currentMediaId === video.id;
                     return (
