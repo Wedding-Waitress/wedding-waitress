@@ -588,32 +588,35 @@ export const MediaLightbox: React.FC<MediaLightboxProps> = ({
             {canDelete && onDelete && (
               <Button
                 size="icon"
-                className="w-11 h-11 min-h-[44px] min-w-[44px] rounded-full bg-white hover:bg-red-50 text-[#FF4D4D] shadow-lg hover:shadow-xl transition-all"
+                className="w-11 h-11 min-h-[44px] min-w-[44px] rounded-full shadow-lg hover:shadow-xl transition-all"
+                style={{ backgroundColor: '#E02424' }}
                 onClick={handleDeleteClick}
                 title="Delete"
               >
-                <Trash2 className="w-5 h-5" />
+                <Trash2 className="w-5 h-5 text-white" />
               </Button>
             )}
 
             {/* Download Button */}
             <Button
               size="icon"
-              className="w-11 h-11 min-h-[44px] min-w-[44px] rounded-full bg-white hover:bg-white/90 text-primary shadow-lg hover:shadow-xl transition-all"
+              className="w-11 h-11 min-h-[44px] min-w-[44px] rounded-full shadow-lg hover:shadow-xl transition-all"
+              style={{ backgroundColor: '#6D28D9' }}
               onClick={handleDownload}
               title="Download"
             >
-              <Download className="w-5 h-5" />
+              <Download className="w-5 h-5 text-white" />
             </Button>
 
             {/* Share Item Button */}
             <Button
               size="icon"
-              className="w-11 h-11 min-h-[44px] min-w-[44px] rounded-full bg-white hover:bg-white/90 text-primary shadow-lg hover:shadow-xl transition-all"
+              className="w-11 h-11 min-h-[44px] min-w-[44px] rounded-full shadow-lg hover:shadow-xl transition-all"
+              style={{ backgroundColor: '#6D28D9' }}
               onClick={handleShare}
               title="Share"
             >
-              <Share2 className="w-5 h-5" />
+              <Share2 className="w-5 h-5 text-white" />
             </Button>
           </div>
         </div>
