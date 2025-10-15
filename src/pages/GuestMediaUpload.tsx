@@ -8,7 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { getThemeById } from '@/lib/mediaConstants';
+import { getThemeById, getThemeStyle } from '@/lib/mediaConstants';
 import weddingWaitressLogo from '@/assets/wedding-waitress-badge-logo.png';
 import { usePhotoSlideshow } from '@/hooks/usePhotoSlideshow';
 import { PhotoSlideshowBackground } from '@/components/PhotoSlideshowBackground';
@@ -1034,7 +1034,7 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
                   item.type === 'text' 
                     ? 'aspect-square flex items-center justify-center p-3' 
                     : 'aspect-square bg-black'
-                }`} style={item.type === 'text' ? { background: item.themeBg } : undefined}>
+                }`} style={item.type === 'text' && item.themeId ? getThemeStyle(item.themeId) : undefined}>
                   {item.type === 'photo' && item.preview && (
                     <img src={item.preview} className="w-full h-full object-contain" alt="" />
                   )}
