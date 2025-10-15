@@ -869,7 +869,8 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
               className="grid w-full grid-cols-4 relative" 
               style={{ 
                 backgroundColor: '#6D28D9',
-                padding: '8px'
+                padding: '8px',
+                paddingBottom: '16px'
               }}
             >
               <TabsTrigger 
