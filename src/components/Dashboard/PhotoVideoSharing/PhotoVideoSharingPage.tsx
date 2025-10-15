@@ -271,10 +271,200 @@ export const PhotoVideoSharingPage: React.FC = () => {
     setShowViewModal(true);
   };
 
+  // Download as folder using File System Access API (Chrome/Edge only)
+  const downloadAsFolder = async (): Promise<boolean | null> => {
+    // Feature detection
+    if (!('showDirectoryPicker' in window)) {
+      return false; // Not supported, use ZIP fallback
+    }
+
+    try {
+      // @ts-ignore - TypeScript doesn't recognize this API yet
+      const dirHandle = await window.showDirectoryPicker();
+      
+      // Create folder name: EventName (DD-MM-YYYY)
+      let folderName = galleryTitle.replace(/\s+/g, '');
+      if (galleryEventDate) {
+        const date = new Date(galleryEventDate);
+        const day = format(date, 'dd');
+        const month = format(date, 'MM');
+        const year = format(date, 'yyyy');
+        folderName = `${folderName} (${day}-${month}-${year})`;
+      }
+      
+      // @ts-ignore
+      const eventDirHandle = await dirHandle.getDirectoryHandle(folderName, { create: true });
+      
+      // Create subfolders
+      // @ts-ignore
+      const photosDirHandle = await eventDirHandle.getDirectoryHandle('Photos', { create: true });
+      // @ts-ignore
+      const videosDirHandle = await eventDirHandle.getDirectoryHandle('Videos', { create: true });
+      // @ts-ignore
+      const messagesDirHandle = await eventDirHandle.getDirectoryHandle('Messages', { create: true });
+      // @ts-ignore
+      const audioDirHandle = await eventDirHandle.getDirectoryHandle('Audio', { create: true });
+      
+      // Fetch all content from Supabase
+      const { data: mediaData } = await supabase
+        .from('media_uploads')
+        .select('*')
+        .eq('gallery_id', selectedGalleryId)
+        .in('status', ['pending', 'approved'])
+        .order('created_at', { ascending: true });
+      
+      const { data: audioData, error: audioError } = await supabase
+        .from('audio_guestbook' as any)
+        .select('*')
+        .eq('gallery_id', selectedGalleryId)
+        .order('created_at', { ascending: true });
+      
+      if (audioError) {
+        console.error('Error fetching audio:', audioError);
+      }
+      
+      // Download and write photos
+      let photoCount = 0;
+      for (const item of mediaData?.filter(m => m.post_type === 'photo') || []) {
+        try {
+          const { data: fileData } = await supabase.storage
+            .from('event-media')
+            .download(item.file_url.replace('event-media/', ''));
+          
+          if (fileData) {
+            photoCount++;
+            const seqPadded = String(item.seq_number || photoCount).padStart(6, '0');
+            const ext = item.mime_type?.split('/')[1] || 'jpg';
+            const filename = `${seqPadded}-Photo-${galleryTitle}.${ext}`;
+            
+            // @ts-ignore
+            const fileHandle = await photosDirHandle.getFileHandle(filename, { create: true });
+            // @ts-ignore
+            const writable = await fileHandle.createWritable();
+            await writable.write(fileData);
+            await writable.close();
+          }
+        } catch (err) {
+          console.error(`Failed to download photo ${item.id}:`, err);
+        }
+      }
+      
+      // Download and write videos
+      let videoCount = 0;
+      for (const item of mediaData?.filter(m => m.post_type === 'video' && !m.cloudflare_stream_uid) || []) {
+        try {
+          const { data: fileData } = await supabase.storage
+            .from('event-media')
+            .download(item.file_url.replace('event-media/', ''));
+          
+          if (fileData) {
+            videoCount++;
+            const seqPadded = String(item.seq_number || videoCount).padStart(6, '0');
+            const ext = item.mime_type?.split('/')[1] || 'mp4';
+            const filename = `${seqPadded}-Video-${galleryTitle}.${ext}`;
+            
+            // @ts-ignore
+            const fileHandle = await videosDirHandle.getFileHandle(filename, { create: true });
+            // @ts-ignore
+            const writable = await fileHandle.createWritable();
+            await writable.write(fileData);
+            await writable.close();
+          }
+        } catch (err) {
+          console.error(`Failed to download video ${item.id}:`, err);
+        }
+      }
+      
+      // Export messages as CSV and TXT
+      const textMessages = mediaData?.filter(m => m.post_type === 'text') || [];
+      if (textMessages.length > 0) {
+        const csvRows: string[] = ['timestamp,message'];
+        const txtLines: string[] = [];
+        
+        for (const item of textMessages) {
+          const timestamp = new Date(item.created_at).toISOString();
+          const message = (item.text_content || '').replace(/"/g, '""');
+          csvRows.push(`"${timestamp}","${message}"`);
+          txtLines.push(`[${format(new Date(item.created_at), 'yyyy-MM-dd HH:mm')}] ${item.text_content}`);
+        }
+        
+        // @ts-ignore
+        const csvHandle = await messagesDirHandle.getFileHandle('Messages.csv', { create: true });
+        // @ts-ignore
+        const csvWritable = await csvHandle.createWritable();
+        await csvWritable.write(csvRows.join('\n'));
+        await csvWritable.close();
+        
+        // @ts-ignore
+        const txtHandle = await messagesDirHandle.getFileHandle('Messages.txt', { create: true });
+        // @ts-ignore
+        const txtWritable = await txtHandle.createWritable();
+        await txtWritable.write(txtLines.join('\n'));
+        await txtWritable.close();
+      }
+      
+      // Download and write audio files
+      let audioCount = 0;
+      if (audioData && Array.isArray(audioData)) {
+        for (const item of audioData) {
+          try {
+            const audioFile = item as any;
+            const { data: fileData } = await supabase.storage
+              .from('audio-uploads')
+              .download(audioFile.file_url.replace('audio-uploads/', ''));
+            
+            if (fileData) {
+              audioCount++;
+              const seqPadded = String(audioFile.seq_number || audioCount).padStart(6, '0');
+              const ext = audioFile.mime_type?.split('/')[1] || 'm4a';
+              const filename = `${seqPadded}-Audio-${galleryTitle}.${ext}`;
+              
+              // @ts-ignore
+              const fileHandle = await audioDirHandle.getFileHandle(filename, { create: true });
+              // @ts-ignore
+              const writable = await fileHandle.createWritable();
+              await writable.write(fileData);
+              await writable.close();
+            }
+          } catch (err) {
+            console.error(`Failed to download audio ${(item as any).id}:`, err);
+          }
+        }
+      }
+      
+      return true; // Success
+    } catch (error: any) {
+      if (error.name === 'AbortError') {
+        return null; // User cancelled
+      }
+      console.error('Folder download failed:', error);
+      return false; // Fallback to ZIP
+    }
+  };
+
   const handleDownloadGallery = async () => {
     if (!selectedGalleryId || isDownloading) return;
 
     setIsDownloading(true);
+    
+    // Try folder download first (Chrome/Edge)
+    const folderResult = await downloadAsFolder();
+    
+    if (folderResult === true) {
+      // Success!
+      toast({
+        title: 'Download Complete!',
+        description: 'Album downloaded to your selected folder.',
+      });
+      setIsDownloading(false);
+      return;
+    } else if (folderResult === null) {
+      // User cancelled
+      setIsDownloading(false);
+      return;
+    }
+    
+    // Fallback to ZIP (existing code continues...)
     try {
       const { data, error } = await supabase.functions.invoke('export-gallery-zip', {
         body: {

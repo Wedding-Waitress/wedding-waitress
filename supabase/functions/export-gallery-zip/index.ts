@@ -149,12 +149,34 @@ async function processExport(
     const { data: mediaItems, error: mediaError } = await query;
     if (mediaError) throw mediaError;
 
-    console.log(`Found ${mediaItems.length} items to export`);
+    // Fetch audio guestbook messages
+    const { data: audioItems, error: audioError } = await supabase
+      .from('audio_guestbook')
+      .select('*')
+      .eq('gallery_id', galleryId)
+      .order('created_at', { ascending: true });
+    
+    if (audioError) console.error('Error fetching audio:', audioError);
+
+    console.log(`Found ${mediaItems.length} items and ${audioItems?.length || 0} audio messages to export`);
 
     const zip = new JSZip();
-    const photosFolder = zip.folder('1_Photos');
-    const videosFolder = zip.folder('2_Videos');
-    const messagesFolder = zip.folder('3_Guest_Book_Messages');
+    
+    // Create top-level folder with EventName (DD-MM-YYYY) format
+    let topFolderName = gallery.title.replace(/\s+/g, '');
+    if (gallery.event_date) {
+      const date = new Date(gallery.event_date);
+      const day = date.getDate().toString().padStart(2, '0');
+      const month = (date.getMonth() + 1).toString().padStart(2, '0');
+      const year = date.getFullYear();
+      topFolderName = `${topFolderName} (${day}-${month}-${year})`;
+    }
+    
+    const topFolder = zip.folder(topFolderName);
+    const photosFolder = topFolder?.folder('Photos');
+    const videosFolder = topFolder?.folder('Videos');
+    const messagesFolder = topFolder?.folder('Messages');
+    const audioFolder = topFolder?.folder('Audio');
 
     const manifestData: any = {
       gallery: {
@@ -165,8 +187,10 @@ async function processExport(
         exported_at: new Date().toISOString(),
         scope: scope,
         total_items: mediaItems.length,
+        total_audio: audioItems?.length || 0,
       },
       items: [],
+      audio_items: [],
     };
 
     const videosCsvRows: string[] = [
@@ -269,10 +293,55 @@ async function processExport(
       manifestData.items.push(itemData);
     }
 
-    zip.file('manifest.json', JSON.stringify(manifestData, null, 2));
+    // Process audio guestbook messages
+    let audioCount = 0;
+    for (const audioItem of audioItems || []) {
+      try {
+        const { data: fileData, error: downloadError } = await supabase.storage
+          .from('audio-uploads')
+          .download(audioItem.file_url.replace('audio-uploads/', ''));
+
+        if (!downloadError && fileData) {
+          audioCount++;
+          const seqPadded = String(audioItem.seq_number || audioCount).padStart(6, '0');
+          const ext = audioItem.mime_type?.split('/')[1] || 'm4a';
+          const filename = `${seqPadded}-Audio-${albumTitle}.${ext}`;
+          audioFolder?.file(filename, await fileData.arrayBuffer());
+
+          manifestData.audio_items.push({
+            id: audioItem.id,
+            seq_number: audioItem.seq_number,
+            created_at: audioItem.created_at,
+            duration_seconds: audioItem.duration_seconds,
+            file_size_bytes: audioItem.file_size_bytes,
+            exported_filename: `Audio/${filename}`,
+          });
+        }
+      } catch (err) {
+        console.error(`Failed to download audio ${audioItem.id}:`, err);
+      }
+    }
+
+    topFolder?.file('manifest.json', JSON.stringify(manifestData, null, 2));
 
     if (videosCsvRows.length > 1) {
-      zip.file('videos.csv', videosCsvRows.join('\n'));
+      topFolder?.file('videos.csv', videosCsvRows.join('\n'));
+    }
+
+    // Create Messages.csv and Messages.txt
+    if (textCount > 0) {
+      const messagesCsvRows: string[] = ['timestamp,message'];
+      const messagesTxtLines: string[] = [];
+
+      for (const item of mediaItems.filter(m => m.post_type === 'text')) {
+        const timestamp = new Date(item.created_at).toISOString();
+        const message = (item.text_content || '').replace(/"/g, '""');
+        messagesCsvRows.push(`"${timestamp}","${message}"`);
+        messagesTxtLines.push(`[${format(new Date(item.created_at), 'yyyy-MM-dd HH:mm')}] ${item.text_content}`);
+      }
+
+      messagesFolder?.file('Messages.csv', messagesCsvRows.join('\n'));
+      messagesFolder?.file('Messages.txt', messagesTxtLines.join('\n'));
     }
 
     const readme = `# ${gallery.title} - Photo & Video Export
@@ -280,23 +349,25 @@ async function processExport(
 Exported on: ${new Date().toISOString()}
 Export scope: ${scope === 'approved' ? 'Approved items only' : 'All items (including pending)'}
 Total items: ${mediaItems.length}
+Total audio messages: ${audioItems?.length || 0}
 
 ## Folder Structure
 
-- 1_Photos/ - All photo files with original quality and captions
-- 2_Videos/ - Videos (direct uploads and Cloudflare Stream thumbnails)
-- 3_Guest_Book_Messages/ - Guest book messages and text posts
+- Photos/ - All photo files with original quality and captions
+- Videos/ - Videos (direct uploads and Cloudflare Stream thumbnails)
+- Messages/ - Guest book messages (CSV and TXT formats)
+- Audio/ - Audio guestbook messages
 - manifest.json - Complete metadata for all items
 - videos.csv - Cloudflare Stream video information (playback URLs)
 
 ## Cloudflare Stream Videos
 
 Videos uploaded via Cloudflare Stream are not included as files (they're hosted on Cloudflare).
-Instead, see videos.csv for playback URLs and metadata. Thumbnails are in the 2_Videos folder.
+Instead, see videos.csv for playback URLs and metadata. Thumbnails are in the Videos folder.
 
 Generated by Wedding Waitress - https://weddingwaitress.com
 `;
-    zip.file('README.txt', readme);
+    topFolder?.file('README.txt', readme);
 
     console.log('Generating ZIP file...');
     const zipBlob = await zip.generateAsync({
