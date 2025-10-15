@@ -71,6 +71,7 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
   const [totalItems, setTotalItems] = useState(0);
   const [loadedItems, setLoadedItems] = useState(0);
   const [currentMediaId, setCurrentMediaId] = useState<string | null>(null);
+  const [isDownloading, setIsDownloading] = useState(false);
   const audioRefs = useRef<{ [key: string]: HTMLAudioElement }>({});
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const slideshowTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -449,6 +450,83 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
     }
   };
 
+  // Helper function to format filename with capitalized words and event date
+  const formatFilename = (title: string, suffix: string, extension: string): string => {
+    // Capitalize each word and replace spaces with hyphens
+    const formattedTitle = title
+      .split(/\s+/)
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join('-');
+    
+    // Format date if available
+    const dateStr = eventDate 
+      ? format(new Date(eventDate), 'MMM-dd-yyyy')
+      : '';
+    
+    return dateStr 
+      ? `${formattedTitle}-${suffix}-(${dateStr}).${extension}`
+      : `${formattedTitle}-${suffix}.${extension}`;
+  };
+
+  const handleDownloadGallery = async () => {
+    if (isDownloading) return;
+
+    setIsDownloading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('export-gallery-zip', {
+        body: {
+          galleryId: galleryId,
+          scope: 'approved',
+        },
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: 'Export Started',
+        description: 'Your gallery is being prepared. This may take a few moments.',
+      });
+
+      // Poll for completion
+      const checkExport = async (exportId: string) => {
+        const { data: exportData } = await supabase
+          .from('gallery_exports')
+          .select('status, download_url')
+          .eq('id', exportId)
+          .single();
+
+        if (exportData?.status === 'ready' && exportData.download_url) {
+          const link = document.createElement('a');
+          link.href = exportData.download_url;
+          link.download = formatFilename(galleryTitle, 'Photo-Video-Album', 'zip');
+          link.click();
+
+          toast({
+            title: 'Download Ready!',
+            description: 'Your gallery ZIP file is downloading now.',
+          });
+          setIsDownloading(false);
+        } else if (exportData?.status === 'error') {
+          throw new Error('Export failed');
+        } else {
+          setTimeout(() => checkExport(exportId), 2000);
+        }
+      };
+
+      if (data?.export_id) {
+        checkExport(data.export_id);
+      }
+    } catch (error: any) {
+      console.error('Error downloading album:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to download album',
+        variant: 'destructive',
+      });
+      setIsDownloading(false);
+    }
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent 
@@ -589,6 +667,23 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
                 >
                   <Share2 className="w-4 h-4" />
                   Share Album
+                </Button>
+                <Button
+                  onClick={handleDownloadGallery}
+                  variant="outline"
+                  className="gap-2"
+                  disabled={isDownloading}
+                  style={{ 
+                    border: '1px solid #6D28D9', 
+                    borderRadius: '8px' 
+                  }}
+                >
+                  {isDownloading ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Download className="w-4 h-4" />
+                  )}
+                  Download Album
                 </Button>
               </div>
             )}
