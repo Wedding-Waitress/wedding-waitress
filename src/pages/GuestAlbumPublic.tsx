@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, Navigate, useSearchParams } from 'react-router-dom';
+import { useParams, useNavigate, Navigate } from 'react-router-dom';
 import { Plus, ArrowLeft, X, Camera, Trash2, Play, Video, Loader2, Share2, Mic, MessageSquare } from 'lucide-react';
 import { format } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
@@ -68,9 +68,9 @@ export const GuestAlbumPublic: React.FC = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const fileInputRef = React.useRef<HTMLInputElement>(null);
-  const [searchParams, setSearchParams] = useSearchParams();
 
   const [flowStep, setFlowStep] = useState<FlowStep>('landing');
+  const [openGalleryRequested, setOpenGalleryRequested] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>('upload');
   const [galleryData, setGalleryData] = useState<GalleryData | null>(null);
   const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
@@ -252,12 +252,17 @@ export const GuestAlbumPublic: React.FC = () => {
     }
   }, [gallerySlug, retryCount]);
 
-  // Check for ?view=gallery query parameter and open modal
+  // Open album viewer if user already clicked before data loaded
   useEffect(() => {
-    if (searchParams.get('view') === 'gallery' && galleryData?.id) {
+    if (openGalleryRequested && galleryData?.id) {
+      analytics.track('album_view_opened', {
+        gallery_id: galleryData.id,
+        source: 'guest_landing_delayed',
+      });
       setAlbumViewerOpen(true);
+      setOpenGalleryRequested(false);
     }
-  }, [searchParams, galleryData]);
+  }, [openGalleryRequested, galleryData]);
 
   const generateOrGetToken = () => {
     const storageKey = `guest_token_${gallerySlug}`;
@@ -624,11 +629,7 @@ export const GuestAlbumPublic: React.FC = () => {
     e.preventDefault();
     
     if (!galleryData?.id) {
-      toast({
-        title: 'Album not found',
-        description: 'Unable to open album viewer',
-        variant: 'destructive',
-      });
+      setOpenGalleryRequested(true);
       return;
     }
 
@@ -638,14 +639,8 @@ export const GuestAlbumPublic: React.FC = () => {
       source: 'guest_landing',
     });
 
-    // Navigate with query parameter to open gallery view
-    setSearchParams({ view: 'gallery' });
-  };
-
-  const handleCloseAlbum = () => {
-    setAlbumViewerOpen(false);
-    // Remove query parameter to return to landing
-    setSearchParams({});
+    // Open album viewer immediately
+    setAlbumViewerOpen(true);
   };
 
   const handleTextPostSubmit = (data: { textContent: string; themeId: string }) => {
@@ -1591,7 +1586,7 @@ export const GuestAlbumPublic: React.FC = () => {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button
                 size="lg"
-                className="bg-gradient-to-r from-primary to-purple-600 hover:opacity-90"
+                className="bg-gradient-to-r from-primary to-purple-600 hover:opacity-90 cursor-pointer"
                 onClick={handleViewAlbum}
               >
                 View Album
@@ -1702,24 +1697,7 @@ export const GuestAlbumPublic: React.FC = () => {
           )}
           
           <div className="grid grid-cols-3 gap-2 md:gap-4">
-            {mediaItems.length === 0 ? (
-              <div className="col-span-3 flex flex-col items-center justify-center py-16 text-center">
-                <div className="text-6xl mb-4">📸</div>
-                <h3 className="text-xl font-semibold text-white drop-shadow-lg mb-2">No photos yet</h3>
-                <p className="text-white/90 drop-shadow-md mb-4">Be the first to share a memory!</p>
-                <Button
-                  size="lg"
-                  className="bg-white hover:bg-white/90"
-                  style={{ color: '#6D28D9' }}
-                  onClick={() => setFlowStep('add')}
-                >
-                  <Plus className="w-5 h-5 mr-2" />
-                  Add Photos
-                </Button>
-              </div>
-            ) : (
-              <>
-              {(viewMode === 'gallery' ? mediaItems : mediaItems.slice(0, 12)).map((item, index) => (
+            {(viewMode === 'gallery' ? mediaItems : mediaItems.slice(0, 12)).map((item, index) => (
                 <div
                   key={item.id}
                   className="aspect-square bg-white rounded-lg border-4 border-white shadow-lg overflow-hidden cursor-pointer hover:scale-[1.02] transition-transform"
@@ -1787,11 +1765,9 @@ export const GuestAlbumPublic: React.FC = () => {
                         {item.text_content}
                       </p>
                     </div>
-                  ) : null}
+                   ) : null}
                   </div>
                 ))}
-              </>
-            )}
           </div>
         </div>
 
@@ -1852,7 +1828,7 @@ export const GuestAlbumPublic: React.FC = () => {
       {galleryData && (
         <AlbumViewModal
           isOpen={albumViewerOpen}
-          onClose={handleCloseAlbum}
+          onClose={() => setAlbumViewerOpen(false)}
           galleryId={galleryData.id}
           galleryTitle={galleryData.title}
         />
