@@ -69,7 +69,7 @@ export const GuestAlbumPublic: React.FC = () => {
   const { toast } = useToast();
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
-  const [flowStep, setFlowStep] = useState<FlowStep>('view');
+  const [flowStep, setFlowStep] = useState<FlowStep>('landing');
   const [viewMode, setViewMode] = useState<ViewMode>('upload');
   const [galleryData, setGalleryData] = useState<GalleryData | null>(null);
   const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
@@ -630,12 +630,6 @@ export const GuestAlbumPublic: React.FC = () => {
       source: 'guest_landing',
     });
 
-    // Scroll to gallery section
-    const gallerySection = document.getElementById('gallery');
-    if (gallerySection) {
-      gallerySection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-    
     setFlowStep('view');
   };
 
@@ -699,7 +693,7 @@ export const GuestAlbumPublic: React.FC = () => {
       // Refresh gallery
       setTimeout(() => {
         fetchGalleryData();
-        setFlowStep('view');
+        setFlowStep('landing');
       }, 2000);
 
     } catch (error: any) {
@@ -795,9 +789,9 @@ export const GuestAlbumPublic: React.FC = () => {
         setFlowStep('success');
         await fetchGalleryData();
 
-        // Auto-navigate to gallery view after 3 seconds to show new uploads
+        // Auto-navigate to landing after 3 seconds to show new uploads
         setTimeout(() => {
-          setFlowStep('view');
+          setFlowStep('landing');
         }, 3000);
       } else if (successCount > 0) {
         toast({
@@ -1173,9 +1167,7 @@ export const GuestAlbumPublic: React.FC = () => {
     );
   }
 
-  // Landing page - DISABLED: Gallery grid is now the default view
-  // Keeping this commented out in case it needs to be restored
-  /*
+  // Landing page
   if (flowStep === 'landing') {
     return (
       <>
@@ -1186,12 +1178,157 @@ export const GuestAlbumPublic: React.FC = () => {
           firstPhotoUrl={firstPhotoUrl ? getMediaUrl(firstPhotoUrl) : undefined}
         />
         <div className="h-screen relative overflow-hidden">
-        ... landing page content removed ...
+        {/* Base gradient fallback */}
+        <div className="fixed inset-0 z-0 bg-gradient-to-br from-purple-100 via-purple-50 to-blue-50" />
+        
+        {/* Slideshow background layers */}
+        {photoUrls.length > 0 && (
+          <>
+            <div 
+              id="hero-bg-a" 
+              className="hero-bg" 
+              style={{ 
+                backgroundImage: activeLayer === 'a' ? `url(${photoUrls[currentPhotoIndex]})` : 'none',
+                opacity: activeLayer === 'a' ? 1 : 0 
+              }} 
+            />
+            <div 
+              id="hero-bg-b" 
+              className="hero-bg" 
+              style={{ 
+                backgroundImage: activeLayer === 'b' ? `url(${photoUrls[currentPhotoIndex]})` : 'none',
+                opacity: activeLayer === 'b' ? 1 : 0 
+              }} 
+            />
+            <div className="hero-overlay" />
+          </>
+        )}
+        
+        {/* Sticky header badge */}
+        <div className="sticky top-0 z-20 flex justify-center pt-4 pb-2">
+          <a
+            href="https://www.weddingwaitress.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="bg-white rounded-full px-5 py-3 shadow-lg hover:shadow-xl transition-shadow flex items-center gap-3"
+          >
+            <span className="text-sm font-medium">💜 Made with</span>
+            <img src={weddingWaitressLogo} alt="Wedding Waitress" className="h-10" />
+          </a>
         </div>
+        
+        <div className="relative z-10 flex flex-col items-center justify-center h-screen overflow-y-hidden px-4">
+          <div className="text-center space-y-8 max-w-2xl">
+            <h1 className="text-3xl md:text-5xl font-bold text-black drop-shadow-lg">{galleryData.title}</h1>
+            {galleryData.event_date && (
+              <p className="text-xl text-black drop-shadow-md">
+                {format(new Date(galleryData.event_date), 'do MMMM yyyy')}
+              </p>
+            )}
+            
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button
+                size="lg"
+                className="text-xl px-12 py-8 rounded-2xl hover:opacity-90"
+                style={{ backgroundColor: '#6D28D9', color: '#FFFFFF' }}
+                onClick={() => setFlowStep('add')}
+              >
+                <Plus className="w-6 h-6 mr-3" />
+                Add to Album
+              </Button>
+              
+              <Button
+                size="lg"
+                variant="outline"
+                className="text-xl px-12 py-8 rounded-2xl bg-white border-2 hover:bg-[#F3E8FF] transition-colors"
+                style={{ borderColor: '#6D28D9', color: '#6D28D9' }}
+                onClick={handleViewAlbum}
+              >
+                View Album
+              </Button>
+            </div>
+
+            {/* Share Album Button */}
+            <div className="flex justify-center mt-4 pb-6">
+              <Button
+                size="lg"
+                variant="outline"
+                className="w-full max-w-md text-xl px-12 py-8 rounded-2xl bg-white hover:bg-white/90 border-2 border-primary shadow-md"
+                onClick={handleShareGallery}
+              >
+                <Share2 className="w-6 h-6 mr-3" />
+                Share Album
+              </Button>
+            </div>
+
+            {/* Recent Media Count */}
+            {mediaItems.length > 0 && (
+              <div className="mt-12 w-full max-w-4xl mx-auto">
+                <p className="text-sm text-white drop-shadow-md mb-4 text-center">
+                  {mediaItems.length} photos, videos & posts ⬇️
+                </p>
+                <div className="overflow-x-auto pb-4 snap-x snap-mandatory scroll-smooth -mx-4 px-4">
+                  <div className="flex gap-3 min-w-min">
+                    {mediaItems.slice(0, 30).map((item) => (
+                      <div
+                        key={item.id}
+                        className="snap-start shrink-0 cursor-pointer transition-transform hover:scale-105"
+                       onClick={handleViewAlbum}
+                      >
+                        <div className="w-32 h-32 md:w-40 md:h-40 rounded-lg shadow-md overflow-hidden bg-muted">
+                          {item.post_type === 'photo' && item.file_url ? (
+                            <img
+                              src={getMediaUrl(item.file_url)}
+                              alt={item.caption || 'Gallery photo'}
+                              className="w-full h-full object-cover"
+                              loading="lazy"
+                              decoding="async"
+                            />
+                          ) : item.post_type === 'video' && item.thumbnail_url ? (
+                            <div className="relative w-full h-full">
+                              {item.cloudflare_stream_uid ? (
+                                <img
+                                  src={item.thumbnail_url || `https://customer-${item.cloudflare_stream_uid.split('/')[0]}.cloudflarestream.com/${item.cloudflare_stream_uid}/thumbnails/thumbnail.jpg`}
+                                  alt={item.caption || 'Video thumbnail'}
+                                  className="w-full h-full object-cover"
+                                  loading="lazy"
+                                  decoding="async"
+                                />
+                              ) : (
+                                <img
+                                  src={item.thumbnail_url}
+                                  alt={item.caption || 'Video thumbnail'}
+                                  className="w-full h-full object-cover"
+                                  loading="lazy"
+                                  decoding="async"
+                                />
+                              )}
+                              <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+                                <div className="w-12 h-12 rounded-full bg-white/90 flex items-center justify-center">
+                                  <div className="w-0 h-0 border-l-[8px] border-l-primary border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent ml-1"></div>
+                                </div>
+                              </div>
+                            </div>
+                          ) : item.post_type === 'text' ? (
+                            <div className="w-full h-full flex items-center justify-center p-4 bg-gradient-to-br from-primary/10 to-primary/5">
+                              <p className="text-sm text-center line-clamp-4">
+                                {item.text_content}
+                              </p>
+                            </div>
+                          ) : null}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
       </>
     );
   }
-  */
 
   // Add media page
   if (flowStep === 'add') {
@@ -1200,7 +1337,7 @@ export const GuestAlbumPublic: React.FC = () => {
         <div className="max-w-4xl mx-auto space-y-6">
           <div className="flex items-center justify-between">
             <h1 className="text-2xl md:text-3xl font-bold">{galleryData.title}</h1>
-            <Button variant="ghost" onClick={() => setFlowStep('view')}>
+            <Button variant="ghost" onClick={() => setFlowStep('landing')}>
               <X className="w-5 h-5" />
             </Button>
           </div>
@@ -1449,7 +1586,7 @@ export const GuestAlbumPublic: React.FC = () => {
                 variant="outline"
                 onClick={() => {
                   setSelectedItems([]);
-                  setFlowStep('view');
+                  setFlowStep('landing');
                 }}
               >
                 <Plus className="w-5 h-5 mr-2" />
@@ -1534,7 +1671,7 @@ export const GuestAlbumPublic: React.FC = () => {
         </div>
 
         {/* Gallery Grid */}
-        <div id="gallery" className="max-w-7xl mx-auto px-4 py-8">
+        <div className="max-w-7xl mx-auto px-4 py-8">
           {/* View Mode Toggle */}
           {mediaItems.length > 12 && (
             <div className="flex justify-center mb-6">
