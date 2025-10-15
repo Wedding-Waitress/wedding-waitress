@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Image, Video, MessageSquare, Loader2, Phone, Play, Pause, Download, Share2, Presentation, X, ChevronLeft, ChevronRight, Archive } from 'lucide-react';
+import { Image, Video, MessageSquare, Loader2, Phone, Play, Pause, Download, Share2, Presentation, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { MediaLightbox } from '@/components/MediaLightbox';
@@ -64,7 +64,6 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
   const [slideshowPlaying, setSlideshowPlaying] = useState(true);
   const [eventDate, setEventDate] = useState<string | null>(null);
   const [isOwner, setIsOwner] = useState(false);
-  const [downloadingZip, setDownloadingZip] = useState(false);
   const [loadProgress, setLoadProgress] = useState(0);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [loadingMessage, setLoadingMessage] = useState('Preparing your memories…');
@@ -216,49 +215,6 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
       : item.file_url;
     
     return supabase.storage.from('event-media').getPublicUrl(filePath).data.publicUrl;
-  };
-
-  const handleDownloadEntireAlbum = async () => {
-    setDownloadingZip(true);
-    try {
-      toast({
-        title: 'Preparing download...',
-        description: 'Creating ZIP archive of all media',
-      });
-
-      const { data, error } = await supabase.functions.invoke('export-gallery-zip', {
-        body: { 
-          galleryId,
-          scope: 'all'
-        }
-      });
-
-      if (error) throw error;
-
-      if (data?.download_url) {
-        // Download the ZIP file
-        const link = document.createElement('a');
-        link.href = data.download_url;
-        link.download = `${galleryTitle.replace(/[^a-z0-9]/gi, '_')}_complete.zip`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-
-        toast({
-          title: 'Download started',
-          description: 'Your album is being downloaded as a ZIP file',
-        });
-      }
-    } catch (error) {
-      console.error('Download failed:', error);
-      toast({
-        title: 'Download failed',
-        description: 'Could not create the album archive. Please try again.',
-        variant: 'destructive',
-      });
-    } finally {
-      setDownloadingZip(false);
-    }
   };
 
   const formatEventDate = (dateString: string) => {
@@ -607,19 +563,6 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
                 >
                   <Share2 className="w-4 h-4" />
                   Share Album
-                </Button>
-                <Button
-                  onClick={handleDownloadEntireAlbum}
-                  variant="outline"
-                  className="gap-2"
-                  disabled={downloadingZip}
-                >
-                  {downloadingZip ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <Archive className="w-4 h-4" />
-                  )}
-                  Download Entire Album
                 </Button>
               </div>
             )}
