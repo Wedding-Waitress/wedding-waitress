@@ -1030,11 +1030,12 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
                                     
                                     await downloadFile(getImageUrl(photo), filename);
                                   }}
-                                  className="absolute bottom-2 left-2 w-8 h-8 rounded-full bg-white/90 hover:bg-white flex items-center justify-center transition-colors z-10 pointer-events-auto"
+                                  className="absolute bottom-2 left-2 w-8 h-8 rounded-full flex items-center justify-center transition-all z-10 pointer-events-auto shadow-lg hover:shadow-xl"
+                                  style={{ backgroundColor: '#6D28D9' }}
                                   aria-label="Download photo"
                                   title="Download"
                                 >
-                                  <Download className="w-4 h-4 text-gray-800" />
+                                  <Download className="w-4 h-4 text-white" />
                                 </button>
                               </TooltipTrigger>
                               <TooltipContent>
@@ -1052,11 +1053,12 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
                                     e.stopPropagation();
                                     handleShareGallery();
                                   }}
-                                  className="absolute bottom-2 left-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-white/90 hover:bg-white flex items-center justify-center transition-colors pointer-events-auto"
+                                  className="absolute bottom-2 left-1/2 -translate-x-1/2 w-8 h-8 rounded-full flex items-center justify-center transition-all pointer-events-auto shadow-lg hover:shadow-xl"
+                                  style={{ backgroundColor: '#6D28D9' }}
                                   aria-label="Share photo"
                                   title="Share"
                                 >
-                                  <Share2 className="w-4 h-4 text-gray-800" />
+                                  <Share2 className="w-4 h-4 text-white" />
                                 </button>
                               </TooltipTrigger>
                               <TooltipContent>
@@ -1071,11 +1073,12 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
                                   <button
                                     type="button"
                                     onClick={(e) => handleDeleteClick(photo.id, e)}
-                                    className="absolute bottom-2 right-2 w-8 h-8 rounded-full bg-white/90 hover:bg-white flex items-center justify-center transition-colors z-10 pointer-events-auto"
+                                    className="absolute bottom-2 right-2 w-8 h-8 rounded-full flex items-center justify-center transition-all z-10 pointer-events-auto shadow-lg hover:shadow-xl"
+                                    style={{ backgroundColor: '#E02424' }}
                                     aria-label="Delete photo"
                                     title="Delete"
                                   >
-                                    <Trash2 className="w-4 h-4 text-gray-800" />
+                                    <Trash2 className="w-4 h-4 text-white" />
                                   </button>
                                 </TooltipTrigger>
                                 <TooltipContent>
@@ -1177,11 +1180,12 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
                                       await downloadFile(videoUrl, filename);
                                     }
                                   }}
-                                  className="absolute bottom-2 left-2 w-8 h-8 rounded-full bg-white/90 hover:bg-white flex items-center justify-center transition-colors z-10"
+                                  className="absolute bottom-2 left-2 w-8 h-8 rounded-full flex items-center justify-center transition-all z-10 pointer-events-auto shadow-lg hover:shadow-xl"
+                                  style={{ backgroundColor: '#6D28D9' }}
                                   aria-label="Download video"
                                   title="Download"
                                 >
-                                  <Download className="w-4 h-4 text-gray-800" />
+                                  <Download className="w-4 h-4 text-white" />
                                 </button>
                               </TooltipTrigger>
                               <TooltipContent>
@@ -1198,11 +1202,12 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
                                     e.stopPropagation();
                                     handleShareGallery();
                                   }}
-                                  className="absolute bottom-2 left-12 w-8 h-8 rounded-full bg-white/90 hover:bg-white flex items-center justify-center transition-colors z-10"
+                                  className="absolute bottom-2 left-12 w-8 h-8 rounded-full flex items-center justify-center transition-all z-10 pointer-events-auto shadow-lg hover:shadow-xl"
+                                  style={{ backgroundColor: '#6D28D9' }}
                                   aria-label="Share video"
                                   title="Share"
                                 >
-                                  <Share2 className="w-4 h-4 text-gray-800" />
+                                  <Share2 className="w-4 h-4 text-white" />
                                 </button>
                               </TooltipTrigger>
                               <TooltipContent>
@@ -1217,11 +1222,12 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
                                   <button
                                     type="button"
                                     onClick={(e) => handleDeleteClick(video.id, e)}
-                                    className="absolute bottom-2 left-22 w-8 h-8 rounded-full bg-white/90 hover:bg-white flex items-center justify-center transition-colors z-10"
+                                    className="absolute bottom-2 left-22 w-8 h-8 rounded-full flex items-center justify-center transition-all z-10 pointer-events-auto shadow-lg hover:shadow-xl"
+                                    style={{ backgroundColor: '#E02424' }}
                                     aria-label="Delete video"
                                     title="Delete"
                                   >
-                                    <Trash2 className="w-4 h-4 text-gray-800" />
+                                    <Trash2 className="w-4 h-4 text-white" />
                                   </button>
                                 </TooltipTrigger>
                                 <TooltipContent>
