@@ -60,7 +60,7 @@ interface GalleryData {
   show_footer: boolean;
 }
 
-type FlowStep = 'landing' | 'add' | 'preview' | 'uploading' | 'success';
+type FlowStep = 'landing' | 'add' | 'preview' | 'uploading' | 'success' | 'view';
 type ViewMode = 'upload' | 'gallery';
 
 export const GuestAlbumPublic: React.FC = () => {
@@ -630,7 +630,7 @@ export const GuestAlbumPublic: React.FC = () => {
       source: 'guest_landing',
     });
 
-    setAlbumViewerOpen(true);
+    setFlowStep('view');
   };
 
   const handleTextPostSubmit = (data: { textContent: string; themeId: string }) => {
