@@ -539,9 +539,9 @@ export const PhotoVideoSharingPage: React.FC = () => {
           <div className="space-y-6">
             {/* Title */}
             <div className="flex items-start gap-4">
-              <Camera className="w-12 h-12 text-primary flex-shrink-0 mt-1" />
+              <Camera className="w-12 h-12 flex-shrink-0 mt-1" style={{ color: '#6D28D9' }} />
               <div>
-                <h2 className="text-2xl font-bold">Photo & Video Sharing + Online Guest Book & Audio Guest Book in One!</h2>
+                <h2 className="text-2xl font-bold" style={{ color: '#6D28D9' }}>Photo & Video Sharing + Online Guest Book & Audio Guest Book in One!</h2>
                 <p className="text-sm text-muted-foreground mt-1">
                   Let your guests share their favorite moments from your event
                 </p>
@@ -553,12 +553,12 @@ export const PhotoVideoSharingPage: React.FC = () => {
                 {/* Stats Bar */}
                 <div className="grid grid-cols-1 gap-6">
                   {/* Left: Stats Bar - Redesigned 3-Line Layout */}
-                  <Card className="ww-box border-2 border-primary/20">
+                  <Card className="ww-box border-2" style={{ borderColor: 'rgba(109, 40, 217, 0.2)' }}>
                     <CardContent className="pt-2 pb-0 px-3">
                       <div className="flex items-center justify-between mb-1.5">
                         <h3 className="text-lg font-semibold">Statistics</h3>
                         {galleryTitle && (
-                          <p className="text-xl font-medium text-primary">
+                          <p className="text-xl font-medium" style={{ color: '#6D28D9' }}>
                             {galleryTitle}
                             {galleryEventDate && ` - ${format(new Date(galleryEventDate), 'EEEE do, MMMM yyyy')}`}
                           </p>
@@ -605,9 +605,9 @@ export const PhotoVideoSharingPage: React.FC = () => {
                         
                         {/* Stat 6: Total Uploads */}
                         <div className="flex flex-col items-start gap-1">
-                          <BarChart3 className="w-5 h-5 text-primary" />
+                          <BarChart3 className="w-5 h-5" style={{ color: '#6D28D9' }} />
                           <p className="text-xs text-muted-foreground font-semibold">Total Uploads</p>
-                          <p className="text-2xl font-bold text-primary">{totalUploads}</p>
+                          <p className="text-2xl font-bold" style={{ color: '#6D28D9' }}>{totalUploads}</p>
                         </div>
                       </div>
                     </CardContent>
@@ -619,14 +619,14 @@ export const PhotoVideoSharingPage: React.FC = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {/* Box 1: Create Album */}
-                <Card className="ww-box border-2 border-primary/20">
+                <Card className="ww-box border-2" style={{ borderColor: 'rgba(109, 40, 217, 0.2)' }}>
                   <CardContent className="p-6 space-y-4 flex flex-col h-full">
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2">
-                        <Camera className="w-5 h-5 text-primary" />
+                        <Camera className="w-5 h-5" style={{ color: '#6D28D9' }} />
                         <h3 className="text-lg font-semibold">Create Album</h3>
                       </div>
-                      <div className="flex items-center justify-center w-20 h-20 rounded-full bg-white border-2 border-primary text-primary text-base font-bold shadow-sm">
+                      <div className="flex items-center justify-center w-20 h-20 rounded-full bg-white border-2 text-base font-bold shadow-sm" style={{ borderColor: '#6D28D9', color: '#6D28D9' }}>
                         Step 1
                       </div>
                     </div>
@@ -649,14 +649,14 @@ export const PhotoVideoSharingPage: React.FC = () => {
 
                 {/* Box 2: Photo & Video QR Code (only show if gallery selected) */}
                 {selectedGalleryId && (
-                  <Card className="ww-box border-2 border-primary/20">
+                  <Card className="ww-box border-2" style={{ borderColor: 'rgba(109, 40, 217, 0.2)' }}>
                     <CardContent className="p-6 space-y-4 flex flex-col h-full">
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
-                          <QrCode className="w-5 h-5 text-primary" />
+                          <QrCode className="w-5 h-5" style={{ color: '#6D28D9' }} />
                           <h3 className="text-lg font-semibold">Photo & Video QR Code</h3>
                         </div>
-                        <div className="flex items-center justify-center w-20 h-20 rounded-full bg-white border-2 border-primary text-primary text-base font-bold shadow-sm">
+                        <div className="flex items-center justify-center w-20 h-20 rounded-full bg-white border-2 text-base font-bold shadow-sm" style={{ borderColor: '#6D28D9', color: '#6D28D9' }}>
                           Step 2
                         </div>
                       </div>
@@ -681,7 +681,7 @@ export const PhotoVideoSharingPage: React.FC = () => {
 
                       {/* Action Buttons */}
                       <div className="flex flex-col gap-3">
-                        <Button variant="outline" onClick={copyUploadUrl} disabled={!uploadUrl}>
+                        <Button variant="outline" onClick={copyUploadUrl} disabled={!uploadUrl} style={{ backgroundColor: '#6D28D9', color: 'white', borderColor: '#6D28D9' }} className="hover:opacity-90">
                           <Copy className="w-4 h-4 mr-2" />
                           Copy Guest Upload Link
                         </Button>
@@ -695,14 +695,14 @@ export const PhotoVideoSharingPage: React.FC = () => {
                 )}
 
                 {/* Box 3: Select Album & Delete */}
-                <Card className="ww-box border-2 border-primary/20">
+                <Card className="ww-box border-2" style={{ borderColor: 'rgba(109, 40, 217, 0.2)' }}>
                   <CardContent className="p-6 space-y-4 flex flex-col h-full">
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2">
-                        <FolderOpen className="w-5 h-5 text-primary" />
+                        <FolderOpen className="w-5 h-5" style={{ color: '#6D28D9' }} />
                         <h3 className="text-lg font-semibold">Select Album</h3>
                       </div>
-                      <div className="flex items-center justify-center w-20 h-20 rounded-full bg-white border-2 border-primary text-primary text-base font-bold shadow-sm">
+                      <div className="flex items-center justify-center w-20 h-20 rounded-full bg-white border-2 text-base font-bold shadow-sm" style={{ borderColor: '#6D28D9', color: '#6D28D9' }}>
                         Step 3
                       </div>
                     </div>
@@ -742,9 +742,10 @@ export const PhotoVideoSharingPage: React.FC = () => {
 
                       <Button
                         variant="outline"
-                        className="w-full"
+                        className="w-full hover:opacity-90"
                         onClick={handleDownloadGallery}
                         disabled={!selectedGalleryId || isDownloading}
+                        style={{ backgroundColor: '#6D28D9', color: 'white', borderColor: '#6D28D9' }}
                       >
                         {isDownloading ? (
                           <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -770,7 +771,7 @@ export const PhotoVideoSharingPage: React.FC = () => {
               </>
             ) : (
               <div className="text-center py-12">
-                <Camera className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
+                <Camera className="w-16 h-16 mx-auto mb-4" style={{ color: '#6D28D9' }} />
                 <h3 className="text-xl font-semibold mb-2">No Galleries Yet</h3>
                 <p className="text-muted-foreground mb-6">
                   Create your first photo & video gallery to start collecting memories from your event
