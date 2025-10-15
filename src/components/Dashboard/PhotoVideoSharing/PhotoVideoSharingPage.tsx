@@ -336,7 +336,7 @@ export const PhotoVideoSharingPage: React.FC = () => {
             <div className="flex items-start gap-4">
               <Camera className="w-12 h-12 text-primary flex-shrink-0 mt-1" />
               <div>
-                <h2 className="text-2xl font-bold">Photo & Video Sharing</h2>
+                <h2 className="text-2xl font-bold">Photo & Video Sharing + Online Guest Book & Audio Guest Book in One!</h2>
                 <p className="text-sm text-muted-foreground mt-1">
                   Let your guests share their favorite moments from your event
                 </p>
