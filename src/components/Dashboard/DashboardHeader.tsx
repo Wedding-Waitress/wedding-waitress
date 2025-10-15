@@ -27,10 +27,11 @@ export const DashboardHeader: React.FC = () => {
         
         {/* Welcome message - centered */}
         <div className="flex items-center justify-center w-full">
-          <h2 className="text-base md:text-xl lg:text-2xl font-semibold text-primary flex items-center gap-2">
-            <span className="hidden sm:inline">Welcome </span>
-            <span>{getDisplayName()}</span>
-            <Sparkles className="w-5 h-5 md:w-6 md:h-6 lg:w-7 lg:h-7 text-primary flex-shrink-0" />
+          <h2 className="text-base md:text-xl lg:text-2xl font-semibold flex items-center gap-2" style={{ color: '#6D28D9' }}>
+            <span className="hidden sm:inline">Hey {getDisplayName()}, </span>
+            <span className="sm:hidden">{getDisplayName()}</span>
+            <span className="hidden sm:inline">What are you working on today!</span>
+            <Sparkles className="w-5 h-5 md:w-6 md:h-6 lg:w-7 lg:h-7 flex-shrink-0" style={{ color: '#6D28D9' }} />
           </h2>
         </div>
         

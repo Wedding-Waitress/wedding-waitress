@@ -685,7 +685,7 @@ export const PhotoVideoSharingPage: React.FC = () => {
                           <Copy className="w-4 h-4 mr-2" />
                           Copy Guest Upload Link
                         </Button>
-                        <Button variant="default" onClick={downloadQRCode} disabled={!qrCodeDataUrl}>
+                        <Button variant="default" onClick={downloadQRCode} disabled={!qrCodeDataUrl} style={{ backgroundColor: '#6D28D9', color: 'white', borderColor: '#6D28D9' }} className="hover:opacity-90">
                           <Download className="w-4 h-4 mr-2" />
                           QR Code Download
                         </Button>
@@ -732,9 +732,10 @@ export const PhotoVideoSharingPage: React.FC = () => {
                     <div className="space-y-2">
                       <Button
                         variant="default"
-                        className="w-full"
+                        className="w-full hover:opacity-90"
                         onClick={handleViewGallery}
                         disabled={!selectedGalleryId}
+                        style={{ backgroundColor: '#6D28D9', color: 'white', borderColor: '#6D28D9' }}
                       >
                         <Eye className="w-4 h-4 mr-2" />
                         View Album

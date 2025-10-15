@@ -29,7 +29,7 @@ export const GalleryAnalyticsWidget: React.FC<GalleryAnalyticsWidgetProps> = ({ 
               <Tooltip>
                 <TooltipTrigger asChild>
                   <div className="flex flex-col items-center cursor-help">
-                    <div className="flex items-center gap-2 text-primary mb-1">
+                    <div className="flex items-center gap-2 mb-1" style={{ color: '#6D28D9' }}>
                       <Eye className="w-5 h-5" />
                       <span className="text-2xl font-bold">
                         {analytics?.unique_sessions || 0}
@@ -47,7 +47,7 @@ export const GalleryAnalyticsWidget: React.FC<GalleryAnalyticsWidgetProps> = ({ 
               <Tooltip>
                 <TooltipTrigger asChild>
                   <div className="flex flex-col items-center cursor-help">
-                    <div className="flex items-center gap-2 text-primary mb-1">
+                    <div className="flex items-center gap-2 mb-1" style={{ color: '#6D28D9' }}>
                       <Share2 className="w-5 h-5" />
                       <span className="text-2xl font-bold">
                         {analytics?.total_shares || 0}
@@ -65,7 +65,7 @@ export const GalleryAnalyticsWidget: React.FC<GalleryAnalyticsWidgetProps> = ({ 
               <Tooltip>
                 <TooltipTrigger asChild>
                   <div className="flex flex-col items-center cursor-help">
-                    <div className="flex items-center gap-2 text-primary mb-1">
+                    <div className="flex items-center gap-2 mb-1" style={{ color: '#6D28D9' }}>
                       <Download className="w-5 h-5" />
                       <span className="text-2xl font-bold">
                         {analytics?.total_downloads || 0}
