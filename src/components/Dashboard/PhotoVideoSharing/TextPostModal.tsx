@@ -66,13 +66,12 @@ export const TextPostModal: React.FC<TextPostModalProps> = ({ open, onClose, onS
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-md max-h-[100vh] overflow-hidden p-0">
-        <div className="flex flex-col h-full max-h-[100vh]">
-          <DialogHeader className="px-4 pt-3 pb-2">
-            <DialogTitle className="text-lg">Add a Text Message</DialogTitle>
-          </DialogHeader>
-          
-          <div className="flex-1 overflow-y-auto px-4 pb-3 space-y-3">
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>Add a Text Message</DialogTitle>
+        </DialogHeader>
+        
+        <div className="space-y-4 mt-4">
             {/* Theme Selection - 2x3 Grid */}
             <div>
               <Label className="text-sm mb-2 block">Choose a theme</Label>
@@ -153,28 +152,27 @@ export const TextPostModal: React.FC<TextPostModalProps> = ({ open, onClose, onS
                 </Card>
               </CollapsibleContent>
             </Collapsible>
-          </div>
+        </div>
 
-          {/* Sticky Action Buttons */}
-          <div className="sticky bottom-0 bg-background border-t px-4 py-3 flex gap-2 safe-area-bottom">
-            <Button 
-              variant="ghost" 
-              onClick={onClose} 
-              className="flex-1"
-              type="button"
-            >
-              Cancel
-            </Button>
-            <Button
-              style={{ backgroundColor: '#6D28D9', color: 'white' }}
-              className="flex-1 hover:opacity-90"
-              onClick={handleSubmit}
-              disabled={!textContent.trim()}
-              type="button"
-            >
-              Add to Album
-            </Button>
-          </div>
+        {/* Action Buttons */}
+        <div className="flex gap-2 mt-6">
+          <Button 
+            variant="ghost" 
+            onClick={onClose} 
+            className="flex-1"
+            type="button"
+          >
+            Cancel
+          </Button>
+          <Button
+            style={{ backgroundColor: '#6D28D9', color: 'white' }}
+            className="flex-1 hover:opacity-90"
+            onClick={handleSubmit}
+            disabled={!textContent.trim()}
+            type="button"
+          >
+            Add to Album
+          </Button>
         </div>
       </DialogContent>
     </Dialog>
