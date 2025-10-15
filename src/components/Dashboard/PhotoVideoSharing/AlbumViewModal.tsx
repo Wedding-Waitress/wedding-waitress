@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Image, Video, MessageSquare, Loader2, Phone, Play, Pause, Download, Share2, Presentation, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Image, Video, MessageSquare, Loader2, Phone, Play, Pause, Download, Share2, Presentation, X, ChevronLeft, ChevronRight, Trash2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { MediaLightbox } from '@/components/MediaLightbox';
@@ -11,6 +11,17 @@ import { format } from 'date-fns';
 import logoImage from '@/assets/wedding-waitress-logo.png';
 import weddingWaitressLogo from '@/assets/wedding-waitress-logo-full-brand.png';
 import { generateMediaFilename, getMediaTypeLabel } from '@/lib/mediaFilenames';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface AlbumViewModalProps {
   isOpen: boolean;
@@ -72,6 +83,8 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
   const [loadedItems, setLoadedItems] = useState(0);
   const [currentMediaId, setCurrentMediaId] = useState<string | null>(null);
   const [isDownloading, setIsDownloading] = useState(false);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<string | null>(null);
   const audioRefs = useRef<{ [key: string]: HTMLAudioElement }>({});
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const slideshowTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -444,9 +457,34 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
       setMessages(prev => prev.filter(item => item.id !== itemId));
       setLightboxItems(prev => prev.filter(item => item.id !== itemId));
 
+      toast({
+        title: 'Item deleted',
+        description: 'The media has been removed from the album.',
+      });
+
     } catch (error) {
       console.error('Error deleting media:', error);
+      toast({
+        title: 'Delete failed',
+        description: 'Unable to delete the item. Please try again.',
+        variant: 'destructive',
+      });
       throw error;
+    }
+  };
+
+  const handleDeleteClick = (itemId: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setItemToDelete(itemId);
+    setDeleteConfirmOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (itemToDelete) {
+      await handleDeleteMedia(itemToDelete);
+      setDeleteConfirmOpen(false);
+      setItemToDelete(null);
     }
   };
 
@@ -972,42 +1010,80 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
                       {/* Hover Overlay */}
                       <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all duration-300 pointer-events-none">
                         <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                          {/* Download Button - Bottom Left */}
-                          <button
-                            type="button"
-                            onClick={async (e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              
-                              const filename = generateMediaFilename({
-                                seqNumber: photo.seq_number || 0,
-                                type: 'Photo',
-                                albumTitle: galleryTitle,
-                                mimeType: photo.mime_type,
-                                fileUrl: photo.file_url
-                              });
-                              
-                              await downloadFile(getImageUrl(photo), filename);
-                            }}
-                            className="absolute bottom-2 left-2 w-8 h-8 rounded-full bg-white/90 hover:bg-white flex items-center justify-center transition-colors z-10 pointer-events-auto"
-                            aria-label="Download photo"
-                          >
-                            <Download className="w-4 h-4 text-gray-800" />
-                          </button>
-                          
-                          {/* Share Button - Bottom Right */}
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              handleShareGallery();
-                            }}
-                            className="absolute bottom-2 right-2 w-8 h-8 rounded-full bg-white/90 hover:bg-white flex items-center justify-center transition-colors pointer-events-auto"
-                            aria-label="Share photo"
-                          >
-                            <Share2 className="w-4 h-4 text-gray-800" />
-                          </button>
+                          <TooltipProvider>
+                            {/* Download Button - Bottom Left */}
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <button
+                                  type="button"
+                                  onClick={async (e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    
+                                    const filename = generateMediaFilename({
+                                      seqNumber: photo.seq_number || 0,
+                                      type: 'Photo',
+                                      albumTitle: galleryTitle,
+                                      mimeType: photo.mime_type,
+                                      fileUrl: photo.file_url
+                                    });
+                                    
+                                    await downloadFile(getImageUrl(photo), filename);
+                                  }}
+                                  className="absolute bottom-2 left-2 w-8 h-8 rounded-full bg-white/90 hover:bg-white flex items-center justify-center transition-colors z-10 pointer-events-auto"
+                                  aria-label="Download photo"
+                                  title="Download"
+                                >
+                                  <Download className="w-4 h-4 text-gray-800" />
+                                </button>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>Download</p>
+                              </TooltipContent>
+                            </Tooltip>
+                            
+                            {/* Share Button - Bottom Center */}
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    handleShareGallery();
+                                  }}
+                                  className="absolute bottom-2 left-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-white/90 hover:bg-white flex items-center justify-center transition-colors pointer-events-auto"
+                                  aria-label="Share photo"
+                                  title="Share"
+                                >
+                                  <Share2 className="w-4 h-4 text-gray-800" />
+                                </button>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>Share</p>
+                              </TooltipContent>
+                            </Tooltip>
+                            
+                            {/* Delete Button - Bottom Right (Only for owners) */}
+                            {isOwner && (
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <button
+                                    type="button"
+                                    onClick={(e) => handleDeleteClick(photo.id, e)}
+                                    className="absolute bottom-2 right-2 w-8 h-8 rounded-full bg-white/90 hover:bg-white flex items-center justify-center transition-colors z-10 pointer-events-auto"
+                                    aria-label="Delete photo"
+                                    title="Delete"
+                                  >
+                                    <Trash2 className="w-4 h-4 text-gray-800" />
+                                  </button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>Delete</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            )}
+                          </TooltipProvider>
                         </div>
                       </div>
                     </button>
@@ -1065,57 +1141,95 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
                       {/* Hover Overlay */}
                       <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all duration-300 pointer-events-none">
                         <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                          {/* Download Button - Bottom Left */}
-                          <button
-                            type="button"
-                            onClick={async (e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              
-                              // Generate sequential filename
-                              const filename = generateMediaFilename({
-                                seqNumber: video.seq_number || 0,
-                                type: 'Video',
-                                albumTitle: galleryTitle,
-                                mimeType: video.mime_type,
-                                fileUrl: video.file_url
-                              });
-                              
-                              // Get video URL (Cloudflare Stream or direct upload)
-                              let videoUrl = '';
-                              if (video.cloudflare_stream_uid) {
-                                // For Cloudflare Stream videos, use download endpoint
-                                videoUrl = `https://videodelivery.net/${video.cloudflare_stream_uid}/downloads/default.mp4`;
-                              } else if (video.file_url) {
-                                // For direct uploads, use storage URL
-                                const { data } = supabase.storage
-                                  .from('event-media')
-                                  .getPublicUrl(video.file_url);
-                                videoUrl = data.publicUrl;
-                              }
-                              
-                              if (videoUrl) {
-                                await downloadFile(videoUrl, filename);
-                              }
-                            }}
-                            className="absolute bottom-2 left-2 w-8 h-8 rounded-full bg-white/90 hover:bg-white flex items-center justify-center transition-colors z-10"
-                            aria-label="Download video"
-                          >
-                            <Download className="w-4 h-4 text-gray-800" />
-                          </button>
-                          
-                          {/* Share Button - Bottom Right (pushed left to avoid play icon) */}
-                          <button
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              handleShareGallery();
-                            }}
-                            className="absolute bottom-14 right-2 w-8 h-8 rounded-full bg-white/90 hover:bg-white flex items-center justify-center transition-colors z-10"
-                            aria-label="Share video"
-                          >
-                            <Share2 className="w-4 h-4 text-gray-800" />
-                          </button>
+                          <TooltipProvider>
+                            {/* Download Button - Bottom Left */}
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <button
+                                  type="button"
+                                  onClick={async (e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    
+                                    // Generate sequential filename
+                                    const filename = generateMediaFilename({
+                                      seqNumber: video.seq_number || 0,
+                                      type: 'Video',
+                                      albumTitle: galleryTitle,
+                                      mimeType: video.mime_type,
+                                      fileUrl: video.file_url
+                                    });
+                                    
+                                    // Get video URL (Cloudflare Stream or direct upload)
+                                    let videoUrl = '';
+                                    if (video.cloudflare_stream_uid) {
+                                      // For Cloudflare Stream videos, use download endpoint
+                                      videoUrl = `https://videodelivery.net/${video.cloudflare_stream_uid}/downloads/default.mp4`;
+                                    } else if (video.file_url) {
+                                      // For direct uploads, use storage URL
+                                      const { data } = supabase.storage
+                                        .from('event-media')
+                                        .getPublicUrl(video.file_url);
+                                      videoUrl = data.publicUrl;
+                                    }
+                                    
+                                    if (videoUrl) {
+                                      await downloadFile(videoUrl, filename);
+                                    }
+                                  }}
+                                  className="absolute bottom-2 left-2 w-8 h-8 rounded-full bg-white/90 hover:bg-white flex items-center justify-center transition-colors z-10"
+                                  aria-label="Download video"
+                                  title="Download"
+                                >
+                                  <Download className="w-4 h-4 text-gray-800" />
+                                </button>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>Download</p>
+                              </TooltipContent>
+                            </Tooltip>
+                            
+                            {/* Share Button - Bottom Center Left */}
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <button
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    handleShareGallery();
+                                  }}
+                                  className="absolute bottom-2 left-12 w-8 h-8 rounded-full bg-white/90 hover:bg-white flex items-center justify-center transition-colors z-10"
+                                  aria-label="Share video"
+                                  title="Share"
+                                >
+                                  <Share2 className="w-4 h-4 text-gray-800" />
+                                </button>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>Share</p>
+                              </TooltipContent>
+                            </Tooltip>
+                            
+                            {/* Delete Button - Bottom Center (Only for owners) */}
+                            {isOwner && (
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <button
+                                    type="button"
+                                    onClick={(e) => handleDeleteClick(video.id, e)}
+                                    className="absolute bottom-2 left-22 w-8 h-8 rounded-full bg-white/90 hover:bg-white flex items-center justify-center transition-colors z-10"
+                                    aria-label="Delete video"
+                                    title="Delete"
+                                  >
+                                    <Trash2 className="w-4 h-4 text-gray-800" />
+                                  </button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>Delete</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            )}
+                          </TooltipProvider>
                         </div>
                       </div>
                     </button>
@@ -1323,6 +1437,27 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
           </DialogContent>
         </Dialog>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this item?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 };
