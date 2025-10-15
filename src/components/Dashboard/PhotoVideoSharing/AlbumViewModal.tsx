@@ -450,31 +450,20 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
     }
   };
 
-  // Helper function to format filename: EventName-EventDate format
+  // Helper function to format filename: AlbumName (dd-MM-yyyy) format
   const formatFilename = (title: string, extension: string): string => {
-    // Replace spaces with hyphens, keep special characters like &
-    const formattedTitle = title.replace(/\s+/g, '-');
+    // Remove spaces from title, keep special characters like &
+    const formattedTitle = title.replace(/\s+/g, '');
     
-    // Format date as "29th-November-2025" if available
+    // Format date as "dd-MM-yyyy" if available (e.g., 29-11-2025)
     if (eventDate) {
       const date = new Date(eventDate);
-      const day = format(date, 'd');
-      const month = format(date, 'MMMM');
+      const day = format(date, 'dd');
+      const month = format(date, 'MM');
       const year = format(date, 'yyyy');
       
-      // Add ordinal suffix (st, nd, rd, th)
-      const getOrdinalSuffix = (dayNum: number) => {
-        if (dayNum > 3 && dayNum < 21) return 'th';
-        switch (dayNum % 10) {
-          case 1: return 'st';
-          case 2: return 'nd';
-          case 3: return 'rd';
-          default: return 'th';
-        }
-      };
-      
-      const dateStr = `${day}${getOrdinalSuffix(parseInt(day))}-${month}-${year}`;
-      return `${formattedTitle}-${dateStr}.${extension}`;
+      const dateStr = `${day}-${month}-${year}`;
+      return `${formattedTitle} (${dateStr}).${extension}`;
     }
     
     return `${formattedTitle}.${extension}`;

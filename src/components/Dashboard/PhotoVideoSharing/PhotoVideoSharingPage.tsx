@@ -219,9 +219,9 @@ export const PhotoVideoSharingPage: React.FC = () => {
     });
   };
 
-  // Helper function to format filename: AlbumName (dd/MM/yyyy) format
+  // Helper function to format filename: AlbumName (dd-MM-yyyy) format
   const formatFilename = (title: string, suffix: string, extension: string): string => {
-    // For album downloads, use AlbumName (dd/MM/yyyy) format (e.g., Jack&Jill (29/11/2025).zip)
+    // For album downloads, use AlbumName (dd-MM-yyyy) format (e.g., Jack&Jill (29-11-2025).zip)
     if (suffix === 'Photo-Video-Album' && galleryEventDate) {
       const formattedTitle = title.replace(/\s+/g, '');
       const date = new Date(galleryEventDate);
@@ -229,7 +229,7 @@ export const PhotoVideoSharingPage: React.FC = () => {
       const month = format(date, 'MM');
       const year = format(date, 'yyyy');
       
-      const dateStr = `${day}/${month}/${year}`;
+      const dateStr = `${day}-${month}-${year}`;
       return `${formattedTitle} (${dateStr}).${extension}`;
     }
     
