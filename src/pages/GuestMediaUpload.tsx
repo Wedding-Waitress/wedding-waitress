@@ -966,11 +966,12 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
           </div>
 
           <Card 
-            className="border-2 border-dashed border-primary/50 bg-primary/5 cursor-pointer hover:bg-primary/10 transition-colors"
+            className="border-2 border-dashed cursor-pointer hover:opacity-80 transition-opacity"
+            style={{ borderColor: '#6D28D9', backgroundColor: 'rgba(109, 40, 217, 0.05)' }}
             onClick={() => fileInputRef.current?.click()}
           >
             <CardContent className="p-12 text-center space-y-4">
-              <Camera className="w-16 h-16 mx-auto text-primary" />
+              <Camera className="w-16 h-16 mx-auto" style={{ color: '#6D28D9' }} />
               <h3 className="text-2xl font-semibold">📸 Pick Photos & Videos</h3>
               <p className="text-muted-foreground">
                 Tap here to select from your gallery, take a photo, or choose files
@@ -981,7 +982,8 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
           <div className="text-center">
             <Button
               variant="link"
-              className="text-primary text-lg"
+              className="text-lg"
+              style={{ color: '#6D28D9' }}
               onClick={() => setShowTextPostModal(true)}
             >
               Or add a text message
@@ -1030,11 +1032,11 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
           <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
             {selectedItems.map((item, index) => (
               <div key={index} className="relative group">
-                <div className={`relative border-2 border-primary rounded-none overflow-hidden ${
+                <div className={`relative border-2 rounded-none overflow-hidden ${
                   item.type === 'text' 
                     ? 'aspect-square flex items-center justify-center p-3' 
                     : 'aspect-square bg-black'
-                }`} style={item.type === 'text' ? { background: item.themeBg } : undefined}>
+                }`} style={item.type === 'text' ? { background: item.themeBg, borderColor: '#6D28D9' } : { borderColor: '#6D28D9' }}>
                   {item.type === 'photo' && item.preview && (
                     <img src={item.preview} className="w-full h-full object-contain" alt="" />
                   )}
@@ -1075,7 +1077,8 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
           <div className="fixed bottom-4 left-4 right-4 max-w-4xl mx-auto">
             <Button
               size="lg"
-              className="w-full bg-gradient-to-r from-primary to-purple-600 hover:opacity-90 shadow-lg text-lg py-6"
+              className="w-full hover:opacity-90 shadow-lg text-lg py-6"
+              style={{ backgroundColor: '#6D28D9', color: '#FFFFFF' }}
               onClick={handleUploadAll}
             >
               Upload {selectedItems.length} {selectedItems.length === 1 ? 'item' : 'items'}
