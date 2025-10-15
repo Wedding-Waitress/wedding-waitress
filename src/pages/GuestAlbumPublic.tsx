@@ -630,7 +630,8 @@ export const GuestAlbumPublic: React.FC = () => {
       source: 'guest_landing',
     });
 
-    setFlowStep('view');
+    // Open the album viewer modal instead of changing flow step
+    setAlbumViewerOpen(true);
   };
 
   const handleTextPostSubmit = (data: { textContent: string; themeId: string }) => {
