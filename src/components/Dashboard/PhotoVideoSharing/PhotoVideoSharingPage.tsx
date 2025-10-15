@@ -142,8 +142,9 @@ export const PhotoVideoSharingPage: React.FC = () => {
   const copyUploadUrl = () => {
     navigator.clipboard.writeText(uploadUrl);
     toast({
-      title: 'Copied!',
-      description: 'Upload URL copied to clipboard',
+      title: '✅ Copied!',
+      description: 'Guest upload link copied to clipboard',
+      className: 'bg-green-50 border-green-200',
     });
   };
 
@@ -473,22 +474,11 @@ export const PhotoVideoSharingPage: React.FC = () => {
                         )}
                       </div>
 
-                      {/* Guest Upload Link */}
-                      <div className="space-y-2">
-                        <Label className="text-xs">Guest Upload Link</Label>
-                        <div className="flex gap-2">
-                          <Input value={uploadUrl} readOnly className="flex-1 text-xs" />
-                          <Button variant="outline" size="sm" onClick={copyUploadUrl}>
-                            <Copy className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </div>
-
                       {/* Action Buttons */}
-                      <div className="grid grid-cols-2 gap-3">
+                      <div className="flex flex-col gap-3">
                         <Button variant="outline" onClick={copyUploadUrl} disabled={!uploadUrl}>
                           <Copy className="w-4 h-4 mr-2" />
-                          Copy Link
+                          Copy Guest Upload Link
                         </Button>
                         <Button variant="default" onClick={downloadQRCode} disabled={!qrCodeDataUrl}>
                           <Download className="w-4 h-4 mr-2" />
