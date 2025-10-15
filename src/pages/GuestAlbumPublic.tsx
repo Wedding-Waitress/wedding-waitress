@@ -1343,11 +1343,12 @@ export const GuestAlbumPublic: React.FC = () => {
           </div>
 
           <Card 
-            className="border-2 border-dashed border-primary/50 bg-primary/5 cursor-pointer hover:bg-primary/10 transition-colors"
+            className="border-2 border-dashed cursor-pointer hover:opacity-80 transition-opacity"
+            style={{ borderColor: '#6D28D9', backgroundColor: 'rgba(109, 40, 217, 0.05)' }}
             onClick={() => fileInputRef.current?.click()}
           >
             <CardContent className="p-12 text-center space-y-4">
-              <Camera className="w-16 h-16 mx-auto text-primary" />
+              <Camera className="w-16 h-16 mx-auto" style={{ color: '#6D28D9' }} />
               <h3 className="text-2xl font-semibold">📸 Pick Photos & Videos</h3>
               <p className="text-muted-foreground">
                 Tap here to select from your gallery, take a photo, or choose files
@@ -1358,7 +1359,8 @@ export const GuestAlbumPublic: React.FC = () => {
           <div className="flex flex-col items-center gap-4 w-full max-w-md mx-auto">
             <Button
               size="lg"
-              className="w-full bg-gradient-to-r from-primary to-purple-600 hover:opacity-90 text-lg py-6 rounded-2xl min-h-[48px]"
+              className="w-full hover:opacity-90 text-lg py-6 rounded-2xl min-h-[48px]"
+              style={{ backgroundColor: '#6D28D9', color: '#FFFFFF' }}
               onClick={() => setShowTextPostModal(true)}
             >
               <MessageSquare className="w-6 h-6 mr-3" />
@@ -1368,10 +1370,11 @@ export const GuestAlbumPublic: React.FC = () => {
             <Button
               size="lg"
               variant="outline"
-              className="w-full text-lg py-6 rounded-2xl border-2 border-primary bg-white hover:bg-white/90 min-h-[48px]"
+              className="w-full text-lg py-6 rounded-2xl border-2 bg-white hover:bg-white/90 min-h-[48px]"
+              style={{ borderColor: '#6D28D9', color: '#6D28D9' }}
               onClick={() => setShowAudioRecorder(true)}
             >
-              <Mic className="w-6 h-6 mr-3" />
+              <Mic className="w-6 h-6 mr-3" style={{ color: '#6D28D9' }} />
               Record Audio Guestbook
             </Button>
           </div>
