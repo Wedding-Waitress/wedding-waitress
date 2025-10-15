@@ -131,209 +131,244 @@ async function processExport(
   gallery: any,
   scope: 'approved' | 'all'
 ) {
-  // Helper: List all files in storage bucket with pagination
-  async function listAllFiles(bucket: string, prefix: string): Promise<string[]> {
-    const allFiles: string[] = [];
-    let offset = 0;
-    const limit = 1000;
-    
-    while (true) {
-      const { data, error } = await supabase.storage
-        .from(bucket)
-        .list(prefix, { limit, offset });
-      
-      if (error) {
-        console.error(`Error listing ${bucket}/${prefix}:`, error);
-        break;
-      }
-      
-      if (!data || data.length === 0) break;
-      
-      for (const file of data) {
-        if (!file.name.endsWith('/') && file.name !== '.emptyFolderPlaceholder') {
-          allFiles.push(`${prefix}${file.name}`);
-        }
-      }
-      
-      if (data.length < limit) break;
-      offset += limit;
-    }
-    
-    return allFiles;
-  }
-
-  // Helper: Fetch binary using signed URL (guaranteed to work)
-  async function fetchBinary(bucket: string, path: string): Promise<ArrayBuffer | null> {
-    try {
-      const { data: signedData, error: signedError } = await supabase.storage
-        .from(bucket)
-        .createSignedUrl(path, 3600);
-      
-      if (signedError || !signedData?.signedUrl) {
-        console.error(`Failed to create signed URL for ${bucket}/${path}:`, signedError);
-        return null;
-      }
-      
-      const response = await fetch(signedData.signedUrl, { cache: 'no-store' });
-      if (!response.ok) {
-        console.error(`HTTP ${response.status} fetching ${path}`);
-        return null;
-      }
-      
-      return await response.arrayBuffer();
-    } catch (err) {
-      console.error(`Exception fetching ${bucket}/${path}:`, err);
-      return null;
-    }
-  }
-
-  // Helper: Simple date formatter (no dependencies)
-  function simpleFormat(dateStr: string): string {
-    const d = new Date(dateStr);
-    const yyyy = d.getFullYear();
-    const mm = String(d.getMonth() + 1).padStart(2, '0');
-    const dd = String(d.getDate()).padStart(2, '0');
-    const hh = String(d.getHours()).padStart(2, '0');
-    const min = String(d.getMinutes()).padStart(2, '0');
-    return `${yyyy}-${mm}-${dd} ${hh}:${min}`;
-  }
-
   try {
     console.log(`Processing export ${exportId}`);
 
-    // Build storage prefixes
-    const mediaPrefix = `galleries/${galleryId}/`;
-    const audioPrefix = `galleries/${galleryId}/audio/`;
-
-    console.log(`Listing files from event-media bucket, prefix: ${mediaPrefix}`);
-
-    // List all files from storage
-    const mediaFiles = await listAllFiles('event-media', mediaPrefix);
-    console.log(`Found ${mediaFiles.length} media files in storage`);
-
-    const audioFiles = await listAllFiles('audio-uploads', audioPrefix);
-    console.log(`Found ${audioFiles.length} audio files in storage`);
-
-    // Fetch text messages from DB
-    const { data: textMessages, error: textError } = await supabase
+    let query = supabase
       .from('media_uploads')
-      .select('id, text_content, created_at, seq_number')
+      .select('*')
       .eq('gallery_id', galleryId)
-      .eq('post_type', 'text')
       .order('created_at', { ascending: true });
 
-    if (textError) console.error('Error fetching text messages:', textError);
-
-    // Create ZIP structure
-    const zip = new JSZip();
-
-    // Sanitize album name (no spaces around &)
-    const albumNameSanitized = gallery.title
-      .replace(/\s*&\s*/g, '&')
-      .replace(/\s+/g, '');
-
-    // Top-level folder name: AlbumName (DD-MM-YYYY)
-    let topFolderName = albumNameSanitized;
-    if (gallery.event_date) {
-      const date = new Date(gallery.event_date);
-      const day = String(date.getDate()).padStart(2, '0');
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const year = date.getFullYear();
-      topFolderName = `${albumNameSanitized} (${day}-${month}-${year})`;
+    if (scope === 'approved') {
+      query = query.in('status', ['pending', 'approved']);
+    } else {
+      query = query.in('status', ['pending', 'approved']);
     }
 
+    const { data: mediaItems, error: mediaError } = await query;
+    if (mediaError) throw mediaError;
+
+    // Fetch audio guestbook messages
+    const { data: audioItems, error: audioError } = await supabase
+      .from('audio_guestbook')
+      .select('*')
+      .eq('gallery_id', galleryId)
+      .order('created_at', { ascending: true });
+    
+    if (audioError) console.error('Error fetching audio:', audioError);
+
+    console.log(`Found ${mediaItems.length} items and ${audioItems?.length || 0} audio messages to export`);
+
+    const zip = new JSZip();
+    
+    // Create top-level folder with EventName (DD-MM-YYYY) format
+    let topFolderName = gallery.title.replace(/\s+/g, '');
+    if (gallery.event_date) {
+      const date = new Date(gallery.event_date);
+      const day = date.getDate().toString().padStart(2, '0');
+      const month = (date.getMonth() + 1).toString().padStart(2, '0');
+      const year = date.getFullYear();
+      topFolderName = `${topFolderName} (${day}-${month}-${year})`;
+    }
+    
     const topFolder = zip.folder(topFolderName);
     const photosFolder = topFolder?.folder('Photos');
     const videosFolder = topFolder?.folder('Videos');
+    const messagesFolder = topFolder?.folder('Messages');
     const audioFolder = topFolder?.folder('Audio');
 
-    // Track stats
+    const manifestData: any = {
+      gallery: {
+        id: gallery.id,
+        title: gallery.title,
+        event_type: gallery.event_type,
+        event_date: gallery.event_date,
+        exported_at: new Date().toISOString(),
+        scope: scope,
+        total_items: mediaItems.length,
+        total_audio: audioItems?.length || 0,
+      },
+      items: [],
+      audio_items: [],
+    };
+
+    const videosCsvRows: string[] = [
+      'id,created_at,stream_uid,stream_status,playback_url,thumbnail_url,duration_seconds,width,height,caption'
+    ];
+
     let photoCount = 0;
     let videoCount = 0;
-    let audioCount = 0;
-    let failedCount = 0;
+    let textCount = 0;
 
-    // Download all media files with Promise.all
-    console.log('Downloading media files...');
-    const mediaDownloads = mediaFiles.map(async (filePath) => {
-      const binary = await fetchBinary('event-media', filePath);
-      if (!binary) {
-        failedCount++;
-        return;
+    for (const item of mediaItems) {
+      const itemData: any = {
+        id: item.id,
+        type: item.type,
+        post_type: item.post_type,
+        caption: item.caption,
+        created_at: item.created_at,
+        status: item.status,
+      };
+
+      if (item.post_type === 'photo' && item.file_url) {
+        try {
+          const { data: fileData, error: downloadError } = await supabase.storage
+            .from('event-media')
+            .download(item.file_url);
+
+          if (!downloadError && fileData) {
+            const seqPadded = String(item.seq_number || ++photoCount).padStart(6, '0');
+            const ext = item.mime_type?.split('/')[1] || 'jpg';
+            const filename = `${seqPadded}-Photo-${albumTitle}.${ext}`;
+            photosFolder?.file(filename, await fileData.arrayBuffer());
+            itemData.exported_filename = `1_Photos/${filename}`;
+
+            if (item.caption) {
+              photosFolder?.file(filename.replace(/\.[^.]+$/, '.txt'), item.caption);
+            }
+          }
+        } catch (err) {
+          console.error(`Failed to download photo ${item.id}:`, err);
+          itemData.error = 'Failed to download';
+        }
       }
-      
-      const fileName = filePath.split('/').pop() || 'unknown';
-      const ext = fileName.split('.').pop()?.toLowerCase() || '';
-      
-      // Determine if photo or video based on extension
-      if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'heic'].includes(ext)) {
-        photoCount++;
-        const seqPadded = String(photoCount).padStart(6, '0');
-        const newFileName = `${seqPadded}-Photo-${albumNameSanitized}.${ext}`;
-        photosFolder?.file(newFileName, binary);
-      } else if (['mp4', 'mov', 'avi', 'webm'].includes(ext)) {
-        videoCount++;
-        const seqPadded = String(videoCount).padStart(6, '0');
-        const newFileName = `${seqPadded}-Video-${albumNameSanitized}.${ext}`;
-        videosFolder?.file(newFileName, binary);
-      } else {
-        // Unknown type, put in Videos folder
-        videosFolder?.file(fileName, binary);
+
+      if (item.post_type === 'video' && item.file_url && !item.cloudflare_stream_uid) {
+        try {
+          const { data: fileData, error: downloadError } = await supabase.storage
+            .from('event-media')
+            .download(item.file_url);
+
+          if (!downloadError && fileData) {
+            const seqPadded = String(item.seq_number || ++videoCount).padStart(6, '0');
+            const ext = item.mime_type?.split('/')[1] || 'mp4';
+            const filename = `${seqPadded}-Video-${albumTitle}.${ext}`;
+            videosFolder?.file(filename, await fileData.arrayBuffer());
+            itemData.exported_filename = `2_Videos/${filename}`;
+
+            if (item.caption) {
+              videosFolder?.file(filename.replace(/\.[^.]+$/, '.txt'), item.caption);
+            }
+          }
+        } catch (err) {
+          console.error(`Failed to download video ${item.id}:`, err);
+          itemData.error = 'Failed to download';
+        }
       }
-    });
 
-    // Download audio files
-    console.log('Downloading audio files...');
-    const audioDownloads = audioFiles.map(async (filePath) => {
-      const binary = await fetchBinary('audio-uploads', filePath);
-      if (!binary) {
-        failedCount++;
-        return;
+      if (item.cloudflare_stream_uid) {
+        const playbackUrl = `https://iframe.videodelivery.net/${item.cloudflare_stream_uid}`;
+        const thumbnailUrl = item.stream_preview_image || '';
+        
+        videosCsvRows.push(
+          `"${item.id}","${item.created_at}","${item.cloudflare_stream_uid}","${item.stream_status}","${playbackUrl}","${thumbnailUrl}",${item.duration_seconds || ''},"${item.width || ''}","${item.height || ''}","${(item.caption || '').replace(/"/g, '""')}"`
+        );
+
+        itemData.stream_uid = item.cloudflare_stream_uid;
+        itemData.playback_url = playbackUrl;
+
+        if (item.stream_preview_image) {
+          try {
+            const thumbnailResponse = await fetch(item.stream_preview_image);
+            if (thumbnailResponse.ok) {
+              const thumbnailBlob = await thumbnailResponse.arrayBuffer();
+              const seqPadded = String(item.seq_number || videoCount).padStart(6, '0');
+              const thumbnailFilename = `${seqPadded}-Video-Thumbnail-${albumTitle}.jpg`;
+              videosFolder?.file(thumbnailFilename, thumbnailBlob);
+            }
+          } catch (err) {
+            console.error(`Failed to download thumbnail for ${item.cloudflare_stream_uid}:`, err);
+          }
+        }
       }
-      
-      audioCount++;
-      const fileName = filePath.split('/').pop() || 'unknown';
-      const ext = fileName.split('.').pop() || 'm4a';
-      const seqPadded = String(audioCount).padStart(6, '0');
-      const newFileName = `${seqPadded}-Audio-${albumNameSanitized}.${ext}`;
-      audioFolder?.file(newFileName, binary);
-    });
 
-    // Wait for ALL downloads to complete
-    await Promise.all([...mediaDownloads, ...audioDownloads]);
-
-    console.log(`Downloaded: ${photoCount} photos, ${videoCount} videos, ${audioCount} audio. Failed: ${failedCount}`);
-
-    // Add Messages CSV and TXT
-    if (textMessages && textMessages.length > 0) {
-      const messagesCsvRows = ['timestamp,message'];
-      const messagesTxtLines: string[] = [];
-      
-      for (const msg of textMessages) {
-        const timestamp = new Date(msg.created_at).toISOString();
-        const message = (msg.text_content || '').replace(/"/g, '""');
-        messagesCsvRows.push(`"${timestamp}","${message}"`);
-        messagesTxtLines.push(`[${simpleFormat(msg.created_at)}] ${msg.text_content}`);
+      if (item.post_type === 'text' && item.text_content) {
+        const seqPadded = String(item.seq_number || ++textCount).padStart(6, '0');
+        const filename = `${seqPadded}-Guest Book-${albumTitle}.txt`;
+        messagesFolder?.file(filename, item.text_content);
+        itemData.exported_filename = `3_Guest_Book_Messages/${filename}`;
       }
-      
-      topFolder?.file('Messages.csv', messagesCsvRows.join('\n'));
-      topFolder?.file('Messages.txt', messagesTxtLines.join('\n\n'));
+
+      manifestData.items.push(itemData);
     }
 
-    // Add README
+    // Process audio guestbook messages
+    let audioCount = 0;
+    for (const audioItem of audioItems || []) {
+      try {
+        const { data: fileData, error: downloadError } = await supabase.storage
+          .from('audio-uploads')
+          .download(audioItem.file_url);
+
+        if (!downloadError && fileData) {
+          audioCount++;
+          const seqPadded = String(audioItem.seq_number || audioCount).padStart(6, '0');
+          const ext = audioItem.mime_type?.split('/')[1] || 'm4a';
+          const filename = `${seqPadded}-Audio-${albumTitle}.${ext}`;
+          audioFolder?.file(filename, await fileData.arrayBuffer());
+
+          manifestData.audio_items.push({
+            id: audioItem.id,
+            seq_number: audioItem.seq_number,
+            created_at: audioItem.created_at,
+            duration_seconds: audioItem.duration_seconds,
+            file_size_bytes: audioItem.file_size_bytes,
+            exported_filename: `Audio/${filename}`,
+          });
+        }
+      } catch (err) {
+        console.error(`Failed to download audio ${audioItem.id}:`, err);
+      }
+    }
+
+    topFolder?.file('manifest.json', JSON.stringify(manifestData, null, 2));
+
+    if (videosCsvRows.length > 1) {
+      topFolder?.file('videos.csv', videosCsvRows.join('\n'));
+    }
+
+    // Create Messages.csv and Messages.txt
+    if (textCount > 0) {
+      const messagesCsvRows: string[] = ['timestamp,message'];
+      const messagesTxtLines: string[] = [];
+
+      for (const item of mediaItems.filter(m => m.post_type === 'text')) {
+        const timestamp = new Date(item.created_at).toISOString();
+        const message = (item.text_content || '').replace(/"/g, '""');
+        messagesCsvRows.push(`"${timestamp}","${message}"`);
+        messagesTxtLines.push(`[${format(new Date(item.created_at), 'yyyy-MM-dd HH:mm')}] ${item.text_content}`);
+      }
+
+      messagesFolder?.file('Messages.csv', messagesCsvRows.join('\n'));
+      messagesFolder?.file('Messages.txt', messagesTxtLines.join('\n'));
+    }
+
     const readme = `# ${gallery.title} - Photo & Video Export
 
 Exported on: ${new Date().toISOString()}
-Total photos: ${photoCount}
-Total videos: ${videoCount}
-Total audio: ${audioCount}
-Failed downloads: ${failedCount}
+Export scope: ${scope === 'approved' ? 'Approved items only' : 'All items (including pending)'}
+Total items: ${mediaItems.length}
+Total audio messages: ${audioItems?.length || 0}
+
+## Folder Structure
+
+- Photos/ - All photo files with original quality and captions
+- Videos/ - Videos (direct uploads and Cloudflare Stream thumbnails)
+- Messages/ - Guest book messages (CSV and TXT formats)
+- Audio/ - Audio guestbook messages
+- manifest.json - Complete metadata for all items
+- videos.csv - Cloudflare Stream video information (playback URLs)
+
+## Cloudflare Stream Videos
+
+Videos uploaded via Cloudflare Stream are not included as files (they're hosted on Cloudflare).
+Instead, see videos.csv for playback URLs and metadata. Thumbnails are in the Videos folder.
 
 Generated by Wedding Waitress - https://weddingwaitress.com
 `;
     topFolder?.file('README.txt', readme);
 
-    // Generate ZIP
     console.log('Generating ZIP file...');
     const zipBlob = await zip.generateAsync({
       type: 'uint8array',
@@ -341,18 +376,23 @@ Generated by Wedding Waitress - https://weddingwaitress.com
       compressionOptions: { level: 6 }
     });
 
-    // Filename: AlbumName (DD-MM-YYYY).zip
-    let downloadFilename = albumNameSanitized;
+    // Generate user-facing filename in format: AlbumName (dd-MM-yyyy).zip
+    // Example: JackandJill (29-11-2025).zip
+    let downloadFilename = gallery.title
+      .replace(/\s+/g, '')
+      .replace(/&/g, 'and');
+    
     if (gallery.event_date) {
       const date = new Date(gallery.event_date);
-      const day = String(date.getDate()).padStart(2, '0');
-      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = date.getDate().toString().padStart(2, '0');
+      const month = (date.getMonth() + 1).toString().padStart(2, '0');
       const year = date.getFullYear();
-      downloadFilename = `${albumNameSanitized} (${day}-${month}-${year})`;
+      
+      const dateStr = `${day}-${month}-${year}`;
+      downloadFilename = `${downloadFilename} (${dateStr})`;
     }
     downloadFilename = `${downloadFilename}.zip`;
 
-    // Upload to exports bucket
     const storagePath = `${galleryId}/${exportId}.zip`;
     const { error: uploadError } = await supabase.storage
       .from('exports')
@@ -363,7 +403,6 @@ Generated by Wedding Waitress - https://weddingwaitress.com
 
     if (uploadError) throw uploadError;
 
-    // Create signed download URL
     const { data: signedUrlData, error: signedError } = await supabase.storage
       .from('exports')
       .createSignedUrl(storagePath, 604800, {
@@ -372,7 +411,6 @@ Generated by Wedding Waitress - https://weddingwaitress.com
 
     if (signedError) throw signedError;
 
-    // Update export record
     await supabase
       .from('gallery_exports')
       .update({
@@ -380,13 +418,13 @@ Generated by Wedding Waitress - https://weddingwaitress.com
         file_path: storagePath,
         download_url: signedUrlData.signedUrl,
         file_size_bytes: zipBlob.byteLength,
-        items_count: photoCount + videoCount + audioCount,
+        items_count: mediaItems.length,
         completed_at: new Date().toISOString(),
         expires_at: new Date(Date.now() + 604800000).toISOString(),
       })
       .eq('id', exportId);
 
-    console.log(`Export ${exportId} completed: ${photoCount} photos, ${videoCount} videos, ${audioCount} audio`);
+    console.log(`Export ${exportId} completed successfully`);
 
   } catch (error: any) {
     console.error(`Export ${exportId} failed:`, error);
