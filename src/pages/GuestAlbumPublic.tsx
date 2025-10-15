@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
-import { getThemeById, getThemeStyle } from '@/lib/mediaConstants';
+import { getThemeById } from '@/lib/mediaConstants';
 import { useVideoProcessingPoller } from '@/hooks/useVideoProcessingPoller';
 import { useChunkedUpload } from '@/hooks/useChunkedUpload';
 import { analytics } from '@/lib/analytics';
@@ -1308,10 +1308,7 @@ export const GuestAlbumPublic: React.FC = () => {
                               </div>
                             </div>
                           ) : item.post_type === 'text' ? (
-                            <div 
-                              className="w-full h-full flex items-center justify-center p-4"
-                              style={item.theme_id ? getThemeStyle(item.theme_id) : { background: '#f0f0f0', color: '#000' }}
-                            >
+                            <div className="w-full h-full flex items-center justify-center p-4 bg-gradient-to-br from-primary/10 to-primary/5">
                               <p className="text-sm text-center line-clamp-4">
                                 {item.text_content}
                               </p>
@@ -1427,7 +1424,7 @@ export const GuestAlbumPublic: React.FC = () => {
                   item.type === 'text' 
                     ? 'aspect-square flex items-center justify-center p-3' 
                     : 'aspect-square bg-black'
-                }`} style={item.type === 'text' && item.themeId ? getThemeStyle(item.themeId) : undefined}>
+                }`} style={item.type === 'text' ? { background: item.themeBg } : undefined}>
                   {item.type === 'photo' && item.preview && (
                     <img src={item.preview} className="w-full h-full object-contain" alt="" />
                   )}
@@ -1766,9 +1763,9 @@ export const GuestAlbumPublic: React.FC = () => {
                   ) : item.post_type === 'text' && item.text_content ? (
                     <div 
                       className="w-full h-full flex items-center justify-center p-4"
-                      style={item.theme_id ? getThemeStyle(item.theme_id) : { background: '#f0f0f0', color: '#000' }}
+                      style={{ background: item.theme_id ? getThemeById(item.theme_id).bgColor : '#f0f0f0' }}
                     >
-                      <p className="text-center font-medium text-sm line-clamp-6">
+                      <p className="text-center font-medium text-sm line-clamp-6" style={{ color: item.theme_id ? getThemeById(item.theme_id).textColor : '#000' }}>
                         {item.text_content}
                       </p>
                     </div>
