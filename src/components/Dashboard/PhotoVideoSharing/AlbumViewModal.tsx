@@ -452,8 +452,8 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
 
   // Helper function to format filename: AlbumName (dd-MM-yyyy) format
   const formatFilename = (title: string, extension: string): string => {
-    // Remove spaces from title, keep special characters like &
-    const formattedTitle = title.replace(/\s+/g, '');
+    // Remove spaces from title, replace & with 'and' for safe filenames
+    const formattedTitle = title.replace(/\s+/g, '').replace(/&/g, 'and');
     
     // Format date as "dd-MM-yyyy" if available (e.g., 29-11-2025)
     if (eventDate) {

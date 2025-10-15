@@ -221,9 +221,9 @@ export const PhotoVideoSharingPage: React.FC = () => {
 
   // Helper function to format filename: AlbumName (dd-MM-yyyy) format
   const formatFilename = (title: string, suffix: string, extension: string): string => {
-    // For album downloads, use AlbumName (dd-MM-yyyy) format (e.g., Jack&Jill (29-11-2025).zip)
+    // For album downloads, use AlbumName (dd-MM-yyyy) format (e.g., JackandJill (29-11-2025).zip)
     if (suffix === 'Photo-Video-Album' && galleryEventDate) {
-      const formattedTitle = title.replace(/\s+/g, '');
+      const formattedTitle = title.replace(/\s+/g, '').replace(/&/g, 'and');
       const date = new Date(galleryEventDate);
       const day = format(date, 'dd');
       const month = format(date, 'MM');
