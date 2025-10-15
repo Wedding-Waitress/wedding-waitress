@@ -1229,7 +1229,8 @@ export const GuestAlbumPublic: React.FC = () => {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button
                 size="lg"
-                className="bg-gradient-to-r from-primary to-purple-600 hover:opacity-90 text-xl px-12 py-8 rounded-2xl"
+                className="text-xl px-12 py-8 rounded-2xl hover:opacity-90"
+                style={{ backgroundColor: '#6D28D9', color: '#FFFFFF' }}
                 onClick={() => setFlowStep('add')}
               >
                 <Plus className="w-6 h-6 mr-3" />
@@ -1239,7 +1240,8 @@ export const GuestAlbumPublic: React.FC = () => {
               <Button
                 size="lg"
                 variant="outline"
-                className="text-xl px-12 py-8 rounded-2xl bg-white/90 hover:bg-white"
+                className="text-xl px-12 py-8 rounded-2xl bg-white border-2 hover:bg-[#F3E8FF] transition-colors"
+                style={{ borderColor: '#6D28D9', color: '#6D28D9' }}
                 onClick={handleViewAlbum}
               >
                 View Album
