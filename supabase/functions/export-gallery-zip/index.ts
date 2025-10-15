@@ -133,6 +133,9 @@ async function processExport(
 ) {
   try {
     console.log(`Processing export ${exportId}`);
+    
+    // Sanitize album title for safe filenames (remove spaces, replace & with 'and')
+    const albumTitle = gallery.title.replace(/\s+/g, '').replace(/&/g, 'and');
 
     let query = supabase
       .from('media_uploads')
