@@ -306,7 +306,7 @@ export const GuestAlbumPublic: React.FC = () => {
       // Fetch all media (show immediately without approval requirement)
       const { data: mediaData, error: mediaError } = await supabase
         .from('media_uploads' as any)
-        .select('id, post_type, type, caption, file_url, thumbnail_url, cloudflare_stream_uid, text_content, theme_id, created_at, mime_type')
+        .select('id, post_type, type, caption, file_url, thumbnail_url, cloudflare_stream_uid, text_content, theme_id, created_at, mime_type, status')
         .eq('gallery_id', (gallery as any).id)
         .order('created_at', { ascending: false });
 
@@ -1686,26 +1686,24 @@ export const GuestAlbumPublic: React.FC = () => {
             </div>
           )}
           
-          {mediaItems.length === 0 ? (
-            <Card className="ww-box max-w-md mx-auto bg-white">
-              <CardContent className="p-12 text-center space-y-4">
+          <div className="grid grid-cols-3 gap-2 md:gap-4">
+            {mediaItems.length === 0 ? (
+              <div className="col-span-3 flex flex-col items-center justify-center py-16 text-center">
                 <div className="text-6xl mb-4">📸</div>
-                <h3 className="text-xl font-semibold">No photos yet</h3>
-                <p className="text-muted-foreground">
-                  Be the first to share a memory!
-                </p>
+                <h3 className="text-xl font-semibold text-white drop-shadow-lg mb-2">No photos yet</h3>
+                <p className="text-white/90 drop-shadow-md mb-4">Be the first to share a memory!</p>
                 <Button
                   size="lg"
-                  className="bg-gradient-to-r from-primary to-purple-600 hover:opacity-90"
+                  className="bg-white hover:bg-white/90"
+                  style={{ color: '#6D28D9' }}
                   onClick={() => setFlowStep('add')}
                 >
                   <Plus className="w-5 h-5 mr-2" />
                   Add Photos
                 </Button>
-              </CardContent>
-            </Card>
-          ) : (
-            <div className="grid grid-cols-3 gap-2 md:gap-4">
+              </div>
+            ) : (
+              <>
               {(viewMode === 'gallery' ? mediaItems : mediaItems.slice(0, 12)).map((item, index) => (
                 <div
                   key={item.id}
@@ -1775,10 +1773,11 @@ export const GuestAlbumPublic: React.FC = () => {
                       </p>
                     </div>
                   ) : null}
-                </div>
-              ))}
-            </div>
-          )}
+                  </div>
+                ))}
+              </>
+            )}
+          </div>
         </div>
 
         {/* Footer */}
