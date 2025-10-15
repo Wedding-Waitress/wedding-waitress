@@ -450,22 +450,34 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
     }
   };
 
-  // Helper function to format filename with capitalized words and event date
-  const formatFilename = (title: string, suffix: string, extension: string): string => {
-    // Capitalize each word and replace spaces with hyphens
-    const formattedTitle = title
-      .split(/\s+/)
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join('-');
+  // Helper function to format filename: EventName_EventDate format
+  const formatFilename = (title: string, extension: string): string => {
+    // Replace spaces with underscores, keep special characters like &
+    const formattedTitle = title.replace(/\s+/g, '_');
     
-    // Format date if available
-    const dateStr = eventDate 
-      ? format(new Date(eventDate), 'MMM-dd-yyyy')
-      : '';
+    // Format date as "29th-November-2025" if available
+    if (eventDate) {
+      const date = new Date(eventDate);
+      const day = format(date, 'd');
+      const month = format(date, 'MMMM');
+      const year = format(date, 'yyyy');
+      
+      // Add ordinal suffix (st, nd, rd, th)
+      const getOrdinalSuffix = (dayNum: number) => {
+        if (dayNum > 3 && dayNum < 21) return 'th';
+        switch (dayNum % 10) {
+          case 1: return 'st';
+          case 2: return 'nd';
+          case 3: return 'rd';
+          default: return 'th';
+        }
+      };
+      
+      const dateStr = `${day}${getOrdinalSuffix(parseInt(day))}-${month}-${year}`;
+      return `${formattedTitle}_${dateStr}.${extension}`;
+    }
     
-    return dateStr 
-      ? `${formattedTitle}-${suffix}-(${dateStr}).${extension}`
-      : `${formattedTitle}-${suffix}.${extension}`;
+    return `${formattedTitle}.${extension}`;
   };
 
   const handleDownloadGallery = async () => {
@@ -498,7 +510,7 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
         if (exportData?.status === 'ready' && exportData.download_url) {
           const link = document.createElement('a');
           link.href = exportData.download_url;
-          link.download = formatFilename(galleryTitle, 'Photo-Video-Album', 'zip');
+          link.download = formatFilename(galleryTitle, 'zip');
           link.click();
 
           toast({
@@ -528,7 +540,15 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <>
+      <style>
+        {`
+          [data-state="active"].album-tab {
+            border-color: #FFFFFF !important;
+          }
+        `}
+      </style>
+      <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent 
         ref={scrollContainerRef}
         className="max-w-[90vw] max-h-[90vh] overflow-y-auto"
@@ -561,9 +581,8 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
           </div>
         </DialogHeader>
 
-        <>
-          {/* Cinematic Loading Album Overlay - Only on initial load */}
-          {loading && isInitialLoad && (
+        {/* Cinematic Loading Album Overlay - Only on initial load */}
+        {loading && isInitialLoad && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-md animate-fade-in">
               <div className="relative flex flex-col items-center gap-8 p-8 max-w-md w-full mx-4">
                 {/* Pulsing Wedding Waitress Logo */}
@@ -698,10 +717,12 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
             >
               <TabsTrigger 
                 value="photos" 
-                className="gap-2 data-[state=active]:bg-transparent data-[state=active]:border data-[state=active]:border-white data-[state=active]:rounded-lg hover:bg-white/10 transition-all" 
+                className="gap-2 album-tab data-[state=active]:bg-transparent hover:bg-white/10 transition-all border rounded-lg"
                 style={{ 
                   color: 'white',
-                  border: '1px solid transparent'
+                  borderColor: 'transparent',
+                  borderWidth: '1px',
+                  borderStyle: 'solid'
                 }}
               >
                 <Image className="w-4 h-4" />
@@ -709,10 +730,12 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
               </TabsTrigger>
               <TabsTrigger 
                 value="videos" 
-                className="gap-2 data-[state=active]:bg-transparent data-[state=active]:border data-[state=active]:border-white data-[state=active]:rounded-lg hover:bg-white/10 transition-all" 
+                className="gap-2 album-tab data-[state=active]:bg-transparent hover:bg-white/10 transition-all border rounded-lg"
                 style={{ 
                   color: 'white',
-                  border: '1px solid transparent'
+                  borderColor: 'transparent',
+                  borderWidth: '1px',
+                  borderStyle: 'solid'
                 }}
               >
                 <Video className="w-4 h-4" />
@@ -720,10 +743,12 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
               </TabsTrigger>
               <TabsTrigger 
                 value="messages" 
-                className="gap-2 data-[state=active]:bg-transparent data-[state=active]:border data-[state=active]:border-white data-[state=active]:rounded-lg hover:bg-white/10 transition-all" 
+                className="gap-2 album-tab data-[state=active]:bg-transparent hover:bg-white/10 transition-all border rounded-lg"
                 style={{ 
                   color: 'white',
-                  border: '1px solid transparent'
+                  borderColor: 'transparent',
+                  borderWidth: '1px',
+                  borderStyle: 'solid'
                 }}
               >
                 <MessageSquare className="w-4 h-4" />
@@ -731,10 +756,12 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
               </TabsTrigger>
               <TabsTrigger 
                 value="audio" 
-                className="gap-2 data-[state=active]:bg-transparent data-[state=active]:border data-[state=active]:border-white data-[state=active]:rounded-lg hover:bg-white/10 transition-all" 
+                className="gap-2 album-tab data-[state=active]:bg-transparent hover:bg-white/10 transition-all border rounded-lg"
                 style={{ 
                   color: 'white',
-                  border: '1px solid transparent'
+                  borderColor: 'transparent',
+                  borderWidth: '1px',
+                  borderStyle: 'solid'
                 }}
               >
                 <Phone className="w-4 h-4" />
@@ -1045,7 +1072,6 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
               </TabsContent>
             </Tabs>
           </div>
-        </>
       </DialogContent>
 
       {/* Media Lightbox */}
@@ -1059,6 +1085,7 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
         canDelete={isOwner}
         onDelete={handleDeleteMedia}
       />
+    </Dialog>
 
       {/* Slideshow Dialog */}
       {slideshowActive && (
@@ -1137,6 +1164,6 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
           </DialogContent>
         </Dialog>
       )}
-    </Dialog>
+    </>
   );
 };
