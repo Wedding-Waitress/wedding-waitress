@@ -219,32 +219,22 @@ export const PhotoVideoSharingPage: React.FC = () => {
     });
   };
 
-  // Helper function to format filename: EventName-EventDate format
+  // Helper function to format filename: AlbumName (dd/MM/yyyy) format
   const formatFilename = (title: string, suffix: string, extension: string): string => {
-    // Replace spaces with hyphens, keep special characters like &
-    const formattedTitle = title.replace(/\s+/g, '-');
-    
-    // For album downloads, use EventName-EventDate format (e.g., Jack-&-Jill-29th-November-2025.zip)
+    // For album downloads, use AlbumName (dd/MM/yyyy) format (e.g., Jack&Jill (29/11/2025).zip)
     if (suffix === 'Photo-Video-Album' && galleryEventDate) {
+      const formattedTitle = title.replace(/\s+/g, '');
       const date = new Date(galleryEventDate);
-      const day = format(date, 'd');
-      const month = format(date, 'MMMM');
+      const day = format(date, 'dd');
+      const month = format(date, 'MM');
       const year = format(date, 'yyyy');
       
-      // Add ordinal suffix (st, nd, rd, th)
-      const getOrdinalSuffix = (dayNum: number) => {
-        if (dayNum > 3 && dayNum < 21) return 'th';
-        switch (dayNum % 10) {
-          case 1: return 'st';
-          case 2: return 'nd';
-          case 3: return 'rd';
-          default: return 'th';
-        }
-      };
-      
-      const dateStr = `${day}${getOrdinalSuffix(parseInt(day))}-${month}-${year}`;
-      return `${formattedTitle}-${dateStr}.${extension}`;
+      const dateStr = `${day}/${month}/${year}`;
+      return `${formattedTitle} (${dateStr}).${extension}`;
     }
+    
+    // For other downloads (QR codes, etc.), replace spaces with hyphens
+    const formattedTitle = title.replace(/\s+/g, '-');
     
     // For other downloads (QR codes, etc.), keep existing format
     // Capitalize each word and replace spaces with hyphens
