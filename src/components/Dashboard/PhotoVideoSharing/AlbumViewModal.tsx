@@ -9,6 +9,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { format } from 'date-fns';
 import logoImage from '@/assets/wedding-waitress-logo.png';
+import weddingWaitressLogo from '@/assets/wedding-waitress-logo-full-brand.png';
 import { generateMediaFilename, getMediaTypeLabel } from '@/lib/mediaFilenames';
 
 interface AlbumViewModalProps {
@@ -455,14 +456,31 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
         className="max-w-[90vw] max-h-[90vh] overflow-y-auto"
       >
         <DialogHeader>
-          <DialogTitle className="text-2xl flex flex-col gap-1">
-            <span>{galleryTitle}</span>
-            {eventDate && (
-              <span className="text-lg font-normal text-primary">
-                {formatEventDate(eventDate)}
-              </span>
-            )}
-          </DialogTitle>
+          <div className="flex items-center justify-between gap-4 pb-4 border-b">
+            {/* Left: Wedding Waitress Logo */}
+            <div className="flex-shrink-0 pl-2">
+              <img 
+                src={weddingWaitressLogo} 
+                alt="Wedding Waitress" 
+                className="h-10 w-auto object-contain"
+              />
+            </div>
+            
+            {/* Center: Event Name and Date */}
+            <div className="flex-1 flex flex-col items-center justify-center text-center">
+              <DialogTitle className="text-2xl font-bold text-primary mb-1">
+                {galleryTitle}
+              </DialogTitle>
+              {eventDate && (
+                <p className="text-lg text-primary/80">
+                  {formatEventDate(eventDate)}
+                </p>
+              )}
+            </div>
+            
+            {/* Right: Empty spacer for balance */}
+            <div className="flex-shrink-0 w-10" />
+          </div>
         </DialogHeader>
 
         <>
