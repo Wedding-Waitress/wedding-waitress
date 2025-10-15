@@ -627,19 +627,25 @@ export const GuestAlbumPublic: React.FC = () => {
 
   const handleViewAlbum = (e: React.MouseEvent) => {
     e.preventDefault();
-    
-    if (!galleryData?.id) {
-      setOpenGalleryRequested(true);
-      return;
-    }
 
-    // Track album view
-    analytics.track('album_view_opened', {
-      gallery_id: galleryData.id,
-      source: 'guest_landing',
+    console.log('[GuestAlbumPublic] View Album clicked', {
+      hasGalleryId: !!galleryData?.id,
+      galleryId: galleryData?.id,
     });
 
-    // Open album viewer immediately
+    if (!galleryData?.id) {
+      setOpenGalleryRequested(true);
+      // Give immediate feedback; modal will open once data is ready
+      toast({ title: 'Loading album…', description: 'Opening your gallery', duration: 1500 });
+    } else {
+      // Track album view only when we have a gallery id
+      analytics.track('album_view_opened', {
+        gallery_id: galleryData.id,
+        source: 'guest_landing',
+      });
+    }
+
+    // Always try to open the album viewer
     setAlbumViewerOpen(true);
   };
 
