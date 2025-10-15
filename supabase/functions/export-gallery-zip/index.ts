@@ -124,6 +124,43 @@ Deno.serve(async (req) => {
   }
 });
 
+// Helper: Normalize file_url to bucket-relative path
+// Handles: relative paths, "bucket/..." prefixes, and full public URLs
+function normalizeStoragePath(bucketName: string, fileUrl: string): string {
+  if (!fileUrl) return '';
+  
+  // Already a relative path like "galleries/abc/file.jpg"
+  if (!fileUrl.includes('://') && !fileUrl.startsWith(bucketName + '/')) {
+    return fileUrl;
+  }
+  
+  // Strip "bucket/" prefix if present
+  if (fileUrl.startsWith(bucketName + '/')) {
+    return fileUrl.substring(bucketName.length + 1);
+  }
+  
+  // Handle full public URL: extract path after "public/{bucket}/"
+  if (fileUrl.includes('://')) {
+    const match = fileUrl.match(new RegExp(`/public/${bucketName}/(.+)$`));
+    if (match) {
+      return match[1];
+    }
+  }
+  
+  return fileUrl;
+}
+
+// Simple date formatter (avoids date-fns import issues)
+function simpleFormat(dateStr: string): string {
+  const date = new Date(dateStr);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const hour = String(date.getHours()).padStart(2, '0');
+  const min = String(date.getMinutes()).padStart(2, '0');
+  return `${year}-${month}-${day} ${hour}:${min}`;
+}
+
 async function processExport(
   supabase: any,
   exportId: string,
@@ -216,11 +253,17 @@ async function processExport(
 
       if (item.post_type === 'photo' && item.file_url) {
         try {
+          const normalizedPath = normalizeStoragePath('event-media', item.file_url);
+          console.log(`Downloading photo ${item.id}, normalized path: ${normalizedPath}`);
+          
           const { data: fileData, error: downloadError } = await supabase.storage
             .from('event-media')
-            .download(item.file_url);
+            .download(normalizedPath);
 
-          if (!downloadError && fileData) {
+          if (downloadError) {
+            console.error(`Photo download error for ${item.id} (path: ${normalizedPath}):`, downloadError);
+            itemData.error = 'Failed to download';
+          } else if (fileData) {
             const seqPadded = String(item.seq_number || ++photoCount).padStart(6, '0');
             const ext = item.mime_type?.split('/')[1] || 'jpg';
             const filename = `${seqPadded}-Photo-${albumTitle}.${ext}`;
@@ -239,11 +282,17 @@ async function processExport(
 
       if (item.post_type === 'video' && item.file_url && !item.cloudflare_stream_uid) {
         try {
+          const normalizedPath = normalizeStoragePath('event-media', item.file_url);
+          console.log(`Downloading video ${item.id}, normalized path: ${normalizedPath}`);
+          
           const { data: fileData, error: downloadError } = await supabase.storage
             .from('event-media')
-            .download(item.file_url);
+            .download(normalizedPath);
 
-          if (!downloadError && fileData) {
+          if (downloadError) {
+            console.error(`Video download error for ${item.id} (path: ${normalizedPath}):`, downloadError);
+            itemData.error = 'Failed to download';
+          } else if (fileData) {
             const seqPadded = String(item.seq_number || ++videoCount).padStart(6, '0');
             const ext = item.mime_type?.split('/')[1] || 'mp4';
             const filename = `${seqPadded}-Video-${albumTitle}.${ext}`;
@@ -300,11 +349,16 @@ async function processExport(
     let audioCount = 0;
     for (const audioItem of audioItems || []) {
       try {
+        const normalizedPath = normalizeStoragePath('audio-uploads', audioItem.file_url);
+        console.log(`Downloading audio ${audioItem.id}, normalized path: ${normalizedPath}`);
+        
         const { data: fileData, error: downloadError } = await supabase.storage
           .from('audio-uploads')
-          .download(audioItem.file_url);
+          .download(normalizedPath);
 
-        if (!downloadError && fileData) {
+        if (downloadError) {
+          console.error(`Audio download error for ${audioItem.id} (path: ${normalizedPath}):`, downloadError);
+        } else if (fileData) {
           audioCount++;
           const seqPadded = String(audioItem.seq_number || audioCount).padStart(6, '0');
           const ext = audioItem.mime_type?.split('/')[1] || 'm4a';
@@ -340,7 +394,7 @@ async function processExport(
         const timestamp = new Date(item.created_at).toISOString();
         const message = (item.text_content || '').replace(/"/g, '""');
         messagesCsvRows.push(`"${timestamp}","${message}"`);
-        messagesTxtLines.push(`[${format(new Date(item.created_at), 'yyyy-MM-dd HH:mm')}] ${item.text_content}`);
+        messagesTxtLines.push(`[${simpleFormat(item.created_at)}] ${item.text_content}`);
       }
 
       messagesFolder?.file('Messages.csv', messagesCsvRows.join('\n'));

@@ -469,6 +469,29 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
     return `${formattedTitle}.${extension}`;
   };
 
+  // Helper: Normalize file_url to bucket-relative path
+  const normalizeStoragePath = (bucketName: string, fileUrl: string): string => {
+    if (!fileUrl) return '';
+    
+    // Already a relative path
+    if (!fileUrl.includes('://') && !fileUrl.startsWith(bucketName + '/')) {
+      return fileUrl;
+    }
+    
+    // Strip "bucket/" prefix
+    if (fileUrl.startsWith(bucketName + '/')) {
+      return fileUrl.substring(bucketName.length + 1);
+    }
+    
+    // Handle full public URL
+    if (fileUrl.includes('://')) {
+      const match = fileUrl.match(new RegExp(`/public/${bucketName}/(.+)$`));
+      if (match) return match[1];
+    }
+    
+    return fileUrl;
+  };
+
   // Download as folder using File System Access API (Chrome/Edge only)
   const downloadAsFolder = async (): Promise<boolean | null> => {
     // Feature detection
@@ -507,9 +530,10 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
       let photoCount = 0;
       for (const item of photos || []) {
         try {
+          const normalizedPath = normalizeStoragePath('event-media', item.file_url!);
           const { data: fileData } = await supabase.storage
             .from('event-media')
-            .download(item.file_url!.replace('event-media/', ''));
+            .download(normalizedPath);
           
           if (fileData) {
             photoCount++;
@@ -533,9 +557,10 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
       let videoCount = 0;
       for (const item of videos.filter(v => !v.cloudflare_stream_uid) || []) {
         try {
+          const normalizedPath = normalizeStoragePath('event-media', item.file_url!);
           const { data: fileData } = await supabase.storage
             .from('event-media')
-            .download(item.file_url!.replace('event-media/', ''));
+            .download(normalizedPath);
           
           if (fileData) {
             videoCount++;
@@ -586,9 +611,10 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
       let audioCount = 0;
       for (const item of audioMessages || []) {
         try {
+          const normalizedPath = normalizeStoragePath('audio-uploads', item.file_url);
           const { data: fileData } = await supabase.storage
             .from('audio-uploads')
-            .download(item.file_url.replace('audio-uploads/', ''));
+            .download(normalizedPath);
           
           if (fileData) {
             audioCount++;
