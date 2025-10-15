@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, Navigate } from 'react-router-dom';
+import { useParams, useNavigate, Navigate, useSearchParams } from 'react-router-dom';
 import { Plus, ArrowLeft, X, Camera, Trash2, Play, Video, Loader2, Share2, Mic, MessageSquare } from 'lucide-react';
 import { format } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
@@ -68,6 +68,7 @@ export const GuestAlbumPublic: React.FC = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const [flowStep, setFlowStep] = useState<FlowStep>('landing');
   const [viewMode, setViewMode] = useState<ViewMode>('upload');
@@ -250,6 +251,13 @@ export const GuestAlbumPublic: React.FC = () => {
       analytics.track('gallery_view', { gallery_slug: gallerySlug });
     }
   }, [gallerySlug, retryCount]);
+
+  // Check for ?view=gallery query parameter and open modal
+  useEffect(() => {
+    if (searchParams.get('view') === 'gallery' && galleryData?.id) {
+      setAlbumViewerOpen(true);
+    }
+  }, [searchParams, galleryData]);
 
   const generateOrGetToken = () => {
     const storageKey = `guest_token_${gallerySlug}`;
@@ -630,8 +638,14 @@ export const GuestAlbumPublic: React.FC = () => {
       source: 'guest_landing',
     });
 
-    // Open the album viewer modal instead of changing flow step
-    setAlbumViewerOpen(true);
+    // Navigate with query parameter to open gallery view
+    setSearchParams({ view: 'gallery' });
+  };
+
+  const handleCloseAlbum = () => {
+    setAlbumViewerOpen(false);
+    // Remove query parameter to return to landing
+    setSearchParams({});
   };
 
   const handleTextPostSubmit = (data: { textContent: string; themeId: string }) => {
@@ -1838,7 +1852,7 @@ export const GuestAlbumPublic: React.FC = () => {
       {galleryData && (
         <AlbumViewModal
           isOpen={albumViewerOpen}
-          onClose={() => setAlbumViewerOpen(false)}
+          onClose={handleCloseAlbum}
           galleryId={galleryData.id}
           galleryTitle={galleryData.title}
         />
