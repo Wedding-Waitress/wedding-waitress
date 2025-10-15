@@ -468,11 +468,11 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
             
             {/* Center: Event Name and Date */}
             <div className="flex-1 flex flex-col items-center justify-center text-center">
-              <DialogTitle className="text-2xl font-bold text-primary mb-1">
+              <DialogTitle className="text-2xl font-bold mb-1" style={{ color: '#000000' }}>
                 {galleryTitle}
               </DialogTitle>
               {eventDate && (
-                <p className="text-lg text-primary/80">
+                <p className="text-lg text-primary">
                   {formatEventDate(eventDate)}
                 </p>
               )}
@@ -570,6 +570,10 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
                   onClick={startSlideshow}
                   variant="outline"
                   className="gap-2"
+                  style={{ 
+                    border: '1px solid #6D28D9', 
+                    borderRadius: '8px' 
+                  }}
                 >
                   <Presentation className="w-4 h-4" />
                   Play Slide Show
@@ -578,6 +582,10 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
                   onClick={handleShareGallery}
                   variant="outline"
                   className="gap-2"
+                  style={{ 
+                    border: '1px solid #6D28D9', 
+                    borderRadius: '8px' 
+                  }}
                 >
                   <Share2 className="w-4 h-4" />
                   Share Album
@@ -586,26 +594,66 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
             )}
 
             <Tabs defaultValue="photos" className="w-full">
-            <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="photos" className="gap-2">
+            <TabsList 
+              className="grid w-full grid-cols-4 relative" 
+              style={{ 
+                backgroundColor: '#6D28D9',
+                padding: '8px'
+              }}
+            >
+              <TabsTrigger 
+                value="photos" 
+                className="gap-2 data-[state=active]:bg-transparent data-[state=active]:border data-[state=active]:border-white data-[state=active]:rounded-lg hover:bg-white/10 transition-all" 
+                style={{ 
+                  color: 'white',
+                  border: '1px solid transparent'
+                }}
+              >
                 <Image className="w-4 h-4" />
                 Photos ({photos.length})
               </TabsTrigger>
-              <TabsTrigger value="videos" className="gap-2">
+              <TabsTrigger 
+                value="videos" 
+                className="gap-2 data-[state=active]:bg-transparent data-[state=active]:border data-[state=active]:border-white data-[state=active]:rounded-lg hover:bg-white/10 transition-all" 
+                style={{ 
+                  color: 'white',
+                  border: '1px solid transparent'
+                }}
+              >
                 <Video className="w-4 h-4" />
                 Videos ({videos.length})
               </TabsTrigger>
-              <TabsTrigger value="messages" className="gap-2">
+              <TabsTrigger 
+                value="messages" 
+                className="gap-2 data-[state=active]:bg-transparent data-[state=active]:border data-[state=active]:border-white data-[state=active]:rounded-lg hover:bg-white/10 transition-all" 
+                style={{ 
+                  color: 'white',
+                  border: '1px solid transparent'
+                }}
+              >
                 <MessageSquare className="w-4 h-4" />
                 Messages ({messages.length})
               </TabsTrigger>
-              <TabsTrigger value="audio" className="gap-2">
+              <TabsTrigger 
+                value="audio" 
+                className="gap-2 data-[state=active]:bg-transparent data-[state=active]:border data-[state=active]:border-white data-[state=active]:rounded-lg hover:bg-white/10 transition-all" 
+                style={{ 
+                  color: 'white',
+                  border: '1px solid transparent'
+                }}
+              >
                 <Phone className="w-4 h-4" />
                 Audio ({audioMessages.length})
               </TabsTrigger>
+              
+              {/* Separator line below tabs */}
+              <div 
+                className="absolute bottom-0 left-0 right-0 h-px" 
+                style={{ backgroundColor: '#E5E7EB' }}
+              />
             </TabsList>
 
-            <TabsContent value="photos" className="mt-4 animate-fade-in">
+            <TabsContent value="photos" className="mt-12 animate-fade-in">
               {photos.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">
                   No photos yet
@@ -688,7 +736,7 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
               )}
             </TabsContent>
 
-            <TabsContent value="videos" className="mt-4 animate-fade-in">
+            <TabsContent value="videos" className="mt-12 animate-fade-in">
               {videos.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">
                   No videos yet
@@ -796,7 +844,7 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
               )}
             </TabsContent>
 
-            <TabsContent value="messages" className="mt-4 animate-fade-in">
+            <TabsContent value="messages" className="mt-12 animate-fade-in">
               {messages.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">
                   No messages yet
@@ -815,7 +863,7 @@ export const AlbumViewModal: React.FC<AlbumViewModalProps> = ({
               )}
             </TabsContent>
 
-            <TabsContent value="audio" className="mt-4 animate-fade-in">
+            <TabsContent value="audio" className="mt-12 animate-fade-in">
               {audioMessages.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">
                   No audio messages yet
