@@ -215,7 +215,7 @@ async function processExport(
         try {
           const { data: fileData, error: downloadError } = await supabase.storage
             .from('event-media')
-            .download(item.file_url.replace('event-media/', ''));
+            .download(item.file_url);
 
           if (!downloadError && fileData) {
             const seqPadded = String(item.seq_number || ++photoCount).padStart(6, '0');
@@ -238,7 +238,7 @@ async function processExport(
         try {
           const { data: fileData, error: downloadError } = await supabase.storage
             .from('event-media')
-            .download(item.file_url.replace('event-media/', ''));
+            .download(item.file_url);
 
           if (!downloadError && fileData) {
             const seqPadded = String(item.seq_number || ++videoCount).padStart(6, '0');
@@ -299,7 +299,7 @@ async function processExport(
       try {
         const { data: fileData, error: downloadError } = await supabase.storage
           .from('audio-uploads')
-          .download(audioItem.file_url.replace('audio-uploads/', ''));
+          .download(audioItem.file_url);
 
         if (!downloadError && fileData) {
           audioCount++;
