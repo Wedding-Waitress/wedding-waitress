@@ -45,10 +45,17 @@ export const AudioRecorderModal: React.FC<AudioRecorderModalProps> = ({
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       
-      // Use webm for cross-browser compatibility
-      const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
-        ? 'audio/webm;codecs=opus'
-        : 'audio/webm';
+      // Detect best supported MIME type with iOS Safari fallback
+      let mimeType = 'audio/webm';
+      if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) {
+        mimeType = 'audio/webm;codecs=opus';
+      } else if (MediaRecorder.isTypeSupported('audio/mp4')) {
+        mimeType = 'audio/mp4';
+      } else if (MediaRecorder.isTypeSupported('audio/mp4;codecs=mp4a.40.2')) {
+        mimeType = 'audio/mp4;codecs=mp4a.40.2';
+      }
+      
+      console.log('🎤 Using MIME type:', mimeType);
       
       const mediaRecorder = new MediaRecorder(stream, { mimeType });
       mediaRecorderRef.current = mediaRecorder;
@@ -190,13 +197,13 @@ export const AudioRecorderModal: React.FC<AudioRecorderModalProps> = ({
               )}
             </div>
 
-            {/* Controls */}
-            <div className="flex gap-3">
+            {/* Vertically Stacked Action Buttons */}
+            <div className="flex flex-col w-full gap-4 px-4">
               {!isRecording && !audioBlob && (
                 <Button
                   size="lg"
                   onClick={startRecording}
-                  className="bg-gradient-to-r from-primary to-purple-600"
+                  className="w-full bg-gradient-to-r from-primary to-purple-600"
                 >
                   <Mic className="w-5 h-5 mr-2" />
                   Start Recording
@@ -208,18 +215,22 @@ export const AudioRecorderModal: React.FC<AudioRecorderModalProps> = ({
                   size="lg"
                   onClick={stopRecording}
                   variant="destructive"
+                  className="w-full"
                 >
                   <Square className="w-5 h-5 mr-2" />
-                  Stop
+                  Stop Recording
                 </Button>
               )}
 
-              {audioBlob && !isRecording && (
+              {!isRecording && (
                 <>
+                  {/* Play Preview Button */}
                   <Button
                     size="lg"
                     onClick={togglePlayback}
                     variant="outline"
+                    disabled={!audioBlob}
+                    className={`w-full ${!audioBlob ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}`}
                   >
                     {isPlaying ? (
                       <>
@@ -234,11 +245,14 @@ export const AudioRecorderModal: React.FC<AudioRecorderModalProps> = ({
                     )}
                   </Button>
 
+                  {/* Upload Button */}
                   <Button
                     size="lg"
                     onClick={handleUpload}
-                    disabled={uploading}
-                    className="bg-gradient-to-r from-primary to-purple-600"
+                    disabled={!audioBlob || uploading}
+                    className={`w-full bg-gradient-to-r from-primary to-purple-600 ${
+                      !audioBlob || uploading ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'
+                    }`}
                   >
                     {uploading ? (
                       <>
@@ -252,25 +266,26 @@ export const AudioRecorderModal: React.FC<AudioRecorderModalProps> = ({
                       </>
                     )}
                   </Button>
+
+                  {/* Record Again Button */}
+                  <Button
+                    variant="ghost"
+                    size="lg"
+                    disabled={!audioBlob}
+                    onClick={() => {
+                      setAudioBlob(null);
+                      setAudioUrl(null);
+                      setRecordingTime(0);
+                      setDuration(0);
+                      setIsPlaying(false);
+                    }}
+                    className={`w-full ${!audioBlob ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}`}
+                  >
+                    Record Again
+                  </Button>
                 </>
               )}
             </div>
-
-            {audioBlob && !isRecording && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  setAudioBlob(null);
-                  setAudioUrl(null);
-                  setRecordingTime(0);
-                  setDuration(0);
-                  setIsPlaying(false);
-                }}
-              >
-                Record Again
-              </Button>
-            )}
           </div>
 
           {/* Hidden audio player for preview */}

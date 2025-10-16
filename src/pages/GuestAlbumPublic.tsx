@@ -664,59 +664,128 @@ export const GuestAlbumPublic: React.FC = () => {
   };
 
   const handleAudioUpload = async (audioBlob: Blob, duration: number) => {
-    if (!galleryData || !token) return;
+    if (!galleryData || !token) {
+      toast({
+        title: 'Missing Information',
+        description: 'Gallery data not available. Please try again.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (!audioBlob) {
+      toast({
+        title: 'No Recording Found',
+        description: 'Please record first.',
+        variant: 'destructive',
+      });
+      return;
+    }
 
     setUploadingAudio(true);
+
     try {
       console.log('🎤 Uploading audio guestbook message...');
       
-      // Generate unique filename
-      const filename = `audio-${Date.now()}-${Math.random().toString(36).substr(2, 9)}.webm`;
-      const filePath = `${galleryData.id}/${filename}`;
+      // Generate filename matching media naming convention
+      const now = new Date();
+      const dateStr = now.toISOString().split('T')[0].replace(/-/g, ''); // YYYYMMDD
+      const timeStr = now.toTimeString().split(' ')[0].replace(/:/g, ''); // HHMMSS
+      const random4 = Math.random().toString(36).substr(2, 4).toUpperCase();
+      const eventName = galleryData.title || 'Event';
+      
+      // Determine file extension from blob type
+      const contentType = audioBlob.type || 'audio/webm';
+      let ext = 'webm';
+      if (contentType.includes('mp4') || contentType.includes('m4a')) {
+        ext = 'm4a';
+      } else if (contentType.includes('mpeg') || contentType.includes('mp3')) {
+        ext = 'mp3';
+      }
+      
+      const filename = `${dateStr}_${timeStr}-Audio-${eventName}-${random4}.${ext}`;
+      
+      console.log('📝 Audio filename:', filename);
+      console.log('📝 Content-Type:', contentType);
 
-      // Upload to Supabase Storage
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('audio-uploads')
-        .upload(filePath, audioBlob, {
-          contentType: audioBlob.type,
-          upsert: false,
-        });
-
-      if (uploadError) throw uploadError;
-
-      // Insert record into audio_guestbook table
-      const { error: insertError } = await supabase
-        .from('audio_guestbook' as any)
-        .insert({
-          gallery_id: galleryData.id,
-          uploader_token: token,
-          file_url: filePath,
+      // Step 1: Get signed upload URL (same as photos/videos)
+      const { data: urlData, error: urlError } = await supabase.functions.invoke('create-media-upload-url', {
+        body: {
+          gallerySlug: gallerySlug,
+          filename: filename,
+          contentType: contentType,
+          file_size: audioBlob.size,
           duration_seconds: Math.round(duration),
-          file_size_bytes: audioBlob.size,
-          mime_type: audioBlob.type,
-        });
+        },
+      });
 
-      if (insertError) throw insertError;
+      if (urlError) {
+        console.error('❌ Upload URL error:', urlError);
+        throw new Error(urlError.message || 'Could not start upload');
+      }
 
+      console.log('✅ Got signed URL:', urlData.file_path);
+
+      // Step 2: Upload blob to Supabase Storage using signed URL
+      const { error: uploadError } = await supabase.storage
+        .from('event-media')
+        .uploadToSignedUrl(
+          urlData.file_path,
+          urlData.token,
+          audioBlob,
+          { contentType: contentType }
+        );
+
+      if (uploadError) {
+        console.error('❌ Upload error:', uploadError);
+        throw new Error('Upload failed. Please try again.');
+      }
+
+      console.log('✅ Blob uploaded successfully');
+
+      // Step 3: Confirm upload and create DB record (same as photos/videos)
+      const { error: confirmError } = await supabase.functions.invoke('confirm-media-upload', {
+        body: {
+          gallery_id: urlData.gallery_id,
+          upload_token: urlData.token,
+          file_path: urlData.file_path,
+          type: 'audio',
+          post_type: 'audio',
+          caption: null,
+          file_size: audioBlob.size,
+          mime_type: contentType,
+          duration_seconds: Math.round(duration),
+        },
+      });
+
+      if (confirmError) {
+        console.error('❌ Confirm error:', confirmError);
+        throw new Error('Could not save audio record');
+      }
+
+      console.log('✅ Audio guestbook message uploaded successfully!');
+
+      // Success feedback
       toast({
         title: '✅ Success!',
         description: 'Your audio guestbook message has been uploaded successfully!',
       });
 
+      // Close modal and refresh
       setShowAudioRecorder(false);
       setFlowStep('success');
 
-      // Refresh gallery
+      // Refresh gallery data to show new audio
       setTimeout(() => {
         fetchGalleryData();
         setFlowStep('landing');
       }, 2000);
 
     } catch (error: any) {
-      console.error('Audio upload error:', error);
+      console.error('❌ Audio upload error:', error);
       toast({
         title: 'Upload Failed',
-        description: error.message || 'Failed to upload audio message',
+        description: error.message || 'Failed to upload audio message. Please try again.',
         variant: 'destructive',
       });
     } finally {
