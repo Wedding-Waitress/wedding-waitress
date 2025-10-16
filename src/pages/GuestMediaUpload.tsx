@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { Plus, X, Camera, ArrowLeft, Trash2 } from 'lucide-react';
+import { Plus, X, Camera, ArrowLeft, Trash2, Mic } from 'lucide-react';
 import { format } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -17,6 +17,10 @@ import { useChunkedUpload } from '@/hooks/useChunkedUpload';
 // Lazy load TextPostModal for better performance
 const TextPostModal = React.lazy(() => 
   import('@/components/Dashboard/PhotoVideoSharing/TextPostModal').then(m => ({ default: m.TextPostModal }))
+);
+
+const AudioRecorderModal = React.lazy(() =>
+  import('@/components/Dashboard/PhotoVideoSharing/AudioRecorderModal').then(m => ({ default: m.AudioRecorderModal }))
 );
 
 interface MediaItem {
@@ -55,6 +59,8 @@ export const GuestMediaUpload: React.FC = () => {
   const [token, setToken] = useState('');
   const [selectedItems, setSelectedItems] = useState<MediaItem[]>([]);
   const [showTextPostModal, setShowTextPostModal] = useState(false);
+  const [showAudioRecorder, setShowAudioRecorder] = useState(false);
+  const [uploadingAudio, setUploadingAudio] = useState(false);
   
   // Chunked upload state
   const [isChunkedUpload, setIsChunkedUpload] = useState(false);
@@ -476,6 +482,123 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
 
       video.src = URL.createObjectURL(file);
     });
+  };
+
+  const handleAudioUpload = async (audioBlob: Blob, duration: number) => {
+    if (!galleryId || !token) {
+      toast({
+        title: 'Missing Information',
+        description: 'Gallery data not available. Please try again.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (!audioBlob) {
+      toast({
+        title: 'No Recording Found',
+        description: 'Please record first.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setUploadingAudio(true);
+
+    try {
+      console.log('🎤 Uploading audio guestbook message...');
+      
+      const now = new Date();
+      const dateStr = now.toISOString().split('T')[0].replace(/-/g, '');
+      const timeStr = now.toTimeString().split(' ')[0].replace(/:/g, '');
+      const random4 = Math.random().toString(36).substr(2, 4).toUpperCase();
+      const eventName = galleryTitle || eventData?.name || 'Event';
+      
+      const contentType = audioBlob.type || 'audio/webm';
+      let ext = 'webm';
+      if (contentType.includes('mp4') || contentType.includes('m4a')) {
+        ext = 'm4a';
+      } else if (contentType.includes('mpeg') || contentType.includes('mp3')) {
+        ext = 'mp3';
+      }
+      
+      const filename = `${dateStr}_${timeStr}-Audio-${eventName}-${random4}.${ext}`;
+      
+      console.log('📝 Audio filename:', filename);
+      console.log('📝 Content-Type:', contentType);
+
+      const { data: urlData, error: urlError } = await supabase.functions.invoke('create-media-upload-url', {
+        body: {
+          gallerySlug: gallerySlug,
+          filename: filename,
+          contentType: contentType,
+          file_size: audioBlob.size,
+          duration_seconds: Math.round(duration),
+        },
+      });
+
+      if (urlError) {
+        console.error('❌ Upload URL error:', urlError);
+        throw new Error(urlError.message || 'Could not start upload');
+      }
+
+      console.log('✅ Got signed URL:', urlData.file_path);
+
+      const { error: uploadError } = await supabase.storage
+        .from('event-media')
+        .uploadToSignedUrl(
+          urlData.file_path,
+          urlData.token,
+          audioBlob,
+          { contentType: contentType }
+        );
+
+      if (uploadError) {
+        console.error('❌ Upload error:', uploadError);
+        throw new Error('Upload failed. Please try again.');
+      }
+
+      console.log('✅ Blob uploaded successfully');
+
+      const { error: confirmError } = await supabase.functions.invoke('confirm-media-upload', {
+        body: {
+          gallery_id: urlData.gallery_id,
+          upload_token: urlData.token,
+          file_path: urlData.file_path,
+          type: 'audio',
+          post_type: 'audio',
+          caption: null,
+          file_size: audioBlob.size,
+          mime_type: contentType,
+          duration_seconds: Math.round(duration),
+        },
+      });
+
+      if (confirmError) {
+        console.error('❌ Confirm error:', confirmError);
+        throw new Error('Could not save audio record');
+      }
+
+      console.log('✅ Audio guestbook message uploaded successfully!');
+
+      toast({
+        title: '✅ Success!',
+        description: 'Your audio guestbook message has been uploaded successfully!',
+      });
+
+      setShowAudioRecorder(false);
+      setFlowStep('success');
+
+    } catch (error: any) {
+      console.error('❌ Audio upload error:', error);
+      toast({
+        title: 'Upload Failed',
+        description: error.message || 'Failed to upload audio message. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setUploadingAudio(false);
+    }
   };
 
   const handleTextPostSubmit = (data: { textContent: string; themeId: string }) => {
@@ -934,13 +1057,26 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
                 Share your favorite moments from this special day!
               </p>
 
-              <Button 
-                onClick={() => setFlowStep('add')}
-                className="w-full bg-gradient-to-r from-primary to-purple-600 hover:opacity-90"
-                size="lg"
-              >
-                📸 Add Photos & Videos
-              </Button>
+              <div className="space-y-3">
+                <Button 
+                  onClick={() => setFlowStep('add')}
+                  className="w-full bg-gradient-to-r from-primary to-purple-600 hover:opacity-90"
+                  size="lg"
+                >
+                  📸 Add Photos & Videos
+                </Button>
+                
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="w-full text-lg py-6 rounded-2xl border-2 bg-white hover:bg-white/90 min-h-[48px]"
+                  style={{ borderColor: '#6D28D9', color: '#6D28D9' }}
+                  onClick={() => setShowAudioRecorder(true)}
+                >
+                  <Mic className="w-6 h-6 mr-3" style={{ color: '#6D28D9' }} />
+                  Record Audio Guestbook
+                </Button>
+              </div>
             </Card>
           </div>
         </div>
@@ -1005,6 +1141,15 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
             open={showTextPostModal}
             onClose={() => setShowTextPostModal(false)}
             onSubmit={handleTextPostSubmit}
+          />
+        </React.Suspense>
+
+        <React.Suspense fallback={null}>
+          <AudioRecorderModal
+            open={showAudioRecorder}
+            onClose={() => setShowAudioRecorder(false)}
+            onUploadComplete={handleAudioUpload}
+            uploading={uploadingAudio}
           />
         </React.Suspense>
       </div>
