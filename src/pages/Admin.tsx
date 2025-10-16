@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Shield } from 'lucide-react';
+import { Shield, ArrowLeft } from 'lucide-react';
 import { useIsAdmin } from '@/hooks/useIsAdmin';
 import { supabase } from '@/integrations/supabase/client';
 import { AdminOverview } from '@/components/Admin/AdminOverview';
@@ -64,6 +65,16 @@ export const Admin = () => {
                 <p className="text-sm text-muted-foreground">Production Environment</p>
               </div>
             </div>
+            
+            <Button
+              variant="outline"
+              onClick={() => navigate('/dashboard')}
+              className="flex items-center gap-2"
+              style={{ borderColor: '#6D28D9', color: '#6D28D9' }}
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span className="hidden sm:inline">Back to Dashboard</span>
+            </Button>
           </div>
         </div>
       </div>
