@@ -5,6 +5,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import { Landing } from "./pages/Landing";
 import { Dashboard } from "./pages/Dashboard";
+import { Admin } from "./pages/Admin";
 import { AdminLogin } from "./pages/AdminLogin";
 import NotFound from "./pages/NotFound";
 import { GuestLookup } from "./pages/GuestLookup";
@@ -33,7 +34,8 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/admin" element={<AdminLogin />} />
+          <Route path="/admin" element={<Admin />} />
+          <Route path="/admin/old-login" element={<AdminLogin />} />
           <Route path="/admin/gallery-insights" element={<AdminGalleryInsights />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />

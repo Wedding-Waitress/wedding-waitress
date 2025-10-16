@@ -11,8 +11,11 @@ import {
   Camera,
   LayoutGrid,
   FileText,
-  LogOut
+  LogOut,
+  Shield
 } from 'lucide-react';
+import { useIsAdmin } from '@/hooks/useIsAdmin';
+import { useNavigate } from 'react-router-dom';
 import {
   Sidebar,
   SidebarContent,
@@ -52,6 +55,8 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
   onSignOut
 }) => {
   const { open } = useSidebar();
+  const { isAdmin } = useIsAdmin();
+  const navigate = useNavigate();
 
   return (
     <Sidebar collapsible="icon" className="border-r border-border pt-16">
@@ -80,6 +85,20 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                   </SidebarMenuItem>
                 );
               })}
+              
+              {/* Admin Panel button (only for admins) */}
+              {isAdmin && (
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    onClick={() => navigate('/admin')}
+                    tooltip="Admin Panel"
+                    style={{ borderLeft: '3px solid #6D28D9' }}
+                  >
+                    <Shield className="w-5 h-5" style={{ color: '#6D28D9' }} />
+                    <span style={{ color: '#6D28D9' }}>Admin Panel</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              )}
               
               {/* Logout button */}
               <SidebarMenuItem>
