@@ -43,7 +43,7 @@ export const Header: React.FC<HeaderProps> = ({
                     <img 
                       src="/wedding-waitress-new-logo.png" 
                       alt="Wedding Waitress Logo" 
-                      className="h-20 md:h-24 lg:h-36 w-auto hover:opacity-80 transition-opacity"
+                      className="h-14 md:h-16 lg:h-20 w-auto hover:opacity-80 transition-opacity"
                     />
                   </Link>
                   <nav className="flex items-center space-x-4 lg:space-x-6">
@@ -85,7 +85,7 @@ export const Header: React.FC<HeaderProps> = ({
                     <img 
                       src="/wedding-waitress-new-logo.png" 
                       alt="Wedding Waitress Logo" 
-                      className="h-16 w-auto hover:opacity-80 transition-opacity"
+                      className="h-10 w-auto hover:opacity-80 transition-opacity"
                     />
                   </Link>
                   
