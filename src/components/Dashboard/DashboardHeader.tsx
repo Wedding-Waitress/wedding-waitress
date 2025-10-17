@@ -32,10 +32,9 @@ export const DashboardHeader: React.FC = () => {
         
         {/* Welcome message - hidden on mobile, centered on desktop */}
         {!isMobile && (
-          <div className="flex items-center justify-center w-full">
+          <div className="hidden sm:flex items-center justify-center w-full">
             <h2 className="text-sm sm:text-base md:text-xl lg:text-2xl font-semibold flex items-center gap-1 sm:gap-2" style={{ color: '#6D28D9' }}>
               <span className="hidden sm:inline">Hey {getDisplayName()}, </span>
-              <span className="sm:hidden">{getDisplayName()}</span>
               <span className="hidden sm:inline">What are you working on today!</span>
               <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-7 lg:h-7 flex-shrink-0" style={{ color: '#6D28D9' }} />
             </h2>
@@ -44,16 +43,16 @@ export const DashboardHeader: React.FC = () => {
         
         {/* Custom hamburger menu button - mobile only */}
         {isMobile && (
-          <div className="absolute right-2">
+          <div className="absolute right-2 sm:hidden">
             <button
               onClick={toggleSidebar}
-              className="h-9 w-9 rounded-lg shadow-md flex flex-col items-center justify-center gap-1 p-2"
+              className="h-10 w-10 rounded-lg shadow-lg flex flex-col items-center justify-center gap-1.5 p-2 transition-all hover:shadow-xl active:scale-95"
               style={{ backgroundColor: '#6D28D9' }}
               aria-label="Toggle menu"
             >
-              <div className="w-5 h-0.5 bg-white rounded-full"></div>
-              <div className="w-5 h-0.5 bg-white rounded-full"></div>
-              <div className="w-5 h-0.5 bg-white rounded-full"></div>
+              <div className="w-6 h-0.5 bg-white rounded-sm"></div>
+              <div className="w-6 h-0.5 bg-white rounded-sm"></div>
+              <div className="w-6 h-0.5 bg-white rounded-sm"></div>
             </button>
           </div>
         )}
