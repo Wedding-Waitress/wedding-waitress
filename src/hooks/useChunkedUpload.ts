@@ -50,6 +50,12 @@ export const useChunkedUpload = ({ gallerySlug, onComplete, onError }: UseChunke
       chunkPath: string,
       chunkToken: string
     ): Promise<boolean> => {
+      console.log(`🟡 Uploading chunk ${chunkIndex}`, {
+        chunkSize: chunk.size,
+        chunkPath,
+        hasToken: !!chunkToken,
+      });
+      
       let retries = 0;
 
       while (retries < MAX_RETRIES_PER_CHUNK) {
@@ -76,11 +82,17 @@ export const useChunkedUpload = ({ gallerySlug, onComplete, onError }: UseChunke
           }
 
           updateChunkProgress(chunkIndex, { status: 'success', progress: 100 });
+          console.log(`🟢 Chunk ${chunkIndex} uploaded successfully`, {
+            retries,
+          });
           return true;
         } catch (error: any) {
           retries++;
           const errorMessage = error.message || 'Unknown error';
-          console.error(`Chunk ${chunkIndex} upload failed (attempt ${retries}):`, errorMessage);
+          console.error(`❌ Chunk ${chunkIndex} upload failed (attempt ${retries})`, {
+            error: errorMessage,
+            willRetry: retries < MAX_RETRIES_PER_CHUNK,
+          });
 
           if (retries >= MAX_RETRIES_PER_CHUNK) {
             updateChunkProgress(chunkIndex, { 
@@ -95,6 +107,7 @@ export const useChunkedUpload = ({ gallerySlug, onComplete, onError }: UseChunke
         }
       }
 
+      console.error(`❌ Chunk ${chunkIndex} FAILED after ${MAX_RETRIES_PER_CHUNK} retries`);
       return false;
     },
     [updateChunkProgress]
@@ -102,6 +115,14 @@ export const useChunkedUpload = ({ gallerySlug, onComplete, onError }: UseChunke
 
   const uploadFile = useCallback(
     async (file: File, caption?: string): Promise<string | null> => {
+      console.log('🔵 useChunkedUpload.uploadFile() START', {
+        timestamp: new Date().toISOString(),
+        filename: file.name,
+        fileSize: file.size,
+        chunkSize: CHUNK_SIZE,
+        estimatedChunks: Math.ceil(file.size / CHUNK_SIZE),
+      });
+      
       try {
         setStatus('uploading');
         abortController.current = new AbortController();
@@ -161,6 +182,20 @@ export const useChunkedUpload = ({ gallerySlug, onComplete, onError }: UseChunke
             },
           }
         );
+        
+        console.log('🟢 start-multipart-upload RESPONSE', {
+          timestamp: new Date().toISOString(),
+          hasError: !!sessionError,
+          error: sessionError ? {
+            message: sessionError.message,
+            status: sessionError.status,
+          } : null,
+          data: sessionData ? {
+            sessionId: sessionData.session_id,
+            galleryId: sessionData.gallery_id,
+            chunkUrlsCount: sessionData.chunk_urls?.length,
+          } : null,
+        });
 
         if (sessionError || !sessionData) {
           console.error('Failed to start multipart upload:', {
@@ -222,6 +257,15 @@ export const useChunkedUpload = ({ gallerySlug, onComplete, onError }: UseChunke
             },
           }
         );
+        
+        console.log('🟢 complete-multipart-upload RESPONSE', {
+          timestamp: new Date().toISOString(),
+          hasError: !!completeError,
+          error: completeError?.message,
+          data: completeData ? {
+            mediaId: completeData.media_id,
+          } : null,
+        });
 
         if (completeError || !completeData) {
           throw new Error(completeError?.message || 'Failed to complete upload');
@@ -229,9 +273,23 @@ export const useChunkedUpload = ({ gallerySlug, onComplete, onError }: UseChunke
 
         setStatus('completed');
         onComplete?.(completeData.media_id);
+        
+        console.log('🔵 useChunkedUpload.uploadFile() END - SUCCESS', {
+          timestamp: new Date().toISOString(),
+          mediaId: completeData.media_id,
+        });
+        
         return completeData.media_id;
       } catch (error: any) {
-        console.error('Upload failed:', error);
+        console.error('🔵 useChunkedUpload.uploadFile() END - FAILED', {
+          timestamp: new Date().toISOString(),
+          error: {
+            message: error.message,
+            stack: error.stack,
+          },
+          filename: file.name,
+        });
+        
         setStatus('error');
         const errorMessage = error.message || 'Upload failed';
         onError?.(errorMessage);

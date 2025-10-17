@@ -42,8 +42,17 @@ export const AudioRecorderModal: React.FC<AudioRecorderModalProps> = ({
   }, [audioUrl]);
 
   const startRecording = async () => {
+    console.log('🔵 startRecording() START', {
+      timestamp: new Date().toISOString(),
+    });
+    
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      
+      console.log('🟢 Microphone access granted', {
+        streamActive: stream.active,
+        audioTracks: stream.getAudioTracks().length,
+      });
       
       // Detect best supported MIME type with iOS Safari fallback
       let mimeType = 'audio/webm';
@@ -83,6 +92,11 @@ export const AudioRecorderModal: React.FC<AudioRecorderModalProps> = ({
       mediaRecorder.start();
       setIsRecording(true);
       setRecordingTime(0);
+      
+      console.log('🟢 MediaRecorder started', {
+        mimeType,
+        state: mediaRecorder.state,
+      });
 
       // Start timer
       timerRef.current = setInterval(() => {
@@ -102,8 +116,11 @@ export const AudioRecorderModal: React.FC<AudioRecorderModalProps> = ({
         });
       }, 1000);
       
-    } catch (error) {
-      console.error('Error accessing microphone:', error);
+    } catch (error: any) {
+      console.error('❌ startRecording() FAILED', {
+        error: error.message,
+        name: error.name,
+      });
       toast({
         title: 'Microphone Access Denied',
         description: 'Please allow microphone access to record audio.',
@@ -113,6 +130,11 @@ export const AudioRecorderModal: React.FC<AudioRecorderModalProps> = ({
   };
 
   const stopRecording = () => {
+    console.log('🔵 stopRecording() called', {
+      isRecording,
+      recordingTime,
+    });
+    
     if (mediaRecorderRef.current && isRecording) {
       mediaRecorderRef.current.stop();
       setIsRecording(false);
@@ -138,6 +160,13 @@ export const AudioRecorderModal: React.FC<AudioRecorderModalProps> = ({
   };
 
   const handleUpload = () => {
+    console.log('🔵 handleUpload() called', {
+      hasAudioBlob: !!audioBlob,
+      duration,
+      audioBlobSize: audioBlob?.size,
+      audioBlobType: audioBlob?.type,
+    });
+    
     if (!audioBlob || duration <= 0) return;
     
     // Validate audio size BEFORE upload

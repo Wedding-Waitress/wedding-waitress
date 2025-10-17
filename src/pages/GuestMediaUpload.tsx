@@ -58,9 +58,37 @@ export const GuestMediaUpload: React.FC = () => {
   const [flowStep, setFlowStep] = useState<FlowStep>('landing');
   const [eventData, setEventData] = useState<EventData | null>(null);
   const [galleryId, setGalleryId] = useState<string | null>(null);
+  
+  // Log flow step changes for debugging
+  useEffect(() => {
+    console.log('🔄 FLOW STEP CHANGED:', {
+      to: flowStep,
+      timestamp: new Date().toISOString(),
+      selectedItemsCount: selectedItems.length,
+      galleryId,
+      gallerySlug,
+    });
+  }, [flowStep]);
   const [galleryTitle, setGalleryTitle] = useState('');
   const [token, setToken] = useState('');
   const [selectedItems, setSelectedItems] = useState<MediaItem[]>([]);
+  
+  // Log selected items changes for debugging
+  useEffect(() => {
+    console.log('📦 SELECTED ITEMS CHANGED:', {
+      count: selectedItems.length,
+      items: selectedItems.map(item => ({
+        type: item.type,
+        hasFile: !!item.file,
+        filename: item.file?.name,
+        size: item.file?.size,
+        uploadSuccess: item.uploadSuccess,
+        uploadError: item.uploadError,
+      })),
+      timestamp: new Date().toISOString(),
+    });
+  }, [selectedItems]);
+  
   const [showTextPostModal, setShowTextPostModal] = useState(false);
   const [showAudioRecorder, setShowAudioRecorder] = useState(false);
   const [uploadingAudio, setUploadingAudio] = useState(false);
@@ -514,6 +542,15 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
   };
 
   const handleAudioUpload = async (audioBlob: Blob, duration: number) => {
+    console.log('🔵 handleAudioUpload() START', {
+      timestamp: new Date().toISOString(),
+      audioBlobSize: audioBlob?.size,
+      duration,
+      galleryId,
+      gallerySlug,
+      token: token ? '✓ present' : '✗ missing',
+    });
+    
     if (!galleryId || !token) {
       toast({
         title: 'Missing Information',
@@ -575,6 +612,19 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
         filename,
       });
       console.log('📤 Guest upload starting');
+      
+      console.log('🟡 Calling create-media-upload-url (audio)', {
+        timestamp: new Date().toISOString(),
+        url: 'https://xytxkidpourwdbzzwcdp.supabase.co/functions/v1/create-media-upload-url',
+        method: 'POST',
+        body: {
+          gallerySlug,
+          filename,
+          contentType,
+          file_size: audioBlob.size,
+          duration_seconds: Math.round(duration),
+        },
+      });
 
       const { data: urlData, error: urlError } = await supabase.functions.invoke('create-media-upload-url', {
         body: {
@@ -585,9 +635,38 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
           duration_seconds: Math.round(duration),
         },
       });
+      
+      console.log('🟢 create-media-upload-url RESPONSE (audio)', {
+        timestamp: new Date().toISOString(),
+        hasError: !!urlError,
+        error: urlError ? {
+          message: urlError.message,
+          status: urlError.status,
+          fullError: JSON.stringify(urlError, null, 2),
+        } : null,
+        data: urlData ? {
+          filePath: urlData.file_path,
+          hasToken: !!urlData.token,
+          galleryId: urlData.gallery_id,
+        } : null,
+      });
 
       if (urlError) {
-        console.error('❌ Audio upload URL error:', urlError);
+        console.error('❌ Audio upload URL error - FULL DETAILS:', {
+          error: {
+            message: urlError.message,
+            status: urlError.status,
+            fullError: JSON.stringify(urlError, null, 2),
+          },
+          request: {
+            gallerySlug,
+            filename,
+            contentType,
+            file_size: audioBlob.size,
+            duration_seconds: Math.round(duration),
+          },
+          timestamp: new Date().toISOString(),
+        });
         
         // Enhanced HTTP error handling
         if (urlError.status === 403) {
@@ -607,6 +686,12 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
       }
 
       console.log('✅ Got signed URL:', urlData.file_path);
+      
+      console.log('🟡 Starting audio storage upload', {
+        timestamp: new Date().toISOString(),
+        filePath: urlData.file_path,
+        audioBlobSize: audioBlob.size,
+      });
 
       const { error: uploadError } = await supabase.storage
         .from('event-media')
@@ -616,6 +701,17 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
           audioBlob,
           { contentType: contentType }
         );
+      
+      console.log('🟢 Audio storage upload RESPONSE', {
+        timestamp: new Date().toISOString(),
+        hasError: !!uploadError,
+        error: uploadError ? {
+          message: uploadError.message,
+          name: uploadError.name,
+          fullError: JSON.stringify(uploadError, null, 2),
+        } : null,
+        success: !uploadError,
+      });
 
       if (uploadError) {
         console.error('❌ Upload error:', uploadError);
@@ -623,6 +719,16 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
       }
 
       console.log('✅ Blob uploaded successfully');
+      
+      console.log('🟡 Calling confirm-media-upload (audio)', {
+        timestamp: new Date().toISOString(),
+        body: {
+          gallery_id: urlData.gallery_id,
+          upload_token: urlData.token,
+          type: 'audio',
+          post_type: 'audio',
+        },
+      });
 
       const { error: confirmError } = await supabase.functions.invoke('confirm-media-upload', {
         body: {
@@ -637,6 +743,13 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
           duration_seconds: Math.round(duration),
         },
       });
+      
+      console.log('🟢 confirm-media-upload RESPONSE (audio)', {
+        timestamp: new Date().toISOString(),
+        hasError: !!confirmError,
+        error: confirmError?.message,
+        success: !confirmError,
+      });
 
       if (confirmError) {
         console.error('❌ Confirm error:', confirmError);
@@ -644,6 +757,9 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
       }
 
       console.log('✅ Audio guestbook message uploaded successfully!');
+      console.log('🔵 handleAudioUpload() END - SUCCESS', {
+        timestamp: new Date().toISOString(),
+      });
 
       toast({
         title: '✅ Success!',
@@ -654,7 +770,28 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
       setFlowStep('success');
 
     } catch (error: any) {
-      console.error('❌ Audio upload error:', error);
+      console.error('❌ Audio upload failed - FULL DETAILS:', {
+        error: {
+          message: error.message,
+          name: error.name,
+          stack: error.stack,
+          fullError: JSON.stringify(error, null, 2),
+        },
+        audioBlob: {
+          size: audioBlob?.size,
+          type: audioBlob?.type,
+        },
+        duration,
+        galleryId,
+        gallerySlug,
+        timestamp: new Date().toISOString(),
+      });
+      
+      console.log('🔵 handleAudioUpload() END - FAILED', {
+        timestamp: new Date().toISOString(),
+        errorMessage: error?.message,
+      });
+      
       toast({
         title: 'Upload Failed',
         description: error.message || 'Failed to upload audio message. Please try again.',
@@ -683,6 +820,14 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
   };
 
   const handleUploadAll = async () => {
+    console.log('🔵 handleUploadAll() START', {
+      timestamp: new Date().toISOString(),
+      selectedItemsCount: selectedItems.length,
+      galleryId,
+      gallerySlug,
+      token: token ? '✓ present' : '✗ missing',
+    });
+    
     // Validate we have necessary data
     if (!galleryId) {
       toast({
@@ -726,7 +871,19 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
         uploadedItems[i].uploadSuccess = true;
         successCount++;
       } catch (error: any) {
-        console.error(`Upload error for item ${i}:`, error);
+        console.error('❌ Upload item failed:', {
+          itemIndex: i,
+          itemType: item.type,
+          filename: item.file?.name || item.textContent?.substring(0, 30),
+          error: {
+            message: error.message,
+            name: error.name,
+            stack: error.stack,
+            fullError: JSON.stringify(error, null, 2),
+          },
+          timestamp: new Date().toISOString(),
+        });
+        
         uploadedItems[i].uploadSuccess = false;
         uploadedItems[i].uploadError = error.message || 'Upload failed';
         failureCount++;
@@ -771,6 +928,14 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
         setFlowStep('landing');
       }, 2000);
     }
+    
+    console.log('🔵 handleUploadAll() END', {
+      timestamp: new Date().toISOString(),
+      successCount,
+      failureCount,
+      totalItems: uploadedItems.length,
+      finalFlowStep: failureCount > 0 ? 'preview' : 'success',
+    });
   };
 
   const uploadTextPost = async (item: MediaItem) => {
@@ -811,6 +976,18 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
 
   const uploadMediaFile = async (item: MediaItem) => {
     if (!item.file) return;
+    
+    const safeContentType = getSafeContentType(item.file);
+    
+    console.log('🔵 uploadMediaFile() START', {
+      timestamp: new Date().toISOString(),
+      filename: item.file?.name,
+      size: item.file?.size,
+      type: item.type,
+      contentType: safeContentType,
+      galleryId,
+      gallerySlug,
+    });
 
     // Guard: Validate required parameters before upload
     if (!gallerySlug) {
@@ -833,9 +1010,6 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
       return;
     }
 
-    // Enhanced logging for upload start
-    const safeContentType = getSafeContentType(item.file);
-    
     // Validate file format BEFORE requesting upload URL
     if (item.type === 'video') {
       const SUPPORTED_FORMATS = ['.mp4', '.mov', '.webm', '.m4v'];
@@ -867,12 +1041,17 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
     while (retryCount < MAX_RETRIES) {
       try {
         // Log request for debugging
-        console.log('Requesting upload URL (attempt ' + (retryCount + 1) + '):', {
-          filename: item.file.name,
-          contentType: safeContentType,
-          file_size: item.file.size,
-          duration_seconds: item.duration,
-          gallerySlug: gallerySlug,
+        console.log('🟡 Calling create-media-upload-url (attempt ' + (retryCount + 1) + ')', {
+          timestamp: new Date().toISOString(),
+          url: 'https://xytxkidpourwdbzzwcdp.supabase.co/functions/v1/create-media-upload-url',
+          method: 'POST',
+          body: {
+            gallerySlug,
+            filename: item.file.name,
+            contentType: safeContentType,
+            file_size: item.file.size,
+            duration_seconds: item.duration,
+          },
         });
 
         // Check if we should use chunked upload
@@ -888,10 +1067,28 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
             },
           }
         );
+        
+        console.log('🟢 create-media-upload-url RESPONSE', {
+          timestamp: new Date().toISOString(),
+          hasError: !!urlError,
+          error: urlError ? {
+            message: urlError.message,
+            status: urlError.status,
+            details: JSON.stringify(urlError),
+          } : null,
+          data: urlData ? {
+            hasStreamUrl: !!urlData.stream_upload_url,
+            hasSignedUrl: !!urlData.signed_url,
+            hasToken: !!urlData.token,
+            galleryId: urlData.gallery_id,
+            filePath: urlData.file_path,
+            useMultipart: urlData.use_multipart,
+          } : null,
+        });
 
         if (urlError) {
           // Enhanced error logging with analytics
-          console.error('Upload URL error:', {
+          console.error('❌ Upload URL error - FULL DETAILS:', {
             error: urlError,
             status: urlError.status,
             message: urlError.message,
@@ -957,7 +1154,12 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
 
         // Priority 1: Handle Cloudflare Stream response for videos
         if (urlData.stream_upload_url && urlData.stream_uid) {
-          console.log('☁️ Using Cloudflare Stream for video...');
+          console.log('🟡 Starting Cloudflare Stream upload', {
+            timestamp: new Date().toISOString(),
+            streamUploadUrl: urlData.stream_upload_url,
+            fileSize: item.file.size,
+            filename: item.file.name,
+          });
           
           try {
             // Upload to Cloudflare using Direct Creator Upload
@@ -969,6 +1171,14 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
               body: formData,
             });
             
+            console.log('🟢 Cloudflare Stream upload RESPONSE', {
+              timestamp: new Date().toISOString(),
+              status: cfUploadRes.status,
+              statusText: cfUploadRes.statusText,
+              ok: cfUploadRes.ok,
+              streamUid: urlData.stream_uid,
+            });
+            
             if (!cfUploadRes.ok) {
               const errorText = await cfUploadRes.text();
               console.error('Cloudflare Stream upload failed:', errorText);
@@ -976,6 +1186,16 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
             }
             
             console.log('✅ Video uploaded to Cloudflare Stream');
+            
+            console.log('🟡 Calling confirm-media-upload (Cloudflare)', {
+              timestamp: new Date().toISOString(),
+              body: {
+                gallery_id: urlData.gallery_id,
+                upload_token: token,
+                type: 'video',
+                cloudflare_stream_uid: urlData.stream_uid,
+              },
+            });
             
             // Confirm upload to database
             const { error: confirmError } = await supabase.functions.invoke('confirm-media-upload', {
@@ -993,12 +1213,23 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
               },
             });
             
+            console.log('🟢 confirm-media-upload RESPONSE (Cloudflare)', {
+              timestamp: new Date().toISOString(),
+              hasError: !!confirmError,
+              error: confirmError?.message,
+              success: !confirmError,
+            });
+            
             if (confirmError) {
               console.error('Failed to confirm Cloudflare Stream upload:', confirmError);
               throw confirmError;
             }
             
             console.log('✅ Cloudflare Stream video confirmed in database');
+            console.log('🔵 uploadMediaFile() END - SUCCESS (Cloudflare)', {
+              timestamp: new Date().toISOString(),
+              filename: item.file?.name,
+            });
             return; // Exit early - upload complete
           } catch (streamError) {
             console.error('Cloudflare Stream upload error:', streamError);
@@ -1058,6 +1289,15 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
 
       // Standard single-file upload for smaller files
       setIsChunkedUpload(false);
+      
+      console.log('🟡 Starting Supabase Storage upload', {
+        timestamp: new Date().toISOString(),
+        bucket: 'event-media',
+        filePath: urlData.file_path,
+        fileSize: item.file.size,
+        contentType: safeContentType,
+        hasToken: !!urlData.token,
+      });
 
       // Use Supabase's official uploadToSignedUrl method with normalized content type
       const { error: uploadError } = await supabase.storage
@@ -1068,6 +1308,17 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
           item.file,
           { contentType: safeContentType } // Use normalized content type
         );
+      
+      console.log('🟢 Supabase Storage upload RESPONSE', {
+        timestamp: new Date().toISOString(),
+        hasError: !!uploadError,
+        error: uploadError ? {
+          message: uploadError.message,
+          name: uploadError.name,
+          statusCode: (uploadError as any).statusCode,
+        } : null,
+        success: !uploadError,
+      });
 
       if (uploadError) {
         console.error('❌ Upload failed:', uploadError);
@@ -1178,27 +1429,46 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
       const { error: confirmError } = await supabase.functions.invoke('confirm-media-upload', {
         body: confirmBody,
       });
+      
+      console.log('🟢 confirm-media-upload RESPONSE', {
+        timestamp: new Date().toISOString(),
+        hasError: !!confirmError,
+        error: confirmError?.message,
+        success: !confirmError,
+      });
 
         if (confirmError) throw confirmError;
+        
+        console.log('🔵 uploadMediaFile() END - SUCCESS', {
+          timestamp: new Date().toISOString(),
+          filename: item.file?.name,
+          filePath: urlData.file_path,
+        });
         
         // Success - break out of retry loop
         return;
       } catch (error: any) {
         retryCount++;
         
-        // Log full error details
-        console.error(`Upload failed (attempt ${retryCount}/${MAX_RETRIES}):`, {
-          error,
-          file: {
-            name: item.file?.name,
-            type: item.file?.type,
-            size: item.file?.size,
+        console.error('❌ Upload attempt failed:', {
+          attemptNumber: retryCount,
+          maxRetries: MAX_RETRIES,
+          willRetry: retryCount < MAX_RETRIES,
+          error: {
+            message: error.message,
+            name: error.name,
+            stack: error.stack,
           },
-          stack: error.stack,
+          filename: item.file?.name,
+          timestamp: new Date().toISOString(),
         });
         
         // If this is the last retry, log final failure and throw
         if (retryCount >= MAX_RETRIES) {
+          console.error('❌ MAX RETRIES EXCEEDED', {
+            filename: item.file?.name,
+            totalAttempts: retryCount,
+          });
           // Log final failure to analytics (Priority 3)
           try {
             await supabase.functions.invoke('log-upload-failure', {
@@ -1214,6 +1484,13 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
               },
             });
           } catch {}
+          
+          console.log('🔵 uploadMediaFile() END - FAILED', {
+            timestamp: new Date().toISOString(),
+            filename: item.file?.name,
+            error: error.message,
+            retryCount,
+          });
           
           throw new Error(`Upload failed after ${MAX_RETRIES} attempts: ${error.message || 'Unknown error'}`);
         }
