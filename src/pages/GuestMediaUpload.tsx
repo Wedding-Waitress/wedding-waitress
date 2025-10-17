@@ -34,6 +34,8 @@ interface MediaItem {
   uploadSuccess?: boolean;
   uploadError?: string;
   duration?: number; // Video duration in seconds
+  validationStatus?: 'pending' | 'valid' | 'invalid';
+  validationError?: string;
 }
 
 interface EventData {
@@ -91,6 +93,13 @@ export const GuestMediaUpload: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showFooter, setShowFooter] = useState(true);
   const [showPublicGallery, setShowPublicGallery] = useState(true);
+  
+  // Enhanced progress tracking
+  const [uploadSpeed, setUploadSpeed] = useState<number>(0); // MB/s
+  const [uploadETA, setUploadETA] = useState<number>(0); // seconds
+  const [uploadStartTime, setUploadStartTime] = useState<number>(0);
+  const [uploadedBytes, setUploadedBytes] = useState<number>(0);
+  const [abortController, setAbortController] = useState<AbortController | null>(null);
   
   // Constants for validation
 const MAX_VIDEO_SIZE_MB = 2048; // 2 GB max (increased from 1 GB)
@@ -320,6 +329,17 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
             }
             
             console.log(`✅ Video validated: ${file.name} (${validation.duration?.toFixed(1)}s)`);
+            
+            // Log detailed video info (reuse sizeMB from above)
+            const estimatedUploadTime = Math.round(sizeMB / 2); // Assuming 2MB/s
+            console.log('📊 Video Details:', {
+              name: file.name,
+              size: `${sizeMB.toFixed(2)} MB`,
+              duration: `${validation.duration?.toFixed(1)}s`,
+              type: file.type,
+              estimatedUploadTime: `${estimatedUploadTime} seconds (assuming 2MB/s)`,
+            });
+            
             toast({
               title: '✅ Video Ready',
               description: `${file.name} is ready to upload`,
@@ -347,7 +367,8 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
             type: isVideo ? 'video' : 'photo',
             preview: thumbnail,
             caption: '',
-            duration: isVideo ? videoDuration : undefined, // Store duration for video files
+            duration: isVideo ? videoDuration : undefined,
+            validationStatus: 'valid',
           });
           console.log(`✅ Added ${file.name} as ${isVideo ? 'video' : 'photo'}`);
         } catch (fileError) {
@@ -516,13 +537,28 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
     try {
       console.log('🎤 Uploading audio guestbook message...');
       
+      // Validate audio size BEFORE upload
+      const MAX_AUDIO_SIZE_MB = 250;
+      const sizeMB = audioBlob.size / (1024 * 1024);
+      
+      if (sizeMB > MAX_AUDIO_SIZE_MB) {
+        throw new Error(`Audio file too large (${sizeMB.toFixed(1)}MB). Maximum is ${MAX_AUDIO_SIZE_MB}MB. Try a shorter message.`);
+      }
+      
+      // Validate audio format
+      const contentType = audioBlob.type || 'audio/webm';
+      const SUPPORTED_AUDIO = ['audio/webm', 'audio/mp4', 'audio/wav', 'audio/mpeg', 'audio/mp3', 'audio/m4a'];
+      
+      if (!SUPPORTED_AUDIO.some(type => contentType.includes(type.split('/')[1]))) {
+        throw new Error('Audio format not supported. Please record again.');
+      }
+      
       const now = new Date();
       const dateStr = now.toISOString().split('T')[0].replace(/-/g, '');
       const timeStr = now.toTimeString().split(' ')[0].replace(/:/g, '');
       const random4 = Math.random().toString(36).substr(2, 4).toUpperCase();
       const eventName = galleryTitle || eventData?.name || 'Event';
       
-      const contentType = audioBlob.type || 'audio/webm';
       let ext = 'webm';
       if (contentType.includes('mp4') || contentType.includes('m4a')) {
         ext = 'm4a';
@@ -532,8 +568,13 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
       
       const filename = `${dateStr}_${timeStr}-Audio-${eventName}-${random4}.${ext}`;
       
-      console.log('📝 Audio filename:', filename);
-      console.log('📝 Content-Type:', contentType);
+      console.log('📊 Audio Details:', {
+        size: `${sizeMB.toFixed(2)} MB`,
+        duration: `${Math.round(duration)}s`,
+        format: contentType,
+        filename,
+      });
+      console.log('📤 Guest upload starting');
 
       const { data: urlData, error: urlError } = await supabase.functions.invoke('create-media-upload-url', {
         body: {
@@ -546,7 +587,22 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
       });
 
       if (urlError) {
-        console.error('❌ Upload URL error:', urlError);
+        console.error('❌ Audio upload URL error:', urlError);
+        
+        // Enhanced HTTP error handling
+        if (urlError.status === 403) {
+          throw new Error('Gallery not accepting uploads. Contact event host.');
+        } else if (urlError.status === 413) {
+          const sizeMB = Math.round(audioBlob.size / (1024 * 1024));
+          throw new Error(`Audio file too large (${sizeMB}MB). Maximum size is 250MB.`);
+        } else if (urlError.status === 415) {
+          throw new Error('Audio format not supported. Please try recording again.');
+        } else if (urlError.status === 429) {
+          throw new Error('Too many upload attempts. Please wait a minute and try again.');
+        } else if (urlError.status >= 500) {
+          throw new Error('Server error. Please try again in a few moments.');
+        }
+        
         throw new Error(urlError.message || 'Could not start upload');
       }
 
@@ -681,15 +737,39 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
 
     setSelectedItems(uploadedItems);
 
+    console.log('📊 Upload Summary:', {
+      total: uploadedItems.length,
+      successful: successCount,
+      failed: failureCount,
+      items: uploadedItems.map(item => ({
+        name: item.file?.name || item.textContent?.substring(0, 20),
+        type: item.type,
+        status: item.uploadSuccess ? 'success' : 'failed',
+        error: item.uploadError,
+      })),
+    });
+
     if (failureCount > 0) {
+      // Keep only failed items selected for retry
+      const failedItems = uploadedItems.filter(item => !item.uploadSuccess);
+      setSelectedItems(failedItems);
+      
       toast({
-        title: 'Upload Issues',
-        description: `${failureCount} ${failureCount === 1 ? 'file' : 'files'} failed to upload — please try again.`,
+        title: '❌ Upload Failed',
+        description: `${failureCount} ${failureCount === 1 ? 'file' : 'files'} failed. You can retry below.`,
         variant: 'destructive',
+        duration: 10000,
       });
       setFlowStep('preview');
     } else {
       setFlowStep('success');
+      
+      // Auto-return to landing after 2 seconds on complete success
+      setTimeout(() => {
+        setSelectedItems([]);
+        setUploadProgress(0);
+        setFlowStep('landing');
+      }, 2000);
     }
   };
 
@@ -755,6 +835,17 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
 
     // Enhanced logging for upload start
     const safeContentType = getSafeContentType(item.file);
+    
+    // Validate file format BEFORE requesting upload URL
+    if (item.type === 'video') {
+      const SUPPORTED_FORMATS = ['.mp4', '.mov', '.webm', '.m4v'];
+      const fileExt = item.file.name.split('.').pop()?.toLowerCase();
+      
+      if (fileExt && !SUPPORTED_FORMATS.includes(`.${fileExt}`)) {
+        throw new Error(`File format .${fileExt} not supported. Use MP4, MOV, or WebM for videos.`);
+      }
+    }
+    
     console.log('📤 Guest upload starting', {
       gallerySlug,
       galleryId,
@@ -765,6 +856,10 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
       sizeMB: (item.file?.size || 0) / (1024 * 1024),
       duration: item.duration,
     });
+    
+    // Initialize upload tracking
+    setUploadStartTime(Date.now());
+    setUploadedBytes(0);
 
     const MAX_RETRIES = 3;
     let retryCount = 0;
@@ -975,7 +1070,7 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
         );
 
       if (uploadError) {
-        console.error('Upload failed:', uploadError);
+        console.error('❌ Upload failed:', uploadError);
         
         // Log to analytics (Priority 3)
         try {
@@ -994,6 +1089,13 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
         
         throw new Error(`Upload failed: ${uploadError.message}`);
       }
+
+      console.log('✅ Upload successful:', {
+        filename: item.file.name,
+        size: `${(item.file.size / (1024 * 1024)).toFixed(2)} MB`,
+        type: item.type,
+        path: urlData.file_path,
+      });
 
       // Generate and upload thumbnail for videos
       let thumbnailUrl: string | null = null;
@@ -1324,6 +1426,9 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
   }
 
   if (flowStep === 'preview') {
+    const hasFailedItems = selectedItems.some(item => item.uploadSuccess === false);
+    const failedCount = selectedItems.filter(item => item.uploadSuccess === false).length;
+    
     return (
       <>
         <Helmet>
@@ -1339,6 +1444,22 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
               Back
             </Button>
           </div>
+
+          {/* Failed uploads retry section */}
+          {hasFailedItems && (
+            <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-4">
+              <p className="text-destructive font-semibold mb-3">
+                ❌ {failedCount} {failedCount === 1 ? 'file' : 'files'} failed to upload
+              </p>
+              <Button 
+                onClick={handleUploadAll} 
+                className="w-full"
+                variant="destructive"
+              >
+                🔄 Retry Failed Uploads
+              </Button>
+            </div>
+          )}
 
           <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
             {selectedItems.map((item, index) => (
@@ -1402,6 +1523,8 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
   }
 
   if (flowStep === 'uploading') {
+    const currentProgress = isChunkedUpload ? chunkedProgress : uploadProgress;
+    
     return (
       <>
         <Helmet>
@@ -1422,7 +1545,7 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
                   strokeWidth="12"
                   fill="none"
                   strokeDasharray="565.48"
-                  strokeDashoffset={565.48 - (565.48 * (isChunkedUpload ? chunkedProgress : uploadProgress)) / 100}
+                  strokeDashoffset={565.48 - (565.48 * currentProgress) / 100}
                   className="transition-all duration-300"
                   transform="rotate(-90 100 100)"
                   strokeLinecap="round"
@@ -1430,7 +1553,7 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center">
                 <span className="text-4xl font-bold text-primary">
-                  {Math.round(isChunkedUpload ? chunkedProgress : uploadProgress)}%
+                  {Math.round(currentProgress)}%
                 </span>
                 <span className="text-sm text-muted-foreground mt-2">
                   {isChunkedUpload ? 'Chunked upload' : 'Uploading'}
@@ -1439,13 +1562,20 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
             </div>
 
             <div className="space-y-3">
-              <Progress value={isChunkedUpload ? chunkedProgress : uploadProgress} className="h-3" />
+              <Progress value={currentProgress} className="h-3" />
               <p className="text-muted-foreground">
                 {isChunkedUpload 
                   ? `Uploading chunk ${chunkProgresses.filter(c => c.status === 'success').length} / ${chunkProgresses.length}`
                   : `Uploading ${currentUploadIndex} of ${selectedItems.length}`
                 }
               </p>
+              
+              {/* Show upload speed and ETA if available */}
+              {uploadSpeed > 0 && (
+                <p className="text-sm text-muted-foreground">
+                  {uploadSpeed.toFixed(2)} MB/s • ETA: {uploadETA}s
+                </p>
+              )}
             </div>
 
             <p className="text-sm text-muted-foreground">

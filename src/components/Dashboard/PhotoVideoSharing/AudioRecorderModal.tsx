@@ -138,9 +138,28 @@ export const AudioRecorderModal: React.FC<AudioRecorderModalProps> = ({
   };
 
   const handleUpload = () => {
-    if (audioBlob && duration > 0) {
-      onUploadComplete(audioBlob, duration);
+    if (!audioBlob || duration <= 0) return;
+    
+    // Validate audio size BEFORE upload
+    const sizeMB = audioBlob.size / (1024 * 1024);
+    const MAX_SIZE_MB = 250;
+    
+    if (sizeMB > MAX_SIZE_MB) {
+      toast({
+        title: 'Audio Too Large',
+        description: `Recording is ${sizeMB.toFixed(1)}MB. Maximum is ${MAX_SIZE_MB}MB. Try a shorter message.`,
+        variant: 'destructive',
+      });
+      return;
     }
+    
+    console.log('📊 Audio Details:', {
+      size: `${sizeMB.toFixed(2)} MB`,
+      duration: `${formatTime(duration)}`,
+      format: audioBlob.type,
+    });
+    
+    onUploadComplete(audioBlob, duration);
   };
 
   const formatTime = (seconds: number) => {
