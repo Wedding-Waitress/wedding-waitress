@@ -89,7 +89,7 @@ export const Header: React.FC<HeaderProps> = ({
               />
             </Link>
                   
-            <div className="absolute right-2">
+            <div className="absolute -right-2">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button 
