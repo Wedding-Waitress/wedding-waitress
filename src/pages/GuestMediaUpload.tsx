@@ -1,3 +1,4 @@
+// VERSION: 2.0.0-DIAGNOSTIC-LOGGING [2025-01-17]
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
@@ -50,6 +51,12 @@ interface EventData {
 type FlowStep = 'landing' | 'add' | 'preview' | 'uploading' | 'success';
 
 export const GuestMediaUpload: React.FC = () => {
+  console.log('🟣 GuestMediaUpload COMPONENT MOUNTED', {
+    timestamp: new Date().toISOString(),
+    gallerySlug: window.location.pathname.split('/').pop(),
+    url: window.location.href,
+  });
+
   const { gallerySlug } = useParams<{ gallerySlug: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -1811,7 +1818,16 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
             return null;
           })()}
 
-          <div className="fixed bottom-4 left-4 right-4 max-w-4xl mx-auto">
+          <div 
+            onClick={(e) => {
+              console.log('🟡 DIV WRAPPER CLICKED (HTML LEVEL)', {
+                timestamp: new Date().toISOString(),
+                target: e.target,
+                currentTarget: e.currentTarget,
+              });
+            }}
+            className="fixed bottom-4 left-4 right-4 max-w-4xl mx-auto"
+          >
             <Button
               size="lg"
               className="w-full hover:opacity-90 shadow-lg text-lg py-6"
