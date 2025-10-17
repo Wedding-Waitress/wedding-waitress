@@ -19,7 +19,6 @@ export const Header: React.FC<HeaderProps> = ({
   hideDashboardElements = false
 }) => {
   const [signInOpen, setSignInOpen] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const signUpButtonRef = useRef<HTMLButtonElement>(null);
   const handleBackToSignUp = () => {
     setSignInOpen(false);
@@ -81,25 +80,24 @@ export const Header: React.FC<HeaderProps> = ({
                 </div>
                 
                 {/* Mobile Navigation */}
-                <div className="md:hidden flex items-center justify-center w-full h-14 relative pt-[env(safe-area-inset-top)]">
+                <div className="md:hidden flex items-center justify-center w-full h-14 relative">
             <Link to="/" className="flex items-center">
               <img 
-                src="/wedding-waitress-new-logo-mobile.png?v=2" 
+                src="/wedding-waitress-logo-full-hq.png?v=3" 
                 alt="Wedding Waitress Logo" 
-                className="h-9 w-auto hover:opacity-80 transition-opacity"
+                className="h-9 w-auto max-h-[36px] max-w-[calc(100%-60px)] hover:opacity-80 transition-opacity"
               />
             </Link>
                   
             <div className="absolute -right-2">
-              <DropdownMenu onOpenChange={setMobileMenuOpen}>
+              <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button 
                     variant="ghost" 
                     size="sm" 
-                    className="min-h-[44px] min-w-[44px] p-2 rounded-lg shadow-lg hover:shadow-xl transition-all active:scale-95"
+                    className="min-h-[40px] min-w-[40px] p-2 rounded-lg shadow-lg hover:shadow-xl transition-all active:scale-95"
                     style={{ backgroundColor: '#6D28D9' }}
                     aria-label="Open menu"
-                    aria-expanded={mobileMenuOpen}
                   >
                     <div className="flex flex-col space-y-1">
                       <div className="w-5 h-0.5 bg-white rounded-sm"></div>
