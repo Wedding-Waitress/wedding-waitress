@@ -1729,7 +1729,22 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
                 ❌ {failedCount} {failedCount === 1 ? 'file' : 'files'} failed to upload
               </p>
               <Button 
-                onClick={handleUploadAll} 
+                onClick={() => {
+                  console.log('🟢 RETRY BUTTON CLICKED!', {
+                    timestamp: new Date().toISOString(),
+                    failedCount,
+                    galleryId,
+                    gallerySlug,
+                    token: token ? '✓ present' : '✗ missing',
+                  });
+                  try {
+                    handleUploadAll().catch(err => {
+                      console.error('🔴 handleUploadAll PROMISE REJECTED (Retry):', err);
+                    });
+                  } catch (err) {
+                    console.error('🔴 SYNC ERROR IN RETRY HANDLER:', err);
+                  }
+                }}
                 className="w-full"
                 variant="destructive"
               >
@@ -1783,12 +1798,40 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
             ))}
           </div>
 
+          {/* Debug: Log state before upload button */}
+          {(() => {
+            console.log('🔍 Preview Screen State Check:', {
+              galleryId,
+              gallerySlug,
+              token: token ? '✓ present' : '✗ missing',
+              selectedItemsCount: selectedItems.length,
+              flowStep,
+              timestamp: new Date().toISOString(),
+            });
+            return null;
+          })()}
+
           <div className="fixed bottom-4 left-4 right-4 max-w-4xl mx-auto">
             <Button
               size="lg"
               className="w-full hover:opacity-90 shadow-lg text-lg py-6"
               style={{ backgroundColor: '#6D28D9', color: '#FFFFFF' }}
-              onClick={handleUploadAll}
+              onClick={() => {
+                console.log('🟢 UPLOAD BUTTON CLICKED!', {
+                  timestamp: new Date().toISOString(),
+                  selectedItemsCount: selectedItems.length,
+                  galleryId,
+                  gallerySlug,
+                  token: token ? '✓ present' : '✗ missing',
+                });
+                try {
+                  handleUploadAll().catch(err => {
+                    console.error('🔴 handleUploadAll PROMISE REJECTED:', err);
+                  });
+                } catch (err) {
+                  console.error('🔴 SYNC ERROR IN BUTTON HANDLER:', err);
+                }
+              }}
             >
               Upload {selectedItems.length} {selectedItems.length === 1 ? 'item' : 'items'}
             </Button>
