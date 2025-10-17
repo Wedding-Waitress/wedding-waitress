@@ -33,6 +33,7 @@ interface MediaItem {
   themeBg?: string;
   uploadSuccess?: boolean;
   uploadError?: string;
+  duration?: number; // Video duration in seconds
 }
 
 interface EventData {
@@ -275,6 +276,9 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
           const isVideo = file.type.startsWith('video/') || 
                          file.name.match(/\.(mov|mp4|m4v|webm)$/i);
           
+          // Track video duration for later use
+          let videoDuration: number | undefined = undefined;
+          
           // Validate video format
           if (isVideo && file.type && !SUPPORTED_VIDEO_TYPES.includes(file.type)) {
             toast({
@@ -320,6 +324,9 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
               title: '✅ Video Ready',
               description: `${file.name} is ready to upload`,
             });
+            
+            // Store video duration for later use
+            videoDuration = validation.duration;
           }
           
           const preview = URL.createObjectURL(file);
@@ -340,6 +347,7 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
             type: isVideo ? 'video' : 'photo',
             preview: thumbnail,
             caption: '',
+            duration: isVideo ? videoDuration : undefined, // Store duration for video files
           });
           console.log(`✅ Added ${file.name} as ${isVideo ? 'video' : 'photo'}`);
         } catch (fileError) {
@@ -404,7 +412,7 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
           </svg>
         `);
         resolve(fallback);
-      }, 8000);
+      }, 15000); // Increased from 8s to 15s for slow mobile networks
 
       const cleanup = () => {
         clearTimeout(timeout);
@@ -701,6 +709,26 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
     if (error) throw error;
   };
 
+  // Helper: Get safe content type (handles iOS .mov empty type issue)
+  const getSafeContentType = (file: File): string => {
+    if (file.type && file.type !== '') return file.type;
+    
+    // Infer from extension for iOS files with empty MIME type
+    const ext = file.name.split('.').pop()?.toLowerCase() || '';
+    const mimeMap: Record<string, string> = {
+      mov: 'video/quicktime',
+      mp4: 'video/mp4',
+      m4v: 'video/x-m4v',
+      webm: 'video/webm',
+      jpg: 'image/jpeg',
+      jpeg: 'image/jpeg',
+      png: 'image/png',
+      heic: 'image/heic',
+      heif: 'image/heif',
+    };
+    return mimeMap[ext] || 'application/octet-stream';
+  };
+
   const uploadMediaFile = async (item: MediaItem) => {
     if (!item.file) return;
 
@@ -726,13 +754,16 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
     }
 
     // Enhanced logging for upload start
+    const safeContentType = getSafeContentType(item.file);
     console.log('📤 Guest upload starting', {
       gallerySlug,
       galleryId,
       filename: item.file?.name,
       size: item.file?.size,
-      type: item.file?.type,
+      originalType: item.file?.type,
+      normalizedType: safeContentType,
       sizeMB: (item.file?.size || 0) / (1024 * 1024),
+      duration: item.duration,
     });
 
     const MAX_RETRIES = 3;
@@ -743,8 +774,9 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
         // Log request for debugging
         console.log('Requesting upload URL (attempt ' + (retryCount + 1) + '):', {
           filename: item.file.name,
-          contentType: item.file.type,
+          contentType: safeContentType,
           file_size: item.file.size,
+          duration_seconds: item.duration,
           gallerySlug: gallerySlug,
         });
 
@@ -755,14 +787,15 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
             body: {
               gallerySlug: gallerySlug,
               filename: item.file.name,
-              contentType: item.file.type,
+              contentType: safeContentType, // Use normalized content type
               file_size: item.file.size,
+              duration_seconds: item.duration || undefined, // Send duration for videos
             },
           }
         );
 
         if (urlError) {
-          // Enhanced error logging
+          // Enhanced error logging with analytics
           console.error('Upload URL error:', {
             error: urlError,
             status: urlError.status,
@@ -771,41 +804,142 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
             request: {
               gallerySlug: gallerySlug,
               filename: item.file.name,
-              contentType: item.file.type,
+              contentType: safeContentType,
               file_size: item.file.size,
+              duration_seconds: item.duration,
             }
           });
 
-          // Parse specific error types
+          // Log failure to analytics (Priority 3)
+          try {
+            await supabase.functions.invoke('log-upload-failure', {
+              body: {
+                gallery_slug: gallerySlug,
+                error_type: 'upload_url_request_failed',
+                error_message: urlError.message || 'Unknown error',
+                status_code: urlError.status,
+                file_name: item.file.name,
+                file_size: item.file.size,
+                content_type: safeContentType,
+                user_agent: navigator.userAgent,
+              },
+            });
+          } catch (logError) {
+            // Non-blocking - just log to console
+            console.warn('Failed to log upload failure:', logError);
+          }
+
+          // Parse specific error types for user-friendly messages (Priority 2)
           if (urlError.status === 400) {
             const errorMsg = urlError.message || '';
             
             if (errorMsg.includes('Missing required fields')) {
               throw new Error(`Invalid request to server: ${errorMsg}. Please try again.`);
             } else if (errorMsg.includes('type') || errorMsg.includes('format')) {
-              throw new Error(`File type "${item.file.type}" isn't supported. Please use MP4, MOV, JPG, or PNG.`);
+              throw new Error(`File type "${safeContentType}" isn't supported. Please use MP4, MOV, JPG, or PNG.`);
             } else {
               throw new Error(`Request validation failed: ${errorMsg}`);
             }
+          } else if (urlError.status === 403) {
+            throw new Error('Gallery not accepting uploads right now. Contact the event host.');
           } else if (urlError.status === 413) {
-            throw new Error(`File "${item.file.name}" is too large. Max: 2 GB for videos, 250 MB for photos.`);
-        } else if (urlError.status === 429) {
-          throw new Error('Too many upload attempts. Please wait a minute and try again.');
-        } else if (urlError.status >= 500) {
-          throw new Error('Server error. Please try again in a few minutes.');
+            const sizeMB = Math.round(item.file.size / (1024 * 1024));
+            throw new Error(`File too large (${sizeMB} MB). Max: 2 GB for videos, 250 MB for photos.`);
+          } else if (urlError.status === 415) {
+            throw new Error(`File type "${safeContentType}" not supported. Use MP4, MOV, JPG, or PNG.`);
+          } else if (urlError.status === 429) {
+            throw new Error('Too many upload attempts. Please wait a minute and try again.');
+          } else if (urlError.status >= 500) {
+            throw new Error('Server error. Please try again in a few minutes.');
+          } else if (urlError.message?.includes('network') || urlError.message?.includes('timeout')) {
+            throw new Error('Upload timed out. Check your connection and try a smaller file.');
+          } else if (urlError.message?.includes('token')) {
+            throw new Error('Upload link expired. Please rescan the QR code.');
+          }
+
+          throw urlError;
         }
 
-        throw urlError;
-      }
-
-      // If response indicates multipart upload
-      if (urlData.use_multipart) {
-        setIsChunkedUpload(true);
-        const mediaId = await uploadChunked(item.file, item.caption || undefined);
-        if (!mediaId) {
-          throw new Error('Chunked upload failed');
+        // Priority 1: Handle Cloudflare Stream response for videos
+        if (urlData.stream_upload_url && urlData.stream_uid) {
+          console.log('☁️ Using Cloudflare Stream for video...');
+          
+          try {
+            // Upload to Cloudflare using Direct Creator Upload
+            const formData = new FormData();
+            formData.append('file', item.file);
+            
+            const cfUploadRes = await fetch(urlData.stream_upload_url, {
+              method: 'POST',
+              body: formData,
+            });
+            
+            if (!cfUploadRes.ok) {
+              const errorText = await cfUploadRes.text();
+              console.error('Cloudflare Stream upload failed:', errorText);
+              throw new Error('Cloudflare Stream upload failed');
+            }
+            
+            console.log('✅ Video uploaded to Cloudflare Stream');
+            
+            // Confirm upload to database
+            const { error: confirmError } = await supabase.functions.invoke('confirm-media-upload', {
+              body: {
+                gallery_id: urlData.gallery_id,
+                upload_token: token,
+                type: 'video',
+                post_type: 'video',
+                caption: item.caption || null,
+                file_size: item.file.size,
+                mime_type: safeContentType,
+                cloudflare_stream_uid: urlData.stream_uid,
+                duration_seconds: item.duration || null,
+                thumbnail_url: null, // Cloudflare generates poster automatically
+              },
+            });
+            
+            if (confirmError) {
+              console.error('Failed to confirm Cloudflare Stream upload:', confirmError);
+              throw confirmError;
+            }
+            
+            console.log('✅ Cloudflare Stream video confirmed in database');
+            return; // Exit early - upload complete
+          } catch (streamError) {
+            console.error('Cloudflare Stream upload error:', streamError);
+            
+            // Log to analytics (Priority 3)
+            try {
+              await supabase.functions.invoke('log-upload-failure', {
+                body: {
+                  gallery_slug: gallerySlug,
+                  error_type: 'cloudflare_stream_upload_failed',
+                  error_message: streamError instanceof Error ? streamError.message : 'Unknown error',
+                  file_name: item.file.name,
+                  file_size: item.file.size,
+                  content_type: safeContentType,
+                  user_agent: navigator.userAgent,
+                },
+              });
+            } catch {}
+            
+            throw streamError;
+          }
         }
-        return;
+
+        // If response indicates multipart upload
+        if (urlData.use_multipart) {
+          // Priority 2: Validate gallerySlug before chunked upload
+          if (!gallerySlug) {
+            throw new Error('Gallery identifier missing. Cannot start chunked upload.');
+          }
+          
+          setIsChunkedUpload(true);
+          const mediaId = await uploadChunked(item.file, item.caption || undefined);
+          if (!mediaId) {
+            throw new Error('Chunked upload failed');
+          }
+          return;
       } else if (!urlData?.file_path || !urlData?.token) {
         console.error('❌ Invalid upload credentials received', { 
           urlData,
@@ -830,18 +964,34 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
       // Standard single-file upload for smaller files
       setIsChunkedUpload(false);
 
-      // Use Supabase's official uploadToSignedUrl method
+      // Use Supabase's official uploadToSignedUrl method with normalized content type
       const { error: uploadError } = await supabase.storage
         .from('event-media')
         .uploadToSignedUrl(
           urlData.file_path,
           urlData.token,
           item.file,
-          { contentType: item.file.type }
+          { contentType: safeContentType } // Use normalized content type
         );
 
       if (uploadError) {
         console.error('Upload failed:', uploadError);
+        
+        // Log to analytics (Priority 3)
+        try {
+          await supabase.functions.invoke('log-upload-failure', {
+            body: {
+              gallery_slug: gallerySlug,
+              error_type: 'storage_upload_failed',
+              error_message: uploadError.message || 'Unknown error',
+              file_name: item.file.name,
+              file_size: item.file.size,
+              content_type: safeContentType,
+              user_agent: navigator.userAgent,
+            },
+          });
+        } catch {}
+        
         throw new Error(`Upload failed: ${uploadError.message}`);
       }
 
@@ -945,8 +1095,24 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
           stack: error.stack,
         });
         
-        // If this is the last retry, throw the error
+        // If this is the last retry, log final failure and throw
         if (retryCount >= MAX_RETRIES) {
+          // Log final failure to analytics (Priority 3)
+          try {
+            await supabase.functions.invoke('log-upload-failure', {
+              body: {
+                gallery_slug: gallerySlug,
+                error_type: 'upload_max_retries_exceeded',
+                error_message: error.message || 'Unknown error',
+                file_name: item.file?.name,
+                file_size: item.file?.size,
+                content_type: safeContentType,
+                user_agent: navigator.userAgent,
+                retry_count: retryCount,
+              },
+            });
+          } catch {}
+          
           throw new Error(`Upload failed after ${MAX_RETRIES} attempts: ${error.message || 'Unknown error'}`);
         }
         
