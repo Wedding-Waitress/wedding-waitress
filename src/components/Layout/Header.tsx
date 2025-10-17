@@ -80,43 +80,69 @@ export const Header: React.FC<HeaderProps> = ({
                 </div>
                 
                 {/* Mobile Navigation */}
-                <div className="md:hidden flex items-center justify-between w-full">
+                <div className="md:hidden flex items-center justify-center w-full h-14 relative">
                   <Link to="/" className="flex items-center">
                     <img 
-                      src="/wedding-waitress-new-logo.png" 
+                      src="/wedding-waitress-new-logo.png?v=2" 
                       alt="Wedding Waitress Logo" 
-                      className="h-10 w-auto hover:opacity-80 transition-opacity"
+                      className="h-9 w-auto max-h-[36px] hover:opacity-80 transition-opacity"
                     />
                   </Link>
                   
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="sm" className="min-h-[44px] min-w-[44px] p-2">
-                        <div className="flex flex-col space-y-1">
-                          <div className="w-5 h-0.5 bg-foreground"></div>
-                          <div className="w-5 h-0.5 bg-foreground"></div>
-                          <div className="w-5 h-0.5 bg-foreground"></div>
-                        </div>
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="glass w-56 bg-background z-50">
-                      <DropdownMenuItem>
-                        <a href="#how-it-works" className="w-full">How it Works</a>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem>
-                        <a href="#products" className="w-full">Products</a>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem>
-                        <a href="#faq" className="w-full">FAQ</a>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem>
-                        <a href="#pricing" className="w-full">Pricing</a>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem>
-                        <a href="#contact" className="w-full">Contact</a>
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                  <div className="absolute right-0">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="min-h-[44px] min-w-[44px] p-3 rounded-lg shadow-lg hover:shadow-xl transition-all active:scale-95"
+                          style={{ backgroundColor: '#6D28D9' }}
+                          aria-label="Open menu"
+                        >
+                          <div className="flex flex-col space-y-1.5">
+                            <div className="w-6 h-0.5 bg-white rounded-sm"></div>
+                            <div className="w-6 h-0.5 bg-white rounded-sm"></div>
+                            <div className="w-6 h-0.5 bg-white rounded-sm"></div>
+                          </div>
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="glass w-56 bg-background z-50">
+                        {/* Sign In */}
+                        <DropdownMenuItem onClick={() => setSignInOpen(true)}>
+                          <span className="w-full font-semibold" style={{ color: '#6D28D9' }}>Sign In</span>
+                        </DropdownMenuItem>
+                        
+                        {/* Sign Up */}
+                        <DropdownMenuItem asChild>
+                          <SignUpModal>
+                            <button className="w-full text-left font-semibold px-2 py-1.5 rounded-sm hover:bg-accent" style={{ color: '#6D28D9' }}>
+                              Sign Up
+                            </button>
+                          </SignUpModal>
+                        </DropdownMenuItem>
+                        
+                        {/* Separator */}
+                        <div className="my-1 h-px bg-border"></div>
+                        
+                        {/* Navigation Links */}
+                        <DropdownMenuItem>
+                          <a href="#how-it-works" className="w-full">How it Works</a>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem>
+                          <a href="#products" className="w-full">Products</a>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem>
+                          <a href="#faq" className="w-full">FAQ</a>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem>
+                          <a href="#pricing" className="w-full">Pricing</a>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem>
+                          <a href="#contact" className="w-full">Contact</a>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
                 </div>
               </>
             )}
@@ -124,7 +150,7 @@ export const Header: React.FC<HeaderProps> = ({
             {/* User Actions */}
             {!hideDashboardElements && (user ? <Button variant="outline" className="glass min-h-[44px]" onClick={onSignOut}>
                 Logout
-              </Button> : <div className="flex items-center gap-2">
+              </Button> : <div className="hidden md:flex items-center gap-2">
                 <Button variant="outline" size="sm" onClick={() => setSignInOpen(true)} className="min-h-[44px] text-xs sm:text-sm">
                   Sign In
                 </Button>
