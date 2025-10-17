@@ -51,7 +51,7 @@ export const useGalleryStats = (galleryId: string | null, scope: 'all' | 'curren
         // Get audio count
         let audioQuery = supabase
           .from('audio_guestbook' as any)
-          .select('id', { count: 'exact', head: true })
+          .select('id, gallery_id!inner(owner_id)', { count: 'exact', head: true })
           .eq('gallery_id.owner_id', user.user.id);
 
         if (scope === 'current' && galleryId) {
