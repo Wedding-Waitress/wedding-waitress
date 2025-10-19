@@ -26,7 +26,6 @@ import { FullSeatingChartPage } from '@/components/Dashboard/FullSeatingChart/Fu
 import { IndividualTableSeatingChartPage } from '@/components/Dashboard/IndividualTableChart/IndividualTableSeatingChartPage';
 import { KioskSetup } from '@/components/Dashboard/Kiosk/KioskSetup';
 import { FloorPlanPage } from '@/components/Dashboard/FloorPlan/FloorPlanPage';
-import { PhotoVideoSharingPage } from '@/components/Dashboard/PhotoVideoSharing/PhotoVideoSharingPage';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import type { Session } from '@supabase/supabase-js';
@@ -319,8 +318,6 @@ export const Dashboard = () => {
         return <FloorPlanPage selectedEventId={selectedEventId} onEventSelect={setSelectedEventId} />;
       case 'signage':
         return <SignagePage selectedEventId={selectedEventId} onEventSelect={handleEventSelect} />;
-      case 'photo-video-sharing':
-        return <PhotoVideoSharingPage />;
       case 'qr-code':
         return <QRCodeSeatingChart selectedEventId={selectedEventId} onEventSelect={handleEventSelect} onNavigateToTab={handleTabChange} />;
       case 'kiosk-live-view':

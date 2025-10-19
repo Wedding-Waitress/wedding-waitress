@@ -11,7 +11,6 @@ export const AdminSystemSettings = () => {
   const [settings, setSettings] = useState({
     maintenanceMode: false,
     audioGuestbookEnabled: true,
-    photoVideoSharingEnabled: true,
     kioskModeEnabled: true,
     watermarkEnabled: false,
   });
@@ -64,20 +63,6 @@ export const AdminSystemSettings = () => {
               id="audio"
               checked={settings.audioGuestbookEnabled}
               onCheckedChange={() => handleToggle('audioGuestbookEnabled')}
-            />
-          </div>
-
-          <div className="flex items-center justify-between">
-            <div className="space-y-0.5">
-              <Label htmlFor="photo">Photo & Video Sharing</Label>
-              <p className="text-sm text-muted-foreground">
-                Enable guest photo/video uploads
-              </p>
-            </div>
-            <Switch
-              id="photo"
-              checked={settings.photoVideoSharingEnabled}
-              onCheckedChange={() => handleToggle('photoVideoSharingEnabled')}
             />
           </div>
 

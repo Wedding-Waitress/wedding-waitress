@@ -38,12 +38,6 @@ export default function Index() {
       link: '#qr-seating',
     },
     {
-      icon: Camera,
-      title: 'Photo & Video Sharing (Kululu-style)',
-      description: 'Guests upload from their phone; live album updates instantly.',
-      link: '#photo-sharing',
-    },
-    {
       icon: Mic,
       title: 'Audio Guestbook',
       description: 'Record voice messages with one tap; auto-saves to your album.',

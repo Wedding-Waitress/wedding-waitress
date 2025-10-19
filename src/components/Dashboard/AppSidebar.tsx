@@ -46,7 +46,6 @@ const menuItems = [
   { id: "dietary-chart", label: "Dietary Requirements", icon: ChefHat },
   { id: "full-seating-chart", label: "Full Seating Chart", icon: FileText },
   { id: "kiosk-live-view", label: "Kiosk Live View", icon: Monitor },
-  { id: "photo-video-sharing", label: "Photo & Video Sharing", icon: Camera },
 ];
 
 export const AppSidebar: React.FC<AppSidebarProps> = ({
