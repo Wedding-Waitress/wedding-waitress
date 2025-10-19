@@ -393,7 +393,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
           
           .print-page table th {
             text-align: left;
-            padding: 2pt 4pt;
+            padding: 1pt 4pt;
             font-weight: 600;
           }
           
@@ -430,7 +430,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
           }
           
           .print-page table {
-            margin-top: 0.5mm;
+            margin-top: 0mm;
           }
           
           .print-page .print-footer {
@@ -629,18 +629,18 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                         <table className="w-full border-collapse">
                           <thead>
                             <tr className="border-b-2 border-foreground">
-                              <th className="text-left py-2 px-2 font-semibold">First Name</th>
-                              <th className="text-left py-2 px-2 font-semibold">Last Name</th>
-                              <th className="text-left py-2 px-2 font-semibold">Table</th>
+                              <th className="text-left py-0.5 px-2 font-semibold">First Name</th>
+                              <th className="text-left py-0.5 px-2 font-semibold">Last Name</th>
+                              <th className="text-left py-0.5 px-2 font-semibold">Table</th>
                               {settings.showSeatNo && (
-                                <th className="text-left py-2 px-2 font-semibold">Seat</th>
+                                <th className="text-left py-0.5 px-2 font-semibold">Seat</th>
                               )}
-                              <th className="text-left py-2 px-2 font-semibold">Dietary</th>
+                              <th className="text-left py-0.5 px-2 font-semibold">Dietary</th>
                               {settings.showMobile && (
-                                <th className="text-left py-2 px-2 font-semibold">Mobile</th>
+                                <th className="text-left py-0.5 px-2 font-semibold">Mobile</th>
                               )}
                               {settings.showRelation && (
-                                <th className="text-left py-2 px-2 font-semibold">Relation</th>
+                                <th className="text-left py-0.5 px-2 font-semibold">Relation</th>
                               )}
                             </tr>
                           </thead>
