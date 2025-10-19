@@ -131,7 +131,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
 
   // Pagination logic - calculate guests per page for A4
   const guestsPerPage = useMemo(() => {
-    let base = settings.fontSize === 'small' ? 22 : settings.fontSize === 'large' ? 18 : 20;
+    let base = settings.fontSize === 'small' ? 25 : settings.fontSize === 'large' ? 21 : 23;
     if (settings.showLogo) base -= 1; // header is taller when logo is shown
     return Math.max(12, base); // safety floor
   }, [settings.fontSize, settings.showLogo]);
