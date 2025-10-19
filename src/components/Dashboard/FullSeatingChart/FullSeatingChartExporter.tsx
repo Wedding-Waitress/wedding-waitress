@@ -152,8 +152,8 @@ export const FullSeatingChartExporter: React.FC<FullSeatingChartExporterProps> =
 
       // Helpers
       const drawHeader = (pageInfo: { leftColumn: Guest[], rightColumn: Guest[], pageNum: number, totalPages: number }, startGuestNum: number) => {
-        // Start content positioning (header area)
-        let y = margin;
+        // Start content positioning (reduced top margin: 8mm instead of 12mm)
+        let y = 8;
         
         // Event name
         pdf.setFontSize(18);

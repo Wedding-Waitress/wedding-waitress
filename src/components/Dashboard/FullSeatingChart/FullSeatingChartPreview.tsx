@@ -251,7 +251,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
             position: relative;
             width: 210mm;
             height: 297mm;
-            padding: 12mm;
+            padding: 8mm 12mm 12mm 12mm;
             display: flex;
             flex-direction: column;
             background-color: white !important;
@@ -417,8 +417,8 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
               maxWidth: '794px'
             }}
           >
-            {/* Content with 12mm margins (45px) */}
-            <div className="p-[45px] h-full flex flex-col">
+            {/* Content with reduced top margin (8mm top, 12mm sides/bottom = 30px top, 45px sides/bottom) */}
+            <div className="pt-[30px] px-[45px] pb-[45px] h-full flex flex-col">
               {/* Header - 80px reserved */}
               <div className="text-center mb-8" style={{ minHeight: '80px' }}>
                 {/* Line 1: Event Name */}
