@@ -180,9 +180,10 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
       const pageHeight = pdf.internal.pageSize.getHeight();
       
       // Header
-      pdf.setFontSize(18);
-      pdf.setFont('helvetica', 'bold');
-      pdf.text(currentEvent.name, pageWidth / 2, 20, { align: 'center' });
+        pdf.setFontSize(18);
+        pdf.setFont('helvetica', 'bold');
+        pdf.setTextColor(139, 92, 246); // #8B5CF6 darker purple
+        pdf.text(currentEvent.name, pageWidth / 2, 20, { align: 'center' });
       
       if (currentEvent.date) {
         pdf.setFontSize(14);
@@ -595,9 +596,9 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                         {/* Event Name */}
                         {currentEvent && (
                           <>
-                            <h1 className="text-xl font-semibold" style={{ color: '#7C3AED' }}>
-                              {currentEvent.name}
-                            </h1>
+                    <h1 className="text-xl font-semibold" style={{ color: '#8B5CF6' }}>
+                      {currentEvent.name}
+                    </h1>
 
                             {/* Chart Title and Date */}
                             <h2 className={`font-semibold text-foreground ${getFontSizeClass()}`}>
@@ -738,9 +739,9 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                   {/* Event Name */}
                   {currentEvent && (
                     <>
-                      <h1 className="text-xl font-semibold" style={{ color: '#7C3AED' }}>
-                        {currentEvent.name}
-                      </h1>
+              <h1 className="text-xl font-semibold" style={{ color: '#8B5CF6' }}>
+                {currentEvent.name}
+              </h1>
 
                       {/* Chart Title and Date */}
                       <h2 className={`font-semibold text-foreground ${
