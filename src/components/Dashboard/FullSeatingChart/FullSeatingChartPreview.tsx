@@ -404,15 +404,15 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
           </div>
         )}
 
-        {/* A4 Paper Container - 794px × 1123px (210mm × 297mm at 96 DPI) */}
+        {/* A4 Paper Container - True A4 size: 210mm × 297mm */}
         <div className="flex justify-center">
           <div 
             className="bg-white border border-gray-300 shadow-lg overflow-hidden"
             style={{ 
-              width: '794px', 
-              height: '1123px',
-              minWidth: '794px',
-              maxWidth: '794px'
+              width: '210mm', 
+              height: '297mm',
+              minWidth: '210mm',
+              maxWidth: '210mm'
             }}
           >
             {/* Content with 12mm margins all around (12mm = 45px at 96 DPI) */}
