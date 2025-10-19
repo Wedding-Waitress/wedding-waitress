@@ -32,11 +32,10 @@ export const useGalleryStats = (galleryId: string | null, scope: 'all' | 'curren
           .select('*', { count: 'exact', head: true })
           .eq('owner_id', user.user.id);
 
-        // Get media counts with proper join
+        // Get media counts (RLS handles owner filtering)
         let mediaQuery = supabase
           .from('media_uploads' as any)
-          .select('post_type, gallery_id!inner(owner_id)')
-          .eq('gallery_id.owner_id', user.user.id);
+          .select('post_type, gallery_id');
 
         if (scope === 'current' && galleryId) {
           mediaQuery = mediaQuery.eq('gallery_id', galleryId);
@@ -48,11 +47,10 @@ export const useGalleryStats = (galleryId: string | null, scope: 'all' | 'curren
         const videosCount = (mediaData as any)?.filter((m: any) => m.post_type === 'video').length || 0;
         const messagesCount = (mediaData as any)?.filter((m: any) => m.post_type === 'text').length || 0;
 
-        // Get audio count
+        // Get audio count (RLS handles owner filtering)
         let audioQuery = supabase
           .from('audio_guestbook' as any)
-          .select('id, gallery_id!inner(owner_id)', { count: 'exact', head: true })
-          .eq('gallery_id.owner_id', user.user.id);
+          .select('id', { count: 'exact', head: true });
 
         if (scope === 'current' && galleryId) {
           audioQuery = audioQuery.eq('gallery_id', galleryId);
