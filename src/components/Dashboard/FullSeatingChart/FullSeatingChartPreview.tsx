@@ -561,7 +561,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
             {/* Print Footer Logo */}
             {settings.showLogo && (
               <div className="print-footer">
-                <img src="/jpeg-2.jpg" alt="Wedding Waitress" />
+                <img src="/wedding-waitress-print-footer.png?v=1" alt="Wedding Waitress" />
               </div>
             )}
             
