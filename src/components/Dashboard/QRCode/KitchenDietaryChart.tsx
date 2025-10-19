@@ -426,7 +426,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
           }
           
           .print-page .print-header {
-            margin-bottom: 3mm;
+            margin-bottom: 6mm;
           }
           
           .print-page .print-footer {
