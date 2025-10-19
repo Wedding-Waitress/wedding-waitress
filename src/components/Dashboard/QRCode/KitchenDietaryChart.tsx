@@ -599,7 +599,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                   >
                     <div style={{ padding: '10mm' }} className="h-full flex flex-col">
                       {/* Header */}
-                      <div className="text-center space-y-2 mb-6">
+                      <div className="text-center space-y-2 mb-2">
                         {/* Event Name */}
                         {currentEvent && (
                           <>
@@ -614,7 +614,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                             </h2>
 
                             {/* Meta Line */}
-                            <div className="text-sm text-foreground pb-2 border-b border-foreground">
+                            <div className="text-sm text-foreground pb-0 border-b border-foreground">
                               {currentEvent.venue && `${currentEvent.venue} - `}
                               Total Dietary Guests: {dietaryGuests.length}
                               {totalPages > 1 && ` - Page ${currentPage} of ${totalPages}`}
@@ -626,7 +626,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
 
                       {/* Guest Table */}
                       <div className={`flex-1 overflow-hidden ${getFontSizeClass()}`}>
-                        <table className="w-full border-collapse mt-[0.5mm]">
+                        <table className="w-full border-collapse mt-0">
                           <thead>
                             <tr className="border-b-2 border-foreground">
                               <th className="text-left py-[2pt] px-2 font-semibold">First Name</th>
