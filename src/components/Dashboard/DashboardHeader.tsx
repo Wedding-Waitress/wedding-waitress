@@ -24,8 +24,8 @@ export const DashboardHeader: React.FC = () => {
       <div className="relative flex h-16 items-center px-2 sm:px-4 md:px-6 my-[10px]">
         {/* Logo - centered on mobile, left-aligned on desktop */}
         <div className={cn(
-          "flex items-center",
-          isMobile ? "flex-1 justify-center" : "absolute left-2 sm:left-4 md:left-6"
+          "flex items-center justify-center",
+          isMobile ? "flex-1" : "absolute left-0 w-[16rem]"
         )}>
           <img src={logoImage} alt="Wedding Waitress" className="h-6 sm:h-10 md:h-14 w-auto" />
         </div>
