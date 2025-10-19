@@ -430,7 +430,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
           }
           
           .print-page table {
-            margin-top: 5mm;
+            margin-top: 2mm;
           }
           
           .print-page .print-footer {
