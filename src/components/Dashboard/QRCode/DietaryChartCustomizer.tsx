@@ -17,7 +17,7 @@ export const DietaryChartCustomizer: React.FC<DietaryChartCustomizerProps> = ({
   onSettingsChange,
 }) => {
   return (
-    <Card className="sticky top-18 !border-0">
+    <Card className="sticky top-30 !border-0">
       <CardHeader>
         <div className="flex items-center gap-2">
           <Settings className="h-5 w-5" />
