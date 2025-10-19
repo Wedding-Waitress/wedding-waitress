@@ -117,7 +117,7 @@ export const TableChartPreview: React.FC<TableChartPreviewProps> = ({
           x={svgWidth / 2} 
           y={30} 
           textAnchor="middle" 
-          fill="#8B5CF6"
+          fill="#7C3AED"
           fontWeight="bold"
           fontSize="18"
         >

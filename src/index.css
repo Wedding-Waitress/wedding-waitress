@@ -57,10 +57,10 @@
 @layer base {
   :root {
     /* Brand Colors - Purple Theme */
-    --primary: 262 83% 70%;
+    --primary: 262 83% 58%;
     --primary-foreground: 0 0% 100%;
-    --primary-hover: 262 83% 75%;
-    --primary-glow: 262 83% 80%;
+    --primary-hover: 262 83% 63%;
+    --primary-glow: 262 83% 68%;
     
     /* Background System */
     --background: 0 0% 95%;
@@ -93,7 +93,7 @@
     /* Form Elements */
     --input: 260 30% 92%;
     --input-border: 260 40% 85%;
-    --ring: 262 83% 70%;
+    --ring: 262 83% 58%;
     --border: 260 30% 90%;
     
     /* Popover */
@@ -101,16 +101,16 @@
     --popover-foreground: 224 71% 4%;
     
     /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(262 83% 70%), hsl(282 83% 75%));
-    --gradient-hero: linear-gradient(135deg, hsl(262 83% 70%) 0%, hsl(282 83% 75%) 50%, hsl(302 83% 80%) 100%);
+    --gradient-primary: linear-gradient(135deg, hsl(262 83% 58%), hsl(282 83% 63%));
+    --gradient-hero: linear-gradient(135deg, hsl(262 83% 58%) 0%, hsl(282 83% 63%) 50%, hsl(302 83% 68%) 100%);
     --gradient-card: linear-gradient(180deg, hsl(0 0% 95%) 0%, hsl(260 20% 94%) 100%);
     --gradient-subtle: linear-gradient(180deg, hsl(260 20% 94%) 0%, hsl(260 15% 92%) 100%);
     
     /* Shadows */
     --shadow-card: 0 4px 6px -1px hsl(262 50% 50% / 0.1), 0 2px 4px -1px hsl(262 50% 50% / 0.06);
     --shadow-elevated: 0 10px 15px -3px hsl(262 50% 50% / 0.1), 0 4px 6px -2px hsl(262 50% 50% / 0.05);
-    --shadow-glow: 0 0 20px hsl(262 83% 70% / 0.3);
-    --shadow-purple-glow: 0 0 30px hsl(262 83% 70% / 0.2);
+    --shadow-glow: 0 0 20px hsl(262 83% 58% / 0.3);
+    --shadow-purple-glow: 0 0 30px hsl(262 83% 58% / 0.2);
     
     /* Radius */
     --radius: 0.75rem;
@@ -240,8 +240,8 @@
   
   .glass-purple {
     backdrop-filter: blur(16px) saturate(180%);
-    background: linear-gradient(135deg, hsl(262 83% 70% / 0.1), hsl(282 83% 75% / 0.05));
-    border: 1px solid hsl(262 83% 70% / 0.2);
+    background: linear-gradient(135deg, hsl(262 83% 58% / 0.1), hsl(282 83% 63% / 0.05));
+    border: 1px solid hsl(262 83% 58% / 0.2);
   }
 
   /* Card styles */
@@ -312,9 +312,9 @@
   /* New Event Row Styling */
   .event-row--new {
     background-color: #F6F0FF !important;
-    border: 2px solid #A56EFF !important;
+    border: 2px solid #7C3AED !important;
     border-radius: 8px;
-    border-left: 4px solid #A56EFF !important;
+    border-left: 4px solid #7C3AED !important;
     animation: fade-scale-in 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
@@ -408,11 +408,11 @@
 
   /* Full Seating Chart - Darker Purple Theme */
   .full-seating-chart-dark-purple {
-    --primary: 262 83% 50%;
+    --primary: 262 83% 58%;
     --primary-foreground: 0 0% 100%;
-    --primary-hover: 262 83% 55%;
-    --primary-glow: 262 83% 60%;
-    --ring: 262 83% 50%;
+    --primary-hover: 262 83% 63%;
+    --primary-glow: 262 83% 68%;
+    --ring: 262 83% 58%;
   }
 }
 

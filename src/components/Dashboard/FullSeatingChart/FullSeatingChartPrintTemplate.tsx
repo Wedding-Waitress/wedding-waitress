@@ -101,7 +101,7 @@ export const FullSeatingChartPrintTemplate: React.FC<FullSeatingChartPrintTempla
         <h1 style={{ 
           fontSize: '18pt', 
           fontWeight: 'bold', 
-          color: '#8B5CF6',
+          color: '#7C3AED',
           margin: '0 0 4pt 0'
         }}>
           {event.name}
@@ -200,7 +200,7 @@ export const FullSeatingChartPrintTemplate: React.FC<FullSeatingChartPrintTempla
                   {settings.showRelation && guest.relation_display && (
                     <div style={{ 
                       fontSize: currentFontSize.details,
-                      color: '#8B5CF6',
+                      color: '#7C3AED',
                       lineHeight: currentFontSize.lineHeight
                     }}>
                       Relation: {guest.relation_display}
@@ -252,7 +252,7 @@ export const FullSeatingChartPrintTemplate: React.FC<FullSeatingChartPrintTempla
                   {settings.showRelation && guest.relation_display && (
                     <div style={{ 
                       fontSize: currentFontSize.details,
-                      color: '#8B5CF6',
+                      color: '#7C3AED',
                       lineHeight: currentFontSize.lineHeight
                     }}>
                       Relation: {guest.relation_display}

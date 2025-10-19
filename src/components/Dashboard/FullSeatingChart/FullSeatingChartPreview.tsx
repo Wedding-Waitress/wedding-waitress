@@ -282,7 +282,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
           font-size: 20px;
           font-weight: bold;
           margin: 0 0 4px 0;
-          color: #6D28D9;
+          color: #7C3AED;
         }
 
         .print-chart-date {

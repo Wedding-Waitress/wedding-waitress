@@ -539,7 +539,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                         {/* Event Name */}
                         {currentEvent && (
                           <>
-                            <h1 className="text-xl font-semibold" style={{ color: '#8B5CF6' }}>
+                            <h1 className="text-xl font-semibold" style={{ color: '#7C3AED' }}>
                               {currentEvent.name}
                             </h1>
 
@@ -684,7 +684,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                     {/* Event Name */}
                     {currentEvent && (
                       <>
-                        <h1 className="text-xl font-semibold" style={{ color: '#8B5CF6' }}>
+                        <h1 className="text-xl font-semibold" style={{ color: '#7C3AED' }}>
                           {currentEvent.name}
                         </h1>
 
