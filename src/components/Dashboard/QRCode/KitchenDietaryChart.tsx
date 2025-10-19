@@ -353,24 +353,92 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
           * {
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
+            color-adjust: exact !important;
           }
           
           html, body {
             margin: 0;
             padding: 0;
             background: white !important;
+            width: 210mm;
+            height: 297mm;
           }
           
           .print-page {
             position: relative;
             width: 210mm;
             height: 297mm;
-            padding: 12mm;
+            padding: 10mm;
             display: flex;
             flex-direction: column;
             background-color: white !important;
             box-sizing: border-box;
+            page-break-after: always;
             page-break-inside: avoid;
+          }
+          
+          .print-page:last-child {
+            page-break-after: auto;
+          }
+          
+          /* Print-specific table styling */
+          .print-page table {
+            width: 100%;
+            border-collapse: collapse;
+          }
+          
+          .print-page table thead tr {
+            border-bottom: 2px solid #000;
+          }
+          
+          .print-page table th {
+            text-align: left;
+            padding: 4pt 4pt;
+            font-weight: 600;
+          }
+          
+          .print-page table td {
+            padding: 4pt 4pt;
+            border-bottom: 1px solid #e5e7eb;
+            page-break-inside: avoid;
+            word-wrap: break-word;
+          }
+          
+          .print-page table tbody tr:nth-child(even) {
+            background-color: #f9fafb !important;
+          }
+          
+          .print-page table tbody tr:nth-child(odd) {
+            background-color: white !important;
+          }
+          
+          /* Font size variants for print */
+          .print-font-small {
+            font-size: 10.5pt;
+          }
+          
+          .print-font-medium {
+            font-size: 12pt;
+          }
+          
+          .print-font-large {
+            font-size: 13.5pt;
+          }
+          
+          .print-page .print-header {
+            margin-bottom: 6mm;
+          }
+          
+          .print-page .print-footer {
+            margin-top: auto;
+            padding-top: 5mm;
+            text-align: center;
+          }
+          
+          .print-page .print-footer img {
+            height: 10.5mm;
+            width: auto;
+            object-fit: contain;
           }
         }
       `}</style>
@@ -514,28 +582,17 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                 {/* A4 Page Container - Screen View */}
                 <div className="flex justify-center">
                   <div 
-                    className="bg-white border border-gray-300 shadow-lg"
+                  className="bg-white border border-gray-300 shadow-lg"
                     style={{ 
-                      width: '794px', 
-                      height: '1123px',
-                      minWidth: '794px',
-                      maxWidth: '794px'
+                      width: '210mm', 
+                      height: '297mm',
+                      minWidth: '210mm',
+                      maxWidth: '210mm'
                     }}
                   >
-                    <div className="p-[45px] h-full flex flex-col">
+                    <div style={{ padding: '10mm' }} className="h-full flex flex-col">
                       {/* Header */}
                       <div className="text-center space-y-2 mb-6">
-                        {/* Logo */}
-                        {settings.showLogo && (
-                          <div className="flex justify-center mb-3">
-                            <img 
-                              src={weddingWaitressLogoFull} 
-                              alt="Wedding Waitress" 
-                              className="h-12 object-contain"
-                            />
-                          </div>
-                        )}
-
                         {/* Event Name */}
                         {currentEvent && (
                           <>
@@ -618,6 +675,17 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                           </tbody>
                         </table>
                       </div>
+
+                      {/* Footer with Logo */}
+                      {settings.showLogo && (
+                        <div className="mt-auto pt-4 flex justify-center">
+                          <img 
+                            src={weddingWaitressLogoFull} 
+                            alt="Wedding Waitress" 
+                            style={{ height: '10.5mm', width: 'auto', objectFit: 'contain' }}
+                          />
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -665,105 +733,80 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
               <div 
                 key={pageIndex} 
                 className="print-page"
-                style={{ pageBreakAfter: pageIndex < totalPages - 1 ? 'always' : 'auto' }}
               >
-                <div className="h-full flex flex-col">
-                  {/* Header */}
-                  <div className="text-center space-y-2 mb-6">
-                    {/* Logo */}
-                    {settings.showLogo && (
-                      <div className="flex justify-center mb-3">
-                        <img 
-                          src={weddingWaitressLogoFull} 
-                          alt="Wedding Waitress" 
-                          className="h-12 object-contain"
-                        />
+                {/* Header */}
+                <div className="print-header text-center space-y-2">
+                  {/* Event Name */}
+                  {currentEvent && (
+                    <>
+                      <h1 className="text-xl font-semibold" style={{ color: '#7C3AED' }}>
+                        {currentEvent.name}
+                      </h1>
+
+                      {/* Chart Title and Date */}
+                      <h2 className={`font-semibold text-foreground ${
+                        settings.fontSize === 'small' ? 'print-font-small' : 
+                        settings.fontSize === 'large' ? 'print-font-large' : 
+                        'print-font-medium'
+                      }`}>
+                        Kitchen Dietary Requirements
+                        {currentEvent.date && ` - ${formatDateWithOrdinal(currentEvent.date)}`}
+                      </h2>
+
+                      {/* Meta Line */}
+                      <div className="text-sm text-foreground pb-2 border-b border-foreground">
+                        {currentEvent.venue && `${currentEvent.venue} - `}
+                        Total Dietary Guests: {dietaryGuests.length}
+                        {totalPages > 1 && ` - Page ${pageIndex + 1} of ${totalPages}`}
+                        {` - Generated on: ${formatGeneratedTimestamp()}`}
                       </div>
-                    )}
-
-                    {/* Event Name */}
-                    {currentEvent && (
-                      <>
-                        <h1 className="text-xl font-semibold" style={{ color: '#7C3AED' }}>
-                          {currentEvent.name}
-                        </h1>
-
-                        {/* Chart Title and Date */}
-                        <h2 className={`font-semibold text-foreground ${getFontSizeClass()}`}>
-                          Kitchen Dietary Requirements
-                          {currentEvent.date && ` - ${formatDateWithOrdinal(currentEvent.date)}`}
-                        </h2>
-
-                        {/* Meta Line */}
-                        <div className="text-sm text-foreground pb-2 border-b border-foreground">
-                          {currentEvent.venue && `${currentEvent.venue} - `}
-                          Total Dietary Guests: {dietaryGuests.length}
-                          {totalPages > 1 && ` - Page ${pageIndex + 1} of ${totalPages}`}
-                          {` - Generated on: ${formatGeneratedTimestamp()}`}
-                        </div>
-                      </>
-                    )}
-                  </div>
-
-                  {/* Guest Table */}
-                  <div className={`flex-1 overflow-hidden ${getFontSizeClass()}`}>
-                    <table className="w-full border-collapse">
-                      <thead>
-                        <tr className="border-b-2 border-foreground">
-                          <th className="text-left py-2 px-2 font-semibold">First Name</th>
-                          <th className="text-left py-2 px-2 font-semibold">Last Name</th>
-                          <th className="text-left py-2 px-2 font-semibold">Table</th>
-                          {settings.showSeatNo && (
-                            <th className="text-left py-2 px-2 font-semibold">Seat</th>
-                          )}
-                          <th className="text-left py-2 px-2 font-semibold">Dietary</th>
-                          {settings.showMobile && (
-                            <th className="text-left py-2 px-2 font-semibold">Mobile</th>
-                          )}
-                          {settings.showRelation && (
-                            <th className="text-left py-2 px-2 font-semibold">Relation</th>
-                          )}
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {pageGuests.map((guest, index) => (
-                          <tr 
-                            key={guest.id}
-                            className={index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}
-                          >
-                            <td className="py-2 px-2 border-b">
-                              {guest.first_name}
-                            </td>
-                            <td className="py-2 px-2 border-b">
-                              {guest.last_name || '-'}
-                            </td>
-                            <td className="py-2 px-2 border-b">
-                              {guest.table_no || '-'}
-                            </td>
-                            {settings.showSeatNo && (
-                              <td className="py-2 px-2 border-b">
-                                {guest.seat_no || '-'}
-                              </td>
-                            )}
-                            <td className="py-2 px-2 border-b font-semibold">
-                              {guest.dietary}
-                            </td>
-                            {settings.showMobile && (
-                              <td className="py-2 px-2 border-b">
-                                {guest.mobile || '-'}
-                              </td>
-                            )}
-                            {settings.showRelation && (
-                              <td className="py-2 px-2 border-b">
-                                {guest.relation_display || 'Guest'}
-                              </td>
-                            )}
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
+                    </>
+                  )}
                 </div>
+
+                {/* Guest Table */}
+                <div className={`flex-1 overflow-hidden ${
+                  settings.fontSize === 'small' ? 'print-font-small' : 
+                  settings.fontSize === 'large' ? 'print-font-large' : 
+                  'print-font-medium'
+                }`}>
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>Table</th>
+                        {settings.showSeatNo && <th>Seat</th>}
+                        <th>Dietary</th>
+                        {settings.showMobile && <th>Mobile</th>}
+                        {settings.showRelation && <th>Relation</th>}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {pageGuests.map((guest, index) => (
+                        <tr key={guest.id}>
+                          <td>{guest.first_name}</td>
+                          <td>{guest.last_name || '-'}</td>
+                          <td>{guest.table_no || '-'}</td>
+                          {settings.showSeatNo && <td>{guest.seat_no || '-'}</td>}
+                          <td style={{ fontWeight: 600 }}>{guest.dietary}</td>
+                          {settings.showMobile && <td>{guest.mobile || '-'}</td>}
+                          {settings.showRelation && <td>{guest.relation_display || 'Guest'}</td>}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Footer with Logo */}
+                {settings.showLogo && (
+                  <div className="print-footer">
+                    <img 
+                      src={weddingWaitressLogoFull} 
+                      alt="Wedding Waitress"
+                    />
+                  </div>
+                )}
               </div>
             );
           })}
