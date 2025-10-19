@@ -20,7 +20,7 @@ export const DashboardHeader: React.FC = () => {
     return 'User';
   };
   
-  return <header className="fixed top-0 left-0 right-0 z-50 w-full border-b border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60 print:hidden">
+  return <header className="relative w-full border-b border-border bg-card print:hidden">
       <div className="relative flex h-16 items-center px-2 sm:px-4 md:px-6 my-[10px]">
         {/* Logo - centered on mobile, left-aligned on desktop */}
         <div className={cn(
@@ -33,10 +33,10 @@ export const DashboardHeader: React.FC = () => {
         {/* Welcome message - hidden on mobile, centered on desktop */}
         {!isMobile && (
           <div className="hidden sm:flex items-center justify-center w-full">
-            <h2 className="text-sm sm:text-base md:text-xl lg:text-2xl font-semibold flex items-center gap-1 sm:gap-2" style={{ color: '#6D28D9' }}>
+            <h2 className="text-xs sm:text-xs md:text-sm lg:text-base font-semibold flex items-center gap-1 sm:gap-2" style={{ color: '#7C3AED' }}>
               <span className="hidden sm:inline">Hey {getDisplayName()}, </span>
               <span className="hidden sm:inline">What are you working on today!</span>
-              <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-7 lg:h-7 flex-shrink-0" style={{ color: '#6D28D9' }} />
+              <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-7 lg:h-7 flex-shrink-0" style={{ color: '#7C3AED' }} />
             </h2>
           </div>
         )}
