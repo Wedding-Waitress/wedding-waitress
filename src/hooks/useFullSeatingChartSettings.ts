@@ -18,8 +18,8 @@ const DEFAULT_SETTINGS: FullSeatingChartSettings = {
   showDietary: false,
   showRsvp: false,
   showRelation: false,
-  showLogo: true,
-  paperSize: 'A4',
+  showLogo: true, // Always show logo (hardcoded)
+  paperSize: 'A4', // Always use A4 (hardcoded)
 };
 
 export const useFullSeatingChartSettings = (eventId: string | null) => {

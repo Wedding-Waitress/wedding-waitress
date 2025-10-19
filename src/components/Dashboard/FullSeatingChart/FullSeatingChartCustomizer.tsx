@@ -126,17 +126,6 @@ export const FullSeatingChartCustomizer: React.FC<FullSeatingChartCustomizerProp
                 onCheckedChange={(checked) => onSettingsChange({ showRelation: checked })}
               />
             </div>
-            
-            <div className="flex items-center justify-between">
-              <Label htmlFor="show-logo" className="text-xs text-muted-foreground">
-                Show Logo
-              </Label>
-              <Switch
-                id="show-logo"
-                checked={settings.showLogo}
-                onCheckedChange={(checked) => onSettingsChange({ showLogo: checked })}
-              />
-            </div>
           </div>
         </div>
 
@@ -166,35 +155,6 @@ export const FullSeatingChartCustomizer: React.FC<FullSeatingChartCustomizerProp
                 <SelectItem value="small">Small (14px)</SelectItem>
                 <SelectItem value="medium">Medium (16px)</SelectItem>
                 <SelectItem value="large">Large (18px)</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-
-        <Separator />
-
-        {/* Export Settings */}
-        <div className="space-y-3">
-          <Label className="text-sm font-medium">Export Settings</Label>
-          
-          <div>
-            <Label htmlFor="paper-size" className="text-xs text-muted-foreground">
-              Paper Size
-            </Label>
-            <Select
-              value={settings.paperSize}
-              onValueChange={(value: 'A4' | 'A3' | 'A2' | 'A1') => 
-                onSettingsChange({ paperSize: value })
-              }
-            >
-              <SelectTrigger id="paper-size">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="A4">A4 (210×297mm)</SelectItem>
-                <SelectItem value="A3">A3 (297×420mm)</SelectItem>
-                <SelectItem value="A2">A2 (420×594mm)</SelectItem>
-                <SelectItem value="A1">A1 (594×841mm)</SelectItem>
               </SelectContent>
             </Select>
           </div>
