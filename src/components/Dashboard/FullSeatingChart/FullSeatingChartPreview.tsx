@@ -263,13 +263,18 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
           margin-bottom: 6mm;
         }
 
-        .print-logo {
+        .print-footer {
+          position: absolute;
+          bottom: 12mm;
+          left: 12mm;
+          right: 12mm;
           display: flex;
           justify-content: center;
-          margin-bottom: 8px;
+          border-top: 1px solid #e5e7eb;
+          padding-top: 8px;
         }
 
-        .print-logo img {
+        .print-footer img {
           height: 48px;
           width: auto;
           object-fit: contain;
@@ -413,19 +418,8 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
           >
             {/* Content with 12mm margins (45px) */}
             <div className="p-[45px] h-full flex flex-col">
-              {/* Header - 120px reserved */}
-              <div className="text-center mb-8" style={{ minHeight: '120px' }}>
-                {/* Logo */}
-                {settings.showLogo && (
-                  <div className="flex justify-center mb-3">
-                    <img 
-                      src={weddingWaitressLogoFull} 
-                      alt="Wedding Waitress" 
-                      className="h-12 w-auto object-contain"
-                    />
-                  </div>
-                )}
-                
+              {/* Header - 80px reserved */}
+              <div className="text-center mb-8" style={{ minHeight: '80px' }}>
                 {/* Line 1: Event Name */}
                 <h1 className="text-xl font-bold text-primary mb-1">
                   {event.name}
@@ -477,6 +471,17 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
                 </div>
               </div>
 
+              {/* Footer Logo */}
+              {settings.showLogo && (
+                <div className="mt-4 flex justify-center border-t border-gray-200 pt-4">
+                  <img 
+                    src="/jpeg-2.jpg" 
+                    alt="Wedding Waitress" 
+                    className="h-12 w-auto object-contain"
+                  />
+                </div>
+              )}
+
             </div>
           </div>
         </div>
@@ -518,13 +523,6 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
             style={{ pageBreakAfter: pageIndex < paginationInfo.pages.length - 1 ? 'always' : 'auto' }}
           >
             <div className="print-header">
-              {/* Logo - print version */}
-              {settings.showLogo && (
-                <div className="print-logo">
-                  <img src={weddingWaitressLogoFull} alt="Wedding Waitress" />
-                </div>
-              )}
-              
               {/* Line 1: Event Name */}
               <h1 className="print-event-name">
                 {event.name}
@@ -559,6 +557,13 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
                 ))}
               </div>
             </div>
+            
+            {/* Print Footer Logo */}
+            {settings.showLogo && (
+              <div className="print-footer">
+                <img src="/jpeg-2.jpg" alt="Wedding Waitress" />
+              </div>
+            )}
             
           </div>
         ))}

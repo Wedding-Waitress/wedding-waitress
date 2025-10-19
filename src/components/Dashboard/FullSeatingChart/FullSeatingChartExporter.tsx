@@ -152,19 +152,8 @@ export const FullSeatingChartExporter: React.FC<FullSeatingChartExporterProps> =
 
       // Helpers
       const drawHeader = (pageInfo: { leftColumn: Guest[], rightColumn: Guest[], pageNum: number, totalPages: number }, startGuestNum: number) => {
-        let y = margin - 2;
-        
-        // Logo (conditional)
-        if (settings.showLogo) {
-          try {
-            const logoUrl = '/wedding-waitress-new-logo.png';
-            pdf.addImage(logoUrl, 'PNG', (pageWidth - 35) / 2, y, 35, 10.5);
-            y += 22;
-          } catch (error) {
-            console.log('Could not add logo to PDF:', error);
-            y += 2;
-          }
-        }
+        // Start content positioning (header area)
+        let y = margin;
         
         // Event name
         pdf.setFontSize(18);
@@ -335,6 +324,23 @@ export const FullSeatingChartExporter: React.FC<FullSeatingChartExporterProps> =
 
         startGuestNum += pageInfo.leftColumn.length + pageInfo.rightColumn.length;
       });
+
+      // Add footer logo to all pages
+      if (settings.showLogo) {
+        const totalPagesCount = pdf.getNumberOfPages();
+        for (let pageNum = 1; pageNum <= totalPagesCount; pageNum++) {
+          pdf.setPage(pageNum);
+          try {
+            const logoUrl = '/jpeg-2.jpg';
+            const logoHeight = 12; // mm
+            const logoWidth = 35; // mm
+            const footerY = pageHeight - margin - logoHeight - 3; // 3mm gap from bottom
+            pdf.addImage(logoUrl, 'JPEG', (pageWidth - logoWidth) / 2, footerY, logoWidth, logoHeight);
+          } catch (error) {
+            console.log('Could not add footer logo to PDF:', error);
+          }
+        }
+      }
 
       setProgress(90);
 
