@@ -182,7 +182,7 @@ export const FullSeatingChartExporter: React.FC<FullSeatingChartExporterProps> =
         // Black separator line
         pdf.setLineWidth(0.3);
         pdf.line(margin, y, pageWidth - margin, y);
-        y += 1; // Reduced spacing to match print version (3mm total gap)
+        y += 8; // Spacing after separator line before column headers (two lines)
 
         return y;
       };
