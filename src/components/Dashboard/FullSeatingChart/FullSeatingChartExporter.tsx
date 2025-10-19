@@ -334,7 +334,7 @@ export const FullSeatingChartExporter: React.FC<FullSeatingChartExporterProps> =
             const logoUrl = '/jpeg-2.jpg';
             const logoHeight = 12; // mm
             const logoWidth = 35; // mm
-            const footerY = pageHeight - 8 - logoHeight; // 8mm from bottom
+            const footerY = pageHeight - 12 - logoHeight; // 12mm from bottom
             pdf.addImage(logoUrl, 'JPEG', (pageWidth - logoWidth) / 2, footerY, logoWidth, logoHeight);
           } catch (error) {
             console.log('Could not add footer logo to PDF:', error);

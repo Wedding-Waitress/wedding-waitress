@@ -265,7 +265,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
 
         .print-footer {
           position: absolute;
-          bottom: 8mm;
+          bottom: 12mm;
           left: 12mm;
           right: 12mm;
           display: flex;
