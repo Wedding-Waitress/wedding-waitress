@@ -152,20 +152,8 @@ export const FullSeatingChartExporter: React.FC<FullSeatingChartExporterProps> =
 
       // Helpers
       const drawHeader = (pageInfo: { leftColumn: Guest[], rightColumn: Guest[], pageNum: number, totalPages: number }, startGuestNum: number) => {
-        // Start with header logo at 10mm from top
+        // Start at top margin (10mm from top)
         let y = margin;
-        
-        // Header logo
-        try {
-          const logoUrl = '/jpeg-2.jpg';
-          const logoW = 35;
-          const logoH = 10.5;
-          pdf.addImage(logoUrl, 'JPEG', (pageWidth - logoW) / 2, y, logoW, logoH);
-          y += logoH + 22; // Logo height + 22mm gap
-        } catch (error) {
-          console.log('Could not add header logo:', error);
-          y += 10;
-        }
         
         // Event name
         pdf.setFontSize(18);

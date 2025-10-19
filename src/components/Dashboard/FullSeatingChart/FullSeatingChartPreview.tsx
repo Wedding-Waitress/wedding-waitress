@@ -262,18 +262,6 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
           text-align: center;
           margin-bottom: 6mm;
         }
-        
-        .print-header-logo {
-          display: flex;
-          justify-content: center;
-          margin-bottom: 22mm;
-        }
-        
-        .print-header-logo img {
-          height: 10.5mm;
-          width: auto;
-          object-fit: contain;
-        }
 
         .print-footer {
           position: absolute;
@@ -429,12 +417,6 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
           >
             {/* Content with 10mm margins all around */}
             <div style={{ padding: '10mm' }} className="h-full flex flex-col">
-              {/* Header Logo */}
-              <div className="flex justify-center">
-                <img src="/jpeg-2.jpg" alt="Wedding Waitress" style={{ height: '10.5mm', width: 'auto' }} className="object-contain" />
-              </div>
-              <div style={{ height: '22mm' }} />
-              
               {/* Header */}
               <div className="text-center mb-8">
                 {/* Line 1: Event Name */}
@@ -540,11 +522,6 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
             className="print-page"
             style={{ pageBreakAfter: pageIndex < paginationInfo.pages.length - 1 ? 'always' : 'auto' }}
           >
-            {/* Print Header Logo */}
-            <div className="print-header-logo">
-              <img src="/jpeg-2.jpg" alt="Wedding Waitress" />
-            </div>
-            
             <div className="print-header">
               {/* Line 1: Event Name */}
               <h1 className="print-event-name">
