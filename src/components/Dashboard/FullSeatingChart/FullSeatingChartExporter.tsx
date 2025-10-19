@@ -123,10 +123,10 @@ export const FullSeatingChartExporter: React.FC<FullSeatingChartExporterProps> =
         unit: 'mm',
         format: settings.paperSize.toLowerCase() as 'a4' | 'a3' | 'a2' | 'a1'
       });
-      const margin = 12;
+      const margin = 10;
       const contentWidth = pageWidth - margin * 2;
-      const columnGap = 10;
-      const columnWidth = contentWidth / 2 - columnGap / 2; // gap between columns
+      const columnGap = 12;
+      const columnWidth = (contentWidth - columnGap) / 2;
       const footerReserved = 80; // space reserved for footer + bottom margin (mm)
 
       setProgress(25);
@@ -152,8 +152,20 @@ export const FullSeatingChartExporter: React.FC<FullSeatingChartExporterProps> =
 
       // Helpers
       const drawHeader = (pageInfo: { leftColumn: Guest[], rightColumn: Guest[], pageNum: number, totalPages: number }, startGuestNum: number) => {
-        // Start content positioning with 12mm top margin
-        let y = 12;
+        // Start with header logo at 10mm from top
+        let y = margin;
+        
+        // Header logo
+        try {
+          const logoUrl = '/jpeg-2.jpg';
+          const logoW = 35;
+          const logoH = 10.5;
+          pdf.addImage(logoUrl, 'JPEG', (pageWidth - logoW) / 2, y, logoW, logoH);
+          y += logoH + 22; // Logo height + 22mm gap
+        } catch (error) {
+          console.log('Could not add header logo:', error);
+          y += 10;
+        }
         
         // Event name
         pdf.setFontSize(18);
@@ -332,10 +344,10 @@ export const FullSeatingChartExporter: React.FC<FullSeatingChartExporterProps> =
           pdf.setPage(pageNum);
           try {
             const logoUrl = '/jpeg-2.jpg';
-            const logoHeight = 12; // mm
-            const logoWidth = 35; // mm
-            const footerY = pageHeight - 12 - logoHeight; // 12mm from bottom
-            pdf.addImage(logoUrl, 'JPEG', (pageWidth - logoWidth) / 2, footerY, logoWidth, logoHeight);
+            const logoH = 10.5;
+            const logoW = 35;
+            const footerY = pageHeight - margin - logoH; // 10mm from bottom
+            pdf.addImage(logoUrl, 'JPEG', (pageWidth - logoW) / 2, footerY, logoW, logoH);
           } catch (error) {
             console.log('Could not add footer logo to PDF:', error);
           }

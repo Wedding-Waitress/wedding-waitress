@@ -251,7 +251,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
             position: relative;
             width: 210mm;
             height: 297mm;
-            padding: 12mm;
+            padding: 10mm;
             display: flex;
             flex-direction: column;
             background-color: white !important;
@@ -262,18 +262,30 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
           text-align: center;
           margin-bottom: 6mm;
         }
+        
+        .print-header-logo {
+          display: flex;
+          justify-content: center;
+          margin-bottom: 22mm;
+        }
+        
+        .print-header-logo img {
+          height: 10.5mm;
+          width: auto;
+          object-fit: contain;
+        }
 
         .print-footer {
           position: absolute;
-          bottom: 12mm;
-          left: 12mm;
-          right: 12mm;
+          bottom: 0;
+          left: 0;
+          right: 0;
           display: flex;
           justify-content: center;
         }
 
         .print-footer img {
-          height: 12mm;
+          height: 10.5mm;
           width: auto;
           object-fit: contain;
         }
@@ -415,10 +427,16 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
               maxWidth: '210mm'
             }}
           >
-            {/* Content with 12mm margins all around (12mm = 45px at 96 DPI) */}
-            <div className="pt-[45px] px-[45px] pb-[45px] h-full flex flex-col">
-              {/* Header - 80px reserved */}
-              <div className="text-center mb-8" style={{ minHeight: '80px' }}>
+            {/* Content with 10mm margins all around */}
+            <div style={{ padding: '10mm' }} className="h-full flex flex-col">
+              {/* Header Logo */}
+              <div className="flex justify-center">
+                <img src="/jpeg-2.jpg" alt="Wedding Waitress" style={{ height: '10.5mm', width: 'auto' }} className="object-contain" />
+              </div>
+              <div style={{ height: '22mm' }} />
+              
+              {/* Header */}
+              <div className="text-center mb-8">
                 {/* Line 1: Event Name */}
                 <h1 className="text-xl font-bold text-primary mb-1">
                   {event.name}
@@ -435,8 +453,8 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
                 </p>
               </div>
 
-              {/* Guest List - 913px available (with 12mm margins) */}
-              <div className="flex-1 grid grid-cols-2 gap-8 pt-1" style={{ minHeight: '913px' }}>
+              {/* Guest List */}
+              <div className="flex-1 pt-1" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', columnGap: '12mm' }}>
                 {/* Left Column */}
                 <div className="space-y-1">
                   {col1Guests.length > 0 && (
@@ -472,11 +490,11 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
 
               {/* Footer Logo */}
               {settings.showLogo && (
-                <div className="mt-6 flex justify-center">
+                <div className="mt-auto flex justify-center">
                   <img 
                     src="/jpeg-2.jpg" 
                     alt="Wedding Waitress" 
-                    style={{ height: '12mm', width: 'auto' }}
+                    style={{ height: '10.5mm', width: 'auto' }}
                     className="object-contain"
                   />
                 </div>
@@ -522,6 +540,11 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
             className="print-page"
             style={{ pageBreakAfter: pageIndex < paginationInfo.pages.length - 1 ? 'always' : 'auto' }}
           >
+            {/* Print Header Logo */}
+            <div className="print-header-logo">
+              <img src="/jpeg-2.jpg" alt="Wedding Waitress" />
+            </div>
+            
             <div className="print-header">
               {/* Line 1: Event Name */}
               <h1 className="print-event-name">
