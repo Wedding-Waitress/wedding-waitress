@@ -260,7 +260,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
           
         .print-header {
           text-align: center;
-          margin-bottom: 6mm;
+          margin-bottom: 3mm;
         }
 
         .print-footer {
@@ -314,7 +314,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
             grid-template-columns: 1fr 1fr;
             column-gap: 12mm;
             align-items: start;
-            margin-top: 3mm;
+            margin-top: 0;
           }
           
           .print-guest-column {
