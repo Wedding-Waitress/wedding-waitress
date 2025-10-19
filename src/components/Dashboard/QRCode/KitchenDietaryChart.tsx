@@ -393,7 +393,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
           
           .print-page table th {
             text-align: left;
-            padding: 4pt 4pt;
+            padding: 2pt 4pt;
             font-weight: 600;
           }
           
@@ -430,7 +430,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
           }
           
           .print-page table {
-            margin-top: 2mm;
+            margin-top: 0.5mm;
           }
           
           .print-page .print-footer {
