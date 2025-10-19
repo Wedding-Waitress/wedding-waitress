@@ -432,7 +432,9 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
           .print-page .print-footer {
             margin-top: auto;
             padding-top: 5mm;
-            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
           }
           
           .print-page .print-footer img {
@@ -728,6 +730,9 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
               pageIndex * guestsPerPage,
               (pageIndex + 1) * guestsPerPage
             );
+            
+            // Skip empty pages
+            if (pageGuests.length === 0) return null;
             
             return (
               <div 
