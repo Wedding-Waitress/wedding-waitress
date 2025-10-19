@@ -14,50 +14,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      audio_guestbook: {
-        Row: {
-          created_at: string
-          duration_seconds: number | null
-          file_size_bytes: number | null
-          file_url: string
-          gallery_id: string | null
-          id: string
-          mime_type: string | null
-          seq_number: number | null
-          uploader_token: string
-        }
-        Insert: {
-          created_at?: string
-          duration_seconds?: number | null
-          file_size_bytes?: number | null
-          file_url: string
-          gallery_id?: string | null
-          id?: string
-          mime_type?: string | null
-          seq_number?: number | null
-          uploader_token: string
-        }
-        Update: {
-          created_at?: string
-          duration_seconds?: number | null
-          file_size_bytes?: number | null
-          file_url?: string
-          gallery_id?: string | null
-          id?: string
-          mime_type?: string | null
-          seq_number?: number | null
-          uploader_token?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "audio_guestbook_gallery_id_fkey"
-            columns: ["gallery_id"]
-            isOneToOne: false
-            referencedRelation: "galleries"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       dietary_chart_settings: {
         Row: {
           created_at: string
@@ -440,266 +396,6 @@ export type Database = {
         }
         Relationships: []
       }
-      galleries: {
-        Row: {
-          created_at: string
-          event_date: string | null
-          event_id: string | null
-          event_type: string | null
-          id: string
-          is_active: boolean
-          owner_id: string
-          require_approval: boolean
-          show_footer: boolean
-          show_public_gallery: boolean
-          slug: string
-          title: string
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          event_date?: string | null
-          event_id?: string | null
-          event_type?: string | null
-          id?: string
-          is_active?: boolean
-          owner_id: string
-          require_approval?: boolean
-          show_footer?: boolean
-          show_public_gallery?: boolean
-          slug: string
-          title: string
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          event_date?: string | null
-          event_id?: string | null
-          event_type?: string | null
-          id?: string
-          is_active?: boolean
-          owner_id?: string
-          require_approval?: boolean
-          show_footer?: boolean
-          show_public_gallery?: boolean
-          slug?: string
-          title?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "galleries_event_id_fkey"
-            columns: ["event_id"]
-            isOneToOne: false
-            referencedRelation: "events"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      gallery_analytics: {
-        Row: {
-          created_at: string
-          device_type: string | null
-          event_id: string | null
-          gallery_id: string
-          id: string
-          ip_address: unknown | null
-          referrer: string | null
-          session_id: string | null
-          source: string | null
-          type: string
-          user_agent: string | null
-        }
-        Insert: {
-          created_at?: string
-          device_type?: string | null
-          event_id?: string | null
-          gallery_id: string
-          id?: string
-          ip_address?: unknown | null
-          referrer?: string | null
-          session_id?: string | null
-          source?: string | null
-          type: string
-          user_agent?: string | null
-        }
-        Update: {
-          created_at?: string
-          device_type?: string | null
-          event_id?: string | null
-          gallery_id?: string
-          id?: string
-          ip_address?: unknown | null
-          referrer?: string | null
-          session_id?: string | null
-          source?: string | null
-          type?: string
-          user_agent?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "gallery_analytics_event_id_fkey"
-            columns: ["event_id"]
-            isOneToOne: false
-            referencedRelation: "events"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "gallery_analytics_gallery_id_fkey"
-            columns: ["gallery_id"]
-            isOneToOne: false
-            referencedRelation: "galleries"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      gallery_exports: {
-        Row: {
-          completed_at: string | null
-          created_at: string
-          created_by: string | null
-          download_url: string | null
-          error_message: string | null
-          expires_at: string | null
-          file_path: string | null
-          file_size_bytes: number | null
-          gallery_id: string
-          id: string
-          items_count: number | null
-          scope: string
-          status: string
-        }
-        Insert: {
-          completed_at?: string | null
-          created_at?: string
-          created_by?: string | null
-          download_url?: string | null
-          error_message?: string | null
-          expires_at?: string | null
-          file_path?: string | null
-          file_size_bytes?: number | null
-          gallery_id: string
-          id?: string
-          items_count?: number | null
-          scope: string
-          status?: string
-        }
-        Update: {
-          completed_at?: string | null
-          created_at?: string
-          created_by?: string | null
-          download_url?: string | null
-          error_message?: string | null
-          expires_at?: string | null
-          file_path?: string | null
-          file_size_bytes?: number | null
-          gallery_id?: string
-          id?: string
-          items_count?: number | null
-          scope?: string
-          status?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "gallery_exports_gallery_id_fkey"
-            columns: ["gallery_id"]
-            isOneToOne: false
-            referencedRelation: "galleries"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      gallery_settings: {
-        Row: {
-          allow_photos: boolean
-          allow_videos: boolean
-          created_at: string
-          gallery_id: string
-          id: string
-          max_photo_size_mb: number
-          max_uploads_per_guest: number
-          max_video_size_mb: number
-          show_captions: boolean
-          slideshow_interval_seconds: number
-          updated_at: string
-        }
-        Insert: {
-          allow_photos?: boolean
-          allow_videos?: boolean
-          created_at?: string
-          gallery_id: string
-          id?: string
-          max_photo_size_mb?: number
-          max_uploads_per_guest?: number
-          max_video_size_mb?: number
-          show_captions?: boolean
-          slideshow_interval_seconds?: number
-          updated_at?: string
-        }
-        Update: {
-          allow_photos?: boolean
-          allow_videos?: boolean
-          created_at?: string
-          gallery_id?: string
-          id?: string
-          max_photo_size_mb?: number
-          max_uploads_per_guest?: number
-          max_video_size_mb?: number
-          show_captions?: boolean
-          slideshow_interval_seconds?: number
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "gallery_settings_gallery_id_fkey"
-            columns: ["gallery_id"]
-            isOneToOne: true
-            referencedRelation: "galleries"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      gallery_shortlinks: {
-        Row: {
-          click_count: number
-          created_at: string
-          gallery_id: string
-          id: string
-          last_clicked_at: string | null
-          slug: string
-          target_path: string
-          updated_at: string
-        }
-        Insert: {
-          click_count?: number
-          created_at?: string
-          gallery_id: string
-          id?: string
-          last_clicked_at?: string | null
-          slug: string
-          target_path: string
-          updated_at?: string
-        }
-        Update: {
-          click_count?: number
-          created_at?: string
-          gallery_id?: string
-          id?: string
-          last_clicked_at?: string | null
-          slug?: string
-          target_path?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "gallery_shortlinks_gallery_id_fkey"
-            columns: ["gallery_id"]
-            isOneToOne: false
-            referencedRelation: "galleries"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       guest_access_attempts: {
         Row: {
           access_token: string
@@ -1069,174 +765,6 @@ export type Database = {
           },
         ]
       }
-      media_upload_tokens: {
-        Row: {
-          created_at: string
-          event_id: string | null
-          expires_at: string
-          gallery_id: string | null
-          id: string
-          is_active: boolean | null
-          last_used_at: string | null
-          max_uploads: number | null
-          token: string
-          uploads_used: number | null
-        }
-        Insert: {
-          created_at?: string
-          event_id?: string | null
-          expires_at: string
-          gallery_id?: string | null
-          id?: string
-          is_active?: boolean | null
-          last_used_at?: string | null
-          max_uploads?: number | null
-          token: string
-          uploads_used?: number | null
-        }
-        Update: {
-          created_at?: string
-          event_id?: string | null
-          expires_at?: string
-          gallery_id?: string | null
-          id?: string
-          is_active?: boolean | null
-          last_used_at?: string | null
-          max_uploads?: number | null
-          token?: string
-          uploads_used?: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "media_upload_tokens_event_id_fkey"
-            columns: ["event_id"]
-            isOneToOne: false
-            referencedRelation: "events"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "media_upload_tokens_gallery_id_fkey"
-            columns: ["gallery_id"]
-            isOneToOne: false
-            referencedRelation: "galleries"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      media_uploads: {
-        Row: {
-          approved_at: string | null
-          approved_by: string | null
-          caption: string | null
-          cloudflare_stream_uid: string | null
-          created_at: string
-          duration_seconds: number | null
-          event_id: string | null
-          file_size_bytes: number | null
-          file_url: string
-          gallery_id: string | null
-          height: number | null
-          id: string
-          mime_type: string | null
-          post_type: string | null
-          poster_url: string | null
-          rejected_at: string | null
-          rejected_by: string | null
-          seq_number: number | null
-          status: string
-          stream_preview_image: string | null
-          stream_ready: boolean | null
-          stream_status: string | null
-          text_content: string | null
-          theme_id: string | null
-          thumb_1280_url: string | null
-          thumb_512_url: string | null
-          thumbnail_url: string | null
-          type: string
-          uploader_token: string
-          width: number | null
-        }
-        Insert: {
-          approved_at?: string | null
-          approved_by?: string | null
-          caption?: string | null
-          cloudflare_stream_uid?: string | null
-          created_at?: string
-          duration_seconds?: number | null
-          event_id?: string | null
-          file_size_bytes?: number | null
-          file_url: string
-          gallery_id?: string | null
-          height?: number | null
-          id?: string
-          mime_type?: string | null
-          post_type?: string | null
-          poster_url?: string | null
-          rejected_at?: string | null
-          rejected_by?: string | null
-          seq_number?: number | null
-          status?: string
-          stream_preview_image?: string | null
-          stream_ready?: boolean | null
-          stream_status?: string | null
-          text_content?: string | null
-          theme_id?: string | null
-          thumb_1280_url?: string | null
-          thumb_512_url?: string | null
-          thumbnail_url?: string | null
-          type: string
-          uploader_token: string
-          width?: number | null
-        }
-        Update: {
-          approved_at?: string | null
-          approved_by?: string | null
-          caption?: string | null
-          cloudflare_stream_uid?: string | null
-          created_at?: string
-          duration_seconds?: number | null
-          event_id?: string | null
-          file_size_bytes?: number | null
-          file_url?: string
-          gallery_id?: string | null
-          height?: number | null
-          id?: string
-          mime_type?: string | null
-          post_type?: string | null
-          poster_url?: string | null
-          rejected_at?: string | null
-          rejected_by?: string | null
-          seq_number?: number | null
-          status?: string
-          stream_preview_image?: string | null
-          stream_ready?: boolean | null
-          stream_status?: string | null
-          text_content?: string | null
-          theme_id?: string | null
-          thumb_1280_url?: string | null
-          thumb_512_url?: string | null
-          thumbnail_url?: string | null
-          type?: string
-          uploader_token?: string
-          width?: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "media_uploads_event_id_fkey"
-            columns: ["event_id"]
-            isOneToOne: false
-            referencedRelation: "events"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "media_uploads_gallery_id_fkey"
-            columns: ["gallery_id"]
-            isOneToOne: false
-            referencedRelation: "galleries"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       place_card_settings: {
         Row: {
           background_color: string
@@ -1535,72 +1063,14 @@ export type Database = {
         }
         Relationships: []
       }
-      upload_sessions: {
-        Row: {
-          created_at: string | null
-          expires_at: string | null
-          file_name: string
-          file_path: string
-          file_size: number
-          gallery_id: string
-          id: string
-          mime_type: string
-          total_chunks: number
-          upload_id: string | null
-          uploaded_chunks: number[] | null
-        }
-        Insert: {
-          created_at?: string | null
-          expires_at?: string | null
-          file_name: string
-          file_path: string
-          file_size: number
-          gallery_id: string
-          id?: string
-          mime_type: string
-          total_chunks: number
-          upload_id?: string | null
-          uploaded_chunks?: number[] | null
-        }
-        Update: {
-          created_at?: string | null
-          expires_at?: string | null
-          file_name?: string
-          file_path?: string
-          file_size?: number
-          gallery_id?: string
-          id?: string
-          mime_type?: string
-          total_chunks?: number
-          upload_id?: string | null
-          uploaded_chunks?: number[] | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "upload_sessions_gallery_id_fkey"
-            columns: ["gallery_id"]
-            isOneToOne: false
-            referencedRelation: "galleries"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      cleanup_expired_upload_sessions: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
       cleanup_old_access_attempts: {
         Args: Record<PropertyKey, never>
         Returns: undefined
-      }
-      generate_gallery_slug: {
-        Args: { _title: string }
-        Returns: string
       }
       generate_guest_access_token: {
         Args: { _event_id: string; _guest_id: string; _validity_days?: number }
@@ -1621,21 +1091,6 @@ export type Database = {
       generate_slug: {
         Args: { input_text: string }
         Returns: string
-      }
-      get_all_gallery_analytics: {
-        Args: Record<PropertyKey, never>
-        Returns: {
-          event_date: string
-          event_name: string
-          gallery_id: string
-          gallery_title: string
-          last_activity: string
-          owner_email: string
-          total_downloads: number
-          total_shares: number
-          total_views: number
-          unique_sessions: number
-        }[]
       }
       get_events_with_guest_count: {
         Args: Record<PropertyKey, never>
@@ -1661,16 +1116,6 @@ export type Database = {
           venue: string
         }[]
       }
-      get_gallery_analytics_summary: {
-        Args: { _gallery_id: string }
-        Returns: {
-          last_activity: string
-          total_downloads: number
-          total_shares: number
-          total_views: number
-          unique_sessions: number
-        }[]
-      }
       get_guest_by_token: {
         Args: { _access_token: string }
         Returns: {
@@ -1685,10 +1130,6 @@ export type Database = {
           seat_no: number
           table_no: number
         }[]
-      }
-      get_next_media_seq_number: {
-        Args: { _gallery_id: string; _table_name: string }
-        Returns: number
       }
       get_public_event_with_data_secure: {
         Args: { access_token?: string; event_slug: string }
@@ -1708,36 +1149,6 @@ export type Database = {
           guest_table_no: number
           partner1_name: string
           partner2_name: string
-        }[]
-      }
-      get_public_gallery_data: {
-        Args: { _gallery_slug: string }
-        Returns: {
-          caption: string
-          cloudflare_stream_uid: string
-          created_at: string
-          event_date: string
-          file_url: string
-          gallery_id: string
-          gallery_title: string
-          is_active: boolean
-          media_id: string
-          post_type: string
-          thumbnail_url: string
-        }[]
-      }
-      get_public_gallery_media: {
-        Args: { _event_slug: string }
-        Returns: {
-          caption: string
-          cloudflare_stream_uid: string
-          created_at: string
-          file_url: string
-          height: number
-          id: string
-          thumbnail_url: string
-          type: string
-          width: number
         }[]
       }
       get_public_live_view_settings: {
@@ -1765,20 +1176,6 @@ export type Database = {
       validate_guest_access: {
         Args: { _access_token: string; _guest_id: string }
         Returns: boolean
-      }
-      validate_media_token: {
-        Args: { _gallery_id: string; _token: string }
-        Returns: {
-          allow_photos: boolean
-          allow_videos: boolean
-          can_upload: boolean
-          gallery_title: string
-          is_valid: boolean
-          max_photo_size_mb: number
-          max_video_size_mb: number
-          remaining_uploads: number
-          require_approval: boolean
-        }[]
       }
     }
     Enums: {

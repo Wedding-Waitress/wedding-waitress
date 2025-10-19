@@ -35,11 +35,6 @@ export const AdminEvents = () => {
             .select('*', { count: 'exact', head: true })
             .eq('event_id', event.id);
 
-          const { count: uploadCount } = await supabase
-            .from('media_uploads')
-            .select('*', { count: 'exact', head: true })
-            .eq('event_id', event.id);
-
           // Get owner email
           const { data: profile } = await supabase
             .from('profiles')
@@ -50,7 +45,6 @@ export const AdminEvents = () => {
           return {
             ...event,
             guestCount: guestCount || 0,
-            uploadCount: uploadCount || 0,
             ownerEmail: profile?.email || 'N/A',
           };
         })
@@ -105,7 +99,6 @@ export const AdminEvents = () => {
                 <TableHead>Owner</TableHead>
                 <TableHead>Event Date</TableHead>
                 <TableHead>Guests</TableHead>
-                <TableHead>Uploads</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
@@ -119,7 +112,6 @@ export const AdminEvents = () => {
                     {event.date ? new Date(event.date).toLocaleDateString() : 'N/A'}
                   </TableCell>
                   <TableCell>{event.guestCount}</TableCell>
-                  <TableCell>{event.uploadCount}</TableCell>
                   <TableCell>
                     <Badge variant={event.qr_apply_to_live_view ? 'default' : 'secondary'}>
                       {event.qr_apply_to_live_view ? 'Active' : 'Inactive'}

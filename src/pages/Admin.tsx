@@ -9,7 +9,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { AdminOverview } from '@/components/Admin/AdminOverview';
 import { AdminUsers } from '@/components/Admin/AdminUsers';
 import { AdminEvents } from '@/components/Admin/AdminEvents';
-import { AdminMedia } from '@/components/Admin/AdminMedia';
 import { AdminSystemSettings } from '@/components/Admin/AdminSystemSettings';
 import { AdminLogs } from '@/components/Admin/AdminLogs';
 
@@ -82,11 +81,10 @@ export const Admin = () => {
       {/* Main Content */}
       <div className="container mx-auto px-6 py-8">
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-6 lg:w-auto lg:inline-grid">
+          <TabsList className="grid w-full grid-cols-5 lg:w-auto lg:inline-grid">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="users">Users</TabsTrigger>
             <TabsTrigger value="events">Events</TabsTrigger>
-            <TabsTrigger value="media">Media</TabsTrigger>
             <TabsTrigger value="settings">Settings</TabsTrigger>
             <TabsTrigger value="logs">Logs</TabsTrigger>
           </TabsList>
@@ -101,10 +99,6 @@ export const Admin = () => {
 
           <TabsContent value="events">
             <AdminEvents />
-          </TabsContent>
-
-          <TabsContent value="media">
-            <AdminMedia />
           </TabsContent>
 
           <TabsContent value="settings">
