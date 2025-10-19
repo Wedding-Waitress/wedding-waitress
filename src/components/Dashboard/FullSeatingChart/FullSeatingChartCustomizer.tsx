@@ -1,7 +1,12 @@
 /**
  * ============================================================================
- * FINALIZED COMPONENT - DO NOT MODIFY WITHOUT OWNER APPROVAL
+ * 🔒 PRODUCTION LOCKED - DO NOT MODIFY 🔒
  * ============================================================================
+ * 
+ * ⚠️ THIS COMPONENT IS LOCKED FOR PRODUCTION USE ⚠️
+ * 
+ * ANY MODIFICATIONS TO THIS FILE REQUIRE EXPLICIT WRITTEN APPROVAL FROM OWNER
+ * Settings structure is tied to database schema and export logic.
  * 
  * Settings panel for Full Seating Chart customization. Provides controls for
  * sorting, display options, typography, and export settings.
@@ -25,8 +30,8 @@
  * Export Settings:
  * - paperSize: A4, A3, A2, A1
  * 
- * Last modified: 2025-10-08
- * Owner approval required for any changes
+ * Last locked: 2025-10-19
+ * Status: PRODUCTION READY - NO CHANGES ALLOWED
  * ============================================================================
  */
 

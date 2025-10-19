@@ -1,7 +1,12 @@
 /**
  * ============================================================================
- * FINALIZED COMPONENT - DO NOT MODIFY WITHOUT OWNER APPROVAL
+ * 🔒 PRODUCTION LOCKED - DO NOT MODIFY 🔒
  * ============================================================================
+ * 
+ * ⚠️ THIS COMPONENT IS LOCKED FOR PRODUCTION USE ⚠️
+ * 
+ * ANY MODIFICATIONS TO THIS FILE REQUIRE EXPLICIT WRITTEN APPROVAL FROM OWNER
+ * Unauthorized changes may break critical functionality and print layouts.
  * 
  * Main page component for Full Seating Chart feature. Handles event selection,
  * guest sorting, and coordinates between customizer, preview, and exporter.
@@ -24,8 +29,8 @@
  * - Action buttons (Print, Download PDF)
  * - Loading states and empty states
  * 
- * Last modified: 2025-10-08
- * Owner approval required for any changes
+ * Last locked: 2025-10-19
+ * Status: PRODUCTION READY - NO CHANGES ALLOWED
  * ============================================================================
  */
 
