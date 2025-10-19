@@ -163,7 +163,7 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
             <div className="flex items-center gap-4">
               <FileText className="w-12 h-12 text-primary" />
               <div>
-                <CardTitle className="text-right">Full Seating Chart</CardTitle>
+                <CardTitle className="text-right" style={{ color: '#7C3AED' }}>Full Seating Chart</CardTitle>
                 <CardDescription className="text-right">
                   Complete guest list with check-off boxes
                 </CardDescription>
