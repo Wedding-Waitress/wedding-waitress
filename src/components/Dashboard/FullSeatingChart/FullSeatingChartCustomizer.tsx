@@ -54,7 +54,7 @@ export const FullSeatingChartCustomizer: React.FC<FullSeatingChartCustomizerProp
   onSettingsChange,
 }) => {
   return (
-    <Card className="ww-box h-fit sticky top-0">
+    <Card className="ww-box h-fit sticky top-0 mt-12">
       <CardHeader>
         <div className="flex items-center gap-2">
           <Settings className="w-5 h-5 text-primary" />
