@@ -182,7 +182,7 @@ export const FullSeatingChartExporter: React.FC<FullSeatingChartExporterProps> =
         // Black separator line
         pdf.setLineWidth(0.3);
         pdf.line(margin, y, pageWidth - margin, y);
-        y += 9; // Spacing after the line before guest numbers
+        y += 6; // Spacing after the line before guest numbers
 
         return y;
       };

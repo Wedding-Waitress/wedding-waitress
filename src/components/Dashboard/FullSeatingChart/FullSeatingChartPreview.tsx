@@ -316,6 +316,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
             grid-template-columns: 1fr 1fr;
             column-gap: 12mm;
             align-items: start;
+            margin-top: 8mm;
           }
           
           .print-guest-column {
@@ -437,7 +438,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
               </div>
 
               {/* Guest List - 913px available */}
-              <div className="flex-1 grid grid-cols-2 gap-8 pt-6" style={{ minHeight: '913px' }}>
+              <div className="flex-1 grid grid-cols-2 gap-8 pt-3" style={{ minHeight: '913px' }}>
                 {/* Left Column */}
                 <div className="space-y-1">
                   {col1Guests.length > 0 && (
