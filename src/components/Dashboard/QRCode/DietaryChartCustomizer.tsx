@@ -17,7 +17,7 @@ export const DietaryChartCustomizer: React.FC<DietaryChartCustomizerProps> = ({
   onSettingsChange,
 }) => {
   return (
-    <Card className="sticky top-6">
+    <Card className="sticky top-18 !border-0">
       <CardHeader>
         <div className="flex items-center gap-2">
           <Settings className="h-5 w-5" />
@@ -79,14 +79,6 @@ export const DietaryChartCustomizer: React.FC<DietaryChartCustomizerProps> = ({
                 onCheckedChange={(checked) => onSettingsChange({ showSeatNo: checked })}
               />
             </div>
-            <div className="flex items-center justify-between">
-              <Label htmlFor="show-logo" className="text-sm">Show Logo</Label>
-              <Switch
-                id="show-logo"
-                checked={settings.showLogo}
-                onCheckedChange={(checked) => onSettingsChange({ showLogo: checked })}
-              />
-            </div>
           </div>
         </div>
 
@@ -116,32 +108,6 @@ export const DietaryChartCustomizer: React.FC<DietaryChartCustomizerProps> = ({
           </div>
         </div>
 
-        <Separator />
-
-        {/* Export Settings */}
-        <div className="space-y-3">
-          <div className="flex items-center gap-2">
-            <FileText className="h-4 w-4" />
-            <Label className="font-semibold">Export Settings</Label>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="paper-size" className="text-sm">Paper Size</Label>
-            <Select
-              value={settings.paperSize}
-              onValueChange={(value) => onSettingsChange({ paperSize: value as DietaryChartSettings['paperSize'] })}
-            >
-              <SelectTrigger id="paper-size">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="A4">A4 (210 x 297 mm)</SelectItem>
-                <SelectItem value="A3">A3 (297 x 420 mm)</SelectItem>
-                <SelectItem value="A2">A2 (420 x 594 mm)</SelectItem>
-                <SelectItem value="A1">A1 (594 x 841 mm)</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
       </CardContent>
     </Card>
   );
