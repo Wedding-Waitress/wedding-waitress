@@ -158,7 +158,7 @@ export const FullSeatingChartExporter: React.FC<FullSeatingChartExporterProps> =
         // Event name
         pdf.setFontSize(18);
         pdf.setFont('helvetica', 'bold');
-        pdf.setTextColor(139, 92, 246); // Purple color
+        pdf.setTextColor(124, 58, 237); // Darker purple #7C3AED
         pdf.text(event.name, pageWidth / 2, y, { align: 'center' });
         y += 6;
 
@@ -272,7 +272,7 @@ export const FullSeatingChartExporter: React.FC<FullSeatingChartExporterProps> =
               currentY += baseLineHeight;
             }
             if (settings.showRelation && guest.relation_display) {
-              pdf.setTextColor(139, 92, 246);
+                pdf.setTextColor(124, 58, 237);
               pdf.text(`Relation: ${guest.relation_display}`, margin + 6, currentY);
               currentY += baseLineHeight;
             }
@@ -312,7 +312,7 @@ export const FullSeatingChartExporter: React.FC<FullSeatingChartExporterProps> =
               currentY += baseLineHeight;
             }
             if (settings.showRelation && guest.relation_display) {
-              pdf.setTextColor(139, 92, 246);
+              pdf.setTextColor(124, 58, 237);
               pdf.text(`Relation: ${guest.relation_display}`, rightX + 6, currentY);
               currentY += baseLineHeight;
             }
@@ -331,11 +331,11 @@ export const FullSeatingChartExporter: React.FC<FullSeatingChartExporterProps> =
         for (let pageNum = 1; pageNum <= totalPagesCount; pageNum++) {
           pdf.setPage(pageNum);
           try {
-            const logoUrl = '/jpeg-2.jpg';
+            const logoUrl = '/wedding-waitress-pdf-footer-logo.png';
             const logoH = 10.5;
             const logoW = 35;
             const footerY = pageHeight - margin - logoH; // 10mm from bottom
-            pdf.addImage(logoUrl, 'JPEG', (pageWidth - logoW) / 2, footerY, logoW, logoH);
+            pdf.addImage(logoUrl, 'PNG', (pageWidth - logoW) / 2, footerY, logoW, logoH);
           } catch (error) {
             console.log('Could not add footer logo to PDF:', error);
           }
