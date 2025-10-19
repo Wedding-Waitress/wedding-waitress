@@ -42,14 +42,14 @@ export const AudioRecorderModal: React.FC<AudioRecorderModalProps> = ({
   }, [audioUrl]);
 
   const startRecording = async () => {
-    console.log('🔵 startRecording() START', {
+    console.log('🎤 [AUDIO-START] Starting audio recording', {
       timestamp: new Date().toISOString(),
     });
     
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       
-      console.log('🟢 Microphone access granted', {
+      console.log('✅ [AUDIO-ACCESS] Microphone access granted', {
         streamActive: stream.active,
         audioTracks: stream.getAudioTracks().length,
       });
@@ -64,7 +64,7 @@ export const AudioRecorderModal: React.FC<AudioRecorderModalProps> = ({
         mimeType = 'audio/mp4;codecs=mp4a.40.2';
       }
       
-      console.log('🎤 Using MIME type:', mimeType);
+      console.log('🎵 [AUDIO-CODEC] Using MIME type:', mimeType);
       
       const mediaRecorder = new MediaRecorder(stream, { mimeType });
       mediaRecorderRef.current = mediaRecorder;
@@ -73,6 +73,7 @@ export const AudioRecorderModal: React.FC<AudioRecorderModalProps> = ({
       mediaRecorder.ondataavailable = (event) => {
         if (event.data.size > 0) {
           audioChunksRef.current.push(event.data);
+          console.log(`📊 [AUDIO-CHUNK] Received ${event.data.size} bytes`);
         }
       };
 
@@ -80,6 +81,12 @@ export const AudioRecorderModal: React.FC<AudioRecorderModalProps> = ({
         const blob = new Blob(audioChunksRef.current, { type: mimeType });
         setAudioBlob(blob);
         setDuration(recordingTime);
+        
+        console.log('✅ [AUDIO-COMPLETE] Recording finalized', {
+          size: `${(blob.size / (1024 * 1024)).toFixed(2)} MB`,
+          duration: `${recordingTime}s`,
+          chunks: audioChunksRef.current.length,
+        });
         
         // Create URL for playback
         const url = URL.createObjectURL(blob);
@@ -93,7 +100,7 @@ export const AudioRecorderModal: React.FC<AudioRecorderModalProps> = ({
       setIsRecording(true);
       setRecordingTime(0);
       
-      console.log('🟢 MediaRecorder started', {
+      console.log('✅ [AUDIO-RECORDING] MediaRecorder started', {
         mimeType,
         state: mediaRecorder.state,
       });
@@ -106,6 +113,7 @@ export const AudioRecorderModal: React.FC<AudioRecorderModalProps> = ({
           // Auto-stop at max duration
           if (newTime >= MAX_DURATION_SECONDS) {
             stopRecording();
+            console.log('⏱️ [AUDIO-LIMIT] Maximum duration reached, stopping recording');
             toast({
               title: 'Maximum Duration Reached',
               description: 'Recording stopped at 2 minutes.',
@@ -117,9 +125,9 @@ export const AudioRecorderModal: React.FC<AudioRecorderModalProps> = ({
       }, 1000);
       
     } catch (error: any) {
-      console.error('❌ startRecording() FAILED', {
-        error: error.message,
-        name: error.name,
+      console.error('❌ [AUDIO-ERROR] Recording failed', {
+        errorMessage: error.message,
+        errorName: error.name,
       });
       toast({
         title: 'Microphone Access Denied',
@@ -160,29 +168,44 @@ export const AudioRecorderModal: React.FC<AudioRecorderModalProps> = ({
   };
 
   const handleUpload = () => {
-    console.log('🔵 handleUpload() called', {
+    console.log('📤 [AUDIO-UPLOAD] Initiating upload', {
       hasAudioBlob: !!audioBlob,
-      duration,
+      duration: `${duration}s`,
       audioBlobSize: audioBlob?.size,
       audioBlobType: audioBlob?.type,
     });
     
-    if (!audioBlob || duration <= 0) return;
+    if (!audioBlob || duration <= 0) {
+      console.warn('⚠️ [AUDIO-VALIDATION] No audio blob or invalid duration');
+      return;
+    }
     
     // Validate audio size BEFORE upload
     const sizeMB = audioBlob.size / (1024 * 1024);
     const MAX_SIZE_MB = 250;
     
     if (sizeMB > MAX_SIZE_MB) {
+      console.error(`❌ [AUDIO-VALIDATION] Audio too large: ${sizeMB.toFixed(1)}MB`);
       toast({
         title: 'Audio Too Large',
-        description: `Recording is ${sizeMB.toFixed(1)}MB. Maximum is ${MAX_SIZE_MB}MB. Try a shorter message.`,
+        description: `Recording is ${sizeMB.toFixed(1)}MB. Maximum is ${MAX_SIZE_MB}MB. Please record a shorter message.`,
         variant: 'destructive',
       });
       return;
     }
     
-    console.log('📊 Audio Details:', {
+    // Validate duration
+    if (duration < 1) {
+      console.error('❌ [AUDIO-VALIDATION] Recording too short');
+      toast({
+        title: 'Recording Too Short',
+        description: 'Please record at least 1 second of audio.',
+        variant: 'destructive',
+      });
+      return;
+    }
+    
+    console.log('✅ [AUDIO-VALIDATION] Pre-upload validation passed', {
       size: `${sizeMB.toFixed(2)} MB`,
       duration: `${formatTime(duration)}`,
       format: audioBlob.type,

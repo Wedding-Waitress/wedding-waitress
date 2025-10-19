@@ -134,7 +134,8 @@ export const GuestMediaUpload: React.FC = () => {
   const [uploadETA, setUploadETA] = useState<number>(0); // seconds
   const [uploadStartTime, setUploadStartTime] = useState<number>(0);
   const [uploadedBytes, setUploadedBytes] = useState<number>(0);
-  const [abortController, setAbortController] = useState<AbortController | null>(null);
+  const [uploadAbortController, setUploadAbortController] = useState<AbortController | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
   
   // Constants for validation
 const MAX_VIDEO_SIZE_MB = 2048; // 2 GB max (increased from 1 GB)
@@ -826,17 +827,36 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
     setSelectedItems(selectedItems.filter((_, i) => i !== index));
   };
 
+  const handleCancelUpload = () => {
+    console.log('🛑 [CANCEL] User initiated upload cancellation');
+    
+    if (uploadAbortController) {
+      uploadAbortController.abort();
+      console.log('✅ [CANCEL] Abort signal sent to all uploads');
+    }
+    
+    setIsUploading(false);
+    setFlowStep('preview');
+    
+    toast({
+      title: 'Upload Cancelled',
+      description: 'Upload has been stopped. You can retry the failed files.',
+      variant: 'default',
+    });
+  };
+
   const handleUploadAll = async () => {
-    console.log('🔵 handleUploadAll() START', {
+    console.log('📤 [UPLOAD-START] Beginning upload process', {
       timestamp: new Date().toISOString(),
       selectedItemsCount: selectedItems.length,
-      galleryId,
-      gallerySlug,
+      galleryId: galleryId ? '✓ present' : '✗ missing',
+      gallerySlug: gallerySlug || 'N/A',
       token: token ? '✓ present' : '✗ missing',
     });
     
     // Validate we have necessary data
     if (!galleryId) {
+      console.error('❌ [VALIDATION] Gallery ID missing');
       toast({
         title: 'Error',
         description: 'Gallery not loaded. Please refresh the page.',
@@ -846,6 +866,7 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
     }
 
     if (selectedItems.length === 0) {
+      console.warn('⚠️ [VALIDATION] No items selected for upload');
       toast({
         title: 'No Items',
         description: 'Please select photos or videos to upload.',
@@ -854,40 +875,53 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
       return;
     }
 
-    console.log('🚀 Starting upload for', selectedItems.length, 'items');
-    console.log('📦 Gallery ID:', galleryId);
+    console.log('✅ [VALIDATION] Pre-upload checks passed');
+    console.log(`🚀 [UPLOAD-BATCH] Starting upload for ${selectedItems.length} items`);
     
+    // Create new abort controller for this upload session
+    const abortController = new AbortController();
+    setUploadAbortController(abortController);
+    
+    setIsUploading(true);
     setFlowStep('uploading');
     setUploadProgress(0);
     setCurrentUploadIndex(0);
+    setUploadSpeed(0);
+    setUploadETA(0);
 
     const uploadedItems = [...selectedItems];
     let successCount = 0;
     let failureCount = 0;
 
     for (let i = 0; i < uploadedItems.length; i++) {
+      // Check if upload was cancelled
+      if (abortController.signal.aborted) {
+        console.warn('⚠️ [CANCEL] Upload cancelled by user');
+        failureCount += uploadedItems.length - i;
+        break;
+      }
+      
       const item = uploadedItems[i];
       setCurrentUploadIndex(i + 1);
+      
+      console.log(`📤 [UPLOAD-ITEM-${i + 1}/${uploadedItems.length}] Processing: ${item.file?.name || item.textContent?.substring(0, 30)}`);
 
       try {
         if (item.type === 'text') {
           await uploadTextPost(item);
         } else {
-          await uploadMediaFile(item);
+          await uploadMediaFile(item, abortController);
         }
         uploadedItems[i].uploadSuccess = true;
         successCount++;
+        console.log(`✅ [UPLOAD-ITEM-${i + 1}] Success: ${item.file?.name || 'text post'}`);
       } catch (error: any) {
-        console.error('❌ Upload item failed:', {
-          itemIndex: i,
+        console.error(`❌ [UPLOAD-ITEM-${i + 1}] Failed:`, {
+          itemIndex: i + 1,
           itemType: item.type,
           filename: item.file?.name || item.textContent?.substring(0, 30),
-          error: {
-            message: error.message,
-            name: error.name,
-            stack: error.stack,
-            fullError: JSON.stringify(error, null, 2),
-          },
+          errorMessage: error.message,
+          errorName: error.name,
           timestamp: new Date().toISOString(),
         });
         
@@ -900,17 +934,14 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
     }
 
     setSelectedItems(uploadedItems);
+    setIsUploading(false);
+    setUploadAbortController(null);
 
-    console.log('📊 Upload Summary:', {
+    console.log('📊 [UPLOAD-SUMMARY] Batch upload completed:', {
       total: uploadedItems.length,
       successful: successCount,
       failed: failureCount,
-      items: uploadedItems.map(item => ({
-        name: item.file?.name || item.textContent?.substring(0, 20),
-        type: item.type,
-        status: item.uploadSuccess ? 'success' : 'failed',
-        error: item.uploadError,
-      })),
+      timestamp: new Date().toISOString(),
     });
 
     if (failureCount > 0) {
@@ -918,31 +949,29 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
       const failedItems = uploadedItems.filter(item => !item.uploadSuccess);
       setSelectedItems(failedItems);
       
+      console.warn(`⚠️ [UPLOAD-RESULT] ${failureCount} file(s) failed - returning to preview for retry`);
+      
       toast({
-        title: '❌ Upload Failed',
-        description: `${failureCount} ${failureCount === 1 ? 'file' : 'files'} failed. You can retry below.`,
+        title: 'Upload Failed',
+        description: `${failureCount} ${failureCount === 1 ? 'file' : 'files'} failed to upload. Tap "Retry Upload" to try again.`,
         variant: 'destructive',
         duration: 10000,
       });
       setFlowStep('preview');
     } else {
+      console.log('✅ [UPLOAD-RESULT] All files uploaded successfully');
       setFlowStep('success');
       
       // Auto-return to landing after 2 seconds on complete success
       setTimeout(() => {
+        console.log('🔄 [AUTO-RESET] Returning to landing screen');
         setSelectedItems([]);
         setUploadProgress(0);
         setFlowStep('landing');
       }, 2000);
     }
     
-    console.log('🔵 handleUploadAll() END', {
-      timestamp: new Date().toISOString(),
-      successCount,
-      failureCount,
-      totalItems: uploadedItems.length,
-      finalFlowStep: failureCount > 0 ? 'preview' : 'success',
-    });
+    console.log('🏁 [UPLOAD-END] handleUploadAll() completed');
   };
 
   const uploadTextPost = async (item: MediaItem) => {
@@ -981,40 +1010,44 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
     return mimeMap[ext] || 'application/octet-stream';
   };
 
-  const uploadMediaFile = async (item: MediaItem) => {
+  const uploadMediaFile = async (item: MediaItem, abortController?: AbortController) => {
     if (!item.file) return;
     
     const safeContentType = getSafeContentType(item.file);
+    const startTime = Date.now();
     
-    console.log('🔵 uploadMediaFile() START', {
+    console.log('📤 [FILE-UPLOAD-START]', {
       timestamp: new Date().toISOString(),
-      filename: item.file?.name,
-      size: item.file?.size,
+      filename: item.file.name,
+      size: `${(item.file.size / (1024 * 1024)).toFixed(2)} MB`,
       type: item.type,
       contentType: safeContentType,
-      galleryId,
-      gallerySlug,
     });
 
     // Guard: Validate required parameters before upload
     if (!gallerySlug) {
-      console.error('❌ Gallery identifier missing from URL');
-      toast({
-        title: 'Invalid Album Link',
-        description: 'Album link is invalid. Please rescan the QR code.',
-        variant: 'destructive',
-      });
-      return;
+      console.error('❌ [VALIDATION] Gallery slug missing from URL');
+      throw new Error('Invalid album link. Please rescan the QR code.');
     }
 
     if (!galleryId) {
-      console.error('❌ Gallery ID not loaded');
-      toast({
-        title: 'Upload Error',
-        description: 'Gallery not ready. Please refresh and try again.',
-        variant: 'destructive',
-      });
-      return;
+      console.error('❌ [VALIDATION] Gallery ID not loaded');
+      throw new Error('Gallery not ready. Please refresh and try again.');
+    }
+
+    // Validate file size BEFORE upload
+    const fileSizeMB = item.file.size / (1024 * 1024);
+    const MAX_PHOTO_SIZE_MB = 250;
+    const MAX_VIDEO_SIZE_MB = 2048; // 2 GB
+    
+    if (item.type === 'photo' && fileSizeMB > MAX_PHOTO_SIZE_MB) {
+      console.error(`❌ [VALIDATION] Photo too large: ${fileSizeMB.toFixed(1)}MB`);
+      throw new Error(`Photo too large (${fileSizeMB.toFixed(0)}MB). Maximum is ${MAX_PHOTO_SIZE_MB}MB.`);
+    }
+    
+    if (item.type === 'video' && fileSizeMB > MAX_VIDEO_SIZE_MB) {
+      console.error(`❌ [VALIDATION] Video too large: ${fileSizeMB.toFixed(1)}MB`);
+      throw new Error(`Video too large (${fileSizeMB.toFixed(0)}MB). Maximum is ${MAX_VIDEO_SIZE_MB}MB.`);
     }
 
     // Validate file format BEFORE requesting upload URL
@@ -1023,9 +1056,20 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
       const fileExt = item.file.name.split('.').pop()?.toLowerCase();
       
       if (fileExt && !SUPPORTED_FORMATS.includes(`.${fileExt}`)) {
-        throw new Error(`File format .${fileExt} not supported. Use MP4, MOV, or WebM for videos.`);
+        console.error(`❌ [VALIDATION] Unsupported video format: .${fileExt}`);
+        throw new Error(`Video format .${fileExt} not supported. Please use MP4, MOV, or WebM.`);
+      }
+    } else if (item.type === 'photo') {
+      const SUPPORTED_FORMATS = ['.jpg', '.jpeg', '.png', '.heic', '.heif', '.webp'];
+      const fileExt = item.file.name.split('.').pop()?.toLowerCase();
+      
+      if (fileExt && !SUPPORTED_FORMATS.includes(`.${fileExt}`)) {
+        console.error(`❌ [VALIDATION] Unsupported photo format: .${fileExt}`);
+        throw new Error(`Photo format .${fileExt} not supported. Please use JPG, PNG, or HEIC.`);
       }
     }
+    
+    console.log('✅ [VALIDATION] Pre-upload validation passed');
     
     console.log('📤 Guest upload starting', {
       gallerySlug,
@@ -1306,6 +1350,24 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
         hasToken: !!urlData.token,
       });
 
+      // Track upload progress with speed and ETA
+      const fileSize = item.file.size;
+      let uploadedSoFar = 0;
+      
+      // Simulate progress tracking (since uploadToSignedUrl doesn't provide progress callbacks)
+      const progressInterval = setInterval(() => {
+        uploadedSoFar += fileSize * 0.1; // Estimate 10% increments
+        if (uploadedSoFar > fileSize) uploadedSoFar = fileSize;
+        
+        const elapsed = (Date.now() - startTime) / 1000; // seconds
+        const speedMBps = uploadedSoFar / (1024 * 1024) / elapsed;
+        const remainingBytes = fileSize - uploadedSoFar;
+        const etaSeconds = remainingBytes / (speedMBps * 1024 * 1024);
+        
+        setUploadSpeed(speedMBps);
+        setUploadETA(etaSeconds > 0 ? Math.ceil(etaSeconds) : 0);
+      }, 500);
+
       // Use Supabase's official uploadToSignedUrl method with normalized content type
       const { error: uploadError } = await supabase.storage
         .from('event-media')
@@ -1313,22 +1375,30 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
           urlData.file_path,
           urlData.token,
           item.file,
-          { contentType: safeContentType } // Use normalized content type
+          { 
+            contentType: safeContentType,
+          }
         );
       
-      console.log('🟢 Supabase Storage upload RESPONSE', {
+      clearInterval(progressInterval);
+      
+      const elapsed = (Date.now() - startTime) / 1000;
+      const finalSpeedMBps = (fileSize / (1024 * 1024)) / elapsed;
+      
+      console.log('🟢 [STORAGE-UPLOAD-RESPONSE]', {
         timestamp: new Date().toISOString(),
         hasError: !!uploadError,
-        error: uploadError ? {
-          message: uploadError.message,
-          name: uploadError.name,
-          statusCode: (uploadError as any).statusCode,
-        } : null,
+        duration: `${elapsed.toFixed(2)}s`,
+        averageSpeed: `${finalSpeedMBps.toFixed(2)} MB/s`,
         success: !uploadError,
       });
 
       if (uploadError) {
-        console.error('❌ Upload failed:', uploadError);
+        console.error('❌ [STORAGE-UPLOAD-FAILED]', {
+          errorMessage: uploadError.message,
+          errorName: uploadError.name,
+          statusCode: (uploadError as any).statusCode,
+        });
         
         // Log to analytics (Priority 3)
         try {
@@ -1345,14 +1415,24 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
           });
         } catch {}
         
-        throw new Error(`Upload failed: ${uploadError.message}`);
+        // User-friendly error messages
+        if (uploadError.message?.includes('cancelled') || uploadError.message?.includes('aborted')) {
+          throw new Error('Upload cancelled by user');
+        } else if (uploadError.message?.includes('network') || uploadError.message?.includes('timeout')) {
+          throw new Error('Network error. Check your connection and try again.');
+        } else if (uploadError.message?.includes('size') || uploadError.message?.includes('too large')) {
+          throw new Error(`File too large. Maximum: ${item.type === 'video' ? '2GB' : '250MB'}.`);
+        } else {
+          throw new Error(uploadError.message || 'Upload failed. Please try again.');
+        }
       }
 
-      console.log('✅ Upload successful:', {
+      console.log('✅ [STORAGE-UPLOAD-SUCCESS]', {
         filename: item.file.name,
         size: `${(item.file.size / (1024 * 1024)).toFixed(2)} MB`,
         type: item.type,
-        path: urlData.file_path,
+        duration: `${elapsed.toFixed(2)}s`,
+        averageSpeed: `${finalSpeedMBps.toFixed(2)} MB/s`,
       });
 
       // Generate and upload thumbnail for videos
@@ -1828,29 +1908,40 @@ const MAX_VIDEO_DURATION_SECONDS = 300; // 5 minutes (increased from 3 minutes)
             }}
             className="fixed bottom-4 left-4 right-4 max-w-4xl mx-auto"
           >
-            <Button
-              size="lg"
-              className="w-full hover:opacity-90 shadow-lg text-lg py-6"
-              style={{ backgroundColor: '#6D28D9', color: '#FFFFFF' }}
-              onClick={() => {
-                console.log('🟢 UPLOAD BUTTON CLICKED!', {
-                  timestamp: new Date().toISOString(),
-                  selectedItemsCount: selectedItems.length,
-                  galleryId,
-                  gallerySlug,
-                  token: token ? '✓ present' : '✗ missing',
-                });
-                try {
-                  handleUploadAll().catch(err => {
-                    console.error('🔴 handleUploadAll PROMISE REJECTED:', err);
+            {!isUploading ? (
+              <Button
+                size="lg"
+                className="w-full hover:opacity-90 shadow-lg text-lg py-6"
+                style={{ backgroundColor: '#6D28D9', color: '#FFFFFF' }}
+                onClick={() => {
+                  console.log('🟢 UPLOAD BUTTON CLICKED!', {
+                    timestamp: new Date().toISOString(),
+                    selectedItemsCount: selectedItems.length,
+                    galleryId: galleryId ? '✓ present' : '✗ missing',
+                    gallerySlug: gallerySlug || 'N/A',
+                    token: token ? '✓ present' : '✗ missing',
                   });
-                } catch (err) {
-                  console.error('🔴 SYNC ERROR IN BUTTON HANDLER:', err);
-                }
-              }}
-            >
-              Upload {selectedItems.length} {selectedItems.length === 1 ? 'item' : 'items'}
-            </Button>
+                  try {
+                    handleUploadAll().catch(err => {
+                      console.error('🔴 handleUploadAll PROMISE REJECTED:', err);
+                    });
+                  } catch (err) {
+                    console.error('🔴 SYNC ERROR IN BUTTON HANDLER:', err);
+                  }
+                }}
+              >
+                {selectedItems.some(item => item.uploadError) ? 'Retry Upload' : 'Upload'} {selectedItems.length} {selectedItems.length === 1 ? 'item' : 'items'}
+              </Button>
+            ) : (
+              <Button
+                size="lg"
+                variant="destructive"
+                className="w-full shadow-lg text-lg py-6"
+                onClick={handleCancelUpload}
+              >
+                Cancel Upload
+              </Button>
+            )}
           </div>
         </div>
       </div>
