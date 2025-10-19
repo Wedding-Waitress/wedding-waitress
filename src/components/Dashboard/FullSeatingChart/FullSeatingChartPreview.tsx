@@ -273,7 +273,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
         }
 
         .print-footer img {
-          height: 48px;
+          height: 12mm;
           width: auto;
           object-fit: contain;
         }
@@ -476,7 +476,8 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
                   <img 
                     src="/jpeg-2.jpg" 
                     alt="Wedding Waitress" 
-                    className="h-12 w-auto object-contain"
+                    style={{ height: '12mm', width: 'auto' }}
+                    className="object-contain"
                   />
                 </div>
               )}
