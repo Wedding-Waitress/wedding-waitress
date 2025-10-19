@@ -405,6 +405,15 @@
     background: white;
     box-shadow: 0 2px 8px rgba(0,0,0,0.06);
   }
+
+  /* Full Seating Chart - Darker Purple Theme */
+  .full-seating-chart-dark-purple {
+    --primary: 262 83% 50%;
+    --primary-foreground: 0 0% 100%;
+    --primary-hover: 262 83% 55%;
+    --primary-glow: 262 83% 60%;
+    --ring: 262 83% 50%;
+  }
 }
 
 /* Print Styles for Individual Table Charts */

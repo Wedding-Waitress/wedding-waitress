@@ -127,7 +127,7 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
   const isDataReady = selectedEventId && !guestsLoading && guests.length > 0;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 full-seating-chart-dark-purple">
       {/* Header */}
       <Card className="ww-box print:hidden">
         <CardHeader className="space-y-4">
