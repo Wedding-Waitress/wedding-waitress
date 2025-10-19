@@ -265,13 +265,11 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
 
         .print-footer {
           position: absolute;
-          bottom: 12mm;
+          bottom: 8mm;
           left: 12mm;
           right: 12mm;
           display: flex;
           justify-content: center;
-          border-top: 1px solid #e5e7eb;
-          padding-top: 8px;
         }
 
         .print-footer img {
@@ -474,7 +472,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
 
               {/* Footer Logo */}
               {settings.showLogo && (
-                <div className="mt-4 flex justify-center border-t border-gray-200 pt-4">
+                <div className="mt-6 flex justify-center">
                   <img 
                     src="/jpeg-2.jpg" 
                     alt="Wedding Waitress" 
