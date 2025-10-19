@@ -430,11 +430,12 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
           }
           
           .print-page .print-footer {
-            margin-top: auto;
-            padding-top: 10mm;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
             display: flex;
             justify-content: center;
-            align-items: center;
           }
           
           .print-page .print-footer img {
