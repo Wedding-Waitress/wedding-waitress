@@ -599,7 +599,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                   >
                     <div style={{ padding: '10mm' }} className="h-full flex flex-col">
                       {/* Header */}
-                      <div className="text-center space-y-2 mb-2">
+                      <div className="text-center space-y-2 mb-[3mm]">
                         {/* Event Name */}
                         {currentEvent && (
                           <>
@@ -614,7 +614,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                             </h2>
 
                             {/* Meta Line */}
-                            <div className="text-sm text-foreground pb-0 border-b border-foreground">
+                            <div className="text-sm text-foreground pb-2 border-b border-foreground">
                               {currentEvent.venue && `${currentEvent.venue} - `}
                               Total Dietary Guests: {dietaryGuests.length}
                               {totalPages > 1 && ` - Page ${currentPage} of ${totalPages}`}
@@ -629,18 +629,18 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                         <table className="w-full border-collapse mt-0">
                           <thead>
                             <tr className="border-b-2 border-foreground">
-                              <th className="text-left py-[2pt] px-2 font-semibold">First Name</th>
-                              <th className="text-left py-[2pt] px-2 font-semibold">Last Name</th>
-                              <th className="text-left py-[2pt] px-2 font-semibold">Table</th>
+                              <th className="text-left py-[1pt] px-[4pt] font-semibold">First Name</th>
+                              <th className="text-left py-[1pt] px-[4pt] font-semibold">Last Name</th>
+                              <th className="text-left py-[1pt] px-[4pt] font-semibold">Table</th>
                               {settings.showSeatNo && (
-                                <th className="text-left py-[2pt] px-2 font-semibold">Seat</th>
+                                <th className="text-left py-[1pt] px-[4pt] font-semibold">Seat</th>
                               )}
-                              <th className="text-left py-[2pt] px-2 font-semibold">Dietary</th>
+                              <th className="text-left py-[1pt] px-[4pt] font-semibold">Dietary</th>
                               {settings.showMobile && (
-                                <th className="text-left py-[2pt] px-2 font-semibold">Mobile</th>
+                                <th className="text-left py-[1pt] px-[4pt] font-semibold">Mobile</th>
                               )}
                               {settings.showRelation && (
-                                <th className="text-left py-[2pt] px-2 font-semibold">Relation</th>
+                                <th className="text-left py-[1pt] px-[4pt] font-semibold">Relation</th>
                               )}
                             </tr>
                           </thead>
@@ -648,32 +648,32 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                             {paginatedGuests.map((guest, index) => (
                               <tr 
                                 key={guest.id}
-                                className={index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}
+                                className={index % 2 === 0 ? 'bg-[#f9fafb]' : 'bg-white'}
                               >
-                                <td className="py-2 px-2 border-b">
+                                <td className="py-[4pt] px-[4pt] border-b border-gray-200">
                                   {guest.first_name}
                                 </td>
-                                <td className="py-2 px-2 border-b">
+                                <td className="py-[4pt] px-[4pt] border-b border-gray-200">
                                   {guest.last_name || '-'}
                                 </td>
-                                <td className="py-2 px-2 border-b">
+                                <td className="py-[4pt] px-[4pt] border-b border-gray-200">
                                   {guest.table_no || '-'}
                                 </td>
                                 {settings.showSeatNo && (
-                                  <td className="py-2 px-2 border-b">
+                                  <td className="py-[4pt] px-[4pt] border-b border-gray-200">
                                     {guest.seat_no || '-'}
                                   </td>
                                 )}
-                                <td className="py-2 px-2 border-b font-semibold">
+                                <td className="py-[4pt] px-[4pt] border-b border-gray-200 font-semibold">
                                   {guest.dietary}
                                 </td>
                                 {settings.showMobile && (
-                                  <td className="py-2 px-2 border-b">
+                                  <td className="py-[4pt] px-[4pt] border-b border-gray-200">
                                     {guest.mobile || '-'}
                                   </td>
                                 )}
                                 {settings.showRelation && (
-                                  <td className="py-2 px-2 border-b">
+                                  <td className="py-[4pt] px-[4pt] border-b border-gray-200">
                                     {guest.relation_display || 'Guest'}
                                   </td>
                                 )}
