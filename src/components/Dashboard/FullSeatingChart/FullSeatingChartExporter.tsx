@@ -123,7 +123,7 @@ export const FullSeatingChartExporter: React.FC<FullSeatingChartExporterProps> =
         unit: 'mm',
         format: settings.paperSize.toLowerCase() as 'a4' | 'a3' | 'a2' | 'a1'
       });
-      const margin = 15;
+      const margin = 12;
       const contentWidth = pageWidth - margin * 2;
       const columnGap = 10;
       const columnWidth = contentWidth / 2 - columnGap / 2; // gap between columns
@@ -152,8 +152,8 @@ export const FullSeatingChartExporter: React.FC<FullSeatingChartExporterProps> =
 
       // Helpers
       const drawHeader = (pageInfo: { leftColumn: Guest[], rightColumn: Guest[], pageNum: number, totalPages: number }, startGuestNum: number) => {
-        // Start content positioning (reduced top margin: 8mm instead of 12mm)
-        let y = 8;
+        // Start content positioning with 12mm top margin
+        let y = 12;
         
         // Event name
         pdf.setFontSize(18);
@@ -334,7 +334,7 @@ export const FullSeatingChartExporter: React.FC<FullSeatingChartExporterProps> =
             const logoUrl = '/jpeg-2.jpg';
             const logoHeight = 12; // mm
             const logoWidth = 35; // mm
-            const footerY = pageHeight - 20 - logoHeight; // 20mm from bottom
+            const footerY = pageHeight - 12 - logoHeight; // 12mm from bottom
             pdf.addImage(logoUrl, 'JPEG', (pageWidth - logoWidth) / 2, footerY, logoWidth, logoHeight);
           } catch (error) {
             console.log('Could not add footer logo to PDF:', error);

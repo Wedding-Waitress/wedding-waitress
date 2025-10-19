@@ -251,7 +251,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
             position: relative;
             width: 210mm;
             height: 297mm;
-            padding: 8mm 12mm 12mm 12mm;
+            padding: 12mm;
             display: flex;
             flex-direction: column;
             background-color: white !important;
@@ -265,7 +265,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
 
         .print-footer {
           position: absolute;
-          bottom: 20mm;
+          bottom: 12mm;
           left: 12mm;
           right: 12mm;
           display: flex;
@@ -415,8 +415,8 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
               maxWidth: '794px'
             }}
           >
-            {/* Content with reduced top margin (8mm top, 12mm sides, 20mm bottom = 30px top, 45px sides, 75px bottom) */}
-            <div className="pt-[30px] px-[45px] pb-[75px] h-full flex flex-col">
+            {/* Content with 12mm margins all around (12mm = 45px at 96 DPI) */}
+            <div className="pt-[45px] px-[45px] pb-[45px] h-full flex flex-col">
               {/* Header - 80px reserved */}
               <div className="text-center mb-8" style={{ minHeight: '80px' }}>
                 {/* Line 1: Event Name */}
@@ -435,8 +435,8 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
                 </p>
               </div>
 
-              {/* Guest List - 883px available (reduced to accommodate 20mm bottom margin) */}
-              <div className="flex-1 grid grid-cols-2 gap-8 pt-1" style={{ minHeight: '883px' }}>
+              {/* Guest List - 913px available (with 12mm margins) */}
+              <div className="flex-1 grid grid-cols-2 gap-8 pt-1" style={{ minHeight: '913px' }}>
                 {/* Left Column */}
                 <div className="space-y-1">
                   {col1Guests.length > 0 && (
