@@ -21,8 +21,7 @@ import { DietaryChartCustomizer } from './DietaryChartCustomizer';
 import { useToast } from '@/hooks/use-toast';
 import jsPDF from 'jspdf';
 import { format } from 'date-fns';
-import weddingWaitressLogo from '@/assets/wedding-waitress-new-logo.png';
-import weddingWaitressLogoFull from '@/assets/wedding-waitress-logo-full.png';
+import dietaryLogo from '@/assets/wedding-waitress-dietary-logo.png';
 
 interface KitchenDietaryChartProps {
   eventId: string;
@@ -282,7 +281,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
         // Wedding Waitress logo (only if showLogo is enabled)
         if (settings.showLogo) {
           try {
-            pdf.addImage(weddingWaitressLogo, 'JPEG', pageWidth / 2 - 30, pageHeight - 25, 60, 15);
+            pdf.addImage(dietaryLogo, 'PNG', pageWidth / 2 - 30, pageHeight - 25, 60, 15);
           } catch (error) {
             console.warn('Could not add logo to PDF:', error);
           }
@@ -680,7 +679,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                       {settings.showLogo && (
                         <div className="mt-auto pt-4 flex justify-center">
                           <img 
-                            src={weddingWaitressLogoFull} 
+                  src={dietaryLogo}
                             alt="Wedding Waitress" 
                             style={{ height: '10.5mm', width: 'auto', objectFit: 'contain' }}
                           />
@@ -802,7 +801,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                 {settings.showLogo && (
                   <div className="print-footer">
                     <img 
-                      src={weddingWaitressLogoFull} 
+                      src={dietaryLogo} 
                       alt="Wedding Waitress"
                     />
                   </div>
