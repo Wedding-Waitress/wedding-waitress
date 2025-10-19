@@ -361,7 +361,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
             padding: 0;
             background: white !important;
             width: 210mm;
-            height: 297mm;
+            height: auto;
           }
           
           .print-page {

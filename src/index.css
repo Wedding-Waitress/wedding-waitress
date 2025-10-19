@@ -428,6 +428,8 @@
   /* …then reveal only the printable area */
   #full-seating-print-content,
   #full-seating-print-content *,
+  #dietary-print-content,
+  #dietary-print-content *,
   .print-page,
   .print-page * { visibility: visible !important; }
 
@@ -437,6 +439,14 @@
     left: 0; top: 0;
     width: 210mm; min-height: 297mm;
     padding: 12mm; box-sizing: border-box;
+    overflow: visible !important;
+  }
+
+  #dietary-print-content {
+    position: absolute !important;
+    left: 0; top: 0;
+    width: 210mm; min-height: 297mm;
+    padding: 10mm; box-sizing: border-box;
     overflow: visible !important;
   }
 
