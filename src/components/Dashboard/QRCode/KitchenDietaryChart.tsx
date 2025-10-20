@@ -20,6 +20,7 @@ import { useDietaryChartSettings } from '@/hooks/useDietaryChartSettings';
 import { DietaryChartCustomizer } from './DietaryChartCustomizer';
 import { useToast } from '@/hooks/use-toast';
 import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 import { format } from 'date-fns';
 import dietaryLogo from '@/assets/wedding-waitress-dietary-logo.png';
 
@@ -161,146 +162,70 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
 
     setIsExporting(true);
     try {
-      // Determine PDF size based on settings
-      const paperSizes: Record<string, [number, number]> = {
-        'A4': [210, 297],
-        'A3': [297, 420],
-        'A2': [420, 594],
-        'A1': [594, 841],
-      };
-      const [width, height] = paperSizes[settings.paperSize] || paperSizes['A4'];
-      
+      const printContent = document.getElementById('dietary-print-content');
+      if (!printContent) {
+        throw new Error('Print content not found');
+      }
+
+      // Make print content visible temporarily
+      printContent.style.display = 'block';
+      printContent.style.position = 'absolute';
+      printContent.style.left = '-9999px';
+      printContent.style.top = '0';
+
+      // Initialize PDF (A4 portrait)
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
-        format: [width, height]
+        format: 'a4'
       });
-      
-      const pageWidth = pdf.internal.pageSize.getWidth();
-      const pageHeight = pdf.internal.pageSize.getHeight();
-      
-      // Header
-      pdf.setFontSize(18);
-      pdf.setFont('helvetica', 'bold');
-      pdf.setTextColor(124, 58, 237); // #7C3AED
-      pdf.text(currentEvent.name, pageWidth / 2, 20, { align: 'center' });
-      
-      if (currentEvent.date) {
-        pdf.setFontSize(14);
-        pdf.setFont('helvetica', 'normal');
-        const eventDate = formatDateWithOrdinal(currentEvent.date);
-        pdf.text(eventDate, pageWidth / 2, 30, { align: 'center' });
-      }
 
-      // Table headers with dynamic columns based on settings
-      let yPosition = 50;
-      const baseFontSize = settings.fontSize === 'small' ? 10 : settings.fontSize === 'large' ? 14 : 12;
-      pdf.setFontSize(baseFontSize);
-      pdf.setFont('helvetica', 'bold');
+      const pages = printContent.querySelectorAll('.print-page');
       
-      // Build column configuration based on settings
-      const columns = [
-        { label: 'First Name', width: 20, key: 'firstName', show: true },
-        { label: 'Last Name', width: 20, key: 'lastName', show: true },
-        { label: 'Table', width: 15, key: 'table', show: true },
-        { label: 'Seat', width: 15, key: 'seat', show: settings.showSeatNo },
-        { label: 'Dietary', width: 42, key: 'dietary', show: true },
-        { label: 'Mobile', width: 32, key: 'mobile', show: settings.showMobile },
-        { label: 'Relation', width: 38, key: 'relation', show: settings.showRelation },
-      ].filter(col => col.show);
-      
-      // Calculate column positions
-      let currentX = 10;
-      const colData = columns.map(col => {
-        const pos = currentX;
-        currentX += col.width + 3;
-        return { ...col, position: pos };
-      });
-      
-      // Draw headers
-      colData.forEach(col => {
-        pdf.text(col.label, col.position, yPosition);
-      });
-      
-      // Draw line under headers
-      yPosition += 5;
-      pdf.line(10, yPosition, pageWidth - 10, yPosition);
-      yPosition += 10;
+      for (let i = 0; i < pages.length; i++) {
+        const page = pages[i] as HTMLElement;
+        
+        // Capture the page as canvas
+        const canvas = await html2canvas(page, {
+          scale: 2,
+          useCORS: true,
+          logging: false,
+          backgroundColor: '#ffffff',
+          width: page.offsetWidth,
+          height: page.offsetHeight,
+        });
 
-      // Guest data
-      pdf.setFont('helvetica', 'normal');
-      pdf.setFontSize(baseFontSize - 1);
-
-      dietaryGuests.forEach((guest, index) => {
-        if (yPosition > pageHeight - 40) {
+        const imgData = canvas.toDataURL('image/png');
+        
+        // Add new page if not first page
+        if (i > 0) {
           pdf.addPage();
-          yPosition = 20;
         }
 
-        const tableText = guest.table_no ? guest.table_no.toString() : '-';
-        const seatText = guest.seat_no ? guest.seat_no.toString() : '-';
-        const mobileText = guest.mobile || '-';
-        const relationText = guest.relation_display || 'Guest';
-        
-        // Build data array based on visible columns
-        const rowData = colData.map(col => {
-          switch (col.key) {
-            case 'firstName': return { text: guest.first_name, width: col.width };
-            case 'lastName': return { text: guest.last_name || '-', width: col.width };
-            case 'table': return { text: tableText, width: col.width };
-            case 'seat': return { text: seatText, width: col.width };
-            case 'dietary': return { text: guest.dietary, width: col.width };
-            case 'mobile': return { text: mobileText, width: col.width };
-            case 'relation': return { text: relationText, width: col.width };
-            default: return { text: '', width: col.width };
-          }
-        });
-        
-        // Draw each cell with text wrapping
-        const wrappedLines = rowData.map(data => pdf.splitTextToSize(data.text, data.width));
-        const maxLines = Math.max(...wrappedLines.map(lines => lines.length));
-        
-        rowData.forEach((data, idx) => {
-          pdf.text(wrappedLines[idx], colData[idx].position, yPosition);
-        });
-        
-        yPosition += maxLines * (baseFontSize / 2 + 2) + 4;
-
-        // Add separator line every few entries
-        if ((index + 1) % 3 === 0) {
-          pdf.setDrawColor(220, 220, 220);
-          pdf.line(10, yPosition, pageWidth - 10, yPosition);
-          yPosition += 3;
-        }
-      });
-
-      // Footer with optional logo
-      const pdfTotalPages = pdf.getNumberOfPages();
-      for (let i = 1; i <= pdfTotalPages; i++) {
-        pdf.setPage(i);
-        
-        // Wedding Waitress logo (only if showLogo is enabled)
-        if (settings.showLogo) {
-          try {
-            pdf.addImage(dietaryLogo, 'PNG', pageWidth / 2 - 30, pageHeight - 25, 60, 15);
-          } catch (error) {
-            console.warn('Could not add logo to PDF:', error);
-          }
-        }
-        
-        pdf.setFontSize(8);
-        pdf.setFont('helvetica', 'italic');
-        pdf.text(
-          `Kitchen Dietary Requirements | Page ${i} of ${pdfTotalPages}`,
-          pageWidth / 2,
-          pageHeight - 5,
-          { align: 'center' }
-        );
+        // Add image to PDF (A4 dimensions: 210mm x 297mm)
+        pdf.addImage(imgData, 'PNG', 0, 0, 210, 297);
       }
 
+      // Hide print content again
+      printContent.style.display = '';
+      printContent.style.position = '';
+      printContent.style.left = '';
+      printContent.style.top = '';
+
+      // Save PDF
       pdf.save(`kitchen-dietary-requirements-${currentEvent.name.replace(/[^a-z0-9]/gi, '-').toLowerCase()}.pdf`);
+      
+      toast({
+        title: "PDF Downloaded",
+        description: `Successfully exported ${pages.length} page${pages.length > 1 ? 's' : ''} to PDF`,
+      });
     } catch (error) {
       console.error('Error generating PDF:', error);
+      toast({
+        title: "Export Failed",
+        description: "Failed to generate PDF. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setIsExporting(false);
     }
