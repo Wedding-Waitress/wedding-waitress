@@ -338,6 +338,8 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
               table={selectedTable}
               guests={guests}
               event={selectedEvent}
+              totalTables={tables.length}
+              currentTableIndex={tables.findIndex(t => t.id === selectedTableId) + 1}
             />
           </div>
         </div>

@@ -26,6 +26,8 @@ interface IndividualTableChartPreviewProps {
   table: TableWithGuestCount;
   guests: Guest[];
   event: any;
+  totalTables?: number;
+  currentTableIndex?: number;
 }
 
 export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewProps> = ({
@@ -33,6 +35,8 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
   table,
   guests,
   event,
+  totalTables = 1,
+  currentTableIndex = 1,
 }) => {
   // Filter guests for this specific table
   const tableGuests = guests.filter(guest => guest.table_id === table.id);
@@ -230,7 +234,7 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
 
               {/* Venue, Tables, Page Info and Timestamp */}
               <div className="text-center text-sm text-foreground pb-3 mb-3 border-b border-black">
-                {event?.venue || 'Venue'} – Total Tables: {table.table_no} – Page 1 – 1 Generated on: {new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: '2-digit' })} Time: {new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false })}
+                {event?.venue || 'Venue'} – Total Tables: {totalTables} – Page {currentTableIndex} of {totalTables} – Generated on: {new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: '2-digit' })} Time: {new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false })}
               </div>
             </div>
 
