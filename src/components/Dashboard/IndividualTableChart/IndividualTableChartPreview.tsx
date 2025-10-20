@@ -200,6 +200,22 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
     }
   };
 
+  const getGuestNameSize = (size: string) => {
+    switch (size) {
+      case 'small': return 'text-[13px] print:text-[10pt]';
+      case 'large': return 'text-[17px] print:text-[14pt]';
+      default: return 'text-[15px] print:text-[12pt]'; // medium
+    }
+  };
+
+  const getGuestListSize = (size: string) => {
+    switch (size) {
+      case 'small': return 'text-[13px] print:text-[10pt]';
+      case 'large': return 'text-[17px] print:text-[14pt]';
+      default: return 'text-[15px] print:text-[12pt]'; // medium
+    }
+  };
+
   return (
     <Card className="bg-transparent shadow-none border-0">
       <CardContent className="p-0">
@@ -284,7 +300,7 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
                           <Tooltip>
                             <TooltipTrigger asChild>
                               <div
-                                className="absolute font-semibold text-[15px] print:text-[12pt] max-w-24 cursor-help"
+                                className={`absolute font-semibold ${getGuestNameSize(settings.fontSize)} max-w-24 cursor-help`}
                                 style={{
                                   left: `${seat.labelX}%`,
                                   top: `${seat.labelY}%`,
@@ -321,7 +337,7 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
                 <h3 className="font-semibold text-xl mb-3 text-center underline">
                   Guests on this Table & Meal Selection
                 </h3>
-                <div className="flex text-[15px] leading-[1.35] print:text-[12pt] print:leading-[1.35]">
+                <div className={`flex ${getGuestListSize(settings.fontSize)} leading-[1.35]`}>
                   {/* Left Column */}
                   <div className="flex-1 space-y-1">
                     {sortedGuests.filter((_, index) => index % 2 === 0).map((guest, originalIndex) => {
