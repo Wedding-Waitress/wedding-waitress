@@ -99,14 +99,14 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                     onClick={() => onTabChange(item.id)}
                     isActive={isActive}
                     tooltip={item.label}
-                    className={`flex items-center gap-2 ${isGreenItem ? 'bg-success hover:bg-success/90' : ''} ${isMobile ? 'py-4' : 'py-3'}`}
+                    className={`flex items-center gap-1 ${isGreenItem ? 'bg-success hover:bg-success/90' : ''} ${isMobile ? 'py-4' : 'py-3'}`}
                   >
                     <Icon className={isMobile ? "w-6 h-6" : "w-5 h-5"} />
                     <span className={`${isGreenItem ? 'text-black font-bold' : ''} ${isMobile ? 'text-sm' : 'text-base'}`}>
                       {getMobileLabel(item.id, item.label)}
                     </span>
                     {item.id === 'my-events' && (
-                      <span className="bg-white text-destructive text-xs font-bold ml-2 px-2 py-0.5 rounded-full whitespace-nowrap">
+                      <span className="bg-white text-destructive text-xs font-bold ml-1 px-2 py-0.5 rounded-full whitespace-nowrap">
                         Start Here
                       </span>
                     )}
@@ -121,7 +121,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                       </span>
                     )}
                     {badgeNumber && (
-                      <span className="flex items-center justify-center w-6 h-6 bg-success rounded-full text-white text-sm font-bold ml-3">
+                      <span className="flex items-center justify-center w-6 h-6 bg-success rounded-full text-white text-sm font-bold ml-1">
                         {badgeNumber}
                       </span>
                     )}
