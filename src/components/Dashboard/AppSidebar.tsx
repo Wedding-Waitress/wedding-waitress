@@ -92,14 +92,14 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                     <span className={isGreenItem ? 'text-black font-bold' : ''}>
                       {item.label}
                     </span>
-                    {badgeNumber && (
-                      <span className="flex items-center justify-center w-6 h-6 bg-success rounded-full text-white text-sm font-bold ml-auto">
-                        {badgeNumber}
-                      </span>
-                    )}
                     {item.id === 'my-events' && (
                       <span className="text-white text-sm font-bold ml-2">
                         Start Here
+                      </span>
+                    )}
+                    {badgeNumber && (
+                      <span className="flex items-center justify-center w-6 h-6 bg-success rounded-full text-white text-sm font-bold ml-auto">
+                        {badgeNumber}
                       </span>
                     )}
                   </SidebarMenuButton>
