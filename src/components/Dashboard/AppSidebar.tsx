@@ -84,12 +84,14 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                       {item.label}
                     </span>
                     {item.id === 'my-events' && (
-                      <span className="ml-auto bg-success-foreground/20 text-white text-sm font-bold px-3 py-1 rounded-full whitespace-nowrap border-2 border-success flex items-center gap-2">
-                        <span className="flex items-center justify-center w-6 h-6 bg-success rounded-full text-white text-sm font-bold">
+                      <>
+                        <span className="flex items-center justify-center w-6 h-6 bg-success rounded-full text-white text-sm font-bold ml-2">
                           1
                         </span>
-                        Start Here
-                      </span>
+                        <span className="text-white text-sm font-bold ml-2">
+                          Start Here
+                        </span>
+                      </>
                     )}
                   </SidebarMenuButton>
                 </SidebarMenuItem>
