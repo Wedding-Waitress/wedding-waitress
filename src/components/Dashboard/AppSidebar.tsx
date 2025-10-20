@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { useIsAdmin } from '@/hooks/useIsAdmin';
 import { useNavigate } from 'react-router-dom';
+import { useIsMobile } from '@/hooks/use-mobile';
 import {
   Sidebar,
   SidebarContent,
@@ -56,9 +57,25 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
   const { open } = useSidebar();
   const { isAdmin } = useIsAdmin();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
+
+  // Mobile-friendly label shortening
+  const getMobileLabel = (id: string, label: string) => {
+    if (!isMobile) return label;
+    
+    const mobileLabels: Record<string, string> = {
+      "qr-code": "QR Chart",
+      "individual-table-chart": "Table Charts",
+      "kiosk-live-view": "Kiosk View",
+      "dietary-chart": "Dietary Req.",
+      "full-seating-chart": "Seating Chart",
+    };
+    
+    return mobileLabels[id] || label;
+  };
 
   return (
-    <Sidebar collapsible="icon" className="border-r border-border pt-16">
+    <Sidebar collapsible="icon" className="border-r border-border pt-20 sm:pt-16">
       <SidebarContent className="pt-6">
         <SidebarGroup>
           <SidebarGroupLabel className="text-base font-bold text-black dark:text-black mb-3">
@@ -86,11 +103,11 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                     onClick={() => onTabChange(item.id)}
                     isActive={isActive}
                     tooltip={item.label}
-                    className={isGreenItem ? 'bg-success hover:bg-success/90' : ''}
+                    className={`${isGreenItem ? 'bg-success hover:bg-success/90' : ''} ${isMobile ? 'py-4' : 'py-3'}`}
                   >
-                    <Icon className="w-5 h-5" />
-                    <span className={isGreenItem ? 'text-black font-bold' : ''}>
-                      {item.label}
+                    <Icon className={isMobile ? "w-6 h-6" : "w-5 h-5"} />
+                    <span className={`${isGreenItem ? 'text-black font-bold' : ''} ${isMobile ? 'text-sm' : 'text-base'}`}>
+                      {getMobileLabel(item.id, item.label)}
                     </span>
                     {item.id === 'my-events' && (
                       <span className="text-destructive text-sm font-bold ml-2">

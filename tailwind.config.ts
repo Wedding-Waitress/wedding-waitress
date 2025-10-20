@@ -15,6 +15,7 @@ export default {
         xl: "2rem",
       },
       screens: {
+        xs: "375px",
         sm: "640px",
         md: "768px", 
         lg: "1024px",
@@ -23,6 +24,9 @@ export default {
       },
     },
     extend: {
+      screens: {
+        xs: "375px",
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",

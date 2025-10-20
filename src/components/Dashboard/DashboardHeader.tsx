@@ -21,7 +21,7 @@ export const DashboardHeader: React.FC = () => {
   };
   
   return <header className="relative w-full border-b border-border bg-card print:hidden">
-      <div className="relative flex h-16 items-center px-2 sm:px-4 md:px-6 my-[10px]">
+      <div className="relative flex h-20 sm:h-16 items-center px-3 sm:px-4 md:px-6 my-[10px]">
         {/* Logo - centered on mobile, left-aligned on desktop */}
         <div className={cn(
           "flex items-center justify-center",
