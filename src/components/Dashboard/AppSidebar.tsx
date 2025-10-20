@@ -75,8 +75,8 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
   };
 
   return (
-    <Sidebar collapsible="icon" className="border-r border-border pt-20 sm:pt-16">
-      <SidebarContent className="pt-6">
+    <Sidebar collapsible="icon" className="border-r border-border pt-28 sm:pt-24">
+      <SidebarContent className="pt-2">
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
