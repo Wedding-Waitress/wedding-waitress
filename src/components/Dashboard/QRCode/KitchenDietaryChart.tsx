@@ -322,7 +322,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
           }
           
           .print-page table td {
-            padding: 3pt 4pt;
+            padding: 2pt 4pt;
             border-bottom: 1px solid #e5e7eb;
             page-break-inside: avoid;
             word-wrap: break-word;
@@ -358,9 +358,26 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
             break-inside: avoid;
           }
           /* Normalize header spacing */
-          .print-header h1, .print-header h2 { margin: 0 !important; line-height: 1.15; }
-          .print-header > * + * { margin-top: 1mm !important; }
-          .print-header .meta-line { padding-bottom: 1mm !important; }
+          .print-header h1 {
+            font-size: 16pt !important;
+            line-height: 1.1 !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            margin: 0 !important;
+          }
+          .print-header h2 {
+            margin: 0 !important;
+            line-height: 1.1 !important;
+          }
+          .print-header > * + * { margin-top: 0.75mm !important; }
+          .print-header .meta-line {
+            font-size: 10pt !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            padding-bottom: 1mm !important;
+          }
 
           .print-page table {
             margin-top: 0mm;
@@ -711,11 +728,14 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                 </div>
 
                 {/* Guest Table */}
-                <div className={`flex-1 overflow-visible pb-20 ${
-                  settings.fontSize === 'small' ? 'print-font-small' : 
-                  settings.fontSize === 'large' ? 'print-font-large' : 
-                  'print-font-medium'
-                }`}>
+                <div
+                  className={`flex-1 overflow-visible ${
+                    settings.fontSize === 'small' ? 'print-font-small' : 
+                    settings.fontSize === 'large' ? 'print-font-large' : 
+                    'print-font-medium'
+                  }`}
+                  style={{ paddingBottom: '12mm' }}
+                >
                   <table>
                     <thead>
                       <tr>
