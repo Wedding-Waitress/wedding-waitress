@@ -589,7 +589,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                     <Input type="file" accept="image/*" onChange={handleImageUpload} disabled={uploading} />
                     {uploading && <p className="text-sm text-muted-foreground">Uploading...</p>}
                     {currentSettings.background_image_url && <div className="mt-2 space-y-2">
-                        <img src={currentSettings.background_image_url} alt="Background preview" className="w-20 h-20 object-cover rounded border" />
+                        <img src={currentSettings.background_image_url} alt="Background preview" className="w-full h-auto object-contain rounded border max-h-32" />
                         <div className="flex items-center gap-2 text-sm text-muted-foreground">
                           <Image className="h-4 w-4" />
                           <span>We recommend a horizontal photo or Logo</span>
