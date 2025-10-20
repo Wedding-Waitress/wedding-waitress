@@ -408,7 +408,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
       setUploading(false);
     }
   };
-  return <Card>
+  return <Card className="!border-0">
       <CardHeader>
         <CardTitle className="flex items-center gap-2 py-[10px]">
           <Palette className="h-5 w-5" />
@@ -697,13 +697,13 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
 
           <TabsContent value="messages" className="space-y-4">
             <div className="space-y-4">
-              <div>
-                <Label className="flex items-center gap-2 mb-2">
+              <div className="p-4 border-2 border-accent-foreground rounded-xl space-y-3">
+                <Label className="flex items-center gap-2">
                   <MessageSquare className="h-4 w-4" />
                   Mass Message (applies to all cards)
                 </Label>
                 <Textarea placeholder="Enter a message for all place cards..." value={localMassMessage} onChange={e => setLocalMassMessage(e.target.value)} rows={3} />
-                <Button onClick={saveMassMessage} variant="success" className="w-full mt-3">
+                <Button onClick={saveMassMessage} variant="success" className="w-full">
                   Save Mass Message
                 </Button>
               </div>
