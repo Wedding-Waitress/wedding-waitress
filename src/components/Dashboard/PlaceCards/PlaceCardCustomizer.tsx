@@ -218,6 +218,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
   const [uploading, setUploading] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   const [localMassMessage, setLocalMassMessage] = useState<string>(settings?.mass_message || '');
+  const [guestSearchQuery, setGuestSearchQuery] = useState('');
   const {
     toast
   } = useToast();
@@ -715,13 +716,44 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                   Guest Name Search
                 </Button>
                 
+                <Input
+                  placeholder="Search for a guest..."
+                  value={guestSearchQuery}
+                  onChange={(e) => setGuestSearchQuery(e.target.value)}
+                  className="w-full"
+                />
+                
                 <div className="space-y-3 max-h-64 overflow-y-auto">
-                  {guests.map(guest => <div key={guest.id} className="p-3 border rounded-lg">
-                      <Label className="text-sm font-medium mb-1 block">
-                        {guest.first_name} {guest.last_name}
-                      </Label>
-                      <Input placeholder="Personal message for this guest..." value={individualMessages[guest.id] || ''} onChange={e => handleIndividualMessageChange(guest.id, e.target.value)} />
-                    </div>)}
+                  {(() => {
+                    const filteredGuests = guests.filter(guest => {
+                      if (!guestSearchQuery.trim()) return true;
+                      const searchLower = guestSearchQuery.toLowerCase();
+                      const fullName = `${guest.first_name} ${guest.last_name}`.toLowerCase();
+                      return fullName.includes(searchLower);
+                    });
+
+                    if (filteredGuests.length === 0 && guestSearchQuery.trim() !== '') {
+                      return (
+                        <div className="text-center py-8 text-muted-foreground">
+                          <p>No guests found matching "{guestSearchQuery}"</p>
+                          <p className="text-sm mt-2">Try a different search term</p>
+                        </div>
+                      );
+                    }
+
+                    return filteredGuests.map(guest => (
+                      <div key={guest.id} className="p-3 border rounded-lg">
+                        <Label className="text-sm font-medium mb-1 block">
+                          {guest.first_name} {guest.last_name}
+                        </Label>
+                        <Input 
+                          placeholder="Personal message for this guest..." 
+                          value={individualMessages[guest.id] || ''} 
+                          onChange={e => handleIndividualMessageChange(guest.id, e.target.value)} 
+                        />
+                      </div>
+                    ));
+                  })()}
                 </div>
                 {guests.length > 0 && <Button onClick={saveIndividualMessages} variant="success" className="w-full">
                     Save Individual Messages
