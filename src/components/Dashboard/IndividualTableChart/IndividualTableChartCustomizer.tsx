@@ -35,7 +35,7 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Settings className="w-5 h-5" />
-          Customize Chart
+          Chart Settings
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -129,16 +129,6 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
             />
           </div>
 
-          <div className="flex items-center justify-between">
-            <Label htmlFor="show-logo">Show Logo</Label>
-            <Switch
-              id="show-logo"
-              checked={settings.showLogo}
-              onCheckedChange={(checked) => 
-                onSettingsChange({ showLogo: checked })
-              }
-            />
-          </div>
         </div>
 
         <Separator />
