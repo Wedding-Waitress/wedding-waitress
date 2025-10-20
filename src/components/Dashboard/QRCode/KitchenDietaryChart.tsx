@@ -292,7 +292,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
             position: relative;
             width: 210mm;
             height: 297mm;
-            padding: 3mm 10mm 10mm 10mm;
+            padding: 2mm 10mm 10mm 10mm;
             display: flex;
             flex-direction: column;
             background-color: white !important;
@@ -322,7 +322,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
           }
           
           .print-page table td {
-            padding: 4pt 4pt;
+            padding: 3pt 4pt;
             border-bottom: 1px solid #e5e7eb;
             page-break-inside: avoid;
             word-wrap: break-word;
@@ -354,7 +354,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
           }
           
           .print-page .print-header {
-            margin-bottom: 2mm;
+            margin-bottom: 1mm;
             break-inside: avoid;
           }
           
