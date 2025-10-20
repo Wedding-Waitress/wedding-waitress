@@ -322,7 +322,7 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
       )}
 
       {isDataReady && (
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 bg-transparent">
           {/* Customizer */}
           <div className="lg:col-span-1">
             <IndividualTableChartCustomizer
