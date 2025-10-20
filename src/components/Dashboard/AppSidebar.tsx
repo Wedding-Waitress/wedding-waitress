@@ -111,17 +111,17 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                       </span>
                     )}
                     {item.id === 'table-list' && (
-                      <span className="text-white text-sm font-bold ml-2">
+                      <span className="text-white text-sm font-bold ml-auto">
                         Create
                       </span>
                     )}
                     {item.id === 'guest-list' && (
-                      <span className="text-white text-sm font-bold ml-2">
+                      <span className="text-white text-sm font-bold ml-auto">
                         Add
                       </span>
                     )}
                     {badgeNumber && (
-                      <span className="flex items-center justify-center w-6 h-6 bg-success rounded-full text-white text-sm font-bold ml-auto">
+                      <span className="flex items-center justify-center w-6 h-6 bg-success rounded-full text-white text-sm font-bold ml-3">
                         {badgeNumber}
                       </span>
                     )}
