@@ -628,7 +628,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                                     {guest.seat_no || '-'}
                                   </td>
                                 )}
-                                <td className="py-[4pt] px-[4pt] border-b border-gray-200 font-semibold">
+                                <td className="py-[4pt] px-[4pt] border-b border-gray-200 font-semibold text-accent-foreground">
                                   {guest.dietary}
                                 </td>
                                 {settings.showMobile && (
@@ -775,7 +775,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                           <td className="font-bold">{guest.last_name || '-'}</td>
                           <td>{guest.table_no || '-'}</td>
                           {settings.showSeatNo && <td>{guest.seat_no || '-'}</td>}
-                          <td style={{ fontWeight: 600 }}>{guest.dietary}</td>
+                          <td className="font-semibold text-accent-foreground">{guest.dietary}</td>
                           {settings.showMobile && <td>{guest.mobile || '-'}</td>}
                           {settings.showRelation && <td>{guest.relation_display || 'Guest'}</td>}
                         </tr>
