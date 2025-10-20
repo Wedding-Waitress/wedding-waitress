@@ -213,14 +213,14 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
           >
             <div style={{ padding: '10mm' }} className="h-full flex flex-col relative">
             {/* Header Section */}  
-            <div className="text-center mb-2 space-y-1">
+            <div className="text-center mb-2">
               {/* Event Name - Purple and Bold */}
-              <div className="text-center font-semibold text-xl text-primary">
+              <div className="text-center font-bold text-xl text-primary mb-1">
                 {event?.name || 'Event'}
               </div>
 
               {/* Title and Date with Day of Week */}
-              <div className="text-center text-sm text-black font-normal">
+              <div className="text-center text-base font-semibold text-foreground mb-1">
                 Table Seating Arrangements – {event?.date ? new Date(event.date).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).replace(/^(\w+) (\d+) (\w+) (\d+)$/, (_, day, date, month, year) => {
                   const d = parseInt(date);
                   const suffix = d > 3 && d < 21 ? 'th' : ['th', 'st', 'nd', 'rd'][d % 10] || 'th';
@@ -229,7 +229,7 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
               </div>
 
               {/* Venue, Tables, Page Info and Timestamp */}
-              <div className="text-center text-xs text-black font-normal">
+              <div className="text-center text-sm text-foreground pb-3 mb-3 border-b border-black">
                 {event?.venue || 'Venue'} – Total Tables: {table.table_no} – Page 1 – 1 Generated on: {new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: '2-digit' })} Time: {new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false })}
               </div>
             </div>
