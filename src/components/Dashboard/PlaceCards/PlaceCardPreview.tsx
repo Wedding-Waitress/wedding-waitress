@@ -347,13 +347,13 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
 
         /* Text container takes left side when decorative image exists */
         .card-content.has-decorative-image > div:first-child {
-          flex: 0 0 45%;
+          flex: 0 0 55%;
           text-align: left;
         }
 
         /* Large decorative image on right side */
         .decorative-image-container {
-          flex: 0 0 50%;
+          flex: 0 0 40%;
           display: flex;
           align-items: center;
           justify-content: center;
