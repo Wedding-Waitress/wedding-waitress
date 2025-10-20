@@ -27,7 +27,7 @@ export const DashboardHeader: React.FC = () => {
           "flex items-center justify-center",
           isMobile ? "flex-1" : "absolute left-0 w-[16rem]"
         )}>
-          <img src={logoImage} alt="Wedding Waitress" className="h-18 sm:h-10 md:h-14 w-auto" />
+          <img src={logoImage} alt="Wedding Waitress" className="h-6 sm:h-10 md:h-14 w-auto" />
         </div>
         
         {/* Welcome message - hidden on mobile, centered on desktop */}
