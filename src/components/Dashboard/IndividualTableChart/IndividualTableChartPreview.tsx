@@ -197,7 +197,7 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
   };
 
   return (
-    <Card className="ww-box">
+    <Card className="bg-white shadow-md">
       <CardContent className="p-0">
         {/* A4 Preview Container */}
         <div className="flex justify-center">
