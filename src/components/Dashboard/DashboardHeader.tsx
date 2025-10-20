@@ -30,9 +30,9 @@ export const DashboardHeader: React.FC = () => {
           <img src={logoImage} alt="Wedding Waitress" className="h-12 sm:h-10 md:h-14 w-auto" />
         </div>
         
-        {/* Welcome message - hidden on mobile, centered on desktop */}
+        {/* Welcome message - hidden on mobile, right-aligned on tablet, centered on desktop */}
         {!isMobile && (
-          <div className="hidden sm:flex items-center justify-center w-full">
+          <div className="hidden sm:flex items-center justify-end lg:justify-center w-full pr-16 lg:pr-0">
             <h2 className="text-xs sm:text-xs md:text-sm lg:text-base font-semibold flex items-center gap-1 sm:gap-2" style={{ color: '#7C3AED' }}>
               <span className="hidden sm:inline">Hey {getDisplayName()}, </span>
               <span className="hidden sm:inline">What are you working on today!</span>
