@@ -130,11 +130,8 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
     });
   }, [guests, settings.sortBy]);
 
-  // Pagination logic - calculate guests per page for A4
-  const guestsPerPage = useMemo(() => {
-    // Fixed: Always show exactly 20 guests per page regardless of font size
-    return 20;
-  }, []);
+  // Always display exactly 20 rows per page
+  const guestsPerPage = 20;
 
   const totalPages = Math.ceil(dietaryGuests.length / guestsPerPage);
   const paginatedGuests = useMemo(() => {
@@ -292,7 +289,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
             position: relative;
             width: 210mm;
             height: 297mm;
-            padding: 2mm 10mm 10mm 10mm;
+            padding: 10mm 10mm 10mm 10mm;
             display: flex;
             flex-direction: column;
             background-color: white !important;
@@ -350,15 +347,32 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
           
           /* Font size variants for print */
           .print-font-small {
-            font-size: 10.5pt;
+            font-size: 10.5pt !important;
+            line-height: 1.15 !important;
           }
           
           .print-font-medium {
-            font-size: 12pt;
+            font-size: 12pt !important;
+            line-height: 1.15 !important;
           }
           
           .print-font-large {
-            font-size: 13.5pt;
+            font-size: 13.5pt !important;
+            line-height: 1.15 !important;
+          }
+          
+          /* Screen font classes to match print exactly */
+          .screen-font-small { 
+            font-size: 10.5pt; 
+            line-height: 1.15; 
+          }
+          .screen-font-medium { 
+            font-size: 12pt; 
+            line-height: 1.15; 
+          }
+          .screen-font-large { 
+            font-size: 13.5pt; 
+            line-height: 1.15; 
           }
           
           .print-page .print-header {
@@ -561,24 +575,63 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                       maxWidth: '210mm'
                     }}
                   >
-                    <div style={{ padding: '10mm' }} className="h-full flex flex-col">
-                      {/* Header */}
-                      <div className="text-center space-y-2 mb-[3mm]">
+                    <div style={{ position: 'relative', width: '210mm', height: '297mm' }}>
+                      {/* Header - positioned exactly 10mm from top */}
+                      <div 
+                        className="text-center"
+                        style={{
+                          position: 'absolute',
+                          top: '10mm',
+                          left: '10mm',
+                          right: '10mm'
+                        }}
+                      >
                         {/* Event Name */}
                         {currentEvent && (
                           <>
-                            <h1 className="text-xl font-semibold" style={{ color: '#7C3AED' }}>
+                            <h1 
+                              className="font-bold" 
+                              style={{ 
+                                color: '#7C3AED',
+                                fontSize: '16pt',
+                                lineHeight: '1.1',
+                                margin: 0,
+                                whiteSpace: 'nowrap',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis'
+                              }}
+                            >
                               {currentEvent.name}
                             </h1>
 
                             {/* Chart Title and Date */}
-                            <h2 className={`font-semibold text-foreground ${getFontSizeClass()}`}>
+                            <h2 
+                              className={`font-semibold text-foreground screen-font-${settings.fontSize}`}
+                              style={{
+                                marginTop: '0.75mm',
+                                lineHeight: '1.1',
+                                whiteSpace: 'nowrap',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis'
+                              }}
+                            >
                               Kitchen Dietary Requirements
                               {currentEvent.date && ` - ${formatDateWithOrdinal(currentEvent.date)}`}
                             </h2>
 
                             {/* Meta Line */}
-                            <div className="meta-line text-sm text-foreground pb-2 border-b border-foreground">
+                            <div 
+                              className="meta-line text-foreground border-b border-foreground"
+                              style={{
+                                marginTop: '0.75mm',
+                                fontSize: '10pt',
+                                lineHeight: '1.1',
+                                paddingBottom: '1mm',
+                                whiteSpace: 'nowrap',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis'
+                              }}
+                            >
                               {currentEvent.venue && `${currentEvent.venue} - `}
                               Total Dietary Guests: {dietaryGuests.length}
                               {totalPages > 1 && ` - Page ${currentPage} of ${totalPages}`}
@@ -588,23 +641,128 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                         )}
                       </div>
 
-                      {/* Guest Table */}
-                      <div className={`flex-1 overflow-hidden ${getFontSizeClass()}`}>
-                        <table className="w-full border-collapse mt-0">
+                      {/* Content Area - table with fixed positioning */}
+                      <div
+                        style={{
+                          position: 'absolute',
+                          top: '35mm',
+                          left: '10mm',
+                          right: '10mm',
+                          bottom: settings.showLogo ? '30.5mm' : '10mm',
+                          overflow: 'hidden'
+                        }}
+                      >
+                        <table 
+                          className="w-full text-left border-collapse"
+                          style={{ tableLayout: 'fixed' }}
+                        >
+                          <colgroup>
+                            <col style={{ width: '18%' }} />
+                            <col style={{ width: '16%' }} />
+                            <col style={{ width: settings.showSeatNo ? '8%' : '10%' }} />
+                            {settings.showSeatNo && <col style={{ width: '8%' }} />}
+                            <col style={{ width: (settings.showMobile || settings.showRelation) ? '30%' : '48%' }} />
+                            {settings.showMobile && <col style={{ width: '12%' }} />}
+                            {settings.showRelation && <col style={{ width: '14%' }} />}
+                          </colgroup>
                           <thead>
                             <tr className="border-b-2 border-foreground">
-                              <th className="text-left py-[1pt] px-[4pt] font-semibold">First Name</th>
-                              <th className="text-left py-[1pt] px-[4pt] font-semibold">Last Name</th>
-                              <th className="text-left py-[1pt] px-[4pt] font-semibold">Table</th>
+                              <th 
+                                className={`font-semibold screen-font-${settings.fontSize}`}
+                                style={{
+                                  textAlign: 'left',
+                                  padding: '1pt 4pt',
+                                  whiteSpace: 'nowrap',
+                                  overflow: 'hidden',
+                                  textOverflow: 'ellipsis',
+                                  lineHeight: '1.15'
+                                }}
+                              >
+                                First Name
+                              </th>
+                              <th 
+                                className={`font-semibold screen-font-${settings.fontSize}`}
+                                style={{
+                                  textAlign: 'left',
+                                  padding: '1pt 4pt',
+                                  whiteSpace: 'nowrap',
+                                  overflow: 'hidden',
+                                  textOverflow: 'ellipsis',
+                                  lineHeight: '1.15'
+                                }}
+                              >
+                                Last Name
+                              </th>
+                              <th 
+                                className={`font-semibold screen-font-${settings.fontSize}`}
+                                style={{
+                                  textAlign: 'left',
+                                  padding: '1pt 4pt',
+                                  whiteSpace: 'nowrap',
+                                  overflow: 'hidden',
+                                  textOverflow: 'ellipsis',
+                                  lineHeight: '1.15'
+                                }}
+                              >
+                                Table
+                              </th>
                               {settings.showSeatNo && (
-                                <th className="text-left py-[1pt] px-[4pt] font-semibold">Seat</th>
+                                <th 
+                                  className={`font-semibold screen-font-${settings.fontSize}`}
+                                  style={{
+                                    textAlign: 'left',
+                                    padding: '1pt 4pt',
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    lineHeight: '1.15'
+                                  }}
+                                >
+                                  Seat
+                                </th>
                               )}
-                              <th className="text-left py-[1pt] px-[4pt] font-semibold">Dietary</th>
+                              <th 
+                                className={`font-semibold screen-font-${settings.fontSize}`}
+                                style={{
+                                  textAlign: 'left',
+                                  padding: '1pt 4pt',
+                                  whiteSpace: 'nowrap',
+                                  overflow: 'hidden',
+                                  textOverflow: 'ellipsis',
+                                  lineHeight: '1.15'
+                                }}
+                              >
+                                Dietary
+                              </th>
                               {settings.showMobile && (
-                                <th className="text-left py-[1pt] px-[4pt] font-semibold">Mobile</th>
+                                <th 
+                                  className={`font-semibold screen-font-${settings.fontSize}`}
+                                  style={{
+                                    textAlign: 'left',
+                                    padding: '1pt 4pt',
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    lineHeight: '1.15'
+                                  }}
+                                >
+                                  Mobile
+                                </th>
                               )}
                               {settings.showRelation && (
-                                <th className="text-left py-[1pt] px-[4pt] font-semibold">Relation</th>
+                                <th 
+                                  className={`font-semibold screen-font-${settings.fontSize}`}
+                                  style={{
+                                    textAlign: 'left',
+                                    padding: '1pt 4pt',
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    lineHeight: '1.15'
+                                  }}
+                                >
+                                  Relation
+                                </th>
                               )}
                             </tr>
                           </thead>
@@ -614,30 +772,101 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                                 key={guest.id}
                                 className={index % 2 === 0 ? 'bg-[#f9fafb]' : 'bg-white'}
                               >
-                                <td className="py-[4pt] px-[4pt] border-b border-gray-200">
+                                <td 
+                                  className={`screen-font-${settings.fontSize}`}
+                                  style={{
+                                    padding: '2pt 4pt',
+                                    borderBottom: '1px solid #e5e7eb',
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    lineHeight: '1.15'
+                                  }}
+                                >
                                   {guest.first_name}
                                 </td>
-                                <td className="py-[4pt] px-[4pt] border-b border-gray-200">
+                                <td 
+                                  className={`screen-font-${settings.fontSize}`}
+                                  style={{
+                                    padding: '2pt 4pt',
+                                    borderBottom: '1px solid #e5e7eb',
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    lineHeight: '1.15'
+                                  }}
+                                >
                                   {guest.last_name || '-'}
                                 </td>
-                                <td className="py-[4pt] px-[4pt] border-b border-gray-200">
+                                <td 
+                                  className={`screen-font-${settings.fontSize}`}
+                                  style={{
+                                    padding: '2pt 4pt',
+                                    borderBottom: '1px solid #e5e7eb',
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    lineHeight: '1.15'
+                                  }}
+                                >
                                   {guest.table_no || '-'}
                                 </td>
                                 {settings.showSeatNo && (
-                                  <td className="py-[4pt] px-[4pt] border-b border-gray-200">
+                                  <td 
+                                    className={`screen-font-${settings.fontSize}`}
+                                    style={{
+                                      padding: '2pt 4pt',
+                                      borderBottom: '1px solid #e5e7eb',
+                                      whiteSpace: 'nowrap',
+                                      overflow: 'hidden',
+                                      textOverflow: 'ellipsis',
+                                      lineHeight: '1.15'
+                                    }}
+                                  >
                                     {guest.seat_no || '-'}
                                   </td>
                                 )}
-                                <td className="py-[4pt] px-[4pt] border-b border-gray-200 font-semibold">
+                                <td 
+                                  className={`screen-font-${settings.fontSize}`}
+                                  style={{
+                                    padding: '2pt 4pt',
+                                    borderBottom: '1px solid #e5e7eb',
+                                    fontWeight: 600,
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    lineHeight: '1.15'
+                                  }}
+                                >
                                   {guest.dietary}
                                 </td>
                                 {settings.showMobile && (
-                                  <td className="py-[4pt] px-[4pt] border-b border-gray-200">
+                                  <td 
+                                    className={`screen-font-${settings.fontSize}`}
+                                    style={{
+                                      padding: '2pt 4pt',
+                                      borderBottom: '1px solid #e5e7eb',
+                                      whiteSpace: 'nowrap',
+                                      overflow: 'hidden',
+                                      textOverflow: 'ellipsis',
+                                      lineHeight: '1.15'
+                                    }}
+                                  >
                                     {guest.mobile || '-'}
                                   </td>
                                 )}
                                 {settings.showRelation && (
-                                  <td className="py-[4pt] px-[4pt] border-b border-gray-200">
+                                  <td 
+                                    className={`screen-font-${settings.fontSize}`}
+                                    style={{
+                                      padding: '2pt 4pt',
+                                      borderBottom: '1px solid #e5e7eb',
+                                      whiteSpace: 'nowrap',
+                                      overflow: 'hidden',
+                                      textOverflow: 'ellipsis',
+                                      lineHeight: '1.15'
+                                    }}
+                                  >
                                     {guest.relation_display || 'Guest'}
                                   </td>
                                 )}
@@ -647,13 +876,26 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                         </table>
                       </div>
 
-                      {/* Footer with Logo */}
+                      {/* Footer Logo - positioned exactly 10mm from bottom */}
                       {settings.showLogo && (
-                        <div className="mt-auto pt-4 flex justify-center">
-                          <img 
-                  src={dietaryLogo}
-                            alt="Wedding Waitress" 
-                            style={{ height: '10.5mm', width: 'auto', objectFit: 'contain' }}
+                        <div
+                          style={{
+                            position: 'absolute',
+                            bottom: '10mm',
+                            left: '10mm',
+                            right: '10mm',
+                            display: 'flex',
+                            justifyContent: 'center'
+                          }}
+                        >
+                          <img
+                            src={dietaryLogo}
+                            alt="Wedding Waitress"
+                            style={{ 
+                              height: '10.5mm', 
+                              width: 'auto', 
+                              objectFit: 'contain'
+                            }}
                           />
                         </div>
                       )}
