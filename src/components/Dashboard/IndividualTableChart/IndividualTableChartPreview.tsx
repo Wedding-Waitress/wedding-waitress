@@ -200,16 +200,18 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
     <Card className="ww-box">
       <CardContent className="p-0">
         {/* A4 Preview Container */}
-        <div 
-          id="printA4-individual-table"
-          className="w-full bg-white text-black print:shadow-none shadow-lg mx-auto"
-          style={{ 
-            aspectRatio: '210/297', // A4 aspect ratio
-            maxHeight: '900px',
-            minHeight: '600px'
-          }}
-        >
-          <div className="h-full flex flex-col p-6 relative">
+        <div className="flex justify-center">
+          <div 
+            id="printA4-individual-table"
+            className="bg-white border border-gray-300 shadow-lg overflow-hidden"
+            style={{ 
+              width: '210mm', 
+              height: '297mm',
+              minWidth: '210mm',
+              maxWidth: '210mm'
+            }}
+          >
+            <div style={{ padding: '10mm' }} className="h-full flex flex-col relative">
             {/* Header Section */}  
             <div className="text-center mb-4 space-y-2">
               {/* Logo - Medium size (matching other pages) */}
@@ -366,6 +368,7 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
             )}
 
           </div>
+        </div>
         </div>
       </CardContent>
     </Card>
