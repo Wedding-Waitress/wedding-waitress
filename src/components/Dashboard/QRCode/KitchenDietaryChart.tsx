@@ -309,6 +309,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
           .print-page table {
             width: 100%;
             border-collapse: collapse;
+            table-layout: fixed;
           }
           
           .print-page table thead tr {
@@ -319,13 +320,20 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
             text-align: left;
             padding: 1pt 4pt;
             font-weight: 600;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            line-height: 1.15 !important;
           }
           
           .print-page table td {
             padding: 2pt 4pt;
             border-bottom: 1px solid #e5e7eb;
             page-break-inside: avoid;
-            word-wrap: break-word;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            line-height: 1.15 !important;
           }
           
           .print-page table tbody tr {
@@ -369,6 +377,9 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
           .print-header h2 {
             margin: 0 !important;
             line-height: 1.1 !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
           }
           .print-header > * + * { margin-top: 0.75mm !important; }
           .print-header .meta-line {
@@ -737,6 +748,15 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                   style={{ paddingBottom: '12mm' }}
                 >
                   <table>
+                    <colgroup>
+                      <col style={{ width: '18%' }} />
+                      <col style={{ width: '16%' }} />
+                      <col style={{ width: settings.showSeatNo ? '8%' : '10%' }} />
+                      {settings.showSeatNo && <col style={{ width: '8%' }} />}
+                      <col style={{ width: (settings.showMobile || settings.showRelation) ? '30%' : '48%' }} />
+                      {settings.showMobile && <col style={{ width: '12%' }} />}
+                      {settings.showRelation && <col style={{ width: '14%' }} />}
+                    </colgroup>
                     <thead>
                       <tr>
                         <th>First Name</th>
