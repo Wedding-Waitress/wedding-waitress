@@ -708,8 +708,13 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                 </Button>
               </div>
 
-              <div>
-                <Label className="mb-3 block">Individual Messages</Label>
+              <div className="p-4 border-2 border-accent-foreground rounded-xl space-y-3">
+                <Label>Individual Messages</Label>
+                
+                <Button variant="success" className="w-full">
+                  Guest Name Search
+                </Button>
+                
                 <div className="space-y-3 max-h-64 overflow-y-auto">
                   {guests.map(guest => <div key={guest.id} className="p-3 border rounded-lg">
                       <Label className="text-sm font-medium mb-1 block">
@@ -718,7 +723,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                       <Input placeholder="Personal message for this guest..." value={individualMessages[guest.id] || ''} onChange={e => handleIndividualMessageChange(guest.id, e.target.value)} />
                     </div>)}
                 </div>
-                {guests.length > 0 && <Button onClick={saveIndividualMessages} variant="success" className="w-full mt-3">
+                {guests.length > 0 && <Button onClick={saveIndividualMessages} variant="success" className="w-full">
                     Save Individual Messages
                   </Button>}
               </div>
