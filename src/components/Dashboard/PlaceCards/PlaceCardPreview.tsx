@@ -357,13 +357,13 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
           display: flex;
           align-items: center;
           justify-content: center;
-          max-height: 35mm;
+          max-height: 44mm;
         }
 
         .decorative-image {
           width: 100%;
           height: 100%;
-          max-height: 35mm;
+          max-height: 44mm;
           object-fit: contain;
           border: none;
           border-radius: 4px;
