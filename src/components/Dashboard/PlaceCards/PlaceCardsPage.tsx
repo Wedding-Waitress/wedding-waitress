@@ -78,23 +78,21 @@ export const PlaceCardsPage: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold gradient-text">Table Name Place Cards</h1>
-          <p className="text-muted-foreground">Create professional foldable place cards for your guests</p>
-        </div>
-      </div>
-
       {/* Top Section - 2 Column Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Event Selection */}
         <Card className="ww-box">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Settings className="h-5 w-5" />
-              Event Selection
-            </CardTitle>
+            <div className="flex items-center justify-between gap-4">
+              <CardTitle className="flex items-center gap-2">
+                <Settings className="h-5 w-5" />
+                Event Selection
+              </CardTitle>
+              <div className="text-right">
+                <h1 className="text-xl font-bold gradient-text">Table Name Place Cards</h1>
+                <p className="text-sm text-muted-foreground">Create professional foldable place cards for your guests</p>
+              </div>
+            </div>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
