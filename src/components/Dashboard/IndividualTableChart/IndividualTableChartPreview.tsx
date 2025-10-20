@@ -202,17 +202,17 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
 
   const getGuestNameSize = (size: string) => {
     switch (size) {
-      case 'small': return 'text-[13px] print:text-[10pt]';
-      case 'large': return 'text-[17px] print:text-[14pt]';
-      default: return 'text-[15px] print:text-[12pt]'; // medium
+      case 'small': return 'text-sm print:text-[10.5pt]';
+      case 'large': return 'text-lg print:text-[13.5pt]';
+      default: return 'text-base print:text-[12pt]'; // medium
     }
   };
 
   const getGuestListSize = (size: string) => {
     switch (size) {
-      case 'small': return 'text-[13px] print:text-[10pt]';
-      case 'large': return 'text-[17px] print:text-[14pt]';
-      default: return 'text-[15px] print:text-[12pt]'; // medium
+      case 'small': return 'text-sm print:text-[10.5pt]';
+      case 'large': return 'text-lg print:text-[13.5pt]';
+      default: return 'text-base print:text-[12pt]'; // medium
     }
   };
 
