@@ -199,19 +199,23 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold gradient-text mb-2">Individual Table Seating Chart</h1>
-          <p className="text-muted-foreground">
-            Generate detailed seating charts for individual tables
-          </p>
-        </div>
-      </div>
-
       {/* Event and Table Selection */}
       <Card className="ww-box">
-        <CardHeader>
+        <CardHeader className="space-y-4">
+          {/* Main Page Title */}
+          <div>
+            <h1 className="text-3xl font-bold gradient-text mb-2">
+              Individual Table Seating Chart
+            </h1>
+            <p className="text-muted-foreground">
+              Generate detailed seating charts for individual tables
+            </p>
+          </div>
+          
+          {/* Separator */}
+          <Separator />
+          
+          {/* Section Title */}
           <CardTitle className="flex items-center gap-2">
             <Users className="w-5 h-5" />
             Selection & Settings
