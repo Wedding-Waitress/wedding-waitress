@@ -767,6 +767,8 @@ export type Database = {
       }
       place_card_settings: {
         Row: {
+          background_behind_names: boolean | null
+          background_behind_table_seats: boolean | null
           background_color: string
           background_image_opacity: number | null
           background_image_scale: number | null
@@ -793,6 +795,8 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          background_behind_names?: boolean | null
+          background_behind_table_seats?: boolean | null
           background_color?: string
           background_image_opacity?: number | null
           background_image_scale?: number | null
@@ -819,6 +823,8 @@ export type Database = {
           user_id: string
         }
         Update: {
+          background_behind_names?: boolean | null
+          background_behind_table_seats?: boolean | null
           background_color?: string
           background_image_opacity?: number | null
           background_image_scale?: number | null
