@@ -31,7 +31,7 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
   onSettingsChange,
 }) => {
   return (
-    <Card className="bg-white shadow-md border-0">
+    <Card className="bg-white shadow-md border-0 mt-4">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Settings className="w-5 h-5" />
@@ -41,7 +41,10 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
       <CardContent className="space-y-6">
         {/* Table Settings */}
         <div className="space-y-4">
-          <h3 className="font-semibold text-sm">Table Settings</h3>
+          <div className="mt-2">
+            <h3 className="font-semibold text-sm">Table Settings</h3>
+            <p className="text-xs text-muted-foreground mt-1">Customise how each table with who is on each table and other info.</p>
+          </div>
           
           <div className="space-y-2">
             <Label htmlFor="table-shape">Table Shape</Label>
