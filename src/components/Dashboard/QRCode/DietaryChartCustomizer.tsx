@@ -6,26 +6,21 @@ import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { Settings, ArrowUpDown, FileText, Type } from 'lucide-react';
 import { DietaryChartSettings } from '@/hooks/useDietaryChartSettings';
-
 interface DietaryChartCustomizerProps {
   settings: DietaryChartSettings;
   onSettingsChange: (settings: Partial<DietaryChartSettings>) => void;
 }
-
 export const DietaryChartCustomizer: React.FC<DietaryChartCustomizerProps> = ({
   settings,
-  onSettingsChange,
+  onSettingsChange
 }) => {
-  return (
-    <Card className="mt-12 sticky top-30 !border-0">
+  return <Card className="mt-12 sticky top-30 !border-0">
       <CardHeader>
         <div className="flex items-center gap-2">
           <Settings className="h-5 w-5" />
           <CardTitle>Chart Settings</CardTitle>
         </div>
-        <CardDescription>
-          Customize how your dietary requirements chart is displayed and exported
-        </CardDescription>
+        <CardDescription>Customise how your dietary requirements chart is displayed and exported</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Sort Order */}
@@ -34,10 +29,9 @@ export const DietaryChartCustomizer: React.FC<DietaryChartCustomizerProps> = ({
             <ArrowUpDown className="h-4 w-4" />
             <Label className="font-semibold">Sort Order</Label>
           </div>
-          <Select
-            value={settings.sortBy}
-            onValueChange={(value) => onSettingsChange({ sortBy: value as DietaryChartSettings['sortBy'] })}
-          >
+          <Select value={settings.sortBy} onValueChange={value => onSettingsChange({
+          sortBy: value as DietaryChartSettings['sortBy']
+        })}>
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>
@@ -57,27 +51,21 @@ export const DietaryChartCustomizer: React.FC<DietaryChartCustomizerProps> = ({
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <Label htmlFor="show-mobile" className="text-sm">Show Mobile</Label>
-              <Switch
-                id="show-mobile"
-                checked={settings.showMobile}
-                onCheckedChange={(checked) => onSettingsChange({ showMobile: checked })}
-              />
+              <Switch id="show-mobile" checked={settings.showMobile} onCheckedChange={checked => onSettingsChange({
+              showMobile: checked
+            })} />
             </div>
             <div className="flex items-center justify-between">
               <Label htmlFor="show-relation" className="text-sm">Show Relationship</Label>
-              <Switch
-                id="show-relation"
-                checked={settings.showRelation}
-                onCheckedChange={(checked) => onSettingsChange({ showRelation: checked })}
-              />
+              <Switch id="show-relation" checked={settings.showRelation} onCheckedChange={checked => onSettingsChange({
+              showRelation: checked
+            })} />
             </div>
             <div className="flex items-center justify-between">
               <Label htmlFor="show-seat-no" className="text-sm">Show Seat Number</Label>
-              <Switch
-                id="show-seat-no"
-                checked={settings.showSeatNo}
-                onCheckedChange={(checked) => onSettingsChange({ showSeatNo: checked })}
-              />
+              <Switch id="show-seat-no" checked={settings.showSeatNo} onCheckedChange={checked => onSettingsChange({
+              showSeatNo: checked
+            })} />
             </div>
           </div>
         </div>
@@ -92,10 +80,9 @@ export const DietaryChartCustomizer: React.FC<DietaryChartCustomizerProps> = ({
           </div>
           <div className="space-y-2">
             <Label htmlFor="font-size" className="text-sm">Font Size</Label>
-            <Select
-              value={settings.fontSize}
-              onValueChange={(value) => onSettingsChange({ fontSize: value as DietaryChartSettings['fontSize'] })}
-            >
+            <Select value={settings.fontSize} onValueChange={value => onSettingsChange({
+            fontSize: value as DietaryChartSettings['fontSize']
+          })}>
               <SelectTrigger id="font-size">
                 <SelectValue />
               </SelectTrigger>
@@ -109,6 +96,5 @@ export const DietaryChartCustomizer: React.FC<DietaryChartCustomizerProps> = ({
         </div>
 
       </CardContent>
-    </Card>
-  );
+    </Card>;
 };
