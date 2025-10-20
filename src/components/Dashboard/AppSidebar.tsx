@@ -71,16 +71,18 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                 const Icon = item.icon;
                 const isActive = activeTab === item.id;
                 
+                const isGreenItem = ['my-events', 'table-list', 'guest-list'].includes(item.id);
+                
                 return (
                 <SidebarMenuItem key={item.id}>
                   <SidebarMenuButton
                     onClick={() => onTabChange(item.id)}
                     isActive={isActive}
                     tooltip={item.label}
-                    className={item.id === 'my-events' ? 'bg-success hover:bg-success/90' : ''}
+                    className={isGreenItem ? 'bg-success hover:bg-success/90' : ''}
                   >
                     <Icon className="w-5 h-5" />
-                    <span className={item.id === 'my-events' ? 'text-black' : ''}>
+                    <span className={isGreenItem ? 'text-black font-bold' : ''}>
                       {item.label}
                     </span>
                     {item.id === 'my-events' && (
