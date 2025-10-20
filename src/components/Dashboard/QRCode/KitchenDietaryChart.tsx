@@ -292,8 +292,8 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
           .print-page {
             position: relative;
             width: 210mm;
-            min-height: 297mm;
-            padding: 10mm;
+            height: 297mm;
+            padding: 5mm 10mm 10mm 10mm;
             display: flex;
             flex-direction: column;
             background-color: white !important;
