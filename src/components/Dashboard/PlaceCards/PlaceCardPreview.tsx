@@ -359,7 +359,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
           justify-content: center;
           max-height: 34mm;
           margin-left: -5mm;
-          margin-top: 7mm;
+          margin-top: 9mm;
         }
 
         .decorative-image {
