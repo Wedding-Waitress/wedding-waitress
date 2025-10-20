@@ -357,11 +357,17 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
             margin-bottom: 1mm;
             break-inside: avoid;
           }
-          
+          /* Normalize header spacing */
+          .print-header h1, .print-header h2 { margin: 0 !important; line-height: 1.15; }
+          .print-header > * + * { margin-top: 1mm !important; }
+          .print-header .meta-line { padding-bottom: 1mm !important; }
+
           .print-page table {
             margin-top: 0mm;
           }
-          
+          /* Reserve space for footer logo without wasting height */
+          .print-page .flex-1 { padding-bottom: 12mm !important; overflow: visible !important; }
+
           .print-page .print-footer {
             position: absolute;
             bottom: 10mm;
@@ -544,7 +550,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                             </h2>
 
                             {/* Meta Line */}
-                            <div className="text-sm text-foreground pb-2 border-b border-foreground">
+                            <div className="meta-line text-sm text-foreground pb-2 border-b border-foreground">
                               {currentEvent.venue && `${currentEvent.venue} - `}
                               Total Dietary Guests: {dietaryGuests.length}
                               {totalPages > 1 && ` - Page ${currentPage} of ${totalPages}`}
@@ -694,7 +700,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                       </h2>
 
                       {/* Meta Line */}
-                      <div className="text-sm text-foreground pb-2 border-b border-foreground">
+                      <div className="meta-line text-sm text-foreground pb-2 border-b border-foreground">
                         {currentEvent.venue && `${currentEvent.venue} - `}
                         Total Dietary Guests: {dietaryGuests.length}
                         {totalPages > 1 && ` - Page ${pageIndex + 1} of ${totalPages}`}
