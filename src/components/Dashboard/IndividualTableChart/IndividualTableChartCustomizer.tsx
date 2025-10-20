@@ -31,7 +31,7 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
   onSettingsChange,
 }) => {
   return (
-    <Card className="bg-white shadow-md border-0 mt-4">
+    <Card className="bg-white shadow-md border-0 mt-8">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Settings className="w-5 h-5" />
@@ -60,23 +60,6 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
               <SelectContent>
                 <SelectItem value="round">Round</SelectItem>
                 <SelectItem value="square">Square</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="paper-size">Paper Size</Label>
-            <Select
-              value={settings.paperSize}
-              onValueChange={(value: 'A4') => 
-                onSettingsChange({ paperSize: value })
-              }
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="A4">A4</SelectItem>
               </SelectContent>
             </Select>
           </div>
