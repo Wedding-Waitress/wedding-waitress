@@ -292,14 +292,14 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
           .print-page {
             position: relative;
             width: 210mm;
-            height: 297mm;
+            min-height: 297mm;
             padding: 10mm;
             display: flex;
             flex-direction: column;
             background-color: white !important;
             box-sizing: border-box;
             page-break-after: always;
-            page-break-inside: avoid;
+            overflow: visible;
           }
           
           .print-page:last-child {
@@ -329,6 +329,10 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
             word-wrap: break-word;
           }
           
+          .print-page table tbody tr {
+            break-inside: avoid;
+          }
+          
           .print-page table tbody tr:nth-child(even) {
             background-color: #f9fafb !important;
           }
@@ -352,6 +356,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
           
           .print-page .print-header {
             margin-bottom: 3mm;
+            break-inside: avoid;
           }
           
           .print-page table {
@@ -360,11 +365,12 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
           
           .print-page .print-footer {
             position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
+            bottom: 10mm;
+            left: 10mm;
+            right: 10mm;
             display: flex;
             justify-content: center;
+            break-inside: avoid;
           }
           
           .print-page .print-footer img {
@@ -700,7 +706,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                 </div>
 
                 {/* Guest Table */}
-                <div className={`flex-1 overflow-hidden ${
+                <div className={`flex-1 overflow-visible pb-16 ${
                   settings.fontSize === 'small' ? 'print-font-small' : 
                   settings.fontSize === 'large' ? 'print-font-large' : 
                   'print-font-medium'
