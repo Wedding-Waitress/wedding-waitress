@@ -261,7 +261,8 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                                   className="table-info"
                                   style={{
                                     fontFamily: currentSettings.info_font_family,
-                                    fontSize: `${currentSettings.info_font_size}pt`
+                                    fontSize: `${currentSettings.info_font_size}pt`,
+                                    marginTop: '-2mm'
                                   }}
                                 >
                                   {currentSettings.background_behind_table_seats ? (
