@@ -249,7 +249,9 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
     guest_name_underline: false,
     guest_name_font_size: 24,
     info_font_size: 12,
-    name_spacing: 4
+    name_spacing: 4,
+    background_behind_names: false,
+    background_behind_table_seats: false
   };
   const handleSettingChange = async (key: keyof PlaceCardSettings, value: any) => {
     await onSettingsChange({
@@ -581,6 +583,26 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                     <Label htmlFor="full">Full background image</Label>
                   </div>
                 </RadioGroup>
+              </div>
+
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="bg-names-toggle" className="text-sm">Add background behind names</Label>
+                  <Switch 
+                    id="bg-names-toggle"
+                    checked={currentSettings.background_behind_names || false} 
+                    onCheckedChange={value => handleSettingChange('background_behind_names', value)} 
+                  />
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="bg-table-seats-toggle" className="text-sm">Add background behind tables & seats</Label>
+                  <Switch 
+                    id="bg-table-seats-toggle"
+                    checked={currentSettings.background_behind_table_seats || false} 
+                    onCheckedChange={value => handleSettingChange('background_behind_table_seats', value)} 
+                  />
+                </div>
               </div>
 
               {currentSettings.background_image_type !== 'none' && <div>

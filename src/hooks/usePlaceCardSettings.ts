@@ -37,6 +37,8 @@ export interface PlaceCardSettings {
   guest_name_font_size: number;
   info_font_size: number;
   name_spacing: number;
+  background_behind_names?: boolean;
+  background_behind_table_seats?: boolean;
   created_at?: string;
   updated_at?: string;
 }
