@@ -78,10 +78,6 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
     <Sidebar collapsible="icon" className="border-r border-border pt-20 sm:pt-16">
       <SidebarContent className="pt-6">
         <SidebarGroup>
-          <SidebarGroupLabel className="text-base font-bold text-black dark:text-black mb-3">
-            Dashboard Menu
-          </SidebarGroupLabel>
-          <Separator className="mb-3" />
           <SidebarGroupContent>
             <SidebarMenu>
               {menuItems.map((item) => {
