@@ -72,6 +72,13 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                 const isActive = activeTab === item.id;
                 
                 const isGreenItem = ['my-events', 'table-list', 'guest-list'].includes(item.id);
+                const getBadgeNumber = () => {
+                  if (item.id === 'my-events') return '1';
+                  if (item.id === 'table-list') return '2';
+                  if (item.id === 'guest-list') return '3';
+                  return null;
+                };
+                const badgeNumber = getBadgeNumber();
                 
                 return (
                 <SidebarMenuItem key={item.id}>
@@ -85,15 +92,15 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                     <span className={isGreenItem ? 'text-black font-bold' : ''}>
                       {item.label}
                     </span>
+                    {badgeNumber && (
+                      <span className="flex items-center justify-center w-6 h-6 bg-success rounded-full text-white text-sm font-bold ml-auto">
+                        {badgeNumber}
+                      </span>
+                    )}
                     {item.id === 'my-events' && (
-                      <>
-                        <span className="flex items-center justify-center w-6 h-6 bg-success rounded-full text-white text-sm font-bold ml-2">
-                          1
-                        </span>
-                        <span className="text-white text-sm font-bold ml-2">
-                          Start Here
-                        </span>
-                      </>
+                      <span className="text-white text-sm font-bold ml-2">
+                        Start Here
+                      </span>
                     )}
                   </SidebarMenuButton>
                 </SidebarMenuItem>
