@@ -207,7 +207,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                                   top: '55%',
                                   backgroundImage: `url(${currentSettings.background_image_url})`,
                                   backgroundPosition: `${currentSettings.background_image_x_position || 50}% ${currentSettings.background_image_y_position || 50}%`,
-                                  backgroundSize: `${currentSettings.background_image_scale || 150}% auto`,
+                                  backgroundSize: `${currentSettings.background_image_scale || 100}% auto`,
                                   backgroundRepeat: 'no-repeat',
                                   opacity: (currentSettings.background_image_opacity || 100) / 100,
                                   '--bg-opacity': `${(currentSettings.background_image_opacity || 100) / 100}`,
@@ -347,23 +347,23 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
 
         /* Text container takes left side when decorative image exists */
         .card-content.has-decorative-image > div:first-child {
-          flex: 0 0 35%;
+          flex: 0 0 55%;
           text-align: left;
         }
 
         /* Large decorative image on right side */
         .decorative-image-container {
-          flex: 0 0 60%;
+          flex: 0 0 40%;
           display: flex;
           align-items: center;
           justify-content: center;
-          max-height: 53mm;
+          max-height: 35mm;
         }
 
         .decorative-image {
           width: 100%;
           height: 100%;
-          max-height: 53mm;
+          max-height: 35mm;
           object-fit: contain;
           border: none;
           border-radius: 4px;
