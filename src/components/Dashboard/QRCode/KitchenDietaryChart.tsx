@@ -293,13 +293,11 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
             position: relative;
             width: 210mm;
             height: 297mm;
-            padding: 5mm 10mm 10mm 10mm;
+            padding: 10mm;
             display: flex;
             flex-direction: column;
             background-color: white !important;
             box-sizing: border-box;
-            page-break-after: always;
-            overflow: visible;
           }
           
           .print-page:last-child {
@@ -356,7 +354,6 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
           
           .print-page .print-header {
             margin-bottom: 3mm;
-            break-inside: avoid;
           }
           
           .print-page table {
@@ -365,12 +362,11 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
           
           .print-page .print-footer {
             position: absolute;
-            bottom: 10mm;
-            left: 10mm;
-            right: 10mm;
+            bottom: 0;
+            left: 0;
+            right: 0;
             display: flex;
             justify-content: center;
-            break-inside: avoid;
           }
           
           .print-page .print-footer img {
@@ -706,7 +702,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                 </div>
 
                 {/* Guest Table */}
-                <div className={`flex-1 overflow-visible pb-16 ${
+                <div className={`flex-1 ${
                   settings.fontSize === 'small' ? 'print-font-small' : 
                   settings.fontSize === 'large' ? 'print-font-large' : 
                   'print-font-medium'
