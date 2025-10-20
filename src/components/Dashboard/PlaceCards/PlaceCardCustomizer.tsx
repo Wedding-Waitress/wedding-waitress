@@ -412,7 +412,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
       <CardHeader>
         <CardTitle className="flex items-center gap-2 py-[10px]">
           <Palette className="h-5 w-5" />
-          Customise Name Place Cards
+          Custom Name Place Cards
         </CardTitle>
       </CardHeader>
       <CardContent>
