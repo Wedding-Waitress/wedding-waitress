@@ -213,15 +213,24 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
           >
             <div style={{ padding: '10mm' }} className="h-full flex flex-col relative">
             {/* Header Section */}  
-            <div className="text-center mb-2 space-y-2">
+            <div className="text-center mb-2 space-y-1">
               {/* Event Name - Purple and Bold */}
               <div className="text-center font-semibold text-xl text-primary">
                 {event?.name || 'Event'}
               </div>
 
-              {/* Title and Date - Smaller, not bold */}
+              {/* Title and Date with Day of Week */}
               <div className="text-center text-sm text-black font-normal">
-                Table Seating Arrangements{event?.date ? ' - ' + formatEventDate(event.date) : ''}
+                Table Seating Arrangements – {event?.date ? new Date(event.date).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).replace(/^(\w+) (\d+) (\w+) (\d+)$/, (_, day, date, month, year) => {
+                  const d = parseInt(date);
+                  const suffix = d > 3 && d < 21 ? 'th' : ['th', 'st', 'nd', 'rd'][d % 10] || 'th';
+                  return `${day} ${d}${suffix}, ${month} ${year}`;
+                }) : ''}
+              </div>
+
+              {/* Venue, Tables, Page Info and Timestamp */}
+              <div className="text-center text-xs text-black font-normal">
+                {event?.venue || 'Venue'} – Total Tables: {table.table_no} – Page 1 – 1 Generated on: {new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: '2-digit' })} Time: {new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false })}
               </div>
             </div>
 
