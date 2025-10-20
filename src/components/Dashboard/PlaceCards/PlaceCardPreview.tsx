@@ -242,7 +242,18 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                                     marginBottom: `${currentSettings.name_spacing}mm`
                                   }}
                                 >
-                                  {guest.first_name} {guest.last_name}
+                                  {currentSettings.background_behind_names ? (
+                                    <div style={{
+                                      background: 'white',
+                                      borderRadius: '12px',
+                                      padding: '6mm 8mm',
+                                      display: 'inline-block'
+                                    }}>
+                                      {guest.first_name} {guest.last_name}
+                                    </div>
+                                  ) : (
+                                    <>{guest.first_name} {guest.last_name}</>
+                                  )}
                                 </div>
 
                                 {/* Table & Seat Info */}
@@ -253,7 +264,18 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                                     fontSize: `${currentSettings.info_font_size}pt`
                                   }}
                                 >
-                                  {tableInfo}
+                                  {currentSettings.background_behind_table_seats ? (
+                                    <div style={{
+                                      background: 'white',
+                                      borderRadius: '12px',
+                                      padding: '4mm 6mm',
+                                      display: 'inline-block'
+                                    }}>
+                                      {tableInfo}
+                                    </div>
+                                  ) : (
+                                    <>{tableInfo}</>
+                                  )}
                                 </div>
                               </div>
                             </div>
