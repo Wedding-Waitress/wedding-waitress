@@ -319,15 +319,7 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
             {settings.includeGuestList && (
               <div className="mb-6">
                 <h3 className="font-semibold text-xl mb-3 text-center underline">
-                  Guests on this Table & Dietary - Printed on - {new Date().toLocaleDateString('en-GB', { 
-                    day: '2-digit', 
-                    month: '2-digit', 
-                    year: 'numeric' 
-                  })} - {new Date().toLocaleTimeString('en-US', { 
-                    hour: 'numeric', 
-                    minute: '2-digit', 
-                    hour12: true 
-                  })}
+                  Guests on this Table & Meal Selection
                 </h3>
                 <div className="flex text-[15px] leading-[1.35] print:text-[12pt] print:leading-[1.35]">
                   {/* Left Column */}
