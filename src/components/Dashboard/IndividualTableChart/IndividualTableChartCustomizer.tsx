@@ -31,7 +31,7 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
   onSettingsChange,
 }) => {
   return (
-    <Card className="bg-white shadow-md">
+    <Card className="bg-white shadow-md border-0">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Settings className="w-5 h-5" />
