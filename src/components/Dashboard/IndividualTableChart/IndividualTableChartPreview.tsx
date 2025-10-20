@@ -213,18 +213,7 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
           >
             <div style={{ padding: '10mm' }} className="h-full flex flex-col relative">
             {/* Header Section */}  
-            <div className="text-center mb-4 space-y-2">
-              {/* Logo - Medium size (matching other pages) */}
-              {settings.showLogo && (
-                <div className="flex justify-center mb-3">
-                  <img 
-                    src={weddingWaitressLogo} 
-                    alt="Wedding Waitress" 
-                    className="h-14 object-contain"
-                  />
-                </div>
-              )}
-              
+            <div className="text-center mb-2 space-y-2">
               {/* Event Name - Purple and Bold */}
               <div className="text-center font-semibold text-xl text-primary">
                 {event?.name || 'Event'}
@@ -364,6 +353,17 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
                     })}
                   </div>
                 </div>
+              </div>
+            )}
+
+            {/* Footer Section with Logo */}
+            {settings.showLogo && (
+              <div className="mt-auto pt-4 flex justify-center">
+                <img 
+                  src={weddingWaitressLogo} 
+                  alt="Wedding Waitress" 
+                  className="h-12 object-contain"
+                />
               </div>
             )}
 
