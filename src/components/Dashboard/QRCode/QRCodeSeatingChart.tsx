@@ -8,6 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 import { QRCodeMainCard } from './QRCodeMainCard';
 import { buildGuestLookupUrl } from '@/lib/urlUtils';
 import { format, parse } from 'date-fns';
+import { formatDisplayTime } from '@/lib/utils';
 interface QRCodeSeatingChartProps {
   selectedEventId?: string | null;
   onEventSelect?: (eventId: string) => void;
@@ -99,7 +100,7 @@ export const QRCodeSeatingChart: React.FC<QRCodeSeatingChartProps> = ({
           </div>
         </CardHeader>
         <CardContent className="pt-0">
-          <div className="flex items-center space-x-4">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
             <label className="text-sm font-medium text-foreground whitespace-nowrap">
               Choose Event:
             </label>
@@ -118,16 +119,27 @@ export const QRCodeSeatingChart: React.FC<QRCodeSeatingChartProps> = ({
                   </SelectItem>}
               </SelectContent>
             </Select>
+            
+            {selectedEvent && (
+              <div className="text-sm text-foreground/80">
+                <span className="font-medium">{selectedEvent.venue || 'Venue not specified'}</span>
+                {' - '}
+                <span>{formatEventDate(selectedEvent.date)}</span>
+                {(selectedEvent.start_time || selectedEvent.finish_time) && (
+                  <>
+                    {' - '}
+                    {selectedEvent.start_time && (
+                      <span>Start {formatDisplayTime(selectedEvent.start_time)}</span>
+                    )}
+                    {selectedEvent.start_time && selectedEvent.finish_time && ' — '}
+                    {selectedEvent.finish_time && (
+                      <span>Finish {formatDisplayTime(selectedEvent.finish_time)}</span>
+                    )}
+                  </>
+                )}
+              </div>
+            )}
           </div>
-
-          {selectedEvent && <div className="text-center mt-4">
-              <h3 className="text-xl font-semibold text-primary/90">
-                {formatEventDate(selectedEvent.date)}
-              </h3>
-              <h3 className="text-xl font-semibold text-primary/90">
-                {selectedEvent.venue || 'Venue not specified'}
-              </h3>
-            </div>}
         </CardContent>
       </Card>
 
