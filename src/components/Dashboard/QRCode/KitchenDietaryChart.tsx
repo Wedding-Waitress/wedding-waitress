@@ -48,6 +48,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
   const [isExporting, setIsExporting] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [printToastShown, setPrintToastShown] = useState(false);
+  const [previewScale, setPreviewScale] = useState(1);
   const { toast } = useToast();
 
   const currentEvent = events.find(event => event.id === selectedEventId);
@@ -539,17 +540,106 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                   </div>
                 )}
 
+                {/* Zoom Controls */}
+                <Card className="ww-box mb-4">
+                  <CardContent className="p-4">
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h3 className="text-sm font-semibold">Preview Scale</h3>
+                          <p className="text-xs text-muted-foreground">
+                            Adjust to match a real A4 sheet (210mm × 297mm) to your screen
+                          </p>
+                        </div>
+                        <Badge variant="outline">{Math.round(previewScale * 100)}%</Badge>
+                      </div>
+                      
+                      <div className="flex flex-wrap items-center gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setPreviewScale(0.5)}
+                        >
+                          50%
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setPreviewScale(0.75)}
+                        >
+                          75%
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setPreviewScale(1)}
+                        >
+                          100%
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setPreviewScale(1.25)}
+                        >
+                          125%
+                        </Button>
+                        <Separator orientation="vertical" className="h-6" />
+                        <div className="text-xs text-muted-foreground">True Size Presets:</div>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setPreviewScale(794 / 794)}
+                          title="Standard web display (96 DPI)"
+                        >
+                          96 DPI
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setPreviewScale(917 / 794)}
+                          title="Common laptop display (110 DPI)"
+                        >
+                          110 DPI
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setPreviewScale(1041 / 794)}
+                          title="High-DPI display (125 DPI)"
+                        >
+                          125 DPI
+                        </Button>
+                      </div>
+                      
+                      <div className="pt-2">
+                        <input
+                          type="range"
+                          min="0.5"
+                          max="2"
+                          step="0.05"
+                          value={previewScale}
+                          onChange={(e) => setPreviewScale(parseFloat(e.target.value))}
+                          className="w-full"
+                        />
+                      </div>
+                      
+                      <p className="text-xs text-muted-foreground text-center">
+                        📏 True A4 size: 210mm × 297mm = 8.27" × 11.69" | Print output remains at exact A4 dimensions
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+
                 {/* A4 Page Container - Screen View */}
-                <div className="flex justify-center">
-                  <div 
-                  className="bg-white border border-gray-300 shadow-lg"
-                    style={{ 
-                      width: '210mm', 
-                      height: '297mm',
-                      minWidth: '210mm',
-                      maxWidth: '210mm'
-                    }}
-                  >
+                <div className="flex justify-center overflow-auto py-8">
+                  <div style={{ transform: `scale(${previewScale})`, transformOrigin: 'top center' }}>
+                    <div 
+                      className="bg-white border border-gray-300 shadow-lg"
+                      style={{ 
+                        width: '794px',
+                        height: '1123px'
+                      }}
+                    >
                     <div style={{ padding: '10mm' }} className="h-full flex flex-col">
                       {/* Header */}
                       <div className="text-center space-y-2 mb-[3mm]">
@@ -646,6 +736,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                           />
                         </div>
                       )}
+                    </div>
                     </div>
                   </div>
                 </div>
