@@ -132,10 +132,9 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
 
   // Pagination logic - calculate guests per page for A4
   const guestsPerPage = useMemo(() => {
-    let base = settings.fontSize === 'small' ? 25 : settings.fontSize === 'large' ? 21 : 23;
-    if (settings.showLogo) base -= 1; // header is taller when logo is shown
-    return Math.max(12, base); // safety floor
-  }, [settings.fontSize, settings.showLogo]);
+    // Fixed: Always show exactly 20 guests per page regardless of font size
+    return 20;
+  }, []);
 
   const totalPages = Math.ceil(dietaryGuests.length / guestsPerPage);
   const paginatedGuests = useMemo(() => {
@@ -293,7 +292,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
             position: relative;
             width: 210mm;
             height: 297mm;
-            padding: 5mm 10mm 10mm 10mm;
+            padding: 3mm 10mm 10mm 10mm;
             display: flex;
             flex-direction: column;
             background-color: white !important;
@@ -355,7 +354,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
           }
           
           .print-page .print-header {
-            margin-bottom: 3mm;
+            margin-bottom: 2mm;
             break-inside: avoid;
           }
           
@@ -706,7 +705,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                 </div>
 
                 {/* Guest Table */}
-                <div className={`flex-1 overflow-visible pb-16 ${
+                <div className={`flex-1 overflow-visible pb-20 ${
                   settings.fontSize === 'small' ? 'print-font-small' : 
                   settings.fontSize === 'large' ? 'print-font-large' : 
                   'print-font-medium'
