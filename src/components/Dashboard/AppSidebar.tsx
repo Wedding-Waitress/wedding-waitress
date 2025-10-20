@@ -72,16 +72,24 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                 const isActive = activeTab === item.id;
                 
                 return (
-                  <SidebarMenuItem key={item.id}>
-                    <SidebarMenuButton
-                      onClick={() => onTabChange(item.id)}
-                      isActive={isActive}
-                      tooltip={item.label}
-                    >
-                      <Icon className="w-5 h-5" />
-                      <span>{item.label}</span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
+                <SidebarMenuItem key={item.id}>
+                  <SidebarMenuButton
+                    onClick={() => onTabChange(item.id)}
+                    isActive={isActive}
+                    tooltip={item.label}
+                    className={item.id === 'my-events' ? 'bg-success hover:bg-success/90' : ''}
+                  >
+                    <Icon className="w-5 h-5" />
+                    <span className={item.id === 'my-events' ? 'text-black' : ''}>
+                      {item.label}
+                    </span>
+                    {item.id === 'my-events' && (
+                      <span className="ml-auto bg-success-foreground/20 text-white text-xs font-bold px-3 py-1 rounded-full whitespace-nowrap">
+                        Start Here
+                      </span>
+                    )}
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
                 );
               })}
               
