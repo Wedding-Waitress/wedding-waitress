@@ -614,10 +614,10 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                                 key={guest.id}
                                 className={index % 2 === 0 ? 'bg-[#f9fafb]' : 'bg-white'}
                               >
-                                <td className="py-[4pt] px-[4pt] border-b border-gray-200">
+                                <td className="py-[4pt] px-[4pt] border-b border-gray-200 font-bold">
                                   {guest.first_name}
                                 </td>
-                                <td className="py-[4pt] px-[4pt] border-b border-gray-200">
+                                <td className="py-[4pt] px-[4pt] border-b border-gray-200 font-bold">
                                   {guest.last_name || '-'}
                                 </td>
                                 <td className="py-[4pt] px-[4pt] border-b border-gray-200">
@@ -771,8 +771,8 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                     <tbody>
                       {pageGuests.map((guest, index) => (
                         <tr key={guest.id}>
-                          <td>{guest.first_name}</td>
-                          <td>{guest.last_name || '-'}</td>
+                          <td className="font-bold">{guest.first_name}</td>
+                          <td className="font-bold">{guest.last_name || '-'}</td>
                           <td>{guest.table_no || '-'}</td>
                           {settings.showSeatNo && <td>{guest.seat_no || '-'}</td>}
                           <td style={{ fontWeight: 600 }}>{guest.dietary}</td>

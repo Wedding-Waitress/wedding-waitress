@@ -300,7 +300,7 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
                           <Tooltip>
                             <TooltipTrigger asChild>
                               <div
-                                className={`absolute font-semibold ${getGuestNameSize(settings.fontSize)} max-w-24 cursor-help`}
+                                className={`absolute font-bold ${getGuestNameSize(settings.fontSize)} max-w-24 cursor-help`}
                                 style={{
                                   left: `${seat.labelX}%`,
                                   top: `${seat.labelY}%`,
@@ -346,7 +346,7 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
                         <div key={guest.id} className="flex items-start py-1 leading-[1.7] min-h-[20px]">
                           <span className="w-6 text-left flex-shrink-0">{actualIndex + 1}.</span>
                           <span className="break-words text-left">
-                            {guest.first_name} {guest.last_name}
+                            <span className="font-bold">{guest.first_name} {guest.last_name}</span>
                             {settings.includeDietary && guest.dietary && guest.dietary !== 'NA' && (
                               <span className="text-primary font-bold"> - {guest.dietary}</span>
                             )}
@@ -364,7 +364,7 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
                         <div key={guest.id} className="flex items-start py-1 leading-[1.7] min-h-[20px]">
                           <span className="w-6 text-left flex-shrink-0">{actualIndex + 1}.</span>
                           <span className="break-words text-left">
-                            {guest.first_name} {guest.last_name}
+                            <span className="font-bold">{guest.first_name} {guest.last_name}</span>
                             {settings.includeDietary && guest.dietary && guest.dietary !== 'NA' && (
                               <span className="text-primary font-bold"> - {guest.dietary}</span>
                             )}
