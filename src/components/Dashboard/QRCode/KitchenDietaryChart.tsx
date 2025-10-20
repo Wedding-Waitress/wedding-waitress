@@ -589,7 +589,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                       </div>
 
                       {/* Guest Table */}
-                      <div className={`flex-1 overflow-hidden ${getFontSizeClass()}`}>
+                      <div className={`flex-1 overflow-hidden ${getFontSizeClass()} mt-4`}>
                         <table className="w-full border-collapse mt-0">
                           <thead>
                             <tr className="border-b-2 border-foreground">
@@ -745,7 +745,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                     settings.fontSize === 'large' ? 'print-font-large' : 
                     'print-font-medium'
                   }`}
-                  style={{ paddingBottom: '12mm' }}
+                  style={{ paddingTop: '4mm', paddingBottom: '12mm' }}
                 >
                   <table>
                     <colgroup>
