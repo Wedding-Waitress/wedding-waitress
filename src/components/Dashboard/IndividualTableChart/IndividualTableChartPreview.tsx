@@ -326,7 +326,7 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
                         </div>
 
                         {/* Guest Name - Side-aware positioning for square tables */}
-                        {seat.guest && (
+                        {seat.guest && settings.includeNames && (
                           <Tooltip>
                             <TooltipTrigger asChild>
                               <div

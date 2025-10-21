@@ -538,7 +538,7 @@ export const generateIndividualTableSVG = (
             </div>
 
             <!-- Guest Name - Side-aware positioning -->
-            ${seat.guest ? `
+            ${seat.guest && settings.includeNames ? `
               <div style="
                 position: absolute;
                 left: ${seat.labelX}px;
