@@ -246,7 +246,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                                     <div style={{
                                       background: 'white',
                                       borderRadius: '12px',
-                                      padding: '2mm 4mm',
+                                      padding: '1mm 2mm',
                                       display: 'inline-block'
                                     }}>
                                       {guest.first_name} {guest.last_name}
@@ -269,7 +269,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                                     <div style={{
                                       background: 'white',
                                       borderRadius: '12px',
-                                      padding: '1.5mm 3mm',
+                                      padding: '0.75mm 1.5mm',
                                       display: 'inline-block'
                                     }}>
                                       {tableInfo}
