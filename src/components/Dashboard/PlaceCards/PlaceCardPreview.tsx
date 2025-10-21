@@ -242,18 +242,13 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                                     marginBottom: `${currentSettings.name_spacing}mm`
                                   }}
                                 >
-                                  {currentSettings.background_behind_names ? (
-                                    <div style={{
-                                      background: 'white',
-                                      borderRadius: '12px',
-                                      padding: '2mm 4mm',
-                                      display: 'inline-block'
-                                    }}>
-                                      {guest.first_name} {guest.last_name}
-                                    </div>
-                                  ) : (
-                                    <>{guest.first_name} {guest.last_name}</>
-                                  )}
+                                  <span style={{
+                                    textShadow: currentSettings.background_behind_names 
+                                      ? '0 0 8px white, 0 0 12px white, 0 0 16px white, -1px -1px 0 white, 1px -1px 0 white, -1px 1px 0 white, 1px 1px 0 white, -2px -2px 0 white, 2px -2px 0 white, -2px 2px 0 white, 2px 2px 0 white'
+                                      : 'none'
+                                  }}>
+                                    {guest.first_name} {guest.last_name}
+                                  </span>
                                 </div>
 
                                 {/* Table & Seat Info */}
@@ -265,18 +260,13 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                                     marginTop: '-2mm'
                                   }}
                                 >
-                                  {currentSettings.background_behind_table_seats ? (
-                                    <div style={{
-                                      background: 'white',
-                                      borderRadius: '12px',
-                                      padding: '1.5mm 3mm',
-                                      display: 'inline-block'
-                                    }}>
-                                      {tableInfo}
-                                    </div>
-                                  ) : (
-                                    <>{tableInfo}</>
-                                  )}
+                                  <span style={{
+                                    textShadow: currentSettings.background_behind_table_seats 
+                                      ? '0 0 8px white, 0 0 12px white, 0 0 16px white, -1px -1px 0 white, 1px -1px 0 white, -1px 1px 0 white, 1px 1px 0 white, -2px -2px 0 white, 2px -2px 0 white, -2px 2px 0 white, 2px 2px 0 white'
+                                      : 'none'
+                                  }}>
+                                    {tableInfo}
+                                  </span>
                                 </div>
                               </div>
                             </div>
