@@ -74,6 +74,13 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
     return mobileLabels[id] || label;
   };
 
+  // Font size for menu items
+  const getFontSize = (id: string) => {
+    if (isMobile) return 'text-sm';
+    const largerItems = ['qr-code', 'place-cards', 'individual-table-chart', 'dietary-chart', 'full-seating-chart', 'kiosk-live-view'];
+    return largerItems.includes(id) ? 'text-lg' : 'text-base';
+  };
+
   return (
     <Sidebar collapsible="icon" className="border-r border-border pt-28 sm:pt-24">
       <SidebarContent className="pt-2">
@@ -102,7 +109,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                     className={`flex items-center gap-1 ${isGreenItem ? 'bg-success hover:bg-success/90' : ''} ${isMobile ? 'py-4' : 'py-3'}`}
                   >
                     <Icon className={isMobile ? "w-6 h-6" : "w-5 h-5"} />
-                    <span className={`${isGreenItem ? 'text-black font-bold' : ''} ${isMobile ? 'text-sm' : 'text-base'}`}>
+                    <span className={`${isGreenItem ? 'text-black font-bold' : ''} ${getFontSize(item.id)}`}>
                       {getMobileLabel(item.id, item.label)}
                     </span>
                     {item.id === 'my-events' && (
@@ -152,7 +159,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                   className="text-destructive hover:text-destructive hover:bg-destructive/10"
                 >
                   <LogOut className="w-5 h-5" />
-                  <span>Logout</span>
+                  <span className={isMobile ? 'text-sm' : 'text-lg'}>Logout</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
