@@ -244,7 +244,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                                 >
                                   <span style={{
                                     textShadow: currentSettings.background_behind_names 
-                                      ? '0 0 8px white, 0 0 12px white, 0 0 16px white, -1px -1px 0 white, 1px -1px 0 white, -1px 1px 0 white, 1px 1px 0 white, -2px -2px 0 white, 2px -2px 0 white, -2px 2px 0 white, 2px 2px 0 white'
+                                      ? '0 0 12px white, 0 0 18px white, 0 0 24px white, 0 0 30px white, -2px -2px 0 white, 2px -2px 0 white, -2px 2px 0 white, 2px 2px 0 white, -3px -3px 0 white, 3px -3px 0 white, -3px 3px 0 white, 3px 3px 0 white, -4px -4px 0 white, 4px -4px 0 white, -4px 4px 0 white, 4px 4px 0 white'
                                       : 'none'
                                   }}>
                                     {guest.first_name} {guest.last_name}
@@ -262,7 +262,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                                 >
                                   <span style={{
                                     textShadow: currentSettings.background_behind_table_seats 
-                                      ? '0 0 8px white, 0 0 12px white, 0 0 16px white, -1px -1px 0 white, 1px -1px 0 white, -1px 1px 0 white, 1px 1px 0 white, -2px -2px 0 white, 2px -2px 0 white, -2px 2px 0 white, 2px 2px 0 white'
+                                      ? '0 0 12px white, 0 0 18px white, 0 0 24px white, 0 0 30px white, -2px -2px 0 white, 2px -2px 0 white, -2px 2px 0 white, 2px 2px 0 white, -3px -3px 0 white, 3px -3px 0 white, -3px 3px 0 white, 3px 3px 0 white, -4px -4px 0 white, 4px -4px 0 white, -4px 4px 0 white, 4px 4px 0 white'
                                       : 'none'
                                   }}>
                                     {tableInfo}
