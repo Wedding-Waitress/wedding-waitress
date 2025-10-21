@@ -379,17 +379,18 @@ export const generateIndividualTableSVG = (
         }
         
       } else {
-        // ROUND TABLE: Keep existing circular positioning algorithm
+        // ROUND TABLE: Use pixel-based positioning for perfect circle
         angle = ((i - 1) / seatCount) * 2 * Math.PI - Math.PI / 2; // Start from top
         
-        // All chairs use same radius for even spacing (like chair 12)
-        const radius = 37;
+        // Use smaller dimension to ensure perfect circle (not ellipse)
+        const circleBaseDimension = Math.min(containerWidth, containerHeight);
+        const centerX = containerWidth / 2;
+        const centerY = containerHeight / 2;
+        const radiusPixels = (37 / 100) * circleBaseDimension;
         
-        // Calculate position as percentage of container, then convert to pixels
-        const xPercent = 50 + radius * Math.cos(angle);
-        const yPercent = 50 + radius * Math.sin(angle);
-        x = (xPercent / 100) * containerWidth;
-        y = (yPercent / 100) * containerHeight;
+        // Calculate position directly in pixels using true circular geometry
+        x = centerX + radiusPixels * Math.cos(angle);
+        y = centerY + radiusPixels * Math.sin(angle);
         
         // Calculate label position
         labelX = x;
@@ -399,9 +400,8 @@ export const generateIndividualTableSVG = (
         
         if (guest) {
           // Position labels further outward (+6mm additional gap from seat edge)
-          const labelOffset = 14.2; // Increased by 6mm (8.5 + 5.7)
-          const labelRadiusPercent = radius + labelOffset;
-          const labelRadiusPixels = (labelRadiusPercent / 100) * Math.min(containerWidth, containerHeight);
+          const labelOffsetPercent = 14.2; // Increased by 6mm (8.5 + 5.7)
+          const labelRadiusPixels = ((37 + labelOffsetPercent) / 100) * circleBaseDimension;
           
           labelX = centerX + labelRadiusPixels * Math.cos(angle);
           labelY = centerY + labelRadiusPixels * Math.sin(angle);

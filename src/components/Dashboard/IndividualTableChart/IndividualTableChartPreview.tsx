@@ -151,14 +151,23 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
         }
         
       } else {
-        // ROUND TABLE: Keep existing circular positioning algorithm
+        // ROUND TABLE: Use pixel-based positioning for perfect circle
         angle = ((i - 1) / seatCount) * 2 * Math.PI - Math.PI / 2; // Start from top
         
-        // All chairs use same radius for even spacing (like chair 12)
-        const radius = 37;
+        // Use height (smaller dimension) to ensure perfect circle
+        const containerWidth = 500;
+        const containerHeight = 450;
+        const centerX = containerWidth / 2; // 250px
+        const centerY = containerHeight / 2; // 225px
+        const radiusPixels = (37 / 100) * containerHeight; // Base on smaller dimension
         
-        x = 50 + radius * Math.cos(angle); // Center at 50%
-        y = 50 + radius * Math.sin(angle);
+        // Calculate position in pixels for perfect circle
+        const xPixels = centerX + radiusPixels * Math.cos(angle);
+        const yPixels = centerY + radiusPixels * Math.sin(angle);
+        
+        // Convert back to percentage for CSS positioning
+        x = (xPixels / containerWidth) * 100;
+        y = (yPixels / containerHeight) * 100;
         
         labelX = x;
         labelY = y;
@@ -166,10 +175,14 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
         
         if (guest) {
           // Position labels further outward (+6mm additional gap from seat edge)
-          const labelOffset = 12.5; // Increased by 6mm (8.5 + 5.7)
-          const labelRadius = radius + labelOffset;
-          labelX = 50 + labelRadius * Math.cos(angle);
-          labelY = 50 + labelRadius * Math.sin(angle);
+          const labelOffsetPercent = 12.5; // Additional offset as percentage
+          const labelRadiusPixels = ((37 + labelOffsetPercent) / 100) * containerHeight;
+          
+          const labelXPixels = centerX + labelRadiusPixels * Math.cos(angle);
+          const labelYPixels = centerY + labelRadiusPixels * Math.sin(angle);
+          
+          labelX = (labelXPixels / containerWidth) * 100;
+          labelY = (labelYPixels / containerHeight) * 100;
           
           // Determine text alignment based on angle (hemisphere)
           const angleDegrees = (angle * 180) / Math.PI;
