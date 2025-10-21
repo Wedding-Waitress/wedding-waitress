@@ -76,9 +76,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
 
   // Font size for menu items
   const getFontSize = (id: string) => {
-    if (isMobile) return 'text-sm';
-    const largerItems = ['my-events', 'table-list', 'guest-list', 'qr-code', 'place-cards', 'individual-table-chart', 'dietary-chart', 'full-seating-chart', 'kiosk-live-view'];
-    return largerItems.includes(id) ? 'text-lg' : 'text-base';
+    return isMobile ? 'text-sm' : 'text-base';
   };
 
   return (
@@ -159,7 +157,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                   className="text-destructive hover:text-destructive hover:bg-destructive/10"
                 >
                   <LogOut className="w-5 h-5" />
-                  <span className={isMobile ? 'text-sm' : 'text-lg'}>Logout</span>
+                  <span className={isMobile ? 'text-sm' : 'text-base'}>Logout</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
