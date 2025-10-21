@@ -77,7 +77,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
   // Font size for menu items
   const getFontSize = (id: string) => {
     if (isMobile) return 'text-sm';
-    const largerItems = ['qr-code', 'place-cards', 'individual-table-chart', 'dietary-chart', 'full-seating-chart', 'kiosk-live-view'];
+    const largerItems = ['my-events', 'table-list', 'guest-list', 'qr-code', 'place-cards', 'individual-table-chart', 'dietary-chart', 'full-seating-chart', 'kiosk-live-view'];
     return largerItems.includes(id) ? 'text-lg' : 'text-base';
   };
 
