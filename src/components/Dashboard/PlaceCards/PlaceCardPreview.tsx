@@ -244,7 +244,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                                 >
                                   <span style={{
                                     textShadow: currentSettings.background_behind_names 
-                                      ? '0 0 4px white, 0 0 6px white, -1px -1px 0 white, 1px -1px 0 white, -1px 1px 0 white, 1px 1px 0 white, 0 -1px 0 white, 0 1px 0 white, -1px 0 0 white, 1px 0 0 white, -2px -2px 0 white, 2px -2px 0 white, -2px 2px 0 white, 2px 2px 0 white, 0 -2px 0 white, 0 2px 0 white, -2px 0 0 white, 2px 0 0 white, -3px -3px 0 white, 3px -3px 0 white, -3px 3px 0 white, 3px 3px 0 white, 0 -3px 0 white, 0 3px 0 white, -3px 0 0 white, 3px 0 0 white'
+                                      ? '-1px -1px 0 white, 1px -1px 0 white, -1px 1px 0 white, 1px 1px 0 white, -2px -2px 0 white, 2px -2px 0 white, -2px 2px 0 white, 2px 2px 0 white, -3px -3px 0 white, 3px -3px 0 white, -3px 3px 0 white, 3px 3px 0 white, -4px -4px 0 white, 4px -4px 0 white, -4px 4px 0 white, 4px 4px 0 white, -5px -5px 0 white, 5px -5px 0 white, -5px 5px 0 white, 5px 5px 0 white, -1px 0 0 white, 1px 0 0 white, 0 -1px 0 white, 0 1px 0 white, -2px 0 0 white, 2px 0 0 white, 0 -2px 0 white, 0 2px 0 white, -3px 0 0 white, 3px 0 0 white, 0 -3px 0 white, 0 3px 0 white, -4px 0 0 white, 4px 0 0 white, 0 -4px 0 white, 0 4px 0 white, -5px 0 0 white, 5px 0 0 white, 0 -5px 0 white, 0 5px 0 white'
                                       : 'none'
                                   }}>
                                     {guest.first_name} {guest.last_name}
@@ -262,7 +262,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                                 >
                                   <span style={{
                                     textShadow: currentSettings.background_behind_table_seats 
-                                      ? '0 0 4px white, 0 0 6px white, -1px -1px 0 white, 1px -1px 0 white, -1px 1px 0 white, 1px 1px 0 white, 0 -1px 0 white, 0 1px 0 white, -1px 0 0 white, 1px 0 0 white, -2px -2px 0 white, 2px -2px 0 white, -2px 2px 0 white, 2px 2px 0 white, 0 -2px 0 white, 0 2px 0 white, -2px 0 0 white, 2px 0 0 white, -3px -3px 0 white, 3px -3px 0 white, -3px 3px 0 white, 3px 3px 0 white, 0 -3px 0 white, 0 3px 0 white, -3px 0 0 white, 3px 0 0 white'
+                                      ? '-1px -1px 0 white, 1px -1px 0 white, -1px 1px 0 white, 1px 1px 0 white, -2px -2px 0 white, 2px -2px 0 white, -2px 2px 0 white, 2px 2px 0 white, -3px -3px 0 white, 3px -3px 0 white, -3px 3px 0 white, 3px 3px 0 white, -4px -4px 0 white, 4px -4px 0 white, -4px 4px 0 white, 4px 4px 0 white, -5px -5px 0 white, 5px -5px 0 white, -5px 5px 0 white, 5px 5px 0 white, -1px 0 0 white, 1px 0 0 white, 0 -1px 0 white, 0 1px 0 white, -2px 0 0 white, 2px 0 0 white, 0 -2px 0 white, 0 2px 0 white, -3px 0 0 white, 3px 0 0 white, 0 -3px 0 white, 0 3px 0 white, -4px 0 0 white, 4px 0 0 white, 0 -4px 0 white, 0 4px 0 white, -5px 0 0 white, 5px 0 0 white, 0 -5px 0 white, 0 5px 0 white'
                                       : 'none'
                                   }}>
                                     {tableInfo}
