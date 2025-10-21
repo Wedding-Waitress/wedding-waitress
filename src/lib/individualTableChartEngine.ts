@@ -495,8 +495,8 @@ export const generateIndividualTableSVG = (
             left: 50%;
             top: 50%;
             transform: translate(-50%, -50%);
-            width: 220px;
-            height: 220px;
+            width: 280px;
+            height: 280px;
             border: 1px solid #333;
             background: #f9f9f9;
             ${settings.tableShape === 'round' ? 'border-radius: 50%;' : 'border-radius: 8px;'}
