@@ -342,7 +342,7 @@ export const generateIndividualTableSVG = (
             angle = -Math.PI / 2;
             break;
           case 1: // Right
-            x = (90 / 100) * containerWidth;
+            x = (85 / 100) * containerWidth;
             y = ((20 + (sideFraction * 60)) / 100) * containerHeight;
             labelX = x + chairSizePixels/2 + offsetPixels;
             labelY = y;
@@ -361,7 +361,7 @@ export const generateIndividualTableSVG = (
             break;
           case 3: // Left
           default:
-            x = (10 / 100) * containerWidth;
+            x = (15 / 100) * containerWidth;
             y = ((20 + (sideFraction * 60)) / 100) * containerHeight;
             labelX = x - chairSizePixels/2 - offsetPixels;
             labelY = y;

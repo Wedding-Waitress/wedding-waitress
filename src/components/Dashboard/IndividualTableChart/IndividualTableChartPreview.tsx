@@ -118,7 +118,7 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
             angle = -Math.PI / 2; // For compatibility
             break;
           case 1: // Right
-            x = 90; // Fixed x at right
+            x = 85; // Move inward to match top/bottom spacing
             y = 20 + (sideFraction * 60); // Spread down right side
             labelX = x + chairSize/2 + offset;
             labelY = y;
@@ -135,7 +135,7 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
             break;
           case 3: // Left
           default:
-            x = 10; // Fixed x at left
+            x = 15; // Move inward to match top/bottom spacing
             y = 20 + (sideFraction * 60); // Spread down left side
             labelX = x - chairSize/2 - offset;
             labelY = y;
