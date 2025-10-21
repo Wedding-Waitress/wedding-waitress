@@ -242,13 +242,18 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                                     marginBottom: `${currentSettings.name_spacing}mm`
                                   }}
                                 >
-                                  <span style={{
-                                    textShadow: currentSettings.background_behind_names 
-                                      ? '-1px -1px 0 white, 1px -1px 0 white, -1px 1px 0 white, 1px 1px 0 white, -2px -2px 0 white, 2px -2px 0 white, -2px 2px 0 white, 2px 2px 0 white, -3px -3px 0 white, 3px -3px 0 white, -3px 3px 0 white, 3px 3px 0 white, -4px -4px 0 white, 4px -4px 0 white, -4px 4px 0 white, 4px 4px 0 white, -5px -5px 0 white, 5px -5px 0 white, -5px 5px 0 white, 5px 5px 0 white, -1px 0 0 white, 1px 0 0 white, 0 -1px 0 white, 0 1px 0 white, -2px 0 0 white, 2px 0 0 white, 0 -2px 0 white, 0 2px 0 white, -3px 0 0 white, 3px 0 0 white, 0 -3px 0 white, 0 3px 0 white, -4px 0 0 white, 4px 0 0 white, 0 -4px 0 white, 0 4px 0 white, -5px 0 0 white, 5px 0 0 white, 0 -5px 0 white, 0 5px 0 white'
-                                      : 'none'
-                                  }}>
-                                    {guest.first_name} {guest.last_name}
-                                  </span>
+                                  {currentSettings.background_behind_names ? (
+                                    <div style={{
+                                      background: 'white',
+                                      borderRadius: '12px',
+                                      padding: '2mm 4mm',
+                                      display: 'inline-block'
+                                    }}>
+                                      {guest.first_name} {guest.last_name}
+                                    </div>
+                                  ) : (
+                                    <>{guest.first_name} {guest.last_name}</>
+                                  )}
                                 </div>
 
                                 {/* Table & Seat Info */}
@@ -260,13 +265,18 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                                     marginTop: '-2mm'
                                   }}
                                 >
-                                  <span style={{
-                                    textShadow: currentSettings.background_behind_table_seats 
-                                      ? '-1px -1px 0 white, 1px -1px 0 white, -1px 1px 0 white, 1px 1px 0 white, -2px -2px 0 white, 2px -2px 0 white, -2px 2px 0 white, 2px 2px 0 white, -3px -3px 0 white, 3px -3px 0 white, -3px 3px 0 white, 3px 3px 0 white, -4px -4px 0 white, 4px -4px 0 white, -4px 4px 0 white, 4px 4px 0 white, -5px -5px 0 white, 5px -5px 0 white, -5px 5px 0 white, 5px 5px 0 white, -1px 0 0 white, 1px 0 0 white, 0 -1px 0 white, 0 1px 0 white, -2px 0 0 white, 2px 0 0 white, 0 -2px 0 white, 0 2px 0 white, -3px 0 0 white, 3px 0 0 white, 0 -3px 0 white, 0 3px 0 white, -4px 0 0 white, 4px 0 0 white, 0 -4px 0 white, 0 4px 0 white, -5px 0 0 white, 5px 0 0 white, 0 -5px 0 white, 0 5px 0 white'
-                                      : 'none'
-                                  }}>
-                                    {tableInfo}
-                                  </span>
+                                  {currentSettings.background_behind_table_seats ? (
+                                    <div style={{
+                                      background: 'white',
+                                      borderRadius: '12px',
+                                      padding: '1.5mm 3mm',
+                                      display: 'inline-block'
+                                    }}>
+                                      {tableInfo}
+                                    </div>
+                                  ) : (
+                                    <>{tableInfo}</>
+                                  )}
                                 </div>
                               </div>
                             </div>
