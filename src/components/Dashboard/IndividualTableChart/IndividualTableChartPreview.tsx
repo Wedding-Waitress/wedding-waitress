@@ -297,8 +297,8 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
                     left: '50%', 
                     top: '50%', 
                     transform: 'translate(-50%, -50%)',
-                    width: '280px', // Increased from 200px
-                    height: '280px' // Increased from 200px
+                    width: '220px', // Reduced size for better spacing
+                    height: '220px' // Reduced size for better spacing
                   }}
                 >
                   <div className={`font-bold ${getTitleSize(settings.fontSize)} text-gray-700 text-center`}>
