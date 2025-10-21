@@ -359,7 +359,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
           align-items: center;
           justify-content: space-between;
           gap: 4mm;
-          left: 6mm;
+          left: 3mm;
           right: 6mm;
         }
 
@@ -370,18 +370,19 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
 
         /* Text container takes left side when decorative image exists */
         .card-content.has-decorative-image > div:first-child {
-          flex: 0 0 66%;
+          flex: 0 0 55%;
           text-align: left;
+          margin-right: auto;
         }
 
         /* Large decorative image on right side */
         .decorative-image-container {
-          flex: 0 0 30%;
+          flex: 0 0 35%;
           display: flex;
           align-items: center;
           justify-content: center;
           max-height: 34mm;
-          margin-left: -5mm;
+          margin-left: 0;
           margin-top: 9mm;
         }
 
@@ -509,7 +510,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
           }
 
           .card-content.has-decorative-image {
-            left: 6mm;
+            left: 3mm;
             right: 6mm;
           }
 
