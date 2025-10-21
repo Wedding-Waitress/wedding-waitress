@@ -96,73 +96,96 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
         }
       }
       
-      const angle = ((i - 1) / seatCount) * 2 * Math.PI - Math.PI / 2; // Start from top
+      let x, y, labelX, labelY, textAlign, angle;
       
-      // Calculate position on circle (relative to center)
-      // Reduced chair radius for round tables (closer to table)
-      let radius = settings.tableShape === 'round' ? 37 : 40;
-      
-      // Move seats 1 and 6 outward by additional 2.5% (~10px) to avoid touching table
-      if (settings.tableShape === 'round' && (i === 1 || i === 6)) {
-        radius = 39.5;
-      }
-      
-      // For square tables, move specific chairs further out to avoid table overlap
-      if (settings.tableShape === 'square' && [2, 5, 7, 10].includes(i)) {
-        radius = 48; // Move these chairs further out
-      }
-      
-      const x = 50 + radius * Math.cos(angle); // Center at 50%
-      const y = 50 + radius * Math.sin(angle);
-      
-      // Calculate label position for square tables
-      let labelX = x;
-      let labelY = y;
-      let textAlign = 'center';
-      
-      if (settings.tableShape === 'square' && guest) {
-        const side = getChairSide(angle);
+      if (settings.tableShape === 'square') {
+        // SQUARE TABLE: Position chairs evenly along the 4 sides
+        const seatsPerSide = Math.ceil(seatCount / 4);
+        const side = Math.floor((i - 1) / seatsPerSide); // 0=top, 1=right, 2=bottom, 3=left
+        const positionOnSide = (i - 1) % seatsPerSide;
+        const sideFraction = (positionOnSide + 1) / (seatsPerSide + 1); // Evenly spaced
+        
         const chairSize = 14; // 56px / 4 = 14% (w-14 h-14)
-        const offset = 2.8; // 14px offset converted to percentage
+        const offset = 2.8; // 14px offset for labels
         
         switch (side) {
-          case 'right':
-            labelX = x + chairSize/2 + offset;
-            labelY = y;
-            textAlign = 'left';
-            break;
-          case 'left':
-            labelX = x - chairSize/2 - offset;
-            labelY = y;
-            textAlign = 'right';
-            break;
-          case 'top':
+          case 0: // Top
+            x = 20 + (sideFraction * 60); // Spread across top (20% to 80%)
+            y = 10; // Fixed y at top
             labelX = x;
             labelY = y - chairSize/2 - offset;
             textAlign = 'center';
+            angle = -Math.PI / 2; // For compatibility
             break;
-          case 'bottom':
+          case 1: // Right
+            x = 90; // Fixed x at right
+            y = 20 + (sideFraction * 60); // Spread down right side
+            labelX = x + chairSize/2 + offset;
+            labelY = y;
+            textAlign = 'left';
+            angle = 0; // For compatibility
+            break;
+          case 2: // Bottom
+            x = 20 + (sideFraction * 60); // Spread across bottom
+            y = 90; // Fixed y at bottom
             labelX = x;
             labelY = y + chairSize/2 + offset;
             textAlign = 'center';
+            angle = Math.PI / 2; // For compatibility
+            break;
+          case 3: // Left
+          default:
+            x = 10; // Fixed x at left
+            y = 20 + (sideFraction * 60); // Spread down left side
+            labelX = x - chairSize/2 - offset;
+            labelY = y;
+            textAlign = 'right';
+            angle = Math.PI; // For compatibility
             break;
         }
-      } else if (settings.tableShape === 'round' && guest) {
-        // Position labels further outward (+6mm additional gap from seat edge)
-        const chairRadius = i === 1 || i === 6 ? 39.5 : 37; // Account for moved chairs
-        const labelOffset = 12.5; // Increased by 6mm (8.5 + 5.7)
-        const labelRadius = chairRadius + labelOffset;
-        labelX = 50 + labelRadius * Math.cos(angle);
-        labelY = 50 + labelRadius * Math.sin(angle);
         
-        // Determine text alignment based on angle (hemisphere)
-        const angleDegrees = (angle * 180) / Math.PI;
-        if (angleDegrees >= -90 && angleDegrees <= 90) {
-          // Right hemisphere - left align text
-          textAlign = 'left';
-        } else {
-          // Left hemisphere - right align text
-          textAlign = 'right';
+        // Override label position if no guest
+        if (!guest) {
+          labelX = x;
+          labelY = y;
+        }
+        
+      } else {
+        // ROUND TABLE: Keep existing circular positioning algorithm
+        angle = ((i - 1) / seatCount) * 2 * Math.PI - Math.PI / 2; // Start from top
+        
+        // Reduced chair radius for round tables (closer to table)
+        let radius = 37;
+        
+        // Move seats 1 and 6 outward by additional 2.5% (~10px) to avoid touching table
+        if (i === 1 || i === 6) {
+          radius = 39.5;
+        }
+        
+        x = 50 + radius * Math.cos(angle); // Center at 50%
+        y = 50 + radius * Math.sin(angle);
+        
+        labelX = x;
+        labelY = y;
+        textAlign = 'center';
+        
+        if (guest) {
+          // Position labels further outward (+6mm additional gap from seat edge)
+          const chairRadius = i === 1 || i === 6 ? 39.5 : 37; // Account for moved chairs
+          const labelOffset = 12.5; // Increased by 6mm (8.5 + 5.7)
+          const labelRadius = chairRadius + labelOffset;
+          labelX = 50 + labelRadius * Math.cos(angle);
+          labelY = 50 + labelRadius * Math.sin(angle);
+          
+          // Determine text alignment based on angle (hemisphere)
+          const angleDegrees = (angle * 180) / Math.PI;
+          if (angleDegrees >= -90 && angleDegrees <= 90) {
+            // Right hemisphere - left align text
+            textAlign = 'left';
+          } else {
+            // Left hemisphere - right align text
+            textAlign = 'right';
+          }
         }
       }
       
