@@ -343,14 +343,14 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
           position: absolute;
           left: 8mm;
           right: 8mm;
-          top: 70%;
+          top: 62%;
           transform: translateY(-50%);
           text-align: center;
         }
 
         /* Move text down when full background image is present */
         .card-content.has-full-background {
-          top: 82%;
+          top: 74%;
         }
 
         /* Split layout when decorative image exists */
