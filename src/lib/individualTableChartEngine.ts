@@ -382,13 +382,8 @@ export const generateIndividualTableSVG = (
         // ROUND TABLE: Keep existing circular positioning algorithm
         angle = ((i - 1) / seatCount) * 2 * Math.PI - Math.PI / 2; // Start from top
         
-        // Use exact same radius percentages as IndividualTableChartPreview
-        let radius = 37;
-        
-        // Move seats 1 and 6 outward by additional 2.5% to avoid touching table
-        if (i === 1 || i === 6) {
-          radius = 39.5;
-        }
+        // All chairs use same radius for even spacing (like chair 12)
+        const radius = 37;
         
         // Calculate position as percentage of container, then convert to pixels
         const xPercent = 50 + radius * Math.cos(angle);
@@ -404,9 +399,8 @@ export const generateIndividualTableSVG = (
         
         if (guest) {
           // Position labels further outward (+6mm additional gap from seat edge)
-          const chairRadius = i === 1 || i === 6 ? 39.5 : 37;
           const labelOffset = 14.2; // Increased by 6mm (8.5 + 5.7)
-          const labelRadiusPercent = chairRadius + labelOffset;
+          const labelRadiusPercent = radius + labelOffset;
           const labelRadiusPixels = (labelRadiusPercent / 100) * Math.min(containerWidth, containerHeight);
           
           labelX = centerX + labelRadiusPixels * Math.cos(angle);

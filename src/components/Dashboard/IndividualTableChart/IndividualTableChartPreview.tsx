@@ -154,13 +154,8 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
         // ROUND TABLE: Keep existing circular positioning algorithm
         angle = ((i - 1) / seatCount) * 2 * Math.PI - Math.PI / 2; // Start from top
         
-        // Reduced chair radius for round tables (closer to table)
-        let radius = 37;
-        
-        // Move seats 1 and 6 outward by additional 2.5% (~10px) to avoid touching table
-        if (i === 1 || i === 6) {
-          radius = 39.5;
-        }
+        // All chairs use same radius for even spacing (like chair 12)
+        const radius = 37;
         
         x = 50 + radius * Math.cos(angle); // Center at 50%
         y = 50 + radius * Math.sin(angle);
@@ -171,9 +166,8 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
         
         if (guest) {
           // Position labels further outward (+6mm additional gap from seat edge)
-          const chairRadius = i === 1 || i === 6 ? 39.5 : 37; // Account for moved chairs
           const labelOffset = 12.5; // Increased by 6mm (8.5 + 5.7)
-          const labelRadius = chairRadius + labelOffset;
+          const labelRadius = radius + labelOffset;
           labelX = 50 + labelRadius * Math.cos(angle);
           labelY = 50 + labelRadius * Math.sin(angle);
           
