@@ -211,7 +211,7 @@ export const QuestionnaireForm = ({ questionnaire }: QuestionnaireFormProps) => 
         onOpenChange={setBulkImportOpen}
         sectionId={bulkImportSectionId || ''}
         sectionLabel={
-          questionnaire.sections.find(s => s.id === bulkImportSectionId)?.label || ''
+          (questionnaire?.sections?.find(s => s.id === bulkImportSectionId)?.label) || ''
         }
         onImport={handleBulkImport}
       />
