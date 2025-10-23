@@ -3,6 +3,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { DJQuestionnaire, DJQuestionnaireWithData, DJSection, DJItem, DJAnswer, TemplateType, ItemType, QuestionnaireStatus } from '@/types/djQuestionnaire';
 import { DJ_TEMPLATES } from '@/lib/djQuestionnaireTemplates';
+import { debounce } from 'lodash-es';
+import { shiftItemsDown, reindexSectionItems, createBlankRow, getMaxSortIndex } from '@/lib/djQuestionnaireUtils';
 
 export type { TemplateType } from '@/types/djQuestionnaire';
 
@@ -134,14 +136,15 @@ export const useDJQuestionnaire = (eventId: string | null) => {
       const template = DJ_TEMPLATES[templateType];
 
       // Create sections and items
-      for (const sectionTemplate of template) {
+      for (const [index, sectionTemplate] of template.sections.entries()) {
         const { data: newSection, error: sError } = await supabase
           .from('dj_sections')
           .insert({
             questionnaire_id: newQ.id,
             label: sectionTemplate.label,
             instructions: sectionTemplate.instructions,
-            sort_index: sectionTemplate.sort_index
+            recommendations: sectionTemplate.recommendations || {},
+            sort_index: index
           })
           .select()
           .single();
@@ -149,13 +152,13 @@ export const useDJQuestionnaire = (eventId: string | null) => {
         if (sError) throw sError;
 
         // Create items for this section
-        const itemsToInsert = sectionTemplate.items.map(item => ({
+        const itemsToInsert = sectionTemplate.items.map((item, itemIndex) => ({
           section_id: newSection.id,
           type: item.type,
           prompt: item.prompt,
           help_text: item.help_text || null,
-          required: item.required,
-          sort_index: item.sort_index,
+          required: item.required || false,
+          sort_index: itemIndex,
           meta: item.meta || {}
         }));
 
@@ -182,30 +185,39 @@ export const useDJQuestionnaire = (eventId: string | null) => {
     }
   };
 
-  const saveAnswer = async (itemId: string, value: any) => {
+  const debouncedSave = debounce(async (itemId: string, value: any) => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('User not authenticated');
+      if (!user) throw new Error('Not authenticated');
 
       const { error } = await supabase
         .from('dj_answers')
         .upsert({
           item_id: itemId,
           value: value,
-          answered_by: user.id
+          answered_by: user.id,
+          updated_at: new Date().toISOString()
         }, {
           onConflict: 'item_id'
         });
 
       if (error) throw error;
+
+      toast({
+        title: "Saved",
+        duration: 2000,
+      });
     } catch (error: any) {
       console.error('Error saving answer:', error);
       toast({
-        title: "Error",
-        description: "Failed to save answer",
+        title: "Save failed",
         variant: "destructive",
       });
     }
+  }, 600);
+
+  const saveAnswer = async (itemId: string, value: any) => {
+    debouncedSave(itemId, value);
   };
 
   const updateStatus = async (status: DJQuestionnaire['status']) => {
@@ -270,6 +282,164 @@ export const useDJQuestionnaire = (eventId: string | null) => {
     }
   };
 
+  const debouncedUpdateSectionLabel = debounce(async (sectionId: string, label: string) => {
+    try {
+      const { error } = await supabase
+        .from('dj_sections')
+        .update({ label, updated_at: new Date().toISOString() })
+        .eq('id', sectionId);
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Section renamed",
+        duration: 2000,
+      });
+    } catch (error: any) {
+      console.error('Error updating section label:', error);
+      toast({
+        title: "Error",
+        description: "Failed to rename section",
+        variant: "destructive",
+      });
+    }
+  }, 600);
+
+  const updateSectionLabel = async (sectionId: string, label: string) => {
+    debouncedUpdateSectionLabel(sectionId, label);
+  };
+
+  const addItemAbove = async (itemId: string, sectionId: string) => {
+    try {
+      const currentItem = questionnaire?.sections
+        .flatMap(s => s.items)
+        .find(item => item.id === itemId);
+      
+      if (!currentItem) return;
+
+      await shiftItemsDown(sectionId, currentItem.sort_index);
+      await createBlankRow(sectionId, currentItem.type, currentItem.sort_index);
+      await fetchQuestionnaire();
+      
+      toast({
+        title: "Row added",
+        description: "New row inserted above",
+      });
+    } catch (error: any) {
+      console.error('Error adding item above:', error);
+      toast({
+        title: "Error",
+        description: "Failed to add row",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const addItemBelow = async (itemId: string, sectionId: string) => {
+    try {
+      const currentItem = questionnaire?.sections
+        .flatMap(s => s.items)
+        .find(item => item.id === itemId);
+      
+      if (!currentItem) return;
+
+      await shiftItemsDown(sectionId, currentItem.sort_index + 1);
+      await createBlankRow(sectionId, currentItem.type, currentItem.sort_index + 1);
+      await fetchQuestionnaire();
+      
+      toast({
+        title: "Row added",
+        description: "New row inserted below",
+      });
+    } catch (error: any) {
+      console.error('Error adding item below:', error);
+      toast({
+        title: "Error",
+        description: "Failed to add row",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const deleteItem = async (itemId: string, sectionId: string) => {
+    try {
+      const section = questionnaire?.sections.find(s => s.id === sectionId);
+      const minRows = section?.items[0]?.meta?.minRows || 0;
+      
+      if (section && section.items.length <= minRows) {
+        toast({
+          title: "Cannot delete",
+          description: `This section requires at least ${minRows} row(s)`,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const { error: deleteError } = await supabase
+        .from('dj_items')
+        .delete()
+        .eq('id', itemId);
+      
+      if (deleteError) throw deleteError;
+
+      await supabase
+        .from('dj_answers')
+        .delete()
+        .eq('item_id', itemId);
+      
+      await reindexSectionItems(sectionId);
+      await fetchQuestionnaire();
+      
+      toast({
+        title: "Row deleted",
+      });
+    } catch (error: any) {
+      console.error('Error deleting item:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete row",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const reorderItems = async (activeId: string, overId: string, sectionId: string) => {
+    try {
+      const section = questionnaire?.sections.find(s => s.id === sectionId);
+      if (!section) return;
+
+      const items = [...section.items];
+      const oldIndex = items.findIndex(item => item.id === activeId);
+      const newIndex = items.findIndex(item => item.id === overId);
+
+      if (oldIndex === -1 || newIndex === -1) return;
+
+      const [removed] = items.splice(oldIndex, 1);
+      items.splice(newIndex, 0, removed);
+
+      for (let i = 0; i < items.length; i++) {
+        await supabase
+          .from('dj_items')
+          .update({ sort_index: i })
+          .eq('id', items[i].id);
+      }
+
+      await fetchQuestionnaire();
+      
+      toast({
+        title: "Reordered",
+        description: "Row order saved",
+      });
+    } catch (error: any) {
+      console.error('Error reordering items:', error);
+      toast({
+        title: "Error",
+        description: "Failed to reorder",
+        variant: "destructive",
+      });
+    }
+  };
+
   return {
     questionnaire,
     loading,
@@ -277,6 +447,11 @@ export const useDJQuestionnaire = (eventId: string | null) => {
     updateStatus,
     createQuestionnaireFromTemplate,
     updateHeaderOverrides,
+    updateSectionLabel,
+    addItemAbove,
+    addItemBelow,
+    deleteItem,
+    reorderItems,
     refetch: fetchQuestionnaire,
   };
 };
