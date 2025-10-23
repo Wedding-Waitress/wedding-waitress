@@ -14,6 +14,7 @@ import { ResetPassword } from "./pages/ResetPassword";
 import { PrivacyPolicy } from "./pages/PrivacyPolicy";
 import { TermsOfService } from "./pages/TermsOfService";
 import { Contact } from "./pages/Contact";
+import { DJQuestionnairePublicView } from "./pages/DJQuestionnairePublicView";
 
 const queryClient = new QueryClient();
 
@@ -41,6 +42,8 @@ const App = () => (
           <Route path="/s/:eventSlug" element={<GuestLookup />} />
           {/* Kiosk mode */}
           <Route path="/kiosk/:eventSlug" element={<KioskView />} />
+          {/* DJ Questionnaire public view */}
+          <Route path="/dj-questionnaire/:token" element={<DJQuestionnairePublicView />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

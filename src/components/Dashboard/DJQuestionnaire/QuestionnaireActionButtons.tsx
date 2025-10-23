@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Printer, FileDown, FileText, Mail, MessageSquare, Settings } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Printer, FileDown, FileText, Mail, MessageSquare, Settings, CheckCircle, Copy, ExternalLink } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useNotificationSettings } from '@/hooks/useNotificationSettings';
 import { DJQuestionnaireWithData, TemplateType } from '@/types/djQuestionnaire';
@@ -10,6 +11,7 @@ import { exportToDocx } from '@/lib/djQuestionnaireDocxExporter';
 import { HeaderOverridesModal } from './HeaderOverridesModal';
 import jsPDF from 'jspdf';
 import { validateMusicURL, getPlatformName, ensureAbsoluteUrl } from '@/lib/urlValidation';
+import { buildDJQuestionnaireUrl } from '@/lib/urlUtils';
 
 interface QuestionnaireActionButtonsProps {
   event: Event;
@@ -28,6 +30,26 @@ export const QuestionnaireActionButtons = ({
   const { emailEnabled, smsEnabled } = useNotificationSettings();
   const [showHeaderModal, setShowHeaderModal] = useState(false);
   const [exporting, setExporting] = useState(false);
+  
+  const publicUrl = questionnaire.share_token 
+    ? buildDJQuestionnaireUrl(questionnaire.share_token)
+    : null;
+
+  const handleCopyLink = () => {
+    if (publicUrl) {
+      navigator.clipboard.writeText(publicUrl);
+      toast({
+        title: 'Link Copied',
+        description: 'Public questionnaire link copied to clipboard',
+      });
+    }
+  };
+
+  const handleOpenLink = () => {
+    if (publicUrl) {
+      window.open(publicUrl, '_blank');
+    }
+  };
 
   const handlePrint = () => {
     toast({
@@ -227,7 +249,49 @@ export const QuestionnaireActionButtons = ({
   };
 
   return (
-    <>
+    <div className="space-y-4">
+      {/* Approval Status */}
+      {questionnaire.status === 'approved' && questionnaire.approved_at && (
+        <div className="flex items-center gap-3 p-4 bg-success/10 rounded-lg border border-success/20">
+          <CheckCircle className="w-5 h-5 text-success" />
+          <div className="flex-1">
+            <div className="font-medium text-success">Questionnaire Approved</div>
+            <div className="text-sm text-muted-foreground">
+              Acknowledged on {new Date(questionnaire.approved_at).toLocaleString()}
+              {questionnaire.approved_by_name && ` by ${questionnaire.approved_by_name}`}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Public Link Section */}
+      {publicUrl && (
+        <div className="p-4 bg-primary/5 rounded-lg border border-primary/20">
+          <div className="flex items-start justify-between gap-3 mb-3">
+            <div>
+              <h4 className="font-medium text-sm mb-1">Public Review Link</h4>
+              <p className="text-xs text-muted-foreground">
+                Share this link with vendors for read-only access and acknowledgment
+              </p>
+            </div>
+            <Badge variant={questionnaire.status === 'approved' ? 'default' : 'secondary'}>
+              {questionnaire.status}
+            </Badge>
+          </div>
+          <div className="flex items-center gap-2">
+            <code className="flex-1 text-xs bg-background px-3 py-2 rounded border truncate">
+              {publicUrl}
+            </code>
+            <Button onClick={handleCopyLink} variant="outline" size="sm">
+              <Copy className="w-4 h-4" />
+            </Button>
+            <Button onClick={handleOpenLink} variant="outline" size="sm">
+              <ExternalLink className="w-4 h-4" />
+            </Button>
+          </div>
+        </div>
+      )}
+
       <div className="flex flex-wrap gap-2">
         <Button variant="outline" size="sm" onClick={() => setShowHeaderModal(true)}>
           <Settings className="w-4 h-4 mr-2" />
@@ -299,6 +363,6 @@ export const QuestionnaireActionButtons = ({
         currentOverrides={questionnaire.header_overrides as Record<string, any>}
         onSave={onUpdateHeaderOverrides}
       />
-    </>
+    </div>
   );
 };

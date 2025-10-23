@@ -141,6 +141,44 @@ export type Database = {
           },
         ]
       }
+      dj_questionnaire_acknowledgments: {
+        Row: {
+          acknowledged_at: string | null
+          acknowledged_by_name: string | null
+          acknowledged_from_ip: unknown
+          created_at: string | null
+          id: string
+          questionnaire_id: string
+          user_agent: string | null
+        }
+        Insert: {
+          acknowledged_at?: string | null
+          acknowledged_by_name?: string | null
+          acknowledged_from_ip?: unknown
+          created_at?: string | null
+          id?: string
+          questionnaire_id: string
+          user_agent?: string | null
+        }
+        Update: {
+          acknowledged_at?: string | null
+          acknowledged_by_name?: string | null
+          acknowledged_from_ip?: unknown
+          created_at?: string | null
+          id?: string
+          questionnaire_id?: string
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dj_questionnaire_acknowledgments_questionnaire_id_fkey"
+            columns: ["questionnaire_id"]
+            isOneToOne: false
+            referencedRelation: "dj_questionnaires"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       dj_questionnaire_tokens: {
         Row: {
           created_at: string | null
@@ -178,6 +216,9 @@ export type Database = {
       }
       dj_questionnaires: {
         Row: {
+          approved_at: string | null
+          approved_by_name: string | null
+          approved_from_ip: unknown
           created_at: string | null
           created_by: string
           event_id: string
@@ -194,6 +235,9 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          approved_at?: string | null
+          approved_by_name?: string | null
+          approved_from_ip?: unknown
           created_at?: string | null
           created_by: string
           event_id: string
@@ -210,6 +254,9 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          approved_at?: string | null
+          approved_by_name?: string | null
+          approved_from_ip?: unknown
           created_at?: string | null
           created_by?: string
           event_id?: string
@@ -1483,6 +1530,28 @@ export type Database = {
           show_search: boolean
           show_update_details: boolean
           show_welcome_video: boolean
+        }[]
+      }
+      get_questionnaire_by_token: {
+        Args: { _share_token: string }
+        Returns: {
+          answer_value: Json
+          approved_at: string
+          approved_by_name: string
+          event_date: string
+          event_id: string
+          event_name: string
+          header_overrides: Json
+          item_id: string
+          item_prompt: string
+          item_sort_index: number
+          item_type: string
+          questionnaire_id: string
+          section_id: string
+          section_label: string
+          section_sort_index: number
+          status: string
+          template_type: string
         }[]
       }
       has_role: {

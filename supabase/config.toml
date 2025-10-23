@@ -6,3 +6,6 @@ verify_jwt = true
 [functions.send-dj-questionnaire-sms]
 verify_jwt = true
 
+[functions.acknowledge-dj-questionnaire]
+verify_jwt = false
+

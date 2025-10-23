@@ -21,6 +21,10 @@ export interface DJQuestionnaire {
   notes: string | null;
   header_overrides: Record<string, any>;
   created_by: string;
+  share_token: string | null;
+  approved_at: string | null;
+  approved_by_name: string | null;
+  approved_from_ip: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -65,6 +69,17 @@ export interface DJQuestionnaireWithData extends DJQuestionnaire {
       answer?: DJAnswer;
     })[];
   })[];
+}
+
+// Acknowledgment Log
+export interface DJAcknowledgment {
+  id: string;
+  questionnaire_id: string;
+  acknowledged_at: string;
+  acknowledged_by_name: string | null;
+  acknowledged_from_ip: string | null;
+  user_agent: string | null;
+  created_at: string;
 }
 
 // Notification Settings

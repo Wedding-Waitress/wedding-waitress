@@ -49,3 +49,11 @@ export function buildGalleryUploadUrl(gallerySlug: string): string {
   const baseUrl = getPublicBaseUrl();
   return `${baseUrl}/a/${gallerySlug}`;
 }
+
+/**
+ * Builds a DJ questionnaire public view URL for the given share token
+ */
+export function buildDJQuestionnaireUrl(shareToken: string): string {
+  const baseUrl = getPublicBaseUrl();
+  return `${baseUrl}/dj-questionnaire/${shareToken}`;
+}
