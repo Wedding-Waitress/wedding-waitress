@@ -102,9 +102,40 @@ export const QuestionnaireActionButtons = ({
       pdf.text(`Venue: ${venue}`, leftMargin, yPos);
       yPos += 5;
       
+      // Format times
+      const ceremonyTime = formatTimeRange(
+        headerOverrides.ceremony_start || event.start_time,
+        headerOverrides.ceremony_finish || event.start_time
+      );
+      const canapesTime = formatTimeRange(
+        headerOverrides.canapes_start || null,
+        headerOverrides.canapes_finish || null
+      );
+      const receptionTime = formatTimeRange(
+        headerOverrides.reception_start || event.start_time,
+        headerOverrides.reception_finish || event.finish_time
+      );
+      
+      // Ceremony time
+      pdf.text(`Ceremony: ${ceremonyTime}`, leftMargin, yPos);
+      yPos += 5;
+      
+      // Canapés time (only if set)
+      if (canapesTime && canapesTime !== 'TBD') {
+        pdf.text(`Canapés: ${canapesTime}`, leftMargin, yPos);
+        yPos += 5;
+      }
+      
+      // Reception time
+      pdf.text(`Reception: ${receptionTime}`, leftMargin, yPos);
+      yPos += 5;
+      
+      // DJ & MC details
       const djName = headerOverrides.dj_name || 'TBD';
+      const djMobile = headerOverrides.dj_mobile || 'TBD';
       const mcName = headerOverrides.mc_name || 'TBD';
-      pdf.text(`DJ: ${djName} — MC: ${mcName}`, leftMargin, yPos);
+      const mcMobile = headerOverrides.mc_mobile || 'TBD';
+      pdf.text(`DJ: ${djName}, ${djMobile} — MC: ${mcName}, ${mcMobile}`, leftMargin, yPos);
       yPos += 10;
 
       // Sections
