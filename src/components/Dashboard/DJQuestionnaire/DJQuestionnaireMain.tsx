@@ -75,8 +75,13 @@ export const DJQuestionnaireMain = ({
     }
   }, [questionnaire]);
 
-  const handleTemplateChange = (newTemplate: TemplateType) => {
+  const handleTemplateChange = async (newTemplate: TemplateType) => {
     setTemplateType(newTemplate);
+    
+    // If no questionnaire exists, create one with the selected template
+    if (!questionnaire && selectedEventId) {
+      await createQuestionnaireFromTemplate(newTemplate);
+    }
   };
 
   const handleToggleSection = (sectionLabel: string, visible: boolean) => {
