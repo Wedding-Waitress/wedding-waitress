@@ -435,7 +435,7 @@ export const Dashboard = () => {
         <main className="flex-1 w-full px-6 sm:px-4 md:px-6 lg:px-8 py-6 min-w-0">
           <div className="w-full max-w-none">
             {/* Stats Bar excluded from: My Events, QR Code, Dashboard, Vendor Team, Planner, Wishing Well, RSVP, Floor Plan, Kiosk Live View, Printables, Place Cards, Dietary Requirements, Full Seating Chart, Photo & Video Sharing, DJ & MC Questionnaire */}
-            {activeTab !== 'my-events' && activeTab !== 'qr-code' && activeTab !== 'dashboard' && activeTab !== 'vendor-team' && activeTab !== 'planner' && activeTab !== 'wishing-well' && activeTab !== 'rsvp-invite' && activeTab !== 'floor-plan' && activeTab !== 'kiosk-live-view' && activeTab !== 'printables' && activeTab !== 'individual-table-chart' && activeTab !== 'place-cards' && activeTab !== 'dietary-chart' && activeTab !== 'full-seating-chart' && activeTab !== 'photo-video-sharing' && activeTab !== 'dj-questionnaire' && <div className="print:hidden">
+            {activeTab !== 'my-events' && activeTab !== 'qr-code' && activeTab !== 'dashboard' && activeTab !== 'vendor-team' && activeTab !== 'planner' && activeTab !== 'wishing-well' && activeTab !== 'rsvp-invite' && activeTab !== 'floor-plan' && activeTab !== 'kiosk-live-view' && activeTab !== 'printables' && activeTab !== 'individual-table-chart' && activeTab !== 'place-cards' && activeTab !== 'dietary-chart' && activeTab !== 'full-seating-chart' && activeTab !== 'photo-video-sharing' && activeTab !== 'dj-mc-questionnaire' && <div className="print:hidden">
               <StatsBar stats={statsData} />
             </div>}
             
