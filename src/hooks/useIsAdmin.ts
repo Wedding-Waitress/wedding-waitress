@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { isAdminEmail, isAdminUserId } from '@/lib/adminConfig';
 
 export const useIsAdmin = () => {
   const [isAdmin, setIsAdmin] = useState(false);
@@ -17,11 +16,20 @@ export const useIsAdmin = () => {
           return;
         }
 
-        // Check both email and user ID
-        const adminByEmail = isAdminEmail(user.email);
-        const adminById = isAdminUserId(user.id);
-        
-        setIsAdmin(adminByEmail || adminById);
+        // Check user_roles table for admin role
+        const { data: roleData, error: roleError } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', user.id)
+          .eq('role', 'admin')
+          .maybeSingle();
+
+        if (roleError) {
+          console.error('Error checking admin role:', roleError);
+          setIsAdmin(false);
+        } else {
+          setIsAdmin(!!roleData);
+        }
       } catch (err) {
         console.error('Error checking admin status:', err);
         setIsAdmin(false);

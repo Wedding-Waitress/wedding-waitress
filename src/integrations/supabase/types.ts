@@ -59,37 +59,204 @@ export type Database = {
         }
         Relationships: []
       }
-      dj_questionnaire_responses: {
+      dj_answers: {
         Row: {
-          created_at: string
+          answered_by: string | null
+          created_at: string | null
+          id: string
+          item_id: string
+          updated_at: string | null
+          value: Json
+        }
+        Insert: {
+          answered_by?: string | null
+          created_at?: string | null
+          id?: string
+          item_id: string
+          updated_at?: string | null
+          value: Json
+        }
+        Update: {
+          answered_by?: string | null
+          created_at?: string | null
+          id?: string
+          item_id?: string
+          updated_at?: string | null
+          value?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dj_answers_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: true
+            referencedRelation: "dj_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dj_items: {
+        Row: {
+          created_at: string | null
+          help_text: string | null
+          id: string
+          meta: Json | null
+          prompt: string
+          required: boolean | null
+          section_id: string
+          sort_index: number
+          type: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          help_text?: string | null
+          id?: string
+          meta?: Json | null
+          prompt: string
+          required?: boolean | null
+          section_id: string
+          sort_index?: number
+          type: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          help_text?: string | null
+          id?: string
+          meta?: Json | null
+          prompt?: string
+          required?: boolean | null
+          section_id?: string
+          sort_index?: number
+          type?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dj_items_section_id_fkey"
+            columns: ["section_id"]
+            isOneToOne: false
+            referencedRelation: "dj_sections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dj_questionnaires: {
+        Row: {
+          created_at: string | null
+          created_by: string
+          event_id: string
+          header_overrides: Json | null
+          id: string
+          notes: string | null
+          recipient_emails: string[] | null
+          status: string
+          template_type: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by: string
+          event_id: string
+          header_overrides?: Json | null
+          id?: string
+          notes?: string | null
+          recipient_emails?: string[] | null
+          status?: string
+          template_type: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string
+          event_id?: string
+          header_overrides?: Json | null
+          id?: string
+          notes?: string | null
+          recipient_emails?: string[] | null
+          status?: string
+          template_type?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dj_questionnaires_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: true
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dj_sections: {
+        Row: {
+          created_at: string | null
+          id: string
+          instructions: string | null
+          label: string
+          questionnaire_id: string
+          recommendations: Json | null
+          sort_index: number
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          instructions?: string | null
+          label: string
+          questionnaire_id: string
+          recommendations?: Json | null
+          sort_index?: number
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          instructions?: string | null
+          label?: string
+          questionnaire_id?: string
+          recommendations?: Json | null
+          sort_index?: number
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dj_sections_questionnaire_id_fkey"
+            columns: ["questionnaire_id"]
+            isOneToOne: false
+            referencedRelation: "dj_questionnaires"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_collaborators: {
+        Row: {
+          created_at: string | null
           event_id: string
           id: string
-          responses: Json
-          template_type: string
-          updated_at: string
+          invited_by: string | null
+          role: string | null
           user_id: string
         }
         Insert: {
-          created_at?: string
+          created_at?: string | null
           event_id: string
           id?: string
-          responses?: Json
-          template_type: string
-          updated_at?: string
+          invited_by?: string | null
+          role?: string | null
           user_id: string
         }
         Update: {
-          created_at?: string
+          created_at?: string | null
           event_id?: string
           id?: string
-          responses?: Json
-          template_type?: string
-          updated_at?: string
+          invited_by?: string | null
+          role?: string | null
           user_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "dj_questionnaire_responses_event_id_fkey"
+            foreignKeyName: "event_collaborators_event_id_fkey"
             columns: ["event_id"]
             isOneToOne: false
             referencedRelation: "events"
@@ -1107,11 +1274,39 @@ export type Database = {
         }
         Relationships: []
       }
+      user_roles: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      can_access_event: {
+        Args: { _event_id: string; _user_id: string }
+        Returns: boolean
+      }
       cleanup_old_access_attempts: { Args: never; Returns: undefined }
       generate_guest_access_token: {
         Args: { _event_id: string; _guest_id: string; _validity_days?: number }
@@ -1198,6 +1393,13 @@ export type Database = {
           show_welcome_video: boolean
         }[]
       }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
       update_guest_with_token: {
         Args: {
           _access_token: string
@@ -1214,7 +1416,7 @@ export type Database = {
       }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "collaborator" | "owner"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1341,6 +1543,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "collaborator", "owner"],
+    },
   },
 } as const

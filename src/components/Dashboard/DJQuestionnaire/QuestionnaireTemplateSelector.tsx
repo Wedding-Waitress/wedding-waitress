@@ -1,6 +1,6 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { TemplateType } from '@/hooks/useDJQuestionnaire';
-import { getTemplateLabel } from './questionnaireTemplates';
+import { TemplateType } from '@/types/djQuestionnaire';
+import { getTemplateLabel } from '@/lib/djQuestionnaireTemplates';
 
 interface QuestionnaireTemplateSelectorProps {
   value: TemplateType;

@@ -1,21 +1,13 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { DJQuestionnaire, DJQuestionnaireWithData, DJSection, DJItem, DJAnswer, TemplateType } from '@/types/djQuestionnaire';
+import { DJ_TEMPLATES } from '@/lib/djQuestionnaireTemplates';
 
-export type TemplateType = 'wedding_mr_mrs' | 'wedding_mr_mr' | 'wedding_mrs_mrs' | 'events';
-
-export interface QuestionnaireResponse {
-  id: string;
-  event_id: string;
-  user_id: string;
-  template_type: TemplateType;
-  responses: Record<string, any>;
-  created_at: string;
-  updated_at: string;
-}
+export type { TemplateType } from '@/types/djQuestionnaire';
 
 export const useDJQuestionnaire = (eventId: string | null) => {
-  const [questionnaire, setQuestionnaire] = useState<QuestionnaireResponse | null>(null);
+  const [questionnaire, setQuestionnaire] = useState<DJQuestionnaireWithData | null>(null);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
@@ -24,17 +16,76 @@ export const useDJQuestionnaire = (eventId: string | null) => {
 
     setLoading(true);
     try {
-      const { data, error } = await supabase
-        .from('dj_questionnaire_responses')
+      // Fetch questionnaire
+      const { data: qData, error: qError } = await supabase
+        .from('dj_questionnaires')
         .select('*')
         .eq('event_id', eventId)
-        .single();
+        .maybeSingle();
 
-      if (error && error.code !== 'PGRST116') { // Not found is ok
-        throw error;
+      if (qError) throw qError;
+      if (!qData) {
+        setQuestionnaire(null);
+        return;
       }
 
-      setQuestionnaire(data as QuestionnaireResponse);
+      // Fetch sections
+      const { data: sections, error: sError } = await supabase
+        .from('dj_sections')
+        .select('*')
+        .eq('questionnaire_id', qData.id)
+        .order('sort_index', { ascending: true });
+
+      if (sError) throw sError;
+
+      // Fetch items for all sections
+      const sectionIds = sections?.map(s => s.id) || [];
+      const { data: items, error: iError } = await supabase
+        .from('dj_items')
+        .select('*')
+        .in('section_id', sectionIds)
+        .order('sort_index', { ascending: true });
+
+      if (iError) throw iError;
+
+      // Fetch answers for all items
+      const itemIds = items?.map(i => i.id) || [];
+      const { data: answers, error: aError } = await supabase
+        .from('dj_answers')
+        .select('*')
+        .in('item_id', itemIds);
+
+      if (aError) throw aError;
+
+      // Build nested structure
+      const answersMap = new Map(answers?.map(a => [a.item_id, a]) || []);
+      const itemsMap = new Map<string, (DJItem & { answer?: DJAnswer })[]>();
+      
+      items?.forEach(item => {
+        if (!itemsMap.has(item.section_id)) {
+          itemsMap.set(item.section_id, []);
+        }
+        itemsMap.get(item.section_id)!.push({
+          ...item,
+          type: item.type as any,
+          meta: item.meta as Record<string, any>,
+          answer: answersMap.get(item.id) ? {
+            ...answersMap.get(item.id)!,
+            value: answersMap.get(item.id)!.value as any
+          } : undefined
+        });
+      });
+
+      const sectionsWithItems = sections?.map(section => ({
+        ...section,
+        recommendations: section.recommendations as Record<string, any>,
+        items: itemsMap.get(section.id) || []
+      })) as (DJSection & { items: (DJItem & { answer?: DJAnswer })[] })[] || [];
+
+      setQuestionnaire({
+        ...qData,
+        sections: sectionsWithItems
+      });
     } catch (error: any) {
       console.error('Error fetching questionnaire:', error);
       toast({
@@ -47,49 +98,127 @@ export const useDJQuestionnaire = (eventId: string | null) => {
     }
   };
 
-  const saveQuestionnaire = async (
-    templateType: TemplateType,
-    responses: Record<string, any>
-  ) => {
+  const createQuestionnaireFromTemplate = async (templateType: TemplateType) => {
     if (!eventId) return;
 
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('User not authenticated');
 
-      const payload = {
-        event_id: eventId,
-        user_id: user.id,
-        template_type: templateType,
-        responses,
-      };
+      // Create questionnaire
+      const { data: newQ, error: qError } = await supabase
+        .from('dj_questionnaires')
+        .insert({
+          event_id: eventId,
+          template_type: templateType,
+          created_by: user.id,
+          status: 'draft'
+        })
+        .select()
+        .single();
 
-      if (questionnaire) {
-        // Update existing
-        const { error } = await supabase
-          .from('dj_questionnaire_responses')
-          .update(payload)
-          .eq('id', questionnaire.id);
+      if (qError) throw qError;
 
-        if (error) throw error;
-      } else {
-        // Create new
-        const { data, error } = await supabase
-          .from('dj_questionnaire_responses')
-          .insert([payload])
+      // Get template
+      const template = DJ_TEMPLATES[templateType];
+
+      // Create sections and items
+      for (const sectionTemplate of template) {
+        const { data: newSection, error: sError } = await supabase
+          .from('dj_sections')
+          .insert({
+            questionnaire_id: newQ.id,
+            label: sectionTemplate.label,
+            instructions: sectionTemplate.instructions,
+            sort_index: sectionTemplate.sort_index
+          })
           .select()
           .single();
 
-        if (error) throw error;
-        setQuestionnaire(data as QuestionnaireResponse);
+        if (sError) throw sError;
+
+        // Create items for this section
+        const itemsToInsert = sectionTemplate.items.map(item => ({
+          section_id: newSection.id,
+          type: item.type,
+          prompt: item.prompt,
+          help_text: item.help_text || null,
+          required: item.required,
+          sort_index: item.sort_index,
+          meta: item.meta || {}
+        }));
+
+        const { error: iError } = await supabase
+          .from('dj_items')
+          .insert(itemsToInsert);
+
+        if (iError) throw iError;
       }
 
       await fetchQuestionnaire();
+
+      toast({
+        title: "Success",
+        description: "Questionnaire created from template",
+      });
     } catch (error: any) {
-      console.error('Error saving questionnaire:', error);
+      console.error('Error creating questionnaire:', error);
       toast({
         title: "Error",
-        description: "Failed to save questionnaire",
+        description: "Failed to create questionnaire",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const saveAnswer = async (itemId: string, value: any) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
+      const { error } = await supabase
+        .from('dj_answers')
+        .upsert({
+          item_id: itemId,
+          value: value,
+          answered_by: user.id
+        }, {
+          onConflict: 'item_id'
+        });
+
+      if (error) throw error;
+    } catch (error: any) {
+      console.error('Error saving answer:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save answer",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const updateStatus = async (status: DJQuestionnaire['status']) => {
+    if (!questionnaire) return;
+
+    try {
+      const { error } = await supabase
+        .from('dj_questionnaires')
+        .update({ status })
+        .eq('id', questionnaire.id);
+
+      if (error) throw error;
+
+      await fetchQuestionnaire();
+
+      toast({
+        title: "Success",
+        description: `Status updated to ${status}`,
+      });
+    } catch (error: any) {
+      console.error('Error updating status:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update status",
         variant: "destructive",
       });
     }
@@ -102,7 +231,9 @@ export const useDJQuestionnaire = (eventId: string | null) => {
   return {
     questionnaire,
     loading,
-    saveQuestionnaire,
+    saveAnswer,
+    updateStatus,
+    createQuestionnaireFromTemplate,
     refetch: fetchQuestionnaire,
   };
 };
