@@ -26,11 +26,18 @@ import { FullSeatingChartPage } from '@/components/Dashboard/FullSeatingChart/Fu
 import { IndividualTableSeatingChartPage } from '@/components/Dashboard/IndividualTableChart/IndividualTableSeatingChartPage';
 import { KioskSetup } from '@/components/Dashboard/Kiosk/KioskSetup';
 import { FloorPlanPage } from '@/components/Dashboard/FloorPlan/FloorPlanPage';
-import { DJQuestionnaireMain } from '@/components/Dashboard/DJQuestionnaire';
+import { flags } from '@/lib/featureFlags';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import type { Session } from '@supabase/supabase-js';
 import NotificationSettings from './NotificationSettings';
+
+// Lazy load DJ Questionnaire to prevent it from crashing the app
+const DJQuestionnaireMain = React.lazy(() => 
+  import('@/components/Dashboard/DJQuestionnaire').then(module => ({
+    default: module.DJQuestionnaireMain
+  }))
+);
 
 export const Dashboard = () => {
   const [session, setSession] = useState<Session | null>(null);
@@ -336,7 +343,18 @@ export const Dashboard = () => {
       case 'kiosk-setup':
         return <KioskSetup selectedEventId={selectedEventId} onEventSelect={handleEventSelect} />;
       case 'dj-mc-questionnaire':
-        return <DJQuestionnaireMain selectedEventId={selectedEventId} onEventSelect={handleEventSelect} events={events} />;
+        return flags.djQuestionnaire ? (
+          <React.Suspense fallback={<div className="p-8 text-center">Loading DJ Questionnaire...</div>}>
+            <DJQuestionnaireMain selectedEventId={selectedEventId} onEventSelect={handleEventSelect} events={events} />
+          </React.Suspense>
+        ) : (
+          <Card className="p-8 text-center">
+            <CardTitle className="mb-2">Feature Disabled</CardTitle>
+            <CardDescription>
+              DJ Questionnaire is currently disabled. Please contact support.
+            </CardDescription>
+          </Card>
+        );
       case 'notification-settings':
         return <NotificationSettings />;
       default:

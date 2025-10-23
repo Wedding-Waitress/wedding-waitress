@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
 import { Plus, ExternalLink, Upload } from 'lucide-react';
@@ -13,6 +13,7 @@ import { FormRow } from './FormRow';
 import { BulkSongImportModal } from './BulkSongImportModal';
 import { SongData } from '@/lib/musicMetadataFetcher';
 import { useToast } from '@/hooks/use-toast';
+import { flags } from '@/lib/featureFlags';
 
 interface QuestionnaireFormProps {
   questionnaire: DJQuestionnaireWithData;
@@ -93,7 +94,7 @@ export const QuestionnaireForm = ({ questionnaire }: QuestionnaireFormProps) => 
                 onSave={(newLabel) => updateSectionLabel(section.id, newLabel)}
               />
               
-              {isSongSection && canAddMore && (
+              {flags.djBulkImport && isSongSection && canAddMore && (
                 <Button
                   variant="outline"
                   size="sm"
@@ -206,16 +207,18 @@ export const QuestionnaireForm = ({ questionnaire }: QuestionnaireFormProps) => 
         );
       })}
 
-      {bulkImportOpen && bulkImportSectionId && (
-        <BulkSongImportModal
-          open={bulkImportOpen}
-          onOpenChange={setBulkImportOpen}
-          sectionId={bulkImportSectionId}
-          sectionLabel={
-            questionnaire.sections.find(s => s.id === bulkImportSectionId)?.label || ''
-          }
-          onImport={handleBulkImport}
-        />
+      {flags.djBulkImport && bulkImportOpen && bulkImportSectionId && (
+        <React.Suspense fallback={null}>
+          <BulkSongImportModal
+            open={bulkImportOpen}
+            onOpenChange={setBulkImportOpen}
+            sectionId={bulkImportSectionId}
+            sectionLabel={
+              questionnaire.sections.find(s => s.id === bulkImportSectionId)?.label || ''
+            }
+            onImport={handleBulkImport}
+          />
+        </React.Suspense>
       )}
     </div>
   );

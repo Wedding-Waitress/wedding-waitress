@@ -3,6 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
+import { AppErrorBoundary } from "@/components/core/AppErrorBoundary";
 import { Landing } from "./pages/Landing";
 import { Dashboard } from "./pages/Dashboard";
 import { Admin } from "./pages/Admin";
@@ -26,10 +27,11 @@ const App = () => (
       enableSystem
       disableTransitionOnChange
     >
-      <BrowserRouter>
-        <Toaster />
-        <Sonner />
-        <Routes>
+      <AppErrorBoundary>
+        <BrowserRouter>
+          <Toaster />
+          <Sonner />
+          <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/admin" element={<Admin />} />
@@ -47,7 +49,8 @@ const App = () => (
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
-      </BrowserRouter>
+        </BrowserRouter>
+      </AppErrorBoundary>
     </ThemeProvider>
   </QueryClientProvider>
 );
