@@ -26,6 +26,7 @@ import { FullSeatingChartPage } from '@/components/Dashboard/FullSeatingChart/Fu
 import { IndividualTableSeatingChartPage } from '@/components/Dashboard/IndividualTableChart/IndividualTableSeatingChartPage';
 import { KioskSetup } from '@/components/Dashboard/Kiosk/KioskSetup';
 import { FloorPlanPage } from '@/components/Dashboard/FloorPlan/FloorPlanPage';
+import { DJQuestionnaireMain } from '@/components/Dashboard/DJQuestionnaire';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import type { Session } from '@supabase/supabase-js';
@@ -333,6 +334,8 @@ export const Dashboard = () => {
         return <IndividualTableSeatingChartPage selectedEventId={selectedEventId} onEventSelect={handleEventSelect} />;
       case 'kiosk-setup':
         return <KioskSetup selectedEventId={selectedEventId} onEventSelect={handleEventSelect} />;
+      case 'dj-mc-questionnaire':
+        return <DJQuestionnaireMain selectedEventId={selectedEventId} onEventSelect={handleEventSelect} events={events} />;
       default:
         return <Card className="p-8 text-center">
             <TrendingUp className="w-16 h-16 mx-auto text-primary mb-4" />

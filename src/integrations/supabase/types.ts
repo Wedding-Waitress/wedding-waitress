@@ -59,6 +59,44 @@ export type Database = {
         }
         Relationships: []
       }
+      dj_questionnaire_responses: {
+        Row: {
+          created_at: string
+          event_id: string
+          id: string
+          responses: Json
+          template_type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          id?: string
+          responses?: Json
+          template_type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          id?: string
+          responses?: Json
+          template_type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dj_questionnaire_responses_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       event_shortlinks: {
         Row: {
           click_count: number | null
@@ -401,21 +439,21 @@ export type Database = {
           access_token: string
           attempted_at: string
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           success: boolean
         }
         Insert: {
           access_token: string
           attempted_at?: string
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           success?: boolean
         }
         Update: {
           access_token?: string
           attempted_at?: string
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           success?: boolean
         }
         Relationships: []
@@ -1074,10 +1112,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      cleanup_old_access_attempts: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
+      cleanup_old_access_attempts: { Args: never; Returns: undefined }
       generate_guest_access_token: {
         Args: { _event_id: string; _guest_id: string; _validity_days?: number }
         Returns: string
@@ -1090,16 +1125,10 @@ export type Database = {
         }
         Returns: string
       }
-      generate_short_slug: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
-      generate_slug: {
-        Args: { input_text: string }
-        Returns: string
-      }
+      generate_short_slug: { Args: never; Returns: string }
+      generate_slug: { Args: { input_text: string }; Returns: string }
       get_events_with_guest_count: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           created_at: string
           created_date_local: string

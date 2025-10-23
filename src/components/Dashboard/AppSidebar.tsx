@@ -8,6 +8,7 @@ import {
   CreditCard,
   ChefHat,
   Monitor,
+  Music,
   Camera,
   LayoutGrid,
   FileText,
@@ -36,18 +37,19 @@ interface AppSidebarProps {
   onSignOut: () => void;
 }
 
-const menuItems = [
-  { id: "dashboard", label: "Dashboard", icon: Home },
-  { id: "my-events", label: "My Events", icon: Calendar },
-  { id: "table-list", label: "Tables", icon: MapPin },
-  { id: "guest-list", label: "Guest List", icon: Users },
-  { id: "qr-code", label: "QR Code Seating Chart", icon: QrCode },
-  { id: "place-cards", label: "Place Cards", icon: CreditCard },
-  { id: "individual-table-chart", label: "Individual Table Charts", icon: Users },
-  { id: "dietary-chart", label: "Dietary Requirements", icon: ChefHat },
-  { id: "full-seating-chart", label: "Full Seating Chart", icon: FileText },
-  { id: "kiosk-live-view", label: "Kiosk Live View", icon: Monitor },
-];
+  const menuItems = [
+    { id: "dashboard", label: "Dashboard", icon: Home },
+    { id: "my-events", label: "My Events", icon: Calendar },
+    { id: "table-list", label: "Tables", icon: MapPin },
+    { id: "guest-list", label: "Guest List", icon: Users },
+    { id: "qr-code", label: "QR Code Seating Chart", icon: QrCode },
+    { id: "place-cards", label: "Place Cards", icon: CreditCard },
+    { id: "individual-table-chart", label: "Individual Table Charts", icon: Users },
+    { id: "dietary-chart", label: "Dietary Requirements", icon: ChefHat },
+    { id: "full-seating-chart", label: "Full Seating Chart", icon: FileText },
+    { id: "kiosk-live-view", label: "Kiosk Live View", icon: Monitor },
+    { id: "dj-mc-questionnaire", label: "DJ & MC Questionnaire", icon: Music },
+  ];
 
 export const AppSidebar: React.FC<AppSidebarProps> = ({
   activeTab,
