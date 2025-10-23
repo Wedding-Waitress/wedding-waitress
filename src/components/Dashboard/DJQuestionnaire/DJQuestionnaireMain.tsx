@@ -1,17 +1,24 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { QuestionnaireTemplateSelector } from './QuestionnaireTemplateSelector';
 import { QuestionnaireForm } from './QuestionnaireForm';
 import { QuestionnaireActionButtons } from './QuestionnaireActionButtons';
-import { useDJQuestionnaire, TemplateType } from '@/hooks/useDJQuestionnaire';
+import { QuestionnaireHeader } from './QuestionnaireHeader';
+import { useDJQuestionnaire } from '@/hooks/useDJQuestionnaire';
+import { TemplateType } from '@/types/djQuestionnaire';
 
 interface Event {
   id: string;
   name: string;
   partner1_name?: string;
   partner2_name?: string;
+  date?: string;
+  venue?: string;
+  venue_name?: string;
+  start_time?: string;
+  finish_time?: string;
 }
 
 interface DJQuestionnaireMainProps {
@@ -25,8 +32,10 @@ export const DJQuestionnaireMain = ({
   onEventSelect,
   events,
 }: DJQuestionnaireMainProps) => {
-  const { questionnaire, loading, createQuestionnaireFromTemplate, refetch } = useDJQuestionnaire(selectedEventId);
+  const { questionnaire, loading, createQuestionnaireFromTemplate, updateHeaderOverrides, refetch } = useDJQuestionnaire(selectedEventId);
   const [templateType, setTemplateType] = useState<TemplateType>('wedding_mr_mrs');
+  const [pageCount, setPageCount] = useState<number>(1);
+  const formRef = useRef<HTMLDivElement>(null);
 
   const selectedEvent = events.find((e) => e.id === selectedEventId);
 
@@ -44,6 +53,16 @@ export const DJQuestionnaireMain = ({
       }
     }
   }, [questionnaire, selectedEvent]);
+
+  // Calculate page count based on form content height
+  useEffect(() => {
+    if (formRef.current && questionnaire) {
+      const contentHeight = formRef.current.scrollHeight;
+      const a4HeightPx = 1123; // A4 height in pixels at 96 DPI
+      const calculatedPages = Math.ceil(contentHeight / a4HeightPx);
+      setPageCount(Math.max(1, calculatedPages));
+    }
+  }, [questionnaire]);
 
   const handleTemplateChange = (newTemplate: TemplateType) => {
     setTemplateType(newTemplate);
@@ -77,11 +96,14 @@ export const DJQuestionnaireMain = ({
 
           <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 pt-4 print:hidden">
             <CardTitle>DJ & MC Questionnaire</CardTitle>
-            <QuestionnaireActionButtons
-              eventName={selectedEvent?.name}
-              templateType={templateType}
-              responses={{}}
-            />
+            {questionnaire && selectedEvent && (
+              <QuestionnaireActionButtons
+                event={selectedEvent}
+                questionnaire={questionnaire}
+                templateType={templateType}
+                onUpdateHeaderOverrides={updateHeaderOverrides}
+              />
+            )}
           </div>
 
           <div className="hidden print:block pt-4">
@@ -102,12 +124,20 @@ export const DJQuestionnaireMain = ({
               </div>
             </CardContent>
           </Card>
-        ) : questionnaire ? (
-          <Card className="ww-box print:shadow-none">
-            <CardContent className="pt-6">
-              <QuestionnaireForm questionnaire={questionnaire} />
-            </CardContent>
-          </Card>
+        ) : questionnaire && selectedEvent ? (
+          <>
+            <QuestionnaireHeader
+              event={selectedEvent}
+              questionnaire={questionnaire}
+              templateType={templateType}
+              pageCount={pageCount}
+            />
+            <Card className="ww-box print:shadow-none" ref={formRef} id="questionnaire-form">
+              <CardContent className="pt-6">
+                <QuestionnaireForm questionnaire={questionnaire} />
+              </CardContent>
+            </Card>
+          </>
         ) : (
           <Card className="ww-box">
             <CardContent className="pt-6 space-y-4">
@@ -137,20 +167,41 @@ export const DJQuestionnaireMain = ({
 
       <style>{`
         @media print {
+          @page {
+            size: A4 portrait;
+            margin: 20mm;
+          }
+          
           body * {
             visibility: hidden;
           }
-          .print\\:block, .print\\:block * {
+          
+          #questionnaire-header,
+          #questionnaire-header *,
+          #questionnaire-form,
+          #questionnaire-form * {
             visibility: visible;
           }
+          
+          #questionnaire-header {
+            position: relative;
+            margin-bottom: 20mm;
+          }
+          
           .print\\:hidden {
             display: none !important;
           }
+          
           .print\\:shadow-none {
             box-shadow: none !important;
           }
-          .print\\:space-y-4 > * + * {
-            margin-top: 1rem !important;
+          
+          .print\\:border-0 {
+            border: 0 !important;
+          }
+          
+          .print-page-break {
+            page-break-after: always;
           }
         }
       `}</style>

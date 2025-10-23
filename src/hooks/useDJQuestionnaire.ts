@@ -239,12 +239,44 @@ export const useDJQuestionnaire = (eventId: string | null) => {
     fetchQuestionnaire();
   }, [eventId]);
 
+  const updateHeaderOverrides = async (overrides: Record<string, any>) => {
+    if (!questionnaire?.id) {
+      toast({
+        title: 'Error',
+        description: 'No questionnaire loaded',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('dj_questionnaires')
+        .update({ header_overrides: overrides })
+        .eq('id', questionnaire.id);
+
+      if (error) throw error;
+
+      // Refetch to get updated data
+      await fetchQuestionnaire();
+    } catch (error) {
+      console.error('Error updating header overrides:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to update header details',
+        variant: 'destructive',
+      });
+      throw error;
+    }
+  };
+
   return {
     questionnaire,
     loading,
     saveAnswer,
     updateStatus,
     createQuestionnaireFromTemplate,
+    updateHeaderOverrides,
     refetch: fetchQuestionnaire,
   };
 };
