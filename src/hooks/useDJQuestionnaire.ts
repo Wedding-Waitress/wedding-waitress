@@ -513,6 +513,63 @@ export const useDJQuestionnaire = (eventId: string | null) => {
     }
   };
 
+  const applyRecommendations = async (sectionId: string, defaultRows: any[]) => {
+    try {
+      const section = questionnaire?.sections.find(s => s.id === sectionId);
+      if (!section) throw new Error('Section not found');
+
+      const itemType = section.items[0]?.type;
+      const maxSortIndex = await getMaxSortIndex(sectionId);
+
+      const itemsToInsert = defaultRows.map((_, index) => ({
+        section_id: sectionId,
+        type: itemType,
+        prompt: section.items[0]?.prompt || 'Entry',
+        help_text: section.items[0]?.help_text || null,
+        required: false,
+        sort_index: maxSortIndex + 1 + index,
+        meta: section.items[0]?.meta || {}
+      }));
+
+      const { data: newItems, error: insertError } = await supabase
+        .from('dj_items')
+        .insert(itemsToInsert)
+        .select();
+
+      if (insertError) throw insertError;
+
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+
+      const answersToInsert = newItems.map((item, index) => ({
+        item_id: item.id,
+        value: defaultRows[index],
+        answered_by: user.id
+      }));
+
+      const { error: answersError } = await supabase
+        .from('dj_answers')
+        .insert(answersToInsert);
+
+      if (answersError) throw answersError;
+
+      await fetchQuestionnaire();
+
+      toast({
+        title: "Success",
+        description: `${defaultRows.length} recommended ${defaultRows.length === 1 ? 'entry' : 'entries'} added`,
+      });
+    } catch (error: any) {
+      console.error('Error applying recommendations:', error);
+      toast({
+        title: "Error",
+        description: "Failed to apply recommendations",
+        variant: "destructive",
+      });
+      throw error;
+    }
+  };
+
   const updateSectionVisibility = async (sectionVisibility: Record<string, boolean>) => {
     if (!questionnaire?.id) return;
 
@@ -567,6 +624,7 @@ export const useDJQuestionnaire = (eventId: string | null) => {
     deleteItem,
     reorderItems,
     bulkAddSongs,
+    applyRecommendations,
     updateSectionVisibility,
     refetch: fetchQuestionnaire,
   };

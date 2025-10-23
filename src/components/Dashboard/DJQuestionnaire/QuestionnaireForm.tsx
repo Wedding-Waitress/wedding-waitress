@@ -34,7 +34,8 @@ export const QuestionnaireForm = ({ questionnaire, sectionVisibility = {} }: Que
     addItemBelow,
     deleteItem,
     reorderItems,
-    bulkAddSongs
+    bulkAddSongs,
+    applyRecommendations
   } = useDJQuestionnaire(questionnaire.event_id);
   
   const { toast } = useToast();
@@ -85,6 +86,14 @@ export const QuestionnaireForm = ({ questionnaire, sectionVisibility = {} }: Que
     }
   };
 
+  const handleApplyRecommendations = async (sectionId: string, defaultRows: any[]) => {
+    try {
+      await applyRecommendations(sectionId, defaultRows);
+    } catch (error) {
+      console.error('Failed to apply recommendations:', error);
+    }
+  };
+
   return (
     <div id="questionnaire-form" className="space-y-8">
       {questionnaire.sections
@@ -131,7 +140,11 @@ export const QuestionnaireForm = ({ questionnaire, sectionVisibility = {} }: Que
             )}
 
             {hasRecommendations && (
-              <RecommendationsNotice recommendations={section.recommendations} />
+              <RecommendationsNotice 
+                recommendations={section.recommendations}
+                currentItemCount={section.items.length}
+                onApply={() => handleApplyRecommendations(section.id, section.recommendations.default_rows)}
+              />
             )}
 
             <DndContext
