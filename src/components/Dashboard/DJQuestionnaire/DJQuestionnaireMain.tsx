@@ -155,36 +155,137 @@ export const DJQuestionnaireMain = ({
         <CardHeader className="border-b bg-card">
           <CardTitle className="mb-6">DJ & MC Questionnaire</CardTitle>
           
-          <div className="space-y-4 mb-4">
-            <div>
-              <label className="text-sm font-medium mb-2 block">Select Event</label>
-              <Select value={selectedEventId || ''} onValueChange={onEventSelect}>
-                <SelectTrigger className="w-full md:w-[280px] bg-background">
-                  <SelectValue placeholder="Select an event..." />
-                </SelectTrigger>
-                <SelectContent className="bg-background z-50">
-                  {events.map((event) => (
-                    <SelectItem key={event.id} value={event.id}>
-                      {event.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <label className="text-sm font-medium mb-2 block">Questionnaire Template</label>
-              <QuestionnaireTemplateSelector value={templateType} onChange={handleTemplateChange} />
-            </div>
-          </div>
+          {questionnaire && selectedEvent ? (
+            <>
+              {/* Two-column grid: Dropdowns on left, Event details on right */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-4">
+                {/* Left Column: Dropdowns */}
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">Select Event</label>
+                    <Select value={selectedEventId || ''} onValueChange={onEventSelect}>
+                      <SelectTrigger className="w-full md:w-[280px] bg-background">
+                        <SelectValue placeholder="Select an event..." />
+                      </SelectTrigger>
+                      <SelectContent className="bg-background z-50">
+                        {events.map((event) => (
+                          <SelectItem key={event.id} value={event.id}>
+                            {event.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">Questionnaire Template</label>
+                    <QuestionnaireTemplateSelector value={templateType} onChange={handleTemplateChange} />
+                  </div>
+                </div>
 
-          {questionnaire && selectedEvent && (
-            <div className="flex justify-end pt-4 print:hidden">
-              <QuestionnaireActionButtons
-                event={selectedEvent}
-                questionnaire={questionnaire}
-                templateType={templateType}
-                onUpdateHeaderOverrides={updateHeaderOverrides}
-              />
+                {/* Right Column: Event Details */}
+                <div className="space-y-3">
+                  <h2 className="text-2xl font-bold text-primary">
+                    {getEventName(selectedEvent)}
+                  </h2>
+                  
+                  <div className="flex flex-wrap items-center gap-2 text-sm">
+                    <span className="font-medium">{getTemplateDisplayLabel(templateType)}</span>
+                    <span className="text-muted-foreground">•</span>
+                    <span>{formatEventDate(selectedEvent.date)}</span>
+                  </div>
+
+                  <div className="space-y-2 text-sm">
+                    <div className="grid grid-cols-[100px_1fr] gap-2">
+                      <span className="font-medium">Venue:</span>
+                      <span>{questionnaire.header_overrides?.venue_name || selectedEvent.venue || selectedEvent.venue_name || 'TBD'}</span>
+                    </div>
+
+                    <div className="grid grid-cols-[100px_1fr] gap-2">
+                      <span className="font-medium">Ceremony:</span>
+                      <span>{formatTimeRange(
+                        questionnaire.header_overrides?.ceremony_start || selectedEvent.start_time,
+                        questionnaire.header_overrides?.ceremony_finish || selectedEvent.start_time
+                      )}</span>
+                    </div>
+
+                    {(() => {
+                      const canapesTime = formatTimeRange(
+                        questionnaire.header_overrides?.canapes_start || null,
+                        questionnaire.header_overrides?.canapes_finish || null
+                      );
+                      return canapesTime && canapesTime !== 'TBD' ? (
+                        <div className="grid grid-cols-[100px_1fr] gap-2">
+                          <span className="font-medium">Canapés:</span>
+                          <span>{canapesTime}</span>
+                        </div>
+                      ) : null;
+                    })()}
+
+                    <div className="grid grid-cols-[100px_1fr] gap-2">
+                      <span className="font-medium">Reception:</span>
+                      <span>{formatTimeRange(
+                        questionnaire.header_overrides?.reception_start || selectedEvent.start_time,
+                        questionnaire.header_overrides?.reception_finish || selectedEvent.finish_time
+                      )}</span>
+                    </div>
+
+                    <div className="grid grid-cols-[100px_1fr] gap-2">
+                      <span className="font-medium">DJ:</span>
+                      <span>
+                        {questionnaire.header_overrides?.dj_name || 'TBD'}
+                        {questionnaire.header_overrides?.dj_mobile && ` (${questionnaire.header_overrides.dj_mobile})`}
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-[100px_1fr] gap-2">
+                      <span className="font-medium">MC:</span>
+                      <span>
+                        {questionnaire.header_overrides?.mc_name || 'TBD'}
+                        {questionnaire.header_overrides?.mc_mobile && ` (${questionnaire.header_overrides.mc_mobile})`}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap gap-4 text-xs text-muted-foreground pt-2 border-t">
+                    <span>Pages: {pageCount}</span>
+                    <span>Generated on: {getCurrentDateTime().date}</span>
+                    <span>Time: {getCurrentDateTime().time}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Buttons Row */}
+              <div className="flex justify-end pt-4 print:hidden">
+                <QuestionnaireActionButtons
+                  event={selectedEvent}
+                  questionnaire={questionnaire}
+                  templateType={templateType}
+                  onUpdateHeaderOverrides={updateHeaderOverrides}
+                />
+              </div>
+            </>
+          ) : (
+            /* Show only dropdowns when no questionnaire exists */
+            <div className="space-y-4 mb-4">
+              <div>
+                <label className="text-sm font-medium mb-2 block">Select Event</label>
+                <Select value={selectedEventId || ''} onValueChange={onEventSelect}>
+                  <SelectTrigger className="w-full md:w-[280px] bg-background">
+                    <SelectValue placeholder="Select an event..." />
+                  </SelectTrigger>
+                  <SelectContent className="bg-background z-50">
+                    {events.map((event) => (
+                      <SelectItem key={event.id} value={event.id}>
+                        {event.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-2 block">Questionnaire Template</label>
+                <QuestionnaireTemplateSelector value={templateType} onChange={handleTemplateChange} />
+              </div>
             </div>
           )}
 
@@ -196,89 +297,13 @@ export const DJQuestionnaireMain = ({
           </div>
         </CardHeader>
 
-        {/* Two Column Layout */}
+        {/* Section Navigation */}
         {questionnaire && selectedEvent && (
           <CardContent className="p-6 print:hidden bg-card">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Left Column: Event Details */}
-              <div className="space-y-3">
-                <h2 className="text-2xl font-bold text-primary">
-                  {getEventName(selectedEvent)}
-                </h2>
-                
-                <div className="flex flex-wrap items-center gap-2 text-sm">
-                  <span className="font-medium">{getTemplateDisplayLabel(templateType)}</span>
-                  <span className="text-muted-foreground">•</span>
-                  <span>{formatEventDate(selectedEvent.date)}</span>
-                </div>
-
-                <div className="space-y-2 text-sm">
-                  <div className="grid grid-cols-[100px_1fr] gap-2">
-                    <span className="font-medium">Venue:</span>
-                    <span>{questionnaire.header_overrides?.venue_name || selectedEvent.venue || selectedEvent.venue_name || 'TBD'}</span>
-                  </div>
-
-                  <div className="grid grid-cols-[100px_1fr] gap-2">
-                    <span className="font-medium">Ceremony:</span>
-                    <span>{formatTimeRange(
-                      questionnaire.header_overrides?.ceremony_start || selectedEvent.start_time,
-                      questionnaire.header_overrides?.ceremony_finish || selectedEvent.start_time
-                    )}</span>
-                  </div>
-
-                  {(() => {
-                    const canapesTime = formatTimeRange(
-                      questionnaire.header_overrides?.canapes_start || null,
-                      questionnaire.header_overrides?.canapes_finish || null
-                    );
-                    return canapesTime && canapesTime !== 'TBD' ? (
-                      <div className="grid grid-cols-[100px_1fr] gap-2">
-                        <span className="font-medium">Canapés:</span>
-                        <span>{canapesTime}</span>
-                      </div>
-                    ) : null;
-                  })()}
-
-                  <div className="grid grid-cols-[100px_1fr] gap-2">
-                    <span className="font-medium">Reception:</span>
-                    <span>{formatTimeRange(
-                      questionnaire.header_overrides?.reception_start || selectedEvent.start_time,
-                      questionnaire.header_overrides?.reception_finish || selectedEvent.finish_time
-                    )}</span>
-                  </div>
-
-                  <div className="grid grid-cols-[100px_1fr] gap-2">
-                    <span className="font-medium">DJ:</span>
-                    <span>
-                      {questionnaire.header_overrides?.dj_name || 'TBD'}
-                      {questionnaire.header_overrides?.dj_mobile && ` (${questionnaire.header_overrides.dj_mobile})`}
-                    </span>
-                  </div>
-
-                  <div className="grid grid-cols-[100px_1fr] gap-2">
-                    <span className="font-medium">MC:</span>
-                    <span>
-                      {questionnaire.header_overrides?.mc_name || 'TBD'}
-                      {questionnaire.header_overrides?.mc_mobile && ` (${questionnaire.header_overrides.mc_mobile})`}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex flex-wrap gap-4 text-xs text-muted-foreground pt-2 border-t">
-                  <span>Pages: {pageCount}</span>
-                  <span>Generated on: {getCurrentDateTime().date}</span>
-                  <span>Time: {getCurrentDateTime().time}</span>
-                </div>
-              </div>
-
-              {/* Right Column: Section Navigation */}
-              <div>
-                <SectionSelector
-                  activeSection={activeSection}
-                  onChange={handleSectionChange}
-                />
-              </div>
-            </div>
+            <SectionSelector
+              activeSection={activeSection}
+              onChange={handleSectionChange}
+            />
           </CardContent>
         )}
       </Card>
