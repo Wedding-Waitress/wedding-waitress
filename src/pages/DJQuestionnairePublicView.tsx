@@ -199,9 +199,14 @@ export function DJQuestionnairePublicView() {
 
     switch (type) {
       case 'song_row':
-        const { song, artist, link } = value;
+      case 'ceremony_music_row':
+      case 'main_event_song_row':
+      case 'background_music_row':
+      case 'dance_music_row':
+        const { song, artist, link, moment } = value;
         return (
           <div className="space-y-1">
+            {moment && <div className="text-sm text-muted-foreground italic">{moment}</div>}
             <div className="flex items-center gap-2">
               <Music className="w-4 h-4 text-primary" />
               <span className="font-medium">{song || 'N/A'}</span>
@@ -221,16 +226,72 @@ export function DJQuestionnairePublicView() {
           </div>
         );
 
+      case 'bridal_party_enhanced_row':
+        const { role, names, pronunciation, entranceSong: bridalEntranceSong, link: bridalLink } = value;
+        return (
+          <div className="space-y-1">
+            <div className="font-medium">{role || 'N/A'}: {names || 'N/A'}</div>
+            {pronunciation && <div className="text-sm text-muted-foreground italic">Pronunciation: {pronunciation}</div>}
+            {bridalEntranceSong && (
+              <div className="text-sm">
+                <Music className="w-3 h-3 inline mr-1" />
+                {bridalEntranceSong}
+              </div>
+            )}
+            {bridalLink && (
+              <a
+                href={bridalLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
+              >
+                <ExternalLink className="w-3 h-3" />
+                Listen
+              </a>
+            )}
+          </div>
+        );
+
+      case 'speech_enhanced_row':
+        return (
+          <div className="space-y-1">
+            <div>
+              <span className="font-medium">#{value.order || '?'}</span>
+              {' - '}
+              <span className="font-medium">{value.name || 'N/A'}</span>
+              {value.role && <span className="text-muted-foreground"> ({value.role})</span>}
+            </div>
+            {value.notes && <div className="text-sm text-muted-foreground">{value.notes}</div>}
+          </div>
+        );
+
+      case 'cultural_music_enhanced_row':
+        return (
+          <div className="space-y-1">
+            <div className="font-medium">{value.blockName || 'N/A'}</div>
+            {value.whenToPlay && <div className="text-sm text-muted-foreground">When: {value.whenToPlay}</div>}
+            {value.songs && <div className="text-sm whitespace-pre-wrap">{value.songs}</div>}
+          </div>
+        );
+
+      case 'do_not_play_row':
+        return (
+          <div className="space-y-1">
+            <div className="font-medium">{value.songGenre || 'N/A'}</div>
+            {value.notes && <div className="text-sm text-muted-foreground">{value.notes}</div>}
+          </div>
+        );
+
       case 'bridal_party_row':
-        const { groupName, type: partyType, entranceSong } = value;
+        const { groupName, type: partyType, entranceSong: partyEntranceSong } = value;
         return (
           <div className="space-y-1">
             <div className="font-medium">{groupName || 'N/A'}</div>
             {partyType && <div className="text-sm text-muted-foreground">{partyType}</div>}
-            {entranceSong && (
+            {partyEntranceSong && (
               <div className="text-sm">
                 <Music className="w-3 h-3 inline mr-1" />
-                {entranceSong}
+                {partyEntranceSong}
               </div>
             )}
           </div>

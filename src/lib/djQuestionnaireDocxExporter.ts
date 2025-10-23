@@ -270,10 +270,62 @@ export const exportToDocx = async (
       // Answer value
       const answerValue = item.answer?.value;
 
-      // Special handling for song_row with links
-      if (item.type === 'song_row' && answerValue) {
+      // Helper function to render a link as hyperlink
+      const renderLink = (link: string): Paragraph => {
+        const linkUrl = ensureAbsoluteUrl(link);
+        const validation = validateMusicURL(linkUrl);
+        const platformName = getPlatformName(validation.platform);
+
+        return new Paragraph({
+          spacing: { after: 100 },
+          children: [
+            new TextRun({
+              text: '🔗 ',
+              size: 20,
+            }),
+            new ExternalHyperlink({
+              children: [
+                new TextRun({
+                  text: `${platformName}: ${linkUrl}`,
+                  size: 20,
+                  color: '6D28D9',
+                  underline: {},
+                }),
+              ],
+              link: linkUrl,
+            }),
+          ],
+        });
+      };
+
+      // Handle all music row types with links
+      if (
+        (item.type === 'song_row' ||
+          item.type === 'ceremony_music_row' ||
+          item.type === 'main_event_song_row' ||
+          item.type === 'background_music_row' ||
+          item.type === 'dance_music_row') &&
+        answerValue
+      ) {
         const songData = answerValue;
-        
+
+        // Moment (if applicable)
+        if (songData.moment) {
+          sections.push(
+            new Paragraph({
+              spacing: { after: 50 },
+              children: [
+                new TextRun({
+                  text: `Moment: ${songData.moment}`,
+                  size: 20,
+                  italics: true,
+                  color: '666666',
+                }),
+              ],
+            })
+          );
+        }
+
         // Song title + artist
         sections.push(
           new Paragraph({
@@ -290,48 +342,70 @@ export const exportToDocx = async (
 
         // Clickable link
         if (songData.link) {
-          const linkUrl = ensureAbsoluteUrl(songData.link);
-          const validation = validateMusicURL(linkUrl);
-          const platformName = getPlatformName(validation.platform);
+          sections.push(renderLink(songData.link));
+        }
 
+        sections.push(
+          new Paragraph({
+            text: '',
+            spacing: { after: 200 },
+          })
+        );
+      } else if (item.type === 'bridal_party_enhanced_row' && answerValue) {
+        const bridalData = answerValue;
+
+        sections.push(
+          new Paragraph({
+            spacing: { after: 50 },
+            children: [
+              new TextRun({
+                text: `${bridalData.role || '[Role]'}: ${bridalData.names || '[Names]'}`,
+                size: 20,
+                bold: true,
+              }),
+            ],
+          })
+        );
+
+        if (bridalData.pronunciation) {
           sections.push(
             new Paragraph({
-              spacing: { after: 200 },
+              spacing: { after: 50 },
               children: [
                 new TextRun({
-                  text: '🔗 ',
+                  text: `Pronunciation: ${bridalData.pronunciation}`,
                   size: 20,
-                }),
-                new ExternalHyperlink({
-                  children: [
-                    new TextRun({
-                      text: `${platformName}: ${linkUrl}`,
-                      size: 20,
-                      color: '6D28D9',
-                      underline: {},
-                    }),
-                  ],
-                  link: linkUrl,
-                }),
-              ],
-            })
-          );
-        } else {
-          sections.push(
-            new Paragraph({
-              text: '[No link provided]',
-              spacing: { after: 200 },
-              children: [
-                new TextRun({
-                  text: '[No link provided]',
-                  size: 20,
-                  color: '999999',
                   italics: true,
                 }),
               ],
             })
           );
         }
+
+        if (bridalData.entranceSong) {
+          sections.push(
+            new Paragraph({
+              spacing: { after: 50 },
+              children: [
+                new TextRun({
+                  text: `♪ Entrance: ${bridalData.entranceSong}`,
+                  size: 20,
+                }),
+              ],
+            })
+          );
+        }
+
+        if (bridalData.link) {
+          sections.push(renderLink(bridalData.link));
+        }
+
+        sections.push(
+          new Paragraph({
+            text: '',
+            spacing: { after: 200 },
+          })
+        );
       } else {
         // Default handling for other item types
         let displayValue = '';
