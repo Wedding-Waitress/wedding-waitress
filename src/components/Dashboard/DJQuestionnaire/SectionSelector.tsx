@@ -1,5 +1,6 @@
 import React from 'react';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface SectionSelectorProps {
   activeSection: string;
@@ -7,15 +8,15 @@ interface SectionSelectorProps {
 }
 
 const SECTION_OPTIONS = [
-  'All Sections',
-  'Ceremony Music',
-  'Bridal Party Introductions',
-  'Speeches',
-  'Main Event Songs',
-  'Background / Dinner Music',
-  'Dance Music',
-  'Traditional / Multicultural Music',
-  'Do Not Play Songs',
+  { id: 'All Sections', label: 'All Sections', icon: '📋' },
+  { id: 'Ceremony Music', label: 'Ceremony Music', icon: '💒' },
+  { id: 'Bridal Party Introductions', label: 'Bridal Party Introductions', icon: '👰' },
+  { id: 'Speeches', label: 'Speeches', icon: '🎤' },
+  { id: 'Main Event Songs', label: 'Main Event Songs', icon: '⭐' },
+  { id: 'Background / Dinner Music', label: 'Background / Dinner Music', icon: '🍽️' },
+  { id: 'Dance Music', label: 'Dance Music', icon: '💃' },
+  { id: 'Traditional / Multicultural Music', label: 'Traditional / Multicultural Music', icon: '🌍' },
+  { id: 'Do Not Play Songs', label: 'Do not play list', icon: '🚫' },
 ] as const;
 
 export const SectionSelector: React.FC<SectionSelectorProps> = ({
@@ -23,20 +24,35 @@ export const SectionSelector: React.FC<SectionSelectorProps> = ({
   onChange,
 }) => {
   return (
-    <div className="w-full print:hidden">
-      <Tabs value={activeSection} onValueChange={onChange} className="w-full">
-        <TabsList className="w-full h-auto grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-1 p-1 bg-muted/30">
-          {SECTION_OPTIONS.map((section) => (
-            <TabsTrigger
-              key={section}
-              value={section}
-              className="text-xs sm:text-sm px-2 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground whitespace-normal h-auto min-h-[2.5rem]"
-            >
-              {section}
-            </TabsTrigger>
-          ))}
-        </TabsList>
-      </Tabs>
+    <div className="w-full h-full print:hidden">
+      <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4">
+        Navigate Sections
+      </h3>
+      <ScrollArea className="h-[400px] lg:h-[500px]">
+        <div className="space-y-2 pr-4">
+          {SECTION_OPTIONS.map((section) => {
+            const isActive = activeSection === section.id;
+            return (
+              <Button
+                key={section.id}
+                onClick={() => onChange(section.id)}
+                variant={isActive ? 'default' : 'ghost'}
+                className={`
+                  w-full justify-start text-left h-auto py-3 px-4 
+                  transition-all duration-200
+                  ${isActive 
+                    ? 'bg-primary text-primary-foreground shadow-sm' 
+                    : 'hover:bg-muted hover:text-foreground'
+                  }
+                `}
+              >
+                <span className="text-lg mr-3">{section.icon}</span>
+                <span className="text-sm font-medium">{section.label}</span>
+              </Button>
+            );
+          })}
+        </div>
+      </ScrollArea>
     </div>
   );
 };

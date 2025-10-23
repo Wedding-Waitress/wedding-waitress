@@ -46,7 +46,6 @@ export const DJQuestionnaireMain = ({
   const { questionnaire, loading, hasUnsavedChanges, createQuestionnaireFromTemplate, updateHeaderOverrides, updateActiveSection, ensureSectionExists, refetch } = useDJQuestionnaire(selectedEventId);
   const [templateType, setTemplateType] = useState<TemplateType>('wedding_mr_mrs');
   const [pageCount, setPageCount] = useState<number>(1);
-  const [isScrolled, setIsScrolled] = useState(false);
   const [loadingSection, setLoadingSection] = useState(false);
   const formRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
@@ -128,14 +127,6 @@ export const DJQuestionnaireMain = ({
     await updateActiveSection(section);
   };
 
-  // Scroll listener for sticky header shadow
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   // Warn on page close/refresh
   useEffect(() => {
@@ -161,9 +152,7 @@ export const DJQuestionnaireMain = ({
       )}
 
       <Card className="ww-box print:shadow-none">
-        <CardHeader className={`sticky top-0 z-10 bg-card/95 backdrop-blur-sm border-b transition-shadow ${
-          isScrolled ? 'shadow-lg' : 'shadow-sm'
-        }`}>
+        <CardHeader className="border-b bg-card">
           <div className="flex flex-col md:flex-row md:items-center gap-4 mb-4">
             <div className="flex-1">
               <label className="text-sm font-medium mb-2 block">Select Event</label>
@@ -206,87 +195,92 @@ export const DJQuestionnaireMain = ({
           </div>
         </CardHeader>
 
-        {/* INNER BOX 2: Event Details - Inline from QuestionnaireHeader */}
+        {/* Two Column Layout */}
         {questionnaire && selectedEvent && (
-          <CardContent className="bg-muted/30 border-t p-6 space-y-3 print:hidden">
-            <h2 className="text-2xl font-bold text-primary">
-              {getEventName(selectedEvent)}
-            </h2>
-            
-            <div className="flex flex-wrap items-center gap-2 text-sm">
-              <span className="font-medium">{getTemplateDisplayLabel(templateType)}</span>
-              <span className="text-muted-foreground">•</span>
-              <span>{formatEventDate(selectedEvent.date)}</span>
-            </div>
+          <CardContent className="p-0 print:hidden">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
+              {/* Left Column: Event Details */}
+              <div className="bg-muted/30 border-b lg:border-b-0 lg:border-r p-6 space-y-3">
+                <h2 className="text-2xl font-bold text-primary">
+                  {getEventName(selectedEvent)}
+                </h2>
+                
+                <div className="flex flex-wrap items-center gap-2 text-sm">
+                  <span className="font-medium">{getTemplateDisplayLabel(templateType)}</span>
+                  <span className="text-muted-foreground">•</span>
+                  <span>{formatEventDate(selectedEvent.date)}</span>
+                </div>
 
-            <div className="space-y-2 text-sm">
-              <div className="grid grid-cols-[100px_1fr] gap-2">
-                <span className="font-medium">Venue:</span>
-                <span>{questionnaire.header_overrides?.venue_name || selectedEvent.venue || selectedEvent.venue_name || 'TBD'}</span>
-              </div>
-
-              <div className="grid grid-cols-[100px_1fr] gap-2">
-                <span className="font-medium">Ceremony:</span>
-                <span>{formatTimeRange(
-                  questionnaire.header_overrides?.ceremony_start || selectedEvent.start_time,
-                  questionnaire.header_overrides?.ceremony_finish || selectedEvent.start_time
-                )}</span>
-              </div>
-
-              {(() => {
-                const canapesTime = formatTimeRange(
-                  questionnaire.header_overrides?.canapes_start || null,
-                  questionnaire.header_overrides?.canapes_finish || null
-                );
-                return canapesTime && canapesTime !== 'TBD' ? (
+                <div className="space-y-2 text-sm">
                   <div className="grid grid-cols-[100px_1fr] gap-2">
-                    <span className="font-medium">Canapés:</span>
-                    <span>{canapesTime}</span>
+                    <span className="font-medium">Venue:</span>
+                    <span>{questionnaire.header_overrides?.venue_name || selectedEvent.venue || selectedEvent.venue_name || 'TBD'}</span>
                   </div>
-                ) : null;
-              })()}
 
-              <div className="grid grid-cols-[100px_1fr] gap-2">
-                <span className="font-medium">Reception:</span>
-                <span>{formatTimeRange(
-                  questionnaire.header_overrides?.reception_start || selectedEvent.start_time,
-                  questionnaire.header_overrides?.reception_finish || selectedEvent.finish_time
-                )}</span>
+                  <div className="grid grid-cols-[100px_1fr] gap-2">
+                    <span className="font-medium">Ceremony:</span>
+                    <span>{formatTimeRange(
+                      questionnaire.header_overrides?.ceremony_start || selectedEvent.start_time,
+                      questionnaire.header_overrides?.ceremony_finish || selectedEvent.start_time
+                    )}</span>
+                  </div>
+
+                  {(() => {
+                    const canapesTime = formatTimeRange(
+                      questionnaire.header_overrides?.canapes_start || null,
+                      questionnaire.header_overrides?.canapes_finish || null
+                    );
+                    return canapesTime && canapesTime !== 'TBD' ? (
+                      <div className="grid grid-cols-[100px_1fr] gap-2">
+                        <span className="font-medium">Canapés:</span>
+                        <span>{canapesTime}</span>
+                      </div>
+                    ) : null;
+                  })()}
+
+                  <div className="grid grid-cols-[100px_1fr] gap-2">
+                    <span className="font-medium">Reception:</span>
+                    <span>{formatTimeRange(
+                      questionnaire.header_overrides?.reception_start || selectedEvent.start_time,
+                      questionnaire.header_overrides?.reception_finish || selectedEvent.finish_time
+                    )}</span>
+                  </div>
+
+                  <div className="grid grid-cols-[100px_1fr] gap-2">
+                    <span className="font-medium">DJ:</span>
+                    <span>
+                      {questionnaire.header_overrides?.dj_name || 'TBD'}
+                      {questionnaire.header_overrides?.dj_mobile && ` (${questionnaire.header_overrides.dj_mobile})`}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-[100px_1fr] gap-2">
+                    <span className="font-medium">MC:</span>
+                    <span>
+                      {questionnaire.header_overrides?.mc_name || 'TBD'}
+                      {questionnaire.header_overrides?.mc_mobile && ` (${questionnaire.header_overrides.mc_mobile})`}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap gap-4 text-xs text-muted-foreground pt-2 border-t">
+                  <span>Pages: {pageCount}</span>
+                  <span>Generated on: {getCurrentDateTime().date}</span>
+                  <span>Time: {getCurrentDateTime().time}</span>
+                </div>
               </div>
 
-              <div className="grid grid-cols-[100px_1fr] gap-2">
-                <span className="font-medium">DJ:</span>
-                <span>
-                  {questionnaire.header_overrides?.dj_name || 'TBD'}
-                  {questionnaire.header_overrides?.dj_mobile && ` (${questionnaire.header_overrides.dj_mobile})`}
-                </span>
+              {/* Right Column: Section Navigation */}
+              <div className="p-6">
+                <SectionSelector
+                  activeSection={activeSection}
+                  onChange={handleSectionChange}
+                />
               </div>
-
-              <div className="grid grid-cols-[100px_1fr] gap-2">
-                <span className="font-medium">MC:</span>
-                <span>
-                  {questionnaire.header_overrides?.mc_name || 'TBD'}
-                  {questionnaire.header_overrides?.mc_mobile && ` (${questionnaire.header_overrides.mc_mobile})`}
-                </span>
-              </div>
-            </div>
-
-            <div className="flex flex-wrap gap-4 text-xs text-muted-foreground pt-2 border-t">
-              <span>Pages: {pageCount}</span>
-              <span>Generated on: {getCurrentDateTime().date}</span>
-              <span>Time: {getCurrentDateTime().time}</span>
             </div>
           </CardContent>
         )}
       </Card>
-
-      {/* Section Selector */}
-      {questionnaire && selectedEvent && (
-        <SectionSelector
-          activeSection={activeSection}
-          onChange={handleSectionChange}
-        />
-      )}
 
       {selectedEventId ? (
         loading ? (
