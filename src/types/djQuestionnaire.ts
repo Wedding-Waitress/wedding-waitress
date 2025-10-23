@@ -2,7 +2,15 @@
 
 export type TemplateType = 'wedding_mr_mrs' | 'wedding_mr_mr' | 'wedding_mrs_mrs' | 'event_general';
 export type QuestionnaireStatus = 'draft' | 'ready' | 'sent' | 'approved';
-export type ItemType = 'text' | 'longtext' | 'name' | 'song' | 'list' | 'toggle' | 'time' | 'phone' | 'email';
+export type ItemType = 
+  | 'text' | 'longtext' | 'name' | 'song' | 'list' 
+  | 'toggle' | 'time' | 'phone' | 'email'
+  | 'speech_row'        // Name + Order
+  | 'pronunciation_row' // Name + Role + Phonetic + Audio Upload
+  | 'bridal_party_row'  // Group Name + Type + Entrance Song
+  | 'song_row'          // Song + Artist + Link
+  | 'cultural_row'      // Style/Tradition + When to Play
+  | 'announcement_row'; // Announcement + Time/Cue
 
 export interface DJQuestionnaire {
   id: string;

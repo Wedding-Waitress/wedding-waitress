@@ -1,287 +1,141 @@
-import { TemplateType, ItemType } from '@/types/djQuestionnaire';
+import { TemplateType } from '@/types/djQuestionnaire';
 
 export interface TemplateSection {
   label: string;
   instructions: string;
-  sort_index: number;
   items: TemplateItem[];
+  recommendations?: any;
 }
 
 export interface TemplateItem {
-  type: ItemType;
+  type: string;
   prompt: string;
   help_text?: string;
-  required: boolean;
-  sort_index: number;
+  required?: boolean;
   meta?: Record<string, any>;
 }
 
-export const DJ_TEMPLATES: Record<TemplateType, TemplateSection[]> = {
-  wedding_mr_mrs: [
-    {
-      label: "Event Details",
-      instructions: "Please provide basic information about your wedding",
-      sort_index: 0,
-      items: [
-        { type: "name", prompt: "Bride's Full Name", required: true, sort_index: 0 },
-        { type: "name", prompt: "Groom's Full Name", required: true, sort_index: 1 },
-        { type: "time", prompt: "Ceremony Start Time", required: true, sort_index: 2 },
-        { type: "time", prompt: "Reception Start Time", required: true, sort_index: 3 },
-        { type: "time", prompt: "Event End Time", required: true, sort_index: 4 },
-        { type: "text", prompt: "Number of Guests", required: true, sort_index: 5 },
-      ]
-    },
-    {
-      label: "Music Preferences",
-      instructions: "Tell us about your music preferences for the reception",
-      sort_index: 1,
-      items: [
-        { type: "song", prompt: "First Dance Song", help_text: "Artist - Song Title", required: true, sort_index: 0 },
-        { type: "song", prompt: "Father-Daughter Dance", help_text: "Artist - Song Title", required: false, sort_index: 1 },
-        { type: "song", prompt: "Mother-Son Dance", help_text: "Artist - Song Title", required: false, sort_index: 2 },
-        { type: "song", prompt: "Bridal Party Entrance Song", required: false, sort_index: 3 },
-        { type: "song", prompt: "Cake Cutting Song", required: false, sort_index: 4 },
-        { type: "list", prompt: "Must Play Songs", help_text: "Songs you definitely want played", meta: { maxRows: 15 }, required: false, sort_index: 5 },
-        { type: "list", prompt: "Do Not Play Songs", help_text: "Songs to avoid", meta: { maxRows: 15 }, required: false, sort_index: 6 },
-        { type: "longtext", prompt: "Preferred Music Genres", help_text: "e.g., Pop, Rock, Country, Hip-Hop", required: false, sort_index: 7 },
-        { type: "toggle", prompt: "Allow DJ to take requests from guests?", required: false, sort_index: 8 },
-      ]
-    },
-    {
-      label: "Timeline & Special Moments",
-      instructions: "Help us plan the evening's schedule",
-      sort_index: 2,
-      items: [
-        { type: "time", prompt: "Grand Entrance Time", required: false, sort_index: 0 },
-        { type: "time", prompt: "First Dance Time", required: false, sort_index: 1 },
-        { type: "time", prompt: "Dinner Service Time", required: false, sort_index: 2 },
-        { type: "time", prompt: "Toasts/Speeches Time", required: false, sort_index: 3 },
-        { type: "time", prompt: "Cake Cutting Time", required: false, sort_index: 4 },
-        { type: "time", prompt: "Bouquet Toss Time", required: false, sort_index: 5 },
-        { type: "time", prompt: "Garter Toss Time", required: false, sort_index: 6 },
-        { type: "longtext", prompt: "Other Special Moments or Traditions", required: false, sort_index: 7 },
-      ]
-    },
-    {
-      label: "Contact Information",
-      instructions: "Primary contacts for day-of coordination",
-      sort_index: 3,
-      items: [
-        { type: "name", prompt: "Wedding Coordinator Name", required: false, sort_index: 0 },
-        { type: "phone", prompt: "Coordinator Phone", required: false, sort_index: 1 },
-        { type: "email", prompt: "Coordinator Email", required: false, sort_index: 2 },
-        { type: "name", prompt: "Best Man Name", required: false, sort_index: 3 },
-        { type: "phone", prompt: "Best Man Phone", required: false, sort_index: 4 },
-        { type: "name", prompt: "Maid of Honor Name", required: false, sort_index: 5 },
-        { type: "phone", prompt: "Maid of Honor Phone", required: false, sort_index: 6 },
-      ]
-    },
-    {
-      label: "Additional Notes",
-      instructions: "Anything else we should know?",
-      sort_index: 4,
-      items: [
-        { type: "longtext", prompt: "Special Announcements", help_text: "Birthdays, anniversaries, etc.", required: false, sort_index: 0 },
-        { type: "longtext", prompt: "Equipment Setup Notes", help_text: "Any specific setup requirements?", required: false, sort_index: 1 },
-        { type: "longtext", prompt: "Additional Requests or Comments", required: false, sort_index: 2 },
-      ]
-    }
-  ],
-  wedding_mr_mr: [
-    {
-      label: "Event Details",
-      instructions: "Please provide basic information about your wedding",
-      sort_index: 0,
-      items: [
-        { type: "name", prompt: "Partner 1 Full Name", required: true, sort_index: 0 },
-        { type: "name", prompt: "Partner 2 Full Name", required: true, sort_index: 1 },
-        { type: "time", prompt: "Ceremony Start Time", required: true, sort_index: 2 },
-        { type: "time", prompt: "Reception Start Time", required: true, sort_index: 3 },
-        { type: "time", prompt: "Event End Time", required: true, sort_index: 4 },
-        { type: "text", prompt: "Number of Guests", required: true, sort_index: 5 },
-      ]
-    },
-    {
-      label: "Music Preferences",
-      instructions: "Tell us about your music preferences for the reception",
-      sort_index: 1,
-      items: [
-        { type: "song", prompt: "First Dance Song", help_text: "Artist - Song Title", required: true, sort_index: 0 },
-        { type: "song", prompt: "Bridal Party Entrance Song", required: false, sort_index: 1 },
-        { type: "song", prompt: "Cake Cutting Song", required: false, sort_index: 2 },
-        { type: "list", prompt: "Must Play Songs", help_text: "Songs you definitely want played", meta: { maxRows: 15 }, required: false, sort_index: 3 },
-        { type: "list", prompt: "Do Not Play Songs", help_text: "Songs to avoid", meta: { maxRows: 15 }, required: false, sort_index: 4 },
-        { type: "longtext", prompt: "Preferred Music Genres", help_text: "e.g., Pop, Rock, Electronic, Classic", required: false, sort_index: 5 },
-        { type: "toggle", prompt: "Allow DJ to take requests from guests?", required: false, sort_index: 6 },
-      ]
-    },
-    {
-      label: "Timeline & Special Moments",
-      instructions: "Help us plan the evening's schedule",
-      sort_index: 2,
-      items: [
-        { type: "time", prompt: "Grand Entrance Time", required: false, sort_index: 0 },
-        { type: "time", prompt: "First Dance Time", required: false, sort_index: 1 },
-        { type: "time", prompt: "Dinner Service Time", required: false, sort_index: 2 },
-        { type: "time", prompt: "Toasts/Speeches Time", required: false, sort_index: 3 },
-        { type: "time", prompt: "Cake Cutting Time", required: false, sort_index: 4 },
-        { type: "longtext", prompt: "Other Special Moments or Traditions", required: false, sort_index: 5 },
-      ]
-    },
-    {
-      label: "Contact Information",
-      instructions: "Primary contacts for day-of coordination",
-      sort_index: 3,
-      items: [
-        { type: "name", prompt: "Wedding Coordinator Name", required: false, sort_index: 0 },
-        { type: "phone", prompt: "Coordinator Phone", required: false, sort_index: 1 },
-        { type: "email", prompt: "Coordinator Email", required: false, sort_index: 2 },
-        { type: "name", prompt: "Best Man Name", required: false, sort_index: 3 },
-        { type: "phone", prompt: "Best Man Phone", required: false, sort_index: 4 },
-      ]
-    },
-    {
-      label: "Additional Notes",
-      instructions: "Anything else we should know?",
-      sort_index: 4,
-      items: [
-        { type: "longtext", prompt: "Special Announcements", help_text: "Birthdays, anniversaries, etc.", required: false, sort_index: 0 },
-        { type: "longtext", prompt: "Equipment Setup Notes", help_text: "Any specific setup requirements?", required: false, sort_index: 1 },
-        { type: "longtext", prompt: "Additional Requests or Comments", required: false, sort_index: 2 },
-      ]
-    }
-  ],
-  wedding_mrs_mrs: [
-    {
-      label: "Event Details",
-      instructions: "Please provide basic information about your wedding",
-      sort_index: 0,
-      items: [
-        { type: "name", prompt: "Partner 1 Full Name", required: true, sort_index: 0 },
-        { type: "name", prompt: "Partner 2 Full Name", required: true, sort_index: 1 },
-        { type: "time", prompt: "Ceremony Start Time", required: true, sort_index: 2 },
-        { type: "time", prompt: "Reception Start Time", required: true, sort_index: 3 },
-        { type: "time", prompt: "Event End Time", required: true, sort_index: 4 },
-        { type: "text", prompt: "Number of Guests", required: true, sort_index: 5 },
-      ]
-    },
-    {
-      label: "Music Preferences",
-      instructions: "Tell us about your music preferences for the reception",
-      sort_index: 1,
-      items: [
-        { type: "song", prompt: "First Dance Song", help_text: "Artist - Song Title", required: true, sort_index: 0 },
-        { type: "song", prompt: "Bridal Party Entrance Song", required: false, sort_index: 1 },
-        { type: "song", prompt: "Cake Cutting Song", required: false, sort_index: 2 },
-        { type: "list", prompt: "Must Play Songs", help_text: "Songs you definitely want played", meta: { maxRows: 15 }, required: false, sort_index: 3 },
-        { type: "list", prompt: "Do Not Play Songs", help_text: "Songs to avoid", meta: { maxRows: 15 }, required: false, sort_index: 4 },
-        { type: "longtext", prompt: "Preferred Music Genres", help_text: "e.g., Pop, Rock, R&B, Dance", required: false, sort_index: 5 },
-        { type: "toggle", prompt: "Allow DJ to take requests from guests?", required: false, sort_index: 6 },
-      ]
-    },
-    {
-      label: "Timeline & Special Moments",
-      instructions: "Help us plan the evening's schedule",
-      sort_index: 2,
-      items: [
-        { type: "time", prompt: "Grand Entrance Time", required: false, sort_index: 0 },
-        { type: "time", prompt: "First Dance Time", required: false, sort_index: 1 },
-        { type: "time", prompt: "Dinner Service Time", required: false, sort_index: 2 },
-        { type: "time", prompt: "Toasts/Speeches Time", required: false, sort_index: 3 },
-        { type: "time", prompt: "Cake Cutting Time", required: false, sort_index: 4 },
-        { type: "longtext", prompt: "Other Special Moments or Traditions", required: false, sort_index: 5 },
-      ]
-    },
-    {
-      label: "Contact Information",
-      instructions: "Primary contacts for day-of coordination",
-      sort_index: 3,
-      items: [
-        { type: "name", prompt: "Wedding Coordinator Name", required: false, sort_index: 0 },
-        { type: "phone", prompt: "Coordinator Phone", required: false, sort_index: 1 },
-        { type: "email", prompt: "Coordinator Email", required: false, sort_index: 2 },
-        { type: "name", prompt: "Maid of Honor Name", required: false, sort_index: 3 },
-        { type: "phone", prompt: "Maid of Honor Phone", required: false, sort_index: 4 },
-      ]
-    },
-    {
-      label: "Additional Notes",
-      instructions: "Anything else we should know?",
-      sort_index: 4,
-      items: [
-        { type: "longtext", prompt: "Special Announcements", help_text: "Birthdays, anniversaries, etc.", required: false, sort_index: 0 },
-        { type: "longtext", prompt: "Equipment Setup Notes", help_text: "Any specific setup requirements?", required: false, sort_index: 1 },
-        { type: "longtext", prompt: "Additional Requests or Comments", required: false, sort_index: 2 },
-      ]
-    }
-  ],
-  event_general: [
-    {
-      label: "Event Details",
-      instructions: "Please provide basic information about your event",
-      sort_index: 0,
-      items: [
-        { type: "text", prompt: "Event Name", required: true, sort_index: 0 },
-        { type: "text", prompt: "Event Type", help_text: "e.g., Birthday, Corporate, Anniversary", required: true, sort_index: 1 },
-        { type: "time", prompt: "Event Start Time", required: true, sort_index: 2 },
-        { type: "time", prompt: "Event End Time", required: true, sort_index: 3 },
-        { type: "text", prompt: "Expected Number of Guests", required: true, sort_index: 4 },
-      ]
-    },
-    {
-      label: "Music & Entertainment",
-      instructions: "Tell us about your music preferences",
-      sort_index: 1,
-      items: [
-        { type: "longtext", prompt: "Preferred Music Genres", help_text: "e.g., Top 40, Jazz, Classical", required: false, sort_index: 0 },
-        { type: "list", prompt: "Must Play Songs", help_text: "Songs you definitely want played", meta: { maxRows: 15 }, required: false, sort_index: 1 },
-        { type: "list", prompt: "Do Not Play Songs", help_text: "Songs to avoid", meta: { maxRows: 15 }, required: false, sort_index: 2 },
-        { type: "toggle", prompt: "Allow DJ to take requests from guests?", required: false, sort_index: 3 },
-        { type: "longtext", prompt: "Special Entertainment Requests", required: false, sort_index: 4 },
-      ]
-    },
-    {
-      label: "Event Timeline",
-      instructions: "Help us plan the event schedule",
-      sort_index: 2,
-      items: [
-        { type: "time", prompt: "Speeches/Toasts Time", required: false, sort_index: 0 },
-        { type: "time", prompt: "Cake Cutting Time", required: false, sort_index: 1 },
-        { type: "longtext", prompt: "Other Scheduled Activities", required: false, sort_index: 2 },
-      ]
-    },
-    {
-      label: "Contact Information",
-      instructions: "Primary contacts for day-of coordination",
-      sort_index: 3,
-      items: [
-        { type: "name", prompt: "Event Coordinator Name", required: false, sort_index: 0 },
-        { type: "phone", prompt: "Coordinator Phone", required: false, sort_index: 1 },
-        { type: "email", prompt: "Coordinator Email", required: false, sort_index: 2 },
-      ]
-    },
-    {
-      label: "Additional Notes",
-      instructions: "Anything else we should know?",
-      sort_index: 4,
-      items: [
-        { type: "longtext", prompt: "Special Announcements", required: false, sort_index: 0 },
-        { type: "longtext", prompt: "Equipment Setup Notes", required: false, sort_index: 1 },
-        { type: "longtext", prompt: "Additional Requests or Comments", required: false, sort_index: 2 },
-      ]
-    }
-  ]
+export interface Template {
+  type: TemplateType;
+  sections: TemplateSection[];
+}
+
+export const DJ_TEMPLATES: Record<TemplateType, Template> = {
+  wedding_mr_mrs: {
+    type: 'wedding_mr_mrs',
+    sections: [
+      {
+        label: 'Speeches & Toasts',
+        instructions: "List speakers in the order they will present. We recommend starting with parents and ending with the couple.",
+        recommendations: {
+          default_rows: [
+            { name: 'Father of the Bride', order: 1 },
+            { name: 'Best Man', order: 2 },
+            { name: 'Maid of Honor', order: 3 },
+            { name: 'The Couple', order: 4 }
+          ]
+        },
+        items: [
+          { type: 'speech_row', prompt: 'Speaker', help_text: 'Name and speaking order', meta: { maxRows: 5, minRows: 1 } }
+        ]
+      },
+      {
+        label: 'Pronunciations',
+        instructions: 'Help us pronounce names correctly. Include anyone being introduced or mentioned in speeches.',
+        recommendations: {
+          default_rows: [
+            { name: 'Bride', role: 'Bride', phonetic: '' },
+            { name: 'Groom', role: 'Groom', phonetic: '' }
+          ]
+        },
+        items: [
+          { type: 'pronunciation_row', prompt: 'Name Pronunciation', help_text: 'Name, role, and phonetic spelling', meta: { maxRows: 20 } }
+        ]
+      },
+      {
+        label: 'Bridal Party Introductions',
+        instructions: 'Order of entrances for your bridal party. You can assign different entrance songs per group.',
+        recommendations: {
+          default_rows: [
+            { group: 'Parents of the Bride', type: 'Parents', song: '' },
+            { group: 'Parents of the Groom', type: 'Parents', song: '' },
+            { group: 'Bridesmaids & Groomsmen', type: 'Attendants', song: '' }
+          ]
+        },
+        items: [
+          { type: 'bridal_party_row', prompt: 'Entrance Group', help_text: 'Group name, type, and entrance song', meta: { maxRows: 15 } }
+        ]
+      },
+      {
+        label: 'Main Event Songs',
+        instructions: 'Key songs for special moments. These are typically played at specific times.',
+        recommendations: {
+          default_rows: [
+            { moment: 'Grand Entrance', song: '', artist: '', link: '' },
+            { moment: 'First Dance', song: '', artist: '', link: '' },
+            { moment: 'Father-Daughter Dance', song: '', artist: '', link: '' }
+          ]
+        },
+        items: [
+          { type: 'song_row', prompt: 'Special Moment', help_text: 'Moment, song, artist, and link', required: true, meta: { maxRows: 12, showMoment: true } }
+        ]
+      },
+      {
+        label: 'Dance Floor Must-Plays',
+        instructions: 'Up to 30 songs that MUST be played on the dance floor.',
+        items: [
+          { type: 'song_row', prompt: 'Must-Play Song', help_text: 'Song, artist, and link', meta: { maxRows: 30, showMoment: false } }
+        ]
+      },
+      {
+        label: 'Final Notes',
+        instructions: 'Anything else we should know? Special requests, concerns, or additional details.',
+        items: [
+          { type: 'longtext', prompt: 'Additional Notes', help_text: 'Any other information for us' }
+        ]
+      }
+    ]
+  },
+  wedding_mr_mr: {
+    type: 'wedding_mr_mr',
+    sections: [
+      {
+        label: 'Speeches & Toasts',
+        instructions: "List speakers in the order they will present.",
+        items: [{ type: 'speech_row', prompt: 'Speaker', meta: { maxRows: 5 } }]
+      }
+    ]
+  },
+  wedding_mrs_mrs: {
+    type: 'wedding_mrs_mrs',
+    sections: [
+      {
+        label: 'Speeches & Toasts',
+        instructions: "List speakers in the order they will present.",
+        items: [{ type: 'speech_row', prompt: 'Speaker', meta: { maxRows: 5 } }]
+      }
+    ]
+  },
+  event_general: {
+    type: 'event_general',
+    sections: [
+      {
+        label: 'Event Basics',
+        instructions: 'Tell us about your event and primary contacts.',
+        items: [
+          { type: 'text', prompt: 'Event Type', required: true },
+          { type: 'name', prompt: 'Primary Contact Name', required: true }
+        ]
+      }
+    ]
+  }
 };
 
 export const getTemplateLabel = (type: TemplateType): string => {
   switch (type) {
-    case 'wedding_mr_mrs':
-      return 'Wedding (Mr & Mrs)';
-    case 'wedding_mr_mr':
-      return 'Wedding (Mr & Mr)';
-    case 'wedding_mrs_mrs':
-      return 'Wedding (Mrs & Mrs)';
-    case 'event_general':
-      return 'General Event';
+    case 'wedding_mr_mrs': return 'Wedding (Mr & Mrs)';
+    case 'wedding_mr_mr': return 'Wedding (Mr & Mr)';
+    case 'wedding_mrs_mrs': return 'Wedding (Mrs & Mrs)';
+    case 'event_general': return 'General Event';
   }
 };
