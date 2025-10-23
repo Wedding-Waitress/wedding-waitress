@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
-import { Plus, ExternalLink } from 'lucide-react';
+import { Plus, ExternalLink, Upload } from 'lucide-react';
 import { validateMusicURL, getPlatformName, ensureAbsoluteUrl } from '@/lib/urlValidation';
 import { DndContext, closestCenter, DragEndEvent } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
@@ -10,6 +10,9 @@ import { useDJQuestionnaire } from '@/hooks/useDJQuestionnaire';
 import { EditableSectionHeader } from './EditableSectionHeader';
 import { RecommendationsNotice } from './RecommendationsNotice';
 import { FormRow } from './FormRow';
+import { BulkSongImportModal } from './BulkSongImportModal';
+import { SongData } from '@/lib/musicMetadataFetcher';
+import { useToast } from '@/hooks/use-toast';
 
 interface QuestionnaireFormProps {
   questionnaire: DJQuestionnaireWithData;
@@ -22,8 +25,13 @@ export const QuestionnaireForm = ({ questionnaire }: QuestionnaireFormProps) => 
     addItemAbove,
     addItemBelow,
     deleteItem,
-    reorderItems 
+    reorderItems,
+    bulkAddSongs
   } = useDJQuestionnaire(questionnaire.event_id);
+  
+  const { toast } = useToast();
+  const [bulkImportOpen, setBulkImportOpen] = useState(false);
+  const [bulkImportSectionId, setBulkImportSectionId] = useState<string | null>(null);
   
   const [answers, setAnswers] = useState<Record<string, any>>(() => {
     const initial: Record<string, any> = {};
@@ -50,19 +58,56 @@ export const QuestionnaireForm = ({ questionnaire }: QuestionnaireFormProps) => 
     }
   };
 
+  const handleBulkImport = async (songs: SongData[]) => {
+    if (!bulkImportSectionId) return;
+
+    try {
+      await bulkAddSongs(bulkImportSectionId, songs);
+      toast({
+        title: "Success",
+        description: `${songs.length} songs imported`,
+      });
+    } catch (error) {
+      console.error('Bulk import failed:', error);
+      toast({
+        title: "Error",
+        description: "Failed to import songs",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div id="questionnaire-form" className="space-y-8">
       {questionnaire.sections.map((section, sIdx) => {
         const hasRecommendations = section.recommendations?.default_rows?.length > 0;
         const maxRows = section.items[0]?.meta?.maxRows;
         const canAddMore = !maxRows || section.items.length < maxRows;
+        const isSongSection = section.items.some(item => item.type === 'song_row');
 
         return (
           <div key={section.id} className="space-y-4">
-            <EditableSectionHeader
-              label={section.label}
-              onSave={(newLabel) => updateSectionLabel(section.id, newLabel)}
-            />
+            <div className="flex items-center justify-between">
+              <EditableSectionHeader
+                label={section.label}
+                onSave={(newLabel) => updateSectionLabel(section.id, newLabel)}
+              />
+              
+              {isSongSection && canAddMore && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setBulkImportSectionId(section.id);
+                    setBulkImportOpen(true);
+                  }}
+                  className="text-[#6D28D9] border-[#6D28D9] hover:bg-[#6D28D9]/10"
+                >
+                  <Upload className="w-4 h-4 mr-2" />
+                  Bulk Add Songs
+                </Button>
+              )}
+            </div>
 
             {section.instructions && (
               <p className="text-sm text-muted-foreground italic">
@@ -160,6 +205,16 @@ export const QuestionnaireForm = ({ questionnaire }: QuestionnaireFormProps) => 
           </div>
         );
       })}
+
+      <BulkSongImportModal
+        open={bulkImportOpen}
+        onOpenChange={setBulkImportOpen}
+        sectionId={bulkImportSectionId || ''}
+        sectionLabel={
+          questionnaire.sections.find(s => s.id === bulkImportSectionId)?.label || ''
+        }
+        onImport={handleBulkImport}
+      />
     </div>
   );
 };

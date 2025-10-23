@@ -444,6 +444,63 @@ export const useDJQuestionnaire = (eventId: string | null) => {
     }
   };
 
+  const bulkAddSongs = async (sectionId: string, songs: { song: string; artist: string; link: string; moment?: string }[]) => {
+    try {
+      const section = questionnaire?.sections.find(s => s.id === sectionId);
+      if (!section) throw new Error('Section not found');
+
+      const itemType = section.items[0]?.type || 'song_row';
+      const maxSortIndex = await getMaxSortIndex(sectionId);
+
+      const itemsToInsert = songs.map((song, index) => ({
+        section_id: sectionId,
+        type: itemType,
+        prompt: section.items[0]?.prompt || 'Song',
+        help_text: section.items[0]?.help_text || null,
+        required: false,
+        sort_index: maxSortIndex + 1 + index,
+        meta: section.items[0]?.meta || {}
+      }));
+
+      const { data: newItems, error: insertError } = await supabase
+        .from('dj_items')
+        .insert(itemsToInsert)
+        .select();
+
+      if (insertError) throw insertError;
+
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+
+      const answersToInsert = newItems.map((item, index) => ({
+        item_id: item.id,
+        value: songs[index],
+        answered_by: user.id
+      }));
+
+      const { error: answersError } = await supabase
+        .from('dj_answers')
+        .insert(answersToInsert);
+
+      if (answersError) throw answersError;
+
+      await fetchQuestionnaire();
+
+      toast({
+        title: "Success",
+        description: `${songs.length} songs imported successfully`,
+      });
+    } catch (error: any) {
+      console.error('Error bulk adding songs:', error);
+      toast({
+        title: "Error",
+        description: "Failed to import songs",
+        variant: "destructive",
+      });
+      throw error;
+    }
+  };
+
   return {
     questionnaire,
     loading,
@@ -457,6 +514,7 @@ export const useDJQuestionnaire = (eventId: string | null) => {
     addItemBelow,
     deleteItem,
     reorderItems,
+    bulkAddSongs,
     refetch: fetchQuestionnaire,
   };
 };
