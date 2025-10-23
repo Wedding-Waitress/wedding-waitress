@@ -206,15 +206,17 @@ export const QuestionnaireForm = ({ questionnaire }: QuestionnaireFormProps) => 
         );
       })}
 
-      <BulkSongImportModal
-        open={bulkImportOpen}
-        onOpenChange={setBulkImportOpen}
-        sectionId={bulkImportSectionId || ''}
-        sectionLabel={
-          (questionnaire?.sections?.find(s => s.id === bulkImportSectionId)?.label) || ''
-        }
-        onImport={handleBulkImport}
-      />
+      {bulkImportOpen && bulkImportSectionId && (
+        <BulkSongImportModal
+          open={bulkImportOpen}
+          onOpenChange={setBulkImportOpen}
+          sectionId={bulkImportSectionId}
+          sectionLabel={
+            questionnaire.sections.find(s => s.id === bulkImportSectionId)?.label || ''
+          }
+          onImport={handleBulkImport}
+        />
+      )}
     </div>
   );
 };

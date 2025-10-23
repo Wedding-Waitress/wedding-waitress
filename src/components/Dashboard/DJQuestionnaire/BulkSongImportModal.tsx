@@ -31,28 +31,42 @@ export const BulkSongImportModal = ({
   const [importProgress, setImportProgress] = useState({ current: 0, total: 0 });
 
   useEffect(() => {
-    const lines = inputText.split('\n').filter(l => l.trim());
-    const valid: string[] = [];
-    const invalid: string[] = [];
-    const seen = new Set<string>();
+    if (!open || !inputText) {
+      setValidUrls([]);
+      setInvalidUrls([]);
+      return;
+    }
 
-    lines.forEach(line => {
-      const trimmed = line.trim();
-      const result = validateMusicURL(trimmed);
-      
-      if (result.isValid && result.normalizedUrl) {
-        if (!seen.has(result.normalizedUrl)) {
-          valid.push(result.normalizedUrl);
-          seen.add(result.normalizedUrl);
+    try {
+      const lines = inputText.split('\n').filter(l => l.trim());
+      const valid: string[] = [];
+      const invalid: string[] = [];
+      const seen = new Set<string>();
+
+      lines.forEach(line => {
+        const trimmed = line.trim();
+        if (!trimmed) return;
+        
+        const result = validateMusicURL(trimmed);
+        
+        if (result.isValid && result.normalizedUrl) {
+          if (!seen.has(result.normalizedUrl)) {
+            valid.push(result.normalizedUrl);
+            seen.add(result.normalizedUrl);
+          }
+        } else {
+          invalid.push(trimmed);
         }
-      } else if (trimmed) {
-        invalid.push(trimmed);
-      }
-    });
+      });
 
-    setValidUrls(valid);
-    setInvalidUrls(invalid);
-  }, [inputText]);
+      setValidUrls(valid);
+      setInvalidUrls(invalid);
+    } catch (error) {
+      console.error('Error validating URLs:', error);
+      setValidUrls([]);
+      setInvalidUrls([]);
+    }
+  }, [inputText, open]);
 
   const handleImport = async () => {
     setFetching(true);
