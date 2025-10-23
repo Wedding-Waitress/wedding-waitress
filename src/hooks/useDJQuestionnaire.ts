@@ -126,7 +126,19 @@ export const useDJQuestionnaire = (eventId: string | null) => {
           event_id: eventId,
           template_type: templateType,
           created_by: user.id,
-          status: 'draft'
+          status: 'draft',
+          meta: {
+            sectionVisibility: {
+              'Ceremony Music': true,
+              'Bridal Party Introductions': true,
+              'Speeches': true,
+              'Main Event Songs': true,
+              'Background / Dinner Music': true,
+              'Dance Music': true,
+              'Traditional / Multicultural Music': true,
+              'Do not play songs': true
+            }
+          }
         })
         .select()
         .single();
@@ -501,6 +513,46 @@ export const useDJQuestionnaire = (eventId: string | null) => {
     }
   };
 
+  const updateSectionVisibility = async (sectionVisibility: Record<string, boolean>) => {
+    if (!questionnaire?.id) return;
+
+    try {
+      const { error } = await supabase
+        .from('dj_questionnaires')
+        .update({
+          meta: {
+            ...questionnaire.meta,
+            sectionVisibility
+          },
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', questionnaire.id);
+
+      if (error) throw error;
+
+      // Update local state immediately
+      setQuestionnaire(prev => prev ? {
+        ...prev,
+        meta: {
+          ...prev.meta,
+          sectionVisibility
+        }
+      } : null);
+
+      toast({
+        title: "Saved",
+        description: "Section visibility updated",
+      });
+    } catch (error: any) {
+      console.error('Error updating section visibility:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update section visibility",
+        variant: "destructive",
+      });
+    }
+  };
+
   return {
     questionnaire,
     loading,
@@ -515,6 +567,7 @@ export const useDJQuestionnaire = (eventId: string | null) => {
     deleteItem,
     reorderItems,
     bulkAddSongs,
+    updateSectionVisibility,
     refetch: fetchQuestionnaire,
   };
 };

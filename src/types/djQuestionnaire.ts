@@ -27,6 +27,10 @@ export interface DJQuestionnaire {
   approved_from_ip: string | null;
   created_at: string;
   updated_at: string;
+  meta?: {
+    sectionVisibility?: Record<string, boolean>;
+    [key: string]: any;
+  };
 }
 
 export interface DJSection {

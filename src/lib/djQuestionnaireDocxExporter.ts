@@ -50,6 +50,13 @@ export const exportToDocx = async (
   const mcName = headerOverrides.mc_name || 'TBD';
   const mcMobile = headerOverrides.mc_mobile || 'TBD';
 
+  // Filter sections based on visibility (Pronunciations always visible)
+  const sectionVisibility = questionnaire.meta?.sectionVisibility || {};
+  const visibleSections = questionnaire.sections.filter(section => {
+    if (section.label === 'Pronunciations') return true;
+    return sectionVisibility[section.label] !== false;
+  });
+
   // Build document sections
   const sections: Paragraph[] = [];
 
@@ -195,8 +202,8 @@ export const exportToDocx = async (
     })
   );
 
-  // Add questionnaire sections
-  questionnaire.sections.forEach((section) => {
+  // Add questionnaire sections (filtered by visibility)
+  visibleSections.forEach((section) => {
     sections.push(
       new Paragraph({
         text: section.label,

@@ -23,9 +23,10 @@ const BulkSongImportModal = React.lazy(() =>
 
 interface QuestionnaireFormProps {
   questionnaire: DJQuestionnaireWithData;
+  sectionVisibility?: Record<string, boolean>;
 }
 
-export const QuestionnaireForm = ({ questionnaire }: QuestionnaireFormProps) => {
+export const QuestionnaireForm = ({ questionnaire, sectionVisibility = {} }: QuestionnaireFormProps) => {
   const { 
     saveAnswer, 
     updateSectionLabel,
@@ -86,7 +87,14 @@ export const QuestionnaireForm = ({ questionnaire }: QuestionnaireFormProps) => 
 
   return (
     <div id="questionnaire-form" className="space-y-8">
-      {questionnaire.sections.map((section, sIdx) => {
+      {questionnaire.sections
+        .filter(section => {
+          // "Pronunciations" is always visible (not toggleable)
+          if (section.label === 'Pronunciations') return true;
+          // All other sections respect sectionVisibility (default to visible if not set)
+          return sectionVisibility[section.label] !== false;
+        })
+        .map((section, sIdx) => {
         const hasRecommendations = section.recommendations?.default_rows?.length > 0;
         const maxRows = section.items[0]?.meta?.maxRows;
         const canAddMore = !maxRows || section.items.length < maxRows;
@@ -206,7 +214,9 @@ export const QuestionnaireForm = ({ questionnaire }: QuestionnaireFormProps) => 
               </Button>
             )}
 
-            {sIdx < questionnaire.sections.length - 1 && (
+            {sIdx < questionnaire.sections.filter(s => 
+              s.label === 'Pronunciations' || sectionVisibility[s.label] !== false
+            ).length - 1 && (
               <Separator className="mt-6" />
             )}
           </div>

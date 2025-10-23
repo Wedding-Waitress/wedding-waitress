@@ -224,6 +224,7 @@ export type Database = {
           event_id: string
           header_overrides: Json | null
           id: string
+          meta: Json | null
           notes: string | null
           recipient_emails: string[] | null
           recipient_phones: string[] | null
@@ -243,6 +244,7 @@ export type Database = {
           event_id: string
           header_overrides?: Json | null
           id?: string
+          meta?: Json | null
           notes?: string | null
           recipient_emails?: string[] | null
           recipient_phones?: string[] | null
@@ -262,6 +264,7 @@ export type Database = {
           event_id?: string
           header_overrides?: Json | null
           id?: string
+          meta?: Json | null
           notes?: string | null
           recipient_emails?: string[] | null
           recipient_phones?: string[] | null

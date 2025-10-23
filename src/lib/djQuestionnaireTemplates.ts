@@ -25,18 +25,19 @@ export const DJ_TEMPLATES: Record<TemplateType, Template> = {
     type: 'wedding_mr_mrs',
     sections: [
       {
-        label: 'Speeches & Toasts',
-        instructions: "Please list speakers in order. Keep to 3–5 mins each. You can drag to reorder.",
+        label: 'Ceremony Music',
+        instructions: 'Songs for the ceremony. Include prelude, processional, signing, and recessional music.',
         recommendations: {
           default_rows: [
-            { name: 'Father of the Bride', order: 1 },
-            { name: 'Best Man', order: 2 },
-            { name: 'Maid of Honor', order: 3 },
-            { name: 'The Couple', order: 4 }
+            { moment: 'Prelude (Guests Arriving)', song: '', artist: '', link: '' },
+            { moment: 'Processional (Wedding Party)', song: '', artist: '', link: '' },
+            { moment: 'Bridal Entrance', song: '', artist: '', link: '' },
+            { moment: 'Signing of Register', song: '', artist: '', link: '' },
+            { moment: 'Recessional (Exit)', song: '', artist: '', link: '' }
           ]
         },
         items: [
-          { type: 'speech_row', prompt: 'Speaker', help_text: 'Name and speaking order', meta: { maxRows: 5, minRows: 1 } }
+          { type: 'song_row', prompt: 'Ceremony Moment', help_text: 'Moment, song, artist, and link', meta: { maxRows: 10, showMoment: true } }
         ]
       },
       {
@@ -67,13 +68,18 @@ export const DJ_TEMPLATES: Record<TemplateType, Template> = {
         ]
       },
       {
-        label: 'Background & Dinner Music',
-        instructions: 'Optional. Up to 20 songs for dinner or canapés. Paste YouTube or Spotify links. Keep it elegant and conversational.',
+        label: 'Speeches',
+        instructions: "Please list speakers in order. Keep to 3–5 mins each. You can drag to reorder.",
         recommendations: {
-          helper_text: "Think: soft jazz, acoustic, or instrumental tracks. We will fill in if you leave this blank."
+          default_rows: [
+            { name: 'Father of the Bride', order: 1 },
+            { name: 'Best Man', order: 2 },
+            { name: 'Maid of Honor', order: 3 },
+            { name: 'The Couple', order: 4 }
+          ]
         },
         items: [
-          { type: 'song_row', prompt: 'Background Song', help_text: 'Song, artist, and link', meta: { maxRows: 20, showMoment: false } }
+          { type: 'speech_row', prompt: 'Speaker', help_text: 'Name and speaking order', meta: { maxRows: 5, minRows: 1 } }
         ]
       },
       {
@@ -91,7 +97,17 @@ export const DJ_TEMPLATES: Record<TemplateType, Template> = {
         ]
       },
       {
-        label: 'Dance Floor Must-Plays',
+        label: 'Background / Dinner Music',
+        instructions: 'Optional. Up to 20 songs for dinner or canapés. Paste YouTube or Spotify links. Keep it elegant and conversational.',
+        recommendations: {
+          helper_text: "Think: soft jazz, acoustic, or instrumental tracks. We will fill in if you leave this blank."
+        },
+        items: [
+          { type: 'song_row', prompt: 'Background Song', help_text: 'Song, artist, and link', meta: { maxRows: 20, showMoment: false } }
+        ]
+      },
+      {
+        label: 'Dance Music',
         instructions: 'Up to 30 must-plays for the dance floor. Paste YouTube or Spotify links for easy reference.',
         recommendations: {
           helper_text: "Pro tip: Add a Do-Not-Play list in Final Notes for songs or genres to avoid."
@@ -101,7 +117,7 @@ export const DJ_TEMPLATES: Record<TemplateType, Template> = {
         ]
       },
       {
-        label: 'Cultural & Traditional Sets',
+        label: 'Traditional / Multicultural Music',
         instructions: 'Optional. Add cultural music sets and indicate when to play (e.g., after main course, during dessert, or on request).',
         recommendations: {
           helper_text: "Examples: Greek dancing, Italian tarantella, Indian Bollywood, hora, etc."
@@ -111,7 +127,7 @@ export const DJ_TEMPLATES: Record<TemplateType, Template> = {
         ]
       },
       {
-        label: 'Final Notes',
+        label: 'Do not play songs',
         instructions: 'Anything else we should know? Add special requests, do-not-play lists, guest considerations, or concerns here.',
         items: [
           { type: 'longtext', prompt: 'Additional Notes', help_text: 'Any other information for us' }
@@ -123,17 +139,19 @@ export const DJ_TEMPLATES: Record<TemplateType, Template> = {
     type: 'wedding_mr_mr',
     sections: [
       {
-        label: 'Speeches & Toasts',
-        instructions: "Please list speakers in order. Keep to 3–5 mins each. You can drag to reorder.",
+        label: 'Ceremony Music',
+        instructions: 'Songs for the ceremony. Include prelude, processional, signing, and recessional music.',
         recommendations: {
           default_rows: [
-            { name: 'Parents', order: 1 },
-            { name: 'Best Man', order: 2 },
-            { name: 'The Couple', order: 3 }
+            { moment: 'Prelude (Guests Arriving)', song: '', artist: '', link: '' },
+            { moment: 'Processional (Wedding Party)', song: '', artist: '', link: '' },
+            { moment: 'Partner Entrance', song: '', artist: '', link: '' },
+            { moment: 'Signing of Register', song: '', artist: '', link: '' },
+            { moment: 'Recessional (Exit)', song: '', artist: '', link: '' }
           ]
         },
         items: [
-          { type: 'speech_row', prompt: 'Speaker', help_text: 'Name and speaking order', meta: { maxRows: 5, minRows: 1 } }
+          { type: 'song_row', prompt: 'Ceremony Moment', help_text: 'Moment, song, artist, and link', meta: { maxRows: 10, showMoment: true } }
         ]
       },
       {
@@ -163,13 +181,17 @@ export const DJ_TEMPLATES: Record<TemplateType, Template> = {
         ]
       },
       {
-        label: 'Background & Dinner Music',
-        instructions: 'Optional. Up to 20 songs for dinner or canapés. Paste YouTube or Spotify links. Keep it elegant and conversational.',
+        label: 'Speeches',
+        instructions: "Please list speakers in order. Keep to 3–5 mins each. You can drag to reorder.",
         recommendations: {
-          helper_text: "Think: soft jazz, acoustic, or instrumental tracks. We will fill in if you leave this blank."
+          default_rows: [
+            { name: 'Parents', order: 1 },
+            { name: 'Best Man', order: 2 },
+            { name: 'The Couple', order: 3 }
+          ]
         },
         items: [
-          { type: 'song_row', prompt: 'Background Song', help_text: 'Song, artist, and link', meta: { maxRows: 20, showMoment: false } }
+          { type: 'speech_row', prompt: 'Speaker', help_text: 'Name and speaking order', meta: { maxRows: 5, minRows: 1 } }
         ]
       },
       {
@@ -186,7 +208,17 @@ export const DJ_TEMPLATES: Record<TemplateType, Template> = {
         ]
       },
       {
-        label: 'Dance Floor Must-Plays',
+        label: 'Background / Dinner Music',
+        instructions: 'Optional. Up to 20 songs for dinner or canapés. Paste YouTube or Spotify links. Keep it elegant and conversational.',
+        recommendations: {
+          helper_text: "Think: soft jazz, acoustic, or instrumental tracks. We will fill in if you leave this blank."
+        },
+        items: [
+          { type: 'song_row', prompt: 'Background Song', help_text: 'Song, artist, and link', meta: { maxRows: 20, showMoment: false } }
+        ]
+      },
+      {
+        label: 'Dance Music',
         instructions: 'Up to 30 must-plays for the dance floor. Paste YouTube or Spotify links for easy reference.',
         recommendations: {
           helper_text: "Pro tip: Add a Do-Not-Play list in Final Notes for songs or genres to avoid."
@@ -196,7 +228,7 @@ export const DJ_TEMPLATES: Record<TemplateType, Template> = {
         ]
       },
       {
-        label: 'Cultural & Traditional Sets',
+        label: 'Traditional / Multicultural Music',
         instructions: 'Optional. Add cultural music sets and indicate when to play (e.g., after main course, during dessert, or on request).',
         recommendations: {
           helper_text: "Examples: Greek dancing, Italian tarantella, Indian Bollywood, hora, etc."
@@ -206,7 +238,7 @@ export const DJ_TEMPLATES: Record<TemplateType, Template> = {
         ]
       },
       {
-        label: 'Final Notes',
+        label: 'Do not play songs',
         instructions: 'Anything else we should know? Add special requests, do-not-play lists, guest considerations, or concerns here.',
         items: [
           { type: 'longtext', prompt: 'Additional Notes', help_text: 'Any other information for us' }
@@ -218,17 +250,19 @@ export const DJ_TEMPLATES: Record<TemplateType, Template> = {
     type: 'wedding_mrs_mrs',
     sections: [
       {
-        label: 'Speeches & Toasts',
-        instructions: "Please list speakers in order. Keep to 3–5 mins each. You can drag to reorder.",
+        label: 'Ceremony Music',
+        instructions: 'Songs for the ceremony. Include prelude, processional, signing, and recessional music.',
         recommendations: {
           default_rows: [
-            { name: 'Parents', order: 1 },
-            { name: 'Maid of Honor', order: 2 },
-            { name: 'The Couple', order: 3 }
+            { moment: 'Prelude (Guests Arriving)', song: '', artist: '', link: '' },
+            { moment: 'Processional (Wedding Party)', song: '', artist: '', link: '' },
+            { moment: 'Bridal Entrance', song: '', artist: '', link: '' },
+            { moment: 'Signing of Register', song: '', artist: '', link: '' },
+            { moment: 'Recessional (Exit)', song: '', artist: '', link: '' }
           ]
         },
         items: [
-          { type: 'speech_row', prompt: 'Speaker', help_text: 'Name and speaking order', meta: { maxRows: 5, minRows: 1 } }
+          { type: 'song_row', prompt: 'Ceremony Moment', help_text: 'Moment, song, artist, and link', meta: { maxRows: 10, showMoment: true } }
         ]
       },
       {
@@ -258,13 +292,17 @@ export const DJ_TEMPLATES: Record<TemplateType, Template> = {
         ]
       },
       {
-        label: 'Background & Dinner Music',
-        instructions: 'Optional. Up to 20 songs for dinner or canapés. Paste YouTube or Spotify links. Keep it elegant and conversational.',
+        label: 'Speeches',
+        instructions: "Please list speakers in order. Keep to 3–5 mins each. You can drag to reorder.",
         recommendations: {
-          helper_text: "Think: soft jazz, acoustic, or instrumental tracks. We will fill in if you leave this blank."
+          default_rows: [
+            { name: 'Parents', order: 1 },
+            { name: 'Maid of Honor', order: 2 },
+            { name: 'The Couple', order: 3 }
+          ]
         },
         items: [
-          { type: 'song_row', prompt: 'Background Song', help_text: 'Song, artist, and link', meta: { maxRows: 20, showMoment: false } }
+          { type: 'speech_row', prompt: 'Speaker', help_text: 'Name and speaking order', meta: { maxRows: 5, minRows: 1 } }
         ]
       },
       {
@@ -281,7 +319,17 @@ export const DJ_TEMPLATES: Record<TemplateType, Template> = {
         ]
       },
       {
-        label: 'Dance Floor Must-Plays',
+        label: 'Background / Dinner Music',
+        instructions: 'Optional. Up to 20 songs for dinner or canapés. Paste YouTube or Spotify links. Keep it elegant and conversational.',
+        recommendations: {
+          helper_text: "Think: soft jazz, acoustic, or instrumental tracks. We will fill in if you leave this blank."
+        },
+        items: [
+          { type: 'song_row', prompt: 'Background Song', help_text: 'Song, artist, and link', meta: { maxRows: 20, showMoment: false } }
+        ]
+      },
+      {
+        label: 'Dance Music',
         instructions: 'Up to 30 must-plays for the dance floor. Paste YouTube or Spotify links for easy reference.',
         recommendations: {
           helper_text: "Pro tip: Add a Do-Not-Play list in Final Notes for songs or genres to avoid."
@@ -291,7 +339,7 @@ export const DJ_TEMPLATES: Record<TemplateType, Template> = {
         ]
       },
       {
-        label: 'Cultural & Traditional Sets',
+        label: 'Traditional / Multicultural Music',
         instructions: 'Optional. Add cultural music sets and indicate when to play (e.g., after main course, during dessert, or on request).',
         recommendations: {
           helper_text: "Examples: Greek dancing, Italian tarantella, Indian Bollywood, hora, etc."
@@ -301,7 +349,7 @@ export const DJ_TEMPLATES: Record<TemplateType, Template> = {
         ]
       },
       {
-        label: 'Final Notes',
+        label: 'Do not play songs',
         instructions: 'Anything else we should know? Add special requests, do-not-play lists, guest considerations, or concerns here.',
         items: [
           { type: 'longtext', prompt: 'Additional Notes', help_text: 'Any other information for us' }

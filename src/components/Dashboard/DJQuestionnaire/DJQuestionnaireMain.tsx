@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { QuestionnaireTemplateSelector } from './QuestionnaireTemplateSelector';
 import { QuestionnaireActionButtons } from './QuestionnaireActionButtons';
 import { QuestionnaireHeader } from './QuestionnaireHeader';
+import { SectionToggles } from './SectionToggles';
 import { useDJQuestionnaire } from '@/hooks/useDJQuestionnaire';
 import { TemplateType } from '@/types/djQuestionnaire';
 import { formatEventDate, getEventName, getTemplateDisplayLabel, formatTimeRange, getCurrentDateTime } from '@/lib/djQuestionnaireFormatters';
@@ -41,7 +42,7 @@ export const DJQuestionnaireMain = ({
   onEventSelect,
   events,
 }: DJQuestionnaireMainProps) => {
-  const { questionnaire, loading, hasUnsavedChanges, createQuestionnaireFromTemplate, updateHeaderOverrides, refetch } = useDJQuestionnaire(selectedEventId);
+  const { questionnaire, loading, hasUnsavedChanges, createQuestionnaireFromTemplate, updateHeaderOverrides, updateSectionVisibility, refetch } = useDJQuestionnaire(selectedEventId);
   const [templateType, setTemplateType] = useState<TemplateType>('wedding_mr_mrs');
   const [pageCount, setPageCount] = useState<number>(1);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -76,6 +77,52 @@ export const DJQuestionnaireMain = ({
 
   const handleTemplateChange = (newTemplate: TemplateType) => {
     setTemplateType(newTemplate);
+  };
+
+  const handleToggleSection = (sectionLabel: string, visible: boolean) => {
+    if (!questionnaire) return;
+    
+    const currentVisibility = questionnaire.meta?.sectionVisibility || {};
+    const updatedVisibility = {
+      ...currentVisibility,
+      [sectionLabel]: visible
+    };
+    
+    updateSectionVisibility(updatedVisibility);
+  };
+
+  const handleShowAllSections = () => {
+    if (!questionnaire) return;
+    
+    const allVisible = {
+      'Ceremony Music': true,
+      'Bridal Party Introductions': true,
+      'Speeches': true,
+      'Main Event Songs': true,
+      'Background / Dinner Music': true,
+      'Dance Music': true,
+      'Traditional / Multicultural Music': true,
+      'Do not play songs': true
+    };
+    
+    updateSectionVisibility(allVisible);
+  };
+
+  const handleHideAllSections = () => {
+    if (!questionnaire) return;
+    
+    const allHidden = {
+      'Ceremony Music': false,
+      'Bridal Party Introductions': false,
+      'Speeches': false,
+      'Main Event Songs': false,
+      'Background / Dinner Music': false,
+      'Dance Music': false,
+      'Traditional / Multicultural Music': false,
+      'Do not play songs': false
+    };
+    
+    updateSectionVisibility(allHidden);
   };
 
   // Scroll listener for sticky header shadow
@@ -230,6 +277,16 @@ export const DJQuestionnaireMain = ({
         )}
       </Card>
 
+      {/* Section Toggles */}
+      {questionnaire && selectedEvent && (
+        <SectionToggles
+          sectionVisibility={questionnaire.meta?.sectionVisibility || {}}
+          onToggle={handleToggleSection}
+          onShowAll={handleShowAllSections}
+          onHideAll={handleHideAllSections}
+        />
+      )}
+
       {selectedEventId ? (
         loading ? (
           <Card className="ww-box print:shadow-none">
@@ -253,7 +310,10 @@ export const DJQuestionnaireMain = ({
             <Card className="ww-box print:shadow-none" ref={formRef} id="questionnaire-form">
               <CardContent className="pt-6">
                 <React.Suspense fallback={<div className="p-6 text-center text-muted-foreground">Loading form...</div>}>
-                  <QuestionnaireForm questionnaire={questionnaire} />
+                  <QuestionnaireForm 
+                    questionnaire={questionnaire}
+                    sectionVisibility={questionnaire.meta?.sectionVisibility}
+                  />
                 </React.Suspense>
               </CardContent>
             </Card>
