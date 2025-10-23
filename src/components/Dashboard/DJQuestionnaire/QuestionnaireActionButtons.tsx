@@ -36,6 +36,16 @@ export const QuestionnaireActionButtons = ({
     ? buildDJQuestionnaireUrl(questionnaire.share_token)
     : null;
 
+  const activeSection = questionnaire.meta?.activeSection || 'All Sections';
+  
+  // Filter sections based on activeSection
+  const getFilteredSections = () => {
+    if (activeSection === 'All Sections') {
+      return questionnaire.sections;
+    }
+    return questionnaire.sections.filter(s => s.label === activeSection);
+  };
+
   const handleCopyLink = () => {
     if (publicUrl) {
       navigator.clipboard.writeText(publicUrl);
@@ -150,8 +160,9 @@ export const QuestionnaireActionButtons = ({
       const metadataY = yPos;
       yPos += 10;
 
-      // Sections
-      questionnaire.sections.forEach((section) => {
+      // Sections (filtered by activeSection)
+      const filteredSections = getFilteredSections();
+      filteredSections.forEach((section) => {
         if (yPos > 270) {
           pdf.addPage();
           yPos = 20;

@@ -7,10 +7,11 @@ import { Label } from '@/components/ui/label';
 import { QuestionnaireTemplateSelector } from './QuestionnaireTemplateSelector';
 import { QuestionnaireActionButtons } from './QuestionnaireActionButtons';
 import { QuestionnaireHeader } from './QuestionnaireHeader';
-import { SectionToggles } from './SectionToggles';
+import { SectionSelector } from './SectionSelector';
 import { useDJQuestionnaire } from '@/hooks/useDJQuestionnaire';
 import { TemplateType } from '@/types/djQuestionnaire';
 import { formatEventDate, getEventName, getTemplateDisplayLabel, formatTimeRange, getCurrentDateTime } from '@/lib/djQuestionnaireFormatters';
+import { useToast } from '@/hooks/use-toast';
 
 // Lazy load QuestionnaireForm to prevent its dependencies from crashing the app
 const QuestionnaireForm = React.lazy(() => 
@@ -42,13 +43,16 @@ export const DJQuestionnaireMain = ({
   onEventSelect,
   events,
 }: DJQuestionnaireMainProps) => {
-  const { questionnaire, loading, hasUnsavedChanges, createQuestionnaireFromTemplate, updateHeaderOverrides, updateSectionVisibility, refetch } = useDJQuestionnaire(selectedEventId);
+  const { questionnaire, loading, hasUnsavedChanges, createQuestionnaireFromTemplate, updateHeaderOverrides, updateActiveSection, ensureSectionExists, refetch } = useDJQuestionnaire(selectedEventId);
   const [templateType, setTemplateType] = useState<TemplateType>('wedding_mr_mrs');
   const [pageCount, setPageCount] = useState<number>(1);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [loadingSection, setLoadingSection] = useState(false);
   const formRef = useRef<HTMLDivElement>(null);
+  const { toast } = useToast();
 
   const selectedEvent = events.find((e) => e.id === selectedEventId);
+  const activeSection = questionnaire?.meta?.activeSection || 'All Sections';
 
   // Set initial template based on event data
   useEffect(() => {
@@ -90,54 +94,38 @@ export const DJQuestionnaireMain = ({
     }
   };
 
-  const handleToggleSection = (sectionLabel: string, visible: boolean) => {
-    if (!questionnaire || !sectionLabel) return;
-    
-    try {
-      const currentVisibility = questionnaire.meta?.sectionVisibility || {};
-      const updatedVisibility = {
-        ...currentVisibility,
-        [sectionLabel]: visible
-      };
-      
-      updateSectionVisibility(updatedVisibility);
-    } catch (error) {
-      console.error('Failed to toggle section:', error);
+  const handleSectionChange = async (section: string) => {
+    if (!questionnaire) return;
+
+    // Scroll to top smoothly
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    // If not "All Sections", ensure the section exists
+    if (section !== 'All Sections') {
+      setLoadingSection(true);
+      try {
+        const sectionExists = questionnaire.sections.some(s => s.label === section);
+        if (!sectionExists) {
+          toast({
+            title: "Creating Section",
+            description: `Setting up ${section}...`,
+          });
+          await ensureSectionExists(section, templateType);
+        }
+      } catch (error) {
+        console.error('Failed to ensure section exists:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load section",
+          variant: "destructive",
+        });
+      } finally {
+        setLoadingSection(false);
+      }
     }
-  };
 
-  const handleShowAllSections = () => {
-    if (!questionnaire) return;
-    
-    const allVisible = {
-      'Ceremony Music': true,
-      'Bridal Party Introductions': true,
-      'Speeches': true,
-      'Main Event Songs': true,
-      'Background / Dinner Music': true,
-      'Dance Music': true,
-      'Traditional / Multicultural Music': true,
-      'Do not play songs': true
-    };
-    
-    updateSectionVisibility(allVisible);
-  };
-
-  const handleHideAllSections = () => {
-    if (!questionnaire) return;
-    
-    const allHidden = {
-      'Ceremony Music': false,
-      'Bridal Party Introductions': false,
-      'Speeches': false,
-      'Main Event Songs': false,
-      'Background / Dinner Music': false,
-      'Dance Music': false,
-      'Traditional / Multicultural Music': false,
-      'Do not play songs': false
-    };
-    
-    updateSectionVisibility(allHidden);
+    // Update active section
+    await updateActiveSection(section);
   };
 
   // Scroll listener for sticky header shadow
@@ -292,13 +280,11 @@ export const DJQuestionnaireMain = ({
         )}
       </Card>
 
-      {/* Section Toggles */}
+      {/* Section Selector */}
       {questionnaire && selectedEvent && (
-        <SectionToggles
-          sectionVisibility={questionnaire.meta?.sectionVisibility || {}}
-          onToggle={handleToggleSection}
-          onShowAll={handleShowAllSections}
-          onHideAll={handleHideAllSections}
+        <SectionSelector
+          activeSection={activeSection}
+          onChange={handleSectionChange}
         />
       )}
 
@@ -324,12 +310,21 @@ export const DJQuestionnaireMain = ({
             </div>
             <Card className="ww-box print:shadow-none" ref={formRef} id="questionnaire-form">
               <CardContent className="pt-6">
-                <React.Suspense fallback={<div className="p-6 text-center text-muted-foreground">Loading form...</div>}>
-                  <QuestionnaireForm 
-                    questionnaire={questionnaire}
-                    sectionVisibility={questionnaire.meta?.sectionVisibility}
-                  />
-                </React.Suspense>
+                {loadingSection ? (
+                  <div className="p-12 text-center">
+                    <div className="flex flex-col items-center gap-3">
+                      <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+                      <p className="text-muted-foreground">Loading section...</p>
+                    </div>
+                  </div>
+                ) : (
+                  <React.Suspense fallback={<div className="p-6 text-center text-muted-foreground">Loading form...</div>}>
+                    <QuestionnaireForm 
+                      questionnaire={questionnaire}
+                      activeSection={activeSection}
+                    />
+                  </React.Suspense>
+                )}
               </CardContent>
             </Card>
           </>

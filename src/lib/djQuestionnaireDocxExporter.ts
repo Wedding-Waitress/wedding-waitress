@@ -27,6 +27,7 @@ export const exportToDocx = async (
 ) => {
   const headerOverrides = (questionnaire.header_overrides as Record<string, any>) || {};
   const { date: generatedDate, time: generatedTime } = getCurrentDateTime();
+  const activeSection = questionnaire.meta?.activeSection || 'All Sections';
 
   // Header data
   const eventName = getEventName(event);
@@ -50,12 +51,10 @@ export const exportToDocx = async (
   const mcName = headerOverrides.mc_name || 'TBD';
   const mcMobile = headerOverrides.mc_mobile || 'TBD';
 
-  // Filter sections based on visibility (Pronunciations always visible)
-  const sectionVisibility = questionnaire.meta?.sectionVisibility || {};
-  const visibleSections = questionnaire.sections.filter(section => {
-    if (section.label === 'Pronunciations') return true;
-    return sectionVisibility[section.label] !== false;
-  });
+  // Filter sections based on activeSection
+  const visibleSections = activeSection === 'All Sections'
+    ? questionnaire.sections
+    : questionnaire.sections.filter(section => section.label === activeSection);
 
   // Build document sections
   const sections: Paragraph[] = [];

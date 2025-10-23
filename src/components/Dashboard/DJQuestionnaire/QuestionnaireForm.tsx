@@ -24,10 +24,10 @@ const BulkSongImportModal = React.lazy(() =>
 
 interface QuestionnaireFormProps {
   questionnaire: DJQuestionnaireWithData;
-  sectionVisibility?: Record<string, boolean>;
+  activeSection?: string;
 }
 
-export const QuestionnaireForm = ({ questionnaire, sectionVisibility = {} }: QuestionnaireFormProps) => {
+export const QuestionnaireForm = ({ questionnaire, activeSection = 'All Sections' }: QuestionnaireFormProps) => {
   const { 
     saveAnswer, 
     updateSectionLabel,
@@ -127,10 +127,10 @@ export const QuestionnaireForm = ({ questionnaire, sectionVisibility = {} }: Que
       {questionnaire.sections
         .filter(section => {
           if (!section?.label) return false;
-          // "Pronunciations" is always visible (not toggleable)
-          if (section.label === 'Pronunciations') return true;
-          // All other sections respect sectionVisibility (default to visible if not set)
-          return sectionVisibility[section.label] !== false;
+          // If "All Sections" selected, show all
+          if (activeSection === 'All Sections') return true;
+          // Otherwise, show only the selected section
+          return section.label === activeSection;
         })
         .map((section, sIdx) => {
         if (!section?.id || !section?.items) return null;
@@ -261,9 +261,11 @@ export const QuestionnaireForm = ({ questionnaire, sectionVisibility = {} }: Que
               </Button>
             )}
 
-            {sIdx < questionnaire.sections.filter(s => 
-              s?.label && (s.label === 'Pronunciations' || sectionVisibility[s.label] !== false)
-            ).length - 1 && (
+            {sIdx < questionnaire.sections.filter(s => {
+              if (!s?.label) return false;
+              if (activeSection === 'All Sections') return true;
+              return s.label === activeSection;
+            }).length - 1 && (
               <Separator className="mt-6" />
             )}
             </div>

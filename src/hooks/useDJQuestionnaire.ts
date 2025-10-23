@@ -333,6 +333,103 @@ export const useDJQuestionnaire = (eventId: string | null) => {
     debouncedUpdateSectionLabel(sectionId, label);
   };
 
+  const updateActiveSection = async (section: string) => {
+    if (!questionnaire?.id) {
+      console.error('Cannot update active section: no questionnaire loaded');
+      return;
+    }
+
+    try {
+      const currentMeta = questionnaire.meta || {};
+      const { error } = await supabase
+        .from('dj_questionnaires')
+        .update({ 
+          meta: { 
+            ...currentMeta, 
+            activeSection: section 
+          } 
+        })
+        .eq('id', questionnaire.id);
+
+      if (error) throw error;
+      await fetchQuestionnaire();
+    } catch (error: any) {
+      console.error('Error updating active section:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save section selection",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const ensureSectionExists = async (sectionLabel: string, templateType: TemplateType) => {
+    if (!questionnaire || !eventId) return null;
+
+    try {
+      // Check if section already exists
+      const existingSection = questionnaire.sections.find(s => s.label === sectionLabel);
+      if (existingSection) return existingSection;
+
+      // Get template for this section
+      const template = DJ_TEMPLATES[templateType];
+      const sectionTemplate = template.sections.find(s => s.label === sectionLabel);
+      
+      if (!sectionTemplate) {
+        console.error('Section template not found:', sectionLabel);
+        return null;
+      }
+
+      // Find max sort_index to append at the end
+      const maxSortIndex = Math.max(...questionnaire.sections.map(s => s.sort_index || 0), 0);
+
+      // Create the section
+      const { data: newSection, error: sError } = await supabase
+        .from('dj_sections')
+        .insert({
+          questionnaire_id: questionnaire.id,
+          label: sectionTemplate.label,
+          instructions: sectionTemplate.instructions,
+          recommendations: sectionTemplate.recommendations || {},
+          sort_index: maxSortIndex + 1
+        })
+        .select()
+        .single();
+
+      if (sError) throw sError;
+
+      // Create items for this section
+      const itemsToInsert = sectionTemplate.items.map((item, itemIndex) => ({
+        section_id: newSection.id,
+        type: item.type,
+        prompt: item.prompt,
+        help_text: item.help_text || null,
+        required: item.required || false,
+        sort_index: itemIndex,
+        meta: item.meta || {}
+      }));
+
+      const { error: iError } = await supabase
+        .from('dj_items')
+        .insert(itemsToInsert);
+
+      if (iError) throw iError;
+
+      // Refetch to get the new section
+      await fetchQuestionnaire();
+
+      return newSection;
+    } catch (error: any) {
+      console.error('Error ensuring section exists:', error);
+      toast({
+        title: "Error",
+        description: "Failed to create section",
+        variant: "destructive",
+      });
+      return null;
+    }
+  };
+
   const addItemAbove = async (itemId: string, sectionId: string) => {
     if (!questionnaire || !itemId || !sectionId) {
       console.error('Cannot add item: missing required data');
@@ -653,6 +750,8 @@ export const useDJQuestionnaire = (eventId: string | null) => {
     createQuestionnaireFromTemplate,
     updateHeaderOverrides,
     updateSectionLabel,
+    updateActiveSection,
+    ensureSectionExists,
     addItemAbove,
     addItemBelow,
     deleteItem,
