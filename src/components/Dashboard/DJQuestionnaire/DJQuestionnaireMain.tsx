@@ -155,8 +155,8 @@ export const DJQuestionnaireMain = ({
         <CardHeader className="border-b bg-card">
           <CardTitle className="mb-6">DJ & MC Questionnaire</CardTitle>
           
-          <div className="flex flex-col md:flex-row md:items-center gap-4 mb-4">
-            <div className="flex-1">
+          <div className="space-y-4 mb-4">
+            <div>
               <label className="text-sm font-medium mb-2 block">Select Event</label>
               <Select value={selectedEventId || ''} onValueChange={onEventSelect}>
                 <SelectTrigger className="w-full md:w-[280px] bg-background">
@@ -171,7 +171,7 @@ export const DJQuestionnaireMain = ({
                 </SelectContent>
               </Select>
             </div>
-            <div className="flex-1">
+            <div>
               <label className="text-sm font-medium mb-2 block">Questionnaire Template</label>
               <QuestionnaireTemplateSelector value={templateType} onChange={handleTemplateChange} />
             </div>
@@ -198,10 +198,10 @@ export const DJQuestionnaireMain = ({
 
         {/* Two Column Layout */}
         {questionnaire && selectedEvent && (
-          <CardContent className="p-0 print:hidden">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
+          <CardContent className="p-6 print:hidden bg-card">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Left Column: Event Details */}
-              <div className="p-6 space-y-3">
+              <div className="space-y-3">
                 <h2 className="text-2xl font-bold text-primary">
                   {getEventName(selectedEvent)}
                 </h2>
@@ -272,7 +272,7 @@ export const DJQuestionnaireMain = ({
               </div>
 
               {/* Right Column: Section Navigation */}
-              <div className="p-6">
+              <div>
                 <SectionSelector
                   activeSection={activeSection}
                   onChange={handleSectionChange}
