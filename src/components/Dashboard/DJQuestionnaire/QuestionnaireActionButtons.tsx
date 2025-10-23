@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Printer, FileDown, FileText, Mail, MessageSquare, Settings } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useNotificationSettings } from '@/hooks/useNotificationSettings';
 import { DJQuestionnaireWithData, TemplateType } from '@/types/djQuestionnaire';
 import { Event, formatEventDate, getEventName, getTemplateDisplayLabel, formatTimeRange } from '@/lib/djQuestionnaireFormatters';
 import { exportToDocx } from '@/lib/djQuestionnaireDocxExporter';
@@ -23,6 +25,7 @@ export const QuestionnaireActionButtons = ({
   onUpdateHeaderOverrides,
 }: QuestionnaireActionButtonsProps) => {
   const { toast } = useToast();
+  const { emailEnabled, smsEnabled } = useNotificationSettings();
   const [showHeaderModal, setShowHeaderModal] = useState(false);
   const [exporting, setExporting] = useState(false);
 
@@ -242,14 +245,52 @@ export const QuestionnaireActionButtons = ({
           <FileText className="w-4 h-4 mr-2" />
           Download Word
         </Button>
-        <Button variant="outline" size="sm" onClick={handleSendEmail}>
-          <Mail className="w-4 h-4 mr-2" />
-          Send Email
-        </Button>
-        <Button variant="outline" size="sm" onClick={handleSendSMS}>
-          <MessageSquare className="w-4 h-4 mr-2" />
-          Send SMS
-        </Button>
+        
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span tabIndex={0}>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={handleSendEmail}
+                  disabled={!emailEnabled}
+                >
+                  <Mail className="w-4 h-4 mr-2" />
+                  Send Email
+                </Button>
+              </span>
+            </TooltipTrigger>
+            {!emailEnabled && (
+              <TooltipContent>
+                <p>Configure email in Settings to enable sending</p>
+              </TooltipContent>
+            )}
+          </Tooltip>
+        </TooltipProvider>
+
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span tabIndex={0}>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={handleSendSMS}
+                  disabled={!smsEnabled}
+                >
+                  <MessageSquare className="w-4 h-4 mr-2" />
+                  Send SMS
+                </Button>
+              </span>
+            </TooltipTrigger>
+            {!smsEnabled && (
+              <TooltipContent>
+                <p>Configure SMS in Settings to enable sending</p>
+              </TooltipContent>
+            )}
+          </Tooltip>
+        </TooltipProvider>
       </div>
 
       <HeaderOverridesModal

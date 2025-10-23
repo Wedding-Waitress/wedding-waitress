@@ -30,6 +30,7 @@ import { DJQuestionnaireMain } from '@/components/Dashboard/DJQuestionnaire';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import type { Session } from '@supabase/supabase-js';
+import NotificationSettings from './NotificationSettings';
 
 export const Dashboard = () => {
   const [session, setSession] = useState<Session | null>(null);
@@ -336,6 +337,8 @@ export const Dashboard = () => {
         return <KioskSetup selectedEventId={selectedEventId} onEventSelect={handleEventSelect} />;
       case 'dj-mc-questionnaire':
         return <DJQuestionnaireMain selectedEventId={selectedEventId} onEventSelect={handleEventSelect} events={events} />;
+      case 'notification-settings':
+        return <NotificationSettings />;
       default:
         return <Card className="p-8 text-center">
             <TrendingUp className="w-16 h-16 mx-auto text-primary mb-4" />

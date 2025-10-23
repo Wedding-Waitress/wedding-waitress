@@ -66,3 +66,19 @@ export interface DJQuestionnaireWithData extends DJQuestionnaire {
     })[];
   })[];
 }
+
+// Notification Settings
+export interface NotificationSettings {
+  id?: string;
+  user_id?: string;
+  resend_api_key: string | null;
+  from_email: string | null;
+  email_enabled: boolean;
+  sms_provider: 'twilio' | 'messagemedia' | 'telnyx' | null;
+  twilio_account_sid: string | null;
+  twilio_auth_token: string | null;
+  twilio_messaging_service_sid: string | null;
+  sms_enabled: boolean;
+  created_at?: string;
+  updated_at?: string;
+}

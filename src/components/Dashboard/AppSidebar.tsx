@@ -13,7 +13,8 @@ import {
   LayoutGrid,
   FileText,
   LogOut,
-  Shield
+  Shield,
+  Settings
 } from 'lucide-react';
 import { useIsAdmin } from '@/hooks/useIsAdmin';
 import { useNavigate } from 'react-router-dom';
@@ -49,6 +50,7 @@ interface AppSidebarProps {
     { id: "full-seating-chart", label: "Full Seating Chart", icon: FileText },
     { id: "kiosk-live-view", label: "Kiosk Live View", icon: Monitor },
     { id: "dj-mc-questionnaire", label: "DJ & MC Questionnaire", icon: Music },
+    { id: "notification-settings", label: "Settings", icon: Settings },
   ];
 
 export const AppSidebar: React.FC<AppSidebarProps> = ({

@@ -1017,6 +1017,51 @@ export type Database = {
           },
         ]
       }
+      notification_settings: {
+        Row: {
+          created_at: string | null
+          email_enabled: boolean | null
+          from_email: string | null
+          id: string
+          resend_api_key: string | null
+          sms_enabled: boolean | null
+          sms_provider: string | null
+          twilio_account_sid: string | null
+          twilio_auth_token: string | null
+          twilio_messaging_service_sid: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          email_enabled?: boolean | null
+          from_email?: string | null
+          id?: string
+          resend_api_key?: string | null
+          sms_enabled?: boolean | null
+          sms_provider?: string | null
+          twilio_account_sid?: string | null
+          twilio_auth_token?: string | null
+          twilio_messaging_service_sid?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          email_enabled?: boolean | null
+          from_email?: string | null
+          id?: string
+          resend_api_key?: string | null
+          sms_enabled?: boolean | null
+          sms_provider?: string | null
+          twilio_account_sid?: string | null
+          twilio_auth_token?: string | null
+          twilio_messaging_service_sid?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       place_card_settings: {
         Row: {
           background_behind_names: boolean | null

@@ -1,1 +1,8 @@
 project_id = "xytxkidpourwdbzzwcdp"
+
+[functions.send-dj-questionnaire-email]
+verify_jwt = true
+
+[functions.send-dj-questionnaire-sms]
+verify_jwt = true
+
