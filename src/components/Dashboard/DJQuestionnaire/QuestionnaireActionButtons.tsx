@@ -136,6 +136,18 @@ export const QuestionnaireActionButtons = ({
       const mcName = headerOverrides.mc_name || 'TBD';
       const mcMobile = headerOverrides.mc_mobile || 'TBD';
       pdf.text(`DJ: ${djName}, ${djMobile} — MC: ${mcName}, ${mcMobile}`, leftMargin, yPos);
+      yPos += 8;
+
+      // Metadata
+      const now = new Date();
+      const generatedDate = now.toLocaleDateString();
+      const generatedTime = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      
+      pdf.setFontSize(9);
+      pdf.setTextColor(100, 100, 100);
+      pdf.setFont('helvetica', 'italic');
+      // We'll update page count at the end
+      const metadataY = yPos;
       yPos += 10;
 
       // Sections
@@ -221,6 +233,14 @@ export const QuestionnaireActionButtons = ({
 
         yPos += 5;
       });
+
+      // Add metadata at the end of first page
+      const totalPages = pdf.internal.pages.length - 1; // Subtract 1 for the initial blank page
+      pdf.setPage(1);
+      pdf.setFontSize(9);
+      pdf.setTextColor(100, 100, 100);
+      pdf.setFont('helvetica', 'italic');
+      pdf.text(`Pages: ${totalPages} — Generated on: ${generatedDate} — Time: ${generatedTime}`, leftMargin, metadataY);
 
       pdf.save(`${eventName.replace(/[^a-zA-Z0-9]/g, '_')}_DJ_Questionnaire.pdf`);
 

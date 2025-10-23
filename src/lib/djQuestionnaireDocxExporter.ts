@@ -187,13 +187,14 @@ export const exportToDocx = async (
   );
 
   // Line 4: Metadata
+  const estimatedPages = Math.ceil(visibleSections.length / 2) + 1; // Rough estimate: 2 sections per page + header
   sections.push(
     new Paragraph({
-      text: `Pages: ${questionnaire.sections.length} — Generated on: ${generatedDate} — Time: ${generatedTime}`,
+      text: `Pages: ~${estimatedPages} (varies in Word) — Generated on: ${generatedDate} — Time: ${generatedTime}`,
       spacing: { after: 400 },
       children: [
         new TextRun({
-          text: `Pages: ${questionnaire.sections.length} — Generated on: ${generatedDate} — Time: ${generatedTime}`,
+          text: `Pages: ~${estimatedPages} (varies in Word) — Generated on: ${generatedDate} — Time: ${generatedTime}`,
           size: 18,
           italics: true,
           color: '666666',
