@@ -13,6 +13,7 @@ import { FormRow } from './FormRow';
 import { SongData } from '@/lib/musicMetadataFetcher';
 import { useToast } from '@/hooks/use-toast';
 import { flags } from '@/lib/featureFlags';
+import { SectionErrorBoundary } from './SectionErrorBoundary';
 
 // Lazy load BulkSongImportModal to prevent it from evaluating unless opened
 const BulkSongImportModal = React.lazy(() => 
@@ -55,15 +56,33 @@ export const QuestionnaireForm = ({ questionnaire, sectionVisibility = {} }: Que
   });
 
   const handleChange = async (itemId: string, value: any) => {
-    setAnswers(prev => ({ ...prev, [itemId]: value }));
-    await saveAnswer(itemId, value);
+    try {
+      setAnswers(prev => ({ ...prev, [itemId]: value }));
+      await saveAnswer(itemId, value);
+    } catch (error) {
+      console.error('Failed to save answer:', error);
+      toast({
+        title: "Save Failed",
+        description: "Your answer couldn't be saved. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleDragEnd = (event: DragEndEvent, sectionId: string) => {
-    const { active, over } = event;
-    
-    if (over && active.id !== over.id) {
-      reorderItems(active.id as string, over.id as string, sectionId);
+    try {
+      const { active, over } = event;
+      
+      if (over && active.id !== over.id) {
+        reorderItems(active.id as string, over.id as string, sectionId);
+      }
+    } catch (error) {
+      console.error('Failed to reorder items:', error);
+      toast({
+        title: "Reorder Failed",
+        description: "Couldn't reorder items. Please try again.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -94,23 +113,36 @@ export const QuestionnaireForm = ({ questionnaire, sectionVisibility = {} }: Que
     }
   };
 
+  // Null safety checks
+  if (!questionnaire?.sections) {
+    return (
+      <div className="p-6 text-center text-muted-foreground">
+        No questionnaire data available
+      </div>
+    );
+  }
+
   return (
     <div id="questionnaire-form" className="space-y-8">
       {questionnaire.sections
         .filter(section => {
+          if (!section?.label) return false;
           // "Pronunciations" is always visible (not toggleable)
           if (section.label === 'Pronunciations') return true;
           // All other sections respect sectionVisibility (default to visible if not set)
           return sectionVisibility[section.label] !== false;
         })
         .map((section, sIdx) => {
+        if (!section?.id || !section?.items) return null;
+        
         const hasRecommendations = section.recommendations?.default_rows?.length > 0;
         const maxRows = section.items[0]?.meta?.maxRows;
         const canAddMore = !maxRows || section.items.length < maxRows;
-        const isSongSection = section.items.some(item => item.type === 'song_row');
+        const isSongSection = section.items.some(item => item?.type === 'song_row');
 
         return (
-          <div key={section.id} className="space-y-4">
+          <SectionErrorBoundary key={section.id} sectionLabel={section.label}>
+            <div className="space-y-4">
             <div className="flex items-center justify-between">
               <EditableSectionHeader
                 label={section.label}
@@ -157,6 +189,8 @@ export const QuestionnaireForm = ({ questionnaire, sectionVisibility = {} }: Que
               >
                 <div className="space-y-3">
                   {section.items.map((item) => {
+                    if (!item?.id) return null;
+                    
                     const minRows = item.meta?.minRows || 0;
                     const canDelete = section.items.length > minRows;
                     const answerValue = answers[item.id];
@@ -204,7 +238,7 @@ export const QuestionnaireForm = ({ questionnaire, sectionVisibility = {} }: Que
                         )}
                       </div>
                     );
-                  })}
+                  }).filter(Boolean)}
                 </div>
               </SortableContext>
             </DndContext>
@@ -228,13 +262,14 @@ export const QuestionnaireForm = ({ questionnaire, sectionVisibility = {} }: Que
             )}
 
             {sIdx < questionnaire.sections.filter(s => 
-              s.label === 'Pronunciations' || sectionVisibility[s.label] !== false
+              s?.label && (s.label === 'Pronunciations' || sectionVisibility[s.label] !== false)
             ).length - 1 && (
               <Separator className="mt-6" />
             )}
-          </div>
+            </div>
+          </SectionErrorBoundary>
         );
-      })}
+      }).filter(Boolean)}
 
       {flags.djBulkImport && bulkImportOpen && bulkImportSectionId && (
         <React.Suspense fallback={null}>

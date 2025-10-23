@@ -232,6 +232,10 @@ export const useDJQuestionnaire = (eventId: string | null) => {
   }, 600);
 
   const saveAnswer = async (itemId: string, value: any) => {
+    if (!itemId) {
+      console.error('Cannot save answer: itemId is missing');
+      return;
+    }
     setHasUnsavedChanges(true);
     debouncedSave(itemId, value);
   };
@@ -322,16 +326,28 @@ export const useDJQuestionnaire = (eventId: string | null) => {
   }, 600);
 
   const updateSectionLabel = async (sectionId: string, label: string) => {
+    if (!sectionId || !label) {
+      console.error('Cannot update section label: missing required data');
+      return;
+    }
     debouncedUpdateSectionLabel(sectionId, label);
   };
 
   const addItemAbove = async (itemId: string, sectionId: string) => {
+    if (!questionnaire || !itemId || !sectionId) {
+      console.error('Cannot add item: missing required data');
+      return;
+    }
+    
     try {
-      const currentItem = questionnaire?.sections
-        .flatMap(s => s.items)
-        .find(item => item.id === itemId);
+      const currentItem = questionnaire.sections
+        ?.flatMap(s => s?.items || [])
+        .find(item => item?.id === itemId);
       
-      if (!currentItem) return;
+      if (!currentItem?.type) {
+        console.error('Current item not found or invalid');
+        return;
+      }
 
       await shiftItemsDown(sectionId, currentItem.sort_index);
       await createBlankRow(sectionId, currentItem.type, currentItem.sort_index);
@@ -352,12 +368,20 @@ export const useDJQuestionnaire = (eventId: string | null) => {
   };
 
   const addItemBelow = async (itemId: string, sectionId: string) => {
+    if (!questionnaire || !itemId || !sectionId) {
+      console.error('Cannot add item: missing required data');
+      return;
+    }
+    
     try {
-      const currentItem = questionnaire?.sections
-        .flatMap(s => s.items)
-        .find(item => item.id === itemId);
+      const currentItem = questionnaire.sections
+        ?.flatMap(s => s?.items || [])
+        .find(item => item?.id === itemId);
       
-      if (!currentItem) return;
+      if (!currentItem?.type) {
+        console.error('Current item not found or invalid');
+        return;
+      }
 
       await shiftItemsDown(sectionId, currentItem.sort_index + 1);
       await createBlankRow(sectionId, currentItem.type, currentItem.sort_index + 1);
@@ -378,11 +402,16 @@ export const useDJQuestionnaire = (eventId: string | null) => {
   };
 
   const deleteItem = async (itemId: string, sectionId: string) => {
+    if (!questionnaire || !itemId || !sectionId) {
+      console.error('Cannot delete item: missing required data');
+      return;
+    }
+    
     try {
-      const section = questionnaire?.sections.find(s => s.id === sectionId);
-      const minRows = section?.items[0]?.meta?.minRows || 0;
+      const section = questionnaire.sections?.find(s => s?.id === sectionId);
+      const minRows = section?.items?.[0]?.meta?.minRows || 0;
       
-      if (section && section.items.length <= minRows) {
+      if (section && section.items && section.items.length <= minRows) {
         toast({
           title: "Cannot delete",
           description: `This section requires at least ${minRows} row(s)`,
@@ -420,9 +449,14 @@ export const useDJQuestionnaire = (eventId: string | null) => {
   };
 
   const reorderItems = async (activeId: string, overId: string, sectionId: string) => {
+    if (!questionnaire || !activeId || !overId || !sectionId) {
+      console.error('Cannot reorder items: missing required data');
+      return;
+    }
+    
     try {
-      const section = questionnaire?.sections.find(s => s.id === sectionId);
-      if (!section) return;
+      const section = questionnaire.sections?.find(s => s?.id === sectionId);
+      if (!section?.items) return;
 
       const items = [...section.items];
       const oldIndex = items.findIndex(item => item.id === activeId);

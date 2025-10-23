@@ -38,23 +38,29 @@ export const BulkSongImportModal = ({
     }
 
     try {
-      const lines = inputText.split('\n').filter(l => l.trim());
+      const lines = inputText?.split('\n')?.filter(l => l?.trim()) || [];
       const valid: string[] = [];
       const invalid: string[] = [];
       const seen = new Set<string>();
 
       lines.forEach(line => {
+        if (!line) return;
         const trimmed = line.trim();
         if (!trimmed) return;
         
-        const result = validateMusicURL(trimmed);
-        
-        if (result.isValid && result.normalizedUrl) {
-          if (!seen.has(result.normalizedUrl)) {
-            valid.push(result.normalizedUrl);
-            seen.add(result.normalizedUrl);
+        try {
+          const result = validateMusicURL(trimmed);
+          
+          if (result?.isValid && result?.normalizedUrl) {
+            if (!seen.has(result.normalizedUrl)) {
+              valid.push(result.normalizedUrl);
+              seen.add(result.normalizedUrl);
+            }
+          } else {
+            invalid.push(trimmed);
           }
-        } else {
+        } catch (err) {
+          console.error('URL validation error:', err);
           invalid.push(trimmed);
         }
       });
@@ -69,26 +75,37 @@ export const BulkSongImportModal = ({
   }, [inputText, open]);
 
   const handleImport = async () => {
+    if (!validUrls?.length) return;
+    
     setFetching(true);
     setImportProgress({ current: 0, total: validUrls.length });
 
     try {
       const metadataList = await fetchBulkMetadata(validUrls);
       
+      if (!metadataList?.length) {
+        throw new Error('No metadata returned');
+      }
+      
       const songs: SongData[] = metadataList.map((metadata, index) => {
         setImportProgress({ current: index + 1, total: validUrls.length });
         return {
-          song: metadata.title,
-          artist: metadata.artist,
-          link: metadata.url
+          song: metadata?.title || 'Unknown Song',
+          artist: metadata?.artist || 'Unknown Artist',
+          link: metadata?.url || validUrls[index]
         };
-      });
+      }).filter(song => song.song && song.link);
+
+      if (songs.length === 0) {
+        throw new Error('No valid songs to import');
+      }
 
       await onImport(songs);
       onOpenChange(false);
       setInputText('');
     } catch (error) {
       console.error('Import failed:', error);
+      // Error will be shown by parent component
     } finally {
       setFetching(false);
       setImportProgress({ current: 0, total: 0 });

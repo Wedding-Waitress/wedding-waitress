@@ -46,6 +46,11 @@ export const FormRow = ({
   rowIndex,
   totalRows
 }: FormRowProps) => {
+  // Null safety checks
+  if (!item?.id || !item?.type) {
+    return null;
+  }
+
   const {
     attributes,
     listeners,
@@ -65,64 +70,75 @@ export const FormRow = ({
     // Only handle keyboard navigation when focused on the row container
     if (e.target !== e.currentTarget) return;
 
-    switch (e.key) {
-      case 'ArrowUp':
-        if (rowIndex > 0 && onMoveUp) {
-          e.preventDefault();
-          onMoveUp();
-        }
-        break;
-      case 'ArrowDown':
-        if (rowIndex < totalRows - 1 && onMoveDown) {
-          e.preventDefault();
-          onMoveDown();
-        }
-        break;
-      case 'Delete':
-      case 'Backspace':
-        if (canDelete && e.shiftKey) {
-          e.preventDefault();
-          onDelete();
-        }
-        break;
+    try {
+      switch (e.key) {
+        case 'ArrowUp':
+          if (rowIndex > 0 && onMoveUp) {
+            e.preventDefault();
+            onMoveUp();
+          }
+          break;
+        case 'ArrowDown':
+          if (rowIndex < totalRows - 1 && onMoveDown) {
+            e.preventDefault();
+            onMoveDown();
+          }
+          break;
+        case 'Delete':
+        case 'Backspace':
+          if (canDelete && e.shiftKey) {
+            e.preventDefault();
+            onDelete();
+          }
+          break;
+      }
+    } catch (error) {
+      console.error('Keyboard navigation error:', error);
     }
   };
 
   const renderInput = () => {
+    if (!item?.type) return null;
+    
     const showMoment = item.meta?.showMoment;
 
-    switch (item.type) {
-      case 'ceremony_music_row':
-        return <CeremonyMusicRow value={value} onChange={onChange} />;
-      case 'bridal_party_enhanced_row':
-        return <BridalPartyEnhancedRow value={value} onChange={onChange} />;
-      case 'speech_enhanced_row':
-        return <SpeechEnhancedRow value={value} onChange={onChange} />;
-      case 'main_event_song_row':
-        return <MainEventSongRow value={value} onChange={onChange} />;
-      case 'background_music_row':
-        return <BackgroundMusicRow value={value} onChange={onChange} />;
-      case 'dance_music_row':
-        return <DanceMusicRow value={value} onChange={onChange} />;
-      case 'cultural_music_enhanced_row':
-        return <CulturalMusicEnhancedRow value={value} onChange={onChange} />;
-      case 'do_not_play_row':
-        return <DoNotPlayRow value={value} onChange={onChange} />;
-      // Legacy types (keep for backward compatibility)
-      case 'speech_row':
-        return <SpeechRow value={value} onChange={onChange} />;
-      case 'pronunciation_row':
-        return <PronunciationRow value={value} onChange={onChange} />;
-      case 'bridal_party_row':
-        return <BridalPartyRow value={value} onChange={onChange} />;
-      case 'song_row':
-        return <SongRow value={value} onChange={onChange} showMoment={showMoment} />;
-      case 'cultural_row':
-        return <CulturalRow value={value} onChange={onChange} />;
-      case 'announcement_row':
-        return <AnnouncementRow value={value} onChange={onChange} />;
-      default:
-        return null;
+    try {
+      switch (item.type) {
+        case 'ceremony_music_row':
+          return <CeremonyMusicRow value={value} onChange={onChange} />;
+        case 'bridal_party_enhanced_row':
+          return <BridalPartyEnhancedRow value={value} onChange={onChange} />;
+        case 'speech_enhanced_row':
+          return <SpeechEnhancedRow value={value} onChange={onChange} />;
+        case 'main_event_song_row':
+          return <MainEventSongRow value={value} onChange={onChange} />;
+        case 'background_music_row':
+          return <BackgroundMusicRow value={value} onChange={onChange} />;
+        case 'dance_music_row':
+          return <DanceMusicRow value={value} onChange={onChange} />;
+        case 'cultural_music_enhanced_row':
+          return <CulturalMusicEnhancedRow value={value} onChange={onChange} />;
+        case 'do_not_play_row':
+          return <DoNotPlayRow value={value} onChange={onChange} />;
+        // Legacy types (keep for backward compatibility)
+        case 'speech_row':
+          return <SpeechRow value={value} onChange={onChange} />;
+        case 'pronunciation_row':
+          return <PronunciationRow value={value} onChange={onChange} />;
+        case 'bridal_party_row':
+          return <BridalPartyRow value={value} onChange={onChange} />;
+        case 'song_row':
+          return <SongRow value={value} onChange={onChange} showMoment={showMoment} />;
+        case 'cultural_row':
+          return <CulturalRow value={value} onChange={onChange} />;
+        case 'announcement_row':
+          return <AnnouncementRow value={value} onChange={onChange} />;
+        default:
+          return null;
+      }
+    } catch (error) {
+      console.error('Error rendering row input:', error);
+      return <div className="text-xs text-destructive">Error loading row</div>;
     }
   };
 

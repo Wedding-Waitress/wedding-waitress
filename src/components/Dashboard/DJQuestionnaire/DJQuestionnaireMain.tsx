@@ -76,24 +76,34 @@ export const DJQuestionnaireMain = ({
   }, [questionnaire]);
 
   const handleTemplateChange = async (newTemplate: TemplateType) => {
+    if (!newTemplate) return;
+    
     setTemplateType(newTemplate);
     
     // If no questionnaire exists, create one with the selected template
     if (!questionnaire && selectedEventId) {
-      await createQuestionnaireFromTemplate(newTemplate);
+      try {
+        await createQuestionnaireFromTemplate(newTemplate);
+      } catch (error) {
+        console.error('Failed to create questionnaire:', error);
+      }
     }
   };
 
   const handleToggleSection = (sectionLabel: string, visible: boolean) => {
-    if (!questionnaire) return;
+    if (!questionnaire || !sectionLabel) return;
     
-    const currentVisibility = questionnaire.meta?.sectionVisibility || {};
-    const updatedVisibility = {
-      ...currentVisibility,
-      [sectionLabel]: visible
-    };
-    
-    updateSectionVisibility(updatedVisibility);
+    try {
+      const currentVisibility = questionnaire.meta?.sectionVisibility || {};
+      const updatedVisibility = {
+        ...currentVisibility,
+        [sectionLabel]: visible
+      };
+      
+      updateSectionVisibility(updatedVisibility);
+    } catch (error) {
+      console.error('Failed to toggle section:', error);
+    }
   };
 
   const handleShowAllSections = () => {
