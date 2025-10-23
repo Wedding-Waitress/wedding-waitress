@@ -6,7 +6,9 @@ import {
   AlignmentType,
   Packer,
   BorderStyle,
+  ExternalHyperlink,
 } from 'docx';
+import { validateMusicURL, getPlatformName, ensureAbsoluteUrl } from './urlValidation';
 import { saveAs } from 'file-saver';
 import { DJQuestionnaireWithData, TemplateType } from '@/types/djQuestionnaire';
 import {
@@ -237,29 +239,97 @@ export const exportToDocx = async (
 
       // Answer value
       const answerValue = item.answer?.value;
-      let displayValue = '';
-      if (answerValue !== null && answerValue !== undefined) {
-        if (typeof answerValue === 'boolean') {
-          displayValue = answerValue ? 'Yes' : 'No';
-        } else if (Array.isArray(answerValue)) {
-          displayValue = answerValue.join(', ');
-        } else {
-          displayValue = String(answerValue);
-        }
-      }
 
-      sections.push(
-        new Paragraph({
-          text: displayValue || '___________________________________',
-          spacing: { after: 200 },
-          children: [
-            new TextRun({
-              text: displayValue || '___________________________________',
-              size: 20,
-            }),
-          ],
-        })
-      );
+      // Special handling for song_row with links
+      if (item.type === 'song_row' && answerValue) {
+        const songData = answerValue;
+        
+        // Song title + artist
+        sections.push(
+          new Paragraph({
+            spacing: { after: 100 },
+            children: [
+              new TextRun({
+                text: `♪ ${songData.song || '[No title]'} – ${songData.artist || '[No artist]'}`,
+                size: 20,
+                bold: true,
+              }),
+            ],
+          })
+        );
+
+        // Clickable link
+        if (songData.link) {
+          const linkUrl = ensureAbsoluteUrl(songData.link);
+          const validation = validateMusicURL(linkUrl);
+          const platformName = getPlatformName(validation.platform);
+
+          sections.push(
+            new Paragraph({
+              spacing: { after: 200 },
+              children: [
+                new TextRun({
+                  text: '🔗 ',
+                  size: 20,
+                }),
+                new ExternalHyperlink({
+                  children: [
+                    new TextRun({
+                      text: `${platformName}: ${linkUrl}`,
+                      size: 20,
+                      color: '6D28D9',
+                      underline: {},
+                    }),
+                  ],
+                  link: linkUrl,
+                }),
+              ],
+            })
+          );
+        } else {
+          sections.push(
+            new Paragraph({
+              text: '[No link provided]',
+              spacing: { after: 200 },
+              children: [
+                new TextRun({
+                  text: '[No link provided]',
+                  size: 20,
+                  color: '999999',
+                  italics: true,
+                }),
+              ],
+            })
+          );
+        }
+      } else {
+        // Default handling for other item types
+        let displayValue = '';
+        if (answerValue !== null && answerValue !== undefined) {
+          if (typeof answerValue === 'boolean') {
+            displayValue = answerValue ? 'Yes' : 'No';
+          } else if (Array.isArray(answerValue)) {
+            displayValue = answerValue.join(', ');
+          } else if (typeof answerValue === 'object') {
+            displayValue = JSON.stringify(answerValue);
+          } else {
+            displayValue = String(answerValue);
+          }
+        }
+
+        sections.push(
+          new Paragraph({
+            text: displayValue || '___________________________________',
+            spacing: { after: 200 },
+            children: [
+              new TextRun({
+                text: displayValue || '___________________________________',
+                size: 20,
+              }),
+            ],
+          })
+        );
+      }
     });
   });
 

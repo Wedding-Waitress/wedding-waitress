@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
+import { Plus, ExternalLink } from 'lucide-react';
+import { validateMusicURL, getPlatformName, ensureAbsoluteUrl } from '@/lib/urlValidation';
 import { DndContext, closestCenter, DragEndEvent } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { DJQuestionnaireWithData } from '@/types/djQuestionnaire';
@@ -85,18 +86,34 @@ export const QuestionnaireForm = ({ questionnaire }: QuestionnaireFormProps) => 
                   {section.items.map((item) => {
                     const minRows = item.meta?.minRows || 0;
                     const canDelete = section.items.length > minRows;
+                    const answerValue = answers[item.id];
+                    const showLinkPreview = item.type === 'song_row' && answerValue?.link;
 
                     return (
-                      <FormRow
-                        key={item.id}
-                        item={item}
-                        value={answers[item.id]}
-                        onChange={(value) => handleChange(item.id, value)}
-                        onAddAbove={() => addItemAbove(item.id, section.id)}
-                        onAddBelow={() => addItemBelow(item.id, section.id)}
-                        onDelete={() => deleteItem(item.id, section.id)}
-                        canDelete={canDelete}
-                      />
+                      <div key={item.id} className="space-y-2">
+                        <FormRow
+                          item={item}
+                          value={answerValue}
+                          onChange={(value) => handleChange(item.id, value)}
+                          onAddAbove={() => addItemAbove(item.id, section.id)}
+                          onAddBelow={() => addItemBelow(item.id, section.id)}
+                          onDelete={() => deleteItem(item.id, section.id)}
+                          canDelete={canDelete}
+                        />
+                        {showLinkPreview && (
+                          <div className="ml-12 text-xs text-muted-foreground print:hidden">
+                            <a
+                              href={ensureAbsoluteUrl(answerValue.link)}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-primary hover:underline flex items-center gap-1 song-link"
+                            >
+                              <ExternalLink className="w-3 h-3" />
+                              {getPlatformName(validateMusicURL(answerValue.link).platform)}
+                            </a>
+                          </div>
+                        )}
+                      </div>
                     );
                   })}
                 </div>

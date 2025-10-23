@@ -3,11 +3,11 @@ import { Button } from '@/components/ui/button';
 import { Printer, FileDown, FileText, Mail, MessageSquare, Settings } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { DJQuestionnaireWithData, TemplateType } from '@/types/djQuestionnaire';
-import { Event } from '@/lib/djQuestionnaireFormatters';
+import { Event, formatEventDate, getEventName, getTemplateDisplayLabel, formatTimeRange } from '@/lib/djQuestionnaireFormatters';
 import { exportToDocx } from '@/lib/djQuestionnaireDocxExporter';
 import { HeaderOverridesModal } from './HeaderOverridesModal';
-import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+import { validateMusicURL, getPlatformName, ensureAbsoluteUrl } from '@/lib/urlValidation';
 
 interface QuestionnaireActionButtonsProps {
   event: Event;
@@ -41,7 +41,7 @@ export const QuestionnaireActionButtons = ({
     try {
       toast({
         title: 'Generating PDF',
-        description: 'This may take a moment...',
+        description: 'Creating document with clickable links...',
       });
 
       const pdf = new jsPDF({
@@ -50,39 +50,126 @@ export const QuestionnaireActionButtons = ({
         format: 'a4',
       });
 
-      // Capture header
-      const headerElement = document.getElementById('questionnaire-header');
-      if (headerElement) {
-        const headerCanvas = await html2canvas(headerElement, { scale: 2 });
-        const headerImgData = headerCanvas.toDataURL('image/png');
-        const headerHeight = (headerCanvas.height * 210) / headerCanvas.width;
-        pdf.addImage(headerImgData, 'PNG', 0, 0, 210, headerHeight);
-      }
+      let yPos = 20;
+      const leftMargin = 20;
+      const pageWidth = 170;
 
-      // Capture form
-      const formElement = document.getElementById('questionnaire-form');
-      if (formElement) {
-        const formCanvas = await html2canvas(formElement, { scale: 2 });
-        const formImgData = formCanvas.toDataURL('image/png');
-        const formHeight = (formCanvas.height * 210) / formCanvas.width;
-        
-        // Add form on new page if needed
-        if (formHeight > 250) {
+      // Header
+      pdf.setFontSize(24);
+      pdf.setTextColor(109, 40, 217);
+      pdf.setFont('helvetica', 'bold');
+      const eventName = getEventName(event);
+      pdf.text(eventName, leftMargin, yPos);
+      yPos += 10;
+
+      pdf.setFontSize(16);
+      pdf.setTextColor(0, 0, 0);
+      const templateLabel = getTemplateDisplayLabel(templateType);
+      const fullDate = formatEventDate(event.date);
+      pdf.text(`${templateLabel} – ${fullDate}`, leftMargin, yPos);
+      yPos += 8;
+
+      pdf.setFontSize(11);
+      pdf.setFont('helvetica', 'normal');
+      const headerOverrides = (questionnaire.header_overrides as Record<string, any>) || {};
+      const venue = headerOverrides.venue_override || event.venue_name || event.venue || 'Venue TBD';
+      pdf.text(`Venue: ${venue}`, leftMargin, yPos);
+      yPos += 5;
+      
+      const djName = headerOverrides.dj_name || 'TBD';
+      const mcName = headerOverrides.mc_name || 'TBD';
+      pdf.text(`DJ: ${djName} — MC: ${mcName}`, leftMargin, yPos);
+      yPos += 10;
+
+      // Sections
+      questionnaire.sections.forEach((section) => {
+        if (yPos > 270) {
           pdf.addPage();
-          pdf.addImage(formImgData, 'PNG', 0, 0, 210, Math.min(formHeight, 297));
-        } else {
-          pdf.addImage(formImgData, 'PNG', 0, 60, 210, formHeight);
+          yPos = 20;
         }
-      }
 
-      const eventName = event.partner1_name && event.partner2_name
-        ? `${event.partner1_name}_${event.partner2_name}`
-        : event.name;
+        pdf.setFontSize(16);
+        pdf.setTextColor(109, 40, 217);
+        pdf.setFont('helvetica', 'bold');
+        pdf.text(section.label, leftMargin, yPos);
+        yPos += 8;
+
+        if (section.instructions) {
+          pdf.setFontSize(10);
+          pdf.setTextColor(100, 100, 100);
+          pdf.setFont('helvetica', 'italic');
+          const instructionLines = pdf.splitTextToSize(section.instructions, pageWidth);
+          pdf.text(instructionLines, leftMargin, yPos);
+          yPos += instructionLines.length * 5 + 3;
+        }
+
+        section.items.forEach((item) => {
+          if (yPos > 270) {
+            pdf.addPage();
+            yPos = 20;
+          }
+
+          const answerValue = item.answer?.value;
+
+          if (item.type === 'song_row' && answerValue) {
+            pdf.setFontSize(11);
+            pdf.setTextColor(0, 0, 0);
+            pdf.setFont('helvetica', 'bold');
+            
+            const songData = answerValue;
+            const songText = `♪ ${songData.song || '[No title]'} – ${songData.artist || '[No artist]'}`;
+            pdf.text(songText, leftMargin + 5, yPos);
+            yPos += 6;
+
+            if (songData.link) {
+              const linkUrl = ensureAbsoluteUrl(songData.link);
+              const validation = validateMusicURL(linkUrl);
+              const platformName = getPlatformName(validation.platform);
+              
+              pdf.setFontSize(10);
+              pdf.setTextColor(109, 40, 217);
+              pdf.setFont('helvetica', 'normal');
+              
+              pdf.textWithLink(`🔗 ${platformName}: ${linkUrl}`, leftMargin + 10, yPos, {
+                url: linkUrl,
+              });
+              yPos += 6;
+            }
+
+            yPos += 3;
+          } else {
+            pdf.setFontSize(11);
+            pdf.setTextColor(0, 0, 0);
+            pdf.setFont('helvetica', 'bold');
+            pdf.text(item.prompt, leftMargin, yPos);
+            yPos += 6;
+
+            pdf.setFont('helvetica', 'normal');
+            pdf.setFontSize(10);
+            let displayValue = '';
+            if (answerValue !== null && answerValue !== undefined) {
+              if (typeof answerValue === 'boolean') {
+                displayValue = answerValue ? 'Yes' : 'No';
+              } else if (typeof answerValue === 'object') {
+                displayValue = JSON.stringify(answerValue);
+              } else {
+                displayValue = String(answerValue);
+              }
+            }
+            const answerLines = pdf.splitTextToSize(displayValue || '___', pageWidth - 10);
+            pdf.text(answerLines, leftMargin + 5, yPos);
+            yPos += answerLines.length * 5 + 3;
+          }
+        });
+
+        yPos += 5;
+      });
+
       pdf.save(`${eventName.replace(/[^a-zA-Z0-9]/g, '_')}_DJ_Questionnaire.pdf`);
 
       toast({
         title: 'PDF Downloaded',
-        description: 'Your questionnaire has been saved',
+        description: 'Links are clickable in the PDF',
       });
     } catch (error) {
       console.error('PDF export error:', error);
@@ -125,7 +212,7 @@ export const QuestionnaireActionButtons = ({
   const handleSendEmail = () => {
     toast({
       title: 'Coming Soon',
-      description: 'Email delivery will be available soon',
+      description: 'Email delivery will preserve all clickable links',
     });
   };
 

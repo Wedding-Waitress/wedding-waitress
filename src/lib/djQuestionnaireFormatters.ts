@@ -1,6 +1,7 @@
 import { format } from 'date-fns';
 import { formatDisplayTime } from './utils';
-import { TemplateType } from '@/types/djQuestionnaire';
+import { TemplateType, DJQuestionnaireWithData } from '@/types/djQuestionnaire';
+import { validateMusicURL, ensureAbsoluteUrl } from './urlValidation';
 
 export interface Event {
   id: string;
@@ -47,4 +48,40 @@ export const getCurrentDateTime = () => {
   const date = format(now, 'dd/MM/yyyy');
   const time = format(now, 'HH:mm');
   return { date, time };
+};
+
+export interface SongLink {
+  sectionLabel: string;
+  songTitle: string;
+  artist: string;
+  url: string;
+  platform?: string;
+}
+
+/**
+ * Extracts all song links from a questionnaire
+ */
+export const extractAllSongLinks = (questionnaire: DJQuestionnaireWithData): SongLink[] => {
+  const links: SongLink[] = [];
+
+  questionnaire.sections.forEach((section) => {
+    section.items.forEach((item) => {
+      if (item.type === 'song_row' && item.answer?.value?.link) {
+        const songData = item.answer.value;
+        const validation = validateMusicURL(songData.link);
+        
+        if (validation.isValid && songData.link) {
+          links.push({
+            sectionLabel: section.label,
+            songTitle: songData.song || '[Untitled]',
+            artist: songData.artist || '[Unknown]',
+            url: ensureAbsoluteUrl(songData.link),
+            platform: validation.platform,
+          });
+        }
+      }
+    });
+  });
+
+  return links;
 };
