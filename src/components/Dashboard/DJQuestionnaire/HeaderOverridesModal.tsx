@@ -12,6 +12,8 @@ interface HeaderOverrides {
   mc_mobile?: string;
   ceremony_start?: string;
   ceremony_finish?: string;
+  canapes_start?: string;
+  canapes_finish?: string;
   reception_start?: string;
   reception_finish?: string;
   venue_override?: string;
@@ -143,6 +145,28 @@ export const HeaderOverridesModal = ({
                 type="time"
                 value={overrides.ceremony_finish || ''}
                 onChange={(e) => setOverrides({ ...overrides, ceremony_finish: e.target.value })}
+              />
+            </div>
+          </div>
+
+          {/* Canapés Times */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="canapes_start">Canapés Start</Label>
+              <Input
+                id="canapes_start"
+                type="time"
+                value={overrides.canapes_start || ''}
+                onChange={(e) => setOverrides({ ...overrides, canapes_start: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="canapes_finish">Canapés Finish</Label>
+              <Input
+                id="canapes_finish"
+                type="time"
+                value={overrides.canapes_finish || ''}
+                onChange={(e) => setOverrides({ ...overrides, canapes_finish: e.target.value })}
               />
             </div>
           </div>

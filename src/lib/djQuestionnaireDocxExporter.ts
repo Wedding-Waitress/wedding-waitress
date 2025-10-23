@@ -37,6 +37,10 @@ export const exportToDocx = async (
     headerOverrides.ceremony_start || event.start_time,
     headerOverrides.ceremony_finish || event.start_time
   );
+  const canapesTime = formatTimeRange(
+    headerOverrides.canapes_start || null,
+    headerOverrides.canapes_finish || null
+  );
   const receptionTime = formatTimeRange(
     headerOverrides.reception_start || event.start_time,
     headerOverrides.reception_finish || event.finish_time
@@ -102,30 +106,49 @@ export const exportToDocx = async (
     })
   );
 
+  // Build time range with optional canapés
+  const timeChildren: any[] = [
+    new TextRun({
+      text: 'Ceremony: ',
+      bold: true,
+      size: 20,
+    }),
+    new TextRun({
+      text: ceremonyTime,
+      size: 20,
+    }),
+  ];
+
+  if (canapesTime && canapesTime !== 'TBD') {
+    timeChildren.push(
+      new TextRun({
+        text: ' — Canapés: ',
+        bold: true,
+        size: 20,
+      }),
+      new TextRun({
+        text: canapesTime,
+        size: 20,
+      })
+    );
+  }
+
+  timeChildren.push(
+    new TextRun({
+      text: ' — Reception: ',
+      bold: true,
+      size: 20,
+    }),
+    new TextRun({
+      text: receptionTime,
+      size: 20,
+    })
+  );
+
   sections.push(
     new Paragraph({
-      text: `Ceremony: ${ceremonyTime} — Reception: ${receptionTime}`,
       spacing: { after: 100 },
-      children: [
-        new TextRun({
-          text: 'Ceremony: ',
-          bold: true,
-          size: 20,
-        }),
-        new TextRun({
-          text: ceremonyTime,
-          size: 20,
-        }),
-        new TextRun({
-          text: ' — Reception: ',
-          bold: true,
-          size: 20,
-        }),
-        new TextRun({
-          text: receptionTime,
-          size: 20,
-        }),
-      ],
+      children: timeChildren,
     })
   );
 

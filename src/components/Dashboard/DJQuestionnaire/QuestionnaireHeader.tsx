@@ -39,6 +39,10 @@ export const QuestionnaireHeader = ({
     headerOverrides.ceremony_start || event.start_time,
     headerOverrides.ceremony_finish || event.start_time
   );
+  const canapesTime = formatTimeRange(
+    headerOverrides.canapes_start || null,
+    headerOverrides.canapes_finish || null
+  );
   const receptionTime = formatTimeRange(
     headerOverrides.reception_start || event.start_time,
     headerOverrides.reception_finish || event.finish_time
@@ -75,8 +79,11 @@ export const QuestionnaireHeader = ({
             <span className="font-medium">Venue:</span> {venue}
           </p>
           <p>
-            <span className="font-medium">Ceremony:</span> {ceremonyTime} —{' '}
-            <span className="font-medium">Reception:</span> {receptionTime}
+            <span className="font-medium">Ceremony:</span> {ceremonyTime}
+            {canapesTime && canapesTime !== 'TBD' && (
+              <> —{' '}<span className="font-medium">Canapés:</span> {canapesTime}</>
+            )}
+            {' '}—{' '}<span className="font-medium">Reception:</span> {receptionTime}
           </p>
           <p>
             <span className="font-medium">DJ:</span> {djName}, {djMobile} —{' '}
