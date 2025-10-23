@@ -1,6 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useBlocker } from 'react-router-dom';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { AlertCircle } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -45,7 +43,6 @@ export const DJQuestionnaireMain = ({
   const [templateType, setTemplateType] = useState<TemplateType>('wedding_mr_mrs');
   const [pageCount, setPageCount] = useState<number>(1);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [showNavigationWarning, setShowNavigationWarning] = useState(false);
   const formRef = useRef<HTMLDivElement>(null);
 
   const selectedEvent = events.find((e) => e.id === selectedEventId);
@@ -88,12 +85,6 @@ export const DJQuestionnaireMain = ({
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Warn on navigation away
-  const blocker = useBlocker(
-    ({ currentLocation, nextLocation }) =>
-      hasUnsavedChanges && currentLocation.pathname !== nextLocation.pathname
-  );
-
   // Warn on page close/refresh
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
@@ -106,13 +97,6 @@ export const DJQuestionnaireMain = ({
     window.addEventListener('beforeunload', handleBeforeUnload);
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, [hasUnsavedChanges]);
-
-  // Show confirmation dialog for React Router navigation
-  useEffect(() => {
-    if (blocker.state === 'blocked') {
-      setShowNavigationWarning(true);
-    }
-  }, [blocker]);
 
   return (
     <div className="space-y-6 print:space-y-4">
@@ -268,33 +252,6 @@ export const DJQuestionnaireMain = ({
           }
         }
       `}</style>
-
-      {/* Navigation Warning Dialog */}
-      <AlertDialog open={showNavigationWarning} onOpenChange={setShowNavigationWarning}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Unsaved Changes</AlertDialogTitle>
-            <AlertDialogDescription>
-              You have unsaved changes that will be lost if you leave now. 
-              Are you sure you want to continue?
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => {
-              blocker.reset?.();
-              setShowNavigationWarning(false);
-            }}>
-              Stay on Page
-            </AlertDialogCancel>
-            <AlertDialogAction onClick={() => {
-              blocker.proceed?.();
-              setShowNavigationWarning(false);
-            }}>
-              Leave Anyway
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 };
