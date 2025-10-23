@@ -34,6 +34,7 @@ interface Section {
   id: string;
   label: string;
   sort_index: number;
+  instructions?: string;
   items: {
     id: string;
     type: ItemType;
@@ -95,6 +96,7 @@ export function DJQuestionnairePublicView() {
             id: row.section_id,
             label: row.section_label,
             sort_index: row.section_sort_index,
+            instructions: (row as any).section_instructions,
             items: [],
           });
         }
@@ -368,12 +370,19 @@ export function DJQuestionnairePublicView() {
 
         {/* Sections */}
         <div className="space-y-6">
-          {questionnaire.sections.map((section) => (
+        {questionnaire.sections.map((section) => (
             <Card key={section.id} className="p-6">
-              <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+              <h2 className="text-lg font-semibold mb-2 flex items-center gap-2">
                 <span className="text-primary">📋</span>
                 {section.label}
               </h2>
+              
+              {section.instructions && (
+                <p className="text-sm text-muted-foreground/80 italic mb-4">
+                  {section.instructions}
+                </p>
+              )}
+              
               <div className="space-y-4">
                 {section.items.map((item) => (
                   <div key={item.id} className="border-b border-border last:border-0 pb-4 last:pb-0">

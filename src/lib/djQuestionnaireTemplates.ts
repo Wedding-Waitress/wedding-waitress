@@ -26,7 +26,7 @@ export const DJ_TEMPLATES: Record<TemplateType, Template> = {
     sections: [
       {
         label: 'Speeches & Toasts',
-        instructions: "List speakers in the order they will present. We recommend starting with parents and ending with the couple.",
+        instructions: "Please list speakers in order. Keep to 3–5 mins each. You can drag to reorder.",
         recommendations: {
           default_rows: [
             { name: 'Father of the Bride', order: 1 },
@@ -54,7 +54,7 @@ export const DJ_TEMPLATES: Record<TemplateType, Template> = {
       },
       {
         label: 'Bridal Party Introductions',
-        instructions: 'Order of entrances for your bridal party. You can assign different entrance songs per group.',
+        instructions: 'List the order you want bridal party introduced. You can assign an entrance song per group. Drag to reorder as needed.',
         recommendations: {
           default_rows: [
             { group: 'Parents of the Bride', type: 'Parents', song: '' },
@@ -67,8 +67,18 @@ export const DJ_TEMPLATES: Record<TemplateType, Template> = {
         ]
       },
       {
+        label: 'Background & Dinner Music',
+        instructions: 'Optional. Up to 20 songs for dinner or canapés. Paste YouTube or Spotify links. Keep it elegant and conversational.',
+        recommendations: {
+          helper_text: "Think: soft jazz, acoustic, or instrumental tracks. We will fill in if you leave this blank."
+        },
+        items: [
+          { type: 'song_row', prompt: 'Background Song', help_text: 'Song, artist, and link', meta: { maxRows: 20, showMoment: false } }
+        ]
+      },
+      {
         label: 'Main Event Songs',
-        instructions: 'Key songs for special moments. These are typically played at specific times.',
+        instructions: "Provide songs for major moments. If unsure, leave blank and we'll suggest. Add Spotify, Apple Music, or YouTube links.",
         recommendations: {
           default_rows: [
             { moment: 'Grand Entrance', song: '', artist: '', link: '' },
@@ -82,14 +92,27 @@ export const DJ_TEMPLATES: Record<TemplateType, Template> = {
       },
       {
         label: 'Dance Floor Must-Plays',
-        instructions: 'Up to 30 songs that MUST be played on the dance floor.',
+        instructions: 'Up to 30 must-plays for the dance floor. Paste YouTube or Spotify links for easy reference.',
+        recommendations: {
+          helper_text: "Pro tip: Add a Do-Not-Play list in Final Notes for songs or genres to avoid."
+        },
         items: [
           { type: 'song_row', prompt: 'Must-Play Song', help_text: 'Song, artist, and link', meta: { maxRows: 30, showMoment: false } }
         ]
       },
       {
+        label: 'Cultural & Traditional Sets',
+        instructions: 'Optional. Add cultural music sets and indicate when to play (e.g., after main course, during dessert, or on request).',
+        recommendations: {
+          helper_text: "Examples: Greek dancing, Italian tarantella, Indian Bollywood, hora, etc."
+        },
+        items: [
+          { type: 'cultural_row', prompt: 'Cultural Set', help_text: 'Style/tradition and when to play', meta: { maxRows: 10 } }
+        ]
+      },
+      {
         label: 'Final Notes',
-        instructions: 'Anything else we should know? Special requests, concerns, or additional details.',
+        instructions: 'Anything else we should know? Add special requests, do-not-play lists, guest considerations, or concerns here.',
         items: [
           { type: 'longtext', prompt: 'Additional Notes', help_text: 'Any other information for us' }
         ]
@@ -101,8 +124,93 @@ export const DJ_TEMPLATES: Record<TemplateType, Template> = {
     sections: [
       {
         label: 'Speeches & Toasts',
-        instructions: "List speakers in the order they will present.",
-        items: [{ type: 'speech_row', prompt: 'Speaker', meta: { maxRows: 5 } }]
+        instructions: "Please list speakers in order. Keep to 3–5 mins each. You can drag to reorder.",
+        recommendations: {
+          default_rows: [
+            { name: 'Parents', order: 1 },
+            { name: 'Best Man', order: 2 },
+            { name: 'The Couple', order: 3 }
+          ]
+        },
+        items: [
+          { type: 'speech_row', prompt: 'Speaker', help_text: 'Name and speaking order', meta: { maxRows: 5, minRows: 1 } }
+        ]
+      },
+      {
+        label: 'Pronunciations',
+        instructions: 'Help us pronounce names correctly. Include anyone being introduced or mentioned in speeches.',
+        recommendations: {
+          default_rows: [
+            { name: 'Partner 1', role: 'Groom', phonetic: '' },
+            { name: 'Partner 2', role: 'Groom', phonetic: '' }
+          ]
+        },
+        items: [
+          { type: 'pronunciation_row', prompt: 'Name Pronunciation', help_text: 'Name, role, and phonetic spelling', meta: { maxRows: 20 } }
+        ]
+      },
+      {
+        label: 'Bridal Party Introductions',
+        instructions: 'List the order you want bridal party introduced. You can assign an entrance song per group. Drag to reorder as needed.',
+        recommendations: {
+          default_rows: [
+            { group: 'Parents', type: 'Parents', song: '' },
+            { group: 'Groomsmen', type: 'Attendants', song: '' }
+          ]
+        },
+        items: [
+          { type: 'bridal_party_row', prompt: 'Entrance Group', help_text: 'Group name, type, and entrance song', meta: { maxRows: 15 } }
+        ]
+      },
+      {
+        label: 'Background & Dinner Music',
+        instructions: 'Optional. Up to 20 songs for dinner or canapés. Paste YouTube or Spotify links. Keep it elegant and conversational.',
+        recommendations: {
+          helper_text: "Think: soft jazz, acoustic, or instrumental tracks. We will fill in if you leave this blank."
+        },
+        items: [
+          { type: 'song_row', prompt: 'Background Song', help_text: 'Song, artist, and link', meta: { maxRows: 20, showMoment: false } }
+        ]
+      },
+      {
+        label: 'Main Event Songs',
+        instructions: "Provide songs for major moments. If unsure, leave blank and we will suggest. Add Spotify, Apple Music, or YouTube links.",
+        recommendations: {
+          default_rows: [
+            { moment: 'Grand Entrance', song: '', artist: '', link: '' },
+            { moment: 'First Dance', song: '', artist: '', link: '' }
+          ]
+        },
+        items: [
+          { type: 'song_row', prompt: 'Special Moment', help_text: 'Moment, song, artist, and link', required: true, meta: { maxRows: 12, showMoment: true } }
+        ]
+      },
+      {
+        label: 'Dance Floor Must-Plays',
+        instructions: 'Up to 30 must-plays for the dance floor. Paste YouTube or Spotify links for easy reference.',
+        recommendations: {
+          helper_text: "Pro tip: Add a Do-Not-Play list in Final Notes for songs or genres to avoid."
+        },
+        items: [
+          { type: 'song_row', prompt: 'Must-Play Song', help_text: 'Song, artist, and link', meta: { maxRows: 30, showMoment: false } }
+        ]
+      },
+      {
+        label: 'Cultural & Traditional Sets',
+        instructions: 'Optional. Add cultural music sets and indicate when to play (e.g., after main course, during dessert, or on request).',
+        recommendations: {
+          helper_text: "Examples: Greek dancing, Italian tarantella, Indian Bollywood, hora, etc."
+        },
+        items: [
+          { type: 'cultural_row', prompt: 'Cultural Set', help_text: 'Style/tradition and when to play', meta: { maxRows: 10 } }
+        ]
+      },
+      {
+        label: 'Final Notes',
+        instructions: 'Anything else we should know? Add special requests, do-not-play lists, guest considerations, or concerns here.',
+        items: [
+          { type: 'longtext', prompt: 'Additional Notes', help_text: 'Any other information for us' }
+        ]
       }
     ]
   },
@@ -111,8 +219,93 @@ export const DJ_TEMPLATES: Record<TemplateType, Template> = {
     sections: [
       {
         label: 'Speeches & Toasts',
-        instructions: "List speakers in the order they will present.",
-        items: [{ type: 'speech_row', prompt: 'Speaker', meta: { maxRows: 5 } }]
+        instructions: "Please list speakers in order. Keep to 3–5 mins each. You can drag to reorder.",
+        recommendations: {
+          default_rows: [
+            { name: 'Parents', order: 1 },
+            { name: 'Maid of Honor', order: 2 },
+            { name: 'The Couple', order: 3 }
+          ]
+        },
+        items: [
+          { type: 'speech_row', prompt: 'Speaker', help_text: 'Name and speaking order', meta: { maxRows: 5, minRows: 1 } }
+        ]
+      },
+      {
+        label: 'Pronunciations',
+        instructions: 'Help us pronounce names correctly. Include anyone being introduced or mentioned in speeches.',
+        recommendations: {
+          default_rows: [
+            { name: 'Partner 1', role: 'Bride', phonetic: '' },
+            { name: 'Partner 2', role: 'Bride', phonetic: '' }
+          ]
+        },
+        items: [
+          { type: 'pronunciation_row', prompt: 'Name Pronunciation', help_text: 'Name, role, and phonetic spelling', meta: { maxRows: 20 } }
+        ]
+      },
+      {
+        label: 'Bridal Party Introductions',
+        instructions: 'List the order you want bridal party introduced. You can assign an entrance song per group. Drag to reorder as needed.',
+        recommendations: {
+          default_rows: [
+            { group: 'Parents', type: 'Parents', song: '' },
+            { group: 'Bridesmaids', type: 'Attendants', song: '' }
+          ]
+        },
+        items: [
+          { type: 'bridal_party_row', prompt: 'Entrance Group', help_text: 'Group name, type, and entrance song', meta: { maxRows: 15 } }
+        ]
+      },
+      {
+        label: 'Background & Dinner Music',
+        instructions: 'Optional. Up to 20 songs for dinner or canapés. Paste YouTube or Spotify links. Keep it elegant and conversational.',
+        recommendations: {
+          helper_text: "Think: soft jazz, acoustic, or instrumental tracks. We will fill in if you leave this blank."
+        },
+        items: [
+          { type: 'song_row', prompt: 'Background Song', help_text: 'Song, artist, and link', meta: { maxRows: 20, showMoment: false } }
+        ]
+      },
+      {
+        label: 'Main Event Songs',
+        instructions: "Provide songs for major moments. If unsure, leave blank and we will suggest. Add Spotify, Apple Music, or YouTube links.",
+        recommendations: {
+          default_rows: [
+            { moment: 'Grand Entrance', song: '', artist: '', link: '' },
+            { moment: 'First Dance', song: '', artist: '', link: '' }
+          ]
+        },
+        items: [
+          { type: 'song_row', prompt: 'Special Moment', help_text: 'Moment, song, artist, and link', required: true, meta: { maxRows: 12, showMoment: true } }
+        ]
+      },
+      {
+        label: 'Dance Floor Must-Plays',
+        instructions: 'Up to 30 must-plays for the dance floor. Paste YouTube or Spotify links for easy reference.',
+        recommendations: {
+          helper_text: "Pro tip: Add a Do-Not-Play list in Final Notes for songs or genres to avoid."
+        },
+        items: [
+          { type: 'song_row', prompt: 'Must-Play Song', help_text: 'Song, artist, and link', meta: { maxRows: 30, showMoment: false } }
+        ]
+      },
+      {
+        label: 'Cultural & Traditional Sets',
+        instructions: 'Optional. Add cultural music sets and indicate when to play (e.g., after main course, during dessert, or on request).',
+        recommendations: {
+          helper_text: "Examples: Greek dancing, Italian tarantella, Indian Bollywood, hora, etc."
+        },
+        items: [
+          { type: 'cultural_row', prompt: 'Cultural Set', help_text: 'Style/tradition and when to play', meta: { maxRows: 10 } }
+        ]
+      },
+      {
+        label: 'Final Notes',
+        instructions: 'Anything else we should know? Add special requests, do-not-play lists, guest considerations, or concerns here.',
+        items: [
+          { type: 'longtext', prompt: 'Additional Notes', help_text: 'Any other information for us' }
+        ]
       }
     ]
   },

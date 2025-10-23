@@ -3,9 +3,12 @@ interface RecommendationsNoticeProps {
 }
 
 export const RecommendationsNotice = ({ recommendations }: RecommendationsNoticeProps) => {
-  if (!recommendations?.default_rows || recommendations.default_rows.length === 0) {
-    return null;
-  }
+  if (!recommendations) return null;
+  
+  const hasRows = recommendations?.default_rows?.length > 0;
+  const hasHelperText = recommendations?.helper_text;
+  
+  if (!hasRows && !hasHelperText) return null;
 
   const getDisplayText = () => {
     const rows = recommendations.default_rows;
@@ -17,12 +20,22 @@ export const RecommendationsNotice = ({ recommendations }: RecommendationsNotice
 
   return (
     <div className="bg-[#6D28D9]/5 border-l-4 border-[#6D28D9] p-3 mb-4">
-      <p className="text-sm text-muted-foreground">
-        <strong className="text-foreground">Recommended:</strong> {getDisplayText()}
-      </p>
-      <p className="text-xs text-muted-foreground mt-1">
-        Feel free to edit, reorder, or remove any of these entries.
-      </p>
+      {hasRows && (
+        <>
+          <p className="text-sm text-muted-foreground">
+            <strong className="text-foreground">Recommended:</strong> {getDisplayText()}
+          </p>
+          <p className="text-xs text-muted-foreground mt-1">
+            Feel free to edit, reorder, or remove any of these entries.
+          </p>
+        </>
+      )}
+      
+      {hasHelperText && (
+        <p className={`text-xs text-muted-foreground ${hasRows ? 'mt-2 pt-2 border-t border-[#6D28D9]/20' : ''}`}>
+          💡 <strong>Pro tip:</strong> {recommendations.helper_text}
+        </p>
+      )}
     </div>
   );
 };
