@@ -10,7 +10,15 @@ export type ItemType =
   | 'bridal_party_row'  // Group Name + Type + Entrance Song
   | 'song_row'          // Song + Artist + Link
   | 'cultural_row'      // Style/Tradition + When to Play
-  | 'announcement_row'; // Announcement + Time/Cue
+  | 'announcement_row'  // Announcement + Time/Cue
+  | 'ceremony_music_row'           // Moment + Song + Artist + Link
+  | 'bridal_party_enhanced_row'    // Role/Group + Names + Pronunciation + Entrance Song + Link
+  | 'speech_enhanced_row'          // Order + Name + Role + Notes
+  | 'main_event_song_row'          // Moment + Song + Artist + Link
+  | 'background_music_row'         // Song + Artist + Link
+  | 'dance_music_row'              // Song + Artist + Link
+  | 'cultural_music_enhanced_row'  // Block Name + When to Play + Songs list
+  | 'do_not_play_row';             // Song/Genre + Notes
 
 export interface DJQuestionnaire {
   id: string;

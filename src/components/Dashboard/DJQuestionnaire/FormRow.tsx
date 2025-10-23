@@ -9,6 +9,14 @@ import { BridalPartyRow } from './RowTypes/BridalPartyRow';
 import { SongRow } from './RowTypes/SongRow';
 import { CulturalRow } from './RowTypes/CulturalRow';
 import { AnnouncementRow } from './RowTypes/AnnouncementRow';
+import { CeremonyMusicRow } from './RowTypes/CeremonyMusicRow';
+import { BridalPartyEnhancedRow } from './RowTypes/BridalPartyEnhancedRow';
+import { SpeechEnhancedRow } from './RowTypes/SpeechEnhancedRow';
+import { MainEventSongRow } from './RowTypes/MainEventSongRow';
+import { BackgroundMusicRow } from './RowTypes/BackgroundMusicRow';
+import { DanceMusicRow } from './RowTypes/DanceMusicRow';
+import { CulturalMusicEnhancedRow } from './RowTypes/CulturalMusicEnhancedRow';
+import { DoNotPlayRow } from './RowTypes/DoNotPlayRow';
 import { DJItem } from '@/types/djQuestionnaire';
 
 interface FormRowProps {
@@ -84,6 +92,23 @@ export const FormRow = ({
     const showMoment = item.meta?.showMoment;
 
     switch (item.type) {
+      case 'ceremony_music_row':
+        return <CeremonyMusicRow value={value} onChange={onChange} />;
+      case 'bridal_party_enhanced_row':
+        return <BridalPartyEnhancedRow value={value} onChange={onChange} />;
+      case 'speech_enhanced_row':
+        return <SpeechEnhancedRow value={value} onChange={onChange} />;
+      case 'main_event_song_row':
+        return <MainEventSongRow value={value} onChange={onChange} />;
+      case 'background_music_row':
+        return <BackgroundMusicRow value={value} onChange={onChange} />;
+      case 'dance_music_row':
+        return <DanceMusicRow value={value} onChange={onChange} />;
+      case 'cultural_music_enhanced_row':
+        return <CulturalMusicEnhancedRow value={value} onChange={onChange} />;
+      case 'do_not_play_row':
+        return <DoNotPlayRow value={value} onChange={onChange} />;
+      // Legacy types (keep for backward compatibility)
       case 'speech_row':
         return <SpeechRow value={value} onChange={onChange} />;
       case 'pronunciation_row':
