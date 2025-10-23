@@ -1,9 +1,3 @@
-/**
- * @deprecated This page has been moved to the Admin Panel
- * See: src/components/Admin/AdminNotificationSettings.tsx
- * This file is kept for reference only and is no longer used in routing
- */
-
 import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
@@ -14,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useNotificationSettings } from '@/hooks/useNotificationSettings';
 import { Mail, MessageSquare, Eye, EyeOff, ExternalLink, Loader2 } from 'lucide-react';
 
-export default function NotificationSettings() {
+export const AdminNotificationSettings = () => {
   const { settings, loading, updateSettings } = useNotificationSettings();
   const [showKeys, setShowKeys] = useState({
     resendApiKey: false,
@@ -64,14 +58,7 @@ export default function NotificationSettings() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6 p-6">
-      <div>
-        <h1 className="text-3xl font-bold">Notification Settings</h1>
-        <p className="text-muted-foreground mt-2">
-          Configure email and SMS providers to send DJ questionnaires to clients
-        </p>
-      </div>
-
+    <div className="space-y-6">
       {/* Email Settings */}
       <Card className="p-6 space-y-6">
         <div className="flex items-center justify-between">
@@ -262,4 +249,4 @@ export default function NotificationSettings() {
       </div>
     </div>
   );
-}
+};

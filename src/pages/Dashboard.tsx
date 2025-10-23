@@ -30,7 +30,6 @@ import { flags } from '@/lib/featureFlags';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import type { Session } from '@supabase/supabase-js';
-import NotificationSettings from './NotificationSettings';
 import { AppErrorBoundary } from '@/components/core/AppErrorBoundary';
 
 // Lazy load DJ Questionnaire to prevent it from crashing the app
@@ -365,8 +364,6 @@ export const Dashboard = () => {
             </CardDescription>
           </Card>
         );
-      case 'notification-settings':
-        return <NotificationSettings />;
       default:
         return <Card className="p-8 text-center">
             <TrendingUp className="w-16 h-16 mx-auto text-primary mb-4" />

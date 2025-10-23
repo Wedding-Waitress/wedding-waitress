@@ -50,7 +50,6 @@ interface AppSidebarProps {
     { id: "full-seating-chart", label: "Full Seating Chart", icon: FileText },
     { id: "kiosk-live-view", label: "Kiosk Live View", icon: Monitor },
     { id: "dj-mc-questionnaire", label: "DJ & MC Questionnaire", icon: Music },
-    { id: "notification-settings", label: "Settings", icon: Settings },
   ];
 
 export const AppSidebar: React.FC<AppSidebarProps> = ({
