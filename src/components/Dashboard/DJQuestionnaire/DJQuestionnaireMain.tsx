@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useBlocker } from 'react-router-dom';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { AlertCircle } from 'lucide-react';
@@ -6,11 +6,17 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { QuestionnaireTemplateSelector } from './QuestionnaireTemplateSelector';
-import { QuestionnaireForm } from './QuestionnaireForm';
 import { QuestionnaireActionButtons } from './QuestionnaireActionButtons';
 import { QuestionnaireHeader } from './QuestionnaireHeader';
 import { useDJQuestionnaire } from '@/hooks/useDJQuestionnaire';
 import { TemplateType } from '@/types/djQuestionnaire';
+
+// Lazy load QuestionnaireForm to prevent its dependencies from crashing the app
+const QuestionnaireForm = React.lazy(() => 
+  import('./QuestionnaireForm').then(module => ({
+    default: module.QuestionnaireForm
+  }))
+);
 
 interface Event {
   id: string;
@@ -184,7 +190,9 @@ export const DJQuestionnaireMain = ({
             />
             <Card className="ww-box print:shadow-none" ref={formRef} id="questionnaire-form">
               <CardContent className="pt-6">
-                <QuestionnaireForm questionnaire={questionnaire} />
+                <React.Suspense fallback={<div className="p-6 text-center text-muted-foreground">Loading form...</div>}>
+                  <QuestionnaireForm questionnaire={questionnaire} />
+                </React.Suspense>
               </CardContent>
             </Card>
           </>

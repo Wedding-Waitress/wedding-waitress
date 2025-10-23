@@ -31,6 +31,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import type { Session } from '@supabase/supabase-js';
 import NotificationSettings from './NotificationSettings';
+import { AppErrorBoundary } from '@/components/core/AppErrorBoundary';
 
 // Lazy load DJ Questionnaire to prevent it from crashing the app
 const DJQuestionnaireMain = React.lazy(() => 
@@ -344,9 +345,18 @@ export const Dashboard = () => {
         return <KioskSetup selectedEventId={selectedEventId} onEventSelect={handleEventSelect} />;
       case 'dj-mc-questionnaire':
         return flags.djQuestionnaire ? (
-          <React.Suspense fallback={<div className="p-8 text-center">Loading DJ Questionnaire...</div>}>
-            <DJQuestionnaireMain selectedEventId={selectedEventId} onEventSelect={handleEventSelect} events={events} />
-          </React.Suspense>
+          <AppErrorBoundary fallback={
+            <Card className="p-8 text-center">
+              <CardTitle className="mb-4">DJ & MC Questionnaire</CardTitle>
+              <CardDescription>
+                We couldn't load this section. Please try refreshing or contact support if the issue persists.
+              </CardDescription>
+            </Card>
+          }>
+            <React.Suspense fallback={<div className="p-8 text-center">Loading DJ Questionnaire...</div>}>
+              <DJQuestionnaireMain selectedEventId={selectedEventId} onEventSelect={handleEventSelect} events={events} />
+            </React.Suspense>
+          </AppErrorBoundary>
         ) : (
           <Card className="p-8 text-center">
             <CardTitle className="mb-2">Feature Disabled</CardTitle>

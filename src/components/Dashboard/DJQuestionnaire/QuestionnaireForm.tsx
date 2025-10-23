@@ -10,10 +10,16 @@ import { useDJQuestionnaire } from '@/hooks/useDJQuestionnaire';
 import { EditableSectionHeader } from './EditableSectionHeader';
 import { RecommendationsNotice } from './RecommendationsNotice';
 import { FormRow } from './FormRow';
-import { BulkSongImportModal } from './BulkSongImportModal';
 import { SongData } from '@/lib/musicMetadataFetcher';
 import { useToast } from '@/hooks/use-toast';
 import { flags } from '@/lib/featureFlags';
+
+// Lazy load BulkSongImportModal to prevent it from evaluating unless opened
+const BulkSongImportModal = React.lazy(() => 
+  import('./BulkSongImportModal').then(module => ({
+    default: module.BulkSongImportModal
+  }))
+);
 
 interface QuestionnaireFormProps {
   questionnaire: DJQuestionnaireWithData;
