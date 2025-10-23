@@ -99,6 +99,22 @@ export const QuestionnaireForm = ({ questionnaire }: QuestionnaireFormProps) => 
                           onAddBelow={() => addItemBelow(item.id, section.id)}
                           onDelete={() => deleteItem(item.id, section.id)}
                           canDelete={canDelete}
+                          onMoveUp={() => {
+                            const currentIndex = section.items.findIndex(i => i.id === item.id);
+                            if (currentIndex > 0) {
+                              const prevItem = section.items[currentIndex - 1];
+                              reorderItems(item.id, prevItem.id, section.id);
+                            }
+                          }}
+                          onMoveDown={() => {
+                            const currentIndex = section.items.findIndex(i => i.id === item.id);
+                            if (currentIndex < section.items.length - 1) {
+                              const nextItem = section.items[currentIndex + 1];
+                              reorderItems(item.id, nextItem.id, section.id);
+                            }
+                          }}
+                          rowIndex={section.items.findIndex(i => i.id === item.id)}
+                          totalRows={section.items.length}
                         />
                         {showLinkPreview && (
                           <div className="ml-12 text-xs text-muted-foreground print:hidden">

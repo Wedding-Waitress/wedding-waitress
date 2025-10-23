@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button';
-import { GripVertical, Plus, Trash2 } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
+import { GripVertical, MoreVertical, ArrowUp, ArrowDown, Plus, Trash2 } from 'lucide-react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { SpeechRow } from './RowTypes/SpeechRow';
@@ -18,6 +19,10 @@ interface FormRowProps {
   onAddBelow: () => void;
   onDelete: () => void;
   canDelete: boolean;
+  onMoveUp?: () => void;
+  onMoveDown?: () => void;
+  rowIndex: number;
+  totalRows: number;
 }
 
 export const FormRow = ({
@@ -27,7 +32,11 @@ export const FormRow = ({
   onAddAbove,
   onAddBelow,
   onDelete,
-  canDelete
+  canDelete,
+  onMoveUp,
+  onMoveDown,
+  rowIndex,
+  totalRows
 }: FormRowProps) => {
   const {
     attributes,
@@ -42,6 +51,33 @@ export const FormRow = ({
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    // Only handle keyboard navigation when focused on the row container
+    if (e.target !== e.currentTarget) return;
+
+    switch (e.key) {
+      case 'ArrowUp':
+        if (rowIndex > 0 && onMoveUp) {
+          e.preventDefault();
+          onMoveUp();
+        }
+        break;
+      case 'ArrowDown':
+        if (rowIndex < totalRows - 1 && onMoveDown) {
+          e.preventDefault();
+          onMoveDown();
+        }
+        break;
+      case 'Delete':
+      case 'Backspace':
+        if (canDelete && e.shiftKey) {
+          e.preventDefault();
+          onDelete();
+        }
+        break;
+    }
   };
 
   const renderInput = () => {
@@ -69,56 +105,86 @@ export const FormRow = ({
     <div
       ref={setNodeRef}
       style={style}
-      className="group flex items-center gap-2 p-3 rounded-lg border bg-card hover:shadow-sm transition-all"
+      className="group flex items-center gap-2 p-3 rounded-lg border bg-card hover:shadow-sm transition-all focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2"
+      tabIndex={0}
+      onKeyDown={handleKeyDown}
+      role="listitem"
+      aria-label={`Row ${rowIndex + 1} of ${totalRows}`}
     >
-      {/* Drag Handle */}
+      {/* Row Number Badge */}
+      <div className="flex items-center justify-center w-6 h-6 rounded-full bg-muted/30 text-muted-foreground text-xs font-medium flex-shrink-0">
+        {rowIndex + 1}
+      </div>
+
+      {/* Drag Handle - Visible on Hover/Focus */}
       <div
         {...attributes}
         {...listeners}
-        className="cursor-grab active:cursor-grabbing text-muted-foreground hover:text-[#6D28D9] transition-colors"
+        className="opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity cursor-grab active:cursor-grabbing text-muted-foreground hover:text-primary flex-shrink-0"
       >
         <GripVertical className="w-5 h-5" />
       </div>
 
       {/* Input Fields */}
-      <div className="flex-1">
+      <div className="flex-1 min-w-0">
         {renderInput()}
       </div>
 
-      {/* Action Buttons */}
-      <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          onClick={onAddAbove}
-          className="h-8 w-8 text-muted-foreground hover:text-[#6D28D9]"
-          title="Add row above"
-        >
-          <Plus className="w-4 h-4 rotate-180" />
-        </Button>
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          onClick={onAddBelow}
-          className="h-8 w-8 text-muted-foreground hover:text-[#6D28D9]"
-          title="Add row below"
-        >
-          <Plus className="w-4 h-4" />
-        </Button>
-        {canDelete && (
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            onClick={onDelete}
-            className="h-8 w-8 text-muted-foreground hover:text-destructive"
-            title="Delete row"
-          >
-            <Trash2 className="w-4 h-4" />
-          </Button>
-        )}
+      {/* Kebab Menu */}
+      <div className="opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity flex-shrink-0">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 text-muted-foreground hover:text-primary"
+              aria-label="Row actions"
+            >
+              <MoreVertical className="w-4 h-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuItem onClick={onAddAbove}>
+              <Plus className="w-4 h-4 mr-2" />
+              Add Row Above
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={onAddBelow}>
+              <Plus className="w-4 h-4 mr-2" />
+              Add Row Below
+            </DropdownMenuItem>
+            
+            {onMoveUp && rowIndex > 0 && (
+              <>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={onMoveUp}>
+                  <ArrowUp className="w-4 h-4 mr-2" />
+                  Move Up
+                </DropdownMenuItem>
+              </>
+            )}
+            
+            {onMoveDown && rowIndex < totalRows - 1 && (
+              <DropdownMenuItem onClick={onMoveDown}>
+                <ArrowDown className="w-4 h-4 mr-2" />
+                Move Down
+              </DropdownMenuItem>
+            )}
+            
+            {canDelete && (
+              <>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem 
+                  onClick={onDelete}
+                  className="text-destructive focus:text-destructive"
+                >
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Delete Row
+                </DropdownMenuItem>
+              </>
+            )}
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </div>
   );

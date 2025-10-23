@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Badge } from '@/components/ui/badge';
-import { Printer, FileDown, FileText, Mail, MessageSquare, Settings, CheckCircle, Copy, ExternalLink } from 'lucide-react';
+import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import { Printer, FileDown, FileText, Mail, MessageSquare, Settings, CheckCircle, Copy, ExternalLink, Menu } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useNotificationSettings } from '@/hooks/useNotificationSettings';
 import { DJQuestionnaireWithData, TemplateType } from '@/types/djQuestionnaire';
@@ -292,7 +293,8 @@ export const QuestionnaireActionButtons = ({
         </div>
       )}
 
-      <div className="flex flex-wrap gap-2">
+      {/* Desktop: Full Button Row */}
+      <div className="hidden lg:flex flex-wrap gap-2">
         <Button variant="outline" size="sm" onClick={() => setShowHeaderModal(true)}>
           <Settings className="w-4 h-4 mr-2" />
           Edit Header
@@ -355,6 +357,89 @@ export const QuestionnaireActionButtons = ({
             )}
           </Tooltip>
         </TooltipProvider>
+      </div>
+
+      {/* Mobile: Hamburger Menu */}
+      <div className="lg:hidden">
+        <Sheet>
+          <SheetTrigger asChild>
+            <Button variant="outline" size="sm" className="w-full">
+              <Menu className="w-4 h-4 mr-2" />
+              Actions
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="bottom" className="h-[80vh] overflow-y-auto">
+            <SheetHeader>
+              <SheetTitle>Questionnaire Actions</SheetTitle>
+            </SheetHeader>
+            <div className="grid gap-3 mt-6">
+              <Button variant="outline" onClick={() => setShowHeaderModal(true)} className="justify-start">
+                <Settings className="w-4 h-4 mr-2" />
+                Edit Header
+              </Button>
+              <Button variant="outline" onClick={handlePrint} className="justify-start">
+                <Printer className="w-4 h-4 mr-2" />
+                Print
+              </Button>
+              <Button variant="outline" onClick={handleDownloadPDF} disabled={exporting} className="justify-start">
+                <FileDown className="w-4 h-4 mr-2" />
+                Download PDF
+              </Button>
+              <Button variant="outline" onClick={handleDownloadDocx} disabled={exporting} className="justify-start">
+                <FileText className="w-4 h-4 mr-2" />
+                Download Word
+              </Button>
+              
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div>
+                      <Button 
+                        variant="outline" 
+                        onClick={handleSendEmail}
+                        disabled={!emailEnabled}
+                        className="w-full justify-start"
+                      >
+                        <Mail className="w-4 h-4 mr-2" />
+                        Send Email
+                        {!emailEnabled && <span className="ml-auto text-xs text-muted-foreground">(Configure in Settings)</span>}
+                      </Button>
+                    </div>
+                  </TooltipTrigger>
+                  {!emailEnabled && (
+                    <TooltipContent>
+                      <p>Configure email in Settings to enable sending</p>
+                    </TooltipContent>
+                  )}
+                </Tooltip>
+              </TooltipProvider>
+
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div>
+                      <Button 
+                        variant="outline" 
+                        onClick={handleSendSMS}
+                        disabled={!smsEnabled}
+                        className="w-full justify-start"
+                      >
+                        <MessageSquare className="w-4 h-4 mr-2" />
+                        Send SMS
+                        {!smsEnabled && <span className="ml-auto text-xs text-muted-foreground">(Configure in Settings)</span>}
+                      </Button>
+                    </div>
+                  </TooltipTrigger>
+                  {!smsEnabled && (
+                    <TooltipContent>
+                      <p>Configure SMS in Settings to enable sending</p>
+                    </TooltipContent>
+                  )}
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+          </SheetContent>
+        </Sheet>
       </div>
 
       <HeaderOverridesModal

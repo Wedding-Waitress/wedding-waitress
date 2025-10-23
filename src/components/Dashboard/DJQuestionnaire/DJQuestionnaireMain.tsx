@@ -1,4 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
+import { useBlocker } from 'react-router-dom';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { AlertCircle } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
@@ -32,9 +35,11 @@ export const DJQuestionnaireMain = ({
   onEventSelect,
   events,
 }: DJQuestionnaireMainProps) => {
-  const { questionnaire, loading, createQuestionnaireFromTemplate, updateHeaderOverrides, refetch } = useDJQuestionnaire(selectedEventId);
+  const { questionnaire, loading, hasUnsavedChanges, createQuestionnaireFromTemplate, updateHeaderOverrides, refetch } = useDJQuestionnaire(selectedEventId);
   const [templateType, setTemplateType] = useState<TemplateType>('wedding_mr_mrs');
   const [pageCount, setPageCount] = useState<number>(1);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [showNavigationWarning, setShowNavigationWarning] = useState(false);
   const formRef = useRef<HTMLDivElement>(null);
 
   const selectedEvent = events.find((e) => e.id === selectedEventId);
@@ -68,10 +73,55 @@ export const DJQuestionnaireMain = ({
     setTemplateType(newTemplate);
   };
 
+  // Scroll listener for sticky header shadow
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 50);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Warn on navigation away
+  const blocker = useBlocker(
+    ({ currentLocation, nextLocation }) =>
+      hasUnsavedChanges && currentLocation.pathname !== nextLocation.pathname
+  );
+
+  // Warn on page close/refresh
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (hasUnsavedChanges) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [hasUnsavedChanges]);
+
+  // Show confirmation dialog for React Router navigation
+  useEffect(() => {
+    if (blocker.state === 'blocked') {
+      setShowNavigationWarning(true);
+    }
+  }, [blocker]);
+
   return (
     <div className="space-y-6 print:space-y-4">
+      {/* Unsaved Changes Warning Banner */}
+      {hasUnsavedChanges && (
+        <div className="flex items-center gap-2 p-3 bg-yellow-50 border border-yellow-200 rounded-lg text-sm text-yellow-800">
+          <AlertCircle className="w-4 h-4 flex-shrink-0" />
+          <span>You have unsaved changes. They will be saved automatically.</span>
+        </div>
+      )}
+
       <Card className="ww-box print:shadow-none">
-        <CardHeader>
+        <CardHeader className={`sticky top-0 z-10 bg-card/95 backdrop-blur-sm border-b transition-shadow ${
+          isScrolled ? 'shadow-lg' : 'shadow-sm'
+        }`}>
           <div className="flex flex-col md:flex-row md:items-center gap-4 mb-4">
             <div className="flex-1">
               <label className="text-sm font-medium mb-2 block">Select Event</label>
@@ -182,6 +232,11 @@ export const DJQuestionnaireMain = ({
           #questionnaire-form * {
             visibility: visible;
           }
+
+          /* Hide sticky positioning in print */
+          .sticky {
+            position: relative !important;
+          }
           
           #questionnaire-header {
             position: relative;
@@ -205,6 +260,33 @@ export const DJQuestionnaireMain = ({
           }
         }
       `}</style>
+
+      {/* Navigation Warning Dialog */}
+      <AlertDialog open={showNavigationWarning} onOpenChange={setShowNavigationWarning}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Unsaved Changes</AlertDialogTitle>
+            <AlertDialogDescription>
+              You have unsaved changes that will be lost if you leave now. 
+              Are you sure you want to continue?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => {
+              blocker.reset?.();
+              setShowNavigationWarning(false);
+            }}>
+              Stay on Page
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={() => {
+              blocker.proceed?.();
+              setShowNavigationWarning(false);
+            }}>
+              Leave Anyway
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

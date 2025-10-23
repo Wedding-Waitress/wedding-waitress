@@ -11,6 +11,7 @@ export type { TemplateType } from '@/types/djQuestionnaire';
 export const useDJQuestionnaire = (eventId: string | null) => {
   const [questionnaire, setQuestionnaire] = useState<DJQuestionnaireWithData | null>(null);
   const [loading, setLoading] = useState(false);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const { toast } = useToast();
 
   const fetchQuestionnaire = async () => {
@@ -203,6 +204,8 @@ export const useDJQuestionnaire = (eventId: string | null) => {
 
       if (error) throw error;
 
+      setHasUnsavedChanges(false);
+
       toast({
         title: "Saved",
         duration: 2000,
@@ -217,6 +220,7 @@ export const useDJQuestionnaire = (eventId: string | null) => {
   }, 600);
 
   const saveAnswer = async (itemId: string, value: any) => {
+    setHasUnsavedChanges(true);
     debouncedSave(itemId, value);
   };
 
@@ -443,6 +447,7 @@ export const useDJQuestionnaire = (eventId: string | null) => {
   return {
     questionnaire,
     loading,
+    hasUnsavedChanges,
     saveAnswer,
     updateStatus,
     createQuestionnaireFromTemplate,
