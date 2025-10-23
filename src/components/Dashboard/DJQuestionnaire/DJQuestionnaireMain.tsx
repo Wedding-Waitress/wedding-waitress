@@ -1,13 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { AlertCircle } from 'lucide-react';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { AlertCircle, Music } from 'lucide-react';
+import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
 import { QuestionnaireTemplateSelector } from './QuestionnaireTemplateSelector';
 import { QuestionnaireActionButtons } from './QuestionnaireActionButtons';
 import { QuestionnaireHeader } from './QuestionnaireHeader';
 import { useDJQuestionnaire } from '@/hooks/useDJQuestionnaire';
 import { TemplateType } from '@/types/djQuestionnaire';
+import { formatEventDate, getEventName, getTemplateDisplayLabel, formatTimeRange, getCurrentDateTime } from '@/lib/djQuestionnaireFormatters';
 
 // Lazy load QuestionnaireForm to prevent its dependencies from crashing the app
 const QuestionnaireForm = React.lazy(() => 
@@ -153,6 +155,79 @@ export const DJQuestionnaireMain = ({
             )}
           </div>
         </CardHeader>
+
+        {/* INNER BOX 2: Event Details - Inline from QuestionnaireHeader */}
+        {questionnaire && selectedEvent && (
+          <CardContent className="bg-muted/30 border-t p-6 space-y-3 print:hidden">
+            <h2 className="text-2xl font-bold text-primary">
+              {getEventName(selectedEvent)}
+            </h2>
+            
+            <div className="flex flex-wrap items-center gap-2 text-sm">
+              <span className="font-medium">{getTemplateDisplayLabel(templateType)}</span>
+              <span className="text-muted-foreground">•</span>
+              <span>{formatEventDate(selectedEvent.date)}</span>
+            </div>
+
+            <div className="space-y-2 text-sm">
+              <div className="grid grid-cols-[100px_1fr] gap-2">
+                <span className="font-medium">Venue:</span>
+                <span>{questionnaire.header_overrides?.venue_name || selectedEvent.venue || selectedEvent.venue_name || 'TBD'}</span>
+              </div>
+
+              <div className="grid grid-cols-[100px_1fr] gap-2">
+                <span className="font-medium">Ceremony:</span>
+                <span>{formatTimeRange(
+                  questionnaire.header_overrides?.ceremony_start || selectedEvent.start_time,
+                  questionnaire.header_overrides?.ceremony_finish || selectedEvent.start_time
+                )}</span>
+              </div>
+
+              {(() => {
+                const canapesTime = formatTimeRange(
+                  questionnaire.header_overrides?.canapes_start || null,
+                  questionnaire.header_overrides?.canapes_finish || null
+                );
+                return canapesTime && canapesTime !== 'TBD' ? (
+                  <div className="grid grid-cols-[100px_1fr] gap-2">
+                    <span className="font-medium">Canapés:</span>
+                    <span>{canapesTime}</span>
+                  </div>
+                ) : null;
+              })()}
+
+              <div className="grid grid-cols-[100px_1fr] gap-2">
+                <span className="font-medium">Reception:</span>
+                <span>{formatTimeRange(
+                  questionnaire.header_overrides?.reception_start || selectedEvent.start_time,
+                  questionnaire.header_overrides?.reception_finish || selectedEvent.finish_time
+                )}</span>
+              </div>
+
+              <div className="grid grid-cols-[100px_1fr] gap-2">
+                <span className="font-medium">DJ:</span>
+                <span>
+                  {questionnaire.header_overrides?.dj_name || 'TBD'}
+                  {questionnaire.header_overrides?.dj_mobile && ` (${questionnaire.header_overrides.dj_mobile})`}
+                </span>
+              </div>
+
+              <div className="grid grid-cols-[100px_1fr] gap-2">
+                <span className="font-medium">MC:</span>
+                <span>
+                  {questionnaire.header_overrides?.mc_name || 'TBD'}
+                  {questionnaire.header_overrides?.mc_mobile && ` (${questionnaire.header_overrides.mc_mobile})`}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap gap-4 text-xs text-muted-foreground pt-2 border-t">
+              <span>Pages: {pageCount}</span>
+              <span>Generated on: {getCurrentDateTime().date}</span>
+              <span>Time: {getCurrentDateTime().time}</span>
+            </div>
+          </CardContent>
+        )}
       </Card>
 
       {selectedEventId ? (
@@ -166,12 +241,15 @@ export const DJQuestionnaireMain = ({
           </Card>
         ) : questionnaire && selectedEvent ? (
           <>
-            <QuestionnaireHeader
-              event={selectedEvent}
-              questionnaire={questionnaire}
-              templateType={templateType}
-              pageCount={pageCount}
-            />
+            {/* Original QuestionnaireHeader - Print only */}
+            <div className="hidden print:block">
+              <QuestionnaireHeader
+                event={selectedEvent}
+                questionnaire={questionnaire}
+                templateType={templateType}
+                pageCount={pageCount}
+              />
+            </div>
             <Card className="ww-box print:shadow-none" ref={formRef} id="questionnaire-form">
               <CardContent className="pt-6">
                 <React.Suspense fallback={<div className="p-6 text-center text-muted-foreground">Loading form...</div>}>
