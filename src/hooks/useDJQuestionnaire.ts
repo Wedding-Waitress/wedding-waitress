@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { DJQuestionnaire, DJQuestionnaireWithData, DJSection, DJItem, DJAnswer, TemplateType } from '@/types/djQuestionnaire';
+import { DJQuestionnaire, DJQuestionnaireWithData, DJSection, DJItem, DJAnswer, TemplateType, ItemType, QuestionnaireStatus } from '@/types/djQuestionnaire';
 import { DJ_TEMPLATES } from '@/lib/djQuestionnaireTemplates';
 
 export type { TemplateType } from '@/types/djQuestionnaire';
@@ -38,27 +38,37 @@ export const useDJQuestionnaire = (eventId: string | null) => {
 
       if (sError) throw sError;
 
-      // Fetch items for all sections
+      // Fetch items for all sections (with guard for empty array)
       const sectionIds = sections?.map(s => s.id) || [];
-      const { data: items, error: iError } = await supabase
-        .from('dj_items')
-        .select('*')
-        .in('section_id', sectionIds)
-        .order('sort_index', { ascending: true });
+      let items = [];
+      if (sectionIds.length > 0) {
+        const { data: itemsData, error: iError } = await supabase
+          .from('dj_items')
+          .select('*')
+          .in('section_id', sectionIds)
+          .order('sort_index', { ascending: true });
 
-      if (iError) throw iError;
+        if (iError) throw iError;
+        items = itemsData || [];
+      }
 
-      // Fetch answers for all items
+      // Fetch answers for all items (with guard for empty array)
       const itemIds = items?.map(i => i.id) || [];
-      const { data: answers, error: aError } = await supabase
-        .from('dj_answers')
-        .select('*')
-        .in('item_id', itemIds);
+      let answers = [];
+      if (itemIds.length > 0) {
+        const { data: answersData, error: aError } = await supabase
+          .from('dj_answers')
+          .select('*')
+          .in('item_id', itemIds);
 
-      if (aError) throw aError;
+        if (aError) throw aError;
+        answers = answersData || [];
+      }
 
-      // Build nested structure
-      const answersMap = new Map(answers?.map(a => [a.item_id, a]) || []);
+      // Build nested structure with proper type casting
+      const answersMap = new Map<string, DJAnswer>(
+        answers?.map(a => [a.item_id, a as DJAnswer]) ?? []
+      );
       const itemsMap = new Map<string, (DJItem & { answer?: DJAnswer })[]>();
       
       items?.forEach(item => {
@@ -67,25 +77,26 @@ export const useDJQuestionnaire = (eventId: string | null) => {
         }
         itemsMap.get(item.section_id)!.push({
           ...item,
-          type: item.type as any,
-          meta: item.meta as Record<string, any>,
-          answer: answersMap.get(item.id) ? {
-            ...answersMap.get(item.id)!,
-            value: answersMap.get(item.id)!.value as any
-          } : undefined
+          type: item.type as ItemType,
+          meta: (item.meta ?? {}) as Record<string, any>,
+          answer: answersMap.get(item.id)
         });
       });
 
       const sectionsWithItems = sections?.map(section => ({
         ...section,
-        recommendations: section.recommendations as Record<string, any>,
+        recommendations: (section.recommendations ?? {}) as Record<string, any>,
         items: itemsMap.get(section.id) || []
       })) as (DJSection & { items: (DJItem & { answer?: DJAnswer })[] })[] || [];
 
       setQuestionnaire({
         ...qData,
+        template_type: qData.template_type as TemplateType,
+        status: qData.status as QuestionnaireStatus,
+        header_overrides: (qData.header_overrides ?? {}) as Record<string, any>,
+        recipient_emails: qData.recipient_emails || [],
         sections: sectionsWithItems
-      });
+      } as DJQuestionnaireWithData);
     } catch (error: any) {
       console.error('Error fetching questionnaire:', error);
       toast({

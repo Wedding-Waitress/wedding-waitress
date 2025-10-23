@@ -11,7 +11,7 @@ export const QuestionnaireTemplateSelector = ({
   value,
   onChange,
 }: QuestionnaireTemplateSelectorProps) => {
-  const templates: TemplateType[] = ['wedding_mr_mrs', 'wedding_mr_mr', 'wedding_mrs_mrs', 'events'];
+  const templates: TemplateType[] = ['wedding_mr_mrs', 'wedding_mr_mr', 'wedding_mrs_mrs', 'event_general'];
 
   return (
     <Select value={value} onValueChange={(val) => onChange(val as TemplateType)}>

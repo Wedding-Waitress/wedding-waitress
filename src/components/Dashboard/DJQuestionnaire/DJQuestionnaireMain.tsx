@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
 import { QuestionnaireTemplateSelector } from './QuestionnaireTemplateSelector';
 import { QuestionnaireForm } from './QuestionnaireForm';
 import { QuestionnaireActionButtons } from './QuestionnaireActionButtons';
@@ -24,7 +25,7 @@ export const DJQuestionnaireMain = ({
   onEventSelect,
   events,
 }: DJQuestionnaireMainProps) => {
-  const { questionnaire, loading, saveQuestionnaire } = useDJQuestionnaire(selectedEventId);
+  const { questionnaire, loading, createQuestionnaireFromTemplate, refetch } = useDJQuestionnaire(selectedEventId);
   const [templateType, setTemplateType] = useState<TemplateType>('wedding_mr_mrs');
 
   const selectedEvent = events.find((e) => e.id === selectedEventId);
@@ -39,14 +40,10 @@ export const DJQuestionnaireMain = ({
       if (hasPartners) {
         setTemplateType('wedding_mr_mrs'); // Default wedding template
       } else {
-        setTemplateType('events');
+        setTemplateType('event_general');
       }
     }
   }, [questionnaire, selectedEvent]);
-
-  const handleSave = async (responses: Record<string, any>) => {
-    await saveQuestionnaire(templateType, responses);
-  };
 
   const handleTemplateChange = (newTemplate: TemplateType) => {
     setTemplateType(newTemplate);
@@ -83,7 +80,7 @@ export const DJQuestionnaireMain = ({
             <QuestionnaireActionButtons
               eventName={selectedEvent?.name}
               templateType={templateType}
-              responses={questionnaire?.responses || {}}
+              responses={{}}
             />
           </div>
 
@@ -97,21 +94,37 @@ export const DJQuestionnaireMain = ({
       </Card>
 
       {selectedEventId ? (
-        <Card className="ww-box print:shadow-none">
-          <CardContent className="pt-6">
-            {loading ? (
+        loading ? (
+          <Card className="ww-box print:shadow-none">
+            <CardContent className="pt-6">
               <div className="flex items-center justify-center py-8">
                 <p className="text-muted-foreground">Loading questionnaire...</p>
               </div>
-            ) : (
-              <QuestionnaireForm
-                templateType={templateType}
-                initialValues={questionnaire?.responses || {}}
-                onSave={handleSave}
-              />
-            )}
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        ) : questionnaire ? (
+          <Card className="ww-box print:shadow-none">
+            <CardContent className="pt-6">
+              <QuestionnaireForm questionnaire={questionnaire} />
+            </CardContent>
+          </Card>
+        ) : (
+          <Card className="ww-box">
+            <CardContent className="pt-6 space-y-4">
+              <p className="text-center text-muted-foreground">
+                No questionnaire exists for this event yet.
+              </p>
+              <div className="flex justify-center">
+                <Button
+                  onClick={() => createQuestionnaireFromTemplate(templateType)}
+                  style={{ backgroundColor: '#6D28D9', color: 'white' }}
+                >
+                  Create Questionnaire from Template
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )
       ) : (
         <Card className="ww-box">
           <CardContent className="pt-6">

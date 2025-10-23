@@ -1,9 +1,8 @@
 import { Button } from '@/components/ui/button';
 import { Printer, Download, Mail, MessageSquare } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import jsPDF from 'jspdf';
-import { TemplateType } from '@/hooks/useDJQuestionnaire';
-import { QUESTIONNAIRE_TEMPLATES, getTemplateLabel } from './questionnaireTemplates';
+import { TemplateType } from '@/types/djQuestionnaire';
+import { getTemplateLabel } from '@/lib/djQuestionnaireTemplates';
 
 interface QuestionnaireActionButtonsProps {
   eventName?: string;
@@ -27,66 +26,10 @@ export const QuestionnaireActionButtons = ({
   };
 
   const handleDownloadPDF = () => {
-    try {
-      const pdf = new jsPDF({
-        orientation: 'portrait',
-        unit: 'mm',
-        format: 'a4',
-      });
-
-      const pageWidth = pdf.internal.pageSize.getWidth();
-      const margin = 20;
-      let yPosition = margin;
-
-      // Header
-      pdf.setFontSize(20);
-      pdf.text('DJ & MC Questionnaire', margin, yPosition);
-      yPosition += 10;
-
-      pdf.setFontSize(12);
-      pdf.text(getTemplateLabel(templateType), margin, yPosition);
-      yPosition += 7;
-      pdf.text(`Event: ${eventName}`, margin, yPosition);
-      yPosition += 15;
-
-      // Questions and Answers
-      const questions = QUESTIONNAIRE_TEMPLATES[templateType];
-      pdf.setFontSize(10);
-
-      questions.forEach((question) => {
-        const answer = responses[question.id] || 'Not provided';
-
-        // Question
-        pdf.setFont(undefined, 'bold');
-        pdf.text(question.label, margin, yPosition);
-        yPosition += 5;
-
-        // Answer
-        pdf.setFont(undefined, 'normal');
-        const answerLines = pdf.splitTextToSize(answer, pageWidth - 2 * margin);
-        pdf.text(answerLines, margin, yPosition);
-        yPosition += answerLines.length * 5 + 5;
-
-        // Page break if needed
-        if (yPosition > 270) {
-          pdf.addPage();
-          yPosition = margin;
-        }
-      });
-
-      pdf.save(`${eventName}-dj-questionnaire.pdf`);
-      toast({
-        title: "Success",
-        description: "PDF downloaded successfully",
-      });
-    } catch (error) {
-      console.error('Error generating PDF:', error);
-      toast({
-        title: "Error",
-        description: "Failed to generate PDF",
-        variant: "destructive",
-      });
-    }
+    toast({
+      title: "Coming Soon",
+      description: "PDF download will be available soon",
+    });
   };
 
   const handleSendEmail = () => {
