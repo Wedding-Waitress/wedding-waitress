@@ -141,6 +141,41 @@ export type Database = {
           },
         ]
       }
+      dj_questionnaire_tokens: {
+        Row: {
+          created_at: string | null
+          expires_at: string | null
+          id: string
+          last_accessed_at: string | null
+          questionnaire_id: string
+          token: string
+        }
+        Insert: {
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          last_accessed_at?: string | null
+          questionnaire_id: string
+          token: string
+        }
+        Update: {
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          last_accessed_at?: string | null
+          questionnaire_id?: string
+          token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dj_questionnaire_tokens_questionnaire_id_fkey"
+            columns: ["questionnaire_id"]
+            isOneToOne: false
+            referencedRelation: "dj_questionnaires"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       dj_questionnaires: {
         Row: {
           created_at: string | null
@@ -150,6 +185,10 @@ export type Database = {
           id: string
           notes: string | null
           recipient_emails: string[] | null
+          recipient_phones: string[] | null
+          sent_at: string | null
+          share_token: string | null
+          sms_sent_at: string | null
           status: string
           template_type: string
           updated_at: string | null
@@ -162,6 +201,10 @@ export type Database = {
           id?: string
           notes?: string | null
           recipient_emails?: string[] | null
+          recipient_phones?: string[] | null
+          sent_at?: string | null
+          share_token?: string | null
+          sms_sent_at?: string | null
           status?: string
           template_type: string
           updated_at?: string | null
@@ -174,6 +217,10 @@ export type Database = {
           id?: string
           notes?: string | null
           recipient_emails?: string[] | null
+          recipient_phones?: string[] | null
+          sent_at?: string | null
+          share_token?: string | null
+          sms_sent_at?: string | null
           status?: string
           template_type?: string
           updated_at?: string | null
