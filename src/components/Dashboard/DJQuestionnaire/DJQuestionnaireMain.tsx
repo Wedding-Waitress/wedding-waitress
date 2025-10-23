@@ -153,6 +153,8 @@ export const DJQuestionnaireMain = ({
 
       <Card className="ww-box print:shadow-none">
         <CardHeader className="border-b bg-card">
+          <CardTitle className="mb-6">DJ & MC Questionnaire</CardTitle>
+          
           <div className="flex flex-col md:flex-row md:items-center gap-4 mb-4">
             <div className="flex-1">
               <label className="text-sm font-medium mb-2 block">Select Event</label>
@@ -175,17 +177,16 @@ export const DJQuestionnaireMain = ({
             </div>
           </div>
 
-          <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 pt-4 print:hidden">
-            <CardTitle>DJ & MC Questionnaire</CardTitle>
-            {questionnaire && selectedEvent && (
+          {questionnaire && selectedEvent && (
+            <div className="flex justify-end pt-4 print:hidden">
               <QuestionnaireActionButtons
                 event={selectedEvent}
                 questionnaire={questionnaire}
                 templateType={templateType}
                 onUpdateHeaderOverrides={updateHeaderOverrides}
               />
-            )}
-          </div>
+            </div>
+          )}
 
           <div className="hidden print:block pt-4">
             <CardTitle className="text-2xl">DJ & MC Questionnaire</CardTitle>
@@ -200,7 +201,7 @@ export const DJQuestionnaireMain = ({
           <CardContent className="p-0 print:hidden">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
               {/* Left Column: Event Details */}
-              <div className="bg-muted/30 border-b lg:border-b-0 lg:border-r p-6 space-y-3">
+              <div className="p-6 space-y-3">
                 <h2 className="text-2xl font-bold text-primary">
                   {getEventName(selectedEvent)}
                 </h2>
