@@ -15,6 +15,7 @@ import {
   Footer,
 } from 'docx';
 import { saveAs } from 'file-saver';
+import { computeRelationDisplay } from './relationUtils';
 
 // Interface definitions
 interface DietaryGuest {
@@ -24,7 +25,8 @@ interface DietaryGuest {
   table_no: number | null;
   seat_no: number | null;
   dietary: string;
-  relation_display: string;
+  relation_partner: string;
+  relation_role: string;
   mobile: string | null;
 }
 
@@ -43,6 +45,8 @@ interface Event {
   name: string;
   date: string;
   venue: string;
+  partner1_name?: string | null;
+  partner2_name?: string | null;
 }
 
 // Helper function to convert font size setting to half-points
@@ -202,6 +206,7 @@ const createHeaderSection = (
 
 // Create guest table rows
 const createGuestTable = (
+  event: Event,
   guests: DietaryGuest[],
   settings: DietaryChartSettings,
   fontSize: number
@@ -423,7 +428,13 @@ const createGuestTable = (
             new Paragraph({
               children: [
                 createTextRun({
-                  text: guest.relation_display || 'Guest',
+                  text: computeRelationDisplay(
+                    guest.relation_partner as any,
+                    guest.relation_role as any,
+                    event.partner1_name,
+                    event.partner2_name,
+                    []
+                  ) || 'Guest',
                   size: fontSize,
                 }),
               ],
@@ -500,7 +511,7 @@ export const exportDietaryChartToDocx = async (
     children.push(...headerParagraphs);
     
     // Add guest table
-    const guestTable = createGuestTable(pageGuests, settings, fontSize);
+    const guestTable = createGuestTable(event, pageGuests, settings, fontSize);
     children.push(guestTable);
   }
   

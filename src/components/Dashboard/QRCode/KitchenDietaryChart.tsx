@@ -22,6 +22,7 @@ import { useToast } from '@/hooks/use-toast';
 import { exportDietaryChartToDocx } from '@/lib/dietaryChartDocxExporter';
 import { format } from 'date-fns';
 import dietaryLogo from '@/assets/wedding-waitress-dietary-logo.png';
+import { computeRelationDisplay } from '@/lib/relationUtils';
 
 interface KitchenDietaryChartProps {
   eventId: string;
@@ -34,7 +35,8 @@ interface DietaryGuest {
   table_no: number | null;
   seat_no: number | null;
   dietary: string;
-  relation_display: string;
+  relation_partner: string;
+  relation_role: string;
   mobile: string | null;
 }
 
@@ -103,7 +105,8 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
         table_no: guest.table_no,
         seat_no: guest.seat_no,
         dietary: guest.dietary,
-        relation_display: guest.relation_display,
+        relation_partner: guest.relation_partner,
+        relation_role: guest.relation_role,
         mobile: guest.mobile
       }));
 
@@ -563,7 +566,13 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                                 )}
                                 {settings.showRelation && (
                                   <td className="py-[4pt] px-[4pt] border-b border-gray-200">
-                                    {guest.relation_display || 'Guest'}
+                                    {computeRelationDisplay(
+                                      guest.relation_partner as any,
+                                      guest.relation_role as any,
+                                      currentEvent?.partner1_name,
+                                      currentEvent?.partner2_name,
+                                      []
+                                    ) || 'Guest'}
                                   </td>
                                 )}
                               </tr>
@@ -702,7 +711,17 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                           {settings.showSeatNo && <td>{guest.seat_no || '-'}</td>}
                           <td className="font-semibold text-accent-foreground">{guest.dietary}</td>
                           {settings.showMobile && <td>{guest.mobile || '-'}</td>}
-                          {settings.showRelation && <td>{guest.relation_display || 'Guest'}</td>}
+                          {settings.showRelation && (
+                            <td>
+                              {computeRelationDisplay(
+                                guest.relation_partner as any,
+                                guest.relation_role as any,
+                                currentEvent?.partner1_name,
+                                currentEvent?.partner2_name,
+                                []
+                              ) || 'Guest'}
+                            </td>
+                          )}
                         </tr>
                       ))}
                     </tbody>
