@@ -237,6 +237,7 @@ const createGuestTable = (
   // Guest rows
   const guestRows = guests.map((guest, index) => {
     const cells: TableCell[] = [];
+    let colIndex = 0;
     
     // First Name
     cells.push(
@@ -251,7 +252,7 @@ const createGuestTable = (
               }),
             ],
             alignment: AlignmentType.LEFT,
-            spacing: { before: 40, after: 40 },
+            spacing: { before: 0, after: 0, line: 240, lineRule: "auto" },
           }),
         ],
         borders: {
@@ -261,8 +262,11 @@ const createGuestTable = (
           right: { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' },
         },
         shading: { fill: index % 2 === 0 ? 'FFFFFF' : 'F9FAFB' },
+        width: { size: columns[colIndex].width, type: WidthType.PERCENTAGE },
+        margins: { top: 0, bottom: 0, left: 40, right: 40 },
       })
     );
+    colIndex++;
     
     // Last Name
     cells.push(
@@ -277,7 +281,7 @@ const createGuestTable = (
               }),
             ],
             alignment: AlignmentType.LEFT,
-            spacing: { before: 40, after: 40 },
+            spacing: { before: 0, after: 0, line: 240, lineRule: "auto" },
           }),
         ],
         borders: {
@@ -287,8 +291,11 @@ const createGuestTable = (
           right: { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' },
         },
         shading: { fill: index % 2 === 0 ? 'FFFFFF' : 'F9FAFB' },
+        width: { size: columns[colIndex].width, type: WidthType.PERCENTAGE },
+        margins: { top: 0, bottom: 0, left: 40, right: 40 },
       })
     );
+    colIndex++;
     
     // Table
     cells.push(
@@ -302,7 +309,7 @@ const createGuestTable = (
               }),
             ],
             alignment: AlignmentType.CENTER,
-            spacing: { before: 40, after: 40 },
+            spacing: { before: 0, after: 0, line: 240, lineRule: "auto" },
           }),
         ],
         borders: {
@@ -312,8 +319,11 @@ const createGuestTable = (
           right: { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' },
         },
         shading: { fill: index % 2 === 0 ? 'FFFFFF' : 'F9FAFB' },
+        width: { size: columns[colIndex].width, type: WidthType.PERCENTAGE },
+        margins: { top: 0, bottom: 0, left: 40, right: 40 },
       })
     );
+    colIndex++;
     
     // Seat (if enabled)
     if (settings.showSeatNo) {
@@ -328,7 +338,7 @@ const createGuestTable = (
                 }),
               ],
               alignment: AlignmentType.CENTER,
-              spacing: { before: 40, after: 40 },
+              spacing: { before: 0, after: 0, line: 240, lineRule: "auto" },
             }),
           ],
           borders: {
@@ -338,8 +348,11 @@ const createGuestTable = (
             right: { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' },
           },
           shading: { fill: index % 2 === 0 ? 'FFFFFF' : 'F9FAFB' },
+          width: { size: columns[colIndex].width, type: WidthType.PERCENTAGE },
+          margins: { top: 0, bottom: 0, left: 40, right: 40 },
         })
       );
+      colIndex++;
     }
     
     // Dietary
@@ -356,7 +369,7 @@ const createGuestTable = (
               }),
             ],
             alignment: AlignmentType.LEFT,
-            spacing: { before: 40, after: 40 },
+            spacing: { before: 0, after: 0, line: 240, lineRule: "auto" },
           }),
         ],
         borders: {
@@ -366,8 +379,11 @@ const createGuestTable = (
           right: { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' },
         },
         shading: { fill: index % 2 === 0 ? 'FFFFFF' : 'F9FAFB' },
+        width: { size: columns[colIndex].width, type: WidthType.PERCENTAGE },
+        margins: { top: 0, bottom: 0, left: 40, right: 40 },
       })
     );
+    colIndex++;
     
     // Mobile (if enabled)
     if (settings.showMobile) {
@@ -382,7 +398,7 @@ const createGuestTable = (
                 }),
               ],
               alignment: AlignmentType.LEFT,
-              spacing: { before: 40, after: 40 },
+              spacing: { before: 0, after: 0, line: 240, lineRule: "auto" },
             }),
           ],
           borders: {
@@ -392,8 +408,11 @@ const createGuestTable = (
             right: { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' },
           },
           shading: { fill: index % 2 === 0 ? 'FFFFFF' : 'F9FAFB' },
+          width: { size: columns[colIndex].width, type: WidthType.PERCENTAGE },
+          margins: { top: 0, bottom: 0, left: 40, right: 40 },
         })
       );
+      colIndex++;
     }
     
     // Relation (if enabled)
@@ -409,7 +428,7 @@ const createGuestTable = (
                 }),
               ],
               alignment: AlignmentType.LEFT,
-              spacing: { before: 40, after: 40 },
+              spacing: { before: 0, after: 0, line: 240, lineRule: "auto" },
             }),
           ],
           borders: {
@@ -419,8 +438,11 @@ const createGuestTable = (
             right: { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' },
           },
           shading: { fill: index % 2 === 0 ? 'FFFFFF' : 'F9FAFB' },
+          width: { size: columns[colIndex].width, type: WidthType.PERCENTAGE },
+          margins: { top: 0, bottom: 0, left: 40, right: 40 },
         })
       );
+      colIndex++;
     }
     
     return new TableRow({ children: cells });
