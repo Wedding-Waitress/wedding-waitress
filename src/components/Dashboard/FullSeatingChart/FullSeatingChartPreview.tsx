@@ -420,8 +420,8 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
               maxWidth: '210mm'
             }}
           >
-            {/* Content with 10mm margins all around */}
-            <div style={{ padding: '10mm' }} className="h-full flex flex-col">
+            {/* Content with 1.27cm margins all around (narrow margins) */}
+            <div style={{ padding: '1.27cm' }} className="h-full flex flex-col">
               {/* Header */}
               <div className="text-center mb-8">
                 {/* Line 1: Event Name */}

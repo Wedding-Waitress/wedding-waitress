@@ -39,14 +39,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/enhanced-button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Printer, Download, FileText, Users, Layout } from 'lucide-react';
+import { FileText, Users, Layout } from 'lucide-react';
 import { useEvents } from '@/hooks/useEvents';
 import { useRealtimeGuests } from '@/hooks/useRealtimeGuests';
 import { useFullSeatingChartSettings } from '@/hooks/useFullSeatingChartSettings';
 import { useToast } from '@/hooks/use-toast';
 import { FullSeatingChartPreview } from './FullSeatingChartPreview';
-import { FullSeatingChartExporter } from './FullSeatingChartExporter';
 import { FullSeatingChartCustomizer } from './FullSeatingChartCustomizer';
+import { exportFullSeatingChartToDocx } from '@/lib/fullSeatingChartDocxExporter';
 
 interface FullSeatingChartPageProps {
   selectedEventId: string | null;
@@ -58,8 +58,6 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
   onEventSelect
 }) => {
   const [isExporting, setIsExporting] = useState(false);
-  const [showExporter, setShowExporter] = useState(false);
-  const [printToastShown, setPrintToastShown] = useState(false);
   const { events, loading: eventsLoading } = useEvents();
   const { guests, loading: guestsLoading } = useRealtimeGuests(selectedEventId);
   const { settings, loading: settingsLoading, updateSettings } = useFullSeatingChartSettings(selectedEventId);
@@ -72,35 +70,32 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
     onEventSelect(eventId);
   };
 
-  const handlePrintFullSeating = () => {
-    // Show helper toast once per session
-    if (!printToastShown) {
+  const handleDownloadWord = async () => {
+    if (!selectedEvent) return;
+    
+    setIsExporting(true);
+    try {
       toast({
-        title: "Print Settings Tip",
-        description: "For perfect output: in the print dialog turn OFF 'Headers and footers' and turn ON 'Background graphics'.",
-        duration: 8000,
+        title: 'Generating Word Document',
+        description: 'Creating your seating chart...',
       });
-      setPrintToastShown(true);
-    }
-    
-    // Temporarily clear document title to avoid browser header
-    const originalTitle = document.title;
-    document.title = '';
-    
-    // Ensure layout settles before printing
-    requestAnimationFrame(() => {
-      setTimeout(() => {
-        window.print();
-        // Restore title after print dialog closes
-        setTimeout(() => {
-          document.title = originalTitle;
-        }, 100);
-      }, 0);
-    });
-  };
 
-  const handleExport = () => {
-    setShowExporter(true);
+      await exportFullSeatingChartToDocx(selectedEvent, sortedGuests, settings);
+
+      toast({
+        title: 'Word Document Downloaded',
+        description: 'Your seating chart has been saved',
+      });
+    } catch (error) {
+      console.error('DOCX export error:', error);
+      toast({
+        title: 'Export Failed',
+        description: 'Failed to generate Word document',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   // Sort guests based on selected sort option from settings
@@ -202,20 +197,11 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={handlePrintFullSeating}
-                  >
-                      <Printer className="w-4 h-4 mr-2" />
-                      Print
-                    </Button>
-                  
-                  <Button
-                    variant="default"
-                    size="sm"
-                    onClick={handleExport}
+                    onClick={handleDownloadWord}
                     disabled={isExporting}
                   >
-                    <Download className="w-4 h-4 mr-2" />
-                    Download PDF
+                    <FileText className="w-4 h-4 mr-2" />
+                    Download Word
                   </Button>
                 </div>
               )}
@@ -270,20 +256,6 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
           </CardContent>
         </Card>
       )}
-
-      {/* Export Modal */}
-      {showExporter && selectedEvent && (
-        <FullSeatingChartExporter
-          event={selectedEvent}
-          guests={sortedGuests}
-          settings={settings}
-          onClose={() => setShowExporter(false)}
-          onExportStart={() => setIsExporting(true)}
-          onExportEnd={() => setIsExporting(false)}
-        />
-      )}
-
-      {/* Print Template - REMOVED: Using @media print styles in FullSeatingChartPreview instead */}
     </div>
   );
 };
