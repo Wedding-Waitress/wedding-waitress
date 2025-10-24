@@ -44,9 +44,9 @@ interface Event {
 // Convert font size setting to points (standardized to 10pt body text)
 const getFontSize = (setting: 'small' | 'medium' | 'large'): number => {
   switch (setting) {
-    case 'small': return 18; // 9pt = 18 half-points
-    case 'medium': return 20; // 10pt = 20 half-points
-    case 'large': return 22; // 11pt = 22 half-points
+    case 'small': return 21; // 10.5pt (matches preview)
+    case 'medium': return 24; // 12pt (matches preview)
+    case 'large': return 27; // 13.5pt (matches preview)
   }
 };
 
