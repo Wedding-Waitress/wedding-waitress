@@ -18,10 +18,9 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { PlaceCardSettings } from '@/hooks/usePlaceCardSettings';
 import { Guest } from '@/hooks/useGuests';
-import { Download, Printer, Eye, FileDown } from 'lucide-react';
+import { Eye, FileDown, FileText } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
+import { exportPlaceCardPageToDocx, exportAllPlaceCardsToDocx } from '@/lib/placeCardsDocxExporter';
 
 interface PlaceCardExportControlsProps {
   settings: PlaceCardSettings | null;
@@ -41,7 +40,6 @@ export const PlaceCardExportControls: React.FC<PlaceCardExportControlsProps> = (
   onExportStateChange
 }) => {
   const [selectedPage, setSelectedPage] = useState<number>(0);
-  const fileType = 'pdf'; // Hardcoded to PDF
   const [isProcessing, setIsProcessing] = useState(false);
   const { toast } = useToast();
 
@@ -84,7 +82,7 @@ export const PlaceCardExportControls: React.FC<PlaceCardExportControlsProps> = (
         <style>
           @page { 
             size: A4 portrait; 
-            margin: 0; 
+            margin: 1.27cm; 
           }
           
           * {
@@ -109,26 +107,28 @@ export const PlaceCardExportControls: React.FC<PlaceCardExportControlsProps> = (
             page-break-after: always;
             page-break-inside: avoid;
             margin: 20px auto;
+            padding: 1.27cm;
+            box-sizing: border-box;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             position: relative;
           }
           
-          /* A4 page content with explicit grid */
+          /* A4 page content with explicit grid - adjusted for margins */
           .place-card-a4-page {
-            width: 210mm;
-            height: 297mm;
+            width: calc(210mm - 2.54cm);
+            height: calc(297mm - 2.54cm);
             background: #FFFFFF;
             position: relative;
             display: grid !important;
-            grid-template-columns: repeat(2, 105mm) !important;
-            grid-template-rows: repeat(3, 99mm) !important;
+            grid-template-columns: repeat(2, calc((210mm - 2.54cm) / 2)) !important;
+            grid-template-rows: repeat(3, calc((297mm - 2.54cm) / 3)) !important;
             gap: 0 !important;
           }
           
-          /* Place card cells */
+          /* Place card cells - adjusted for margins */
           .place-card-cell {
-            width: 105mm !important;
-            height: 99mm !important;
+            width: calc((210mm - 2.54cm) / 2) !important;
+            height: calc((297mm - 2.54cm) / 3) !important;
             page-break-inside: avoid;
             position: relative;
             display: flex;
@@ -392,160 +392,28 @@ export const PlaceCardExportControls: React.FC<PlaceCardExportControlsProps> = (
     openPrintPreview(Array.from({ length: totalPages }, (_, i) => i));
   };
 
-  const capturePageAsCanvas = async (pageElement: HTMLElement): Promise<HTMLCanvasElement> => {
-    // Create temporary container at 300 DPI resolution (2480 × 3508 pixels for A4)
-    const dpi = 300;
-    const a4WidthInches = 8.27;
-    const a4HeightInches = 11.69;
-    const targetWidth = Math.floor(a4WidthInches * dpi);  // 2481px
-    const targetHeight = Math.floor(a4HeightInches * dpi); // 3507px
-    
-    const tempContainer = document.createElement('div');
-    tempContainer.style.position = 'fixed';
-    tempContainer.style.top = '-9999px';
-    tempContainer.style.left = '-9999px';
-    tempContainer.style.width = `${targetWidth}px`;
-    tempContainer.style.height = `${targetHeight}px`;
-    tempContainer.style.backgroundColor = '#FFFFFF';
-    
-    // Clone the page with all styles
-    const clone = pageElement.cloneNode(true) as HTMLElement;
-    tempContainer.appendChild(clone);
-    
-    // Add container-specific styles - scale everything to match pixel dimensions
-    const styleElement = document.createElement('style');
-    const mmToPx = dpi / 25.4; // Convert mm to pixels at target DPI
-    styleElement.textContent = `
-      #temp-capture-container {
-        width: ${targetWidth}px !important;
-        height: ${targetHeight}px !important;
-        background: #FFFFFF !important;
-        -webkit-font-smoothing: antialiased !important;
-        -moz-osx-font-smoothing: grayscale !important;
-        text-rendering: optimizeLegibility !important;
-        image-rendering: crisp-edges !important;
-        image-rendering: -webkit-optimize-contrast !important;
-      }
-      
-      #temp-capture-container * {
-        -webkit-font-smoothing: antialiased !important;
-        -moz-osx-font-smoothing: grayscale !important;
-        text-rendering: optimizeLegibility !important;
-      }
-      
-      #temp-capture-container .place-card-preview-container {
-        width: ${targetWidth}px !important;
-        height: ${targetHeight}px !important;
-        background: #FFFFFF !important;
-        box-shadow: none !important;
-        border-radius: 0 !important;
-        margin: 0 !important;
-        padding: 0 !important;
-      }
-      
-      #temp-capture-container .place-card-a4-page {
-        width: ${targetWidth}px !important;
-        height: ${targetHeight}px !important;
-        background: #FFFFFF !important;
-        display: grid !important;
-        grid-template-columns: repeat(2, ${targetWidth / 2}px) !important;
-        grid-template-rows: repeat(3, ${targetHeight / 3}px) !important;
-        gap: 0 !important;
-      }
-      
-      #temp-capture-container .place-card-cell {
-        width: ${targetWidth / 2}px !important;
-        height: ${targetHeight / 3}px !important;
-      }
-      
-      #temp-capture-container .guest-name {
-        font-size: ${Math.floor(24 * mmToPx / 3.7795)}px !important;
-      }
-      
-      #temp-capture-container .table-info {
-        font-size: ${Math.floor(18 * mmToPx / 3.7795)}px !important;
-      }
-      
-      #temp-capture-container .fold-guide,
-      #temp-capture-container .preview-only {
-        display: none !important;
-      }
-    `;
-    
-    tempContainer.id = 'temp-capture-container';
-    document.head.appendChild(styleElement);
-    document.body.appendChild(tempContainer);
-    
-    // Wait for styles to apply
-    await new Promise(resolve => requestAnimationFrame(resolve));
-    await new Promise(resolve => setTimeout(resolve, 100));
-
-    // Capture at native high resolution (no scaling needed - already at 300 DPI)
-    const canvas = await html2canvas(tempContainer, {
-      scale: 1,
-      backgroundColor: '#FFFFFF',
-      logging: false,
-      useCORS: true,
-      allowTaint: true,
-      // Don't specify width/height - let it capture at natural size
-    });
-    
-    // Disable image smoothing for crisp text
-    const ctx = canvas.getContext('2d');
-    if (ctx) {
-      ctx.imageSmoothingEnabled = false;
-      (ctx as any).webkitImageSmoothingEnabled = false;
-      (ctx as any).mozImageSmoothingEnabled = false;
-      (ctx as any).msImageSmoothingEnabled = false;
-    }
-
-    // Cleanup
-    document.body.removeChild(tempContainer);
-    document.head.removeChild(styleElement);
-    
-    return canvas;
-  };
-
-  const handleDownloadPage = async () => {
+  const handleDownloadWordPage = async () => {
     setIsProcessing(true);
     onExportStateChange(true);
     
     try {
-      const pageElement = document.querySelector(`[data-page="${selectedPage}"]`) as HTMLElement;
-      if (!pageElement) {
-        throw new Error(`Page ${selectedPage} not found`);
-      }
+      toast({
+        title: 'Generating Word Document',
+        description: `Creating place cards for page ${selectedPage + 1}...`,
+      });
 
-      const canvas = await capturePageAsCanvas(pageElement);
-
-      if (fileType === 'pdf') {
-        const pdf = new jsPDF({
-          orientation: 'portrait',
-          unit: 'mm',
-          format: 'a4',
-        });
-
-        const imgData = canvas.toDataURL('image/png');
-        pdf.addImage(imgData, 'PNG', 0, 0, 210, 297);
-        pdf.save(`${event.name}-place-cards-page-${selectedPage + 1}.pdf`);
-      } else {
-        const mimeType = fileType === 'png' ? 'image/png' : 'image/jpeg';
-        const link = document.createElement('a');
-        link.download = `${event.name}-place-cards-page-${selectedPage + 1}.${fileType}`;
-        link.href = canvas.toDataURL(mimeType, 1.0);
-        link.click();
-      }
+      await exportPlaceCardPageToDocx(settings, guests, event, selectedPage);
 
       toast({
-        title: "Success",
-        description: `Page ${selectedPage + 1} downloaded successfully`,
+        title: 'Word Document Downloaded',
+        description: `Page ${selectedPage + 1} has been saved`,
       });
     } catch (error) {
-      console.error('Error downloading page:', error);
+      console.error('DOCX export error:', error);
       toast({
-        title: "Error",
-        description: "Failed to download page",
-        variant: "destructive",
+        title: 'Export Failed',
+        description: 'Failed to generate Word document',
+        variant: 'destructive',
       });
     } finally {
       setIsProcessing(false);
@@ -553,265 +421,33 @@ export const PlaceCardExportControls: React.FC<PlaceCardExportControlsProps> = (
     }
   };
 
-  const handleDownloadAll = async () => {
+  const handleDownloadWordAll = async () => {
     setIsProcessing(true);
     onExportStateChange(true);
     
     try {
-      const allPages = Array.from(document.querySelectorAll('[data-page]')) as HTMLElement[];
-      
-      if (!allPages.length) {
-        throw new Error('No pages found');
-      }
+      toast({
+        title: 'Generating Word Document',
+        description: `Creating place cards for all ${totalPages} pages...`,
+      });
 
-      if (fileType === 'pdf') {
-        const pdf = new jsPDF({
-          orientation: 'portrait',
-          unit: 'mm',
-          format: 'a4',
-        });
-
-        for (let i = 0; i < allPages.length; i++) {
-          const canvas = await capturePageAsCanvas(allPages[i]);
-          const imgData = canvas.toDataURL('image/png');
-          
-          if (i > 0) {
-            pdf.addPage();
-          }
-          pdf.addImage(imgData, 'PNG', 0, 0, 210, 297);
-        }
-
-        pdf.save(`${event.name}-place-cards-all.pdf`);
-      } else {
-        // For PNG/JPEG, download individually
-        for (let i = 0; i < allPages.length; i++) {
-          const canvas = await capturePageAsCanvas(allPages[i]);
-          const mimeType = fileType === 'png' ? 'image/png' : 'image/jpeg';
-          const link = document.createElement('a');
-          link.download = `${event.name}-place-cards-page-${i + 1}.${fileType}`;
-          link.href = canvas.toDataURL(mimeType, 1.0);
-          link.click();
-          
-          // Small delay between downloads
-          await new Promise(resolve => setTimeout(resolve, 500));
-        }
-      }
+      await exportAllPlaceCardsToDocx(settings, guests, event, totalPages);
 
       toast({
-        title: "Success",
-        description: `All ${totalPages} pages downloaded successfully`,
+        title: 'Word Document Downloaded',
+        description: `All ${totalPages} pages have been saved`,
       });
     } catch (error) {
-      console.error('Error downloading all pages:', error);
+      console.error('DOCX export all error:', error);
       toast({
-        title: "Error",
-        description: "Failed to download all pages",
-        variant: "destructive",
+        title: 'Export Failed',
+        description: 'Failed to export all pages',
+        variant: 'destructive',
       });
     } finally {
       setIsProcessing(false);
       onExportStateChange(false);
     }
-  };
-
-  const printWithStyles = (pages: HTMLElement[]) => {
-    // Create temporary print container
-    const printContainer = document.createElement('div');
-    printContainer.id = 'ww-print-container';
-    printContainer.style.position = 'fixed';
-    printContainer.style.top = '-9999px';
-    printContainer.style.left = '-9999px';
-    
-    // Clone pages with all computed styles preserved
-    pages.forEach(page => {
-      const clone = page.cloneNode(true) as HTMLElement;
-      printContainer.appendChild(clone);
-    });
-    
-    // Add print-specific styles to document
-    const printStyles = document.createElement('style');
-    printStyles.id = 'ww-print-styles';
-    printStyles.textContent = `
-      @page { 
-        size: A4 portrait; 
-        margin: 0; 
-      }
-      
-      @media print {
-        :root { color-scheme: light !important; }
-        
-        html, body {
-          margin: 0 !important;
-          padding: 0 !important;
-          background: #FFFFFF !important;
-          -webkit-print-color-adjust: exact !important;
-          print-color-adjust: exact !important;
-          color-adjust: exact !important;
-        }
-        
-        /* Hide everything except print container */
-        body > *:not(#ww-print-container) {
-          display: none !important;
-        }
-        
-        /* Show print container */
-        #ww-print-container {
-          display: block !important;
-          position: static !important;
-          top: 0 !important;
-          left: 0 !important;
-        }
-        
-        /* Ensure all children are visible */
-        #ww-print-container,
-        #ww-print-container * {
-          visibility: visible !important;
-          opacity: 1 !important;
-        }
-        
-        /* A4 page styling */
-        #ww-print-container .place-card-preview-container {
-          width: 210mm !important;
-          height: 297mm !important;
-          background: #FFFFFF !important;
-          page-break-after: always !important;
-          page-break-inside: avoid !important;
-          transform: none !important;
-          scale: 1 !important;
-          box-shadow: none !important;
-          border: none !important;
-          border-radius: 0 !important;
-          margin: 0 !important;
-          padding: 0 !important;
-          position: relative !important;
-        }
-        
-        /* Ensure A4 page content is correct */
-        #ww-print-container .place-card-a4-page {
-          width: 210mm !important;
-          height: 297mm !important;
-          margin: 0 !important;
-          padding: 0 !important;
-          transform: none !important;
-          position: relative !important;
-          display: grid !important;
-          grid-template-columns: repeat(2, 105mm) !important;
-          grid-template-rows: repeat(3, 99mm) !important;
-          gap: 0 !important;
-          align-content: start !important;
-        }
-        
-        /* Also enforce grid on inner wrapper if present */
-        #ww-print-container .place-card-a4-page .grid {
-          display: grid !important;
-          grid-template-columns: repeat(2, 105mm) !important;
-          grid-template-rows: repeat(3, 99mm) !important;
-          width: 210mm !important;
-          height: 297mm !important;
-          gap: 0 !important;
-          align-content: start !important;
-        }
-        
-        /* Place card cells - exact A4 dimensions */
-        #ww-print-container .place-card-cell {
-          width: 105mm !important;
-          height: 99mm !important;
-          box-sizing: border-box !important;
-          page-break-inside: avoid !important;
-          display: flex !important;
-          flex-direction: column !important;
-          align-items: center !important;
-          justify-content: flex-end !important;
-          padding: 8mm !important;
-          overflow: hidden !important;
-        }
-        
-        /* Cut lines - subtle but visible */
-        #ww-print-container .cutline-v,
-        #ww-print-container .cutline-h1,
-        #ww-print-container .cutline-h2 {
-          border-color: rgba(217, 217, 217, 0.6) !important;
-          opacity: 1 !important;
-        }
-        
-        #ww-print-container .cutline-v {
-          left: 105mm !important;
-        }
-        
-        #ww-print-container .cutline-h1 {
-          top: 99mm !important;
-        }
-        
-        #ww-print-container .cutline-h2 {
-          top: 198mm !important;
-        }
-        
-        /* Hide fold guides and screen-only elements */
-        .fold-guide,
-        .preview-only,
-        .screen-only {
-          display: none !important;
-        }
-        
-        /* Preserve colors and backgrounds */
-        #ww-print-container * {
-          -webkit-print-color-adjust: exact !important;
-          print-color-adjust: exact !important;
-          color-adjust: exact !important;
-        }
-      }
-    `;
-    
-    // Append to document
-    document.head.appendChild(printStyles);
-    document.body.appendChild(printContainer);
-    
-    // Trigger print after a brief delay to ensure styles are applied
-    setTimeout(() => {
-      window.print();
-      
-      // Cleanup after print dialog closes
-      // Use both afterprint event and timeout as fallback
-      const cleanup = () => {
-        if (document.body.contains(printContainer)) {
-          document.body.removeChild(printContainer);
-        }
-        if (document.head.contains(printStyles)) {
-          document.head.removeChild(printStyles);
-        }
-      };
-      
-      window.addEventListener('afterprint', cleanup, { once: true });
-      setTimeout(cleanup, 1000); // Fallback cleanup
-    }, 100);
-  };
-
-  const handlePrintPage = () => {
-    const pageElement = document.querySelector(`[data-page="${selectedPage}"]`) as HTMLElement;
-    if (!pageElement) {
-      toast({
-        title: "Error",
-        description: "Page not found",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    printWithStyles([pageElement]);
-  };
-
-  const handlePrintAll = () => {
-    const allPages = Array.from(document.querySelectorAll('[data-page]')) as HTMLElement[];
-    if (!allPages.length) {
-      toast({
-        title: "Error",
-        description: "No pages found",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    printWithStyles(allPages);
   };
 
   return (
@@ -869,52 +505,27 @@ export const PlaceCardExportControls: React.FC<PlaceCardExportControlsProps> = (
           </div>
         </div>
 
-        {/* Download Controls */}
+        {/* Word Export */}
         <div className="space-y-2">
-          <Label>Download Controls</Label>
+          <Label>Word Export</Label>
           <div className="grid grid-cols-2 gap-2">
             <Button
               variant="outline"
               size="sm"
-              onClick={handleDownloadPage}
+              onClick={handleDownloadWordPage}
               disabled={isProcessing}
             >
-              <Download className="h-4 w-4 mr-2" />
-              Download Page
+              <FileText className="h-4 w-4 mr-2" />
+              Download Word
             </Button>
             <Button
               variant="outline"
               size="sm"
-              onClick={handleDownloadAll}
+              onClick={handleDownloadWordAll}
               disabled={isProcessing}
             >
-              <Download className="h-4 w-4 mr-2" />
-              Download All
-            </Button>
-          </div>
-        </div>
-
-        {/* Print Controls */}
-        <div className="space-y-2">
-          <Label>Print Controls</Label>
-          <div className="grid grid-cols-2 gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handlePrintPage}
-              disabled={isProcessing}
-            >
-              <Printer className="h-4 w-4 mr-2" />
-              Print Page
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handlePrintAll}
-              disabled={isProcessing}
-            >
-              <Printer className="h-4 w-4 mr-2" />
-              Print All
+              <FileText className="h-4 w-4 mr-2" />
+              Download All Word
             </Button>
           </div>
         </div>
