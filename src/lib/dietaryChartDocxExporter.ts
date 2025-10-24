@@ -273,7 +273,7 @@ const createGuestTable = (
         },
         shading: { fill: index % 2 === 0 ? 'FFFFFF' : 'F9FAFB' },
         width: { size: columns[colIndex].width, type: WidthType.PERCENTAGE },
-        margins: { top: 0, bottom: 0, left: 40, right: 40 },
+        margins: { top: 150, bottom: 150, left: 40, right: 40 },
       })
     );
     colIndex++;
@@ -302,7 +302,7 @@ const createGuestTable = (
         },
         shading: { fill: index % 2 === 0 ? 'FFFFFF' : 'F9FAFB' },
         width: { size: columns[colIndex].width, type: WidthType.PERCENTAGE },
-        margins: { top: 0, bottom: 0, left: 40, right: 40 },
+        margins: { top: 150, bottom: 150, left: 40, right: 40 },
       })
     );
     colIndex++;
@@ -330,7 +330,7 @@ const createGuestTable = (
         },
         shading: { fill: index % 2 === 0 ? 'FFFFFF' : 'F9FAFB' },
         width: { size: columns[colIndex].width, type: WidthType.PERCENTAGE },
-        margins: { top: 0, bottom: 0, left: 40, right: 40 },
+        margins: { top: 150, bottom: 150, left: 40, right: 40 },
       })
     );
     colIndex++;
@@ -359,7 +359,7 @@ const createGuestTable = (
           },
           shading: { fill: index % 2 === 0 ? 'FFFFFF' : 'F9FAFB' },
           width: { size: columns[colIndex].width, type: WidthType.PERCENTAGE },
-          margins: { top: 0, bottom: 0, left: 40, right: 40 },
+          margins: { top: 150, bottom: 150, left: 40, right: 40 },
         })
       );
       colIndex++;
@@ -390,7 +390,7 @@ const createGuestTable = (
         },
         shading: { fill: index % 2 === 0 ? 'FFFFFF' : 'F9FAFB' },
         width: { size: columns[colIndex].width, type: WidthType.PERCENTAGE },
-        margins: { top: 0, bottom: 0, left: 40, right: 40 },
+        margins: { top: 150, bottom: 150, left: 40, right: 40 },
       })
     );
     colIndex++;
@@ -419,7 +419,7 @@ const createGuestTable = (
           },
           shading: { fill: index % 2 === 0 ? 'FFFFFF' : 'F9FAFB' },
           width: { size: columns[colIndex].width, type: WidthType.PERCENTAGE },
-          margins: { top: 0, bottom: 0, left: 40, right: 40 },
+          margins: { top: 150, bottom: 150, left: 40, right: 40 },
         })
       );
       colIndex++;
@@ -455,7 +455,7 @@ const createGuestTable = (
           },
           shading: { fill: index % 2 === 0 ? 'FFFFFF' : 'F9FAFB' },
           width: { size: columns[colIndex].width, type: WidthType.PERCENTAGE },
-          margins: { top: 0, bottom: 0, left: 40, right: 40 },
+          margins: { top: 150, bottom: 150, left: 40, right: 40 },
         })
       );
       colIndex++;
