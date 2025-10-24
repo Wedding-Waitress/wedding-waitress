@@ -136,7 +136,7 @@ export const exportFullSeatingChartToDocx = async (
     sections.push(
       new Paragraph({
         alignment: AlignmentType.CENTER,
-        spacing: { after: 100 },
+        spacing: { after: 120 },
         children: [
           new TextRun({
             text: event.name,
@@ -152,7 +152,7 @@ export const exportFullSeatingChartToDocx = async (
     sections.push(
       new Paragraph({
         alignment: AlignmentType.CENTER,
-        spacing: { after: 100 },
+        spacing: { after: 120 },
         children: [
           new TextRun({
             text: `Full Seating Chart - ${formatDateWithOrdinal(event.date)}`,
@@ -167,7 +167,7 @@ export const exportFullSeatingChartToDocx = async (
     sections.push(
       new Paragraph({
         alignment: AlignmentType.CENTER,
-        spacing: { after: 200 },
+        spacing: { after: 240 },
         border: {
           bottom: {
             color: '000000',
@@ -202,7 +202,7 @@ export const exportFullSeatingChartToDocx = async (
             width: { size: 48, type: WidthType.PERCENTAGE },
             children: [
               new Paragraph({
-                spacing: { after: 200 },
+                spacing: { after: 280 },
                 children: [
                   new TextRun({
                     text: `GUESTS ${col1Start}-${col1End}`,
@@ -223,7 +223,7 @@ export const exportFullSeatingChartToDocx = async (
             width: { size: 48, type: WidthType.PERCENTAGE },
             children: [
               new Paragraph({
-                spacing: { after: 200 },
+                spacing: { after: 280 },
                 children: [
                   new TextRun({
                     text: col2Guests.length > 0 ? `GUESTS ${col2Start}-${col2End}` : '',
@@ -254,7 +254,7 @@ export const exportFullSeatingChartToDocx = async (
       const leftCellContent: TextRun[] = [];
       if (guest1) {
         leftCellContent.push(
-          new TextRun({ text: '☐ ', size: fontSize }),
+          new TextRun({ text: '◯ ', size: fontSize, color: '6D28D9' }),
           new TextRun({ text: formatGuestName(guest1, settings.sortBy), size: fontSize }),
           new TextRun({ text: ' ', size: fontSize }),
           new TextRun({ text: formatTableAssignment(guest1.table_no), bold: true, size: fontSize - 2 })
@@ -279,7 +279,7 @@ export const exportFullSeatingChartToDocx = async (
       const rightCellContent: TextRun[] = [];
       if (guest2) {
         rightCellContent.push(
-          new TextRun({ text: '☐ ', size: fontSize }),
+          new TextRun({ text: '◯ ', size: fontSize, color: '6D28D9' }),
           new TextRun({ text: formatGuestName(guest2, settings.sortBy), size: fontSize }),
           new TextRun({ text: ' ', size: fontSize }),
           new TextRun({ text: formatTableAssignment(guest2.table_no), bold: true, size: fontSize - 2 })
@@ -307,7 +307,7 @@ export const exportFullSeatingChartToDocx = async (
               width: { size: 48, type: WidthType.PERCENTAGE },
               children: [
                 new Paragraph({
-                  spacing: { after: 100 },
+                  spacing: { after: 240 },
                   children: leftCellContent.length > 0 ? leftCellContent : [new TextRun({ text: '' })],
                 }),
               ],
@@ -323,7 +323,7 @@ export const exportFullSeatingChartToDocx = async (
               width: { size: 48, type: WidthType.PERCENTAGE },
               children: [
                 new Paragraph({
-                  spacing: { after: 100 },
+                  spacing: { after: 240 },
                   children: rightCellContent.length > 0 ? rightCellContent : [new TextRun({ text: '' })],
                 }),
               ],
