@@ -222,7 +222,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
             position: relative;
             width: 210mm;
             height: 297mm;
-            padding: 2mm 10mm 10mm 10mm;
+            padding: 1.27cm;
             display: flex;
             flex-direction: column;
             background-color: white !important;
@@ -488,7 +488,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                   >
                     <div style={{ padding: '1.27cm' }} className="h-full flex flex-col">
                       {/* Header */}
-                      <div className="text-center space-y-2 mb-[3mm]">
+                      <div className="text-center space-y-2 mb-[4mm]">
                         {/* Event Name */}
                         {currentEvent && (
                           <>
