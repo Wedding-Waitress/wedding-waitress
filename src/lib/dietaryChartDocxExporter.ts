@@ -12,6 +12,7 @@ import {
   ImageRun,
   PageBreak,
   Packer,
+  Footer,
 } from 'docx';
 import { saveAs } from 'file-saver';
 
@@ -211,11 +212,16 @@ const createGuestTable = (
               size: fontSize,
             }),
           ],
-          alignment: AlignmentType.CENTER,
+          alignment: AlignmentType.LEFT,
           spacing: { before: 20, after: 20 },
         }),
       ],
-      shading: { fill: 'F3F4F6' },
+      borders: {
+        top: { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' },
+        bottom: { style: BorderStyle.SINGLE, size: 16, color: '000000' },
+        left: { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' },
+        right: { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' },
+      },
       width: { size: col.width, type: WidthType.PERCENTAGE },
     })
   );
@@ -236,9 +242,16 @@ const createGuestTable = (
                 size: fontSize,
               }),
             ],
+            alignment: AlignmentType.LEFT,
             spacing: { before: 80, after: 80 },
           }),
         ],
+        borders: {
+          top: { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' },
+          bottom: { style: BorderStyle.SINGLE, size: 6, color: 'E5E7EB' },
+          left: { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' },
+          right: { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' },
+        },
         shading: { fill: index % 2 === 0 ? 'FFFFFF' : 'F9FAFB' },
       })
     );
@@ -255,9 +268,16 @@ const createGuestTable = (
                 size: fontSize,
               }),
             ],
+            alignment: AlignmentType.LEFT,
             spacing: { before: 80, after: 80 },
           }),
         ],
+        borders: {
+          top: { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' },
+          bottom: { style: BorderStyle.SINGLE, size: 6, color: 'E5E7EB' },
+          left: { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' },
+          right: { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' },
+        },
         shading: { fill: index % 2 === 0 ? 'FFFFFF' : 'F9FAFB' },
       })
     );
@@ -277,6 +297,12 @@ const createGuestTable = (
             spacing: { before: 80, after: 80 },
           }),
         ],
+        borders: {
+          top: { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' },
+          bottom: { style: BorderStyle.SINGLE, size: 6, color: 'E5E7EB' },
+          left: { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' },
+          right: { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' },
+        },
         shading: { fill: index % 2 === 0 ? 'FFFFFF' : 'F9FAFB' },
       })
     );
@@ -297,6 +323,12 @@ const createGuestTable = (
               spacing: { before: 80, after: 80 },
             }),
           ],
+          borders: {
+            top: { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' },
+            bottom: { style: BorderStyle.SINGLE, size: 6, color: 'E5E7EB' },
+            left: { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' },
+            right: { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' },
+          },
           shading: { fill: index % 2 === 0 ? 'FFFFFF' : 'F9FAFB' },
         })
       );
@@ -315,9 +347,16 @@ const createGuestTable = (
                 color: '6D28D9',
               }),
             ],
+            alignment: AlignmentType.LEFT,
             spacing: { before: 80, after: 80 },
           }),
         ],
+        borders: {
+          top: { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' },
+          bottom: { style: BorderStyle.SINGLE, size: 6, color: 'E5E7EB' },
+          left: { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' },
+          right: { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' },
+        },
         shading: { fill: index % 2 === 0 ? 'FFFFFF' : 'F9FAFB' },
       })
     );
@@ -334,9 +373,16 @@ const createGuestTable = (
                   size: fontSize,
                 }),
               ],
+              alignment: AlignmentType.LEFT,
               spacing: { before: 80, after: 80 },
             }),
           ],
+          borders: {
+            top: { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' },
+            bottom: { style: BorderStyle.SINGLE, size: 6, color: 'E5E7EB' },
+            left: { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' },
+            right: { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' },
+          },
           shading: { fill: index % 2 === 0 ? 'FFFFFF' : 'F9FAFB' },
         })
       );
@@ -354,9 +400,16 @@ const createGuestTable = (
                   size: fontSize,
                 }),
               ],
+              alignment: AlignmentType.LEFT,
               spacing: { before: 80, after: 80 },
             }),
           ],
+          borders: {
+            top: { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' },
+            bottom: { style: BorderStyle.SINGLE, size: 6, color: 'E5E7EB' },
+            left: { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' },
+            right: { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' },
+          },
           shading: { fill: index % 2 === 0 ? 'FFFFFF' : 'F9FAFB' },
         })
       );
@@ -371,6 +424,14 @@ const createGuestTable = (
       ...guestRows,
     ],
     width: { size: 100, type: WidthType.PERCENTAGE },
+    borders: {
+      top: { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' },
+      bottom: { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' },
+      left: { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' },
+      right: { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' },
+      insideHorizontal: { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' },
+      insideVertical: { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' },
+    },
   });
 };
 
@@ -411,31 +472,39 @@ export const exportDietaryChartToDocx = async (
     // Add guest table
     const guestTable = createGuestTable(pageGuests, settings, fontSize);
     children.push(guestTable);
-    
-    // Add footer logo (if enabled and buffer loaded)
-    if (logoBuffer) {
-      children.push(
-        new Paragraph({
-          children: [
-            new ImageRun({
-              data: logoBuffer,
-              transformation: {
-                height: 30, // 10.5mm in points (approximately)
-                width: 90,  // Auto width to maintain aspect ratio
-              },
-              type: 'png',
-            }),
-          ],
-          alignment: AlignmentType.CENTER,
-          spacing: { before: 400 },
-        })
-      );
-    }
   }
   
+  // Create footer with logo if enabled
+  const footer = logoBuffer
+    ? new Footer({
+        children: [
+          new Paragraph({
+            children: [
+              new ImageRun({
+                data: logoBuffer,
+                transformation: {
+                  height: 30, // 10.5mm in points (approximately)
+                  width: 90,  // Auto width to maintain aspect ratio
+                },
+                type: 'png',
+              }),
+            ],
+            alignment: AlignmentType.CENTER,
+          }),
+        ],
+      })
+    : undefined;
+
   // Create document
   const doc = new Document({
     styles: {
+      default: {
+        document: {
+          run: {
+            font: 'Inter',
+          },
+        },
+      },
       paragraphStyles: [
         {
           id: 'eventName',
@@ -445,6 +514,7 @@ export const exportDietaryChartToDocx = async (
             size: 32, // 16pt
             bold: true,
             color: '6D28D9',
+            font: 'Inter',
           },
         },
       ],
@@ -465,6 +535,7 @@ export const exportDietaryChartToDocx = async (
             },
           },
         },
+        footers: footer ? { default: footer } : undefined,
         children,
       },
     ],
