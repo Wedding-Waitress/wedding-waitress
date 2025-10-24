@@ -117,34 +117,39 @@ const loadDietaryLogo = async (): Promise<Uint8Array | null> => {
   }
 };
 
-// Get table column configuration based on settings
+// Get table column configuration based on settings with dynamic equal distribution
 const getTableColumns = (settings: DietaryChartSettings) => {
-  const columns: Array<{ header: string; width: number }> = [
-    { header: 'First Name', width: 16 },
-    { header: 'Last Name', width: 14 },
-    { header: 'Table', width: settings.showSeatNo ? 8 : 10 },
+  // Build array of active columns in order
+  const columnHeaders: string[] = [
+    'First Name',
+    'Last Name',
+    'Table',
   ];
   
   if (settings.showSeatNo) {
-    columns.push({ header: 'Seat', width: 7 });
+    columnHeaders.push('Seat');
   }
   
-  let dietaryWidth = 48;
-  if (settings.showMobile && settings.showRelation) {
-    dietaryWidth = 30;
-  } else if (settings.showMobile || settings.showRelation) {
-    dietaryWidth = 36;
-  }
-  
-  columns.push({ header: 'Dietary', width: dietaryWidth });
+  columnHeaders.push('Dietary');
   
   if (settings.showMobile) {
-    columns.push({ header: 'Mobile', width: 12 });
+    columnHeaders.push('Mobile');
   }
   
   if (settings.showRelation) {
-    columns.push({ header: 'Relation', width: 13 });
+    columnHeaders.push('Relation');
   }
+  
+  // Calculate equal widths
+  const columnCount = columnHeaders.length;
+  const baseWidth = Math.floor(100 / columnCount);
+  const remainder = 100 - (baseWidth * columnCount);
+  
+  // Distribute widths evenly, adding remainder to first columns
+  const columns = columnHeaders.map((header, index) => ({
+    header,
+    width: baseWidth + (index < remainder ? 1 : 0)
+  }));
   
   return columns;
 };
