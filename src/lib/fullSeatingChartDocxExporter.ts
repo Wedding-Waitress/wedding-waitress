@@ -7,6 +7,11 @@ import {
   ImageRun,
   BorderStyle,
   PageBreak,
+  Table,
+  TableRow,
+  TableCell,
+  WidthType,
+  VerticalAlign,
 } from 'docx';
 import { saveAs } from 'file-saver';
 
@@ -115,7 +120,7 @@ export const exportFullSeatingChartToDocx = async (
     logoBuffer = await loadLogoImage();
   }
 
-  const sections: Paragraph[] = [];
+  const sections: (Paragraph | Table)[] = [];
 
   // Create pages
   for (let pageNum = 1; pageNum <= totalPages; pageNum++) {
@@ -180,137 +185,177 @@ export const exportFullSeatingChartToDocx = async (
       })
     );
 
-    // Column Headers
+    // Calculate guest ranges for column headers
     const col1Start = startIdx + 1;
     const col1End = startIdx + col1Guests.length;
     const col2Start = startIdx + col1Guests.length + 1;
     const col2End = endIdx;
 
-    sections.push(
-      new Paragraph({
-        spacing: { after: 200 },
+    // Create table for two-column guest list
+    const guestTableRows: TableRow[] = [];
+
+    // Header row with column titles
+    guestTableRows.push(
+      new TableRow({
         children: [
-          new TextRun({
-            text: `GUESTS ${col1Start}-${col1End}`,
-            bold: true,
-            size: 22, // 11pt
+          new TableCell({
+            width: { size: 48, type: WidthType.PERCENTAGE },
+            children: [
+              new Paragraph({
+                spacing: { after: 200 },
+                children: [
+                  new TextRun({
+                    text: `GUESTS ${col1Start}-${col1End}`,
+                    bold: true,
+                    size: 22, // 11pt
+                  }),
+                ],
+              }),
+            ],
+            borders: {
+              top: { style: BorderStyle.NONE },
+              bottom: { style: BorderStyle.NONE },
+              left: { style: BorderStyle.NONE },
+              right: { style: BorderStyle.NONE },
+            },
           }),
-          new TextRun({
-            text: '                              ', // Spacing between columns
-          }),
-          new TextRun({
-            text: col2Guests.length > 0 ? `GUESTS ${col2Start}-${col2End}` : '',
-            bold: true,
-            size: 22, // 11pt
+          new TableCell({
+            width: { size: 48, type: WidthType.PERCENTAGE },
+            children: [
+              new Paragraph({
+                spacing: { after: 200 },
+                children: [
+                  new TextRun({
+                    text: col2Guests.length > 0 ? `GUESTS ${col2Start}-${col2End}` : '',
+                    bold: true,
+                    size: 22, // 11pt
+                  }),
+                ],
+              }),
+            ],
+            borders: {
+              top: { style: BorderStyle.NONE },
+              bottom: { style: BorderStyle.NONE },
+              left: { style: BorderStyle.NONE },
+              right: { style: BorderStyle.NONE },
+            },
           }),
         ],
       })
     );
 
-    // Guest rows (side by side)
+    // Guest data rows
     const maxRows = Math.max(col1Guests.length, col2Guests.length);
     for (let i = 0; i < maxRows; i++) {
       const guest1 = col1Guests[i];
       const guest2 = col2Guests[i];
 
-      // Build left column content
-      const leftContent: TextRun[] = [];
+      // Build left cell content
+      const leftCellContent: TextRun[] = [];
       if (guest1) {
-        leftContent.push(
-          new TextRun({
-            text: '☐ ',
-            size: fontSize,
-          }),
-          new TextRun({
-            text: formatGuestName(guest1, settings.sortBy),
-            size: fontSize,
-          }),
-          new TextRun({
-            text: ' ',
-            size: fontSize,
-          }),
-          new TextRun({
-            text: formatTableAssignment(guest1.table_no),
-            bold: true,
-            size: fontSize - 2,
-          })
+        leftCellContent.push(
+          new TextRun({ text: '☐ ', size: fontSize }),
+          new TextRun({ text: formatGuestName(guest1, settings.sortBy), size: fontSize }),
+          new TextRun({ text: ' ', size: fontSize }),
+          new TextRun({ text: formatTableAssignment(guest1.table_no), bold: true, size: fontSize - 2 })
         );
 
-        if (settings.showDietary && guest1.dietary) {
-          leftContent.push(
-            new TextRun({
-              text: ` | ${guest1.dietary}`,
-              size: fontSize - 4,
-              color: '666666',
-            })
+        if (settings.showDietary && guest1.dietary && guest1.dietary !== 'NA') {
+          leftCellContent.push(
+            new TextRun({ text: ' | ', size: fontSize - 4 }),
+            new TextRun({ text: guest1.dietary, size: fontSize - 4, color: '666666' })
           );
         }
 
         if (settings.showRelation && guest1.relation_display) {
-          leftContent.push(
-            new TextRun({
-              text: ` | ${guest1.relation_display}`,
-              size: fontSize - 4,
-              color: '666666',
-            })
+          leftCellContent.push(
+            new TextRun({ text: ' | ', size: fontSize - 4 }),
+            new TextRun({ text: guest1.relation_display, size: fontSize - 4, color: '666666' })
           );
         }
       }
 
-      // Add spacing between columns
-      leftContent.push(new TextRun({ text: '          ' }));
-
-      // Build right column content
-      const rightContent: TextRun[] = [];
+      // Build right cell content
+      const rightCellContent: TextRun[] = [];
       if (guest2) {
-        rightContent.push(
-          new TextRun({
-            text: '☐ ',
-            size: fontSize,
-          }),
-          new TextRun({
-            text: formatGuestName(guest2, settings.sortBy),
-            size: fontSize,
-          }),
-          new TextRun({
-            text: ' ',
-            size: fontSize,
-          }),
-          new TextRun({
-            text: formatTableAssignment(guest2.table_no),
-            bold: true,
-            size: fontSize - 2,
-          })
+        rightCellContent.push(
+          new TextRun({ text: '☐ ', size: fontSize }),
+          new TextRun({ text: formatGuestName(guest2, settings.sortBy), size: fontSize }),
+          new TextRun({ text: ' ', size: fontSize }),
+          new TextRun({ text: formatTableAssignment(guest2.table_no), bold: true, size: fontSize - 2 })
         );
 
-        if (settings.showDietary && guest2.dietary) {
-          rightContent.push(
-            new TextRun({
-              text: ` | ${guest2.dietary}`,
-              size: fontSize - 4,
-              color: '666666',
-            })
+        if (settings.showDietary && guest2.dietary && guest2.dietary !== 'NA') {
+          rightCellContent.push(
+            new TextRun({ text: ' | ', size: fontSize - 4 }),
+            new TextRun({ text: guest2.dietary, size: fontSize - 4, color: '666666' })
           );
         }
 
         if (settings.showRelation && guest2.relation_display) {
-          rightContent.push(
-            new TextRun({
-              text: ` | ${guest2.relation_display}`,
-              size: fontSize - 4,
-              color: '666666',
-            })
+          rightCellContent.push(
+            new TextRun({ text: ' | ', size: fontSize - 4 }),
+            new TextRun({ text: guest2.relation_display, size: fontSize - 4, color: '666666' })
           );
         }
       }
 
-      sections.push(
-        new Paragraph({
-          spacing: { after: 100 },
-          children: [...leftContent, ...rightContent],
+      guestTableRows.push(
+        new TableRow({
+          children: [
+            new TableCell({
+              width: { size: 48, type: WidthType.PERCENTAGE },
+              children: [
+                new Paragraph({
+                  spacing: { after: 100 },
+                  children: leftCellContent.length > 0 ? leftCellContent : [new TextRun({ text: '' })],
+                }),
+              ],
+              borders: {
+                top: { style: BorderStyle.NONE },
+                bottom: { style: BorderStyle.NONE },
+                left: { style: BorderStyle.NONE },
+                right: { style: BorderStyle.NONE },
+              },
+              verticalAlign: VerticalAlign.TOP,
+            }),
+            new TableCell({
+              width: { size: 48, type: WidthType.PERCENTAGE },
+              children: [
+                new Paragraph({
+                  spacing: { after: 100 },
+                  children: rightCellContent.length > 0 ? rightCellContent : [new TextRun({ text: '' })],
+                }),
+              ],
+              borders: {
+                top: { style: BorderStyle.NONE },
+                bottom: { style: BorderStyle.NONE },
+                left: { style: BorderStyle.NONE },
+                right: { style: BorderStyle.NONE },
+              },
+              verticalAlign: VerticalAlign.TOP,
+            }),
+          ],
         })
       );
     }
+
+    // Add the table to sections
+    sections.push(
+      new Table({
+        width: { size: 100, type: WidthType.PERCENTAGE },
+        rows: guestTableRows,
+        columnWidths: [4800, 4800], // Equal column widths
+        borders: {
+          top: { style: BorderStyle.NONE },
+          bottom: { style: BorderStyle.NONE },
+          left: { style: BorderStyle.NONE },
+          right: { style: BorderStyle.NONE },
+          insideHorizontal: { style: BorderStyle.NONE },
+          insideVertical: { style: BorderStyle.NONE },
+        },
+      })
+    );
 
     // Footer - Logo (if enabled)
     if (settings.showLogo && logoBuffer) {
