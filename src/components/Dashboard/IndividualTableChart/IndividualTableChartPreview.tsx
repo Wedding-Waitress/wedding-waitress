@@ -261,7 +261,7 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
               maxWidth: '210mm'
             }}
           >
-            <div style={{ padding: '10mm' }} className="h-full flex flex-col relative">
+            <div style={{ padding: '1.27cm' }} className="h-full flex flex-col relative">
             {/* Header Section */}  
             <div className="text-center mb-2">
               {/* Event Name - Purple and Bold */}

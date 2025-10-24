@@ -16,15 +16,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
-import { Users, FileDown, Printer, Settings } from 'lucide-react';
+import { Users, FileText } from 'lucide-react';
 import { useEvents } from '@/hooks/useEvents';
 import { useTables } from '@/hooks/useTables';
 import { useRealtimeGuests } from '@/hooks/useRealtimeGuests';
 import { format } from 'date-fns';
 import { IndividualTableChartPreview } from './IndividualTableChartPreview';
 import { IndividualTableChartCustomizer } from './IndividualTableChartCustomizer';
-import { IndividualTableChartExporter } from './IndividualTableChartExporter';
-import { generateIndividualTableSVG, generateAllTablesChartPDF } from '@/lib/individualTableChartEngine';
+import { exportIndividualTableChartToDocx, exportAllTablesChartToDocx } from '@/lib/individualTableChartDocxExporter';
 import { toast } from 'sonner';
 
 export interface IndividualChartSettings {
@@ -64,7 +63,6 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
   const [settings, setSettings] = useState<IndividualChartSettings>(defaultSettings);
   const [isExporting, setIsExporting] = useState(false);
   const [isExportingAll, setIsExportingAll] = useState(false);
-  const [showExporter, setShowExporter] = useState(false);
 
   const { events, loading: eventsLoading } = useEvents();
   const { tables, loading: tablesLoading } = useTables(selectedEventId);
@@ -92,103 +90,47 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
     setSettings(prev => ({ ...prev, ...newSettings }));
   };
 
-  const handleExport = async (format: 'pdf' | 'png' | 'jpg') => {
+  const handleDownloadWord = async () => {
     if (!selectedEvent || !selectedTableId) return;
     
     setIsExporting(true);
     try {
-      // Export logic will be implemented in the exporter component
-      setShowExporter(true);
+      toast.info('Generating Word document...');
+      
+      await exportIndividualTableChartToDocx(
+        settings,
+        selectedTable!,
+        guests,
+        selectedEvent
+      );
+      
+      toast.success('Word document downloaded successfully!');
     } catch (error) {
-      console.error('Export failed:', error);
+      console.error('DOCX export error:', error);
+      toast.error('Failed to generate Word document');
     } finally {
       setIsExporting(false);
     }
   };
 
-  const handlePrint = () => {
-    if (typeof window !== 'undefined') {
-      // Focus on the print container to ensure clean printing
-      const printContainer = document.getElementById('printA4-individual-table');
-      if (printContainer) {
-        window.print();
-      }
-    }
-  };
-
-  const handlePrintAll = () => {
+  const handleDownloadAllWord = async () => {
     if (!selectedEvent || tables.length === 0) return;
-
-    // Generate HTML for all tables
-    const allTablesHTML = tables.map(table => {
-      const tableGuests = guests.filter(guest => guest.table_id === table.id);
-      const tableSettings = {
-        ...settings,
-        title: `TABLE ${table.table_no || 'Unknown'}`
-      };
-      return generateIndividualTableSVG(tableSettings, table, tableGuests, selectedEvent);
-    }).join('');
-
-    // Create print window with all tables
-    const printWindow = window.open('', '_blank');
-    if (printWindow) {
-      printWindow.document.write(`
-        <!DOCTYPE html>
-        <html>
-          <head>
-            <title>All Tables - ${selectedEvent.name}</title>
-            <style>
-              body { margin: 0; padding: 0; font-family: Arial, sans-serif; }
-              .page { page-break-after: always; }
-              .page:last-child { page-break-after: avoid; }
-              @media print {
-                .page { page-break-after: always; }
-                .page:last-child { page-break-after: avoid; }
-              }
-            </style>
-          </head>
-          <body>
-            ${tables.map((table, index) => {
-              const tableGuests = guests.filter(guest => guest.table_id === table.id);
-              const tableSettings = {
-                ...settings,
-                title: `TABLE ${table.table_no || 'Unknown'}`
-              };
-              const isLastTable = index === tables.length - 1;
-              return `<div class="page${isLastTable ? ' last-page' : ''}">${generateIndividualTableSVG(tableSettings, table, tableGuests, selectedEvent)}</div>`;
-            }).join('')}
-          </body>
-        </html>
-      `);
-      printWindow.document.close();
-      printWindow.focus();
-      printWindow.print();
-    }
-  };
-
-  const handleExportAllTables = async () => {
-    if (!selectedEvent || tables.length === 0) return;
-
+    
     setIsExportingAll(true);
     try {
-      toast.info(`Generating PDF for ${tables.length} tables...`);
+      toast.info(`Generating Word document for ${tables.length} tables...`);
       
-      const blob = await generateAllTablesChartPDF(settings, tables, guests, selectedEvent);
+      await exportAllTablesChartToDocx(
+        settings,
+        tables,
+        guests,
+        selectedEvent
+      );
       
-      // Create download
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `${selectedEvent.name}-All-Tables-Seating-Charts-${format(new Date(), 'yyyy-MM-dd')}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-      
-      toast.success(`Successfully exported ${tables.length} tables to PDF!`);
+      toast.success(`Successfully exported ${tables.length} tables to Word!`);
     } catch (error) {
-      console.error('Export all tables failed:', error);
-      toast.error('Failed to export all tables. Please try again.');
+      console.error('DOCX export all error:', error);
+      toast.error('Failed to export all tables');
     } finally {
       setIsExportingAll(false);
     }
@@ -268,36 +210,24 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
           {isDataReady && (
             <div className="flex items-center gap-2 pt-4 border-t">
               <Button 
-                onClick={() => handleExport('pdf')} 
+                variant="outline"
+                size="sm"
+                onClick={handleDownloadWord} 
                 disabled={isExporting || isExportingAll}
                 className="flex items-center gap-2"
               >
-                <FileDown className="w-4 h-4" />
-                Export PDF
+                <FileText className="w-4 h-4" />
+                Download Word
               </Button>
               <Button 
-                onClick={handleExportAllTables}
+                variant="outline"
+                size="sm"
+                onClick={handleDownloadAllWord}
                 disabled={isExporting || isExportingAll}
                 className="flex items-center gap-2"
               >
-                <FileDown className="w-4 h-4" />
-                {isExportingAll ? 'Exporting...' : 'Export All Tables'}
-              </Button>
-              <Button 
-                variant="outline" 
-                onClick={handlePrint}
-                className="flex items-center gap-2"
-              >
-                <Printer className="w-4 h-4" />
-                Print
-              </Button>
-              <Button 
-                variant="outline" 
-                onClick={handlePrintAll}
-                className="flex items-center gap-2"
-              >
-                <Printer className="w-4 h-4" />
-                Print All Tables
+                <FileText className="w-4 h-4" />
+                {isExportingAll ? `Exporting ${tables.length} tables...` : 'Download All Word'}
               </Button>
             </div>
           )}
@@ -347,17 +277,6 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
             />
           </div>
         </div>
-      )}
-
-      {/* Exporter Modal */}
-      {showExporter && selectedEvent && selectedTable && (
-        <IndividualTableChartExporter
-          settings={settings}
-          table={selectedTable}
-          guests={guests}
-          event={selectedEvent}
-          onClose={() => setShowExporter(false)}
-        />
       )}
     </div>
   );
