@@ -262,7 +262,7 @@ const createGuestTable = (
               }),
             ],
             alignment: AlignmentType.LEFT,
-            spacing: { before: 0, after: 0, line: 300, lineRule: "auto" },
+            spacing: { before: 0, after: 0, line: 200, lineRule: "auto" },
           }),
         ],
         borders: {
@@ -273,7 +273,7 @@ const createGuestTable = (
         },
         shading: { fill: index % 2 === 0 ? 'FFFFFF' : 'F9FAFB' },
         width: { size: columns[colIndex].width, type: WidthType.PERCENTAGE },
-        margins: { top: 250, bottom: 250, left: 40, right: 40 },
+        margins: { top: 80, bottom: 80, left: 40, right: 40 },
       })
     );
     colIndex++;
@@ -291,7 +291,7 @@ const createGuestTable = (
               }),
             ],
             alignment: AlignmentType.LEFT,
-            spacing: { before: 0, after: 0, line: 300, lineRule: "auto" },
+            spacing: { before: 0, after: 0, line: 200, lineRule: "auto" },
           }),
         ],
         borders: {
@@ -302,7 +302,7 @@ const createGuestTable = (
         },
         shading: { fill: index % 2 === 0 ? 'FFFFFF' : 'F9FAFB' },
         width: { size: columns[colIndex].width, type: WidthType.PERCENTAGE },
-        margins: { top: 250, bottom: 250, left: 40, right: 40 },
+        margins: { top: 80, bottom: 80, left: 40, right: 40 },
       })
     );
     colIndex++;
@@ -319,7 +319,7 @@ const createGuestTable = (
               }),
             ],
             alignment: AlignmentType.CENTER,
-            spacing: { before: 0, after: 0, line: 300, lineRule: "auto" },
+            spacing: { before: 0, after: 0, line: 200, lineRule: "auto" },
           }),
         ],
         borders: {
@@ -330,7 +330,7 @@ const createGuestTable = (
         },
         shading: { fill: index % 2 === 0 ? 'FFFFFF' : 'F9FAFB' },
         width: { size: columns[colIndex].width, type: WidthType.PERCENTAGE },
-        margins: { top: 250, bottom: 250, left: 40, right: 40 },
+        margins: { top: 80, bottom: 80, left: 40, right: 40 },
       })
     );
     colIndex++;
@@ -348,7 +348,7 @@ const createGuestTable = (
                 }),
               ],
               alignment: AlignmentType.CENTER,
-              spacing: { before: 0, after: 0, line: 300, lineRule: "auto" },
+              spacing: { before: 0, after: 0, line: 200, lineRule: "auto" },
             }),
           ],
           borders: {
@@ -359,7 +359,7 @@ const createGuestTable = (
           },
           shading: { fill: index % 2 === 0 ? 'FFFFFF' : 'F9FAFB' },
           width: { size: columns[colIndex].width, type: WidthType.PERCENTAGE },
-          margins: { top: 250, bottom: 250, left: 40, right: 40 },
+          margins: { top: 80, bottom: 80, left: 40, right: 40 },
         })
       );
       colIndex++;
@@ -379,7 +379,7 @@ const createGuestTable = (
               }),
             ],
             alignment: AlignmentType.LEFT,
-            spacing: { before: 0, after: 0, line: 300, lineRule: "auto" },
+            spacing: { before: 0, after: 0, line: 200, lineRule: "auto" },
           }),
         ],
         borders: {
@@ -390,7 +390,7 @@ const createGuestTable = (
         },
         shading: { fill: index % 2 === 0 ? 'FFFFFF' : 'F9FAFB' },
         width: { size: columns[colIndex].width, type: WidthType.PERCENTAGE },
-        margins: { top: 250, bottom: 250, left: 40, right: 40 },
+        margins: { top: 80, bottom: 80, left: 40, right: 40 },
       })
     );
     colIndex++;
@@ -408,7 +408,7 @@ const createGuestTable = (
                 }),
               ],
               alignment: AlignmentType.LEFT,
-              spacing: { before: 0, after: 0, line: 300, lineRule: "auto" },
+              spacing: { before: 0, after: 0, line: 200, lineRule: "auto" },
             }),
           ],
           borders: {
@@ -419,7 +419,7 @@ const createGuestTable = (
           },
           shading: { fill: index % 2 === 0 ? 'FFFFFF' : 'F9FAFB' },
           width: { size: columns[colIndex].width, type: WidthType.PERCENTAGE },
-          margins: { top: 250, bottom: 250, left: 40, right: 40 },
+          margins: { top: 80, bottom: 80, left: 40, right: 40 },
         })
       );
       colIndex++;
@@ -444,7 +444,7 @@ const createGuestTable = (
                 }),
               ],
               alignment: AlignmentType.LEFT,
-              spacing: { before: 0, after: 0, line: 300, lineRule: "auto" },
+              spacing: { before: 0, after: 0, line: 200, lineRule: "auto" },
             }),
           ],
           borders: {
@@ -455,7 +455,7 @@ const createGuestTable = (
           },
           shading: { fill: index % 2 === 0 ? 'FFFFFF' : 'F9FAFB' },
           width: { size: columns[colIndex].width, type: WidthType.PERCENTAGE },
-          margins: { top: 250, bottom: 250, left: 40, right: 40 },
+          margins: { top: 80, bottom: 80, left: 40, right: 40 },
         })
       );
       colIndex++;
