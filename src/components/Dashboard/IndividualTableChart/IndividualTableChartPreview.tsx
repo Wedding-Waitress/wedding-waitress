@@ -258,10 +258,11 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
               width: '210mm', 
               height: '297mm',
               minWidth: '210mm',
-              maxWidth: '210mm'
+              maxWidth: '210mm',
+              boxSizing: 'border-box'
             }}
           >
-            <div style={{ padding: '1.27cm' }} className="h-full flex flex-col relative">
+            <div style={{ padding: '1.27cm', boxSizing: 'border-box' }} className="h-full flex flex-col relative">
             {/* Header Section */}  
             <div className="text-center mb-2">
               {/* Event Name - Purple and Bold */}
