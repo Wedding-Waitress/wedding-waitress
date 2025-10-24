@@ -12,15 +12,14 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Download, Printer, ChefHat, AlertCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { FileText, ChefHat, AlertCircle, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useRealtimeGuests } from '@/hooks/useRealtimeGuests';
 import { useEvents } from '@/hooks/useEvents';
 import { useTables } from '@/hooks/useTables';
 import { useDietaryChartSettings } from '@/hooks/useDietaryChartSettings';
 import { DietaryChartCustomizer } from './DietaryChartCustomizer';
 import { useToast } from '@/hooks/use-toast';
-import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
+import { exportDietaryChartToDocx } from '@/lib/dietaryChartDocxExporter';
 import { format } from 'date-fns';
 import dietaryLogo from '@/assets/wedding-waitress-dietary-logo.png';
 
@@ -47,7 +46,6 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
   const { settings, loading: settingsLoading, updateSettings } = useDietaryChartSettings(selectedEventId);
   const [isExporting, setIsExporting] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [printToastShown, setPrintToastShown] = useState(false);
   const { toast } = useToast();
 
   const currentEvent = events.find(event => event.id === selectedEventId);
@@ -156,101 +154,33 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
     }
   };
 
-  const handleExportPDF = async () => {
+  // Word Export functionality
+  const handleDownloadWord = async () => {
     if (!currentEvent || dietaryGuests.length === 0) return;
-
+    
     setIsExporting(true);
     try {
-      const printContent = document.getElementById('dietary-print-content');
-      if (!printContent) {
-        throw new Error('Print content not found');
-      }
-
-      // Make print content visible temporarily
-      printContent.style.display = 'block';
-      printContent.style.position = 'absolute';
-      printContent.style.left = '-9999px';
-      printContent.style.top = '0';
-
-      // Initialize PDF (A4 portrait)
-      const pdf = new jsPDF({
-        orientation: 'portrait',
-        unit: 'mm',
-        format: 'a4'
+      toast({
+        title: 'Generating Word Document',
+        description: 'Creating your dietary chart...',
       });
 
-      const pages = printContent.querySelectorAll('.print-page');
-      
-      for (let i = 0; i < pages.length; i++) {
-        const page = pages[i] as HTMLElement;
-        
-        // Capture the page as canvas
-        const canvas = await html2canvas(page, {
-          scale: 2,
-          useCORS: true,
-          logging: false,
-          backgroundColor: '#ffffff',
-          width: page.offsetWidth,
-          height: page.offsetHeight,
-        });
+      await exportDietaryChartToDocx(currentEvent, dietaryGuests, settings);
 
-        const imgData = canvas.toDataURL('image/png');
-        
-        // Add new page if not first page
-        if (i > 0) {
-          pdf.addPage();
-        }
-
-        // Add image to PDF (A4 dimensions: 210mm x 297mm)
-        pdf.addImage(imgData, 'PNG', 0, 0, 210, 297);
-      }
-
-      // Hide print content again
-      printContent.style.display = '';
-      printContent.style.position = '';
-      printContent.style.left = '';
-      printContent.style.top = '';
-
-      // Save PDF
-      pdf.save(`kitchen-dietary-requirements-${currentEvent.name.replace(/[^a-z0-9]/gi, '-').toLowerCase()}.pdf`);
-      
       toast({
-        title: "PDF Downloaded",
-        description: `Successfully exported ${pages.length} page${pages.length > 1 ? 's' : ''} to PDF`,
+        title: 'Word Document Downloaded',
+        description: 'Your dietary chart has been saved',
       });
     } catch (error) {
-      console.error('Error generating PDF:', error);
+      console.error('DOCX export error:', error);
       toast({
-        title: "Export Failed",
-        description: "Failed to generate PDF. Please try again.",
-        variant: "destructive",
+        title: 'Export Failed',
+        description: 'Failed to generate Word document',
+        variant: 'destructive',
       });
     } finally {
       setIsExporting(false);
     }
-  };
-
-  const handlePrint = () => {
-    if (!printToastShown) {
-      toast({
-        title: "Print Settings Tip",
-        description: "For perfect output: in the print dialog turn OFF 'Headers and footers' and turn ON 'Background graphics'.",
-        duration: 8000,
-      });
-      setPrintToastShown(true);
-    }
-    
-    const originalTitle = document.title;
-    document.title = '';
-    
-    requestAnimationFrame(() => {
-      setTimeout(() => {
-        window.print();
-        setTimeout(() => {
-          document.title = originalTitle;
-        }, 100);
-      }, 0);
-    });
   };
 
   if (guestsLoading || eventsLoading) {
@@ -477,19 +407,14 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
 
                 {/* Right Side: Action Buttons */}
                 <div className="flex items-center gap-2 flex-shrink-0">
-                  <Button variant="outline" size="sm" onClick={handlePrint} className="gap-2">
-                    <Printer className="w-4 h-4" />
-                    Print
-                  </Button>
-                  <Button
-                    variant="default"
-                    size="sm"
-                    onClick={handleExportPDF}
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={handleDownloadWord}
                     disabled={isExporting || dietaryGuests.length === 0}
-                    className="gap-2"
                   >
-                    <Download className="w-4 h-4" />
-                    {isExporting ? 'Downloading...' : 'Download PDF'}
+                    <FileText className="w-4 h-4" />
+                    Download Word
                   </Button>
                 </div>
               </div>
@@ -561,7 +486,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                       maxWidth: '210mm'
                     }}
                   >
-                    <div style={{ padding: '10mm' }} className="h-full flex flex-col">
+                    <div style={{ padding: '1.27cm' }} className="h-full flex flex-col">
                       {/* Header */}
                       <div className="text-center space-y-2 mb-[3mm]">
                         {/* Event Name */}
