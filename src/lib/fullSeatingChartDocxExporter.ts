@@ -244,73 +244,80 @@ export const exportFullSeatingChartToDocx = async (
       })
     );
 
+    // Helper function to build guest paragraphs with stacked layout
+    const buildGuestParagraphs = (guest: Guest | undefined): Paragraph[] => {
+      if (!guest) return [new Paragraph({ text: '' })];
+      
+      const paragraphs: Paragraph[] = [];
+      const hasDietary = settings.showDietary && guest.dietary && guest.dietary !== 'NA';
+      const hasRelation = settings.showRelation && guest.relation_display;
+      
+      // Main row: checkbox + name + table
+      paragraphs.push(
+        new Paragraph({
+          spacing: { after: hasDietary || hasRelation ? 80 : 240 },
+          children: [
+            new TextRun({ text: '◯ ', size: fontSize, color: '6D28D9' }),
+            new TextRun({ text: formatGuestName(guest, settings.sortBy), size: fontSize, bold: true }),
+            new TextRun({ text: '    ', size: fontSize }),
+            new TextRun({ text: formatTableAssignment(guest.table_no), bold: true, size: fontSize })
+          ]
+        })
+      );
+      
+      // Dietary row (if enabled and exists)
+      if (hasDietary) {
+        paragraphs.push(
+          new Paragraph({
+            spacing: { after: hasRelation ? 80 : 240 },
+            indent: { left: 360 },
+            children: [
+              new TextRun({ 
+                text: `Dietary: ${guest.dietary}`, 
+                size: fontSize - 4, 
+                color: '666666' 
+              })
+            ]
+          })
+        );
+      }
+      
+      // Relation row (if enabled and exists)
+      if (hasRelation) {
+        paragraphs.push(
+          new Paragraph({
+            spacing: { after: 240 },
+            indent: { left: 360 },
+            children: [
+              new TextRun({ 
+                text: guest.relation_display, 
+                size: fontSize - 4, 
+                color: '666666' 
+              })
+            ]
+          })
+        );
+      }
+      
+      return paragraphs;
+    };
+
     // Guest data rows
     const maxRows = Math.max(col1Guests.length, col2Guests.length);
     for (let i = 0; i < maxRows; i++) {
       const guest1 = col1Guests[i];
       const guest2 = col2Guests[i];
 
-      // Build left cell content
-      const leftCellContent: TextRun[] = [];
-      if (guest1) {
-        leftCellContent.push(
-          new TextRun({ text: '◯ ', size: fontSize, color: '6D28D9' }),
-          new TextRun({ text: formatGuestName(guest1, settings.sortBy), size: fontSize }),
-          new TextRun({ text: ' ', size: fontSize }),
-          new TextRun({ text: formatTableAssignment(guest1.table_no), bold: true, size: fontSize - 2 })
-        );
-
-        if (settings.showDietary && guest1.dietary && guest1.dietary !== 'NA') {
-          leftCellContent.push(
-            new TextRun({ text: ' | ', size: fontSize - 4 }),
-            new TextRun({ text: guest1.dietary, size: fontSize - 4, color: '666666' })
-          );
-        }
-
-        if (settings.showRelation && guest1.relation_display) {
-          leftCellContent.push(
-            new TextRun({ text: ' | ', size: fontSize - 4 }),
-            new TextRun({ text: guest1.relation_display, size: fontSize - 4, color: '666666' })
-          );
-        }
-      }
-
-      // Build right cell content
-      const rightCellContent: TextRun[] = [];
-      if (guest2) {
-        rightCellContent.push(
-          new TextRun({ text: '◯ ', size: fontSize, color: '6D28D9' }),
-          new TextRun({ text: formatGuestName(guest2, settings.sortBy), size: fontSize }),
-          new TextRun({ text: ' ', size: fontSize }),
-          new TextRun({ text: formatTableAssignment(guest2.table_no), bold: true, size: fontSize - 2 })
-        );
-
-        if (settings.showDietary && guest2.dietary && guest2.dietary !== 'NA') {
-          rightCellContent.push(
-            new TextRun({ text: ' | ', size: fontSize - 4 }),
-            new TextRun({ text: guest2.dietary, size: fontSize - 4, color: '666666' })
-          );
-        }
-
-        if (settings.showRelation && guest2.relation_display) {
-          rightCellContent.push(
-            new TextRun({ text: ' | ', size: fontSize - 4 }),
-            new TextRun({ text: guest2.relation_display, size: fontSize - 4, color: '666666' })
-          );
-        }
-      }
+      // Build paragraphs for both columns
+      const leftParagraphs = buildGuestParagraphs(guest1);
+      const rightParagraphs = buildGuestParagraphs(guest2);
 
       guestTableRows.push(
         new TableRow({
           children: [
             new TableCell({
               width: { size: 48, type: WidthType.PERCENTAGE },
-              children: [
-                new Paragraph({
-                  spacing: { after: 240 },
-                  children: leftCellContent.length > 0 ? leftCellContent : [new TextRun({ text: '' })],
-                }),
-              ],
+              children: leftParagraphs,
               borders: {
                 top: { style: BorderStyle.NONE },
                 bottom: { style: BorderStyle.NONE },
@@ -321,12 +328,7 @@ export const exportFullSeatingChartToDocx = async (
             }),
             new TableCell({
               width: { size: 48, type: WidthType.PERCENTAGE },
-              children: [
-                new Paragraph({
-                  spacing: { after: 240 },
-                  children: rightCellContent.length > 0 ? rightCellContent : [new TextRun({ text: '' })],
-                }),
-              ],
+              children: rightParagraphs,
               borders: {
                 top: { style: BorderStyle.NONE },
                 bottom: { style: BorderStyle.NONE },
