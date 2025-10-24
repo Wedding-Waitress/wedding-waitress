@@ -91,10 +91,18 @@ const formatGeneratedTimestamp = (): string => {
   return `${day}/${month}/${year} Time: ${displayHours}:${minutes} ${ampm}`;
 };
 
+// Helper to create TextRun with Inter font
+const createTextRun = (options: {
+  text: string;
+  bold?: boolean;
+  size?: number;
+  color?: string;
+}) => new TextRun({ font: 'Inter', ...options });
+
 // Load dietary logo image
 const loadDietaryLogo = async (): Promise<Uint8Array | null> => {
   try {
-    const response = await fetch('/wedding-waitress-dietary-logo.png');
+    const response = await fetch('/wedding-waitress-pdf-footer-logo.png');
     if (!response.ok) return null;
     const blob = await response.blob();
     const arrayBuffer = await blob.arrayBuffer();
@@ -160,7 +168,7 @@ const createHeaderSection = (
     // Chart title with date (12pt, bold)
     new Paragraph({
       children: [
-        new TextRun({
+        createTextRun({
           text: `Kitchen Dietary Requirements - ${formattedDate}`,
           bold: true,
           size: 24, // 12pt
@@ -173,7 +181,7 @@ const createHeaderSection = (
     // Venue and stats line (10pt)
     new Paragraph({
       children: [
-        new TextRun({
+        createTextRun({
           text: `${event.venue || 'No Venue Set'} - Total Dietary Guests: ${totalGuests} - Page ${pageNum} of ${totalPages} - Generated on: ${timestamp}`,
           size: 20, // 10pt
         }),
@@ -206,7 +214,7 @@ const createGuestTable = (
       children: [
         new Paragraph({
           children: [
-            new TextRun({
+            createTextRun({
               text: col.header,
               bold: true,
               size: fontSize,
@@ -236,14 +244,14 @@ const createGuestTable = (
         children: [
           new Paragraph({
             children: [
-              new TextRun({
+              createTextRun({
                 text: guest.first_name,
                 bold: true,
                 size: fontSize,
               }),
             ],
             alignment: AlignmentType.LEFT,
-            spacing: { before: 80, after: 80 },
+            spacing: { before: 40, after: 40 },
           }),
         ],
         borders: {
@@ -262,14 +270,14 @@ const createGuestTable = (
         children: [
           new Paragraph({
             children: [
-              new TextRun({
-                text: guest.last_name,
+              createTextRun({
+                text: guest.last_name || '-',
                 bold: true,
                 size: fontSize,
               }),
             ],
             alignment: AlignmentType.LEFT,
-            spacing: { before: 80, after: 80 },
+            spacing: { before: 40, after: 40 },
           }),
         ],
         borders: {
@@ -288,13 +296,13 @@ const createGuestTable = (
         children: [
           new Paragraph({
             children: [
-              new TextRun({
+              createTextRun({
                 text: guest.table_no ? String(guest.table_no) : '-',
                 size: fontSize,
               }),
             ],
             alignment: AlignmentType.CENTER,
-            spacing: { before: 80, after: 80 },
+            spacing: { before: 40, after: 40 },
           }),
         ],
         borders: {
@@ -314,13 +322,13 @@ const createGuestTable = (
           children: [
             new Paragraph({
               children: [
-                new TextRun({
+                createTextRun({
                   text: guest.seat_no ? String(guest.seat_no) : '-',
                   size: fontSize,
                 }),
               ],
               alignment: AlignmentType.CENTER,
-              spacing: { before: 80, after: 80 },
+              spacing: { before: 40, after: 40 },
             }),
           ],
           borders: {
@@ -340,7 +348,7 @@ const createGuestTable = (
         children: [
           new Paragraph({
             children: [
-              new TextRun({
+              createTextRun({
                 text: guest.dietary || '-',
                 bold: true,
                 size: fontSize,
@@ -348,7 +356,7 @@ const createGuestTable = (
               }),
             ],
             alignment: AlignmentType.LEFT,
-            spacing: { before: 80, after: 80 },
+            spacing: { before: 40, after: 40 },
           }),
         ],
         borders: {
@@ -368,13 +376,13 @@ const createGuestTable = (
           children: [
             new Paragraph({
               children: [
-                new TextRun({
+                createTextRun({
                   text: guest.mobile || '-',
                   size: fontSize,
                 }),
               ],
               alignment: AlignmentType.LEFT,
-              spacing: { before: 80, after: 80 },
+              spacing: { before: 40, after: 40 },
             }),
           ],
           borders: {
@@ -395,13 +403,13 @@ const createGuestTable = (
           children: [
             new Paragraph({
               children: [
-                new TextRun({
+                createTextRun({
                   text: guest.relation_display || 'Guest',
                   size: fontSize,
                 }),
               ],
               alignment: AlignmentType.LEFT,
-              spacing: { before: 80, after: 80 },
+              spacing: { before: 40, after: 40 },
             }),
           ],
           borders: {
@@ -483,8 +491,8 @@ export const exportDietaryChartToDocx = async (
               new ImageRun({
                 data: logoBuffer,
                 transformation: {
-                  height: 30, // 10.5mm in points (approximately)
-                  width: 90,  // Auto width to maintain aspect ratio
+                  height: 30,  // 10.5mm
+                  width: 100,  // Maintain aspect ratio
                 },
                 type: 'png',
               }),
