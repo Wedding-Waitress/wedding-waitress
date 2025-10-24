@@ -103,7 +103,14 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
           </p>
         </CardHeader>
         <CardContent className="bg-[#F6F0FF] p-6">
-          <div className="space-y-8">
+          <div 
+            className="space-y-8"
+            style={{
+              transform: 'scale(0.35)',
+              transformOrigin: 'top center',
+              marginBottom: '-2200px',
+            }}
+          >
             {pages.map((pageGuests, pageIndex) => (
               <div key={pageIndex} className="space-y-2">
                 {pageIndex > 0 && (
@@ -112,16 +119,17 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                   </div>
                 )}
                 
-                {/* A4 Preview Container - Actual Size with Narrow Margins */}
+                {/* A4 Preview Container - 300 DPI with Narrow Margins */}
                 <div 
                   className={`place-card-preview-container mx-auto bg-white shadow-lg overflow-visible ${isExporting ? 'exporting' : ''} ${focusedPage === pageIndex ? 'ring-4 ring-primary' : ''}`}
                   data-page={pageIndex}
                   style={{
-                    width: '210mm',
-                    height: '297mm',
+                    width: '2480px',
+                    height: '3508px',
                     borderRadius: 0,
-                    padding: '1.27cm',
+                    padding: '150px',
                     boxSizing: 'border-box',
+                    backgroundColor: '#FFFFFF',
                   }}
                 >
                   <div 
@@ -334,7 +342,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
             align-items: center;
             justify-content: flex-end;
             text-align: center;
-            padding: 8mm;
+            padding: 94px;
             overflow: visible;
             width: 100%;
             height: 100%;
@@ -343,8 +351,8 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
         /* Card content positioned in lower half (below fold) */
         .card-content {
           position: absolute;
-          left: 8mm;
-          right: 8mm;
+          left: 94px;
+          right: 94px;
           top: 70%;
           transform: translateY(-50%);
           text-align: center;
@@ -360,9 +368,9 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
           display: flex;
           align-items: center;
           justify-content: space-between;
-          gap: 4mm;
-          left: 3mm;
-          right: 6mm;
+          gap: 47px;
+          left: 35px;
+          right: 71px;
         }
 
         .card-content.has-decorative-image .guest-name,
@@ -383,15 +391,15 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
           display: flex;
           align-items: center;
           justify-content: center;
-          max-height: 34mm;
+          max-height: 402px;
           margin-left: 0;
-          margin-top: 9mm;
+          margin-top: 106px;
         }
 
         .decorative-image {
           width: 100%;
           height: 100%;
-          max-height: 44mm;
+          max-height: 520px;
           object-fit: contain;
           border: none;
           border-radius: 4px;
@@ -407,7 +415,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
 
         .table-info {
           font-weight: 400;
-          margin-top: 2mm;
+          margin-top: 24px;
         }
 
         /* Folded message section - top half of card, upside down */
@@ -416,17 +424,17 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
           top: 0;
           left: 0;
           right: 0;
-          height: 49.5mm;
+          height: 585px;
           display: flex;
           align-items: flex-end;
           justify-content: center;
-          padding: 8mm 12mm;
-          padding-bottom: 20mm;
+          padding: 94px 142px;
+          padding-bottom: 236px;
           transform: rotate(180deg);
         }
 
         .folded-message-text {
-          font-size: 11pt;
+          font-size: 15px;
           line-height: 1.4;
           text-align: center;
           max-width: 100%;
@@ -447,16 +455,17 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
             position: absolute;
             left: 0;
             top: 0;
-            width: 210mm;
-            height: 297mm;
+            width: 2480px;
+            height: 3508px;
             margin: 0;
-            padding: 1.27cm;
+            padding: 150px;
             box-sizing: border-box;
             box-shadow: none;
             border-radius: 0;
             overflow: visible;
             page-break-after: always;
             background-color: #FFFFFF;
+            transform: scale(1);
           }
 
           .place-card-a4-page {
