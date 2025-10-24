@@ -41,12 +41,12 @@ interface Event {
   venue: string;
 }
 
-// Convert font size setting to points
+// Convert font size setting to points (standardized to 10pt body text)
 const getFontSize = (setting: 'small' | 'medium' | 'large'): number => {
   switch (setting) {
-    case 'small': return 21; // 10.5pt = 21 half-points
-    case 'medium': return 24; // 12pt = 24 half-points
-    case 'large': return 27; // 13.5pt = 27 half-points
+    case 'small': return 18; // 9pt = 18 half-points
+    case 'medium': return 20; // 10pt = 20 half-points
+    case 'large': return 22; // 11pt = 22 half-points
   }
 };
 
@@ -132,7 +132,7 @@ export const exportFullSeatingChartToDocx = async (
     const col1Guests = pageGuests.slice(0, guestsPerColumn);
     const col2Guests = pageGuests.slice(guestsPerColumn);
 
-    // Header - Event Name (24pt, bold, purple)
+    // Header - Event Name (16pt, bold, purple #6D28D9)
     sections.push(
       new Paragraph({
         alignment: AlignmentType.CENTER,
@@ -141,14 +141,14 @@ export const exportFullSeatingChartToDocx = async (
           new TextRun({
             text: event.name,
             bold: true,
-            size: 48, // 24pt
-            color: '7C3AED',
+            size: 32, // 16pt
+            color: '6D28D9',
           }),
         ],
       })
     );
 
-    // Header - Chart Title + Date (16pt, bold)
+    // Header - Chart Title + Date (12pt, bold)
     sections.push(
       new Paragraph({
         alignment: AlignmentType.CENTER,
@@ -157,13 +157,13 @@ export const exportFullSeatingChartToDocx = async (
           new TextRun({
             text: `Full Seating Chart - ${formatDateWithOrdinal(event.date)}`,
             bold: true,
-            size: 32, // 16pt
+            size: 24, // 12pt
           }),
         ],
       })
     );
 
-    // Header - Venue/Stats Line (11pt)
+    // Header - Venue/Stats Line (10pt)
     sections.push(
       new Paragraph({
         alignment: AlignmentType.CENTER,
@@ -179,7 +179,7 @@ export const exportFullSeatingChartToDocx = async (
         children: [
           new TextRun({
             text: `${event.venue} - Total Guests: ${guests.length} - Page ${pageNum} of ${totalPages} - Generated on: ${timestamp}`,
-            size: 22, // 11pt
+            size: 20, // 10pt
           }),
         ],
       })

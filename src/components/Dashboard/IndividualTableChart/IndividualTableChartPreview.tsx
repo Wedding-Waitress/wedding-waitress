@@ -266,12 +266,12 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
             {/* Header Section */}  
             <div className="text-center mb-2">
               {/* Event Name - Purple and Bold */}
-              <div className="text-center font-bold text-xl text-primary mb-1">
+              <div className="text-center font-bold text-base mb-1" style={{ color: '#6D28D9' }}>
                 {event?.name || 'Event'}
               </div>
 
               {/* Title and Date with Day of Week */}
-              <div className="text-center text-base font-semibold text-foreground mb-1">
+              <div className="text-center text-xs font-bold text-foreground mb-1">
                 Table Seating Arrangements – {event?.date ? new Date(event.date).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).replace(/^(\w+) (\d+) (\w+) (\d+)$/, (_, day, date, month, year) => {
                   const d = parseInt(date);
                   const suffix = d > 3 && d < 21 ? 'th' : ['th', 'st', 'nd', 'rd'][d % 10] || 'th';

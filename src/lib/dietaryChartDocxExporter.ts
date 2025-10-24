@@ -156,33 +156,32 @@ const createHeaderSection = (
       style: 'eventName',
     }),
     
-    // Chart title with date
+    // Chart title with date (12pt, bold)
     new Paragraph({
       children: [
         new TextRun({
           text: `Kitchen Dietary Requirements - ${formattedDate}`,
           bold: true,
-          size: 32, // 16pt
+          size: 24, // 12pt
         }),
       ],
       alignment: AlignmentType.CENTER,
       spacing: { after: 100 },
     }),
     
-    // Venue and stats line
+    // Venue and stats line (10pt)
     new Paragraph({
       children: [
         new TextRun({
           text: `${event.venue || 'No Venue Set'} - Total Dietary Guests: ${totalGuests} - Page ${pageNum} of ${totalPages} - Generated on: ${timestamp}`,
-          size: 22, // 11pt
-          color: '666666',
+          size: 20, // 10pt
         }),
       ],
       alignment: AlignmentType.CENTER,
       spacing: { after: 200 },
       border: {
         bottom: {
-          color: '7C3AED',
+          color: '000000',
           space: 1,
           style: BorderStyle.SINGLE,
           size: 6,
@@ -308,7 +307,7 @@ const createGuestTable = (
                 text: guest.dietary || '-',
                 bold: true,
                 size: fontSize,
-                color: '7C3AED',
+                color: '6D28D9',
               }),
             ],
           }),
@@ -435,9 +434,9 @@ export const exportDietaryChartToDocx = async (
           name: 'Event Name',
           basedOn: 'Normal',
           run: {
-            size: 48, // 24pt
+            size: 32, // 16pt
             bold: true,
-            color: '7C3AED', // Purple
+            color: '6D28D9',
           },
         },
       ],

@@ -13,12 +13,12 @@ import { TableWithGuestCount } from '@/hooks/useTables';
 import { IndividualChartSettings } from '@/components/Dashboard/IndividualTableChart/IndividualTableSeatingChartPage';
 import { generateIndividualTableSVG } from './individualTableChartEngine';
 
-// Font size conversion (pt to half-points)
+// Font size conversion (pt to half-points) - standardized to 10pt body
 const getFontSize = (setting: 'small' | 'medium' | 'large'): number => {
   switch (setting) {
-    case 'small': return 21;  // 10.5pt
-    case 'medium': return 24; // 12pt
-    case 'large': return 27;  // 13.5pt
+    case 'small': return 18;  // 9pt
+    case 'medium': return 20; // 10pt
+    case 'large': return 22;  // 11pt
   }
 };
 
@@ -157,39 +157,39 @@ const createHeaderSection = (
   const formattedDate = event?.date ? formatDateWithOrdinal(event.date) : '';
   
   return [
-    // Event Name (purple, bold, 24pt)
+    // Event Name (purple #6D28D9, bold, 16pt)
     new Paragraph({
       children: [
         new TextRun({
           text: event?.name || 'Event',
           bold: true,
-          size: 48, // 24pt
-          color: '7C3AED',
+          size: 32, // 16pt
+          color: '6D28D9',
         }),
       ],
       alignment: AlignmentType.CENTER,
       spacing: { after: 200 },
     }),
     
-    // Title with Date (16pt, bold)
+    // Title with Date (12pt, bold)
     new Paragraph({
       children: [
         new TextRun({
           text: `Table Seating Arrangements – ${formattedDate}`,
           bold: true,
-          size: 32, // 16pt
+          size: 24, // 12pt
         }),
       ],
       alignment: AlignmentType.CENTER,
       spacing: { after: 200 },
     }),
     
-    // Venue and Stats (11pt)
+    // Venue and Stats (10pt)
     new Paragraph({
       children: [
         new TextRun({
           text: `${event?.venue || 'Venue'} – Total Tables: ${totalTables} – Page ${currentTableIndex} of ${totalTables} – Generated on: ${timestamp}`,
-          size: 22, // 11pt
+          size: 20, // 10pt
         }),
       ],
       alignment: AlignmentType.CENTER,

@@ -425,12 +425,12 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
               {/* Header */}
               <div className="text-center mb-8">
                 {/* Line 1: Event Name */}
-                <h1 className="text-xl font-bold text-primary mb-1">
+                <h1 className="text-base font-bold mb-1" style={{ color: '#6D28D9' }}>
                   {event.name}
                 </h1>
                 
                 {/* Line 2: Chart Type + Date */}
-                <p className="text-base font-semibold text-foreground mb-1">
+                <p className="text-xs font-bold text-foreground mb-1">
                   Full Seating Chart - {event.date && formatDateWithOrdinal(event.date)}
                 </p>
                 

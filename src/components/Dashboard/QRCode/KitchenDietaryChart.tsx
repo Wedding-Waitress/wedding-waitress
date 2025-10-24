@@ -492,12 +492,12 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                         {/* Event Name */}
                         {currentEvent && (
                           <>
-                            <h1 className="text-xl font-semibold" style={{ color: '#7C3AED' }}>
+                            <h1 className="text-base font-bold" style={{ color: '#6D28D9' }}>
                               {currentEvent.name}
                             </h1>
 
                             {/* Chart Title and Date */}
-                            <h2 className={`font-semibold text-foreground ${getFontSizeClass()}`}>
+                            <h2 className="font-bold text-xs text-foreground">
                               Kitchen Dietary Requirements
                               {currentEvent.date && ` - ${formatDateWithOrdinal(currentEvent.date)}`}
                             </h2>
