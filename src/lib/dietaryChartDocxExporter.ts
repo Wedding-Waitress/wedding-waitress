@@ -116,18 +116,18 @@ const loadDietaryLogo = async (): Promise<Uint8Array | null> => {
 // Get table column configuration based on settings
 const getTableColumns = (settings: DietaryChartSettings) => {
   const columns: Array<{ header: string; width: number }> = [
-    { header: 'First Name', width: 18 },
-    { header: 'Last Name', width: 16 },
-    { header: 'Table', width: settings.showSeatNo ? 8 : 10 },
+    { header: 'First Name', width: 16 },
+    { header: 'Last Name', width: 14 },
+    { header: 'Table', width: settings.showSeatNo ? 7 : 10 },
   ];
   
   if (settings.showSeatNo) {
-    columns.push({ header: 'Seat', width: 8 });
+    columns.push({ header: 'Seat', width: 6 });
   }
   
   let dietaryWidth = 48;
   if (settings.showMobile && settings.showRelation) {
-    dietaryWidth = 30;
+    dietaryWidth = 32;
   } else if (settings.showMobile || settings.showRelation) {
     dietaryWidth = 36;
   }
@@ -139,7 +139,7 @@ const getTableColumns = (settings: DietaryChartSettings) => {
   }
   
   if (settings.showRelation) {
-    columns.push({ header: 'Relation', width: 14 });
+    columns.push({ header: 'Relation', width: 13 });
   }
   
   return columns;

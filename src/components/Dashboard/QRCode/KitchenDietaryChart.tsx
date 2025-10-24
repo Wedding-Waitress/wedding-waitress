@@ -674,13 +674,13 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                 >
                   <table>
                     <colgroup>
-                      <col style={{ width: '18%' }} />
                       <col style={{ width: '16%' }} />
-                      <col style={{ width: settings.showSeatNo ? '8%' : '10%' }} />
-                      {settings.showSeatNo && <col style={{ width: '8%' }} />}
-                      <col style={{ width: (settings.showMobile || settings.showRelation) ? '30%' : '48%' }} />
+                      <col style={{ width: '14%' }} />
+                      <col style={{ width: settings.showSeatNo ? '7%' : '10%' }} />
+                      {settings.showSeatNo && <col style={{ width: '6%' }} />}
+                      <col style={{ width: (settings.showMobile && settings.showRelation) ? '32%' : (settings.showMobile || settings.showRelation) ? '36%' : '48%' }} />
                       {settings.showMobile && <col style={{ width: '12%' }} />}
-                      {settings.showRelation && <col style={{ width: '14%' }} />}
+                      {settings.showRelation && <col style={{ width: '13%' }} />}
                     </colgroup>
                     <thead>
                       <tr>

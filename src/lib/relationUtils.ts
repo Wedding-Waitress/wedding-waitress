@@ -62,8 +62,8 @@ export const computeRelationDisplay = (
     const customRoleName = customRoles.find(cr => 
       `custom_${cr.toLowerCase().replace(/\s+/g, '_')}` === role
     );
-    if (customRoleName && partnerName) {
-      return `${partnerName} — ${customRoleName}`;
+  if (customRoleName && partnerName) {
+      return `${partnerName}/${customRoleName}`;
     }
   }
   
@@ -72,5 +72,5 @@ export const computeRelationDisplay = (
   
   if (!partnerName || !roleLabel) return '';
   
-  return `${partnerName} — ${roleLabel}`;
+  return `${partnerName}/${roleLabel}`;
 };
