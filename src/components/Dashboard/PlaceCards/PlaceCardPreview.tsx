@@ -112,7 +112,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                   </div>
                 )}
                 
-                {/* A4 Preview Container - Actual Size */}
+                {/* A4 Preview Container - Actual Size with Narrow Margins */}
                 <div 
                   className={`place-card-preview-container mx-auto bg-white shadow-lg overflow-visible ${isExporting ? 'exporting' : ''} ${focusedPage === pageIndex ? 'ring-4 ring-primary' : ''}`}
                   data-page={pageIndex}
@@ -120,6 +120,8 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                     width: '210mm',
                     height: '297mm',
                     borderRadius: 0,
+                    padding: '1.27cm',
+                    boxSizing: 'border-box',
                   }}
                 >
                   <div 
@@ -317,10 +319,10 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
 
         .place-card-a4-page {
           display: grid;
-          grid-template-columns: repeat(2, 105mm);
-          grid-template-rows: repeat(3, 99mm);
-          width: 210mm;
-          height: 297mm;
+          grid-template-columns: repeat(2, 1fr);
+          grid-template-rows: repeat(3, 1fr);
+          width: 100%;
+          height: 100%;
           gap: 0;
           background: #FFFFFF;
         }
@@ -334,8 +336,8 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
             text-align: center;
             padding: 8mm;
             overflow: visible;
-            width: 105mm;
-            height: 99mm;
+            width: 100%;
+            height: 100%;
           }
 
         /* Card content positioned in lower half (below fold) */
@@ -448,7 +450,8 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
             width: 210mm;
             height: 297mm;
             margin: 0;
-            padding: 0;
+            padding: 1.27cm;
+            box-sizing: border-box;
             box-shadow: none;
             border-radius: 0;
             overflow: visible;
@@ -458,10 +461,10 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
 
           .place-card-a4-page {
             display: grid;
-            grid-template-columns: repeat(2, 105mm);
-            grid-template-rows: repeat(3, 99mm);
-            width: 210mm;
-            height: 297mm;
+            grid-template-columns: repeat(2, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            width: 100%;
+            height: 100%;
             gap: 0;
             background: #FFFFFF;
           }

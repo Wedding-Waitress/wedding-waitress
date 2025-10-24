@@ -3,7 +3,7 @@
  * 
  * Generates Microsoft Word documents for place cards with:
  * - A4 paper size (210mm × 297mm)
- * - Narrow margins (1.27cm all sides)
+ * - Narrow margins (1.27cm) baked into the preview layout
  * - HTML-to-PNG conversion at 300 DPI for visual fidelity
  * - Single page or all pages export
  */
@@ -101,8 +101,8 @@ export const exportPlaceCardPageToDocx = async (
     throw new Error(`Page ${pageIndex} not found`);
   }
   
-  // Convert to high-resolution image
-  const imageBuffer = await convertPlaceCardPageToImage(pageElement, true);
+  // Convert to high-resolution image (margins already in preview)
+  const imageBuffer = await convertPlaceCardPageToImage(pageElement, false);
   
   // Create Word document with A4 narrow margins
   const doc = new Document({
@@ -114,10 +114,10 @@ export const exportPlaceCardPageToDocx = async (
             height: 16838, // 297mm in twentieths of a point
           },
           margin: {
-            top: 482,    // 1.27cm in twentieths of a point
-            right: 482,
-            bottom: 482,
-            left: 482,
+            top: 0,
+            right: 0,
+            bottom: 0,
+            left: 0,
           },
         },
       },
@@ -127,8 +127,8 @@ export const exportPlaceCardPageToDocx = async (
             new ImageRun({
               data: imageBuffer,
               transformation: {
-                width: 703,  // 187.46mm (210 - 2*1.27) in points * 72/25.4
-                height: 1031, // 274.46mm (297 - 2*1.27) in points * 72/25.4
+                width: 794,  // 210mm in points (210 * 72/25.4)
+                height: 1123, // 297mm in points (297 * 72/25.4)
               },
               type: 'png',
             }),
@@ -169,7 +169,7 @@ export const exportAllPlaceCardsToDocx = async (
       continue;
     }
     
-    const imageBuffer = await convertPlaceCardPageToImage(pageElement, true);
+    const imageBuffer = await convertPlaceCardPageToImage(pageElement, false);
     
     sections.push({
       properties: {
@@ -179,10 +179,10 @@ export const exportAllPlaceCardsToDocx = async (
             height: 16838,
           },
           margin: {
-            top: 482,
-            right: 482,
-            bottom: 482,
-            left: 482,
+            top: 0,
+            right: 0,
+            bottom: 0,
+            left: 0,
           },
         },
       },
@@ -192,8 +192,8 @@ export const exportAllPlaceCardsToDocx = async (
             new ImageRun({
               data: imageBuffer,
               transformation: {
-                width: 703,
-                height: 1031,
+                width: 794,  // 210mm in points
+                height: 1123, // 297mm in points
               },
               type: 'png',
             }),
