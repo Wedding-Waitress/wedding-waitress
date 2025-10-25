@@ -72,40 +72,6 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
     pages.push(sortedGuests.slice(i, i + cardsPerPage));
   }
 
-  // Format date with ordinal suffix (matching Full Seating Chart)
-  const formatDateWithOrdinal = (dateString: string) => {
-    const date = new Date(dateString + 'T00:00:00');
-    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-    const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-    
-    const dayName = days[date.getDay()];
-    const day = date.getDate();
-    const month = months[date.getMonth()];
-    const year = date.getFullYear();
-    
-    const getOrdinalSuffix = (n: number) => {
-      const s = ['th', 'st', 'nd', 'rd'];
-      const v = n % 100;
-      return s[(v - 20) % 10] || s[v] || s[0];
-    };
-    
-    return `${dayName} ${day}${getOrdinalSuffix(day)}, ${month} ${year}`;
-  };
-
-  // Format generated timestamp (matching Full Seating Chart)
-  const formatGeneratedTimestamp = () => {
-    const now = new Date();
-    const day = String(now.getDate()).padStart(2, '0');
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    const year = now.getFullYear();
-    
-    let hours = now.getHours();
-    const minutes = String(now.getMinutes()).padStart(2, '0');
-    const ampm = hours >= 12 ? 'PM' : 'AM';
-    hours = hours % 12 || 12;
-    
-    return `${day}/${month}/${year} Time: ${hours}:${minutes} ${ampm}`;
-  };
 
   const handlePreviousPage = () => {
     setCurrentPage((prev) => Math.max(1, prev - 1));
@@ -272,19 +238,6 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
             }} 
             className="bg-white border border-border shadow-lg overflow-hidden"
           >
-            {/* Header Section */}
-            <div className="text-center mb-4">
-              <h1 className="text-xl font-bold mb-1" style={{ color: '#6D28D9' }}>
-                {event.name}
-              </h1>
-              <p className="text-sm font-semibold mb-1">
-                Place Cards - {formatDateWithOrdinal(event.date)}
-              </p>
-              <p className="text-xs pb-2 border-b border-black">
-                {event.venue} - A4 Format • 6 Cards per Page • Page {currentPage} of {totalPages} - Generated on: {formatGeneratedTimestamp()}
-              </p>
-            </div>
-
             {/* Place Cards Content */}
             <div ref={ref}>
               <div className="relative" style={{ minHeight: '240mm' }}>
@@ -343,19 +296,6 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
               backgroundColor: '#FFFFFF'
             }}
           >
-            {/* Print Header */}
-            <div className="text-center mb-4">
-              <h1 className="text-xl font-bold mb-1" style={{ color: '#6D28D9' }}>
-                {event.name}
-              </h1>
-              <p className="text-sm font-semibold mb-1">
-                Place Cards - {formatDateWithOrdinal(event.date)}
-              </p>
-              <p className="text-xs pb-2 border-b border-black">
-                {event.venue} - A4 Format • 6 Cards per Page • Page {pageIndex + 1} of {totalPages} - Generated on: {formatGeneratedTimestamp()}
-              </p>
-            </div>
-
             {/* Print Content */}
             <div className="relative" style={{ minHeight: '240mm' }}>
               {/* Cut lines */}
