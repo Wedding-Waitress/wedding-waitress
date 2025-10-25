@@ -201,9 +201,10 @@ export const exportFullSeatingChartToPdf = async (
         pdf.setFont('helvetica', 'bold');
         pdf.setFontSize(fontSize);
         
-        // Checkbox (purple circle)
-        pdf.setTextColor(purple.r, purple.g, purple.b);
-        pdf.text('◯', xPos, currentY);
+        // Draw purple circle checkbox
+        pdf.setDrawColor(purple.r, purple.g, purple.b); // Purple stroke
+        pdf.setLineWidth(0.4); // Thin line
+        pdf.circle(xPos + 1.5, currentY - 1.5, 1.5, 'S'); // 'S' = stroke only (hollow circle)
         
         // Guest name (black)
         pdf.setTextColor(0, 0, 0);
