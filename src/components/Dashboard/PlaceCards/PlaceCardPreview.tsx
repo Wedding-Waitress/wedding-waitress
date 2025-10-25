@@ -22,7 +22,6 @@ interface PlaceCardPreviewProps {
   event: any;
   isExporting?: boolean;
   focusedPage?: number | null;
-  visiblePage?: number; // Show only specific page, or all if undefined
 }
 
 export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps>(({
@@ -30,8 +29,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
   guests,
   event,
   isExporting = false,
-  focusedPage = null,
-  visiblePage
+  focusedPage = null
 }, ref) => {
   const currentSettings = settings || {
     event_id: '',
@@ -70,9 +68,6 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
   for (let i = 0; i < sortedGuests.length; i += cardsPerPage) {
     pages.push(sortedGuests.slice(i, i + cardsPerPage));
   }
-
-  // Filter to visible page if specified
-  const pagesToShow = visiblePage ? [pages[visiblePage - 1]] : pages;
 
   // Text size is now fixed and uniform for all names
 
@@ -116,9 +111,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
               marginBottom: '-2200px',
             }}
           >
-            {pagesToShow.filter(Boolean).map((pageGuests, idx) => {
-              const pageIndex = visiblePage ? visiblePage - 1 : idx;
-              return (
+            {pages.map((pageGuests, pageIndex) => (
               <div key={pageIndex} className="space-y-2">
                 {pageIndex > 0 && (
                   <div className="text-xs text-center text-muted-foreground pt-4">
@@ -317,8 +310,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                   </div>
                 </div>
               </div>
-            );
-            })}
+            ))}
           </div>
         </CardContent>
       </Card>

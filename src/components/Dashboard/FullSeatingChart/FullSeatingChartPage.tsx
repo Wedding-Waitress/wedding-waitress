@@ -40,8 +40,6 @@ import { Button } from '@/components/ui/enhanced-button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { FileText, Users, Layout } from 'lucide-react';
-import { WordPreviewToolbar } from '@/components/ui/word-preview-toolbar';
-import { WordPreviewContainer } from '@/components/ui/word-preview-container';
 import { useEvents } from '@/hooks/useEvents';
 import { useRealtimeGuests } from '@/hooks/useRealtimeGuests';
 import { useFullSeatingChartSettings } from '@/hooks/useFullSeatingChartSettings';
@@ -61,8 +59,6 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
   onEventSelect
 }) => {
   const [isExporting, setIsExporting] = useState(false);
-  const [zoom, setZoom] = useState(100);
-  const [showMargins, setShowMargins] = useState(false);
   const { events, loading: eventsLoading } = useEvents();
   const { guests, loading: guestsLoading } = useRealtimeGuests(selectedEventId);
   const { settings, loading: settingsLoading, updateSettings } = useFullSeatingChartSettings(selectedEventId);
@@ -264,26 +260,13 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
               />
             </div>
 
-            {/* Preview with Word-Style Interface */}
+            {/* Preview */}
             <div className="lg:col-span-3">
-              <WordPreviewContainer zoom={zoom} showMargins={showMargins}>
-                <WordPreviewToolbar
-                  zoom={zoom}
-                  onZoomChange={setZoom}
-                  showMargins={showMargins}
-                  onToggleMargins={setShowMargins}
-                  currentPage={1}
-                  totalPages={1}
-                  onPageChange={() => {}}
-                  onQuickExport={handleDownloadWord}
-                  exportLabel="Export as Word"
-                />
-                <FullSeatingChartPreview 
-                  event={selectedEvent!} 
-                  guests={sortedGuests}
-                  settings={settings}
-                />
-              </WordPreviewContainer>
+              <FullSeatingChartPreview 
+                event={selectedEvent!} 
+                guests={sortedGuests}
+                settings={settings}
+              />
             </div>
           </div>
         ) : (
