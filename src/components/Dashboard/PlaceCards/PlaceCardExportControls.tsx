@@ -18,9 +18,10 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { PlaceCardSettings } from '@/hooks/usePlaceCardSettings';
 import { Guest } from '@/hooks/useGuests';
-import { Eye, FileDown, FileText } from 'lucide-react';
+import { FileDown, FileText } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { exportPlaceCardPageToDocx, exportAllPlaceCardsToDocx } from '@/lib/placeCardsDocxExporter';
+import { exportPlaceCardPageToPdf, exportAllPlaceCardsToPdf } from '@/lib/placeCardsPdfExporter';
 
 interface PlaceCardExportControlsProps {
   settings: PlaceCardSettings | null;
@@ -43,353 +44,62 @@ export const PlaceCardExportControls: React.FC<PlaceCardExportControlsProps> = (
   const [isProcessing, setIsProcessing] = useState(false);
   const { toast } = useToast();
 
-  const openPrintPreview = (pageIndexes: number[]) => {
-    // Get the page elements
-    const pageElements = pageIndexes.map(i => 
-      document.querySelector(`[data-page="${i}"]`) as HTMLElement
-    ).filter(Boolean);
-
-    if (!pageElements.length) {
+  const handleDownloadPdfPage = async () => {
+    setIsProcessing(true);
+    onExportStateChange(true);
+    
+    try {
       toast({
-        title: "Error",
-        description: "Pages not found",
-        variant: "destructive",
+        title: 'Generating PDF',
+        description: `Creating place cards for page ${selectedPage + 1}...`,
       });
-      return;
-    }
 
-    // Open new window
-    const previewWindow = window.open('', '_blank');
-    if (!previewWindow) {
+      await exportPlaceCardPageToPdf(settings, guests, event, selectedPage);
+
       toast({
-        title: "Error",
-        description: "Please allow pop-ups to preview pages",
-        variant: "destructive",
+        title: 'PDF Downloaded',
+        description: `Page ${selectedPage + 1} has been saved`,
       });
-      return;
+    } catch (error) {
+      console.error('PDF export error:', error);
+      toast({
+        title: 'Export Failed',
+        description: 'Failed to generate PDF',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsProcessing(false);
+      onExportStateChange(false);
     }
-
-    // Clone pages and build HTML document
-    const clonedPages = pageElements.map(page => page.cloneNode(true) as HTMLElement);
-    const pagesHtml = clonedPages.map(page => page.outerHTML).join('');
-
-    // Write complete HTML document with comprehensive styles
-    previewWindow.document.write(`
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <title>${event.name} - Place Cards Preview</title>
-        <style>
-          @page { 
-            size: A4 portrait; 
-            margin: 1.27cm; 
-          }
-          
-          * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-print-color-adjust: exact;
-            print-color-adjust: exact;
-            color-adjust: exact;
-          }
-          
-          html, body {
-            background: #FFFFFF;
-            font-family: system-ui, -apple-system, sans-serif;
-          }
-          
-          /* A4 page container */
-          .place-card-preview-container {
-            width: 210mm;
-            height: 297mm;
-            background: #FFFFFF;
-            page-break-after: always;
-            page-break-inside: avoid;
-            margin: 20px auto;
-            padding: 1.27cm;
-            box-sizing: border-box;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            position: relative;
-          }
-          
-          /* A4 page content with explicit grid - adjusted for margins */
-          .place-card-a4-page {
-            width: calc(210mm - 2.54cm);
-            height: calc(297mm - 2.54cm);
-            background: #FFFFFF;
-            position: relative;
-            display: grid !important;
-            grid-template-columns: repeat(2, calc((210mm - 2.54cm) / 2)) !important;
-            grid-template-rows: repeat(3, calc((297mm - 2.54cm) / 3)) !important;
-            gap: 0 !important;
-          }
-          
-          /* Place card cells - adjusted for margins */
-          .place-card-cell {
-            width: calc((210mm - 2.54cm) / 2) !important;
-            height: calc((297mm - 2.54cm) / 3) !important;
-            page-break-inside: avoid;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-end;
-            text-align: center;
-            padding: 8mm;
-            overflow: visible;
-          }
-          
-          /* Card content positioned in lower half (below fold) */
-          .card-content {
-            position: absolute;
-            left: 8mm;
-            right: 8mm;
-            top: 70%;
-            transform: translateY(-50%);
-            text-align: center;
-          }
-          
-          /* Move text down when full background image is present */
-          .card-content.has-full-background {
-            top: 82%;
-          }
-          
-          /* Split layout when decorative image exists */
-          .card-content.has-decorative-image {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 4mm;
-            left: 6mm;
-            right: 6mm;
-          }
-          
-          .card-content.has-decorative-image .guest-name,
-          .card-content.has-decorative-image .table-info {
-            text-align: left;
-          }
-          
-          /* Text container takes left side when decorative image exists */
-          .card-content.has-decorative-image > div:first-child {
-            flex: 0 0 55%;
-            text-align: left;
-          }
-          
-          /* Large decorative image on right side */
-          .decorative-image-container {
-            flex: 0 0 40%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            max-height: 35mm;
-          }
-          
-          .decorative-image {
-            width: 100%;
-            height: 100%;
-            max-height: 35mm;
-            object-fit: contain;
-            border: none;
-            border-radius: 4px;
-          }
-          
-          /* Background Image */
-          .place-card-background {
-            position: absolute;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            top: 55%;
-            pointer-events: none;
-            background-repeat: no-repeat;
-            background-size: 100% auto;
-          }
-          
-          /* Guest name styles */
-          .guest-name {
-            line-height: 1.1;
-            text-align: center;
-            overflow: visible;
-            font-weight: 400;
-            font-synthesis: weight;
-          }
-          
-          /* Table info styles */
-          .table-info {
-            font-weight: 400;
-            margin-top: 2mm;
-          }
-          
-          /* Folded message section - top half of card, upside down */
-          .folded-message-section {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 49.5mm;
-            display: flex;
-            align-items: flex-end;
-            justify-content: center;
-            padding: 8mm 12mm;
-            padding-bottom: 20mm;
-            transform: rotate(180deg);
-          }
-
-          .folded-message-text {
-            font-size: 11pt;
-            line-height: 1.4;
-            text-align: center;
-            max-width: 100%;
-          }
-          
-          /* Card back for messages */
-          .card-back {
-            position: relative;
-            width: 100%;
-            height: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 4px;
-          }
-          
-          .message-text {
-            font-size: 10pt;
-            opacity: 0.7;
-            line-height: 1.3;
-            max-width: 90%;
-          }
-          
-          /* Cut lines */
-          .cutline-v, .cutline-h1, .cutline-h2 {
-            position: absolute;
-            border-color: rgba(217, 217, 217, 0.6);
-          }
-          
-          .cutline-v {
-            left: 50%;
-            top: 0;
-            bottom: 0;
-            width: 1px;
-            border-left: 1px solid rgba(150, 150, 150, 0.5);
-            z-index: 10;
-            transform: translateX(-0.5px);
-          }
-          
-          .cutline-h1 {
-            left: 0;
-            right: 0;
-            top: 33.333%;
-            height: 0;
-            border-top: 0.5px solid rgba(217, 217, 217, 0.6);
-            z-index: 1;
-          }
-          
-          .cutline-h2 {
-            left: 0;
-            right: 0;
-            top: 66.666%;
-            height: 0;
-            border-top: 0.5px solid rgba(217, 217, 217, 0.6);
-            z-index: 1;
-          }
-          
-          /* Utility classes */
-          .grid-cols-2 {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-          }
-          
-          /* Print-specific styles */
-          @media print {
-            body { 
-              margin: 0; 
-            }
-            
-            .place-card-preview-container {
-              margin: 0;
-              box-shadow: none;
-              page-break-after: always;
-            }
-            
-            .place-card-a4-page {
-              width: 210mm;
-              height: 297mm;
-              display: grid !important;
-              grid-template-columns: repeat(2, 105mm) !important;
-              grid-template-rows: repeat(3, 99mm) !important;
-              gap: 0 !important;
-            }
-            
-            .place-card-cell {
-              width: 105mm !important;
-              height: 99mm !important;
-            }
-            
-            .cutline-v {
-              left: 105mm !important;
-              transform: translateX(-0.5px) !important;
-            }
-            
-            .cutline-h1 {
-              top: 99mm !important;
-            }
-            
-            .cutline-h2 {
-              top: 198mm !important;
-            }
-            
-      .decorative-image {
-        border: none;
-      }
-      
-      /* Folded message section - top half of card, upside down */
-      #temp-capture-container .folded-message-section {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 49.5mm;
-        display: flex;
-        align-items: flex-end;
-        justify-content: center;
-        padding: 8mm 12mm;
-        padding-bottom: 20mm;
-        transform: rotate(180deg);
-      }
-
-      #temp-capture-container .folded-message-text {
-        font-size: 11pt;
-        line-height: 1.4;
-        text-align: center;
-        max-width: 100%;
-      }
-            
-            .folded-message-text {
-              font-size: 11pt;
-            }
-            
-            .table-info {
-              font-weight: 700;
-            }
-          }
-        </style>
-      </head>
-      <body>
-        ${pagesHtml}
-      </body>
-      </html>
-    `);
-    previewWindow.document.close();
   };
 
-  const handlePreviewPage = () => {
-    openPrintPreview([selectedPage]);
-  };
+  const handleDownloadPdfAll = async () => {
+    setIsProcessing(true);
+    onExportStateChange(true);
+    
+    try {
+      toast({
+        title: 'Generating PDF',
+        description: `Creating place cards for all ${totalPages} pages...`,
+      });
 
-  const handlePreviewAll = () => {
-    openPrintPreview(Array.from({ length: totalPages }, (_, i) => i));
+      await exportAllPlaceCardsToPdf(settings, guests, event, totalPages);
+
+      toast({
+        title: 'PDF Downloaded',
+        description: `All ${totalPages} pages have been saved`,
+      });
+    } catch (error) {
+      console.error('PDF export all error:', error);
+      toast({
+        title: 'Export Failed',
+        description: 'Failed to export all pages',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsProcessing(false);
+      onExportStateChange(false);
+    }
   };
 
   const handleDownloadWordPage = async () => {
@@ -480,27 +190,27 @@ export const PlaceCardExportControls: React.FC<PlaceCardExportControlsProps> = (
           </Select>
         </div>
 
-        {/* Preview Controls */}
+        {/* Export Controls */}
         <div className="space-y-2">
-          <Label>Preview Controls</Label>
+          <Label>Export Controls</Label>
           <div className="grid grid-cols-2 gap-2">
             <Button
               variant="outline"
               size="sm"
-              onClick={handlePreviewPage}
+              onClick={handleDownloadPdfPage}
               disabled={isProcessing}
             >
-              <Eye className="h-4 w-4 mr-2" />
-              Preview Page
+              <FileText className="h-4 w-4 mr-2" />
+              Download PDF
             </Button>
             <Button
               variant="outline"
               size="sm"
-              onClick={handlePreviewAll}
+              onClick={handleDownloadPdfAll}
               disabled={isProcessing}
             >
-              <Eye className="h-4 w-4 mr-2" />
-              Preview All
+              <FileText className="h-4 w-4 mr-2" />
+              Download All PDF
             </Button>
           </div>
         </div>
