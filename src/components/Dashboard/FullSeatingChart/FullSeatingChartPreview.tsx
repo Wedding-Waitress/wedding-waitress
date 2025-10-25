@@ -333,10 +333,10 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
             gap: 8px;
             break-inside: avoid;
             font-size: ${printFontSizes.main};
-            line-height: 1.4;
-            margin-bottom: 2px;
+            line-height: 1.2;
+            margin-bottom: 0px;
             color: #000;
-            padding: 4px 2px;
+            padding: 2px 2px;
           }
           
           .print-checkbox {
