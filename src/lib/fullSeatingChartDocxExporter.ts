@@ -255,7 +255,7 @@ export const exportFullSeatingChartToDocx = async (
       // Main row: checkbox + name + table
       paragraphs.push(
         new Paragraph({
-          spacing: { after: hasDietary || hasRelation ? 80 : 240 },
+          spacing: { after: hasDietary || hasRelation ? 60 : 160 },
           children: [
             new TextRun({ text: '◯ ', size: fontSize, color: '6D28D9' }),
             new TextRun({ text: formatGuestName(guest, settings.sortBy), size: fontSize, bold: true }),
@@ -269,7 +269,7 @@ export const exportFullSeatingChartToDocx = async (
       if (hasDietary) {
         paragraphs.push(
           new Paragraph({
-            spacing: { after: hasRelation ? 80 : 240 },
+            spacing: { after: hasRelation ? 60 : 160 },
             indent: { left: 360 },
             children: [
               new TextRun({ 
@@ -286,7 +286,7 @@ export const exportFullSeatingChartToDocx = async (
       if (hasRelation) {
         paragraphs.push(
           new Paragraph({
-            spacing: { after: 240 },
+            spacing: { after: 160 },
             indent: { left: 360 },
             children: [
               new TextRun({ 

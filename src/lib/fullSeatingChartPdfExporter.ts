@@ -217,7 +217,7 @@ export const exportFullSeatingChartToPdf = async (
         const tableX = xPos + columnWidth - pdf.getTextWidth(tableText);
         pdf.text(tableText, Math.max(xPos + nameWidth + 10, tableX), currentY);
         
-        currentY += hasDietary || hasRelation ? 4 : 6;
+        currentY += hasDietary || hasRelation ? 3 : 4;
 
         // Dietary row (if enabled)
         if (hasDietary) {
@@ -225,7 +225,7 @@ export const exportFullSeatingChartToPdf = async (
           pdf.setFontSize(fontSize - 1);
           pdf.setTextColor(102, 102, 102); // Gray
           pdf.text(`Dietary: ${guest.dietary}`, xPos + 5, currentY);
-          currentY += hasRelation ? 4 : 6;
+          currentY += hasRelation ? 3 : 4;
         }
 
         // Relation row (if enabled)
@@ -234,7 +234,7 @@ export const exportFullSeatingChartToPdf = async (
           pdf.setFontSize(fontSize - 1);
           pdf.setTextColor(102, 102, 102); // Gray
           pdf.text(guest.relation_display!, xPos + 5, currentY);
-          currentY += 6;
+          currentY += 4;
         }
 
         return currentY;

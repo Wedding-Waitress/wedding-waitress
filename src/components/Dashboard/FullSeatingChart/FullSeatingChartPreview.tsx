@@ -62,10 +62,10 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
   const [checkedGuests, setCheckedGuests] = useState<Set<string>>(new Set());
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Fixed pagination: 11 guests per column (22 total per page)
+  // Fixed pagination: 15 guests per column (30 total per page)
   const paginationInfo = useMemo(() => {
-    const GUESTS_PER_COLUMN = 10;
-    const GUESTS_PER_PAGE = GUESTS_PER_COLUMN * 2; // 20 total
+    const GUESTS_PER_COLUMN = 15;
+    const GUESTS_PER_PAGE = GUESTS_PER_COLUMN * 2; // 30 total
     
     interface PageInfo {
       guests: Guest[];
@@ -334,7 +334,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
             break-inside: avoid;
             font-size: ${printFontSizes.main};
             line-height: 1.4;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
             color: #000;
             padding: 4px 2px;
           }
