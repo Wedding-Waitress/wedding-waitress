@@ -182,7 +182,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
 
   // Screen version guest row
   const ScreenGuestRow = ({ guest }: { guest: Guest }) => (
-    <div className="flex items-center gap-3 py-2 px-1 hover:bg-muted/30 rounded-sm">
+    <div className="flex items-center gap-3 py-0.5 px-1 hover:bg-muted/30 rounded-sm">
       <Checkbox
         id={`guest-${guest.id}`}
         checked={checkedGuests.has(guest.id)}
