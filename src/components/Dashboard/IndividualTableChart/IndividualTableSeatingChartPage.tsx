@@ -16,6 +16,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
+import { WordPreviewToolbar } from '@/components/ui/word-preview-toolbar';
+import { WordPreviewContainer } from '@/components/ui/word-preview-container';
 import { Users, FileText } from 'lucide-react';
 import { useEvents } from '@/hooks/useEvents';
 import { useTables } from '@/hooks/useTables';
@@ -65,7 +67,9 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
   const [settings, setSettings] = useState<IndividualChartSettings>(defaultSettings);
   const [isExporting, setIsExporting] = useState(false);
   const [isExportingAll, setIsExportingAll] = useState(false);
-
+  const [zoom, setZoom] = useState(100);
+  const [showMargins, setShowMargins] = useState(false);
+  
   const { events, loading: eventsLoading } = useEvents();
   const { tables, loading: tablesLoading } = useTables(selectedEventId);
   const { guests, loading: guestsLoading } = useRealtimeGuests(selectedEventId);
@@ -351,16 +355,29 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
             />
           </div>
 
-          {/* Preview */}
+          {/* Preview with Word-Style Interface */}
           <div className="lg:col-span-3">
-            <IndividualTableChartPreview
-              settings={settings}
-              table={selectedTable}
-              guests={guests}
-              event={selectedEvent}
-              totalTables={tables.length}
-              currentTableIndex={tables.findIndex(t => t.id === selectedTableId) + 1}
-            />
+            <WordPreviewContainer zoom={zoom} showMargins={showMargins}>
+              <WordPreviewToolbar
+                zoom={zoom}
+                onZoomChange={setZoom}
+                showMargins={showMargins}
+                onToggleMargins={setShowMargins}
+                currentPage={1}
+                totalPages={1}
+                onPageChange={() => {}}
+                onQuickExport={handleDownloadWord}
+                exportLabel="Export as Word"
+              />
+              <IndividualTableChartPreview
+                settings={settings}
+                table={selectedTable}
+                guests={guests}
+                event={selectedEvent}
+                totalTables={tables.length}
+                currentTableIndex={tables.findIndex(t => t.id === selectedTableId) + 1}
+              />
+            </WordPreviewContainer>
           </div>
         </div>
       )}

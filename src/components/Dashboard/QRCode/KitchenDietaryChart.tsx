@@ -18,6 +18,8 @@ import { useEvents } from '@/hooks/useEvents';
 import { useTables } from '@/hooks/useTables';
 import { useDietaryChartSettings } from '@/hooks/useDietaryChartSettings';
 import { DietaryChartCustomizer } from './DietaryChartCustomizer';
+import { WordPreviewToolbar } from '@/components/ui/word-preview-toolbar';
+import { WordPreviewContainer } from '@/components/ui/word-preview-container';
 import { useToast } from '@/hooks/use-toast';
 import { exportDietaryChartToDocx } from '@/lib/dietaryChartDocxExporter';
 import { exportDietaryChartToPdf } from '@/lib/dietaryChartPdfExporter';
@@ -49,6 +51,8 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
   const { settings, loading: settingsLoading, updateSettings } = useDietaryChartSettings(selectedEventId);
   const [isExporting, setIsExporting] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [zoom, setZoom] = useState(100);
+  const [showMargins, setShowMargins] = useState(false);
   const { toast } = useToast();
 
   const currentEvent = events.find(event => event.id === selectedEventId);
@@ -489,33 +493,18 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                 </CardContent>
               </Card>
             ) : (
-              <>
-                {/* Page Navigation */}
-                {totalPages > 1 && (
-                  <div className="flex items-center justify-center gap-4 mb-4">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                      disabled={currentPage === 1}
-                    >
-                      <ChevronLeft className="w-4 h-4 mr-1" />
-                      Previous
-                    </Button>
-                    <span className="text-sm text-muted-foreground">
-                      Page {currentPage} of {totalPages}
-                    </span>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                      disabled={currentPage === totalPages}
-                    >
-                      Next
-                      <ChevronRight className="w-4 h-4 ml-1" />
-                    </Button>
-                  </div>
-                )}
+              <WordPreviewContainer zoom={zoom} showMargins={showMargins}>
+                <WordPreviewToolbar
+                  zoom={zoom}
+                  onZoomChange={setZoom}
+                  showMargins={showMargins}
+                  onToggleMargins={setShowMargins}
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={setCurrentPage}
+                  onQuickExport={handleDownloadWord}
+                  exportLabel="Export as Word"
+                />
 
                 {/* A4 Page Container - Screen View */}
                 <div className="flex justify-center">
@@ -634,33 +623,8 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                   </div>
                 </div>
 
-                {/* Page Navigation Bottom */}
-                {totalPages > 1 && (
-                  <div className="flex items-center justify-center gap-4 mt-4">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                      disabled={currentPage === 1}
-                    >
-                      <ChevronLeft className="w-4 h-4 mr-1" />
-                      Previous
-                    </Button>
-                    <span className="text-sm text-muted-foreground">
-                      Page {currentPage} of {totalPages}
-                    </span>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                      disabled={currentPage === totalPages}
-                    >
-                      Next
-                      <ChevronRight className="w-4 h-4 ml-1" />
-                    </Button>
-                  </div>
-                )}
-              </>
+                {/* Page Navigation Bottom - remove duplicate */}
+              </WordPreviewContainer>
             )}
           </div>
         </div>

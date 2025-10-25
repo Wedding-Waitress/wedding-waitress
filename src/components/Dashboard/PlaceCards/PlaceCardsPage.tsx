@@ -23,12 +23,20 @@ import { PlaceCardCustomizer } from './PlaceCardCustomizer';
 import { PlaceCardPreview } from './PlaceCardPreview';
 import { PlaceCardExporter } from './PlaceCardExporter';
 import { PlaceCardExportControls } from './PlaceCardExportControls';
+import { WordPreviewToolbar } from '@/components/ui/word-preview-toolbar';
+import { WordPreviewContainer } from '@/components/ui/word-preview-container';
 import { Loader2, Users, Settings, FileText } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { exportPlaceCardPageToDocx } from '@/lib/placeCardsDocxExporter';
 
 export const PlaceCardsPage: React.FC = () => {
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [focusedPage, setFocusedPage] = useState<number | null>(null);
   const [isExporting, setIsExporting] = useState(false);
+  const [zoom, setZoom] = useState(100);
+  const [showMargins, setShowMargins] = useState(false);
+  const [previewPage, setPreviewPage] = useState(1);
+  const { toast } = useToast();
   const { events, loading: eventsLoading } = useEvents();
   const { guests, loading: guestsLoading } = useRealtimeGuests(selectedEventId);
   const { settings, loading: settingsLoading, updateSettings } = usePlaceCardSettings(selectedEventId);
@@ -51,6 +59,35 @@ export const PlaceCardsPage: React.FC = () => {
   const handleEventChange = (eventId: string) => {
     setSelectedEventId(eventId);
     localStorage.setItem('place_cards_event_id', eventId);
+    setPreviewPage(1); // Reset to first page when changing events
+  };
+
+  const handleQuickExport = async () => {
+    if (!selectedEvent || assignedGuests.length === 0) return;
+    
+    setIsExporting(true);
+    try {
+      toast({
+        title: 'Exporting Page',
+        description: `Exporting page ${previewPage} to Word...`,
+      });
+
+      await exportPlaceCardPageToDocx(settings, assignedGuests, selectedEvent, previewPage - 1);
+
+      toast({
+        title: 'Page Exported',
+        description: `Page ${previewPage} has been saved`,
+      });
+    } catch (error) {
+      console.error('Quick export error:', error);
+      toast({
+        title: 'Export Failed',
+        description: 'Failed to export page',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   if (eventsLoading) {
@@ -175,16 +212,30 @@ export const PlaceCardsPage: React.FC = () => {
           {/* Resize Handle */}
           <ResizableHandle withHandle />
 
-          {/* Right Panel - Preview */}
+          {/* Right Panel - Preview with Word-Style Interface */}
           <ResizablePanel defaultSize={70} minSize={60} maxSize={75}>
             <div className="h-full overflow-auto p-4">
-              <PlaceCardPreview
-                settings={settings}
-                guests={assignedGuests}
-                event={selectedEvent}
-                isExporting={isExporting}
-                focusedPage={focusedPage}
-              />
+              <WordPreviewContainer zoom={zoom} showMargins={showMargins}>
+                <WordPreviewToolbar
+                  zoom={zoom}
+                  onZoomChange={setZoom}
+                  showMargins={showMargins}
+                  onToggleMargins={setShowMargins}
+                  currentPage={previewPage}
+                  totalPages={totalPages}
+                  onPageChange={setPreviewPage}
+                  onQuickExport={handleQuickExport}
+                  exportLabel="Export Page as Word"
+                />
+                <PlaceCardPreview
+                  settings={settings}
+                  guests={assignedGuests}
+                  event={selectedEvent}
+                  isExporting={isExporting}
+                  focusedPage={focusedPage}
+                  visiblePage={previewPage}
+                />
+              </WordPreviewContainer>
             </div>
           </ResizablePanel>
         </ResizablePanelGroup>
