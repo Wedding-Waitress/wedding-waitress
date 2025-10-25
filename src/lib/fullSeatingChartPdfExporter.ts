@@ -107,8 +107,8 @@ export const exportFullSeatingChartToPdf = async (
   const pageHeight = 297; // A4 height in mm
   const margin = 12.7; // 1.27cm margins
   const contentWidth = pageWidth - (2 * margin);
-  const guestsPerColumn = 10;
-  const guestsPerPage = 20;
+  const guestsPerColumn = 15;
+  const guestsPerPage = 30;
   const totalPages = Math.ceil(guests.length / guestsPerPage);
   const fontSize = getFontSize(settings.fontSize);
   const timestamp = formatGeneratedTimestamp();
@@ -141,26 +141,26 @@ export const exportFullSeatingChartToPdf = async (
     pdf.setFontSize(16);
     pdf.setTextColor(purple.r, purple.g, purple.b);
     pdf.text(event.name, pageWidth / 2, yPos, { align: 'center' });
-    yPos += 8;
+    yPos += 5;
 
     // Header - Chart Title + Date (12pt, bold, black)
     pdf.setFontSize(12);
     pdf.setTextColor(0, 0, 0);
     pdf.text(`Full Seating Chart - ${formatDateWithOrdinal(event.date)}`, pageWidth / 2, yPos, { align: 'center' });
-    yPos += 8;
+    yPos += 5;
 
     // Header - Venue/Stats Line (10pt, black)
     pdf.setFont('helvetica', 'normal');
     pdf.setFontSize(10);
     const statsLine = `${event.venue} - Total Guests: ${guests.length} - Page ${pageNum} of ${totalPages} - Generated on: ${timestamp}`;
     pdf.text(statsLine, pageWidth / 2, yPos, { align: 'center' });
-    yPos += 4;
+    yPos += 3;
 
     // Draw border line
     pdf.setDrawColor(0, 0, 0);
     pdf.setLineWidth(0.25);
     pdf.line(margin, yPos, pageWidth - margin, yPos);
-    yPos += 10;
+    yPos += 6;
 
     // Column calculations
     const columnWidth = (contentWidth - 12) / 2;
@@ -180,7 +180,7 @@ export const exportFullSeatingChartToPdf = async (
     if (col2Guests.length > 0) {
       pdf.text(`GUESTS ${col2Start}-${col2End}`, rightColumnX, yPos);
     }
-    yPos += 8;
+    yPos += 5;
 
     // Draw guests in both columns
     const maxRows = Math.max(col1Guests.length, col2Guests.length);

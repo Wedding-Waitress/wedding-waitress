@@ -108,8 +108,8 @@ export const exportFullSeatingChartToDocx = async (
   guests: Guest[],
   settings: FullSeatingChartSettings
 ): Promise<void> => {
-  const guestsPerColumn = 10;
-  const guestsPerPage = 20;
+  const guestsPerColumn = 15;
+  const guestsPerPage = 30;
   const totalPages = Math.ceil(guests.length / guestsPerPage);
   const fontSize = getFontSize(settings.fontSize);
   const timestamp = formatGeneratedTimestamp();
@@ -136,7 +136,7 @@ export const exportFullSeatingChartToDocx = async (
     sections.push(
       new Paragraph({
         alignment: AlignmentType.CENTER,
-        spacing: { after: 120 },
+        spacing: { after: 80 },
         children: [
           new TextRun({
             text: event.name,
@@ -152,7 +152,7 @@ export const exportFullSeatingChartToDocx = async (
     sections.push(
       new Paragraph({
         alignment: AlignmentType.CENTER,
-        spacing: { after: 120 },
+        spacing: { after: 80 },
         children: [
           new TextRun({
             text: `Full Seating Chart - ${formatDateWithOrdinal(event.date)}`,
@@ -167,7 +167,7 @@ export const exportFullSeatingChartToDocx = async (
     sections.push(
       new Paragraph({
         alignment: AlignmentType.CENTER,
-        spacing: { after: 240 },
+        spacing: { after: 160 },
         border: {
           bottom: {
             color: '000000',
@@ -202,7 +202,7 @@ export const exportFullSeatingChartToDocx = async (
             width: { size: 48, type: WidthType.PERCENTAGE },
             children: [
               new Paragraph({
-                spacing: { after: 280 },
+                spacing: { after: 180 },
                 children: [
                   new TextRun({
                     text: `GUESTS ${col1Start}-${col1End}`,
@@ -223,7 +223,7 @@ export const exportFullSeatingChartToDocx = async (
             width: { size: 48, type: WidthType.PERCENTAGE },
             children: [
               new Paragraph({
-                spacing: { after: 280 },
+                spacing: { after: 180 },
                 children: [
                   new TextRun({
                     text: col2Guests.length > 0 ? `GUESTS ${col2Start}-${col2End}` : '',

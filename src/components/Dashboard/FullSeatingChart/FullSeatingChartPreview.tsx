@@ -334,7 +334,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
             break-inside: avoid;
             font-size: ${printFontSizes.main};
             line-height: 1.4;
-            margin-bottom: 4px;
+            margin-bottom: 2px;
             color: #000;
             padding: 4px 2px;
           }
@@ -423,30 +423,30 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
             {/* Content with 1.27cm margins all around (narrow margins) */}
             <div style={{ padding: '1.27cm' }} className="h-full flex flex-col">
               {/* Header */}
-              <div className="text-center mb-8">
+              <div className="text-center mb-4">
                 {/* Line 1: Event Name */}
-                <h1 className="text-base font-bold mb-1" style={{ color: '#6D28D9' }}>
+                <h1 className="text-base font-bold mb-0.5" style={{ color: '#6D28D9' }}>
                   {event.name}
                 </h1>
                 
                 {/* Line 2: Chart Type + Date */}
-                <p className="text-xs font-bold text-foreground mb-1">
+                <p className="text-xs font-bold text-foreground mb-0.5">
                   Full Seating Chart - {event.date && formatDateWithOrdinal(event.date)}
                 </p>
                 
                 {/* Line 3: Venue + Stats + Page + Generated */}
-                <p className="text-sm text-foreground pb-3 mb-3 border-b border-black">
+                <p className="text-sm text-foreground pb-2 mb-2 border-b border-black">
                   {event.venue} - Total Guests: {guests.length} - Page {currentPage} of {totalPages} - Generated on: {formatGeneratedTimestamp()}
                 </p>
               </div>
 
               {/* Guest List */}
-              <div className="flex-1 pt-1" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', columnGap: '12mm' }}>
+              <div className="flex-1" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', columnGap: '12mm' }}>
                 {/* Left Column */}
                 <div className="space-y-1">
                   {col1Guests.length > 0 && (
                     <>
-                      <h3 className="font-semibold text-xs text-muted-foreground mb-3 uppercase tracking-wide">
+                      <h3 className="font-semibold text-xs text-muted-foreground mb-2 uppercase tracking-wide">
                         Guests {paginationInfo.pages.slice(0, currentPage - 1).reduce((sum, p) => sum + p.guests.length, 0) + 1}-{paginationInfo.pages.slice(0, currentPage - 1).reduce((sum, p) => sum + p.guests.length, 0) + col1Guests.length}
                       </h3>
                       <div className="space-y-0.5">
@@ -462,7 +462,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
                 <div className="space-y-1">
                   {col2Guests.length > 0 && (
                     <>
-                      <h3 className="font-semibold text-xs text-muted-foreground mb-3 uppercase tracking-wide">
+                      <h3 className="font-semibold text-xs text-muted-foreground mb-2 uppercase tracking-wide">
                         Guests {paginationInfo.pages.slice(0, currentPage - 1).reduce((sum, p) => sum + p.guests.length, 0) + col1Guests.length + 1}-{paginationInfo.pages.slice(0, currentPage - 1).reduce((sum, p) => sum + p.guests.length, 0) + currentGuests.length}
                       </h3>
                       <div className="space-y-0.5">
