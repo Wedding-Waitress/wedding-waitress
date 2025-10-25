@@ -24,6 +24,8 @@ import { format } from 'date-fns';
 import { IndividualTableChartPreview } from './IndividualTableChartPreview';
 import { IndividualTableChartCustomizer } from './IndividualTableChartCustomizer';
 import { exportIndividualTableChartToDocx, exportAllTablesChartToDocx } from '@/lib/individualTableChartDocxExporter';
+import { generateIndividualTableChartPDF, generateAllTablesChartPDF } from '@/lib/individualTableChartEngine';
+import { saveAs } from 'file-saver';
 import { toast } from 'sonner';
 
 export interface IndividualChartSettings {
@@ -136,6 +138,70 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
     }
   };
 
+  const handleDownloadPdf = async () => {
+    if (!selectedEvent || !selectedTableId) return;
+    
+    setIsExporting(true);
+    try {
+      toast.info('Generating PDF...');
+      
+      const pdfBlob = await generateIndividualTableChartPDF(
+        settings,
+        selectedTable!,
+        guests,
+        selectedEvent
+      );
+      
+      const eventName = selectedEvent.name.replace(/[^a-z0-9]/gi, '-').toLowerCase();
+      const date = new Date().toLocaleDateString('en-GB', { 
+        day: '2-digit', 
+        month: '2-digit', 
+        year: 'numeric' 
+      }).replace(/\//g, '-');
+      const fileName = `${eventName}-Table-${selectedTable!.table_no}-Seating-Chart-${date}.pdf`;
+      
+      saveAs(pdfBlob, fileName);
+      toast.success('PDF downloaded successfully!');
+    } catch (error) {
+      console.error('PDF export error:', error);
+      toast.error('Failed to generate PDF');
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  const handleDownloadAllPdf = async () => {
+    if (!selectedEvent || tables.length === 0) return;
+    
+    setIsExportingAll(true);
+    try {
+      toast.info(`Generating PDF for ${tables.length} tables...`);
+      
+      const pdfBlob = await generateAllTablesChartPDF(
+        settings,
+        tables,
+        guests,
+        selectedEvent
+      );
+      
+      const eventName = selectedEvent.name.replace(/[^a-z0-9]/gi, '-').toLowerCase();
+      const date = new Date().toLocaleDateString('en-GB', { 
+        day: '2-digit', 
+        month: '2-digit', 
+        year: 'numeric' 
+      }).replace(/\//g, '-');
+      const fileName = `${eventName}-All-Tables-Seating-Charts-${date}.pdf`;
+      
+      saveAs(pdfBlob, fileName);
+      toast.success(`Successfully exported ${tables.length} tables to PDF!`);
+    } catch (error) {
+      console.error('PDF export all error:', error);
+      toast.error('Failed to export all tables');
+    } finally {
+      setIsExportingAll(false);
+    }
+  };
+
   const selectedTable = tables.find(table => table.id === selectedTableId);
   const isDataReady = selectedEvent && selectedTable && !tablesLoading && !guestsLoading;
 
@@ -209,6 +275,26 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
           {/* Action Buttons */}
           {isDataReady && (
             <div className="flex items-center gap-2 pt-4 border-t">
+              <Button 
+                variant="outline"
+                size="sm"
+                onClick={handleDownloadPdf} 
+                disabled={isExporting || isExportingAll}
+                className="flex items-center gap-2"
+              >
+                <FileText className="w-4 h-4" />
+                Download PDF
+              </Button>
+              <Button 
+                variant="outline"
+                size="sm"
+                onClick={handleDownloadAllPdf}
+                disabled={isExporting || isExportingAll}
+                className="flex items-center gap-2"
+              >
+                <FileText className="w-4 h-4" />
+                {isExportingAll ? `Exporting ${tables.length} tables...` : 'Download All PDF'}
+              </Button>
               <Button 
                 variant="outline"
                 size="sm"
