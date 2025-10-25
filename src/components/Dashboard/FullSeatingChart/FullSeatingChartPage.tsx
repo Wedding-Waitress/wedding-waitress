@@ -47,6 +47,7 @@ import { useToast } from '@/hooks/use-toast';
 import { FullSeatingChartPreview } from './FullSeatingChartPreview';
 import { FullSeatingChartCustomizer } from './FullSeatingChartCustomizer';
 import { exportFullSeatingChartToDocx } from '@/lib/fullSeatingChartDocxExporter';
+import { exportFullSeatingChartToPdf } from '@/lib/fullSeatingChartPdfExporter';
 
 interface FullSeatingChartPageProps {
   selectedEventId: string | null;
@@ -91,6 +92,34 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
       toast({
         title: 'Export Failed',
         description: 'Failed to generate Word document',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  const handleDownloadPdf = async () => {
+    if (!selectedEvent) return;
+    
+    setIsExporting(true);
+    try {
+      toast({
+        title: 'Generating PDF',
+        description: 'Creating your seating chart...',
+      });
+
+      await exportFullSeatingChartToPdf(selectedEvent, sortedGuests, settings);
+
+      toast({
+        title: 'PDF Downloaded',
+        description: 'Your seating chart has been saved',
+      });
+    } catch (error) {
+      console.error('PDF export error:', error);
+      toast({
+        title: 'Export Failed',
+        description: 'Failed to generate PDF',
         variant: 'destructive',
       });
     } finally {
@@ -194,6 +223,15 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
               {/* Action Buttons */}
               {isDataReady && (
                 <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleDownloadPdf}
+                    disabled={isExporting}
+                  >
+                    <FileText className="w-4 h-4 mr-2" />
+                    Download PDF
+                  </Button>
                   <Button
                     variant="outline"
                     size="sm"
