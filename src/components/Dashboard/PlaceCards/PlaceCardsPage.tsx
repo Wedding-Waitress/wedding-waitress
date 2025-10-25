@@ -66,14 +66,14 @@ export const PlaceCardsPage: React.FC = () => {
     try {
       toast({
         title: 'Generating PDF',
-        description: `Creating place cards for page ${selectedPage + 1}...`,
+        description: `Creating place cards for page 1...`,
       });
 
-      await exportPlaceCardPageToPdf(settings, assignedGuests, selectedEvent, selectedPage);
+      await exportPlaceCardPageToPdf(settings, assignedGuests, selectedEvent, 0);
 
       toast({
         title: 'PDF Downloaded',
-        description: `Page ${selectedPage + 1} has been saved`,
+        description: `Page 1 has been saved`,
       });
     } catch (error) {
       console.error('PDF export error:', error);
@@ -124,14 +124,14 @@ export const PlaceCardsPage: React.FC = () => {
     try {
       toast({
         title: 'Generating Word Document',
-        description: `Creating place cards for page ${selectedPage + 1}...`,
+        description: `Creating place cards for page 1...`,
       });
 
-      await exportPlaceCardPageToDocx(settings, assignedGuests, selectedEvent, selectedPage);
+      await exportPlaceCardPageToDocx(settings, assignedGuests, selectedEvent, 0);
 
       toast({
         title: 'Word Document Downloaded',
-        description: `Page ${selectedPage + 1} has been saved`,
+        description: `Page 1 has been saved`,
       });
     } catch (error) {
       console.error('DOCX export error:', error);
@@ -261,29 +261,8 @@ export const PlaceCardsPage: React.FC = () => {
                   <span className="ml-2 text-muted-foreground">Loading export options...</span>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                  {/* Page Selection */}
-                  <div className="space-y-2">
-                    <Label>Page Selection</Label>
-                    <Select 
-                      value={selectedPage.toString()} 
-                      onValueChange={(value) => setSelectedPage(parseInt(value))}
-                      disabled={totalPages === 1}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {Array.from({ length: totalPages }, (_, i) => (
-                          <SelectItem key={i} value={i.toString()}>
-                            Page {i + 1} of {totalPages}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {/* Export Controls */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* PDF Export Controls */}
                   <div className="space-y-2">
                     <Label>Export Controls</Label>
                     <div className="grid grid-cols-2 gap-2">

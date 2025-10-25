@@ -8,13 +8,14 @@
  * Any modifications could break the carefully calibrated 300 DPI export system.
  * 
  * Last completed: 2025-10-04
+ * Updated: 2025-10-26 - Added Full Seating Chart-style layout with pagination controls
  */
 
-import React, { forwardRef, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import React, { forwardRef, useState } from 'react';
+import { Button } from '@/components/ui/button';
 import { PlaceCardSettings } from '@/hooks/usePlaceCardSettings';
 import { Guest } from '@/hooks/useGuests';
-import { Eye } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface PlaceCardPreviewProps {
   settings: PlaceCardSettings | null;
@@ -31,6 +32,8 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
   isExporting = false,
   focusedPage = null
 }, ref) => {
+  const [currentPage, setCurrentPage] = useState(1);
+  
   const currentSettings = settings || {
     event_id: '',
     user_id: '',
@@ -69,480 +72,311 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
     pages.push(sortedGuests.slice(i, i + cardsPerPage));
   }
 
-  // Text size is now fixed and uniform for all names
+  // Format date with ordinal suffix (matching Full Seating Chart)
+  const formatDateWithOrdinal = (dateString: string) => {
+    const date = new Date(dateString + 'T00:00:00');
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    
+    const dayName = days[date.getDay()];
+    const day = date.getDate();
+    const month = months[date.getMonth()];
+    const year = date.getFullYear();
+    
+    const getOrdinalSuffix = (n: number) => {
+      const s = ['th', 'st', 'nd', 'rd'];
+      const v = n % 100;
+      return s[(v - 20) % 10] || s[v] || s[0];
+    };
+    
+    return `${dayName} ${day}${getOrdinalSuffix(day)}, ${month} ${year}`;
+  };
+
+  // Format generated timestamp (matching Full Seating Chart)
+  const formatGeneratedTimestamp = () => {
+    const now = new Date();
+    const day = String(now.getDate()).padStart(2, '0');
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const year = now.getFullYear();
+    
+    let hours = now.getHours();
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12 || 12;
+    
+    return `${day}/${month}/${year} Time: ${hours}:${minutes} ${ampm}`;
+  };
+
+  const handlePreviousPage = () => {
+    setCurrentPage((prev) => Math.max(1, prev - 1));
+  };
+
+  const handleNextPage = () => {
+    setCurrentPage((prev) => Math.min(totalPages, prev + 1));
+  };
+
+  const currentPageGuests = pages[currentPage - 1] || [];
 
   if (!guests.length) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Eye className="h-5 w-5" />
-            Preview - A4 Layout
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-center py-8 text-muted-foreground">
-            <p>No assigned guests found.</p>
-            <p className="text-sm">Assign guests to tables to see place cards preview.</p>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="py-8 text-center text-muted-foreground bg-muted/30 rounded-lg border-2 border-dashed">
+        <p>No assigned guests found.</p>
+        <p className="text-sm">Assign guests to tables to see place cards preview.</p>
+      </div>
     );
   }
 
-  return (
-    <>
-      <Card ref={ref}>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Eye className="h-5 w-5" />
-            Preview - A4 Layout
-          </CardTitle>
-          <p className="text-sm text-muted-foreground">
-            A4 Format • 6 Cards per Page • Page 1 of {totalPages}
-          </p>
-        </CardHeader>
-        <CardContent className="bg-[#F6F0FF] p-6">
-          <div 
-            className="space-y-8"
+  const renderPlaceCard = (guest: Guest) => {
+    const tableInfo = guest.table_no && guest.seat_no
+      ? `Table ${guest.table_no}, Seat ${guest.seat_no}`
+      : `Table —, Seat —`;
+
+    const individualMessage = currentSettings.individual_messages?.[guest.id];
+    const message = individualMessage || currentSettings.mass_message || '';
+
+    return (
+      <div
+        key={guest.id}
+        className="relative flex items-center justify-center border border-gray-200"
+        style={{
+          width: '105mm',
+          height: '99mm',
+          backgroundColor: currentSettings.background_color,
+          color: currentSettings.font_color,
+        }}
+      >
+        {/* Background Image */}
+        {currentSettings.background_image_url && currentSettings.background_image_type === 'full' && (
+          <div
+            className="absolute inset-x-0 bottom-0 pointer-events-none"
             style={{
-              transform: 'scale(0.35)',
-              transformOrigin: 'top center',
-              marginBottom: '-2200px',
+              top: '55%',
+              backgroundImage: `url(${currentSettings.background_image_url})`,
+              backgroundPosition: `${currentSettings.background_image_x_position || 50}% ${currentSettings.background_image_y_position || 50}%`,
+              backgroundSize: `${currentSettings.background_image_scale || 100}% auto`,
+              backgroundRepeat: 'no-repeat',
+              opacity: (currentSettings.background_image_opacity || 100) / 100,
+            }}
+          />
+        )}
+
+        {/* Decorative Image */}
+        {currentSettings.background_image_url && currentSettings.background_image_type === 'decorative' && (
+          <div
+            className="absolute bottom-0 right-0 w-1/3 h-1/3 bg-cover bg-center opacity-30"
+            style={{
+              backgroundImage: `url(${currentSettings.background_image_url})`,
+            }}
+          />
+        )}
+
+        {/* Card Content */}
+        <div className="relative z-10 text-center p-4 w-full">
+          <div
+            style={{
+              fontFamily: currentSettings.guest_font_family,
+              fontWeight: currentSettings.guest_name_bold ? '700' : '400',
+              fontStyle: currentSettings.guest_name_italic ? 'italic' : 'normal',
+              textDecoration: currentSettings.guest_name_underline ? 'underline' : 'none',
+              fontSize: `${currentSettings.guest_name_font_size}pt`,
+              marginBottom: `${currentSettings.name_spacing}mm`,
             }}
           >
-            {pages.map((pageGuests, pageIndex) => (
-              <div key={pageIndex} className="space-y-2">
-                {pageIndex > 0 && (
-                  <div className="text-xs text-center text-muted-foreground pt-4">
-                    Page {pageIndex + 1} of {totalPages} • A4 Format • 6 Cards per Page
-                  </div>
-                )}
-                
-                {/* A4 Preview Container - 300 DPI with Narrow Margins */}
-                <div 
-                  className={`place-card-preview-container mx-auto bg-white shadow-lg overflow-visible ${isExporting ? 'exporting' : ''} ${focusedPage === pageIndex ? 'ring-4 ring-primary' : ''}`}
-                  data-page={pageIndex}
-                  style={{
-                    width: '2480px',
-                    height: '3508px',
-                    borderRadius: 0,
-                    padding: '150px',
-                    boxSizing: 'border-box',
-                    backgroundColor: '#FFFFFF',
-                  }}
-                >
-                  <div 
-                    className="place-card-a4-page"
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      transform: 'scale(1)',
-                      transformOrigin: 'top left',
-                      position: 'relative',
-                    }}
-                  >
-                    {/* Cut lines - vertical center + two horizontals at row breaks */}
-                    <div 
-                      className="cutline-v"
-                      style={{
-                        position: 'absolute',
-                        top: 0,
-                        bottom: 0,
-                        left: '50%',
-                        width: '1px',
-                        borderLeft: '1px solid rgba(150, 150, 150, 0.5)',
-                        zIndex: 10,
-                        transform: 'translateX(-0.5px)',
-                      }}
-                    />
-                    <div 
-                      className="cutline-h1"
-                      style={{
-                        position: 'absolute',
-                        left: 0,
-                        right: 0,
-                        top: '33.333%',
-                        height: 0,
-                        borderTop: '0.5px solid rgba(217, 217, 217, 0.6)',
-                        zIndex: 1,
-                      }}
-                    />
-                    <div 
-                      className="cutline-h2"
-                      style={{
-                        position: 'absolute',
-                        left: 0,
-                        right: 0,
-                        top: '66.666%',
-                        height: 0,
-                        borderTop: '0.5px solid rgba(217, 217, 217, 0.6)',
-                        zIndex: 1,
-                      }}
-                    />
-                    {/* 2 columns × 3 rows grid - cards render directly in place-card-a4-page */}
-                    {Array.from({ length: 6 }).map((_, cardIndex) => {
-                        const guest = pageGuests[cardIndex];
-                        if (!guest) {
-                          return (
-                            <div 
-                              key={`empty-${cardIndex}`}
-                              className="place-card-cell border-box"
-                            />
-                          );
-                        }
+            {currentSettings.background_behind_names ? (
+              <div style={{
+                background: 'white',
+                borderRadius: '12px',
+                padding: '1mm 2mm',
+                display: 'inline-block'
+              }}>
+                {guest.first_name} {guest.last_name}
+              </div>
+            ) : (
+              <>{guest.first_name} {guest.last_name}</>
+            )}
+          </div>
+          
+          <div
+            style={{
+              fontFamily: currentSettings.info_font_family,
+              fontSize: `${currentSettings.info_font_size}pt`,
+            }}
+          >
+            {currentSettings.background_behind_table_seats ? (
+              <div style={{
+                background: 'white',
+                borderRadius: '12px',
+                padding: '0.75mm 1.5mm',
+                display: 'inline-block'
+              }}>
+                {tableInfo}
+              </div>
+            ) : (
+              <>{tableInfo}</>
+            )}
+          </div>
 
-                        const tableInfo = guest.table_no && guest.seat_no
-                          ? `Table ${guest.table_no}, Seat ${guest.seat_no}`
-                          : `Table —, Seat —`;
+          {message && (
+            <div
+              className="mt-3"
+              style={{
+                fontFamily: currentSettings.info_font_family,
+                fontSize: `${currentSettings.info_font_size}pt`,
+                fontStyle: 'italic',
+              }}
+            >
+              {message}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
 
-                        const individualMessage = currentSettings.individual_messages?.[guest.id];
-                        const message = individualMessage || currentSettings.mass_message || '';
+  return (
+    <>
+      {/* Screen Preview Only */}
+      <div className="print:hidden">
+        {/* TOP Pagination Controls */}
+        <div className="flex items-center justify-center gap-4 mb-6">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handlePreviousPage}
+            disabled={currentPage === 1}
+          >
+            <ChevronLeft className="h-4 w-4 mr-1" />
+            Previous
+          </Button>
+          <span className="text-sm font-medium">
+            Page {currentPage} of {totalPages}
+          </span>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleNextPage}
+            disabled={currentPage === totalPages}
+          >
+            Next
+            <ChevronRight className="h-4 w-4 ml-1" />
+          </Button>
+        </div>
 
-                        return (
-                          <div 
-                            key={guest.id}
-                            className="place-card-cell"
-                            style={{
-                              backgroundColor: currentSettings.background_color,
-                              color: currentSettings.font_color,
-                            }}
-                          >
+        {/* A4 Paper Container */}
+        <div className="flex justify-center bg-[#F6F0FF] p-6">
+          <div 
+            style={{ 
+              width: '210mm', 
+              height: '297mm',
+              padding: '12.7mm'
+            }} 
+            className="bg-white border border-border shadow-lg overflow-hidden"
+          >
+            {/* Header Section */}
+            <div className="text-center mb-4">
+              <h1 className="text-xl font-bold mb-1" style={{ color: '#6D28D9' }}>
+                {event.name}
+              </h1>
+              <p className="text-sm font-semibold mb-1">
+                Place Cards - {formatDateWithOrdinal(event.date)}
+              </p>
+              <p className="text-xs pb-2 border-b border-black">
+                {event.venue} - A4 Format • 6 Cards per Page • Page {currentPage} of {totalPages} - Generated on: {formatGeneratedTimestamp()}
+              </p>
+            </div>
 
-                            {/* Background Image */}
-                            {currentSettings.background_image_url && currentSettings.background_image_type === 'full' && (
-                              <div
-                                className="place-card-background absolute inset-x-0 bottom-0 pointer-events-none"
-                                style={{
-                                  top: '55%',
-                                  backgroundImage: `url(${currentSettings.background_image_url})`,
-                                  backgroundPosition: `${currentSettings.background_image_x_position || 50}% ${currentSettings.background_image_y_position || 50}%`,
-                                  backgroundSize: `${currentSettings.background_image_scale || 100}% auto`,
-                                  backgroundRepeat: 'no-repeat',
-                                  opacity: (currentSettings.background_image_opacity || 100) / 100,
-                                  '--bg-opacity': `${(currentSettings.background_image_opacity || 100) / 100}`,
-                                } as React.CSSProperties & { '--bg-opacity': string }}
-                              />
-                            )}
+            {/* Place Cards Content */}
+            <div ref={ref}>
+              <div className="relative" style={{ minHeight: '240mm' }}>
+                {/* Cut lines for folding guidance */}
+                <div className="absolute inset-0 pointer-events-none">
+                  <div className="absolute top-0 bottom-0 border-l border-dashed border-gray-300" style={{ left: '50%' }} />
+                  <div className="absolute left-0 right-0 border-t border-dashed border-gray-300" style={{ top: '33.33%' }} />
+                  <div className="absolute left-0 right-0 border-t border-dashed border-gray-300" style={{ top: '66.66%' }} />
+                </div>
 
-                            {/* Card Content - positioned in lower half */}
-                            <div className={`card-content ${currentSettings.background_image_url && currentSettings.background_image_type === 'decorative' ? 'has-decorative-image' : ''} ${currentSettings.background_image_url && currentSettings.background_image_type === 'full' ? 'has-full-background' : ''}`}>
-                              {/* Large Decorative Image on Right Side */}
-                              {currentSettings.background_image_url && currentSettings.background_image_type === 'decorative' && (
-                                <div className="decorative-image-container">
-                                  <img
-                                    src={currentSettings.background_image_url}
-                                    alt=""
-                                    className="decorative-image"
-                                  />
-                                </div>
-                              )}
-
-                              {/* Text Container - wraps both name and info */}
-                              <div>
-                                {/* Guest Name */}
-                                <div 
-                                  className="guest-name"
-                                   style={{
-                                    fontFamily: currentSettings.guest_font_family,
-                                    fontWeight: currentSettings.guest_name_bold ? '700' : '400',
-                                    fontStyle: currentSettings.guest_name_italic ? 'italic' : 'normal',
-                                    textDecoration: currentSettings.guest_name_underline ? 'underline' : 'none',
-                                    fontSize: `${currentSettings.guest_name_font_size}pt`,
-                                    marginBottom: `${currentSettings.name_spacing}mm`
-                                  }}
-                                >
-                                  {currentSettings.background_behind_names ? (
-                                    <div style={{
-                                      background: 'white',
-                                      borderRadius: '12px',
-                                      padding: '1mm 2mm',
-                                      display: 'inline-block'
-                                    }}>
-                                      {guest.first_name} {guest.last_name}
-                                    </div>
-                                  ) : (
-                                    <>{guest.first_name} {guest.last_name}</>
-                                  )}
-                                </div>
-
-                                {/* Table & Seat Info */}
-                                <div 
-                                  className="table-info"
-                                  style={{
-                                    fontFamily: currentSettings.info_font_family,
-                                    fontSize: `${currentSettings.info_font_size}pt`,
-                                    marginTop: '-2mm'
-                                  }}
-                                >
-                                  {currentSettings.background_behind_table_seats ? (
-                                    <div style={{
-                                      background: 'white',
-                                      borderRadius: '12px',
-                                      padding: '0.75mm 1.5mm',
-                                      display: 'inline-block'
-                                    }}>
-                                      {tableInfo}
-                                    </div>
-                                  ) : (
-                                    <>{tableInfo}</>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-
-                            {/* Folded Message Section - Top Half (Upside Down) */}
-                            {message && (
-                              <div className="folded-message-section">
-                                <div 
-                                  className="folded-message-text"
-                                  style={{
-                                    fontFamily: currentSettings.info_font_family
-                                  }}
-                                >
-                                  {message}
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        );
-                      })}
-                  </div>
+                {/* 2x3 grid for 6 cards */}
+                <div className="grid grid-cols-2 grid-rows-3 h-full">
+                  {currentPageGuests.map((guest) => renderPlaceCard(guest))}
                 </div>
               </div>
-            ))}
+            </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
 
-      {/* Print-only version with exact mm measurements */}
-      <style>{`
-        /* Screen preview styles */
-        .place-card-preview-container {
-          position: relative;
-          transition: all 0.3s ease;
-          background-color: #FFFFFF;
-          border-radius: 0 !important;
-        }
+        {/* BOTTOM Pagination Controls */}
+        <div className="flex items-center justify-center gap-4 mt-6">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handlePreviousPage}
+            disabled={currentPage === 1}
+          >
+            <ChevronLeft className="h-4 w-4 mr-1" />
+            Previous
+          </Button>
+          <span className="text-sm font-medium">
+            Page {currentPage} of {totalPages}
+          </span>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleNextPage}
+            disabled={currentPage === totalPages}
+          >
+            Next
+            <ChevronRight className="h-4 w-4 ml-1" />
+          </Button>
+        </div>
+      </div>
 
-        .place-card-a4-page {
-          display: grid;
-          grid-template-columns: repeat(2, 1fr);
-          grid-template-rows: repeat(3, 1fr);
-          width: 100%;
-          height: 100%;
-          gap: 0;
-          background: #FFFFFF;
-        }
+      {/* Print Version - All Pages */}
+      <div className="hidden print:block">
+        {pages.map((pageGuests, pageIndex) => (
+          <div
+            key={pageIndex}
+            style={{
+              width: '210mm',
+              height: '297mm',
+              pageBreakAfter: pageIndex < pages.length - 1 ? 'always' : 'auto',
+              padding: '12.7mm',
+              backgroundColor: '#FFFFFF'
+            }}
+          >
+            {/* Print Header */}
+            <div className="text-center mb-4">
+              <h1 className="text-xl font-bold mb-1" style={{ color: '#6D28D9' }}>
+                {event.name}
+              </h1>
+              <p className="text-sm font-semibold mb-1">
+                Place Cards - {formatDateWithOrdinal(event.date)}
+              </p>
+              <p className="text-xs pb-2 border-b border-black">
+                {event.venue} - A4 Format • 6 Cards per Page • Page {pageIndex + 1} of {totalPages} - Generated on: {formatGeneratedTimestamp()}
+              </p>
+            </div>
 
-          .place-card-cell {
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-end;
-            text-align: center;
-            padding: 94px;
-            overflow: visible;
-            width: 100%;
-            height: 100%;
-          }
+            {/* Print Content */}
+            <div className="relative" style={{ minHeight: '240mm' }}>
+              {/* Cut lines */}
+              <div className="absolute inset-0 pointer-events-none">
+                <div className="absolute top-0 bottom-0 border-l border-dashed border-gray-300" style={{ left: '50%' }} />
+                <div className="absolute left-0 right-0 border-t border-dashed border-gray-300" style={{ top: '33.33%' }} />
+                <div className="absolute left-0 right-0 border-t border-dashed border-gray-300" style={{ top: '66.66%' }} />
+              </div>
 
-        /* Card content positioned in lower half (below fold) */
-        .card-content {
-          position: absolute;
-          left: 94px;
-          right: 94px;
-          top: 70%;
-          transform: translateY(-50%);
-          text-align: center;
-        }
-
-        /* Move text down when full background image is present */
-        .card-content.has-full-background {
-          top: 82%;
-        }
-
-        /* Split layout when decorative image exists */
-        .card-content.has-decorative-image {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 47px;
-          left: 35px;
-          right: 71px;
-        }
-
-        .card-content.has-decorative-image .guest-name,
-        .card-content.has-decorative-image .table-info {
-          text-align: left;
-        }
-
-        /* Text container takes left side when decorative image exists */
-        .card-content.has-decorative-image > div:first-child {
-          flex: 0 0 55%;
-          text-align: left;
-          margin-right: auto;
-        }
-
-        /* Large decorative image on right side */
-        .decorative-image-container {
-          flex: 0 0 35%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          max-height: 402px;
-          margin-left: 0;
-          margin-top: 106px;
-        }
-
-        .decorative-image {
-          width: 100%;
-          height: 100%;
-          max-height: 520px;
-          object-fit: contain;
-          border: none;
-          border-radius: 4px;
-        }
-
-        .guest-name {
-          line-height: 1.1;
-          text-align: center;
-          overflow: visible;
-          font-weight: 400;
-          font-synthesis: weight;
-        }
-
-        .table-info {
-          font-weight: 400;
-          margin-top: 24px;
-        }
-
-        /* Folded message section - top half of card, upside down */
-        .folded-message-section {
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          height: 585px;
-          display: flex;
-          align-items: flex-end;
-          justify-content: center;
-          padding: 94px 142px;
-          padding-bottom: 236px;
-          transform: rotate(180deg);
-        }
-
-        .folded-message-text {
-          font-size: 15px;
-          line-height: 1.4;
-          text-align: center;
-          max-width: 100%;
-        }
-
-        /* Print styles - exact A4 measurements */
-        @media print {
-          body * {
-            visibility: hidden;
-          }
-
-          .place-card-preview-container,
-          .place-card-preview-container * {
-            visibility: visible;
-          }
-
-          .place-card-preview-container {
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 2480px;
-            height: 3508px;
-            margin: 0;
-            padding: 150px;
-            box-sizing: border-box;
-            box-shadow: none;
-            border-radius: 0;
-            overflow: visible;
-            page-break-after: always;
-            background-color: #FFFFFF;
-            transform: scale(1);
-          }
-
-          .place-card-a4-page {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            grid-template-rows: repeat(3, 1fr);
-            width: 100%;
-            height: 100%;
-            gap: 0;
-            background: #FFFFFF;
-          }
-
-          /* Print cut lines at exact positions */
-          .cutline-v {
-            left: 105mm !important;
-            width: 1px !important;
-            border-left: 1px solid rgba(150, 150, 150, 0.5) !important;
-            transform: translateX(-0.5px) !important;
-          }
-
-          .cutline-h1 {
-            top: 99mm !important;
-            border-top: 0.5px solid rgba(217, 217, 217, 0.6) !important;
-          }
-
-          .cutline-h2 {
-            top: 198mm !important;
-            border-top: 0.5px solid rgba(217, 217, 217, 0.6) !important;
-          }
-
-          .place-card-cell {
-            width: 105mm;
-            height: 99mm;
-            padding: 8mm;
-          }
-
-          .table-info {
-            font-weight: 700;
-          }
-
-          .folded-message-text {
-            font-size: 11pt;
-          }
-          
-          .card-content {
-            left: 8mm;
-            right: 8mm;
-            top: 70%;
-            transform: translateY(-50%);
-          }
-
-          .card-content.has-full-background {
-            top: 82%;
-          }
-
-          .card-content.has-decorative-image {
-            left: 3mm;
-            right: 6mm;
-          }
-
-          .decorative-image {
-            border: none;
-          }
-
-          /* Preserve background image opacity in print */
-          .place-card-background {
-            opacity: var(--bg-opacity, 1) !important;
-          }
-
-          @page {
-            size: A4 portrait;
-            margin: 0;
-          }
-        }
-      `}</style>
+              {/* Cards Grid */}
+              <div className="grid grid-cols-2 grid-rows-3 h-full">
+                {pageGuests.map((guest) => renderPlaceCard(guest))}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
     </>
   );
 });
 
 PlaceCardPreview.displayName = 'PlaceCardPreview';
+
+export default PlaceCardPreview;
