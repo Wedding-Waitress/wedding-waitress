@@ -20,6 +20,7 @@ import { useDietaryChartSettings } from '@/hooks/useDietaryChartSettings';
 import { DietaryChartCustomizer } from './DietaryChartCustomizer';
 import { useToast } from '@/hooks/use-toast';
 import { exportDietaryChartToDocx } from '@/lib/dietaryChartDocxExporter';
+import { exportDietaryChartToPdf } from '@/lib/dietaryChartPdfExporter';
 import { format } from 'date-fns';
 import dietaryLogo from '@/assets/wedding-waitress-dietary-logo.png';
 import { computeRelationDisplay } from '@/lib/relationUtils';
@@ -154,6 +155,35 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
       case 'small': return 'text-sm';
       case 'large': return 'text-lg';
       default: return 'text-base';
+    }
+  };
+
+  // PDF Export functionality
+  const handleDownloadPdf = async () => {
+    if (!currentEvent || dietaryGuests.length === 0) return;
+    
+    setIsExporting(true);
+    try {
+      toast({
+        title: 'Generating PDF',
+        description: 'Creating your dietary chart...',
+      });
+
+      await exportDietaryChartToPdf(currentEvent, dietaryGuests, settings);
+
+      toast({
+        title: 'PDF Downloaded',
+        description: 'Your dietary chart has been saved',
+      });
+    } catch (error) {
+      console.error('PDF export error:', error);
+      toast({
+        title: 'Export Failed',
+        description: 'Failed to generate PDF',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsExporting(false);
     }
   };
 
@@ -410,6 +440,15 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
 
                 {/* Right Side: Action Buttons */}
                 <div className="flex items-center gap-2 flex-shrink-0">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={handleDownloadPdf}
+                    disabled={isExporting || dietaryGuests.length === 0}
+                  >
+                    <FileText className="w-4 h-4" />
+                    Download PDF
+                  </Button>
                   <Button 
                     variant="outline" 
                     size="sm" 
