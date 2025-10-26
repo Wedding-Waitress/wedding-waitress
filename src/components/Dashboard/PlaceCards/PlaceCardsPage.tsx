@@ -22,7 +22,7 @@ import { usePlaceCardSettings } from '@/hooks/usePlaceCardSettings';
 import { PlaceCardCustomizer } from './PlaceCardCustomizer';
 import { PlaceCardPreview } from './PlaceCardPreview';
 import { PlaceCardExporter } from './PlaceCardExporter';
-import { Loader2, Users, Settings, FileText } from 'lucide-react';
+import { Loader2, Users, Settings, FileText, Printer } from 'lucide-react';
 import { Label } from "@/components/ui/label";
 import { useToast } from '@/hooks/use-toast';
 import { exportPlaceCardPageToPdf, exportAllPlaceCardsToPdf } from '@/lib/placeCardsPdfExporter';
@@ -175,6 +175,25 @@ export const PlaceCardsPage: React.FC = () => {
     }
   };
 
+  const handlePrint = () => {
+    if (!selectedEvent || assignedGuests.length === 0) return;
+    
+    toast({
+      title: 'Opening Print Dialog',
+      description: 'Preparing place cards for printing...',
+    });
+    
+    // Small delay to show toast before print dialog
+    setTimeout(() => {
+      window.print();
+    }, 500);
+  };
+
+  const handlePrintAll = () => {
+    // Same as handlePrint - the print version already renders all pages
+    handlePrint();
+  };
+
   if (eventsLoading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -261,7 +280,7 @@ export const PlaceCardsPage: React.FC = () => {
                   <span className="ml-2 text-muted-foreground">Loading export options...</span>
                 </div>
               ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* PDF Export Controls */}
                   <div className="space-y-2">
                     <Label>Export Controls</Label>
@@ -308,6 +327,31 @@ export const PlaceCardsPage: React.FC = () => {
                       >
                         <FileText className="h-4 w-4 mr-2" />
                         Download All Word
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* Print Controls */}
+                  <div className="space-y-2">
+                    <Label>Print Controls</Label>
+                    <div className="grid grid-cols-2 gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handlePrint}
+                        disabled={isProcessing}
+                      >
+                        <Printer className="h-4 w-4 mr-2" />
+                        Print
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handlePrintAll}
+                        disabled={isProcessing}
+                      >
+                        <Printer className="h-4 w-4 mr-2" />
+                        Print All
                       </Button>
                     </div>
                   </div>
