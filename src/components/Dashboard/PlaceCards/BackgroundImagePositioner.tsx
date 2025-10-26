@@ -57,7 +57,8 @@ export const BackgroundImagePositioner = ({
     const newX = clamp(xPosition + percentDeltaX, 0, 100);
     const newY = clamp(yPosition + percentDeltaY, 0, 100);
     
-    onPositionChange(newX, newY);
+    // Round to integers before sending to parent (database expects integers)
+    onPositionChange(Math.round(newX), Math.round(newY));
     setLastMousePos({ x: e.clientX, y: e.clientY });
   };
   
@@ -74,7 +75,8 @@ export const BackgroundImagePositioner = ({
     const zoomDelta = e.deltaY > 0 ? -5 : 5; // 5% per scroll notch
     const newScale = clamp(scale + zoomDelta, MIN_SCALE, MAX_SCALE);
     
-    onScaleChange(newScale);
+    // Ensure integer value (database expects integers)
+    onScaleChange(Math.round(newScale));
   };
   
   // Handle reset zoom button
