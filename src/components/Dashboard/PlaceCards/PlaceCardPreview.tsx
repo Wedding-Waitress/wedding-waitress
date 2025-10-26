@@ -103,7 +103,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
     return (
       <div
         key={guest.id}
-        className="relative flex items-center justify-center"
+        className="relative"
         style={{
           width: '105mm',
           height: '99mm',
@@ -111,20 +111,19 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
           color: currentSettings.font_color,
         }}
       >
-            {/* Background Image */}
-            {currentSettings.background_image_url && currentSettings.background_image_type === 'full' && (
-              <div
-                className="absolute inset-x-0 bottom-0 pointer-events-none"
-                style={{
-                  top: '55%',
-                  backgroundImage: `url(${currentSettings.background_image_url})`,
-                  backgroundPosition: `${currentSettings.background_image_x_position || 50}% ${currentSettings.background_image_y_position || 50}%`,
-                  backgroundSize: 'cover',
-                  backgroundRepeat: 'no-repeat',
-                  opacity: (currentSettings.background_image_opacity || 100) / 100,
-                }}
-              />
-            )}
+        {/* Full Background Image (if applicable) */}
+        {currentSettings.background_image_url && currentSettings.background_image_type === 'full' && (
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              backgroundImage: `url(${currentSettings.background_image_url})`,
+              backgroundPosition: `${currentSettings.background_image_x_position || 50}% ${currentSettings.background_image_y_position || 50}%`,
+              backgroundSize: 'cover',
+              backgroundRepeat: 'no-repeat',
+              opacity: (currentSettings.background_image_opacity || 100) / 100,
+            }}
+          />
+        )}
 
         {/* Decorative Image */}
         {currentSettings.background_image_url && currentSettings.background_image_type === 'decorative' && (
@@ -136,8 +135,49 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
           />
         )}
 
-        {/* Card Content */}
-        <div className="relative z-10 text-center w-full" style={{ padding: '5mm' }}>
+        {/* BACK Half (Top) - MESSAGE ONLY */}
+        <div 
+          className="relative z-10 flex items-center justify-center"
+          style={{ 
+            height: '49.5mm',
+            padding: '5mm'
+          }}
+        >
+          {message && (
+            <div
+              className="text-center"
+              style={{
+                fontFamily: currentSettings.info_font_family,
+                fontSize: `${currentSettings.info_font_size}pt`,
+                fontStyle: 'italic',
+                color: currentSettings.font_color,
+              }}
+            >
+              {message}
+            </div>
+          )}
+        </div>
+
+        {/* CREASE LINE at Y = 49.5mm */}
+        <div 
+          className="absolute left-0 right-0" 
+          style={{ 
+            top: '49.5mm',
+            borderTop: '0.5px solid #d3d3d3',
+            opacity: 0.3,
+            zIndex: 100
+          }}
+        />
+
+        {/* FRONT Half (Bottom) - GUEST NAME + TABLE/SEAT */}
+        <div 
+          className="relative z-10 flex flex-col items-center justify-center"
+          style={{ 
+            height: '49.5mm',
+            padding: '5mm'
+          }}
+        >
+          {/* Guest Name */}
           <div
             style={{
               fontFamily: currentSettings.guest_font_family,
@@ -162,6 +202,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
             )}
           </div>
           
+          {/* Table/Seat Info */}
           <div
             style={{
               fontFamily: currentSettings.info_font_family,
@@ -181,19 +222,6 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
               <>{tableInfo}</>
             )}
           </div>
-
-          {message && (
-            <div
-              className="mt-3"
-              style={{
-                fontFamily: currentSettings.info_font_family,
-                fontSize: `${currentSettings.info_font_size}pt`,
-                fontStyle: 'italic',
-              }}
-            >
-              {message}
-            </div>
-          )}
         </div>
       </div>
     );
