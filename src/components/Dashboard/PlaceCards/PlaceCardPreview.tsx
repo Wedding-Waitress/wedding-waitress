@@ -241,7 +241,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                 <div ref={ref}>
                   <div className="relative" style={{ height: '297mm' }}>
                     {/* Guide lines for card positioning - precise mm measurements */}
-                    <div className="absolute inset-0 pointer-events-none">
+                    <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 50 }}>
                       {/* Vertical divider at 105mm (center) */}
                       <div 
                         className="absolute top-0 bottom-0" 
@@ -321,7 +321,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                 {/* Print Content */}
                 <div className="relative" style={{ height: '297mm' }}>
                   {/* Cut lines - precise mm measurements */}
-                  <div className="absolute inset-0 pointer-events-none">
+                  <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 50 }}>
                     {/* Vertical divider at 105mm (center) */}
                     <div 
                       className="absolute top-0 bottom-0" 
