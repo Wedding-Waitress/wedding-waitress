@@ -455,3 +455,13 @@
   [data-app-root], .app, .page { overflow: visible !important; transform: none !important; position: static !important; }
 
 }
+
+/* Place Cards Page: hide any stray separators/handles */
+.place-cards-page [data-panel-resize-handle],
+.place-cards-page [role="separator"],
+.place-cards-page [data-panel-resize-handle]::after {
+  display: none !important;
+  width: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+}

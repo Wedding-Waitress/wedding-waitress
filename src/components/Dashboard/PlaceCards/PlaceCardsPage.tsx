@@ -199,7 +199,7 @@ export const PlaceCardsPage: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 place-cards-page">
       {/* Combined Header Box */}
       <Card className="ww-box">
         <CardContent className="space-y-6 pt-6">
