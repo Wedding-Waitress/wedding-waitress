@@ -13,6 +13,7 @@
 
 import React, { forwardRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import { PlaceCardSettings } from '@/hooks/usePlaceCardSettings';
 import { Guest } from '@/hooks/useGuests';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
@@ -200,120 +201,124 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
   };
 
   return (
-    <>
-      {/* Screen Preview Only */}
-      <div className="print:hidden">
-        {/* TOP Pagination Controls */}
-        <div className="flex items-center justify-center gap-4 mb-6">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handlePreviousPage}
-            disabled={currentPage === 1}
-          >
-            <ChevronLeft className="h-4 w-4 mr-1" />
-            Previous
-          </Button>
-          <span className="text-sm font-medium">
-            Page {currentPage} of {totalPages}
-          </span>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleNextPage}
-            disabled={currentPage === totalPages}
-          >
-            Next
-            <ChevronRight className="h-4 w-4 ml-1" />
-          </Button>
-        </div>
+    <Card className="ww-box bg-white">
+      <CardContent className="p-6">
+        <div className="space-y-6">
+          {/* Screen Preview Only */}
+          <div className="print:hidden">
+            {/* TOP Pagination Controls */}
+            <div className="flex items-center justify-center gap-4 mb-6">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handlePreviousPage}
+                disabled={currentPage === 1}
+              >
+                <ChevronLeft className="h-4 w-4 mr-1" />
+                Previous
+              </Button>
+              <span className="text-sm font-medium">
+                Page {currentPage} of {totalPages}
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleNextPage}
+                disabled={currentPage === totalPages}
+              >
+                Next
+                <ChevronRight className="h-4 w-4 ml-1" />
+              </Button>
+            </div>
 
-        {/* A4 Paper Container */}
-        <div className="flex justify-center p-6">
-          <div 
-            style={{ 
-              width: '210mm', 
-              height: '297mm',
-              padding: '12.7mm'
-            }} 
-            className="bg-white border border-border shadow-lg overflow-hidden"
-          >
-            {/* Place Cards Content */}
-            <div ref={ref}>
-              <div className="relative" style={{ minHeight: '240mm' }}>
-                {/* Cut lines for folding guidance */}
-                <div className="absolute inset-0 pointer-events-none">
-                  <div className="absolute top-0 bottom-0 border-l border-dashed border-gray-300" style={{ left: '50%' }} />
-                  <div className="absolute left-0 right-0 border-t border-dashed border-gray-300" style={{ top: '33.33%' }} />
-                  <div className="absolute left-0 right-0 border-t border-dashed border-gray-300" style={{ top: '66.66%' }} />
-                </div>
+            {/* A4 Paper Container */}
+            <div className="flex justify-center">
+              <div 
+                style={{ 
+                  width: '210mm', 
+                  height: '297mm',
+                  padding: '12.7mm'
+                }} 
+                className="bg-white border border-border shadow-lg overflow-hidden"
+              >
+                {/* Place Cards Content */}
+                <div ref={ref}>
+                  <div className="relative" style={{ minHeight: '240mm' }}>
+                    {/* Cut lines for folding guidance */}
+                    <div className="absolute inset-0 pointer-events-none">
+                      <div className="absolute top-0 bottom-0 border-l border-dashed border-gray-300" style={{ left: '50%' }} />
+                      <div className="absolute left-0 right-0 border-t border-dashed border-gray-300" style={{ top: '33.33%' }} />
+                      <div className="absolute left-0 right-0 border-t border-dashed border-gray-300" style={{ top: '66.66%' }} />
+                    </div>
 
-                {/* 2x3 grid for 6 cards */}
-                <div className="grid grid-cols-2 grid-rows-3 h-full">
-                  {currentPageGuests.map((guest) => renderPlaceCard(guest))}
+                    {/* 2x3 grid for 6 cards */}
+                    <div className="grid grid-cols-2 grid-rows-3 h-full">
+                      {currentPageGuests.map((guest) => renderPlaceCard(guest))}
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        </div>
 
-        {/* BOTTOM Pagination Controls */}
-        <div className="flex items-center justify-center gap-4 mt-6">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handlePreviousPage}
-            disabled={currentPage === 1}
-          >
-            <ChevronLeft className="h-4 w-4 mr-1" />
-            Previous
-          </Button>
-          <span className="text-sm font-medium">
-            Page {currentPage} of {totalPages}
-          </span>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleNextPage}
-            disabled={currentPage === totalPages}
-          >
-            Next
-            <ChevronRight className="h-4 w-4 ml-1" />
-          </Button>
-        </div>
-      </div>
-
-      {/* Print Version - All Pages */}
-      <div className="hidden print:block">
-        {pages.map((pageGuests, pageIndex) => (
-          <div
-            key={pageIndex}
-            style={{
-              width: '210mm',
-              height: '297mm',
-              pageBreakAfter: pageIndex < pages.length - 1 ? 'always' : 'auto',
-              padding: '12.7mm',
-              backgroundColor: '#FFFFFF'
-            }}
-          >
-            {/* Print Content */}
-            <div className="relative" style={{ minHeight: '240mm' }}>
-              {/* Cut lines */}
-              <div className="absolute inset-0 pointer-events-none">
-                <div className="absolute top-0 bottom-0 border-l border-dashed border-gray-300" style={{ left: '50%' }} />
-                <div className="absolute left-0 right-0 border-t border-dashed border-gray-300" style={{ top: '33.33%' }} />
-                <div className="absolute left-0 right-0 border-t border-dashed border-gray-300" style={{ top: '66.66%' }} />
-              </div>
-
-              {/* Cards Grid */}
-              <div className="grid grid-cols-2 grid-rows-3 h-full">
-                {pageGuests.map((guest) => renderPlaceCard(guest))}
-              </div>
+            {/* BOTTOM Pagination Controls */}
+            <div className="flex items-center justify-center gap-4 mt-6">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handlePreviousPage}
+                disabled={currentPage === 1}
+              >
+                <ChevronLeft className="h-4 w-4 mr-1" />
+                Previous
+              </Button>
+              <span className="text-sm font-medium">
+                Page {currentPage} of {totalPages}
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleNextPage}
+                disabled={currentPage === totalPages}
+              >
+                Next
+                <ChevronRight className="h-4 w-4 ml-1" />
+              </Button>
             </div>
           </div>
-        ))}
-      </div>
-    </>
+
+          {/* Print Version - All Pages */}
+          <div className="hidden print:block">
+            {pages.map((pageGuests, pageIndex) => (
+              <div
+                key={pageIndex}
+                style={{
+                  width: '210mm',
+                  height: '297mm',
+                  pageBreakAfter: pageIndex < pages.length - 1 ? 'always' : 'auto',
+                  padding: '12.7mm',
+                  backgroundColor: '#FFFFFF'
+                }}
+              >
+                {/* Print Content */}
+                <div className="relative" style={{ minHeight: '240mm' }}>
+                  {/* Cut lines */}
+                  <div className="absolute inset-0 pointer-events-none">
+                    <div className="absolute top-0 bottom-0 border-l border-dashed border-gray-300" style={{ left: '50%' }} />
+                    <div className="absolute left-0 right-0 border-t border-dashed border-gray-300" style={{ top: '33.33%' }} />
+                    <div className="absolute left-0 right-0 border-t border-dashed border-gray-300" style={{ top: '66.66%' }} />
+                  </div>
+
+                  {/* Cards Grid */}
+                  <div className="grid grid-cols-2 grid-rows-3 h-full">
+                    {pageGuests.map((guest) => renderPlaceCard(guest))}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 });
 

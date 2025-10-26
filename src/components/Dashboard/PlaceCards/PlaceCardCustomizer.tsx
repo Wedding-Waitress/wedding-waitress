@@ -411,7 +411,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
       setUploading(false);
     }
   };
-  return <Card className="border-none shadow-none bg-transparent">
+  return <Card className="ww-box h-fit sticky top-0 mt-12 !border-0 bg-white">
       <CardHeader>
         <CardTitle className="flex items-center gap-2 py-[10px]">
           <Palette className="h-5 w-5" />

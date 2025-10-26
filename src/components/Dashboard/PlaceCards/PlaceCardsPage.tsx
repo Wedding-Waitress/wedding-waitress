@@ -323,7 +323,7 @@ export const PlaceCardsPage: React.FC = () => {
         <ResizablePanelGroup direction="horizontal" className="min-h-[800px] rounded-lg">
           {/* Left Panel - Customizer */}
           <ResizablePanel defaultSize={30} minSize={25} maxSize={40}>
-            <div className="h-full overflow-auto p-4">
+            <div className="h-full overflow-auto p-6">
               <PlaceCardCustomizer
                 settings={settings}
                 onSettingsChange={updateSettings}
@@ -337,7 +337,7 @@ export const PlaceCardsPage: React.FC = () => {
 
           {/* Right Panel - Preview */}
           <ResizablePanel defaultSize={70} minSize={60} maxSize={75}>
-            <div className="h-full overflow-auto p-4">
+            <div className="h-full overflow-auto p-6">
               <PlaceCardPreview
                 settings={settings}
                 guests={assignedGuests}
