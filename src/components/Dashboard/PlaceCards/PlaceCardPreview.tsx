@@ -233,23 +233,46 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
               <div 
                 style={{ 
                   width: '210mm', 
-                  height: '297mm',
-                  padding: '12.7mm'
+                  height: '297mm'
                 }} 
                 className="bg-white shadow-lg overflow-hidden"
               >
                 {/* Place Cards Content */}
                 <div ref={ref}>
-                  <div className="relative" style={{ minHeight: '240mm' }}>
-                    {/* Guide lines for card positioning */}
+                  <div className="relative" style={{ height: '297mm' }}>
+                    {/* Guide lines for card positioning - precise mm measurements */}
                     <div className="absolute inset-0 pointer-events-none">
-                      <div className="absolute top-0 bottom-0 border-l border-dashed border-gray-300" style={{ left: '50%' }} />
-                      <div className="absolute left-0 right-0 border-t border-dashed border-gray-300" style={{ top: '33.33%' }} />
-                      <div className="absolute left-0 right-0 border-t border-dashed border-gray-300" style={{ top: '66.66%' }} />
+                      {/* Vertical divider at 105mm (center) */}
+                      <div 
+                        className="absolute top-0 bottom-0" 
+                        style={{ 
+                          left: '105mm',
+                          borderLeft: '0.5px solid #d3d3d3',
+                          opacity: 0.3
+                        }} 
+                      />
+                      {/* Horizontal divider 1 at 99mm */}
+                      <div 
+                        className="absolute left-0 right-0" 
+                        style={{ 
+                          top: '99mm',
+                          borderTop: '0.5px solid #d3d3d3',
+                          opacity: 0.3
+                        }} 
+                      />
+                      {/* Horizontal divider 2 at 198mm */}
+                      <div 
+                        className="absolute left-0 right-0" 
+                        style={{ 
+                          top: '198mm',
+                          borderTop: '0.5px solid #d3d3d3',
+                          opacity: 0.3
+                        }} 
+                      />
                     </div>
 
                     {/* 2x3 grid for 6 cards */}
-                    <div className="grid grid-cols-2 grid-rows-3 h-full">
+                    <div className="grid grid-cols-2 grid-rows-3" style={{ height: '297mm' }}>
                       {currentPageGuests.map((guest) => renderPlaceCard(guest))}
                     </div>
                   </div>
@@ -292,21 +315,44 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                   width: '210mm',
                   height: '297mm',
                   pageBreakAfter: pageIndex < pages.length - 1 ? 'always' : 'auto',
-                  padding: '12.7mm',
                   backgroundColor: '#FFFFFF'
                 }}
               >
                 {/* Print Content */}
-                <div className="relative" style={{ minHeight: '240mm' }}>
-                  {/* Cut lines */}
+                <div className="relative" style={{ height: '297mm' }}>
+                  {/* Cut lines - precise mm measurements */}
                   <div className="absolute inset-0 pointer-events-none">
-                    <div className="absolute top-0 bottom-0 border-l border-dashed border-gray-300" style={{ left: '50%' }} />
-                    <div className="absolute left-0 right-0 border-t border-dashed border-gray-300" style={{ top: '33.33%' }} />
-                    <div className="absolute left-0 right-0 border-t border-dashed border-gray-300" style={{ top: '66.66%' }} />
+                    {/* Vertical divider at 105mm (center) */}
+                    <div 
+                      className="absolute top-0 bottom-0" 
+                      style={{ 
+                        left: '105mm',
+                        borderLeft: '0.5px solid #d3d3d3',
+                        opacity: 0.3
+                      }} 
+                    />
+                    {/* Horizontal divider 1 at 99mm */}
+                    <div 
+                      className="absolute left-0 right-0" 
+                      style={{ 
+                        top: '99mm',
+                        borderTop: '0.5px solid #d3d3d3',
+                        opacity: 0.3
+                      }} 
+                    />
+                    {/* Horizontal divider 2 at 198mm */}
+                    <div 
+                      className="absolute left-0 right-0" 
+                      style={{ 
+                        top: '198mm',
+                        borderTop: '0.5px solid #d3d3d3',
+                        opacity: 0.3
+                      }} 
+                    />
                   </div>
 
                   {/* Cards Grid */}
-                  <div className="grid grid-cols-2 grid-rows-3 h-full">
+                  <div className="grid grid-cols-2 grid-rows-3" style={{ height: '297mm' }}>
                     {pageGuests.map((guest) => renderPlaceCard(guest))}
                   </div>
                 </div>
