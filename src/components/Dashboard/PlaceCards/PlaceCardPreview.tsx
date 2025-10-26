@@ -238,7 +238,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                 className="bg-white shadow-lg overflow-hidden"
               >
                 {/* Place Cards Content */}
-                <div ref={ref}>
+                <div ref={ref} data-page={currentPage - 1}>
                   <div className="relative" style={{ height: '297mm' }}>
                     {/* Guide lines for card positioning - precise mm measurements */}
                     <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 50 }}>
@@ -311,6 +311,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
             {pages.map((pageGuests, pageIndex) => (
               <div
                 key={pageIndex}
+                data-page={pageIndex}
                 style={{
                   width: '210mm',
                   height: '297mm',
