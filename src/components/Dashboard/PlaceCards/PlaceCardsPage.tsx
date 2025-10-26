@@ -14,7 +14,7 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/enhanced-button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
+
 import { useEvents } from '@/hooks/useEvents';
 import { useRealtimeGuests } from '@/hooks/useRealtimeGuests';
 import { Guest } from '@/hooks/useGuests';
@@ -318,36 +318,29 @@ export const PlaceCardsPage: React.FC = () => {
         </CardContent>
       </Card>
 
-      {/* Bottom Section - Resizable Layout */}
+      {/* Bottom Section - Grid Layout */}
       {selectedEventId && selectedEvent && assignedGuests.length > 0 && !guestsLoading && !settingsLoading && (
-        <ResizablePanelGroup direction="horizontal" className="min-h-[800px] rounded-lg">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Left Panel - Customizer */}
-          <ResizablePanel defaultSize={30} minSize={25} maxSize={40}>
-            <div className="h-full overflow-auto p-6">
-              <PlaceCardCustomizer
-                settings={settings}
-                onSettingsChange={updateSettings}
-                guests={assignedGuests}
-              />
-            </div>
-          </ResizablePanel>
-
-          {/* Resize Handle */}
-          <ResizableHandle withHandle />
+          <div className="lg:col-span-1">
+            <PlaceCardCustomizer
+              settings={settings}
+              onSettingsChange={updateSettings}
+              guests={assignedGuests}
+            />
+          </div>
 
           {/* Right Panel - Preview */}
-          <ResizablePanel defaultSize={70} minSize={60} maxSize={75}>
-            <div className="h-full overflow-auto p-6">
-              <PlaceCardPreview
-                settings={settings}
-                guests={assignedGuests}
-                event={selectedEvent}
-                isExporting={isExporting}
-                focusedPage={focusedPage}
-              />
-            </div>
-          </ResizablePanel>
-        </ResizablePanelGroup>
+          <div className="lg:col-span-3">
+            <PlaceCardPreview
+              settings={settings}
+              guests={assignedGuests}
+              event={selectedEvent}
+              isExporting={isExporting}
+              focusedPage={focusedPage}
+            />
+          </div>
+        </div>
       )}
     </div>
   );

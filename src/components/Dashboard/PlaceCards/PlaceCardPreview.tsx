@@ -13,7 +13,6 @@
 
 import React, { forwardRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import { PlaceCardSettings } from '@/hooks/usePlaceCardSettings';
 import { Guest } from '@/hooks/useGuests';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
@@ -104,7 +103,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
     return (
       <div
         key={guest.id}
-        className="relative flex items-center justify-center border border-gray-200"
+        className="relative flex items-center justify-center"
         style={{
           width: '105mm',
           height: '99mm',
@@ -201,9 +200,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
   };
 
   return (
-    <Card className="ww-box bg-white">
-      <CardContent className="p-6">
-        <div className="space-y-6">
+    <div className="space-y-6">
           {/* Screen Preview Only */}
           <div className="print:hidden">
             {/* TOP Pagination Controls */}
@@ -239,18 +236,11 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                   height: '297mm',
                   padding: '12.7mm'
                 }} 
-                className="bg-white border border-border shadow-lg overflow-hidden"
+                className="bg-white shadow-lg overflow-hidden"
               >
                 {/* Place Cards Content */}
                 <div ref={ref}>
                   <div className="relative" style={{ minHeight: '240mm' }}>
-                    {/* Cut lines for folding guidance */}
-                    <div className="absolute inset-0 pointer-events-none">
-                      <div className="absolute top-0 bottom-0 border-l border-dashed border-gray-300" style={{ left: '50%' }} />
-                      <div className="absolute left-0 right-0 border-t border-dashed border-gray-300" style={{ top: '33.33%' }} />
-                      <div className="absolute left-0 right-0 border-t border-dashed border-gray-300" style={{ top: '66.66%' }} />
-                    </div>
-
                     {/* 2x3 grid for 6 cards */}
                     <div className="grid grid-cols-2 grid-rows-3 h-full">
                       {currentPageGuests.map((guest) => renderPlaceCard(guest))}
@@ -316,9 +306,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
               </div>
             ))}
           </div>
-        </div>
-      </CardContent>
-    </Card>
+    </div>
   );
 });
 
