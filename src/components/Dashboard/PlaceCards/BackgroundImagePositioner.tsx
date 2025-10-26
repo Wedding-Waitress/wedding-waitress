@@ -26,10 +26,13 @@ export const BackgroundImagePositioner = ({
   const [lastMousePos, setLastMousePos] = useState({ x: 0, y: 0 });
   const canvasRef = useRef<HTMLDivElement>(null);
   
-  const CANVAS_WIDTH = 400;
-  const CANVAS_HEIGHT = 300;
+  const CANVAS_WIDTH = 500;
+  const CANVAS_HEIGHT = 471; // Maintains 1.0606:1 aspect ratio (105mm × 99mm)
   const MIN_SCALE = 50;
   const MAX_SCALE = 200;
+  
+  // Place card aspect ratio: 105mm width × 99mm height = 1.0606:1
+  const CARD_ASPECT_RATIO = 105 / 99;
   
   // Clamp value between min and max
   const clamp = (value: number, min: number, max: number) => {
@@ -103,20 +106,37 @@ export const BackgroundImagePositioner = ({
         onMouseLeave={handleMouseEnd}
         onWheel={handleWheel}
       >
-        {/* Background card representation */}
-        <div className="absolute inset-0 bg-muted/20" />
-        
-        {/* Background image */}
+        {/* Background Image Layer - fills entire canvas, draggable/zoomable */}
         <div
-          className="absolute inset-0 transition-opacity"
+          className="absolute inset-0"
           style={{
             backgroundImage: `url(${imageUrl})`,
             backgroundPosition: `${xPosition}% ${yPosition}%`,
-            backgroundSize: `${scale}% auto`,
+            backgroundSize: `${scale}%`,
             backgroundRepeat: 'no-repeat',
-            opacity: opacity / 100
+            opacity: opacity / 100,
+            transition: isDragging ? 'none' : 'background-position 0.1s ease-out'
           }}
         />
+        
+        {/* Viewport Rectangle - represents the place card dimensions */}
+        <div 
+          className="absolute border-4 border-purple-500 shadow-2xl pointer-events-none"
+          style={{
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: '80%',
+            height: '80%',
+            borderRadius: '8px',
+            boxShadow: '0 0 0 9999px rgba(0, 0, 0, 0.5)'
+          }}
+        >
+          {/* Label showing actual card dimensions */}
+          <div className="absolute -top-8 left-0 bg-purple-500 text-white text-xs font-bold px-2 py-1 rounded">
+            CARD AREA (105mm × 99mm)
+          </div>
+        </div>
         
         {/* Drag overlay indicator */}
         {isDragging && (
@@ -156,7 +176,7 @@ export const BackgroundImagePositioner = ({
       
       {/* Instructions text */}
       <p className="text-xs text-muted-foreground">
-        <strong>Drag</strong> to reposition • <strong>Scroll</strong> to zoom (50-200%) • Click <RotateCcw className="inline h-3 w-3" /> to reset
+        <strong>Drag</strong> the image behind the purple frame • <strong>Scroll</strong> to zoom (50-200%) • The purple rectangle shows what will appear on the card • Click <RotateCcw className="inline h-3 w-3" /> to reset zoom
       </p>
     </div>
   );
