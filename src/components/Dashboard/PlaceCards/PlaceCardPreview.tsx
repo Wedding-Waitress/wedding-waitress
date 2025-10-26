@@ -229,7 +229,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
         </div>
 
         {/* A4 Paper Container */}
-        <div className="flex justify-center bg-[#F6F0FF] p-6">
+        <div className="flex justify-center p-6">
           <div 
             style={{ 
               width: '210mm', 

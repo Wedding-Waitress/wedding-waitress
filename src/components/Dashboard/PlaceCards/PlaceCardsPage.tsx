@@ -320,7 +320,7 @@ export const PlaceCardsPage: React.FC = () => {
 
       {/* Bottom Section - Resizable Layout */}
       {selectedEventId && selectedEvent && assignedGuests.length > 0 && !guestsLoading && !settingsLoading && (
-        <ResizablePanelGroup direction="horizontal" className="min-h-[800px] rounded-lg border">
+        <ResizablePanelGroup direction="horizontal" className="min-h-[800px] rounded-lg">
           {/* Left Panel - Customizer */}
           <ResizablePanel defaultSize={30} minSize={25} maxSize={40}>
             <div className="h-full overflow-auto p-4">
