@@ -141,7 +141,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
           style={{ 
             height: '49.5mm',
             padding: '5mm',
-            paddingTop: '8mm',
+            paddingTop: '18mm',
             transform: 'rotate(180deg)'
           }}
         >
