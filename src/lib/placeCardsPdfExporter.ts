@@ -30,16 +30,29 @@ const convertPlaceCardPageToImage = async (
     throw new Error(`Page ${pageIndex} not found in DOM`);
   }
 
-  // Capture at full 300 DPI size (already sized at 2480×3508px)
+  // Target A4 @ 300 DPI
+  const A4_MM_W = 210;
+  const A4_MM_H = 297;
+  const DPI = 300;
+  const targetWidthPx = Math.round((A4_MM_W / 25.4) * DPI);  // 2480
+  const targetHeightPx = Math.round((A4_MM_H / 25.4) * DPI); // 3508
+
+  // Element's current pixel size (CSS -> px)
+  const rect = pageElement.getBoundingClientRect();
+  // Guard: avoid division by zero
+  const baseW = Math.max(1, rect.width);
+  const baseH = Math.max(1, rect.height);
+
+  // Scale so output bitmap matches our DPI target
+  const scaleX = targetWidthPx / baseW;
+  const scaleY = targetHeightPx / baseH;
+  const scale = Math.min(scaleX, scaleY);
+
   const canvas = await html2canvas(pageElement, {
-    scale: 1,
+    scale,
     useCORS: true,
     allowTaint: false,
     backgroundColor: '#FFFFFF',
-    width: 2480,
-    height: 3508,
-    windowWidth: 2480,
-    windowHeight: 3508,
   });
 
   return canvas.toDataURL('image/png');

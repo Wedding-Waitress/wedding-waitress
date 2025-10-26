@@ -247,8 +247,8 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                         className="absolute top-0 bottom-0" 
                         style={{ 
                           left: '105mm',
-                          borderLeft: '0.5px dotted #d3d3d3',
-                          opacity: 0.3
+                          borderLeft: '1px dotted #d3d3d3',
+                          opacity: 0.4
                         }} 
                       />
                       {/* Horizontal divider 1 at 99mm */}
@@ -256,8 +256,8 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                         className="absolute left-0 right-0" 
                         style={{ 
                           top: '99mm',
-                          borderTop: '0.5px dotted #d3d3d3',
-                          opacity: 0.3
+                          borderTop: '1px dotted #d3d3d3',
+                          opacity: 0.4
                         }} 
                       />
                       {/* Horizontal divider 2 at 198mm */}
@@ -265,8 +265,8 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                         className="absolute left-0 right-0" 
                         style={{ 
                           top: '198mm',
-                          borderTop: '0.5px dotted #d3d3d3',
-                          opacity: 0.3
+                          borderTop: '1px dotted #d3d3d3',
+                          opacity: 0.4
                         }} 
                       />
                     </div>
@@ -328,8 +328,8 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                       className="absolute top-0 bottom-0" 
                       style={{ 
                         left: '105mm',
-                        borderLeft: '0.5px dotted #d3d3d3',
-                        opacity: 0.3
+                        borderLeft: '1px dotted #d3d3d3',
+                        opacity: 0.4
                       }} 
                     />
                     {/* Horizontal divider 1 at 99mm */}
@@ -337,8 +337,8 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                       className="absolute left-0 right-0" 
                       style={{ 
                         top: '99mm',
-                        borderTop: '0.5px dotted #d3d3d3',
-                        opacity: 0.3
+                        borderTop: '1px dotted #d3d3d3',
+                        opacity: 0.4
                       }} 
                     />
                     {/* Horizontal divider 2 at 198mm */}
@@ -346,8 +346,8 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                       className="absolute left-0 right-0" 
                       style={{ 
                         top: '198mm',
-                        borderTop: '0.5px dotted #d3d3d3',
-                        opacity: 0.3
+                        borderTop: '1px dotted #d3d3d3',
+                        opacity: 0.4
                       }} 
                     />
                   </div>
