@@ -241,6 +241,13 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                 {/* Place Cards Content */}
                 <div ref={ref}>
                   <div className="relative" style={{ minHeight: '240mm' }}>
+                    {/* Guide lines for card positioning */}
+                    <div className="absolute inset-0 pointer-events-none">
+                      <div className="absolute top-0 bottom-0 border-l border-dashed border-gray-300" style={{ left: '50%' }} />
+                      <div className="absolute left-0 right-0 border-t border-dashed border-gray-300" style={{ top: '33.33%' }} />
+                      <div className="absolute left-0 right-0 border-t border-dashed border-gray-300" style={{ top: '66.66%' }} />
+                    </div>
+
                     {/* 2x3 grid for 6 cards */}
                     <div className="grid grid-cols-2 grid-rows-3 h-full">
                       {currentPageGuests.map((guest) => renderPlaceCard(guest))}
