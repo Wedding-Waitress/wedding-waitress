@@ -137,10 +137,12 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
 
         {/* BACK Half (Top) - MESSAGE ONLY */}
         <div 
-          className="relative z-10 flex items-center justify-center"
+          className="relative z-10 flex items-center justify-start"
           style={{ 
             height: '49.5mm',
-            padding: '5mm'
+            padding: '5mm',
+            paddingTop: '8mm',
+            transform: 'rotate(180deg)'
           }}
         >
           {message && (
@@ -171,10 +173,11 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
 
         {/* FRONT Half (Bottom) - GUEST NAME + TABLE/SEAT */}
         <div 
-          className="relative z-10 flex flex-col items-center justify-center"
+          className="relative z-10 flex flex-col items-center justify-start"
           style={{ 
             height: '49.5mm',
-            padding: '5mm'
+            padding: '5mm',
+            paddingTop: '8mm'
           }}
         >
           {/* Guest Name */}
