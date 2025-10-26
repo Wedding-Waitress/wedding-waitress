@@ -28,6 +28,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { PLACE_CARD_TEMPLATES, TEMPLATE_CATEGORIES, getTemplatesByCategory, getTemplateById } from '@/lib/PlaceCardTemplates';
 import { ColorPickerPopover } from '@/components/ui/color-picker-popover';
+import { BackgroundImagePositioner } from './BackgroundImagePositioner';
 
 interface PlaceCardCustomizerProps {
   settings: PlaceCardSettings | null;
@@ -622,63 +623,32 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
 
               {currentSettings.background_image_type === 'full' && currentSettings.background_image_url && (
                 <div className="space-y-4 pt-4 border-t">
-                  <h4 className="text-sm font-medium">Image Positioning</h4>
+                  <h4 className="text-sm font-medium">Image Positioning & Zoom</h4>
                   
-                  {/* Horizontal Position Dropdown */}
+                  {/* Interactive drag & zoom canvas */}
                   <div className="space-y-2">
-                    <Label>Horizontal Position</Label>
-                    <Select
-                      value={String(currentSettings.background_image_x_position || 50)}
-                      onValueChange={(value) => handleSettingChange('background_image_x_position', Number(value))}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100].map(val => (
-                          <SelectItem key={val} value={String(val)}>{val}%</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <Label>Position & Scale Background Image</Label>
+                    <BackgroundImagePositioner
+                      imageUrl={currentSettings.background_image_url}
+                      xPosition={currentSettings.background_image_x_position || 50}
+                      yPosition={currentSettings.background_image_y_position || 50}
+                      scale={currentSettings.background_image_scale || 100}
+                      opacity={currentSettings.background_image_opacity || 100}
+                      onPositionChange={(newX, newY) => {
+                        // Update position - applies to all cards
+                        onSettingsChange({
+                          background_image_x_position: newX,
+                          background_image_y_position: newY
+                        });
+                      }}
+                      onScaleChange={(newScale) => {
+                        // Update scale - applies to all cards
+                        handleSettingChange('background_image_scale', newScale);
+                      }}
+                    />
                   </div>
 
-                  {/* Vertical Position Dropdown */}
-                  <div className="space-y-2">
-                    <Label>Vertical Position</Label>
-                    <Select
-                      value={String(currentSettings.background_image_y_position || 50)}
-                      onValueChange={(value) => handleSettingChange('background_image_y_position', Number(value))}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100].map(val => (
-                          <SelectItem key={val} value={String(val)}>{val}%</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {/* Scale/Zoom Dropdown */}
-                  <div className="space-y-2">
-                    <Label>Scale/Zoom</Label>
-                    <Select
-                      value={String(currentSettings.background_image_scale || 100)}
-                      onValueChange={(value) => handleSettingChange('background_image_scale', Number(value))}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {[50, 75, 100, 125, 150, 175, 200].map(val => (
-                          <SelectItem key={val} value={String(val)}>{val}%</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {/* Opacity Dropdown */}
+                  {/* Image Opacity Dropdown */}
                   <div className="space-y-2">
                     <Label>Image Opacity</Label>
                     <Select
