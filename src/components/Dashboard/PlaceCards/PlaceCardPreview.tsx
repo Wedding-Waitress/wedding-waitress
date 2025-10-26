@@ -137,7 +137,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
         )}
 
         {/* Card Content */}
-        <div className="relative z-10 text-center p-4 w-full">
+        <div className="relative z-10 text-center w-full" style={{ padding: '5mm' }}>
           <div
             style={{
               fontFamily: currentSettings.guest_font_family,
@@ -247,7 +247,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                         className="absolute top-0 bottom-0" 
                         style={{ 
                           left: '105mm',
-                          borderLeft: '0.5px solid #d3d3d3',
+                          borderLeft: '0.5px dotted #d3d3d3',
                           opacity: 0.3
                         }} 
                       />
@@ -256,7 +256,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                         className="absolute left-0 right-0" 
                         style={{ 
                           top: '99mm',
-                          borderTop: '0.5px solid #d3d3d3',
+                          borderTop: '0.5px dotted #d3d3d3',
                           opacity: 0.3
                         }} 
                       />
@@ -265,7 +265,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                         className="absolute left-0 right-0" 
                         style={{ 
                           top: '198mm',
-                          borderTop: '0.5px solid #d3d3d3',
+                          borderTop: '0.5px dotted #d3d3d3',
                           opacity: 0.3
                         }} 
                       />
@@ -327,7 +327,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                       className="absolute top-0 bottom-0" 
                       style={{ 
                         left: '105mm',
-                        borderLeft: '0.5px solid #d3d3d3',
+                        borderLeft: '0.5px dotted #d3d3d3',
                         opacity: 0.3
                       }} 
                     />
@@ -336,7 +336,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                       className="absolute left-0 right-0" 
                       style={{ 
                         top: '99mm',
-                        borderTop: '0.5px solid #d3d3d3',
+                        borderTop: '0.5px dotted #d3d3d3',
                         opacity: 0.3
                       }} 
                     />
@@ -345,7 +345,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                       className="absolute left-0 right-0" 
                       style={{ 
                         top: '198mm',
-                        borderTop: '0.5px solid #d3d3d3',
+                        borderTop: '0.5px dotted #d3d3d3',
                         opacity: 0.3
                       }} 
                     />
