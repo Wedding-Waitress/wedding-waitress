@@ -307,7 +307,6 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
       background_image_type: 'none' as const,
       background_image_x_position: 50,
       background_image_y_position: 50,
-      background_image_scale: 100,
       background_image_opacity: 100
     };
     
@@ -660,23 +659,6 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                     </Select>
                   </div>
 
-                  {/* Scale/Zoom Dropdown */}
-                  <div className="space-y-2">
-                    <Label>Scale/Zoom</Label>
-                    <Select
-                      value={String(currentSettings.background_image_scale || 100)}
-                      onValueChange={(value) => handleSettingChange('background_image_scale', Number(value))}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {[50, 75, 100, 125, 150, 175, 200].map(val => (
-                          <SelectItem key={val} value={String(val)}>{val}%</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
 
                   {/* Opacity Dropdown */}
                   <div className="space-y-2">
