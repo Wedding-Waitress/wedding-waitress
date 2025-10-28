@@ -39,7 +39,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/enhanced-button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { FileText, Users, Layout } from 'lucide-react';
+import { FileText, Users, Layout, Printer } from 'lucide-react';
 import { useEvents } from '@/hooks/useEvents';
 import { useRealtimeGuests } from '@/hooks/useRealtimeGuests';
 import { useFullSeatingChartSettings } from '@/hooks/useFullSeatingChartSettings';
@@ -125,6 +125,20 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
     } finally {
       setIsExporting(false);
     }
+  };
+
+  const handlePrint = () => {
+    if (!selectedEvent) return;
+    
+    toast({
+      title: 'Opening Print Dialog',
+      description: 'Preparing seating chart for printing...',
+    });
+    
+    // Small delay to show toast before print dialog
+    setTimeout(() => {
+      window.print();
+    }, 500);
   };
 
   // Sort guests based on selected sort option from settings
@@ -240,6 +254,15 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
                   >
                     <FileText className="w-4 h-4 mr-2" />
                     Download Word
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handlePrint}
+                    disabled={isExporting}
+                  >
+                    <Printer className="w-4 h-4 mr-2" />
+                    Print
                   </Button>
                 </div>
               )}
