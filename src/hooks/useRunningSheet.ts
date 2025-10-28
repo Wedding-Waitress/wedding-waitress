@@ -142,7 +142,7 @@ export const useRunningSheet = (eventId: string | null) => {
 
       if (error) throw error;
 
-      setItems([...items, newItem]);
+      setItems(prevItems => [...prevItems, newItem]);
 
       // Update sheet metadata
       await updateSheetMetadata(user.id);
@@ -174,7 +174,7 @@ export const useRunningSheet = (eventId: string | null) => {
 
       if (error) throw error;
 
-      setItems(items.map(item => item.id === id ? { ...item, ...data } : item));
+      setItems(prevItems => prevItems.map(item => item.id === id ? { ...item, ...data } : item));
 
       // Update sheet metadata
       await updateSheetMetadata(user.id);
@@ -203,7 +203,7 @@ export const useRunningSheet = (eventId: string | null) => {
 
       if (error) throw error;
 
-      setItems(items.filter(item => item.id !== id));
+      setItems(prevItems => prevItems.filter(item => item.id !== id));
 
       // Update sheet metadata
       await updateSheetMetadata(user.id);
