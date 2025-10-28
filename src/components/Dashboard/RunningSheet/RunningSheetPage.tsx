@@ -493,18 +493,32 @@ export const RunningSheetPage: React.FC = () => {
                 >
                   <div style={{ padding: '15mm 12mm' }} className="h-full flex flex-col">
                     {/* Header */}
-                    <div className="text-center space-y-2 mb-[4mm]">
-                      <h1 className="text-base font-bold" style={{ color: '#6D28D9' }}>
-                        {selectedEvent.name}
-                      </h1>
-                      <h2 className="font-bold text-xs text-foreground">
-                        Running Sheet - {formatDateWithOrdinal(selectedEvent.date)}
-                      </h2>
-                      <div className="text-[10px] text-foreground pb-2 border-b border-foreground">
-                        {selectedEvent.venue && `${selectedEvent.venue} - `}
-                        Total Items: {items.length}
-                        {totalPages > 1 && ` - Page ${currentPage} of ${totalPages}`}
-                        {` - Generated on: ${formatGeneratedTimestamp()}`}
+                    <div className="flex items-start gap-4 mb-[4mm]">
+                      {/* LEFT: Image Box */}
+                      {sheet?.venue_logo_url && (
+                        <div className="flex-shrink-0" style={{ width: '40mm', height: '40mm' }}>
+                          <img 
+                            src={sheet.venue_logo_url}
+                            alt="Event Logo"
+                            className="w-full h-full object-contain"
+                          />
+                        </div>
+                      )}
+                      
+                      {/* RIGHT: Event Info */}
+                      <div className={`flex-1 text-center space-y-2 ${sheet?.venue_logo_url ? '' : 'w-full'}`}>
+                        <h1 className="text-base font-bold" style={{ color: '#6D28D9' }}>
+                          {selectedEvent.name}
+                        </h1>
+                        <h2 className="font-bold text-xs text-foreground">
+                          Running Sheet - {formatDateWithOrdinal(selectedEvent.date)}
+                        </h2>
+                        <div className="text-[10px] text-foreground pb-2 border-b border-foreground">
+                          {selectedEvent.venue && `${selectedEvent.venue} - `}
+                          Total Items: {items.length}
+                          {totalPages > 1 && ` - Page ${currentPage} of ${totalPages}`}
+                          {` - Generated on: ${formatGeneratedTimestamp()}`}
+                        </div>
                       </div>
                     </div>
 
@@ -571,18 +585,32 @@ export const RunningSheetPage: React.FC = () => {
                   return (
                     <div key={pageIndex} className="print-page">
                       {/* Header */}
-                      <div className="print-header text-center space-y-2">
-                        <h1 className="text-xl font-semibold" style={{ color: '#6D28D9' }}>
-                          {selectedEvent.name}
-                        </h1>
-                        <h2 className="font-semibold text-foreground">
-                          Running Sheet - {formatDateWithOrdinal(selectedEvent.date)}
-                        </h2>
-                        <div className="meta-line text-sm text-foreground pb-2 border-b border-foreground">
-                          {selectedEvent.venue && `${selectedEvent.venue} - `}
-                          Total Items: {items.length}
-                          {totalPages > 1 && ` - Page ${pageIndex + 1} of ${totalPages}`}
-                          {` - Generated on: ${formatGeneratedTimestamp()}`}
+                      <div className="print-header flex items-start gap-4">
+                        {/* LEFT: Image Box */}
+                        {sheet?.venue_logo_url && (
+                          <div className="flex-shrink-0" style={{ width: '40mm', height: '40mm' }}>
+                            <img 
+                              src={sheet.venue_logo_url}
+                              alt="Event Logo"
+                              className="w-full h-full object-contain"
+                            />
+                          </div>
+                        )}
+                        
+                        {/* RIGHT: Event Info */}
+                        <div className={`flex-1 text-center space-y-2 ${sheet?.venue_logo_url ? '' : 'w-full'}`}>
+                          <h1 className="text-xl font-semibold" style={{ color: '#6D28D9' }}>
+                            {selectedEvent.name}
+                          </h1>
+                          <h2 className="font-semibold text-foreground">
+                            Running Sheet - {formatDateWithOrdinal(selectedEvent.date)}
+                          </h2>
+                          <div className="meta-line text-sm text-foreground pb-2 border-b border-foreground">
+                            {selectedEvent.venue && `${selectedEvent.venue} - `}
+                            Total Items: {items.length}
+                            {totalPages > 1 && ` - Page ${pageIndex + 1} of ${totalPages}`}
+                            {` - Generated on: ${formatGeneratedTimestamp()}`}
+                          </div>
                         </div>
                       </div>
 
