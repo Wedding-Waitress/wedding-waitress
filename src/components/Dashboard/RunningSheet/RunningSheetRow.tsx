@@ -5,7 +5,7 @@ import { GripVertical, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { RunningSheetItem } from '@/types/runningSheet';
-import { RichTextEditor } from './RichTextEditor';
+import { RichTextEditor, FormattingToolbar } from './RichTextEditor';
 
 interface RunningSheetRowProps {
   item: RunningSheetItem;
@@ -33,6 +33,30 @@ export const RunningSheetRow: React.FC<RunningSheetRowProps> = ({
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
+  };
+
+  const getFormatting = (descriptionRich: any) => {
+    if (typeof descriptionRich === 'object' && descriptionRich.formatting) {
+      return descriptionRich.formatting;
+    }
+    return { bold: false, italic: false, red: false };
+  };
+
+  const handleFormatToggle = (format: 'bold' | 'italic' | 'red') => {
+    const currentFormatting = getFormatting(item.description_rich);
+    const newFormatting = {
+      ...currentFormatting,
+      [format]: !currentFormatting[format],
+    };
+    const text = typeof item.description_rich === 'object' && item.description_rich.text
+      ? item.description_rich.text
+      : item.description_rich || '';
+    onUpdate(item.id, {
+      description_rich: {
+        text,
+        formatting: newFormatting,
+      },
+    });
   };
 
   if (item.is_section_header) {
@@ -73,9 +97,15 @@ export const RunningSheetRow: React.FC<RunningSheetRowProps> = ({
       style={style}
       className="grid grid-cols-1 md:grid-cols-[auto_100px_1fr_200px_auto] gap-4 items-start p-4 bg-card rounded-lg border border-border mb-2 hover:border-primary/50 transition-colors"
     >
-      {/* Drag Handle */}
-      <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing pt-2">
-        <GripVertical className="w-5 h-5 text-muted-foreground" />
+      {/* Drag Handle + Formatting Toolbar */}
+      <div className="flex flex-col items-center gap-2 pt-2">
+        <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing">
+          <GripVertical className="w-5 h-5 text-muted-foreground" />
+        </div>
+        <FormattingToolbar
+          formatting={getFormatting(item.description_rich)}
+          onToggle={handleFormatToggle}
+        />
       </div>
 
       {/* Time */}
@@ -97,6 +127,7 @@ export const RunningSheetRow: React.FC<RunningSheetRowProps> = ({
           value={item.description_rich}
           onChange={(value) => onUpdate(item.id, { description_rich: value })}
           placeholder="What's happening..."
+          hideToolbar={true}
         />
       </div>
 
