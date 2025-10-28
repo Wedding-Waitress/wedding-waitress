@@ -302,26 +302,26 @@ export const RunningSheetPage: React.FC = () => {
         <CardContent className="p-6 space-y-4">
           {/* Row A: Event Selector + Title */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <Select value={selectedEventId || undefined} onValueChange={setSelectedEventId}>
-              <SelectTrigger className="w-full sm:w-[300px]">
-                <SelectValue placeholder="Select an event..." />
-              </SelectTrigger>
-              <SelectContent>
-                {events.map((event) => (
-                  <SelectItem key={event.id} value={event.id}>
-                    {event.name} {event.date && `- ${format(new Date(event.date), 'dd/MM/yyyy')}`}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <div className="flex flex-col gap-2 w-full sm:w-[300px]">
+              <label className="text-sm font-medium" style={{ color: PURPLE_ACCENT }}>
+                Select Event
+              </label>
+              <Select value={selectedEventId || undefined} onValueChange={setSelectedEventId}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select an event..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {events.map((event) => (
+                    <SelectItem key={event.id} value={event.id}>
+                      {event.name} {event.date && `- ${format(new Date(event.date), 'dd/MM/yyyy')}`}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
             <h2 className="text-lg font-semibold" style={{ color: PURPLE_ACCENT }}>
               Running Sheet for Weddings & Events
             </h2>
-          </div>
-
-          {/* Row A2: Meta Information */}
-          <div className="text-sm text-muted-foreground">
-            Last updated by: {sheet?.updated_by_name || '-'} – {formatLastUpdated(sheet?.updated_at)}
           </div>
 
           {/* Row B: Logo + Upload Instructions */}
