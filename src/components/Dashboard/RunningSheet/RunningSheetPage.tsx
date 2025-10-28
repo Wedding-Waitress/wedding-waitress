@@ -10,7 +10,7 @@ import { useEvents } from '@/hooks/useEvents';
 import { useRunningSheet } from '@/hooks/useRunningSheet';
 import { useToast } from '@/hooks/use-toast';
 import { VenueLogoUpload } from './VenueLogoUpload';
-import { RunningSheetTable } from './RunningSheetTable';
+import { RunningSheetTableView } from './RunningSheetTableView';
 import { exportRunningSheetToPdf } from '@/lib/runningSheetPdfExporter';
 import { exportRunningSheetToDocx } from '@/lib/runningSheetDocxExporter';
 import { format } from 'date-fns';
@@ -57,7 +57,7 @@ export const RunningSheetPage: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   
   const { events, loading: eventsLoading } = useEvents();
-  const { sheet, items, loading: sheetLoading, createItem, deleteItem, updateSheet, debouncedSave, reorderItems } = useRunningSheet(selectedEventId);
+  const { sheet, items, loading: sheetLoading, createItem, deleteItem, duplicateItem, insertSectionHeaderAbove, updateSheet, debouncedSave, reorderItems } = useRunningSheet(selectedEventId);
   const { toast } = useToast();
 
   // Pagination
@@ -225,6 +225,10 @@ export const RunningSheetPage: React.FC = () => {
             display: none !important;
           }
           
+          .screen-only {
+            display: none !important;
+          }
+          
           .print-page {
             position: relative;
             width: 210mm;
@@ -253,16 +257,41 @@ export const RunningSheetPage: React.FC = () => {
             margin: 0 0 2mm 0 !important;
           }
           
-          .print-header h2 {
-            margin: 0 0 2mm 0 !important;
+          .print-header p {
+            margin: 0 0 1mm 0 !important;
             line-height: 1.1 !important;
-            font-size: 12pt !important;
           }
           
-          .print-header .meta-line {
-            font-size: 10pt !important;
-            padding-bottom: 2mm !important;
-            margin-bottom: 2mm !important;
+          .print-page table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 2mm;
+          }
+          
+          .print-page table thead {
+            background: #F4F4F5 !important;
+          }
+          
+          .print-page table th {
+            text-align: left;
+            padding: 2mm;
+            font-weight: 600;
+            border-bottom: 2px solid #000;
+          }
+          
+          .print-page table td {
+            padding: 2mm;
+            border-bottom: 1px solid #E5E7EB;
+            vertical-align: top;
+          }
+          
+          .print-page table tbody tr {
+            page-break-inside: avoid;
+            break-inside: avoid;
+          }
+          
+          .print-page table tbody tr:nth-child(even) {
+            background-color: #F9FAFB !important;
           }
           
           .print-page .flex-1 { 
@@ -284,15 +313,6 @@ export const RunningSheetPage: React.FC = () => {
             height: 10.5mm;
             width: auto;
             object-fit: contain;
-          }
-          
-          .running-sheet-row {
-            page-break-inside: avoid;
-            margin-bottom: 2mm;
-          }
-          
-          .screen-only {
-            display: none !important;
           }
         }
       `}</style>
@@ -433,7 +453,7 @@ export const RunningSheetPage: React.FC = () => {
         </Card>
       )}
 
-      {/* A4 Page View - Screen Only */}
+      {/* A4 Page View with Table */}
       {selectedEvent && sheet && (
         <>
           {sheetLoading ? (
@@ -491,74 +511,65 @@ export const RunningSheetPage: React.FC = () => {
                     border: '2px solid #6D28D9'
                   }}
                 >
-                  <div style={{ padding: '5mm 12mm' }} className="h-full flex flex-col">
-                    {/* Header - Two Column Layout */}
-                    <div className="flex gap-3 mb-[4mm]">
-                      {/* Left: Image Box */}
-                      <div 
-                        className="flex items-center justify-center flex-shrink-0"
-                        style={{ 
-                          width: '50mm', 
-                          height: '30mm',
-                          border: '0.5px solid #6D28D9',
-                          borderRadius: '8px',
-                          padding: '4px'
-                        }}
-                      >
-                        {sheet.venue_logo_url ? (
-                          <img 
-                            src={sheet.venue_logo_url}
-                            alt="Event Logo"
-                            className="w-full h-full object-contain"
-                          />
-                        ) : (
-                          <div className="text-center text-xs text-muted-foreground">
-                            No image uploaded
-                          </div>
-                        )}
-                      </div>
+                  <div style={{ padding: '15mm 12mm' }} className="h-full flex flex-col">
+                    {/* Header */}
+                    <div className="mb-4">
+                      <div className="flex gap-3 mb-2">
+                        {/* Logo Box */}
+                        <div 
+                          className="flex items-center justify-center"
+                          style={{ 
+                            width: '35mm', 
+                            height: '35mm',
+                            border: '1px solid #E5E7EB',
+                            borderRadius: '8px'
+                          }}
+                        >
+                          {sheet.venue_logo_url ? (
+                            <img 
+                              src={sheet.venue_logo_url}
+                              alt="Event Logo"
+                              className="w-full h-full object-contain p-1"
+                            />
+                          ) : (
+                            <div className="text-center text-xs text-muted-foreground">Logo</div>
+                          )}
+                        </div>
 
-                      {/* Right: Event Information Box */}
-                      <div 
-                        className="flex-1 flex flex-col items-center justify-center"
-                        style={{ 
-                          minHeight: '30mm',
-                          border: '0.5px solid #6D28D9',
-                          borderRadius: '8px',
-                          padding: '8px'
-                        }}
-                      >
-                        <h1 className="text-base font-bold mb-1" style={{ color: '#6D28D9' }}>
-                          {selectedEvent.name}
-                        </h1>
-                        <h2 className="font-bold text-xs text-foreground mb-1">
-                          Running Sheet - {formatDateWithOrdinal(selectedEvent.date)}
-                        </h2>
-                <div className="text-xs text-foreground text-center">
-                  {selectedEvent.venue && `${selectedEvent.venue}`}
-                  {totalPages > 1 && ` - Page ${currentPage} of ${totalPages}`}
-                  {` - Last Updated: ${formatGeneratedTimestamp()}`}
-                </div>
+                        {/* Event Info */}
+                        <div className="flex-1">
+                          <h1 className="text-lg font-bold mb-1" style={{ color: '#6D28D9' }}>
+                            {selectedEvent.name}
+                          </h1>
+                          <p className="text-sm text-foreground mb-1">
+                            {formatDateWithOrdinal(selectedEvent.date)}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            Generated: {formatGeneratedTimestamp()}
+                          </p>
+                        </div>
                       </div>
                     </div>
 
-                    {/* Running Sheet Content */}
-                    <div className="flex-1 overflow-hidden mt-4">
-                      <RunningSheetTable
+                    {/* Table with Sticky Header */}
+                    <div className="flex-1 overflow-hidden border border-border rounded-lg">
+                      <RunningSheetTableView
                         items={paginatedItems}
                         showResponsible={sheet.show_responsible}
                         onUpdateItem={debouncedSave}
                         onDeleteItem={deleteItem}
-                        onReorder={reorderItems}
+                        onDuplicateItem={duplicateItem}
+                        onInsertHeaderAbove={insertSectionHeaderAbove}
+                        onReorderItems={reorderItems}
                       />
                     </div>
 
-                    {/* Footer with Logo */}
-                    <div className="mt-auto pt-4 flex justify-center">
+                    {/* Footer */}
+                    <div className="mt-4 flex justify-center">
                       <img 
                         src={runningSheetLogo}
                         alt="Wedding Waitress" 
-                        style={{ height: '10.5mm', width: 'auto', objectFit: 'contain' }}
+                        style={{ height: '10.5mm', width: 'auto' }}
                       />
                     </div>
                   </div>
@@ -591,91 +602,6 @@ export const RunningSheetPage: React.FC = () => {
                   </Button>
                 </div>
               )}
-
-              {/* Print Version - Multiple A4 Pages */}
-              <div id="running-sheet-print-content" className="hidden print:block">
-                {Array.from({ length: totalPages }, (_, pageIndex) => {
-                  const pageItems = items.slice(
-                    pageIndex * itemsPerPage,
-                    (pageIndex + 1) * itemsPerPage
-                  );
-                  
-                  if (pageItems.length === 0) return null;
-                  
-                  return (
-                    <div key={pageIndex} className="print-page">
-                      {/* Header - Two Column Layout */}
-                      <div className="print-header flex gap-3">
-                        {/* Left: Image Box */}
-                        <div 
-                          className="flex items-center justify-center flex-shrink-0"
-                          style={{ 
-                            width: '50mm', 
-                            height: '30mm',
-                            border: '0.5px solid #6D28D9',
-                            borderRadius: '8px',
-                            padding: '4px'
-                          }}
-                        >
-                          {sheet.venue_logo_url ? (
-                            <img 
-                              src={sheet.venue_logo_url}
-                              alt="Event Logo"
-                              className="w-full h-full object-contain"
-                            />
-                          ) : (
-                            <div className="text-center text-xs text-muted-foreground">
-                              No image uploaded
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Right: Event Information Box */}
-                        <div 
-                          className="flex-1 flex flex-col items-center justify-center"
-                          style={{ 
-                            minHeight: '30mm',
-                            border: '0.5px solid #6D28D9',
-                            borderRadius: '8px',
-                            padding: '8px'
-                          }}
-                        >
-                          <h1 className="text-xl font-semibold mb-1" style={{ color: '#6D28D9' }}>
-                            {selectedEvent.name}
-                          </h1>
-                          <h2 className="font-semibold text-foreground mb-1">
-                            Running Sheet - {formatDateWithOrdinal(selectedEvent.date)}
-                          </h2>
-                  <div className="meta-line text-base text-foreground text-center">
-                    {selectedEvent.venue && `${selectedEvent.venue}`}
-                    {totalPages > 1 && ` - Page ${pageIndex + 1} of ${totalPages}`}
-                    {` - Last Updated: ${formatGeneratedTimestamp()}`}
-                  </div>
-                        </div>
-                      </div>
-
-                      {/* Running Sheet Content */}
-                      <div className="flex-1 overflow-visible" style={{ paddingTop: '4mm', paddingBottom: '12mm' }}>
-                        <RunningSheetTable
-                          items={pageItems}
-                          showResponsible={sheet.show_responsible}
-                          onUpdateItem={debouncedSave}
-                          onDeleteItem={deleteItem}
-                          onReorder={reorderItems}
-                        />
-                      </div>
-
-                      {/* Footer with Logo */}
-                      <div className="print-footer">
-                        <img 
-                          src={runningSheetLogo}
-                          alt="Wedding Waitress"
-                        />
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
             </>
           )}
         </>

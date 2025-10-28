@@ -161,12 +161,17 @@ export const useRunningSheet = (eventId: string | null) => {
     }
   };
 
-  // Update item - Silent auto-save (no toast)
+  // Update item - Optimistic with silent auto-save
   const updateItem = async (id: string, data: Partial<RunningSheetItem>) => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Not authenticated');
+    // Get snapshot of current item for rollback
+    const prevItem = items.find(i => i.id === id);
+    
+    // Optimistic UI update
+    setItems(prevItems => prevItems.map(item => 
+      item.id === id ? { ...item, ...data } : item
+    ));
 
+    try {
       const { error } = await supabase
         .from('running_sheet_items')
         .update(data)
@@ -174,13 +179,16 @@ export const useRunningSheet = (eventId: string | null) => {
 
       if (error) throw error;
 
-      setItems(prevItems => prevItems.map(item => item.id === id ? { ...item, ...data } : item));
-
-      // Update sheet metadata
-      await updateSheetMetadata(user.id);
-
-      // NO TOAST - Silent auto-save for better UX
+      // Update metadata in background with debounce
+      debouncedUpdateMetadata();
     } catch (error) {
+      // Rollback on error
+      if (prevItem) {
+        setItems(prevItems => prevItems.map(item => 
+          item.id === id ? prevItem : item
+        ));
+      }
+      
       console.error('Error updating item:', error);
       toast({
         title: 'Save Failed',
@@ -334,14 +342,56 @@ export const useRunningSheet = (eventId: string | null) => {
     }
   };
 
+  // Debounced metadata updater
+  const debouncedUpdateMetadata = useMemo(
+    () => debounce(async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user || !sheet) return;
+      await updateSheetMetadata(user.id);
+    }, 5000),
+    [sheet?.id]
+  );
+
   // Debounced save
   const debouncedSave = useMemo(
     () =>
       debounce((id: string, data: Partial<RunningSheetItem>) => {
         updateItem(id, data);
-      }, 600),
+      }, 300), // Reduced from 600ms to 300ms
     []
   );
+
+  // Duplicate item
+  const duplicateItem = async (itemId: string) => {
+    const item = items.find(i => i.id === itemId);
+    if (!item) return;
+    
+    await createItem({
+      time_text: item.time_text,
+      description_rich: item.description_rich,
+      responsible: item.responsible,
+      is_section_header: item.is_section_header,
+    });
+    
+    toast({
+      title: '✓ Duplicated',
+      duration: 1500,
+    });
+  };
+
+  // Insert section header above current row
+  const insertSectionHeaderAbove = async (currentOrderIndex: number) => {
+    await createItem({
+      time_text: '',
+      description_rich: { text: 'New Section', formatting: {} },
+      responsible: '',
+      is_section_header: true,
+      order_index: currentOrderIndex - 0.5,
+    });
+    
+    // Refresh to re-number all items
+    await fetchSheet();
+  };
 
   return {
     sheet,
@@ -350,6 +400,8 @@ export const useRunningSheet = (eventId: string | null) => {
     createItem,
     updateItem,
     deleteItem,
+    duplicateItem,
+    insertSectionHeaderAbove,
     reorderItems,
     updateSheet,
     debouncedSave,

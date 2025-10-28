@@ -1,0 +1,171 @@
+import React, { useState, useEffect } from 'react';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import { GripVertical, Trash2, Copy, Heading } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { RunningSheetItem } from '@/types/runningSheet';
+import { InlineRichTextEditor } from './InlineRichTextEditor';
+import { TimePicker } from '../TimePicker';
+
+interface RunningSheetInlineRowProps {
+  item: RunningSheetItem;
+  showResponsible: boolean;
+  onUpdate: (id: string, data: Partial<RunningSheetItem>) => void;
+  onDelete: (id: string) => void;
+  onDuplicate: (id: string) => void;
+  onInsertHeaderAbove: (orderIndex: number) => void;
+}
+
+export const RunningSheetInlineRow: React.FC<RunningSheetInlineRowProps> = ({
+  item,
+  showResponsible,
+  onUpdate,
+  onDelete,
+  onDuplicate,
+  onInsertHeaderAbove,
+}) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: item.id });
+
+  const [responsibleLocal, setResponsibleLocal] = useState(item.responsible || '');
+
+  useEffect(() => {
+    setResponsibleLocal(item.responsible || '');
+  }, [item.id, item.responsible]);
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  const handleResponsibleChange = (value: string) => {
+    setResponsibleLocal(value);
+    onUpdate(item.id, { responsible: value });
+  };
+
+  // Section Header Row
+  if (item.is_section_header) {
+    return (
+      <tr
+        ref={setNodeRef}
+        style={style}
+        className="bg-[#F4F4F5] border-b"
+      >
+        <td className="p-2">
+          <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing">
+            <GripVertical className="w-5 h-5 text-muted-foreground" />
+          </div>
+        </td>
+        <td colSpan={showResponsible ? 4 : 3} className="p-2">
+          <Input
+            value={typeof item.description_rich === 'object' && item.description_rich.text 
+              ? item.description_rich.text 
+              : item.description_rich || ''}
+            onChange={(e) => onUpdate(item.id, { 
+              description_rich: { text: e.target.value, formatting: {} } 
+            })}
+            placeholder="Section header (e.g., Family Introductions)"
+            className="font-bold text-lg bg-transparent border-none shadow-none focus-visible:ring-0"
+          />
+        </td>
+        <td className="p-2 text-right">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => onDelete(item.id)}
+            className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+          >
+            <Trash2 className="w-4 h-4" />
+          </Button>
+        </td>
+      </tr>
+    );
+  }
+
+  // Regular Row
+  return (
+    <tr
+      ref={setNodeRef}
+      style={style}
+      className="border-b hover:bg-muted/50 transition-colors"
+    >
+      {/* Drag Handle */}
+      <td className="p-2 w-[30px]">
+        <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing">
+          <GripVertical className="w-5 h-5 text-muted-foreground" />
+        </div>
+      </td>
+
+      {/* Time Picker */}
+      <td className="p-2 w-[100px]">
+        <TimePicker
+          value={item.time_text}
+          onChange={(time) => onUpdate(item.id, { time_text: time })}
+          placeholder="Select time"
+        />
+      </td>
+
+      {/* Event Info (Rich Text) */}
+      <td className="p-2">
+        <InlineRichTextEditor
+          value={item.description_rich}
+          onChange={(val) => onUpdate(item.id, { description_rich: val })}
+          placeholder="What's happening..."
+        />
+      </td>
+
+      {/* Assigned (conditional) */}
+      {showResponsible && (
+        <td className="p-2 w-[150px]">
+          <Input
+            value={responsibleLocal}
+            onChange={(e) => handleResponsibleChange(e.target.value)}
+            placeholder="Person"
+            className="h-9"
+          />
+        </td>
+      )}
+
+      {/* Actions */}
+      <td className="p-2 w-[120px]">
+        <div className="flex gap-1 justify-end">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => onDuplicate(item.id)}
+            className="h-8 w-8 p-0 hover:bg-accent"
+            title="Duplicate row"
+          >
+            <Copy className="w-4 h-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => onInsertHeaderAbove(item.order_index)}
+            className="h-8 w-8 p-0 hover:bg-accent"
+            title="Insert section header above"
+          >
+            <Heading className="w-4 h-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => onDelete(item.id)}
+            className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+            title="Delete row"
+          >
+            <Trash2 className="w-4 h-4" />
+          </Button>
+        </div>
+      </td>
+    </tr>
+  );
+};
