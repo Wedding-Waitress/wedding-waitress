@@ -20,13 +20,13 @@ export const DashboardHeader: React.FC = () => {
   };
   
   return <header className="relative w-full border-b border-border bg-card print:hidden">
-      <div className="relative flex h-20 sm:h-16 items-center px-3 sm:px-4 md:px-6 my-[10px]">
+      <div className="relative flex h-10 sm:h-8 items-center px-3 sm:px-4 md:px-6 my-[5px]">
         {/* Welcome message - hidden on mobile, right-aligned on tablet, centered on desktop */}
         {!isMobile && (
           <div className="hidden sm:flex items-center justify-center w-full pr-16 lg:pr-0">
             <h2 className="text-xs sm:text-xs md:text-sm lg:text-base font-semibold flex items-center gap-1 sm:gap-2" style={{ color: '#7C3AED' }}>
               <span className="hidden sm:inline">Hey {getDisplayName()}, </span>
-              <span className="hidden sm:inline">What are you working on today!</span>
+              <span className="hidden sm:inline">what are you working on today!</span>
               <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-7 lg:h-7 flex-shrink-0" style={{ color: '#7C3AED' }} />
             </h2>
           </div>
