@@ -16,7 +16,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
-import { Users, FileText } from 'lucide-react';
+import { Users, FileText, Printer } from 'lucide-react';
 import { useEvents } from '@/hooks/useEvents';
 import { useTables } from '@/hooks/useTables';
 import { useRealtimeGuests } from '@/hooks/useRealtimeGuests';
@@ -27,6 +27,41 @@ import { exportIndividualTableChartToDocx, exportAllTablesChartToDocx } from '@/
 import { generateIndividualTableChartPDF, generateAllTablesChartPDF } from '@/lib/individualTableChartEngine';
 import { saveAs } from 'file-saver';
 import { toast } from 'sonner';
+
+// Print styles for clean browser printing
+const printStyles = `
+  @media print {
+    @page {
+      size: A4 portrait;
+      margin: 0;
+    }
+    
+    body * {
+      visibility: hidden;
+    }
+    
+    #printA4-individual-table,
+    #printA4-individual-table * {
+      visibility: visible;
+    }
+    
+    #printA4-individual-table {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 210mm;
+      height: 297mm;
+    }
+    
+    /* Hide non-print elements */
+    button,
+    .no-print,
+    header,
+    nav {
+      display: none !important;
+    }
+  }
+`;
 
 export interface IndividualChartSettings {
   tableShape: 'round' | 'square';
@@ -65,12 +100,24 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
   const [settings, setSettings] = useState<IndividualChartSettings>(defaultSettings);
   const [isExporting, setIsExporting] = useState(false);
   const [isExportingAll, setIsExportingAll] = useState(false);
+  const [isPrinting, setIsPrinting] = useState(false);
 
   const { events, loading: eventsLoading } = useEvents();
   const { tables, loading: tablesLoading } = useTables(selectedEventId);
   const { guests, loading: guestsLoading } = useRealtimeGuests(selectedEventId);
 
   const selectedEvent = events.find(event => event.id === selectedEventId);
+
+  // Inject print styles into document
+  useEffect(() => {
+    const styleElement = document.createElement('style');
+    styleElement.textContent = printStyles;
+    document.head.appendChild(styleElement);
+    
+    return () => {
+      document.head.removeChild(styleElement);
+    };
+  }, []);
 
   // Format event date for display
   const eventDate = selectedEvent?.date ? format(new Date(selectedEvent.date), 'PPP') : '';
@@ -202,6 +249,32 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
     }
   };
 
+  const handlePrint = () => {
+    if (!selectedEvent || !selectedTableId) return;
+    
+    setIsPrinting(true);
+    
+    toast.info('Opening Print Dialog', {
+      description: `Preparing Table ${selectedTable?.table_no} for printing...`,
+    });
+    
+    // Small delay to show toast before print dialog
+    setTimeout(() => {
+      window.print();
+      setIsPrinting(false);
+    }, 500);
+  };
+
+  const handlePrintAll = () => {
+    if (!selectedEvent || tables.length === 0) return;
+    
+    toast.info('Print All Tables', {
+      description: 'To print all tables, use "Download All PDF" for best results. This will print the current table only.',
+    });
+    
+    handlePrint();
+  };
+
   const selectedTable = tables.find(table => table.id === selectedTableId);
   const isDataReady = selectedEvent && selectedTable && !tablesLoading && !guestsLoading;
 
@@ -279,7 +352,7 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
                 variant="outline"
                 size="sm"
                 onClick={handleDownloadPdf} 
-                disabled={isExporting || isExportingAll}
+                disabled={isExporting || isExportingAll || isPrinting}
                 className="flex items-center gap-2"
               >
                 <FileText className="w-4 h-4" />
@@ -289,7 +362,7 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
                 variant="outline"
                 size="sm"
                 onClick={handleDownloadAllPdf}
-                disabled={isExporting || isExportingAll}
+                disabled={isExporting || isExportingAll || isPrinting}
                 className="flex items-center gap-2"
               >
                 <FileText className="w-4 h-4" />
@@ -299,7 +372,7 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
                 variant="outline"
                 size="sm"
                 onClick={handleDownloadWord} 
-                disabled={isExporting || isExportingAll}
+                disabled={isExporting || isExportingAll || isPrinting}
                 className="flex items-center gap-2"
               >
                 <FileText className="w-4 h-4" />
@@ -309,11 +382,31 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
                 variant="outline"
                 size="sm"
                 onClick={handleDownloadAllWord}
-                disabled={isExporting || isExportingAll}
+                disabled={isExporting || isExportingAll || isPrinting}
                 className="flex items-center gap-2"
               >
                 <FileText className="w-4 h-4" />
                 {isExportingAll ? `Exporting ${tables.length} tables...` : 'Download All Word'}
+              </Button>
+              <Button 
+                variant="outline"
+                size="sm"
+                onClick={handlePrint}
+                disabled={isExporting || isExportingAll || isPrinting}
+                className="flex items-center gap-2"
+              >
+                <Printer className="w-4 h-4" />
+                Print
+              </Button>
+              <Button 
+                variant="outline"
+                size="sm"
+                onClick={handlePrintAll}
+                disabled={isExporting || isExportingAll || isPrinting}
+                className="flex items-center gap-2"
+              >
+                <Printer className="w-4 h-4" />
+                Print All
               </Button>
             </div>
           )}
