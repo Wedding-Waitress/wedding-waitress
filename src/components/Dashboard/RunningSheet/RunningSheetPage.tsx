@@ -519,18 +519,18 @@ export const RunningSheetPage: React.FC = () => {
                   onUpdate={(updates) => updateSheet(updates)}
                 />
 
-                {/* A4 Page Container with Grey Background Wrapper */}
-                <div className="flex-1 flex justify-center" style={{ background: '#F9F9FB', padding: '24px', borderRadius: '12px' }}>
-                  <div 
-                    className="bg-white shadow-lg"
-                    style={{
-                      width: '210mm', 
-                      height: '297mm',
-                      minWidth: '210mm',
-                      maxWidth: '210mm',
-                      border: '1px solid #6D28D9'
-                    }}
-                  >
+          {/* A4 Page Container */}
+          <div className="flex-1 flex justify-center">
+            <div 
+              className="bg-white shadow-lg"
+              style={{
+                width: '210mm', 
+                height: '297mm',
+                minWidth: '210mm',
+                maxWidth: '210mm',
+                border: '1px solid #6D28D9'
+              }}
+            >
                     <div style={{ padding: '12mm 8mm' }} className="h-full flex flex-col">
                       {/* Header */}
                       <div className="mb-4">
@@ -603,11 +603,11 @@ export const RunningSheetPage: React.FC = () => {
                           alt="Wedding Waitress" 
                           style={{ height: '10.5mm', width: 'auto' }}
                         />
-                      </div>
                     </div>
                   </div>
                 </div>
               </div>
+            </div>
 
               {/* Page Navigation - Bottom */}
               {totalPages > 1 && (
