@@ -498,9 +498,9 @@ export const RunningSheetPage: React.FC = () => {
                       <div 
                         className="flex items-center justify-center flex-shrink-0"
                         style={{ 
-                          width: '40mm', 
-                          height: '40mm',
-                          border: '0.5px solid #6D28D9',
+                          width: '50mm', 
+                          height: '50mm',
+              border: '0.5px solid #000000',
                           padding: '4px'
                         }}
                       >
@@ -521,8 +521,8 @@ export const RunningSheetPage: React.FC = () => {
                       <div 
                         className="flex-1 flex flex-col items-center justify-center"
                         style={{ 
-                          minHeight: '40mm',
-                          border: '0.5px solid #6D28D9',
+                          minHeight: '50mm',
+              border: '0.5px solid #000000',
                           padding: '8px'
                         }}
                       >
@@ -609,9 +609,9 @@ export const RunningSheetPage: React.FC = () => {
                         <div 
                           className="flex items-center justify-center flex-shrink-0"
                           style={{ 
-                            width: '40mm', 
-                            height: '40mm',
-                            border: '0.5px solid #6D28D9',
+                            width: '50mm', 
+                            height: '50mm',
+                border: '0.5px solid #000000',
                             padding: '4px'
                           }}
                         >
@@ -632,8 +632,8 @@ export const RunningSheetPage: React.FC = () => {
                         <div 
                           className="flex-1 flex flex-col items-center justify-center"
                           style={{ 
-                            minHeight: '40mm',
-                            border: '0.5px solid #6D28D9',
+                            minHeight: '50mm',
+                            border: '0.5px solid #000000',
                             padding: '8px'
                           }}
                         >
