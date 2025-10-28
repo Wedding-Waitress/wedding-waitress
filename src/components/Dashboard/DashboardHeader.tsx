@@ -1,6 +1,5 @@
 import React from 'react';
 import { useProfile } from '@/hooks/useProfile';
-import logoImage from '@/assets/wedding-waitress-full-logo.png';
 import { Sparkles } from 'lucide-react';
 import { SidebarTrigger, useSidebar } from '@/components/ui/sidebar';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -22,17 +21,9 @@ export const DashboardHeader: React.FC = () => {
   
   return <header className="relative w-full border-b border-border bg-card print:hidden">
       <div className="relative flex h-20 sm:h-16 items-center px-3 sm:px-4 md:px-6 my-[10px]">
-        {/* Logo - centered on mobile, left-aligned on desktop */}
-        <div className={cn(
-          "flex items-center justify-center",
-          isMobile ? "flex-1" : "absolute left-0 w-[16rem]"
-        )}>
-          <img src={logoImage} alt="Wedding Waitress" className="h-12 sm:h-10 md:h-14 w-auto" />
-        </div>
-        
         {/* Welcome message - hidden on mobile, right-aligned on tablet, centered on desktop */}
         {!isMobile && (
-          <div className="hidden sm:flex items-center justify-end lg:justify-center w-full pr-16 lg:pr-0">
+          <div className="hidden sm:flex items-center justify-center w-full pr-16 lg:pr-0">
             <h2 className="text-xs sm:text-xs md:text-sm lg:text-base font-semibold flex items-center gap-1 sm:gap-2" style={{ color: '#7C3AED' }}>
               <span className="hidden sm:inline">Hey {getDisplayName()}, </span>
               <span className="hidden sm:inline">What are you working on today!</span>

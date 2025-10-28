@@ -22,6 +22,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import {
   Sidebar,
   SidebarContent,
+  SidebarHeader,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -31,6 +32,7 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar';
 import { Separator } from '@/components/ui/separator';
+import logoImage from '@/assets/wedding-waitress-full-logo.png';
 
 interface AppSidebarProps {
   activeTab: string;
@@ -83,7 +85,16 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
   };
 
   return (
-    <Sidebar collapsible="icon" className="border-r border-border pt-28 sm:pt-24">
+    <Sidebar collapsible="icon" className="border-r border-border">
+      <SidebarHeader className="pt-4 pb-12">
+        <div className="flex items-center justify-center px-4">
+          <img 
+            src={logoImage} 
+            alt="Wedding Waitress" 
+            className="h-12 sm:h-10 md:h-14 w-auto" 
+          />
+        </div>
+      </SidebarHeader>
       <SidebarContent className="pt-2">
         <SidebarGroup>
           <SidebarGroupContent>
