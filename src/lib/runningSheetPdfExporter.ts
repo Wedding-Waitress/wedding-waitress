@@ -18,10 +18,10 @@ export const exportRunningSheetToPdf = async (
 
   const pageWidth = 210;
   const pageHeight = 297;
-  const marginLeft = 12;
-  const marginRight = 12;
-  const marginTop = 15;
-  const marginBottom = 15;
+  const marginLeft = 8;
+  const marginRight = 8;
+  const marginTop = 12;
+  const marginBottom = 12;
   const contentWidth = pageWidth - marginLeft - marginRight;
 
   let currentPage = 1;

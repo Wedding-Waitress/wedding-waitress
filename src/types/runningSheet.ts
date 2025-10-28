@@ -7,6 +7,18 @@ export interface RunningSheet {
   updated_by: string | null;
   updated_at: string;
   created_at: string;
+  
+  // Formatting settings
+  all_font?: string;
+  all_text_size?: 'small' | 'medium' | 'large';
+  all_bold?: boolean;
+  all_italic?: boolean;
+  all_text_color?: string;
+  header_font?: string;
+  header_size?: 'small' | 'medium' | 'large';
+  header_bold?: boolean;
+  header_italic?: boolean;
+  header_color?: string;
 }
 
 export interface RunningSheetItem {

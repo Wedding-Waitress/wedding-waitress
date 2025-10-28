@@ -169,10 +169,10 @@ export const exportRunningSheetToDocx = async (
         properties: {
           page: {
             margin: {
-              top: 1134, // 15mm
-              bottom: 1134, // 15mm
-              left: 907, // 12mm
-              right: 907, // 12mm
+              top: 907, // 12mm
+              bottom: 907, // 12mm
+              left: 605, // 8mm
+              right: 605, // 8mm
             },
           },
         },

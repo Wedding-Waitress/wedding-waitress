@@ -11,6 +11,7 @@ import { useRunningSheet } from '@/hooks/useRunningSheet';
 import { useToast } from '@/hooks/use-toast';
 import { VenueLogoUpload } from './VenueLogoUpload';
 import { RunningSheetTableView } from './RunningSheetTableView';
+import { RunningSheetSettingsSidebar } from './RunningSheetSettingsSidebar';
 import { exportRunningSheetToPdf } from '@/lib/runningSheetPdfExporter';
 import { exportRunningSheetToDocx } from '@/lib/runningSheetDocxExporter';
 import { format } from 'date-fns';
@@ -229,18 +230,18 @@ export const RunningSheetPage: React.FC = () => {
             display: none !important;
           }
           
-          .print-page {
-            position: relative;
-            width: 210mm;
-            height: 297mm;
-            padding: 15mm 12mm;
-            display: flex;
-            flex-direction: column;
-            background-color: white !important;
-            box-sizing: border-box;
-            page-break-after: always;
-            overflow: visible;
-          }
+        .print-page {
+          position: relative;
+          width: 210mm;
+          height: 297mm;
+          padding: 12mm 8mm;
+          display: flex;
+          flex-direction: column;
+          background-color: white !important;
+          box-sizing: border-box;
+          page-break-after: always;
+          overflow: visible;
+        }
           
           .print-page:last-child {
             page-break-after: auto;
@@ -556,6 +557,18 @@ export const RunningSheetPage: React.FC = () => {
                       <RunningSheetTableView
                         items={paginatedItems}
                         showResponsible={sheet.show_responsible}
+                        settings={{
+                          all_font: sheet.all_font || 'Inter',
+                          all_text_size: sheet.all_text_size || 'medium',
+                          all_bold: sheet.all_bold || false,
+                          all_italic: sheet.all_italic || false,
+                          all_text_color: sheet.all_text_color || '#000000',
+                          header_font: sheet.header_font || 'Inter',
+                          header_size: sheet.header_size || 'large',
+                          header_bold: sheet.header_bold !== false,
+                          header_italic: sheet.header_italic || false,
+                          header_color: sheet.header_color || '#6D28D9',
+                        }}
                         onUpdateItem={debouncedSave}
                         onDeleteItem={deleteItem}
                         onDuplicateItem={duplicateItem}

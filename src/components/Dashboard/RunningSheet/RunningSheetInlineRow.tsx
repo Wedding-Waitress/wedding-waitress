@@ -11,15 +11,29 @@ import { TimePicker } from '../TimePicker';
 interface RunningSheetInlineRowProps {
   item: RunningSheetItem;
   showResponsible: boolean;
+  settings: {
+    header_font: string;
+    header_size: 'small' | 'medium' | 'large';
+    header_bold: boolean;
+    header_italic: boolean;
+    header_color: string;
+  };
   onUpdate: (id: string, data: Partial<RunningSheetItem>) => void;
   onDelete: (id: string) => void;
   onDuplicate: (id: string) => void;
   onInsertHeaderAbove: (orderIndex: number) => void;
 }
 
+const HEADER_SIZE_MAP = {
+  small: '16px',
+  medium: '18px',
+  large: '20px',
+};
+
 export const RunningSheetInlineRow: React.FC<RunningSheetInlineRowProps> = ({
   item,
   showResponsible,
+  settings,
   onUpdate,
   onDelete,
   onDuplicate,
@@ -73,7 +87,14 @@ export const RunningSheetInlineRow: React.FC<RunningSheetInlineRowProps> = ({
               description_rich: { text: e.target.value, formatting: {} } 
             })}
             placeholder="Section header (e.g., Family Introductions)"
-            className="font-bold text-lg bg-transparent border-none shadow-none focus-visible:ring-0"
+            className="bg-transparent border-none shadow-none focus-visible:ring-0"
+            style={{
+              fontFamily: settings.header_font,
+              fontSize: HEADER_SIZE_MAP[settings.header_size],
+              fontWeight: settings.header_bold ? 'bold' : 'normal',
+              fontStyle: settings.header_italic ? 'italic' : 'normal',
+              color: settings.header_color,
+            }}
           />
         </td>
         <td className="p-2 text-right">

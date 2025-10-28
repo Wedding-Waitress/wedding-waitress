@@ -20,6 +20,18 @@ import { RunningSheetInlineRow } from './RunningSheetInlineRow';
 interface RunningSheetTableViewProps {
   items: RunningSheetItem[];
   showResponsible: boolean;
+  settings: {
+    all_font: string;
+    all_text_size: 'small' | 'medium' | 'large';
+    all_bold: boolean;
+    all_italic: boolean;
+    all_text_color: string;
+    header_font: string;
+    header_size: 'small' | 'medium' | 'large';
+    header_bold: boolean;
+    header_italic: boolean;
+    header_color: string;
+  };
   onUpdateItem: (id: string, data: Partial<RunningSheetItem>) => void;
   onDeleteItem: (id: string) => void;
   onDuplicateItem: (id: string) => void;
@@ -27,9 +39,16 @@ interface RunningSheetTableViewProps {
   onReorderItems: (newOrder: RunningSheetItem[]) => void;
 }
 
+const TEXT_SIZE_MAP = {
+  small: '12px',
+  medium: '14px',
+  large: '16px',
+};
+
 export const RunningSheetTableView: React.FC<RunningSheetTableViewProps> = ({
   items,
   showResponsible,
+  settings,
   onUpdateItem,
   onDeleteItem,
   onDuplicateItem,
@@ -62,7 +81,16 @@ export const RunningSheetTableView: React.FC<RunningSheetTableViewProps> = ({
   return (
     <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
       <div className="overflow-auto max-h-[calc(297mm-80mm)]">
-        <table className="w-full border-collapse">
+        <table 
+          className="w-full border-collapse"
+          style={{
+            fontFamily: settings.all_font,
+            fontSize: TEXT_SIZE_MAP[settings.all_text_size],
+            fontWeight: settings.all_bold ? 'bold' : 'normal',
+            fontStyle: settings.all_italic ? 'italic' : 'normal',
+            color: settings.all_text_color,
+          }}
+        >
           <thead className="sticky top-0 bg-[#F4F4F5] z-10 shadow-sm">
             <tr className="border-b-2 border-border">
               <th className="p-2 w-[30px]"></th>
@@ -81,6 +109,13 @@ export const RunningSheetTableView: React.FC<RunningSheetTableViewProps> = ({
                   key={item.id}
                   item={item}
                   showResponsible={showResponsible}
+                  settings={{
+                    header_font: settings.header_font,
+                    header_size: settings.header_size,
+                    header_bold: settings.header_bold,
+                    header_italic: settings.header_italic,
+                    header_color: settings.header_color,
+                  }}
                   onUpdate={onUpdateItem}
                   onDelete={onDeleteItem}
                   onDuplicate={onDuplicateItem}
