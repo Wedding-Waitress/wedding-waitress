@@ -345,93 +345,73 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
             </div>
           </div>
 
-          {/* Action Buttons */}
-          {isDataReady && (
-            <div className="pt-4 border-t">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {/* Export Controls Section */}
-                <div className="space-y-3">
-                  <h3 className="text-sm font-medium">Export Controls</h3>
-                  <div className="flex flex-col gap-2">
-                    <Button 
-                      variant="outline"
-                      size="sm"
-                      onClick={handleDownloadPdf} 
-                      disabled={isExporting || isExportingAll || isPrinting}
-                      className="flex items-center gap-2 justify-start"
-                    >
-                      <FileText className="w-4 h-4" />
-                      Download PDF
-                    </Button>
-                    <Button 
-                      variant="outline"
-                      size="sm"
-                      onClick={handleDownloadAllPdf}
-                      disabled={isExporting || isExportingAll || isPrinting}
-                      className="flex items-center gap-2 justify-start"
-                    >
-                      <FileText className="w-4 h-4" />
-                      {isExportingAll ? `Exporting ${tables.length} tables...` : 'Download All PDF'}
-                    </Button>
-                  </div>
-                </div>
-
-                {/* Word Export Section */}
-                <div className="space-y-3">
-                  <h3 className="text-sm font-medium">Word Export</h3>
-                  <div className="flex flex-col gap-2">
-                    <Button 
-                      variant="outline"
-                      size="sm"
-                      onClick={handleDownloadWord} 
-                      disabled={isExporting || isExportingAll || isPrinting}
-                      className="flex items-center gap-2 justify-start"
-                    >
-                      <FileText className="w-4 h-4" />
-                      Download Word
-                    </Button>
-                    <Button 
-                      variant="outline"
-                      size="sm"
-                      onClick={handleDownloadAllWord}
-                      disabled={isExporting || isExportingAll || isPrinting}
-                      className="flex items-center gap-2 justify-start"
-                    >
-                      <FileText className="w-4 h-4" />
-                      {isExportingAll ? `Exporting ${tables.length} tables...` : 'Download All Word'}
-                    </Button>
-                  </div>
-                </div>
-
-                {/* Print Controls Section */}
-                <div className="space-y-3">
-                  <h3 className="text-sm font-medium">Print Controls</h3>
-                  <div className="flex flex-col gap-2">
-                    <Button 
-                      variant="outline"
-                      size="sm"
-                      onClick={handlePrint}
-                      disabled={isExporting || isExportingAll || isPrinting}
-                      className="flex items-center gap-2 justify-start"
-                    >
-                      <Printer className="w-4 h-4" />
-                      Print
-                    </Button>
-                    <Button 
-                      variant="outline"
-                      size="sm"
-                      onClick={handlePrintAll}
-                      disabled={isExporting || isExportingAll || isPrinting}
-                      className="flex items-center gap-2 justify-start"
-                    >
-                      <Printer className="w-4 h-4" />
-                      Print All
-                    </Button>
-                  </div>
+            {/* Action Buttons */}
+            {isDataReady && (
+              <div className="pt-4 border-t">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <Button 
+                    variant="outline"
+                    size="sm"
+                    onClick={handleDownloadPdf} 
+                    disabled={isExporting || isExportingAll || isPrinting}
+                    className="flex items-center gap-2"
+                  >
+                    <FileText className="w-4 h-4" />
+                    Download PDF
+                  </Button>
+                  <Button 
+                    variant="outline"
+                    size="sm"
+                    onClick={handleDownloadAllPdf}
+                    disabled={isExporting || isExportingAll || isPrinting}
+                    className="flex items-center gap-2"
+                  >
+                    <FileText className="w-4 h-4" />
+                    {isExportingAll ? `Exporting ${tables.length} tables...` : 'Download All PDF'}
+                  </Button>
+                  <Button 
+                    variant="outline"
+                    size="sm"
+                    onClick={handleDownloadWord} 
+                    disabled={isExporting || isExportingAll || isPrinting}
+                    className="flex items-center gap-2"
+                  >
+                    <FileText className="w-4 h-4" />
+                    Download Word
+                  </Button>
+                  <Button 
+                    variant="outline"
+                    size="sm"
+                    onClick={handleDownloadAllWord}
+                    disabled={isExporting || isExportingAll || isPrinting}
+                    className="flex items-center gap-2"
+                  >
+                    <FileText className="w-4 h-4" />
+                    {isExportingAll ? `Exporting ${tables.length} tables...` : 'Download All Word'}
+                  </Button>
+                  <Button 
+                    variant="outline"
+                    size="sm"
+                    onClick={handlePrint}
+                    disabled={isExporting || isExportingAll || isPrinting}
+                    className="flex items-center gap-2"
+                  >
+                    <Printer className="w-4 h-4" />
+                    Print
+                  </Button>
+                  <Button 
+                    variant="outline"
+                    size="sm"
+                    onClick={handlePrintAll}
+                    disabled={isExporting || isExportingAll || isPrinting}
+                    className="flex items-center gap-2"
+                  >
+                    <Printer className="w-4 h-4" />
+                    Print All
+                  </Button>
                 </div>
               </div>
-            </div>
-          )}
+            )}
         </CardContent>
       </Card>
 
