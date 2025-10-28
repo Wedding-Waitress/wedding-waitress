@@ -307,7 +307,7 @@ export const RunningSheetPage: React.FC = () => {
               onUpload={(url) => updateSheet({ venue_logo_url: url })}
             />
             <div className="text-sm text-muted-foreground">
-              Upload logo, wedding couple or event image.
+              Upload logo, Wedding Couple Photo or Event Image.
             </div>
           </div>
 
