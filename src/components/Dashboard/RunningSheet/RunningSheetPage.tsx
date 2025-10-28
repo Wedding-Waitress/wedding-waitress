@@ -300,18 +300,7 @@ export const RunningSheetPage: React.FC = () => {
       {/* Top Hero Panel */}
       <Card className="border-2 border-primary/20 no-print">
         <CardContent className="p-6 space-y-4">
-          {/* Row A: Logo + Last Updated */}
-          <div className="flex items-center gap-6">
-            <VenueLogoUpload
-              logoUrl={sheet?.venue_logo_url || null}
-              onUpload={(url) => updateSheet({ venue_logo_url: url })}
-            />
-            <div className="text-sm text-muted-foreground">
-              Upload logo, Wedding Couple Photo or Event Image.
-            </div>
-          </div>
-
-          {/* Row B: Title + Event Selector + Meta */}
+          {/* Row A: Title + Event Selector + Meta */}
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <h1 className="text-3xl font-bold" style={{ color: PURPLE_ACCENT }}>
               Running Sheet for Weddings & Events
@@ -332,6 +321,17 @@ export const RunningSheetPage: React.FC = () => {
               <div className="text-sm text-muted-foreground whitespace-nowrap">
                 Last updated by: {sheet?.updated_by_name || '-'} – {formatLastUpdated(sheet?.updated_at)}
               </div>
+            </div>
+          </div>
+
+          {/* Row B: Logo + Upload Instructions */}
+          <div className="flex items-center gap-6">
+            <VenueLogoUpload
+              logoUrl={sheet?.venue_logo_url || null}
+              onUpload={(url) => updateSheet({ venue_logo_url: url })}
+            />
+            <div className="text-sm text-muted-foreground">
+              Upload logo, Wedding Couple Photo or Event Image.
             </div>
           </div>
 
