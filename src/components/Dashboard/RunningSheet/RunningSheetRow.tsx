@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { RunningSheetItem } from '@/types/runningSheet';
 import { RichTextEditor, FormattingToolbar } from './RichTextEditor';
+import { TimePicker } from '../TimePicker';
 
 interface RunningSheetRowProps {
   item: RunningSheetItem;
@@ -110,14 +111,13 @@ export const RunningSheetRow: React.FC<RunningSheetRowProps> = ({
 
       {/* Time */}
       <div className="space-y-1">
-        <Input
+        <TimePicker
           value={item.time_text}
-          onChange={(e) => onUpdate(item.id, { time_text: e.target.value })}
-          placeholder="7.15"
-          className="w-full"
+          onChange={(time) => onUpdate(item.id, { time_text: time })}
+          placeholder="Select time"
         />
         {!item.time_text && (
-          <p className="text-xs text-destructive">Time required</p>
+          <p className="text-xs text-destructive">Select time</p>
         )}
       </div>
 
