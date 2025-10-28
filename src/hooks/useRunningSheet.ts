@@ -161,7 +161,7 @@ export const useRunningSheet = (eventId: string | null) => {
     }
   };
 
-  // Update item
+  // Update item - Silent auto-save (no toast)
   const updateItem = async (id: string, data: Partial<RunningSheetItem>) => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -179,10 +179,7 @@ export const useRunningSheet = (eventId: string | null) => {
       // Update sheet metadata
       await updateSheetMetadata(user.id);
 
-      toast({
-        title: '✓ Saved',
-        duration: 1500,
-      });
+      // NO TOAST - Silent auto-save for better UX
     } catch (error) {
       console.error('Error updating item:', error);
       toast({
@@ -343,7 +340,7 @@ export const useRunningSheet = (eventId: string | null) => {
       debounce((id: string, data: Partial<RunningSheetItem>) => {
         updateItem(id, data);
       }, 600),
-    [items]
+    []
   );
 
   return {
