@@ -491,7 +491,7 @@ export const RunningSheetPage: React.FC = () => {
                     border: '2px solid #6D28D9'
                   }}
                 >
-                  <div style={{ padding: '15mm 12mm' }} className="h-full flex flex-col">
+                  <div style={{ padding: '5mm 12mm' }} className="h-full flex flex-col">
                     {/* Header - Two Column Layout */}
                     <div className="flex gap-3 mb-[4mm]">
                       {/* Left: Image Box */}
@@ -500,7 +500,7 @@ export const RunningSheetPage: React.FC = () => {
                         style={{ 
                           width: '50mm', 
                           height: '50mm',
-                          border: '2px solid #DC2626',
+              border: '0.5px solid #000000',
                           padding: '4px'
                         }}
                       >
@@ -522,7 +522,7 @@ export const RunningSheetPage: React.FC = () => {
                         className="flex-1 flex flex-col items-center justify-center"
                         style={{ 
                           minHeight: '50mm',
-                          border: '2px solid #DC2626',
+              border: '0.5px solid #000000',
                           padding: '8px'
                         }}
                       >
@@ -611,7 +611,7 @@ export const RunningSheetPage: React.FC = () => {
                           style={{ 
                             width: '50mm', 
                             height: '50mm',
-                            border: '2px solid #DC2626',
+                border: '0.5px solid #000000',
                             padding: '4px'
                           }}
                         >
@@ -633,7 +633,7 @@ export const RunningSheetPage: React.FC = () => {
                           className="flex-1 flex flex-col items-center justify-center"
                           style={{ 
                             minHeight: '50mm',
-                            border: '2px solid #DC2626',
+                            border: '0.5px solid #000000',
                             padding: '8px'
                           }}
                         >
