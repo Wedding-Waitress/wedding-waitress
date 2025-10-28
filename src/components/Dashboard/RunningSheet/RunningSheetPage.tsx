@@ -307,7 +307,7 @@ export const RunningSheetPage: React.FC = () => {
               onUpload={(url) => updateSheet({ venue_logo_url: url })}
             />
             <div className="text-sm text-muted-foreground">
-              Last updated by: {sheet?.updated_by_name || '-'} – Last updated Date: {formatLastUpdated(sheet?.updated_at)}
+              Upload logo, wedding couple or event image.
             </div>
           </div>
 
