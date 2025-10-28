@@ -26,6 +26,7 @@ import { FullSeatingChartPage } from '@/components/Dashboard/FullSeatingChart/Fu
 import { IndividualTableSeatingChartPage } from '@/components/Dashboard/IndividualTableChart/IndividualTableSeatingChartPage';
 import { KioskSetup } from '@/components/Dashboard/Kiosk/KioskSetup';
 import { FloorPlanPage } from '@/components/Dashboard/FloorPlan/FloorPlanPage';
+import { RunningSheetPage } from '@/components/Dashboard/RunningSheet';
 import { flags } from '@/lib/featureFlags';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
@@ -340,6 +341,8 @@ export const Dashboard = () => {
       case 'individual-table-chart':
         // Individual table seating chart feature
         return <IndividualTableSeatingChartPage selectedEventId={selectedEventId} onEventSelect={handleEventSelect} />;
+      case 'running-sheet':
+        return <RunningSheetPage />;
       case 'kiosk-setup':
         return <KioskSetup selectedEventId={selectedEventId} onEventSelect={handleEventSelect} />;
       case 'dj-mc-questionnaire':
