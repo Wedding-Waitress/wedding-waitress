@@ -65,8 +65,8 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
   };
 
   return (
-    <div className="space-y-2">
-      <div className="flex items-center gap-1 border-b pb-2">
+    <div className="flex gap-2">
+      <div className="flex flex-col items-center gap-1 border-r pr-2">
         <Button
           type="button"
           variant={formatting.bold ? 'default' : 'ghost'}
@@ -96,13 +96,15 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
           <Palette className="w-4 h-4" style={{ color: formatting.red ? '#D92D20' : undefined }} />
         </Button>
       </div>
-      <Textarea
-        value={text}
-        onChange={handleTextChange}
-        placeholder={placeholder}
-        className={`min-h-[80px] resize-y${getTextClassName()}`}
-        rows={3}
-      />
+      <div className="flex-1">
+        <Textarea
+          value={text}
+          onChange={handleTextChange}
+          placeholder={placeholder}
+          className={`min-h-[80px] resize-y${getTextClassName()}`}
+          rows={3}
+        />
+      </div>
     </div>
   );
 };
