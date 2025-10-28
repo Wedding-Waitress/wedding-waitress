@@ -500,90 +500,110 @@ export const RunningSheetPage: React.FC = () => {
                 </div>
               )}
 
-              {/* A4 Page Container */}
-              <div className="flex justify-center screen-only">
-                <div 
-                  className="bg-white shadow-lg"
-                  style={{
-                    width: '210mm', 
-                    height: '297mm',
-                    minWidth: '210mm',
-                    maxWidth: '210mm',
-                    border: '2px solid #6D28D9'
+              {/* Sidebar + A4 Container Layout */}
+              <div className="flex gap-6 items-start screen-only">
+                {/* Left Sidebar - Settings Panel */}
+                <RunningSheetSettingsSidebar
+                  settings={{
+                    all_font: sheet.all_font || 'Inter',
+                    all_text_size: sheet.all_text_size || 'medium',
+                    all_bold: sheet.all_bold || false,
+                    all_italic: sheet.all_italic || false,
+                    all_text_color: sheet.all_text_color || '#000000',
+                    header_font: sheet.header_font || 'Inter',
+                    header_size: sheet.header_size || 'large',
+                    header_bold: sheet.header_bold !== false,
+                    header_italic: sheet.header_italic || false,
+                    header_color: sheet.header_color || '#6D28D9',
                   }}
-                >
-                  <div style={{ padding: '15mm 12mm' }} className="h-full flex flex-col">
-                    {/* Header */}
-                    <div className="mb-4">
-                      <div className="flex gap-3 mb-2">
-                        {/* Logo Box */}
-                        <div 
-                          className="flex items-center justify-center"
-                          style={{ 
-                            width: '35mm', 
-                            height: '35mm',
-                            border: '1px solid #E5E7EB',
-                            borderRadius: '8px'
-                          }}
-                        >
-                          {sheet.venue_logo_url ? (
-                            <img 
-                              src={sheet.venue_logo_url}
-                              alt="Event Logo"
-                              className="w-full h-full object-contain p-1"
-                            />
-                          ) : (
-                            <div className="text-center text-xs text-muted-foreground">Logo</div>
-                          )}
-                        </div>
+                  onUpdate={(updates) => updateSheet(updates)}
+                />
 
-                        {/* Event Info */}
-                        <div className="flex-1">
-                          <h1 className="text-lg font-bold mb-1" style={{ color: '#6D28D9' }}>
-                            {selectedEvent.name}
-                          </h1>
-                          <p className="text-sm text-foreground mb-1">
-                            {formatDateWithOrdinal(selectedEvent.date)}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            Generated: {formatGeneratedTimestamp()}
-                          </p>
+                {/* A4 Page Container with Grey Background Wrapper */}
+                <div className="flex-1 flex justify-center" style={{ background: '#F9F9FB', padding: '24px', borderRadius: '12px' }}>
+                  <div 
+                    className="bg-white shadow-lg"
+                    style={{
+                      width: '210mm', 
+                      height: '297mm',
+                      minWidth: '210mm',
+                      maxWidth: '210mm',
+                      border: '1px solid #6D28D9'
+                    }}
+                  >
+                    <div style={{ padding: '12mm 8mm' }} className="h-full flex flex-col">
+                      {/* Header */}
+                      <div className="mb-4">
+                        <div className="flex gap-3 mb-2">
+                          {/* Logo Box */}
+                          <div 
+                            className="flex items-center justify-center"
+                            style={{ 
+                              width: '35mm', 
+                              height: '35mm',
+                              border: '1px solid #E5E7EB',
+                              borderRadius: '8px'
+                            }}
+                          >
+                            {sheet.venue_logo_url ? (
+                              <img 
+                                src={sheet.venue_logo_url}
+                                alt="Event Logo"
+                                className="w-full h-full object-contain p-1"
+                              />
+                            ) : (
+                              <div className="text-center text-xs text-muted-foreground">Logo</div>
+                            )}
+                          </div>
+
+                          {/* Event Info */}
+                          <div className="flex-1">
+                            <h1 className="text-lg font-bold mb-1" style={{ color: '#6D28D9' }}>
+                              {selectedEvent.name}
+                            </h1>
+                            <p className="text-sm text-foreground mb-1">
+                              {formatDateWithOrdinal(selectedEvent.date)}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              Generated: {formatGeneratedTimestamp()}
+                            </p>
+                          </div>
                         </div>
                       </div>
-                    </div>
 
-                    {/* Table with Sticky Header */}
-                    <div className="flex-1 overflow-hidden border border-border rounded-lg">
-                      <RunningSheetTableView
-                        items={paginatedItems}
-                        showResponsible={sheet.show_responsible}
-                        settings={{
-                          all_font: sheet.all_font || 'Inter',
-                          all_text_size: sheet.all_text_size || 'medium',
-                          all_bold: sheet.all_bold || false,
-                          all_italic: sheet.all_italic || false,
-                          all_text_color: sheet.all_text_color || '#000000',
-                          header_font: sheet.header_font || 'Inter',
-                          header_size: sheet.header_size || 'large',
-                          header_bold: sheet.header_bold !== false,
-                          header_italic: sheet.header_italic || false,
-                          header_color: sheet.header_color || '#6D28D9',
-                        }}
-                        onUpdateItem={debouncedSave}
-                        onDeleteItem={deleteItem}
-                        onDuplicateItem={duplicateItem}
-                        onInsertHeaderAbove={insertSectionHeaderAbove}
-                        onReorderItems={reorderItems}
-                      />
-                    </div>
+                      {/* Table with Sticky Header */}
+                      <div className="flex-1 overflow-hidden border border-border rounded-lg">
+                        <RunningSheetTableView
+                          items={paginatedItems}
+                          showResponsible={sheet.show_responsible}
+                          settings={{
+                            all_font: sheet.all_font || 'Inter',
+                            all_text_size: sheet.all_text_size || 'medium',
+                            all_bold: sheet.all_bold || false,
+                            all_italic: sheet.all_italic || false,
+                            all_text_color: sheet.all_text_color || '#000000',
+                            header_font: sheet.header_font || 'Inter',
+                            header_size: sheet.header_size || 'large',
+                            header_bold: sheet.header_bold !== false,
+                            header_italic: sheet.header_italic || false,
+                            header_color: sheet.header_color || '#6D28D9',
+                          }}
+                          onUpdateItem={debouncedSave}
+                          onDeleteItem={deleteItem}
+                          onDuplicateItem={duplicateItem}
+                          onInsertHeaderAbove={insertSectionHeaderAbove}
+                          onReorderItems={reorderItems}
+                        />
+                      </div>
 
-                    {/* Footer */}
-                    <div className="mt-4 flex justify-center">
-                      <img 
-                        src={runningSheetLogo}
-                        alt="Wedding Waitress" 
-                        style={{ height: '10.5mm', width: 'auto' }}
-                      />
+                      {/* Footer */}
+                      <div className="mt-4 flex justify-center">
+                        <img 
+                          src={runningSheetLogo}
+                          alt="Wedding Waitress" 
+                          style={{ height: '10.5mm', width: 'auto' }}
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
