@@ -528,12 +528,12 @@ export const RunningSheetPage: React.FC = () => {
                           padding: '8px'
                         }}
                       >
-                        <h2 className="font-bold text-xs text-foreground mb-1">
-                          Running Sheet - {formatDateWithOrdinal(selectedEvent.date)}
-                        </h2>
                         <h1 className="text-base font-bold mb-1" style={{ color: '#6D28D9' }}>
                           {selectedEvent.name}
                         </h1>
+                        <h2 className="font-bold text-xs text-foreground mb-1">
+                          Running Sheet - {formatDateWithOrdinal(selectedEvent.date)}
+                        </h2>
                         <div className="text-xs text-foreground text-center">
                           {selectedEvent.venue && `${selectedEvent.venue} - `}
                           Total Items: {items.length}
@@ -641,12 +641,12 @@ export const RunningSheetPage: React.FC = () => {
                             padding: '8px'
                           }}
                         >
-                          <h2 className="font-semibold text-foreground mb-1">
-                            Running Sheet - {formatDateWithOrdinal(selectedEvent.date)}
-                          </h2>
                           <h1 className="text-xl font-semibold mb-1" style={{ color: '#6D28D9' }}>
                             {selectedEvent.name}
                           </h1>
+                          <h2 className="font-semibold text-foreground mb-1">
+                            Running Sheet - {formatDateWithOrdinal(selectedEvent.date)}
+                          </h2>
                           <div className="meta-line text-base text-foreground text-center">
                             {selectedEvent.venue && `${selectedEvent.venue} - `}
                             Total Items: {items.length}
