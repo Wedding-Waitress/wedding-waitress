@@ -136,7 +136,7 @@ export const RunningSheetRow: React.FC<RunningSheetRowProps> = ({
         <Input
           value={item.responsible || ''}
           onChange={(e) => onUpdate(item.id, { responsible: e.target.value })}
-          placeholder="Add Responsible Person"
+          placeholder="Responsible person"
         />
       )}
 

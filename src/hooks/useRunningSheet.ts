@@ -343,7 +343,7 @@ export const useRunningSheet = (eventId: string | null) => {
       debounce((id: string, data: Partial<RunningSheetItem>) => {
         updateItem(id, data);
       }, 600),
-    []
+    [items]
   );
 
   return {
