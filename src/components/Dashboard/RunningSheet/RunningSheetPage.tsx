@@ -499,7 +499,7 @@ export const RunningSheetPage: React.FC = () => {
                         className="flex items-center justify-center flex-shrink-0"
                         style={{ 
                           width: '50mm', 
-                          height: '25mm',
+                          height: '30mm',
                           border: '0.5px solid #6D28D9',
                           borderRadius: '8px',
                           padding: '4px'
@@ -522,7 +522,7 @@ export const RunningSheetPage: React.FC = () => {
                       <div 
                         className="flex-1 flex flex-col items-center justify-center"
                         style={{ 
-                          minHeight: '25mm',
+                          minHeight: '30mm',
                           border: '0.5px solid #6D28D9',
                           borderRadius: '8px',
                           padding: '8px'
@@ -534,7 +534,7 @@ export const RunningSheetPage: React.FC = () => {
                         <h2 className="font-bold text-xs text-foreground mb-1">
                           Running Sheet - {formatDateWithOrdinal(selectedEvent.date)}
                         </h2>
-                        <div className="text-[10px] text-foreground text-center">
+                        <div className="text-xs text-foreground text-center">
                           {selectedEvent.venue && `${selectedEvent.venue} - `}
                           Total Items: {items.length}
                           {totalPages > 1 && ` - Page ${currentPage} of ${totalPages}`}
@@ -612,7 +612,7 @@ export const RunningSheetPage: React.FC = () => {
                           className="flex items-center justify-center flex-shrink-0"
                           style={{ 
                             width: '50mm', 
-                            height: '25mm',
+                            height: '30mm',
                             border: '0.5px solid #6D28D9',
                             borderRadius: '8px',
                             padding: '4px'
@@ -635,7 +635,7 @@ export const RunningSheetPage: React.FC = () => {
                         <div 
                           className="flex-1 flex flex-col items-center justify-center"
                           style={{ 
-                            minHeight: '25mm',
+                            minHeight: '30mm',
                             border: '0.5px solid #6D28D9',
                             borderRadius: '8px',
                             padding: '8px'
@@ -647,7 +647,7 @@ export const RunningSheetPage: React.FC = () => {
                           <h2 className="font-semibold text-foreground mb-1">
                             Running Sheet - {formatDateWithOrdinal(selectedEvent.date)}
                           </h2>
-                          <div className="meta-line text-sm text-foreground text-center">
+                          <div className="meta-line text-base text-foreground text-center">
                             {selectedEvent.venue && `${selectedEvent.venue} - `}
                             Total Items: {items.length}
                             {totalPages > 1 && ` - Page ${pageIndex + 1} of ${totalPages}`}
