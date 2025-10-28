@@ -480,10 +480,10 @@ export const RunningSheetPage: React.FC = () => {
               )}
 
               {/* A4 Page Container */}
-              <div className="flex justify-center screen-only" style={{ background: '#F9F9FB', padding: '2rem 0' }}>
+              <div className="flex justify-center screen-only">
                 <div 
                   className="bg-white shadow-lg"
-                  style={{ 
+                  style={{
                     width: '210mm', 
                     height: '297mm',
                     minWidth: '210mm',
