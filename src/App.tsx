@@ -16,6 +16,7 @@ import { PrivacyPolicy } from "./pages/PrivacyPolicy";
 import { TermsOfService } from "./pages/TermsOfService";
 import { Contact } from "./pages/Contact";
 import { DJQuestionnairePublicView } from "./pages/DJQuestionnairePublicView";
+import RunningSheet from "./pages/RunningSheet";
 
 const queryClient = new QueryClient();
 
@@ -34,6 +35,7 @@ const App = () => (
           <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/running-sheet" element={<RunningSheet />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/admin/old-login" element={<AdminLogin />} />
           <Route path="/reset-password" element={<ResetPassword />} />

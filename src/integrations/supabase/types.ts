@@ -1380,6 +1380,91 @@ export type Database = {
         }
         Relationships: []
       }
+      running_sheet_items: {
+        Row: {
+          created_at: string | null
+          description_rich: Json
+          id: string
+          is_section_header: boolean | null
+          order_index: number
+          responsible: string | null
+          sheet_id: string
+          time_text: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description_rich?: Json
+          id?: string
+          is_section_header?: boolean | null
+          order_index: number
+          responsible?: string | null
+          sheet_id: string
+          time_text: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description_rich?: Json
+          id?: string
+          is_section_header?: boolean | null
+          order_index?: number
+          responsible?: string | null
+          sheet_id?: string
+          time_text?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "running_sheet_items_sheet_id_fkey"
+            columns: ["sheet_id"]
+            isOneToOne: false
+            referencedRelation: "running_sheets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      running_sheets: {
+        Row: {
+          created_at: string | null
+          event_id: string
+          id: string
+          show_responsible: boolean | null
+          updated_at: string | null
+          updated_by: string | null
+          user_id: string
+          venue_logo_url: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          event_id: string
+          id?: string
+          show_responsible?: boolean | null
+          updated_at?: string | null
+          updated_by?: string | null
+          user_id: string
+          venue_logo_url?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          event_id?: string
+          id?: string
+          show_responsible?: boolean | null
+          updated_at?: string | null
+          updated_by?: string | null
+          user_id?: string
+          venue_logo_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "running_sheets_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tables: {
         Row: {
           created_at: string
