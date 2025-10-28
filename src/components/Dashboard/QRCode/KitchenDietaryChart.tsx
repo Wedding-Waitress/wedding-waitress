@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { FileText, ChefHat, AlertCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { FileText, ChefHat, AlertCircle, ChevronLeft, ChevronRight, Printer } from 'lucide-react';
 import { useRealtimeGuests } from '@/hooks/useRealtimeGuests';
 import { useEvents } from '@/hooks/useEvents';
 import { useTables } from '@/hooks/useTables';
@@ -214,6 +214,20 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
     } finally {
       setIsExporting(false);
     }
+  };
+
+  const handlePrint = () => {
+    if (!currentEvent || dietaryGuests.length === 0) return;
+    
+    toast({
+      title: 'Opening Print Dialog',
+      description: 'Preparing dietary chart for printing...',
+    });
+    
+    // Small delay to show toast before print dialog
+    setTimeout(() => {
+      window.print();
+    }, 500);
   };
 
   if (guestsLoading || eventsLoading) {
@@ -457,6 +471,15 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                   >
                     <FileText className="w-4 h-4" />
                     Download Word
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={handlePrint}
+                    disabled={isExporting || dietaryGuests.length === 0}
+                  >
+                    <Printer className="w-4 h-4" />
+                    Print
                   </Button>
                 </div>
               </div>
