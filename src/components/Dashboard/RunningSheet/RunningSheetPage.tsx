@@ -534,12 +534,11 @@ export const RunningSheetPage: React.FC = () => {
                         <h2 className="font-bold text-xs text-foreground mb-1">
                           Running Sheet - {formatDateWithOrdinal(selectedEvent.date)}
                         </h2>
-                        <div className="text-xs text-foreground text-center">
-                          {selectedEvent.venue && `${selectedEvent.venue} - `}
-                          Total Items: {items.length}
-                          {totalPages > 1 && ` - Page ${currentPage} of ${totalPages}`}
-                          {` - Generated on: ${formatGeneratedTimestamp()}`}
-                        </div>
+                <div className="text-xs text-foreground text-center">
+                  {selectedEvent.venue && `${selectedEvent.venue}`}
+                  {totalPages > 1 && ` - Page ${currentPage} of ${totalPages}`}
+                  {` - Last Updated: ${formatGeneratedTimestamp()}`}
+                </div>
                       </div>
                     </div>
 
@@ -647,12 +646,11 @@ export const RunningSheetPage: React.FC = () => {
                           <h2 className="font-semibold text-foreground mb-1">
                             Running Sheet - {formatDateWithOrdinal(selectedEvent.date)}
                           </h2>
-                          <div className="meta-line text-base text-foreground text-center">
-                            {selectedEvent.venue && `${selectedEvent.venue} - `}
-                            Total Items: {items.length}
-                            {totalPages > 1 && ` - Page ${pageIndex + 1} of ${totalPages}`}
-                            {` - Generated on: ${formatGeneratedTimestamp()}`}
-                          </div>
+                  <div className="meta-line text-base text-foreground text-center">
+                    {selectedEvent.venue && `${selectedEvent.venue}`}
+                    {totalPages > 1 && ` - Page ${pageIndex + 1} of ${totalPages}`}
+                    {` - Last Updated: ${formatGeneratedTimestamp()}`}
+                  </div>
                         </div>
                       </div>
 
