@@ -5,13 +5,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { FileText, Printer, Plus, ClipboardList, Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { FileText, Printer, Plus, ClipboardList, Loader2, ChevronLeft, ChevronRight, CheckCircle2 } from 'lucide-react';
 import { useEvents } from '@/hooks/useEvents';
 import { useRunningSheet } from '@/hooks/useRunningSheet';
 import { useToast } from '@/hooks/use-toast';
 import { VenueLogoUpload } from './VenueLogoUpload';
 import { RunningSheetTableView } from './RunningSheetTableView';
 import { RunningSheetSettingsSidebar } from './RunningSheetSettingsSidebar';
+import { DeleteRowConfirmationModal } from './DeleteRowConfirmationModal';
 import { exportRunningSheetToPdf } from '@/lib/runningSheetPdfExporter';
 import { exportRunningSheetToDocx } from '@/lib/runningSheetDocxExporter';
 import { format } from 'date-fns';
@@ -56,6 +57,10 @@ export const RunningSheetPage: React.FC = () => {
   const [isExporting, setIsExporting] = useState(false);
   const [isPrinting, setIsPrinting] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [lastCreatedItemId, setLastCreatedItemId] = useState<string | null>(null);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  const [showSavedIndicator, setShowSavedIndicator] = useState(false);
+  const [focusedRowId, setFocusedRowId] = useState<string | null>(null);
   
   const { events, loading: eventsLoading } = useEvents();
   const { sheet, items, loading: sheetLoading, createItem, deleteItem, duplicateItem, insertSectionHeaderAbove, updateSheet, debouncedSave, reorderItems } = useRunningSheet(selectedEventId);
@@ -103,12 +108,16 @@ export const RunningSheetPage: React.FC = () => {
   };
 
   const handleAddRow = async () => {
-    await createItem({
+    const newItemId = await createItem({
       time_text: '',
       description_rich: {},
       responsible: '',
       is_section_header: false,
     });
+    if (newItemId) {
+      setLastCreatedItemId(newItemId);
+      setTimeout(() => setLastCreatedItemId(null), 100); // Reset after focus
+    }
   };
 
   const handleAddSectionHeader = async () => {
@@ -172,6 +181,54 @@ export const RunningSheetPage: React.FC = () => {
     setIsPrinting(true);
     window.print();
     setTimeout(() => setIsPrinting(false), 1000);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (deleteConfirmId) {
+      await deleteItem(deleteConfirmId);
+      setDeleteConfirmId(null);
+    }
+  };
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+      const isTyping = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA';
+
+      // Enter: Add new row (unless typing in Event Info with Shift)
+      if (e.key === 'Enter' && !e.shiftKey && !isTyping) {
+        e.preventDefault();
+        handleAddRow();
+      }
+
+      // Ctrl+D: Duplicate focused row
+      if (e.ctrlKey && e.key === 'd' && !isTyping && focusedRowId) {
+        e.preventDefault();
+        duplicateItem(focusedRowId);
+      }
+
+      // Delete: Delete focused row
+      if (e.key === 'Delete' && !isTyping && focusedRowId) {
+        e.preventDefault();
+        setDeleteConfirmId(focusedRowId);
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [focusedRowId, items]);
+
+  // Show saved indicator callback
+  const showSaved = () => {
+    setShowSavedIndicator(true);
+    setTimeout(() => setShowSavedIndicator(false), 2000);
+  };
+
+  // Wrap debouncedSave to show indicator
+  const handleUpdateItem = (id: string, data: any) => {
+    debouncedSave(id, data);
+    showSaved();
   };
 
   if (eventsLoading) {
@@ -608,6 +665,7 @@ export const RunningSheetPage: React.FC = () => {
                         <RunningSheetTableView
                           items={paginatedItems}
                           showResponsible={sheet.show_responsible}
+                          lastCreatedItemId={lastCreatedItemId}
                           settings={{
                             all_font: sheet.all_font || 'Inter',
                             all_text_size: sheet.all_text_size || 'medium',
@@ -620,11 +678,12 @@ export const RunningSheetPage: React.FC = () => {
                             header_italic: sheet.header_italic || false,
                             header_color: sheet.header_color || '#6D28D9',
                           }}
-                          onUpdateItem={debouncedSave}
-                          onDeleteItem={deleteItem}
+                          onUpdateItem={handleUpdateItem}
+                          onDeleteItem={(id) => setDeleteConfirmId(id)}
                           onDuplicateItem={duplicateItem}
                           onInsertHeaderAbove={insertSectionHeaderAbove}
                           onReorderItems={reorderItems}
+                          onFocusRow={setFocusedRowId}
                         />
                       </div>
 
@@ -670,6 +729,21 @@ export const RunningSheetPage: React.FC = () => {
             </>
           )}
         </>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      <DeleteRowConfirmationModal
+        open={!!deleteConfirmId}
+        onConfirm={handleDeleteConfirm}
+        onCancel={() => setDeleteConfirmId(null)}
+      />
+
+      {/* Saved Indicator */}
+      {showSavedIndicator && (
+        <div className="fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg flex items-center gap-2 animate-fade-in z-50">
+          <CheckCircle2 className="w-4 h-4" />
+          Saved
+        </div>
       )}
     </div>
   );

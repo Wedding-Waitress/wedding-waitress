@@ -116,8 +116,8 @@ export const useRunningSheet = (eventId: string | null) => {
   }, [eventId]);
 
   // Create new item
-  const createItem = async (itemData: Partial<RunningSheetItem>) => {
-    if (!sheet) return;
+  const createItem = async (itemData: Partial<RunningSheetItem>): Promise<string | null> => {
+    if (!sheet) return null;
 
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -131,7 +131,7 @@ export const useRunningSheet = (eventId: string | null) => {
         .from('running_sheet_items')
         .insert({
           sheet_id: sheet.id,
-          order_index: maxOrderIndex + 10,
+          order_index: itemData.order_index !== undefined ? itemData.order_index : maxOrderIndex + 10,
           time_text: itemData.time_text || '',
           description_rich: itemData.description_rich || {},
           responsible: itemData.responsible || '',
@@ -151,6 +151,8 @@ export const useRunningSheet = (eventId: string | null) => {
         title: '✓ Saved',
         duration: 1500,
       });
+
+      return newItem.id;
     } catch (error) {
       console.error('Error creating item:', error);
       toast({
@@ -158,6 +160,7 @@ export const useRunningSheet = (eventId: string | null) => {
         description: 'Failed to create item',
         variant: 'destructive',
       });
+      return null;
     }
   };
 
@@ -211,7 +214,14 @@ export const useRunningSheet = (eventId: string | null) => {
 
       if (error) throw error;
 
-      setItems(prevItems => prevItems.filter(item => item.id !== id));
+      // Update local state with reindexing
+      setItems(prevItems => {
+        const filtered = prevItems.filter(item => item.id !== id);
+        return filtered.map((item, index) => ({
+          ...item,
+          order_index: (index + 1) * 10
+        }));
+      });
 
       // Update sheet metadata
       await updateSheetMetadata(user.id);
@@ -357,20 +367,27 @@ export const useRunningSheet = (eventId: string | null) => {
     () =>
       debounce((id: string, data: Partial<RunningSheetItem>) => {
         updateItem(id, data);
-      }, 300), // Reduced from 600ms to 300ms
+      }, 600), // Changed to 600ms for better UX
     []
   );
 
-  // Duplicate item
+  // Duplicate item (insert directly below)
   const duplicateItem = async (itemId: string) => {
     const item = items.find(i => i.id === itemId);
-    if (!item) return;
+    if (!item || item.is_section_header) return; // Prevent copying headers
+    
+    const currentIndex = items.findIndex(i => i.id === itemId);
+    const nextItem = items[currentIndex + 1];
+    const newOrderIndex = nextItem 
+      ? (item.order_index + nextItem.order_index) / 2 
+      : item.order_index + 10;
     
     await createItem({
       time_text: item.time_text,
       description_rich: item.description_rich,
       responsible: item.responsible,
-      is_section_header: item.is_section_header,
+      is_section_header: false, // Never duplicate as header
+      order_index: newOrderIndex,
     });
     
     toast({
@@ -383,7 +400,7 @@ export const useRunningSheet = (eventId: string | null) => {
   const insertSectionHeaderAbove = async (currentOrderIndex: number) => {
     await createItem({
       time_text: '',
-      description_rich: { text: 'New Section', formatting: {} },
+      description_rich: { text: 'Section Header – Click to Rename', formatting: {} },
       responsible: '',
       is_section_header: true,
       order_index: currentOrderIndex - 0.5,

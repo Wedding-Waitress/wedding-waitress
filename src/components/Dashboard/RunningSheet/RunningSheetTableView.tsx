@@ -20,6 +20,7 @@ import { RunningSheetInlineRow } from './RunningSheetInlineRow';
 interface RunningSheetTableViewProps {
   items: RunningSheetItem[];
   showResponsible: boolean;
+  lastCreatedItemId?: string | null;
   settings: {
     all_font: string;
     all_text_size: string;
@@ -37,6 +38,7 @@ interface RunningSheetTableViewProps {
   onDuplicateItem: (id: string) => void;
   onInsertHeaderAbove: (orderIndex: number) => void;
   onReorderItems: (newOrder: RunningSheetItem[]) => void;
+  onFocusRow?: (id: string | null) => void;
 }
 
 const TEXT_SIZE_MAP: Record<string, string> = {
@@ -48,12 +50,14 @@ const TEXT_SIZE_MAP: Record<string, string> = {
 export const RunningSheetTableView: React.FC<RunningSheetTableViewProps> = ({
   items,
   showResponsible,
+  lastCreatedItemId,
   settings,
   onUpdateItem,
   onDeleteItem,
   onDuplicateItem,
   onInsertHeaderAbove,
   onReorderItems,
+  onFocusRow,
 }) => {
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -169,6 +173,7 @@ export const RunningSheetTableView: React.FC<RunningSheetTableViewProps> = ({
                   key={item.id}
                   item={item}
                   rowIndex={index}
+                  isLastCreated={item.id === lastCreatedItemId}
                   settings={{
                     all_font: settings.all_font,
                     all_text_size: settings.all_text_size,
@@ -185,6 +190,7 @@ export const RunningSheetTableView: React.FC<RunningSheetTableViewProps> = ({
                   onDelete={onDeleteItem}
                   onDuplicate={onDuplicateItem}
                   onInsertHeaderAbove={onInsertHeaderAbove}
+                  onFocus={onFocusRow}
                 />
               ))}
             </SortableContext>

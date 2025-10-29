@@ -11,6 +11,7 @@ import { TimePicker } from '../TimePicker';
 interface RunningSheetInlineRowProps {
   item: RunningSheetItem;
   rowIndex: number;
+  isLastCreated?: boolean;
   settings: {
     all_font: string;
     all_text_size: string;
@@ -27,6 +28,7 @@ interface RunningSheetInlineRowProps {
   onDelete: (id: string) => void;
   onDuplicate: (id: string) => void;
   onInsertHeaderAbove: (orderIndex: number) => void;
+  onFocus?: (id: string | null) => void;
 }
 
 const HEADER_SIZE_MAP: Record<string, string> = {
@@ -44,11 +46,13 @@ const TEXT_SIZE_MAP: Record<string, string> = {
 export const RunningSheetInlineRow: React.FC<RunningSheetInlineRowProps> = ({
   item,
   rowIndex,
+  isLastCreated,
   settings,
   onUpdate,
   onDelete,
   onDuplicate,
   onInsertHeaderAbove,
+  onFocus,
 }) => {
   const {
     attributes,
@@ -60,20 +64,34 @@ export const RunningSheetInlineRow: React.FC<RunningSheetInlineRowProps> = ({
   } = useSortable({ id: item.id });
 
   const [responsibleLocal, setResponsibleLocal] = useState(item.responsible || '');
+  const [isDeleting, setIsDeleting] = useState(false);
+  const textareaRef = React.useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     setResponsibleLocal(item.responsible || '');
   }, [item.id, item.responsible]);
 
+  // Focus Event Info cell when newly created
+  useEffect(() => {
+    if (isLastCreated && textareaRef.current) {
+      textareaRef.current.focus();
+    }
+  }, [isLastCreated]);
+
   const style = {
     transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.5 : 1,
+    transition: isDeleting ? 'opacity 0.3s ease-out' : transition,
+    opacity: isDragging ? 0.5 : isDeleting ? 0 : 1,
   };
 
   const handleResponsibleChange = (value: string) => {
     setResponsibleLocal(value);
     onUpdate(item.id, { responsible: value });
+  };
+
+  const handleDelete = () => {
+    setIsDeleting(true);
+    setTimeout(() => onDelete(item.id), 300); // Wait for fade-out
   };
 
   // Section Header Row
@@ -111,7 +129,7 @@ export const RunningSheetInlineRow: React.FC<RunningSheetInlineRowProps> = ({
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => onDelete(item.id)}
+            onClick={handleDelete}
             className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
           >
             <Trash2 className="w-4 h-4" />
@@ -135,6 +153,9 @@ export const RunningSheetInlineRow: React.FC<RunningSheetInlineRowProps> = ({
         fontStyle: settings.all_italic ? 'italic' : 'normal',
         color: settings.all_text_color,
       }}
+      onFocus={() => onFocus?.(item.id)}
+      onBlur={() => onFocus?.(null)}
+      tabIndex={0}
     >
       {/* Drag Handle */}
       <td style={{ padding: '8px', verticalAlign: 'top', border: '1px solid #E5E5E5', backgroundColor }}>
@@ -155,6 +176,7 @@ export const RunningSheetInlineRow: React.FC<RunningSheetInlineRowProps> = ({
       {/* Event Info (Rich Text) */}
       <td style={{ padding: '8px', verticalAlign: 'top', border: '1px solid #E5E5E5', backgroundColor }}>
         <InlineRichTextEditor
+          ref={textareaRef}
           value={item.description_rich}
           onChange={(val) => onUpdate(item.id, { description_rich: val })}
           placeholder="What's happening..."
@@ -178,8 +200,9 @@ export const RunningSheetInlineRow: React.FC<RunningSheetInlineRowProps> = ({
             variant="ghost"
             size="sm"
             onClick={() => onDuplicate(item.id)}
-            className="h-8 w-8 p-0 hover:bg-accent"
-            title="Duplicate row"
+            disabled={item.is_section_header}
+            className="h-8 w-8 p-0 hover:bg-accent disabled:opacity-50 disabled:cursor-not-allowed"
+            title={item.is_section_header ? "Section headers cannot be copied" : "Duplicate row"}
           >
             <Copy className="w-4 h-4" />
           </Button>
@@ -195,7 +218,7 @@ export const RunningSheetInlineRow: React.FC<RunningSheetInlineRowProps> = ({
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => onDelete(item.id)}
+            onClick={handleDelete}
             className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
             title="Delete row"
           >

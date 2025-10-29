@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, forwardRef } from 'react';
 import { Bold, Italic, Type } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -11,11 +11,11 @@ interface InlineRichTextEditorProps {
   placeholder?: string;
 }
 
-export const InlineRichTextEditor: React.FC<InlineRichTextEditorProps> = ({
+export const InlineRichTextEditor = forwardRef<HTMLTextAreaElement, InlineRichTextEditorProps>(({
   value,
   onChange,
   placeholder = "Event info..."
-}) => {
+}, ref) => {
   const [textLocal, setTextLocal] = useState('');
   const [bold, setBold] = useState(false);
   const [italic, setItalic] = useState(false);
@@ -118,6 +118,7 @@ export const InlineRichTextEditor: React.FC<InlineRichTextEditorProps> = ({
 
       {/* Textarea */}
       <Textarea
+        ref={ref}
         value={textLocal}
         onChange={(e) => handleTextChange(e.target.value)}
         placeholder={placeholder}
@@ -131,4 +132,6 @@ export const InlineRichTextEditor: React.FC<InlineRichTextEditorProps> = ({
       />
     </div>
   );
-};
+});
+
+InlineRichTextEditor.displayName = 'InlineRichTextEditor';
