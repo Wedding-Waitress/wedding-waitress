@@ -44,7 +44,7 @@ export const RunningSheetSettingsSidebar: React.FC<RunningSheetSettingsSidebarPr
   onUpdate,
 }) => {
   return (
-    <div className="bg-white rounded-xl p-4 space-y-4 sticky top-6 shadow-soft" style={{ width: '580px', minWidth: '580px' }}>
+    <div className="bg-white rounded-xl p-4 space-y-4 sticky top-6 shadow-soft" style={{ width: '464px', minWidth: '464px' }}>
       {/* Title */}
       <h3 className="text-lg font-semibold" style={{ color: '#6D28D9' }}>
         Running Sheet Settings
