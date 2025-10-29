@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Settings, AlertTriangle, Download } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { flags } from '@/lib/featureFlags';
 
 export const AdminSystemSettings = () => {
   const [settings, setSettings] = useState({
@@ -14,6 +15,12 @@ export const AdminSystemSettings = () => {
     kioskModeEnabled: true,
     watermarkEnabled: false,
   });
+  
+  const [featureFlags, setFeatureFlags] = useState({
+    djQuestionnaire: flags.djQuestionnaire as boolean,
+    runningSheet: flags.runningSheet as boolean,
+  });
+  
   const { toast } = useToast();
 
   const handleToggle = (key: string) => {
@@ -77,6 +84,46 @@ export const AdminSystemSettings = () => {
               id="kiosk"
               checked={settings.kioskModeEnabled}
               onCheckedChange={() => handleToggle('kioskModeEnabled')}
+            />
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <Label htmlFor="djQuestionnaire">DJ & MC Questionnaire</Label>
+              <p className="text-sm text-muted-foreground">
+                Enable DJ questionnaire feature for all users
+              </p>
+            </div>
+            <Switch
+              id="djQuestionnaire"
+              checked={featureFlags.djQuestionnaire}
+              onCheckedChange={() => {
+                setFeatureFlags(prev => ({ ...prev, djQuestionnaire: !prev.djQuestionnaire }));
+                toast({
+                  title: 'Feature Updated',
+                  description: `DJ Questionnaire is now ${!featureFlags.djQuestionnaire ? 'enabled' : 'disabled'}. Update featureFlags.ts to persist.`,
+                });
+              }}
+            />
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <Label htmlFor="runningSheet">Running Sheet</Label>
+              <p className="text-sm text-muted-foreground">
+                Enable running sheet feature for all users
+              </p>
+            </div>
+            <Switch
+              id="runningSheet"
+              checked={featureFlags.runningSheet}
+              onCheckedChange={() => {
+                setFeatureFlags(prev => ({ ...prev, runningSheet: !prev.runningSheet }));
+                toast({
+                  title: 'Feature Updated',
+                  description: `Running Sheet is now ${!featureFlags.runningSheet ? 'enabled' : 'disabled'}. Update featureFlags.ts to persist.`,
+                });
+              }}
             />
           </div>
         </CardContent>

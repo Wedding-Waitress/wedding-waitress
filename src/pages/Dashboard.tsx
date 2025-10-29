@@ -342,7 +342,16 @@ export const Dashboard = () => {
         // Individual table seating chart feature
         return <IndividualTableSeatingChartPage selectedEventId={selectedEventId} onEventSelect={handleEventSelect} />;
       case 'running-sheet':
-        return <RunningSheetPage />;
+        return flags.runningSheet ? (
+          <RunningSheetPage />
+        ) : (
+          <Card className="p-8 text-center">
+            <CardTitle className="mb-2">Feature Temporarily Disabled</CardTitle>
+            <CardDescription>
+              Running Sheet is coming soon. Check back later!
+            </CardDescription>
+          </Card>
+        );
       case 'kiosk-setup':
         return <KioskSetup selectedEventId={selectedEventId} onEventSelect={handleEventSelect} />;
       case 'dj-mc-questionnaire':

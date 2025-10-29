@@ -1,13 +1,26 @@
 // Analytics utility for Who Is functionality
 // Ensures no PII is included beyond IDs and enums
 
+import { flags } from './featureFlags';
+
 export interface AnalyticsEvent {
   name: string;
   properties: Record<string, any>;
 }
 
+// Guard function to prevent analytics for disabled features
+const shouldTrack = (eventName: string): boolean => {
+  // Block analytics for disabled features
+  if (eventName.toLowerCase().includes('dj') && !flags.djQuestionnaire) return false;
+  if (eventName.toLowerCase().includes('running_sheet') && !flags.runningSheet) return false;
+  return true;
+};
+
 export const analytics = {
   track: (eventName: string, properties: Record<string, any> = {}) => {
+    // Check if feature is enabled before tracking
+    if (!shouldTrack(eventName)) return;
+    
     // Send to analytics service in production
     // In development, you can temporarily enable console logging for debugging
     if (process.env.NODE_ENV === 'development') {

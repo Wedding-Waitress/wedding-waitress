@@ -20,6 +20,7 @@ import {
 import { useIsAdmin } from '@/hooks/useIsAdmin';
 import { useNavigate } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { flags } from '@/lib/featureFlags';
 import {
   Sidebar,
   SidebarContent,
@@ -41,7 +42,8 @@ interface AppSidebarProps {
   onSignOut: () => void;
 }
 
-  const menuItems = [
+  // Filter menu items based on feature flags
+  const allMenuItems = [
     { id: "dashboard", label: "Dashboard", icon: Home },
     { id: "my-events", label: "My Events", icon: Calendar },
     { id: "table-list", label: "Tables", icon: MapPin },
@@ -52,9 +54,11 @@ interface AppSidebarProps {
     { id: "dietary-chart", label: "Dietary Requirements", icon: ChefHat },
     { id: "full-seating-chart", label: "Full Seating Chart", icon: FileText },
     { id: "kiosk-live-view", label: "Kiosk Live View", icon: Monitor },
-    { id: "dj-mc-questionnaire", label: "DJ & MC Questionnaire", icon: Music },
-    { id: "running-sheet", label: "Running Sheet", icon: ClipboardList },
+    ...(flags.djQuestionnaire ? [{ id: "dj-mc-questionnaire", label: "DJ & MC Questionnaire", icon: Music }] : []),
+    ...(flags.runningSheet ? [{ id: "running-sheet", label: "Running Sheet", icon: ClipboardList }] : []),
   ];
+  
+  const menuItems = allMenuItems;
 
 export const AppSidebar: React.FC<AppSidebarProps> = ({
   activeTab,
