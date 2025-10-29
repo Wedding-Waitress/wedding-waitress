@@ -95,6 +95,8 @@ export const exportRunningSheetToPdf = async (
   const respWidth = contentWidth * 0.20; // 20%
 
   // Add items
+  let currentGroup = false;
+  
   items.forEach((item, index) => {
     // Check if we need a new page
     const itemHeight = item.is_section_header ? 12 : 20;
@@ -107,8 +109,22 @@ export const exportRunningSheetToPdf = async (
 
     if (item.is_section_header) {
       // Section header
+      currentGroup = true;
+      
+      // Purple left bar (2px)
+      pdf.setDrawColor(headerColorHex);
+      pdf.setLineWidth(0.75);
+      pdf.line(marginLeft, y - 4, marginLeft, y + 6);
+      
+      // Background
       pdf.setFillColor('#F4F4F5');
       pdf.rect(marginLeft, y - 4, contentWidth, 10, 'F');
+      
+      // Border
+      pdf.setDrawColor('#EAEAEA');
+      pdf.setLineWidth(0.15);
+      pdf.rect(marginLeft, y - 4, contentWidth, 10);
+      
       pdf.setFontSize(headerFontSize);
       const headerFontStyle = (sheet.header_bold !== false ? 'bold' : '') + (sheet.header_italic ? 'italic' : 'normal');
       pdf.setFont(headerFont.toLowerCase().replace(/\s+/g, ''), headerFontStyle || 'bold');
@@ -119,10 +135,14 @@ export const exportRunningSheetToPdf = async (
       pdf.text(text, marginLeft + 2, y + 2);
       y += 12;
     } else {
-      // Regular row - add alternating background
-      const rowBg = index % 2 === 0 ? '#FFFFFF' : '#FBFBFC';
-      if (rowBg === '#FBFBFC') {
-        pdf.setFillColor(251, 251, 252);
+      // Regular row
+      const rowBg = currentGroup ? '#FBFAFF' : (index % 2 === 0 ? '#FFFFFF' : '#FCFCFD');
+      
+      if (rowBg === '#FBFAFF') {
+        pdf.setFillColor(251, 250, 255);
+        pdf.rect(marginLeft, y - 4, contentWidth, itemHeight, 'F');
+      } else if (rowBg === '#FCFCFD') {
+        pdf.setFillColor(252, 252, 253);
         pdf.rect(marginLeft, y - 4, contentWidth, itemHeight, 'F');
       }
 
@@ -130,12 +150,15 @@ export const exportRunningSheetToPdf = async (
       const baseFontStyle = (sheet.all_bold ? 'bold' : '') + (sheet.all_italic ? 'italic' : 'normal');
       pdf.setFont(textFont.toLowerCase().replace(/\s+/g, ''), baseFontStyle || 'normal');
 
+      // Apply indent if in group
+      const indentOffset = currentGroup ? 3.5 : 0;
+
       // Time
       pdf.setTextColor(textColor);
-      pdf.text(item.time_text || '', marginLeft, y);
+      pdf.text(item.time_text || '', marginLeft + indentOffset, y);
 
       // Description
-      const descX = marginLeft + timeWidth + 2;
+      const descX = marginLeft + timeWidth + 2 + indentOffset;
       const descText = typeof item.description_rich === 'object' && item.description_rich.text
         ? item.description_rich.text
         : item.description_rich || '';
@@ -163,11 +186,22 @@ export const exportRunningSheetToPdf = async (
 
       // Responsible
       if (sheet.show_responsible) {
-        const respX = marginLeft + timeWidth + descWidth + 4;
+        const respX = marginLeft + timeWidth + descWidth + 4 + indentOffset;
         pdf.text(item.responsible || '', respX, y);
       }
+      
+      // Borders
+      pdf.setDrawColor('#EAEAEA');
+      pdf.setLineWidth(0.15);
+      pdf.rect(marginLeft, y - 4, contentWidth, itemHeight);
 
       y += Math.max(descLines.length * 5, 10);
+    }
+    
+    // Check if next row is a header (end group)
+    const nextItem = items[index + 1];
+    if (nextItem && nextItem.is_section_header) {
+      currentGroup = false;
     }
   });
 

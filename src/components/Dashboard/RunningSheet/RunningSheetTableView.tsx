@@ -82,9 +82,59 @@ export const RunningSheetTableView: React.FC<RunningSheetTableViewProps> = ({
     }
   };
 
+  // Detect section groups
+  const getGroupInfo = (items: RunningSheetItem[]) => {
+    const groupMap: Record<string, { 
+      isInGroup: boolean, 
+      isFirstInGroup: boolean, 
+      isLastInGroup: boolean 
+    }> = {};
+    
+    let currentHeaderId: string | null = null;
+    let groupItems: string[] = [];
+    
+    items.forEach((item) => {
+      if (item.is_section_header) {
+        if (groupItems.length > 0 && currentHeaderId) {
+          groupMap[groupItems[groupItems.length - 1]].isLastInGroup = true;
+        }
+        
+        currentHeaderId = item.id;
+        groupItems = [];
+        groupMap[item.id] = { 
+          isInGroup: false, 
+          isFirstInGroup: true, 
+          isLastInGroup: false 
+        };
+      } else if (currentHeaderId) {
+        const isFirst = groupItems.length === 0;
+        groupItems.push(item.id);
+        groupMap[item.id] = { 
+          isInGroup: true, 
+          isFirstInGroup: isFirst, 
+          isLastInGroup: false
+        };
+      } else {
+        groupMap[item.id] = { 
+          isInGroup: false, 
+          isFirstInGroup: false, 
+          isLastInGroup: false 
+        };
+      }
+    });
+    
+    if (groupItems.length > 0) {
+      groupMap[groupItems[groupItems.length - 1]].isLastInGroup = true;
+    }
+    
+    return groupMap;
+  };
+
+  const groupInfo = getGroupInfo(items);
+
   return (
     <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-      <div className="overflow-auto max-h-[calc(297mm-80mm)]">
+      <div className="overflow-auto max-h-[calc(297mm-80mm)]" style={{ marginTop: '8px' }}>
         <table 
           className="w-full"
           style={{
@@ -94,7 +144,7 @@ export const RunningSheetTableView: React.FC<RunningSheetTableViewProps> = ({
             fontStyle: settings.all_italic ? 'italic' : 'normal',
             color: settings.all_text_color,
             borderCollapse: 'collapse',
-            border: '1px solid #E5E5E5'
+            border: '0.5px solid #EAEAEA'
           }}
         >
           <thead className="sticky top-0 bg-[#F4F4F5] z-10">
@@ -104,95 +154,92 @@ export const RunningSheetTableView: React.FC<RunningSheetTableViewProps> = ({
                 padding: '8px', 
                 textAlign: 'left',
                 verticalAlign: 'middle',
-                fontFamily: settings.header_font,
-                fontSize: TEXT_SIZE_MAP[settings.header_size] || '16pt',
-                fontWeight: settings.header_bold ? 'bold' : 'normal',
-                fontStyle: settings.header_italic ? 'italic' : 'normal',
+                fontSize: '14pt',
+                fontWeight: 600,
                 color: '#000000',
                 backgroundColor: '#F4F4F5',
-                border: '1px solid #E5E5E5'
+                border: '0.5px solid #EAEAEA'
               }}></th>
               <th style={{ 
                 width: '15%',
                 padding: '8px',
                 textAlign: 'left',
                 verticalAlign: 'middle',
-                fontFamily: settings.header_font,
-                fontSize: TEXT_SIZE_MAP[settings.header_size] || '16pt',
-                fontWeight: settings.header_bold ? 'bold' : 'normal',
-                fontStyle: settings.header_italic ? 'italic' : 'normal',
+                fontSize: '14pt',
+                fontWeight: 600,
                 color: '#000000',
                 backgroundColor: '#F4F4F5',
-                border: '1px solid #E5E5E5'
+                border: '0.5px solid #EAEAEA'
               }}>Times</th>
               <th style={{ 
                 width: '55%',
                 padding: '8px',
                 textAlign: 'left',
                 verticalAlign: 'middle',
-                fontFamily: settings.header_font,
-                fontSize: TEXT_SIZE_MAP[settings.header_size] || '16pt',
-                fontWeight: settings.header_bold ? 'bold' : 'normal',
-                fontStyle: settings.header_italic ? 'italic' : 'normal',
+                fontSize: '14pt',
+                fontWeight: 600,
                 color: '#000000',
                 backgroundColor: '#F4F4F5',
-                border: '1px solid #E5E5E5'
+                border: '0.5px solid #EAEAEA'
               }}>Event Info</th>
               <th style={{ 
                 width: '20%',
                 padding: '8px',
                 textAlign: 'left',
                 verticalAlign: 'middle',
-                fontFamily: settings.header_font,
-                fontSize: TEXT_SIZE_MAP[settings.header_size] || '16pt',
-                fontWeight: settings.header_bold ? 'bold' : 'normal',
-                fontStyle: settings.header_italic ? 'italic' : 'normal',
+                fontSize: '14pt',
+                fontWeight: 600,
                 color: '#000000',
                 backgroundColor: '#F4F4F5',
-                border: '1px solid #E5E5E5'
+                border: '0.5px solid #EAEAEA'
               }}>Assigned</th>
               <th style={{ 
                 width: '10%',
                 padding: '8px',
                 textAlign: 'center',
                 verticalAlign: 'middle',
-                fontFamily: settings.header_font,
-                fontSize: TEXT_SIZE_MAP[settings.header_size] || '16pt',
-                fontWeight: settings.header_bold ? 'bold' : 'normal',
-                fontStyle: settings.header_italic ? 'italic' : 'normal',
+                fontSize: '14pt',
+                fontWeight: 600,
                 color: '#000000',
                 backgroundColor: '#F4F4F5',
-                border: '1px solid #E5E5E5'
+                border: '0.5px solid #EAEAEA'
               }}>Actions</th>
             </tr>
           </thead>
           <tbody>
             <SortableContext items={items.map((i) => i.id)} strategy={verticalListSortingStrategy}>
-              {items.map((item, index) => (
-                <RunningSheetInlineRow
-                  key={item.id}
-                  item={item}
-                  rowIndex={index}
-                  isLastCreated={item.id === lastCreatedItemId}
-                  settings={{
-                    all_font: settings.all_font,
-                    all_text_size: settings.all_text_size,
-                    all_bold: settings.all_bold,
-                    all_italic: settings.all_italic,
-                    all_text_color: settings.all_text_color,
-                    header_font: settings.header_font,
-                    header_size: settings.header_size,
-                    header_bold: settings.header_bold,
-                    header_italic: settings.header_italic,
-                    header_color: settings.header_color,
-                  }}
-                  onUpdate={onUpdateItem}
-                  onDelete={onDeleteItem}
-                  onDuplicate={onDuplicateItem}
-                  onInsertHeaderAbove={onInsertHeaderAbove}
-                  onFocus={onFocusRow}
-                />
-              ))}
+              {items.map((item, index) => {
+                const info = groupInfo[item.id] || { isInGroup: false, isFirstInGroup: false, isLastInGroup: false };
+                
+                return (
+                  <RunningSheetInlineRow
+                    key={item.id}
+                    item={item}
+                    rowIndex={index}
+                    isLastCreated={item.id === lastCreatedItemId}
+                    isInGroup={info.isInGroup}
+                    isFirstInGroup={info.isFirstInGroup}
+                    isLastInGroup={info.isLastInGroup}
+                    settings={{
+                      all_font: settings.all_font,
+                      all_text_size: settings.all_text_size,
+                      all_bold: settings.all_bold,
+                      all_italic: settings.all_italic,
+                      all_text_color: settings.all_text_color,
+                      header_font: settings.header_font,
+                      header_size: settings.header_size,
+                      header_bold: settings.header_bold,
+                      header_italic: settings.header_italic,
+                      header_color: settings.header_color,
+                    }}
+                    onUpdate={onUpdateItem}
+                    onDelete={onDeleteItem}
+                    onDuplicate={onDuplicateItem}
+                    onInsertHeaderAbove={onInsertHeaderAbove}
+                    onFocus={onFocusRow}
+                  />
+                );
+              })}
             </SortableContext>
           </tbody>
         </table>

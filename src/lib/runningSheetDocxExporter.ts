@@ -46,9 +46,12 @@ export const exportRunningSheetToDocx = async (
 
   // Create table rows
   const tableRows: TableRow[] = [];
+  let currentGroup = false;
 
   items.forEach((item, index) => {
     if (item.is_section_header) {
+      currentGroup = true;
+      
       // Section header row
       const text = typeof item.description_rich === 'object' && item.description_rich.text
         ? item.description_rich.text
@@ -76,13 +79,20 @@ export const exportRunningSheetToDocx = async (
               shading: {
                 fill: 'F4F4F5',
               },
+              borders: {
+                left: { style: BorderStyle.SINGLE, size: 6, color: headerColor },
+                top: { style: BorderStyle.SINGLE, size: 1.5, color: 'EAEAEA' },
+                bottom: { style: BorderStyle.SINGLE, size: 1.5, color: 'EAEAEA' },
+                right: { style: BorderStyle.SINGLE, size: 1.5, color: 'EAEAEA' },
+              },
             }),
           ],
         })
       );
     } else {
-      // Regular row - alternating background
-      const rowShading = index % 2 === 0 ? 'FFFFFF' : 'FBFBFC';
+      // Regular row
+      const rowShading = currentGroup ? 'FBFAFF' : (index % 2 === 0 ? 'FFFFFF' : 'FCFCFD');
+      const indent = currentGroup ? 340 : 0;
       
       const descText = typeof item.description_rich === 'object' && item.description_rich.text
         ? item.description_rich.text
@@ -106,10 +116,17 @@ export const exportRunningSheetToDocx = async (
                   color: textColor,
                 }),
               ],
+              indent: { left: indent },
             }),
           ],
           width: { size: 15, type: WidthType.PERCENTAGE },
           shading: { fill: rowShading },
+          borders: {
+            top: { style: BorderStyle.SINGLE, size: 1.5, color: 'EAEAEA' },
+            bottom: { style: BorderStyle.SINGLE, size: 1.5, color: 'EAEAEA' },
+            left: { style: BorderStyle.SINGLE, size: 1.5, color: 'EAEAEA' },
+            right: { style: BorderStyle.SINGLE, size: 1.5, color: 'EAEAEA' },
+          },
         }),
         new TableCell({
           children: [
@@ -124,10 +141,17 @@ export const exportRunningSheetToDocx = async (
                   font: textFont,
                 }),
               ],
+              indent: { left: indent },
             }),
           ],
           width: { size: 55, type: WidthType.PERCENTAGE },
           shading: { fill: rowShading },
+          borders: {
+            top: { style: BorderStyle.SINGLE, size: 1.5, color: 'EAEAEA' },
+            bottom: { style: BorderStyle.SINGLE, size: 1.5, color: 'EAEAEA' },
+            left: { style: BorderStyle.SINGLE, size: 1.5, color: 'EAEAEA' },
+            right: { style: BorderStyle.SINGLE, size: 1.5, color: 'EAEAEA' },
+          },
         }),
       ];
 
@@ -146,15 +170,28 @@ export const exportRunningSheetToDocx = async (
                     color: textColor,
                   }),
                 ],
+                indent: { left: indent },
               }),
             ],
             width: { size: 20, type: WidthType.PERCENTAGE },
             shading: { fill: rowShading },
+            borders: {
+              top: { style: BorderStyle.SINGLE, size: 1.5, color: 'EAEAEA' },
+              bottom: { style: BorderStyle.SINGLE, size: 1.5, color: 'EAEAEA' },
+              left: { style: BorderStyle.SINGLE, size: 1.5, color: 'EAEAEA' },
+              right: { style: BorderStyle.SINGLE, size: 1.5, color: 'EAEAEA' },
+            },
           })
         );
       }
 
       tableRows.push(new TableRow({ children: cells }));
+    }
+    
+    // Check if next item ends group
+    const nextItem = items[index + 1];
+    if (nextItem && nextItem.is_section_header) {
+      currentGroup = false;
     }
   });
 
@@ -166,12 +203,12 @@ export const exportRunningSheetToDocx = async (
       type: WidthType.PERCENTAGE,
     },
     borders: {
-      top: { style: BorderStyle.SINGLE, size: 1, color: 'CCCCCC' },
-      bottom: { style: BorderStyle.SINGLE, size: 1, color: 'CCCCCC' },
-      left: { style: BorderStyle.SINGLE, size: 1, color: 'CCCCCC' },
-      right: { style: BorderStyle.SINGLE, size: 1, color: 'CCCCCC' },
-      insideHorizontal: { style: BorderStyle.SINGLE, size: 1, color: 'CCCCCC' },
-      insideVertical: { style: BorderStyle.SINGLE, size: 1, color: 'CCCCCC' },
+      top: { style: BorderStyle.SINGLE, size: 1.5, color: 'EAEAEA' },
+      bottom: { style: BorderStyle.SINGLE, size: 1.5, color: 'EAEAEA' },
+      left: { style: BorderStyle.SINGLE, size: 1.5, color: 'EAEAEA' },
+      right: { style: BorderStyle.SINGLE, size: 1.5, color: 'EAEAEA' },
+      insideHorizontal: { style: BorderStyle.SINGLE, size: 1.5, color: 'EAEAEA' },
+      insideVertical: { style: BorderStyle.SINGLE, size: 1.5, color: 'EAEAEA' },
     },
   });
 

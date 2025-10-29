@@ -324,7 +324,7 @@ export const RunningSheetPage: React.FC = () => {
             width: 100%;
             border-collapse: collapse;
             margin-top: 2mm;
-            border: 1px solid #E5E5E5 !important;
+            border: 0.5px solid #EAEAEA !important;
           }
           
           .print-page table thead {
@@ -336,7 +336,7 @@ export const RunningSheetPage: React.FC = () => {
             padding: 2mm;
             font-weight: 600;
             border-bottom: 2px solid #000;
-            border: 1px solid #E5E5E5 !important;
+            border: 0.5px solid #EAEAEA !important;
             vertical-align: middle !important;
           }
           
@@ -368,7 +368,7 @@ export const RunningSheetPage: React.FC = () => {
             padding: 2mm;
             border-bottom: 1px solid #E5E7EB;
             vertical-align: top;
-            border: 1px solid #E5E5E5 !important;
+            border: 0.5px solid #EAEAEA !important;
           }
           
           .print-page table tbody tr {
@@ -376,11 +376,20 @@ export const RunningSheetPage: React.FC = () => {
             break-inside: avoid;
           }
           
-          .print-page table tbody tr:nth-child(odd) {
-            background-color: #FBFBFC !important;
+          .print-page table tbody tr.section-header {
+            break-after: avoid;
           }
           
-          .print-page table tbody tr:nth-child(even) {
+          .print-page table tbody tr.in-group {
+            background-color: #FBFAFF !important;
+            break-before: avoid;
+          }
+          
+          .print-page table tbody tr:not(.in-group):nth-child(odd) {
+            background-color: #FCFCFD !important;
+          }
+          
+          .print-page table tbody tr:not(.in-group):nth-child(even) {
             background-color: #FFFFFF !important;
           }
           

@@ -12,6 +12,9 @@ interface RunningSheetInlineRowProps {
   item: RunningSheetItem;
   rowIndex: number;
   isLastCreated?: boolean;
+  isInGroup?: boolean;
+  isFirstInGroup?: boolean;
+  isLastInGroup?: boolean;
   settings: {
     all_font: string;
     all_text_size: string;
@@ -47,6 +50,9 @@ export const RunningSheetInlineRow: React.FC<RunningSheetInlineRowProps> = ({
   item,
   rowIndex,
   isLastCreated,
+  isInGroup = false,
+  isFirstInGroup = false,
+  isLastInGroup = false,
   settings,
   onUpdate,
   onDelete,
@@ -96,17 +102,26 @@ export const RunningSheetInlineRow: React.FC<RunningSheetInlineRowProps> = ({
 
   // Section Header Row
   if (item.is_section_header) {
+    const headerPadding = isFirstInGroup ? '12px 8px 8px 8px' : '8px';
+    
     return (
       <tr
         ref={setNodeRef}
         style={style}
+        className="section-header"
       >
-        <td style={{ padding: '8px', border: '1px solid #E5E5E5', backgroundColor: '#F4F4F5' }}>
+        <td style={{ padding: headerPadding, border: '0.5px solid #EAEAEA', backgroundColor: '#F4F4F5' }}>
           <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing">
             <GripVertical className="w-5 h-5 text-muted-foreground" />
           </div>
         </td>
-        <td colSpan={3} style={{ padding: '8px', border: '1px solid #E5E5E5', backgroundColor: '#F4F4F5' }}>
+        <td colSpan={3} style={{ 
+          padding: headerPadding, 
+          border: '0.5px solid #EAEAEA', 
+          backgroundColor: '#F4F4F5',
+          borderLeft: `2px solid ${settings.header_color}`,
+          position: 'relative'
+        }}>
           <Input
             value={typeof item.description_rich === 'object' && item.description_rich.text 
               ? item.description_rich.text 
@@ -125,7 +140,7 @@ export const RunningSheetInlineRow: React.FC<RunningSheetInlineRowProps> = ({
             }}
           />
         </td>
-        <td style={{ padding: '8px', border: '1px solid #E5E5E5', backgroundColor: '#F4F4F5', textAlign: 'center' }}>
+        <td style={{ padding: headerPadding, border: '0.5px solid #EAEAEA', backgroundColor: '#F4F4F5', textAlign: 'center' }}>
           <Button
             variant="ghost"
             size="sm"
@@ -140,7 +155,19 @@ export const RunningSheetInlineRow: React.FC<RunningSheetInlineRowProps> = ({
   }
 
   // Regular Row
-  const backgroundColor = rowIndex % 2 === 0 ? '#FFFFFF' : '#FBFBFC';
+  const backgroundColor = isInGroup 
+    ? '#FBFAFF'
+    : (rowIndex % 2 === 0 ? '#FFFFFF' : '#FCFCFD');
+
+  const cellPadding = isLastInGroup 
+    ? '6px 8px 14px 8px'
+    : '6px 8px';
+
+  const indentPadding = isInGroup 
+    ? '6px 8px 6px 20px'
+    : cellPadding;
+
+  const [hoveredRow, setHoveredRow] = useState(false);
 
   return (
     <tr
@@ -152,20 +179,47 @@ export const RunningSheetInlineRow: React.FC<RunningSheetInlineRowProps> = ({
         fontWeight: settings.all_bold ? 'bold' : 'normal',
         fontStyle: settings.all_italic ? 'italic' : 'normal',
         color: settings.all_text_color,
+        backgroundColor: hoveredRow ? '#F8F4FF' : backgroundColor,
+        transition: 'background-color 0.15s ease',
       }}
       onFocus={() => onFocus?.(item.id)}
       onBlur={() => onFocus?.(null)}
+      onMouseEnter={() => setHoveredRow(true)}
+      onMouseLeave={() => setHoveredRow(false)}
       tabIndex={0}
+      className={`running-sheet-row ${isInGroup ? 'in-group' : ''}`}
     >
       {/* Drag Handle */}
-      <td style={{ padding: '8px', verticalAlign: 'top', border: '1px solid #E5E5E5', backgroundColor }}>
+      <td style={{ padding: cellPadding, verticalAlign: 'top', border: '0.5px solid #EAEAEA', backgroundColor: hoveredRow ? '#F8F4FF' : backgroundColor }}>
         <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing">
           <GripVertical className="w-5 h-5 text-muted-foreground" />
         </div>
       </td>
 
       {/* Time Picker */}
-      <td style={{ padding: '8px', verticalAlign: 'top', border: '1px solid #E5E5E5', backgroundColor }}>
+      <td 
+        style={{ 
+          padding: indentPadding, 
+          verticalAlign: 'top', 
+          border: '0.5px solid #EAEAEA', 
+          backgroundColor: hoveredRow ? '#F8F4FF' : backgroundColor,
+          transition: 'box-shadow 0.15s ease',
+        }}
+        className="running-sheet-cell group"
+        onMouseEnter={(e) => {
+          if (!hoveredRow) return;
+          e.currentTarget.style.boxShadow = '0 0 0 1px #C3B0F9';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.boxShadow = 'none';
+        }}
+        onFocus={(e) => {
+          e.currentTarget.style.boxShadow = '0 0 0 1px #6D28D9';
+        }}
+        onBlur={(e) => {
+          e.currentTarget.style.boxShadow = 'none';
+        }}
+      >
         <TimePicker
           value={item.time_text}
           onChange={(time) => onUpdate(item.id, { time_text: time })}
@@ -174,7 +228,29 @@ export const RunningSheetInlineRow: React.FC<RunningSheetInlineRowProps> = ({
       </td>
 
       {/* Event Info (Rich Text) */}
-      <td style={{ padding: '8px', verticalAlign: 'top', border: '1px solid #E5E5E5', backgroundColor }}>
+      <td 
+        style={{ 
+          padding: indentPadding, 
+          verticalAlign: 'top', 
+          border: '0.5px solid #EAEAEA', 
+          backgroundColor: hoveredRow ? '#F8F4FF' : backgroundColor,
+          transition: 'box-shadow 0.15s ease',
+        }}
+        className="running-sheet-cell group"
+        onMouseEnter={(e) => {
+          if (!hoveredRow) return;
+          e.currentTarget.style.boxShadow = '0 0 0 1px #C3B0F9';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.boxShadow = 'none';
+        }}
+        onFocus={(e) => {
+          e.currentTarget.style.boxShadow = '0 0 0 1px #6D28D9';
+        }}
+        onBlur={(e) => {
+          e.currentTarget.style.boxShadow = 'none';
+        }}
+      >
         <InlineRichTextEditor
           ref={textareaRef}
           value={item.description_rich}
@@ -184,7 +260,29 @@ export const RunningSheetInlineRow: React.FC<RunningSheetInlineRowProps> = ({
       </td>
 
       {/* Assigned */}
-      <td style={{ padding: '8px', verticalAlign: 'top', border: '1px solid #E5E5E5', backgroundColor }}>
+      <td 
+        style={{ 
+          padding: indentPadding, 
+          verticalAlign: 'top', 
+          border: '0.5px solid #EAEAEA', 
+          backgroundColor: hoveredRow ? '#F8F4FF' : backgroundColor,
+          transition: 'box-shadow 0.15s ease',
+        }}
+        className="running-sheet-cell group"
+        onMouseEnter={(e) => {
+          if (!hoveredRow) return;
+          e.currentTarget.style.boxShadow = '0 0 0 1px #C3B0F9';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.boxShadow = 'none';
+        }}
+        onFocus={(e) => {
+          e.currentTarget.style.boxShadow = '0 0 0 1px #6D28D9';
+        }}
+        onBlur={(e) => {
+          e.currentTarget.style.boxShadow = 'none';
+        }}
+      >
         <Input
           value={responsibleLocal}
           onChange={(e) => handleResponsibleChange(e.target.value)}
@@ -194,7 +292,7 @@ export const RunningSheetInlineRow: React.FC<RunningSheetInlineRowProps> = ({
       </td>
 
       {/* Actions */}
-      <td style={{ padding: '8px', verticalAlign: 'top', border: '1px solid #E5E5E5', textAlign: 'center', backgroundColor }}>
+      <td style={{ padding: cellPadding, verticalAlign: 'top', border: '0.5px solid #EAEAEA', textAlign: 'center', backgroundColor: hoveredRow ? '#F8F4FF' : backgroundColor }}>
         <div className="flex gap-1 justify-center">
           <Button
             variant="ghost"
