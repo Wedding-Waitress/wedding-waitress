@@ -280,6 +280,31 @@ export const RunningSheetPage: React.FC = () => {
             font-weight: 600;
             border-bottom: 2px solid #000;
             border: 1px solid #E5E5E5 !important;
+            vertical-align: middle !important;
+          }
+          
+          .print-page table th:nth-child(1) {
+            width: 40px !important;
+          }
+          
+          .print-page table th:nth-child(2),
+          .print-page table td:nth-child(2) {
+            width: 15% !important;
+          }
+          
+          .print-page table th:nth-child(3),
+          .print-page table td:nth-child(3) {
+            width: 55% !important;
+          }
+          
+          .print-page table th:nth-child(4),
+          .print-page table td:nth-child(4) {
+            width: 20% !important;
+          }
+          
+          .print-page table th:nth-child(5),
+          .print-page table td:nth-child(5) {
+            width: 10% !important;
           }
           
           .print-page table td {
@@ -294,8 +319,12 @@ export const RunningSheetPage: React.FC = () => {
             break-inside: avoid;
           }
           
+          .print-page table tbody tr:nth-child(odd) {
+            background-color: #FBFBFC !important;
+          }
+          
           .print-page table tbody tr:nth-child(even) {
-            background-color: #F9FAFB !important;
+            background-color: #FFFFFF !important;
           }
           
           .print-page .flex-1 { 

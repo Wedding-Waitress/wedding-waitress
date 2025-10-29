@@ -89,10 +89,10 @@ export const exportRunningSheetToPdf = async (
   // Add first page header
   addHeader(currentPage);
 
-  // Column widths
-  const timeWidth = 20;
-  const descWidth = sheet.show_responsible ? 120 : 160;
-  const respWidth = 40;
+  // Column widths (percentage-based)
+  const timeWidth = contentWidth * 0.15; // 15%
+  const descWidth = contentWidth * 0.55; // 55%
+  const respWidth = contentWidth * 0.20; // 20%
 
   // Add items
   items.forEach((item, index) => {
@@ -119,7 +119,13 @@ export const exportRunningSheetToPdf = async (
       pdf.text(text, marginLeft + 2, y + 2);
       y += 12;
     } else {
-      // Regular row
+      // Regular row - add alternating background
+      const rowBg = index % 2 === 0 ? '#FFFFFF' : '#FBFBFC';
+      if (rowBg === '#FBFBFC') {
+        pdf.setFillColor(251, 251, 252);
+        pdf.rect(marginLeft, y - 4, contentWidth, itemHeight, 'F');
+      }
+
       pdf.setFontSize(textFontSize);
       const baseFontStyle = (sheet.all_bold ? 'bold' : '') + (sheet.all_italic ? 'italic' : 'normal');
       pdf.setFont(textFont.toLowerCase().replace(/\s+/g, ''), baseFontStyle || 'normal');

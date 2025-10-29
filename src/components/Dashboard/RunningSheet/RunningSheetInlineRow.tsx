@@ -10,6 +10,7 @@ import { TimePicker } from '../TimePicker';
 
 interface RunningSheetInlineRowProps {
   item: RunningSheetItem;
+  rowIndex: number;
   settings: {
     all_font: string;
     all_text_size: string;
@@ -42,6 +43,7 @@ const TEXT_SIZE_MAP: Record<string, string> = {
 
 export const RunningSheetInlineRow: React.FC<RunningSheetInlineRowProps> = ({
   item,
+  rowIndex,
   settings,
   onUpdate,
   onDelete,
@@ -120,6 +122,8 @@ export const RunningSheetInlineRow: React.FC<RunningSheetInlineRowProps> = ({
   }
 
   // Regular Row
+  const backgroundColor = rowIndex % 2 === 0 ? '#FFFFFF' : '#FBFBFC';
+
   return (
     <tr
       ref={setNodeRef}
@@ -133,14 +137,14 @@ export const RunningSheetInlineRow: React.FC<RunningSheetInlineRowProps> = ({
       }}
     >
       {/* Drag Handle */}
-      <td style={{ padding: '8px', verticalAlign: 'top', border: '1px solid #E5E5E5' }}>
+      <td style={{ padding: '8px', verticalAlign: 'top', border: '1px solid #E5E5E5', backgroundColor }}>
         <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing">
           <GripVertical className="w-5 h-5 text-muted-foreground" />
         </div>
       </td>
 
       {/* Time Picker */}
-      <td style={{ padding: '8px', verticalAlign: 'top', border: '1px solid #E5E5E5' }}>
+      <td style={{ padding: '8px', verticalAlign: 'top', border: '1px solid #E5E5E5', backgroundColor }}>
         <TimePicker
           value={item.time_text}
           onChange={(time) => onUpdate(item.id, { time_text: time })}
@@ -149,7 +153,7 @@ export const RunningSheetInlineRow: React.FC<RunningSheetInlineRowProps> = ({
       </td>
 
       {/* Event Info (Rich Text) */}
-      <td style={{ padding: '8px', verticalAlign: 'top', border: '1px solid #E5E5E5' }}>
+      <td style={{ padding: '8px', verticalAlign: 'top', border: '1px solid #E5E5E5', backgroundColor }}>
         <InlineRichTextEditor
           value={item.description_rich}
           onChange={(val) => onUpdate(item.id, { description_rich: val })}
@@ -158,7 +162,7 @@ export const RunningSheetInlineRow: React.FC<RunningSheetInlineRowProps> = ({
       </td>
 
       {/* Assigned */}
-      <td style={{ padding: '8px', verticalAlign: 'top', border: '1px solid #E5E5E5' }}>
+      <td style={{ padding: '8px', verticalAlign: 'top', border: '1px solid #E5E5E5', backgroundColor }}>
         <Input
           value={responsibleLocal}
           onChange={(e) => handleResponsibleChange(e.target.value)}
@@ -168,7 +172,7 @@ export const RunningSheetInlineRow: React.FC<RunningSheetInlineRowProps> = ({
       </td>
 
       {/* Actions */}
-      <td style={{ padding: '8px', verticalAlign: 'top', border: '1px solid #E5E5E5', textAlign: 'center' }}>
+      <td style={{ padding: '8px', verticalAlign: 'top', border: '1px solid #E5E5E5', textAlign: 'center', backgroundColor }}>
         <div className="flex gap-1 justify-center">
           <Button
             variant="ghost"

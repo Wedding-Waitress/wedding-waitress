@@ -96,9 +96,10 @@ export const RunningSheetTableView: React.FC<RunningSheetTableViewProps> = ({
           <thead className="sticky top-0 bg-[#F4F4F5] z-10">
             <tr>
               <th style={{ 
-                width: '20px', 
+                width: '40px', 
                 padding: '8px', 
                 textAlign: 'left',
+                verticalAlign: 'middle',
                 fontFamily: settings.header_font,
                 fontSize: TEXT_SIZE_MAP[settings.header_size] || '16pt',
                 fontWeight: settings.header_bold ? 'bold' : 'normal',
@@ -108,9 +109,10 @@ export const RunningSheetTableView: React.FC<RunningSheetTableViewProps> = ({
                 border: '1px solid #E5E5E5'
               }}></th>
               <th style={{ 
-                width: '80px',
+                width: '15%',
                 padding: '8px',
                 textAlign: 'left',
+                verticalAlign: 'middle',
                 fontFamily: settings.header_font,
                 fontSize: TEXT_SIZE_MAP[settings.header_size] || '16pt',
                 fontWeight: settings.header_bold ? 'bold' : 'normal',
@@ -120,8 +122,10 @@ export const RunningSheetTableView: React.FC<RunningSheetTableViewProps> = ({
                 border: '1px solid #E5E5E5'
               }}>Times</th>
               <th style={{ 
+                width: '55%',
                 padding: '8px',
                 textAlign: 'left',
+                verticalAlign: 'middle',
                 fontFamily: settings.header_font,
                 fontSize: TEXT_SIZE_MAP[settings.header_size] || '16pt',
                 fontWeight: settings.header_bold ? 'bold' : 'normal',
@@ -131,9 +135,10 @@ export const RunningSheetTableView: React.FC<RunningSheetTableViewProps> = ({
                 border: '1px solid #E5E5E5'
               }}>Event Info</th>
               <th style={{ 
-                width: '150px',
+                width: '20%',
                 padding: '8px',
                 textAlign: 'left',
+                verticalAlign: 'middle',
                 fontFamily: settings.header_font,
                 fontSize: TEXT_SIZE_MAP[settings.header_size] || '16pt',
                 fontWeight: settings.header_bold ? 'bold' : 'normal',
@@ -143,9 +148,10 @@ export const RunningSheetTableView: React.FC<RunningSheetTableViewProps> = ({
                 border: '1px solid #E5E5E5'
               }}>Assigned</th>
               <th style={{ 
-                width: '100px',
+                width: '10%',
                 padding: '8px',
                 textAlign: 'center',
+                verticalAlign: 'middle',
                 fontFamily: settings.header_font,
                 fontSize: TEXT_SIZE_MAP[settings.header_size] || '16pt',
                 fontWeight: settings.header_bold ? 'bold' : 'normal',
@@ -158,10 +164,11 @@ export const RunningSheetTableView: React.FC<RunningSheetTableViewProps> = ({
           </thead>
           <tbody>
             <SortableContext items={items.map((i) => i.id)} strategy={verticalListSortingStrategy}>
-              {items.map((item) => (
+              {items.map((item, index) => (
                 <RunningSheetInlineRow
                   key={item.id}
                   item={item}
+                  rowIndex={index}
                   settings={{
                     all_font: settings.all_font,
                     all_text_size: settings.all_text_size,

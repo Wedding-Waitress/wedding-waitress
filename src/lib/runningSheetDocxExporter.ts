@@ -47,7 +47,7 @@ export const exportRunningSheetToDocx = async (
   // Create table rows
   const tableRows: TableRow[] = [];
 
-  items.forEach((item) => {
+  items.forEach((item, index) => {
     if (item.is_section_header) {
       // Section header row
       const text = typeof item.description_rich === 'object' && item.description_rich.text
@@ -81,7 +81,9 @@ export const exportRunningSheetToDocx = async (
         })
       );
     } else {
-      // Regular row
+      // Regular row - alternating background
+      const rowShading = index % 2 === 0 ? 'FFFFFF' : 'FBFBFC';
+      
       const descText = typeof item.description_rich === 'object' && item.description_rich.text
         ? item.description_rich.text
         : item.description_rich || '';
@@ -107,6 +109,7 @@ export const exportRunningSheetToDocx = async (
             }),
           ],
           width: { size: 15, type: WidthType.PERCENTAGE },
+          shading: { fill: rowShading },
         }),
         new TableCell({
           children: [
@@ -123,7 +126,8 @@ export const exportRunningSheetToDocx = async (
               ],
             }),
           ],
-          width: { size: sheet.show_responsible ? 60 : 85, type: WidthType.PERCENTAGE },
+          width: { size: 55, type: WidthType.PERCENTAGE },
+          shading: { fill: rowShading },
         }),
       ];
 
@@ -144,7 +148,8 @@ export const exportRunningSheetToDocx = async (
                 ],
               }),
             ],
-            width: { size: 25, type: WidthType.PERCENTAGE },
+            width: { size: 20, type: WidthType.PERCENTAGE },
+            shading: { fill: rowShading },
           })
         );
       }
