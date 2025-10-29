@@ -85,6 +85,10 @@ export const Dashboard = () => {
 
     return () => subscription.unsubscribe();
   }, [navigate]);
+
+  // Album navigation logic (must be at top level, not inside renderTabContent)
+  const { getActiveEventId, navigateToAlbum } = useAlbumNavigation(selectedEventId, events);
+
   const {
     tables: rawTables,
     loading: tablesLoading,
@@ -124,6 +128,21 @@ export const Dashboard = () => {
       setSelectedEventId(savedEventId);
     }
   }, [events]);
+
+  // Handle navigation when Photo & Video Gallery tab is active
+  useEffect(() => {
+    if (activeTab === 'photo-video-gallery') {
+      const activeEventResult = getActiveEventId();
+      
+      if (activeEventResult === null) {
+        // Multiple events, no active one - show picker
+        setShowEventPickerModal(true);
+      } else if (activeEventResult !== 'no-events') {
+        // Navigate to album for the active event
+        navigateToAlbum(activeEventResult);
+      }
+    }
+  }, [activeTab, getActiveEventId, navigateToAlbum]);
 
   // Maintain a stable ref to fetchTables to avoid effect re-installs
   const fetchTablesRef = useRef(fetchTables);
@@ -332,7 +351,6 @@ export const Dashboard = () => {
       case 'signage':
         return <SignagePage selectedEventId={selectedEventId} onEventSelect={handleEventSelect} />;
       case 'photo-video-gallery': {
-        const { getActiveEventId, navigateToAlbum } = useAlbumNavigation(selectedEventId, events);
         const activeEventResult = getActiveEventId();
         
         if (activeEventResult === 'no-events') {
@@ -351,14 +369,7 @@ export const Dashboard = () => {
           );
         }
         
-        if (activeEventResult === null) {
-          // Multiple events, no active one - show picker
-          setTimeout(() => setShowEventPickerModal(true), 0);
-          return null;
-        }
-        
-        // Navigate to album for the active event
-        navigateToAlbum(activeEventResult);
+        // The useEffect will handle navigation/modal for other cases
         return null;
       }
       case 'qr-code':
