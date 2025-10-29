@@ -809,6 +809,41 @@ export type Database = {
           },
         ]
       }
+      guestbook_messages: {
+        Row: {
+          created_at: string
+          event_id: string
+          guest_name: string | null
+          id: string
+          message: string
+          uploader_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          guest_name?: string | null
+          id?: string
+          message: string
+          uploader_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          guest_name?: string | null
+          id?: string
+          message?: string
+          uploader_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guestbook_messages_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       guests: {
         Row: {
           assigned: boolean | null
@@ -1062,6 +1097,68 @@ export type Database = {
             foreignKeyName: "media_gallery_settings_event_id_fkey"
             columns: ["event_id"]
             isOneToOne: true
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      media_items: {
+        Row: {
+          caption: string | null
+          cloudflare_stream_uid: string | null
+          created_at: string
+          duration_sec: number | null
+          event_id: string
+          filesize: number | null
+          height: number | null
+          id: string
+          status: string
+          storage_path: string | null
+          thumbnail_path: string | null
+          type: string
+          updated_at: string
+          uploader_id: string | null
+          width: number | null
+        }
+        Insert: {
+          caption?: string | null
+          cloudflare_stream_uid?: string | null
+          created_at?: string
+          duration_sec?: number | null
+          event_id: string
+          filesize?: number | null
+          height?: number | null
+          id?: string
+          status?: string
+          storage_path?: string | null
+          thumbnail_path?: string | null
+          type: string
+          updated_at?: string
+          uploader_id?: string | null
+          width?: number | null
+        }
+        Update: {
+          caption?: string | null
+          cloudflare_stream_uid?: string | null
+          created_at?: string
+          duration_sec?: number | null
+          event_id?: string
+          filesize?: number | null
+          height?: number | null
+          id?: string
+          status?: string
+          storage_path?: string | null
+          thumbnail_path?: string | null
+          type?: string
+          updated_at?: string
+          uploader_id?: string | null
+          width?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "media_items_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
             referencedRelation: "events"
             referencedColumns: ["id"]
           },
@@ -1531,6 +1628,30 @@ export type Database = {
         }
         Relationships: []
       }
+      upload_rate_limits: {
+        Row: {
+          event_slug: string
+          id: string
+          ip_address: unknown
+          request_count: number
+          window_start: string
+        }
+        Insert: {
+          event_slug: string
+          id?: string
+          ip_address: unknown
+          request_count?: number
+          window_start?: string
+        }
+        Update: {
+          event_slug?: string
+          id?: string
+          ip_address?: unknown
+          request_count?: number
+          window_start?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string | null
@@ -1565,6 +1686,7 @@ export type Database = {
         Returns: boolean
       }
       cleanup_old_access_attempts: { Args: never; Returns: undefined }
+      cleanup_old_rate_limits: { Args: never; Returns: undefined }
       generate_guest_access_token: {
         Args: { _event_id: string; _guest_id: string; _validity_days?: number }
         Returns: string
@@ -1603,6 +1725,23 @@ export type Database = {
           venue: string
         }[]
       }
+      get_gallery_media: {
+        Args: { _event_slug: string }
+        Returns: {
+          caption: string
+          cloudflare_stream_uid: string
+          created_at: string
+          duration_sec: number
+          filesize: number
+          height: number
+          id: string
+          status: string
+          storage_path: string
+          thumbnail_path: string
+          type: string
+          width: number
+        }[]
+      }
       get_guest_by_token: {
         Args: { _access_token: string }
         Returns: {
@@ -1616,6 +1755,15 @@ export type Database = {
           rsvp: string
           seat_no: number
           table_no: number
+        }[]
+      }
+      get_guestbook_messages: {
+        Args: { _event_slug: string }
+        Returns: {
+          created_at: string
+          guest_name: string
+          id: string
+          message: string
         }[]
       }
       get_public_event_with_data_secure: {

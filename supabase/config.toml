@@ -9,3 +9,12 @@ verify_jwt = true
 [functions.acknowledge-dj-questionnaire]
 verify_jwt = false
 
+[functions.issue-upload-url]
+verify_jwt = false
+
+[functions.confirm-upload]
+verify_jwt = false
+
+[functions.check-video-status]
+verify_jwt = false
+
