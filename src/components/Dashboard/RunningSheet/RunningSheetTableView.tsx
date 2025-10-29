@@ -82,24 +82,78 @@ export const RunningSheetTableView: React.FC<RunningSheetTableViewProps> = ({
     <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
       <div className="overflow-auto max-h-[calc(297mm-80mm)]">
         <table 
-          className="w-full border-collapse"
+          className="w-full"
           style={{
             fontFamily: settings.all_font,
             fontSize: TEXT_SIZE_MAP[settings.all_text_size],
             fontWeight: settings.all_bold ? 'bold' : 'normal',
             fontStyle: settings.all_italic ? 'italic' : 'normal',
             color: settings.all_text_color,
+            borderCollapse: 'collapse',
+            border: '1px solid #E5E5E5'
           }}
         >
-          <thead className="sticky top-0 bg-[#F4F4F5] z-10 shadow-sm">
-            <tr className="border-b-2 border-border">
-              <th className="p-2 w-[30px]"></th>
-              <th className="p-2 w-[100px] text-center text-sm font-semibold">Times</th>
-              <th className="p-2 text-left text-sm font-semibold">Event Info</th>
-              {showResponsible && (
-                <th className="p-2 w-[150px] text-left text-sm font-semibold">Assigned</th>
-              )}
-              <th className="p-2 w-[120px] text-right text-sm font-semibold">Actions</th>
+          <thead className="sticky top-0 bg-[#F4F4F5] z-10">
+            <tr>
+              <th style={{ 
+                width: '20px', 
+                padding: '8px', 
+                textAlign: 'left',
+                fontFamily: settings.header_font,
+                fontSize: TEXT_SIZE_MAP[settings.header_size],
+                fontWeight: settings.header_bold ? 'bold' : 'normal',
+                fontStyle: settings.header_italic ? 'italic' : 'normal',
+                color: '#000000',
+                backgroundColor: '#F4F4F5',
+                border: '1px solid #E5E5E5'
+              }}></th>
+              <th style={{ 
+                width: '80px',
+                padding: '8px',
+                textAlign: 'left',
+                fontFamily: settings.header_font,
+                fontSize: TEXT_SIZE_MAP[settings.header_size],
+                fontWeight: settings.header_bold ? 'bold' : 'normal',
+                fontStyle: settings.header_italic ? 'italic' : 'normal',
+                color: '#000000',
+                backgroundColor: '#F4F4F5',
+                border: '1px solid #E5E5E5'
+              }}>Times</th>
+              <th style={{ 
+                padding: '8px',
+                textAlign: 'left',
+                fontFamily: settings.header_font,
+                fontSize: TEXT_SIZE_MAP[settings.header_size],
+                fontWeight: settings.header_bold ? 'bold' : 'normal',
+                fontStyle: settings.header_italic ? 'italic' : 'normal',
+                color: '#000000',
+                backgroundColor: '#F4F4F5',
+                border: '1px solid #E5E5E5'
+              }}>Event Info</th>
+              <th style={{ 
+                width: '150px',
+                padding: '8px',
+                textAlign: 'left',
+                fontFamily: settings.header_font,
+                fontSize: TEXT_SIZE_MAP[settings.header_size],
+                fontWeight: settings.header_bold ? 'bold' : 'normal',
+                fontStyle: settings.header_italic ? 'italic' : 'normal',
+                color: '#000000',
+                backgroundColor: '#F4F4F5',
+                border: '1px solid #E5E5E5'
+              }}>Assigned</th>
+              <th style={{ 
+                width: '100px',
+                padding: '8px',
+                textAlign: 'center',
+                fontFamily: settings.header_font,
+                fontSize: TEXT_SIZE_MAP[settings.header_size],
+                fontWeight: settings.header_bold ? 'bold' : 'normal',
+                fontStyle: settings.header_italic ? 'italic' : 'normal',
+                color: '#000000',
+                backgroundColor: '#F4F4F5',
+                border: '1px solid #E5E5E5'
+              }}>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -108,8 +162,12 @@ export const RunningSheetTableView: React.FC<RunningSheetTableViewProps> = ({
                 <RunningSheetInlineRow
                   key={item.id}
                   item={item}
-                  showResponsible={showResponsible}
                   settings={{
+                    all_font: settings.all_font,
+                    all_text_size: settings.all_text_size,
+                    all_bold: settings.all_bold,
+                    all_italic: settings.all_italic,
+                    all_text_color: settings.all_text_color,
                     header_font: settings.header_font,
                     header_size: settings.header_size,
                     header_bold: settings.header_bold,

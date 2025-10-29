@@ -10,8 +10,12 @@ import { TimePicker } from '../TimePicker';
 
 interface RunningSheetInlineRowProps {
   item: RunningSheetItem;
-  showResponsible: boolean;
   settings: {
+    all_font: string;
+    all_text_size: 'small' | 'medium' | 'large';
+    all_bold: boolean;
+    all_italic: boolean;
+    all_text_color: string;
     header_font: string;
     header_size: 'small' | 'medium' | 'large';
     header_bold: boolean;
@@ -30,9 +34,14 @@ const HEADER_SIZE_MAP = {
   large: '20px',
 };
 
+const TEXT_SIZE_MAP = {
+  small: '12px',
+  medium: '14px',
+  large: '16px',
+};
+
 export const RunningSheetInlineRow: React.FC<RunningSheetInlineRowProps> = ({
   item,
-  showResponsible,
   settings,
   onUpdate,
   onDelete,
@@ -71,14 +80,13 @@ export const RunningSheetInlineRow: React.FC<RunningSheetInlineRowProps> = ({
       <tr
         ref={setNodeRef}
         style={style}
-        className="bg-[#F4F4F5] border-b"
       >
-        <td className="p-2">
+        <td style={{ padding: '8px', border: '1px solid #E5E5E5', backgroundColor: '#F4F4F5' }}>
           <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing">
             <GripVertical className="w-5 h-5 text-muted-foreground" />
           </div>
         </td>
-        <td colSpan={showResponsible ? 4 : 3} className="p-2">
+        <td colSpan={4} style={{ padding: '8px', border: '1px solid #E5E5E5', backgroundColor: '#F4F4F5' }}>
           <Input
             value={typeof item.description_rich === 'object' && item.description_rich.text 
               ? item.description_rich.text 
@@ -97,7 +105,7 @@ export const RunningSheetInlineRow: React.FC<RunningSheetInlineRowProps> = ({
             }}
           />
         </td>
-        <td className="p-2 text-right">
+        <td style={{ padding: '8px', border: '1px solid #E5E5E5', backgroundColor: '#F4F4F5', textAlign: 'center' }}>
           <Button
             variant="ghost"
             size="sm"
@@ -115,18 +123,24 @@ export const RunningSheetInlineRow: React.FC<RunningSheetInlineRowProps> = ({
   return (
     <tr
       ref={setNodeRef}
-      style={style}
-      className="border-b hover:bg-muted/50 transition-colors"
+      style={{
+        ...style,
+        fontFamily: settings.all_font,
+        fontSize: TEXT_SIZE_MAP[settings.all_text_size],
+        fontWeight: settings.all_bold ? 'bold' : 'normal',
+        fontStyle: settings.all_italic ? 'italic' : 'normal',
+        color: settings.all_text_color,
+      }}
     >
       {/* Drag Handle */}
-      <td className="p-2 w-[30px]">
+      <td style={{ padding: '8px', verticalAlign: 'top', border: '1px solid #E5E5E5' }}>
         <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing">
           <GripVertical className="w-5 h-5 text-muted-foreground" />
         </div>
       </td>
 
       {/* Time Picker */}
-      <td className="p-2 w-[100px]">
+      <td style={{ padding: '8px', verticalAlign: 'top', border: '1px solid #E5E5E5' }}>
         <TimePicker
           value={item.time_text}
           onChange={(time) => onUpdate(item.id, { time_text: time })}
@@ -135,7 +149,7 @@ export const RunningSheetInlineRow: React.FC<RunningSheetInlineRowProps> = ({
       </td>
 
       {/* Event Info (Rich Text) */}
-      <td className="p-2">
+      <td style={{ padding: '8px', verticalAlign: 'top', border: '1px solid #E5E5E5' }}>
         <InlineRichTextEditor
           value={item.description_rich}
           onChange={(val) => onUpdate(item.id, { description_rich: val })}
@@ -143,21 +157,19 @@ export const RunningSheetInlineRow: React.FC<RunningSheetInlineRowProps> = ({
         />
       </td>
 
-      {/* Assigned (conditional) */}
-      {showResponsible && (
-        <td className="p-2 w-[150px]">
-          <Input
-            value={responsibleLocal}
-            onChange={(e) => handleResponsibleChange(e.target.value)}
-            placeholder="Person"
-            className="h-9"
-          />
-        </td>
-      )}
+      {/* Assigned */}
+      <td style={{ padding: '8px', verticalAlign: 'top', border: '1px solid #E5E5E5' }}>
+        <Input
+          value={responsibleLocal}
+          onChange={(e) => handleResponsibleChange(e.target.value)}
+          placeholder="Person"
+          className="h-9"
+        />
+      </td>
 
       {/* Actions */}
-      <td className="p-2 w-[120px]">
-        <div className="flex gap-1 justify-end">
+      <td style={{ padding: '8px', verticalAlign: 'top', border: '1px solid #E5E5E5', textAlign: 'center' }}>
+        <div className="flex gap-1 justify-center">
           <Button
             variant="ghost"
             size="sm"

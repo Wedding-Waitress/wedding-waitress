@@ -62,7 +62,7 @@ export const RunningSheetPage: React.FC = () => {
   const { toast } = useToast();
 
   // Pagination
-  const itemsPerPage = 15;
+  const itemsPerPage = 25;
   const totalPages = Math.ceil(items.length / itemsPerPage);
   const paginatedItems = useMemo(() => {
     const start = (currentPage - 1) * itemsPerPage;
@@ -267,6 +267,7 @@ export const RunningSheetPage: React.FC = () => {
             width: 100%;
             border-collapse: collapse;
             margin-top: 2mm;
+            border: 1px solid #E5E5E5 !important;
           }
           
           .print-page table thead {
@@ -278,12 +279,14 @@ export const RunningSheetPage: React.FC = () => {
             padding: 2mm;
             font-weight: 600;
             border-bottom: 2px solid #000;
+            border: 1px solid #E5E5E5 !important;
           }
           
           .print-page table td {
             padding: 2mm;
             border-bottom: 1px solid #E5E7EB;
             vertical-align: top;
+            border: 1px solid #E5E5E5 !important;
           }
           
           .print-page table tbody tr {
@@ -519,18 +522,18 @@ export const RunningSheetPage: React.FC = () => {
                   onUpdate={(updates) => updateSheet(updates)}
                 />
 
-          {/* A4 Page Container */}
-          <div className="flex-1 flex justify-center">
-            <div 
-              className="bg-white shadow-lg"
-              style={{
-                width: '210mm', 
-                height: '297mm',
-                minWidth: '210mm',
-                maxWidth: '210mm',
-                border: '1px solid #6D28D9'
-              }}
-            >
+                {/* A4 Page Container */}
+                <div className="flex-1 flex justify-center">
+                  <div 
+                    className="bg-white shadow-lg"
+                    style={{
+                      width: '210mm', 
+                      height: '297mm',
+                      minWidth: '210mm',
+                      maxWidth: '210mm',
+                      border: '1px solid #E5E5E5'
+                    }}
+                  >
                     <div style={{ padding: '12mm 8mm' }} className="h-full flex flex-col">
                       {/* Header */}
                       <div className="mb-4">
@@ -572,7 +575,7 @@ export const RunningSheetPage: React.FC = () => {
                       </div>
 
                       {/* Table with Sticky Header */}
-                      <div className="flex-1 overflow-hidden border border-border rounded-lg">
+                      <div className="flex-1 overflow-hidden" style={{ border: '1px solid #E5E5E5' }}>
                         <RunningSheetTableView
                           items={paginatedItems}
                           showResponsible={sheet.show_responsible}
