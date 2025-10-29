@@ -22,12 +22,12 @@ interface RunningSheetTableViewProps {
   showResponsible: boolean;
   settings: {
     all_font: string;
-    all_text_size: 'small' | 'medium' | 'large';
+    all_text_size: string;
     all_bold: boolean;
     all_italic: boolean;
     all_text_color: string;
     header_font: string;
-    header_size: 'small' | 'medium' | 'large';
+    header_size: string;
     header_bold: boolean;
     header_italic: boolean;
     header_color: string;
@@ -39,10 +39,10 @@ interface RunningSheetTableViewProps {
   onReorderItems: (newOrder: RunningSheetItem[]) => void;
 }
 
-const TEXT_SIZE_MAP = {
-  small: '12px',
-  medium: '14px',
-  large: '16px',
+const TEXT_SIZE_MAP: Record<string, string> = {
+  small: '12pt',
+  medium: '14pt',
+  large: '16pt',
 };
 
 export const RunningSheetTableView: React.FC<RunningSheetTableViewProps> = ({
@@ -85,7 +85,7 @@ export const RunningSheetTableView: React.FC<RunningSheetTableViewProps> = ({
           className="w-full"
           style={{
             fontFamily: settings.all_font,
-            fontSize: TEXT_SIZE_MAP[settings.all_text_size],
+            fontSize: TEXT_SIZE_MAP[settings.all_text_size] || '14pt',
             fontWeight: settings.all_bold ? 'bold' : 'normal',
             fontStyle: settings.all_italic ? 'italic' : 'normal',
             color: settings.all_text_color,
@@ -100,7 +100,7 @@ export const RunningSheetTableView: React.FC<RunningSheetTableViewProps> = ({
                 padding: '8px', 
                 textAlign: 'left',
                 fontFamily: settings.header_font,
-                fontSize: TEXT_SIZE_MAP[settings.header_size],
+                fontSize: TEXT_SIZE_MAP[settings.header_size] || '16pt',
                 fontWeight: settings.header_bold ? 'bold' : 'normal',
                 fontStyle: settings.header_italic ? 'italic' : 'normal',
                 color: '#000000',
@@ -112,7 +112,7 @@ export const RunningSheetTableView: React.FC<RunningSheetTableViewProps> = ({
                 padding: '8px',
                 textAlign: 'left',
                 fontFamily: settings.header_font,
-                fontSize: TEXT_SIZE_MAP[settings.header_size],
+                fontSize: TEXT_SIZE_MAP[settings.header_size] || '16pt',
                 fontWeight: settings.header_bold ? 'bold' : 'normal',
                 fontStyle: settings.header_italic ? 'italic' : 'normal',
                 color: '#000000',
@@ -123,7 +123,7 @@ export const RunningSheetTableView: React.FC<RunningSheetTableViewProps> = ({
                 padding: '8px',
                 textAlign: 'left',
                 fontFamily: settings.header_font,
-                fontSize: TEXT_SIZE_MAP[settings.header_size],
+                fontSize: TEXT_SIZE_MAP[settings.header_size] || '16pt',
                 fontWeight: settings.header_bold ? 'bold' : 'normal',
                 fontStyle: settings.header_italic ? 'italic' : 'normal',
                 color: '#000000',
@@ -135,7 +135,7 @@ export const RunningSheetTableView: React.FC<RunningSheetTableViewProps> = ({
                 padding: '8px',
                 textAlign: 'left',
                 fontFamily: settings.header_font,
-                fontSize: TEXT_SIZE_MAP[settings.header_size],
+                fontSize: TEXT_SIZE_MAP[settings.header_size] || '16pt',
                 fontWeight: settings.header_bold ? 'bold' : 'normal',
                 fontStyle: settings.header_italic ? 'italic' : 'normal',
                 color: '#000000',
@@ -147,7 +147,7 @@ export const RunningSheetTableView: React.FC<RunningSheetTableViewProps> = ({
                 padding: '8px',
                 textAlign: 'center',
                 fontFamily: settings.header_font,
-                fontSize: TEXT_SIZE_MAP[settings.header_size],
+                fontSize: TEXT_SIZE_MAP[settings.header_size] || '16pt',
                 fontWeight: settings.header_bold ? 'bold' : 'normal',
                 fontStyle: settings.header_italic ? 'italic' : 'normal',
                 color: '#000000',

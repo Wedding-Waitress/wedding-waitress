@@ -9,12 +9,12 @@ import { ColorPickerPopover } from '@/components/ui/color-picker-popover';
 interface RunningSheetSettingsSidebarProps {
   settings: {
     all_font: string;
-    all_text_size: 'small' | 'medium' | 'large';
+    all_text_size: string;
     all_bold: boolean;
     all_italic: boolean;
     all_text_color: string;
     header_font: string;
-    header_size: 'small' | 'medium' | 'large';
+    header_size: string;
     header_bold: boolean;
     header_italic: boolean;
     header_color: string;

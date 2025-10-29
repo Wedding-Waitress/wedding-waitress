@@ -27,6 +27,15 @@ export const exportRunningSheetToPdf = async (
   let currentPage = 1;
   let y = marginTop;
 
+  // Apply user settings
+  const fontSizeMap = { small: 9, medium: 10.5, large: 12 }; // Convert pt to PDF points
+  const textFontSize = fontSizeMap[sheet.all_text_size || 'medium'];
+  const headerFontSize = fontSizeMap[sheet.header_size || 'large'];
+  const textFont = sheet.all_font || 'helvetica';
+  const headerFont = sheet.header_font || 'helvetica';
+  const textColor = sheet.all_text_color || '#000000';
+  const headerColorHex = sheet.header_color || '#6D28D9';
+
   // Load Wedding Waitress logo
   const logoImg = await loadLogo();
 
@@ -100,9 +109,10 @@ export const exportRunningSheetToPdf = async (
       // Section header
       pdf.setFillColor('#F4F4F5');
       pdf.rect(marginLeft, y - 4, contentWidth, 10, 'F');
-      pdf.setFontSize(11);
-      pdf.setFont('helvetica', 'bold');
-      pdf.setTextColor('#000000');
+      pdf.setFontSize(headerFontSize);
+      const headerFontStyle = (sheet.header_bold !== false ? 'bold' : '') + (sheet.header_italic ? 'italic' : 'normal');
+      pdf.setFont(headerFont.toLowerCase().replace(/\s+/g, ''), headerFontStyle || 'bold');
+      pdf.setTextColor(headerColorHex);
       const text = typeof item.description_rich === 'object' && item.description_rich.text
         ? item.description_rich.text
         : item.description_rich || '';
@@ -110,11 +120,12 @@ export const exportRunningSheetToPdf = async (
       y += 12;
     } else {
       // Regular row
-      pdf.setFontSize(10);
-      pdf.setFont('helvetica', 'normal');
+      pdf.setFontSize(textFontSize);
+      const baseFontStyle = (sheet.all_bold ? 'bold' : '') + (sheet.all_italic ? 'italic' : 'normal');
+      pdf.setFont(textFont.toLowerCase().replace(/\s+/g, ''), baseFontStyle || 'normal');
 
       // Time
-      pdf.setTextColor('#000000');
+      pdf.setTextColor(textColor);
       pdf.text(item.time_text || '', marginLeft, y);
 
       // Description
@@ -128,16 +139,21 @@ export const exportRunningSheetToPdf = async (
         ? item.description_rich.formatting
         : {};
 
-      if (formatting.bold) pdf.setFont('helvetica', 'bold');
-      if (formatting.italic) pdf.setFont('helvetica', 'italic');
-      if (formatting.red) pdf.setTextColor(RED_EMPHASIS);
+      const descFontStyle = ((formatting.bold || sheet.all_bold) ? 'bold' : '') + 
+                           ((formatting.italic || sheet.all_italic) ? 'italic' : 'normal');
+      pdf.setFont(textFont.toLowerCase().replace(/\s+/g, ''), descFontStyle || 'normal');
+      if (formatting.red) {
+        pdf.setTextColor(RED_EMPHASIS);
+      } else {
+        pdf.setTextColor(textColor);
+      }
 
       const descLines = pdf.splitTextToSize(descText, descWidth);
       pdf.text(descLines, descX, y);
 
       // Reset formatting
-      pdf.setFont('helvetica', 'normal');
-      pdf.setTextColor('#000000');
+      pdf.setFont(textFont.toLowerCase().replace(/\s+/g, ''), baseFontStyle || 'normal');
+      pdf.setTextColor(textColor);
 
       // Responsible
       if (sheet.show_responsible) {

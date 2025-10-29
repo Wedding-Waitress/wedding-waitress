@@ -12,12 +12,12 @@ interface RunningSheetInlineRowProps {
   item: RunningSheetItem;
   settings: {
     all_font: string;
-    all_text_size: 'small' | 'medium' | 'large';
+    all_text_size: string;
     all_bold: boolean;
     all_italic: boolean;
     all_text_color: string;
     header_font: string;
-    header_size: 'small' | 'medium' | 'large';
+    header_size: string;
     header_bold: boolean;
     header_italic: boolean;
     header_color: string;
@@ -28,16 +28,16 @@ interface RunningSheetInlineRowProps {
   onInsertHeaderAbove: (orderIndex: number) => void;
 }
 
-const HEADER_SIZE_MAP = {
-  small: '16px',
-  medium: '18px',
-  large: '20px',
+const HEADER_SIZE_MAP: Record<string, string> = {
+  small: '12pt',
+  medium: '14pt',
+  large: '16pt',
 };
 
-const TEXT_SIZE_MAP = {
-  small: '12px',
-  medium: '14px',
-  large: '16px',
+const TEXT_SIZE_MAP: Record<string, string> = {
+  small: '12pt',
+  medium: '14pt',
+  large: '16pt',
 };
 
 export const RunningSheetInlineRow: React.FC<RunningSheetInlineRowProps> = ({
@@ -98,7 +98,7 @@ export const RunningSheetInlineRow: React.FC<RunningSheetInlineRowProps> = ({
             className="bg-transparent border-none shadow-none focus-visible:ring-0"
             style={{
               fontFamily: settings.header_font,
-              fontSize: HEADER_SIZE_MAP[settings.header_size],
+              fontSize: HEADER_SIZE_MAP[settings.header_size] || '16pt',
               fontWeight: settings.header_bold ? 'bold' : 'normal',
               fontStyle: settings.header_italic ? 'italic' : 'normal',
               color: settings.header_color,
@@ -126,7 +126,7 @@ export const RunningSheetInlineRow: React.FC<RunningSheetInlineRowProps> = ({
       style={{
         ...style,
         fontFamily: settings.all_font,
-        fontSize: TEXT_SIZE_MAP[settings.all_text_size],
+        fontSize: TEXT_SIZE_MAP[settings.all_text_size] || '14pt',
         fontWeight: settings.all_bold ? 'bold' : 'normal',
         fontStyle: settings.all_italic ? 'italic' : 'normal',
         color: settings.all_text_color,

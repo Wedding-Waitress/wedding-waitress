@@ -15,6 +15,15 @@ export const exportRunningSheetToDocx = async (
   const generatedDate = format(new Date(), 'dd/MM/yy');
   const generatedTime = format(new Date(), 'h:mm a');
 
+  // Apply user settings for text sizing (convert pt to half-points for docx)
+  const textSizeMap = { small: 24, medium: 28, large: 32 }; // 12pt, 14pt, 16pt
+  const textSize = textSizeMap[sheet.all_text_size || 'medium'];
+  const headerSize = textSizeMap[sheet.header_size || 'large'];
+  const textFont = sheet.all_font || 'Inter';
+  const headerFont = sheet.header_font || 'Inter';
+  const textColor = sheet.all_text_color?.replace('#', '') || '000000';
+  const headerColor = sheet.header_color?.replace('#', '') || '6D28D9';
+
   // Create header section
   const headerParagraphs = [
     new Paragraph({
@@ -54,8 +63,11 @@ export const exportRunningSheetToDocx = async (
                   children: [
                     new TextRun({
                       text: text,
-                      bold: true,
-                      size: 24,
+                      bold: sheet.header_bold !== false,
+                      italics: sheet.header_italic || false,
+                      size: headerSize,
+                      font: headerFont,
+                      color: headerColor,
                     }),
                   ],
                 }),
@@ -85,7 +97,11 @@ export const exportRunningSheetToDocx = async (
               children: [
                 new TextRun({
                   text: item.time_text || '',
-                  size: 20,
+                  size: textSize,
+                  font: textFont,
+                  bold: sheet.all_bold || false,
+                  italics: sheet.all_italic || false,
+                  color: textColor,
                 }),
               ],
             }),
@@ -98,10 +114,11 @@ export const exportRunningSheetToDocx = async (
               children: [
                 new TextRun({
                   text: descText,
-                  bold: formatting.bold || false,
-                  italics: formatting.italic || false,
-                  color: formatting.red ? 'D92D20' : undefined,
-                  size: 20,
+                  bold: formatting.bold || sheet.all_bold || false,
+                  italics: formatting.italic || sheet.all_italic || false,
+                  color: formatting.red ? 'D92D20' : textColor,
+                  size: textSize,
+                  font: textFont,
                 }),
               ],
             }),
@@ -118,7 +135,11 @@ export const exportRunningSheetToDocx = async (
                 children: [
                   new TextRun({
                     text: item.responsible || '',
-                    size: 20,
+                    size: textSize,
+                    font: textFont,
+                    bold: sheet.all_bold || false,
+                    italics: sheet.all_italic || false,
+                    color: textColor,
                   }),
                 ],
               }),

@@ -1426,8 +1426,18 @@ export type Database = {
       }
       running_sheets: {
         Row: {
+          all_bold: boolean | null
+          all_font: string | null
+          all_italic: boolean | null
+          all_text_color: string | null
+          all_text_size: string | null
           created_at: string | null
           event_id: string
+          header_bold: boolean | null
+          header_color: string | null
+          header_font: string | null
+          header_italic: boolean | null
+          header_size: string | null
           id: string
           show_responsible: boolean | null
           updated_at: string | null
@@ -1436,8 +1446,18 @@ export type Database = {
           venue_logo_url: string | null
         }
         Insert: {
+          all_bold?: boolean | null
+          all_font?: string | null
+          all_italic?: boolean | null
+          all_text_color?: string | null
+          all_text_size?: string | null
           created_at?: string | null
           event_id: string
+          header_bold?: boolean | null
+          header_color?: string | null
+          header_font?: string | null
+          header_italic?: boolean | null
+          header_size?: string | null
           id?: string
           show_responsible?: boolean | null
           updated_at?: string | null
@@ -1446,8 +1466,18 @@ export type Database = {
           venue_logo_url?: string | null
         }
         Update: {
+          all_bold?: boolean | null
+          all_font?: string | null
+          all_italic?: boolean | null
+          all_text_color?: string | null
+          all_text_size?: string | null
           created_at?: string | null
           event_id?: string
+          header_bold?: boolean | null
+          header_color?: string | null
+          header_font?: string | null
+          header_italic?: boolean | null
+          header_size?: string | null
           id?: string
           show_responsible?: boolean | null
           updated_at?: string | null
