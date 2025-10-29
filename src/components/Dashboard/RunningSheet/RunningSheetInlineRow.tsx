@@ -29,9 +29,9 @@ interface RunningSheetInlineRowProps {
 }
 
 const HEADER_SIZE_MAP: Record<string, string> = {
-  small: '12pt',
-  medium: '14pt',
-  large: '16pt',
+  small: '14pt',
+  medium: '16pt',
+  large: '18pt',
 };
 
 const TEXT_SIZE_MAP: Record<string, string> = {
@@ -86,7 +86,7 @@ export const RunningSheetInlineRow: React.FC<RunningSheetInlineRowProps> = ({
             <GripVertical className="w-5 h-5 text-muted-foreground" />
           </div>
         </td>
-        <td colSpan={4} style={{ padding: '8px', border: '1px solid #E5E5E5', backgroundColor: '#F4F4F5' }}>
+        <td colSpan={3} style={{ padding: '8px', border: '1px solid #E5E5E5', backgroundColor: '#F4F4F5' }}>
           <Input
             value={typeof item.description_rich === 'object' && item.description_rich.text 
               ? item.description_rich.text 
