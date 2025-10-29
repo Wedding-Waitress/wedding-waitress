@@ -94,8 +94,9 @@ export const exportRunningSheetToPdf = async (
   const descWidth = contentWidth * 0.55; // 55%
   const respWidth = contentWidth * 0.20; // 20%
 
-  // Add items
+  // Add items with section header tracking
   let currentGroup = false;
+  let currentSectionHeader: RunningSheetItem | null = null;
   
   items.forEach((item, index) => {
     // Check if we need a new page
@@ -105,11 +106,37 @@ export const exportRunningSheetToPdf = async (
       pdf.addPage();
       currentPage++;
       addHeader(currentPage);
+      
+      // Repeat section header on new page if we're in a group
+      if (currentSectionHeader && !item.is_section_header) {
+        // Draw repeated section header
+        pdf.setDrawColor(headerColorHex);
+        pdf.setLineWidth(0.75);
+        pdf.line(marginLeft, y - 4, marginLeft, y + 6);
+        
+        pdf.setFillColor('#F4F4F5');
+        pdf.rect(marginLeft, y - 4, contentWidth, 10, 'F');
+        
+        pdf.setDrawColor('#EAEAEA');
+        pdf.setLineWidth(0.15);
+        pdf.rect(marginLeft, y - 4, contentWidth, 10);
+        
+        pdf.setFontSize(headerFontSize);
+        const headerFontStyle = (sheet.header_bold !== false ? 'bold' : '') + (sheet.header_italic ? 'italic' : 'normal');
+        pdf.setFont(headerFont.toLowerCase().replace(/\s+/g, ''), headerFontStyle || 'bold');
+        pdf.setTextColor(headerColorHex);
+        const headerText = typeof currentSectionHeader.description_rich === 'object' && currentSectionHeader.description_rich.text
+          ? currentSectionHeader.description_rich.text
+          : currentSectionHeader.description_rich || '';
+        pdf.text(headerText, marginLeft + 2, y + 2);
+        y += 12;
+      }
     }
 
     if (item.is_section_header) {
       // Section header
       currentGroup = true;
+      currentSectionHeader = item; // Track current section header for page breaks
       
       // Purple left bar (2px)
       pdf.setDrawColor(headerColorHex);
@@ -202,6 +229,7 @@ export const exportRunningSheetToPdf = async (
     const nextItem = items[index + 1];
     if (nextItem && nextItem.is_section_header) {
       currentGroup = false;
+      currentSectionHeader = null;
     }
   });
 

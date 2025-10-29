@@ -134,8 +134,8 @@ export const RunningSheetTableView: React.FC<RunningSheetTableViewProps> = ({
 
   return (
     <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-      <div className="overflow-auto max-h-[calc(297mm-80mm)]" style={{ marginTop: '8px' }}>
-        <table 
+      <div className="overflow-visible" style={{ marginTop: '8px' }}>
+        <table
           className="w-full"
           style={{
             fontFamily: settings.all_font,

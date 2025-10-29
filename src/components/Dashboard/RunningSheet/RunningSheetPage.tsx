@@ -17,6 +17,7 @@ import { exportRunningSheetToPdf } from '@/lib/runningSheetPdfExporter';
 import { exportRunningSheetToDocx } from '@/lib/runningSheetDocxExporter';
 import { format } from 'date-fns';
 import runningSheetLogo from '@/assets/wedding-waitress-dietary-logo.png';
+import { RunningSheetItem } from '@/types/runningSheet';
 
 const PURPLE_ACCENT = '#6D28D9';
 
@@ -66,13 +67,71 @@ export const RunningSheetPage: React.FC = () => {
   const { sheet, items, loading: sheetLoading, createItem, deleteItem, duplicateItem, insertSectionHeaderAbove, updateSheet, debouncedSave, reorderItems } = useRunningSheet(selectedEventId);
   const { toast } = useToast();
 
-  // Pagination
-  const itemsPerPage = 25;
-  const totalPages = Math.ceil(items.length / itemsPerPage);
-  const paginatedItems = useMemo(() => {
-    const start = (currentPage - 1) * itemsPerPage;
-    return items.slice(start, start + itemsPerPage);
-  }, [items, currentPage, itemsPerPage]);
+  // Dynamic pagination based on A4 page height
+  const TEXT_SIZE_HEIGHT_MAP: Record<string, number> = {
+    small: 5.5, // ~20pt row height in mm
+    medium: 6.5, // ~24pt row height in mm
+    large: 7.5, // ~28pt row height in mm
+  };
+
+  const paginatedPages = useMemo(() => {
+    const PAGE_HEIGHT_MM = 297;
+    const MARGIN_TOP_MM = 12;
+    const MARGIN_BOTTOM_MM = 12;
+    const HEADER_HEIGHT_MM = 40; // Logo + event info + gap
+    const FOOTER_HEIGHT_MM = 15; // Footer logo + spacing
+    const TABLE_HEADER_HEIGHT_MM = 10; // "Times | Event Info | Assigned" row
+    
+    const AVAILABLE_HEIGHT_MM = PAGE_HEIGHT_MM - MARGIN_TOP_MM - MARGIN_BOTTOM_MM - HEADER_HEIGHT_MM - FOOTER_HEIGHT_MM - TABLE_HEADER_HEIGHT_MM;
+    
+    const SECTION_HEADER_HEIGHT_MM = 10;
+    const rowHeightMM = TEXT_SIZE_HEIGHT_MAP[sheet?.all_text_size || 'medium'];
+    
+    const pages: RunningSheetItem[][] = [];
+    let currentPage: RunningSheetItem[] = [];
+    let currentPageHeight = 0;
+    let currentSectionHeader: RunningSheetItem | null = null;
+    
+    items.forEach((item, index) => {
+      const itemHeight = item.is_section_header ? SECTION_HEADER_HEIGHT_MM : rowHeightMM;
+      
+      // If adding this item exceeds page height, start new page
+      if (currentPageHeight + itemHeight > AVAILABLE_HEIGHT_MM && currentPage.length > 0) {
+        pages.push(currentPage);
+        currentPage = [];
+        currentPageHeight = 0;
+        
+        // Repeat section header on new page if we're in a group
+        if (currentSectionHeader && !item.is_section_header) {
+          currentPage.push({ ...currentSectionHeader });
+          currentPageHeight += SECTION_HEADER_HEIGHT_MM;
+        }
+      }
+      
+      // Track current section header
+      if (item.is_section_header) {
+        currentSectionHeader = item;
+      }
+      
+      // Check if next item is a new section header (end group)
+      const nextItem = items[index + 1];
+      if (nextItem && nextItem.is_section_header) {
+        currentSectionHeader = null;
+      }
+      
+      currentPage.push(item);
+      currentPageHeight += itemHeight;
+    });
+    
+    if (currentPage.length > 0) {
+      pages.push(currentPage);
+    }
+    
+    return pages.length > 0 ? pages : [[]];
+  }, [items, sheet?.all_text_size]);
+
+  const totalPages = paginatedPages.length;
+  const paginatedItems = paginatedPages[currentPage - 1] || [];
 
   // Load saved event selection from localStorage
   useEffect(() => {
@@ -95,6 +154,19 @@ export const RunningSheetPage: React.FC = () => {
   useEffect(() => {
     setCurrentPage(1);
   }, [selectedEventId]);
+
+  // Keep focus on row across page changes
+  useEffect(() => {
+    if (focusedRowId && !paginatedItems.find(item => item.id === focusedRowId)) {
+      // Focused row not on current page, find which page it's on
+      const pageWithFocusedRow = paginatedPages.findIndex(page => 
+        page.some(item => item.id === focusedRowId)
+      );
+      if (pageWithFocusedRow >= 0) {
+        setCurrentPage(pageWithFocusedRow + 1);
+      }
+    }
+  }, [focusedRowId, paginatedPages, paginatedItems]);
 
   const selectedEvent = events.find(e => e.id === selectedEventId);
 
@@ -670,7 +742,7 @@ export const RunningSheetPage: React.FC = () => {
                       </div>
 
                       {/* Table with Sticky Header */}
-                      <div className="flex-1 overflow-hidden" style={{ border: '1px solid #E5E5E5' }}>
+                      <div className="flex-1 overflow-visible" style={{ border: '1px solid #E5E5E5' }}>
                         <RunningSheetTableView
                           items={paginatedItems}
                           showResponsible={sheet.show_responsible}
