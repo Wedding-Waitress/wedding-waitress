@@ -604,33 +604,6 @@ export const RunningSheetPage: React.FC = () => {
         </CardContent>
       </Card>
 
-      {/* Controls Card */}
-      {selectedEvent && sheet && (
-        <Card className="no-print">
-          <CardHeader>
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-              <CardTitle>Timeline Items</CardTitle>
-              <div className="flex flex-wrap items-center gap-4">
-                <div className="flex items-center gap-2">
-                  <Switch
-                    checked={sheet.show_responsible}
-                    onCheckedChange={(checked) => updateSheet({ show_responsible: checked })}
-                  />
-                  <Label>Show "Responsible" column</Label>
-                </div>
-                <Button onClick={handleAddRow} size="sm">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add Row
-                </Button>
-                <Button onClick={handleAddSectionHeader} variant="outline" size="sm">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Section Header
-                </Button>
-              </div>
-            </div>
-          </CardHeader>
-        </Card>
-      )}
 
       {/* A4 Page View with Table */}
       {selectedEvent && sheet && (
