@@ -115,18 +115,7 @@ export const RunningSheetInlineRow: React.FC<RunningSheetInlineRowProps> = ({
             <GripVertical className="w-5 h-5 text-muted-foreground" />
           </div>
         </td>
-        <td style={{ padding: headerPadding, border: '0.5px solid #EAEAEA', backgroundColor: '#F4F4F5', textAlign: 'center' }}>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleDelete}
-            className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
-            title="Delete section header"
-          >
-            <Trash2 className="w-4 h-4" />
-          </Button>
-        </td>
-        <td colSpan={3} style={{ 
+        <td colSpan={3} style={{
           padding: headerPadding, 
           border: '0.5px solid #EAEAEA', 
           backgroundColor: '#F4F4F5',
@@ -194,40 +183,6 @@ export const RunningSheetInlineRow: React.FC<RunningSheetInlineRowProps> = ({
       <td style={{ padding: cellPadding, verticalAlign: 'top', border: '0.5px solid #EAEAEA', backgroundColor: hoveredRow ? '#F8F4FF' : backgroundColor }}>
         <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing">
           <GripVertical className="w-5 h-5 text-muted-foreground" />
-        </div>
-      </td>
-
-      {/* Actions */}
-      <td style={{ padding: cellPadding, verticalAlign: 'top', border: '0.5px solid #EAEAEA', textAlign: 'center', backgroundColor: hoveredRow ? '#F8F4FF' : backgroundColor }}>
-        <div className="flex gap-1 justify-center">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => onDuplicate(item.id)}
-            disabled={item.is_section_header}
-            className="h-8 w-8 p-0 hover:bg-accent disabled:opacity-50 disabled:cursor-not-allowed"
-            title={item.is_section_header ? "Section headers cannot be copied" : "Duplicate row"}
-          >
-            <Copy className="w-4 h-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => onInsertHeaderAbove(item.order_index)}
-            className="h-8 w-8 p-0 hover:bg-accent"
-            title="Insert section header above"
-          >
-            <Heading className="w-4 h-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleDelete}
-            className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
-            title="Delete row"
-          >
-            <Trash2 className="w-4 h-4" />
-          </Button>
         </div>
       </td>
 
