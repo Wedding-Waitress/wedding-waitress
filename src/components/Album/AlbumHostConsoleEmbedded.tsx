@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Loader2 } from 'lucide-react';
+import { Loader2, AlertCircle } from 'lucide-react';
 import { AlbumOwnerHeader } from '@/components/Album/AlbumOwnerHeader';
 import { AlbumGalleryTab } from '@/components/Album/AlbumGalleryTab';
 import { AlbumGuestbookTab } from '@/components/Album/AlbumGuestbookTab';
@@ -14,11 +13,15 @@ import { SlideshowModal } from '@/components/Album/SlideshowModal';
 import { AlbumQRModal } from '@/components/Album/AlbumQRModal';
 import { downloadMediaAsZip } from '@/lib/albumZipDownloader';
 import { useAlbumMedia } from '@/hooks/useAlbumMedia';
+import { Card, CardContent, CardDescription, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { buildGalleryUploadUrl } from '@/lib/urlUtils';
 
-export const AlbumOwnerDashboard = () => {
-  const { eventId } = useParams<{ eventId: string }>();
-  const navigate = useNavigate();
+interface AlbumHostConsoleEmbeddedProps {
+  eventId: string;
+}
+
+export const AlbumHostConsoleEmbedded = ({ eventId }: AlbumHostConsoleEmbeddedProps) => {
   const { toast } = useToast();
 
   const [event, setEvent] = useState<any>(null);
@@ -30,7 +33,7 @@ export const AlbumOwnerDashboard = () => {
   const [showSlideshow, setShowSlideshow] = useState(false);
   const [showQRModal, setShowQRModal] = useState(false);
 
-  const { media } = useAlbumMedia(eventId || null);
+  const { media } = useAlbumMedia(eventId);
 
   useEffect(() => {
     checkAuthorization();
@@ -43,7 +46,7 @@ export const AlbumOwnerDashboard = () => {
       const { data: { user } } = await supabase.auth.getUser();
       
       if (!user) {
-        navigate('/');
+        setLoading(false);
         return;
       }
 
@@ -55,7 +58,7 @@ export const AlbumOwnerDashboard = () => {
 
       if (error || !eventData) {
         toast({ title: 'Event not found', variant: 'destructive' });
-        navigate('/dashboard');
+        setLoading(false);
         return;
       }
 
@@ -70,18 +73,15 @@ export const AlbumOwnerDashboard = () => {
 
       if (!isOwner && !adminRole) {
         toast({ title: 'Unauthorized', description: 'You do not have access to this album', variant: 'destructive' });
-        navigate('/dashboard');
+        setLoading(false);
         return;
       }
 
       setEvent(eventData);
       setIsAuthorized(true);
-      localStorage.setItem('ww:last_active_event_id', eventId);
       await fetchGallerySettings();
     } catch (error) {
       console.error('Authorization error:', error);
-      navigate('/dashboard');
-    } finally {
       setLoading(false);
     }
   };
@@ -121,6 +121,7 @@ export const AlbumOwnerDashboard = () => {
     }
 
     setGallerySettings(data);
+    setLoading(false);
   };
 
   const updateSettings = async (updates: any) => {
@@ -161,16 +162,29 @@ export const AlbumOwnerDashboard = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin" />
+      <div className="flex items-center justify-center p-12">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
   }
 
-  if (!isAuthorized) return null;
+  if (!isAuthorized) {
+    return (
+      <Card className="ww-box p-8 text-center">
+        <AlertCircle className="w-16 h-16 mx-auto text-destructive mb-4" />
+        <CardTitle className="mb-2">Unauthorized Access</CardTitle>
+        <CardDescription className="mb-6">
+          You do not have permission to access this album.
+        </CardDescription>
+        <Button variant="outline" onClick={() => window.location.reload()}>
+          Go Back
+        </Button>
+      </Card>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-subtle">
+    <div className="space-y-4">
       <AlbumOwnerHeader
         event={event}
         gallerySettings={gallerySettings}
@@ -183,33 +197,31 @@ export const AlbumOwnerDashboard = () => {
         downloading={downloading}
       />
 
-      <div className="max-w-7xl mx-auto p-4">
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="mb-4">
-            <TabsTrigger value="gallery">Gallery</TabsTrigger>
-            <TabsTrigger value="guestbook">Guestbook</TabsTrigger>
-            <TabsTrigger value="voice">Voice Messages</TabsTrigger>
-            <TabsTrigger value="settings">Settings</TabsTrigger>
-            <TabsTrigger value="insights">Insights</TabsTrigger>
-          </TabsList>
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList className="mb-4">
+          <TabsTrigger value="gallery">Gallery</TabsTrigger>
+          <TabsTrigger value="guestbook">Guestbook</TabsTrigger>
+          <TabsTrigger value="voice">Voice Messages</TabsTrigger>
+          <TabsTrigger value="settings">Settings</TabsTrigger>
+          <TabsTrigger value="insights">Insights</TabsTrigger>
+        </TabsList>
 
-          <TabsContent value="gallery">
-            <AlbumGalleryTab eventId={eventId!} eventName={event?.name || ''} />
-          </TabsContent>
-          <TabsContent value="guestbook">
-            <AlbumGuestbookTab eventId={eventId!} eventName={event?.name || ''} />
-          </TabsContent>
-          <TabsContent value="voice">
-            <AlbumVoiceTab eventId={eventId!} eventName={event?.name || ''} />
-          </TabsContent>
-          <TabsContent value="settings">
-            <AlbumSettingsTab eventId={eventId!} settings={gallerySettings} onUpdateSettings={updateSettings} />
-          </TabsContent>
-          <TabsContent value="insights">
-            <AlbumInsightsTab eventId={eventId!} />
-          </TabsContent>
-        </Tabs>
-      </div>
+        <TabsContent value="gallery">
+          <AlbumGalleryTab eventId={eventId} eventName={event?.name || ''} />
+        </TabsContent>
+        <TabsContent value="guestbook">
+          <AlbumGuestbookTab eventId={eventId} eventName={event?.name || ''} />
+        </TabsContent>
+        <TabsContent value="voice">
+          <AlbumVoiceTab eventId={eventId} eventName={event?.name || ''} />
+        </TabsContent>
+        <TabsContent value="settings">
+          <AlbumSettingsTab eventId={eventId} settings={gallerySettings} onUpdateSettings={updateSettings} />
+        </TabsContent>
+        <TabsContent value="insights">
+          <AlbumInsightsTab eventId={eventId} />
+        </TabsContent>
+      </Tabs>
 
       {showSlideshow && (
         <SlideshowModal

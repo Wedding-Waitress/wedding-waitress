@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
-import { Link, ImageIcon, Download, Play } from 'lucide-react';
+import { Link, ImageIcon, Download, Play, QrCode } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface AlbumOwnerHeaderProps {
@@ -11,6 +11,7 @@ interface AlbumOwnerHeaderProps {
   onCopyGalleryLink: () => void;
   onDownloadAll: () => void;
   onPlaySlideshow: () => void;
+  onShowQR: () => void;
   downloading: boolean;
 }
 
@@ -22,6 +23,7 @@ export const AlbumOwnerHeader = ({
   onCopyGalleryLink,
   onDownloadAll,
   onPlaySlideshow,
+  onShowQR,
   downloading,
 }: AlbumOwnerHeaderProps) => {
   if (!event) return null;
@@ -39,6 +41,10 @@ export const AlbumOwnerHeader = ({
 
         {/* Right: Actions */}
         <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={onShowQR}>
+            <QrCode className="w-4 h-4 mr-2" />
+            QR Code
+          </Button>
           <Button variant="outline" size="sm" onClick={onCopyUploadLink}>
             <Link className="w-4 h-4 mr-2" />
             Copy Upload Link

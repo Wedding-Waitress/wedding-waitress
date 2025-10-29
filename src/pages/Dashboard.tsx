@@ -14,6 +14,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { Calendar, Users, MapPin, QrCode, Mail, Heart, Settings, TrendingUp, Plus, Printer, Camera } from "lucide-react";
 import { useAlbumNavigation } from '@/hooks/useAlbumNavigation';
 import { EventPickerModal } from '@/components/Album/EventPickerModal';
+import { AlbumHostConsoleEmbedded } from '@/components/Album/AlbumHostConsoleEmbedded';
 import { useEvents } from '@/hooks/useEvents';
 import { useTables, TableWithGuestCount } from '@/hooks/useTables';
 import { useRealtimeGuests } from '@/hooks/useRealtimeGuests';
@@ -50,6 +51,7 @@ export const Dashboard = () => {
   const [showCreateTableModal, setShowCreateTableModal] = useState(false);
   const [editingTable, setEditingTable] = useState<TableWithGuestCount | null>(null);
   const [showEventPickerModal, setShowEventPickerModal] = useState(false);
+  const [albumEventId, setAlbumEventId] = useState<string | null>(null);
   const navigate = useNavigate();
   const {
     events,
@@ -87,7 +89,7 @@ export const Dashboard = () => {
   }, [navigate]);
 
   // Album navigation logic (must be at top level, not inside renderTabContent)
-  const { getActiveEventId, navigateToAlbum } = useAlbumNavigation(selectedEventId, events);
+  const { getActiveEventId, persistActiveEvent } = useAlbumNavigation(selectedEventId, events);
 
   const {
     tables: rawTables,
@@ -129,7 +131,7 @@ export const Dashboard = () => {
     }
   }, [events]);
 
-  // Handle navigation when Photo & Video Gallery tab is active
+  // Handle album event determination when Photo & Video Gallery tab is active
   useEffect(() => {
     if (activeTab === 'photo-video-gallery') {
       const activeEventResult = getActiveEventId();
@@ -137,12 +139,19 @@ export const Dashboard = () => {
       if (activeEventResult === null) {
         // Multiple events, no active one - show picker
         setShowEventPickerModal(true);
+        setAlbumEventId(null);
       } else if (activeEventResult !== 'no-events') {
-        // Navigate to album for the active event
-        navigateToAlbum(activeEventResult);
+        // Set album event ID and persist
+        persistActiveEvent(activeEventResult);
+        setAlbumEventId(activeEventResult);
+        setShowEventPickerModal(false);
+      } else {
+        // No events case
+        setAlbumEventId(null);
+        setShowEventPickerModal(false);
       }
     }
-  }, [activeTab, getActiveEventId, navigateToAlbum]);
+  }, [activeTab, getActiveEventId, persistActiveEvent]);
 
   // Maintain a stable ref to fetchTables to avoid effect re-installs
   const fetchTablesRef = useRef(fetchTables);
@@ -369,7 +378,12 @@ export const Dashboard = () => {
           );
         }
         
-        // The useEffect will handle navigation/modal for other cases
+        // If albumEventId is set, render the embedded album console
+        if (albumEventId) {
+          return <AlbumHostConsoleEmbedded eventId={albumEventId} />;
+        }
+        
+        // Otherwise show loading or wait for picker
         return null;
       }
       case 'qr-code':
@@ -487,8 +501,8 @@ export const Dashboard = () => {
         {/* Main Content */}
         <main className="flex-1 w-full px-6 sm:px-4 md:px-6 lg:px-8 py-6 min-w-0">
           <div className="w-full max-w-none">
-            {/* Stats Bar excluded from: My Events, QR Code, Dashboard, Vendor Team, Planner, Wishing Well, RSVP, Floor Plan, Kiosk Live View, Printables, Place Cards, Dietary Requirements, Full Seating Chart, Photo & Video Sharing, DJ & MC Questionnaire, Running Sheet */}
-            {activeTab !== 'my-events' && activeTab !== 'qr-code' && activeTab !== 'dashboard' && activeTab !== 'vendor-team' && activeTab !== 'planner' && activeTab !== 'wishing-well' && activeTab !== 'rsvp-invite' && activeTab !== 'floor-plan' && activeTab !== 'kiosk-live-view' && activeTab !== 'printables' && activeTab !== 'individual-table-chart' && activeTab !== 'place-cards' && activeTab !== 'dietary-chart' && activeTab !== 'full-seating-chart' && activeTab !== 'photo-video-sharing' && activeTab !== 'dj-mc-questionnaire' && activeTab !== 'running-sheet' && <div className="print:hidden">
+            {/* Stats Bar excluded from: My Events, QR Code, Dashboard, Vendor Team, Planner, Wishing Well, RSVP, Floor Plan, Kiosk Live View, Printables, Place Cards, Dietary Requirements, Full Seating Chart, Photo & Video Gallery, DJ & MC Questionnaire, Running Sheet */}
+            {activeTab !== 'my-events' && activeTab !== 'qr-code' && activeTab !== 'dashboard' && activeTab !== 'vendor-team' && activeTab !== 'planner' && activeTab !== 'wishing-well' && activeTab !== 'rsvp-invite' && activeTab !== 'floor-plan' && activeTab !== 'kiosk-live-view' && activeTab !== 'printables' && activeTab !== 'individual-table-chart' && activeTab !== 'place-cards' && activeTab !== 'dietary-chart' && activeTab !== 'full-seating-chart' && activeTab !== 'photo-video-gallery' && activeTab !== 'dj-mc-questionnaire' && activeTab !== 'running-sheet' && <div className="print:hidden">
               <StatsBar stats={statsData} />
             </div>}
             
@@ -510,8 +524,8 @@ export const Dashboard = () => {
         onClose={() => setShowEventPickerModal(false)}
         onSelectEvent={(eventId) => {
           setShowEventPickerModal(false);
-          localStorage.setItem('ww:last_active_event_id', eventId);
-          navigate(`/album/${eventId}`);
+          persistActiveEvent(eventId);
+          setAlbumEventId(eventId);
         }}
       />
     </div>
