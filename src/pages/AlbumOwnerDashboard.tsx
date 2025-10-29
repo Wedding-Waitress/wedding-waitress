@@ -4,6 +4,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Loader2 } from 'lucide-react';
+import { SidebarProvider } from '@/components/ui/sidebar';
+import { AppSidebar } from '@/components/Dashboard/AppSidebar';
 import { AlbumOwnerHeader } from '@/components/Album/AlbumOwnerHeader';
 import { AlbumGalleryTab } from '@/components/Album/AlbumGalleryTab';
 import { AlbumGuestbookTab } from '@/components/Album/AlbumGuestbookTab';
@@ -159,6 +161,11 @@ export const AlbumOwnerDashboard = () => {
     toast({ title: 'Link copied', description: 'Gallery link copied to clipboard' });
   };
 
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    navigate('/');
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -170,61 +177,76 @@ export const AlbumOwnerDashboard = () => {
   if (!isAuthorized) return null;
 
   return (
-    <div className="min-h-screen bg-gradient-subtle">
-      <AlbumOwnerHeader
-        event={event}
-        gallerySettings={gallerySettings}
-        onToggleAutoApprove={() => updateSettings({ require_approval: !gallerySettings?.require_approval })}
-        onCopyUploadLink={handleCopyUploadLink}
-        onCopyGalleryLink={handleCopyGalleryLink}
-        onDownloadAll={handleDownloadAll}
-        onPlaySlideshow={() => setShowSlideshow(true)}
-        onShowQR={() => setShowQRModal(true)}
-        downloading={downloading}
-      />
+    <SidebarProvider>
+      <div className="min-h-screen flex w-full bg-gradient-subtle">
+        <AppSidebar 
+          activeTab="photo-video-gallery"
+          onTabChange={(tab) => {
+            if (tab === 'photo-video-gallery') return; // Already on this page
+            navigate('/dashboard', { state: { activeTab: tab } });
+          }}
+          onSignOut={handleSignOut}
+        />
+        
+        <div className="flex-1 flex flex-col">
+          <AlbumOwnerHeader
+            event={event}
+            gallerySettings={gallerySettings}
+            onToggleAutoApprove={() => updateSettings({ require_approval: !gallerySettings?.require_approval })}
+            onCopyUploadLink={handleCopyUploadLink}
+            onCopyGalleryLink={handleCopyGalleryLink}
+            onDownloadAll={handleDownloadAll}
+            onPlaySlideshow={() => setShowSlideshow(true)}
+            onShowQR={() => setShowQRModal(true)}
+            downloading={downloading}
+          />
 
-      <div className="max-w-7xl mx-auto p-4">
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="mb-4">
-            <TabsTrigger value="gallery">Gallery</TabsTrigger>
-            <TabsTrigger value="guestbook">Guestbook</TabsTrigger>
-            <TabsTrigger value="voice">Voice Messages</TabsTrigger>
-            <TabsTrigger value="settings">Settings</TabsTrigger>
-            <TabsTrigger value="insights">Insights</TabsTrigger>
-          </TabsList>
+          <div className="flex-1 p-6">
+            <div className="max-w-7xl mx-auto">
+              <Tabs value={activeTab} onValueChange={setActiveTab}>
+                <TabsList className="mb-4">
+                  <TabsTrigger value="gallery">Gallery</TabsTrigger>
+                  <TabsTrigger value="guestbook">Guestbook</TabsTrigger>
+                  <TabsTrigger value="voice">Voice Messages</TabsTrigger>
+                  <TabsTrigger value="settings">Settings</TabsTrigger>
+                  <TabsTrigger value="insights">Insights</TabsTrigger>
+                </TabsList>
 
-          <TabsContent value="gallery">
-            <AlbumGalleryTab eventId={eventId!} eventName={event?.name || ''} />
-          </TabsContent>
-          <TabsContent value="guestbook">
-            <AlbumGuestbookTab eventId={eventId!} eventName={event?.name || ''} />
-          </TabsContent>
-          <TabsContent value="voice">
-            <AlbumVoiceTab eventId={eventId!} eventName={event?.name || ''} />
-          </TabsContent>
-          <TabsContent value="settings">
-            <AlbumSettingsTab eventId={eventId!} settings={gallerySettings} onUpdateSettings={updateSettings} />
-          </TabsContent>
-          <TabsContent value="insights">
-            <AlbumInsightsTab eventId={eventId!} />
-          </TabsContent>
-        </Tabs>
+                <TabsContent value="gallery">
+                  <AlbumGalleryTab eventId={eventId!} eventName={event?.name || ''} />
+                </TabsContent>
+                <TabsContent value="guestbook">
+                  <AlbumGuestbookTab eventId={eventId!} eventName={event?.name || ''} />
+                </TabsContent>
+                <TabsContent value="voice">
+                  <AlbumVoiceTab eventId={eventId!} eventName={event?.name || ''} />
+                </TabsContent>
+                <TabsContent value="settings">
+                  <AlbumSettingsTab eventId={eventId!} settings={gallerySettings} onUpdateSettings={updateSettings} />
+                </TabsContent>
+                <TabsContent value="insights">
+                  <AlbumInsightsTab eventId={eventId!} />
+                </TabsContent>
+              </Tabs>
+            </div>
+          </div>
+
+          {showSlideshow && (
+            <SlideshowModal
+              items={media.filter(m => m.visibility === 'public' && m.status === 'ready' && (m.type === 'photo' || m.type === 'video'))}
+              onClose={() => setShowSlideshow(false)}
+            />
+          )}
+
+          {showQRModal && event?.slug && (
+            <AlbumQRModal
+              eventSlug={event.slug}
+              eventName={event.name}
+              onClose={() => setShowQRModal(false)}
+            />
+          )}
+        </div>
       </div>
-
-      {showSlideshow && (
-        <SlideshowModal
-          items={media.filter(m => m.visibility === 'public' && m.status === 'ready' && (m.type === 'photo' || m.type === 'video'))}
-          onClose={() => setShowSlideshow(false)}
-        />
-      )}
-
-      {showQRModal && event?.slug && (
-        <AlbumQRModal
-          eventSlug={event.slug}
-          eventName={event.name}
-          onClose={() => setShowQRModal(false)}
-        />
-      )}
-    </div>
+    </SidebarProvider>
   );
 };
