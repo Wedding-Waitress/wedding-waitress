@@ -11,7 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/enhanced-button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Calendar, Users, MapPin, QrCode, Mail, Heart, Settings, TrendingUp, Plus, Printer } from "lucide-react";
+import { Calendar, Users, MapPin, QrCode, Mail, Heart, Settings, TrendingUp, Plus, Printer, Camera } from "lucide-react";
 import { useEvents } from '@/hooks/useEvents';
 import { useTables, TableWithGuestCount } from '@/hooks/useTables';
 import { useRealtimeGuests } from '@/hooks/useRealtimeGuests';
@@ -328,6 +328,24 @@ export const Dashboard = () => {
         return <FloorPlanPage selectedEventId={selectedEventId} onEventSelect={setSelectedEventId} />;
       case 'signage':
         return <SignagePage selectedEventId={selectedEventId} onEventSelect={handleEventSelect} />;
+      case 'photo-video-gallery':
+        if (selectedEventId) {
+          navigate(`/album/${selectedEventId}`);
+          return null;
+        }
+        return (
+          <Card className="ww-box p-8 text-center">
+            <Camera className="w-16 h-16 mx-auto text-primary mb-4" />
+            <CardTitle className="mb-2">Photo & Video Gallery</CardTitle>
+            <CardDescription className="mb-6">
+              Select an event from "My Events" to manage its photo and video gallery.
+            </CardDescription>
+            <Button variant="gradient" onClick={() => handleTabChange('my-events')}>
+              <Calendar className="w-4 h-4 mr-2" />
+              Go to My Events
+            </Button>
+          </Card>
+        );
       case 'qr-code':
         return <QRCodeSeatingChart selectedEventId={selectedEventId} onEventSelect={handleEventSelect} onNavigateToTab={handleTabChange} />;
       case 'kiosk-live-view':

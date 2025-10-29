@@ -48,6 +48,7 @@ interface AppSidebarProps {
     { id: "my-events", label: "My Events", icon: Calendar },
     { id: "table-list", label: "Tables", icon: MapPin },
     { id: "guest-list", label: "Guest List", icon: Users },
+    { id: "photo-video-gallery", label: "Photo & Video Gallery", icon: Camera },
     { id: "qr-code", label: "QR Code Seating Chart", icon: QrCode },
     { id: "place-cards", label: "Place Cards", icon: CreditCard },
     { id: "individual-table-chart", label: "Individual Table Charts", icon: Users },
@@ -76,6 +77,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
     
     const mobileLabels: Record<string, string> = {
       "qr-code": "QR Chart",
+      "photo-video-gallery": "Gallery",
       "individual-table-chart": "Table Charts",
       "kiosk-live-view": "Kiosk View",
       "dietary-chart": "Dietary Req.",
