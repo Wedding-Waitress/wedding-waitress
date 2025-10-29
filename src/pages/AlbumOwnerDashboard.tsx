@@ -17,6 +17,7 @@ import { AlbumQRModal } from '@/components/Album/AlbumQRModal';
 import { downloadMediaAsZip } from '@/lib/albumZipDownloader';
 import { useAlbumMedia } from '@/hooks/useAlbumMedia';
 import { buildGalleryUploadUrl } from '@/lib/urlUtils';
+import { useEvents } from '@/hooks/useEvents';
 
 export const AlbumOwnerDashboard = () => {
   const { eventId } = useParams<{ eventId: string }>();
@@ -33,6 +34,7 @@ export const AlbumOwnerDashboard = () => {
   const [showQRModal, setShowQRModal] = useState(false);
 
   const { media } = useAlbumMedia(eventId || null);
+  const { events } = useEvents();
 
   useEffect(() => {
     checkAuthorization();
@@ -161,6 +163,11 @@ export const AlbumOwnerDashboard = () => {
     toast({ title: 'Link copied', description: 'Gallery link copied to clipboard' });
   };
 
+  const handleEventChange = (newEventId: string) => {
+    localStorage.setItem('ww:last_active_event_id', newEventId);
+    navigate(`/album/${newEventId}`);
+  };
+
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     navigate('/');
@@ -191,7 +198,9 @@ export const AlbumOwnerDashboard = () => {
         <div className="flex-1 flex flex-col">
           <AlbumOwnerHeader
             event={event}
+            allEvents={events}
             gallerySettings={gallerySettings}
+            onEventChange={handleEventChange}
             onToggleAutoApprove={() => updateSettings({ require_approval: !gallerySettings?.require_approval })}
             onCopyUploadLink={handleCopyUploadLink}
             onCopyGalleryLink={handleCopyGalleryLink}

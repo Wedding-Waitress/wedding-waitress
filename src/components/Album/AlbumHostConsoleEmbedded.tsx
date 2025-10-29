@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -13,6 +14,7 @@ import { SlideshowModal } from '@/components/Album/SlideshowModal';
 import { AlbumQRModal } from '@/components/Album/AlbumQRModal';
 import { downloadMediaAsZip } from '@/lib/albumZipDownloader';
 import { useAlbumMedia } from '@/hooks/useAlbumMedia';
+import { useEvents } from '@/hooks/useEvents';
 import { Card, CardContent, CardDescription, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { buildGalleryUploadUrl } from '@/lib/urlUtils';
@@ -22,6 +24,7 @@ interface AlbumHostConsoleEmbeddedProps {
 }
 
 export const AlbumHostConsoleEmbedded = ({ eventId }: AlbumHostConsoleEmbeddedProps) => {
+  const navigate = useNavigate();
   const { toast } = useToast();
 
   const [event, setEvent] = useState<any>(null);
@@ -34,6 +37,7 @@ export const AlbumHostConsoleEmbedded = ({ eventId }: AlbumHostConsoleEmbeddedPr
   const [showQRModal, setShowQRModal] = useState(false);
 
   const { media } = useAlbumMedia(eventId);
+  const { events } = useEvents();
 
   useEffect(() => {
     checkAuthorization();
@@ -160,6 +164,11 @@ export const AlbumHostConsoleEmbedded = ({ eventId }: AlbumHostConsoleEmbeddedPr
     toast({ title: 'Link copied', description: 'Gallery link copied to clipboard' });
   };
 
+  const handleEventChange = (newEventId: string) => {
+    localStorage.setItem('ww:last_active_event_id', newEventId);
+    navigate(`/album/${newEventId}`);
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center p-12">
@@ -187,7 +196,9 @@ export const AlbumHostConsoleEmbedded = ({ eventId }: AlbumHostConsoleEmbeddedPr
     <div className="space-y-4">
       <AlbumOwnerHeader
         event={event}
+        allEvents={events}
         gallerySettings={gallerySettings}
+        onEventChange={handleEventChange}
         onToggleAutoApprove={() => updateSettings({ require_approval: !gallerySettings?.require_approval })}
         onCopyUploadLink={handleCopyUploadLink}
         onCopyGalleryLink={handleCopyGalleryLink}
