@@ -35,19 +35,19 @@ export function buildKioskUrl(eventSlug: string): string {
 }
 
 /**
- * Builds an album/upload URL for the given album slug
+ * Builds a gallery URL for the given gallery slug
  * Uses dedicated Photo & Video sharing subdomain if configured
  */
 export function buildGalleryUploadUrl(gallerySlug: string): string {
   // Use dedicated Photo & Video sharing subdomain if configured
   const photoShareUrl = import.meta.env.VITE_PHOTO_SHARE_BASE_URL;
   if (photoShareUrl) {
-    return `${photoShareUrl}/a/${gallerySlug}`;
+    return `${photoShareUrl}/g/${gallerySlug}`;
   }
   
   // Fallback to main domain
   const baseUrl = getPublicBaseUrl();
-  return `${baseUrl}/a/${gallerySlug}`;
+  return `${baseUrl}/g/${gallerySlug}`;
 }
 
 /**
