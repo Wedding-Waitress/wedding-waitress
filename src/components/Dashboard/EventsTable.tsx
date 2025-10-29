@@ -3,13 +3,14 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/enhanced-button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Edit2, Trash2, Plus } from "lucide-react";
+import { Edit2, Trash2, Plus, ImageIcon } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { DeleteConfirmationModal } from './DeleteConfirmationModal';
 import { EventEditModal } from './EventEditModal';
 import { EventCreateModal } from './EventCreateModal';
 import { format } from 'date-fns';
 import { formatDisplayTime } from '@/lib/utils';
+import { useNavigate } from 'react-router-dom';
 
 // Define Event type locally
 interface Event {
@@ -111,6 +112,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
   onEventEdit,
   onEventDelete
 }) => {
+  const navigate = useNavigate();
   const [editModal, setEditModal] = useState<{
     isOpen: boolean;
     event: Event | null;
@@ -296,6 +298,15 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                     </TableCell>
                     <TableCell className="w-20">
                       <div className="flex items-center space-x-1">
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          onClick={() => navigate(`/album/${event.id}`)} 
+                          className="w-8 h-8 text-muted-foreground hover:text-primary"
+                          title="Manage Album"
+                        >
+                          <ImageIcon className="w-3 h-3" />
+                        </Button>
                         <Button variant="ghost" size="icon" onClick={() => handleEdit(event)} className="w-8 h-8 text-muted-foreground hover:text-primary">
                           <Edit2 className="w-3 h-3" />
                         </Button>

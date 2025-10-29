@@ -6,7 +6,7 @@ import { supabase } from '@/integrations/supabase/client';
 
 interface MediaItem {
   id: string;
-  type: 'photo' | 'video';
+  type: 'photo' | 'video' | 'audio';
   storage_path: string | null;
   cloudflare_stream_uid: string | null;
   caption: string | null;
@@ -24,14 +24,15 @@ export const SlideshowModal = ({ items, onClose }: SlideshowModalProps) => {
   const [loop, setLoop] = useState(true);
 
   useEffect(() => {
-    if (!items.length) return;
+    const slideItems = items.filter(item => item.type === 'photo' || item.type === 'video');
+    if (!slideItems.length) return;
 
     const timer = setInterval(() => {
       if (shuffle) {
-        setCurrentIndex(Math.floor(Math.random() * items.length));
+        setCurrentIndex(Math.floor(Math.random() * slideItems.length));
       } else {
         setCurrentIndex(prev => {
-          if (prev >= items.length - 1) {
+          if (prev >= slideItems.length - 1) {
             return loop ? 0 : prev;
           }
           return prev + 1;
@@ -40,11 +41,14 @@ export const SlideshowModal = ({ items, onClose }: SlideshowModalProps) => {
     }, interval * 1000);
 
     return () => clearInterval(timer);
-  }, [interval, shuffle, loop, items.length]);
+  }, [interval, shuffle, loop, items]);
 
-  if (!items.length) return null;
+  // Filter to only photo/video items
+  const slideItems = items.filter(item => item.type === 'photo' || item.type === 'video');
 
-  const currentItem = items[currentIndex];
+  if (!slideItems.length) return null;
+
+  const currentItem = slideItems[currentIndex];
 
   const getMediaUrl = (item: MediaItem) => {
     if (item.type === 'photo' && item.storage_path) {
@@ -110,7 +114,7 @@ export const SlideshowModal = ({ items, onClose }: SlideshowModalProps) => {
 
         {/* Progress Indicator */}
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white text-sm bg-black/50 px-3 py-1 rounded">
-          {currentIndex + 1} / {items.length}
+          {currentIndex + 1} / {slideItems.length}
         </div>
       </DialogContent>
     </Dialog>
