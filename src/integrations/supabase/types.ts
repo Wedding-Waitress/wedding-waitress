@@ -817,6 +817,7 @@ export type Database = {
           id: string
           message: string
           uploader_id: string | null
+          visibility: string
         }
         Insert: {
           created_at?: string
@@ -825,6 +826,7 @@ export type Database = {
           id?: string
           message: string
           uploader_id?: string | null
+          visibility?: string
         }
         Update: {
           created_at?: string
@@ -833,6 +835,7 @@ export type Database = {
           id?: string
           message?: string
           uploader_id?: string | null
+          visibility?: string
         }
         Relationships: [
           {
@@ -1034,63 +1037,87 @@ export type Database = {
       media_gallery_settings: {
         Row: {
           album_expires_at: string | null
+          album_title: string | null
           allow_photos: boolean | null
           allow_videos: boolean | null
+          cover_photo_url: string | null
           created_at: string
           event_id: string
+          gallery_password: string | null
           id: string
           is_active: boolean | null
+          logo_url: string | null
           max_photo_size_mb: number | null
           max_uploads_per_guest: number | null
           max_video_duration_seconds: number | null
           max_video_size_mb: number | null
+          password_protected: boolean | null
+          primary_color: string | null
           require_approval: boolean | null
           show_captions: boolean | null
+          show_download_buttons: boolean | null
           slideshow_interval_seconds: number | null
           updated_at: string
           user_id: string
           watermark_enabled: boolean | null
           watermark_text: string | null
+          welcome_text: string | null
         }
         Insert: {
           album_expires_at?: string | null
+          album_title?: string | null
           allow_photos?: boolean | null
           allow_videos?: boolean | null
+          cover_photo_url?: string | null
           created_at?: string
           event_id: string
+          gallery_password?: string | null
           id?: string
           is_active?: boolean | null
+          logo_url?: string | null
           max_photo_size_mb?: number | null
           max_uploads_per_guest?: number | null
           max_video_duration_seconds?: number | null
           max_video_size_mb?: number | null
+          password_protected?: boolean | null
+          primary_color?: string | null
           require_approval?: boolean | null
           show_captions?: boolean | null
+          show_download_buttons?: boolean | null
           slideshow_interval_seconds?: number | null
           updated_at?: string
           user_id: string
           watermark_enabled?: boolean | null
           watermark_text?: string | null
+          welcome_text?: string | null
         }
         Update: {
           album_expires_at?: string | null
+          album_title?: string | null
           allow_photos?: boolean | null
           allow_videos?: boolean | null
+          cover_photo_url?: string | null
           created_at?: string
           event_id?: string
+          gallery_password?: string | null
           id?: string
           is_active?: boolean | null
+          logo_url?: string | null
           max_photo_size_mb?: number | null
           max_uploads_per_guest?: number | null
           max_video_duration_seconds?: number | null
           max_video_size_mb?: number | null
+          password_protected?: boolean | null
+          primary_color?: string | null
           require_approval?: boolean | null
           show_captions?: boolean | null
+          show_download_buttons?: boolean | null
           slideshow_interval_seconds?: number | null
           updated_at?: string
           user_id?: string
           watermark_enabled?: boolean | null
           watermark_text?: string | null
+          welcome_text?: string | null
         }
         Relationships: [
           {
@@ -1112,12 +1139,14 @@ export type Database = {
           filesize: number | null
           height: number | null
           id: string
+          sort_index: number | null
           status: string
           storage_path: string | null
           thumbnail_path: string | null
           type: string
           updated_at: string
           uploader_id: string | null
+          visibility: string
           width: number | null
         }
         Insert: {
@@ -1129,12 +1158,14 @@ export type Database = {
           filesize?: number | null
           height?: number | null
           id?: string
+          sort_index?: number | null
           status?: string
           storage_path?: string | null
           thumbnail_path?: string | null
           type: string
           updated_at?: string
           uploader_id?: string | null
+          visibility?: string
           width?: number | null
         }
         Update: {
@@ -1146,12 +1177,14 @@ export type Database = {
           filesize?: number | null
           height?: number | null
           id?: string
+          sort_index?: number | null
           status?: string
           storage_path?: string | null
           thumbnail_path?: string | null
           type?: string
           updated_at?: string
           uploader_id?: string | null
+          visibility?: string
           width?: number | null
         }
         Relationships: [
