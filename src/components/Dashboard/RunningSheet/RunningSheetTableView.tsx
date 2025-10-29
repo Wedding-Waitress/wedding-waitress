@@ -161,6 +161,17 @@ export const RunningSheetTableView: React.FC<RunningSheetTableViewProps> = ({
                 border: '0.5px solid #EAEAEA'
               }}></th>
               <th style={{ 
+                width: '60px',
+                padding: '8px',
+                textAlign: 'center',
+                verticalAlign: 'middle',
+                fontSize: '14pt',
+                fontWeight: 600,
+                color: '#000000',
+                backgroundColor: '#F4F4F5',
+                border: '0.5px solid #EAEAEA'
+              }}>Actions</th>
+              <th style={{ 
                 width: '15%',
                 padding: '8px',
                 textAlign: 'left',
@@ -193,17 +204,6 @@ export const RunningSheetTableView: React.FC<RunningSheetTableViewProps> = ({
                 backgroundColor: '#F4F4F5',
                 border: '0.5px solid #EAEAEA'
               }}>Assigned</th>
-              <th style={{ 
-                width: '10%',
-                padding: '8px',
-                textAlign: 'center',
-                verticalAlign: 'middle',
-                fontSize: '14pt',
-                fontWeight: 600,
-                color: '#000000',
-                backgroundColor: '#F4F4F5',
-                border: '0.5px solid #EAEAEA'
-              }}>Actions</th>
             </tr>
           </thead>
           <tbody>

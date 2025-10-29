@@ -75,14 +75,22 @@ export const RunningSheetPage: React.FC = () => {
   };
 
   const paginatedPages = useMemo(() => {
+    // Exact A4 dimensions
     const PAGE_HEIGHT_MM = 297;
     const MARGIN_TOP_MM = 12;
     const MARGIN_BOTTOM_MM = 12;
-    const HEADER_HEIGHT_MM = 40; // Logo + event info + gap
-    const FOOTER_HEIGHT_MM = 15; // Footer logo + spacing
-    const TABLE_HEADER_HEIGHT_MM = 10; // "Times | Event Info | Assigned" row
     
-    const AVAILABLE_HEIGHT_MM = PAGE_HEIGHT_MM - MARGIN_TOP_MM - MARGIN_BOTTOM_MM - HEADER_HEIGHT_MM - FOOTER_HEIGHT_MM - TABLE_HEADER_HEIGHT_MM;
+    // Content area dimensions
+    const CONTENT_HEIGHT_MM = PAGE_HEIGHT_MM - MARGIN_TOP_MM - MARGIN_BOTTOM_MM; // 273mm
+    
+    // Fixed section heights (measured accurately)
+    const HEADER_HEIGHT_MM = 45; // Logo (35mm) + event info + spacing
+    const FOOTER_HEIGHT_MM = 15; // Footer logo + padding
+    const TABLE_HEADER_HEIGHT_MM = 11; // "Times | Event Info | Assigned | Actions" row
+    
+    // Available height for table rows
+    const AVAILABLE_HEIGHT_MM = CONTENT_HEIGHT_MM - HEADER_HEIGHT_MM - FOOTER_HEIGHT_MM - TABLE_HEADER_HEIGHT_MM;
+    // Result: 273 - 45 - 15 - 11 = 202mm
     
     const SECTION_HEADER_HEIGHT_MM = 10;
     const rowHeightMM = TEXT_SIZE_HEIGHT_MAP[sheet?.all_text_size || 'medium'];
@@ -95,8 +103,8 @@ export const RunningSheetPage: React.FC = () => {
     items.forEach((item, index) => {
       const itemHeight = item.is_section_header ? SECTION_HEADER_HEIGHT_MM : rowHeightMM;
       
-      // If adding this item exceeds page height, start new page
-      if (currentPageHeight + itemHeight > AVAILABLE_HEIGHT_MM && currentPage.length > 0) {
+      // If adding this item exceeds page height, start new page (add 2mm safety margin)
+      if (currentPageHeight + itemHeight + 2 > AVAILABLE_HEIGHT_MM && currentPage.length > 0) {
         pages.push(currentPage);
         currentPage = [];
         currentPageHeight = 0;
@@ -698,12 +706,22 @@ export const RunningSheetPage: React.FC = () => {
                       height: '297mm',
                       minWidth: '210mm',
                       maxWidth: '210mm',
-                      border: '1px solid #E5E5E5'
+                      border: '1px solid #E5E5E5',
+                      overflow: 'hidden',
+                      position: 'relative'
                     }}
                   >
-                    <div style={{ padding: '12mm 8mm' }} className="h-full flex flex-col">
-                      {/* Header */}
-                      <div className="mb-4">
+                    <div 
+                      style={{ 
+                        width: 'calc(210mm - 16mm)',
+                        height: 'calc(297mm - 24mm)',
+                        margin: '12mm 8mm',
+                        display: 'flex',
+                        flexDirection: 'column'
+                      }}
+                    >
+                      {/* Header - Fixed Height */}
+                      <div style={{ height: '45mm', flexShrink: 0 }}>
                         <div className="flex gap-3 mb-2">
                           {/* Logo Box */}
                           <div 
@@ -741,8 +759,15 @@ export const RunningSheetPage: React.FC = () => {
                         </div>
                       </div>
 
-                      {/* Table with Sticky Header */}
-                      <div className="flex-1 overflow-visible" style={{ border: '1px solid #E5E5E5' }}>
+                      {/* Table - Calculated Fixed Height */}
+                      <div 
+                        style={{ 
+                          height: 'calc(273mm - 45mm - 15mm)',
+                          flexShrink: 0,
+                          border: '1px solid #E5E5E5',
+                          overflow: 'hidden'
+                        }}
+                      >
                         <RunningSheetTableView
                           items={paginatedItems}
                           showResponsible={sheet.show_responsible}
@@ -768,18 +793,27 @@ export const RunningSheetPage: React.FC = () => {
                         />
                       </div>
 
-                      {/* Footer */}
-                      <div className="mt-4 flex justify-center">
+                      {/* Footer - Fixed Height at Bottom */}
+                      <div 
+                        style={{ 
+                          height: '15mm', 
+                          flexShrink: 0,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          marginTop: 'auto'
+                        }}
+                      >
                         <img 
                           src={runningSheetLogo}
                           alt="Wedding Waitress" 
                           style={{ height: '10.5mm', width: 'auto' }}
                         />
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
 
               {/* Page Navigation - Bottom */}
               {totalPages > 1 && (
