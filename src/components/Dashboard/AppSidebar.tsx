@@ -18,7 +18,7 @@ import {
   ClipboardList
 } from 'lucide-react';
 import { useIsAdmin } from '@/hooks/useIsAdmin';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { flags } from '@/lib/featureFlags';
 import {
@@ -69,6 +69,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
   const { open } = useSidebar();
   const { isAdmin } = useIsAdmin();
   const navigate = useNavigate();
+  const location = useLocation();
   const isMobile = useIsMobile();
 
   // Mobile-friendly label shortening
@@ -109,7 +110,8 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
             <SidebarMenu>
               {menuItems.map((item) => {
                 const Icon = item.icon;
-                const isActive = activeTab === item.id;
+                const isActive = activeTab === item.id || 
+                  (item.id === 'photo-video-gallery' && location.pathname.startsWith('/album'));
                 
                 const isGreenItem = ['my-events', 'table-list', 'guest-list'].includes(item.id);
                 const getBadgeNumber = () => {

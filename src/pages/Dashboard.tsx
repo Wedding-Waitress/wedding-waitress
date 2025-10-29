@@ -12,6 +12,8 @@ import { Button } from "@/components/ui/enhanced-button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Calendar, Users, MapPin, QrCode, Mail, Heart, Settings, TrendingUp, Plus, Printer, Camera } from "lucide-react";
+import { useAlbumNavigation } from '@/hooks/useAlbumNavigation';
+import { EventPickerModal } from '@/components/Album/EventPickerModal';
 import { useEvents } from '@/hooks/useEvents';
 import { useTables, TableWithGuestCount } from '@/hooks/useTables';
 import { useRealtimeGuests } from '@/hooks/useRealtimeGuests';
@@ -47,6 +49,7 @@ export const Dashboard = () => {
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [showCreateTableModal, setShowCreateTableModal] = useState(false);
   const [editingTable, setEditingTable] = useState<TableWithGuestCount | null>(null);
+  const [showEventPickerModal, setShowEventPickerModal] = useState(false);
   const navigate = useNavigate();
   const {
     events,
@@ -328,24 +331,36 @@ export const Dashboard = () => {
         return <FloorPlanPage selectedEventId={selectedEventId} onEventSelect={setSelectedEventId} />;
       case 'signage':
         return <SignagePage selectedEventId={selectedEventId} onEventSelect={handleEventSelect} />;
-      case 'photo-video-gallery':
-        if (selectedEventId) {
-          navigate(`/album/${selectedEventId}`);
+      case 'photo-video-gallery': {
+        const { getActiveEventId, navigateToAlbum } = useAlbumNavigation(selectedEventId, events);
+        const activeEventResult = getActiveEventId();
+        
+        if (activeEventResult === 'no-events') {
+          return (
+            <Card className="ww-box p-8 text-center">
+              <Camera className="w-16 h-16 mx-auto text-primary mb-4" />
+              <CardTitle className="mb-2">No Events Yet</CardTitle>
+              <CardDescription className="mb-6">
+                Create your first event to manage a photo and video album.
+              </CardDescription>
+              <Button variant="gradient" onClick={() => handleTabChange('my-events')}>
+                <Plus className="w-4 h-4 mr-2" />
+                Create Event
+              </Button>
+            </Card>
+          );
+        }
+        
+        if (activeEventResult === null) {
+          // Multiple events, no active one - show picker
+          setTimeout(() => setShowEventPickerModal(true), 0);
           return null;
         }
-        return (
-          <Card className="ww-box p-8 text-center">
-            <Camera className="w-16 h-16 mx-auto text-primary mb-4" />
-            <CardTitle className="mb-2">Photo & Video Gallery</CardTitle>
-            <CardDescription className="mb-6">
-              Select an event from "My Events" to manage its photo and video gallery.
-            </CardDescription>
-            <Button variant="gradient" onClick={() => handleTabChange('my-events')}>
-              <Calendar className="w-4 h-4 mr-2" />
-              Go to My Events
-            </Button>
-          </Card>
-        );
+        
+        // Navigate to album for the active event
+        navigateToAlbum(activeEventResult);
+        return null;
+      }
       case 'qr-code':
         return <QRCodeSeatingChart selectedEventId={selectedEventId} onEventSelect={handleEventSelect} onNavigateToTab={handleTabChange} />;
       case 'kiosk-live-view':
@@ -476,6 +491,18 @@ export const Dashboard = () => {
       
       {/* Create/Edit Table Modal */}
       <CreateTableModal isOpen={showCreateTableModal} onClose={handleCloseModal} onSave={handleSaveTable} editingTable={editingTable} existingTables={tables} />
+      
+      {/* Event Picker Modal for Album Navigation */}
+      <EventPickerModal
+        events={events}
+        open={showEventPickerModal}
+        onClose={() => setShowEventPickerModal(false)}
+        onSelectEvent={(eventId) => {
+          setShowEventPickerModal(false);
+          localStorage.setItem('ww:last_active_event_id', eventId);
+          navigate(`/album/${eventId}`);
+        }}
+      />
     </div>
   </SidebarProvider>;
 };

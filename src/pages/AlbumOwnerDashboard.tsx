@@ -73,6 +73,7 @@ export const AlbumOwnerDashboard = () => {
 
       setEvent(eventData);
       setIsAuthorized(true);
+      localStorage.setItem('ww:last_active_event_id', eventId);
       await fetchGallerySettings();
     } catch (error) {
       console.error('Authorization error:', error);
@@ -85,11 +86,36 @@ export const AlbumOwnerDashboard = () => {
   const fetchGallerySettings = async () => {
     if (!eventId) return;
 
-    const { data } = await supabase
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    let { data } = await supabase
       .from('media_gallery_settings')
       .select('*')
       .eq('event_id', eventId)
       .maybeSingle();
+
+    // If settings don't exist, create default settings
+    if (!data) {
+      const { data: newSettings, error } = await supabase
+        .from('media_gallery_settings')
+        .insert({
+          event_id: eventId,
+          user_id: user.id,
+          primary_color: '#6D28D9',
+          require_approval: true,
+          show_download_buttons: true,
+          is_active: true,
+          allow_photos: true,
+          allow_videos: true,
+        })
+        .select()
+        .single();
+
+      if (!error && newSettings) {
+        data = newSettings;
+      }
+    }
 
     setGallerySettings(data);
   };
