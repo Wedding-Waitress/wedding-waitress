@@ -183,7 +183,7 @@ export const GalleryPublicView: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-subtle">
+    <div className="min-h-screen bg-gray-50">
       <GalleryHeader event={event} />
       
       {activeSheet !== 'gallery' ? (

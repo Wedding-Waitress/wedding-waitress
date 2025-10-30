@@ -1,5 +1,5 @@
 import React from 'react';
-import { Upload, MessageSquare, Mic, ImageIcon } from 'lucide-react';
+import { CloudUpload, BookOpen, Mic, Eye } from 'lucide-react';
 
 interface GallerySettings {
   allow_photos: boolean;
@@ -17,40 +17,36 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({ onAction, settings
   const buttons = [
     { 
       id: 'upload' as const, 
-      icon: Upload, 
-      label: 'Upload Media',
-      enabled: settings.allow_photos || settings.allow_videos
+      icon: CloudUpload, 
+      label: 'Upload Media'
     },
     { 
       id: 'guestbook' as const, 
-      icon: MessageSquare, 
-      label: 'Sign Guestbook',
-      enabled: settings.allow_guestbook
+      icon: BookOpen, 
+      label: 'Sign Guestbook'
     },
     { 
       id: 'voice' as const, 
       icon: Mic, 
-      label: 'Record Message',
-      enabled: settings.allow_audio
+      label: 'Record Message'
     },
     { 
       id: 'gallery' as const, 
-      icon: ImageIcon, 
-      label: 'View Gallery',
-      enabled: true // Always enabled
+      icon: Eye, 
+      label: 'View Gallery'
     },
   ];
 
   return (
-    <div className="w-full max-w-2xl mx-auto px-4 py-6 space-y-4">
-      {buttons.filter(btn => btn.enabled).map(btn => (
+    <div className="w-full max-w-2xl mx-auto px-6 py-8 space-y-4">
+      {buttons.map(btn => (
         <button
           key={btn.id}
           onClick={() => onAction(btn.id)}
-          className="bg-[#6D28D9] text-white w-full py-6 rounded-xl flex items-center justify-center gap-4 text-lg font-semibold shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200 active:scale-[0.98]"
+          className="bg-white text-gray-900 w-full py-5 rounded-2xl flex items-center gap-4 text-base font-medium shadow-lg hover:shadow-xl transform hover:scale-[1.01] transition-all duration-200 active:scale-[0.99] border border-gray-100"
         >
-          <btn.icon className="w-6 h-6" />
-          {btn.label}
+          <btn.icon className="w-6 h-6 ml-6 text-gray-700" />
+          <span className="flex-1 text-left">{btn.label}</span>
         </button>
       ))}
     </div>
