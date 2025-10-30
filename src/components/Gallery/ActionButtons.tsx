@@ -43,10 +43,10 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({ onAction, settings
         <button
           key={btn.id}
           onClick={() => onAction(btn.id)}
-          className="bg-white text-gray-900 w-full py-5 rounded-2xl flex items-center gap-4 text-base font-medium shadow-lg hover:shadow-xl transform hover:scale-[1.01] transition-all duration-200 active:scale-[0.99] border border-gray-100"
+          className="bg-white text-gray-900 w-full py-7 rounded-2xl flex items-center justify-center gap-4 text-xl font-medium shadow-lg hover:shadow-xl transform hover:scale-[1.01] transition-all duration-200 active:scale-[0.99] border border-gray-100"
         >
-          <btn.icon className="w-6 h-6 ml-6 text-gray-700" />
-          <span className="flex-1 text-left">{btn.label}</span>
+          <btn.icon className="w-8 h-8 text-gray-700" />
+          <span>{btn.label}</span>
         </button>
       ))}
     </div>

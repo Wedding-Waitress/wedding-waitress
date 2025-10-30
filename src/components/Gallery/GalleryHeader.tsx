@@ -24,9 +24,9 @@ export const GalleryHeader: React.FC<GalleryHeaderProps> = ({ event }) => {
             className="flex-shrink-0"
           >
             <img 
-              src="/wedding-waitress-logo.png" 
+              src="/wedding-waitress-logo-full-hq.png" 
               alt="Wedding Waitress" 
-              className="h-10 w-auto"
+              className="h-16 w-auto"
             />
           </a>
           
