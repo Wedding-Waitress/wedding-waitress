@@ -55,6 +55,11 @@ export const GalleryPublicView: React.FC = () => {
         setError(null);
         setLoading(true);
 
+        // Check network connectivity first
+        if (!navigator.onLine) {
+          throw new Error('No internet connection. Please check your network and try again.');
+        }
+
         const { data: eventData, error: eventError } = await supabase
           .from('events')
           .select('id, name, date, partner1_name, partner2_name, slug')
@@ -62,8 +67,22 @@ export const GalleryPublicView: React.FC = () => {
           .maybeSingle();
 
         if (eventError) {
-          console.error('Event fetch error:', eventError);
-          throw new Error('Failed to load gallery. Please check your connection.');
+          console.error('Event fetch error - Full details:', {
+            message: eventError.message,
+            code: eventError.code,
+            details: eventError.details,
+            hint: eventError.hint,
+            slug: gallerySlug
+          });
+          
+          // Show specific error messages based on error type
+          if (eventError.code === 'PGRST116') {
+            throw new Error('Gallery not found');
+          } else if (eventError.message?.includes('JWT') || eventError.message?.includes('JWS')) {
+            throw new Error('Authentication error - please try again');
+          } else {
+            throw new Error(eventError.message || 'Failed to load gallery');
+          }
         }
 
         if (!eventData) {
@@ -80,16 +99,28 @@ export const GalleryPublicView: React.FC = () => {
           .maybeSingle();
 
         if (settingsError) {
-          console.error('Settings fetch error:', settingsError);
+          console.error('Settings fetch error - Full details:', {
+            message: settingsError.message,
+            code: settingsError.code,
+            details: settingsError.details,
+            hint: settingsError.hint,
+            eventId: eventData.id
+          });
         }
 
         setGallerySettings(settingsData as any);
       } catch (err: any) {
-        console.error('Error fetching event:', err);
+        console.error('Error fetching event - Full details:', {
+          error: err,
+          message: err.message,
+          stack: err.stack,
+          slug: gallerySlug,
+          online: navigator.onLine
+        });
         setError(err.message || 'Connection issue');
 
         // Auto-retry with exponential backoff (max 3 attempts)
-        if (retryAttempt < 2) {
+        if (retryAttempt < 2 && navigator.onLine) {
           const delay = Math.pow(2, retryAttempt) * 1000;
           setTimeout(() => {
             setRetryCount(retryAttempt + 1);
