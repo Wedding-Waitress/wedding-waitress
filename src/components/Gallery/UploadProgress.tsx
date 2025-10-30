@@ -8,6 +8,7 @@ export interface UploadProgressProps {
   speed: number;
   eta: number;
   status: 'uploading' | 'processing' | 'success' | 'error';
+  requiresApproval?: boolean;
   errorMessage?: string;
   onRetry?: () => void;
   onViewGallery?: () => void;
@@ -18,6 +19,7 @@ export const UploadProgress: React.FC<UploadProgressProps> = ({
   speed,
   eta,
   status,
+  requiresApproval,
   errorMessage,
   onRetry,
   onViewGallery,
@@ -61,10 +63,46 @@ export const UploadProgress: React.FC<UploadProgressProps> = ({
         </>
       )}
       
-      {status === 'success' && onViewGallery && (
-        <Button onClick={onViewGallery} className="w-full mt-4 bg-[#6D28D9] hover:bg-[#5B21B6]">
-          View Gallery 🎉
-        </Button>
+      {status === 'success' && (
+        <div className="mt-4 space-y-3">
+          {requiresApproval ? (
+            <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-3">
+              <p className="text-sm text-yellow-800 dark:text-yellow-200 font-medium mb-1">
+                ⏳ Pending Review
+              </p>
+              <p className="text-xs text-yellow-700 dark:text-yellow-300">
+                The host will review your upload before it appears in the gallery. 
+                You can upload more photos while you wait!
+              </p>
+            </div>
+          ) : (
+            <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-3">
+              <p className="text-sm text-green-800 dark:text-green-200 font-medium">
+                ✅ Your photo is now live in the gallery!
+              </p>
+            </div>
+          )}
+          
+          <div className="flex gap-2">
+            {onRetry && (
+              <Button 
+                onClick={onRetry} 
+                variant="outline"
+                className="flex-1"
+              >
+                Upload Another
+              </Button>
+            )}
+            {onViewGallery && (
+              <Button 
+                onClick={onViewGallery} 
+                className="flex-1 bg-[#6D28D9] hover:bg-[#5B21B6]"
+              >
+                View Gallery 🎉
+              </Button>
+            )}
+          </div>
+        </div>
       )}
 
       {status === 'processing' && (

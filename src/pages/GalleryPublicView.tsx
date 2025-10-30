@@ -32,6 +32,7 @@ interface GallerySettings {
   allow_videos: boolean;
   allow_audio: boolean;
   allow_guestbook: boolean;
+  require_approval: boolean;
   album_expires_at?: string;
   watermark_text?: string;
   show_uploader_name?: boolean;
@@ -207,6 +208,7 @@ export const GalleryPublicView: React.FC = () => {
         gallerySlug={slug!}
         eventId={event.id}
         settings={gallerySettings}
+        requireApproval={gallerySettings.require_approval || false}
       />
 
       <GuestbookSheet

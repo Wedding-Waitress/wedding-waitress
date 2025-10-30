@@ -18,6 +18,7 @@ interface UploadMediaSheetProps {
   gallerySlug: string;
   eventId: string;
   settings: GallerySettings;
+  requireApproval: boolean;
 }
 
 export const UploadMediaSheet: React.FC<UploadMediaSheetProps> = ({
@@ -26,9 +27,10 @@ export const UploadMediaSheet: React.FC<UploadMediaSheetProps> = ({
   gallerySlug,
   eventId,
   settings,
+  requireApproval,
 }) => {
   const { toast } = useToast();
-  const { upload, progress, retry } = useMediaUpload(gallerySlug, eventId);
+  const { upload, progress, retry } = useMediaUpload(gallerySlug, eventId, requireApproval);
   const [selectedType, setSelectedType] = useState<'photo' | 'video' | null>(null);
 
   const handleFileSelect = async (type: 'photo' | 'video', file: File) => {

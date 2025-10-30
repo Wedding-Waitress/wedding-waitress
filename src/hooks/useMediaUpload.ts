@@ -5,7 +5,7 @@ import type { UploadProgressProps } from '@/components/Gallery/UploadProgress';
 
 type MediaType = 'photo' | 'video' | 'audio';
 
-export const useMediaUpload = (gallerySlug: string, eventId: string) => {
+export const useMediaUpload = (gallerySlug: string, eventId: string, requireApproval: boolean = false) => {
   const [progress, setProgress] = useState<UploadProgressProps | null>(null);
   const { toast } = useToast();
 
@@ -92,11 +92,19 @@ export const useMediaUpload = (gallerySlug: string, eventId: string) => {
         await pollVideoStatus(urlData.media_item_id);
       }
 
-      setProgress({ percent: 100, speed: 0, eta: 0, status: 'success' });
+      setProgress({ 
+        percent: 100, 
+        speed: 0, 
+        eta: 0, 
+        status: 'success',
+        requiresApproval: requireApproval 
+      });
       
       toast({ 
         title: '🎉 Uploaded!', 
-        description: 'Thanks for sharing your memories!' 
+        description: requireApproval 
+          ? 'Thanks for sharing! Your photo is being reviewed by the host.' 
+          : 'Thanks for sharing your memories!' 
       });
 
     } catch (err: any) {
