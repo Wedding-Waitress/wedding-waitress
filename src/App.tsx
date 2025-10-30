@@ -93,15 +93,13 @@ const App = () => (
           <Route 
             path="/dj-questionnaire/:token" 
             element={
-              <FeatureGuard featureEnabled={flags.djQuestionnaire} featureName="DJ & MC Questionnaire">
-                <DJQuestionnairePublicView />
-              </FeatureGuard>
-            } 
-          />
-          {/* Event gallery catch-all - must be last specific route */}
-          <Route path="/:eventSlug" element={<GalleryPublicView />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
+          <FeatureGuard featureEnabled={flags.djQuestionnaire} featureName="DJ & MC Questionnaire">
+            <DJQuestionnairePublicView />
+          </FeatureGuard>
+        } 
+      />
+      {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+      <Route path="*" element={<NotFound />} />
         </Routes>
         </BrowserRouter>
       </AppErrorBoundary>

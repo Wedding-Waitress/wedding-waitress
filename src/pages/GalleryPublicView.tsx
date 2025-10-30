@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { supabase } from '@/integrations/supabase/client';
 import { GalleryHeader } from '@/components/Gallery/GalleryHeader';
 import { ActionButtons } from '@/components/Gallery/ActionButtons';
@@ -7,6 +8,7 @@ import { UploadMediaSheet } from '@/components/Gallery/UploadMediaSheet';
 import { GuestbookSheet } from '@/components/Gallery/GuestbookSheet';
 import { VoiceRecorderSheet } from '@/components/Gallery/VoiceRecorderSheet';
 import { MediaGallery } from '@/components/Gallery/MediaGallery';
+import { LanguageSelector } from '@/components/ui/LanguageSelector';
 import { Loader2 } from 'lucide-react';
 
 interface Event {
@@ -41,6 +43,7 @@ type SheetType = 'upload' | 'guestbook' | 'voice' | 'gallery' | null;
 export const GalleryPublicView: React.FC = () => {
   const { gallerySlug, eventSlug } = useParams<{ gallerySlug?: string; eventSlug?: string }>();
   const slug = gallerySlug || eventSlug;
+  const { t } = useTranslation(['gallery', 'common']);
   const [event, setEvent] = useState<Event | null>(null);
   const [gallerySettings, setGallerySettings] = useState<GallerySettings | null>(null);
   const [loading, setLoading] = useState(true);

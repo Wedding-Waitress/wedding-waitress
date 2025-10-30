@@ -60,7 +60,7 @@ export function buildGalleryUploadUrl(gallerySlug: string): string {
     : getPublicBaseUrl();
   
   // Clean trailing slash and encode slug
-  return `${base.replace(/\/$/, '')}/${encodeURIComponent(gallerySlug)}`;
+  return `${base.replace(/\/$/, '')}/g/${encodeURIComponent(gallerySlug)}`;
 }
 
 /**
