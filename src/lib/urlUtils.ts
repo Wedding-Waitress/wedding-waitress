@@ -3,19 +3,30 @@
  */
 
 /**
+ * Detects if the current environment is a preview/development environment
+ */
+function isPreviewEnvironment(): boolean {
+  const origin = window.location.origin;
+  return origin.includes('localhost') || 
+         origin.includes('.lovableproject.com') || 
+         origin.includes('.lovable.app');
+}
+
+/**
  * Gets the public base URL for external links (QR codes, sharing, etc.)
- * Uses environment-aware logic: production URL when on production domain,
- * current origin when testing on different domains
+ * Environment-aware: uses current origin in preview, production URL in production
  */
 export function getPublicBaseUrl(): string {
-  // If production URL is configured, ALWAYS use it for QR codes and external links
-  // This ensures QR codes point to your custom domain regardless of preview environment
-  if (import.meta.env.VITE_PUBLIC_BASE_URL) {
-    return import.meta.env.VITE_PUBLIC_BASE_URL;
+  const prodUrl = import.meta.env.VITE_PUBLIC_BASE_URL?.trim();
+  const forceProd = import.meta.env.VITE_FORCE_PROD_LINKS === 'true';
+  
+  // In preview environments, use current origin unless forced to use production
+  if (isPreviewEnvironment() && !forceProd) {
+    return window.location.origin;
   }
   
-  // Fallback to current origin only if no production URL is configured
-  return window.location.origin;
+  // In production or when forced, use production URL or fallback to current origin
+  return prodUrl || window.location.origin;
 }
 
 /**
@@ -37,17 +48,19 @@ export function buildKioskUrl(eventSlug: string): string {
 /**
  * Builds a gallery URL for the given gallery slug
  * Uses dedicated Photo & Video sharing subdomain if configured
+ * Environment-aware: uses current domain in preview environments
  */
 export function buildGalleryUploadUrl(gallerySlug: string): string {
-  // Use dedicated Photo & Video sharing subdomain if configured
-  const photoShareUrl = import.meta.env.VITE_PHOTO_SHARE_BASE_URL;
-  if (photoShareUrl) {
-    return `${photoShareUrl}/${gallerySlug}`;
-  }
+  const shareUrl = import.meta.env.VITE_PHOTO_SHARE_BASE_URL?.trim();
+  const forceShare = import.meta.env.VITE_FORCE_PHOTO_SHARE_QR === 'true';
   
-  // Fallback to main domain
-  const baseUrl = getPublicBaseUrl();
-  return `${baseUrl}/${gallerySlug}`;
+  // Use photo share subdomain only if configured and (in production OR forced)
+  const base = (shareUrl && (!isPreviewEnvironment() || forceShare)) 
+    ? shareUrl 
+    : getPublicBaseUrl();
+  
+  // Clean trailing slash and encode slug
+  return `${base.replace(/\/$/, '')}/${encodeURIComponent(gallerySlug)}`;
 }
 
 /**
