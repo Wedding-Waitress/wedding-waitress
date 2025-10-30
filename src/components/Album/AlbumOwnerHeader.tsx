@@ -110,7 +110,7 @@ export const AlbumOwnerHeader = ({
                   ))}
                 </SelectContent>
               </Select>
-              <p className="text-sm text-muted-foreground mt-1">Album Manager</p>
+              <p className="text-sm text-muted-foreground mt-1">Select Event</p>
             </div>
 
             {/* QR Code Box */}

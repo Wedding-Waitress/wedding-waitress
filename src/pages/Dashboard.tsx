@@ -13,7 +13,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Calendar, Users, MapPin, QrCode, Mail, Heart, Settings, TrendingUp, Plus, Printer, Camera } from "lucide-react";
 import { useAlbumNavigation } from '@/hooks/useAlbumNavigation';
-import { EventPickerModal } from '@/components/Album/EventPickerModal';
 import { AlbumHostConsoleEmbedded } from '@/components/Album/AlbumHostConsoleEmbedded';
 import { useEvents } from '@/hooks/useEvents';
 import { useTables, TableWithGuestCount } from '@/hooks/useTables';
@@ -50,7 +49,6 @@ export const Dashboard = () => {
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [showCreateTableModal, setShowCreateTableModal] = useState(false);
   const [editingTable, setEditingTable] = useState<TableWithGuestCount | null>(null);
-  const [showEventPickerModal, setShowEventPickerModal] = useState(false);
   const [albumEventId, setAlbumEventId] = useState<string | null>(null);
   const navigate = useNavigate();
   const {
@@ -136,19 +134,12 @@ export const Dashboard = () => {
     if (activeTab === 'photo-video-gallery') {
       const activeEventResult = getActiveEventId();
       
-      if (activeEventResult === null) {
-        // Multiple events, no active one - show picker
-        setShowEventPickerModal(true);
-        setAlbumEventId(null);
-      } else if (activeEventResult !== 'no-events') {
+      if (activeEventResult !== 'no-events' && typeof activeEventResult === 'string') {
         // Set album event ID and persist
         persistActiveEvent(activeEventResult);
         setAlbumEventId(activeEventResult);
-        setShowEventPickerModal(false);
       } else {
-        // No events case
         setAlbumEventId(null);
-        setShowEventPickerModal(false);
       }
     }
   }, [activeTab, getActiveEventId, persistActiveEvent]);
@@ -383,8 +374,47 @@ export const Dashboard = () => {
           return <AlbumHostConsoleEmbedded eventId={albumEventId} />;
         }
         
-        // Otherwise show loading or wait for picker
-        return null;
+        // Show inline event selector
+        return (
+          <Card className="ww-box">
+            <CardHeader>
+              <CardTitle>Select Event</CardTitle>
+              <CardDescription>Choose an event to manage its photo & video album.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center gap-3">
+                <Select
+                  value="no-event"
+                  onValueChange={(eventId) => {
+                    if (eventId === 'no-event') return;
+                    persistActiveEvent(eventId);
+                    setAlbumEventId(eventId);
+                  }}
+                >
+                  <SelectTrigger className="w-[300px]">
+                    <SelectValue placeholder={eventsLoading ? "Loading events..." : "Select an event..."} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {events.length > 0 ? (
+                      events.map((event) => (
+                        <SelectItem key={event.id} value={event.id}>
+                          <div className="flex items-center gap-2">
+                            <Calendar className="w-4 h-4" />
+                            <span>{event.name}</span>
+                          </div>
+                        </SelectItem>
+                      ))
+                    ) : (
+                      <SelectItem value="no-event" disabled>
+                        {eventsLoading ? "Loading events..." : "No events found"}
+                      </SelectItem>
+                    )}
+                  </SelectContent>
+                </Select>
+              </div>
+            </CardContent>
+          </Card>
+        );
       }
       case 'qr-code':
         return <QRCodeSeatingChart selectedEventId={selectedEventId} onEventSelect={handleEventSelect} onNavigateToTab={handleTabChange} />;
@@ -516,18 +546,6 @@ export const Dashboard = () => {
       
       {/* Create/Edit Table Modal */}
       <CreateTableModal isOpen={showCreateTableModal} onClose={handleCloseModal} onSave={handleSaveTable} editingTable={editingTable} existingTables={tables} />
-      
-      {/* Event Picker Modal for Album Navigation */}
-      <EventPickerModal
-        events={events}
-        open={showEventPickerModal}
-        onClose={() => setShowEventPickerModal(false)}
-        onSelectEvent={(eventId) => {
-          setShowEventPickerModal(false);
-          persistActiveEvent(eventId);
-          setAlbumEventId(eventId);
-        }}
-      />
     </div>
   </SidebarProvider>;
 };
