@@ -39,7 +39,8 @@ interface GallerySettings {
 type SheetType = 'upload' | 'guestbook' | 'voice' | 'gallery' | null;
 
 export const GalleryPublicView: React.FC = () => {
-  const { gallerySlug } = useParams<{ gallerySlug: string }>();
+  const { gallerySlug, eventSlug } = useParams<{ gallerySlug?: string; eventSlug?: string }>();
+  const slug = gallerySlug || eventSlug;
   const [event, setEvent] = useState<Event | null>(null);
   const [gallerySettings, setGallerySettings] = useState<GallerySettings | null>(null);
   const [loading, setLoading] = useState(true);
@@ -48,7 +49,7 @@ export const GalleryPublicView: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!gallerySlug) return;
+    if (!slug) return;
 
     const fetchEventBySlug = async (retryAttempt = 0) => {
       try {
@@ -63,7 +64,7 @@ export const GalleryPublicView: React.FC = () => {
         const { data: eventData, error: eventError } = await supabase
           .from('events')
           .select('id, name, date, partner1_name, partner2_name, slug')
-          .eq('slug', gallerySlug)
+          .eq('slug', slug)
           .maybeSingle();
 
         if (eventError) {
@@ -72,7 +73,7 @@ export const GalleryPublicView: React.FC = () => {
             code: eventError.code,
             details: eventError.details,
             hint: eventError.hint,
-            slug: gallerySlug
+            slug: slug
           });
           
           // Show specific error messages based on error type
@@ -114,7 +115,7 @@ export const GalleryPublicView: React.FC = () => {
           error: err,
           message: err.message,
           stack: err.stack,
-          slug: gallerySlug,
+          slug: slug,
           online: navigator.onLine
         });
         setError(err.message || 'Connection issue');
@@ -133,7 +134,7 @@ export const GalleryPublicView: React.FC = () => {
     };
 
     fetchEventBySlug();
-  }, [gallerySlug]);
+  }, [slug]);
 
   if (loading) {
     return (
@@ -200,7 +201,7 @@ export const GalleryPublicView: React.FC = () => {
       <UploadMediaSheet
         open={activeSheet === 'upload'}
         onClose={() => setActiveSheet(null)}
-        gallerySlug={gallerySlug!}
+        gallerySlug={slug!}
         eventId={event.id}
         settings={gallerySettings}
       />
@@ -214,7 +215,7 @@ export const GalleryPublicView: React.FC = () => {
       <VoiceRecorderSheet
         open={activeSheet === 'voice'}
         onClose={() => setActiveSheet(null)}
-        gallerySlug={gallerySlug!}
+        gallerySlug={slug!}
         eventId={event.id}
         settings={gallerySettings}
       />
