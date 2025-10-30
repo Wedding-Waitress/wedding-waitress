@@ -98,6 +98,8 @@ const App = () => (
               </FeatureGuard>
             } 
           />
+          {/* Event gallery catch-all - must be last specific route */}
+          <Route path="/:eventSlug" element={<GalleryPublicView />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

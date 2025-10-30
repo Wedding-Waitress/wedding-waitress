@@ -42,12 +42,12 @@ export function buildGalleryUploadUrl(gallerySlug: string): string {
   // Use dedicated Photo & Video sharing subdomain if configured
   const photoShareUrl = import.meta.env.VITE_PHOTO_SHARE_BASE_URL;
   if (photoShareUrl) {
-    return `${photoShareUrl}/g/${gallerySlug}`;
+    return `${photoShareUrl}/${gallerySlug}`;
   }
   
   // Fallback to main domain
   const baseUrl = getPublicBaseUrl();
-  return `${baseUrl}/g/${gallerySlug}`;
+  return `${baseUrl}/${gallerySlug}`;
 }
 
 /**
