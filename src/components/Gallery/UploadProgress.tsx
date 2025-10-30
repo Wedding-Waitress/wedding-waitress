@@ -66,11 +66,16 @@ export const UploadProgress: React.FC<UploadProgressProps> = ({
       {status === 'success' && (
         <div className="mt-4 space-y-3">
           {requiresApproval ? (
-            <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-3">
-              <p className="text-sm text-yellow-800 dark:text-yellow-200 font-medium mb-1">
-                ⏳ Pending Review
+            <div className="bg-[#6D28D9] rounded-lg p-4 relative">
+              {/* White circle checkmark icon on the right */}
+              <div className="absolute top-3 right-3 w-8 h-8 bg-white rounded-full flex items-center justify-center">
+                <CheckCircle className="w-5 h-5 text-[#6D28D9]" fill="white" />
+              </div>
+              
+              <p className="text-sm text-white font-semibold mb-2 pr-10">
+                Pending Review
               </p>
-              <p className="text-xs text-yellow-700 dark:text-yellow-300">
+              <p className="text-sm text-white/95 pr-10">
                 The host will review your upload before it appears in the gallery. 
                 You can upload more photos while you wait!
               </p>
