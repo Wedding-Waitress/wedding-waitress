@@ -44,34 +44,58 @@ export const GalleryPublicView: React.FC = () => {
   const [gallerySettings, setGallerySettings] = useState<GallerySettings | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeSheet, setActiveSheet] = useState<SheetType>(null);
+  const [retryCount, setRetryCount] = useState(0);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!gallerySlug) return;
 
-    const fetchEventBySlug = async () => {
+    const fetchEventBySlug = async (retryAttempt = 0) => {
       try {
+        setError(null);
+        setLoading(true);
+
         const { data: eventData, error: eventError } = await supabase
           .from('events')
           .select('id, name, date, partner1_name, partner2_name, slug')
           .eq('slug', gallerySlug)
-          .single();
+          .maybeSingle();
 
-        if (eventError) throw eventError;
-        if (!eventData) throw new Error('Event not found');
+        if (eventError) {
+          console.error('Event fetch error:', eventError);
+          throw new Error('Failed to load gallery. Please check your connection.');
+        }
+
+        if (!eventData) {
+          throw new Error('Gallery not found or no longer active');
+        }
 
         setEvent(eventData);
 
-        // Fetch gallery settings
-        const { data: settingsData } = await supabase
+        const { data: settingsData, error: settingsError } = await supabase
           .from('media_gallery_settings')
           .select('*')
           .eq('event_id', eventData.id)
           .eq('is_active', true)
-          .single();
+          .maybeSingle();
+
+        if (settingsError) {
+          console.error('Settings fetch error:', settingsError);
+        }
 
         setGallerySettings(settingsData as any);
-      } catch (error) {
-        console.error('Error fetching event:', error);
+      } catch (err: any) {
+        console.error('Error fetching event:', err);
+        setError(err.message || 'Connection issue');
+
+        // Auto-retry with exponential backoff (max 3 attempts)
+        if (retryAttempt < 2) {
+          const delay = Math.pow(2, retryAttempt) * 1000;
+          setTimeout(() => {
+            setRetryCount(retryAttempt + 1);
+            fetchEventBySlug(retryAttempt + 1);
+          }, delay);
+        }
       } finally {
         setLoading(false);
       }
@@ -82,8 +106,32 @@ export const GalleryPublicView: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-subtle">
-        <Loader2 className="w-8 h-8 animate-spin text-[#6D28D9]" />
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-subtle p-4">
+        <Loader2 className="w-12 h-12 animate-spin text-[#6D28D9] mb-4" />
+        <p className="text-gray-600">Loading gallery...</p>
+        {retryCount > 0 && (
+          <p className="text-sm text-gray-500 mt-2">Retrying ({retryCount}/3)...</p>
+        )}
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-subtle p-4">
+        <div className="bg-white rounded-2xl shadow-lg p-8 max-w-md w-full text-center border-2 border-[#6D28D9]">
+          <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <span className="text-4xl">⚠️</span>
+          </div>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Connection Issue</h1>
+          <p className="text-gray-600 mb-6">{error}</p>
+          <button 
+            onClick={() => window.location.reload()}
+            className="px-6 py-3 bg-[#6D28D9] text-white rounded-lg hover:bg-[#5B21B6] transition-colors"
+          >
+            Try Again
+          </button>
+        </div>
       </div>
     );
   }
@@ -91,7 +139,10 @@ export const GalleryPublicView: React.FC = () => {
   if (!event || !gallerySettings) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-subtle p-4">
-        <div className="text-center">
+        <div className="bg-white rounded-2xl shadow-lg p-8 max-w-md w-full text-center border-2 border-[#6D28D9]">
+          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <span className="text-4xl">📷</span>
+          </div>
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Gallery Not Found</h1>
           <p className="text-gray-600">This gallery may not exist or is no longer active.</p>
         </div>
