@@ -222,20 +222,22 @@ export const GalleryPublicView: React.FC = () => {
 
       <footer className="mt-auto border-t bg-white py-4">
         <div className="max-w-7xl mx-auto px-4">
-          <div className="flex flex-wrap items-center justify-center gap-2 text-xs text-gray-600">
+          <div className="flex flex-wrap items-center justify-center gap-3 text-xs text-gray-600">
+            <LanguageSelector variant="footer" className="text-xs" />
+            <span>•</span>
             <Link to="/privacy" className="hover:text-primary transition-colors">
-              Privacy Policy
+              {t('common:privacyPolicy')}
             </Link>
             <span>•</span>
             <Link to="/terms" className="hover:text-primary transition-colors">
-              Terms of Service
+              {t('common:termsOfService')}
             </Link>
             <span>•</span>
             <Link to="/contact" className="hover:text-primary transition-colors">
-              Contact
+              {t('common:contact')}
             </Link>
             <span>•</span>
-            <span>© 2025 Wedding Waitress</span>
+            <span>{t('common:copyright')}</span>
           </div>
         </div>
       </footer>

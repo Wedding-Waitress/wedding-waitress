@@ -1,0 +1,62 @@
+{
+  "hero": {
+    "title": "计划您的完美婚礼",
+    "subtitle": "使用我们的一体化平台简化您的婚礼策划。管理宾客、座位安排并创建精美的活动材料。",
+    "cta": "免费开始",
+    "signIn": "登录"
+  },
+  "features": {
+    "title": "您需要的一切",
+    "guestManagement": {
+      "title": "宾客管理",
+      "description": "轻松管理您的宾客名单，包括回复跟踪和饮食要求"
+    },
+    "seating": {
+      "title": "座位安排",
+      "description": "通过拖放式桌位管理创建完美的座位计划"
+    },
+    "qrCodes": {
+      "title": "二维码",
+      "description": "生成自定义二维码用于宾客查找和自助签到"
+    },
+    "placeCards": {
+      "title": "席位卡",
+      "description": "设计和打印带有个性化信息的精美席位卡"
+    }
+  },
+  "howItWorks": {
+    "title": "使用方法",
+    "step1": {
+      "title": "创建活动",
+      "description": "设置您的婚礼或活动详情"
+    },
+    "step2": {
+      "title": "添加宾客",
+      "description": "导入或手动添加您的宾客名单"
+    },
+    "step3": {
+      "title": "安排座位",
+      "description": "组织桌位并分配座位"
+    },
+    "step4": {
+      "title": "导出和分享",
+      "description": "生成二维码、席位卡和座位表"
+    }
+  },
+  "cta": {
+    "title": "准备好开始了吗？",
+    "subtitle": "加入成千上万对计划完美婚礼的幸福伴侣",
+    "button": "今天开始计划"
+  },
+  "footer": {
+    "explore": "探索",
+    "support": "支持",
+    "features": "功能",
+    "pricing": "定价",
+    "about": "关于我们",
+    "blog": "博客",
+    "help": "帮助中心",
+    "faq": "常见问题",
+    "contact": "联系我们"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "sidebar": {
+    "dashboard": "Gösterge Paneli",
+    "myEvents": "Etkinliklerim",
+    "guestList": "Konuk Listesi",
+    "tables": "Masalar",
+    "floorPlan": "Zemin Planı",
+    "qrCode": "QR Kodu",
+    "placeCards": "Masa Kartları",
+    "seatingChart": "Oturma Planı",
+    "dietaryChart": "Diyet Gereksinimleri",
+    "fullSeatingChart": "Tam Oturma Planı",
+    "kioskLiveView": "Kiosk Canlı Görünüm",
+    "adminPanel": "Yönetici Paneli",
+    "logout": "Çıkış Yap"
+  }
+}

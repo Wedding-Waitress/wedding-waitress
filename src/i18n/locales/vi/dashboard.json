@@ -1,0 +1,17 @@
+{
+  "sidebar": {
+    "dashboard": "Bảng Điều Khiển",
+    "myEvents": "Sự Kiện Của Tôi",
+    "guestList": "Danh Sách Khách Mời",
+    "tables": "Bàn",
+    "floorPlan": "Sơ Đồ Mặt Bằng",
+    "qrCode": "Mã QR",
+    "placeCards": "Thẻ Chỗ Ngồi",
+    "seatingChart": "Sơ Đồ Chỗ Ngồi",
+    "dietaryChart": "Yêu Cầu Chế Độ Ăn",
+    "fullSeatingChart": "Sơ Đồ Chỗ Ngồi Đầy Đủ",
+    "kioskLiveView": "Chế Độ Xem Trực Tiếp Kiosk",
+    "adminPanel": "Bảng Quản Trị",
+    "logout": "Đăng Xuất"
+  }
+}

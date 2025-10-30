@@ -1,0 +1,62 @@
+{
+  "hero": {
+    "title": "Lên Kế Hoạch Đám Cưới Hoàn Hảo",
+    "subtitle": "Tối ưu hóa kế hoạch đám cưới của bạn với nền tảng tất cả trong một của chúng tôi. Quản lý khách mời, sắp xếp chỗ ngồi và tạo tài liệu sự kiện đẹp mắt.",
+    "cta": "Bắt Đầu Miễn Phí",
+    "signIn": "Đăng Nhập"
+  },
+  "features": {
+    "title": "Mọi Thứ Bạn Cần",
+    "guestManagement": {
+      "title": "Quản Lý Khách Mời",
+      "description": "Quản lý danh sách khách mời dễ dàng với theo dõi xác nhận và yêu cầu về chế độ ăn"
+    },
+    "seating": {
+      "title": "Sắp Xếp Chỗ Ngồi",
+      "description": "Tạo kế hoạch chỗ ngồi hoàn hảo với quản lý bàn kéo và thả"
+    },
+    "qrCodes": {
+      "title": "Mã QR",
+      "description": "Tạo mã QR tùy chỉnh để tìm kiếm khách và check-in tự phục vụ"
+    },
+    "placeCards": {
+      "title": "Thẻ Chỗ Ngồi",
+      "description": "Thiết kế và in thẻ chỗ ngồi đẹp với tin nhắn cá nhân hóa"
+    }
+  },
+  "howItWorks": {
+    "title": "Cách Hoạt Động",
+    "step1": {
+      "title": "Tạo Sự Kiện",
+      "description": "Thiết lập chi tiết đám cưới hoặc sự kiện của bạn"
+    },
+    "step2": {
+      "title": "Thêm Khách Mời",
+      "description": "Nhập hoặc thêm danh sách khách mời thủ công"
+    },
+    "step3": {
+      "title": "Sắp Xếp Chỗ Ngồi",
+      "description": "Tổ chức bàn và phân công chỗ ngồi"
+    },
+    "step4": {
+      "title": "Xuất và Chia Sẻ",
+      "description": "Tạo mã QR, thẻ chỗ ngồi và sơ đồ chỗ ngồi"
+    }
+  },
+  "cta": {
+    "title": "Sẵn Sàng Bắt Đầu?",
+    "subtitle": "Tham gia cùng hàng ngàn cặp đôi hạnh phúc đang lên kế hoạch cho ngày hoàn hảo của họ",
+    "button": "Bắt Đầu Lên Kế Hoạch Hôm Nay"
+  },
+  "footer": {
+    "explore": "Khám Phá",
+    "support": "Hỗ Trợ",
+    "features": "Tính Năng",
+    "pricing": "Bảng Giá",
+    "about": "Về Chúng Tôi",
+    "blog": "Blog",
+    "help": "Trung Tâm Trợ Giúp",
+    "faq": "Câu Hỏi Thường Gặp",
+    "contact": "Liên Hệ Chúng Tôi"
+  }
+}

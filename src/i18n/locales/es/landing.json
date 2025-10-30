@@ -1,0 +1,62 @@
+{
+  "hero": {
+    "title": "Planifica Tu Boda Perfecta",
+    "subtitle": "Optimiza la planificación de tu boda con nuestra plataforma todo en uno. Gestiona invitados, distribución de mesas y crea hermosos materiales para eventos.",
+    "cta": "Comenzar Gratis",
+    "signIn": "Iniciar Sesión"
+  },
+  "features": {
+    "title": "Todo lo que Necesitas",
+    "guestManagement": {
+      "title": "Gestión de Invitados",
+      "description": "Gestiona fácilmente tu lista de invitados con seguimiento de confirmaciones y requisitos dietéticos"
+    },
+    "seating": {
+      "title": "Distribución de Mesas",
+      "description": "Crea planes de asientos perfectos con gestión de mesas mediante arrastrar y soltar"
+    },
+    "qrCodes": {
+      "title": "Códigos QR",
+      "description": "Genera códigos QR personalizados para búsqueda de invitados y check-in autoservicio"
+    },
+    "placeCards": {
+      "title": "Tarjetas de Mesa",
+      "description": "Diseña e imprime hermosas tarjetas de mesa con mensajes personalizados"
+    }
+  },
+  "howItWorks": {
+    "title": "Cómo Funciona",
+    "step1": {
+      "title": "Crear Evento",
+      "description": "Configura los detalles de tu boda o evento"
+    },
+    "step2": {
+      "title": "Agregar Invitados",
+      "description": "Importa o agrega manualmente tu lista de invitados"
+    },
+    "step3": {
+      "title": "Organizar Asientos",
+      "description": "Organiza mesas y asigna asientos"
+    },
+    "step4": {
+      "title": "Exportar y Compartir",
+      "description": "Genera códigos QR, tarjetas de mesa y planos de asientos"
+    }
+  },
+  "cta": {
+    "title": "¿Listo para Comenzar?",
+    "subtitle": "Únete a miles de parejas felices planificando su día perfecto",
+    "button": "Comienza a Planificar Hoy"
+  },
+  "footer": {
+    "explore": "Explorar",
+    "support": "Soporte",
+    "features": "Funciones",
+    "pricing": "Precios",
+    "about": "Acerca de",
+    "blog": "Blog",
+    "help": "Centro de Ayuda",
+    "faq": "Preguntas Frecuentes",
+    "contact": "Contáctanos"
+  }
+}

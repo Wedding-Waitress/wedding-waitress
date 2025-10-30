@@ -1,0 +1,17 @@
+{
+  "sidebar": {
+    "dashboard": "Dashboard",
+    "myEvents": "Meine Events",
+    "guestList": "Gästeliste",
+    "tables": "Tische",
+    "floorPlan": "Grundriss",
+    "qrCode": "QR-Code",
+    "placeCards": "Tischkarten",
+    "seatingChart": "Sitzplan",
+    "dietaryChart": "Diätetische Anforderungen",
+    "fullSeatingChart": "Vollständiger Sitzplan",
+    "kioskLiveView": "Kiosk Live-Ansicht",
+    "adminPanel": "Admin-Panel",
+    "logout": "Abmelden"
+  }
+}

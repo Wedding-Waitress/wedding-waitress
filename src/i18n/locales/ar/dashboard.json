@@ -1,0 +1,17 @@
+{
+  "sidebar": {
+    "dashboard": "لوحة التحكم",
+    "myEvents": "فعالياتي",
+    "guestList": "قائمة الضيوف",
+    "tables": "الطاولات",
+    "floorPlan": "مخطط الأرضية",
+    "qrCode": "رمز QR",
+    "placeCards": "بطاقات المقاعد",
+    "seatingChart": "مخطط الجلوس",
+    "dietaryChart": "المتطلبات الغذائية",
+    "fullSeatingChart": "مخطط الجلوس الكامل",
+    "kioskLiveView": "عرض الكشك المباشر",
+    "adminPanel": "لوحة الإدارة",
+    "logout": "تسجيل الخروج"
+  }
+}

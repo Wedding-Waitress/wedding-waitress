@@ -1,0 +1,62 @@
+{
+  "hero": {
+    "title": "Plan Your Perfect Wedding",
+    "subtitle": "Streamline your wedding planning with our all-in-one platform. Manage guests, seating, and create beautiful event materials.",
+    "cta": "Get Started Free",
+    "signIn": "Sign In"
+  },
+  "features": {
+    "title": "Everything You Need",
+    "guestManagement": {
+      "title": "Guest Management",
+      "description": "Easily manage your guest list with RSVP tracking and dietary requirements"
+    },
+    "seating": {
+      "title": "Seating Arrangements",
+      "description": "Create perfect seating plans with drag-and-drop table management"
+    },
+    "qrCodes": {
+      "title": "QR Codes",
+      "description": "Generate custom QR codes for guest lookup and self-service check-in"
+    },
+    "placeCards": {
+      "title": "Place Cards",
+      "description": "Design and print beautiful place cards with personalized messages"
+    }
+  },
+  "howItWorks": {
+    "title": "How It Works",
+    "step1": {
+      "title": "Create Event",
+      "description": "Set up your wedding or event details"
+    },
+    "step2": {
+      "title": "Add Guests",
+      "description": "Import or manually add your guest list"
+    },
+    "step3": {
+      "title": "Arrange Seating",
+      "description": "Organize tables and assign seats"
+    },
+    "step4": {
+      "title": "Export & Share",
+      "description": "Generate QR codes, place cards, and seating charts"
+    }
+  },
+  "cta": {
+    "title": "Ready to Get Started?",
+    "subtitle": "Join thousands of happy couples planning their perfect day",
+    "button": "Start Planning Today"
+  },
+  "footer": {
+    "explore": "Explore",
+    "support": "Support",
+    "features": "Features",
+    "pricing": "Pricing",
+    "about": "About",
+    "blog": "Blog",
+    "help": "Help Center",
+    "faq": "FAQ",
+    "contact": "Contact Us"
+  }
+}

@@ -1,0 +1,62 @@
+{
+  "hero": {
+    "title": "Planifiez Votre Mariage Parfait",
+    "subtitle": "Optimisez la planification de votre mariage avec notre plateforme tout-en-un. Gérez les invités, les plans de table et créez de magnifiques supports d'événement.",
+    "cta": "Commencer Gratuitement",
+    "signIn": "Se Connecter"
+  },
+  "features": {
+    "title": "Tout ce Dont Vous Avez Besoin",
+    "guestManagement": {
+      "title": "Gestion des Invités",
+      "description": "Gérez facilement votre liste d'invités avec suivi des confirmations et exigences alimentaires"
+    },
+    "seating": {
+      "title": "Plan de Table",
+      "description": "Créez des plans de table parfaits avec gestion par glisser-déposer"
+    },
+    "qrCodes": {
+      "title": "Codes QR",
+      "description": "Générez des codes QR personnalisés pour la recherche d'invités et l'enregistrement en libre-service"
+    },
+    "placeCards": {
+      "title": "Cartons de Table",
+      "description": "Concevez et imprimez de magnifiques cartons de table avec des messages personnalisés"
+    }
+  },
+  "howItWorks": {
+    "title": "Comment Ça Marche",
+    "step1": {
+      "title": "Créer l'Événement",
+      "description": "Configurez les détails de votre mariage ou événement"
+    },
+    "step2": {
+      "title": "Ajouter des Invités",
+      "description": "Importez ou ajoutez manuellement votre liste d'invités"
+    },
+    "step3": {
+      "title": "Organiser les Places",
+      "description": "Organisez les tables et assignez les places"
+    },
+    "step4": {
+      "title": "Exporter et Partager",
+      "description": "Générez des codes QR, cartons de table et plans de table"
+    }
+  },
+  "cta": {
+    "title": "Prêt à Commencer?",
+    "subtitle": "Rejoignez des milliers de couples heureux planifiant leur jour parfait",
+    "button": "Commencez à Planifier Aujourd'hui"
+  },
+  "footer": {
+    "explore": "Explorer",
+    "support": "Support",
+    "features": "Fonctionnalités",
+    "pricing": "Tarifs",
+    "about": "À Propos",
+    "blog": "Blog",
+    "help": "Centre d'Aide",
+    "faq": "FAQ",
+    "contact": "Nous Contacter"
+  }
+}

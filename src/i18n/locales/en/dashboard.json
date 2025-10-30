@@ -1,0 +1,17 @@
+{
+  "sidebar": {
+    "dashboard": "Dashboard",
+    "myEvents": "My Events",
+    "guestList": "Guest List",
+    "tables": "Tables",
+    "floorPlan": "Floor Plan",
+    "qrCode": "QR Code",
+    "placeCards": "Place Cards",
+    "seatingChart": "Seating Chart",
+    "dietaryChart": "Dietary Requirements",
+    "fullSeatingChart": "Full Seating Chart",
+    "kioskLiveView": "Kiosk Live View",
+    "adminPanel": "Admin Panel",
+    "logout": "Logout"
+  }
+}

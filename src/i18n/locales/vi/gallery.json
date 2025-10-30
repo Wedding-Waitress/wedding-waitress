@@ -1,0 +1,13 @@
+{
+  "uploadMedia": "Tải Lên Phương Tiện",
+  "signGuestbook": "Ký Sổ Khách",
+  "recordMessage": "Ghi Âm Tin Nhắn",
+  "viewGallery": "Xem Thư Viện",
+  "loading": "Đang tải thư viện...",
+  "error": "Không tải được thư viện. Vui lòng thử lại.",
+  "notFound": "Không tìm thấy thư viện",
+  "retryButton": "Thử Lại",
+  "footer": {
+    "poweredBy": "Được hỗ trợ bởi Wedding Waitress"
+  }
+}

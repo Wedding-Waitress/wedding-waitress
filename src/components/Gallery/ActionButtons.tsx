@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { CloudUpload, BookOpen, Mic, Eye } from 'lucide-react';
 
 interface GallerySettings {
@@ -14,26 +15,28 @@ interface ActionButtonsProps {
 }
 
 export const ActionButtons: React.FC<ActionButtonsProps> = ({ onAction, settings }) => {
+  const { t } = useTranslation('gallery');
+  
   const buttons = [
     { 
       id: 'upload' as const, 
       icon: CloudUpload, 
-      label: 'Upload Media'
+      label: t('uploadMedia')
     },
     { 
       id: 'guestbook' as const, 
       icon: BookOpen, 
-      label: 'Sign Guestbook'
+      label: t('signGuestbook')
     },
     { 
       id: 'voice' as const, 
       icon: Mic, 
-      label: 'Record Message'
+      label: t('recordMessage')
     },
     { 
       id: 'gallery' as const, 
       icon: Eye, 
-      label: 'View Gallery'
+      label: t('viewGallery')
     },
   ];
 

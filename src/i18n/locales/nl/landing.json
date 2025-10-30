@@ -1,0 +1,62 @@
+{
+  "hero": {
+    "title": "Plan Je Perfecte Bruiloft",
+    "subtitle": "Stroomlijn je bruiloftsplanning met ons alles-in-één platform. Beheer gasten, tafelschikking en creëer prachtige eventmaterialen.",
+    "cta": "Gratis Beginnen",
+    "signIn": "Inloggen"
+  },
+  "features": {
+    "title": "Alles Wat Je Nodig Hebt",
+    "guestManagement": {
+      "title": "Gastenbeheer",
+      "description": "Beheer eenvoudig je gastenlijst met RSVP-tracking en dieetwensen"
+    },
+    "seating": {
+      "title": "Tafelschikking",
+      "description": "Creëer perfecte zitplannen met drag-and-drop tafelbeheer"
+    },
+    "qrCodes": {
+      "title": "QR-Codes",
+      "description": "Genereer aangepaste QR-codes voor gastenzoeken en zelfservice check-in"
+    },
+    "placeCards": {
+      "title": "Plaatskaarten",
+      "description": "Ontwerp en print mooie plaatskaarten met gepersonaliseerde berichten"
+    }
+  },
+  "howItWorks": {
+    "title": "Hoe Het Werkt",
+    "step1": {
+      "title": "Evenement Aanmaken",
+      "description": "Stel je bruiloft of evenementdetails in"
+    },
+    "step2": {
+      "title": "Gasten Toevoegen",
+      "description": "Importeer of voeg handmatig je gastenlijst toe"
+    },
+    "step3": {
+      "title": "Zitplaatsen Regelen",
+      "description": "Organiseer tafels en wijs plaatsen toe"
+    },
+    "step4": {
+      "title": "Exporteren en Delen",
+      "description": "Genereer QR-codes, plaatskaarten en zitplannen"
+    }
+  },
+  "cta": {
+    "title": "Klaar om te Beginnen?",
+    "subtitle": "Sluit je aan bij duizenden gelukkige stellen die hun perfecte dag plannen",
+    "button": "Begin Vandaag met Plannen"
+  },
+  "footer": {
+    "explore": "Verkennen",
+    "support": "Ondersteuning",
+    "features": "Functies",
+    "pricing": "Prijzen",
+    "about": "Over Ons",
+    "blog": "Blog",
+    "help": "Helpcentrum",
+    "faq": "Veelgestelde Vragen",
+    "contact": "Contact Opnemen"
+  }
+}

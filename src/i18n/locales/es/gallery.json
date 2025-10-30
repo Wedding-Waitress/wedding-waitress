@@ -1,0 +1,13 @@
+{
+  "uploadMedia": "Subir Multimedia",
+  "signGuestbook": "Firmar Libro de Visitas",
+  "recordMessage": "Grabar Mensaje",
+  "viewGallery": "Ver Galería",
+  "loading": "Cargando galería...",
+  "error": "Error al cargar la galería. Por favor, inténtalo de nuevo.",
+  "notFound": "Galería no encontrada",
+  "retryButton": "Intentar de Nuevo",
+  "footer": {
+    "poweredBy": "Desarrollado por Wedding Waitress"
+  }
+}

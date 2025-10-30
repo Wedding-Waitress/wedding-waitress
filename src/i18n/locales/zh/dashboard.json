@@ -1,0 +1,17 @@
+{
+  "sidebar": {
+    "dashboard": "仪表板",
+    "myEvents": "我的活动",
+    "guestList": "宾客名单",
+    "tables": "桌位",
+    "floorPlan": "平面图",
+    "qrCode": "二维码",
+    "placeCards": "席位卡",
+    "seatingChart": "座位图",
+    "dietaryChart": "饮食要求",
+    "fullSeatingChart": "完整座位图",
+    "kioskLiveView": "自助终端实时视图",
+    "adminPanel": "管理面板",
+    "logout": "退出"
+  }
+}

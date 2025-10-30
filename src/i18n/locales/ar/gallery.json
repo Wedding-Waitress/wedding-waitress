@@ -1,0 +1,13 @@
+{
+  "uploadMedia": "تحميل الوسائط",
+  "signGuestbook": "التوقيع في دفتر الزوار",
+  "recordMessage": "تسجيل رسالة",
+  "viewGallery": "عرض المعرض",
+  "loading": "جاري تحميل المعرض...",
+  "error": "فشل تحميل المعرض. يرجى المحاولة مرة أخرى.",
+  "notFound": "المعرض غير موجود",
+  "retryButton": "حاول مجددًا",
+  "footer": {
+    "poweredBy": "مدعوم من Wedding Waitress"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "uploadMedia": "Carica Media",
+  "signGuestbook": "Firma il Libro degli Ospiti",
+  "recordMessage": "Registra Messaggio",
+  "viewGallery": "Visualizza Galleria",
+  "loading": "Caricamento galleria...",
+  "error": "Impossibile caricare la galleria. Riprova.",
+  "notFound": "Galleria non trovata",
+  "retryButton": "Riprova",
+  "footer": {
+    "poweredBy": "Sviluppato da Wedding Waitress"
+  }
+}

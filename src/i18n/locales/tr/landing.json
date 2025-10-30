@@ -1,0 +1,62 @@
+{
+  "hero": {
+    "title": "Mükemmel Düğününüzü Planlayın",
+    "subtitle": "Hepsi bir arada platformumuzla düğün planlamanızı kolaylaştırın. Konukları yönetin, oturma düzeni yapın ve güzel etkinlik materyalleri oluşturun.",
+    "cta": "Ücretsiz Başlayın",
+    "signIn": "Giriş Yap"
+  },
+  "features": {
+    "title": "İhtiyacınız Olan Her Şey",
+    "guestManagement": {
+      "title": "Konuk Yönetimi",
+      "description": "RSVP takibi ve diyet gereksinimleriyle konuk listenizi kolayca yönetin"
+    },
+    "seating": {
+      "title": "Oturma Düzeni",
+      "description": "Sürükle-bırak masa yönetimiyle mükemmel oturma planları oluşturun"
+    },
+    "qrCodes": {
+      "title": "QR Kodları",
+      "description": "Konuk araması ve self-servis check-in için özel QR kodları oluşturun"
+    },
+    "placeCards": {
+      "title": "Masa Kartları",
+      "description": "Kişiselleştirilmiş mesajlarla güzel masa kartları tasarlayın ve yazdırın"
+    }
+  },
+  "howItWorks": {
+    "title": "Nasıl Çalışır",
+    "step1": {
+      "title": "Etkinlik Oluştur",
+      "description": "Düğün veya etkinlik detaylarınızı ayarlayın"
+    },
+    "step2": {
+      "title": "Konuk Ekle",
+      "description": "Konuk listenizi içe aktarın veya manuel olarak ekleyin"
+    },
+    "step3": {
+      "title": "Oturma Düzenle",
+      "description": "Masaları düzenleyin ve koltukları atayın"
+    },
+    "step4": {
+      "title": "Dışa Aktar ve Paylaş",
+      "description": "QR kodları, masa kartları ve oturma planları oluşturun"
+    }
+  },
+  "cta": {
+    "title": "Başlamaya Hazır mısınız?",
+    "subtitle": "Mükemmel günlerini planlayan binlerce mutlu çifte katılın",
+    "button": "Bugün Planlamaya Başlayın"
+  },
+  "footer": {
+    "explore": "Keşfet",
+    "support": "Destek",
+    "features": "Özellikler",
+    "pricing": "Fiyatlandırma",
+    "about": "Hakkımızda",
+    "blog": "Blog",
+    "help": "Yardım Merkezi",
+    "faq": "SSS",
+    "contact": "Bize Ulaşın"
+  }
+}

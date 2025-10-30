@@ -1,0 +1,62 @@
+{
+  "hero": {
+    "title": "完璧な結婚式を計画する",
+    "subtitle": "オールインワンのプラットフォームで結婚式の計画を効率化しましょう。ゲスト管理、座席配置、美しいイベント資料の作成が可能です。",
+    "cta": "無料で始める",
+    "signIn": "ログイン"
+  },
+  "features": {
+    "title": "必要なすべての機能",
+    "guestManagement": {
+      "title": "ゲスト管理",
+      "description": "RSVP追跡と食事制限を含むゲストリストを簡単に管理"
+    },
+    "seating": {
+      "title": "座席配置",
+      "description": "ドラッグ&ドロップテーブル管理で完璧な座席プランを作成"
+    },
+    "qrCodes": {
+      "title": "QRコード",
+      "description": "ゲスト検索とセルフチェックイン用のカスタムQRコードを生成"
+    },
+    "placeCards": {
+      "title": "席札",
+      "description": "パーソナライズされたメッセージ付きの美しい席札をデザイン・印刷"
+    }
+  },
+  "howItWorks": {
+    "title": "使い方",
+    "step1": {
+      "title": "イベント作成",
+      "description": "結婚式またはイベントの詳細を設定"
+    },
+    "step2": {
+      "title": "ゲスト追加",
+      "description": "ゲストリストをインポートまたは手動で追加"
+    },
+    "step3": {
+      "title": "座席配置",
+      "description": "テーブルを整理し、座席を割り当てる"
+    },
+    "step4": {
+      "title": "エクスポート・共有",
+      "description": "QRコード、席札、座席表を生成"
+    }
+  },
+  "cta": {
+    "title": "始める準備はできましたか？",
+    "subtitle": "完璧な日を計画する何千ものカップルに参加しましょう",
+    "button": "今日から計画を始める"
+  },
+  "footer": {
+    "explore": "探索",
+    "support": "サポート",
+    "features": "機能",
+    "pricing": "料金",
+    "about": "概要",
+    "blog": "ブログ",
+    "help": "ヘルプセンター",
+    "faq": "よくある質問",
+    "contact": "お問い合わせ"
+  }
+}

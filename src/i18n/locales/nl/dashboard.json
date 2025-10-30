@@ -1,0 +1,17 @@
+{
+  "sidebar": {
+    "dashboard": "Dashboard",
+    "myEvents": "Mijn Evenementen",
+    "guestList": "Gastenlijst",
+    "tables": "Tafels",
+    "floorPlan": "Plattegrond",
+    "qrCode": "QR-Code",
+    "placeCards": "Plaatskaarten",
+    "seatingChart": "Zitplan",
+    "dietaryChart": "Dieetwensen",
+    "fullSeatingChart": "Volledig Zitplan",
+    "kioskLiveView": "Kiosk Live Weergave",
+    "adminPanel": "Beheerpaneel",
+    "logout": "Uitloggen"
+  }
+}

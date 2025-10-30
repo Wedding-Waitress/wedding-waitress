@@ -1,0 +1,62 @@
+{
+  "hero": {
+    "title": "Planen Sie Ihre perfekte Hochzeit",
+    "subtitle": "Optimieren Sie Ihre Hochzeitsplanung mit unserer All-in-One-Plattform. Verwalten Sie Gäste, Sitzordnung und erstellen Sie wunderschöne Eventmaterialien.",
+    "cta": "Kostenlos starten",
+    "signIn": "Anmelden"
+  },
+  "features": {
+    "title": "Alles was Sie brauchen",
+    "guestManagement": {
+      "title": "Gästeverwaltung",
+      "description": "Verwalten Sie Ihre Gästeliste einfach mit RSVP-Tracking und diätetischen Anforderungen"
+    },
+    "seating": {
+      "title": "Sitzordnung",
+      "description": "Erstellen Sie perfekte Sitzpläne mit Drag-and-Drop-Tischverwaltung"
+    },
+    "qrCodes": {
+      "title": "QR-Codes",
+      "description": "Generieren Sie individuelle QR-Codes für Gästesuche und Self-Service-Check-in"
+    },
+    "placeCards": {
+      "title": "Tischkarten",
+      "description": "Entwerfen und drucken Sie wunderschöne Tischkarten mit persönlichen Nachrichten"
+    }
+  },
+  "howItWorks": {
+    "title": "So funktioniert's",
+    "step1": {
+      "title": "Event erstellen",
+      "description": "Richten Sie Ihre Hochzeits- oder Eventdetails ein"
+    },
+    "step2": {
+      "title": "Gäste hinzufügen",
+      "description": "Importieren oder fügen Sie Ihre Gästeliste manuell hinzu"
+    },
+    "step3": {
+      "title": "Sitzplätze anordnen",
+      "description": "Organisieren Sie Tische und weisen Sie Plätze zu"
+    },
+    "step4": {
+      "title": "Exportieren & Teilen",
+      "description": "Generieren Sie QR-Codes, Tischkarten und Sitzpläne"
+    }
+  },
+  "cta": {
+    "title": "Bereit anzufangen?",
+    "subtitle": "Schließen Sie sich Tausenden glücklichen Paaren an, die ihren perfekten Tag planen",
+    "button": "Jetzt mit der Planung beginnen"
+  },
+  "footer": {
+    "explore": "Entdecken",
+    "support": "Support",
+    "features": "Funktionen",
+    "pricing": "Preise",
+    "about": "Über uns",
+    "blog": "Blog",
+    "help": "Hilfecenter",
+    "faq": "FAQ",
+    "contact": "Kontakt"
+  }
+}

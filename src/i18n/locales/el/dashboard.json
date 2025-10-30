@@ -1,0 +1,17 @@
+{
+  "sidebar": {
+    "dashboard": "Πίνακας Ελέγχου",
+    "myEvents": "Οι Εκδηλώσεις Μου",
+    "guestList": "Λίστα Καλεσμένων",
+    "tables": "Τραπέζια",
+    "floorPlan": "Κάτοψη Χώρου",
+    "qrCode": "Κωδικός QR",
+    "placeCards": "Κάρτες Θέσεων",
+    "seatingChart": "Διάγραμμα Καθισμάτων",
+    "dietaryChart": "Διατροφικές Απαιτήσεις",
+    "fullSeatingChart": "Πλήρες Διάγραμμα Καθισμάτων",
+    "kioskLiveView": "Ζωντανή Προβολή Kiosk",
+    "adminPanel": "Πίνακας Διαχείρισης",
+    "logout": "Αποσύνδεση"
+  }
+}

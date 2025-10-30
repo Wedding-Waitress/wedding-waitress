@@ -1,0 +1,62 @@
+{
+  "hero": {
+    "title": "Pianifica il Tuo Matrimonio Perfetto",
+    "subtitle": "Ottimizza la pianificazione del tuo matrimonio con la nostra piattaforma all-in-one. Gestisci gli ospiti, la disposizione dei tavoli e crea bellissimi materiali per eventi.",
+    "cta": "Inizia Gratuitamente",
+    "signIn": "Accedi"
+  },
+  "features": {
+    "title": "Tutto Ciò di Cui Hai Bisogno",
+    "guestManagement": {
+      "title": "Gestione Ospiti",
+      "description": "Gestisci facilmente la tua lista ospiti con tracciamento RSVP e requisiti dietetici"
+    },
+    "seating": {
+      "title": "Disposizione Tavoli",
+      "description": "Crea piani di seduta perfetti con gestione tavoli drag-and-drop"
+    },
+    "qrCodes": {
+      "title": "Codici QR",
+      "description": "Genera codici QR personalizzati per la ricerca ospiti e check-in self-service"
+    },
+    "placeCards": {
+      "title": "Segnaposto",
+      "description": "Progetta e stampa bellissimi segnaposto con messaggi personalizzati"
+    }
+  },
+  "howItWorks": {
+    "title": "Come Funziona",
+    "step1": {
+      "title": "Crea Evento",
+      "description": "Configura i dettagli del tuo matrimonio o evento"
+    },
+    "step2": {
+      "title": "Aggiungi Ospiti",
+      "description": "Importa o aggiungi manualmente la tua lista ospiti"
+    },
+    "step3": {
+      "title": "Organizza Posti",
+      "description": "Organizza tavoli e assegna posti"
+    },
+    "step4": {
+      "title": "Esporta e Condividi",
+      "description": "Genera codici QR, segnaposto e planimetrie"
+    }
+  },
+  "cta": {
+    "title": "Pronto per Iniziare?",
+    "subtitle": "Unisciti a migliaia di coppie felici che pianificano il loro giorno perfetto",
+    "button": "Inizia a Pianificare Oggi"
+  },
+  "footer": {
+    "explore": "Esplora",
+    "support": "Supporto",
+    "features": "Funzionalità",
+    "pricing": "Prezzi",
+    "about": "Chi Siamo",
+    "blog": "Blog",
+    "help": "Centro Assistenza",
+    "faq": "Domande Frequenti",
+    "contact": "Contattaci"
+  }
+}

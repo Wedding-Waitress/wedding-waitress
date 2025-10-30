@@ -1,0 +1,13 @@
+{
+  "uploadMedia": "上传媒体",
+  "signGuestbook": "签署留言簿",
+  "recordMessage": "录制消息",
+  "viewGallery": "查看图库",
+  "loading": "加载图库中...",
+  "error": "加载图库失败。请重试。",
+  "notFound": "未找到图库",
+  "retryButton": "重试",
+  "footer": {
+    "poweredBy": "由 Wedding Waitress 提供支持"
+  }
+}

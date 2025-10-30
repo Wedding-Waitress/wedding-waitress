@@ -1,0 +1,17 @@
+{
+  "sidebar": {
+    "dashboard": "ダッシュボード",
+    "myEvents": "マイイベント",
+    "guestList": "ゲストリスト",
+    "tables": "テーブル",
+    "floorPlan": "フロアプラン",
+    "qrCode": "QRコード",
+    "placeCards": "席札",
+    "seatingChart": "座席表",
+    "dietaryChart": "食事制限",
+    "fullSeatingChart": "完全座席表",
+    "kioskLiveView": "キオスクライブビュー",
+    "adminPanel": "管理パネル",
+    "logout": "ログアウト"
+  }
+}
