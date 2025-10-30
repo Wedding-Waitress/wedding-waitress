@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Camera, Video, Plus } from 'lucide-react';
@@ -36,6 +36,7 @@ export const UploadMediaSheet: React.FC<UploadMediaSheetProps> = ({
   const [selectedType, setSelectedType] = useState<'photo' | 'video' | null>(null);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [isUploading, setIsUploading] = useState(false);
+  const addMoreInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileSelect = (type: 'photo' | 'video', files: FileList) => {
     const fileArray = Array.from(files);
@@ -246,15 +247,16 @@ export const UploadMediaSheet: React.FC<UploadMediaSheetProps> = ({
               </div>
               
               {selectedType && (
-                <label className="block">
-                  <input 
-                    type="file" 
-                    multiple 
-                    accept={selectedType === 'photo' 
-                      ? "image/jpeg,image/png,image/webp,image/heic" 
+                <>
+                  <input
+                    ref={addMoreInputRef}
+                    type="file"
+                    multiple
+                    accept={selectedType === 'photo'
+                      ? "image/jpeg,image/png,image/webp,image/heic"
                       : "video/mp4,video/quicktime,video/x-msvideo"
                     }
-                    className="hidden" 
+                    className="hidden"
                     onChange={(e) => {
                       if (e.target.files && e.target.files.length > 0) {
                         handleFileSelect(selectedType, e.target.files);
@@ -262,11 +264,16 @@ export const UploadMediaSheet: React.FC<UploadMediaSheetProps> = ({
                       e.target.value = '';
                     }}
                   />
-                  <Button variant="ghost" className="w-full">
+                  <Button
+                    variant="ghost"
+                    className="w-full"
+                    onClick={() => addMoreInputRef.current?.click()}
+                    disabled={isUploading}
+                  >
                     <Plus className="w-4 h-4 mr-2" />
                     Add More {selectedType === 'photo' ? 'Photos' : 'Videos'}
                   </Button>
-                </label>
+                </>
               )}
             </div>
           )
