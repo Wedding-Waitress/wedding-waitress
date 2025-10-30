@@ -481,6 +481,27 @@ It handles every detail of your event's seating chart, RSVP & more so you can fo
               </p>
             </div>
           </div>
+          
+          {/* Simple Footer - Legal Links */}
+          <div className="border-t bg-gray-50 py-4 mt-8">
+            <div className="w-full px-4">
+              <div className="flex flex-wrap items-center justify-center gap-2 text-xs text-gray-600">
+                <Link to="/privacy" className="hover:text-primary transition-colors">
+                  Privacy Policy
+                </Link>
+                <span>•</span>
+                <Link to="/terms" className="hover:text-primary transition-colors">
+                  Terms of Service
+                </Link>
+                <span>•</span>
+                <Link to="/contact" className="hover:text-primary transition-colors">
+                  Contact
+                </Link>
+                <span>•</span>
+                <span>© 2025 Wedding Waitress</span>
+              </div>
+            </div>
+          </div>
         </div>
       </footer>
     </div>;

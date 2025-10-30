@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { GalleryHeader } from '@/components/Gallery/GalleryHeader';
 import { ActionButtons } from '@/components/Gallery/ActionButtons';
@@ -183,7 +183,7 @@ export const GalleryPublicView: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
       <GalleryHeader event={event} />
       
       {activeSheet !== 'gallery' ? (
@@ -219,6 +219,26 @@ export const GalleryPublicView: React.FC = () => {
         eventId={event.id}
         settings={gallerySettings}
       />
+
+      <footer className="mt-auto border-t bg-white py-4">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="flex flex-wrap items-center justify-center gap-2 text-xs text-gray-600">
+            <Link to="/privacy" className="hover:text-primary transition-colors">
+              Privacy Policy
+            </Link>
+            <span>•</span>
+            <Link to="/terms" className="hover:text-primary transition-colors">
+              Terms of Service
+            </Link>
+            <span>•</span>
+            <Link to="/contact" className="hover:text-primary transition-colors">
+              Contact
+            </Link>
+            <span>•</span>
+            <span>© 2025 Wedding Waitress</span>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };
