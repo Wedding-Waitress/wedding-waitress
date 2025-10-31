@@ -91,7 +91,7 @@ Deno.serve(async (req) => {
           { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
-      maxSizeMB = settings.max_video_size_mb || 300;
+      maxSizeMB = settings.max_video_size_mb || 500;
     } else if (type === 'audio') {
       if (!settings.allow_audio) {
         return new Response(
