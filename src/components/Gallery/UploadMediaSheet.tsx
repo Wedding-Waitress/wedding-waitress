@@ -38,23 +38,72 @@ export const UploadMediaSheet: React.FC<UploadMediaSheetProps> = ({
   const [isUploading, setIsUploading] = useState(false);
   const addMoreInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFileSelect = (type: 'photo' | 'video', files: FileList) => {
+  const validateVideoFile = async (file: File): Promise<{ valid: boolean; error?: string }> => {
+    return new Promise((resolve) => {
+      const video = document.createElement('video');
+      video.preload = 'metadata';
+      
+      video.onloadedmetadata = () => {
+        window.URL.revokeObjectURL(video.src);
+        
+        // Check minimum duration (1 second)
+        if (video.duration < 1) {
+          resolve({ 
+            valid: false, 
+            error: 'Video is too short (minimum 1 second)' 
+          });
+          return;
+        }
+        
+        resolve({ valid: true });
+      };
+      
+      video.onerror = () => {
+        window.URL.revokeObjectURL(video.src);
+        resolve({ 
+          valid: false, 
+          error: 'Invalid video file or unsupported format' 
+        });
+      };
+      
+      video.src = URL.createObjectURL(file);
+    });
+  };
+
+  const handleFileSelect = async (type: 'photo' | 'video', files: FileList) => {
     const fileArray = Array.from(files);
     const maxSize = type === 'photo' 
       ? settings.max_photo_size_mb * 1024 * 1024
       : settings.max_video_size_mb * 1024 * 1024;
     
-    const validFiles = fileArray.filter(file => {
+    const validFiles: File[] = [];
+    
+    for (const file of fileArray) {
+      // Check file size
       if (file.size > maxSize) {
         toast({
           title: `"${file.name}" is too large`,
           description: `Max size: ${type === 'photo' ? settings.max_photo_size_mb : settings.max_video_size_mb}MB`,
           variant: 'destructive',
         });
-        return false;
+        continue;
       }
-      return true;
-    });
+      
+      // Validate video files
+      if (type === 'video') {
+        const validation = await validateVideoFile(file);
+        if (!validation.valid) {
+          toast({
+            title: `Invalid video: "${file.name}"`,
+            description: validation.error,
+            variant: 'destructive',
+          });
+          continue;
+        }
+      }
+      
+      validFiles.push(file);
+    }
 
     if (validFiles.length > 0) {
       setSelectedFiles(prev => [...prev, ...validFiles]);
@@ -202,7 +251,7 @@ export const UploadMediaSheet: React.FC<UploadMediaSheetProps> = ({
                 <label className="relative cursor-pointer">
                   <input
                     type="file"
-                    accept="video/mp4,video/quicktime,video/x-msvideo"
+                    accept="video/mp4,video/quicktime,video/x-m4v,video/avi,video/webm"
                     multiple
                     className="hidden"
                     onChange={(e) => {
@@ -254,7 +303,7 @@ export const UploadMediaSheet: React.FC<UploadMediaSheetProps> = ({
                     multiple
                     accept={selectedType === 'photo'
                       ? "image/jpeg,image/png,image/webp,image/heic"
-                      : "video/mp4,video/quicktime,video/x-msvideo"
+                      : "video/mp4,video/quicktime,video/x-m4v,video/avi,video/webm"
                     }
                     className="hidden"
                     onChange={(e) => {

@@ -162,6 +162,14 @@ Deno.serve(async (req) => {
     const storage_path = `${event.id}/${type}/${timestamp}_${uuid}.${ext}`;
 
     // 6. Create signed upload URL
+    console.log('Creating signed URL:', {
+      bucket: bucketName,
+      path: storage_path,
+      filesize,
+      content_type,
+      type
+    });
+
     const { data: signedUrlData, error: signedUrlError } = await supabaseAdmin.storage
       .from(bucketName)
       .createSignedUploadUrl(storage_path);

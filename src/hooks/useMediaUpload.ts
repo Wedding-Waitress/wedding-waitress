@@ -61,12 +61,39 @@ export const useMediaUpload = (gallerySlug: string, eventId: string, requireAppr
           if (xhr.status === 200 || xhr.status === 204) {
             resolve();
           } else {
-            reject(new Error(`Upload failed with status ${xhr.status}`));
+            // Try to parse error response from Storage API
+            let errorMessage = `Upload failed with status ${xhr.status}`;
+            try {
+              const errorResponse = JSON.parse(xhr.responseText);
+              if (errorResponse.error) {
+                errorMessage = errorResponse.error;
+              } else if (errorResponse.message) {
+                errorMessage = errorResponse.message;
+              }
+            } catch (e) {
+              // If not JSON, use the response text if available
+              if (xhr.responseText) {
+                errorMessage = `Upload failed: ${xhr.responseText.substring(0, 100)}`;
+              }
+            }
+            console.error('Storage upload error:', {
+              status: xhr.status,
+              statusText: xhr.statusText,
+              response: xhr.responseText
+            });
+            reject(new Error(errorMessage));
           }
         };
 
-        xhr.onerror = () => reject(new Error('Network error during upload'));
-        xhr.ontimeout = () => reject(new Error('Upload timeout'));
+        xhr.onerror = () => {
+          console.error('Network error during upload');
+          reject(new Error('Network error during upload. Please check your connection.'));
+        };
+        
+        xhr.ontimeout = () => {
+          console.error('Upload timeout');
+          reject(new Error('Upload timeout. The file may be too large or your connection is slow.'));
+        };
 
         xhr.open('PUT', urlData.upload_url);
         xhr.setRequestHeader('Content-Type', file.type);
