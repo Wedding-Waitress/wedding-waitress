@@ -37,6 +37,7 @@ export const UploadMediaSheet: React.FC<UploadMediaSheetProps> = ({
   const [selectedType, setSelectedType] = useState<'photo' | 'video' | null>(null);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [isUploading, setIsUploading] = useState(false);
+  const [duplicateCount, setDuplicateCount] = useState(0);
   const addMoreInputRef = useRef<HTMLInputElement>(null);
 
   const validateVideoFile = async (file: File): Promise<{ valid: boolean; error?: string }> => {
@@ -123,8 +124,10 @@ export const UploadMediaSheet: React.FC<UploadMediaSheetProps> = ({
     if (selectedFiles.length === 0) return;
     
     setIsUploading(true);
+    setDuplicateCount(0);
     let successCount = 0;
     let failCount = 0;
+    let skippedCount = 0;
     
     for (let i = 0; i < selectedFiles.length; i++) {
       const file = selectedFiles[i];
@@ -139,6 +142,7 @@ export const UploadMediaSheet: React.FC<UploadMediaSheetProps> = ({
       }
 
       if (!checkDuplicate(file)) {
+        skippedCount++;
         continue;
       }
 
@@ -158,7 +162,13 @@ export const UploadMediaSheet: React.FC<UploadMediaSheetProps> = ({
     setSelectedFiles([]);
     setSelectedType(null);
     
-    if (successCount > 0) {
+    if (skippedCount > 0) {
+      toast({
+        title: 'Duplicate Items Skipped',
+        description: `One or more of your items are a duplicate and will not be uploaded. ${successCount > 0 ? `${successCount} new item${successCount > 1 ? 's' : ''} uploaded successfully.` : ''}`,
+        variant: 'destructive',
+      });
+    } else if (successCount > 0) {
       toast({
         title: 'Upload Complete',
         description: `✅ ${successCount} uploaded${failCount > 0 ? ` • ❌ ${failCount} failed` : ''}`,
@@ -207,7 +217,7 @@ export const UploadMediaSheet: React.FC<UploadMediaSheetProps> = ({
     );
 
     if (isDuplicate) {
-      return confirm('This file was recently uploaded. Upload anyway?');
+      return false;
     }
 
     recentUploads.push({ key: fileKey, timestamp: Date.now() });
@@ -330,7 +340,10 @@ export const UploadMediaSheet: React.FC<UploadMediaSheetProps> = ({
           <UploadProgress 
             {...progress} 
             onRetry={retry}
-            onViewGallery={onClose}
+            onViewGallery={() => {
+              retry();
+              onClose();
+            }}
           />
         )}
       </SheetContent>

@@ -81,8 +81,8 @@ export const UploadProgress: React.FC<UploadProgressProps> = ({
               </p>
             </div>
           ) : (
-            <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-3">
-              <p className="text-sm text-green-800 dark:text-green-200 font-medium">
+            <div className="bg-green-500 rounded-lg p-3">
+              <p className="text-sm text-white font-medium">
                 ✅ Your photo is now live in the gallery!
               </p>
             </div>
