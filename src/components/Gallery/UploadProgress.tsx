@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { CheckCircle, XCircle, Loader2 } from 'lucide-react';
@@ -24,18 +24,6 @@ export const UploadProgress: React.FC<UploadProgressProps> = ({
   onRetry,
   onViewGallery,
 }) => {
-  // Auto-close after 10 seconds on success
-  useEffect(() => {
-    if (status === 'success' && onViewGallery) {
-      const timer = setTimeout(() => {
-        onViewGallery();
-      }, 10000); // 10 seconds
-
-      // Cleanup timer if component unmounts or status changes
-      return () => clearTimeout(timer);
-    }
-  }, [status, onViewGallery]);
-
   return (
     <div className="mt-6 p-4 bg-card rounded-lg border border-border">
       <div className="flex items-center justify-between mb-2">
@@ -93,8 +81,8 @@ export const UploadProgress: React.FC<UploadProgressProps> = ({
               </p>
             </div>
           ) : (
-            <div className="bg-green-600 rounded-lg p-3">
-              <p className="text-sm text-white font-medium">
+            <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-3">
+              <p className="text-sm text-green-800 dark:text-green-200 font-medium">
                 ✅ Your photo is now live in the gallery!
               </p>
             </div>
@@ -103,8 +91,9 @@ export const UploadProgress: React.FC<UploadProgressProps> = ({
           <div className="flex gap-2">
             {onRetry && (
               <Button 
-                onClick={onRetry}
-                className="flex-1 bg-[#6D28D9] hover:bg-[#5B21B6] text-white font-semibold shadow-md"
+                onClick={onRetry} 
+                variant="outline"
+                className="flex-1"
               >
                 Upload Another
               </Button>
@@ -112,7 +101,7 @@ export const UploadProgress: React.FC<UploadProgressProps> = ({
             {onViewGallery && (
               <Button 
                 onClick={onViewGallery} 
-                className="flex-1 bg-[#6D28D9] hover:bg-[#5B21B6] text-white font-semibold shadow-md"
+                className="flex-1 bg-[#6D28D9] hover:bg-[#5B21B6]"
               >
                 View Gallery 🎉
               </Button>

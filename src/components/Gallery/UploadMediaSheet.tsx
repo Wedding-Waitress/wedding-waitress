@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Camera, Video, Plus } from 'lucide-react';
@@ -38,16 +38,6 @@ export const UploadMediaSheet: React.FC<UploadMediaSheetProps> = ({
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const addMoreInputRef = useRef<HTMLInputElement>(null);
-
-  // Reset upload state when sheet opens
-  useEffect(() => {
-    if (open) {
-      retry();
-      setSelectedFiles([]);
-      setSelectedType(null);
-      setIsUploading(false);
-    }
-  }, [open, retry]);
 
   const validateVideoFile = async (file: File): Promise<{ valid: boolean; error?: string }> => {
     return new Promise((resolve) => {
@@ -287,31 +277,11 @@ export const UploadMediaSheet: React.FC<UploadMediaSheetProps> = ({
                 onRemove={handleRemoveFile}
               />
               
-              {/* Hidden file input for "Add More" functionality */}
-              {selectedType && (
-                <input
-                  ref={addMoreInputRef}
-                  type="file"
-                  multiple
-                  accept={selectedType === 'photo'
-                    ? "image/jpeg,image/png,image/webp,image/heic"
-                    : "video/mp4,video/quicktime,video/x-m4v,video/avi,video/webm"
-                  }
-                  className="hidden"
-                  onChange={(e) => {
-                    if (e.target.files && e.target.files.length > 0) {
-                      handleFileSelect(selectedType, e.target.files);
-                    }
-                    e.target.value = '';
-                  }}
-                />
-              )}
-              
-              {/* All three buttons in one row */}
-              <div className="flex gap-2 flex-wrap sm:flex-nowrap">
+              <div className="flex gap-2">
                 <Button 
+                  variant="outline" 
                   onClick={handleCancel}
-                  className="flex-1 bg-[#6D28D9] hover:bg-[#5B21B6] text-white font-semibold shadow-md"
+                  className="flex-1"
                   disabled={isUploading}
                 >
                   Cancel
@@ -319,23 +289,42 @@ export const UploadMediaSheet: React.FC<UploadMediaSheetProps> = ({
                 
                 <Button 
                   onClick={handleBatchUpload}
-                  className="flex-1 bg-[#6D28D9] hover:bg-[#5B21B6] text-white font-semibold shadow-md"
+                  className="flex-1 bg-[#6D28D9] hover:bg-[#5B21B6] text-white"
                   disabled={isUploading}
                 >
                   {isUploading ? 'Uploading...' : `Upload ${selectedFiles.length} ${selectedFiles.length === 1 ? 'Item' : 'Items'}`}
                 </Button>
-                
-                {selectedType && (
+              </div>
+              
+              {selectedType && (
+                <>
+                  <input
+                    ref={addMoreInputRef}
+                    type="file"
+                    multiple
+                    accept={selectedType === 'photo'
+                      ? "image/jpeg,image/png,image/webp,image/heic"
+                      : "video/mp4,video/quicktime,video/x-m4v,video/avi,video/webm"
+                    }
+                    className="hidden"
+                    onChange={(e) => {
+                      if (e.target.files && e.target.files.length > 0) {
+                        handleFileSelect(selectedType, e.target.files);
+                      }
+                      e.target.value = '';
+                    }}
+                  />
                   <Button
+                    variant="ghost"
+                    className="w-full"
                     onClick={() => addMoreInputRef.current?.click()}
-                    className="flex-1 bg-[#6D28D9] hover:bg-[#5B21B6] text-white font-semibold shadow-md"
                     disabled={isUploading}
                   >
                     <Plus className="w-4 h-4 mr-2" />
-                    + Add More {selectedType === 'photo' ? 'Photos' : 'Videos'}
+                    Add More {selectedType === 'photo' ? 'Photos' : 'Videos'}
                   </Button>
-                )}
-              </div>
+                </>
+              )}
             </div>
           )
         ) : (
