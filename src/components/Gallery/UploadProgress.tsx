@@ -25,7 +25,7 @@ export const UploadProgress: React.FC<UploadProgressProps> = ({
   onViewGallery,
 }) => {
   return (
-    <div className="mt-6 p-4 bg-card rounded-lg">
+    <div className="mt-6 p-4 bg-card rounded-lg shadow-none">
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
           {status === 'uploading' && <Loader2 className="w-4 h-4 animate-spin text-[#6D28D9]" />}
