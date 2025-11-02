@@ -42,10 +42,7 @@ export const UploadMediaSheet: React.FC<UploadMediaSheetProps> = ({
   // Reset upload state when sheet opens
   useEffect(() => {
     if (open) {
-      retry();
-      setSelectedFiles([]);
-      setSelectedType(null);
-      setIsUploading(false);
+      retry(); // Reset progress to null when sheet opens
     }
   }, [open, retry]);
 
