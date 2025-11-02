@@ -11,7 +11,7 @@
  */
 
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/enhanced-button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
@@ -22,26 +22,26 @@ import { usePlaceCardSettings } from '@/hooks/usePlaceCardSettings';
 import { PlaceCardCustomizer } from './PlaceCardCustomizer';
 import { PlaceCardPreview } from './PlaceCardPreview';
 import { PlaceCardExporter } from './PlaceCardExporter';
-import { Loader2, Users, Settings, FileText, Printer } from 'lucide-react';
+import { Loader2, Users, Settings, FileText, Printer, Calendar } from 'lucide-react';
 import { Label } from "@/components/ui/label";
 import { useToast } from '@/hooks/use-toast';
 import { exportPlaceCardPageToPdf, exportAllPlaceCardsToPdf } from '@/lib/placeCardsPdfExporter';
 import { exportPlaceCardPageToDocx, exportAllPlaceCardsToDocx } from '@/lib/placeCardsDocxExporter';
 
-export const PlaceCardsPage: React.FC<{ selectedEventId?: string | null; onEventSelect?: (eventId: string) => void; }> = ({
-  selectedEventId: propSelectedEventId,
-  onEventSelect: propOnEventSelect
+interface PlaceCardsPageProps {
+  selectedEventId: string | null;
+  onEventSelect: (eventId: string) => void;
+}
+
+export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
+  selectedEventId,
+  onEventSelect
 }) => {
-  const [localSelectedEventId, setLocalSelectedEventId] = useState<string | null>(propSelectedEventId || null);
   const [focusedPage, setFocusedPage] = useState<number | null>(null);
   const [isExporting, setIsExporting] = useState(false);
   const [selectedPage, setSelectedPage] = useState<number>(0);
   const [isProcessing, setIsProcessing] = useState(false);
   const { events, loading: eventsLoading } = useEvents();
-  
-  // Use global selected event if provided, otherwise use local state
-  const selectedEventId = propSelectedEventId || localSelectedEventId;
-  
   const { guests, loading: guestsLoading } = useRealtimeGuests(selectedEventId);
   const { settings, loading: settingsLoading, updateSettings } = usePlaceCardSettings(selectedEventId);
   const { toast } = useToast();
@@ -50,24 +50,9 @@ export const PlaceCardsPage: React.FC<{ selectedEventId?: string | null; onEvent
   const assignedGuests = guests.filter(guest => guest.assigned && guest.table_no && guest.seat_no);
   const totalPages = Math.ceil(assignedGuests.length / 6);
 
-  // Load saved event selection from localStorage (only if no global event provided)
-  React.useEffect(() => {
-    if (!propSelectedEventId) {
-      const savedEventId = localStorage.getItem('place_cards_event_id');
-      if (savedEventId && !localSelectedEventId && events.length > 0) {
-        const eventExists = events.find(e => e.id === savedEventId);
-        if (eventExists) {
-          setLocalSelectedEventId(savedEventId);
-        }
-      }
-    }
-  }, [events, localSelectedEventId, propSelectedEventId]);
-
   const handleEventChange = (eventId: string) => {
     if (eventId === "no-event") return;
-    setLocalSelectedEventId(eventId);
-    localStorage.setItem('place_cards_event_id', eventId);
-    propOnEventSelect?.(eventId);
+    onEventSelect(eventId);
   };
 
   const handleDownloadPdfPage = async () => {
@@ -249,7 +234,7 @@ export const PlaceCardsPage: React.FC<{ selectedEventId?: string | null; onEvent
                     events.map((event) => (
                       <SelectItem key={event.id} value={event.id}>
                         <div className="flex items-center space-x-2">
-                          <Users className="w-4 h-4" />
+                          <Calendar className="w-4 h-4" />
                           <span>{event.name}</span>
                         </div>
                       </SelectItem>
@@ -380,6 +365,17 @@ export const PlaceCardsPage: React.FC<{ selectedEventId?: string | null; onEvent
           )}
         </CardContent>
       </Card>
+
+      {/* Placeholder when no event selected */}
+      {!selectedEventId && (
+        <Card className="ww-box p-12 text-center">
+          <FileText className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
+          <CardTitle className="text-xl mb-2 text-muted-foreground">Select an Event</CardTitle>
+          <CardDescription className="text-base">
+            Choose an event above to start creating place cards
+          </CardDescription>
+        </Card>
+      )}
 
       {/* Bottom Section - Grid Layout */}
       {selectedEventId && selectedEvent && assignedGuests.length > 0 && !guestsLoading && !settingsLoading && (

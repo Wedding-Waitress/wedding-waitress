@@ -7,7 +7,7 @@
  */
 
 import React, { useState, useMemo } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
@@ -399,10 +399,9 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
       `}</style>
       
       <div className="space-y-6 kitchen-dietary-chart">
-        {/* Combined Header Card */}
-        {currentEvent && (
-          <Card className="ww-box print:hidden">
-            <CardContent className="p-6">
+        {/* Combined Header Card - Always Visible */}
+        <Card className="ww-box print:hidden">
+          <CardContent className="p-6">
               {/* Top Row: Event Selector (Left) + Title & Description (Right) */}
               <div className="flex items-start justify-between gap-6">
                 {/* Left Side: Event Selector */}
@@ -439,10 +438,12 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                 </div>
               </div>
 
-              <Separator className="my-4" />
+              {currentEvent && (
+                <>
+                  <Separator className="my-4" />
 
-              {/* Bottom Row: Single line with Event Info + Buttons */}
-              <div className="flex items-center justify-between gap-4">
+                  {/* Bottom Row: Single line with Event Info + Buttons */}
+                  <div className="flex items-center justify-between gap-4">
                 {/* Left Side: Event Info on one line */}
                 <div className="flex items-center gap-2 text-sm flex-wrap">
                   <span className="font-semibold text-primary text-base">
@@ -493,11 +494,25 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                   </Button>
                 </div>
               </div>
+                </>
+              )}
             </CardContent>
+          </Card>
+
+        {/* Placeholder when no event selected */}
+        {!currentEvent && (
+          <Card className="ww-box p-12 text-center">
+            <ChefHat className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
+            <CardTitle className="text-xl mb-2 text-muted-foreground">Select an Event</CardTitle>
+            <CardDescription className="text-base">
+              Choose an event above to view dietary requirements
+            </CardDescription>
           </Card>
         )}
 
         {/* Main Content Grid: Settings + A4 Display */}
+        {currentEvent && (
+        <>
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Settings Panel (Left - 1 column) */}
           <div className="lg:col-span-1 print:hidden">
@@ -813,6 +828,8 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
             );
           })}
         </div>
+        </>
+        )}
       </div>
     </>
   );

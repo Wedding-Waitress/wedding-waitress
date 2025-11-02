@@ -418,8 +418,6 @@ export const Dashboard = () => {
             </CardDescription>
           </Card>
         );
-      case 'kiosk-setup':
-        return <KioskSetup selectedEventId={selectedEventId} onEventSelect={handleEventSelect} />;
       case 'dj-mc-questionnaire':
         return flags.djQuestionnaire ? (
           <AppErrorBoundary fallback={
