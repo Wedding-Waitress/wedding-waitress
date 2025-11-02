@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Camera, Video, Plus } from 'lucide-react';
@@ -38,6 +38,16 @@ export const UploadMediaSheet: React.FC<UploadMediaSheetProps> = ({
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const addMoreInputRef = useRef<HTMLInputElement>(null);
+
+  // Reset upload state when sheet opens
+  useEffect(() => {
+    if (open) {
+      retry();
+      setSelectedFiles([]);
+      setSelectedType(null);
+      setIsUploading(false);
+    }
+  }, [open, retry]);
 
   const validateVideoFile = async (file: File): Promise<{ valid: boolean; error?: string }> => {
     return new Promise((resolve) => {
