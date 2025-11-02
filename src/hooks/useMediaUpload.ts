@@ -73,8 +73,8 @@ export const useMediaUpload = (gallerySlug: string, eventId: string, requireAppr
           },
         });
 
-        // Poll video status
-        await pollVideoStatus(urlData.media_item_id);
+        // Poll video status from Cloudflare
+        await pollVideoStatus(urlData.media_item_id, urlData.cloudflare_stream_uid);
       } else {
         // Photo/Audio: Upload to Supabase Storage
         const startTime = Date.now();
@@ -192,29 +192,37 @@ export const useMediaUpload = (gallerySlug: string, eventId: string, requireAppr
         description: err.message || 'Please try again.', 
         variant: 'destructive' 
       });
+      
+      throw err; // Re-throw so batch uploader can count failures
     }
   };
 
-  const pollVideoStatus = async (mediaItemId: string) => {
+  const pollVideoStatus = async (mediaItemId: string, cloudflareStreamUid: string) => {
     const maxAttempts = 60; // 6 minutes max (6s intervals)
     let attempts = 0;
 
     while (attempts < maxAttempts) {
       await new Promise(resolve => setTimeout(resolve, 6000));
       
-      const { data } = await supabase
-        .from('media_items')
-        .select('status')
-        .eq('id', mediaItemId)
-        .single();
+      const { data, error } = await supabase.functions.invoke('check-video-status', {
+        body: {
+          cloudflare_stream_uid: cloudflareStreamUid,
+          media_item_id: mediaItemId,
+        },
+      });
+
+      if (error) {
+        console.error('Video status check error:', error);
+        throw new Error('Failed to check video status');
+      }
 
       if (data?.status === 'ready') return;
-      if (data?.status === 'failed') throw new Error('Video processing failed');
+      if (data?.status === 'failed') throw new Error('Video processing failed on Cloudflare');
       
       attempts++;
     }
 
-    throw new Error('Video processing timeout');
+    throw new Error('Video processing timeout - please try again later');
   };
 
   const retry = () => {
