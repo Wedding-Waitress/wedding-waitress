@@ -135,7 +135,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                       {getMobileLabel(item.id, item.label)}
                     </span>
                     {item.id === 'my-events' && (
-                      <span className="bg-white text-destructive text-xs font-bold ml-1 px-2 py-0.5 rounded-full whitespace-nowrap">
+                      <span className="bg-white text-destructive text-xs font-bold ml-auto px-2 py-0.5 rounded-full whitespace-nowrap">
                         Start Here
                       </span>
                     )}
