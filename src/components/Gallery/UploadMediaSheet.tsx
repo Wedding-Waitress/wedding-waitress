@@ -277,11 +277,29 @@ export const UploadMediaSheet: React.FC<UploadMediaSheetProps> = ({
                 onRemove={handleRemoveFile}
               />
               
+              {selectedType && (
+                <input
+                  ref={addMoreInputRef}
+                  type="file"
+                  multiple
+                  accept={selectedType === 'photo'
+                    ? "image/jpeg,image/png,image/webp,image/heic"
+                    : "video/mp4,video/quicktime,video/x-m4v,video/avi,video/webm"
+                  }
+                  className="hidden"
+                  onChange={(e) => {
+                    if (e.target.files && e.target.files.length > 0) {
+                      handleFileSelect(selectedType, e.target.files);
+                    }
+                    e.target.value = '';
+                  }}
+                />
+              )}
+              
               <div className="flex gap-2">
                 <Button 
-                  variant="outline" 
                   onClick={handleCancel}
-                  className="flex-1"
+                  className="flex-1 bg-red-500 hover:bg-red-600 text-white"
                   disabled={isUploading}
                 >
                   Cancel
@@ -289,42 +307,23 @@ export const UploadMediaSheet: React.FC<UploadMediaSheetProps> = ({
                 
                 <Button 
                   onClick={handleBatchUpload}
-                  className="flex-1 bg-[#6D28D9] hover:bg-[#5B21B6] text-white"
+                  className="flex-1 bg-green-500 hover:bg-green-600 text-white"
                   disabled={isUploading}
                 >
-                  {isUploading ? 'Uploading...' : `Upload ${selectedFiles.length} ${selectedFiles.length === 1 ? 'Item' : 'Items'}`}
+                  {isUploading ? 'Uploading...' : 'Upload Item'}
                 </Button>
-              </div>
-              
-              {selectedType && (
-                <>
-                  <input
-                    ref={addMoreInputRef}
-                    type="file"
-                    multiple
-                    accept={selectedType === 'photo'
-                      ? "image/jpeg,image/png,image/webp,image/heic"
-                      : "video/mp4,video/quicktime,video/x-m4v,video/avi,video/webm"
-                    }
-                    className="hidden"
-                    onChange={(e) => {
-                      if (e.target.files && e.target.files.length > 0) {
-                        handleFileSelect(selectedType, e.target.files);
-                      }
-                      e.target.value = '';
-                    }}
-                  />
+                
+                {selectedType && (
                   <Button
-                    variant="ghost"
-                    className="w-full"
                     onClick={() => addMoreInputRef.current?.click()}
+                    className="flex-1 bg-purple-900 hover:bg-purple-800 text-white"
                     disabled={isUploading}
                   >
                     <Plus className="w-4 h-4 mr-2" />
-                    Add More {selectedType === 'photo' ? 'Photos' : 'Videos'}
+                    Add More Photos
                   </Button>
-                </>
-              )}
+                )}
+              </div>
             </div>
           )
         ) : (
