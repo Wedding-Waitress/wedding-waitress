@@ -86,7 +86,7 @@ export const AlbumSettingsTab = ({ settings, onUpdateSettings }: AlbumSettingsTa
               type="number"
               min="1"
               max="50"
-              value={settings.max_photo_size_mb || 10}
+              value={settings.max_photo_size_mb || 25}
               onChange={(e) => onUpdateSettings({ 
                 max_photo_size_mb: parseInt(e.target.value) 
               })}
@@ -105,7 +105,7 @@ export const AlbumSettingsTab = ({ settings, onUpdateSettings }: AlbumSettingsTa
               min="50"
               max="2000"
               step="50"
-              value={settings.max_video_size_mb || 500}
+              value={settings.max_video_size_mb || 1000}
               onChange={(e) => onUpdateSettings({ 
                 max_video_size_mb: parseInt(e.target.value) 
               })}
@@ -121,7 +121,7 @@ export const AlbumSettingsTab = ({ settings, onUpdateSettings }: AlbumSettingsTa
             <Label>Max Video Duration</Label>
             <select
               className="w-full px-3 py-2 border rounded-md bg-background"
-              value={settings.max_video_duration_seconds || 300}
+              value={settings.max_video_duration_seconds || 600}
               onChange={(e) => onUpdateSettings({ 
                 max_video_duration_seconds: parseInt(e.target.value) 
               })}
@@ -137,7 +137,7 @@ export const AlbumSettingsTab = ({ settings, onUpdateSettings }: AlbumSettingsTa
             </p>
           </div>
 
-          {(settings.max_video_size_mb > 500 || settings.max_video_duration_seconds > 300) && (
+          {(settings.max_video_size_mb > 1000 || settings.max_video_duration_seconds > 600) && (
             <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-lg p-3">
               <p className="text-sm text-amber-800 dark:text-amber-200">
                 ⚠️ <strong>High limits may cause:</strong>

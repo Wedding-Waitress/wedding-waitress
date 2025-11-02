@@ -26,6 +26,7 @@ interface GallerySettings {
   is_active: boolean;
   max_photo_size_mb: number;
   max_video_size_mb: number;
+  max_video_duration_seconds: number;
   max_audio_duration_sec: number;
   max_uploads_per_guest: number | null;
   allow_photos: boolean;

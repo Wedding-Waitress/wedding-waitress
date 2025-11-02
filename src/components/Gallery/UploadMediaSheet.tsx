@@ -10,6 +10,7 @@ import { PhotoSelectionGrid } from './PhotoSelectionGrid';
 interface GallerySettings {
   max_photo_size_mb: number;
   max_video_size_mb: number;
+  max_video_duration_seconds: number;
   allow_photos: boolean;
   allow_videos: boolean;
 }
@@ -242,7 +243,7 @@ export const UploadMediaSheet: React.FC<UploadMediaSheetProps> = ({
                   <div className="bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl p-8 text-white text-center hover:shadow-xl transform hover:scale-105 transition-all">
                     <Camera className="w-12 h-12 mx-auto mb-4" />
                     <p className="font-semibold text-lg">Photo</p>
-                    <p className="text-sm opacity-90 mt-2">Max {settings.max_photo_size_mb}MB</p>
+                    <p className="text-sm opacity-90 mt-2">Up to {settings.max_photo_size_mb}MB per photo</p>
                   </div>
                 </label>
               )}
@@ -264,7 +265,7 @@ export const UploadMediaSheet: React.FC<UploadMediaSheetProps> = ({
                   <div className="bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl p-8 text-white text-center hover:shadow-xl transform hover:scale-105 transition-all">
                     <Video className="w-12 h-12 mx-auto mb-4" />
                     <p className="font-semibold text-lg">Video</p>
-                    <p className="text-sm opacity-90 mt-2">Max {settings.max_video_size_mb}MB</p>
+                    <p className="text-sm opacity-90 mt-2">Up to {settings.max_video_size_mb}MB | {Math.floor((settings.max_video_duration_seconds || 600) / 60)} mins max</p>
                   </div>
                 </label>
               )}
