@@ -13,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Calendar, Users, MapPin, QrCode, Mail, Heart, Settings, TrendingUp, Plus, Printer, Camera } from "lucide-react";
 import { useAlbumNavigation } from '@/hooks/useAlbumNavigation';
-import { AlbumHostConsoleEmbedded } from '@/components/Album/AlbumHostConsoleEmbedded';
+import { AlbumContentInlineCard } from '@/components/Album/AlbumContentInlineCard';
 import { useEvents } from '@/hooks/useEvents';
 import { useTables, TableWithGuestCount } from '@/hooks/useTables';
 import { useRealtimeGuests } from '@/hooks/useRealtimeGuests';
@@ -353,6 +353,7 @@ export const Dashboard = () => {
       case 'photo-video-gallery': {
         const activeEventResult = getActiveEventId();
         
+        // No events at all
         if (activeEventResult === 'no-events') {
           return (
             <Card className="ww-box p-8 text-center">
@@ -369,49 +370,46 @@ export const Dashboard = () => {
           );
         }
         
-        // If albumEventId is set, render the embedded album console
-        if (albumEventId) {
-          return <AlbumHostConsoleEmbedded eventId={albumEventId} />;
-        }
-        
-        // Show inline event selector
+        // Main card that contains EVERYTHING
         return (
           <Card className="ww-box">
-            <CardHeader>
-              <CardTitle>Select Event</CardTitle>
-              <CardDescription>Choose an event to manage its photo & video album.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center gap-3">
+            <CardContent className="p-6">
+              {/* Event selector - always visible */}
+              <div className="mb-6">
                 <Select
-                  value="no-event"
+                  value={albumEventId || "no-event"}
                   onValueChange={(eventId) => {
                     if (eventId === 'no-event') return;
                     persistActiveEvent(eventId);
                     setAlbumEventId(eventId);
                   }}
                 >
-                  <SelectTrigger className="w-[300px]">
-                    <SelectValue placeholder={eventsLoading ? "Loading events..." : "Select an event..."} />
+                  <SelectTrigger className="w-full max-w-md border-primary focus:ring-primary">
+                    <SelectValue placeholder="Select an event to manage its photo & video album..." />
                   </SelectTrigger>
                   <SelectContent>
-                    {events.length > 0 ? (
-                      events.map((event) => (
-                        <SelectItem key={event.id} value={event.id}>
-                          <div className="flex items-center gap-2">
-                            <Calendar className="w-4 h-4" />
-                            <span>{event.name}</span>
-                          </div>
-                        </SelectItem>
-                      ))
-                    ) : (
-                      <SelectItem value="no-event" disabled>
-                        {eventsLoading ? "Loading events..." : "No events found"}
+                    {events.map((event) => (
+                      <SelectItem key={event.id} value={event.id}>
+                        <div className="flex items-center gap-2">
+                          <Calendar className="w-4 h-4" />
+                          <span>{event.name} – {event.date ? new Date(event.date).toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' }) : 'No date'}</span>
+                        </div>
                       </SelectItem>
-                    )}
+                    ))}
                   </SelectContent>
                 </Select>
+                
+                {!albumEventId && (
+                  <p className="text-sm text-muted-foreground mt-2">
+                    Choose an event to manage its photo & video album.
+                  </p>
+                )}
               </div>
+              
+              {/* Album management content - only shown after selection */}
+              {albumEventId && (
+                <AlbumContentInlineCard eventId={albumEventId} />
+              )}
             </CardContent>
           </Card>
         );
