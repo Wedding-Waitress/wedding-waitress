@@ -305,23 +305,39 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium">Event</label>
-              <Select 
-                value={selectedEventId || ''} 
-                onValueChange={onEventSelect}
-                disabled={eventsLoading}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select an event" />
-                </SelectTrigger>
-                <SelectContent>
-                  {events.map((event) => (
-                    <SelectItem key={event.id} value={event.id}>
-                      {event.name} - {event.date ? format(new Date(event.date), 'MMM dd, yyyy') : 'No date'}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="flex items-center space-x-4">
+                <label className="text-sm font-medium text-foreground whitespace-nowrap">
+                  Choose Event:
+                </label>
+                <Select 
+                  value={selectedEventId || 'no-event'} 
+                  onValueChange={(value) => {
+                    if (value === 'no-event') return;
+                    onEventSelect(value);
+                  }}
+                  disabled={eventsLoading}
+                >
+                  <SelectTrigger className="w-[300px] border-primary focus:ring-primary">
+                    <SelectValue placeholder="Choose Event" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-popover border-border z-50">
+                    {events.length > 0 ? (
+                      events.map((event) => (
+                        <SelectItem key={event.id} value={event.id}>
+                          <div className="flex items-center space-x-2">
+                            <Users className="w-4 h-4" />
+                            <span>{event.name}</span>
+                          </div>
+                        </SelectItem>
+                      ))
+                    ) : (
+                      <SelectItem value="no-events" disabled>
+                        {eventsLoading ? "Loading events..." : "No events found"}
+                      </SelectItem>
+                    )}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
             <div className="space-y-2">

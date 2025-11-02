@@ -47,9 +47,9 @@ export const Dashboard = () => {
   const [authLoading, setAuthLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('dashboard');
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
+  const [globalSelectedEventId, setGlobalSelectedEventId] = useState<string | null>(null);
   const [showCreateTableModal, setShowCreateTableModal] = useState(false);
   const [editingTable, setEditingTable] = useState<TableWithGuestCount | null>(null);
-  const [albumEventId, setAlbumEventId] = useState<string | null>(null);
   const navigate = useNavigate();
   const {
     events,
@@ -86,9 +86,6 @@ export const Dashboard = () => {
     return () => subscription.unsubscribe();
   }, [navigate]);
 
-  // Album navigation logic (must be at top level, not inside renderTabContent)
-  const { getActiveEventId, persistActiveEvent } = useAlbumNavigation(selectedEventId, events);
-
   const {
     tables: rawTables,
     loading: tablesLoading,
@@ -121,31 +118,14 @@ export const Dashboard = () => {
   // Get selected event for My Events countdown (use events active event)
   const selectedCountdownEvent = eventsActiveEventId ? events.find(e => e.id === eventsActiveEventId) : null;
 
-  // Load selected event from localStorage on mount
+  // Load selected event from localStorage on mount (GLOBAL)
   useEffect(() => {
-    const savedEventId = localStorage.getItem('active_event_id');
+    const savedEventId = localStorage.getItem('ww:global_selected_event');
     if (savedEventId && events.find(e => e.id === savedEventId)) {
-      setSelectedEventId(savedEventId);
+      setGlobalSelectedEventId(savedEventId);
+      setSelectedEventId(savedEventId); // Keep backward compatibility
     }
-  }, [events]);
-
-  // Handle album event determination when Photo & Video Gallery tab is active
-  useEffect(() => {
-    // Only initialize albumEventId when first switching to photo-video-gallery tab
-    // and albumEventId is not already set
-    if (activeTab === 'photo-video-gallery' && !albumEventId) {
-      const activeEventResult = getActiveEventId();
-      
-      if (activeEventResult !== 'no-events' && typeof activeEventResult === 'string') {
-        persistActiveEvent(activeEventResult);
-        setAlbumEventId(activeEventResult);
-      }
-    } else if (activeTab !== 'photo-video-gallery') {
-      // Clear albumEventId when leaving the photo-video-gallery tab
-      // so it re-initializes properly when returning
-      setAlbumEventId(null);
-    }
-  }, [activeTab, albumEventId, getActiveEventId, persistActiveEvent]);
+  }, [events.length]);
 
   // Maintain a stable ref to fetchTables to avoid effect re-installs
   const fetchTablesRef = useRef(fetchTables);
@@ -175,14 +155,17 @@ export const Dashboard = () => {
     };
   }, [selectedEventId]);
 
-  // Handle event selection for tables
+  // Handle GLOBAL event selection (used by all pages)
+  const handleGlobalEventSelect = (eventId: string) => {
+    if (eventId === "no-event") return;
+    setGlobalSelectedEventId(eventId);
+    setSelectedEventId(eventId); // Keep backward compatibility
+    localStorage.setItem('ww:global_selected_event', eventId);
+  };
+  
+  // Legacy handler (for backward compatibility)
   const handleEventSelect = (eventId: string) => {
-    // Filter out placeholder values
-    if (eventId === "no-event") {
-      return;
-    }
-    setSelectedEventId(eventId);
-    localStorage.setItem('active_event_id', eventId);
+    handleGlobalEventSelect(eventId);
   };
 
   // Handle table operations
@@ -275,14 +258,14 @@ export const Dashboard = () => {
                 <div className="space-y-4 flex-1">
                   {/* Event selector */}
                   <div className="flex items-center space-x-4">
-                    <label className="text-sm font-medium text-foreground">
+                    <label className="text-sm font-medium text-foreground whitespace-nowrap">
                       Choose Event:
                     </label>
-                    <Select value={selectedEventId || "no-event"} onValueChange={handleEventSelect}>
-                      <SelectTrigger className="w-[300px]">
-                        <SelectValue placeholder={eventsLoading ? "Loading events..." : "Select an event..."} />
+                    <Select value={globalSelectedEventId || "no-event"} onValueChange={handleGlobalEventSelect}>
+                      <SelectTrigger className="w-[300px] border-primary focus:ring-primary">
+                        <SelectValue placeholder="Choose Event" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="bg-popover border-border z-50">
                         {events.length > 0 ? events.map(event => <SelectItem key={event.id} value={event.id}>
                               <div className="flex items-center space-x-2">
                                 <Calendar className="w-4 h-4" />
@@ -354,10 +337,8 @@ export const Dashboard = () => {
       case 'signage':
         return <SignagePage selectedEventId={selectedEventId} onEventSelect={handleEventSelect} />;
       case 'photo-video-gallery': {
-        const activeEventResult = getActiveEventId();
-        
         // No events at all
-        if (activeEventResult === 'no-events') {
+        if (events.length === 0) {
           return (
             <Card className="ww-box p-8 text-center">
               <Camera className="w-16 h-16 mx-auto text-primary mb-4" />
@@ -378,58 +359,54 @@ export const Dashboard = () => {
           <Card className="ww-box">
             <CardContent className="p-6">
               {/* Event selector - always visible */}
-              <div className="mb-6">
+              <div className="mb-6 flex items-center space-x-4">
+                <label className="text-sm font-medium text-foreground whitespace-nowrap">
+                  Choose Event:
+                </label>
                 <Select
-                  value={albumEventId || "no-event"}
+                  value={globalSelectedEventId || "no-event"}
                   onValueChange={(eventId) => {
                     if (eventId === 'no-event') return;
-                    persistActiveEvent(eventId);
-                    setAlbumEventId(eventId);
+                    handleGlobalEventSelect(eventId);
                   }}
                 >
-                  <SelectTrigger className="w-full max-w-md border-primary focus:ring-primary">
-                    <SelectValue placeholder="Select an event to manage its photo & video album..." />
+                  <SelectTrigger className="w-[300px] border-primary focus:ring-primary">
+                    <SelectValue placeholder="Choose Event" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-popover border-border z-50">
                     {events.map((event) => (
                       <SelectItem key={event.id} value={event.id}>
                         <div className="flex items-center gap-2">
                           <Calendar className="w-4 h-4" />
-                          <span>{event.name} – {event.date ? new Date(event.date).toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' }) : 'No date'}</span>
+                          <span>{event.name}</span>
                         </div>
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
-                
-                {!albumEventId && (
-                  <p className="text-sm text-muted-foreground mt-2">
-                    Choose an event to manage its photo & video album.
-                  </p>
-                )}
               </div>
               
               {/* Album management content - only shown after selection */}
-              {albumEventId && (
-                <AlbumContentInlineCard eventId={albumEventId} />
+              {globalSelectedEventId && (
+                <AlbumContentInlineCard eventId={globalSelectedEventId} />
               )}
             </CardContent>
           </Card>
         );
       }
       case 'qr-code':
-        return <QRCodeSeatingChart selectedEventId={selectedEventId} onEventSelect={handleEventSelect} onNavigateToTab={handleTabChange} />;
+        return <QRCodeSeatingChart selectedEventId={globalSelectedEventId} onEventSelect={handleGlobalEventSelect} onNavigateToTab={handleTabChange} />;
       case 'kiosk-live-view':
-        return <KioskSetup selectedEventId={selectedEventId} onEventSelect={handleEventSelect} />;
+        return <KioskSetup selectedEventId={globalSelectedEventId} onEventSelect={handleGlobalEventSelect} />;
       case 'dietary-chart':
-        return selectedEventId ? <KitchenDietaryChart eventId={selectedEventId} /> : null;
+        return <KitchenDietaryChart eventId={globalSelectedEventId} onEventSelect={handleGlobalEventSelect} events={events} />;
       case 'full-seating-chart':
-        return <FullSeatingChartPage selectedEventId={selectedEventId} onEventSelect={handleEventSelect} />;
+        return <FullSeatingChartPage selectedEventId={globalSelectedEventId} onEventSelect={handleGlobalEventSelect} />;
       case 'place-cards':
-        return <PlaceCardsPage />;
+        return <PlaceCardsPage selectedEventId={globalSelectedEventId} onEventSelect={handleGlobalEventSelect} />;
       case 'individual-table-chart':
         // Individual table seating chart feature
-        return <IndividualTableSeatingChartPage selectedEventId={selectedEventId} onEventSelect={handleEventSelect} />;
+        return <IndividualTableSeatingChartPage selectedEventId={globalSelectedEventId} onEventSelect={handleGlobalEventSelect} />;
       case 'running-sheet':
         return flags.runningSheet ? (
           <RunningSheetPage />

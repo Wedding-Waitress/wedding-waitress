@@ -39,7 +39,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/enhanced-button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { FileText, Users, Layout, Printer } from 'lucide-react';
+import { FileText, Users, Layout, Printer, Calendar } from 'lucide-react';
 import { useEvents } from '@/hooks/useEvents';
 import { useRealtimeGuests } from '@/hooks/useRealtimeGuests';
 import { useFullSeatingChartSettings } from '@/hooks/useFullSeatingChartSettings';
@@ -177,18 +177,19 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
           {/* Event Selector */}
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <label className="text-sm font-medium text-foreground">
+              <label className="text-sm font-medium text-foreground whitespace-nowrap">
                 Choose Event:
               </label>
               <Select value={selectedEventId || "no-event"} onValueChange={handleEventSelect}>
-                <SelectTrigger className="w-[300px]">
-                  <SelectValue placeholder={eventsLoading ? "Loading events..." : "Select an event..."} />
+                <SelectTrigger className="w-[300px] border-primary focus:ring-primary">
+                  <SelectValue placeholder="Choose Event" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-popover border-border z-50">
                   {events.length > 0 ? (
                     events.map((event) => (
                       <SelectItem key={event.id} value={event.id}>
                         <div className="flex items-center space-x-2">
+                          <Calendar className="w-4 h-4" />
                           <span>{event.name}</span>
                         </div>
                       </SelectItem>

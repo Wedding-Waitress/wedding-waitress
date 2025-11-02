@@ -28,13 +28,20 @@ import { useToast } from '@/hooks/use-toast';
 import { exportPlaceCardPageToPdf, exportAllPlaceCardsToPdf } from '@/lib/placeCardsPdfExporter';
 import { exportPlaceCardPageToDocx, exportAllPlaceCardsToDocx } from '@/lib/placeCardsDocxExporter';
 
-export const PlaceCardsPage: React.FC = () => {
-  const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
+export const PlaceCardsPage: React.FC<{ selectedEventId?: string | null; onEventSelect?: (eventId: string) => void; }> = ({
+  selectedEventId: propSelectedEventId,
+  onEventSelect: propOnEventSelect
+}) => {
+  const [localSelectedEventId, setLocalSelectedEventId] = useState<string | null>(propSelectedEventId || null);
   const [focusedPage, setFocusedPage] = useState<number | null>(null);
   const [isExporting, setIsExporting] = useState(false);
   const [selectedPage, setSelectedPage] = useState<number>(0);
   const [isProcessing, setIsProcessing] = useState(false);
   const { events, loading: eventsLoading } = useEvents();
+  
+  // Use global selected event if provided, otherwise use local state
+  const selectedEventId = propSelectedEventId || localSelectedEventId;
+  
   const { guests, loading: guestsLoading } = useRealtimeGuests(selectedEventId);
   const { settings, loading: settingsLoading, updateSettings } = usePlaceCardSettings(selectedEventId);
   const { toast } = useToast();
@@ -43,20 +50,24 @@ export const PlaceCardsPage: React.FC = () => {
   const assignedGuests = guests.filter(guest => guest.assigned && guest.table_no && guest.seat_no);
   const totalPages = Math.ceil(assignedGuests.length / 6);
 
-  // Load saved event selection from localStorage
+  // Load saved event selection from localStorage (only if no global event provided)
   React.useEffect(() => {
-    const savedEventId = localStorage.getItem('place_cards_event_id');
-    if (savedEventId && !selectedEventId && events.length > 0) {
-      const eventExists = events.find(e => e.id === savedEventId);
-      if (eventExists) {
-        setSelectedEventId(savedEventId);
+    if (!propSelectedEventId) {
+      const savedEventId = localStorage.getItem('place_cards_event_id');
+      if (savedEventId && !localSelectedEventId && events.length > 0) {
+        const eventExists = events.find(e => e.id === savedEventId);
+        if (eventExists) {
+          setLocalSelectedEventId(savedEventId);
+        }
       }
     }
-  }, [events, selectedEventId]);
+  }, [events, localSelectedEventId, propSelectedEventId]);
 
   const handleEventChange = (eventId: string) => {
-    setSelectedEventId(eventId);
+    if (eventId === "no-event") return;
+    setLocalSelectedEventId(eventId);
     localStorage.setItem('place_cards_event_id', eventId);
+    propOnEventSelect?.(eventId);
   };
 
   const handleDownloadPdfPage = async () => {
@@ -225,21 +236,29 @@ export const PlaceCardsPage: React.FC = () => {
           {/* LINE 1: Event Selection & Title */}
           <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
             {/* Left: Event Selection */}
-            <div className="flex-1 max-w-md">
-              <label className="text-sm font-medium mb-2 block flex items-center gap-2">
-                <Settings className="h-4 w-4" />
-                Event Selection
+            <div className="flex items-center space-x-4">
+              <label className="text-sm font-medium text-foreground whitespace-nowrap">
+                Choose Event:
               </label>
-              <Select value={selectedEventId || ""} onValueChange={handleEventChange}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Choose an event" />
+              <Select value={selectedEventId || "no-event"} onValueChange={handleEventChange}>
+                <SelectTrigger className="w-[300px] border-primary focus:ring-primary">
+                  <SelectValue placeholder="Choose Event" />
                 </SelectTrigger>
-                <SelectContent>
-                  {events.map((event) => (
-                    <SelectItem key={event.id} value={event.id}>
-                      {event.name} - {event.date}
+                <SelectContent className="bg-popover border-border z-50">
+                  {events.length > 0 ? (
+                    events.map((event) => (
+                      <SelectItem key={event.id} value={event.id}>
+                        <div className="flex items-center space-x-2">
+                          <Users className="w-4 h-4" />
+                          <span>{event.name}</span>
+                        </div>
+                      </SelectItem>
+                    ))
+                  ) : (
+                    <SelectItem value="no-events" disabled>
+                      {eventsLoading ? "Loading events..." : "No events found"}
                     </SelectItem>
-                  ))}
+                  )}
                 </SelectContent>
               </Select>
             </div>

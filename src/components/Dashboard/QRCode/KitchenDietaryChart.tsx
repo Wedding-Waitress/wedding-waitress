@@ -24,9 +24,13 @@ import { exportDietaryChartToPdf } from '@/lib/dietaryChartPdfExporter';
 import { format } from 'date-fns';
 import dietaryLogo from '@/assets/wedding-waitress-dietary-logo.png';
 import { computeRelationDisplay } from '@/lib/relationUtils';
+import { Event } from '@/hooks/useEvents';
+import { Calendar } from 'lucide-react';
 
 interface KitchenDietaryChartProps {
-  eventId: string;
+  eventId: string | null;
+  onEventSelect?: (eventId: string) => void;
+  events: Event[];
 }
 
 interface DietaryGuest {
@@ -41,17 +45,20 @@ interface DietaryGuest {
   mobile: string | null;
 }
 
-export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventId }) => {
-  const [selectedEventId, setSelectedEventId] = useState(eventId);
-  const { guests, loading: guestsLoading } = useRealtimeGuests(selectedEventId);
-  const { events, loading: eventsLoading } = useEvents();
-  const { tables, loading: tablesLoading } = useTables(selectedEventId);
-  const { settings, loading: settingsLoading, updateSettings } = useDietaryChartSettings(selectedEventId);
+export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventId, onEventSelect, events }) => {
+  const { guests, loading: guestsLoading } = useRealtimeGuests(eventId);
+  const { tables, loading: tablesLoading } = useTables(eventId);
+  const { settings, loading: settingsLoading, updateSettings } = useDietaryChartSettings(eventId);
   const [isExporting, setIsExporting] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const { toast } = useToast();
 
-  const currentEvent = events.find(event => event.id === selectedEventId);
+  const currentEvent = events.find(event => event.id === eventId);
+  
+  const handleEventSelect = (newEventId: string) => {
+    if (newEventId === "no-event") return;
+    onEventSelect?.(newEventId);
+  };
 
   // Date formatting helpers
   const getOrdinalSuffix = (day: number) => {
@@ -147,7 +154,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
   // Reset to page 1 when event changes
   React.useEffect(() => {
     setCurrentPage(1);
-  }, [selectedEventId]);
+  }, [eventId]);
 
   // Font size mapping
   const getFontSizeClass = () => {
@@ -230,7 +237,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
     }, 500);
   };
 
-  if (guestsLoading || eventsLoading) {
+  if (guestsLoading) {
     return (
       <Card className="ww-box w-full">
         <CardContent className="p-6">
@@ -401,14 +408,17 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                 {/* Left Side: Event Selector */}
                 <div className="flex items-center gap-3">
                   <span className="text-sm font-medium whitespace-nowrap">Choose Event:</span>
-                  <Select value={selectedEventId} onValueChange={setSelectedEventId}>
-                    <SelectTrigger className="w-full max-w-md">
-                      <SelectValue placeholder="Select an event..." />
+                  <Select value={eventId || "no-event"} onValueChange={handleEventSelect}>
+                    <SelectTrigger className="w-[300px] border-primary focus:ring-primary">
+                      <SelectValue placeholder="Choose Event" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="bg-popover border-border z-50">
                       {events.map(event => (
                         <SelectItem key={event.id} value={event.id}>
-                          {event.name}
+                          <div className="flex items-center gap-2">
+                            <Calendar className="w-4 h-4" />
+                            <span>{event.name}</span>
+                          </div>
                         </SelectItem>
                       ))}
                     </SelectContent>

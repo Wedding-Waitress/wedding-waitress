@@ -138,14 +138,14 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center space-x-4">
-            <label className="text-sm font-medium text-foreground min-w-fit">
+            <label className="text-sm font-medium text-foreground whitespace-nowrap">
               Choose Event:
             </label>
             <Select value={selectedEventId || "no-event"} onValueChange={onEventSelect}>
-              <SelectTrigger className="w-full max-w-md">
-                <SelectValue placeholder={eventsLoading ? "Loading events..." : "Select an event..."} />
+              <SelectTrigger className="w-[300px] border-primary focus:ring-primary">
+                <SelectValue placeholder="Choose Event" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-popover border-border z-50">
                 {events.length > 0 ? (
                   events.map((event) => (
                     <SelectItem key={event.id} value={event.id}>

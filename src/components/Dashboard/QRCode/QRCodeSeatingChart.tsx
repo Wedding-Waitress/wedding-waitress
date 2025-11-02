@@ -23,26 +23,10 @@ export const QRCodeSeatingChart: React.FC<QRCodeSeatingChartProps> = ({
     events,
     loading: eventsLoading
   } = useEvents();
-  const [localSelectedEventId, setLocalSelectedEventId] = useState<string | null>(selectedEventId || null);
-  const {
-    toast
-  } = useToast();
-
-  // Auto-select first event when available
-  useEffect(() => {
-    if (!selectedEventId && !localSelectedEventId && !eventsLoading && events.length > 0) {
-      const firstId = events[0].id;
-      setLocalSelectedEventId(firstId);
-      onEventSelect?.(firstId);
-    }
-  }, [eventsLoading, events, selectedEventId, localSelectedEventId, onEventSelect]);
-  const selectedEvent = events.find(event => event.id === (selectedEventId || localSelectedEventId));
+  const { toast } = useToast();
+  const selectedEvent = events.find(event => event.id === selectedEventId);
   const handleEventSelect = (eventId: string) => {
-    // Filter out placeholder values 
-    if (eventId === "no-event") {
-      return;
-    }
-    setLocalSelectedEventId(eventId);
+    if (eventId === "no-event") return;
     onEventSelect?.(eventId);
   };
   const handleLiveView = () => {
@@ -69,7 +53,7 @@ export const QRCodeSeatingChart: React.FC<QRCodeSeatingChartProps> = ({
       }
     }
   };
-  const currentEventId = selectedEventId || localSelectedEventId;
+  const currentEventId = selectedEventId;
 
   // Format date with ordinal suffix
   const formatEventDate = (dateString: string) => {
@@ -105,10 +89,10 @@ export const QRCodeSeatingChart: React.FC<QRCodeSeatingChartProps> = ({
               Choose Event:
             </label>
             <Select value={currentEventId || "no-event"} onValueChange={handleEventSelect}>
-              <SelectTrigger className="w-[300px]">
-                <SelectValue placeholder={eventsLoading ? "Loading events..." : "Select an event..."} />
+              <SelectTrigger className="w-[300px] border-primary focus:ring-primary">
+                <SelectValue placeholder="Choose Event" />
               </SelectTrigger>
-              <SelectContent className="bg-popover border-border">
+              <SelectContent className="bg-popover border-border z-50">
                 {events.length > 0 ? events.map(event => <SelectItem key={event.id} value={event.id}>
                       <div className="flex items-center space-x-2">
                         <Calendar className="w-4 h-4" />
