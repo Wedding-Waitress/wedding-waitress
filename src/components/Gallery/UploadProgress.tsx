@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { CheckCircle, XCircle, Loader2 } from 'lucide-react';
@@ -24,6 +24,18 @@ export const UploadProgress: React.FC<UploadProgressProps> = ({
   onRetry,
   onViewGallery,
 }) => {
+  // Auto-close after 30 seconds on success
+  useEffect(() => {
+    if (status === 'success' && onViewGallery) {
+      const timer = setTimeout(() => {
+        onViewGallery();
+      }, 30000); // 30 seconds
+
+      // Cleanup timer if component unmounts or status changes
+      return () => clearTimeout(timer);
+    }
+  }, [status, onViewGallery]);
+
   return (
     <div className="mt-6 p-4 bg-card rounded-lg border border-border">
       <div className="flex items-center justify-between mb-2">
