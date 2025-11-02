@@ -39,7 +39,7 @@ export const UploadMediaSheet: React.FC<UploadMediaSheetProps> = ({
   const [isUploading, setIsUploading] = useState(false);
   const addMoreInputRef = useRef<HTMLInputElement>(null);
 
-  // Reset state when sheet opens to ensure fresh start
+  // Reset upload state when sheet opens
   useEffect(() => {
     if (open) {
       retry();

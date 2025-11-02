@@ -24,12 +24,12 @@ export const UploadProgress: React.FC<UploadProgressProps> = ({
   onRetry,
   onViewGallery,
 }) => {
-  // Auto-close after 10 seconds on success
+  // Auto-close after 30 seconds on success
   useEffect(() => {
     if (status === 'success' && onViewGallery) {
       const timer = setTimeout(() => {
         onViewGallery();
-      }, 10000); // 10 seconds
+      }, 30000); // 30 seconds
 
       // Cleanup timer if component unmounts or status changes
       return () => clearTimeout(timer);
