@@ -131,18 +131,21 @@ export const Dashboard = () => {
 
   // Handle album event determination when Photo & Video Gallery tab is active
   useEffect(() => {
-    if (activeTab === 'photo-video-gallery') {
+    // Only initialize albumEventId when first switching to photo-video-gallery tab
+    // and albumEventId is not already set
+    if (activeTab === 'photo-video-gallery' && !albumEventId) {
       const activeEventResult = getActiveEventId();
       
       if (activeEventResult !== 'no-events' && typeof activeEventResult === 'string') {
-        // Set album event ID and persist
         persistActiveEvent(activeEventResult);
         setAlbumEventId(activeEventResult);
-      } else {
-        setAlbumEventId(null);
       }
+    } else if (activeTab !== 'photo-video-gallery') {
+      // Clear albumEventId when leaving the photo-video-gallery tab
+      // so it re-initializes properly when returning
+      setAlbumEventId(null);
     }
-  }, [activeTab, getActiveEventId, persistActiveEvent]);
+  }, [activeTab, albumEventId, getActiveEventId, persistActiveEvent]);
 
   // Maintain a stable ref to fetchTables to avoid effect re-installs
   const fetchTablesRef = useRef(fetchTables);
