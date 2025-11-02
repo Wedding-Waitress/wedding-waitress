@@ -151,13 +151,93 @@ Deno.serve(async (req) => {
         .insert({ ip_address: clientIP, event_slug: gallery_slug, request_count: 1 });
     }
 
-    // 5. Generate unique storage path
+    // 5. For videos, use Cloudflare Direct Creator Upload
+    if (type === 'video') {
+      const CLOUDFLARE_ACCOUNT_ID = Deno.env.get('CLOUDFLARE_ACCOUNT_ID');
+      const CLOUDFLARE_STREAM_API_TOKEN = Deno.env.get('CLOUDFLARE_STREAM_API_TOKEN');
+
+      if (!CLOUDFLARE_ACCOUNT_ID || !CLOUDFLARE_STREAM_API_TOKEN) {
+        return new Response(
+          JSON.stringify({ error: 'Cloudflare not configured' }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      // Create Cloudflare Direct Creator Upload
+      const tusResponse = await fetch(
+        `https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/stream/direct_upload`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${CLOUDFLARE_STREAM_API_TOKEN}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            maxDurationSeconds: settings.max_video_duration_seconds || 600,
+            requireSignedURLs: false,
+          }),
+        }
+      );
+
+      if (!tusResponse.ok) {
+        console.error('Cloudflare Direct Upload creation failed:', await tusResponse.text());
+        return new Response(
+          JSON.stringify({ error: 'Failed to create video upload URL' }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      const tusData = await tusResponse.json();
+      const streamUid = tusData.result?.uid;
+      const uploadUrl = tusData.result?.uploadURL;
+
+      if (!streamUid || !uploadUrl) {
+        return new Response(
+          JSON.stringify({ error: 'Invalid Cloudflare response' }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      // Create media_items row with Cloudflare Stream UID
+      const { data: mediaItem, error: mediaItemError } = await supabaseAdmin
+        .from('media_items')
+        .insert({
+          event_id: event.id,
+          type,
+          storage_path: `cloudflare/${streamUid}`, // Not using Supabase Storage for videos
+          status: 'uploading',
+          filesize,
+          caption: caption || null,
+          cloudflare_stream_uid: streamUid,
+        })
+        .select('id')
+        .single();
+
+      if (mediaItemError || !mediaItem) {
+        console.error('Media item creation error:', mediaItemError);
+        return new Response(
+          JSON.stringify({ error: 'Failed to create media record' }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      return new Response(
+        JSON.stringify({
+          upload_url: uploadUrl,
+          media_item_id: mediaItem.id,
+          cloudflare_stream_uid: streamUid,
+          upload_type: 'cloudflare_direct',
+          expires_in: 3600,
+        }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // 5. For photos/audio, use Supabase Storage
     const timestamp = Date.now();
     const uuid = crypto.randomUUID();
     const ext = filename.split('.').pop() || 'bin';
-    const bucketName = type === 'photo' ? 'media-photos' :
-                       type === 'video' ? 'media-videos' :
-                       type === 'audio' ? 'media-audio' : '';
+    const bucketName = type === 'photo' ? 'media-photos' : 'media-audio';
     
     const storage_path = `${event.id}/${type}/${timestamp}_${uuid}.${ext}`;
 
@@ -211,6 +291,7 @@ Deno.serve(async (req) => {
         media_item_id: mediaItem.id,
         storage_path,
         token: signedUrlData.token,
+        upload_type: 'supabase_storage',
         expires_in: 3600,
       }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

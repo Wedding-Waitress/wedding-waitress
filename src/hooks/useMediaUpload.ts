@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import type { UploadProgressProps } from '@/components/Gallery/UploadProgress';
+import * as tus from 'tus-js-client';
 
 type MediaType = 'photo' | 'video' | 'audio';
 
@@ -28,95 +29,136 @@ export const useMediaUpload = (gallerySlug: string, eventId: string, requireAppr
       if (urlError) throw urlError;
       if (!urlData?.upload_url) throw new Error('Failed to get upload URL');
 
-      // Step 2: Upload to storage with progress tracking
-      const startTime = Date.now();
-      let lastLoaded = 0;
-      let lastTime = startTime;
+      // Step 2: Upload based on type
+      if (urlData.upload_type === 'cloudflare_direct') {
+        // Video: Upload directly to Cloudflare using TUS protocol
+        await new Promise<void>((resolve, reject) => {
+          const upload = new tus.Upload(file, {
+            endpoint: urlData.upload_url,
+            retryDelays: [0, 3000, 5000, 10000],
+            chunkSize: 50 * 1024 * 1024, // 50MB chunks
+            metadata: {
+              filename: file.name,
+              filetype: file.type,
+            },
+            onError: (error) => {
+              console.error('TUS upload error:', error);
+              reject(error);
+            },
+            onProgress: (bytesUploaded, bytesTotal) => {
+              const percent = Math.round((bytesUploaded / bytesTotal) * 100);
+              setProgress({
+                percent,
+                speed: 0,
+                eta: 0,
+                status: 'uploading',
+              });
+            },
+            onSuccess: () => {
+              resolve();
+            },
+          });
 
-      await new Promise<void>((resolve, reject) => {
-        const xhr = new XMLHttpRequest();
-        
-        xhr.upload.addEventListener('progress', (e) => {
-          if (e.lengthComputable) {
-            const now = Date.now();
-            const timeDiff = (now - lastTime) / 1000;
-            const loadedDiff = e.loaded - lastLoaded;
-            const speed = timeDiff > 0 ? loadedDiff / timeDiff : 0;
-            const remaining = e.total - e.loaded;
-            const eta = speed > 0 ? Math.ceil(remaining / speed) : 0;
-
-            setProgress({
-              percent: Math.round((e.loaded / e.total) * 100),
-              speed,
-              eta,
-              status: 'uploading',
-            });
-
-            lastLoaded = e.loaded;
-            lastTime = now;
-          }
+          upload.start();
         });
 
-        xhr.onload = () => {
-          if (xhr.status === 200 || xhr.status === 204) {
-            resolve();
-          } else {
-            // Try to parse error response from Storage API
-            let errorMessage = `Upload failed with status ${xhr.status}`;
-            try {
-              const errorResponse = JSON.parse(xhr.responseText);
-              if (errorResponse.error) {
-                errorMessage = errorResponse.error;
-              } else if (errorResponse.message) {
-                errorMessage = errorResponse.message;
-              }
-            } catch (e) {
-              // If not JSON, use the response text if available
-              if (xhr.responseText) {
-                errorMessage = `Upload failed: ${xhr.responseText.substring(0, 100)}`;
-              }
-            }
-            console.error('Storage upload error:', {
-              status: xhr.status,
-              statusText: xhr.statusText,
-              response: xhr.responseText
-            });
-            reject(new Error(errorMessage));
-          }
-        };
+        // Mark as processing (no confirm-upload needed for videos)
+        setProgress({ percent: 100, speed: 0, eta: 0, status: 'processing' });
 
-        xhr.onerror = () => {
-          console.error('Network error during upload');
-          reject(new Error('Network error during upload. Please check your connection.'));
-        };
-        
-        xhr.ontimeout = () => {
-          console.error('Upload timeout');
-          reject(new Error('Upload timeout. The file may be too large or your connection is slow.'));
-        };
+        await supabase.functions.invoke('confirm-upload', {
+          body: {
+            media_item_id: urlData.media_item_id,
+            storage_path: urlData.storage_path || `cloudflare/${urlData.cloudflare_stream_uid}`,
+            type,
+          },
+        });
 
-        xhr.open('PUT', urlData.upload_url);
-        xhr.setRequestHeader('Content-Type', file.type);
-        xhr.timeout = 300000; // 5 minute timeout
-        xhr.send(file);
-      });
-
-      // Step 3: Confirm upload
-      setProgress({ percent: 100, speed: 0, eta: 0, status: 'processing' });
-
-      const { error: confirmError } = await supabase.functions.invoke('confirm-upload', {
-        body: {
-          media_item_id: urlData.media_item_id,
-          storage_path: urlData.storage_path,
-          type,
-        },
-      });
-
-      if (confirmError) throw confirmError;
-
-      // Step 4: Poll status if video (processing takes time)
-      if (type === 'video') {
+        // Poll video status
         await pollVideoStatus(urlData.media_item_id);
+      } else {
+        // Photo/Audio: Upload to Supabase Storage
+        const startTime = Date.now();
+        let lastLoaded = 0;
+        let lastTime = startTime;
+
+        await new Promise<void>((resolve, reject) => {
+          const xhr = new XMLHttpRequest();
+          
+          xhr.upload.addEventListener('progress', (e) => {
+            if (e.lengthComputable) {
+              const now = Date.now();
+              const timeDiff = (now - lastTime) / 1000;
+              const loadedDiff = e.loaded - lastLoaded;
+              const speed = timeDiff > 0 ? loadedDiff / timeDiff : 0;
+              const remaining = e.total - e.loaded;
+              const eta = speed > 0 ? Math.ceil(remaining / speed) : 0;
+
+              setProgress({
+                percent: Math.round((e.loaded / e.total) * 100),
+                speed,
+                eta,
+                status: 'uploading',
+              });
+
+              lastLoaded = e.loaded;
+              lastTime = now;
+            }
+          });
+
+          xhr.onload = () => {
+            if (xhr.status === 200 || xhr.status === 204) {
+              resolve();
+            } else {
+              let errorMessage = `Upload failed with status ${xhr.status}`;
+              try {
+                const errorResponse = JSON.parse(xhr.responseText);
+                if (errorResponse.error) {
+                  errorMessage = errorResponse.error;
+                } else if (errorResponse.message) {
+                  errorMessage = errorResponse.message;
+                }
+              } catch (e) {
+                if (xhr.responseText) {
+                  errorMessage = `Upload failed: ${xhr.responseText.substring(0, 100)}`;
+                }
+              }
+              console.error('Storage upload error:', {
+                status: xhr.status,
+                statusText: xhr.statusText,
+                response: xhr.responseText
+              });
+              reject(new Error(errorMessage));
+            }
+          };
+
+          xhr.onerror = () => {
+            console.error('Network error during upload');
+            reject(new Error('Network error during upload. Please check your connection.'));
+          };
+          
+          xhr.ontimeout = () => {
+            console.error('Upload timeout');
+            reject(new Error('Upload timeout. The file may be too large or your connection is slow.'));
+          };
+
+          xhr.open('PUT', urlData.upload_url);
+          xhr.setRequestHeader('Content-Type', file.type);
+          xhr.timeout = 300000; // 5 minute timeout
+          xhr.send(file);
+        });
+
+        // Confirm upload
+        setProgress({ percent: 100, speed: 0, eta: 0, status: 'processing' });
+
+        const { error: confirmError } = await supabase.functions.invoke('confirm-upload', {
+          body: {
+            media_item_id: urlData.media_item_id,
+            storage_path: urlData.storage_path,
+            type,
+          },
+        });
+
+        if (confirmError) throw confirmError;
       }
 
       setProgress({ 

@@ -125,73 +125,24 @@ Deno.serve(async (req) => {
         throw error;
       }
     } else if (type === 'video') {
-      // For videos: upload to Cloudflare Stream
-      try {
-        const CLOUDFLARE_ACCOUNT_ID = Deno.env.get('CLOUDFLARE_ACCOUNT_ID');
-        const CLOUDFLARE_STREAM_API_TOKEN = Deno.env.get('CLOUDFLARE_STREAM_API_TOKEN');
+      // Videos are uploaded directly to Cloudflare via TUS in the frontend
+      // They should already have cloudflare_stream_uid set
+      // Just mark as processing (Cloudflare will handle encoding)
+      await supabaseAdmin
+        .from('media_items')
+        .update({
+          status: 'processing',
+        })
+        .eq('id', media_item_id);
 
-        if (!CLOUDFLARE_ACCOUNT_ID || !CLOUDFLARE_STREAM_API_TOKEN) {
-          throw new Error('Cloudflare credentials not configured');
-        }
-
-        // Download video from Supabase Storage
-        const { data: videoData, error: downloadError } = await supabaseAdmin.storage
-          .from(bucketName)
-          .download(storage_path);
-
-        if (downloadError || !videoData) {
-          throw new Error('Failed to download video');
-        }
-
-        // Upload to Cloudflare Stream using TUS protocol
-        const uploadResponse = await fetch(
-          `https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/stream`,
-          {
-            method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${CLOUDFLARE_STREAM_API_TOKEN}`,
-            },
-            body: videoData,
-          }
-        );
-
-        if (!uploadResponse.ok) {
-          throw new Error(`Cloudflare Stream upload failed: ${uploadResponse.statusText}`);
-        }
-
-        const uploadResult = await uploadResponse.json();
-        const streamUid = uploadResult.result?.uid;
-
-        if (!streamUid) {
-          throw new Error('No Stream UID returned from Cloudflare');
-        }
-
-        // Update media_items with Cloudflare Stream UID
-        await supabaseAdmin
-          .from('media_items')
-          .update({
-            status: 'processing',
-            cloudflare_stream_uid: streamUid,
-          })
-          .eq('id', media_item_id);
-
-        return new Response(
-          JSON.stringify({
-            status: 'processing',
-            media_item_id,
-            cloudflare_stream_uid: streamUid,
-            message: 'Video uploaded to Cloudflare Stream. Encoding in progress.',
-          }),
-          { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      } catch (error) {
-        console.error('Video processing error:', error);
-        await supabaseAdmin
-          .from('media_items')
-          .update({ status: 'failed' })
-          .eq('id', media_item_id);
-        throw error;
-      }
+      return new Response(
+        JSON.stringify({
+          status: 'processing',
+          media_item_id,
+          message: 'Video uploaded to Cloudflare Stream. Encoding in progress.',
+        }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     } else if (type === 'audio') {
       // For audio: mark as ready (no special processing needed)
       try {
