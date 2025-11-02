@@ -81,8 +81,8 @@ export const UploadProgress: React.FC<UploadProgressProps> = ({
               </p>
             </div>
           ) : (
-            <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-3">
-              <p className="text-sm text-green-800 dark:text-green-200 font-medium">
+            <div className="bg-green-600 rounded-lg p-3">
+              <p className="text-sm text-white font-medium">
                 ✅ Your photo is now live in the gallery!
               </p>
             </div>
@@ -91,9 +91,8 @@ export const UploadProgress: React.FC<UploadProgressProps> = ({
           <div className="flex gap-2">
             {onRetry && (
               <Button 
-                onClick={onRetry} 
-                variant="outline"
-                className="flex-1"
+                onClick={onRetry}
+                className="flex-1 bg-[#6D28D9] hover:bg-[#5B21B6] text-white font-semibold shadow-md"
               >
                 Upload Another
               </Button>
@@ -101,7 +100,7 @@ export const UploadProgress: React.FC<UploadProgressProps> = ({
             {onViewGallery && (
               <Button 
                 onClick={onViewGallery} 
-                className="flex-1 bg-[#6D28D9] hover:bg-[#5B21B6]"
+                className="flex-1 bg-[#6D28D9] hover:bg-[#5B21B6] text-white font-semibold shadow-md"
               >
                 View Gallery 🎉
               </Button>
