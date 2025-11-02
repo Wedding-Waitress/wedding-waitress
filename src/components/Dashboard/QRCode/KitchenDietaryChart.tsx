@@ -399,36 +399,34 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
       `}</style>
       
       <div className="space-y-6 kitchen-dietary-chart">
-        {/* Combined Header Card - Always visible */}
-        <Card className="ww-box print:hidden">
-          <CardContent className="p-6">
-            {/* Event Selector - Always visible */}
-            <div className="flex items-center gap-3">
-              <span className="text-sm font-medium whitespace-nowrap">Choose Event:</span>
-              <Select value={eventId || "no-event"} onValueChange={handleEventSelect}>
-                <SelectTrigger className="w-[300px] border-primary focus:ring-primary">
-                  <SelectValue placeholder="Choose Event" />
-                </SelectTrigger>
-                <SelectContent className="bg-popover border-border z-50">
-                  {events.map(event => (
-                    <SelectItem key={event.id} value={event.id}>
-                      <div className="flex items-center gap-2">
-                        <Calendar className="w-4 h-4" />
-                        <span>{event.name}</span>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+        {/* Combined Header Card */}
+        {currentEvent && (
+          <Card className="ww-box print:hidden">
+            <CardContent className="p-6">
+              {/* Top Row: Event Selector (Left) + Title & Description (Right) */}
+              <div className="flex items-start justify-between gap-6">
+                {/* Left Side: Event Selector */}
+                <div className="flex items-center gap-3">
+                  <span className="text-sm font-medium whitespace-nowrap">Choose Event:</span>
+                  <Select value={eventId || "no-event"} onValueChange={handleEventSelect}>
+                    <SelectTrigger className="w-[300px] border-primary focus:ring-primary">
+                      <SelectValue placeholder="Choose Event" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-popover border-border z-50">
+                      {events.map(event => (
+                        <SelectItem key={event.id} value={event.id}>
+                          <div className="flex items-center gap-2">
+                            <Calendar className="w-4 h-4" />
+                            <span>{event.name}</span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
 
-            {/* Only show the rest when event is selected */}
-            {currentEvent && (
-              <>
-                <Separator className="my-4" />
-
-                {/* Title and Description */}
-                <div className="flex items-center gap-3 mb-4">
+                {/* Right Side: Title and Description */}
+                <div className="flex items-center gap-3">
                   <div className="p-2 rounded-lg bg-primary/10">
                     <ChefHat className="w-5 h-5 text-primary" />
                   </div>
@@ -439,63 +437,65 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                     </p>
                   </div>
                 </div>
+              </div>
 
-                {/* Event Info + Action Buttons */}
-                <div className="flex items-center justify-between gap-4">
-                  {/* Left Side: Event Info on one line */}
-                  <div className="flex items-center gap-2 text-sm flex-wrap">
-                    <span className="font-semibold text-primary text-base">
-                      {currentEvent.name}
-                    </span>
-                    {currentEvent.date && (
-                      <>
-                        <span className="text-muted-foreground">-</span>
-                        <span className="text-muted-foreground">
-                          {format(new Date(currentEvent.date), 'EEEE, MMMM do, yyyy')}
-                        </span>
-                      </>
-                    )}
-                    <span className="text-muted-foreground">-</span>
-                    <span className="text-muted-foreground">
-                      {dietaryGuests.length} Guest{dietaryGuests.length !== 1 ? 's' : ''} with dietary requirements
-                    </span>
-                  </div>
+              <Separator className="my-4" />
 
-                  {/* Right Side: Action Buttons */}
-                  <div className="flex items-center gap-2 flex-shrink-0">
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      onClick={handleDownloadPdf}
-                      disabled={isExporting || dietaryGuests.length === 0}
-                    >
-                      <FileText className="w-4 h-4" />
-                      Download PDF
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      onClick={handleDownloadWord}
-                      disabled={isExporting || dietaryGuests.length === 0}
-                    >
-                      <FileText className="w-4 h-4" />
-                      Download Word
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      onClick={handlePrint}
-                      disabled={isExporting || dietaryGuests.length === 0}
-                    >
-                      <Printer className="w-4 h-4" />
-                      Print
-                    </Button>
-                  </div>
+              {/* Bottom Row: Single line with Event Info + Buttons */}
+              <div className="flex items-center justify-between gap-4">
+                {/* Left Side: Event Info on one line */}
+                <div className="flex items-center gap-2 text-sm flex-wrap">
+                  <span className="font-semibold text-primary text-base">
+                    {currentEvent.name}
+                  </span>
+                  {currentEvent.date && (
+                    <>
+                      <span className="text-muted-foreground">-</span>
+                      <span className="text-muted-foreground">
+                        {format(new Date(currentEvent.date), 'EEEE, MMMM do, yyyy')}
+                      </span>
+                    </>
+                  )}
+                  <span className="text-muted-foreground">-</span>
+                  <span className="text-muted-foreground">
+                    {dietaryGuests.length} Guest{dietaryGuests.length !== 1 ? 's' : ''} with dietary requirements
+                  </span>
                 </div>
-              </>
-            )}
-          </CardContent>
-        </Card>
+
+                {/* Right Side: Action Buttons */}
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={handleDownloadPdf}
+                    disabled={isExporting || dietaryGuests.length === 0}
+                  >
+                    <FileText className="w-4 h-4" />
+                    Download PDF
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={handleDownloadWord}
+                    disabled={isExporting || dietaryGuests.length === 0}
+                  >
+                    <FileText className="w-4 h-4" />
+                    Download Word
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={handlePrint}
+                    disabled={isExporting || dietaryGuests.length === 0}
+                  >
+                    <Printer className="w-4 h-4" />
+                    Print
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Main Content Grid: Settings + A4 Display */}
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
