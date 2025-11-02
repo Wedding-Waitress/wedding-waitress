@@ -315,24 +315,23 @@ export const UploadMediaSheet: React.FC<UploadMediaSheetProps> = ({
                   Cancel
                 </Button>
                 
-                <Button 
-                  onClick={handleBatchUpload}
-                  className="flex-1 bg-green-500 hover:bg-green-600 text-white"
-                  disabled={isUploading}
-                >
-                  {isUploading ? 'Uploading...' : 'Upload Item'}
-                </Button>
-                
                 {selectedType && (
                   <Button
                     onClick={() => addMoreInputRef.current?.click()}
                     className="flex-1 bg-purple-900 hover:bg-purple-800 text-white"
                     disabled={isUploading}
                   >
-                    <Plus className="w-4 h-4 mr-2" />
-                    Add More Photos
+                    Add More
                   </Button>
                 )}
+                
+                <Button 
+                  onClick={handleBatchUpload}
+                  className="flex-1 bg-green-500 hover:bg-green-600 text-white"
+                  disabled={isUploading}
+                >
+                  {isUploading ? 'Uploading...' : 'Upload'}
+                </Button>
               </div>
             </div>
           )
