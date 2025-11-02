@@ -118,9 +118,9 @@ export const Dashboard = () => {
   // Get selected event for My Events countdown (use events active event)
   const selectedCountdownEvent = eventsActiveEventId ? events.find(e => e.id === eventsActiveEventId) : null;
 
-  // Load selected event from localStorage on mount (GLOBAL)
+  // Load selected event from sessionStorage on mount (GLOBAL - session-scoped)
   useEffect(() => {
-    const savedEventId = localStorage.getItem('ww:global_selected_event');
+    const savedEventId = sessionStorage.getItem('ww:session_selected_event');
     if (savedEventId && events.find(e => e.id === savedEventId)) {
       setGlobalSelectedEventId(savedEventId);
       setSelectedEventId(savedEventId); // Keep backward compatibility
@@ -160,7 +160,7 @@ export const Dashboard = () => {
     if (eventId === "no-event") return;
     setGlobalSelectedEventId(eventId);
     setSelectedEventId(eventId); // Keep backward compatibility
-    localStorage.setItem('ww:global_selected_event', eventId);
+    sessionStorage.setItem('ww:session_selected_event', eventId);
   };
   
   // Legacy handler (for backward compatibility)
