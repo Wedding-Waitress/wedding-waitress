@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/enhanced-button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Edit2, Trash2, Plus, Calendar } from "lucide-react";
+import { Edit, Trash2, Plus, Calendar } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { DeleteConfirmationModal } from './DeleteConfirmationModal';
 import { EventEditModal } from './EventEditModal';
@@ -303,11 +303,11 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                     </TableCell>
                     <TableCell className="w-20">
                       <div className="flex items-center justify-center space-x-1">
-                        <Button variant="ghost" size="icon" onClick={() => handleEdit(event)} className="w-8 h-8 text-green-600 hover:text-green-700">
-                          <Edit2 className="w-5 h-5" />
+                        <Button variant="ghost" size="sm" onClick={() => handleEdit(event)} className="text-green-500 hover:text-green-600">
+                          <Edit className="w-4 h-4" />
                         </Button>
-                        <Button variant="ghost" size="icon" onClick={() => handleDeleteClick(event)} className="w-8 h-8 text-red-600 hover:text-red-700">
-                          <Trash2 className="w-5 h-5" />
+                        <Button variant="ghost" size="sm" onClick={() => handleDeleteClick(event)} className="text-red-500 hover:text-red-600">
+                          <Trash2 className="w-4 h-4" />
                         </Button>
                       </div>
                     </TableCell>
