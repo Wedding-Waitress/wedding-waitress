@@ -1088,7 +1088,8 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
               <div className="flex items-center space-x-2">
                 <TooltipProvider>
                   {/* Guest counter pill - positioned first */}
-                  <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium ring-offset-background transition-all duration-300 h-9 px-3 bg-gradient-primary text-primary-foreground hover:scale-105 transform pointer-events-none">
+                  <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium ring-offset-background transition-all duration-300 h-9 px-3 bg-white border-2 border-primary text-foreground pointer-events-none">
+                    <Users className="w-4 h-4" />
                     {guestCount} Guest{guestCount !== 1 ? 's' : ''}
                     {guestCount !== totalGuestCount && ` (${totalGuestCount} total)`}
                   </div>
