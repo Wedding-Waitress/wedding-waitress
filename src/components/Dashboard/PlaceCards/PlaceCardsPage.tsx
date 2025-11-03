@@ -290,8 +290,9 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
                     <Label>Export Controls</Label>
                     <div className="grid grid-cols-2 gap-2">
                       <Button
-                        variant="outline"
+                        variant="gradient"
                         size="sm"
+                        className="rounded-full"
                         onClick={handleDownloadPdfPage}
                         disabled={isProcessing}
                       >
@@ -299,8 +300,9 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
                         Download PDF
                       </Button>
                       <Button
-                        variant="outline"
+                        variant="gradient"
                         size="sm"
+                        className="rounded-full"
                         onClick={handleDownloadPdfAll}
                         disabled={isProcessing}
                       >
@@ -315,8 +317,9 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
                     <Label>Word Export</Label>
                     <div className="grid grid-cols-2 gap-2">
                       <Button
-                        variant="outline"
+                        variant="gradient"
                         size="sm"
+                        className="rounded-full"
                         onClick={handleDownloadWordPage}
                         disabled={isProcessing}
                       >
@@ -324,8 +327,9 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
                         Download Word
                       </Button>
                       <Button
-                        variant="outline"
+                        variant="gradient"
                         size="sm"
+                        className="rounded-full"
                         onClick={handleDownloadWordAll}
                         disabled={isProcessing}
                       >
@@ -340,8 +344,9 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
                     <Label>Print Controls</Label>
                     <div className="grid grid-cols-2 gap-2">
                       <Button
-                        variant="outline"
+                        variant="gradient"
                         size="sm"
+                        className="rounded-full"
                         onClick={handlePrint}
                         disabled={isProcessing}
                       >
@@ -349,8 +354,9 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
                         Print
                       </Button>
                       <Button
-                        variant="outline"
+                        variant="gradient"
                         size="sm"
+                        className="rounded-full"
                         onClick={handlePrintAll}
                         disabled={isProcessing}
                       >
