@@ -346,7 +346,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
         {/* Grid Layout for Top Row and Bottom Cards */}
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr_0.8fr] gap-4 lg:gap-6 w-full">
           {/* Row 1, Col 1: Connection Status Indicators */}
-          <div className="flex-1 space-y-3 p-4 bg-green-50 border border-green-200 rounded-lg my-[30px]">
+          <div className="flex-1 space-y-3 p-4 bg-green-50 border-2 border-green-600 rounded-lg my-[30px]">
             {/* Connection Status */}
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
@@ -372,7 +372,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
           </div>
 
           {/* Row 1, Col 2: Live View Actions */}
-          <div className="lg:w-auto space-y-3 p-4 bg-purple-50 border border-purple-200 rounded-lg flex flex-col justify-center my-[30px]">
+          <div className="lg:w-auto space-y-3 p-4 bg-purple-50 border-2 border-purple-600 rounded-lg flex flex-col justify-center my-[30px]">
             <div className="space-y-2">
               <Button onClick={handleLiveView} disabled={!selectedEvent?.slug} className="w-full lg:w-auto lg:min-w-[180px] mx-[5px]">
                 <ExternalLink className="h-4 w-4 mr-2" />
@@ -783,56 +783,56 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                 <div className="space-y-3">
                   {/* RSVP Invite Toggle */}
                   <div className="flex items-center justify-between p-3 rounded-lg border border-border">
-                    <Label htmlFor="toggle-rsvp" className="text-sm font-medium cursor-pointer">
+                    <Label htmlFor="toggle-rsvp" className="text-sm font-medium cursor-pointer flex-1">
                       RSVP Invite
                     </Label>
                     <Switch
                       id="toggle-rsvp"
                       checked={visibilitySettings?.show_rsvp_invite || false}
                       onCheckedChange={(checked) => updateVisibility('show_rsvp_invite', checked)}
-                      className="data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-red-600"
+                      className="data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-red-600 shrink-0"
                       aria-label="Toggle RSVP Invite visibility"
                     />
                   </div>
 
                   {/* Reception Toggle */}
                   <div className="flex items-center justify-between p-3 rounded-lg border border-border">
-                    <Label htmlFor="toggle-reception" className="text-sm font-medium cursor-pointer">
+                    <Label htmlFor="toggle-reception" className="text-sm font-medium cursor-pointer flex-1">
                       Reception
                     </Label>
                     <Switch
                       id="toggle-reception"
                       checked={visibilitySettings?.show_reception || false}
                       onCheckedChange={(checked) => updateVisibility('show_reception', checked)}
-                      className="data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-red-600"
+                      className="data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-red-600 shrink-0"
                       aria-label="Toggle Reception visibility"
                     />
                   </div>
 
                   {/* Invite Video Toggle */}
                   <div className="flex items-center justify-between p-3 rounded-lg border border-border">
-                    <Label htmlFor="toggle-invite-video" className="text-sm font-medium cursor-pointer">
+                    <Label htmlFor="toggle-invite-video" className="text-sm font-medium cursor-pointer flex-1">
                       Invite Video
                     </Label>
                     <Switch
                       id="toggle-invite-video"
                       checked={visibilitySettings?.show_invite_video || false}
                       onCheckedChange={(checked) => updateVisibility('show_invite_video', checked)}
-                      className="data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-red-600"
+                      className="data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-red-600 shrink-0"
                       aria-label="Toggle Invite Video visibility"
                     />
                   </div>
 
                   {/* Welcome Video Toggle */}
                   <div className="flex items-center justify-between p-3 rounded-lg border border-border">
-                    <Label htmlFor="toggle-welcome-video" className="text-sm font-medium cursor-pointer">
+                    <Label htmlFor="toggle-welcome-video" className="text-sm font-medium cursor-pointer flex-1">
                       Welcome Video
                     </Label>
                     <Switch
                       id="toggle-welcome-video"
                       checked={visibilitySettings?.show_welcome_video || false}
                       onCheckedChange={(checked) => updateVisibility('show_welcome_video', checked)}
-                      className="data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-red-600"
+                      className="data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-red-600 shrink-0"
                       aria-label="Toggle Welcome Video visibility"
                     />
                   </div>
