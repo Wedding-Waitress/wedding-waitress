@@ -358,9 +358,9 @@ export const MyEventsPage: React.FC = () => {
           {/* SVG Ring */}
           <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
             {/* Base ring */}
-            <circle cx="50" cy="50" r="45" fill="none" stroke="hsl(var(--muted))" strokeWidth="3" />
+            <circle cx="50" cy="50" r="45" fill="none" stroke="hsl(var(--muted))" strokeWidth="6" />
             {/* Progress ring */}
-            <circle cx="50" cy="50" r="45" fill="none" stroke="hsl(var(--primary))" strokeWidth="3" strokeDasharray={circumference} strokeDashoffset={strokeDashoffset} className="transition-all duration-300 ease-out" strokeLinecap="round" />
+            <circle cx="50" cy="50" r="45" fill="none" stroke="hsl(var(--primary))" strokeWidth="6" strokeDasharray={circumference} strokeDashoffset={strokeDashoffset} className="transition-all duration-300 ease-out" strokeLinecap="round" />
           </svg>
           
           {/* Content */}
