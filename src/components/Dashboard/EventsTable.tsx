@@ -200,7 +200,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
         <div className="p-6 border-b border-card-border bg-white">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-2xl font-normal text-[#7C3AED]">My Events</h3>
+              <h3 className="text-2xl font-normal text-[#8B5CF6]">My Events</h3>
               <p className="text-sm text-muted-foreground">
                 Create and manage your event
               </p>
