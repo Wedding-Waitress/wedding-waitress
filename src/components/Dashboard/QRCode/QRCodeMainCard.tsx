@@ -500,7 +500,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                   <h4 className="text-sm font-medium">Live View Modules</h4>
                   <Accordion type="single" collapsible className="w-full">
                     <AccordionItem value="rsvp-invite">
-                      <AccordionTrigger className="text-sm py-2 flex justify-between items-center">
+                      <AccordionTrigger className="text-sm py-2 flex justify-between items-center pr-3">
                         <span>RSVP Invite</span>
                         <Badge 
                           variant={visibilitySettings?.show_rsvp_invite ? "success" : "destructive"}
@@ -710,7 +710,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                     </AccordionItem>
 
                     <AccordionItem value="reception">
-                      <AccordionTrigger className="text-sm py-2 flex justify-between items-center">
+                      <AccordionTrigger className="text-sm py-2 flex justify-between items-center pr-3">
                         <span>Reception</span>
                         <Badge 
                           variant={visibilitySettings?.show_reception ? "success" : "destructive"}
@@ -729,7 +729,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                     </AccordionItem>
 
                     <AccordionItem value="invite-video">
-                      <AccordionTrigger className="text-sm py-2 flex justify-between items-center">
+                      <AccordionTrigger className="text-sm py-2 flex justify-between items-center pr-3">
                         <span>Invite Video</span>
                         <Badge 
                           variant={visibilitySettings?.show_invite_video ? "success" : "destructive"}
@@ -748,7 +748,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                     </AccordionItem>
 
                     <AccordionItem value="welcome-video">
-                      <AccordionTrigger className="text-sm py-2 flex justify-between items-center">
+                      <AccordionTrigger className="text-sm py-2 flex justify-between items-center pr-3">
                         <span>Welcome Video</span>
                         <Badge 
                           variant={visibilitySettings?.show_welcome_video ? "success" : "destructive"}
@@ -782,59 +782,67 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                 
                 <div className="space-y-3">
                   {/* RSVP Invite Toggle */}
-                  <div className="flex items-center justify-between p-3 rounded-lg border border-border">
+                  <div className="flex items-center justify-between pl-3 pr-3 py-3 rounded-lg border border-border">
                     <Label htmlFor="toggle-rsvp" className="text-sm font-medium cursor-pointer flex-1">
                       RSVP Invite
                     </Label>
-                    <Switch
-                      id="toggle-rsvp"
-                      checked={visibilitySettings?.show_rsvp_invite || false}
-                      onCheckedChange={(checked) => updateVisibility('show_rsvp_invite', checked)}
-                      className="data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-red-600 shrink-0"
-                      aria-label="Toggle RSVP Invite visibility"
-                    />
+                    <div className="w-11 flex justify-end">
+                      <Switch
+                        id="toggle-rsvp"
+                        checked={visibilitySettings?.show_rsvp_invite || false}
+                        onCheckedChange={(checked) => updateVisibility('show_rsvp_invite', checked)}
+                        className="data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-red-600"
+                        aria-label="Toggle RSVP Invite visibility"
+                      />
+                    </div>
                   </div>
 
                   {/* Reception Toggle */}
-                  <div className="flex items-center justify-between p-3 rounded-lg border border-border">
+                  <div className="flex items-center justify-between pl-3 pr-3 py-3 rounded-lg border border-border">
                     <Label htmlFor="toggle-reception" className="text-sm font-medium cursor-pointer flex-1">
                       Reception
                     </Label>
-                    <Switch
-                      id="toggle-reception"
-                      checked={visibilitySettings?.show_reception || false}
-                      onCheckedChange={(checked) => updateVisibility('show_reception', checked)}
-                      className="data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-red-600 shrink-0"
-                      aria-label="Toggle Reception visibility"
-                    />
+                    <div className="w-11 flex justify-end">
+                      <Switch
+                        id="toggle-reception"
+                        checked={visibilitySettings?.show_reception || false}
+                        onCheckedChange={(checked) => updateVisibility('show_reception', checked)}
+                        className="data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-red-600"
+                        aria-label="Toggle Reception visibility"
+                      />
+                    </div>
                   </div>
 
                   {/* Invite Video Toggle */}
-                  <div className="flex items-center justify-between p-3 rounded-lg border border-border">
+                  <div className="flex items-center justify-between pl-3 pr-3 py-3 rounded-lg border border-border">
                     <Label htmlFor="toggle-invite-video" className="text-sm font-medium cursor-pointer flex-1">
                       Invite Video
                     </Label>
-                    <Switch
-                      id="toggle-invite-video"
-                      checked={visibilitySettings?.show_invite_video || false}
-                      onCheckedChange={(checked) => updateVisibility('show_invite_video', checked)}
-                      className="data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-red-600 shrink-0"
-                      aria-label="Toggle Invite Video visibility"
-                    />
+                    <div className="w-11 flex justify-end">
+                      <Switch
+                        id="toggle-invite-video"
+                        checked={visibilitySettings?.show_invite_video || false}
+                        onCheckedChange={(checked) => updateVisibility('show_invite_video', checked)}
+                        className="data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-red-600"
+                        aria-label="Toggle Invite Video visibility"
+                      />
+                    </div>
                   </div>
 
                   {/* Welcome Video Toggle */}
-                  <div className="flex items-center justify-between p-3 rounded-lg border border-border">
+                  <div className="flex items-center justify-between pl-3 pr-3 py-3 rounded-lg border border-border">
                     <Label htmlFor="toggle-welcome-video" className="text-sm font-medium cursor-pointer flex-1">
                       Welcome Video
                     </Label>
-                    <Switch
-                      id="toggle-welcome-video"
-                      checked={visibilitySettings?.show_welcome_video || false}
-                      onCheckedChange={(checked) => updateVisibility('show_welcome_video', checked)}
-                      className="data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-red-600 shrink-0"
-                      aria-label="Toggle Welcome Video visibility"
-                    />
+                    <div className="w-11 flex justify-end">
+                      <Switch
+                        id="toggle-welcome-video"
+                        checked={visibilitySettings?.show_welcome_video || false}
+                        onCheckedChange={(checked) => updateVisibility('show_welcome_video', checked)}
+                        className="data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-red-600"
+                        aria-label="Toggle Welcome Video visibility"
+                      />
+                    </div>
                   </div>
               </div>
             </CardContent>
