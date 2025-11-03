@@ -166,8 +166,10 @@ export const CountdownBar: React.FC<CountdownBarProps> = ({
           <h2 className="text-3xl md:text-4xl font-bold text-foreground">
             Welcome <span className="gradient-text">{getDisplayName()}</span>
           </h2>
-          <p className="text-muted-foreground text-xl">This is the countdown to your event</p>
         </div>
+
+        {/* Countdown Description */}
+        <p className="text-muted-foreground text-xl">This is the countdown to your event</p>
 
         {/* Countdown Circles */}
         <div className={`transition-opacity duration-300 ease-in-out ${isAnimating ? 'opacity-0' : 'opacity-100'}`}>
@@ -186,7 +188,11 @@ export const CountdownBar: React.FC<CountdownBarProps> = ({
 
         {/* Event Status */}
         {displayEvent && <p className={`text-lg font-medium text-muted-foreground transition-opacity duration-300 ease-in-out ${isAnimating ? 'opacity-0' : 'opacity-100'}`}>
-            {hasStarted ? 'Event has started!' : `Until ${displayEvent.name}`}
+            {hasStarted ? 'Event has started!' : (
+              <>
+                Until <span className="text-2xl font-normal bg-gradient-to-r from-[#7C3AED] to-[#9333EA] bg-clip-text text-transparent">{displayEvent.name}</span>
+              </>
+            )}
           </p>}
       </div>
     </Card>;
