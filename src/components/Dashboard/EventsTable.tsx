@@ -197,7 +197,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
   }
   return <>
       <Card className="ww-box overflow-hidden mx-0">
-        <div className="p-6 border-b border-card-border bg-gradient-subtle">
+        <div className="p-6 border-b border-card-border bg-white">
           <div className="flex items-center justify-between">
             <div>
               <h3 className="text-2xl font-normal bg-gradient-to-r from-[#7C3AED] to-[#9333EA] bg-clip-text text-transparent" style={{ backgroundImage: 'linear-gradient(135deg, #7C3AED, #9333EA)' }}>My Events</h3>
@@ -223,7 +223,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
             <Table>
             <TableHeader className="rounded-t-2xl">
               <TableRow className="rounded-t-2xl">
-                <TableHead className="w-20">Countdown</TableHead>
+                <TableHead className="w-20 rounded-tl-2xl">Countdown</TableHead>
                 <TableHead className="w-32">Event Name</TableHead>
                 <TableHead className="w-24">Event Date</TableHead>
                 <TableHead className="w-28">Venue</TableHead>
@@ -233,7 +233,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                 <TableHead className="w-24">RSVP Deadline</TableHead>
                 <TableHead className="w-24">Created Date:</TableHead>
                 <TableHead className="w-24">Expiry Date:</TableHead>
-                <TableHead className="w-20">Actions</TableHead>
+                <TableHead className="w-20 rounded-tr-2xl">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -315,7 +315,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                 })}
                 {/* Purple footer row - matching header background */}
                 <TableRow className="bg-primary hover:bg-primary border-t border-card-border rounded-b-2xl">
-                  <TableCell colSpan={11} className="h-12">
+                  <TableCell colSpan={11} className="h-12 rounded-b-2xl">
                     {/* Empty footer row with same height as data rows */}
                   </TableCell>
                 </TableRow>
