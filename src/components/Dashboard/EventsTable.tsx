@@ -221,8 +221,8 @@ export const EventsTable: React.FC<EventsTableProps> = ({
         <div className="overflow-x-auto">
           <RadioGroup value={activeEventId || ''} onValueChange={handleEventSelect}>
             <Table>
-            <TableHeader>
-              <TableRow>
+            <TableHeader className="rounded-t-2xl">
+              <TableRow className="rounded-t-2xl">
                 <TableHead className="w-20">Countdown</TableHead>
                 <TableHead className="w-32">Event Name</TableHead>
                 <TableHead className="w-24">Event Date</TableHead>
@@ -314,7 +314,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                   </TableRow>;
                 })}
                 {/* Purple footer row - matching header background */}
-                <TableRow className="bg-primary hover:bg-primary border-t border-card-border">
+                <TableRow className="bg-primary hover:bg-primary border-t border-card-border rounded-b-2xl">
                   <TableCell colSpan={11} className="h-12">
                     {/* Empty footer row with same height as data rows */}
                   </TableCell>
