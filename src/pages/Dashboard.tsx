@@ -242,8 +242,8 @@ export const Dashboard = () => {
             <CardDescription className="mb-6">
               Welcome to your wedding planning dashboard. Get an overview of your event progress.
             </CardDescription>
-            <Button variant="gradient">
-              <Plus className="w-4 h-4 mr-2" />
+            <Button variant="default" size="xs" className="rounded-full flex items-center gap-2">
+              <Plus className="w-4 h-4" />
               View Analytics
             </Button>
           </Card>;
@@ -301,8 +301,8 @@ export const Dashboard = () => {
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <div>
-                          <Button variant="gradient" className="sm:ml-3 sm:flex-shrink-0" disabled={!selectedEventId} onClick={handleCreateTable}>
-                            <Plus className="w-4 h-4 mr-2" />
+                          <Button variant="default" size="xs" className="rounded-full flex items-center gap-2 sm:ml-3 sm:flex-shrink-0" disabled={!selectedEventId} onClick={handleCreateTable}>
+                            <Plus className="w-4 h-4" />
                             Create Tables
                           </Button>
                         </div>
@@ -325,8 +325,8 @@ export const Dashboard = () => {
                        {tables.map(table => <TableCard key={table.id} table={table} onEdit={handleEditTable} onDelete={deleteTable} guests={guests} eventId={selectedEventId} onGuestMove={handleGuestMove} />)}
                      </div> : <div className="text-center py-8">
                       <div className="text-muted-foreground mb-4">No tables created yet</div>
-                      <Button variant="gradient" onClick={handleCreateTable}>
-                        <Plus className="w-4 h-4 mr-2" />
+                      <Button variant="default" size="xs" className="rounded-full flex items-center gap-2" onClick={handleCreateTable}>
+                        <Plus className="w-4 h-4" />
                         Create Your First Table
                       </Button>
                     </div>}
@@ -347,8 +347,8 @@ export const Dashboard = () => {
               <CardDescription className="mb-6">
                 Create your first event to manage a photo and video album.
               </CardDescription>
-              <Button variant="gradient" onClick={() => handleTabChange('my-events')}>
-                <Plus className="w-4 h-4 mr-2" />
+              <Button variant="default" size="xs" className="rounded-full flex items-center gap-2" onClick={() => handleTabChange('my-events')}>
+                <Plus className="w-4 h-4" />
                 Create Event
               </Button>
             </Card>
@@ -487,7 +487,7 @@ export const Dashboard = () => {
           <CardDescription className="mb-6">
             You need to be signed in to access the dashboard. Please return to the home page to sign in or create an account.
           </CardDescription>
-          <Button variant="gradient" onClick={() => navigate('/')} className="w-full">
+          <Button variant="default" size="xs" className="rounded-full w-full" onClick={() => navigate('/')}>
             Go to Home Page
           </Button>
         </Card>
