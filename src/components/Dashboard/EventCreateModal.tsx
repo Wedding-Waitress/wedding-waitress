@@ -163,10 +163,13 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={handleClose} disabled={isSaving}>
+          <Button variant="outline" size="xs" className="rounded-full" onClick={handleClose} disabled={isSaving}>
             Cancel
           </Button>
           <Button 
+            variant="default"
+            size="xs"
+            className="rounded-full"
             onClick={handleCreate} 
             disabled={!formData.name.trim() || isSaving}
           >

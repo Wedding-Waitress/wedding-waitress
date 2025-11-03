@@ -210,8 +210,8 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                 <Calendar className="w-4 h-4 mr-1.5" />
                 {events.length} Event{events.length !== 1 ? 's' : ''}
               </Badge>
-              <Button variant="default" size="sm" className="rounded-full" onClick={() => setCreateModal(true)}>
-                <Plus className="w-4 h-4 mr-2" />
+              <Button variant="default" size="xs" className="rounded-full flex items-center gap-2" onClick={() => setCreateModal(true)}>
+                <Plus className="w-4 h-4" />
                 Create Event
               </Button>
             </div>
