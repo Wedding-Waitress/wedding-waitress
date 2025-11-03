@@ -104,7 +104,7 @@
     --gradient-primary: linear-gradient(135deg, hsl(262 83% 58%), hsl(282 83% 63%));
     --gradient-hero: linear-gradient(135deg, hsl(262 83% 58%) 0%, hsl(282 83% 63%) 50%, hsl(302 83% 68%) 100%);
     --gradient-card: linear-gradient(180deg, hsl(0 0% 95%) 0%, hsl(260 20% 94%) 100%);
-    --gradient-subtle: linear-gradient(180deg, hsl(260 20% 94%) 0%, hsl(260 15% 92%) 100%);
+    --gradient-subtle: linear-gradient(180deg, hsl(260 35% 96%) 0%, hsl(270 30% 93%) 100%);
     
     /* Shadows */
     --shadow-card: 0 4px 6px -1px hsl(262 50% 50% / 0.1), 0 2px 4px -1px hsl(262 50% 50% / 0.06);
