@@ -196,13 +196,13 @@ export const EventsTable: React.FC<EventsTableProps> = ({
         <div className="p-6 border-b border-card-border bg-gradient-subtle">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-lg font-semibold text-foreground">My Events</h3>
+              <h3 className="text-xl font-semibold bg-gradient-to-r from-[#667eea] to-[#764ba2] bg-clip-text text-transparent">My Events</h3>
               <p className="text-sm text-muted-foreground">
                 Create and manage your event
               </p>
             </div>
             <div className="flex items-center space-x-2">
-              <Badge variant="outline" className="bg-white border-primary text-primary rounded-full">
+              <Badge variant="outline" className="bg-white border-primary text-primary rounded-full text-sm">
                 <Calendar className="w-4 h-4 mr-1.5" />
                 {events.length} Event{events.length !== 1 ? 's' : ''}
               </Badge>
