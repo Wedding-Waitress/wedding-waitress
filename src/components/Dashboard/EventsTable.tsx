@@ -219,7 +219,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
             <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-20 rounded-tl-lg">Countdown</TableHead>
+                <TableHead className="w-20">Countdown</TableHead>
                 <TableHead className="w-32">Event Name</TableHead>
                 <TableHead className="w-24">Event Date</TableHead>
                 <TableHead className="w-28">Venue</TableHead>
@@ -229,7 +229,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                 <TableHead className="w-24">RSVP Deadline</TableHead>
                 <TableHead className="w-24">Created Date:</TableHead>
                 <TableHead className="w-24">Expiry Date:</TableHead>
-                <TableHead className="w-20 rounded-tr-lg">Actions</TableHead>
+                <TableHead className="w-20">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -239,7 +239,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                 const atCapacity = isAtCapacity(event);
                 return <TableRow key={event.id} className={`
                       border-card-border hover:bg-muted/30 transition-colors
-                      ${isSelected ? 'bg-primary/5 border-l-4 border-l-primary' : ''}
+                      ${isSelected ? 'bg-primary/5 border-l-4 border-l-success' : ''}
                       ${atCapacity ? 'bg-green-50 dark:bg-green-900/20' : ''}
                     `}>
                     <TableCell className="text-center w-20">
