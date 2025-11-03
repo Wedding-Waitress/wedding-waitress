@@ -219,8 +219,9 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
           {selectedEvent && (
             <div className="flex items-center justify-between pt-2 border-t">
               <div className="flex items-center gap-4">
-                <span className="text-lg font-medium text-foreground">Full Seating Chart for</span>
-                <span className="text-lg font-bold text-primary">{selectedEvent.name}</span>
+                <span className="text-2xl font-normal bg-gradient-to-r from-[#7C3AED] to-[#9333EA] bg-clip-text text-transparent">
+                  Full Seating Chart for {selectedEvent.name}
+                </span>
                 <Badge 
                   variant="outline"
                   className="ml-4 bg-white border-primary text-primary rounded-full"

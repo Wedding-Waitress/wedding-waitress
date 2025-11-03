@@ -59,11 +59,11 @@ export const FullSeatingChartCustomizer: React.FC<FullSeatingChartCustomizerProp
   onSettingsChange,
 }) => {
   return (
-    <Card className="ww-box h-fit sticky top-0 mt-12 !border-0 bg-white">
+    <Card className="ww-box h-fit sticky top-0 mt-12 border border-purple-600 bg-white">
       <CardHeader>
         <div className="flex items-center gap-2">
           <Settings className="w-5 h-5 text-primary" />
-          <CardTitle className="text-lg">Chart Settings</CardTitle>
+          <CardTitle className="text-2xl font-normal bg-gradient-to-r from-[#7C3AED] to-[#9333EA] bg-clip-text text-transparent">Chart Settings</CardTitle>
         </div>
         <CardDescription>
           Customize your full seating chart layout and appearance
