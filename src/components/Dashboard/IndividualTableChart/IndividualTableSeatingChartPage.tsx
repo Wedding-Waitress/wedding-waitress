@@ -293,7 +293,7 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
             </p>
           </div>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-4 pt-8">
           <div className="flex items-center gap-8 flex-wrap">
             {/* Choose Event Section */}
             <div className="flex items-center gap-4">
