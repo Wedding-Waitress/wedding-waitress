@@ -221,15 +221,16 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
               <div className="flex items-center gap-4">
                 <span className="text-lg font-medium text-foreground">Full Seating Chart for</span>
                 <span className="text-lg font-bold text-primary">{selectedEvent.name}</span>
-                <div className="flex items-center gap-2 ml-4">
-                  <Users className="w-4 h-4 text-muted-foreground" />
-                  <span className="text-sm text-muted-foreground">
-                    {guestsLoading ? "Loading..." : `${guests.length} guests`}
-                  </span>
-                </div>
                 <Badge 
-                  variant={isDataReady ? "default" : "secondary"}
-                  className="text-xs"
+                  variant="outline"
+                  className="ml-4 bg-white border-primary text-primary rounded-full"
+                >
+                  <Users className="w-4 h-4 mr-1.5" />
+                  {guestsLoading ? "Loading..." : `${guests.length} guests`}
+                </Badge>
+                <Badge 
+                  variant="outline"
+                  className="bg-white border-primary text-primary rounded-full"
                 >
                   {isDataReady ? 'Ready to Generate' : 'Loading Data...'}
                 </Badge>
