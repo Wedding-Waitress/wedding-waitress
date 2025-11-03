@@ -399,7 +399,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
               </div>
 
               {/* Color Customization Controls */}
-              <div className="w-full p-4 bg-purple-50/50 border border-purple-200 rounded-lg space-y-3">
+              <div className="w-full p-4 bg-purple-50/50 border border-purple-600 rounded-lg space-y-3">
                 <div className="flex items-center gap-2 mb-3">
                   <Palette className="h-4 w-4 text-purple-600" />
                   <span className="text-sm font-medium text-gray-800">Customise Your QR Code</span>
@@ -408,7 +408,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                 <div className="grid grid-cols-2 gap-4">
                   {/* Background Color */}
                   <div className="space-y-2">
-                    <Label className="text-xs font-medium">Background</Label>
+                    <Label className="text-sm font-medium">Background</Label>
                     <div className="flex items-center space-x-2">
                       <input id="color-bg" type="color" value={qrSettings.colors.background} onChange={e => updateColors({
                       background: e.target.value
@@ -421,7 +421,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
 
                   {/* Foreground Color */}
                   <div className="space-y-2">
-                    <Label className="text-xs font-medium">Foreground</Label>
+                    <Label className="text-sm font-medium">Foreground</Label>
                     <div className="flex items-center space-x-2">
                       <input id="color-fg" type="color" value={qrSettings.colors.foreground} onChange={e => updateColors({
                       foreground: e.target.value
@@ -435,7 +435,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
 
                 {/* Scannability Warning and Reset Colors */}
                 <div className="flex items-center gap-2">
-                  <Button id="btn-reset-colors" variant="ghost" size="sm" onClick={handleResetColors} className="text-xs text-muted-foreground hover:text-foreground h-6 px-2 shrink-0">
+                  <Button id="btn-reset-colors" variant="ghost" size="sm" onClick={handleResetColors} className="text-sm text-muted-foreground hover:text-foreground h-7 px-2 shrink-0">
                     Reset Colors
                   </Button>
                   <div id="color-contrast-helper" className={`flex-1 p-1.5 rounded-md text-xs ${contrastWarning ? 'bg-amber-50 text-amber-800 border border-amber-200' : 'bg-green-50 text-green-800 border border-green-200'}`}>
