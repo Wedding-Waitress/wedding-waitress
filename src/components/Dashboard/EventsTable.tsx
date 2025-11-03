@@ -129,8 +129,12 @@ export const EventsTable: React.FC<EventsTableProps> = ({
   });
   const [createModal, setCreateModal] = useState(false);
   const handleEventSelect = (eventId: string) => {
+    // Immediate UI update (no await)
     setActiveEventId(eventId);
-    onEventSelect?.(eventId);
+    // Fire callback asynchronously without blocking UI
+    if (onEventSelect) {
+      Promise.resolve().then(() => onEventSelect(eventId));
+    }
   };
   const handleEdit = (event: Event) => {
     setEditModal({
@@ -239,7 +243,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                 const atCapacity = isAtCapacity(event);
                 return <TableRow key={event.id} className={`
                       border-card-border hover:bg-muted/30 transition-colors
-                      ${isSelected ? 'bg-primary/5 border-l-4 border-l-success' : ''}
+                      ${isSelected ? 'bg-primary/5 border-l-4 border-l-[#22c55e]' : ''}
                       ${atCapacity ? 'bg-green-50 dark:bg-green-900/20' : ''}
                     `}>
                     <TableCell className="text-center w-20">
@@ -308,10 +312,10 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                         >
                           <ImageIcon className="w-3 h-3" />
                         </Button>
-                        <Button variant="ghost" size="icon" onClick={() => handleEdit(event)} className="w-8 h-8 text-muted-foreground hover:text-primary">
+                        <Button variant="ghost" size="icon" onClick={() => handleEdit(event)} className="w-8 h-8 text-green-600 hover:text-green-700">
                           <Edit2 className="w-3 h-3" />
                         </Button>
-                        <Button variant="ghost" size="icon" onClick={() => handleDeleteClick(event)} className="w-8 h-8 text-muted-foreground hover:text-destructive">
+                        <Button variant="ghost" size="icon" onClick={() => handleDeleteClick(event)} className="w-8 h-8 text-red-600 hover:text-red-700">
                           <Trash2 className="w-3 h-3" />
                         </Button>
                       </div>
