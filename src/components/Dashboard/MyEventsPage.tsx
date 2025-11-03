@@ -377,20 +377,17 @@ export const MyEventsPage: React.FC = () => {
       {/* Countdown Section */}
       <Card className="ww-box p-8 mx-0">
         <div className="text-center space-y-6">
-          {/* Event Date */}
-          {selectedEvent && <div className="space-y-2">
-              <p className="text-muted-foreground transition-opacity duration-300 ease-in-out">
-                {formatEventDate(selectedEvent)}
-              </p>
-            </div>}
 
           {/* D) Countdown Circles with Timer lifecycle - use key for reset */}
           <CountdownTimer key={activeEventId} eventId={activeEventId} />
 
           {/* C) Event Name and Time Range binding */}
           {selectedEvent && <div className="space-y-1 transition-opacity duration-300 ease-in-out">
-              <p className="text-lg font-medium text-primary">
+              <p className="text-xl font-medium text-primary">
                 {selectedEvent.name}
+              </p>
+              <p className="text-muted-foreground">
+                {formatEventDate(selectedEvent)}
               </p>
               {formatTimeRange(selectedEvent) && <p className="text-sm text-muted-foreground">
                   {formatTimeRange(selectedEvent)}
