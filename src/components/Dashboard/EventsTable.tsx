@@ -304,10 +304,10 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                     <TableCell className="w-20">
                       <div className="flex items-center justify-center space-x-1">
                         <Button variant="ghost" size="icon" onClick={() => handleEdit(event)} className="w-8 h-8 text-green-600 hover:text-green-700">
-                          <Edit2 className="w-3 h-3" />
+                          <Edit2 className="w-5 h-5" />
                         </Button>
                         <Button variant="ghost" size="icon" onClick={() => handleDeleteClick(event)} className="w-8 h-8 text-red-600 hover:text-red-700">
-                          <Trash2 className="w-3 h-3" />
+                          <Trash2 className="w-5 h-5" />
                         </Button>
                       </div>
                     </TableCell>
