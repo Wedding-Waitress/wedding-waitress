@@ -1102,6 +1102,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                             <Button 
                               variant="gradient" 
                               size="sm"
+                              className="rounded-full"
                               disabled={!selectedEventId}
                             >
                               <ArrowUpDown className="w-4 h-4 mr-2" />
@@ -1139,6 +1140,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                             <Button 
                               variant="gradient" 
                               size="sm"
+                              className="rounded-full"
                               disabled={!selectedEventId}
                             >
                               <FileText className="w-4 h-4 mr-2" />
@@ -1185,7 +1187,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                         : partnerNamesSaved
                         ? 'bg-red-500 hover:bg-red-600 text-white animate-shake'
                         : 'bg-gradient-primary text-primary-foreground hover:shadow-purple-glow hover:scale-105 transform transition-all duration-300'
-                    }`}
+                    } rounded-full`}
                   >
                     <Users className="w-4 h-4 mr-2" />
                     Add First Guest
@@ -1195,7 +1197,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                     variant="gradient" 
                     size="sm" 
                     onClick={handleAddGuest}
-                    className="bg-green-500 hover:bg-green-600 text-white"
+                    className="bg-green-500 hover:bg-green-600 text-white rounded-full"
                   >
                     <Users className="w-4 h-4 mr-2" />
                     Add Guest
