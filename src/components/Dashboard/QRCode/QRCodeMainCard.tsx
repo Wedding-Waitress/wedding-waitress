@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui/enhanced-button';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
@@ -477,7 +477,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                 </Button>
 
                 {/* Row 4 */}
-                <Button id="btn-save-qr" variant="default" className="col-span-2 w-full flex items-center justify-center gap-2" onClick={handleSaveQR} aria-label="Save QR style" title="Save QR style">
+                <Button id="btn-save-qr" variant="success" className="col-span-2 w-full flex items-center justify-center gap-2" onClick={handleSaveQR} aria-label="Save QR style" title="Save QR style">
                   <Save className="h-4 w-4 text-white" />
                   Save
                 </Button>
