@@ -967,7 +967,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
               <div className="text-center mb-6">
                 <div className="flex items-center justify-center gap-2 mb-4">
                   <div className="bg-white border-2 border-primary rounded-full px-4 py-2">
-                    <h3 className={`text-lg font-medium text-foreground ${
+                    <h3 className={`text-lg font-medium text-primary ${
                       showNamesValidation ? 'animate-pulse-soft' : ''
                     }`}>
                       Partner Names
@@ -991,9 +991,11 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="partner1-name" className="text-sm font-medium">
-                    Partner 1 First Name
-                  </Label>
+                  <div className="inline-flex items-center justify-center rounded-full border border-primary bg-white px-3 py-1.5 mb-2">
+                    <Label htmlFor="partner1-name" className="text-sm font-medium text-primary">
+                      Partner 1 First Name
+                    </Label>
+                  </div>
                   <Input
                     id="partner1-name"
                     type="text"
@@ -1004,9 +1006,11 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                   />
                 </div>
                 <div>
-                  <Label htmlFor="partner2-name" className="text-sm font-medium">
-                    Partner 2 First Name
-                  </Label>
+                  <div className="inline-flex items-center justify-center rounded-full border border-primary bg-white px-3 py-1.5 mb-2">
+                    <Label htmlFor="partner2-name" className="text-sm font-medium text-primary">
+                      Partner 2 First Name
+                    </Label>
+                  </div>
                   <Input
                     id="partner2-name"
                     type="text"
