@@ -156,7 +156,7 @@ export const AlbumGalleryTab = ({ eventId, eventName }: AlbumGalleryTabProps) =>
               if (selectMode) setSelectedIds(new Set());
             }} 
             variant={selectMode ? 'default' : 'outline'}
-            size="sm"
+            size="xs"
           >
             {selectMode ? 'Done' : 'Select'}
           </Button>
@@ -176,42 +176,42 @@ export const AlbumGalleryTab = ({ eventId, eventName }: AlbumGalleryTabProps) =>
         <div className="flex items-center gap-2">
           <Button 
             variant={filter === 'all' ? 'default' : 'ghost'} 
-            size="sm"
+            size="xs"
             onClick={() => setFilter('all')}
           >
             All ({stats.total})
           </Button>
           <Button 
             variant={filter === 'photos' ? 'default' : 'ghost'} 
-            size="sm"
+            size="xs"
             onClick={() => setFilter('photos')}
           >
             Photos ({stats.photos})
           </Button>
           <Button 
             variant={filter === 'videos' ? 'default' : 'ghost'} 
-            size="sm"
+            size="xs"
             onClick={() => setFilter('videos')}
           >
             Videos ({stats.videos})
           </Button>
           <Button 
             variant={filter === 'audio' ? 'default' : 'ghost'} 
-            size="sm"
+            size="xs"
             onClick={() => setFilter('audio')}
           >
             Audio ({stats.audio})
           </Button>
           <Button 
             variant={filter === 'hidden' ? 'default' : 'ghost'} 
-            size="sm"
+            size="xs"
             onClick={() => setFilter('hidden')}
           >
             Hidden ({stats.hidden})
           </Button>
           <Button 
             variant={filter === 'processing' ? 'default' : 'ghost'} 
-            size="sm"
+            size="xs"
             onClick={() => setFilter('processing')}
           >
             Processing ({stats.pending})

@@ -345,10 +345,10 @@ export const QuestionnaireActionButtons = ({
             <code className="flex-1 text-xs bg-background px-3 py-2 rounded border truncate">
               {publicUrl}
             </code>
-            <Button onClick={handleCopyLink} variant="outline" size="sm">
+            <Button variant="outline" size="xs" onClick={handleCopyLink}>
               <Copy className="w-4 h-4" />
             </Button>
-            <Button onClick={handleOpenLink} variant="outline" size="sm">
+            <Button variant="outline" size="xs" onClick={handleOpenLink}>
               <ExternalLink className="w-4 h-4" />
             </Button>
           </div>
@@ -357,19 +357,19 @@ export const QuestionnaireActionButtons = ({
 
       {/* Desktop: Full Button Row */}
       <div className="hidden lg:flex flex-wrap gap-2">
-        <Button variant="outline" size="sm" onClick={() => setShowHeaderModal(true)}>
+        <Button variant="outline" size="xs" onClick={() => setShowHeaderModal(true)}>
           <Settings className="w-4 h-4 mr-2" />
           Edit Header
         </Button>
-        <Button variant="outline" size="sm" onClick={handlePrint}>
+        <Button variant="outline" size="xs" onClick={handlePrint}>
           <Printer className="w-4 h-4 mr-2" />
           Print
         </Button>
-        <Button variant="outline" size="sm" onClick={handleDownloadPDF} disabled={exporting}>
+        <Button variant="outline" size="xs" onClick={handleDownloadPDF} disabled={exporting}>
           <FileDown className="w-4 h-4 mr-2" />
           Download PDF
         </Button>
-        <Button variant="outline" size="sm" onClick={handleDownloadDocx} disabled={exporting}>
+        <Button variant="outline" size="xs" onClick={handleDownloadDocx} disabled={exporting}>
           <FileText className="w-4 h-4 mr-2" />
           Download Word
         </Button>
@@ -380,7 +380,7 @@ export const QuestionnaireActionButtons = ({
               <span tabIndex={0}>
                 <Button 
                   variant="outline" 
-                  size="sm" 
+                  size="xs" 
                   onClick={handleSendEmail}
                   disabled={!emailEnabled}
                 >
@@ -403,7 +403,7 @@ export const QuestionnaireActionButtons = ({
               <span tabIndex={0}>
                 <Button 
                   variant="outline" 
-                  size="sm" 
+                  size="xs" 
                   onClick={handleSendSMS}
                   disabled={!smsEnabled}
                 >
@@ -425,7 +425,7 @@ export const QuestionnaireActionButtons = ({
       <div className="lg:hidden">
         <Sheet>
           <SheetTrigger asChild>
-            <Button variant="outline" size="sm" className="w-full">
+            <Button variant="outline" size="xs" className="w-full">
               <Menu className="w-4 h-4 mr-2" />
               Actions
             </Button>

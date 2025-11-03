@@ -291,7 +291,7 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
                     <div className="grid grid-cols-2 gap-2">
                       <Button
                         variant="gradient"
-                        size="sm"
+                        size="xs"
                         className="rounded-full"
                         onClick={handleDownloadPdfPage}
                         disabled={isProcessing}
@@ -301,7 +301,7 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
                       </Button>
                       <Button
                         variant="gradient"
-                        size="sm"
+                        size="xs"
                         className="rounded-full"
                         onClick={handleDownloadPdfAll}
                         disabled={isProcessing}
@@ -318,7 +318,7 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
                     <div className="grid grid-cols-2 gap-2">
                       <Button
                         variant="gradient"
-                        size="sm"
+                        size="xs"
                         className="rounded-full"
                         onClick={handleDownloadWordPage}
                         disabled={isProcessing}
@@ -328,7 +328,7 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
                       </Button>
                       <Button
                         variant="gradient"
-                        size="sm"
+                        size="xs"
                         className="rounded-full"
                         onClick={handleDownloadWordAll}
                         disabled={isProcessing}
@@ -345,7 +345,7 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
                     <div className="grid grid-cols-2 gap-2">
                       <Button
                         variant="gradient"
-                        size="sm"
+                        size="xs"
                         className="rounded-full"
                         onClick={handlePrint}
                         disabled={isProcessing}
@@ -355,7 +355,7 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
                       </Button>
                       <Button
                         variant="gradient"
-                        size="sm"
+                        size="xs"
                         className="rounded-full"
                         onClick={handlePrintAll}
                         disabled={isProcessing}

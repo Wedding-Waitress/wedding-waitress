@@ -178,14 +178,14 @@ export const AlbumContentInlineCard = ({ eventId }: AlbumContentInlineCardProps)
             {event?.slug && qrDataUrl ? (
               <>
                 <img src={qrDataUrl} alt="Upload QR Code" className="w-[120px] h-[120px]" />
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={handleDownloadQR}
-                  className="text-xs h-7 px-2 border-primary text-primary hover:bg-primary/10"
-                >
-                  Download QR
-                </Button>
+                  <Button 
+                    variant="outline" 
+                    size="xs" 
+                    onClick={handleDownloadQR}
+                    className="text-xs h-7 px-2 border-primary text-primary hover:bg-primary/10"
+                  >
+                    Download QR
+                  </Button>
               </>
             ) : (
               <div className="w-[120px] h-[120px] flex items-center justify-center text-xs text-muted-foreground text-center p-2">
@@ -197,19 +197,19 @@ export const AlbumContentInlineCard = ({ eventId }: AlbumContentInlineCardProps)
 
         {/* Right: Action Buttons */}
         <div className="flex items-center gap-2 flex-wrap lg:ml-auto">
-          <Button variant="outline" size="sm" onClick={handleCopyUploadLink}>
+          <Button variant="outline" size="xs" onClick={handleCopyUploadLink}>
             <Link className="w-4 h-4 mr-2" />
             Copy Upload Link
           </Button>
-          <Button variant="outline" size="sm" onClick={handleCopyGalleryLink}>
+          <Button variant="outline" size="xs" onClick={handleCopyGalleryLink}>
             <ImageIcon className="w-4 h-4 mr-2" />
             Copy Gallery Link
           </Button>
-          <Button variant="outline" size="sm" onClick={handleDownloadAll} disabled={downloading}>
+          <Button variant="outline" size="xs" onClick={handleDownloadAll} disabled={downloading}>
             <Download className="w-4 h-4 mr-2" />
             {downloading ? 'Preparing...' : 'Download All'}
           </Button>
-          <Button variant="default" size="sm" onClick={() => setShowSlideshow(true)}>
+          <Button variant="default" size="xs" onClick={() => setShowSlideshow(true)}>
             <Play className="w-4 h-4 mr-2" />
             Slideshow
           </Button>

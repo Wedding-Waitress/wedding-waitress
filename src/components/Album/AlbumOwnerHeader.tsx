@@ -121,7 +121,7 @@ export const AlbumOwnerHeader = ({
                   <img src={qrDataUrl} alt="Upload QR Code" className="w-[120px] h-[120px]" />
                   <Button 
                     variant="outline" 
-                    size="sm" 
+                    size="xs" 
                     onClick={handleDownloadQR}
                     className="text-xs h-7 px-2"
                     style={{ borderColor: '#6D28D9', color: '#6D28D9' }}
@@ -139,19 +139,19 @@ export const AlbumOwnerHeader = ({
 
           {/* Right Column: Action Buttons */}
           <div className="flex items-center gap-2 flex-wrap">
-            <Button variant="outline" size="sm" onClick={onCopyUploadLink}>
+            <Button variant="outline" size="xs" onClick={onCopyUploadLink}>
               <Link className="w-4 h-4 mr-2" />
               Copy Upload Link
             </Button>
-            <Button variant="outline" size="sm" onClick={onCopyGalleryLink}>
+            <Button variant="outline" size="xs" onClick={onCopyGalleryLink}>
               <ImageIcon className="w-4 h-4 mr-2" />
               Copy Gallery Link
             </Button>
-            <Button variant="outline" size="sm" onClick={onDownloadAll} disabled={downloading}>
+            <Button variant="outline" size="xs" onClick={onDownloadAll} disabled={downloading}>
               <Download className="w-4 h-4 mr-2" />
               {downloading ? 'Preparing...' : 'Download All'}
             </Button>
-            <Button variant="default" size="sm" onClick={onPlaySlideshow}>
+            <Button variant="default" size="xs" onClick={onPlaySlideshow}>
               <Play className="w-4 h-4 mr-2" />
               Slideshow
             </Button>

@@ -242,7 +242,7 @@ export const TableSeatingChartPage: React.FC<TableSeatingChartPageProps> = ({
                 <div className="flex items-center gap-2">
                   <Button
                     variant="outline"
-                    size="sm"
+                    size="xs"
                     onClick={handlePrint}
                   >
                     <Download className="w-4 h-4 mr-2" />
@@ -251,7 +251,7 @@ export const TableSeatingChartPage: React.FC<TableSeatingChartPageProps> = ({
                   
                   <Button
                     variant="default"
-                    size="sm"
+                    size="xs"
                     onClick={() => handleExport('pdf')}
                     disabled={isExporting}
                   >

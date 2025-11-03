@@ -364,7 +364,7 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
                     <div className="flex items-center gap-2 flex-wrap">
                       <Button 
                         variant="gradient"
-                        size="sm"
+                        size="xs"
                         onClick={handleDownloadPdf} 
                         disabled={isExporting || isExportingAll || isPrinting}
                         className="rounded-full flex items-center gap-2"
@@ -374,7 +374,7 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
                       </Button>
                       <Button 
                         variant="gradient"
-                        size="sm"
+                        size="xs"
                         onClick={handleDownloadAllPdf}
                         disabled={isExporting || isExportingAll || isPrinting}
                         className="rounded-full flex items-center gap-2"
@@ -391,7 +391,7 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
                     <div className="flex items-center gap-2 flex-wrap">
                       <Button 
                         variant="gradient"
-                        size="sm"
+                        size="xs"
                         onClick={handleDownloadWord} 
                         disabled={isExporting || isExportingAll || isPrinting}
                         className="rounded-full flex items-center gap-2"
@@ -401,7 +401,7 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
                       </Button>
                       <Button 
                         variant="gradient"
-                        size="sm"
+                        size="xs"
                         onClick={handleDownloadAllWord}
                         disabled={isExporting || isExportingAll || isPrinting}
                         className="rounded-full flex items-center gap-2"
@@ -418,7 +418,7 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
                     <div className="flex items-center gap-2 flex-wrap">
                       <Button 
                         variant="gradient"
-                        size="sm"
+                        size="xs"
                         onClick={handlePrint}
                         disabled={isExporting || isExportingAll || isPrinting}
                         className="rounded-full flex items-center gap-2"
@@ -428,7 +428,7 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
                       </Button>
                       <Button 
                         variant="gradient"
-                        size="sm"
+                        size="xs"
                         onClick={handlePrintAll}
                         disabled={isExporting || isExportingAll || isPrinting}
                         className="rounded-full flex items-center gap-2"

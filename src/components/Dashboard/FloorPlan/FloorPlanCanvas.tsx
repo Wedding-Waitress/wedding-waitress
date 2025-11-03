@@ -333,13 +333,13 @@ export const FloorPlanCanvas: React.FC<FloorPlanCanvasProps> = ({
       {/* Canvas Controls */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
-          <Button variant="outline" size="sm" onClick={handleZoomIn}>
+          <Button variant="outline" size="xs" onClick={handleZoomIn}>
             <ZoomIn className="w-4 h-4" />
           </Button>
-          <Button variant="outline" size="sm" onClick={handleZoomOut}>
+          <Button variant="outline" size="xs" onClick={handleZoomOut}>
             <ZoomOut className="w-4 h-4" />
           </Button>
-          <Button variant="outline" size="sm" onClick={handleResetView}>
+          <Button variant="outline" size="xs" onClick={handleResetView}>
             <RotateCcw className="w-4 h-4" />
           </Button>
           <span className="text-sm text-muted-foreground">
@@ -349,7 +349,7 @@ export const FloorPlanCanvas: React.FC<FloorPlanCanvasProps> = ({
         <div className="flex items-center space-x-2">
           <Button
             variant={settings.showGrid ? "default" : "outline"}
-            size="sm"
+            size="xs"
             onClick={handleToggleGrid}
           >
             <Grid3X3 className="w-4 h-4" />
