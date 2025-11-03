@@ -392,7 +392,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
           <Card className="ww-box w-full lg:w-auto">
             <CardContent className="flex flex-col items-center gap-4">
               {/* QR Preview */}
-              <div id="qr-preview" className="w-full aspect-square bg-muted/20 rounded-lg flex items-center justify-center p-2">
+              <div id="qr-preview" className="w-full aspect-square bg-white rounded-lg flex items-center justify-center p-2">
                 {qrDataUrl ? <img src={qrDataUrl} alt="QR Code Preview" className="w-full h-full" style={{
                 imageRendering: 'pixelated'
               }} /> : <QrCodeIcon className="h-24 w-24 text-muted-foreground/50" />}
@@ -456,17 +456,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                   JPG
                 </Button>
 
-                {/* Row 2 */}
-                <Button id="btn-dl-svg" variant="outline" className="w-full flex items-center justify-center gap-2 border-purple-600" onClick={handleDownloadSVG} aria-label="Download SVG" title="Download SVG">
-                  <Code className="h-4 w-4 text-purple-600" />
-                  SVG
-                </Button>
-                <Button id="btn-dl-pdf" variant="outline" className="w-full flex items-center justify-center gap-2 border-purple-600" onClick={handleDownloadPDF} aria-label="Download PDF" title="Download PDF">
-                  <FileText className="h-4 w-4 text-purple-600" />
-                  PDF
-                </Button>
-
-                {/* Row 3 */}
+                {/* Row 2 - Reset & Print */}
                 <Button id="btn-reset-qr" variant="outline" className="w-full flex items-center justify-center gap-2 border-purple-600" onClick={handleResetQR} aria-label="Reset QR settings" title="Reset QR settings">
                   <RotateCcw className="h-4 w-4 text-purple-600" />
                   Reset
@@ -476,7 +466,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                   Print
                 </Button>
 
-                {/* Row 4 */}
+                {/* Row 3 */}
                 <Button id="btn-save-qr" variant="success" className="col-span-2 w-full flex items-center justify-center gap-2" onClick={handleSaveQR} aria-label="Save QR style" title="Save QR style">
                   <Save className="h-4 w-4 text-white" />
                   Save
