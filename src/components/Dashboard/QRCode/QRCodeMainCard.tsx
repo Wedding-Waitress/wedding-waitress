@@ -488,7 +488,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
           {/* Row 2, Col 2: Guest Live View Options Card */}
           <Card className="ww-box w-full">
               <CardHeader className="pb-3">
-                <CardTitle className="text-2xl font-normal bg-gradient-to-r from-[#7C3AED] to-[#9333EA] bg-clip-text text-transparent">Guest Live View Options</CardTitle>
+                <CardTitle className="text-2xl font-normal bg-gradient-to-r from-[#7C3AED] to-[#9333EA] bg-clip-text text-transparent">Guest Live View Options in App</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <p className="text-sm text-muted-foreground">
@@ -503,7 +503,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                       <AccordionTrigger className="text-sm py-2 flex justify-between items-center">
                         <span>RSVP Invite</span>
                         <Badge 
-                          variant={visibilitySettings?.show_rsvp_invite ? "default" : "destructive"}
+                          variant={visibilitySettings?.show_rsvp_invite ? "success" : "destructive"}
                           className="ml-2"
                         >
                           {visibilitySettings?.show_rsvp_invite ? "ON" : "OFF"}
@@ -713,7 +713,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                       <AccordionTrigger className="text-sm py-2 flex justify-between items-center">
                         <span>Reception</span>
                         <Badge 
-                          variant={visibilitySettings?.show_reception ? "default" : "destructive"}
+                          variant={visibilitySettings?.show_reception ? "success" : "destructive"}
                           className="ml-2"
                         >
                           {visibilitySettings?.show_reception ? "ON" : "OFF"}
@@ -732,7 +732,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                       <AccordionTrigger className="text-sm py-2 flex justify-between items-center">
                         <span>Invite Video</span>
                         <Badge 
-                          variant={visibilitySettings?.show_invite_video ? "default" : "destructive"}
+                          variant={visibilitySettings?.show_invite_video ? "success" : "destructive"}
                           className="ml-2"
                         >
                           {visibilitySettings?.show_invite_video ? "ON" : "OFF"}
@@ -751,7 +751,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                       <AccordionTrigger className="text-sm py-2 flex justify-between items-center">
                         <span>Welcome Video</span>
                         <Badge 
-                          variant={visibilitySettings?.show_welcome_video ? "default" : "destructive"}
+                          variant={visibilitySettings?.show_welcome_video ? "success" : "destructive"}
                           className="ml-2"
                         >
                           {visibilitySettings?.show_welcome_video ? "ON" : "OFF"}
@@ -773,7 +773,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
           {/* Row 2, Col 3: Choose What Your Guests See Card */}
           <Card className="ww-box w-full">
               <CardHeader className="pb-3">
-                <CardTitle className="text-2xl font-normal bg-gradient-to-r from-[#7C3AED] to-[#9333EA] bg-clip-text text-transparent">Choose What Your Guests See</CardTitle>
+                <CardTitle className="text-2xl font-normal bg-gradient-to-r from-[#7C3AED] to-[#9333EA] bg-clip-text text-transparent">Choose What Your Guests See in App</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <p className="text-sm text-muted-foreground">
