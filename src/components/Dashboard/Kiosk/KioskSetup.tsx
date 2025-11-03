@@ -209,7 +209,7 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
               <Button 
                 variant="outline" 
                 onClick={handleOpenKiosk}
-                className="flex items-center justify-center gap-2"
+                className="flex items-center justify-center gap-2 bg-white border-primary"
               >
                 <ExternalLink className="w-4 h-4" />
                 Open Kiosk
@@ -228,7 +228,7 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
                 variant="outline" 
                 onClick={generateQRCode}
                 disabled={isGeneratingQR}
-                className="flex items-center justify-center gap-2"
+                className="flex items-center justify-center gap-2 bg-white border-primary"
               >
                 <QrCode className="w-4 h-4" />
                 {isGeneratingQR ? 'Generating...' : 'Generate QR'}
