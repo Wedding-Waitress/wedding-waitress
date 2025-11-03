@@ -1021,9 +1021,11 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
               {/* Save Button */}
               <div className="mt-6 flex justify-center">
                 <Button
+                  variant="default"
+                  size="xs"
                   onClick={handleManualSavePartnerNames}
                   disabled={!hasUnsavedChanges || !localPartner1Name?.trim() || !localPartner2Name?.trim() || isSaving}
-                  className={`px-8 py-2 transition-all duration-300 ${
+                  className={`rounded-full px-8 transition-all duration-300 ${
                     partnerNamesSaved 
                       ? 'bg-green-500 hover:bg-green-600 text-white' 
                       : 'bg-red-500 hover:bg-red-600 text-white'
@@ -1102,13 +1104,13 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                           <DropdownMenuTrigger asChild>
                             <Button 
                               variant="default" 
-                              size="sm"
-                              className="rounded-full"
+                              size="xs"
+                              className="rounded-full flex items-center gap-2"
                               disabled={!selectedEventId}
                             >
-                              <ArrowUpDown className="w-4 h-4 mr-2" />
+                              <ArrowUpDown className="w-4 h-4" />
                               Sort By
-                              <ChevronDown className="w-4 h-4 ml-1" />
+                              <ChevronDown className="w-4 h-4" />
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end" className="w-56">
@@ -1140,13 +1142,13 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                           <DropdownMenuTrigger asChild>
                             <Button 
                               variant="default" 
-                              size="sm"
-                              className="rounded-full"
+                              size="xs"
+                              className="rounded-full flex items-center gap-2"
                               disabled={!selectedEventId}
                             >
-                              <FileText className="w-4 h-4 mr-2" />
+                              <FileText className="w-4 h-4" />
                               Import / Export CSV
-                              <ChevronDown className="w-4 h-4 ml-1" />
+                              <ChevronDown className="w-4 h-4" />
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end" className="w-48">
@@ -1180,7 +1182,8 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                 {/* Add Guests button */}
                 {totalGuestCount === 0 ? (
                   <Button 
-                    size="sm" 
+                    variant="default"
+                    size="xs"
                     onClick={handleAddGuest}
                     className={`${
                       firstGuestAdded || totalGuestCount > 0
@@ -1188,19 +1191,19 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                         : partnerNamesSaved
                         ? 'bg-red-500 hover:bg-red-600 text-white animate-shake'
                         : 'bg-gradient-primary text-primary-foreground hover:shadow-purple-glow hover:scale-105 transform transition-all duration-300'
-                    } rounded-full`}
+                    } rounded-full flex items-center gap-2`}
                   >
-                    <Users className="w-4 h-4 mr-2" />
+                    <Users className="w-4 h-4" />
                     Add First Guest
                   </Button>
                 ) : (
                   <Button 
                     variant="default" 
-                    size="sm" 
+                    size="xs"
                     onClick={handleAddGuest}
-                    className="bg-green-500 hover:bg-green-600 text-white rounded-full"
+                    className="bg-green-500 hover:bg-green-600 text-white rounded-full flex items-center gap-2"
                   >
-                    <Users className="w-4 h-4 mr-2" />
+                    <Users className="w-4 h-4" />
                     Add Guest
                   </Button>
                 )}

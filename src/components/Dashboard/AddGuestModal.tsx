@@ -869,10 +869,22 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
 
             {/* Form Actions */}
             <div className="flex justify-end gap-3 pt-4">
-              <Button type="button" variant="secondary" onClick={handleClose}>
+              <Button 
+                type="button" 
+                variant="outline" 
+                size="xs" 
+                className="rounded-full" 
+                onClick={handleClose}
+              >
                 Cancel
               </Button>
-              <Button type="submit" variant="default" disabled={loading}>
+              <Button 
+                type="submit" 
+                variant="default" 
+                size="xs" 
+                className="rounded-full" 
+                disabled={loading}
+              >
                 {loading ? (isEdit ? 'Updating...' : 'Adding...') : (isEdit ? 'Update Guest' : 'Add Guest')}
               </Button>
             </div>
