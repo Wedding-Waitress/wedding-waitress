@@ -607,7 +607,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                       </div>
 
                       {/* Guest Table */}
-                      <div className={`flex-1 overflow-hidden ${getFontSizeClass()} mt-4`}>
+                      <div className={`flex-1 overflow-hidden ${getFontSizeClass()} mt-2`}>
                         <table className="w-full border-collapse mt-0">
                           <thead>
                             <tr className="border-b-2 border-foreground">
