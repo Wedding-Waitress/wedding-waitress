@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/enhanced-button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Edit2, Trash2, Plus, ImageIcon, Calendar } from "lucide-react";
+import { Edit2, Trash2, Plus, Calendar } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { DeleteConfirmationModal } from './DeleteConfirmationModal';
 import { EventEditModal } from './EventEditModal';
@@ -302,16 +302,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                       </span>
                     </TableCell>
                     <TableCell className="w-20">
-                      <div className="flex items-center space-x-1">
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          onClick={() => navigate(`/album/${event.id}`)} 
-                          className="w-8 h-8 text-muted-foreground hover:text-primary"
-                          title="Manage Album"
-                        >
-                          <ImageIcon className="w-3 h-3" />
-                        </Button>
+                      <div className="flex items-center justify-center space-x-1">
                         <Button variant="ghost" size="icon" onClick={() => handleEdit(event)} className="w-8 h-8 text-green-600 hover:text-green-700">
                           <Edit2 className="w-3 h-3" />
                         </Button>
@@ -321,8 +312,14 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                       </div>
                     </TableCell>
                   </TableRow>;
-              })}
-            </TableBody>
+                })}
+                {/* Purple footer row - matching header background */}
+                <TableRow className="bg-primary hover:bg-primary border-t border-card-border">
+                  <TableCell colSpan={11} className="h-12">
+                    {/* Empty footer row with same height as data rows */}
+                  </TableCell>
+                </TableRow>
+              </TableBody>
             </Table>
           </RadioGroup>
         </div>
