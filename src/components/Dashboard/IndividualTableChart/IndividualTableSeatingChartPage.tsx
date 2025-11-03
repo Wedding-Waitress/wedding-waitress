@@ -285,7 +285,7 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
         <CardHeader className="space-y-4">
           {/* Main Page Title */}
           <div>
-            <h1 className="text-3xl font-bold gradient-text mb-2">
+            <h1 className="text-2xl font-normal bg-gradient-to-r from-[#7C3AED] to-[#9333EA] bg-clip-text text-transparent mb-2">
               Individual Table Seating Chart
             </h1>
             <p className="text-muted-foreground">
