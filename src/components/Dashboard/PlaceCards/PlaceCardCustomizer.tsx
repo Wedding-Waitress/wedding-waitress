@@ -553,7 +553,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                 <Button 
                   onClick={handleResetDesignDefaults} 
                   variant="destructive" 
-                  className="w-full"
+                  className="w-full rounded-full"
                 >
                   Reset to Default
                 </Button>
@@ -692,7 +692,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                 <Button 
                   onClick={handleResetBackgroundDefaults} 
                   variant="destructive" 
-                  className="w-full"
+                  className="w-full rounded-full"
                 >
                   Reset to Default
                 </Button>
@@ -708,7 +708,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                   Mass Message (applies to all cards)
                 </Label>
                 <Textarea placeholder="Enter a message for all place cards..." value={localMassMessage} onChange={e => setLocalMassMessage(e.target.value)} rows={3} />
-                <Button onClick={saveMassMessage} variant="success" className="w-full">
+                <Button onClick={saveMassMessage} variant="success" className="w-full rounded-full">
                   Save Mass Message
                 </Button>
               </div>
@@ -716,7 +716,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
               <div className="p-4 border-2 border-accent-foreground rounded-xl space-y-3">
                 <Label>Individual Messages</Label>
                 
-                <Button variant="success" className="w-full">
+                <Button variant="success" className="w-full rounded-full">
                   Guest Name Search
                 </Button>
                 
@@ -759,7 +759,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                     ));
                   })()}
                 </div>
-                {guests.length > 0 && <Button onClick={saveIndividualMessages} variant="success" className="w-full">
+                {guests.length > 0 && <Button onClick={saveIndividualMessages} variant="success" className="w-full rounded-full">
                     Save Individual Messages
                   </Button>}
               </div>
@@ -768,7 +768,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                 <Button 
                   onClick={handleResetMessagesDefaults} 
                   variant="destructive" 
-                  className="w-full"
+                  className="w-full rounded-full"
                 >
                   Reset to Default
                 </Button>
