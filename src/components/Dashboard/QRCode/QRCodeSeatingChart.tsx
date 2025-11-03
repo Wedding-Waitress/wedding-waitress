@@ -79,7 +79,7 @@ export const QRCodeSeatingChart: React.FC<QRCodeSeatingChartProps> = ({
               <QrCode className="w-6 h-6 text-primary" />
             </div>
             <div>
-              <CardTitle className="text-2xl gradient-text">QR Code Seating Chart</CardTitle>
+              <CardTitle className="text-2xl font-normal bg-gradient-to-r from-[#7C3AED] to-[#9333EA] bg-clip-text text-transparent">QR Code Seating Chart</CardTitle>
             </div>
           </div>
         </CardHeader>
@@ -105,8 +105,8 @@ export const QRCodeSeatingChart: React.FC<QRCodeSeatingChartProps> = ({
             </Select>
             
             {selectedEvent && (
-              <div className="text-2xl gradient-text font-semibold">
-                <span className="font-semibold">{selectedEvent.venue || 'Venue not specified'}</span>
+              <div className="text-2xl font-normal bg-gradient-to-r from-[#7C3AED] to-[#9333EA] bg-clip-text text-transparent">
+                <span>{selectedEvent.venue || 'Venue not specified'}</span>
                 {' - '}
                 <span>{formatEventDate(selectedEvent.date)}</span>
                 {(selectedEvent.start_time || selectedEvent.finish_time) && (

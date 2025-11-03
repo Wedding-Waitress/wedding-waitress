@@ -337,8 +337,8 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
   };
   return <Card className="ww-box h-full">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <QrCodeIcon className="h-5 w-5" />
+        <CardTitle className="flex items-center gap-2 text-2xl font-normal bg-gradient-to-r from-[#7C3AED] to-[#9333EA] bg-clip-text text-transparent">
+          <QrCodeIcon className="h-5 w-5 text-purple-600" />
           QR Code Generator
         </CardTitle>
       </CardHeader>
