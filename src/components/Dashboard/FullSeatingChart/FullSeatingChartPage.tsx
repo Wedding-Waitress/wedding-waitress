@@ -239,8 +239,9 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
               {isDataReady && (
                 <div className="flex items-center gap-2">
                   <Button
-                    variant="outline"
+                    variant="gradient"
                     size="sm"
+                    className="rounded-full"
                     onClick={handleDownloadPdf}
                     disabled={isExporting}
                   >
@@ -248,8 +249,9 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
                     Download PDF
                   </Button>
                   <Button
-                    variant="outline"
+                    variant="gradient"
                     size="sm"
+                    className="rounded-full"
                     onClick={handleDownloadWord}
                     disabled={isExporting}
                   >
@@ -257,8 +259,9 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
                     Download Word
                   </Button>
                   <Button
-                    variant="outline"
+                    variant="gradient"
                     size="sm"
+                    className="rounded-full"
                     onClick={handlePrint}
                     disabled={isExporting}
                   >
