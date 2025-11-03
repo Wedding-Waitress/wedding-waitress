@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/enhanced-button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Edit2, Trash2, Plus, ImageIcon } from "lucide-react";
+import { Edit2, Trash2, Plus, ImageIcon, Calendar } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { DeleteConfirmationModal } from './DeleteConfirmationModal';
 import { EventEditModal } from './EventEditModal';
@@ -203,6 +203,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
             </div>
             <div className="flex items-center space-x-2">
               <Badge variant="outline" className="bg-white border-primary text-primary rounded-full">
+                <Calendar className="w-4 h-4 mr-1.5" />
                 {events.length} Event{events.length !== 1 ? 's' : ''}
               </Badge>
               <Button variant="gradient" size="sm" className="rounded-full" onClick={() => setCreateModal(true)}>
