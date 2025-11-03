@@ -157,7 +157,7 @@ export const Header: React.FC<HeaderProps> = ({
                   Sign In
                 </Button>
                 <SignUpModal>
-                  <Button ref={signUpButtonRef} variant="gradient" size="sm" className="min-h-[44px] text-xs sm:text-sm">
+                  <Button ref={signUpButtonRef} variant="default" size="sm" className="min-h-[44px] text-xs sm:text-sm">
                     Sign Up
                   </Button>
                 </SignUpModal>

@@ -1101,7 +1101,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button 
-                              variant="gradient" 
+                              variant="default" 
                               size="sm"
                               className="rounded-full"
                               disabled={!selectedEventId}
@@ -1139,7 +1139,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button 
-                              variant="gradient" 
+                              variant="default" 
                               size="sm"
                               className="rounded-full"
                               disabled={!selectedEventId}
@@ -1195,7 +1195,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                   </Button>
                 ) : (
                   <Button 
-                    variant="gradient" 
+                    variant="default" 
                     size="sm" 
                     onClick={handleAddGuest}
                     className="bg-green-500 hover:bg-green-600 text-white rounded-full"

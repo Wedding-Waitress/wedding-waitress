@@ -290,7 +290,7 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
                     <Label>Export Controls</Label>
                     <div className="grid grid-cols-2 gap-2">
                       <Button
-                        variant="gradient"
+                        variant="default"
                         size="xs"
                         className="rounded-full"
                         onClick={handleDownloadPdfPage}
@@ -300,7 +300,7 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
                         Download PDF
                       </Button>
                       <Button
-                        variant="gradient"
+                        variant="default"
                         size="xs"
                         className="rounded-full"
                         onClick={handleDownloadPdfAll}
@@ -317,7 +317,7 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
                     <Label>Word Export</Label>
                     <div className="grid grid-cols-2 gap-2">
                       <Button
-                        variant="gradient"
+                        variant="default"
                         size="xs"
                         className="rounded-full"
                         onClick={handleDownloadWordPage}
@@ -327,7 +327,7 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
                         Download Word
                       </Button>
                       <Button
-                        variant="gradient"
+                        variant="default"
                         size="xs"
                         className="rounded-full"
                         onClick={handleDownloadWordAll}
@@ -344,7 +344,7 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
                     <Label>Print Controls</Label>
                     <div className="grid grid-cols-2 gap-2">
                       <Button
-                        variant="gradient"
+                        variant="default"
                         size="xs"
                         className="rounded-full"
                         onClick={handlePrint}
@@ -354,7 +354,7 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
                         Print
                       </Button>
                       <Button
-                        variant="gradient"
+                        variant="default"
                         size="xs"
                         className="rounded-full"
                         onClick={handlePrintAll}

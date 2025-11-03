@@ -122,7 +122,7 @@ export const SignageTemplateCard: React.FC<SignageTemplateCardProps> = ({
         {/* Action Button */}
         <div className="flex">
           <Button
-            variant="gradient"
+            variant="default"
             size="sm"
             className="w-full"
             onClick={onSelect}

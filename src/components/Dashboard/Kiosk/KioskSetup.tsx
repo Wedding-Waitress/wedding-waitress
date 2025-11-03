@@ -216,7 +216,7 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
               </Button>
               
               <Button 
-                variant="gradient" 
+                variant="default" 
                 onClick={handleFullscreen}
                 className="flex items-center justify-center gap-2"
               >

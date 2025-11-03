@@ -272,7 +272,7 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
           <Button 
             onClick={handleSave}
             disabled={isSubmitting || Object.keys(errors).length > 0 || validationState === 'duplicate'}
-            variant="gradient"
+            variant="default"
           >
             {isSubmitting ? 'Saving...' : 'Save'}
           </Button>

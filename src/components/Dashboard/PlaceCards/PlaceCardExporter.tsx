@@ -250,7 +250,7 @@ export const PlaceCardExporter: React.FC<PlaceCardExporterProps> = ({
       <Button 
         onClick={generatePDF}
         disabled={exporting}
-        variant="gradient"
+        variant="default"
         className="w-full"
         size="lg"
       >

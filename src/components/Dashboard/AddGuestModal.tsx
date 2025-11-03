@@ -872,7 +872,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
               <Button type="button" variant="secondary" onClick={handleClose}>
                 Cancel
               </Button>
-              <Button type="submit" variant="gradient" disabled={loading}>
+              <Button type="submit" variant="default" disabled={loading}>
                 {loading ? (isEdit ? 'Updating...' : 'Adding...') : (isEdit ? 'Update Guest' : 'Add Guest')}
               </Button>
             </div>

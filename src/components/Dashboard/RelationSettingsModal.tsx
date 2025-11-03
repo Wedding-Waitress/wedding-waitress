@@ -200,7 +200,7 @@ export const RelationSettingsModal: React.FC<RelationSettingsModalProps> = ({
           <Button type="button" variant="secondary" onClick={onClose}>
             Cancel
           </Button>
-          <Button type="button" variant="gradient" onClick={handleSave} disabled={loading}>
+          <Button type="button" variant="default" onClick={handleSave} disabled={loading}>
             {loading ? 'Saving...' : 'Save Settings'}
           </Button>
         </DialogFooter>

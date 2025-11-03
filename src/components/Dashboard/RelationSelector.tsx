@@ -177,7 +177,7 @@ export const RelationSelector: React.FC<RelationSelectorProps> = ({
               </Button>
               <Button
                 type="button"
-                variant="gradient"
+                variant="default"
                 size="sm"
                 onClick={handleConfirm}
                 disabled={!selectedPartner || !selectedRole}

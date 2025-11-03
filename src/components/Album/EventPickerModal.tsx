@@ -86,7 +86,7 @@ export const EventPickerModal = ({ events, open, onClose, onSelectEvent }: Event
 
                     <div className="flex items-center gap-2">
                       <Button 
-                        variant="gradient" 
+                        variant="default" 
                         className="flex-1"
                         onClick={() => onSelectEvent(event.id)}
                       >

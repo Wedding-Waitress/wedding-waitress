@@ -169,7 +169,7 @@ export const SignageCustomizer: React.FC<SignageCustomizerProps> = ({
                 <Download className="w-4 h-4 mr-2" />
                 Download PDF
               </Button>
-              <Button variant="gradient" onClick={handleSave}>
+              <Button variant="default" onClick={handleSave}>
                 <Save className="w-4 h-4 mr-2" />
                 Save Template
               </Button>

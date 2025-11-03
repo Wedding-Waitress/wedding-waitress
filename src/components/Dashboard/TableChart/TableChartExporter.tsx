@@ -219,7 +219,7 @@ export const TableChartExporter: React.FC<TableChartExporterProps> = ({
                 <Button variant="outline" onClick={onClose}>
                   Close
                 </Button>
-                <Button variant="gradient" onClick={() => setExportStatus('idle')}>
+                <Button variant="default" onClick={() => setExportStatus('idle')}>
                   Try Again
                 </Button>
               </>
