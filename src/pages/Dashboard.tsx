@@ -280,8 +280,9 @@ export const Dashboard = () => {
                   
                   {/* Contextual title - only show if event is selected */}
                   {selectedEvent && <div className="flex items-center space-x-2">
-                      <span className="text-lg font-medium text-foreground">Table Set Up for</span>
-                      <span className="text-lg font-bold text-primary">{selectedEvent.name}</span>
+                      <span className="text-2xl font-normal bg-gradient-to-r from-[#7C3AED] to-[#9333EA] bg-clip-text text-transparent">
+                        Table Set Up for {selectedEvent.name}
+                      </span>
                     </div>}
                 </div>
                 
@@ -290,7 +291,7 @@ export const Dashboard = () => {
                   <div className="flex items-start gap-3">
                     <MapPin className="w-16 h-16 text-primary flex-shrink-0" />
                     <div className="flex flex-col">
-                      <CardTitle className="mb-2 text-left">Table Setup</CardTitle>
+                      <CardTitle className="mb-2 text-left text-2xl font-normal bg-gradient-to-r from-[#7C3AED] to-[#9333EA] bg-clip-text text-transparent">Table Setup</CardTitle>
                       <CardDescription className="text-left">
                         Design your perfect seating arrangement and table layouts
                       </CardDescription>
