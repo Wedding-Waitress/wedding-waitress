@@ -466,8 +466,9 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                 {/* Right Side: Action Buttons */}
                 <div className="flex items-center gap-2 flex-shrink-0">
                   <Button 
-                    variant="outline" 
+                    variant="gradient" 
                     size="sm" 
+                    className="rounded-full"
                     onClick={handleDownloadPdf}
                     disabled={isExporting || dietaryGuests.length === 0}
                   >
@@ -475,8 +476,9 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                     Download PDF
                   </Button>
                   <Button 
-                    variant="outline" 
+                    variant="gradient" 
                     size="sm" 
+                    className="rounded-full"
                     onClick={handleDownloadWord}
                     disabled={isExporting || dietaryGuests.length === 0}
                   >
@@ -484,8 +486,9 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                     Download Word
                   </Button>
                   <Button 
-                    variant="outline" 
+                    variant="gradient" 
                     size="sm" 
+                    className="rounded-full"
                     onClick={handlePrint}
                     disabled={isExporting || dietaryGuests.length === 0}
                   >
