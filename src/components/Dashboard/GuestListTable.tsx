@@ -996,14 +996,14 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                       Partner 1 First Name
                     </Label>
                   </div>
-                  <Input
-                    id="partner1-name"
-                    type="text"
-                    placeholder="Enter first name"
-                    value={localPartner1Name}
-                    onChange={(e) => handlePartnerNameInputChange('partner1_name', e.target.value)}
-                    className="mt-1"
-                  />
+                <Input
+                  id="partner1-name"
+                  type="text"
+                  placeholder="Enter first name"
+                  value={localPartner1Name}
+                  onChange={(e) => handlePartnerNameInputChange('partner1_name', e.target.value)}
+                  className="mt-1 border-primary focus:ring-primary focus:ring-2 focus:ring-offset-2"
+                />
                 </div>
                 <div>
                   <div className="inline-flex items-center justify-center rounded-full border border-primary bg-white px-3 py-1.5 mb-2">
@@ -1011,14 +1011,14 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                       Partner 2 First Name
                     </Label>
                   </div>
-                  <Input
-                    id="partner2-name"
-                    type="text"
-                    placeholder="Enter first name"
-                    value={localPartner2Name}
-                    onChange={(e) => handlePartnerNameInputChange('partner2_name', e.target.value)}
-                    className="mt-1"
-                  />
+                <Input
+                  id="partner2-name"
+                  type="text"
+                  placeholder="Enter first name"
+                  value={localPartner2Name}
+                  onChange={(e) => handlePartnerNameInputChange('partner2_name', e.target.value)}
+                  className="mt-1 border-primary focus:ring-primary focus:ring-2 focus:ring-offset-2"
+                />
                 </div>
               </div>
               
