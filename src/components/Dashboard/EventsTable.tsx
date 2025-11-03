@@ -205,7 +205,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
               <Badge variant="secondary" className="glass">
                 {events.length} Event{events.length !== 1 ? 's' : ''}
               </Badge>
-              <Button variant="gradient" size="sm" onClick={() => setCreateModal(true)}>
+              <Button variant="gradient" size="sm" className="rounded-full" onClick={() => setCreateModal(true)}>
                 <Plus className="w-4 h-4 mr-2" />
                 Create Event
               </Button>
