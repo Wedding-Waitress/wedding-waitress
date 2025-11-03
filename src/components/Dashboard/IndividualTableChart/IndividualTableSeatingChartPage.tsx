@@ -370,21 +370,21 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
                     <h3 className="text-sm font-medium">Export Controls</h3>
                     <div className="flex items-center gap-2 flex-wrap">
                       <Button 
-                        variant="outline"
+                        variant="gradient"
                         size="sm"
                         onClick={handleDownloadPdf} 
                         disabled={isExporting || isExportingAll || isPrinting}
-                        className="flex items-center gap-2"
+                        className="rounded-full flex items-center gap-2"
                       >
                         <FileText className="w-4 h-4" />
                         Download PDF
                       </Button>
                       <Button 
-                        variant="outline"
+                        variant="gradient"
                         size="sm"
                         onClick={handleDownloadAllPdf}
                         disabled={isExporting || isExportingAll || isPrinting}
-                        className="flex items-center gap-2"
+                        className="rounded-full flex items-center gap-2"
                       >
                         <FileText className="w-4 h-4" />
                         {isExportingAll ? `Exporting ${tables.length} tables...` : 'Download All PDF'}
@@ -397,21 +397,21 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
                     <h3 className="text-sm font-medium">Word Export</h3>
                     <div className="flex items-center gap-2 flex-wrap">
                       <Button 
-                        variant="outline"
+                        variant="gradient"
                         size="sm"
                         onClick={handleDownloadWord} 
                         disabled={isExporting || isExportingAll || isPrinting}
-                        className="flex items-center gap-2"
+                        className="rounded-full flex items-center gap-2"
                       >
                         <FileText className="w-4 h-4" />
                         Download Word
                       </Button>
                       <Button 
-                        variant="outline"
+                        variant="gradient"
                         size="sm"
                         onClick={handleDownloadAllWord}
                         disabled={isExporting || isExportingAll || isPrinting}
-                        className="flex items-center gap-2"
+                        className="rounded-full flex items-center gap-2"
                       >
                         <FileText className="w-4 h-4" />
                         {isExportingAll ? `Exporting ${tables.length} tables...` : 'Download All Word'}
@@ -424,21 +424,21 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
                     <h3 className="text-sm font-medium">Print Controls</h3>
                     <div className="flex items-center gap-2 flex-wrap">
                       <Button 
-                        variant="outline"
+                        variant="gradient"
                         size="sm"
                         onClick={handlePrint}
                         disabled={isExporting || isExportingAll || isPrinting}
-                        className="flex items-center gap-2"
+                        className="rounded-full flex items-center gap-2"
                       >
                         <Printer className="w-4 h-4" />
                         Print
                       </Button>
                       <Button 
-                        variant="outline"
+                        variant="gradient"
                         size="sm"
                         onClick={handlePrintAll}
                         disabled={isExporting || isExportingAll || isPrinting}
-                        className="flex items-center gap-2"
+                        className="rounded-full flex items-center gap-2"
                       >
                         <Printer className="w-4 h-4" />
                         Print All
