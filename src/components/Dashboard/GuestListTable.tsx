@@ -1304,11 +1304,11 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                         isEmpty={!guest.relation_display}
                       />
                     </TableCell>
-                    <TableCell className="w-24">
-                      <Badge variant="outline" className="text-xs">
-                        {guest.dietary}
-                      </Badge>
-                    </TableCell>
+              <TableCell className="w-24">
+                <Badge variant="default" className="text-xs bg-primary text-white">
+                  {guest.dietary}
+                </Badge>
+              </TableCell>
                     <TableCell className="w-24">{renderPill(!!guest.mobile && guest.mobile.trim() !== '')}</TableCell>
                     <TableCell className="w-36">{renderPill(!!guest.email && guest.email.trim() !== '')}</TableCell>
                     <TableCell className="w-28">
