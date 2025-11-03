@@ -447,31 +447,31 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
               {/* Action Buttons Grid */}
               <div id="qr-action-grid" className="grid grid-cols-2 gap-3 w-full">
                 {/* Row 1 */}
-                <Button id="btn-dl-png" variant="outline" className="w-full flex items-center justify-center gap-2" onClick={handleDownloadPNG} aria-label="Download PNG" title="Download PNG">
+                <Button id="btn-dl-png" variant="outline" className="w-full flex items-center justify-center gap-2 border-purple-600" onClick={handleDownloadPNG} aria-label="Download PNG" title="Download PNG">
                   <FileDown className="h-4 w-4 text-purple-600" />
                   PNG
                 </Button>
-                <Button id="btn-dl-jpg" variant="outline" className="w-full flex items-center justify-center gap-2" onClick={handleDownloadJPG} aria-label="Download JPG" title="Download JPG">
+                <Button id="btn-dl-jpg" variant="outline" className="w-full flex items-center justify-center gap-2 border-purple-600" onClick={handleDownloadJPG} aria-label="Download JPG" title="Download JPG">
                   <ImageIcon className="h-4 w-4 text-purple-600" />
                   JPG
                 </Button>
 
                 {/* Row 2 */}
-                <Button id="btn-dl-svg" variant="outline" className="w-full flex items-center justify-center gap-2" onClick={handleDownloadSVG} aria-label="Download SVG" title="Download SVG">
+                <Button id="btn-dl-svg" variant="outline" className="w-full flex items-center justify-center gap-2 border-purple-600" onClick={handleDownloadSVG} aria-label="Download SVG" title="Download SVG">
                   <Code className="h-4 w-4 text-purple-600" />
                   SVG
                 </Button>
-                <Button id="btn-dl-pdf" variant="outline" className="w-full flex items-center justify-center gap-2" onClick={handleDownloadPDF} aria-label="Download PDF" title="Download PDF">
+                <Button id="btn-dl-pdf" variant="outline" className="w-full flex items-center justify-center gap-2 border-purple-600" onClick={handleDownloadPDF} aria-label="Download PDF" title="Download PDF">
                   <FileText className="h-4 w-4 text-purple-600" />
                   PDF
                 </Button>
 
                 {/* Row 3 */}
-                <Button id="btn-reset-qr" variant="outline" className="w-full flex items-center justify-center gap-2" onClick={handleResetQR} aria-label="Reset QR settings" title="Reset QR settings">
+                <Button id="btn-reset-qr" variant="outline" className="w-full flex items-center justify-center gap-2 border-purple-600" onClick={handleResetQR} aria-label="Reset QR settings" title="Reset QR settings">
                   <RotateCcw className="h-4 w-4 text-purple-600" />
                   Reset
                 </Button>
-                <Button id="btn-print-qr" variant="outline" className="w-full flex items-center justify-center gap-2" onClick={handlePrintQR} aria-label="Print QR" title="Print QR">
+                <Button id="btn-print-qr" variant="outline" className="w-full flex items-center justify-center gap-2 border-purple-600" onClick={handlePrintQR} aria-label="Print QR" title="Print QR">
                   <Printer className="h-4 w-4 text-purple-600" />
                   Print
                 </Button>
