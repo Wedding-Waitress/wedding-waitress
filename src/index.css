@@ -120,6 +120,14 @@
     /* Transitions */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    
+    /* Purple Glass Luxury Theme */
+    --glass-dark-1: #0f0219;
+    --glass-dark-2: #1a0b2e;
+    --glass-dark-3: #0a0514;
+    --glass-purple: #6D28D9;
+    --glass-purple-light: #9333EA;
+    --glass-purple-glow: rgba(147, 51, 234, 0.15);
   }
 }
 
@@ -414,6 +422,79 @@
     --primary-glow: 262 83% 68%;
     --ring: 262 83% 58%;
   }
+}
+
+/* Purple Glass Luxury Background */
+.ww-dark-glass {
+  position: relative;
+  background: linear-gradient(135deg, var(--glass-dark-1) 0%, var(--glass-dark-2) 50%, var(--glass-dark-3) 100%);
+  overflow: hidden;
+}
+
+.ww-dark-glass::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at 30% 20%, var(--glass-purple-glow) 0%, transparent 50%);
+  animation: glossyShift 10s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.ww-dark-glass::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 70% 80%, rgba(109, 40, 217, 0.08) 0%, transparent 40%),
+    repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255, 255, 255, 0.015) 2px, rgba(255, 255, 255, 0.015) 4px);
+  pointer-events: none;
+}
+
+@keyframes glossyShift {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-5%, -5%) scale(1.05); }
+}
+
+/* Glass Sidebar Styling */
+.sidebar-glass {
+  background: rgba(255, 255, 255, 0.03) !important;
+  backdrop-filter: blur(24px) saturate(180%);
+  border-right: 1px solid rgba(167, 139, 250, 0.2) !important;
+}
+
+.sidebar-glass [data-sidebar="header"],
+.sidebar-glass [data-sidebar="content"] {
+  color: #E5E7EB;
+}
+
+.sidebar-glass button {
+  color: #E5E7EB !important;
+  transition: all 0.2s ease;
+}
+
+.sidebar-glass button:hover {
+  color: #FFFFFF !important;
+  background: rgba(109, 40, 217, 0.15) !important;
+}
+
+.sidebar-glass button[data-active="true"] {
+  color: #FFFFFF !important;
+  background: rgba(109, 40, 217, 0.3) !important;
+  border-left: 3px solid var(--glass-purple-light);
+}
+
+/* Dark Glass Card Variant */
+.ww-card-dark {
+  background: rgba(255, 255, 255, 0.95) !important;
+  box-shadow: 0 8px 32px rgba(109, 40, 217, 0.15), 0 2px 8px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(167, 139, 250, 0.1);
 }
 
 /* Print Styles for Individual Table Charts */
