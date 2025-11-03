@@ -116,7 +116,7 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
               <Monitor className="w-6 h-6 text-primary" />
             </div>
             <div>
-              <CardTitle className="text-xl">Kiosk Live View Setup</CardTitle>
+              <CardTitle className="text-2xl font-normal bg-gradient-to-r from-[#7C3AED] to-[#9333EA] bg-clip-text text-transparent">Kiosk Live View Setup</CardTitle>
               <CardDescription>
                 Configure a self-service guest lookup kiosk for your event entrance
               </CardDescription>
@@ -128,9 +128,9 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
       {/* Event Selection */}
       <Card className="ww-box">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Calendar className="w-5 h-5" />
-            Event Selection
+          <CardTitle className="flex items-center gap-2 text-2xl font-normal">
+            <Calendar className="w-5 h-5 text-[#7C3AED]" />
+            <span className="bg-gradient-to-r from-[#7C3AED] to-[#9333EA] bg-clip-text text-transparent">Event Selection</span>
           </CardTitle>
           <CardDescription>
             Choose which event to display on the kiosk
@@ -179,9 +179,9 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
       {selectedEvent && (
         <Card className="ww-box">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <ExternalLink className="w-5 h-5" />
-              Kiosk URL & Controls
+            <CardTitle className="flex items-center gap-2 text-2xl font-normal">
+              <ExternalLink className="w-5 h-5 text-[#7C3AED]" />
+              <span className="bg-gradient-to-r from-[#7C3AED] to-[#9333EA] bg-clip-text text-transparent">Kiosk URL & Controls</span>
             </CardTitle>
             <CardDescription>
               Use this URL to set up your kiosk device
@@ -256,9 +256,9 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
       {/* Setup Instructions */}
       <Card className="ww-box">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Tablet className="w-5 h-5" />
-            Setup Instructions
+          <CardTitle className="flex items-center gap-2 text-2xl font-normal">
+            <Tablet className="w-5 h-5 text-[#7C3AED]" />
+            <span className="bg-gradient-to-r from-[#7C3AED] to-[#9333EA] bg-clip-text text-transparent">Setup Instructions</span>
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
