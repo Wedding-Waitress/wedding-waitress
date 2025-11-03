@@ -294,54 +294,56 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <div className="flex items-center space-x-4 pr-4">
-                <label className="text-sm font-medium text-foreground whitespace-nowrap">
-                  Choose Event:
-                </label>
-                <Select
-                  value={selectedEventId || 'no-event'} 
-                  onValueChange={(value) => {
-                    if (value === 'no-event') return;
-                    onEventSelect(value);
-                  }}
-                  disabled={eventsLoading}
-                >
-                  <SelectTrigger className="w-[300px] border-primary focus:ring-primary">
-                    <SelectValue placeholder="Choose Event" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-popover border-border z-50">
-                    {events.length > 0 ? (
-                      events.map((event) => (
-                        <SelectItem key={event.id} value={event.id}>
-                          <div className="flex items-center space-x-2">
-                            <Users className="w-4 h-4" />
-                            <span>{event.name}</span>
-                          </div>
-                        </SelectItem>
-                      ))
-                    ) : (
-                      <SelectItem value="no-events" disabled>
-                        {eventsLoading ? "Loading events..." : "No events found"}
+          <div className="flex items-center gap-8 flex-wrap">
+            {/* Choose Event Section */}
+            <div className="flex items-center gap-4">
+              <label className="text-sm font-medium text-foreground whitespace-nowrap">
+                Choose Event:
+              </label>
+              <Select
+                value={selectedEventId || 'no-event'} 
+                onValueChange={(value) => {
+                  if (value === 'no-event') return;
+                  onEventSelect(value);
+                }}
+                disabled={eventsLoading}
+              >
+                <SelectTrigger className="w-[300px] border-primary focus:ring-primary">
+                  <SelectValue placeholder="Choose Event" />
+                </SelectTrigger>
+                <SelectContent className="bg-popover border-border z-50">
+                  {events.length > 0 ? (
+                    events.map((event) => (
+                      <SelectItem key={event.id} value={event.id}>
+                        <div className="flex items-center space-x-2">
+                          <Users className="w-4 h-4" />
+                          <span>{event.name}</span>
+                        </div>
                       </SelectItem>
-                    )}
-                  </SelectContent>
-                </Select>
-              </div>
+                    ))
+                  ) : (
+                    <SelectItem value="no-events" disabled>
+                      {eventsLoading ? "Loading events..." : "No events found"}
+                    </SelectItem>
+                  )}
+                </SelectContent>
+              </Select>
             </div>
 
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Table</label>
+            {/* Table Section */}
+            <div className="flex items-center gap-4">
+              <label className="text-sm font-medium text-foreground whitespace-nowrap">
+                Table:
+              </label>
               <Select 
                 value={selectedTableId || ''} 
                 onValueChange={setSelectedTableId}
                 disabled={!selectedEventId || tablesLoading}
               >
-                <SelectTrigger>
+                <SelectTrigger className="w-[300px] border-primary focus:ring-primary">
                   <SelectValue placeholder="Select a table" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-popover border-border z-50">
                   {tables.map((table) => (
                     <SelectItem key={table.id} value={table.id}>
                       Table {table.table_no} - {table.name} ({table.guest_count}/{table.limit_seats} guests)
