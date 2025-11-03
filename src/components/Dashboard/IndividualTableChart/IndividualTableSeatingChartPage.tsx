@@ -363,9 +363,9 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
                     <h3 className="text-sm font-medium">Export Controls</h3>
                     <div className="flex items-center gap-2 flex-wrap">
                       <Button 
-                        variant="gradient"
+                        variant="default"
                         size="xs"
-                        onClick={handleDownloadPdf} 
+                        onClick={handleDownloadPdf}
                         disabled={isExporting || isExportingAll || isPrinting}
                         className="rounded-full flex items-center gap-2"
                       >
@@ -373,7 +373,7 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
                         Download PDF
                       </Button>
                       <Button 
-                        variant="gradient"
+                        variant="default"
                         size="xs"
                         onClick={handleDownloadAllPdf}
                         disabled={isExporting || isExportingAll || isPrinting}
@@ -390,9 +390,9 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
                     <h3 className="text-sm font-medium">Word Export</h3>
                     <div className="flex items-center gap-2 flex-wrap">
                       <Button 
-                        variant="gradient"
+                        variant="default"
                         size="xs"
-                        onClick={handleDownloadWord} 
+                        onClick={handleDownloadWord}
                         disabled={isExporting || isExportingAll || isPrinting}
                         className="rounded-full flex items-center gap-2"
                       >
@@ -400,7 +400,7 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
                         Download Word
                       </Button>
                       <Button 
-                        variant="gradient"
+                        variant="default"
                         size="xs"
                         onClick={handleDownloadAllWord}
                         disabled={isExporting || isExportingAll || isPrinting}
@@ -417,7 +417,7 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
                     <h3 className="text-sm font-medium">Print Controls</h3>
                     <div className="flex items-center gap-2 flex-wrap">
                       <Button 
-                        variant="gradient"
+                        variant="default"
                         size="xs"
                         onClick={handlePrint}
                         disabled={isExporting || isExportingAll || isPrinting}
@@ -427,7 +427,7 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
                         Print
                       </Button>
                       <Button 
-                        variant="gradient"
+                        variant="default"
                         size="xs"
                         onClick={handlePrintAll}
                         disabled={isExporting || isExportingAll || isPrinting}
