@@ -94,7 +94,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
   };
 
   return (
-    <Sidebar collapsible="icon" className="border-r border-border">
+    <Sidebar collapsible="icon" className="app-sidebar-enhanced border-r border-border">
       <SidebarHeader className="pt-4 pb-12">
         <div className="flex items-center justify-center px-4">
           <img 
