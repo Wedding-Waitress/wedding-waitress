@@ -1330,14 +1330,14 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                           size="sm"
                           onClick={() => handleEditGuest(guest)}
                         >
-                          <Edit className="w-4 h-4" />
+                          <Edit className="w-4 h-4 text-green-500" />
                         </Button>
                         <Button 
                           variant="ghost" 
                           size="sm"
                           onClick={() => handleDeleteGuest(guest)}
                         >
-                          <Trash2 className="w-4 h-4" />
+                          <Trash2 className="w-4 h-4 text-red-500" />
                         </Button>
                       </div>
                     </TableCell>
