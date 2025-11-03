@@ -1235,8 +1235,8 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                 <TableHead className="w-24">RSVP Status</TableHead>
                 <TableHead className="w-32">Relation</TableHead>
                 <TableHead className="w-24">Dietary Requirements</TableHead>
-                <TableHead className="w-24 pl-8">Mobile</TableHead>
-                <TableHead className="w-36 pl-8">Email</TableHead>
+                <TableHead className="w-24 pl-16">Mobile</TableHead>
+                <TableHead className="w-36 pl-16">Email</TableHead>
                 <TableHead className="w-28">Family/Group</TableHead>
                 <TableHead className="w-20">Notes</TableHead>
                 <TableHead className="w-24 rounded-tr-lg">Actions</TableHead>
@@ -1309,8 +1309,8 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                   {guest.dietary}
                 </Badge>
               </TableCell>
-                    <TableCell className="w-24 pl-8">{renderPill(!!guest.mobile && guest.mobile.trim() !== '')}</TableCell>
-                    <TableCell className="w-36 pl-8">{renderPill(!!guest.email && guest.email.trim() !== '')}</TableCell>
+                    <TableCell className="w-24 pl-16">{renderPill(!!guest.mobile && guest.mobile.trim() !== '')}</TableCell>
+                    <TableCell className="w-36 pl-16">{renderPill(!!guest.email && guest.email.trim() !== '')}</TableCell>
                     <TableCell className="w-28">
                       {guest.family_group ? (
                         <Badge variant="success" className="text-xs">
