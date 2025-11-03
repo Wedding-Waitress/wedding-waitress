@@ -72,11 +72,19 @@ export const GuestDeleteConfirmationModal: React.FC<GuestDeleteConfirmationModal
         </div>
 
         <DialogFooter className="flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2">
-          <Button variant="outline" onClick={handleClose} disabled={isLoading}>
+          <Button 
+            variant="default" 
+            size="xs"
+            className="rounded-full"
+            onClick={handleClose} 
+            disabled={isLoading}
+          >
             Cancel
           </Button>
           <Button
-            variant="destructive"
+            variant="default"
+            size="xs"
+            className="rounded-full"
             onClick={handleConfirm}
             disabled={!isConfirmValid || isLoading}
           >
