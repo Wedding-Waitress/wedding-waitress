@@ -32,10 +32,10 @@ export const DietaryChartCustomizer: React.FC<DietaryChartCustomizerProps> = ({
           <Select value={settings.sortBy} onValueChange={value => onSettingsChange({
           sortBy: value as DietaryChartSettings['sortBy']
         })}>
-            <SelectTrigger>
+            <SelectTrigger className="border-primary focus:ring-primary">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-popover border-border z-50">
               <SelectItem value="firstName">First Name</SelectItem>
               <SelectItem value="lastName">Last Name</SelectItem>
               <SelectItem value="tableNo">Table Number</SelectItem>
@@ -83,10 +83,10 @@ export const DietaryChartCustomizer: React.FC<DietaryChartCustomizerProps> = ({
             <Select value={settings.fontSize} onValueChange={value => onSettingsChange({
             fontSize: value as DietaryChartSettings['fontSize']
           })}>
-              <SelectTrigger id="font-size">
+              <SelectTrigger id="font-size" className="border-primary focus:ring-primary">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-popover border-border z-50">
                 <SelectItem value="small">Small (14px)</SelectItem>
                 <SelectItem value="medium">Medium (16px)</SelectItem>
                 <SelectItem value="large">Large (18px)</SelectItem>
