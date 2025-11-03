@@ -263,16 +263,20 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
 
         <DialogFooter>
           <Button 
-            variant="outline" 
+            variant="outline"
+            size="xs"
+            className="rounded-full"
             onClick={handleClose}
             disabled={isSubmitting}
           >
             Cancel
           </Button>
           <Button 
+            variant="default"
+            size="xs"
+            className="rounded-full"
             onClick={handleSave}
             disabled={isSubmitting || Object.keys(errors).length > 0 || validationState === 'duplicate'}
-            variant="default"
           >
             {isSubmitting ? 'Saving...' : 'Save'}
           </Button>
