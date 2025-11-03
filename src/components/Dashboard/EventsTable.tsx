@@ -202,7 +202,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
               </p>
             </div>
             <div className="flex items-center space-x-2">
-              <Badge variant="secondary" className="glass">
+              <Badge variant="outline" className="bg-white border-primary text-primary rounded-full">
                 {events.length} Event{events.length !== 1 ? 's' : ''}
               </Badge>
               <Button variant="gradient" size="sm" className="rounded-full" onClick={() => setCreateModal(true)}>
