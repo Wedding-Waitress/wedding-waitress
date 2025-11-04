@@ -285,9 +285,9 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
         <CardHeader className="space-y-4">
           {/* Main Page Title */}
           <div>
-            <h1 className="text-2xl font-normal bg-gradient-to-r from-[#7C3AED] to-[#9333EA] bg-clip-text text-transparent mb-2">
-              Individual Table Seating Chart
-            </h1>
+              <h1 className="text-2xl font-medium text-[#7248e6] mb-2">
+                Individual Table Seating Chart
+              </h1>
             <p className="text-muted-foreground">
               Generate detailed seating charts for individual tables
             </p>
@@ -308,7 +308,7 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
                 }}
                 disabled={eventsLoading}
               >
-                <SelectTrigger className="w-[300px] border-primary focus:ring-primary">
+                <SelectTrigger className="w-[300px] border-primary focus:ring-primary font-bold text-[#7248e6]">
                   <SelectValue placeholder="Choose Event" />
                 </SelectTrigger>
                 <SelectContent className="bg-popover border-border z-50">
