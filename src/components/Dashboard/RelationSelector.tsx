@@ -3,6 +3,7 @@ import { Check } from 'lucide-react';
 import { Button } from "@/components/ui/enhanced-button";
 import { Card } from "@/components/ui/card";
 import { RelationPartner, RelationRole, getAllRoleOptions, computeRelationDisplay } from "@/lib/relationUtils";
+import { cn } from "@/lib/utils";
 
 interface RelationSelectorProps {
   value: {
@@ -74,11 +75,13 @@ export const RelationSelector: React.FC<RelationSelectorProps> = ({
       {/* Field Input */}
       <div 
         onClick={onToggle}
-        className={`w-full px-3 py-2 text-sm rounded-md border cursor-pointer transition-colors ${
+        className={cn(
+          "w-full px-3 py-2 text-sm rounded-full border-2 cursor-pointer transition-colors",
           error 
-            ? 'border-red-500 focus:ring-red-500' 
-            : 'border-input hover:border-ring focus:ring-2 focus:ring-ring'
-        }`}
+            ? 'border-red-500' 
+            : 'border-[#7248e6] hover:border-[#7248e6]',
+          isOpen && !error && 'border-[#7248e6] border-[3px]'
+        )}
       >
         {displayText || (
           <span className="text-muted-foreground">Select partner & role</span>

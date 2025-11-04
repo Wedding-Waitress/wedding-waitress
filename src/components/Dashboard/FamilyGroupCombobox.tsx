@@ -8,6 +8,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { X, ChevronDown, Plus, Users } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Guest } from "@/hooks/useGuests";
+import { cn } from "@/lib/utils";
 
 interface FamilyGroupComboboxProps {
   value?: string;
@@ -335,7 +336,10 @@ export const FamilyGroupCombobox: React.FC<FamilyGroupComboboxProps> = ({
               onChange={(e) => handleInputChange(e.target.value)}
               onBlur={() => onChange?.(inputValue, Array.from(selectedMemberIds))}
               placeholder={placeholder}
-              className={inputValue ? "pr-16 cursor-text" : "pr-8 cursor-text"}
+              className={cn(
+                "rounded-full border-2 border-[#7248e6] focus-visible:border-[#7248e6] focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none cursor-text",
+                inputValue ? "pr-16" : "pr-8"
+              )}
               autoComplete="off"
               onFocus={() => {
                 if (inputValue.trim()) {
