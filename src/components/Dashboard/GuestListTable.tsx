@@ -1026,10 +1026,10 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                       checked={isWeddingEngagement}
                       onCheckedChange={(checked) => {
                         setIsWeddingEngagement(checked);
-                        // If turning OFF, copy Partner 1 name to Partner 2
-                        if (!checked && localPartner1Name?.trim()) {
-                          setLocalPartner2Name(localPartner1Name);
-                          handlePartnerNameInputChange('partner2_name', localPartner1Name);
+                        // If turning OFF, clear Partner 2 name (single person/event doesn't need Partner 2)
+                        if (!checked) {
+                          setLocalPartner2Name('');
+                          handlePartnerNameInputChange('partner2_name', '');
                         }
                       }}
                     />
@@ -1072,7 +1072,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                     disabled={!isWeddingEngagement}
                     className={cn(
                       "mt-1 border-primary focus:ring-primary focus:ring-2 focus:ring-offset-2 font-bold",
-                      !isWeddingEngagement && "bg-muted cursor-not-allowed opacity-60"
+                      !isWeddingEngagement && "bg-gray-100 cursor-not-allowed opacity-50 text-gray-400"
                     )}
                   />
                 </div>
