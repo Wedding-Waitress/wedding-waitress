@@ -428,6 +428,7 @@ export type Database = {
           relation_allow_custom_role: boolean | null
           relation_allow_single_partner: boolean | null
           relation_disable_first_guest_alert: boolean | null
+          relation_mode: string | null
           relation_required: boolean | null
           rsvp_deadline: string | null
           setup_completed: boolean | null
@@ -466,6 +467,7 @@ export type Database = {
           relation_allow_custom_role?: boolean | null
           relation_allow_single_partner?: boolean | null
           relation_disable_first_guest_alert?: boolean | null
+          relation_mode?: string | null
           relation_required?: boolean | null
           rsvp_deadline?: string | null
           setup_completed?: boolean | null
@@ -504,6 +506,7 @@ export type Database = {
           relation_allow_custom_role?: boolean | null
           relation_allow_single_partner?: boolean | null
           relation_disable_first_guest_alert?: boolean | null
+          relation_mode?: string | null
           relation_required?: boolean | null
           rsvp_deadline?: string | null
           setup_completed?: boolean | null

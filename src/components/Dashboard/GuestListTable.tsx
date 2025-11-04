@@ -157,7 +157,8 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [firstGuestAdded, setFirstGuestAdded] = useState(false);
-  const [isWeddingEngagement, setIsWeddingEngagement] = useState(true);
+  type RelationMode = 'wedding' | 'single' | 'disabled';
+  const [relationMode, setRelationMode] = useState<RelationMode>('wedding');
 
   // Load selected event from localStorage on mount only if no prop provided
   useEffect(() => {
@@ -277,11 +278,10 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
       setLocalPartner1Name(selectedEvent.partner1_name || '');
       setLocalPartner2Name(selectedEvent.partner2_name || '');
       
-      // RESTORE toggle state from database field
-      // If relation_allow_single_partner is false, it means this is a single-person event (toggle OFF)
-      // If true or null, it's a wedding/engagement (toggle ON)
-      const isWedding = selectedEvent.relation_allow_single_partner !== false;
-      setIsWeddingEngagement(isWedding);
+      // Initialize relation mode from database
+      const mode = (selectedEvent as any).relation_mode || 
+                   (selectedEvent.relation_allow_single_partner !== false ? 'wedding' : 'single');
+      setRelationMode(mode as RelationMode);
       
       // Check if partner names are already saved
       const bothNamesFilled = selectedEvent.partner1_name?.trim() && selectedEvent.partner2_name?.trim();
@@ -332,7 +332,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
     }
 
     // Only validate Partner 2 if this is a wedding/engagement (two-person event)
-    if (isWeddingEngagement && !partner2Value) {
+    if (relationMode === 'wedding' && !partner2Value) {
       toast({
         title: "Error",
         description: "Both partner names are required for wedding/engagement events",
@@ -872,9 +872,11 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
     const shouldBlockFirstGuest = !relationSettings.relation_disable_first_guest_alert;
     
     // Determine if required names are missing based on toggle state
-    const namesAreMissing = isWeddingEngagement 
+    const namesAreMissing = relationMode === 'wedding'
       ? (partner1Missing || partner2Missing)  // Wedding/engagement: need BOTH
-      : partner1Missing;                       // Single event: only need Partner 1
+      : relationMode === 'single' 
+        ? partner1Missing                       // Single event: only need Partner 1
+        : false;                                // Disabled mode: names not required
     
     // Gating rule: Only block for first guest if required names are missing AND haven't been saved
     if (shouldBlockFirstGuest && guestCount === 0 && namesAreMissing && !partnerNamesSaved) {
@@ -1017,19 +1019,20 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                     <div className="inline-flex items-center justify-center gap-3 rounded-full border-2 border-[#7248e6] bg-white px-4 py-2">
                       <Switch
                         id="wedding-engagement-toggle"
-                        checked={isWeddingEngagement}
+                        checked={relationMode === 'wedding'}
                         onCheckedChange={async (checked) => {
-                          if (!checked) return; // Prevent turning OFF directly
+                          if (!checked) return;
                           
-                          // Turn ON wedding mode, which automatically turns OFF single mode
-                          setIsWeddingEngagement(true);
+                          setRelationMode('wedding');
                           
-                          // SAVE toggle state to database
                           if (selectedEvent) {
                             try {
                               await supabase
                                 .from('events')
-                                .update({ relation_allow_single_partner: true })
+                                .update({ 
+                                  relation_mode: 'wedding',
+                                  relation_allow_single_partner: true 
+                                })
                                 .eq('id', selectedEvent.id);
                               
                               await updateEvent(selectedEvent.id, { 
@@ -1053,27 +1056,27 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                     <div className="inline-flex items-center justify-center gap-3 rounded-full border-2 border-[#7248e6] bg-white px-4 py-2">
                       <Switch
                         id="single-person-toggle"
-                        checked={!isWeddingEngagement}
+                        checked={relationMode === 'single'}
                         onCheckedChange={async (checked) => {
-                          if (!checked) return; // Prevent turning OFF directly
+                          if (!checked) return;
                           
-                          // Turn ON single mode, which automatically turns OFF wedding mode
-                          setIsWeddingEngagement(false);
+                          setRelationMode('single');
+                          setLocalPartner2Name(localPartner1Name);
                           
-                          // Clear Partner 2 name
-                          setLocalPartner2Name('');
-                          handlePartnerNameInputChange('partner2_name', '');
-                          
-                          // SAVE toggle state to database
                           if (selectedEvent) {
                             try {
                               await supabase
                                 .from('events')
-                                .update({ relation_allow_single_partner: false })
+                                .update({ 
+                                  relation_mode: 'single',
+                                  relation_allow_single_partner: false,
+                                  partner2_name: localPartner1Name
+                                })
                                 .eq('id', selectedEvent.id);
                               
                               await updateEvent(selectedEvent.id, { 
-                                relation_allow_single_partner: false 
+                                relation_allow_single_partner: false,
+                                partner2_name: localPartner1Name
                               });
                             } catch (error) {
                               console.error('Error saving toggle state:', error);
@@ -1086,8 +1089,43 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                       </Label>
                     </div>
                   </div>
+
+                  {/* Toggle 3: Disabled Relation */}
+                  <div className="flex flex-col gap-2 mt-2">
+                    <div className="inline-flex items-center justify-center gap-3 rounded-full border-2 border-[#7248e6] bg-white px-4 py-2">
+                      <Switch
+                        id="disabled-relation-toggle"
+                        checked={relationMode === 'disabled'}
+                        onCheckedChange={async (checked) => {
+                          if (!checked) return;
+                          
+                          setRelationMode('disabled');
+                          
+                          if (selectedEvent) {
+                            try {
+                              await supabase
+                                .from('events')
+                                .update({ 
+                                  relation_mode: 'disabled'
+                                })
+                                .eq('id', selectedEvent.id);
+                              
+                              await updateEvent(selectedEvent.id, {});
+                            } catch (error) {
+                              console.error('Error saving toggle state:', error);
+                            }
+                          }
+                        }}
+                      />
+                      <Label htmlFor="disabled-relation-toggle" className="text-base font-medium text-[#7248e6] cursor-pointer">
+                        Turn off - do not show guest relation
+                      </Label>
+                    </div>
+                  </div>
                 </div>
 
+                {relationMode !== 'disabled' && (
+                  <>
                 {/* Partner 1 - Middle Column */}
                 <div>
                   <div className="inline-flex items-center justify-center rounded-full border-2 border-[#7248e6] bg-white px-3 py-1.5 mb-2">
@@ -1115,16 +1153,18 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                   <Input
                     id="partner2-name"
                     type="text"
-                    placeholder={isWeddingEngagement ? "Enter first name" : "Not applicable"}
+                    placeholder={relationMode === 'wedding' ? "Enter first name" : "Not applicable"}
                     value={localPartner2Name}
                     onChange={(e) => handlePartnerNameInputChange('partner2_name', e.target.value)}
-                    disabled={!isWeddingEngagement}
+                    disabled={relationMode !== 'wedding'}
                     className={cn(
                       "mt-1 border-primary focus:ring-primary focus:ring-2 focus:ring-offset-2 font-bold",
-                      !isWeddingEngagement && "bg-gray-100 cursor-not-allowed opacity-50 text-gray-400"
+                      relationMode !== 'wedding' && "bg-gray-100 cursor-not-allowed opacity-50 text-gray-400"
                     )}
                   />
                 </div>
+                  </>
+                )}
               </div>
               
               {/* Save Button */}
@@ -1133,7 +1173,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                   variant="default"
                   size="xs"
                   onClick={handleManualSavePartnerNames}
-                  disabled={!hasUnsavedChanges || !localPartner1Name?.trim() || (isWeddingEngagement && !localPartner2Name?.trim()) || isSaving}
+                  disabled={!hasUnsavedChanges || !localPartner1Name?.trim() || (relationMode === 'wedding' && !localPartner2Name?.trim()) || isSaving}
                   className={`rounded-full px-8 transition-all duration-300 ${
                     partnerNamesSaved 
                       ? 'bg-green-500 hover:bg-green-600 text-white' 
@@ -1330,7 +1370,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                 <TableHead className="w-20">Table No</TableHead>
                 <TableHead className="w-20">Seat No.</TableHead>
                 <TableHead className="w-24">RSVP Status</TableHead>
-                <TableHead className="w-32">Relation</TableHead>
+                {relationMode !== 'disabled' && <TableHead className="w-32">Relation</TableHead>}
                 <TableHead className="w-24">Dietary Requirements</TableHead>
                 <TableHead className="w-24 pl-16">Mobile</TableHead>
                 <TableHead className="w-36 pl-16">Email</TableHead>
@@ -1391,6 +1431,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                         {getRsvpDisplayLabel(guest.rsvp)}
                       </Badge>
                     </TableCell>
+                    {relationMode !== 'disabled' && (
                     <TableCell className="w-32">
                       <RelationBadge
                         display={guest.relation_display || ''}
@@ -1401,6 +1442,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                         isEmpty={!guest.relation_display}
                       />
                     </TableCell>
+                    )}
               <TableCell className="w-24">
                 <Badge variant="default" className="text-xs bg-primary text-white">
                   {guest.dietary}
