@@ -185,14 +185,14 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col px-10">
         <DialogHeader>
-          <DialogTitle>
+          <DialogTitle className="text-2xl font-medium text-[#7248e6]">
             {editingTable ? 'Edit Table' : 'Create Table'}
           </DialogTitle>
         </DialogHeader>
         
-        <div className="grid gap-4 py-4">
+        <div className="space-y-6 py-4 overflow-y-auto flex-1">
           <div className="grid gap-2">
             <Label htmlFor="name">Table Name or No *</Label>
             <Input
@@ -210,7 +210,13 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
               onBlur={validateForm}
               placeholder="e.g., 1, Bridal, VIP A"
               disabled={isSubmitting}
-              className={validationState === 'duplicate' ? 'border-destructive' : validationState === 'valid' ? 'border-green-500' : ''}
+              className={`rounded-full border-2 focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none ${
+                validationState === 'duplicate' 
+                  ? 'border-red-600 focus-visible:border-red-600' 
+                  : validationState === 'valid' 
+                    ? 'border-green-500 focus-visible:border-green-500' 
+                    : 'border-[#7248e6] focus-visible:border-[#7248e6]'
+              }`}
             />
             {validationState === 'duplicate' && (
               <p className="text-sm text-destructive">This table number already exists. Please choose another.</p>
@@ -233,6 +239,7 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
               value={limitSeats}
               onChange={(e) => setLimitSeats(parseInt(e.target.value) || 0)}
               disabled={isSubmitting}
+              className="rounded-full border-2 border-[#7248e6] focus-visible:border-[#7248e6] focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none"
             />
             {errors.limitSeats && (
               <p className="text-sm text-destructive">{errors.limitSeats}</p>
@@ -248,6 +255,7 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
               placeholder="Optional notes about this table..."
               rows={3}
               disabled={isSubmitting}
+              className="rounded-3xl border-2 border-[#7248e6] focus-visible:border-[#7248e6] focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none"
             />
           </div>
 
@@ -263,9 +271,9 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
 
         <DialogFooter>
           <Button 
-            variant="outline"
+            variant="destructive"
             size="xs"
-            className="rounded-full"
+            className="rounded-full bg-red-600 hover:bg-red-700 text-white"
             onClick={handleClose}
             disabled={isSubmitting}
           >
@@ -274,7 +282,7 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
           <Button 
             variant="default"
             size="xs"
-            className="rounded-full"
+            className="rounded-full bg-green-600 hover:bg-green-700 text-white"
             onClick={handleSave}
             disabled={isSubmitting || Object.keys(errors).length > 0 || validationState === 'duplicate'}
           >
