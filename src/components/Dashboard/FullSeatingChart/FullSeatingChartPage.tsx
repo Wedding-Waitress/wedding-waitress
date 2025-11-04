@@ -181,7 +181,7 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
                 Choose Event:
               </label>
               <Select value={selectedEventId || "no-event"} onValueChange={handleEventSelect}>
-                <SelectTrigger className="w-[300px] border-primary focus:ring-primary">
+                <SelectTrigger className="w-[300px] border-primary focus:ring-primary font-bold text-[#7248e6]">
                   <SelectValue placeholder="Choose Event" />
                 </SelectTrigger>
                 <SelectContent className="bg-popover border-border z-50">
@@ -207,7 +207,7 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
             <div className="flex items-center gap-4">
               <FileText className="w-12 h-12 text-primary" />
               <div>
-                <CardTitle className="text-right text-2xl font-normal bg-gradient-to-r from-[#7C3AED] to-[#9333EA] bg-clip-text text-transparent">Full Seating Chart</CardTitle>
+                <CardTitle className="text-right text-2xl font-medium text-[#7248e6]">Full Seating Chart</CardTitle>
                 <CardDescription className="text-right">
                   Complete guest list with check-off boxes
                 </CardDescription>
@@ -219,7 +219,7 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
           {selectedEvent && (
             <div className="flex items-center justify-between pt-2 border-t">
               <div className="flex items-center gap-4">
-                <span className="text-2xl font-normal bg-gradient-to-r from-[#7C3AED] to-[#9333EA] bg-clip-text text-transparent">
+                <span className="text-lg font-normal bg-gradient-to-r from-[#7C3AED] to-[#9333EA] bg-clip-text text-transparent">
                   Full Seating Chart for {selectedEvent.name}
                 </span>
                 <Badge 
