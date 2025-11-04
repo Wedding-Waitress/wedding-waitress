@@ -116,7 +116,7 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
               <Monitor className="w-6 h-6 text-primary" />
             </div>
             <div>
-              <CardTitle className="text-2xl font-normal bg-gradient-to-r from-[#7C3AED] to-[#9333EA] bg-clip-text text-transparent">Kiosk Live View Setup</CardTitle>
+              <CardTitle className="text-2xl font-medium text-[#7248e6]">Kiosk Live View Setup</CardTitle>
               <CardDescription>
                 Configure a self-service guest lookup kiosk for your event entrance
               </CardDescription>
@@ -128,9 +128,9 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
       {/* Event Selection */}
       <Card className="ww-box">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-2xl font-normal">
-            <Calendar className="w-5 h-5 text-[#7C3AED]" />
-            <span className="bg-gradient-to-r from-[#7C3AED] to-[#9333EA] bg-clip-text text-transparent">Event Selection</span>
+          <CardTitle className="flex items-center gap-2 text-2xl font-medium text-[#7248e6]">
+            <Calendar className="w-5 h-5 text-[#7248e6]" />
+            Event Selection
           </CardTitle>
           <CardDescription>
             Choose which event to display on the kiosk
@@ -142,7 +142,7 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
               Choose Event:
             </label>
             <Select value={selectedEventId || "no-event"} onValueChange={onEventSelect}>
-              <SelectTrigger className="w-[300px] border-primary focus:ring-primary">
+              <SelectTrigger className="w-[300px] border-primary focus:ring-primary font-bold text-[#7248e6]">
                 <SelectValue placeholder="Choose Event" />
               </SelectTrigger>
               <SelectContent className="bg-popover border-border z-50">
@@ -179,9 +179,9 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
       {selectedEvent && (
         <Card className="ww-box">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-2xl font-normal">
-              <ExternalLink className="w-5 h-5 text-[#7C3AED]" />
-              <span className="bg-gradient-to-r from-[#7C3AED] to-[#9333EA] bg-clip-text text-transparent">Kiosk URL & Controls</span>
+            <CardTitle className="flex items-center gap-2 text-2xl font-medium text-[#7248e6]">
+              <ExternalLink className="w-5 h-5 text-[#7248e6]" />
+              Kiosk URL & Controls
             </CardTitle>
             <CardDescription>
               Use this URL to set up your kiosk device
@@ -256,9 +256,9 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
       {/* Setup Instructions */}
       <Card className="ww-box">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-2xl font-normal">
-            <Tablet className="w-5 h-5 text-[#7C3AED]" />
-            <span className="bg-gradient-to-r from-[#7C3AED] to-[#9333EA] bg-clip-text text-transparent">Setup Instructions</span>
+          <CardTitle className="flex items-center gap-2 text-2xl font-medium text-[#7248e6]">
+            <Tablet className="w-5 h-5 text-[#7248e6]" />
+            Setup Instructions
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
