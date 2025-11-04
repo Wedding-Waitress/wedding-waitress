@@ -1010,160 +1010,149 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                 </div>
               </div>
               
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-start">
-                {/* Wedding/Engagement Toggle - Left Column */}
-                <div className="flex flex-col items-start justify-start gap-3">
-                  {/* Toggle 1: Wedding/Engagement Names */}
-                  <div className="flex flex-col gap-2">
-                    {/* Purple Pill with Toggle Inside */}
-                    <div className="inline-flex items-center justify-center gap-3 rounded-full border-2 border-[#7248e6] bg-white px-4 py-2">
-                      <Switch
-                        id="wedding-engagement-toggle"
-                        checked={relationMode === 'wedding'}
-                        onCheckedChange={async (checked) => {
-                          if (!checked) return;
-                          
-                          setRelationMode('wedding');
-                          
-                          if (selectedEvent) {
-                            try {
-                              await supabase
-                                .from('events')
-                                .update({ 
-                                  relation_mode: 'wedding',
-                                  relation_allow_single_partner: true 
-                                })
-                                .eq('id', selectedEvent.id);
-                              
-                              await updateEvent(selectedEvent.id, { 
+              <div className="flex flex-col gap-6">
+                {/* Row 1: Toggle Pills - Horizontal */}
+                <div className="flex flex-wrap gap-3 justify-start">
+                  {/* Toggle 1: Wedding/Engagement Mode */}
+                  <div className="inline-flex items-center justify-center gap-3 rounded-full border-2 border-[#7248e6] bg-white px-4 py-2">
+                    <Switch
+                      id="wedding-engagement-toggle"
+                      checked={relationMode === 'wedding'}
+                      onCheckedChange={async (checked) => {
+                        if (!checked) return;
+                        
+                        setRelationMode('wedding');
+                        
+                        if (selectedEvent) {
+                          try {
+                            await supabase
+                              .from('events')
+                              .update({ 
+                                relation_mode: 'wedding',
                                 relation_allow_single_partner: true 
-                              });
-                            } catch (error) {
-                              console.error('Error saving toggle state:', error);
-                            }
+                              })
+                              .eq('id', selectedEvent.id);
+                            
+                            await updateEvent(selectedEvent.id, { 
+                              relation_allow_single_partner: true 
+                            });
+                          } catch (error) {
+                            console.error('Error saving toggle state:', error);
                           }
-                        }}
-                      />
-                      <Label htmlFor="wedding-engagement-toggle" className="text-base font-medium text-[#7248e6] cursor-pointer">
-                        Turn on for weddings/engagements (two people)
-                      </Label>
-                    </div>
+                        }
+                      }}
+                    />
+                    <Label htmlFor="wedding-engagement-toggle" className="text-base font-medium text-[#7248e6] cursor-pointer">
+                      Turn on for weddings - engagements (two people)
+                    </Label>
                   </div>
 
-                  {/* Toggle 2: Single Person/Event */}
-                  <div className="flex flex-col gap-2 mt-2">
-                    {/* Purple Pill with Toggle Inside */}
-                    <div className="inline-flex items-center justify-center gap-3 rounded-full border-2 border-[#7248e6] bg-white px-4 py-2">
-                      <Switch
-                        id="single-person-toggle"
-                        checked={relationMode === 'single'}
-                        onCheckedChange={async (checked) => {
-                          if (!checked) return;
-                          
-                          setRelationMode('single');
-                          setLocalPartner2Name(localPartner1Name);
-                          
-                          if (selectedEvent) {
-                            try {
-                              await supabase
-                                .from('events')
-                                .update({ 
-                                  relation_mode: 'single',
-                                  relation_allow_single_partner: false,
-                                  partner2_name: localPartner1Name
-                                })
-                                .eq('id', selectedEvent.id);
-                              
-                              await updateEvent(selectedEvent.id, { 
+                  {/* Toggle 2: Single Person Mode */}
+                  <div className="inline-flex items-center justify-center gap-3 rounded-full border-2 border-[#7248e6] bg-white px-4 py-2">
+                    <Switch
+                      id="single-person-toggle"
+                      checked={relationMode === 'single'}
+                      onCheckedChange={async (checked) => {
+                        if (!checked) return;
+                        
+                        setRelationMode('single');
+                        setLocalPartner2Name(localPartner1Name);
+                        
+                        if (selectedEvent) {
+                          try {
+                            await supabase
+                              .from('events')
+                              .update({ 
+                                relation_mode: 'single',
                                 relation_allow_single_partner: false,
                                 partner2_name: localPartner1Name
-                              });
-                            } catch (error) {
-                              console.error('Error saving toggle state:', error);
-                            }
+                              })
+                              .eq('id', selectedEvent.id);
+                            
+                            await updateEvent(selectedEvent.id, { 
+                              relation_allow_single_partner: false,
+                              partner2_name: localPartner1Name
+                            });
+                          } catch (error) {
+                            console.error('Error saving toggle state:', error);
                           }
-                        }}
-                      />
-                      <Label htmlFor="single-person-toggle" className="text-base font-medium text-[#7248e6] cursor-pointer">
-                        Turn on for single person events (birthdays, etc.)
-                      </Label>
-                    </div>
+                        }
+                      }}
+                    />
+                    <Label htmlFor="single-person-toggle" className="text-base font-medium text-[#7248e6] cursor-pointer">
+                      Turn on for single person events (birthdays, etc.)
+                    </Label>
                   </div>
 
-                  {/* Toggle 3: Disabled Relation */}
-                  <div className="flex flex-col gap-2 mt-2">
-                    <div className="inline-flex items-center justify-center gap-3 rounded-full border-2 border-[#7248e6] bg-white px-4 py-2">
-                      <Switch
-                        id="disabled-relation-toggle"
-                        checked={relationMode === 'disabled'}
-                        onCheckedChange={async (checked) => {
-                          if (!checked) return;
-                          
-                          setRelationMode('disabled');
-                          
-                          if (selectedEvent) {
-                            try {
-                              await supabase
-                                .from('events')
-                                .update({ 
-                                  relation_mode: 'disabled'
-                                })
-                                .eq('id', selectedEvent.id);
-                              
-                              await updateEvent(selectedEvent.id, {});
-                            } catch (error) {
-                              console.error('Error saving toggle state:', error);
-                            }
+                  {/* Toggle 3: Disabled Mode */}
+                  <div className="inline-flex items-center justify-center gap-3 rounded-full border-2 border-[#7248e6] bg-white px-4 py-2">
+                    <Switch
+                      id="disabled-relation-toggle"
+                      checked={relationMode === 'disabled'}
+                      onCheckedChange={async (checked) => {
+                        if (!checked) return;
+                        
+                        setRelationMode('disabled');
+                        
+                        if (selectedEvent) {
+                          try {
+                            await supabase
+                              .from('events')
+                              .update({ 
+                                relation_mode: 'disabled'
+                              })
+                              .eq('id', selectedEvent.id);
+                            
+                            await updateEvent(selectedEvent.id, {});
+                          } catch (error) {
+                            console.error('Error saving toggle state:', error);
                           }
-                        }}
-                      />
-                      <Label htmlFor="disabled-relation-toggle" className="text-base font-medium text-[#7248e6] cursor-pointer">
-                        Turn off - do not show guest relation
-                      </Label>
-                    </div>
+                        }
+                      }}
+                    />
+                    <Label htmlFor="disabled-relation-toggle" className="text-base font-medium text-[#7248e6] cursor-pointer">
+                      Turn off - do not show guest relation
+                    </Label>
                   </div>
                 </div>
 
+                {/* Row 2: Partner Name Fields - Horizontal */}
                 {relationMode !== 'disabled' && (
-                  <>
-                {/* Partner 1 - Middle Column */}
-                <div>
-                  <div className="inline-flex items-center justify-center rounded-full border-2 border-[#7248e6] bg-white px-3 py-1.5 mb-2">
-                    <Label htmlFor="partner1-name" className="text-base font-medium text-[#7248e6]">
-                      Partner 1 First Name
-                    </Label>
-                  </div>
-                  <Input
-                    id="partner1-name"
-                    type="text"
-                    placeholder="Enter first name"
-                    value={localPartner1Name}
-                    onChange={(e) => handlePartnerNameInputChange('partner1_name', e.target.value)}
-                    className="mt-1 border-primary focus:ring-primary focus:ring-2 focus:ring-offset-2 font-bold"
-                  />
-                </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Partner 1 First Name */}
+                    <div className="flex flex-col gap-2">
+                      <Label htmlFor="partner1-name" className="text-sm font-medium">
+                        Partner 1 First Name
+                      </Label>
+                      <Input
+                        id="partner1-name"
+                        type="text"
+                        placeholder="Enter first name"
+                        value={localPartner1Name}
+                        onChange={(e) => handlePartnerNameInputChange('partner1_name', e.target.value)}
+                        className="border-primary focus:ring-primary focus:ring-2 focus:ring-offset-2 font-bold"
+                      />
+                    </div>
 
-                {/* Partner 2 - Right Column */}
-                <div>
-                  <div className="inline-flex items-center justify-center rounded-full border-2 border-[#7248e6] bg-white px-3 py-1.5 mb-2">
-                    <Label htmlFor="partner2-name" className="text-base font-medium text-[#7248e6]">
-                      Partner 2 First Name
-                    </Label>
+                    {/* Partner 2 First Name */}
+                    <div className="flex flex-col gap-2">
+                      <Label htmlFor="partner2-name" className="text-sm font-medium">
+                        Partner 2 First Name
+                      </Label>
+                      <Input
+                        id="partner2-name"
+                        type="text"
+                        placeholder={relationMode === 'wedding' ? "Enter first name" : "Not applicable"}
+                        value={localPartner2Name}
+                        onChange={(e) => handlePartnerNameInputChange('partner2_name', e.target.value)}
+                        disabled={relationMode !== 'wedding'}
+                        className={cn(
+                          "border-primary focus:ring-primary focus:ring-2 focus:ring-offset-2 font-bold",
+                          relationMode !== 'wedding' && "bg-gray-100 cursor-not-allowed opacity-50 text-gray-400"
+                        )}
+                      />
+                    </div>
                   </div>
-                  <Input
-                    id="partner2-name"
-                    type="text"
-                    placeholder={relationMode === 'wedding' ? "Enter first name" : "Not applicable"}
-                    value={localPartner2Name}
-                    onChange={(e) => handlePartnerNameInputChange('partner2_name', e.target.value)}
-                    disabled={relationMode !== 'wedding'}
-                    className={cn(
-                      "mt-1 border-primary focus:ring-primary focus:ring-2 focus:ring-offset-2 font-bold",
-                      relationMode !== 'wedding' && "bg-gray-100 cursor-not-allowed opacity-50 text-gray-400"
-                    )}
-                  />
-                </div>
-                  </>
                 )}
               </div>
               
