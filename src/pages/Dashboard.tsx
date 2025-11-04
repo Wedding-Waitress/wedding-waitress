@@ -291,7 +291,7 @@ export const Dashboard = () => {
                   <div className="flex items-start gap-3">
                     <MapPin className="w-16 h-16 text-primary flex-shrink-0" />
                     <div className="flex flex-col">
-                      <CardTitle className="mb-2 text-left text-2xl font-normal bg-gradient-to-r from-[#7C3AED] to-[#9333EA] bg-clip-text text-transparent">Table Setup</CardTitle>
+                      <CardTitle className="mb-2 text-left text-2xl font-medium text-[#7248e6]">Table Setup</CardTitle>
                       <CardDescription className="text-left">
                         Design your perfect seating arrangement and table layouts
                       </CardDescription>
