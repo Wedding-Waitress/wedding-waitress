@@ -80,7 +80,7 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col px-8">
+      <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col px-12">
         <DialogHeader>
           <DialogTitle className="text-2xl font-medium text-[#7248e6]">Create Event</DialogTitle>
         </DialogHeader>
@@ -166,13 +166,19 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
         </div>
 
         <DialogFooter>
-          <Button variant="outline" size="xs" className="rounded-full" onClick={handleClose} disabled={isSaving}>
+          <Button 
+            variant="destructive" 
+            size="xs" 
+            className="rounded-full bg-red-600 hover:bg-red-700 text-white" 
+            onClick={handleClose} 
+            disabled={isSaving}
+          >
             Cancel
           </Button>
           <Button 
             variant="default"
             size="xs"
-            className="rounded-full"
+            className="rounded-full bg-green-600 hover:bg-green-700 text-white"
             onClick={handleCreate} 
             disabled={!formData.name.trim() || isSaving}
           >
