@@ -953,7 +953,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
       {/* Couple Names Section */}
       <div id="guest-tools-section" className="px-6 py-6">
         <Card 
-          className={`p-6 transition-all duration-300 border-2 border-primary ${
+          className={`p-6 transition-all duration-300 border-2 border-[#7248e6] ${
             showNamesValidation 
               ? 'is-alert animate-pulse-soft animate-shake-soft' 
               : totalGuestCount > 0 
@@ -966,11 +966,11 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
             >
               <div className="text-center mb-6">
                 <div className="flex items-center justify-center gap-2 mb-4">
-                  <div className="bg-white border-2 border-primary rounded-full px-4 py-2">
-                    <h3 className={`text-lg font-medium text-primary ${
+                  <div className="bg-white border-2 border-[#7248e6] rounded-full px-4 py-2">
+                    <h3 className={`text-lg font-medium text-[#7248e6] ${
                       showNamesValidation ? 'animate-pulse-soft' : ''
                     }`}>
-                      Partner Names
+                      What relation is the guest to you?
                     </h3>
                   </div>
                   {selectedEventId && (
@@ -991,8 +991,8 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <div className="inline-flex items-center justify-center rounded-full border border-primary bg-white px-3 py-1.5 mb-2">
-                    <Label htmlFor="partner1-name" className="text-sm font-medium text-primary">
+                  <div className="inline-flex items-center justify-center rounded-full border-2 border-[#7248e6] bg-white px-3 py-1.5 mb-2">
+                    <Label htmlFor="partner1-name" className="text-base font-medium text-[#7248e6]">
                       Partner 1 First Name
                     </Label>
                   </div>
@@ -1006,8 +1006,8 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                 />
                 </div>
                 <div>
-                  <div className="inline-flex items-center justify-center rounded-full border border-primary bg-white px-3 py-1.5 mb-2">
-                    <Label htmlFor="partner2-name" className="text-sm font-medium text-primary">
+                  <div className="inline-flex items-center justify-center rounded-full border-2 border-[#7248e6] bg-white px-3 py-1.5 mb-2">
+                    <Label htmlFor="partner2-name" className="text-base font-medium text-[#7248e6]">
                       Partner 2 First Name
                     </Label>
                   </div>
