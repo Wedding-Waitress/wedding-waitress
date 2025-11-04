@@ -226,7 +226,7 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
                 Choose Event:
               </label>
               <Select value={selectedEventId || "no-event"} onValueChange={handleEventChange}>
-                <SelectTrigger className="w-[300px] border-primary focus:ring-primary">
+                <SelectTrigger className="w-[300px] border-primary focus:ring-primary font-bold text-[#7248e6]">
                   <SelectValue placeholder="Choose Event" />
                 </SelectTrigger>
                 <SelectContent className="bg-popover border-border z-50">
@@ -250,7 +250,7 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
 
             {/* Right: Title & Subtitle */}
             <div className="text-right">
-              <h1 className="text-2xl font-normal bg-gradient-to-r from-[#7C3AED] to-[#9333EA] bg-clip-text text-transparent">Table Name Place Cards</h1>
+              <h1 className="text-2xl font-medium text-[#7248e6]">Table Name Place Cards</h1>
               <p className="text-sm text-muted-foreground mt-1">
                 Create professional foldable place cards for your guests
               </p>
