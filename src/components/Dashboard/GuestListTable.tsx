@@ -314,10 +314,21 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
     const partner1Value = localPartner1Name?.trim();
     const partner2Value = localPartner2Name?.trim();
 
-    if (!partner1Value || !partner2Value) {
+    // Validate based on toggle state
+    if (!partner1Value) {
       toast({
         title: "Error",
-        description: "Both partner names are required",
+        description: "Partner 1 name is required",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Only validate Partner 2 if this is a wedding/engagement (two-person event)
+    if (isWeddingEngagement && !partner2Value) {
+      toast({
+        title: "Error",
+        description: "Both partner names are required for wedding/engagement events",
         variant: "destructive",
       });
       return;
