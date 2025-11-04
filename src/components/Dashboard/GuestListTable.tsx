@@ -1023,9 +1023,9 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                   <div className="flex flex-col gap-2">
                     {/* Purple Pill Label */}
                     <div className="inline-flex items-center justify-center rounded-full border-2 border-[#7248e6] bg-white px-4 py-2">
-                      <Label htmlFor="wedding-engagement-toggle" className="text-base font-medium text-[#7248e6] cursor-pointer">
-                        Add Wedding/Engagement Names
-                      </Label>
+            <Label htmlFor="wedding-engagement-toggle" className="text-base font-medium text-[#7248e6] cursor-pointer">
+              Add 2 Names. Eg: Wedding Couple
+            </Label>
                     </div>
                     
                     {/* Toggle and Instructional Text */}
