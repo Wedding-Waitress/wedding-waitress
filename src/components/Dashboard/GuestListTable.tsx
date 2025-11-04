@@ -1122,7 +1122,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                     {/* Partner 1 First Name */}
                     <div className="flex flex-col gap-2">
                       <Label htmlFor="partner1-name" className="text-sm font-medium">
-                        Partner 1 - First Name
+                        Add Partner 1 - First Name
                       </Label>
                       <Input
                         id="partner1-name"
@@ -1137,7 +1137,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                     {/* Partner 2 First Name */}
                     <div className="flex flex-col gap-2">
                       <Label htmlFor="partner2-name" className="text-sm font-medium">
-                        Partner 2 - First Name
+                        Add Partner 2 - First Name
                       </Label>
                       <Input
                         id="partner2-name"
