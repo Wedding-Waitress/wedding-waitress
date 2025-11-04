@@ -292,7 +292,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
       const hasGuests = guests.length > 0;
       setFirstGuestAdded(hasGuests);
     }
-  }, [selectedEvent, guests.length]);
+  }, [selectedEvent]); // Removed guests.length to prevent toggle reset
 
   // Helper function to get table name for a guest
   const getTableName = (guest: any) => {
@@ -1019,48 +1019,94 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-start">
                 {/* Wedding/Engagement Toggle - Left Column */}
                 <div className="flex flex-col items-start justify-start gap-3">
-                  {/* Purple Pill Label */}
-                  <div className="inline-flex items-center justify-center rounded-full border-2 border-[#7248e6] bg-white px-4 py-2">
-                    <Label htmlFor="wedding-engagement-toggle" className="text-base font-medium text-[#7248e6] cursor-pointer">
-                      Add Wedding/Engagement Names
-                    </Label>
+                  {/* Toggle 1: Wedding/Engagement Names */}
+                  <div className="flex flex-col gap-2">
+                    {/* Purple Pill Label */}
+                    <div className="inline-flex items-center justify-center rounded-full border-2 border-[#7248e6] bg-white px-4 py-2">
+                      <Label htmlFor="wedding-engagement-toggle" className="text-base font-medium text-[#7248e6] cursor-pointer">
+                        Add Wedding/Engagement Names
+                      </Label>
+                    </div>
+                    
+                    {/* Toggle and Instructional Text */}
+                    <div className="flex items-center gap-3">
+                      <Switch
+                        id="wedding-engagement-toggle"
+                        checked={isWeddingEngagement}
+                        onCheckedChange={async (checked) => {
+                          if (!checked) return; // Prevent turning OFF directly
+                          
+                          // Turn ON wedding mode, which automatically turns OFF single mode
+                          setIsWeddingEngagement(true);
+                          
+                          // SAVE toggle state to database
+                          if (selectedEvent) {
+                            try {
+                              await supabase
+                                .from('events')
+                                .update({ relation_allow_single_partner: true })
+                                .eq('id', selectedEvent.id);
+                              
+                              await updateEvent(selectedEvent.id, { 
+                                relation_allow_single_partner: true 
+                              });
+                            } catch (error) {
+                              console.error('Error saving toggle state:', error);
+                            }
+                          }
+                        }}
+                      />
+                      <span className="text-sm text-black">
+                        Turn on for weddings/engagements (two people)
+                      </span>
+                    </div>
                   </div>
-                  
-                  {/* Toggle and Instructional Text on Same Line */}
-                  <div className="flex items-center gap-3">
-                    <Switch
-                      id="wedding-engagement-toggle"
-                      checked={isWeddingEngagement}
-                      onCheckedChange={async (checked) => {
-                        setIsWeddingEngagement(checked);
-                        
-                        // If turning OFF, clear Partner 2 name (single person/event doesn't need Partner 2)
-                        if (!checked) {
+
+                  {/* Toggle 2: Single Person/Event */}
+                  <div className="flex flex-col gap-2 mt-2">
+                    {/* Purple Pill Label */}
+                    <div className="inline-flex items-center justify-center rounded-full border-2 border-[#7248e6] bg-white px-4 py-2">
+                      <Label htmlFor="single-person-toggle" className="text-base font-medium text-[#7248e6] cursor-pointer">
+                        Single Person/Event
+                      </Label>
+                    </div>
+                    
+                    {/* Toggle and Instructional Text */}
+                    <div className="flex items-center gap-3">
+                      <Switch
+                        id="single-person-toggle"
+                        checked={!isWeddingEngagement}
+                        onCheckedChange={async (checked) => {
+                          if (!checked) return; // Prevent turning OFF directly
+                          
+                          // Turn ON single mode, which automatically turns OFF wedding mode
+                          setIsWeddingEngagement(false);
+                          
+                          // Clear Partner 2 name
                           setLocalPartner2Name('');
                           handlePartnerNameInputChange('partner2_name', '');
-                        }
-                        
-                        // SAVE toggle state to database immediately
-                        if (selectedEvent) {
-                          try {
-                            await supabase
-                              .from('events')
-                              .update({ relation_allow_single_partner: checked })
-                              .eq('id', selectedEvent.id);
-                            
-                            // Also update via the hook to refresh event data
-                            await updateEvent(selectedEvent.id, { 
-                              relation_allow_single_partner: checked 
-                            });
-                          } catch (error) {
-                            console.error('Error saving toggle state:', error);
+                          
+                          // SAVE toggle state to database
+                          if (selectedEvent) {
+                            try {
+                              await supabase
+                                .from('events')
+                                .update({ relation_allow_single_partner: false })
+                                .eq('id', selectedEvent.id);
+                              
+                              await updateEvent(selectedEvent.id, { 
+                                relation_allow_single_partner: false 
+                              });
+                            } catch (error) {
+                              console.error('Error saving toggle state:', error);
+                            }
                           }
-                        }
-                      }}
-                    />
-                    <span className="text-sm text-black">
-                      Turn on if this event is for two people, or turn off if the event is for one person / event.
-                    </span>
+                        }}
+                      />
+                      <span className="text-sm text-black">
+                        Turn on for single person events (birthdays, etc.)
+                      </span>
+                    </div>
                   </div>
                 </div>
 
