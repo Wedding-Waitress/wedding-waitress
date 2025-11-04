@@ -993,61 +993,64 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                 </div>
               </div>
               
-              {/* Wedding/Engagement Toggle */}
-              <div className="flex items-center justify-center gap-3 mb-6">
-                <div className="inline-flex items-center justify-center rounded-full border-2 border-[#7248e6] bg-white px-4 py-2">
-                  <Label htmlFor="wedding-engagement-toggle" className="text-base font-medium text-[#7248e6] cursor-pointer">
-                    Wedding/Engagement Names
-                  </Label>
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-start">
+                {/* Wedding/Engagement Toggle - Left Column */}
+                <div className="flex flex-col items-start justify-start gap-3">
+                  <div className="inline-flex items-center justify-center rounded-full border-2 border-[#7248e6] bg-white px-4 py-2">
+                    <Label htmlFor="wedding-engagement-toggle" className="text-base font-medium text-[#7248e6] cursor-pointer">
+                      Wedding/Engagement Names
+                    </Label>
+                  </div>
+                  <Switch
+                    id="wedding-engagement-toggle"
+                    checked={isWeddingEngagement}
+                    onCheckedChange={(checked) => {
+                      setIsWeddingEngagement(checked);
+                      // If turning OFF, copy Partner 1 name to Partner 2
+                      if (!checked && localPartner1Name?.trim()) {
+                        setLocalPartner2Name(localPartner1Name);
+                        handlePartnerNameInputChange('partner2_name', localPartner1Name);
+                      }
+                    }}
+                  />
                 </div>
-                <Switch
-                  id="wedding-engagement-toggle"
-                  checked={isWeddingEngagement}
-                  onCheckedChange={(checked) => {
-                    setIsWeddingEngagement(checked);
-                    // If turning OFF, copy Partner 1 name to Partner 2
-                    if (!checked && localPartner1Name?.trim()) {
-                      setLocalPartner2Name(localPartner1Name);
-                      handlePartnerNameInputChange('partner2_name', localPartner1Name);
-                    }
-                  }}
-                />
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                {/* Partner 1 - Middle Column */}
                 <div>
                   <div className="inline-flex items-center justify-center rounded-full border-2 border-[#7248e6] bg-white px-3 py-1.5 mb-2">
                     <Label htmlFor="partner1-name" className="text-base font-medium text-[#7248e6]">
                       Partner 1 First Name
                     </Label>
                   </div>
-                <Input
-                  id="partner1-name"
-                  type="text"
-                  placeholder="Enter first name"
-                  value={localPartner1Name}
-                  onChange={(e) => handlePartnerNameInputChange('partner1_name', e.target.value)}
-                  className="mt-1 border-primary focus:ring-primary focus:ring-2 focus:ring-offset-2 font-bold"
-                />
+                  <Input
+                    id="partner1-name"
+                    type="text"
+                    placeholder="Enter first name"
+                    value={localPartner1Name}
+                    onChange={(e) => handlePartnerNameInputChange('partner1_name', e.target.value)}
+                    className="mt-1 border-primary focus:ring-primary focus:ring-2 focus:ring-offset-2 font-bold"
+                  />
                 </div>
+
+                {/* Partner 2 - Right Column */}
                 <div>
                   <div className="inline-flex items-center justify-center rounded-full border-2 border-[#7248e6] bg-white px-3 py-1.5 mb-2">
                     <Label htmlFor="partner2-name" className="text-base font-medium text-[#7248e6]">
                       Partner 2 First Name
                     </Label>
                   </div>
-                <Input
-                  id="partner2-name"
-                  type="text"
-                  placeholder={isWeddingEngagement ? "Enter first name" : "Not applicable"}
-                  value={localPartner2Name}
-                  onChange={(e) => handlePartnerNameInputChange('partner2_name', e.target.value)}
-                  disabled={!isWeddingEngagement}
-                  className={cn(
-                    "mt-1 border-primary focus:ring-primary focus:ring-2 focus:ring-offset-2 font-bold",
-                    !isWeddingEngagement && "bg-muted cursor-not-allowed opacity-60"
-                  )}
-                />
+                  <Input
+                    id="partner2-name"
+                    type="text"
+                    placeholder={isWeddingEngagement ? "Enter first name" : "Not applicable"}
+                    value={localPartner2Name}
+                    onChange={(e) => handlePartnerNameInputChange('partner2_name', e.target.value)}
+                    disabled={!isWeddingEngagement}
+                    className={cn(
+                      "mt-1 border-primary focus:ring-primary focus:ring-2 focus:ring-offset-2 font-bold",
+                      !isWeddingEngagement && "bg-muted cursor-not-allowed opacity-60"
+                    )}
+                  />
                 </div>
               </div>
               
