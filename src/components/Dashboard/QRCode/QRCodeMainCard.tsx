@@ -337,7 +337,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
   };
   return <Card className="ww-box h-full">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-2xl font-normal bg-gradient-to-r from-[#7C3AED] to-[#9333EA] bg-clip-text text-transparent">
+        <CardTitle className="flex items-center gap-2 text-2xl font-medium text-[#7248e6]">
           <QrCodeIcon className="h-5 w-5 text-purple-600" />
           QR Code Generator
         </CardTitle>
@@ -478,7 +478,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
           {/* Row 2, Col 2: Guest Live View Options Card */}
           <Card className="ww-box w-full">
               <CardHeader className="pb-3">
-                <CardTitle className="text-2xl font-normal bg-gradient-to-r from-[#7C3AED] to-[#9333EA] bg-clip-text text-transparent">Guest Live View Options in App</CardTitle>
+                <CardTitle className="text-2xl font-medium text-[#7248e6]">Guest Live View Options in App</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <p className="text-sm text-muted-foreground">
@@ -763,7 +763,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
           {/* Row 2, Col 3: Choose What Your Guests See Card */}
           <Card className="ww-box w-full">
               <CardHeader className="pb-3">
-                <CardTitle className="text-2xl font-normal bg-gradient-to-r from-[#7C3AED] to-[#9333EA] bg-clip-text text-transparent">Choose What Your Guests See in App</CardTitle>
+                <CardTitle className="text-2xl font-medium text-[#7248e6]">Choose What Your Guests See in App</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <p className="text-sm text-muted-foreground">
