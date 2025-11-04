@@ -95,6 +95,7 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
               onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
               placeholder="Enter event name"
               autoFocus
+              className="rounded-full border-[#7248e6] focus-visible:ring-[#7248e6]"
             />
           </div>
 
@@ -116,6 +117,7 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
               value={formData.venue}
               onChange={(e) => setFormData(prev => ({ ...prev, venue: e.target.value }))}
               placeholder="Enter venue location"
+              className="rounded-full border-[#7248e6] focus-visible:ring-[#7248e6]"
             />
           </div>
 
@@ -148,6 +150,7 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
               value={formData.guest_limit}
               onChange={(e) => setFormData(prev => ({ ...prev, guest_limit: parseInt(e.target.value) || 50 }))}
               min="1"
+              className="rounded-full border-[#7248e6] focus-visible:ring-[#7248e6]"
             />
           </div>
 
