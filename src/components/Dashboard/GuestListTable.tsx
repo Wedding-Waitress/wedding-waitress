@@ -1021,15 +1021,8 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                 <div className="flex flex-col items-start justify-start gap-3">
                   {/* Toggle 1: Wedding/Engagement Names */}
                   <div className="flex flex-col gap-2">
-                    {/* Purple Pill Label */}
-                    <div className="inline-flex items-center justify-center rounded-full border-2 border-[#7248e6] bg-white px-4 py-2">
-            <Label htmlFor="wedding-engagement-toggle" className="text-base font-medium text-[#7248e6] cursor-pointer">
-              Add 2 Names for. Eg: Wedding Couple
-            </Label>
-                    </div>
-                    
-                    {/* Toggle and Instructional Text */}
-                    <div className="flex items-center gap-3">
+                    {/* Purple Pill with Toggle Inside */}
+                    <div className="inline-flex items-center justify-center gap-3 rounded-full border-2 border-[#7248e6] bg-white px-4 py-2">
                       <Switch
                         id="wedding-engagement-toggle"
                         checked={isWeddingEngagement}
@@ -1056,23 +1049,16 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                           }
                         }}
                       />
-                      <span className="text-sm text-black">
-                        Turn on for weddings/engagements (two people)
-                      </span>
+                      <Label htmlFor="wedding-engagement-toggle" className="text-base font-medium text-[#7248e6] cursor-pointer">
+                        Add 2 Names for. Eg: Wedding Couple
+                      </Label>
                     </div>
                   </div>
 
                   {/* Toggle 2: Single Person/Event */}
                   <div className="flex flex-col gap-2 mt-2">
-                    {/* Purple Pill Label */}
-                    <div className="inline-flex items-center justify-center rounded-full border-2 border-[#7248e6] bg-white px-4 py-2">
-            <Label htmlFor="single-person-toggle" className="text-base font-medium text-[#7248e6] cursor-pointer">
-              Add 1 Name for. Eg: Birthday / Event
-            </Label>
-                    </div>
-                    
-                    {/* Toggle and Instructional Text */}
-                    <div className="flex items-center gap-3">
+                    {/* Purple Pill with Toggle Inside */}
+                    <div className="inline-flex items-center justify-center gap-3 rounded-full border-2 border-[#7248e6] bg-white px-4 py-2">
                       <Switch
                         id="single-person-toggle"
                         checked={!isWeddingEngagement}
@@ -1103,9 +1089,9 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                           }
                         }}
                       />
-                      <span className="text-sm text-black">
-                        Turn on for single person events (birthdays, etc.)
-                      </span>
+                      <Label htmlFor="single-person-toggle" className="text-base font-medium text-[#7248e6] cursor-pointer">
+                        Add 1 Name for. Eg: Birthday / Event
+                      </Label>
                     </div>
                   </div>
                 </div>
