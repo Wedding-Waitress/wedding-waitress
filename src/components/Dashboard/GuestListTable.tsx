@@ -998,7 +998,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                 <div className="flex flex-col items-start justify-start gap-3">
                   <div className="inline-flex items-center justify-center rounded-full border-2 border-[#7248e6] bg-white px-4 py-2">
                     <Label htmlFor="wedding-engagement-toggle" className="text-base font-medium text-[#7248e6] cursor-pointer">
-                      Wedding/Engagement Names
+                      Add Wedding/Engagement Names
                     </Label>
                   </div>
                   <Switch
