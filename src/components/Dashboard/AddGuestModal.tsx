@@ -7,6 +7,7 @@ import { sanitize, InputSanitizer } from "@/lib/security/inputSanitizer";
 import {
   Dialog,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -553,16 +554,16 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col px-10">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Users className="w-5 h-5" />
+          <DialogTitle className="text-2xl font-medium text-[#7248e6]">
             {isEdit ? 'Edit Guest' : 'Add New Guest'}
           </DialogTitle>
         </DialogHeader>
 
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <div className="space-y-6 py-4 overflow-y-auto flex-1">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             {/* Basic Information */}
             <div className="grid grid-cols-2 gap-4">
               <FormField
@@ -572,7 +573,11 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                   <FormItem>
                     <FormLabel>First Name *</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter first name" {...field} />
+                      <Input 
+                        placeholder="Enter first name" 
+                        className="rounded-full border-2 border-[#7248e6] focus-visible:border-[#7248e6] focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none"
+                        {...field} 
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -586,7 +591,11 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                   <FormItem>
                     <FormLabel>Last Name *</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter last name" {...field} />
+                      <Input 
+                        placeholder="Enter last name" 
+                        className="rounded-full border-2 border-[#7248e6] focus-visible:border-[#7248e6] focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none"
+                        {...field} 
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -603,7 +612,11 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                   <FormItem>
                     <FormLabel>Mobile</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter mobile number" {...field} />
+                      <Input 
+                        placeholder="Enter mobile number" 
+                        className="rounded-full border-2 border-[#7248e6] focus-visible:border-[#7248e6] focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none"
+                        {...field} 
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -617,7 +630,11 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                   <FormItem>
                     <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter email address" {...field} />
+                      <Input 
+                        placeholder="Enter email address" 
+                        className="rounded-full border-2 border-[#7248e6] focus-visible:border-[#7248e6] focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none"
+                        {...field} 
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -641,7 +658,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                       handleTableChange(value);
                     }} value={field.value}>
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger className="w-full border-2 border-[#7248e6] hover:border-[#7248e6] focus:border-[#7248e6] focus:border-[3px] focus:ring-0 focus:outline-none rounded-full">
                           <SelectValue placeholder="Select table" />
                         </SelectTrigger>
                       </FormControl>
@@ -673,7 +690,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                       disabled={!form.watch('table_id')}
                     >
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger className="w-full border-2 border-[#7248e6] hover:border-[#7248e6] focus:border-[#7248e6] focus:border-[3px] focus:ring-0 focus:outline-none rounded-full">
                           <SelectValue placeholder="Select seat" />
                         </SelectTrigger>
                       </FormControl>
@@ -734,7 +751,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                     </FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger className="w-full border-2 border-[#7248e6] hover:border-[#7248e6] focus:border-[#7248e6] focus:border-[3px] focus:ring-0 focus:outline-none rounded-full">
                           <SelectValue placeholder="Select RSVP status" />
                         </SelectTrigger>
                       </FormControl>
@@ -760,7 +777,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                     </FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger className="w-full border-2 border-[#7248e6] hover:border-[#7248e6] focus:border-[#7248e6] focus:border-[3px] focus:ring-0 focus:outline-none rounded-full">
                           <SelectValue placeholder="Select dietary requirements" />
                         </SelectTrigger>
                       </FormControl>
@@ -858,7 +875,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                   <FormControl>
                     <Textarea 
                       placeholder="Add any additional notes about this guest..."
-                      className="resize-none"
+                      className="rounded-3xl border-2 border-[#7248e6] focus-visible:border-[#7248e6] focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none resize-none"
                       {...field}
                     />
                   </FormControl>
@@ -867,29 +884,32 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
               )}
             />
 
-            {/* Form Actions */}
-            <div className="flex justify-end gap-3 pt-4">
-              <Button 
-                type="button" 
-                variant="outline" 
-                size="xs" 
-                className="rounded-full" 
-                onClick={handleClose}
-              >
-                Cancel
-              </Button>
-              <Button 
-                type="submit" 
-                variant="default" 
-                size="xs" 
-                className="rounded-full" 
-                disabled={loading}
-              >
-                {loading ? (isEdit ? 'Updating...' : 'Adding...') : (isEdit ? 'Update Guest' : 'Add Guest')}
-              </Button>
-            </div>
           </form>
         </Form>
+        </div>
+
+        <DialogFooter>
+          <Button 
+            type="button" 
+            variant="destructive" 
+            size="xs" 
+            className="rounded-full bg-red-600 hover:bg-red-700 text-white" 
+            onClick={handleClose}
+            disabled={loading}
+          >
+            Cancel
+          </Button>
+          <Button 
+            type="submit" 
+            variant="default" 
+            size="xs" 
+            className="rounded-full bg-green-600 hover:bg-green-700 text-white" 
+            disabled={loading}
+            onClick={form.handleSubmit(onSubmit)}
+          >
+            {loading ? (isEdit ? 'Updating...' : 'Adding...') : (isEdit ? 'Update Guest' : 'Add Guest')}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
