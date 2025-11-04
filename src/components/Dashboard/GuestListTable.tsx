@@ -864,8 +864,13 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
     // Check admin settings for first guest alert override
     const shouldBlockFirstGuest = !relationSettings.relation_disable_first_guest_alert;
     
-    // Gating rule: Only block for first guest if partner names haven't been manually saved
-    if (shouldBlockFirstGuest && guestCount === 0 && !partnerNamesSaved) {
+    // Determine if required names are missing based on toggle state
+    const namesAreMissing = isWeddingEngagement 
+      ? (partner1Missing || partner2Missing)  // Wedding/engagement: need BOTH
+      : partner1Missing;                       // Single event: only need Partner 1
+    
+    // Gating rule: Only block for first guest if required names are missing AND haven't been saved
+    if (shouldBlockFirstGuest && guestCount === 0 && namesAreMissing && !partnerNamesSaved) {
       // Analytics tracking
       whoIsAnalytics.addGuestBlockedMissingNames(selectedEvent.id);
       
@@ -892,7 +897,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
       return;
     }
     
-    // Normal flow - open the add guest modal (allowed after first guest even if names are empty)
+    // Normal flow - open the add guest modal (allowed after saving required names)
     setEditingGuest(null);
     setShowAddModal(true);
   };
@@ -1241,10 +1246,8 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                     size="xs"
                     onClick={handleAddGuest}
                     className={`${
-                      firstGuestAdded || totalGuestCount > 0
+                      partnerNamesSaved || firstGuestAdded || totalGuestCount > 0
                         ? 'bg-green-500 hover:bg-green-600 text-white'
-                        : partnerNamesSaved
-                        ? 'bg-red-500 hover:bg-red-600 text-white animate-shake'
                         : 'bg-gradient-primary text-primary-foreground hover:shadow-purple-glow hover:scale-105 transform transition-all duration-300'
                     } rounded-full flex items-center gap-2`}
                   >
