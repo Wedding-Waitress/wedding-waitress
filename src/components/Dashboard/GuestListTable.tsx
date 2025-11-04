@@ -1067,7 +1067,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                     {/* Purple Pill Label */}
                     <div className="inline-flex items-center justify-center rounded-full border-2 border-[#7248e6] bg-white px-4 py-2">
             <Label htmlFor="single-person-toggle" className="text-base font-medium text-[#7248e6] cursor-pointer">
-              Add 1 Name. Eg: Birthday / Event
+              Add 1 Name for. Eg: Birthday / Event
             </Label>
                     </div>
                     
