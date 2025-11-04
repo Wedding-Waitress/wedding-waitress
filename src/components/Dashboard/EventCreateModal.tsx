@@ -80,7 +80,7 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col">
+      <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col px-8">
         <DialogHeader>
           <DialogTitle>Create Event</DialogTitle>
         </DialogHeader>
