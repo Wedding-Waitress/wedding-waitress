@@ -82,46 +82,59 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col px-8">
         <DialogHeader>
-          <DialogTitle>Create Event</DialogTitle>
+          <DialogTitle className="text-2xl font-medium text-[#7248e6]">Create Event</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-6 py-4 overflow-y-auto flex-1">
-          {/* Event Name */}
-          <div className="space-y-2">
-            <Label htmlFor="event-name">Event Name *</Label>
-            <Input
-              id="event-name"
-              value={formData.name}
-              onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-              placeholder="Enter event name"
-              autoFocus
-              className="rounded-full border-[#7248e6] focus-visible:ring-[#7248e6]"
-            />
+          {/* Row 1: Event Name & Event Date */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="event-name">Event Name *</Label>
+              <Input
+                id="event-name"
+                value={formData.name}
+                onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                placeholder="Enter event name"
+                autoFocus
+                className="rounded-full border-[#7248e6] focus-visible:ring-[#7248e6]"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="event-date">Event Date</Label>
+              <EventDatePicker
+                value={formData.date}
+                onChange={(date) => setFormData(prev => ({ ...prev, date }))}
+                placeholder="Select event date"
+              />
+            </div>
           </div>
 
-          {/* Event Date */}
-          <div className="space-y-2">
-            <Label htmlFor="event-date">Event Date</Label>
-            <EventDatePicker
-              value={formData.date}
-              onChange={(date) => setFormData(prev => ({ ...prev, date }))}
-              placeholder="Select event date"
-            />
+          {/* Row 2: Venue & Guest Limit */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="venue">Venue</Label>
+              <Input
+                id="venue"
+                value={formData.venue}
+                onChange={(e) => setFormData(prev => ({ ...prev, venue: e.target.value }))}
+                placeholder="Enter venue location"
+                className="rounded-full border-[#7248e6] focus-visible:ring-[#7248e6]"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="guest-limit">Guest Limit</Label>
+              <Input
+                id="guest-limit"
+                type="number"
+                value={formData.guest_limit}
+                onChange={(e) => setFormData(prev => ({ ...prev, guest_limit: parseInt(e.target.value) || 50 }))}
+                min="1"
+                className="rounded-full border-[#7248e6] focus-visible:ring-[#7248e6]"
+              />
+            </div>
           </div>
 
-          {/* Venue */}
-          <div className="space-y-2">
-            <Label htmlFor="venue">Venue</Label>
-            <Input
-              id="venue"
-              value={formData.venue}
-              onChange={(e) => setFormData(prev => ({ ...prev, venue: e.target.value }))}
-              placeholder="Enter venue location"
-              className="rounded-full border-[#7248e6] focus-visible:ring-[#7248e6]"
-            />
-          </div>
-
-          {/* Time fields in a row */}
+          {/* Row 3: Start Time & Finish Time */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="start-time">Start Time</Label>
@@ -141,20 +154,7 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
             </div>
           </div>
 
-          {/* Guest Limit */}
-          <div className="space-y-2">
-            <Label htmlFor="guest-limit">Guest Limit</Label>
-            <Input
-              id="guest-limit"
-              type="number"
-              value={formData.guest_limit}
-              onChange={(e) => setFormData(prev => ({ ...prev, guest_limit: parseInt(e.target.value) || 50 }))}
-              min="1"
-              className="rounded-full border-[#7248e6] focus-visible:ring-[#7248e6]"
-            />
-          </div>
-
-          {/* RSVP Deadline */}
+          {/* Row 4: RSVP Deadline */}
           <div className="space-y-2">
             <Label htmlFor="rsvp-deadline">RSVP Deadline</Label>
             <EventDatePicker
