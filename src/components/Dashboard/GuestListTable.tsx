@@ -995,13 +995,11 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
             >
               <div className="text-center mb-6">
                 <div className="flex items-center justify-center gap-2 mb-4">
-                  <div className="bg-white border-2 border-[#7248e6] rounded-full px-4 py-2">
-                <h3 className={`text-2xl font-medium text-[#7248e6] ${
-                  showNamesValidation ? 'animate-pulse-soft' : ''
-                }`}>
-                  What relation is the guest to you?
-                </h3>
-                  </div>
+                  <h3 className={`text-xl font-medium text-[#7248e6] ${
+                    showNamesValidation ? 'animate-pulse-soft' : ''
+                  }`}>
+                    What relation is the guest to you?
+                  </h3>
                   {selectedEventId && (
                     <RelationSettingsButton
                       eventId={selectedEventId}
@@ -1043,7 +1041,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                         }
                       }}
                     />
-                    <Label htmlFor="wedding-engagement-toggle" className="text-base font-medium text-[#7248e6] cursor-pointer">
+                    <Label htmlFor="wedding-engagement-toggle" className="text-xs font-medium text-[#7248e6] cursor-pointer">
                       Turn on for weddings - engagements (two people)
                     </Label>
                   </div>
@@ -1080,7 +1078,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                         }
                       }}
                     />
-                    <Label htmlFor="single-person-toggle" className="text-base font-medium text-[#7248e6] cursor-pointer">
+                    <Label htmlFor="single-person-toggle" className="text-xs font-medium text-[#7248e6] cursor-pointer">
                       Turn on for single person events (birthdays, etc.)
                     </Label>
                   </div>
@@ -1111,7 +1109,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                         }
                       }}
                     />
-                    <Label htmlFor="disabled-relation-toggle" className="text-base font-medium text-[#7248e6] cursor-pointer">
+                    <Label htmlFor="disabled-relation-toggle" className="text-xs font-medium text-[#7248e6] cursor-pointer">
                       Turn off - do not show guest relation
                     </Label>
                   </div>
