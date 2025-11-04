@@ -383,9 +383,9 @@ export const MyEventsPage: React.FC = () => {
 
           {/* C) Event Name and Time Range binding */}
           {selectedEvent && <div className="space-y-1 transition-opacity duration-300 ease-in-out">
-              <p className="text-2xl font-normal text-[#7248e6]">
-                {selectedEvent.name}
-              </p>
+                <p className="text-2xl font-medium text-[#7248e6]">
+                  {selectedEvent.name}
+                </p>
               <p className="text-muted-foreground">
                 {formatEventDate(selectedEvent)}
               </p>
