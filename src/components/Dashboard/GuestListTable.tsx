@@ -1050,7 +1050,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                         }}
                       />
                       <Label htmlFor="wedding-engagement-toggle" className="text-base font-medium text-[#7248e6] cursor-pointer">
-                        Add 2 Names for. Eg: Wedding Couple
+                        Turn on for weddings/engagements (two people)
                       </Label>
                     </div>
                   </div>
