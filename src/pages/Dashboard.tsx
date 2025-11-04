@@ -280,8 +280,9 @@ export const Dashboard = () => {
                   
                   {/* Contextual title - only show if event is selected */}
                   {selectedEvent && <div className="flex items-center space-x-2">
-                    <span className="text-base font-normal text-[#7248e6]">
-                      Table Set Up for {selectedEvent.name}
+                    <span className="text-xl font-normal">
+                      <span className="text-black">Table Set Up for </span>
+                      <span className="text-[#7248E6]">{selectedEvent.name}</span>
                     </span>
                     </div>}
                 </div>
