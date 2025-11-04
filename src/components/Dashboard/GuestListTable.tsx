@@ -1090,7 +1090,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                         }}
                       />
                       <Label htmlFor="single-person-toggle" className="text-base font-medium text-[#7248e6] cursor-pointer">
-                        Add 1 Name for. Eg: Birthday / Event
+                        Turn on for single person events (birthdays, etc.)
                       </Label>
                     </div>
                   </div>
