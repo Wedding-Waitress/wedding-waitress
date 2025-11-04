@@ -101,13 +101,13 @@ export const RelationSelector: React.FC<RelationSelectorProps> = ({
           <Card className="absolute top-full left-0 right-0 mt-1 p-0 z-50 shadow-lg animate-scale-in bg-background">
             {/* Header */}
             <div className="grid grid-cols-2 border-b">
-              <div className="p-3 text-center bg-primary/10 border-r">
-                <div className="text-sm font-medium text-primary">
+              <div className="p-3 text-center bg-primary/10 border-r rounded-tl-full">
+                <div className="text-base font-medium text-primary">
                   {partner1Name || 'Partner 1'}
                 </div>
               </div>
-              <div className="p-3 text-center bg-primary/10">
-                <div className="text-sm font-medium text-primary">
+              <div className="p-3 text-center bg-primary/10 rounded-tr-full">
+                <div className="text-base font-medium text-primary">
                   {partner2Name || 'Partner 2'}
                 </div>
               </div>
@@ -172,8 +172,9 @@ export const RelationSelector: React.FC<RelationSelectorProps> = ({
             <div className="flex justify-end gap-2 p-3 border-t bg-muted/20">
               <Button
                 type="button"
-                variant="secondary" 
+                variant="destructive" 
                 size="sm"
+                className="rounded-full bg-red-600 hover:bg-red-700 text-white"
                 onClick={handleCancel}
               >
                 Cancel
@@ -182,6 +183,7 @@ export const RelationSelector: React.FC<RelationSelectorProps> = ({
                 type="button"
                 variant="default"
                 size="sm"
+                className="rounded-full bg-green-600 hover:bg-green-700 text-white"
                 onClick={handleConfirm}
                 disabled={!selectedPartner || !selectedRole}
               >
