@@ -89,7 +89,7 @@ export const QRCodeSeatingChart: React.FC<QRCodeSeatingChartProps> = ({
               Choose Event:
             </label>
             <Select value={currentEventId || "no-event"} onValueChange={handleEventSelect}>
-              <SelectTrigger className="w-[300px] border-primary focus:ring-primary">
+              <SelectTrigger className="w-[300px] border-primary focus:ring-primary font-bold">
                 <SelectValue placeholder="Choose Event" />
               </SelectTrigger>
               <SelectContent className="bg-popover border-border z-50">
