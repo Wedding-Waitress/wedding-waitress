@@ -44,6 +44,7 @@ import {
 } from "@/components/ui/tooltip";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
+import { Separator } from "@/components/ui/separator";
 import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { useEvents } from '@/hooks/useEvents';
@@ -995,11 +996,11 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
               <div className="text-center mb-6">
                 <div className="flex items-center justify-center gap-2 mb-4">
                   <div className="bg-white border-2 border-[#7248e6] rounded-full px-4 py-2">
-                    <h3 className={`text-lg font-medium text-[#7248e6] ${
-                      showNamesValidation ? 'animate-pulse-soft' : ''
-                    }`}>
-                      What relation is the guest to you?
-                    </h3>
+                <h3 className={`text-2xl font-medium text-[#7248e6] ${
+                  showNamesValidation ? 'animate-pulse-soft' : ''
+                }`}>
+                  What relation is the guest to you?
+                </h3>
                   </div>
                   {selectedEventId && (
                     <RelationSettingsButton
@@ -1115,6 +1116,9 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                     </Label>
                   </div>
                 </div>
+
+                {/* Separator Line */}
+                <Separator className="border-black/20" />
 
                 {/* Row 2: Partner Name Fields - Horizontal */}
                 {relationMode !== 'disabled' && (
