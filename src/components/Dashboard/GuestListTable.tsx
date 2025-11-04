@@ -43,7 +43,9 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
 import { toast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
 import { useEvents } from '@/hooks/useEvents';
 import { useRealtimeGuests } from '@/hooks/useRealtimeGuests';
 import { useTables } from '@/hooks/useTables';
@@ -155,6 +157,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [firstGuestAdded, setFirstGuestAdded] = useState(false);
+  const [isWeddingEngagement, setIsWeddingEngagement] = useState(true);
 
   // Load selected event from localStorage on mount only if no prop provided
   useEffect(() => {
@@ -983,12 +986,34 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                 <div className="flex justify-center mb-4">
                   <div className="bg-white border-0 rounded-full px-6 py-3 text-center">
                     <div className="text-sm font-medium text-foreground">
-                      <div>If you're having a wedding or an engagement add the couple's first names below.</div>
+                      <div>If you're having a wedding or an engagement add the couple's first names below. Please turn on Wedding/Engagement Names.</div>
                       <div>If you're having any other type of event that only has one person that's celebrating or one organiser, please write that name twice.</div>
                     </div>
                   </div>
                 </div>
               </div>
+              
+              {/* Wedding/Engagement Toggle */}
+              <div className="flex items-center justify-center gap-3 mb-6">
+                <div className="inline-flex items-center justify-center rounded-full border-2 border-[#7248e6] bg-white px-4 py-2">
+                  <Label htmlFor="wedding-engagement-toggle" className="text-base font-medium text-[#7248e6] cursor-pointer">
+                    Wedding/Engagement Names
+                  </Label>
+                </div>
+                <Switch
+                  id="wedding-engagement-toggle"
+                  checked={isWeddingEngagement}
+                  onCheckedChange={(checked) => {
+                    setIsWeddingEngagement(checked);
+                    // If turning OFF, copy Partner 1 name to Partner 2
+                    if (!checked && localPartner1Name?.trim()) {
+                      setLocalPartner2Name(localPartner1Name);
+                      handlePartnerNameInputChange('partner2_name', localPartner1Name);
+                    }
+                  }}
+                />
+              </div>
+              
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <div className="inline-flex items-center justify-center rounded-full border-2 border-[#7248e6] bg-white px-3 py-1.5 mb-2">
@@ -1014,10 +1039,14 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                 <Input
                   id="partner2-name"
                   type="text"
-                  placeholder="Enter first name"
+                  placeholder={isWeddingEngagement ? "Enter first name" : "Not applicable"}
                   value={localPartner2Name}
                   onChange={(e) => handlePartnerNameInputChange('partner2_name', e.target.value)}
-                  className="mt-1 border-primary focus:ring-primary focus:ring-2 focus:ring-offset-2 font-bold"
+                  disabled={!isWeddingEngagement}
+                  className={cn(
+                    "mt-1 border-primary focus:ring-primary focus:ring-2 focus:ring-offset-2 font-bold",
+                    !isWeddingEngagement && "bg-muted cursor-not-allowed opacity-60"
+                  )}
                 />
                 </div>
               </div>
@@ -1028,7 +1057,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                   variant="default"
                   size="xs"
                   onClick={handleManualSavePartnerNames}
-                  disabled={!hasUnsavedChanges || !localPartner1Name?.trim() || !localPartner2Name?.trim() || isSaving}
+                  disabled={!hasUnsavedChanges || !localPartner1Name?.trim() || (isWeddingEngagement && !localPartner2Name?.trim()) || isSaving}
                   className={`rounded-full px-8 transition-all duration-300 ${
                     partnerNamesSaved 
                       ? 'bg-green-500 hover:bg-green-600 text-white' 
