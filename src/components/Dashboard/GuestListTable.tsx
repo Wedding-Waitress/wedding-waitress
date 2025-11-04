@@ -996,23 +996,31 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-start">
                 {/* Wedding/Engagement Toggle - Left Column */}
                 <div className="flex flex-col items-start justify-start gap-3">
+                  {/* Purple Pill Label */}
                   <div className="inline-flex items-center justify-center rounded-full border-2 border-[#7248e6] bg-white px-4 py-2">
                     <Label htmlFor="wedding-engagement-toggle" className="text-base font-medium text-[#7248e6] cursor-pointer">
                       Add Wedding/Engagement Names
                     </Label>
                   </div>
-                  <Switch
-                    id="wedding-engagement-toggle"
-                    checked={isWeddingEngagement}
-                    onCheckedChange={(checked) => {
-                      setIsWeddingEngagement(checked);
-                      // If turning OFF, copy Partner 1 name to Partner 2
-                      if (!checked && localPartner1Name?.trim()) {
-                        setLocalPartner2Name(localPartner1Name);
-                        handlePartnerNameInputChange('partner2_name', localPartner1Name);
-                      }
-                    }}
-                  />
+                  
+                  {/* Toggle and Instructional Text on Same Line */}
+                  <div className="flex items-center gap-3">
+                    <Switch
+                      id="wedding-engagement-toggle"
+                      checked={isWeddingEngagement}
+                      onCheckedChange={(checked) => {
+                        setIsWeddingEngagement(checked);
+                        // If turning OFF, copy Partner 1 name to Partner 2
+                        if (!checked && localPartner1Name?.trim()) {
+                          setLocalPartner2Name(localPartner1Name);
+                          handlePartnerNameInputChange('partner2_name', localPartner1Name);
+                        }
+                      }}
+                    />
+                    <span className="text-sm text-black">
+                      Turn on if this event is for two people, or turn off if the event is for one person / event.
+                    </span>
+                  </div>
                 </div>
 
                 {/* Partner 1 - Middle Column */}
