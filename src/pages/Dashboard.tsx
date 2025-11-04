@@ -254,15 +254,27 @@ export const Dashboard = () => {
       case 'table-list':
         return <div className="space-y-6">
             <Card className="ww-box">
-              <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-6">
-                <div className="space-y-4 flex-1">
+              <CardHeader className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 pb-6">
+                {/* Left side - Title Block */}
+                <div className="flex items-start gap-3">
+                  <MapPin className="w-16 h-16 text-primary flex-shrink-0" />
+                  <div className="flex flex-col">
+                    <CardTitle className="mb-2 text-left text-2xl font-medium text-[#7248e6]">Table Setup</CardTitle>
+                    <CardDescription className="text-left">
+                      Design your perfect seating arrangement and table layouts
+                    </CardDescription>
+                  </div>
+                </div>
+                
+                {/* Right side - Controls Block */}
+                <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:ml-auto">
                   {/* Event selector */}
                   <div className="flex items-center space-x-4">
                     <label className="text-sm font-medium text-foreground whitespace-nowrap">
                       Choose Event:
                     </label>
                     <Select value={globalSelectedEventId || "no-event"} onValueChange={handleGlobalEventSelect}>
-                      <SelectTrigger className="w-[300px] border-primary focus:ring-primary">
+                      <SelectTrigger className="w-[300px] border-primary focus:ring-primary [&>span]:font-bold [&>span]:text-[#7248E6]">
                         <SelectValue placeholder="Choose Event" />
                       </SelectTrigger>
                       <SelectContent className="bg-popover border-border z-50">
@@ -278,26 +290,7 @@ export const Dashboard = () => {
                     </Select>
                   </div>
                   
-                  {/* Contextual title - only show if event is selected */}
-                  {selectedEvent && <div className="flex items-center space-x-2">
-                    <span className="text-xl font-normal">
-                      <span className="text-black">Table Set Up for </span>
-                      <span className="text-[#7248E6]">{selectedEvent.name}</span>
-                    </span>
-                    </div>}
-                </div>
-                
-                {/* Right side block */}
-                <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:ml-auto">
-                  <div className="flex items-start gap-3">
-                    <MapPin className="w-16 h-16 text-primary flex-shrink-0" />
-                    <div className="flex flex-col">
-                      <CardTitle className="mb-2 text-left text-2xl font-medium text-[#7248e6]">Table Setup</CardTitle>
-                      <CardDescription className="text-left">
-                        Design your perfect seating arrangement and table layouts
-                      </CardDescription>
-                    </div>
-                  </div>
+                  {/* Create Tables Button */}
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
