@@ -1002,7 +1002,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                   placeholder="Enter first name"
                   value={localPartner1Name}
                   onChange={(e) => handlePartnerNameInputChange('partner1_name', e.target.value)}
-                  className="mt-1 border-primary focus:ring-primary focus:ring-2 focus:ring-offset-2"
+                  className="mt-1 border-primary focus:ring-primary focus:ring-2 focus:ring-offset-2 font-bold"
                 />
                 </div>
                 <div>
@@ -1017,7 +1017,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                   placeholder="Enter first name"
                   value={localPartner2Name}
                   onChange={(e) => handlePartnerNameInputChange('partner2_name', e.target.value)}
-                  className="mt-1 border-primary focus:ring-primary focus:ring-2 focus:ring-offset-2"
+                  className="mt-1 border-primary focus:ring-primary focus:ring-2 focus:ring-offset-2 font-bold"
                 />
                 </div>
               </div>
@@ -1062,7 +1062,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                     Choose Event:
                   </Label>
                   <Select value={selectedEventId || "no-event"} onValueChange={handleEventSelect}>
-                    <SelectTrigger className="w-[300px]">
+                    <SelectTrigger className="w-[300px] border-[#7248E6] [&>span]:font-bold [&>span]:text-[#7248E6]">
                       <SelectValue placeholder="Select an event..." />
                     </SelectTrigger>
                     <SelectContent>
@@ -1085,7 +1085,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                     placeholder="Search guests by name..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 w-[250px]"
+                    className="pl-10 w-[250px] border-[#7248E6]"
                   />
                 </div>
               </div>
@@ -1212,12 +1212,6 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                   </Button>
                 )}
               </div>
-            </div>
-            
-            {/* Row 2: Title line */}
-            <div className="flex items-center space-x-2">
-              <span className="text-lg font-medium text-foreground">Guest List for</span>
-              <span className="text-lg font-bold text-primary">{selectedEvent.name}</span>
             </div>
           </div>
         </div>
