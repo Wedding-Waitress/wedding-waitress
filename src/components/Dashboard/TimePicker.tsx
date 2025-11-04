@@ -45,7 +45,7 @@ export const TimePicker: React.FC<TimePickerProps> = ({
 
   return (
     <Select value={value} onValueChange={onChange} disabled={disabled}>
-      <SelectTrigger className="w-full border-[#7248e6] focus:ring-[#7248e6] focus:ring-offset-0 rounded-full">
+      <SelectTrigger className="w-full border-2 border-[#e5e7eb] hover:border-[#7248e6] focus:border-[#7248e6] focus:border-[3px] focus:ring-0 focus:outline-none rounded-full">
         <SelectValue placeholder={placeholder} />
       </SelectTrigger>
       <SelectContent className="max-h-[200px]">

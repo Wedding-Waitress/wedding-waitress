@@ -33,7 +33,7 @@ export const EventDatePicker: React.FC<EventDatePickerProps> = ({
         <Button
           variant="outline"
           className={cn(
-            "w-full justify-start text-left font-normal border-[#7248e6] hover:border-[#7248e6] focus-visible:ring-offset-0",
+            "w-full justify-start text-left font-normal border-2 border-[#e5e7eb] hover:border-[#7248e6] focus-visible:border-[#7248e6] focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none",
             !value && "text-muted-foreground"
           )}
           disabled={disabled}

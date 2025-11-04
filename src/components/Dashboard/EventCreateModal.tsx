@@ -80,7 +80,7 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col px-24">
+      <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col px-12">
         <DialogHeader>
           <DialogTitle className="text-2xl font-medium text-[#7248e6]">Create Event</DialogTitle>
         </DialogHeader>
@@ -96,7 +96,7 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
                 onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
                 placeholder="Enter event name"
                 autoFocus
-                className="rounded-full border-[#7248e6] focus-visible:ring-[#7248e6] focus-visible:ring-offset-0"
+                className="rounded-full border-2 border-[#e5e7eb] focus-visible:border-[#7248e6] focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none"
               />
             </div>
             <div className="space-y-2">
@@ -118,7 +118,7 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
                 value={formData.venue}
                 onChange={(e) => setFormData(prev => ({ ...prev, venue: e.target.value }))}
                 placeholder="Enter venue location"
-                className="rounded-full border-[#7248e6] focus-visible:ring-[#7248e6] focus-visible:ring-offset-0"
+                className="rounded-full border-2 border-[#e5e7eb] focus-visible:border-[#7248e6] focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none"
               />
             </div>
             <div className="space-y-2">
@@ -129,7 +129,7 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
                 value={formData.guest_limit}
                 onChange={(e) => setFormData(prev => ({ ...prev, guest_limit: parseInt(e.target.value) || 50 }))}
                 min="1"
-                className="rounded-full border-[#7248e6] focus-visible:ring-[#7248e6] focus-visible:ring-offset-0"
+                className="rounded-full border-2 border-[#e5e7eb] focus-visible:border-[#7248e6] focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none"
               />
             </div>
           </div>
