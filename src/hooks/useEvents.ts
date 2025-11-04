@@ -23,6 +23,7 @@ export interface Event {
   partner2_name: string | null;
   slug: string | null;
   rsvp_deadline: string | null;
+  relation_allow_single_partner: boolean | null;
 }
 
 export const useEvents = () => {

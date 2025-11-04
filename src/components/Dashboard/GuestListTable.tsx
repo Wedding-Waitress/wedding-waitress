@@ -276,6 +276,13 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
     if (selectedEvent) {
       setLocalPartner1Name(selectedEvent.partner1_name || '');
       setLocalPartner2Name(selectedEvent.partner2_name || '');
+      
+      // RESTORE toggle state from database field
+      // If relation_allow_single_partner is false, it means this is a single-person event (toggle OFF)
+      // If true or null, it's a wedding/engagement (toggle ON)
+      const isWedding = selectedEvent.relation_allow_single_partner !== false;
+      setIsWeddingEngagement(isWedding);
+      
       // Check if partner names are already saved
       const bothNamesFilled = selectedEvent.partner1_name?.trim() && selectedEvent.partner2_name?.trim();
       setPartnerNamesSaved(!!bothNamesFilled);
@@ -285,7 +292,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
       const hasGuests = guests.length > 0;
       setFirstGuestAdded(hasGuests);
     }
-  }, [selectedEvent]);
+  }, [selectedEvent, guests.length]);
 
   // Helper function to get table name for a guest
   const getTableName = (guest: any) => {
@@ -1024,12 +1031,30 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                     <Switch
                       id="wedding-engagement-toggle"
                       checked={isWeddingEngagement}
-                      onCheckedChange={(checked) => {
+                      onCheckedChange={async (checked) => {
                         setIsWeddingEngagement(checked);
+                        
                         // If turning OFF, clear Partner 2 name (single person/event doesn't need Partner 2)
                         if (!checked) {
                           setLocalPartner2Name('');
                           handlePartnerNameInputChange('partner2_name', '');
+                        }
+                        
+                        // SAVE toggle state to database immediately
+                        if (selectedEvent) {
+                          try {
+                            await supabase
+                              .from('events')
+                              .update({ relation_allow_single_partner: checked })
+                              .eq('id', selectedEvent.id);
+                            
+                            // Also update via the hook to refresh event data
+                            await updateEvent(selectedEvent.id, { 
+                              relation_allow_single_partner: checked 
+                            });
+                          } catch (error) {
+                            console.error('Error saving toggle state:', error);
+                          }
                         }
                       }}
                     />
