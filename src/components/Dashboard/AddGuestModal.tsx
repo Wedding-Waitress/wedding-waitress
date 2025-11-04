@@ -848,6 +848,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                           partner2Name={selectedEvent?.partner2_name}
                           customRoles={relationSettings.custom_roles}
                           allowCustomRoles={relationSettings.relation_allow_custom_role}
+                          isSinglePerson={relationSettings.relation_allow_single_partner}
                           isOpen={relationSelectorOpen}
                           onToggle={() => setRelationSelectorOpen(!relationSelectorOpen)}
                           error={form.formState.errors.relation_partner?.message || form.formState.errors.relation_role?.message}

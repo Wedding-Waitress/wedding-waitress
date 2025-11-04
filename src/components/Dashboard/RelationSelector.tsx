@@ -18,6 +18,7 @@ interface RelationSelectorProps {
   error?: string;
   customRoles?: string[];
   allowCustomRoles?: boolean;
+  isSinglePerson?: boolean;
 }
 
 export const RelationSelector: React.FC<RelationSelectorProps> = ({
@@ -29,7 +30,8 @@ export const RelationSelector: React.FC<RelationSelectorProps> = ({
   onToggle,
   error,
   customRoles = [],
-  allowCustomRoles = false
+  allowCustomRoles = false,
+  isSinglePerson = false
 }) => {
   const [selectedPartner, setSelectedPartner] = useState<RelationPartner>(value.partner);
   const [selectedRole, setSelectedRole] = useState<RelationRole>(value.role);
@@ -99,25 +101,36 @@ export const RelationSelector: React.FC<RelationSelectorProps> = ({
           
           {/* Panel */}
           <Card className="absolute top-full left-0 right-0 mt-1 p-0 z-50 shadow-lg animate-scale-in bg-background">
-            {/* Header */}
-            <div className="grid grid-cols-2 border-b">
-              <div className="p-3 text-center bg-primary/10 border-r rounded-tl-full">
+          {/* Header */}
+            <div className={cn(
+              "grid border-b",
+              isSinglePerson ? "grid-cols-1" : "grid-cols-2"
+            )}>
+              <div className={cn(
+                "p-3 text-center bg-primary/10",
+                isSinglePerson ? "rounded-t-lg" : "border-r rounded-tl-full"
+              )}>
                 <div className="text-base font-medium text-primary">
                   {partner1Name || 'Partner 1'}
                 </div>
               </div>
-              <div className="p-3 text-center bg-primary/10 rounded-tr-full">
-                <div className="text-base font-medium text-primary">
-                  {partner2Name || 'Partner 2'}
+              {!isSinglePerson && (
+                <div className="p-3 text-center bg-primary/10 rounded-tr-full">
+                  <div className="text-base font-medium text-primary">
+                    {partner2Name || 'Partner 2'}
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
 
             {/* Options Grid */}
             <div className="max-h-64 overflow-y-auto">
-              <div className="grid grid-cols-2">
+              <div className={cn(
+                "grid",
+                isSinglePerson ? "grid-cols-1" : "grid-cols-2"
+              )}>
                 {/* Partner 1 Column */}
-                <div className="border-r">
+                <div className={!isSinglePerson ? "border-r" : ""}>
                   {roleOptions.map((role) => (
                     <div
                       key={`partner_one_${role.value}`}
@@ -141,30 +154,32 @@ export const RelationSelector: React.FC<RelationSelectorProps> = ({
                   ))}
                 </div>
 
-                {/* Partner 2 Column */}
-                <div>
-                  {roleOptions.map((role) => (
-                    <div
-                      key={`partner_two_${role.value}`}
-                      onClick={() => handleRoleSelect('partner_two', role.value as RelationRole)}
-                      className={`flex items-center px-3 py-2 cursor-pointer transition-colors hover:bg-muted/50 ${
-                        selectedPartner === 'partner_two' && selectedRole === role.value
-                          ? 'bg-primary/5'
-                          : ''
-                      }`}
-                    >
-                      <div className="w-4 h-4 mr-2 flex-shrink-0">
-                        {selectedPartner === 'partner_two' && selectedRole === role.value && (
-                          <Check className="w-4 h-4 text-primary" />
-                        )}
+                {/* Partner 2 Column - Only show if NOT single person */}
+                {!isSinglePerson && (
+                  <div>
+                    {roleOptions.map((role) => (
+                      <div
+                        key={`partner_two_${role.value}`}
+                        onClick={() => handleRoleSelect('partner_two', role.value as RelationRole)}
+                        className={`flex items-center px-3 py-2 cursor-pointer transition-colors hover:bg-muted/50 ${
+                          selectedPartner === 'partner_two' && selectedRole === role.value
+                            ? 'bg-primary/5'
+                            : ''
+                        }`}
+                      >
+                        <div className="w-4 h-4 mr-2 flex-shrink-0">
+                          {selectedPartner === 'partner_two' && selectedRole === role.value && (
+                            <Check className="w-4 h-4 text-primary" />
+                          )}
+                        </div>
+                        <span className={`text-sm ${role.isCustom ? 'italic' : ''}`}>
+                          {role.label}
+                          {role.isCustom && <span className="text-xs text-muted-foreground ml-1">(custom)</span>}
+                        </span>
                       </div>
-                      <span className={`text-sm ${role.isCustom ? 'italic' : ''}`}>
-                        {role.label}
-                        {role.isCustom && <span className="text-xs text-muted-foreground ml-1">(custom)</span>}
-                      </span>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
 
