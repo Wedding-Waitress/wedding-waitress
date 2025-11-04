@@ -105,7 +105,7 @@ export const QRCodeSeatingChart: React.FC<QRCodeSeatingChartProps> = ({
             </Select>
             
             {selectedEvent && (
-              <div className="text-2xl font-normal bg-gradient-to-r from-[#7C3AED] to-[#9333EA] bg-clip-text text-transparent">
+              <div className="text-lg font-medium text-[#7248e6]">
                 <span>{selectedEvent.venue || 'Venue not specified'}</span>
                 {' - '}
                 <span>{formatEventDate(selectedEvent.date)}</span>
