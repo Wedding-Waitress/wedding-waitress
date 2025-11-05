@@ -204,7 +204,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
   }
   return <>
       <Card className="ww-box overflow-hidden mx-0">
-        <div className="p-6 border-b border-card-border bg-white">
+        <div className="px-6 py-4 border-b border-card-border bg-white">
           <div className="flex items-center justify-between">
             <div>
               <h3 className="text-2xl font-medium text-[#7248e6]">My Events</h3>
