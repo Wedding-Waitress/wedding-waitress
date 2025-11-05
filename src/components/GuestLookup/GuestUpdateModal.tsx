@@ -153,12 +153,25 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
         updates.rsvp_date = new Date().toISOString().slice(0, 10);
       }
 
+      console.log('🔄 GuestUpdateModal: Saving guest updates...', {
+        guestId: guest.id,
+        updates,
+        previousRsvp: initialRsvp,
+        newRsvp: formData.rsvp,
+        rsvpChanged: formData.rsvp !== initialRsvp
+      });
+
       const { error: updateError } = await supabase
         .from('guests')
         .update(updates)
         .eq('id', guest.id);
 
-      if (updateError) throw updateError;
+      if (updateError) {
+        console.error('❌ GuestUpdateModal: Database update failed:', updateError);
+        throw updateError;
+      }
+      
+      console.log('✅ GuestUpdateModal: Guest updated successfully in database');
 
       // Log the change
       const { error: logError } = await supabase

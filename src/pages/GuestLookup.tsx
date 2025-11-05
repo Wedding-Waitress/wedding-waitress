@@ -69,6 +69,7 @@ export const GuestLookup: React.FC = () => {
   const [activeTab, setActiveTab] = useState('search');
   const [liveViewSettings, setLiveViewSettings] = useState<any>(null);
   const [moduleSettings, setModuleSettings] = useState<any>(null);
+  const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
   const { toast } = useToast();
   
   // Compute is_editable based on rsvp_deadline (inclusive through end-of-day)
@@ -249,6 +250,7 @@ export const GuestLookup: React.FC = () => {
     if (!eventSlug) return;
     
     try {
+      console.log('🔄 Live View: Manually refreshing guest data...');
       // Use the same public RPC function for refreshing data
       const { data: publicData, error: rpcError } = await supabase.rpc(
         'get_public_event_with_data_secure',
@@ -284,9 +286,11 @@ export const GuestLookup: React.FC = () => {
           }));
 
         setGuests(transformedGuests);
+        setLastUpdated(new Date());
+        console.log('✅ Live View: Guest data refreshed successfully');
       }
     } catch (error) {
-      console.error('Error refreshing guest data:', error);
+      console.error('❌ Live View: Error refreshing guest data:', error);
     }
   };
 
@@ -371,13 +375,40 @@ export const GuestLookup: React.FC = () => {
         }
       )
       .subscribe((status) => {
-        console.log(`QR Code App realtime subscription status: ${status}`);
+        console.log(`Live View realtime subscription status: ${status} for kiosk-guests:event:${event.id}`);
+        
+        if (status === 'SUBSCRIBED') {
+          console.log(`✅ Live View successfully subscribed to kiosk-guests:event:${event.id}`);
+        } else if (status === 'CHANNEL_ERROR') {
+          console.error('❌ Live View realtime subscription error');
+        } else if (status === 'CLOSED') {
+          console.error('❌ Live View realtime subscription closed');
+        } else if (status === 'TIMED_OUT') {
+          console.error('⏱️ Live View realtime subscription timed out');
+        }
       });
 
     return () => {
+      console.log('🧹 Live View: Cleaning up realtime subscription');
       supabase.removeChannel(channel);
     };
   }, [event?.id]);
+
+  // Add visibility change handler to refresh data when tab becomes visible (cache busting)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden && event?.id) {
+        console.log('👁️ Live View: Tab became visible, refreshing data...');
+        refreshGuestData();
+      }
+    };
+    
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [event?.id, eventSlug]);
 
   const handleEditGuest = (guest: Guest) => {
     setSelectedGuest(guest);
@@ -577,6 +608,17 @@ export const GuestLookup: React.FC = () => {
                   <CardDescription>
                     {isEditable ? "Type your full name & update your info" : "Start typing your name to find your table assignment"}
                   </CardDescription>
+                  <div className="flex items-center justify-center gap-2 mt-2 text-xs text-muted-foreground">
+                    <span>Last updated: {lastUpdated.toLocaleTimeString()}</span>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={refreshGuestData}
+                      className="h-6 px-2 text-xs"
+                    >
+                      Refresh
+                    </Button>
+                  </div>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   {/* Search Input */}

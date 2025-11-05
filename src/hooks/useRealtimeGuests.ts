@@ -476,9 +476,9 @@ export const useRealtimeGuests = (eventId: string | null): UseRealtimeGuestsRetu
       return;
     }
 
-    // Create new channel for this event
+    // Create new channel for this event - using same channel name as GuestLookup and KioskView
     const channel = supabase
-      .channel(`guests:event:${eventId}`)
+      .channel(`kiosk-guests:event:${eventId}`)
       .on(
         'postgres_changes',
         {
@@ -490,18 +490,18 @@ export const useRealtimeGuests = (eventId: string | null): UseRealtimeGuestsRetu
         handleRealtimeUpdate
       )
       .subscribe((status) => {
-        if (process.env.NODE_ENV === 'development') {
-          console.log(`Realtime subscription status: ${status}`);
-        }
+        console.log(`Dashboard realtime subscription status: ${status} for kiosk-guests:event:${eventId}`);
+        
         if (status === 'SUBSCRIBED') {
-          if (process.env.NODE_ENV === 'development') {
-            console.log(`Successfully subscribed to guests:event:${eventId}`);
-          }
+          console.log(`✅ Dashboard successfully subscribed to kiosk-guests:event:${eventId}`);
         } else if (status === 'CHANNEL_ERROR') {
-          console.error('Realtime subscription error, setting up debounced refetch');
+          console.error('❌ Dashboard realtime subscription error, setting up debounced refetch');
           debouncedRefetch();
         } else if (status === 'CLOSED') {
-          console.error('Realtime subscription closed, setting up debounced refetch');
+          console.error('❌ Dashboard realtime subscription closed, setting up debounced refetch');
+          debouncedRefetch();
+        } else if (status === 'TIMED_OUT') {
+          console.error('⏱️ Dashboard realtime subscription timed out, setting up debounced refetch');
           debouncedRefetch();
         }
       });
