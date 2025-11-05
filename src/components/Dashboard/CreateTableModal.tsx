@@ -185,7 +185,7 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col px-10">
+      <DialogContent className="max-w-xl max-h-[85vh] flex flex-col px-10">
         <DialogHeader>
           <DialogTitle className="text-2xl font-medium text-[#7248e6]">
             {editingTable ? 'Edit Table' : 'Create Table'}
