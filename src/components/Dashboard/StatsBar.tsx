@@ -63,7 +63,7 @@ export const StatsBar: React.FC<StatsBarProps> = ({
       color: "text-muted-foreground"
     },
     {
-      label: "Event Guest Limit",
+      label: "Guest Limit",
       value: stats.eventGuestLimit,
       icon: <Zap className="w-6 h-6" />,
       color: "text-destructive"
