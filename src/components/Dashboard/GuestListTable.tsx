@@ -66,6 +66,11 @@ import { ImportErrorModal } from './ImportErrorModal';
 import { whoIsAnalytics } from '@/lib/analytics';
 import { BulkReminderWizard } from './BulkReminderWizard';
 import { AISeatingPanel } from './AISeatingPanel';
+import { GuestBulkActionsBar } from './GuestBulkActionsBar';
+import { BulkTableAssignmentModal } from './BulkTableAssignmentModal';
+import { BulkRsvpUpdateModal } from './BulkRsvpUpdateModal';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { Checkbox } from '@/components/ui/checkbox';
 import { 
   validateRelationFields, 
   normalizePartner, 
@@ -166,6 +171,139 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
   const [relationMode, setRelationMode] = useState<RelationMode>('wedding');
   const [showReminderWizard, setShowReminderWizard] = useState(false);
   const [showAIPanel, setShowAIPanel] = useState(false);
+  
+  // Bulk selection state
+  const [selectionMode, setSelectionMode] = useState(false);
+  const [selectedGuestIds, setSelectedGuestIds] = useState<Set<string>>(new Set());
+  const [showBulkTableModal, setShowBulkTableModal] = useState(false);
+  const [showBulkRsvpModal, setShowBulkRsvpModal] = useState(false);
+  const [showBulkDeleteModal, setShowBulkDeleteModal] = useState(false);
+
+  // Selection handlers
+  const handleSelectGuest = (guestId: string, checked: boolean) => {
+    setSelectedGuestIds(prev => {
+      const newSet = new Set(prev);
+      if (checked) {
+        newSet.add(guestId);
+      } else {
+        newSet.delete(guestId);
+      }
+      return newSet;
+    });
+  };
+
+  const handleSelectAll = () => {
+    if (selectedGuestIds.size === sortedGuests.length) {
+      setSelectedGuestIds(new Set());
+    } else {
+      setSelectedGuestIds(new Set(sortedGuests.map(g => g.id)));
+    }
+  };
+
+  const handleDeselectAll = () => {
+    setSelectedGuestIds(new Set());
+  };
+
+  const handleCancelSelection = () => {
+    setSelectionMode(false);
+    setSelectedGuestIds(new Set());
+  };
+
+  // Bulk operations
+  const handleBulkTableAssignment = async (tableId: string, assignSeats: boolean) => {
+    try {
+      const table = tables.find(t => t.id === tableId);
+      const existingGuests = guests.filter(g => g.table_id === tableId);
+      let nextSeatNo = assignSeats ? Math.max(0, ...existingGuests.map(g => g.seat_no || 0)) + 1 : null;
+
+      for (const guestId of selectedGuestIds) {
+        const update: any = {
+          table_id: tableId,
+          table_no: table?.table_no || null,
+          assigned: true,
+        };
+
+        if (assignSeats && nextSeatNo !== null) {
+          update.seat_no = nextSeatNo;
+          nextSeatNo++;
+        } else {
+          update.seat_no = null;
+        }
+
+        await supabase
+          .from('guests')
+          .update(update)
+          .eq('id', guestId);
+      }
+
+      toast({
+        title: "Success",
+        description: `${selectedGuestIds.size} guests assigned to ${table?.name || 'table'}`,
+      });
+
+      setSelectedGuestIds(new Set());
+      setShowBulkTableModal(false);
+      await refetchGuests();
+    } catch (error) {
+      console.error('Bulk table assignment error:', error);
+      toast({
+        title: "Error",
+        description: "Failed to assign guests",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleBulkRsvpUpdate = async (newStatus: string) => {
+    try {
+      for (const guestId of selectedGuestIds) {
+        await supabase
+          .from('guests')
+          .update({ rsvp: newStatus })
+          .eq('id', guestId);
+      }
+
+      toast({
+        title: "Success",
+        description: `RSVP updated for ${selectedGuestIds.size} guests`,
+      });
+
+      setSelectedGuestIds(new Set());
+      setShowBulkRsvpModal(false);
+      await refetchGuests();
+    } catch (error) {
+      console.error('Bulk RSVP update error:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update RSVP",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    try {
+      for (const guestId of selectedGuestIds) {
+        await deleteGuest(guestId);
+      }
+
+      toast({
+        title: "Success",
+        description: `${selectedGuestIds.size} guests deleted`,
+      });
+
+      setSelectedGuestIds(new Set());
+      setShowBulkDeleteModal(false);
+      await refetchGuests();
+    } catch (error) {
+      console.error('Bulk delete error:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete guests",
+        variant: "destructive",
+      });
+    }
+  };
 
   // Load selected event from localStorage on mount only if no prop provided
   useEffect(() => {
@@ -1324,6 +1462,21 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                     )}
                   </Tooltip>
 
+                  {/* Select Mode Toggle */}
+                  <Button 
+                    variant={selectionMode ? "default" : "outline"}
+                    size="xs"
+                    onClick={() => {
+                      setSelectionMode(!selectionMode);
+                      if (selectionMode) {
+                        setSelectedGuestIds(new Set());
+                      }
+                    }}
+                    className="rounded-full"
+                  >
+                    {selectionMode ? 'Done' : 'Select'}
+                  </Button>
+
                   {/* Send Reminders Button */}
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -1408,6 +1561,14 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
           <Table className="table-fixed w-full">
             <TableHeader>
               <TableRow>
+                {selectionMode && (
+                  <TableHead className="w-12">
+                    <Checkbox
+                      checked={selectedGuestIds.size === sortedGuests.length && sortedGuests.length > 0}
+                      onCheckedChange={handleSelectAll}
+                    />
+                  </TableHead>
+                )}
                 <TableHead className="w-28 rounded-tl-lg">First Name</TableHead>
                 <TableHead className="w-28">Last Name</TableHead>
                 <TableHead className="w-20">Table No</TableHead>
@@ -1439,8 +1600,19 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                 sortedGuests.map((guest) => (
                   <TableRow 
                     key={guest.id} 
-                    className="border-card-border hover:bg-muted/50"
+                    className={cn(
+                      "border-card-border",
+                      selectionMode ? "hover:bg-purple-50 dark:hover:bg-purple-950/20" : "hover:bg-muted/50"
+                    )}
                   >
+                    {selectionMode && (
+                      <TableCell className="w-12">
+                        <Checkbox
+                          checked={selectedGuestIds.has(guest.id)}
+                          onCheckedChange={(checked) => handleSelectGuest(guest.id, checked as boolean)}
+                        />
+                      </TableCell>
+                    )}
                     <TableCell className="font-medium w-28">{guest.first_name}</TableCell>
                     <TableCell className="font-medium w-28">{guest.last_name}</TableCell>
                     <TableCell className="w-20">{getTableName(guest) || '—'}</TableCell>
@@ -1574,6 +1746,55 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
             tables={tables}
           />
         )}
+
+        {/* Bulk Actions Toolbar */}
+        {selectionMode && selectedGuestIds.size > 0 && (
+          <GuestBulkActionsBar
+            selectedCount={selectedGuestIds.size}
+            totalCount={sortedGuests.length}
+            onSelectAll={handleSelectAll}
+            onDeselectAll={handleDeselectAll}
+            onAssignTable={() => setShowBulkTableModal(true)}
+            onUpdateRsvp={() => setShowBulkRsvpModal(true)}
+            onDelete={() => setShowBulkDeleteModal(true)}
+            onCancel={handleCancelSelection}
+          />
+        )}
+
+        {/* Bulk Table Assignment Modal */}
+        <BulkTableAssignmentModal
+          isOpen={showBulkTableModal}
+          onClose={() => setShowBulkTableModal(false)}
+          selectedGuests={sortedGuests.filter(g => selectedGuestIds.has(g.id))}
+          tables={tables}
+          onConfirm={handleBulkTableAssignment}
+        />
+
+        {/* Bulk RSVP Update Modal */}
+        <BulkRsvpUpdateModal
+          isOpen={showBulkRsvpModal}
+          onClose={() => setShowBulkRsvpModal(false)}
+          selectedGuests={sortedGuests.filter(g => selectedGuestIds.has(g.id))}
+          onConfirm={handleBulkRsvpUpdate}
+        />
+
+        {/* Bulk Delete Confirmation */}
+        <AlertDialog open={showBulkDeleteModal} onOpenChange={setShowBulkDeleteModal}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete {selectedGuestIds.size} Guests?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This action cannot be undone. This will permanently delete the selected guests.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={handleBulkDelete} className="bg-destructive hover:bg-destructive/90">
+                Delete
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </>
     );
 };
