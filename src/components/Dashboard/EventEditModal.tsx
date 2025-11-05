@@ -31,44 +31,6 @@ interface EventEditModalProps {
   onSave: (id: string, eventData: any) => Promise<void>;
 }
 
-// Helper function to format local dates
-const formatDisplayLocalDate = (localDate: string | null, fallbackDate: string | null, timezone?: string | null): string => {
-  if (localDate) {
-    const date = new Date(localDate + 'T00:00:00');
-    return format(date, 'dd/MM/yyyy');
-  }
-  if (fallbackDate) {
-    const serverDate = new Date(fallbackDate);
-    const browserTimezone = timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
-    const localDateString = serverDate.toLocaleDateString('en-GB', {
-      timeZone: browserTimezone,
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
-    });
-    return localDateString;
-  }
-  return 'No date';
-};
-
-// Helper to calculate expiry date fallback
-const getExpiryDateDisplay = (createdDate: string | null, expiryLocal: string | null, timezone?: string | null): string => {
-  if (expiryLocal) {
-    return formatDisplayLocalDate(expiryLocal, null);
-  }
-  if (!createdDate) return 'No date';
-  const date = new Date(createdDate);
-  const browserTimezone = timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
-  date.setFullYear(date.getFullYear() + 1);
-  const localDateString = date.toLocaleDateString('en-GB', {
-    timeZone: browserTimezone,
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric'
-  });
-  return localDateString;
-};
-
 export const EventEditModal: React.FC<EventEditModalProps> = ({
   isOpen,
   onClose,
@@ -126,60 +88,63 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
 
   if (!event) return null;
 
-  const createdDateDisplay = formatDisplayLocalDate(
-    event.created_date_local,
-    event.event_created || event.created_at,
-    event.event_timezone
-  );
-
-  const expiryDateDisplay = getExpiryDateDisplay(
-    event.event_created || event.created_at,
-    event.expiry_date_local,
-    event.event_timezone
-  );
-
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col px-10">
         <DialogHeader>
-          <DialogTitle>Edit My Events</DialogTitle>
+          <DialogTitle className="text-2xl font-medium text-[#7248e6]">Edit My Events</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-6 py-4">
-          {/* Event Name */}
-          <div className="space-y-2">
-            <Label htmlFor="event-name">Event Name *</Label>
-            <Input
-              id="event-name"
-              value={formData.name}
-              onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-              placeholder="Enter event name"
-              autoFocus
-            />
+        <div className="space-y-6 py-4 overflow-y-auto flex-1">
+          {/* Row 1: Event Name & Event Date */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="event-name">Event Name *</Label>
+              <Input
+                id="event-name"
+                value={formData.name}
+                onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                placeholder="Enter event name"
+                autoFocus
+                className="rounded-full border-2 border-[#7248e6] focus-visible:border-[#7248e6] focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="event-date">Event Date</Label>
+              <EventDatePicker
+                value={formData.date}
+                onChange={(date) => setFormData(prev => ({ ...prev, date }))}
+                placeholder="Select event date"
+              />
+            </div>
           </div>
 
-          {/* Event Date */}
-          <div className="space-y-2">
-            <Label htmlFor="event-date">Event Date</Label>
-            <EventDatePicker
-              value={formData.date}
-              onChange={(date) => setFormData(prev => ({ ...prev, date }))}
-              placeholder="Select event date"
-            />
+          {/* Row 2: Venue & Guest Limit */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="venue">Venue</Label>
+              <Input
+                id="venue"
+                value={formData.venue}
+                onChange={(e) => setFormData(prev => ({ ...prev, venue: e.target.value }))}
+                placeholder="Enter venue location"
+                className="rounded-full border-2 border-[#7248e6] focus-visible:border-[#7248e6] focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="guest-limit">Guest Limit</Label>
+              <Input
+                id="guest-limit"
+                type="number"
+                value={formData.guest_limit}
+                onChange={(e) => setFormData(prev => ({ ...prev, guest_limit: parseInt(e.target.value) || 50 }))}
+                min="1"
+                className="rounded-full border-2 border-[#7248e6] focus-visible:border-[#7248e6] focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none"
+              />
+            </div>
           </div>
 
-          {/* Venue */}
-          <div className="space-y-2">
-            <Label htmlFor="venue">Venue</Label>
-            <Input
-              id="venue"
-              value={formData.venue}
-              onChange={(e) => setFormData(prev => ({ ...prev, venue: e.target.value }))}
-              placeholder="Enter venue location"
-            />
-          </div>
-
-          {/* Time fields in a row */}
+          {/* Row 3: Start Time & Finish Time */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="start-time">Start Time</Label>
@@ -199,19 +164,7 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
             </div>
           </div>
 
-          {/* Guest Limit */}
-          <div className="space-y-2">
-            <Label htmlFor="guest-limit">Guest Limit</Label>
-            <Input
-              id="guest-limit"
-              type="number"
-              value={formData.guest_limit}
-              onChange={(e) => setFormData(prev => ({ ...prev, guest_limit: parseInt(e.target.value) || 50 }))}
-              min="1"
-            />
-          </div>
-
-          {/* RSVP Deadline */}
+          {/* Row 4: RSVP Deadline */}
           <div className="space-y-2">
             <Label htmlFor="rsvp-deadline">RSVP Deadline</Label>
             <EventDatePicker
@@ -220,25 +173,22 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
               placeholder="Select RSVP deadline"
             />
           </div>
-
-          {/* Read-only fields */}
-          <div className="grid grid-cols-2 gap-4 pt-4 border-t">
-            <div className="space-y-2">
-              <Label className="text-muted-foreground">Created Date</Label>
-              <div className="text-sm font-medium">{createdDateDisplay}</div>
-            </div>
-            <div className="space-y-2">
-              <Label className="text-muted-foreground">Expiry Date</Label>
-              <div className="text-sm font-medium">{expiryDateDisplay}</div>
-            </div>
-          </div>
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={onClose} disabled={isSaving}>
+          <Button 
+            variant="destructive" 
+            size="xs" 
+            className="rounded-full bg-red-600 hover:bg-red-700 text-white" 
+            onClick={onClose} 
+            disabled={isSaving}
+          >
             Cancel
           </Button>
           <Button 
+            variant="default"
+            size="xs"
+            className="rounded-full bg-green-500 hover:bg-green-600 text-white"
             onClick={handleSave} 
             disabled={!formData.name.trim() || isSaving}
           >
