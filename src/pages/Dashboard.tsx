@@ -272,58 +272,60 @@ export const Dashboard = () => {
       case 'table-list':
         return <div className="space-y-6">
             <Card className="ww-box">
-              <CardHeader className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 pb-6">
-                {/* Left side - Title Block */}
-                <div className="flex items-start gap-3">
-                  <MapPin className="w-16 h-16 text-primary flex-shrink-0" />
-                  <div className="flex flex-col">
-                    <CardTitle className="mb-2 text-left text-2xl font-medium text-[#7248e6]">Table Setup</CardTitle>
-              <CardDescription className="text-left">
-                Design your perfect seating arrangements by adding the number of tables you want to host your guests. We suggest firstly adding a "Bridal Table" then the "Groom's Family 1" table, then the "Bride's Family 2" table. Then add sequential numbering tables or have some fun by creating table names like Paris, New York, Rome, or Cairo. Once you have set up the table arrangements, then move onto the next "Guest List" page to add your guests with all other required info. You can always come back here, drag / drop & re-allocate that aunty who still doesn't want to talk to the other aunts.
-              </CardDescription>
+              <CardHeader className="flex flex-col gap-4 pb-6">
+                {/* Top row - Title and Create Tables button */}
+                <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
+                  {/* Left: Icon + Title + Description */}
+                  <div className="flex items-start gap-3 flex-1">
+                    <MapPin className="w-16 h-16 text-primary flex-shrink-0" />
+                    <div className="flex flex-col">
+                      <CardTitle className="mb-2 text-left text-2xl font-medium text-[#7248e6]">Table Setup</CardTitle>
+                      <CardDescription className="text-left">
+                        Design your perfect seating arrangements by adding the number of tables you want to host your guests. We suggest firstly adding a "Bridal Table" then the "Groom's Family 1" table, then the "Bride's Family 2" table. Then add sequential numbering tables or have some fun by creating table names like Paris, New York, Rome, or Cairo. Once you have set up the table arrangements, then move onto the next "Guest List" page to add your guests with all other required info. You can always come back here, drag / drop & re-allocate that aunty who still doesn't want to talk to the other aunts.
+                      </CardDescription>
+                    </div>
+                  </div>
+                  
+                  {/* Right: Create Tables Button */}
+                  <div className="lg:ml-auto">
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div>
+                            <Button variant="default" size="xs" className="rounded-full flex items-center gap-2 sm:flex-shrink-0 bg-green-500 hover:bg-green-600 text-white" disabled={!selectedEventId} onClick={handleCreateTable}>
+                              <Plus className="w-4 h-4" />
+                              Create Tables
+                            </Button>
+                          </div>
+                        </TooltipTrigger>
+                        {!selectedEventId && <TooltipContent>
+                            <p>Choose Event first</p>
+                          </TooltipContent>}
+                      </Tooltip>
+                    </TooltipProvider>
                   </div>
                 </div>
                 
-                {/* Right side - Controls Block */}
-                <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:ml-auto">
-                  {/* Event selector */}
-                  <div className="flex items-center space-x-4">
-                    <label className="text-sm font-medium text-foreground whitespace-nowrap">
-                      Choose Event:
-                    </label>
-                    <Select value={globalSelectedEventId || "no-event"} onValueChange={handleGlobalEventSelect}>
-                      <SelectTrigger className="w-[300px] border-primary focus:ring-primary [&>span]:font-bold [&>span]:text-[#7248E6]">
-                        <SelectValue placeholder="Choose Event" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-popover border-border z-50">
-                        {events.length > 0 ? events.map(event => <SelectItem key={event.id} value={event.id}>
-                              <div className="flex items-center space-x-2">
-                                <Calendar className="w-4 h-4" />
-                                <span>{event.name}</span>
-                              </div>
-                            </SelectItem>) : <SelectItem value="no-events" disabled>
-                            {eventsLoading ? "Loading events..." : "No events found"}
-                          </SelectItem>}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  
-                  {/* Create Tables Button */}
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <div>
-                          <Button variant="default" size="xs" className="rounded-full flex items-center gap-2 sm:ml-3 sm:flex-shrink-0 bg-green-500 hover:bg-green-600 text-white" disabled={!selectedEventId} onClick={handleCreateTable}>
-                            <Plus className="w-4 h-4" />
-                            Create Tables
-                          </Button>
-                        </div>
-                      </TooltipTrigger>
-                      {!selectedEventId && <TooltipContent>
-                          <p>Choose Event first</p>
-                        </TooltipContent>}
-                    </Tooltip>
-                  </TooltipProvider>
+                {/* Bottom row - Choose Event dropdown */}
+                <div className="flex items-center gap-3 pt-2">
+                  <label className="text-sm font-medium text-foreground whitespace-nowrap">
+                    Choose Event:
+                  </label>
+                  <Select value={globalSelectedEventId || "no-event"} onValueChange={handleGlobalEventSelect}>
+                    <SelectTrigger className="w-[300px] border-primary focus:ring-primary [&>span]:font-bold [&>span]:text-[#7248E6]">
+                      <SelectValue placeholder="Choose Event" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-popover border-border z-50">
+                      {events.length > 0 ? events.map(event => <SelectItem key={event.id} value={event.id}>
+                            <div className="flex items-center space-x-2">
+                              <Calendar className="w-4 h-4" />
+                              <span>{event.name}</span>
+                            </div>
+                          </SelectItem>) : <SelectItem value="no-events" disabled>
+                          {eventsLoading ? "Loading events..." : "No events found"}
+                        </SelectItem>}
+                    </SelectContent>
+                  </Select>
                 </div>
               </CardHeader>
             </Card>
