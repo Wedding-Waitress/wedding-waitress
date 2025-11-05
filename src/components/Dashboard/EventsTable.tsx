@@ -213,7 +213,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
               </p>
               {selectedEvent && (
                 <p className="text-sm mt-1">
-                  <span className="text-green-600">
+                  <span className="text-green-500">
                     Created: {formatLocalDate(selectedEvent.created_date_local, selectedEvent.created_at, selectedEvent.event_timezone)}
                   </span>
                   <span className="text-muted-foreground"> | </span>
@@ -228,7 +228,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                 <Calendar className="w-4 h-4 mr-1.5" />
                 {events.length} Event{events.length !== 1 ? 's' : ''} Created
               </Badge>
-              <Button variant="default" size="xs" className="rounded-full flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white" onClick={() => setCreateModal(true)}>
+              <Button variant="default" size="xs" className="rounded-full flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white" onClick={() => setCreateModal(true)}>
                 <Plus className="w-4 h-4" />
                 Create Event
               </Button>
@@ -266,7 +266,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                     `}>
                     <TableCell className="text-center w-20">
                       <div className="flex items-center justify-center">
-                        <RadioGroupItem value={event.id} id={`countdown-${event.id}`} className="data-[state=checked]:border-primary data-[state=checked]:text-primary" onClick={() => handleEventSelect(event.id)} />
+                        <RadioGroupItem value={event.id} id={`countdown-${event.id}`} className="data-[state=checked]:border-green-500 data-[state=checked]:text-green-500" onClick={() => handleEventSelect(event.id)} />
                       </div>
                     </TableCell>
                     <TableCell className="font-medium w-32">
@@ -328,7 +328,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                                 variant="ghost" 
                                 size="sm" 
                                 onClick={() => handleEdit(event)} 
-                                className="text-green-500 hover:text-green-600"
+                                className="text-green-500 hover:text-green-500"
                               >
                                 <Edit className="w-4 h-4" />
                               </Button>
