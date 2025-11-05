@@ -33,3 +33,6 @@ verify_jwt = true
 [functions.ai-chat]
 verify_jwt = false
 
+[functions.generate-knowledge-suggestions]
+verify_jwt = true
+

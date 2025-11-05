@@ -6,21 +6,61 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { MessageCircle, Plus, Edit2, Trash2, Eye, EyeOff } from 'lucide-react';
+import { MessageCircle, Plus, Edit2, Trash2, Eye, EyeOff, Sparkles } from 'lucide-react';
 import { KnowledgeBaseEntry } from '@/hooks/useKnowledgeBase';
 import { FAQ_TEMPLATES } from '@/lib/knowledgeTemplates';
+import { useAIKnowledgeSuggestions } from '@/hooks/useAIKnowledgeSuggestions';
+import { AIKnowledgeSuggestions } from './AIKnowledgeSuggestions';
+import { useToast } from '@/hooks/use-toast';
 
 interface FAQSectionProps {
   faqs: KnowledgeBaseEntry[];
   onSave: (entry: Partial<KnowledgeBaseEntry>) => Promise<boolean>;
   onDelete: (id: string) => void;
   onToggle: (id: string, active: boolean) => void;
+  eventId: string | null;
 }
 
-export const FAQSection = ({ faqs, onSave, onDelete, onToggle }: FAQSectionProps) => {
+export const FAQSection = ({ faqs, onSave, onDelete, onToggle, eventId }: FAQSectionProps) => {
   const [newFAQ, setNewFAQ] = useState({ question: '', answer: '' });
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingFAQ, setEditingFAQ] = useState({ question: '', answer: '' });
+  const { toast } = useToast();
+
+  const {
+    suggestions,
+    context,
+    generating,
+    generateSuggestions,
+    toggleSuggestion,
+    selectAll,
+    deselectAll,
+    getSelectedCount,
+    clearSuggestions
+  } = useAIKnowledgeSuggestions(eventId);
+
+  const handleAcceptSelected = async () => {
+    const selectedSuggestions = suggestions.filter(s => s.selected);
+    
+    let addedCount = 0;
+    for (const suggestion of selectedSuggestions) {
+      const success = await onSave({
+        category: 'faq',
+        question: suggestion.question,
+        answer: suggestion.answer,
+        sort_order: faqs.length + addedCount,
+        is_active: true
+      });
+      if (success) addedCount++;
+    }
+
+    clearSuggestions();
+    
+    toast({
+      title: 'FAQs Added',
+      description: `${addedCount} FAQs added to your knowledge base`,
+    });
+  };
 
   const addFAQ = async () => {
     if (!newFAQ.question.trim() || !newFAQ.answer.trim()) return;
@@ -75,6 +115,31 @@ export const FAQSection = ({ faqs, onSave, onDelete, onToggle }: FAQSectionProps
       </AccordionTrigger>
       <AccordionContent>
         <div className="space-y-4">
+          {/* AI Suggestions Button */}
+          {suggestions.length === 0 && !generating && (
+            <Button 
+              onClick={generateSuggestions}
+              variant="default"
+              className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+            >
+              <Sparkles className="w-4 h-4 mr-2" />
+              ✨ Get AI Suggestions
+            </Button>
+          )}
+
+          {/* AI Suggestions Display */}
+          <AIKnowledgeSuggestions
+            suggestions={suggestions}
+            context={context}
+            generating={generating}
+            onToggleSuggestion={toggleSuggestion}
+            onSelectAll={selectAll}
+            onDeselectAll={deselectAll}
+            onAcceptSelected={handleAcceptSelected}
+            onDismiss={clearSuggestions}
+            selectedCount={getSelectedCount()}
+          />
+
           <div className="flex flex-wrap gap-2 mb-4">
             <Button size="sm" variant="outline" onClick={() => addTemplate(FAQ_TEMPLATES.parking)}>
               + Parking

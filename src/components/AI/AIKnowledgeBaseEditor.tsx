@@ -66,6 +66,7 @@ export const AIKnowledgeBaseEditor = ({ eventId, eventVenue }: AIKnowledgeBaseEd
               onSave={saveEntry}
               onDelete={deleteEntry}
               onToggle={toggleActive}
+              eventId={eventId}
             />
             <VenueSection
               venueEntry={venueEntry}
