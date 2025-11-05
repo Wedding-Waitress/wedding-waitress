@@ -213,7 +213,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                   <span className="text-white text-sm font-semibold">1</span>
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  Create and manage your event here
+                  Create and manage your event here, then move on to the next page (Tables page)
                 </p>
               </div>
               {selectedEvent && (
