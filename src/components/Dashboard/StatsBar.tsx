@@ -77,7 +77,7 @@ export const StatsBar: React.FC<StatsBarProps> = ({
       label: "Seats Remaining",
       value: stats.seatsRemaining,
       icon: <Clock className="w-6 h-6" />,
-      color: "text-muted-foreground"
+      color: "text-orange-500"
     },
     {
       label: "Full Tables",
@@ -101,7 +101,7 @@ export const StatsBar: React.FC<StatsBarProps> = ({
       label: "Replied Invites",
       value: stats.respondedInvites,
       icon: <CheckCircle2 className="w-6 h-6" />,
-      color: "text-green-500"
+      color: "text-pink-500"
     },
     {
       label: "Unreplied Invites",
