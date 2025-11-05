@@ -127,7 +127,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                     className={`flex items-center gap-1 ${isGreenItem ? 'bg-success hover:bg-success/90' : ''} ${isMobile ? 'py-4' : 'py-3'}`}
                   >
                     <Icon className={isMobile ? "w-6 h-6" : "w-5 h-5"} />
-                    <span className={`${isGreenItem ? 'text-black font-bold' : 'font-medium'} text-xl`}>
+                    <span className={`${isGreenItem ? 'text-black font-bold' : 'font-medium'} text-base`}>
                       {getMobileLabel(item.id, item.label)}
                     </span>
                     {item.id === 'my-events' && (
@@ -164,7 +164,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                     style={{ borderLeft: '3px solid #6D28D9' }}
                   >
                     <Shield className="w-5 h-5" style={{ color: '#6D28D9' }} />
-                    <span className="font-medium text-xl" style={{ color: '#6D28D9' }}>Admin Panel</span>
+                    <span className="font-medium text-base" style={{ color: '#6D28D9' }}>Admin Panel</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               )}
@@ -177,7 +177,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                   className="text-destructive hover:text-destructive hover:bg-destructive/10"
                 >
                   <LogOut className="w-5 h-5" />
-                  <span className="font-medium text-xl">Logout</span>
+                  <span className="font-medium text-base">Logout</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
