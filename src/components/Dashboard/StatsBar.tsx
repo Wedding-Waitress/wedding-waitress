@@ -98,13 +98,13 @@ export const StatsBar: React.FC<StatsBarProps> = ({
       color: "text-muted-foreground"
     },
     {
-      label: "Responded Invites",
+      label: "Replied Invites",
       value: stats.respondedInvites,
       icon: <CheckCircle2 className="w-6 h-6" />,
       color: "text-green-500"
     },
     {
-      label: "Unresponded Invites",
+      label: "Unreplied Invites",
       value: stats.unrespondedInvites,
       icon: <AlertCircle className="w-6 h-6" />,
       color: "text-amber-600"
