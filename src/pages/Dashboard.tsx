@@ -278,9 +278,9 @@ export const Dashboard = () => {
                   <MapPin className="w-16 h-16 text-primary flex-shrink-0" />
                   <div className="flex flex-col">
                     <CardTitle className="mb-2 text-left text-2xl font-medium text-[#7248e6]">Table Setup</CardTitle>
-                    <CardDescription className="text-left">
-                      Design your perfect seating arrangement and table layouts
-                    </CardDescription>
+              <CardDescription className="text-left">
+                Design your perfect seating arrangements by adding the number of tables you want to host your guests. We suggest firstly adding a "Bridal Table" then the "Groom's Family 1" table, then the "Bride's Family 2" table. Then add sequential numbering tables or have some fun by creating table names like Paris, New York, Rome, or Cairo. Once you have set up the table arrangements, then move onto the next "Guest List" page to add your guests with all other required info. You can always come back here, drag / drop & re-allocate that aunty who still doesn't want to talk to the other aunts.
+              </CardDescription>
                   </div>
                 </div>
                 
