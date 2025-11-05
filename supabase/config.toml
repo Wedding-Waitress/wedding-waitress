@@ -18,3 +18,18 @@ verify_jwt = false
 [functions.check-video-status]
 verify_jwt = false
 
+[functions.send-rsvp-notification]
+verify_jwt = false
+
+[functions.send-bulk-reminders]
+verify_jwt = true
+
+[functions.generate-seating-suggestions]
+verify_jwt = true
+
+[functions.generate-insights]
+verify_jwt = true
+
+[functions.ai-chat]
+verify_jwt = false
+

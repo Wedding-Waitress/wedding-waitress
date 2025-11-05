@@ -4,9 +4,10 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Bell, Mail, Check, X, RefreshCw } from 'lucide-react';
+import { Bell, Mail, Check, X, RefreshCw, AlertTriangle } from 'lucide-react';
 
 export const RSVPNotificationSettings = () => {
   const { toast } = useToast();
@@ -19,10 +20,30 @@ export const RSVPNotificationSettings = () => {
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [testSending, setTestSending] = useState(false);
+  const [emailConfigured, setEmailConfigured] = useState(false);
 
   useEffect(() => {
     loadSettings();
+    checkEmailConfiguration();
   }, []);
+
+  const checkEmailConfiguration = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data } = await supabase
+        .from('notification_settings')
+        .select('email_enabled, resend_api_key, from_email')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      setEmailConfigured(!!data?.email_enabled && !!data?.resend_api_key && !!data?.from_email);
+    } catch (error) {
+      console.error('Error checking email configuration:', error);
+    }
+  };
 
   const loadSettings = async () => {
     try {
@@ -85,6 +106,42 @@ export const RSVPNotificationSettings = () => {
     }
   };
 
+  const sendTestNotification = async () => {
+    setTestSending(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+
+      // Call edge function directly with test data
+      const { data, error } = await supabase.functions.invoke('send-rsvp-notification', {
+        body: {
+          guest_id: 'test-guest',
+          event_id: 'test-event',
+          old_rsvp: 'Pending',
+          new_rsvp: 'Attending',
+          user_id: user.id,
+          is_test: true,
+        }
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: 'Test notification sent! ✅',
+        description: `Check your email: ${settings.notification_email || 'your configured email'}`,
+      });
+    } catch (error: any) {
+      console.error('Test notification failed:', error);
+      toast({
+        title: 'Test failed',
+        description: error.message || 'Could not send test notification. Check your email configuration.',
+        variant: 'destructive',
+      });
+    } finally {
+      setTestSending(false);
+    }
+  };
+
   if (loading) {
     return (
       <Card>
@@ -109,6 +166,16 @@ export const RSVPNotificationSettings = () => {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
+        {settings.email_notifications && !emailConfigured && (
+          <Alert variant="destructive">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertTitle>Email not configured</AlertTitle>
+            <AlertDescription>
+              Please configure your Resend API key and from email in Admin Settings → Notification Settings before enabling RSVP notifications.
+            </AlertDescription>
+          </Alert>
+        )}
+
         <div className="flex items-center justify-between">
           <div className="space-y-0.5">
             <Label>Enable Email Notifications</Label>
@@ -187,16 +254,37 @@ export const RSVPNotificationSettings = () => {
           </>
         )}
 
-        <Button onClick={saveSettings} disabled={saving} className="w-full">
-          {saving ? (
-            <>
-              <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-              Saving...
-            </>
-          ) : (
-            'Save Settings'
-          )}
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={saveSettings} disabled={saving} className="flex-1">
+            {saving ? (
+              <>
+                <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                Saving...
+              </>
+            ) : (
+              'Save Settings'
+            )}
+          </Button>
+          
+          <Button 
+            variant="outline" 
+            onClick={sendTestNotification}
+            disabled={!settings.email_notifications || !emailConfigured || testSending}
+            className="flex-1"
+          >
+            {testSending ? (
+              <>
+                <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                Sending...
+              </>
+            ) : (
+              <>
+                <Mail className="w-4 h-4 mr-2" />
+                Send Test
+              </>
+            )}
+          </Button>
+        </div>
       </CardContent>
     </Card>
   );
