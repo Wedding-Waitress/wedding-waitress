@@ -208,7 +208,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
           <div className="flex items-center justify-between">
             <div>
               <h3 className="text-2xl font-medium text-[#7248e6]">My Events</h3>
-              <div className="flex items-center gap-2 mt-1">
+              <div className="flex items-center gap-2 mt-3">
                 <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
                   <span className="text-white text-sm font-semibold">1</span>
                 </div>
