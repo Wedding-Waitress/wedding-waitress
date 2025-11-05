@@ -113,6 +113,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
   onEventDelete
 }) => {
   const navigate = useNavigate();
+  const selectedEvent = events.find(event => event.id === activeEventId);
   const [editModal, setEditModal] = useState<{
     isOpen: boolean;
     event: Event | null;
@@ -204,6 +205,12 @@ export const EventsTable: React.FC<EventsTableProps> = ({
               <p className="text-sm text-muted-foreground">
                 Create and manage your event
               </p>
+              {selectedEvent && (
+                <p className="text-xs text-muted-foreground mt-1">
+                  Created: {formatLocalDate(selectedEvent.created_date_local, selectedEvent.created_at, selectedEvent.event_timezone)} | 
+                  Expiry: {formatLocalDate(selectedEvent.expiry_date_local, null, selectedEvent.event_timezone) || getExpiryDateFallback(selectedEvent.created_at, selectedEvent.event_timezone)}
+                </p>
+              )}
             </div>
             <div className="flex items-center space-x-2">
               <Badge variant="outline" className="bg-white border-primary text-primary rounded-full text-sm">
