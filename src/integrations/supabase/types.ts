@@ -14,6 +14,178 @@ export type Database = {
   }
   public: {
     Tables: {
+      ai_conversations: {
+        Row: {
+          created_at: string | null
+          event_id: string | null
+          id: string
+          session_id: string
+          user_type: string
+        }
+        Insert: {
+          created_at?: string | null
+          event_id?: string | null
+          id?: string
+          session_id: string
+          user_type: string
+        }
+        Update: {
+          created_at?: string | null
+          event_id?: string | null
+          id?: string
+          session_id?: string
+          user_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_conversations_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_knowledge_base: {
+        Row: {
+          answer: string
+          category: string
+          created_at: string | null
+          event_id: string
+          id: string
+          is_active: boolean | null
+          question: string | null
+          sort_order: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          answer: string
+          category: string
+          created_at?: string | null
+          event_id: string
+          id?: string
+          is_active?: boolean | null
+          question?: string | null
+          sort_order?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          answer?: string
+          category?: string
+          created_at?: string | null
+          event_id?: string
+          id?: string
+          is_active?: boolean | null
+          question?: string | null
+          sort_order?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_knowledge_base_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_messages: {
+        Row: {
+          audio_url: string | null
+          content: string
+          conversation_id: string
+          created_at: string | null
+          id: string
+          message_type: string | null
+          role: string
+        }
+        Insert: {
+          audio_url?: string | null
+          content: string
+          conversation_id: string
+          created_at?: string | null
+          id?: string
+          message_type?: string | null
+          role: string
+        }
+        Update: {
+          audio_url?: string | null
+          content?: string
+          conversation_id?: string
+          created_at?: string | null
+          id?: string
+          message_type?: string | null
+          role?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "ai_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_seating_suggestions: {
+        Row: {
+          confidence_score: number | null
+          created_at: string | null
+          event_id: string
+          guest_id: string
+          id: string
+          reasoning: string | null
+          status: string | null
+          suggested_table_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          confidence_score?: number | null
+          created_at?: string | null
+          event_id: string
+          guest_id: string
+          id?: string
+          reasoning?: string | null
+          status?: string | null
+          suggested_table_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          confidence_score?: number | null
+          created_at?: string | null
+          event_id?: string
+          guest_id?: string
+          id?: string
+          reasoning?: string | null
+          status?: string | null
+          suggested_table_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_seating_suggestions_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_seating_suggestions_guest_id_fkey"
+            columns: ["guest_id"]
+            isOneToOne: false
+            referencedRelation: "guests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_seating_suggestions_suggested_table_id_fkey"
+            columns: ["suggested_table_id"]
+            isOneToOne: false
+            referencedRelation: "tables"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       dietary_chart_settings: {
         Row: {
           created_at: string
@@ -770,6 +942,50 @@ export type Database = {
           },
         ]
       }
+      guest_communication_preferences: {
+        Row: {
+          created_at: string | null
+          guest_id: string
+          has_whatsapp: boolean | null
+          id: string
+          prefers_email: boolean | null
+          prefers_sms: boolean | null
+          prefers_whatsapp: boolean | null
+          updated_at: string | null
+          whatsapp_number: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          guest_id: string
+          has_whatsapp?: boolean | null
+          id?: string
+          prefers_email?: boolean | null
+          prefers_sms?: boolean | null
+          prefers_whatsapp?: boolean | null
+          updated_at?: string | null
+          whatsapp_number?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          guest_id?: string
+          has_whatsapp?: boolean | null
+          id?: string
+          prefers_email?: boolean | null
+          prefers_sms?: boolean | null
+          prefers_whatsapp?: boolean | null
+          updated_at?: string | null
+          whatsapp_number?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guest_communication_preferences_guest_id_fkey"
+            columns: ["guest_id"]
+            isOneToOne: true
+            referencedRelation: "guests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       guest_update_logs: {
         Row: {
           changed_by: string
@@ -1512,6 +1728,149 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      reminder_deliveries: {
+        Row: {
+          campaign_id: string
+          created_at: string | null
+          delivered_at: string | null
+          delivery_method: string
+          error_message: string | null
+          guest_id: string
+          id: string
+          sent_at: string | null
+          status: string | null
+        }
+        Insert: {
+          campaign_id: string
+          created_at?: string | null
+          delivered_at?: string | null
+          delivery_method: string
+          error_message?: string | null
+          guest_id: string
+          id?: string
+          sent_at?: string | null
+          status?: string | null
+        }
+        Update: {
+          campaign_id?: string
+          created_at?: string | null
+          delivered_at?: string | null
+          delivery_method?: string
+          error_message?: string | null
+          guest_id?: string
+          id?: string
+          sent_at?: string | null
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reminder_deliveries_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "rsvp_reminder_campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reminder_deliveries_guest_id_fkey"
+            columns: ["guest_id"]
+            isOneToOne: false
+            referencedRelation: "guests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rsvp_notification_settings: {
+        Row: {
+          created_at: string | null
+          email_notifications: boolean | null
+          id: string
+          notification_email: string | null
+          notify_on_accept: boolean | null
+          notify_on_decline: boolean | null
+          notify_on_update: boolean | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          email_notifications?: boolean | null
+          id?: string
+          notification_email?: string | null
+          notify_on_accept?: boolean | null
+          notify_on_decline?: boolean | null
+          notify_on_update?: boolean | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          email_notifications?: boolean | null
+          id?: string
+          notification_email?: string | null
+          notify_on_accept?: boolean | null
+          notify_on_decline?: boolean | null
+          notify_on_update?: boolean | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      rsvp_reminder_campaigns: {
+        Row: {
+          created_at: string | null
+          delivery_method: string
+          event_id: string
+          id: string
+          message_template: string
+          name: string
+          scheduled_for: string | null
+          sent_count: number | null
+          status: string | null
+          target_status: string[] | null
+          total_count: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          delivery_method: string
+          event_id: string
+          id?: string
+          message_template: string
+          name: string
+          scheduled_for?: string | null
+          sent_count?: number | null
+          status?: string | null
+          target_status?: string[] | null
+          total_count?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          delivery_method?: string
+          event_id?: string
+          id?: string
+          message_template?: string
+          name?: string
+          scheduled_for?: string | null
+          sent_count?: number | null
+          status?: string | null
+          target_status?: string[] | null
+          total_count?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rsvp_reminder_campaigns_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       running_sheet_items: {
         Row: {
