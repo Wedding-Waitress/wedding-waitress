@@ -34,7 +34,9 @@ import {
   Download,
   Upload,
   FileText,
-  Search
+  Search,
+  Bell,
+  Sparkles
 } from "lucide-react";
 import {
   Tooltip,
@@ -62,6 +64,8 @@ import { DeleteConfirmationModal } from './DeleteConfirmationModal';
 import { RelationSettingsButton, RelationSettings } from './RelationSettingsModal';
 import { ImportErrorModal } from './ImportErrorModal';
 import { whoIsAnalytics } from '@/lib/analytics';
+import { BulkReminderWizard } from './BulkReminderWizard';
+import { AISeatingPanel } from './AISeatingPanel';
 import { 
   validateRelationFields, 
   normalizePartner, 
@@ -160,6 +164,8 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
   const [firstGuestAdded, setFirstGuestAdded] = useState(false);
   type RelationMode = 'wedding' | 'single' | 'disabled';
   const [relationMode, setRelationMode] = useState<RelationMode>('wedding');
+  const [showReminderWizard, setShowReminderWizard] = useState(false);
+  const [showAIPanel, setShowAIPanel] = useState(false);
 
   // Load selected event from localStorage on mount only if no prop provided
   useEffect(() => {
@@ -1317,6 +1323,52 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                       </TooltipContent>
                     )}
                   </Tooltip>
+
+                  {/* Send Reminders Button */}
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div>
+                        <Button 
+                          variant="outline"
+                          size="xs"
+                          onClick={() => setShowReminderWizard(true)}
+                          disabled={!selectedEventId || guestCount === 0}
+                          className="rounded-full flex items-center gap-2 border-purple-500 text-purple-500 hover:bg-purple-50"
+                        >
+                          <Bell className="w-4 h-4" />
+                          Send Reminders
+                        </Button>
+                      </div>
+                    </TooltipTrigger>
+                    {(!selectedEventId || guestCount === 0) && (
+                      <TooltipContent>
+                        <p>{!selectedEventId ? "Choose an event first" : "Add guests first"}</p>
+                      </TooltipContent>
+                    )}
+                  </Tooltip>
+
+                  {/* AI Suggestions Button */}
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div>
+                        <Button 
+                          variant="outline"
+                          size="xs"
+                          onClick={() => setShowAIPanel(true)}
+                          disabled={!selectedEventId || guestCount === 0}
+                          className="rounded-full flex items-center gap-2 border-purple-500 text-purple-500 hover:bg-purple-50"
+                        >
+                          <Sparkles className="w-4 h-4" />
+                          AI Suggestions
+                        </Button>
+                      </div>
+                    </TooltipTrigger>
+                    {(!selectedEventId || guestCount === 0) && (
+                      <TooltipContent>
+                        <p>{!selectedEventId ? "Choose an event first" : "Add guests first"}</p>
+                      </TooltipContent>
+                    )}
+                  </Tooltip>
                 </TooltipProvider>
 
                 {/* Add Guests button */}
@@ -1504,6 +1556,24 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
           totalRows={importStats.total}
           successfulRows={importStats.successful}
         />
+
+        {/* Bulk Reminder Wizard */}
+        {showReminderWizard && (
+          <BulkReminderWizard
+            isOpen={showReminderWizard}
+            onClose={() => setShowReminderWizard(false)}
+            eventId={selectedEventId || ''}
+            guests={guests}
+          />
+        )}
+
+        {/* AI Seating Panel */}
+        {showAIPanel && (
+          <AISeatingPanel
+            eventId={selectedEventId || ''}
+            tables={tables}
+          />
+        )}
       </>
     );
 };
