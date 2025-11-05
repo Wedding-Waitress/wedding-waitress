@@ -39,6 +39,12 @@ export const StatsBar: React.FC<StatsBarProps> = ({
 }) => {
   const statItems: StatItem[] = [
     {
+      label: "Guest Limit",
+      value: stats.eventGuestLimit,
+      icon: <Zap className="w-6 h-6" />,
+      color: "text-destructive"
+    },
+    {
       label: "Tables Created",
       value: stats.tablesCreated,
       icon: <Table className="w-6 h-6" />,
@@ -61,12 +67,6 @@ export const StatsBar: React.FC<StatsBarProps> = ({
       value: stats.seatsRemaining,
       icon: <Clock className="w-6 h-6" />,
       color: "text-muted-foreground"
-    },
-    {
-      label: "Guest Limit",
-      value: stats.eventGuestLimit,
-      icon: <Zap className="w-6 h-6" />,
-      color: "text-destructive"
     },
     {
       label: "Tables Reached Capacity",
