@@ -309,10 +309,10 @@ export const MyEventsPage: React.FC = () => {
     }, [eventId, eventMap]);
     return <div className="transition-opacity duration-300 ease-in-out">
         {selectedEvent ? <div className="flex justify-center items-center gap-4 sm:gap-6 md:gap-8 lg:gap-16 flex-wrap">
-            <CountdownCircle value={localCountdownValues.months} label="Months" type="months" />
-            <CountdownCircle value={localCountdownValues.weeks} label="Weeks" type="weeks" />
-            <CountdownCircle value={localCountdownValues.hours} label="Hours" type="hours" />
-            <CountdownCircle value={localCountdownValues.seconds} label="Seconds" type="seconds" />
+            <CountdownCircle key={`months-${localCountdownValues.months}`} value={localCountdownValues.months} label="Months" type="months" />
+            <CountdownCircle key={`weeks-${localCountdownValues.weeks}`} value={localCountdownValues.weeks} label="Weeks" type="weeks" />
+            <CountdownCircle key={`hours-${localCountdownValues.hours}`} value={localCountdownValues.hours} label="Hours" type="hours" />
+            <CountdownCircle key={`seconds-${localCountdownValues.seconds}`} value={localCountdownValues.seconds} label="Seconds" type="seconds" />
           </div> : <div className="space-y-4">
             <div className="flex justify-center items-center gap-4 sm:gap-6 md:gap-8 lg:gap-16 flex-wrap">
               <CountdownCircle value="--" label="Months" type="months" />
@@ -365,7 +365,7 @@ export const MyEventsPage: React.FC = () => {
           
           {/* Content */}
           <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <span className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-foreground">{value}</span>
+            <span className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-foreground animate-fade-in">{value}</span>
             <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
               {label}
             </span>
