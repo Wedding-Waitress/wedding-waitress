@@ -6,7 +6,10 @@ import {
   UserCheck, 
   Clock, 
   Target,
-  Zap
+  Zap,
+  Mail,
+  CheckCircle2,
+  AlertCircle
 } from "lucide-react";
 
 interface StatItem {
@@ -24,6 +27,10 @@ interface StatsBarProps {
     seatsRemaining: number;
     eventGuestLimit: number;
     tablesAtCapacity: number;
+    sentInvites: number;
+    unsentInvites: number;
+    respondedInvites: number;
+    unrespondedInvites: number;
   };
 }
 
@@ -34,7 +41,11 @@ export const StatsBar: React.FC<StatsBarProps> = ({
     seatsFilled: 0,
     seatsRemaining: 0,
     eventGuestLimit: 0,
-    tablesAtCapacity: 0
+    tablesAtCapacity: 0,
+    sentInvites: 0,
+    unsentInvites: 0,
+    respondedInvites: 0,
+    unrespondedInvites: 0
   }
 }) => {
   const statItems: StatItem[] = [
@@ -73,13 +84,37 @@ export const StatsBar: React.FC<StatsBarProps> = ({
       value: stats.tablesAtCapacity,
       icon: <Target className="w-6 h-6" />,
       color: "text-success"
+    },
+    {
+      label: "Sent Invites",
+      value: stats.sentInvites,
+      icon: <Mail className="w-6 h-6" />,
+      color: "text-blue-600"
+    },
+    {
+      label: "Unsent Invites",
+      value: stats.unsentInvites,
+      icon: <Clock className="w-6 h-6" />,
+      color: "text-muted-foreground"
+    },
+    {
+      label: "Responded Invites",
+      value: stats.respondedInvites,
+      icon: <CheckCircle2 className="w-6 h-6" />,
+      color: "text-success"
+    },
+    {
+      label: "Unresponded Invites",
+      value: stats.unrespondedInvites,
+      icon: <AlertCircle className="w-6 h-6" />,
+      color: "text-amber-600"
     }
   ];
 
   return (
     <Card className="mb-6 border-2 border-primary shadow-sm" style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
       <div className="p-4 md:p-6">
-        <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 md:gap-6">
+        <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-10 gap-4 md:gap-6">
           {statItems.map((item, index) => (
             <div key={index} className="flex flex-col items-center text-center space-y-2 min-w-0 p-2 sm:p-0">
               <div className={`flex-shrink-0 ${item.color}`}>

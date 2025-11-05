@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/enhanced-button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Calendar, Users, MapPin, QrCode, Mail, Heart, Settings, TrendingUp, Plus, Printer, Camera } from "lucide-react";
+import { normalizeRsvp } from '@/lib/rsvp';
 import { useAlbumNavigation } from '@/hooks/useAlbumNavigation';
 import { AlbumContentInlineCard } from '@/components/Album/AlbumContentInlineCard';
 import { useEvents } from '@/hooks/useEvents';
@@ -205,13 +206,30 @@ export const Dashboard = () => {
     const eventGuestLimit = currentEvent?.guest_limit || 0;
     const seatsRemaining = Math.max(0, eventGuestLimit - seatsFilled);
     const tablesAtCapacity = tables.filter(table => table.guest_count >= table.limit_seats).length;
+    
+    // RSVP statistics
+    const sentInvites = guests.length; // All guests are considered "sent invites"
+    const unsentInvites = Math.max(0, eventGuestLimit - guests.length); // Available slots
+    const respondedInvites = guests.filter(g => {
+      const normalized = normalizeRsvp(g.rsvp);
+      return normalized === "Attending" || normalized === "Not Attending";
+    }).length;
+    const unrespondedInvites = guests.filter(g => {
+      const normalized = normalizeRsvp(g.rsvp);
+      return normalized === "Pending";
+    }).length;
+    
     return {
       tablesCreated,
       seatsCreated,
       seatsFilled,
       seatsRemaining,
       eventGuestLimit,
-      tablesAtCapacity
+      tablesAtCapacity,
+      sentInvites,
+      unsentInvites,
+      respondedInvites,
+      unrespondedInvites
     };
   }, [tables, guests, selectedEvent]);
 
