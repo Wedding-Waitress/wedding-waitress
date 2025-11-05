@@ -208,9 +208,14 @@ export const EventsTable: React.FC<EventsTableProps> = ({
           <div className="flex items-center justify-between">
             <div>
               <h3 className="text-2xl font-medium text-[#7248e6]">My Events</h3>
-              <p className="text-sm text-muted-foreground">
-                Create and manage your event
-              </p>
+              <div className="flex items-center gap-2 mt-1">
+                <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
+                  <span className="text-white text-sm font-semibold">1</span>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Create and manage your event here
+                </p>
+              </div>
               {selectedEvent && (
                 <p className="text-sm mt-1">
                   <span className="text-green-500">
@@ -249,8 +254,8 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                 <TableHead className="w-20">Finish Time</TableHead>
                 <TableHead className="w-20">Guest Limit</TableHead>
                 <TableHead className="w-24">RSVP Deadline</TableHead>
-                <TableHead className="w-24">Created Date:</TableHead>
-                <TableHead className="w-24">Expiry Date:</TableHead>
+                <TableHead className="w-24">Created Date</TableHead>
+                <TableHead className="w-24">Expiry Date</TableHead>
                 <TableHead className="w-20 rounded-tr-2xl">Actions</TableHead>
               </TableRow>
             </TableHeader>
