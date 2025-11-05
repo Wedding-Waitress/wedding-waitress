@@ -25,6 +25,7 @@ import { useToast } from '@/hooks/use-toast';
 import { EnhancedGuestCard } from '@/components/GuestLookup/EnhancedGuestCard';
 import { normalizeRsvp } from '@/lib/rsvp';
 import { TableVisualization } from '@/components/GuestLookup/TableVisualization';
+import { AIFloatingChatButton } from '@/components/AI/AIFloatingChatButton';
 import { GuestProfileModal } from '@/components/GuestLookup/GuestProfileModal';
 import { GuestUpdateModal } from '@/components/GuestLookup/GuestUpdateModal';
 
@@ -771,6 +772,9 @@ export const GuestLookup: React.FC = () => {
         showMessageField={moduleSettings?.update_details_config?.show_message_field ?? true}
         isEditable={isEditable}
       />
+
+      {/* AI Floating Chat Button */}
+      {event && <AIFloatingChatButton eventSlug={eventSlug} eventName={event.name} />}
     </div>
   );
 };

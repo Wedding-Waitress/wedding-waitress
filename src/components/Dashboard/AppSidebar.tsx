@@ -15,7 +15,10 @@ import {
   LogOut,
   Shield,
   Settings,
-  ClipboardList
+  ClipboardList,
+  Bot,
+  TrendingUp,
+  Bell
 } from 'lucide-react';
 import { useIsAdmin } from '@/hooks/useIsAdmin';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -55,6 +58,9 @@ interface AppSidebarProps {
     { id: "full-seating-chart", label: "Full Seating Chart", icon: FileText },
     { id: "kiosk-live-view", label: "Kiosk Live View", icon: Monitor },
     { id: "photo-video-gallery", label: "Photo & Video Gallery", icon: Camera },
+    { id: "ai-assistant", label: "AI Assistant", icon: Bot },
+    { id: "ai-insights", label: "AI Insights", icon: TrendingUp },
+    { id: "rsvp-notifications", label: "RSVP Notifications", icon: Bell },
     ...(flags.djQuestionnaire ? [{ id: "dj-mc-questionnaire", label: "DJ & MC Questionnaire", icon: Music }] : []),
     ...(flags.runningSheet ? [{ id: "running-sheet", label: "Running Sheet", icon: ClipboardList }] : []),
   ];
