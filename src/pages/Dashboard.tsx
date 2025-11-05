@@ -273,8 +273,8 @@ export const Dashboard = () => {
         return <div className="space-y-6">
             <Card className="ww-box">
               <CardHeader className="flex flex-col gap-4 pb-6">
-                {/* Top row - Title and Create Tables button */}
-                <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
+                {/* Top row - Title */}
+                <div className="flex items-start gap-3">
                   {/* Left: Icon + Title + Description */}
                   <div className="flex items-start gap-3 flex-1">
                     <MapPin className="w-16 h-16 text-primary flex-shrink-0" />
@@ -285,47 +285,55 @@ export const Dashboard = () => {
                       </CardDescription>
                     </div>
                   </div>
-                  
-                  {/* Right: Create Tables Button */}
-                  <div className="lg:ml-auto">
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <div>
-                            <Button variant="default" size="xs" className="rounded-full flex items-center gap-2 sm:flex-shrink-0 bg-green-500 hover:bg-green-600 text-white" disabled={!selectedEventId} onClick={handleCreateTable}>
-                              <Plus className="w-4 h-4" />
-                              Create Tables
-                            </Button>
-                          </div>
-                        </TooltipTrigger>
-                        {!selectedEventId && <TooltipContent>
-                            <p>Choose Event first</p>
-                          </TooltipContent>}
-                      </Tooltip>
-                    </TooltipProvider>
-                  </div>
                 </div>
                 
-                {/* Bottom row - Choose Event dropdown */}
-                <div className="flex items-center gap-3 pt-2">
-                  <label className="text-sm font-medium text-foreground whitespace-nowrap">
-                    Choose Event:
-                  </label>
-                  <Select value={globalSelectedEventId || "no-event"} onValueChange={handleGlobalEventSelect}>
-                    <SelectTrigger className="w-[300px] border-primary focus:ring-primary [&>span]:font-bold [&>span]:text-[#7248E6]">
-                      <SelectValue placeholder="Choose Event" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-popover border-border z-50">
-                      {events.length > 0 ? events.map(event => <SelectItem key={event.id} value={event.id}>
-                            <div className="flex items-center space-x-2">
-                              <Calendar className="w-4 h-4" />
-                              <span>{event.name}</span>
-                            </div>
-                          </SelectItem>) : <SelectItem value="no-events" disabled>
-                          {eventsLoading ? "Loading events..." : "No events found"}
-                        </SelectItem>}
-                    </SelectContent>
-                  </Select>
+                {/* Bottom row - Choose Event dropdown and Create Tables button */}
+                <div className="flex items-center justify-between gap-3 pt-2">
+                  <div className="flex items-center gap-3">
+                    <label className="text-sm font-medium text-foreground whitespace-nowrap">
+                      Choose Event:
+                    </label>
+                    <Select value={globalSelectedEventId || "no-event"} onValueChange={handleGlobalEventSelect}>
+                      <SelectTrigger className="w-[300px] border-primary focus:ring-primary [&>span]:font-bold [&>span]:text-[#7248E6]">
+                        <SelectValue placeholder="Choose Event" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-popover border-border z-50">
+                        {events.length > 0 ? events.map(event => <SelectItem key={event.id} value={event.id}>
+                              <div className="flex items-center space-x-2">
+                                <Calendar className="w-4 h-4" />
+                                <span>{event.name}</span>
+                              </div>
+                            </SelectItem>) : <SelectItem value="no-events" disabled>
+                            {eventsLoading ? "Loading events..." : "No events found"}
+                          </SelectItem>}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  {/* Create Tables Button - Right Side */}
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div>
+                          <Button 
+                            variant="default" 
+                            size="xs" 
+                            className="rounded-full flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white" 
+                            disabled={!selectedEventId} 
+                            onClick={handleCreateTable}
+                          >
+                            <Plus className="w-4 h-4" />
+                            Create Tables
+                          </Button>
+                        </div>
+                      </TooltipTrigger>
+                      {!selectedEventId && (
+                        <TooltipContent>
+                          <p>Choose Event first</p>
+                        </TooltipContent>
+                      )}
+                    </Tooltip>
+                  </TooltipProvider>
                 </div>
               </CardHeader>
             </Card>
