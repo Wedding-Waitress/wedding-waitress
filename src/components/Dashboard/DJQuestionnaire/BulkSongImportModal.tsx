@@ -138,7 +138,7 @@ https://music.apple.com/us/album/...`}
           <div className="flex items-center justify-between text-sm">
             <div className="flex items-center gap-4">
               {validUrls.length > 0 && (
-                <span className="text-green-600 dark:text-green-400 flex items-center gap-1">
+                <span className="text-green-500 flex items-center gap-1">
                   <CheckCircle className="w-4 h-4" />
                   {validUrls.length} valid
                 </span>

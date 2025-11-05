@@ -222,7 +222,7 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
               <p className="text-sm text-destructive">This table number already exists. Please choose another.</p>
             )}
             {validationState === 'valid' && (
-              <p className="text-sm text-green-600">✔ Table number is available.</p>
+              <p className="text-sm text-green-500">✔ Table number is available.</p>
             )}
             {errors.name && validationState === 'idle' && (
               <p className="text-sm text-destructive">{errors.name}</p>
@@ -282,7 +282,7 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
           <Button 
             variant="default"
             size="xs"
-            className="rounded-full bg-green-600 hover:bg-green-700 text-white"
+            className="rounded-full bg-green-500 hover:bg-green-600 text-white"
             onClick={handleSave}
             disabled={isSubmitting || Object.keys(errors).length > 0 || validationState === 'duplicate'}
           >

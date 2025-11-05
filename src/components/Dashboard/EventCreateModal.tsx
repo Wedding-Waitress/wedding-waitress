@@ -178,7 +178,7 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
           <Button 
             variant="default"
             size="xs"
-            className="rounded-full bg-green-600 hover:bg-green-700 text-white"
+            className="rounded-full bg-green-500 hover:bg-green-600 text-white"
             onClick={handleCreate} 
             disabled={!formData.name.trim() || isSaving}
           >

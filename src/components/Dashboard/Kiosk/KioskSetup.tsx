@@ -166,8 +166,8 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
           
           {selectedEvent && (
             <div className="flex items-center gap-2 mt-4">
-              <CheckCircle2 className="w-5 h-5 text-green-600" />
-              <span className="font-medium text-green-600">
+              <CheckCircle2 className="w-5 h-5 text-green-500" />
+              <span className="font-medium text-green-500">
                 Selected: {selectedEvent.name}
               </span>
             </div>

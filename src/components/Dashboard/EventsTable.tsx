@@ -262,7 +262,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                 return <TableRow key={event.id} className={`
                       border-card-border hover:bg-muted/30 transition-colors
                       ${isSelected ? 'bg-primary/5 border-l-4 border-l-[#22c55e]' : ''}
-                      ${atCapacity ? 'bg-green-50 dark:bg-green-900/20' : ''}
+                      ${atCapacity ? 'bg-green-500/10 dark:bg-green-500/20' : ''}
                     `}>
                     <TableCell className="text-center w-20">
                       <div className="flex items-center justify-center">
