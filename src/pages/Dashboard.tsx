@@ -328,42 +328,22 @@ export const Dashboard = () => {
               </CardHeader>
             </Card>
 
-            {/* Tables Grid - Always rendered to prevent jitter */}
-            <Card className="ww-box">
+            {/* Tables Grid */}
+            {selectedEventId && <Card className="ww-box">
                 <CardContent className="p-6">
-                  {!selectedEventId ? (
-                    <div className="text-center py-8">
-                      <div className="text-muted-foreground">Please select an event above</div>
-                    </div>
-                  ) : tablesLoading ? (
-                    <div className="text-center py-8">
+                  {tablesLoading ? <div className="text-center py-8">
                       <div className="text-muted-foreground">Loading tables...</div>
-                    </div>
-                  ) : tables.length > 0 ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-                      {tables.map(table => (
-                        <TableCard 
-                          key={table.id} 
-                          table={table} 
-                          onEdit={handleEditTable} 
-                          onDelete={deleteTable} 
-                          guests={guests} 
-                          eventId={selectedEventId} 
-                          onGuestMove={handleGuestMove} 
-                        />
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-8">
+                    </div> : tables.length > 0 ? <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                       {tables.map(table => <TableCard key={table.id} table={table} onEdit={handleEditTable} onDelete={deleteTable} guests={guests} eventId={selectedEventId} onGuestMove={handleGuestMove} />)}
+                     </div> : <div className="text-center py-8">
                       <div className="text-muted-foreground mb-4">No tables created yet</div>
                       <Button variant="default" size="xs" className="rounded-full flex items-center gap-2" onClick={handleCreateTable}>
                         <Plus className="w-4 h-4" />
                         Create Your First Table
                       </Button>
-                    </div>
-                  )}
+                    </div>}
                 </CardContent>
-              </Card>
+              </Card>}
           </div>;
       case 'floor-plan':
         return <FloorPlanPage selectedEventId={selectedEventId} onEventSelect={setSelectedEventId} />;
