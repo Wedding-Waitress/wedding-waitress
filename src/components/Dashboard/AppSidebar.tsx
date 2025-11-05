@@ -88,10 +88,6 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
     return mobileLabels[id] || label;
   };
 
-  // Font size for menu items
-  const getFontSize = (id: string) => {
-    return isMobile ? 'text-sm' : 'text-base';
-  };
 
   return (
     <Sidebar collapsible="icon" className="border-r border-border shadow-2xl">
@@ -131,7 +127,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                     className={`flex items-center gap-1 ${isGreenItem ? 'bg-success hover:bg-success/90' : ''} ${isMobile ? 'py-4' : 'py-3'}`}
                   >
                     <Icon className={isMobile ? "w-6 h-6" : "w-5 h-5"} />
-                    <span className={`${isGreenItem ? 'text-black font-bold' : ''} ${getFontSize(item.id)}`}>
+                    <span className={`${isGreenItem ? 'text-black font-bold' : 'font-medium'} text-xl`}>
                       {getMobileLabel(item.id, item.label)}
                     </span>
                     {item.id === 'my-events' && (
@@ -168,7 +164,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                     style={{ borderLeft: '3px solid #6D28D9' }}
                   >
                     <Shield className="w-5 h-5" style={{ color: '#6D28D9' }} />
-                    <span style={{ color: '#6D28D9' }}>Admin Panel</span>
+                    <span className="font-medium text-xl" style={{ color: '#6D28D9' }}>Admin Panel</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               )}
@@ -181,7 +177,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                   className="text-destructive hover:text-destructive hover:bg-destructive/10"
                 >
                   <LogOut className="w-5 h-5" />
-                  <span className={isMobile ? 'text-sm' : 'text-base'}>Logout</span>
+                  <span className="font-medium text-xl">Logout</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
