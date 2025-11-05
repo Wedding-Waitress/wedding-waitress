@@ -335,7 +335,7 @@ export const MyEventsPage: React.FC = () => {
         {/* Event state message */}
         <div className="text-center mt-4">
           <p className="text-muted-foreground text-lg">
-            {localEventState === 'in_progress' ? "Your event is in progress" : localEventState === 'finished' ? <span className="text-sm text-muted-foreground">Event finished</span> : "This is a countdown to your event"}
+            {localEventState === 'in_progress' ? "Your event is in progress" : localEventState === 'finished' ? <span className="text-sm text-muted-foreground">Event finished</span> : "This is the countdown to your event"}
           </p>
         </div>
       </div>;
@@ -388,10 +388,8 @@ export const MyEventsPage: React.FC = () => {
                 </p>
               <p className="text-muted-foreground">
                 {formatEventDate(selectedEvent)}
+                {formatTimeRange(selectedEvent) && <> - {formatTimeRange(selectedEvent)}</>}
               </p>
-              {formatTimeRange(selectedEvent) && <p className="text-sm text-muted-foreground">
-                  {formatTimeRange(selectedEvent)}
-                </p>}
             </div>}
         </div>
       </Card>
