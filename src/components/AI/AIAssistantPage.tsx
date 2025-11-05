@@ -5,6 +5,7 @@ import { MessageSquare, BookOpen } from 'lucide-react';
 import { AITextChat } from './AITextChat';
 import { StandardEventSelector } from '../Dashboard/StandardEventSelector';
 import { useEvents } from '@/hooks/useEvents';
+import { AIKnowledgeBaseEditor } from './AIKnowledgeBaseEditor';
 
 export const AIAssistantPage = () => {
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
@@ -54,20 +55,10 @@ export const AIAssistantPage = () => {
           </TabsContent>
 
           <TabsContent value="knowledge" className="space-y-4">
-            <Card>
-              <CardContent className="pt-6">
-                <div className="text-center py-12 text-muted-foreground">
-                  <BookOpen className="w-16 h-16 mx-auto mb-4 text-primary" />
-                  <p className="text-lg font-medium mb-2">Knowledge Base Editor</p>
-                  <p className="text-sm">
-                    Teach the AI about your event details, FAQs, and policies
-                  </p>
-                  <p className="text-xs mt-4 text-muted-foreground">
-                    Coming soon in next update
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
+            <AIKnowledgeBaseEditor
+              eventId={selectedEventId}
+              eventVenue={events.find(e => e.id === selectedEventId)?.venue}
+            />
           </TabsContent>
         </Tabs>
       ) : (
