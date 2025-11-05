@@ -206,9 +206,14 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                 Create and manage your event
               </p>
               {selectedEvent && (
-                <p className="text-xs text-muted-foreground mt-1">
-                  Created: {formatLocalDate(selectedEvent.created_date_local, selectedEvent.created_at, selectedEvent.event_timezone)} | 
-                  Expiry: {formatLocalDate(selectedEvent.expiry_date_local, null, selectedEvent.event_timezone) || getExpiryDateFallback(selectedEvent.created_at, selectedEvent.event_timezone)}
+                <p className="text-sm mt-1">
+                  <span className="text-green-600">
+                    Created: {formatLocalDate(selectedEvent.created_date_local, selectedEvent.created_at, selectedEvent.event_timezone)}
+                  </span>
+                  <span className="text-muted-foreground"> | </span>
+                  <span className="text-red-600">
+                    Expiry: {formatLocalDate(selectedEvent.expiry_date_local, null, selectedEvent.event_timezone) || getExpiryDateFallback(selectedEvent.created_at, selectedEvent.event_timezone)}
+                  </span>
                 </p>
               )}
             </div>
