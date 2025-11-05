@@ -313,7 +313,7 @@ export const Dashboard = () => {
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <div>
-                          <Button variant="default" size="xs" className="rounded-full flex items-center gap-2 sm:ml-3 sm:flex-shrink-0" disabled={!selectedEventId} onClick={handleCreateTable}>
+                          <Button variant="default" size="xs" className="rounded-full flex items-center gap-2 sm:ml-3 sm:flex-shrink-0 bg-green-500 hover:bg-green-600 text-white" disabled={!selectedEventId} onClick={handleCreateTable}>
                             <Plus className="w-4 h-4" />
                             Create Tables
                           </Button>

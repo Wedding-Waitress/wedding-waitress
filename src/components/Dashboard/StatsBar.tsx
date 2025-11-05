@@ -71,7 +71,7 @@ export const StatsBar: React.FC<StatsBarProps> = ({
       label: "Seats Filled",
       value: stats.seatsFilled,
       icon: <UserCheck className="w-6 h-6" />,
-      color: "text-success"
+      color: "text-green-500"
     },
     {
       label: "Seats Remaining",
@@ -83,7 +83,7 @@ export const StatsBar: React.FC<StatsBarProps> = ({
       label: "Full Tables",
       value: stats.tablesAtCapacity,
       icon: <Target className="w-6 h-6" />,
-      color: "text-success"
+      color: "text-green-500"
     },
     {
       label: "Sent Invites",
@@ -101,7 +101,7 @@ export const StatsBar: React.FC<StatsBarProps> = ({
       label: "Responded Invites",
       value: stats.respondedInvites,
       icon: <CheckCircle2 className="w-6 h-6" />,
-      color: "text-success"
+      color: "text-green-500"
     },
     {
       label: "Unresponded Invites",
