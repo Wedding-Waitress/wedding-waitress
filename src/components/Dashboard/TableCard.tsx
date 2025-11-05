@@ -185,7 +185,7 @@ export const TableCard: React.FC<TableCardProps> = ({
                 aria-label={`Table Full — ${table.guest_count} guests`}
               >
                 <span className="text-white font-bold text-sm text-center">
-                  Table Full — {table.guest_count}
+                  Full Table — {table.guest_count}
                 </span>
               </div>
             ) : (

@@ -80,7 +80,7 @@ export const StatsBar: React.FC<StatsBarProps> = ({
       color: "text-muted-foreground"
     },
     {
-      label: "Tables Reached Capacity",
+      label: "Full Tables",
       value: stats.tablesAtCapacity,
       icon: <Target className="w-6 h-6" />,
       color: "text-success"
