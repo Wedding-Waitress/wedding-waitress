@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/enhanced-button";
 import { Badge } from "@/components/ui/badge";
@@ -129,6 +129,125 @@ export const EventsTable: React.FC<EventsTableProps> = ({
     event: null
   });
   const [createModal, setCreateModal] = useState(false);
+
+  // Countdown state
+  const [countdownValues, setCountdownValues] = useState({
+    months: 0,
+    weeks: 0,
+    hours: 0,
+    seconds: 0
+  });
+
+  // Calculate countdown
+  const calculateTimeRemaining = (event: Event | null) => {
+    if (!event?.date) {
+      return { months: 0, weeks: 0, hours: 0, seconds: 0 };
+    }
+
+    const eventDate = new Date(event.date);
+    const targetStart = new Date(eventDate);
+    
+    if (event.start_time) {
+      const [hours, minutes] = event.start_time.split(':');
+      targetStart.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+    } else {
+      targetStart.setHours(0, 0, 0, 0);
+    }
+
+    const now = new Date();
+    const timeDiff = targetStart.getTime() - now.getTime();
+    
+    if (timeDiff <= 0) {
+      return { months: 0, weeks: 0, hours: 0, seconds: 0 };
+    }
+
+    const totalSeconds = Math.floor(timeDiff / 1000);
+    const totalMinutes = Math.floor(totalSeconds / 60);
+    const totalHours = Math.floor(totalMinutes / 60);
+    const totalDays = Math.floor(totalHours / 24);
+    const totalMonths = Math.floor(totalDays / 30);
+
+    const months = totalMonths;
+    const weeks = Math.floor((totalDays - months * 30) / 7);
+    const hours = totalHours - totalDays * 24;
+    const seconds = totalSeconds % 60;
+
+    return { months, weeks, hours, seconds };
+  };
+
+  // Update countdown every second
+  useEffect(() => {
+    if (!selectedEvent) return;
+    
+    const updateCountdown = () => {
+      const result = calculateTimeRemaining(selectedEvent);
+      setCountdownValues(result);
+    };
+    
+    updateCountdown();
+    const interval = setInterval(updateCountdown, 1000);
+    return () => clearInterval(interval);
+  }, [selectedEvent]);
+
+  // Format event date for display
+  const formatEventDateFull = (event: Event | null) => {
+    if (!event?.date) return '';
+    const eventDate = new Date(event.date);
+    const dayOfWeek = eventDate.toLocaleDateString('en-US', { weekday: 'long' });
+    const day = eventDate.getDate();
+    const month = eventDate.toLocaleDateString('en-US', { month: 'long' });
+    const year = eventDate.getFullYear();
+
+    const getOrdinalSuffix = (day: number) => {
+      if (day > 3 && day < 21) return 'th';
+      switch (day % 10) {
+        case 1: return 'st';
+        case 2: return 'nd';
+        case 3: return 'rd';
+        default: return 'th';
+      }
+    };
+
+    return `${dayOfWeek} ${day}${getOrdinalSuffix(day)}, ${month} ${year}`;
+  };
+
+  // Format time range on single line
+  const formatTimeRangeSingle = (event: Event | null) => {
+    if (!event?.start_time) return '';
+    
+    const formatTime = (time: string) => {
+      const [hours, minutes] = time.split(':');
+      const hour = parseInt(hours);
+      const ampm = hour >= 12 ? 'PM' : 'AM';
+      const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
+      return `${displayHour}:${minutes} ${ampm}`;
+    };
+
+    const startTime = formatTime(event.start_time);
+    const finishTime = event.finish_time ? formatTime(event.finish_time) : '';
+    
+    if (finishTime) {
+      return `${startTime} — ${finishTime}`;
+    }
+    return startTime;
+  };
+
+  // Countdown Circle Component
+  const CountdownCircle = ({ value, label }: { value: number, label: string }) => (
+    <div className="flex flex-col items-center">
+      <div className="relative w-16 h-16 mb-1">
+        <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+          <circle cx="50" cy="50" r="45" fill="none" stroke="hsl(var(--muted))" strokeWidth="6" />
+          <circle cx="50" cy="50" r="45" fill="none" stroke="hsl(var(--primary))" strokeWidth="6" 
+            strokeDasharray={283} strokeDashoffset={0} className="transition-all" strokeLinecap="round" />
+        </svg>
+        <div className="absolute inset-0 flex flex-col items-center justify-center">
+          <span className="text-xl font-bold">{value}</span>
+        </div>
+      </div>
+      <span className="text-xs uppercase text-muted-foreground">{label}</span>
+    </div>
+  );
   const handleEventSelect = (eventId: string) => {
     // Immediate UI update (no await)
     setActiveEventId(eventId);
@@ -199,7 +318,8 @@ export const EventsTable: React.FC<EventsTableProps> = ({
   return <>
       <Card className="ww-box overflow-hidden mx-0">
         <div className="p-6 border-b border-card-border bg-white">
-          <div className="flex items-center justify-between">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-center">
+            {/* LEFT SIDE - Title & Metadata */}
             <div>
               <h3 className="text-2xl font-medium text-[#7248e6]">My Events</h3>
               <p className="text-sm text-muted-foreground">
@@ -217,16 +337,48 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                 </p>
               )}
             </div>
-            <div className="flex items-center space-x-2">
-              <Badge variant="outline" className="bg-white border-primary text-primary rounded-full text-sm">
-                <Calendar className="w-4 h-4 mr-1.5" />
-                {events.length} Event{events.length !== 1 ? 's' : ''}
-              </Badge>
-              <Button variant="default" size="xs" className="rounded-full flex items-center gap-2" onClick={() => setCreateModal(true)}>
-                <Plus className="w-4 h-4" />
-                Create Event
-              </Button>
+
+            {/* RIGHT SIDE - Countdown Section */}
+            <div className="text-center space-y-3">
+              {selectedEvent ? (
+                <>
+                  {/* Countdown Circles - smaller version */}
+                  <div className="flex justify-center items-center gap-3">
+                    <CountdownCircle value={countdownValues.months} label="Months" />
+                    <CountdownCircle value={countdownValues.weeks} label="Weeks" />
+                    <CountdownCircle value={countdownValues.hours} label="Hours" />
+                    <CountdownCircle value={countdownValues.seconds} label="Seconds" />
+                  </div>
+                  
+                  {/* Event Details */}
+                  <p className="text-sm text-muted-foreground">
+                    This is the countdown to your event
+                  </p>
+                  <p className="text-lg font-medium text-[#7248e6]">
+                    {selectedEvent.name}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {formatEventDateFull(selectedEvent)} | {formatTimeRangeSingle(selectedEvent)}
+                  </p>
+                </>
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  Select an event to view countdown
+                </p>
+              )}
             </div>
+          </div>
+          
+          {/* Action Buttons Row - below the grid */}
+          <div className="flex items-center justify-end space-x-2 mt-4">
+            <Badge variant="outline" className="bg-white border-primary text-primary rounded-full text-sm">
+              <Calendar className="w-4 h-4 mr-1.5" />
+              {events.length} Event{events.length !== 1 ? 's' : ''}
+            </Badge>
+            <Button variant="default" size="xs" className="rounded-full flex items-center gap-2" onClick={() => setCreateModal(true)}>
+              <Plus className="w-4 h-4" />
+              Create Event
+            </Button>
           </div>
         </div>
 
