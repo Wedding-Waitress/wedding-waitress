@@ -123,9 +123,34 @@ Only suggest changes for guests who would benefit from reassignment.`
     });
 
     const aiResult = await aiResponse.json();
-    const suggestions = JSON.parse(
-      aiResult.choices[0].message.tool_calls[0].function.arguments
-    ).suggestions;
+    console.log('AI Response:', JSON.stringify(aiResult, null, 2));
+
+    // Validate AI response structure
+    if (!aiResult.choices || !aiResult.choices[0]) {
+      console.error('Invalid AI response structure - no choices');
+      throw new Error('AI did not return valid response');
+    }
+
+    const choice = aiResult.choices[0];
+    if (!choice.message || !choice.message.tool_calls || !choice.message.tool_calls[0]) {
+      console.error('Invalid AI response structure - no tool_calls');
+      throw new Error('AI did not return tool calls');
+    }
+
+    const toolCall = choice.message.tool_calls[0];
+    if (!toolCall.function || !toolCall.function.arguments) {
+      console.error('Invalid AI response structure - no function arguments');
+      throw new Error('AI did not return function arguments');
+    }
+
+    let suggestions;
+    try {
+      const parsedArgs = JSON.parse(toolCall.function.arguments);
+      suggestions = parsedArgs.suggestions || [];
+    } catch (parseError) {
+      console.error('Failed to parse AI arguments:', parseError);
+      suggestions = [];
+    }
 
     // Clear previous suggestions for this event
     await supabase
