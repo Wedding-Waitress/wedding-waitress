@@ -35,7 +35,12 @@ export const RelationBadge: React.FC<RelationBadgeProps> = ({
     );
   }
 
-  const parts = display.split(' — ');
+  // Try splitting by new format first, then fall back to old format
+  let parts = display.split(' — ');
+  if (parts.length === 1) {
+    // Old format: try splitting by '/'
+    parts = display.split('/');
+  }
   const displayPartner = parts[0] || partnerName;
   const displayRole = parts[1] || role;
 
