@@ -85,6 +85,27 @@ export const TableCard: React.FC<TableCardProps> = ({
   const progressPercentage = Math.min((table.guest_count / safeLimit) * 100, 100);
   const isFull = table.guest_count >= table.limit_seats;
 
+  // Calculate capacity color based on percentage
+  const getCapacityColor = () => {
+    if (table.guest_count === 0) return 'bg-gray-400';
+    if (progressPercentage >= 75) return 'bg-purple-500';
+    if (progressPercentage >= 51) return 'bg-blue-500';
+    if (progressPercentage >= 26) return 'bg-yellow-500';
+    return 'bg-orange-500';
+  };
+
+  // Calculate capacity status text
+  const getCapacityStatus = () => {
+    if (table.guest_count === 0) return 'Empty';
+    if (progressPercentage >= 75) return 'Almost Full';
+    if (progressPercentage >= 51) return 'Good Capacity';
+    if (progressPercentage >= 26) return 'Half Full';
+    return 'Needs More Guests';
+  };
+
+  // Calculate remaining seats
+  const seatsRemaining = Math.max(0, table.limit_seats - table.guest_count);
+
 
   const handleDelete = async () => {
     if (deleteConfirmText !== 'DELETE') return;
@@ -173,37 +194,116 @@ export const TableCard: React.FC<TableCardProps> = ({
             {table.name}
           </div>
 
-          {/* Capacity Bar States */}
+          {/* Enhanced Capacity Bar States */}
           <div className="mb-3">
-            {table.guest_count < table.limit_seats ? (
-              <>
-                <div className="text-sm text-foreground mb-2">
-                  {table.guest_count}/{table.limit_seats}
-                </div>
-                <Progress 
-                  value={progressPercentage} 
-                  className="h-2 bg-secondary [&>div]:bg-purple-500"
-                />
-              </>
-            ) : table.guest_count === table.limit_seats ? (
-              <div 
-                className="h-6 bg-green-500 rounded-full flex items-center justify-center"
-                aria-label={`Table Full — ${table.guest_count} guests`}
-              >
-                <span className="text-white font-bold text-sm text-center">
-                  Full Table — {table.guest_count}
-                </span>
-              </div>
-            ) : (
-              <div 
-                className="h-6 bg-red-500 rounded-full flex items-center justify-center"
-                aria-label={`Over capacity by ${table.guest_count - table.limit_seats} guests`}
-              >
-                <span className="text-white font-bold text-sm text-center">
-                  Over by +{table.guest_count - table.limit_seats}
-                </span>
-              </div>
-            )}
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="cursor-help">
+                    {table.guest_count < table.limit_seats ? (
+                      <>
+                        {/* Capacity info row with percentage badge */}
+                        <div className="flex items-center justify-between text-sm mb-2">
+                          <span className="font-semibold text-foreground">
+                            {table.guest_count}/{table.limit_seats}
+                          </span>
+                          <span className={`text-xs font-bold px-2 py-0.5 rounded-full transition-colors ${
+                            progressPercentage >= 75 ? 'bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300' :
+                            progressPercentage >= 51 ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300' :
+                            progressPercentage >= 26 ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300' :
+                            table.guest_count === 0 ? 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400' :
+                            'bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-300'
+                          }`}>
+                            {Math.round(progressPercentage)}%
+                          </span>
+                        </div>
+                        
+                        {/* Animated color-coded progress bar */}
+                        <div className="relative h-3 bg-secondary rounded-full overflow-hidden shadow-sm">
+                          <div 
+                            className={`h-full transition-all duration-500 ease-out ${getCapacityColor()} rounded-full relative`}
+                            style={{ width: `${progressPercentage}%` }}
+                            role="progressbar"
+                            aria-valuenow={table.guest_count}
+                            aria-valuemin={0}
+                            aria-valuemax={table.limit_seats}
+                            aria-label={`${table.guest_count} of ${table.limit_seats} seats filled`}
+                          >
+                            {/* Subtle shine effect */}
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-20" />
+                          </div>
+                        </div>
+                        
+                        {/* Status label with remaining seats */}
+                        <div className="text-xs text-muted-foreground mt-1.5 text-center font-medium">
+                          {getCapacityStatus()} • {seatsRemaining} {seatsRemaining === 1 ? 'seat' : 'seats'} remaining
+                        </div>
+                      </>
+                    ) : table.guest_count === table.limit_seats ? (
+                      /* Full table - enhanced green banner */
+                      <div 
+                        className="h-8 bg-gradient-to-r from-green-500 to-green-600 rounded-lg flex items-center justify-center shadow-md"
+                        aria-label={`Table Full — ${table.guest_count} guests`}
+                      >
+                        <span className="text-white font-bold text-sm text-center flex items-center gap-2">
+                          <span className="text-base">✓</span>
+                          Full Table — {table.guest_count}
+                        </span>
+                      </div>
+                    ) : (
+                      /* Over capacity - enhanced red warning */
+                      <div 
+                        className="h-8 bg-gradient-to-r from-red-500 to-red-600 rounded-lg flex items-center justify-center shadow-md"
+                        aria-label={`Over capacity by ${table.guest_count - table.limit_seats} guests`}
+                      >
+                        <span className="text-white font-bold text-sm text-center flex items-center gap-2">
+                          <span className="text-base">⚠</span>
+                          Over by +{table.guest_count - table.limit_seats}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </TooltipTrigger>
+                
+                {/* Enhanced tooltip with detailed breakdown */}
+                <TooltipContent className="max-w-xs">
+                  <div className="space-y-1 text-xs">
+                    <p className="font-semibold text-sm">Table Capacity Details</p>
+                    <div className="pt-1.5 space-y-1 border-t border-border/50 mt-1">
+                      <div className="flex justify-between">
+                        <span>Current Guests:</span>
+                        <strong>{table.guest_count}</strong>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Table Limit:</span>
+                        <strong>{table.limit_seats}</strong>
+                      </div>
+                      {table.guest_count < table.limit_seats && (
+                        <div className="flex justify-between text-green-600 dark:text-green-400">
+                          <span>Available:</span>
+                          <strong>{seatsRemaining} {seatsRemaining === 1 ? 'seat' : 'seats'}</strong>
+                        </div>
+                      )}
+                      {table.guest_count === table.limit_seats && (
+                        <p className="text-green-600 dark:text-green-400 text-center font-medium pt-1">
+                          ✓ Perfect capacity!
+                        </p>
+                      )}
+                      {table.guest_count > table.limit_seats && (
+                        <div className="flex justify-between text-red-600 dark:text-red-400">
+                          <span>Over by:</span>
+                          <strong>{table.guest_count - table.limit_seats}</strong>
+                        </div>
+                      )}
+                      <div className="flex justify-between text-muted-foreground pt-1 border-t border-border/50 mt-1">
+                        <span>Fill Rate:</span>
+                        <strong>{Math.round(progressPercentage)}%</strong>
+                      </div>
+                    </div>
+                  </div>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
 
           {/* Notes */}
