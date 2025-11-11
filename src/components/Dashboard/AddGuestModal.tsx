@@ -661,7 +661,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
             {/* Guest Type Selector - Only show for new guests */}
             {!isEdit && (
               <div className="pt-2 pb-4">
-                <div className="flex items-center justify-center gap-0 bg-[#7248e6]/10 border-2 border-[#7248e6] rounded-full p-1 max-w-md mx-auto">
+                <div className="flex items-center justify-center gap-0 bg-[#7248e6]/10 border-2 border-[#7248e6] rounded-full p-1 w-full">
                   <button
                     type="button"
                     onClick={() => {
