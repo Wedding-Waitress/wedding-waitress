@@ -606,6 +606,36 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
     return groups;
   }, [guests, searchTerm]);
 
+  // Create a map of family_group -> type for quick lookup
+  const familyGroupTypeMap = useMemo(() => {
+    const map = new Map<string, 'individual' | 'couple' | 'family'>();
+    
+    groupedGuests.forEach(group => {
+      if (group.groupName) {
+        map.set(group.groupName, group.type);
+      }
+    });
+    
+    return map;
+  }, [groupedGuests]);
+
+  // Helper function to get the type label for a guest
+  const getGuestTypeLabel = (guest: any): string => {
+    if (!guest.family_group) {
+      return 'Individual';
+    }
+    
+    const groupType = familyGroupTypeMap.get(guest.family_group);
+    
+    if (groupType === 'couple') {
+      return 'Couple';
+    } else if (groupType === 'family') {
+      return 'Family';
+    }
+    
+    return 'Individual'; // Fallback
+  };
+
   const sortedGuests = useMemo(() => {
     if (!guests.length) return guests;
     
@@ -1698,15 +1728,22 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                           <TableCell className="w-24 pl-16">{renderPill(!!guest.mobile && guest.mobile.trim() !== '')}</TableCell>
                           <TableCell className="w-36 pl-16">{renderPill(!!guest.email && guest.email.trim() !== '')}</TableCell>
                           <TableCell className="w-28">
-                            {guest.family_group ? (
-                              <Badge variant="success" className="text-xs">
-                                Grouped
-                              </Badge>
-                            ) : (
-                              <Badge variant="single" className="text-xs">
-                                Single
-                              </Badge>
-                            )}
+                            {(() => {
+                              const typeLabel = getGuestTypeLabel(guest);
+                              let variant: 'single' | 'success' | 'default' = 'single';
+                              
+                              if (typeLabel === 'Couple') {
+                                variant = 'default'; // Purple
+                              } else if (typeLabel === 'Family') {
+                                variant = 'success'; // Green
+                              }
+                              
+                              return (
+                                <Badge variant={variant} className="text-xs">
+                                  {typeLabel}
+                                </Badge>
+                              );
+                            })()}
                           </TableCell>
                           <TableCell className="w-20">{renderPill(!!guest.notes && guest.notes.trim() !== '')}</TableCell>
                           <TableCell className="w-24">
