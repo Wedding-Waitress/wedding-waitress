@@ -31,8 +31,19 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
 
   const [isSaving, setIsSaving] = useState(false);
 
+  const isFormValid = () => {
+    return (
+      formData.name.trim() !== '' &&
+      formData.date !== null &&
+      formData.venue.trim() !== '' &&
+      formData.start_time !== '' &&
+      formData.finish_time !== '' &&
+      formData.rsvp_deadline !== null
+    );
+  };
+
   const handleCreate = async () => {
-    if (!formData.name.trim()) return;
+    if (!isFormValid()) return;
     
     setIsSaving(true);
     try {
@@ -128,7 +139,7 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="event-date">Event Date</Label>
+              <Label htmlFor="event-date">Event Date *</Label>
               <EventDatePicker
                 value={formData.date}
                 onChange={(date) => setFormData(prev => ({ ...prev, date }))}
@@ -140,7 +151,7 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
           {/* Row 3: Venue & Guest Limit */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="venue">Venue</Label>
+              <Label htmlFor="venue">Venue *</Label>
               <Input
                 id="venue"
                 value={formData.venue}
@@ -165,7 +176,7 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
           {/* Row 4: Start Time & Finish Time */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="start-time">Start Time</Label>
+              <Label htmlFor="start-time">Start Time *</Label>
               <TimePicker
                 value={formData.start_time}
                 onChange={(time) => setFormData(prev => ({ ...prev, start_time: time }))}
@@ -173,7 +184,7 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="finish-time">Finish Time</Label>
+              <Label htmlFor="finish-time">Finish Time *</Label>
               <TimePicker
                 value={formData.finish_time}
                 onChange={(time) => setFormData(prev => ({ ...prev, finish_time: time }))}
@@ -184,7 +195,7 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
 
           {/* Row 5: RSVP Deadline */}
           <div className="space-y-2">
-            <Label htmlFor="rsvp-deadline">RSVP Deadline</Label>
+            <Label htmlFor="rsvp-deadline">RSVP Deadline *</Label>
             <EventDatePicker
               value={formData.rsvp_deadline}
               onChange={(date) => setFormData(prev => ({ ...prev, rsvp_deadline: date }))}
@@ -208,7 +219,7 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
             size="xs"
             className="rounded-full bg-green-500 hover:bg-green-600 text-white"
             onClick={handleCreate} 
-            disabled={!formData.name.trim() || isSaving}
+            disabled={!isFormValid() || isSaving}
           >
             {isSaving ? 'Creating...' : 'Create Event'}
           </Button>
