@@ -31,11 +31,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { X, AlertCircle, Users, Utensils, Calendar, MapPin } from 'lucide-react';
+import { Label } from "@/components/ui/label";
+import { X, AlertCircle, Users, Utensils, Calendar, MapPin, Plus } from 'lucide-react';
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useTables } from "@/hooks/useTables";
 import { computeRelationDisplay, RelationPartner, RelationRole } from "@/lib/relationUtils";
+import { cn } from "@/lib/utils";
 import { normalizeRsvp } from "@/lib/rsvp";
 import { useEvents } from "@/hooks/useEvents";
 import { RelationSelector } from "./RelationSelector";
@@ -91,6 +93,26 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
     relation_allow_single_partner: true,
     relation_disable_first_guest_alert: false,
     custom_roles: [] as string[]
+  });
+
+  // Guest type selection state
+  const [guestType, setGuestType] = useState<'individual' | 'couple' | 'family'>('individual');
+  const [partyMembers, setPartyMembers] = useState<Array<{
+    first_name: string;
+    last_name: string;
+    mobile?: string;
+    email?: string;
+    dietary?: string;
+    table_id?: string;
+    seat_no?: number;
+  }>>([]);
+  const [showAddMemberForm, setShowAddMemberForm] = useState(false);
+  const [memberForm, setMemberForm] = useState({
+    first_name: '',
+    last_name: '',
+    mobile: '',
+    email: '',
+    dietary: 'None'
   });
 
   const form = useForm<AddGuestFormData>({
@@ -183,7 +205,35 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
   const handleClose = () => {
     form.reset();
     setRelationSelectorOpen(false);
+    setGuestType('individual');
+    setPartyMembers([]);
+    setShowAddMemberForm(false);
+    setMemberForm({ first_name: '', last_name: '', mobile: '', email: '', dietary: 'None' });
     onClose();
+  };
+
+  const addPartyMember = () => {
+    if (!memberForm.first_name || !memberForm.last_name) {
+      toast({
+        title: "Missing information",
+        description: "Please enter first and last name for the party member",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setPartyMembers(prev => [...prev, memberForm]);
+    setMemberForm({ first_name: '', last_name: '', mobile: '', email: '', dietary: 'None' });
+    setShowAddMemberForm(false);
+    
+    toast({
+      title: "Member added",
+      description: `${memberForm.first_name} ${memberForm.last_name} added to the party`
+    });
+  };
+
+  const removeMember = (index: number) => {
+    setPartyMembers(prev => prev.filter((_, i) => i !== index));
   };
 
   const handleRelationChange = (partner: RelationPartner, role: RelationRole) => {
@@ -438,10 +488,23 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
           handleClose();
         }
       } else {
+        // Auto-generate family group name for couples and families
+        let autoFamilyGroup = '';
+        if (guestType === 'couple' && partyMembers.length === 1) {
+          autoFamilyGroup = `${data.last_name} & ${partyMembers[0].last_name}`;
+        } else if (guestType === 'family' && partyMembers.length >= 1) {
+          autoFamilyGroup = `${data.last_name} Family`;
+        }
+
+        const primaryGuestData = {
+          ...finalGuestData,
+          family_group: autoFamilyGroup || finalGuestData.family_group
+        };
+
         // Create new guest
         const { data: newGuest, error: guestError } = await supabase
           .from('guests')
-          .insert([finalGuestData])
+          .insert([primaryGuestData])
           .select('id')
           .single();
 
@@ -471,6 +534,35 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
           });
           setLoading(false);
           return;
+        }
+
+        // Save party members if any
+        if (partyMembers.length > 0 && autoFamilyGroup) {
+          const { data: authData } = await supabase.auth.getUser();
+          const memberInserts = partyMembers.map(member => ({
+            event_id: eventId,
+            user_id: authData.user?.id!,
+            first_name: member.first_name,
+            last_name: member.last_name,
+            mobile: member.mobile || null,
+            email: member.email || null,
+            dietary: member.dietary || 'None',
+            table_id: member.table_id || null,
+            seat_no: member.seat_no || null,
+            family_group: autoFamilyGroup,
+            rsvp: 'Pending',
+            relation_partner: '',
+            relation_role: '',
+            relation_display: ''
+          }));
+
+          const { error: membersError } = await supabase
+            .from('guests')
+            .insert(memberInserts);
+
+          if (membersError) {
+            console.error('Error adding party members:', membersError);
+          }
         }
 
         // Handle family group membership if family group is specified
@@ -510,10 +602,11 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
               throw membershipError;
             }
 
-            if (pendingFamilyMembers.length > 0) {
+            if (pendingFamilyMembers.length > 0 || partyMembers.length > 0) {
+              const totalMembers = pendingFamilyMembers.length + partyMembers.length;
               toast({
-                title: "Family members added",
-                description: `${data.first_name} ${data.last_name} and ${pendingFamilyMembers.length} family member(s) have been grouped together.`,
+                title: guestType === 'couple' ? 'Couple added' : 'Family added',
+                description: `${data.first_name} ${data.last_name} and ${totalMembers} member(s) have been grouped together.`,
               });
             } else {
               toast({
@@ -564,6 +657,59 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
         <div className="space-y-6 py-4 overflow-y-auto flex-1">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            
+            {/* Guest Type Selector - Only show for new guests */}
+            {!isEdit && (
+              <div className="pt-2 pb-4">
+                <div className="flex items-center justify-center gap-0 bg-gray-100 rounded-full p-1 max-w-md mx-auto">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setGuestType('individual');
+                      setPartyMembers([]);
+                    }}
+                    className={cn(
+                      "flex-1 py-2 px-6 rounded-full text-sm font-medium transition-all duration-200",
+                      guestType === 'individual'
+                        ? "bg-white text-[#7248e6] shadow-sm"
+                        : "text-gray-600 hover:text-gray-900"
+                    )}
+                  >
+                    Individual
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setGuestType('couple');
+                      if (partyMembers.length > 1) {
+                        setPartyMembers([partyMembers[0]]);
+                      }
+                    }}
+                    className={cn(
+                      "flex-1 py-2 px-6 rounded-full text-sm font-medium transition-all duration-200",
+                      guestType === 'couple'
+                        ? "bg-white text-[#7248e6] shadow-sm"
+                        : "text-gray-600 hover:text-gray-900"
+                    )}
+                  >
+                    Couple
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setGuestType('family')}
+                    className={cn(
+                      "flex-1 py-2 px-6 rounded-full text-sm font-medium transition-all duration-200",
+                      guestType === 'family'
+                        ? "bg-white text-[#7248e6] shadow-sm"
+                        : "text-gray-600 hover:text-gray-900"
+                    )}
+                  >
+                    Family
+                  </button>
+                </div>
+              </div>
+            )}
+
             {/* Basic Information */}
             <div className="grid grid-cols-2 gap-4">
               <FormField
@@ -801,6 +947,135 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                 )}
               />
             </div>
+
+            {/* Party Members Section - Show for Couple/Family */}
+            {!isEdit && (guestType === 'couple' || guestType === 'family') && (
+              <div className="space-y-3 border-t border-gray-200 pt-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-sm font-medium text-[#7248e6]">
+                    <Users className="w-4 h-4" />
+                    <span>Party Members ({partyMembers.length})</span>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowAddMemberForm(true)}
+                    disabled={guestType === 'couple' && partyMembers.length >= 1}
+                    className="rounded-full border-[#7248e6] text-[#7248e6] hover:bg-[#7248e6]/10"
+                  >
+                    <Plus className="w-4 h-4 mr-1" />
+                    Add a member to this party
+                  </Button>
+                </div>
+
+                {/* Add Member Form */}
+                {showAddMemberForm && (
+                  <div className="bg-purple-50 p-4 rounded-lg space-y-3 border border-[#7248e6]/20">
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <Label className="text-xs">First Name *</Label>
+                        <Input
+                          value={memberForm.first_name}
+                          onChange={(e) => setMemberForm(prev => ({ ...prev, first_name: e.target.value }))}
+                          placeholder="First name"
+                          className="rounded-full border-[#7248e6] text-sm"
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-xs">Last Name *</Label>
+                        <Input
+                          value={memberForm.last_name}
+                          onChange={(e) => setMemberForm(prev => ({ ...prev, last_name: e.target.value }))}
+                          placeholder="Last name"
+                          className="rounded-full border-[#7248e6] text-sm"
+                        />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <Label className="text-xs">Mobile</Label>
+                        <Input
+                          value={memberForm.mobile}
+                          onChange={(e) => setMemberForm(prev => ({ ...prev, mobile: e.target.value }))}
+                          placeholder="Mobile (optional)"
+                          className="rounded-full border-[#7248e6] text-sm"
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-xs">Email</Label>
+                        <Input
+                          value={memberForm.email}
+                          onChange={(e) => setMemberForm(prev => ({ ...prev, email: e.target.value }))}
+                          placeholder="Email (optional)"
+                          className="rounded-full border-[#7248e6] text-sm"
+                        />
+                      </div>
+                    </div>
+                    <div className="flex gap-2 justify-end">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          setShowAddMemberForm(false);
+                          setMemberForm({ first_name: '', last_name: '', mobile: '', email: '', dietary: 'None' });
+                        }}
+                        className="rounded-full"
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        type="button"
+                        size="sm"
+                        onClick={addPartyMember}
+                        className="rounded-full bg-[#7248e6] hover:bg-[#7248e6]/90"
+                      >
+                        Add Member
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Display Added Members */}
+                {partyMembers.length > 0 && (
+                  <div className="space-y-2">
+                    {partyMembers.map((member, index) => (
+                      <div key={index} className="flex items-center justify-between bg-white p-3 rounded-lg border border-gray-200">
+                        <div className="flex-1">
+                          <p className="font-medium text-sm">{member.first_name} {member.last_name}</p>
+                          {(member.mobile || member.email) && (
+                            <p className="text-xs text-muted-foreground">
+                              {member.mobile && member.mobile}
+                              {member.email && ` • ${member.email}`}
+                            </p>
+                          )}
+                        </div>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removeMember(index)}
+                        >
+                          <X className="w-4 h-4 text-red-500" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {guestType === 'couple' && partyMembers.length === 0 && (
+                  <p className="text-xs text-muted-foreground text-center py-2">
+                    Add one more person to create a couple
+                  </p>
+                )}
+                {guestType === 'family' && partyMembers.length < 2 && (
+                  <p className="text-xs text-muted-foreground text-center py-2">
+                    Add two or more people to create a family
+                  </p>
+                )}
+              </div>
+            )}
 
             {/* Family Group */}
             <FormField

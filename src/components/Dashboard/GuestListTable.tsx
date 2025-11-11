@@ -549,6 +549,63 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
   };
 
   // Sort and filter guests based on selected option and search term
+  // Group guests by family for visual display
+  const groupedGuests = useMemo(() => {
+    const groups: Array<{
+      type: 'individual' | 'couple' | 'family';
+      groupName: string | null;
+      members: any[];
+    }> = [];
+
+    const familyMap = new Map<string, any[]>();
+    const individuals: any[] = [];
+
+    // First, sort all guests
+    const allSortedGuests = [...guests].sort((a, b) => {
+      const firstA = a.first_name?.toLowerCase() || '';
+      const firstB = b.first_name?.toLowerCase() || '';
+      return firstA.localeCompare(firstB);
+    });
+
+    // Apply search filter
+    const filtered = searchTerm
+      ? allSortedGuests.filter(guest =>
+          guest.first_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          guest.last_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          guest.family_group?.toLowerCase().includes(searchTerm.toLowerCase())
+        )
+      : allSortedGuests;
+
+    // Group by family_group
+    filtered.forEach(guest => {
+      if (guest.family_group && guest.family_group.trim()) {
+        if (!familyMap.has(guest.family_group)) {
+          familyMap.set(guest.family_group, []);
+        }
+        familyMap.get(guest.family_group)!.push(guest);
+      } else {
+        individuals.push(guest);
+      }
+    });
+
+    // Add families and couples
+    familyMap.forEach((members, groupName) => {
+      const type = members.length === 2 ? 'couple' : 'family';
+      groups.push({ type, groupName, members });
+    });
+
+    // Add individuals
+    individuals.forEach(guest => {
+      groups.push({ 
+        type: 'individual', 
+        groupName: null, 
+        members: [guest] 
+      });
+    });
+
+    return groups;
+  }, [guests, searchTerm]);
+
   const sortedGuests = useMemo(() => {
     if (!guests.length) return guests;
     
@@ -1545,103 +1602,135 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                   </TableCell>
                 </TableRow>
               ) : (
-                sortedGuests.map((guest) => (
-                  <TableRow 
-                    key={guest.id} 
-                    className={cn(
-                      "border-card-border",
-                      "hover:bg-purple-50 dark:hover:bg-purple-950/20"
+                groupedGuests.map((group, groupIndex) => (
+                  <React.Fragment key={`group-${groupIndex}-${group.groupName || 'individual'}`}>
+                    {/* Group Header (for couples and families) */}
+                    {group.type !== 'individual' && (
+                      <TableRow className="bg-purple-50/50 border-l-4 border-l-[#7248e6]">
+                        <TableCell colSpan={relationMode !== 'disabled' ? 13 : 12} className="py-2 px-4">
+                          <div className="flex items-center gap-2">
+                            <Users className="w-4 h-4 text-[#7248e6]" />
+                            <span className="font-semibold text-sm text-[#7248e6]">
+                              {group.groupName}
+                            </span>
+                            <Badge variant="secondary" className="text-xs">
+                              {group.type === 'couple' ? 'Couple' : 'Family'} • {group.members.length} members
+                            </Badge>
+                          </div>
+                        </TableCell>
+                      </TableRow>
                     )}
-                  >
-                    <TableCell className="w-12">
-                      <Checkbox
-                        checked={selectedGuestIds.has(guest.id)}
-                        onCheckedChange={(checked) => handleSelectGuest(guest.id, checked as boolean)}
-                      />
-                    </TableCell>
-                    <TableCell className="font-medium w-28">{guest.first_name}</TableCell>
-                    <TableCell className="font-medium w-28">{guest.last_name}</TableCell>
-                    <TableCell className="w-20">{getTableName(guest) || '—'}</TableCell>
-                    <TableCell className="w-20">
-                      {guest.seat_no ? (
-                        isDuplicateSeat(guest) ? (
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <span className="text-red-600 font-medium cursor-help">
-                                  {guest.seat_no}
-                                </span>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p>Duplicate seat on this table. Edit to resolve.</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                        ) : (
-                          guest.seat_no
-                        )
-                      ) : (
-                        '—'
-                      )}
-                    </TableCell>
+
+                    {/* Render each member */}
+                    {group.members.map((guest, memberIndex) => {
+                      const isLastMember = memberIndex === group.members.length - 1;
+                      return (
+                        <TableRow 
+                          key={guest.id}
+                          className={cn(
+                            "border-card-border",
+                            "hover:bg-purple-50 dark:hover:bg-purple-950/20",
+                            group.type !== 'individual' && "border-l-4 border-l-purple-200",
+                            group.type !== 'individual' && isLastMember && "border-b-2 border-b-[#7248e6]"
+                          )}
+                        >
+                          <TableCell className="w-12">
+                            <Checkbox
+                              checked={selectedGuestIds.has(guest.id)}
+                              onCheckedChange={(checked) => handleSelectGuest(guest.id, checked as boolean)}
+                            />
+                          </TableCell>
+                          <TableCell className="font-medium w-28">
+                            {group.type !== 'individual' && (
+                              <span className="inline-block w-2 h-2 rounded-full bg-[#7248e6] mr-2 align-middle" />
+                            )}
+                            {guest.first_name}
+                          </TableCell>
+                          <TableCell className="font-medium w-28">{guest.last_name}</TableCell>
+                          <TableCell className="w-20">{getTableName(guest) || '—'}</TableCell>
+                          <TableCell className="w-20">
+                            {guest.seat_no ? (
+                              isDuplicateSeat(guest) ? (
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <span className="text-red-600 font-medium cursor-help">
+                                        {guest.seat_no}
+                                      </span>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <p>Duplicate seat on this table. Edit to resolve.</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                              ) : (
+                                guest.seat_no
+                              )
+                            ) : (
+                              '—'
+                            )}
+                          </TableCell>
+                          <TableCell className="w-24">
+                            <Badge 
+                              variant={getRsvpBadgeVariant(guest.rsvp)} 
+                              className="text-xs text-white"
+                            >
+                              {getRsvpDisplayLabel(guest.rsvp)}
+                            </Badge>
+                          </TableCell>
+                          {relationMode !== 'disabled' && (
+                          <TableCell className="w-32">
+                            <RelationBadge
+                              display={guest.relation_display || ''}
+                              partner={guest.relation_partner || ''}
+                              role={guest.relation_role || ''}
+                              partnerName={guest.relation_partner === 'partner_one' ? selectedEvent?.partner1_name : selectedEvent?.partner2_name}
+                              onClick={() => handleEditRelation(guest)}
+                              isEmpty={!guest.relation_display}
+                            />
+                          </TableCell>
+                          )}
                     <TableCell className="w-24">
-                      <Badge 
-                        variant={getRsvpBadgeVariant(guest.rsvp)} 
-                        className="text-xs text-white"
-                      >
-                        {getRsvpDisplayLabel(guest.rsvp)}
+                      <Badge variant="default" className="text-xs bg-primary text-white">
+                        {guest.dietary}
                       </Badge>
                     </TableCell>
-                    {relationMode !== 'disabled' && (
-                    <TableCell className="w-32">
-                      <RelationBadge
-                        display={guest.relation_display || ''}
-                        partner={guest.relation_partner || ''}
-                        role={guest.relation_role || ''}
-                        partnerName={guest.relation_partner === 'partner_one' ? selectedEvent?.partner1_name : selectedEvent?.partner2_name}
-                        onClick={() => handleEditRelation(guest)}
-                        isEmpty={!guest.relation_display}
-                      />
-                    </TableCell>
-                    )}
-              <TableCell className="w-24">
-                <Badge variant="default" className="text-xs bg-primary text-white">
-                  {guest.dietary}
-                </Badge>
-              </TableCell>
-                    <TableCell className="w-24 pl-16">{renderPill(!!guest.mobile && guest.mobile.trim() !== '')}</TableCell>
-                    <TableCell className="w-36 pl-16">{renderPill(!!guest.email && guest.email.trim() !== '')}</TableCell>
-                    <TableCell className="w-28">
-                      {guest.family_group ? (
-                        <Badge variant="success" className="text-xs">
-                          Grouped
-                        </Badge>
-                      ) : (
-                        <Badge variant="single" className="text-xs">
-                          Single
-                        </Badge>
-                      )}
-                    </TableCell>
-                    <TableCell className="w-20">{renderPill(!!guest.notes && guest.notes.trim() !== '')}</TableCell>
-                    <TableCell className="w-24">
-                      <div className="flex items-center space-x-2">
-                        <Button 
-                          variant="ghost" 
-                          size="sm"
-                          onClick={() => handleEditGuest(guest)}
-                        >
-                          <Edit className="w-4 h-4 text-green-500" />
-                        </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="sm"
-                          onClick={() => handleDeleteGuest(guest)}
-                        >
-                          <Trash2 className="w-4 h-4 text-red-500" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
+                          <TableCell className="w-24 pl-16">{renderPill(!!guest.mobile && guest.mobile.trim() !== '')}</TableCell>
+                          <TableCell className="w-36 pl-16">{renderPill(!!guest.email && guest.email.trim() !== '')}</TableCell>
+                          <TableCell className="w-28">
+                            {guest.family_group ? (
+                              <Badge variant="success" className="text-xs">
+                                Grouped
+                              </Badge>
+                            ) : (
+                              <Badge variant="single" className="text-xs">
+                                Single
+                              </Badge>
+                            )}
+                          </TableCell>
+                          <TableCell className="w-20">{renderPill(!!guest.notes && guest.notes.trim() !== '')}</TableCell>
+                          <TableCell className="w-24">
+                            <div className="flex items-center space-x-2">
+                              <Button 
+                                variant="ghost" 
+                                size="sm"
+                                onClick={() => handleEditGuest(guest)}
+                              >
+                                <Edit className="w-4 h-4 text-green-500" />
+                              </Button>
+                              <Button 
+                                variant="ghost" 
+                                size="sm"
+                                onClick={() => handleDeleteGuest(guest)}
+                              >
+                                <Trash2 className="w-4 h-4 text-red-500" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </React.Fragment>
                 ))
               )}
             </TableBody>
