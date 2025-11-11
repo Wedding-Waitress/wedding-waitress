@@ -1410,6 +1410,16 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
       <Card className="border-2 border-primary" style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
         {/* Header Controls */}
         <div className="px-6 py-4">
+          {/* Page Title and Description */}
+          <div className="mb-6">
+            <h1 className="text-2xl font-medium text-[#7248e6] mb-2">
+              Guest List
+            </h1>
+            <p className="text-muted-foreground">
+              Manage your event guests, track RSVPs, assign tables, and organize seating arrangements
+            </p>
+          </div>
+
           <div className="flex flex-col lg:flex-row items-start lg:items-center gap-4 lg:justify-between">
             {/* Left Side: Event selector and search */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
