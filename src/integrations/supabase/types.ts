@@ -584,7 +584,7 @@ export type Database = {
           event_date_override: string | null
           event_display_name: string | null
           event_timezone: string | null
-          event_type: string | null
+          event_type: string
           expiry_date: string | null
           expiry_date_local: string | null
           finish_time: string | null
@@ -623,7 +623,7 @@ export type Database = {
           event_date_override?: string | null
           event_display_name?: string | null
           event_timezone?: string | null
-          event_type?: string | null
+          event_type?: string
           expiry_date?: string | null
           expiry_date_local?: string | null
           finish_time?: string | null
@@ -662,7 +662,7 @@ export type Database = {
           event_date_override?: string | null
           event_display_name?: string | null
           event_timezone?: string | null
-          event_type?: string | null
+          event_type?: string
           expiry_date?: string | null
           expiry_date_local?: string | null
           finish_time?: string | null
