@@ -24,6 +24,7 @@ export interface Event {
   slug: string | null;
   rsvp_deadline: string | null;
   relation_allow_single_partner: boolean | null;
+  event_type?: 'seated' | 'cocktail';
 }
 
 export const useEvents = () => {
@@ -99,7 +100,8 @@ export const useEvents = () => {
           created_date_local: localDateString,
           expiry_date_local: expiryDateString,
           event_timezone: timezone,
-          rsvp_deadline: eventData.rsvp_deadline || null
+          rsvp_deadline: eventData.rsvp_deadline || null,
+          event_type: (eventData as any).event_type || 'seated'
         }])
         .select()
         .single();

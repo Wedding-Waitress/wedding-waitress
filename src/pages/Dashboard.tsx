@@ -118,6 +118,16 @@ export const Dashboard = () => {
 
   // Get selected event for tables
   const selectedEvent = selectedEventId ? events.find(e => e.id === selectedEventId) : null;
+  const [selectedEventType, setSelectedEventType] = useState<'seated' | 'cocktail' | null>(null);
+
+  useEffect(() => {
+    const loadEventType = async () => {
+      if (!selectedEventId) { setSelectedEventType(null); return; }
+      const { data } = await supabase.from('events').select('event_type').eq('id', selectedEventId).single();
+      setSelectedEventType((data?.event_type as 'seated' | 'cocktail') || 'seated');
+    };
+    loadEventType();
+  }, [selectedEventId]);
 
   // Get selected event for My Events countdown (use events active event)
   const selectedCountdownEvent = eventsActiveEventId ? events.find(e => e.id === eventsActiveEventId) : null;
@@ -273,6 +283,16 @@ export const Dashboard = () => {
       case 'guest-list':
         return <GuestListTable selectedEventId={selectedEventId} onEventSelect={handleEventSelect} />;
       case 'table-list':
+        if (selectedEventType === 'cocktail') {
+          return (
+            <Card className="ww-box p-8 text-center">
+              <CardTitle className="mb-2">Table Management Unavailable</CardTitle>
+              <CardDescription>
+                This is a Cocktail/Stand-up event. Table creation and seating charts are disabled.
+              </CardDescription>
+            </Card>
+          );
+        }
         return <div className="space-y-6">
             <Card className="ww-box">
               <CardHeader className="flex flex-col gap-4 pb-6">
@@ -359,6 +379,14 @@ export const Dashboard = () => {
               </Card>}
           </div>;
       case 'floor-plan':
+        if (selectedEventType === 'cocktail') {
+          return (
+            <Card className="ww-box p-8 text-center">
+              <CardTitle className="mb-2">Floor Plan Unavailable</CardTitle>
+              <CardDescription>Floor plan and seating charts are disabled for Cocktail/Stand-up events.</CardDescription>
+            </Card>
+          );
+        }
         return <FloorPlanPage selectedEventId={selectedEventId} onEventSelect={setSelectedEventId} />;
       case 'signage':
         return <SignagePage selectedEventId={selectedEventId} onEventSelect={handleEventSelect} />;
