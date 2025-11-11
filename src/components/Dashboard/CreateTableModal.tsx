@@ -39,6 +39,8 @@ interface CreateTableModalProps {
   onSave: (data: { name: string; limit_seats: number; notes?: string; table_no?: number | null }) => Promise<boolean>;
   editingTable?: TableWithGuestCount | null;
   existingTables?: TableWithGuestCount[];
+  eventGuestLimit?: number;
+  currentEventName?: string;
 }
 
 export const CreateTableModal: React.FC<CreateTableModalProps> = ({
@@ -46,7 +48,9 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
   onClose,
   onSave,
   editingTable,
-  existingTables = []
+  existingTables = [],
+  eventGuestLimit,
+  currentEventName
 }) => {
   const [name, setName] = useState('');
   const [limitSeats, setLimitSeats] = useState<number>(8);
@@ -72,6 +76,32 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
       setValidationState('idle');
     }
   }, [isOpen, editingTable]);
+
+  const calculateCapacityInfo = () => {
+    if (!eventGuestLimit) return null;
+
+    // Calculate total capacity of existing tables (excluding the one being edited)
+    const existingCapacity = existingTables
+      .filter(table => table.id !== editingTable?.id)
+      .reduce((sum, table) => sum + table.limit_seats, 0);
+
+    // Add the current table's capacity
+    const newTotalCapacity = existingCapacity + limitSeats;
+    
+    // Calculate remaining seats
+    const seatsRemaining = eventGuestLimit - existingCapacity;
+    const wouldExceed = newTotalCapacity > eventGuestLimit;
+    const exceedBy = wouldExceed ? newTotalCapacity - eventGuestLimit : 0;
+
+    return {
+      existingCapacity,
+      newTotalCapacity,
+      seatsRemaining,
+      wouldExceed,
+      exceedBy,
+      eventGuestLimit
+    };
+  };
 
   const validateTableName = (inputName: string) => {
     if (!inputName.trim()) {
@@ -134,6 +164,12 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
       if (exactNameDuplicate || numericDuplicate) {
         newErrors.name = 'This table number already exists. Please choose another.';
       }
+    }
+
+    // Check guest limit capacity
+    const capacityInfo = calculateCapacityInfo();
+    if (capacityInfo && capacityInfo.wouldExceed) {
+      newErrors.limitSeats = `Exceeds event guest limit by ${capacityInfo.exceedBy} seats`;
     }
 
     setErrors(newErrors);
@@ -237,13 +273,65 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
               min="1"
               max="30"
               value={limitSeats}
-              onChange={(e) => setLimitSeats(parseInt(e.target.value) || 0)}
+              onChange={(e) => {
+                setLimitSeats(parseInt(e.target.value) || 0);
+                // Clear error when user changes value
+                if (errors.limitSeats) {
+                  setErrors(prev => ({ ...prev, limitSeats: undefined }));
+                }
+              }}
               disabled={isSubmitting}
               className="rounded-full border-2 border-[#7248e6] focus-visible:border-[#7248e6] focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none"
             />
             {errors.limitSeats && (
               <p className="text-sm text-destructive">{errors.limitSeats}</p>
             )}
+            
+            {/* Real-time capacity warning */}
+            {eventGuestLimit && (() => {
+              const capacityInfo = calculateCapacityInfo();
+              if (!capacityInfo) return null;
+
+              if (capacityInfo.wouldExceed) {
+                return (
+                  <div className="p-3 bg-red-50 border-2 border-red-500 rounded-lg">
+                    <p className="text-sm font-semibold text-red-700">
+                      ⚠️ Guest Limit Exceeded
+                    </p>
+                    <p className="text-xs text-red-600 mt-1">
+                      Event limit: {capacityInfo.eventGuestLimit} seats<br/>
+                      Existing tables: {capacityInfo.existingCapacity} seats<br/>
+                      This table: {limitSeats} seats<br/>
+                      <strong>Total: {capacityInfo.newTotalCapacity} seats (exceeds by {capacityInfo.exceedBy})</strong>
+                    </p>
+                  </div>
+                );
+              } else if (capacityInfo.seatsRemaining > 0 && capacityInfo.seatsRemaining < 10) {
+                return (
+                  <div className="p-3 bg-yellow-50 border-2 border-yellow-500 rounded-lg">
+                    <p className="text-sm font-semibold text-yellow-700">
+                      ⚡ {capacityInfo.seatsRemaining} seats remaining
+                    </p>
+                    <p className="text-xs text-yellow-600 mt-1">
+                      Event limit: {capacityInfo.eventGuestLimit} | Existing: {capacityInfo.existingCapacity} | After this: {capacityInfo.newTotalCapacity}
+                    </p>
+                  </div>
+                );
+              } else if (capacityInfo.seatsRemaining === 0 && !capacityInfo.wouldExceed) {
+                return (
+                  <div className="p-3 bg-orange-50 border-2 border-orange-500 rounded-lg">
+                    <p className="text-sm font-semibold text-orange-700">
+                      🚫 Maximum capacity reached
+                    </p>
+                    <p className="text-xs text-orange-600 mt-1">
+                      All {capacityInfo.eventGuestLimit} seats are allocated to tables.
+                    </p>
+                  </div>
+                );
+              }
+              
+              return null;
+            })()}
           </div>
 
           <div className="grid gap-2">
@@ -294,9 +382,26 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
       <AlertDialog open={showWarningDialog} onOpenChange={setShowWarningDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Invalid Table Information</AlertDialogTitle>
+            <AlertDialogTitle>
+              {(() => {
+                const capacityInfo = calculateCapacityInfo();
+                if (capacityInfo?.wouldExceed) {
+                  return "Guest Limit Exceeded";
+                }
+                return "Invalid Table Information";
+              })()}
+            </AlertDialogTitle>
             <AlertDialogDescription>
-              This table number already exists. Please choose another.
+              {(() => {
+                const capacityInfo = calculateCapacityInfo();
+                if (capacityInfo?.wouldExceed) {
+                  return `This table would exceed your event's guest limit of ${capacityInfo.eventGuestLimit}. Currently allocated: ${capacityInfo.existingCapacity} seats. This table: ${limitSeats} seats. Total would be: ${capacityInfo.newTotalCapacity} seats (${capacityInfo.exceedBy} over the limit). Please reduce the table size or only add ${capacityInfo.seatsRemaining} more seats.`;
+                }
+                if (errors.name) {
+                  return errors.name;
+                }
+                return "Please correct the form errors before saving.";
+              })()}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

@@ -581,7 +581,15 @@ export const Dashboard = () => {
       </div>
       
       {/* Create/Edit Table Modal */}
-      <CreateTableModal isOpen={showCreateTableModal} onClose={handleCloseModal} onSave={handleSaveTable} editingTable={editingTable} existingTables={tables} />
+      <CreateTableModal 
+        isOpen={showCreateTableModal} 
+        onClose={handleCloseModal} 
+        onSave={handleSaveTable} 
+        editingTable={editingTable} 
+        existingTables={tables}
+        eventGuestLimit={events.find(e => e.id === selectedEventId)?.guest_limit}
+        currentEventName={events.find(e => e.id === selectedEventId)?.name}
+      />
     </div>
   </SidebarProvider>;
 };
