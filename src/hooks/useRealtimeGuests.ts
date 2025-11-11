@@ -516,10 +516,12 @@ export const useRealtimeGuests = (eventId: string | null): UseRealtimeGuestsRetu
     };
   }, [eventId, handleRealtimeUpdate, debouncedRefetch]);
 
-  // Initial fetch when eventId changes
+  // Clear guests immediately when eventId changes, then fetch
   useEffect(() => {
+    // Reset guests to empty array when switching events to prevent showing stale data
+    setGuests([]);
     fetchGuests();
-  }, [fetchGuests]);
+  }, [eventId]); // Only depend on eventId to ensure fresh data
 
   // Cleanup timeouts
   useEffect(() => {
