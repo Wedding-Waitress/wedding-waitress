@@ -95,26 +95,28 @@ Only suggest changes for guests who would benefit from reassignment.`
         tools: [
           {
             type: 'function',
-            name: 'suggest_seating',
-            description: 'Return seating suggestions for guests',
-            parameters: {
-              type: 'object',
-              properties: {
-                suggestions: {
-                  type: 'array',
-                  items: {
-                    type: 'object',
-                    properties: {
-                      guest_id: { type: 'string' },
-                      suggested_table_id: { type: 'string' },
-                      confidence_score: { type: 'number', minimum: 0, maximum: 1 },
-                      reasoning: { type: 'string' }
-                    },
-                    required: ['guest_id', 'suggested_table_id', 'confidence_score', 'reasoning']
+            function: {
+              name: 'suggest_seating',
+              description: 'Return seating suggestions for guests',
+              parameters: {
+                type: 'object',
+                properties: {
+                  suggestions: {
+                    type: 'array',
+                    items: {
+                      type: 'object',
+                      properties: {
+                        guest_id: { type: 'string' },
+                        suggested_table_id: { type: 'string' },
+                        confidence_score: { type: 'number', minimum: 0, maximum: 1 },
+                        reasoning: { type: 'string' }
+                      },
+                      required: ['guest_id', 'suggested_table_id', 'confidence_score', 'reasoning']
+                    }
                   }
-                }
-              },
-              required: ['suggestions']
+                },
+                required: ['suggestions']
+              }
             }
           }
         ],
@@ -122,35 +124,51 @@ Only suggest changes for guests who would benefit from reassignment.`
       })
     });
 
+    if (!aiResponse.ok) {
+      const text = await aiResponse.text();
+      console.error('AI gateway error:', aiResponse.status, text);
+      return new Response(
+        JSON.stringify({ suggestions: [], error: 'AI gateway error' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     const aiResult = await aiResponse.json();
     console.log('AI Response:', JSON.stringify(aiResult, null, 2));
 
-    // Validate AI response structure
-    if (!aiResult.choices || !aiResult.choices[0]) {
-      console.error('Invalid AI response structure - no choices');
-      throw new Error('AI did not return valid response');
+    let suggestions: any[] = [];
+
+    // Preferred: tool_calls structured output
+    const choice = aiResult.choices?.[0];
+    const toolCallArgs = choice?.message?.tool_calls?.[0]?.function?.arguments;
+    if (toolCallArgs) {
+      try {
+        const parsedArgs = JSON.parse(toolCallArgs);
+        if (Array.isArray(parsedArgs?.suggestions)) {
+          suggestions = parsedArgs.suggestions;
+        }
+      } catch (e) {
+        console.error('Failed to parse tool_call arguments:', e);
+      }
     }
 
-    const choice = aiResult.choices[0];
-    if (!choice.message || !choice.message.tool_calls || !choice.message.tool_calls[0]) {
-      console.error('Invalid AI response structure - no tool_calls');
-      throw new Error('AI did not return tool calls');
+    // Fallback: message content contains JSON
+    if (suggestions.length === 0) {
+      const content = choice?.message?.content;
+      if (typeof content === 'string') {
+        try {
+          const parsed = JSON.parse(content);
+          if (Array.isArray(parsed?.suggestions)) {
+            suggestions = parsed.suggestions;
+          }
+        } catch (e) {
+          console.warn('AI content was not valid JSON:', e);
+        }
+      }
     }
 
-    const toolCall = choice.message.tool_calls[0];
-    if (!toolCall.function || !toolCall.function.arguments) {
-      console.error('Invalid AI response structure - no function arguments');
-      throw new Error('AI did not return function arguments');
-    }
-
-    let suggestions;
-    try {
-      const parsedArgs = JSON.parse(toolCall.function.arguments);
-      suggestions = parsedArgs.suggestions || [];
-    } catch (parseError) {
-      console.error('Failed to parse AI arguments:', parseError);
-      suggestions = [];
-    }
+    // Ensure array
+    suggestions = Array.isArray(suggestions) ? suggestions : [];
 
     // Clear previous suggestions for this event
     await supabase
