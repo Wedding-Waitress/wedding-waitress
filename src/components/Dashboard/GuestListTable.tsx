@@ -1737,12 +1737,12 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
         )}
 
         {/* AI Seating Panel */}
-        {showAIPanel && (
-          <AISeatingPanel
-            eventId={selectedEventId || ''}
-            tables={tables}
-          />
-        )}
+        <AISeatingPanel
+          eventId={selectedEventId || ''}
+          tables={tables}
+          isOpen={showAIPanel}
+          onOpenChange={setShowAIPanel}
+        />
 
         {/* Bulk Actions Toolbar */}
         {selectionMode && selectedGuestIds.size > 0 && (

@@ -1,10 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
-  SheetTrigger,
 } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -16,10 +15,11 @@ import { Skeleton } from '@/components/ui/skeleton';
 interface AISeatingPanelProps {
   eventId: string;
   tables: any[];
+  isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
 }
 
-export const AISeatingPanel: React.FC<AISeatingPanelProps> = ({ eventId, tables }) => {
-  const [isOpen, setIsOpen] = useState(false);
+export const AISeatingPanel: React.FC<AISeatingPanelProps> = ({ eventId, tables, isOpen, onOpenChange }) => {
   const {
     suggestions,
     loading,
@@ -37,18 +37,7 @@ export const AISeatingPanel: React.FC<AISeatingPanelProps> = ({ eventId, tables 
   };
 
   return (
-    <Sheet open={isOpen} onOpenChange={setIsOpen}>
-      <SheetTrigger asChild>
-        <Button variant="outline" className="border-purple-500 text-purple-500 hover:bg-purple-50">
-          <Sparkles className="w-4 h-4 mr-2" />
-          AI Suggestions
-          {suggestions.length > 0 && (
-            <Badge variant="secondary" className="ml-2">
-              {suggestions.length}
-            </Badge>
-          )}
-        </Button>
-      </SheetTrigger>
+    <Sheet open={isOpen} onOpenChange={onOpenChange}>
       <SheetContent className="w-full sm:max-w-lg overflow-y-auto">
         <SheetHeader>
           <SheetTitle className="flex items-center gap-2">
