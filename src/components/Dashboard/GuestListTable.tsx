@@ -1323,8 +1323,8 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
       <Card className="border-2 border-primary" style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
         {/* Header Controls */}
         <div className="px-6 py-4">
-          <div className="space-y-4">
-            {/* Row 1: Event selector and search ONLY */}
+          <div className="flex flex-col lg:flex-row items-start lg:items-center gap-4 lg:justify-between">
+            {/* Left Side: Event selector and search */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
               <div className="flex items-center space-x-2">
                 <Label htmlFor="event-select" className="whitespace-nowrap text-sm font-medium">
@@ -1359,8 +1359,8 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
               </div>
             </div>
             
-            {/* Row 2: ALL CONTROL BUTTONS */}
-            <div className="flex items-center justify-end gap-2 flex-wrap">
+            {/* Right Side: All Control Buttons */}
+            <div className="flex items-center gap-2 flex-wrap">
               <TooltipProvider>
                 {/* Guest counter pill */}
                 <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium ring-offset-background transition-all duration-300 h-9 px-3 bg-white border border-primary text-foreground pointer-events-none">
@@ -1511,13 +1511,13 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
           <Table className="table-fixed w-full">
             <TableHeader>
               <TableRow>
-                <TableHead className="w-12">
+                <TableHead className="w-12 bg-primary text-primary-foreground rounded-tl-lg">
                   <Checkbox
                     checked={selectedGuestIds.size === sortedGuests.length && sortedGuests.length > 0}
                     onCheckedChange={handleSelectAll}
                   />
                 </TableHead>
-                <TableHead className="w-28 rounded-tl-lg">First Name</TableHead>
+                <TableHead className="w-28">First Name</TableHead>
                 <TableHead className="w-28">Last Name</TableHead>
                 <TableHead className="w-20">Table No</TableHead>
                 <TableHead className="w-20">Seat No.</TableHead>
