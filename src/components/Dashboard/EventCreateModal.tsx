@@ -90,7 +90,31 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
         </DialogHeader>
 
         <div className="space-y-6 py-4 overflow-y-auto flex-1">
-          {/* Row 1: Event Name & Event Type */}
+          {/* Row 1: Event Type (Full Width) */}
+          <div className="space-y-2">
+            <Label>Event Type *</Label>
+            <div className="flex items-center gap-1 bg-[#7248e6]/10 border-2 border-[#7248e6] rounded-full p-1">
+              <button
+                type="button"
+                onClick={() => setFormData(prev => ({ ...prev, event_type: 'seated' }))}
+                className={`flex-1 px-4 py-2 rounded-full transition-all ${formData.event_type === 'seated' ? 'bg-[#7248e6] text-white' : 'text-[#7248e6] hover:bg-[#7248e6]/5'}`}
+              >
+                Seated Event
+              </button>
+              <button
+                type="button"
+                onClick={() => setFormData(prev => ({ ...prev, event_type: 'cocktail' }))}
+                className={`flex-1 px-4 py-2 rounded-full transition-all ${formData.event_type === 'cocktail' ? 'bg-[#7248e6] text-white' : 'text-[#7248e6] hover:bg-[#7248e6]/5'}`}
+              >
+                Cocktail/Stand-up
+              </button>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {formData.event_type === 'seated' ? 'Guests will be assigned to tables with seats' : 'No table assignments needed - guests mingle freely'}
+            </p>
+          </div>
+
+          {/* Row 2: Event Name & Event Date */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="event-name">Event Name *</Label>
@@ -104,32 +128,6 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
               />
             </div>
             <div className="space-y-2">
-              <Label>Event Type *</Label>
-              <div className="flex items-center gap-1 bg-[#7248e6]/10 border-2 border-[#7248e6] rounded-full p-1">
-                <button
-                  type="button"
-                  onClick={() => setFormData(prev => ({ ...prev, event_type: 'seated' }))}
-                  className={`flex-1 px-4 py-2 rounded-full transition-all ${formData.event_type === 'seated' ? 'bg-[#7248e6] text-white' : 'text-[#7248e6] hover:bg-[#7248e6]/5'}`}
-                >
-                  Seated Event
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setFormData(prev => ({ ...prev, event_type: 'cocktail' }))}
-                  className={`flex-1 px-4 py-2 rounded-full transition-all ${formData.event_type === 'cocktail' ? 'bg-[#7248e6] text-white' : 'text-[#7248e6] hover:bg-[#7248e6]/5'}`}
-                >
-                  Cocktail/Stand-up
-                </button>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                {formData.event_type === 'seated' ? 'Guests will be assigned to tables with seats' : 'No table assignments needed - guests mingle freely'}
-              </p>
-            </div>
-          </div>
-
-          {/* Row 1.5: Event Date */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2 col-span-2">
               <Label htmlFor="event-date">Event Date</Label>
               <EventDatePicker
                 value={formData.date}
@@ -139,7 +137,7 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
             </div>
           </div>
 
-          {/* Row 2: Venue & Guest Limit */}
+          {/* Row 3: Venue & Guest Limit */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="venue">Venue</Label>
@@ -164,7 +162,7 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
             </div>
           </div>
 
-          {/* Row 3: Start Time & Finish Time */}
+          {/* Row 4: Start Time & Finish Time */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="start-time">Start Time</Label>
@@ -184,7 +182,7 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
             </div>
           </div>
 
-          {/* Row 4: RSVP Deadline */}
+          {/* Row 5: RSVP Deadline */}
           <div className="space-y-2">
             <Label htmlFor="rsvp-deadline">RSVP Deadline</Label>
             <EventDatePicker
