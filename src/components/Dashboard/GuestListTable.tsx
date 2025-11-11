@@ -35,8 +35,7 @@ import {
   Upload,
   FileText,
   Search,
-  Bell,
-  Sparkles
+  Bell
 } from "lucide-react";
 import {
   Tooltip,
@@ -65,7 +64,6 @@ import { RelationSettingsButton, RelationSettings } from './RelationSettingsModa
 import { ImportErrorModal } from './ImportErrorModal';
 import { whoIsAnalytics } from '@/lib/analytics';
 import { BulkReminderWizard } from './BulkReminderWizard';
-import { AISeatingPanel } from './AISeatingPanel';
 import { GuestBulkActionsBar } from './GuestBulkActionsBar';
 import { BulkTableAssignmentModal } from './BulkTableAssignmentModal';
 import { BulkRsvpUpdateModal } from './BulkRsvpUpdateModal';
@@ -170,10 +168,8 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
   type RelationMode = 'wedding' | 'single' | 'disabled';
   const [relationMode, setRelationMode] = useState<RelationMode>('wedding');
   const [showReminderWizard, setShowReminderWizard] = useState(false);
-  const [showAIPanel, setShowAIPanel] = useState(false);
   
   // Bulk selection state
-  const [selectionMode, setSelectionMode] = useState(false);
   const [selectedGuestIds, setSelectedGuestIds] = useState<Set<string>>(new Set());
   const [showBulkTableModal, setShowBulkTableModal] = useState(false);
   const [showBulkRsvpModal, setShowBulkRsvpModal] = useState(false);
@@ -201,11 +197,6 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
   };
 
   const handleDeselectAll = () => {
-    setSelectedGuestIds(new Set());
-  };
-
-  const handleCancelSelection = () => {
-    setSelectionMode(false);
     setSelectedGuestIds(new Set());
   };
 
@@ -1460,21 +1451,6 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                   )}
                 </Tooltip>
 
-                {/* Select Mode Toggle */}
-                <Button 
-                  variant={selectionMode ? "default" : "outline"}
-                  size="xs"
-                  onClick={() => {
-                    setSelectionMode(!selectionMode);
-                    if (selectionMode) {
-                      setSelectedGuestIds(new Set());
-                    }
-                  }}
-                  className="rounded-full"
-                >
-                  {selectionMode ? 'Done' : 'Select'}
-                </Button>
-
                 {/* Send Reminders Button */}
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -1488,29 +1464,6 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                       >
                         <Bell className="w-4 h-4" />
                         Send Reminders
-                      </Button>
-                    </div>
-                  </TooltipTrigger>
-                  {(!selectedEventId || guestCount === 0) && (
-                    <TooltipContent>
-                      <p>{!selectedEventId ? "Choose an event first" : "Add guests first"}</p>
-                    </TooltipContent>
-                  )}
-                </Tooltip>
-
-                {/* AI Suggestions Button */}
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <div>
-                      <Button 
-                        variant="outline"
-                        size="xs"
-                        onClick={() => setShowAIPanel(true)}
-                        disabled={!selectedEventId || guestCount === 0}
-                        className="rounded-full flex items-center gap-2 border-purple-500 text-purple-500 hover:bg-purple-50"
-                      >
-                        <Sparkles className="w-4 h-4" />
-                        AI Suggestions
                       </Button>
                     </div>
                   </TooltipTrigger>
@@ -1558,14 +1511,12 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
           <Table className="table-fixed w-full">
             <TableHeader>
               <TableRow>
-                {selectionMode && (
-                  <TableHead className="w-12">
-                    <Checkbox
-                      checked={selectedGuestIds.size === sortedGuests.length && sortedGuests.length > 0}
-                      onCheckedChange={handleSelectAll}
-                    />
-                  </TableHead>
-                )}
+                <TableHead className="w-12">
+                  <Checkbox
+                    checked={selectedGuestIds.size === sortedGuests.length && sortedGuests.length > 0}
+                    onCheckedChange={handleSelectAll}
+                  />
+                </TableHead>
                 <TableHead className="w-28 rounded-tl-lg">First Name</TableHead>
                 <TableHead className="w-28">Last Name</TableHead>
                 <TableHead className="w-20">Table No</TableHead>
@@ -1583,13 +1534,13 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
             <TableBody>
               {guestsLoading ? (
                 <TableRow className="border-card-border">
-                  <TableCell colSpan={11} className="text-center py-8">
+                  <TableCell colSpan={12} className="text-center py-8">
                     Loading guests...
                   </TableCell>
                 </TableRow>
               ) : totalGuestCount === 0 ? (
                 <TableRow className="border-card-border">
-                  <TableCell colSpan={11} className="text-center py-8">
+                  <TableCell colSpan={12} className="text-center py-8">
                     {/* Empty - the "No Guests Yet" widget is now in the header */}
                   </TableCell>
                 </TableRow>
@@ -1599,17 +1550,15 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                     key={guest.id} 
                     className={cn(
                       "border-card-border",
-                      selectionMode ? "hover:bg-purple-50 dark:hover:bg-purple-950/20" : "hover:bg-muted/50"
+                      "hover:bg-purple-50 dark:hover:bg-purple-950/20"
                     )}
                   >
-                    {selectionMode && (
-                      <TableCell className="w-12">
-                        <Checkbox
-                          checked={selectedGuestIds.has(guest.id)}
-                          onCheckedChange={(checked) => handleSelectGuest(guest.id, checked as boolean)}
-                        />
-                      </TableCell>
-                    )}
+                    <TableCell className="w-12">
+                      <Checkbox
+                        checked={selectedGuestIds.has(guest.id)}
+                        onCheckedChange={(checked) => handleSelectGuest(guest.id, checked as boolean)}
+                      />
+                    </TableCell>
                     <TableCell className="font-medium w-28">{guest.first_name}</TableCell>
                     <TableCell className="font-medium w-28">{guest.last_name}</TableCell>
                     <TableCell className="w-20">{getTableName(guest) || '—'}</TableCell>
@@ -1736,16 +1685,8 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
           />
         )}
 
-        {/* AI Seating Panel */}
-        <AISeatingPanel
-          eventId={selectedEventId || ''}
-          tables={tables}
-          isOpen={showAIPanel}
-          onOpenChange={setShowAIPanel}
-        />
-
         {/* Bulk Actions Toolbar */}
-        {selectionMode && selectedGuestIds.size > 0 && (
+        {selectedGuestIds.size > 0 && (
           <GuestBulkActionsBar
             selectedCount={selectedGuestIds.size}
             totalCount={sortedGuests.length}
@@ -1754,7 +1695,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
             onAssignTable={() => setShowBulkTableModal(true)}
             onUpdateRsvp={() => setShowBulkRsvpModal(true)}
             onDelete={() => setShowBulkDeleteModal(true)}
-            onCancel={handleCancelSelection}
+            onCancel={handleDeselectAll}
           />
         )}
 
