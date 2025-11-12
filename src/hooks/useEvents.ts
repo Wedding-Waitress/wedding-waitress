@@ -68,7 +68,7 @@ export const useEvents = () => {
       // Fetch events with guest count AND relation_mode in parallel
       const [{ data, error }, { data: modes, error: modeErr }] = await Promise.all([
         supabase.rpc('get_events_with_guest_count'),
-        supabase.from('events').select('id, relation_mode'),
+        supabase.from('events').select('id, relation_mode, relation_required, relation_allow_custom_role, custom_roles'),
       ]);
       
       if (error) {
@@ -81,16 +81,30 @@ export const useEvents = () => {
         return;
       }
 
-      // Build a map of relation_mode values
-      const modeMap = new Map((modes || []).map((e: any) => [e.id, e.relation_mode]));
+      // Build a map of relation settings
+      const settingsMap = new Map((modes || []).map((e: any) => [
+        e.id, 
+        {
+          relation_mode: e.relation_mode,
+          relation_required: e.relation_required,
+          relation_allow_custom_role: e.relation_allow_custom_role,
+          custom_roles: e.custom_roles
+        }
+      ]));
 
-      setEvents((data || []).map((event: any) => ({
-        ...event,
-        partner1_name: event.partner1_name || null,
-        partner2_name: event.partner2_name || null,
-        rsvp_deadline: event.rsvp_deadline || null,
-        relation_mode: modeMap.get(event.id) ?? event.relation_mode ?? null,
-      })));
+      setEvents((data || []).map((event: any) => {
+        const settings = settingsMap.get(event.id);
+        return {
+          ...event,
+          partner1_name: event.partner1_name || null,
+          partner2_name: event.partner2_name || null,
+          rsvp_deadline: event.rsvp_deadline || null,
+          relation_mode: settings?.relation_mode ?? event.relation_mode ?? null,
+          relation_required: settings?.relation_required ?? true,
+          relation_allow_custom_role: settings?.relation_allow_custom_role ?? false,
+          custom_roles: settings?.custom_roles ?? []
+        };
+      }));
     } catch (error) {
       console.error('Error fetching events:', error);
       toast({

@@ -78,7 +78,7 @@ import { getRsvpBadgeVariant, getRsvpDisplayLabel } from "@/lib/rsvp";
 import { formatDisplayDate } from '@/lib/utils';
 import { RELATION_ROLE_LABELS, computeRelationDisplay } from "@/lib/relationUtils";
 import { DeleteConfirmationModal } from './DeleteConfirmationModal';
-import { RelationSettingsButton, RelationSettings } from './RelationSettingsModal';
+import { RelationSettings } from './RelationSettingsModal';
 import { ImportErrorModal } from './ImportErrorModal';
 import { whoIsAnalytics } from '@/lib/analytics';
 import { BulkReminderWizard } from './BulkReminderWizard';
@@ -1225,10 +1225,6 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                     Choose if this event has one or two hosts, or if you want to hide guest relations completely.
                   </p>
                 </div>
-                <RelationSettingsButton
-                  eventId={selectedEventId}
-                  onSettingsUpdate={setRelationSettings}
-                />
               </div>
               
               <div className="space-y-6 mt-6">
