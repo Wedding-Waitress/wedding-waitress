@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Check } from 'lucide-react';
 import { Button } from "@/components/ui/enhanced-button";
 import { Card } from "@/components/ui/card";
@@ -47,7 +47,7 @@ export const RelationSelector: React.FC<RelationSelectorProps> = ({
   const [isAddingRole, setIsAddingRole] = useState(false);
 
   // Get all available role options (default + custom)
-  const roleOptions = getAllRoleOptions(allowCustomRoles ? customRoles : []);
+  const roleOptions = useMemo(() => getAllRoleOptions(customRoles), [customRoles]);
 
   useEffect(() => {
     setSelectedPartner(value.partner);
