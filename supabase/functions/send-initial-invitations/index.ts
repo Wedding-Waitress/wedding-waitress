@@ -104,7 +104,12 @@ const handler = async (req: Request): Promise<Response> => {
     let sentCount = 0;
 
     // Parse template settings from campaign
-    let templateSettings: { template_type?: TemplateType; custom_message?: string; custom_subject?: string } = {};
+    let templateSettings: { 
+      template_type?: TemplateType; 
+      custom_template_id?: string;
+      custom_message?: string; 
+      custom_subject?: string;
+    } = {};
     try {
       if (campaign.message_template) {
         templateSettings = JSON.parse(campaign.message_template);
@@ -115,6 +120,21 @@ const handler = async (req: Request): Promise<Response> => {
 
     const templateType = templateSettings.template_type || 'modern';
     const customSubject = templateSettings.custom_subject || `RSVP for ${event.name}`;
+    
+    // Fetch custom template if specified
+    let customTemplateHtml: string | null = null;
+    if (templateSettings.custom_template_id) {
+      const { data: customTemplate } = await supabase
+        .from('email_templates')
+        .select('html_body')
+        .eq('id', templateSettings.custom_template_id)
+        .single();
+      
+      if (customTemplate) {
+        customTemplateHtml = customTemplate.html_body;
+        console.log('Using custom template:', templateSettings.custom_template_id);
+      }
+    }
 
     // Send invitations
     for (const guest of guests || []) {
@@ -151,17 +171,35 @@ const handler = async (req: Request): Promise<Response> => {
 
         // Generate HTML based on selected template
         let html: string;
-        switch (templateType) {
-          case 'elegant':
-            html = generateElegantTemplate(templateData);
-            break;
-          case 'rustic':
-            html = generateRusticTemplate(templateData);
-            break;
-          case 'modern':
-          default:
-            html = generateModernTemplate(templateData);
-            break;
+        
+        if (customTemplateHtml) {
+          // Use custom template and replace placeholders
+          html = customTemplateHtml
+            .replace(/\{\{GUEST_FIRST_NAME\}\}/g, guest.first_name || '')
+            .replace(/\{\{GUEST_LAST_NAME\}\}/g, guest.last_name || '')
+            .replace(/\{\{FULL_NAME\}\}/g, `${guest.first_name || ''} ${guest.last_name || ''}`.trim())
+            .replace(/\{\{QR_CODE\}\}/g, qrCodeDataUrl)
+            .replace(/\{\{EVENT_URL\}\}/g, eventUrl)
+            .replace(/\{\{EVENT_NAME\}\}/g, event.name)
+            .replace(/\{\{EVENT_DATE\}\}/g, templateData.eventDate)
+            .replace(/\{\{EVENT_VENUE\}\}/g, event.venue)
+            .replace(/\{\{PARTNER1_NAME\}\}/g, event.partner1_name || '')
+            .replace(/\{\{PARTNER2_NAME\}\}/g, event.partner2_name || '')
+            .replace(/\{\{CUSTOM_MESSAGE\}\}/g, templateSettings.custom_message || '');
+        } else {
+          // Use system template
+          switch (templateType) {
+            case 'elegant':
+              html = generateElegantTemplate(templateData);
+              break;
+            case 'rustic':
+              html = generateRusticTemplate(templateData);
+              break;
+            case 'modern':
+            default:
+              html = generateModernTemplate(templateData);
+              break;
+          }
         }
 
         // Send email via Resend

@@ -33,6 +33,7 @@ import { RunningSheetPage } from '@/components/Dashboard/RunningSheet';
 import { AIAssistantPage } from '@/components/AI/AIAssistantPage';
 import { AIInsightsDashboard } from '@/components/AI/AIInsightsDashboard';
 import { RSVPNotificationsPage } from '@/pages/RSVPNotificationsPage';
+import { EmailTemplateGalleryPage } from '@/pages/EmailTemplateGalleryPage';
 import { flags } from '@/lib/featureFlags';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
@@ -529,6 +530,8 @@ export const Dashboard = () => {
         return <AIInsightsDashboard />;
       case 'rsvp-notifications':
         return <RSVPNotificationsPage />;
+      case 'email-templates':
+        return <EmailTemplateGalleryPage />;
       default:
         return <Card className="p-8 text-center">
             <TrendingUp className="w-16 h-16 mx-auto text-primary mb-4" />

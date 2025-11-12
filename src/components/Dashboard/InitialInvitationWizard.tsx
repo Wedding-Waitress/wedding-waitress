@@ -3,13 +3,16 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Mail, Users, FileText, Send, Loader2 } from 'lucide-react';
+import { Mail, Users, FileText, Send, Loader2, ExternalLink } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { EmailTemplatePreview } from './EmailTemplatePreview';
+import { useEmailTemplates } from '@/hooks/useEmailTemplates';
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 
 type TemplateType = 'elegant' | 'modern' | 'rustic';
 
@@ -43,8 +46,12 @@ export const InitialInvitationWizard = ({
   const [loading, setLoading] = useState(false);
   const [recipientFilter, setRecipientFilter] = useState<'all' | 'pending' | 'attending'>('all');
   const [selectedTemplate, setSelectedTemplate] = useState<TemplateType>('modern');
+  const [selectedCustomTemplateId, setSelectedCustomTemplateId] = useState<string | null>(null);
   const [customSubject, setCustomSubject] = useState(`RSVP for ${eventName}`);
   const [customMessage, setCustomMessage] = useState('');
+  
+  // Fetch user's saved templates
+  const { templates } = useEmailTemplates(eventId);
 
   // Filter guests with valid emails
   const guestsWithEmail = guests.filter(g => g.email && g.email.trim() !== '');
@@ -79,6 +86,7 @@ export const InitialInvitationWizard = ({
           target_status: targetStatus,
           message_template: JSON.stringify({
             template_type: selectedTemplate,
+            custom_template_id: selectedCustomTemplateId,
             custom_message: customMessage,
             custom_subject: customSubject,
           }),
@@ -211,9 +219,61 @@ export const InitialInvitationWizard = ({
                 </div>
                 <EmailTemplatePreview 
                   selectedTemplate={selectedTemplate}
-                  onSelectTemplate={setSelectedTemplate}
+                  onSelectTemplate={(template) => {
+                    setSelectedTemplate(template);
+                    setSelectedCustomTemplateId(null);
+                  }}
                 />
               </div>
+
+              {/* Saved Templates */}
+              {templates.length > 0 && (
+                <div className="space-y-3 pt-4 border-t">
+                  <div>
+                    <Label className="text-base font-semibold">My Saved Templates</Label>
+                    <p className="text-sm text-muted-foreground mt-1">Use a template you've created</p>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    {templates.slice(0, 4).map((template) => (
+                      <Card
+                        key={template.id}
+                        className={`p-3 cursor-pointer transition-all ${
+                          selectedCustomTemplateId === template.id
+                            ? 'ring-2 ring-primary shadow-lg'
+                            : 'hover:shadow-md'
+                        }`}
+                        onClick={() => {
+                          setSelectedCustomTemplateId(template.id);
+                          setSelectedTemplate('modern'); // Reset system template
+                        }}
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex-1 min-w-0">
+                            <p className="font-semibold text-sm truncate">{template.template_name}</p>
+                            <p className="text-xs text-muted-foreground mt-1">
+                              {new Date(template.created_at).toLocaleDateString()}
+                            </p>
+                          </div>
+                          {selectedCustomTemplateId === template.id && (
+                            <Badge variant="default" className="shrink-0">Selected</Badge>
+                          )}
+                        </div>
+                      </Card>
+                    ))}
+                  </div>
+                  <Button
+                    variant="link"
+                    className="p-0 h-auto text-primary"
+                    onClick={() => {
+                      // Open gallery in new window or navigate
+                      window.open('/dashboard?tab=email-templates', '_blank');
+                    }}
+                  >
+                    <ExternalLink className="w-3 h-3 mr-1" />
+                    Browse Template Gallery
+                  </Button>
+                </div>
+              )}
 
               {/* Customization */}
               <div className="space-y-3 pt-4 border-t">
@@ -251,7 +311,7 @@ export const InitialInvitationWizard = ({
                   <p>✅ Event details (date, venue, hosts)</p>
                   <p>✅ Embedded QR code for quick RSVP</p>
                   <p>✅ Clickable RSVP button</p>
-                  <p>✅ Professional {selectedTemplate} design</p>
+                  <p>✅ Professional {selectedCustomTemplateId ? 'custom' : selectedTemplate} design</p>
                   <p>✅ Mobile-optimized layout</p>
                 </div>
               </div>
@@ -277,7 +337,12 @@ export const InitialInvitationWizard = ({
                 </div>
                 <div>
                   <h4 className="font-semibold text-sm text-muted-foreground">Template Style</h4>
-                  <p className="text-lg font-semibold capitalize">{selectedTemplate}</p>
+                  <p className="text-lg font-semibold capitalize">
+                    {selectedCustomTemplateId 
+                      ? templates.find(t => t.id === selectedCustomTemplateId)?.template_name || 'Custom'
+                      : selectedTemplate
+                    }
+                  </p>
                 </div>
                 <div>
                   <h4 className="font-semibold text-sm text-muted-foreground">Delivery Method</h4>

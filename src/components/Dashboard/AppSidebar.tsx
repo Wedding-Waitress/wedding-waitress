@@ -18,7 +18,8 @@ import {
   ClipboardList,
   Bot,
   TrendingUp,
-  Bell
+  Bell,
+  Mail
 } from 'lucide-react';
 import { useIsAdmin } from '@/hooks/useIsAdmin';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -58,6 +59,7 @@ interface AppSidebarProps {
     { id: "full-seating-chart", label: "Full Seating Chart", icon: FileText },
     { id: "kiosk-live-view", label: "Kiosk Live View", icon: Monitor },
     { id: "photo-video-gallery", label: "Photo & Video Gallery", icon: Camera },
+    { id: "email-templates", label: "Email Templates", icon: Mail },
     { id: "ai-assistant", label: "AI Assistant", icon: Bot },
     { id: "ai-insights", label: "AI Insights", icon: TrendingUp },
     { id: "rsvp-notifications", label: "RSVP Notifications", icon: Bell },
