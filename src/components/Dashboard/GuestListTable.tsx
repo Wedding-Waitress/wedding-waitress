@@ -1270,13 +1270,27 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
       {/* What relation is the guest to you? - Redesigned */}
       <div id="guest-tools-section" className="px-6 py-6">
         {selectedEventId && (
-          <Card className="shadow-lg" style={{ boxShadow: '0 0 20px rgba(114, 72, 230, 0.15)', borderColor: 'hsl(var(--primary))', borderWidth: '2px' }}>
-            <div className="p-6">
+          <Card className="ww-box relative overflow-hidden transition-all duration-300 hover:shadow-purple-glow" 
+            style={{ 
+              background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 247, 255, 0.98) 100%)',
+              boxShadow: '0 0 30px rgba(114, 72, 230, 0.15), 0 10px 25px rgba(114, 72, 230, 0.08)',
+              borderColor: 'rgba(114, 72, 230, 0.2)', 
+              borderWidth: '1px',
+              backdropFilter: 'blur(10px)'
+            }}>
+            {/* Purple gradient accent bar */}
+            <div 
+              className="absolute top-0 left-0 right-0 h-1 opacity-80"
+              style={{
+                background: 'linear-gradient(90deg, #7248e6 0%, #9d7aee 50%, #c4b5fd 100%)'
+              }}
+            />
+            <div className="p-6 sm:p-8">
               <div className="flex items-center justify-between mb-2">
                 <div className="flex-1">
-                  <h3 className="text-lg font-semibold text-foreground">
-                    What relation is the guest to you?
-                  </h3>
+                  <h1 className="text-2xl font-medium text-[#7248e6] mb-2">
+                    Add What Relation Is Each Guest To You
+                  </h1>
                   <p className="text-sm text-muted-foreground mt-1">
                     Choose if this event has one or two hosts, or if you want to hide guest relations completely.
                   </p>
@@ -1299,10 +1313,13 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                           className={cn(
                             "flex-1 sm:flex-none h-auto py-4 px-6 rounded-xl transition-all duration-200",
                             relationMode === 'two'
-                              ? "bg-primary text-primary-foreground shadow-lg"
-                              : "bg-background text-foreground border-2 border-primary/30 hover:border-primary/50 hover:bg-primary/5"
+                              ? "bg-gradient-to-br from-[#7248e6] to-[#9d7aee] text-primary-foreground shadow-lg transform scale-[1.02]"
+                              : "bg-white/80 text-foreground border-2 border-primary/20 hover:border-primary/40 hover:bg-gradient-to-br hover:from-purple-50 hover:to-purple-100/50 hover:shadow-lg backdrop-blur-sm"
                           )}
-                          style={relationMode === 'two' ? { boxShadow: '0 4px 12px rgba(114, 72, 230, 0.4)' } : undefined}
+                          style={relationMode === 'two' ? { 
+                            boxShadow: '0 4px 16px rgba(114, 72, 230, 0.5), 0 0 20px rgba(114, 72, 230, 0.3)',
+                            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+                          } : undefined}
                         >
                           <div className="flex flex-col items-center gap-2">
                             <span className="text-2xl">💍</span>
@@ -1326,10 +1343,13 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                           className={cn(
                             "flex-1 sm:flex-none h-auto py-4 px-6 rounded-xl transition-all duration-200",
                             relationMode === 'single'
-                              ? "bg-primary text-primary-foreground shadow-lg"
-                              : "bg-background text-foreground border-2 border-primary/30 hover:border-primary/50 hover:bg-primary/5"
+                              ? "bg-gradient-to-br from-[#7248e6] to-[#9d7aee] text-primary-foreground shadow-lg transform scale-[1.02]"
+                              : "bg-white/80 text-foreground border-2 border-primary/20 hover:border-primary/40 hover:bg-gradient-to-br hover:from-purple-50 hover:to-purple-100/50 hover:shadow-lg backdrop-blur-sm"
                           )}
-                          style={relationMode === 'single' ? { boxShadow: '0 4px 12px rgba(114, 72, 230, 0.4)' } : undefined}
+                          style={relationMode === 'single' ? { 
+                            boxShadow: '0 4px 16px rgba(114, 72, 230, 0.5), 0 0 20px rgba(114, 72, 230, 0.3)',
+                            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+                          } : undefined}
                         >
                           <div className="flex flex-col items-center gap-2">
                             <span className="text-2xl">🎂</span>
@@ -1353,10 +1373,13 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                           className={cn(
                             "flex-1 sm:flex-none h-auto py-4 px-6 rounded-xl transition-all duration-200",
                             relationMode === 'off'
-                              ? "bg-primary text-primary-foreground shadow-lg"
-                              : "bg-background text-foreground border-2 border-primary/30 hover:border-primary/50 hover:bg-primary/5"
+                              ? "bg-gradient-to-br from-[#7248e6] to-[#9d7aee] text-primary-foreground shadow-lg transform scale-[1.02]"
+                              : "bg-white/80 text-foreground border-2 border-primary/20 hover:border-primary/40 hover:bg-gradient-to-br hover:from-purple-50 hover:to-purple-100/50 hover:shadow-lg backdrop-blur-sm"
                           )}
-                          style={relationMode === 'off' ? { boxShadow: '0 4px 12px rgba(114, 72, 230, 0.4)' } : undefined}
+                          style={relationMode === 'off' ? { 
+                            boxShadow: '0 4px 16px rgba(114, 72, 230, 0.5), 0 0 20px rgba(114, 72, 230, 0.3)',
+                            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+                          } : undefined}
                         >
                           <div className="flex flex-col items-center gap-2">
                             <span className="text-2xl">🚫</span>
@@ -1374,10 +1397,10 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
 
                 {/* Saved Indicator */}
                 {showRelationSaved && (
-                  <div className="text-center">
-                    <span className="text-sm font-medium text-green-600 animate-in fade-in">
-                      ✅ Saved
-                    </span>
+                  <div className="flex justify-center">
+                    <div className="flex items-center justify-center gap-2 py-2 px-4 rounded-full bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200/50 shadow-sm animate-in fade-in slide-in-from-top-2">
+                      <span className="text-sm font-semibold text-green-700">✅ Saved</span>
+                    </div>
                   </div>
                 )}
 
@@ -1391,14 +1414,14 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                       <Label htmlFor="partner1_name" className="text-sm font-medium">
                         {relationMode === 'two' ? 'Partner 1 First Name' : 'Host First Name'}
                       </Label>
-                      <Input
-                        id="partner1_name"
-                        value={partner1Name}
-                        onChange={(e) => setPartner1Name(e.target.value)}
-                        onBlur={handleSavePartnerNames}
-                        placeholder={relationMode === 'two' ? "e.g., Reema" : "e.g., Sarah"}
-                        className="mt-1 rounded-full border-2 border-primary/30 focus:border-primary"
-                      />
+                        <Input
+                          id="partner1_name"
+                          value={partner1Name}
+                          onChange={(e) => setPartner1Name(e.target.value)}
+                          onBlur={handleSavePartnerNames}
+                          placeholder={relationMode === 'two' ? "e.g., Reema" : "e.g., Sarah"}
+                          className="mt-1 rounded-full border-2 border-primary/20 focus:border-primary focus:ring-2 focus:ring-primary/20 bg-white/80 backdrop-blur-sm transition-all duration-200 hover:border-primary/40"
+                        />
                     </div>
 
                     {relationMode === 'two' && (
@@ -1412,7 +1435,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                           onChange={(e) => setPartner2Name(e.target.value)}
                           onBlur={handleSavePartnerNames}
                           placeholder="e.g., Hossam"
-                          className="mt-1 rounded-full border-2 border-primary/30 focus:border-primary"
+                          className="mt-1 rounded-full border-2 border-primary/20 focus:border-primary focus:ring-2 focus:ring-primary/20 bg-white/80 backdrop-blur-sm transition-all duration-200 hover:border-primary/40"
                         />
                       </div>
                     )}

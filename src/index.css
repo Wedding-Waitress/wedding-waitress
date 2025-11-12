@@ -468,3 +468,16 @@
   border: 0 !important;
   background: transparent !important;
 }
+
+/* Purple Aurora Glow Effect */
+@layer utilities {
+  .shadow-purple-glow {
+    box-shadow: 0 0 40px rgba(114, 72, 230, 0.25), 0 15px 30px rgba(114, 72, 230, 0.1);
+  }
+}
+
+/* Subtle Pulse Animation */
+@keyframes pulse {
+  0%, 100% { opacity: 0.05; }
+  50% { opacity: 0.08; }
+}
