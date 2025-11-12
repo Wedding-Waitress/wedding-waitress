@@ -1637,17 +1637,17 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
 
             {/* Individual Badge */}
             <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium h-9 px-3 w-[140px] bg-[#ff1493] text-white">
-              {individualCount} Individual
+              {individualCount} Individual{individualCount !== 1 ? 's' : ''}
             </div>
 
             {/* Couple Badge */}
             <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium h-9 px-3 w-[140px] bg-[#FF5F1F] text-white">
-              {coupleCount} Couple
+              {coupleCount} Couple{coupleCount !== 1 ? 's' : ''}
             </div>
 
             {/* Family Badge */}
             <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium h-9 px-3 w-[140px] bg-[#0000FF] text-white">
-              {familyCount} Family
+              {familyCount} Famil{familyCount !== 1 ? 'ies' : 'y'}
             </div>
           </div>
         </div>
