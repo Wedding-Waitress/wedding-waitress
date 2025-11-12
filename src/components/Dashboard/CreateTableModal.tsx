@@ -1,3 +1,19 @@
+/**
+ * ⚠️ PRODUCTION-READY — LOCKED FOR PRODUCTION ⚠️
+ * 
+ * This Table Creation Modal feature is COMPLETE and APPROVED for production use.
+ * 
+ * CRITICAL RULES:
+ * - DO NOT modify without explicit owner approval
+ * - Changes could break table number validation
+ * - Changes could break capacity calculations
+ * - Changes could break duplicate detection
+ * 
+ * See: MY_EVENTS_TABLES_GUESTLIST_SPECS.md for full specifications
+ * 
+ * Last locked: 2025-11-12
+ */
+
 import React, { useState, useEffect } from 'react';
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";

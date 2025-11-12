@@ -1,3 +1,21 @@
+/**
+ * ⚠️ PRODUCTION-READY — LOCKED FOR PRODUCTION ⚠️
+ * 
+ * This Real-time Guest Sync Hook is COMPLETE and APPROVED for production use.
+ * 
+ * CRITICAL RULES:
+ * - DO NOT modify without explicit owner approval
+ * - Changes could break real-time synchronization
+ * - Changes could break optimistic updates
+ * - Changes could break debounced refetch
+ * - Changes could break cross-view updates (dashboard/kiosk/guest lookup)
+ * - Changes could break guest move validation
+ * 
+ * See: MY_EVENTS_TABLES_GUESTLIST_SPECS.md for full specifications
+ * 
+ * Last locked: 2025-11-12
+ */
+
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';

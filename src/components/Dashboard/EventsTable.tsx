@@ -1,3 +1,20 @@
+/**
+ * ⚠️ PRODUCTION-READY — LOCKED FOR PRODUCTION ⚠️
+ * 
+ * This Events Management Table feature is COMPLETE and APPROVED for production use.
+ * 
+ * CRITICAL RULES:
+ * - DO NOT modify without explicit owner approval
+ * - Changes could break event selection synchronization
+ * - Changes could break countdown integration
+ * - Changes could break event type toggle design
+ * - Changes could break date formatting
+ * 
+ * See: MY_EVENTS_TABLES_GUESTLIST_SPECS.md for full specifications
+ * 
+ * Last locked: 2025-11-12
+ */
+
 import React, { useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/enhanced-button";

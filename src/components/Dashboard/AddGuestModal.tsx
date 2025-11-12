@@ -1,3 +1,21 @@
+/**
+ * ⚠️ PRODUCTION-READY — LOCKED FOR PRODUCTION ⚠️
+ * 
+ * This Guest Add/Edit Modal feature is COMPLETE and APPROVED for production use.
+ * 
+ * CRITICAL RULES:
+ * - DO NOT modify without explicit owner approval
+ * - Changes could break security validation (XSS protection)
+ * - Changes could break rate limiting
+ * - Changes could break input sanitization
+ * - Changes could break relation tracking
+ * - Changes could break table/seat assignment
+ * 
+ * See: MY_EVENTS_TABLES_GUESTLIST_SPECS.md for full specifications
+ * 
+ * Last locked: 2025-11-12
+ */
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";

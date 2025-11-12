@@ -1,3 +1,18 @@
+/**
+ * ⚠️ PRODUCTION-READY — LOCKED FOR PRODUCTION ⚠️
+ * 
+ * This Event Deletion Confirmation feature is COMPLETE and APPROVED for production use.
+ * 
+ * CRITICAL RULES:
+ * - DO NOT modify without explicit owner approval
+ * - Changes could break deletion confirmation flow
+ * - Changes could break "DELETE" text validation
+ * 
+ * See: MY_EVENTS_TABLES_GUESTLIST_SPECS.md for full specifications
+ * 
+ * Last locked: 2025-11-12
+ */
+
 import React, { useState } from 'react';
 import {
   Dialog,
