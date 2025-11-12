@@ -32,7 +32,7 @@ import { FloorPlanPage } from '@/components/Dashboard/FloorPlan/FloorPlanPage';
 import { RunningSheetPage } from '@/components/Dashboard/RunningSheet';
 import { AIAssistantPage } from '@/components/AI/AIAssistantPage';
 import { AIInsightsDashboard } from '@/components/AI/AIInsightsDashboard';
-import { RSVPNotificationSettings } from '@/components/Dashboard/RSVPNotificationSettings';
+import { RSVPNotificationsPage } from '@/pages/RSVPNotificationsPage';
 import { flags } from '@/lib/featureFlags';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
@@ -528,7 +528,7 @@ export const Dashboard = () => {
       case 'ai-insights':
         return <AIInsightsDashboard />;
       case 'rsvp-notifications':
-        return <RSVPNotificationSettings />;
+        return <RSVPNotificationsPage />;
       default:
         return <Card className="p-8 text-center">
             <TrendingUp className="w-16 h-16 mx-auto text-primary mb-4" />
