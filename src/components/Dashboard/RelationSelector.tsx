@@ -251,39 +251,37 @@ export const RelationSelector: React.FC<RelationSelectorProps> = ({
               </div>
             </div>
 
-            {/* Add Custom Role Section - only show if allowCustomRoles is true */}
-            {allowCustomRoles && (
-              <div className="border-t bg-muted/10 p-3">
-                <div className="text-xs font-medium text-muted-foreground mb-2">
-                  Add New Custom Relation
-                </div>
-                <div className="flex gap-2">
-                  <Input
-                    placeholder="Type relation name..."
-                    value={newCustomRole}
-                    onChange={(e) => setNewCustomRole(e.target.value)}
-                    onKeyPress={(e) => {
-                      if (e.key === 'Enter' && newCustomRole.trim()) {
-                        e.preventDefault();
-                        handleAddCustomRole();
-                      }
-                    }}
-                    className="flex-1 h-8 text-sm"
-                    disabled={isAddingRole}
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={handleAddCustomRole}
-                    disabled={!newCustomRole.trim() || isAddingRole}
-                    className="h-8 px-3"
-                  >
-                    {isAddingRole ? 'Adding...' : 'Add'}
-                  </Button>
-                </div>
+            {/* Add Custom Role Section */}
+            <div className="border-t bg-muted/10 p-3">
+              <div className="text-xs font-medium text-muted-foreground mb-2">
+                Add New Custom Relation
               </div>
-            )}
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Type relation name..."
+                  value={newCustomRole}
+                  onChange={(e) => setNewCustomRole(e.target.value)}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter' && newCustomRole.trim()) {
+                      e.preventDefault();
+                      handleAddCustomRole();
+                    }
+                  }}
+                  className="flex-1 h-8 text-sm"
+                  disabled={isAddingRole}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={handleAddCustomRole}
+                  disabled={!newCustomRole.trim() || isAddingRole}
+                  className="h-8 px-3"
+                >
+                  {isAddingRole ? 'Adding...' : 'Add'}
+                </Button>
+              </div>
+            </div>
 
             {/* Footer Actions */}
             <div className="flex justify-end gap-2 p-3 border-t bg-muted/20">
