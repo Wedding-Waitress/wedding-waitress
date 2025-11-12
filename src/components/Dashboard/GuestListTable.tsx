@@ -1478,13 +1478,6 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
             {/* Right Side: All Control Buttons */}
             <div className="flex items-center gap-2 flex-wrap">
               <TooltipProvider>
-                {/* Guest counter pill */}
-                <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium ring-offset-background transition-all duration-300 h-9 px-3 bg-white border border-primary text-foreground pointer-events-none">
-                  <Users className="w-4 h-4" />
-                  {guestCount} Guest{guestCount !== 1 ? 's' : ''}
-                  {guestCount !== totalGuestCount && ` (${totalGuestCount} total)`}
-                </div>
-
                 {/* Sort By Dropdown */}
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -1621,25 +1614,25 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
           </div>
 
           {/* Guest Type Stats Row */}
-          <div className="flex items-center gap-2 px-6 pb-4">
+          <div className="flex items-center justify-end gap-2 px-6 pt-4 pb-4">
             {/* Total Guests Badge */}
-            <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium ring-offset-background h-9 px-3 bg-white border border-primary text-foreground">
+            <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium ring-offset-background h-9 px-3 w-[140px] bg-white border border-primary text-foreground">
               <Users className="w-4 h-4" />
               {guestCount} Guest{guestCount !== 1 ? 's' : ''}
             </div>
 
             {/* Individual Badge */}
-            <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium h-9 px-3 bg-[#ff1493] text-white">
+            <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium h-9 px-3 w-[140px] bg-[#ff1493] text-white">
               {individualCount} Individual
             </div>
 
             {/* Couple Badge */}
-            <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium h-9 px-3 bg-[#FF5F1F] text-white">
+            <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium h-9 px-3 w-[140px] bg-[#FF5F1F] text-white">
               {coupleCount} Couple
             </div>
 
             {/* Family Badge */}
-            <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium h-9 px-3 bg-[#0000FF] text-white">
+            <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium h-9 px-3 w-[140px] bg-[#0000FF] text-white">
               {familyCount} Family
             </div>
           </div>
