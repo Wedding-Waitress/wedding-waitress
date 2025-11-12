@@ -1150,6 +1150,30 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
   const guestCount = sortedGuests.length;
   const totalGuestCount = guests.length;
 
+  // Calculate guest type counts for stats badges
+  const guestTypeStats = useMemo(() => {
+    const stats = {
+      individual: 0,
+      couple: 0,
+      family: 0
+    };
+
+    guests.forEach(guest => {
+      const typeLabel = getGuestTypeLabel(guest);
+      if (typeLabel === 'Individual') {
+        stats.individual++;
+      } else if (typeLabel === 'Couple') {
+        stats.couple++;
+      } else if (typeLabel === 'Family') {
+        stats.family++;
+      }
+    });
+
+    return stats;
+  }, [guests, getGuestTypeLabel]);
+
+  const { individual: individualCount, couple: coupleCount, family: familyCount } = guestTypeStats;
+
   const renderPill = (condition: boolean, yesColor = "bg-green-500", noColor = "bg-red-500") => (
     <Badge 
       className={`text-white ${condition ? yesColor : noColor}`}
@@ -1593,6 +1617,30 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                   Add Guest
                 </Button>
               )}
+            </div>
+          </div>
+
+          {/* Guest Type Stats Row */}
+          <div className="flex items-center gap-2 px-6 pb-4">
+            {/* Total Guests Badge */}
+            <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium ring-offset-background h-9 px-3 bg-white border border-primary text-foreground">
+              <Users className="w-4 h-4" />
+              {guestCount} Guest{guestCount !== 1 ? 's' : ''}
+            </div>
+
+            {/* Individual Badge */}
+            <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium h-9 px-3 bg-[#ff1493] text-white">
+              {individualCount} Individual
+            </div>
+
+            {/* Couple Badge */}
+            <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium h-9 px-3 bg-[#FF5F1F] text-white">
+              {coupleCount} Couple
+            </div>
+
+            {/* Family Badge */}
+            <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium h-9 px-3 bg-[#0000FF] text-white">
+              {familyCount} Family
             </div>
           </div>
         </div>
