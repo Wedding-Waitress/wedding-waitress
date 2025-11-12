@@ -24,6 +24,10 @@ export interface Event {
   slug: string | null;
   rsvp_deadline: string | null;
   relation_allow_single_partner: boolean | null;
+  // ⚠️ CRITICAL: relation_mode MUST be 'two', 'single', or 'off' (database constraint)
+  // - 'two': Wedding/engagement with two partners (default)
+  // - 'single': Single person event
+  // - 'off': Hide guest relations
   relation_mode?: 'two' | 'single' | 'off' | null;
   event_type?: 'seated' | 'cocktail';
 }
@@ -97,6 +101,12 @@ export const useEvents = () => {
       expiryDate.setFullYear(expiryDate.getFullYear() + 1);
       const expiryDateString = expiryDate.toLocaleDateString('en-CA'); // YYYY-MM-DD format
 
+      // Validate relation_mode before inserting (must be 'two', 'single', or 'off')
+      const relationMode = (eventData as any).relation_mode || 'two';
+      if (!['two', 'single', 'off'].includes(relationMode)) {
+        console.warn(`Invalid relation_mode "${relationMode}", defaulting to "two"`);
+      }
+
       const { data, error } = await supabase
         .from('events')
         .insert([{
@@ -111,7 +121,8 @@ export const useEvents = () => {
           expiry_date_local: expiryDateString,
           event_timezone: timezone,
           rsvp_deadline: eventData.rsvp_deadline || null,
-          event_type: (eventData as any).event_type || 'seated'
+          event_type: (eventData as any).event_type || 'seated',
+          relation_mode: ['two', 'single', 'off'].includes(relationMode) ? relationMode : 'two'
         }])
         .select()
         .single();
