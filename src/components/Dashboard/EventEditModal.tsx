@@ -103,18 +103,26 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
           {/* Row 1: Event Type (Full Width) */}
           <div className="space-y-2">
             <Label>Event Type *</Label>
-            <div className="flex items-center gap-1 bg-[#7248e6]/10 border-2 border-[#7248e6] rounded-full p-1">
+            <div className="flex items-center gap-1 bg-gray-100 border-2 border-gray-300 rounded-full p-1">
               <button
                 type="button"
                 onClick={() => setFormData(prev => ({ ...prev, event_type: 'seated' }))}
-                className={`flex-1 px-4 py-2 rounded-full transition-all ${formData.event_type === 'seated' ? 'bg-[#7248e6] text-white' : 'text-[#7248e6] hover:bg-[#7248e6]/5'}`}
+                className={`flex-1 px-4 py-2 rounded-full transition-all font-medium ${
+                  formData.event_type === 'seated' 
+                    ? 'bg-green-500 text-white shadow-md' 
+                    : 'bg-transparent text-gray-500 hover:bg-gray-200'
+                }`}
               >
                 Seated Event
               </button>
               <button
                 type="button"
                 onClick={() => setFormData(prev => ({ ...prev, event_type: 'cocktail' }))}
-                className={`flex-1 px-4 py-2 rounded-full transition-all ${formData.event_type === 'cocktail' ? 'bg-[#7248e6] text-white' : 'text-[#7248e6] hover:bg-[#7248e6]/5'}`}
+                className={`flex-1 px-4 py-2 rounded-full transition-all font-medium ${
+                  formData.event_type === 'cocktail' 
+                    ? 'bg-green-500 text-white shadow-md' 
+                    : 'bg-transparent text-gray-500 hover:bg-gray-200'
+                }`}
               >
                 Cocktail/Stand-up
               </button>
