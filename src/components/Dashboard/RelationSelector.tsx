@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Check } from 'lucide-react';
+import { Check, X } from 'lucide-react';
 import { Button } from "@/components/ui/enhanced-button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -129,6 +129,53 @@ export const RelationSelector: React.FC<RelationSelectorProps> = ({
     }
   };
 
+  const handleDeleteCustomRole = async (roleToDelete: string, event: React.MouseEvent) => {
+    event.stopPropagation(); // Prevent selecting the role when clicking delete
+    
+    // Extract the role name from the value (e.g., "custom_grooms_man" -> "Grooms Man")
+    const customRoleName = customRoles.find(cr => 
+      `custom_${cr.toLowerCase().replace(/\s+/g, '_')}` === roleToDelete
+    );
+    
+    if (!customRoleName) return;
+    
+    try {
+      const updatedRoles = customRoles.filter(cr => cr !== customRoleName);
+      
+      const { error } = await supabase
+        .from('events')
+        .update({ custom_roles: updatedRoles })
+        .eq('id', eventId);
+      
+      if (!error) {
+        // If the deleted role was selected, clear the selection
+        if (selectedRole === roleToDelete) {
+          setSelectedRole('' as RelationRole);
+          setSelectedPartner('' as RelationPartner);
+        }
+        
+        // Notify parent
+        if (onCustomRoleAdded) {
+          onCustomRoleAdded(updatedRoles);
+        }
+        
+        toast({
+          title: "Custom Relation Removed",
+          description: `"${customRoleName}" has been deleted`,
+        });
+      } else {
+        throw error;
+      }
+    } catch (error) {
+      console.error('Error deleting custom role:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete custom relation",
+        variant: "destructive",
+      });
+    }
+  };
+
   // Display current selection
   const displayText = value.partner && value.role 
     ? computeRelationDisplay(
@@ -203,21 +250,33 @@ export const RelationSelector: React.FC<RelationSelectorProps> = ({
                     <div
                       key={`partner_one_${role.value}`}
                       onClick={() => handleRoleSelect('partner_one', role.value as RelationRole)}
-                      className={`flex items-center px-3 py-2 cursor-pointer transition-colors hover:bg-muted/50 ${
+                      className={`flex items-center justify-between px-3 py-2 cursor-pointer transition-colors hover:bg-muted/50 ${
                         selectedPartner === 'partner_one' && selectedRole === role.value
                           ? 'bg-primary/5'
                           : ''
                       }`}
                     >
-                      <div className="w-4 h-4 mr-2 flex-shrink-0">
-                        {selectedPartner === 'partner_one' && selectedRole === role.value && (
-                          <Check className="w-4 h-4 text-primary" />
-                        )}
+                      <div className="flex items-center flex-1">
+                        <div className="w-4 h-4 mr-2 flex-shrink-0">
+                          {selectedPartner === 'partner_one' && selectedRole === role.value && (
+                            <Check className="w-4 h-4 text-primary" />
+                          )}
+                        </div>
+                        <span className={`text-sm ${role.isCustom ? 'italic' : ''}`}>
+                          {role.label}
+                          {role.isCustom && <span className="text-xs text-muted-foreground ml-1">(custom)</span>}
+                        </span>
                       </div>
-                      <span className={`text-sm ${role.isCustom ? 'italic' : ''}`}>
-                        {role.label}
-                        {role.isCustom && <span className="text-xs text-muted-foreground ml-1">(custom)</span>}
-                      </span>
+                      {role.isCustom && (
+                        <button
+                          type="button"
+                          onClick={(e) => handleDeleteCustomRole(role.value, e)}
+                          className="ml-2 p-1 hover:bg-destructive/10 rounded-full transition-colors group"
+                          title="Delete custom relation"
+                        >
+                          <X className="w-3 h-3 text-muted-foreground group-hover:text-destructive" />
+                        </button>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -225,16 +284,17 @@ export const RelationSelector: React.FC<RelationSelectorProps> = ({
                 {/* Partner 2 Column - Only show if NOT single person */}
                 {!isSinglePerson && (
                   <div>
-                    {roleOptions.map((role) => (
-                      <div
-                        key={`partner_two_${role.value}`}
-                        onClick={() => handleRoleSelect('partner_two', role.value as RelationRole)}
-                        className={`flex items-center px-3 py-2 cursor-pointer transition-colors hover:bg-muted/50 ${
-                          selectedPartner === 'partner_two' && selectedRole === role.value
-                            ? 'bg-primary/5'
-                            : ''
-                        }`}
-                      >
+                  {roleOptions.map((role) => (
+                    <div
+                      key={`partner_two_${role.value}`}
+                      onClick={() => handleRoleSelect('partner_two', role.value as RelationRole)}
+                      className={`flex items-center justify-between px-3 py-2 cursor-pointer transition-colors hover:bg-muted/50 ${
+                        selectedPartner === 'partner_two' && selectedRole === role.value
+                          ? 'bg-primary/5'
+                          : ''
+                      }`}
+                    >
+                      <div className="flex items-center flex-1">
                         <div className="w-4 h-4 mr-2 flex-shrink-0">
                           {selectedPartner === 'partner_two' && selectedRole === role.value && (
                             <Check className="w-4 h-4 text-primary" />
@@ -245,7 +305,18 @@ export const RelationSelector: React.FC<RelationSelectorProps> = ({
                           {role.isCustom && <span className="text-xs text-muted-foreground ml-1">(custom)</span>}
                         </span>
                       </div>
-                    ))}
+                      {role.isCustom && (
+                        <button
+                          type="button"
+                          onClick={(e) => handleDeleteCustomRole(role.value, e)}
+                          className="ml-2 p-1 hover:bg-destructive/10 rounded-full transition-colors group"
+                          title="Delete custom relation"
+                        >
+                          <X className="w-3 h-3 text-muted-foreground group-hover:text-destructive" />
+                        </button>
+                      )}
+                    </div>
+                  ))}
                   </div>
                 )}
               </div>
