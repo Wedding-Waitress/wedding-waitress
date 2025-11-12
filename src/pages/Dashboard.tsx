@@ -127,7 +127,7 @@ export const Dashboard = () => {
       setSelectedEventType((data?.event_type as 'seated' | 'cocktail') || 'seated');
     };
     loadEventType();
-  }, [selectedEventId]);
+  }, [selectedEventId, events]);
 
   // Get selected event for My Events countdown (use events active event)
   const selectedCountdownEvent = eventsActiveEventId ? events.find(e => e.id === eventsActiveEventId) : null;
