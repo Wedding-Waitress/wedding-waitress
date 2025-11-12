@@ -498,6 +498,47 @@ export type Database = {
           },
         ]
       }
+      email_templates: {
+        Row: {
+          created_at: string
+          event_id: string | null
+          html_body: string
+          id: string
+          subject: string
+          template_name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_id?: string | null
+          html_body: string
+          id?: string
+          subject: string
+          template_name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string | null
+          html_body?: string
+          id?: string
+          subject?: string
+          template_name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_templates_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       event_collaborators: {
         Row: {
           created_at: string | null
@@ -1901,6 +1942,7 @@ export type Database = {
       }
       rsvp_reminder_campaigns: {
         Row: {
+          campaign_type: string
           created_at: string | null
           delivery_method: string
           event_id: string
@@ -1916,6 +1958,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          campaign_type?: string
           created_at?: string | null
           delivery_method: string
           event_id: string
@@ -1931,6 +1974,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          campaign_type?: string
           created_at?: string | null
           delivery_method?: string
           event_id?: string

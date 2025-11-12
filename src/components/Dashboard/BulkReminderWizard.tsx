@@ -8,7 +8,8 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Send, ArrowRight, ArrowLeft, Check } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Send, ArrowRight, ArrowLeft, Check, DollarSign, Info } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useReminderCampaigns } from '@/hooks/useReminderCampaigns';
 
@@ -221,10 +222,24 @@ export const BulkReminderWizard: React.FC<BulkReminderWizardProps> = ({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle>Send Bulk RSVP Reminders</DialogTitle>
+          <DialogTitle className="flex items-center gap-2">
+            Send RSVP Follow-Up Reminders
+            <Badge variant="outline" className="ml-auto flex items-center gap-1">
+              <DollarSign className="w-3 h-3" />
+              SMS/WhatsApp Charges Apply
+            </Badge>
+          </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-6">
+          {/* Cost Info Alert */}
+          <Alert className="border-primary/20 bg-primary/5">
+            <Info className="h-4 w-4 text-primary" />
+            <AlertDescription className="text-sm">
+              <strong>💡 Tip:</strong> Send initial invitations via free email first, then use SMS/WhatsApp for follow-up reminders to save costs.
+            </AlertDescription>
+          </Alert>
+
           {/* Progress */}
           <div className="space-y-2">
             <div className="flex justify-between text-sm">

@@ -12,17 +12,21 @@ import { useRSVPAnalytics } from '@/hooks/useRSVPAnalytics';
 import { useEvents } from '@/hooks/useEvents';
 import { useNotificationSettings } from '@/hooks/useNotificationSettings';
 import { ReminderHistoryModal } from '@/components/Dashboard/ReminderHistoryModal';
-import { Bell, Mail, MessageSquare, Users, Settings, BarChart3, AlertTriangle, Clock, CheckCircle2, XCircle } from 'lucide-react';
+import { InitialInvitationWizard } from '@/components/Dashboard/InitialInvitationWizard';
+import { Bell, Mail, MessageSquare, Users, Settings, BarChart3, AlertTriangle, Clock, CheckCircle2, XCircle, Send } from 'lucide-react';
 import { StandardEventSelector } from '@/components/Dashboard/StandardEventSelector';
 import { supabase } from '@/integrations/supabase/client';
+import { useGuests } from '@/hooks/useGuests';
 
 export const RSVPNotificationsPage = () => {
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [eventData, setEventData] = useState<any>(null);
   const [showHistory, setShowHistory] = useState(false);
+  const [showInvitationWizard, setShowInvitationWizard] = useState(false);
   const [saving, setSaving] = useState(false);
 
   const { events } = useEvents();
+  const { guests, fetchGuests } = useGuests(selectedEventId);
   const { userSettings, eventSettings, loading, saveUserSettings, saveEventSettings } = useRSVPNotificationSettings(selectedEventId);
   const { analytics } = useRSVPAnalytics(selectedEventId);
   const { settings: apiSettings, updateSettings: updateApiSettings } = useNotificationSettings();
@@ -86,6 +90,44 @@ export const RSVPNotificationsPage = () => {
         </Alert>
       ) : (
         <>
+          {/* Initial RSVP Invitations Card */}
+          <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-purple-500/5">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Send className="w-5 h-5 text-primary" />
+                Send Initial RSVP Invitations
+              </CardTitle>
+              <CardDescription>
+                Send beautiful email invitations with embedded QR codes - completely FREE!
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-start gap-4">
+                <div className="flex-1 space-y-2">
+                  <p className="text-sm text-muted-foreground">
+                    ✅ Professional HTML email templates<br />
+                    ✅ Personalized QR codes for each guest<br />
+                    ✅ Direct RSVP link to guest lookup page<br />
+                    ✅ Zero cost - uses free email delivery
+                  </p>
+                  <div className="flex items-center gap-2 p-3 bg-success/10 border border-success/20 rounded-lg">
+                    <CheckCircle2 className="w-4 h-4 text-success" />
+                    <p className="text-sm font-semibold text-success">
+                      Cost: $0.00 (FREE)
+                    </p>
+                  </div>
+                </div>
+                <Button
+                  onClick={() => setShowInvitationWizard(true)}
+                  className="bg-gradient-to-r from-primary to-purple-600 hover:opacity-90"
+                  size="lg"
+                >
+                  <Mail className="mr-2 h-4 w-4" />
+                  Send Invitations
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
           {/* Card 1: Notification Channels */}
           <Card>
             <CardHeader>
@@ -469,6 +511,19 @@ export const RSVPNotificationsPage = () => {
         onClose={() => setShowHistory(false)}
         eventId={selectedEventId}
       />
+
+      {selectedEventId && eventData && (
+        <InitialInvitationWizard
+          open={showInvitationWizard}
+          onOpenChange={setShowInvitationWizard}
+          eventId={selectedEventId}
+          eventName={eventData.name}
+          guests={guests}
+          onSuccess={() => {
+            fetchGuests();
+          }}
+        />
+      )}
     </div>
   );
 };

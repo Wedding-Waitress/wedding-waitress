@@ -24,6 +24,9 @@ verify_jwt = false
 [functions.send-bulk-reminders]
 verify_jwt = true
 
+[functions.send-initial-invitations]
+verify_jwt = true
+
 [functions.schedule-auto-reminders]
 verify_jwt = false
 
