@@ -165,6 +165,39 @@ export const useEmailTemplates = (eventId: string | null) => {
     }
   };
 
+  const sendTestEmail = async (data: {
+    template_html: string;
+    template_name: string;
+    recipient_email: string;
+    event_id?: string;
+  }): Promise<boolean> => {
+    try {
+      const { data: result, error } = await supabase.functions.invoke('send-test-email', {
+        body: data,
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: 'Test Email Sent! 📧',
+        description: `Preview sent to ${data.recipient_email}. Check your inbox!`,
+      });
+
+      return true;
+    } catch (error: any) {
+      console.error('Failed to send test email:', error);
+      
+      const errorMessage = error.message || 'Failed to send test email';
+      toast({
+        title: 'Failed to Send Test Email',
+        description: errorMessage,
+        variant: 'destructive',
+      });
+
+      return false;
+    }
+  };
+
   useEffect(() => {
     fetchTemplates();
   }, []);
@@ -177,5 +210,6 @@ export const useEmailTemplates = (eventId: string | null) => {
     updateTemplate,
     deleteTemplate,
     duplicateTemplate,
+    sendTestEmail,
   };
 };

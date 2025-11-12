@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Eye, Check, Pencil, Trash2, Copy } from 'lucide-react';
+import { Eye, Check, Pencil, Trash2, Copy, Mail } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
 interface TemplateCardProps {
@@ -18,6 +18,7 @@ interface TemplateCardProps {
   onEdit?: () => void;
   onDelete?: () => void;
   onDuplicate?: () => void;
+  onSendTest?: () => void;
 }
 
 export const TemplateCard: React.FC<TemplateCardProps> = ({
@@ -27,6 +28,7 @@ export const TemplateCard: React.FC<TemplateCardProps> = ({
   onEdit,
   onDelete,
   onDuplicate,
+  onSendTest,
 }) => {
   return (
     <Card className="group relative overflow-hidden hover:shadow-lg transition-all duration-300 border-2 hover:border-primary/50">
@@ -54,6 +56,17 @@ export const TemplateCard: React.FC<TemplateCardProps> = ({
               <Eye className="w-4 h-4 mr-1" />
               Preview
             </Button>
+            {onSendTest && (
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={onSendTest}
+                className="bg-white/90 hover:bg-white"
+              >
+                <Mail className="w-4 h-4 mr-1" />
+                Test
+              </Button>
+            )}
             <Button
               size="sm"
               variant="default"

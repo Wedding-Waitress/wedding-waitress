@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Save, Palette, Type, FileText } from 'lucide-react';
+import { Save, Palette, Type, FileText, Mail } from 'lucide-react';
 import { generateCustomEmailTemplate } from '@/lib/emailTemplateGenerator';
 import type { TemplateType } from '@/../supabase/functions/send-initial-invitations/_templates';
 
@@ -26,6 +26,7 @@ interface TemplateEditorModalProps {
     subject: string;
     html_body: string;
   }) => Promise<boolean>;
+  onSendTest?: (html: string, templateName: string) => void;
 }
 
 export const TemplateEditorModal: React.FC<TemplateEditorModalProps> = ({
@@ -34,6 +35,7 @@ export const TemplateEditorModal: React.FC<TemplateEditorModalProps> = ({
   initialTemplate = 'modern',
   eventData,
   onSave,
+  onSendTest,
 }) => {
   const [templateName, setTemplateName] = useState('');
   const [subject, setSubject] = useState('You\'re Invited!');
@@ -211,17 +213,27 @@ export const TemplateEditorModal: React.FC<TemplateEditorModalProps> = ({
 
         {/* Footer Actions */}
         <div className="flex-shrink-0 flex justify-between gap-3 pt-4 border-t">
-          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={saving}>
-            Cancel
-          </Button>
-          <Button
-            onClick={handleSave}
-            disabled={!templateName.trim() || saving}
-            className="bg-gradient-to-r from-primary to-purple-600"
-          >
-            <Save className="w-4 h-4 mr-2" />
-            {saving ? 'Saving...' : 'Save Template'}
-          </Button>
+          <div className="flex gap-2">
+            {onSendTest && (
+              <Button variant="outline" onClick={() => onSendTest(previewHtml, templateName || 'Custom Template')}>
+                <Mail className="w-4 h-4 mr-2" />
+                Send Test
+              </Button>
+            )}
+          </div>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => onOpenChange(false)} disabled={saving}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleSave}
+              disabled={!templateName.trim() || saving}
+              className="bg-gradient-to-r from-primary to-purple-600"
+            >
+              <Save className="w-4 h-4 mr-2" />
+              {saving ? 'Saving...' : 'Save Template'}
+            </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>

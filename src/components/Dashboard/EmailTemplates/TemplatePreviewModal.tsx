@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Monitor, Smartphone, ZoomIn, ZoomOut, Check, Edit } from 'lucide-react';
+import { Monitor, Smartphone, ZoomIn, ZoomOut, Check, Edit, Mail } from 'lucide-react';
 
 interface TemplatePreviewModalProps {
   open: boolean;
@@ -11,6 +11,7 @@ interface TemplatePreviewModalProps {
   templateName: string;
   onUse: () => void;
   onCustomize?: () => void;
+  onSendTest?: (html: string, templateName: string) => void;
 }
 
 export const TemplatePreviewModal: React.FC<TemplatePreviewModalProps> = ({
@@ -20,6 +21,7 @@ export const TemplatePreviewModal: React.FC<TemplatePreviewModalProps> = ({
   templateName,
   onUse,
   onCustomize,
+  onSendTest,
 }) => {
   const [viewMode, setViewMode] = useState<'desktop' | 'mobile'>('desktop');
   const [zoom, setZoom] = useState(100);
@@ -97,6 +99,12 @@ export const TemplatePreviewModal: React.FC<TemplatePreviewModalProps> = ({
         {/* Action Buttons */}
         <div className="flex-shrink-0 flex justify-between gap-3 pt-4 border-t">
           <div className="flex gap-2">
+            {onSendTest && (
+              <Button variant="outline" onClick={() => onSendTest(templateHtml, templateName)}>
+                <Mail className="w-4 h-4 mr-2" />
+                Send Test Email
+              </Button>
+            )}
             {onCustomize && (
               <Button variant="outline" onClick={onCustomize}>
                 <Edit className="w-4 h-4 mr-2" />

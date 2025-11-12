@@ -6,6 +6,7 @@ import { StandardEventSelector } from '@/components/Dashboard/StandardEventSelec
 import { TemplateCard } from '@/components/Dashboard/EmailTemplates/TemplateCard';
 import { TemplatePreviewModal } from '@/components/Dashboard/EmailTemplates/TemplatePreviewModal';
 import { TemplateEditorModal } from '@/components/Dashboard/EmailTemplates/TemplateEditorModal';
+import { SendTestEmailDialog } from '@/components/Dashboard/EmailTemplates/SendTestEmailDialog';
 import { useEvents } from '@/hooks/useEvents';
 import { useEmailTemplates } from '@/hooks/useEmailTemplates';
 import { getSystemTemplates, generateCustomEmailTemplate } from '@/lib/emailTemplateGenerator';
@@ -25,7 +26,7 @@ import {
 export const EmailTemplateGalleryPage = () => {
   const { events, loading: eventsLoading } = useEvents();
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
-  const { templates, loading: templatesLoading, saveTemplate, deleteTemplate, duplicateTemplate } = useEmailTemplates(selectedEventId);
+  const { templates, loading: templatesLoading, saveTemplate, deleteTemplate, duplicateTemplate, sendTestEmail } = useEmailTemplates(selectedEventId);
   
   const [previewOpen, setPreviewOpen] = useState(false);
   const [editorOpen, setEditorOpen] = useState(false);
@@ -37,6 +38,13 @@ export const EmailTemplateGalleryPage = () => {
   } | null>(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [templateToDelete, setTemplateToDelete] = useState<string | null>(null);
+  
+  // Test email state
+  const [testEmailOpen, setTestEmailOpen] = useState(false);
+  const [testEmailData, setTestEmailData] = useState<{
+    html: string;
+    templateName: string;
+  } | null>(null);
 
   const selectedEvent = useMemo(
     () => events.find(e => e.id === selectedEventId),
@@ -90,6 +98,22 @@ export const EmailTemplateGalleryPage = () => {
       setTemplateToDelete(null);
       setDeleteConfirmOpen(false);
     }
+  };
+
+  const handleSendTest = (html: string, templateName: string) => {
+    setTestEmailData({ html, templateName });
+    setTestEmailOpen(true);
+  };
+
+  const handleSendTestEmail = async (recipientEmail: string): Promise<boolean> => {
+    if (!testEmailData) return false;
+    
+    return await sendTestEmail({
+      template_html: testEmailData.html,
+      template_name: testEmailData.templateName,
+      recipient_email: recipientEmail,
+      event_id: selectedEventId || undefined,
+    });
   };
 
   return (
@@ -155,6 +179,10 @@ export const EmailTemplateGalleryPage = () => {
                   // Open editor with this template as base
                   setEditorOpen(true);
                 }}
+                onSendTest={() => {
+                  const html = generateSystemTemplatePreview(template.id as TemplateType);
+                  handleSendTest(html, template.name);
+                }}
               />
             ))}
           </div>
@@ -193,6 +221,7 @@ export const EmailTemplateGalleryPage = () => {
                   }}
                   onDelete={() => handleDeleteClick(template.id)}
                   onDuplicate={() => duplicateTemplate(template.id)}
+                  onSendTest={() => handleSendTest(template.html_body, template.template_name)}
                 />
               ))}
             </div>
@@ -231,6 +260,7 @@ export const EmailTemplateGalleryPage = () => {
             setPreviewOpen(false);
             setEditorOpen(true);
           } : undefined}
+          onSendTest={(html, name) => handleSendTest(html, name)}
         />
       )}
 
@@ -246,7 +276,20 @@ export const EmailTemplateGalleryPage = () => {
           partner2Name: selectedEvent.partner2_name,
         } : undefined}
         onSave={(data) => saveTemplate({ ...data, event_id: selectedEventId })}
+        onSendTest={(html, name) => handleSendTest(html, name)}
       />
+
+      {/* Send Test Email Dialog */}
+      {testEmailData && (
+        <SendTestEmailDialog
+          open={testEmailOpen}
+          onOpenChange={setTestEmailOpen}
+          templateHtml={testEmailData.html}
+          templateName={testEmailData.templateName}
+          eventId={selectedEventId}
+          onSend={handleSendTestEmail}
+        />
+      )}
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
