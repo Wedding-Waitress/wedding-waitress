@@ -123,14 +123,21 @@ export const Dashboard = () => {
   // Get selected event for My Events countdown (use events active event)
   const selectedCountdownEvent = eventsActiveEventId ? events.find(e => e.id === eventsActiveEventId) : null;
 
-  // Load selected event from sessionStorage on mount (GLOBAL - session-scoped)
+  // Load selected event from sessionStorage ONCE on mount (GLOBAL - session-scoped)
+  const hasInitialized = useRef(false);
   useEffect(() => {
+    // Only initialize once, and only if we have events and haven't set an event yet
+    if (hasInitialized.current || events.length === 0 || selectedEventId !== null) {
+      return;
+    }
+    
     const savedEventId = sessionStorage.getItem('ww:session_selected_event');
     if (savedEventId && events.find(e => e.id === savedEventId)) {
       setGlobalSelectedEventId(savedEventId);
-      setSelectedEventId(savedEventId); // Keep backward compatibility
+      setSelectedEventId(savedEventId);
+      hasInitialized.current = true;
     }
-  }, [events.length]);
+  }, [events.length, selectedEventId]);
 
   // Maintain a stable ref to fetchTables to avoid effect re-installs
   const fetchTablesRef = useRef(fetchTables);
