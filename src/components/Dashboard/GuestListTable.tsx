@@ -300,17 +300,19 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
   const handleRelationModeChange = async (newMode: RelationMode) => {
     if (!selectedEventId) return;
 
+    // Set local state IMMEDIATELY for instant UI response
+    setRelationMode(newMode);
+    setShowRelationSaved(true);
+    setTimeout(() => setShowRelationSaved(false), 2000);
+
     try {
+      // Update database in background
       const { error } = await supabase
         .from('events')
         .update({ relation_mode: newMode })
         .eq('id', selectedEventId);
 
       if (error) throw error;
-
-      setRelationMode(newMode);
-      setShowRelationSaved(true);
-      setTimeout(() => setShowRelationSaved(false), 2000);
 
       toast({
         description: "Relation mode updated successfully.",
@@ -319,6 +321,12 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
       await updateEvent(selectedEventId, { relation_mode: newMode } as any);
     } catch (error) {
       console.error('Error updating relation mode:', error);
+      
+      // Revert local state if database update fails
+      const selectedEvent = events.find(event => event.id === selectedEventId);
+      const previousMode = (selectedEvent as any)?.relation_mode || 'two';
+      setRelationMode(previousMode);
+      
       toast({
         title: "Error",
         description: "Failed to update relation mode",
