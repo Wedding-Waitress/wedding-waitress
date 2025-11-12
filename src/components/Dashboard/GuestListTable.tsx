@@ -1214,7 +1214,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                             "flex-1 sm:flex-none h-auto py-4 px-6 rounded-xl transition-all duration-200",
                             relationMode === 'two'
                               ? "bg-gradient-to-br from-[#7248e6] to-[#9d7aee] text-primary-foreground shadow-lg transform scale-[1.02]"
-                              : "bg-white/80 text-foreground border-2 border-primary/20 hover:border-primary/40 hover:bg-gradient-to-br hover:from-purple-50 hover:to-purple-100/50 hover:shadow-lg backdrop-blur-sm"
+                              : "bg-white/80 text-foreground border-2 border-[#7248e6] hover:border-[#7248e6]/80 hover:bg-gradient-to-br hover:from-purple-50 hover:to-purple-100/50 hover:shadow-lg backdrop-blur-sm"
                           )}
                           style={relationMode === 'two' ? { 
                             boxShadow: '0 4px 16px rgba(114, 72, 230, 0.5), 0 0 20px rgba(114, 72, 230, 0.3)',
@@ -1249,7 +1249,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                             "flex-1 sm:flex-none h-auto py-4 px-6 rounded-xl transition-all duration-200",
                             relationMode === 'single'
                               ? "bg-gradient-to-br from-[#7248e6] to-[#9d7aee] text-primary-foreground shadow-lg transform scale-[1.02]"
-                              : "bg-white/80 text-foreground border-2 border-primary/20 hover:border-primary/40 hover:bg-gradient-to-br hover:from-purple-50 hover:to-purple-100/50 hover:shadow-lg backdrop-blur-sm"
+                              : "bg-white/80 text-foreground border-2 border-[#7248e6] hover:border-[#7248e6]/80 hover:bg-gradient-to-br hover:from-purple-50 hover:to-purple-100/50 hover:shadow-lg backdrop-blur-sm"
                           )}
                           style={relationMode === 'single' ? { 
                             boxShadow: '0 4px 16px rgba(114, 72, 230, 0.5), 0 0 20px rgba(114, 72, 230, 0.3)',
@@ -1284,7 +1284,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                             "flex-1 sm:flex-none h-auto py-4 px-6 rounded-xl transition-all duration-200",
                             relationMode === 'off'
                               ? "bg-gradient-to-br from-[#7248e6] to-[#9d7aee] text-primary-foreground shadow-lg transform scale-[1.02]"
-                              : "bg-white/80 text-foreground border-2 border-primary/20 hover:border-primary/40 hover:bg-gradient-to-br hover:from-purple-50 hover:to-purple-100/50 hover:shadow-lg backdrop-blur-sm"
+                              : "bg-white/80 text-foreground border-2 border-[#7248e6] hover:border-[#7248e6]/80 hover:bg-gradient-to-br hover:from-purple-50 hover:to-purple-100/50 hover:shadow-lg backdrop-blur-sm"
                           )}
                           style={relationMode === 'off' ? { 
                             boxShadow: '0 4px 16px rgba(114, 72, 230, 0.5), 0 0 20px rgba(114, 72, 230, 0.3)',
@@ -1319,43 +1319,50 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                   </div>
                 )}
 
-                {/* Partner Name Inputs */}
-                {relationMode !== 'off' && (
-                  <div className={cn(
-                    "grid gap-4",
-                    relationMode === 'two' ? "sm:grid-cols-2" : "sm:grid-cols-1"
-                  )}>
-                    <div>
-                      <Label htmlFor="partner1_name" className="text-sm font-medium">
-                        {relationMode === 'two' ? 'Partner 1 First Name' : 'Host First Name'}
-                      </Label>
-                        <Input
-                          id="partner1_name"
-                          value={partner1Name}
-                          onChange={(e) => setPartner1Name(e.target.value)}
-                          onBlur={handleSavePartnerNames}
-                          placeholder={relationMode === 'two' ? "e.g., Reema" : "e.g., Sarah"}
-                          className="mt-1 rounded-full border-2 border-primary/20 focus:border-primary focus:ring-2 focus:ring-primary/20 bg-white/80 backdrop-blur-sm transition-all duration-200 hover:border-primary/40"
-                        />
-                    </div>
-
-                    {relationMode === 'two' && (
-                      <div>
-                        <Label htmlFor="partner2_name" className="text-sm font-medium">
-                          Partner 2 First Name
-                        </Label>
-                        <Input
-                          id="partner2_name"
-                          value={partner2Name}
-                          onChange={(e) => setPartner2Name(e.target.value)}
-                          onBlur={handleSavePartnerNames}
-                          placeholder="e.g., Hossam"
-                          className="mt-1 rounded-full border-2 border-primary/20 focus:border-primary focus:ring-2 focus:ring-primary/20 bg-white/80 backdrop-blur-sm transition-all duration-200 hover:border-primary/40"
-                        />
-                      </div>
-                    )}
+                {/* Partner Name Inputs - Always show both fields, but disable based on mode */}
+                <div className="grid gap-4 sm:grid-cols-2">
+                  {/* Partner 1 Field */}
+                  <div className={relationMode === 'off' ? 'opacity-50' : ''}>
+                    <Label htmlFor="partner1_name" className="text-sm font-medium">
+                      {relationMode === 'two' ? 'Partner 1 First Name' : 'Host First Name'}
+                    </Label>
+                    <Input
+                      id="partner1_name"
+                      value={partner1Name}
+                      onChange={(e) => setPartner1Name(e.target.value)}
+                      onBlur={handleSavePartnerNames}
+                      placeholder={relationMode === 'two' ? "e.g., Reema" : "e.g., Sarah"}
+                      disabled={relationMode === 'off'}
+                      className={cn(
+                        "mt-1 rounded-full border-2 focus:ring-2 focus:ring-primary/20 bg-white/80 backdrop-blur-sm transition-all duration-200",
+                        relationMode === 'off' 
+                          ? "border-[#7248e6]/30 cursor-not-allowed" 
+                          : "border-[#7248e6] focus:border-[#7248e6] hover:border-[#7248e6]/80"
+                      )}
+                    />
                   </div>
-                )}
+
+                  {/* Partner 2 Field */}
+                  <div className={relationMode !== 'two' ? 'opacity-50' : ''}>
+                    <Label htmlFor="partner2_name" className="text-sm font-medium">
+                      Partner 2 First Name
+                    </Label>
+                    <Input
+                      id="partner2_name"
+                      value={partner2Name}
+                      onChange={(e) => setPartner2Name(e.target.value)}
+                      onBlur={handleSavePartnerNames}
+                      placeholder="e.g., Hossam"
+                      disabled={relationMode !== 'two'}
+                      className={cn(
+                        "mt-1 rounded-full border-2 focus:ring-2 focus:ring-primary/20 bg-white/80 backdrop-blur-sm transition-all duration-200",
+                        relationMode !== 'two' 
+                          ? "border-[#7248e6]/30 cursor-not-allowed" 
+                          : "border-[#7248e6] focus:border-[#7248e6] hover:border-[#7248e6]/80"
+                      )}
+                    />
+                  </div>
+                </div>
               </div>
             </div>
           </Card>
