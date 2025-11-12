@@ -307,10 +307,10 @@ export const Dashboard = () => {
                 </div>
               </CardHeader>
               <CardContent className="text-center py-8">
-                <CardTitle className="mb-2">Table Management Unavailable</CardTitle>
-                <CardDescription>
-                  This is a Cocktail/Stand-up event. Table creation and seating charts are disabled.
-                </CardDescription>
+              <CardTitle className="mb-2">Table Management Unavailable For This Event</CardTitle>
+              <CardDescription className="text-base">
+                This is a cocktail stand-up event. Table creation and seating charts are disabled. You can change this in my events page.
+              </CardDescription>
               </CardContent>
             </Card>
           );
