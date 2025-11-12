@@ -2116,6 +2116,7 @@ export type Database = {
           rsvp_deadline: string
           slug: string
           start_time: string
+          unassigned_guests_count: number
           user_id: string
           venue: string
         }[]

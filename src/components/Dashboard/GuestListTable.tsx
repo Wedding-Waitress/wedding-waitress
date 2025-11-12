@@ -165,8 +165,11 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [firstGuestAdded, setFirstGuestAdded] = useState(false);
-  type RelationMode = 'wedding' | 'single' | 'disabled';
-  const [relationMode, setRelationMode] = useState<RelationMode>('wedding');
+  type RelationMode = 'two' | 'single' | 'off';
+  const [relationMode, setRelationMode] = useState<RelationMode>('two');
+  const [showRelationSaved, setShowRelationSaved] = useState(false);
+  const [partner1Name, setPartner1Name] = useState('');
+  const [partner2Name, setPartner2Name] = useState('');
   const [showReminderWizard, setShowReminderWizard] = useState(false);
   
   // Bulk selection state
@@ -292,6 +295,69 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
         title: "Error",
         description: "Failed to delete guests",
         variant: "destructive",
+      });
+    }
+  };
+
+  // Handle relation mode change
+  const handleRelationModeChange = async (newMode: RelationMode) => {
+    if (!selectedEventId) return;
+
+    try {
+      const { error } = await supabase
+        .from('events')
+        .update({ relation_mode: newMode })
+        .eq('id', selectedEventId);
+
+      if (error) throw error;
+
+      setRelationMode(newMode);
+      setShowRelationSaved(true);
+      setTimeout(() => setShowRelationSaved(false), 2000);
+
+      toast({
+        description: "Relation mode updated successfully.",
+      });
+
+      await updateEvent(selectedEventId, { relation_mode: newMode } as any);
+    } catch (error) {
+      console.error('Error updating relation mode:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update relation mode",
+        variant: "destructive"
+      });
+    }
+  };
+
+  // Handle saving partner names
+  const handleSavePartnerNames = async () => {
+    if (!selectedEventId) return;
+
+    try {
+      const { error} = await supabase
+        .from('events')
+        .update({
+          partner1_name: partner1Name,
+          partner2_name: partner2Name,
+        })
+        .eq('id', selectedEventId);
+
+      if (error) throw error;
+
+      setShowRelationSaved(true);
+      setTimeout(() => setShowRelationSaved(false), 2000);
+
+      await updateEvent(selectedEventId, { 
+        partner1_name: partner1Name,
+        partner2_name: partner2Name 
+      });
+    } catch (error) {
+      console.error('Error saving partner names:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save partner names",
+        variant: "destructive"
       });
     }
   };
@@ -468,7 +534,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
     }
 
     // Only validate Partner 2 if this is a wedding/engagement (two-person event)
-    if (relationMode === 'wedding' && !partner2Value) {
+    if (relationMode === 'two' && !partner2Value) {
       toast({
         title: "Error",
         description: "Both partner names are required for wedding/engagement events",
@@ -1095,11 +1161,11 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
     const shouldBlockFirstGuest = !relationSettings.relation_disable_first_guest_alert;
     
     // Determine if required names are missing based on toggle state
-    const namesAreMissing = relationMode === 'wedding'
+    const namesAreMissing = relationMode === 'two'
       ? (partner1Missing || partner2Missing)  // Wedding/engagement: need BOTH
       : relationMode === 'single' 
         ? partner1Missing                       // Single event: only need Partner 1
-        : false;                                // Disabled mode: names not required
+        : false;                                // Off mode: names not required
     
     // Gating rule: Only block for first guest if required names are missing AND haven't been saved
     if (shouldBlockFirstGuest && guestCount === 0 && namesAreMissing && !partnerNamesSaved) {
@@ -1201,210 +1267,161 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
 
   return (
     <>
-      {/* Couple Names Section */}
+      {/* What relation is the guest to you? - Redesigned */}
       <div id="guest-tools-section" className="px-6 py-6">
-        <Card 
-          className={`p-6 transition-all duration-300 border-2 border-[#7248e6] ${
-            showNamesValidation 
-              ? 'is-alert animate-pulse-soft animate-shake-soft' 
-              : totalGuestCount > 0 
-                ? 'is-muted' 
-                : ''
-          }`}
-          style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}
-              role="status"
-              aria-live="polite"
-            >
-              <div className="text-center mb-6">
-                <div className="flex items-center justify-center gap-2 mb-4">
-                  <h3 className={`text-xl font-medium text-[#7248e6] ${
-                    showNamesValidation ? 'animate-pulse-soft' : ''
-                  }`}>
+        {selectedEventId && (
+          <Card className="shadow-lg" style={{ boxShadow: '0 0 20px rgba(114, 72, 230, 0.15)', borderColor: 'hsl(var(--primary))', borderWidth: '2px' }}>
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex-1">
+                  <h3 className="text-lg font-semibold text-foreground">
                     What relation is the guest to you?
                   </h3>
-                  {selectedEventId && (
-                    <RelationSettingsButton
-                      eventId={selectedEventId}
-                      onSettingsUpdate={setRelationSettings}
-                    />
-                  )}
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Choose if this event has one or two hosts, or if you want to hide guest relations completely.
+                  </p>
                 </div>
+                <RelationSettingsButton
+                  eventId={selectedEventId}
+                  onSettingsUpdate={setRelationSettings}
+                />
               </div>
               
-              <div className="flex flex-col gap-6">
-                {/* Row 1: Toggle Pills - Horizontal */}
-                <div className="flex flex-wrap gap-3 justify-start">
-                  {/* Toggle 1: Wedding/Engagement Mode */}
-                  <div className="inline-flex items-center justify-center gap-3 rounded-full border-2 border-[#7248e6] bg-white px-4 py-2">
-                    <Switch
-                      id="wedding-engagement-toggle"
-                      checked={relationMode === 'wedding'}
-                      onCheckedChange={async (checked) => {
-                        if (!checked) return;
-                        
-                        setRelationMode('wedding');
-                        
-                        if (selectedEvent) {
-                          try {
-                            await supabase
-                              .from('events')
-                              .update({ 
-                                relation_mode: 'wedding',
-                                relation_allow_single_partner: true 
-                              })
-                              .eq('id', selectedEvent.id);
-                            
-                            await updateEvent(selectedEvent.id, { 
-                              relation_allow_single_partner: true 
-                            });
-                          } catch (error) {
-                            console.error('Error saving toggle state:', error);
-                          }
-                        }
-                      }}
-                    />
-                    <Label htmlFor="wedding-engagement-toggle" className="text-xs font-medium text-[#7248e6] cursor-pointer">
-                      Turn on for weddings - engagements (two people)
-                    </Label>
-                  </div>
+              <div className="space-y-6 mt-6">
+                {/* Mode Selection Buttons */}
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          type="button"
+                          onClick={() => handleRelationModeChange('two')}
+                          className={cn(
+                            "flex-1 sm:flex-none h-auto py-4 px-6 rounded-xl transition-all duration-200",
+                            relationMode === 'two'
+                              ? "bg-primary text-primary-foreground shadow-lg"
+                              : "bg-background text-foreground border-2 border-primary/30 hover:border-primary/50 hover:bg-primary/5"
+                          )}
+                          style={relationMode === 'two' ? { boxShadow: '0 4px 12px rgba(114, 72, 230, 0.4)' } : undefined}
+                        >
+                          <div className="flex flex-col items-center gap-2">
+                            <span className="text-2xl">💍</span>
+                            <span className="text-sm font-medium">Wedding / Engagement</span>
+                            <span className="text-xs opacity-80">(two people)</span>
+                          </div>
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>For events with two people</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
 
-                  {/* Toggle 2: Single Person Mode */}
-                  <div className="inline-flex items-center justify-center gap-3 rounded-full border-2 border-[#7248e6] bg-white px-4 py-2">
-                    <Switch
-                      id="single-person-toggle"
-                      checked={relationMode === 'single'}
-                      onCheckedChange={async (checked) => {
-                        if (!checked) return;
-                        
-                        setRelationMode('single');
-                        setLocalPartner2Name(localPartner1Name);
-                        
-                        if (selectedEvent) {
-                          try {
-                            await supabase
-                              .from('events')
-                              .update({ 
-                                relation_mode: 'single',
-                                relation_allow_single_partner: false,
-                                partner2_name: localPartner1Name
-                              })
-                              .eq('id', selectedEvent.id);
-                            
-                            await updateEvent(selectedEvent.id, { 
-                              relation_allow_single_partner: false,
-                              partner2_name: localPartner1Name
-                            });
-                          } catch (error) {
-                            console.error('Error saving toggle state:', error);
-                          }
-                        }
-                      }}
-                    />
-                    <Label htmlFor="single-person-toggle" className="text-xs font-medium text-[#7248e6] cursor-pointer">
-                      Turn on for single person events (birthdays, etc.)
-                    </Label>
-                  </div>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          type="button"
+                          onClick={() => handleRelationModeChange('single')}
+                          className={cn(
+                            "flex-1 sm:flex-none h-auto py-4 px-6 rounded-xl transition-all duration-200",
+                            relationMode === 'single'
+                              ? "bg-primary text-primary-foreground shadow-lg"
+                              : "bg-background text-foreground border-2 border-primary/30 hover:border-primary/50 hover:bg-primary/5"
+                          )}
+                          style={relationMode === 'single' ? { boxShadow: '0 4px 12px rgba(114, 72, 230, 0.4)' } : undefined}
+                        >
+                          <div className="flex flex-col items-center gap-2">
+                            <span className="text-2xl">🎂</span>
+                            <span className="text-sm font-medium">Single Person Event</span>
+                            <span className="text-xs opacity-80">(birthday, etc.)</span>
+                          </div>
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>For birthdays or solo celebrations</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
 
-                  {/* Toggle 3: Disabled Mode */}
-                  <div className="inline-flex items-center justify-center gap-3 rounded-full border-2 border-[#7248e6] bg-white px-4 py-2">
-                    <Switch
-                      id="disabled-relation-toggle"
-                      checked={relationMode === 'disabled'}
-                      onCheckedChange={async (checked) => {
-                        if (!checked) return;
-                        
-                        setRelationMode('disabled');
-                        
-                        if (selectedEvent) {
-                          try {
-                            await supabase
-                              .from('events')
-                              .update({ 
-                                relation_mode: 'disabled'
-                              })
-                              .eq('id', selectedEvent.id);
-                            
-                            await updateEvent(selectedEvent.id, {});
-                          } catch (error) {
-                            console.error('Error saving toggle state:', error);
-                          }
-                        }
-                      }}
-                    />
-                    <Label htmlFor="disabled-relation-toggle" className="text-xs font-medium text-[#7248e6] cursor-pointer">
-                      Turn off - do not show guest relation
-                    </Label>
-                  </div>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          type="button"
+                          onClick={() => handleRelationModeChange('off')}
+                          className={cn(
+                            "flex-1 sm:flex-none h-auto py-4 px-6 rounded-xl transition-all duration-200",
+                            relationMode === 'off'
+                              ? "bg-primary text-primary-foreground shadow-lg"
+                              : "bg-background text-foreground border-2 border-primary/30 hover:border-primary/50 hover:bg-primary/5"
+                          )}
+                          style={relationMode === 'off' ? { boxShadow: '0 4px 12px rgba(114, 72, 230, 0.4)' } : undefined}
+                        >
+                          <div className="flex flex-col items-center gap-2">
+                            <span className="text-2xl">🚫</span>
+                            <span className="text-sm font-medium">Hide Guest Relation</span>
+                            <span className="text-xs opacity-80">&nbsp;</span>
+                          </div>
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Hide all relation fields</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 </div>
 
-                {/* Separator Line */}
-                <Separator className="border-black/20" />
+                {/* Saved Indicator */}
+                {showRelationSaved && (
+                  <div className="text-center">
+                    <span className="text-sm font-medium text-green-600 animate-in fade-in">
+                      ✅ Saved
+                    </span>
+                  </div>
+                )}
 
-                {/* Row 2: Partner Name Fields - Horizontal */}
-                {relationMode !== 'disabled' && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {/* Partner 1 First Name */}
-                    <div className="flex flex-col gap-2">
-                      <Label htmlFor="partner1-name" className="text-sm font-medium">
-                        Add Partner 1 - First Name
+                {/* Partner Name Inputs */}
+                {relationMode !== 'off' && (
+                  <div className={cn(
+                    "grid gap-4",
+                    relationMode === 'two' ? "sm:grid-cols-2" : "sm:grid-cols-1"
+                  )}>
+                    <div>
+                      <Label htmlFor="partner1_name" className="text-sm font-medium">
+                        {relationMode === 'two' ? 'Partner 1 First Name' : 'Host First Name'}
                       </Label>
                       <Input
-                        id="partner1-name"
-                        type="text"
-                        placeholder="Enter first name"
-                        value={localPartner1Name}
-                        onChange={(e) => handlePartnerNameInputChange('partner1_name', e.target.value)}
-                        className="border-primary focus:ring-primary focus:ring-2 focus:ring-offset-2 font-bold"
+                        id="partner1_name"
+                        value={partner1Name}
+                        onChange={(e) => setPartner1Name(e.target.value)}
+                        onBlur={handleSavePartnerNames}
+                        placeholder={relationMode === 'two' ? "e.g., Reema" : "e.g., Sarah"}
+                        className="mt-1 rounded-full border-2 border-primary/30 focus:border-primary"
                       />
                     </div>
 
-                    {/* Partner 2 First Name */}
-                    <div className="flex flex-col gap-2">
-                      <Label htmlFor="partner2-name" className="text-sm font-medium">
-                        Add Partner 2 - First Name
-                      </Label>
-                      <Input
-                        id="partner2-name"
-                        type="text"
-                        placeholder={relationMode === 'wedding' ? "Enter first name" : "Not applicable"}
-                        value={localPartner2Name}
-                        onChange={(e) => handlePartnerNameInputChange('partner2_name', e.target.value)}
-                        disabled={relationMode !== 'wedding'}
-                        className={cn(
-                          "border-primary focus:ring-primary focus:ring-2 focus:ring-offset-2 font-bold",
-                          relationMode !== 'wedding' && "bg-gray-100 cursor-not-allowed opacity-50 text-gray-400"
-                        )}
-                      />
-                    </div>
+                    {relationMode === 'two' && (
+                      <div>
+                        <Label htmlFor="partner2_name" className="text-sm font-medium">
+                          Partner 2 First Name
+                        </Label>
+                        <Input
+                          id="partner2_name"
+                          value={partner2Name}
+                          onChange={(e) => setPartner2Name(e.target.value)}
+                          onBlur={handleSavePartnerNames}
+                          placeholder="e.g., Hossam"
+                          className="mt-1 rounded-full border-2 border-primary/30 focus:border-primary"
+                        />
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
-              
-              {/* Save Button */}
-              <div className="mt-6 flex justify-center">
-                <Button
-                  variant="default"
-                  size="xs"
-                  onClick={handleManualSavePartnerNames}
-                  disabled={!hasUnsavedChanges || !localPartner1Name?.trim() || (relationMode === 'wedding' && !localPartner2Name?.trim()) || isSaving}
-                  className={`rounded-full px-8 transition-all duration-300 ${
-                    partnerNamesSaved 
-                      ? 'bg-green-500 hover:bg-green-600 text-white' 
-                      : 'bg-red-500 hover:bg-red-600 text-white'
-                  }`}
-                >
-                  {isSaving ? (
-                    'Saving...'
-                  ) : partnerNamesSaved ? (
-                    <>
-                      ✅ Saved
-                    </>
-                  ) : (
-                    'Save'
-                  )}
-                </Button>
-              </div>
-            </Card>
+            </div>
+          </Card>
+        )}
         </div>
 
       <Card className="border-2 border-primary" style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
@@ -1619,7 +1636,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                 <TableHead className="w-20">Table No</TableHead>
                 <TableHead className="w-20">Seat No.</TableHead>
                 <TableHead className="w-24">RSVP Status</TableHead>
-                {relationMode !== 'disabled' && <TableHead className="w-32">Relation</TableHead>}
+                {relationMode !== 'off' && <TableHead className="w-32">Relation</TableHead>}
                 <TableHead className="w-24">Dietary Requirements</TableHead>
                 <TableHead className="w-24 pl-16">Mobile</TableHead>
                 <TableHead className="w-36 pl-16">Email</TableHead>
@@ -1647,7 +1664,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                     {/* Group Header (for couples and families) */}
                     {group.type !== 'individual' && (
                       <TableRow className="bg-purple-50/50 border-l-4 border-l-[#7248e6]">
-                        <TableCell colSpan={relationMode !== 'disabled' ? 13 : 12} className="py-2 px-4">
+                        <TableCell colSpan={relationMode !== 'off' ? 13 : 12} className="py-2 px-4">
                           <div className="flex items-center gap-2">
                             <Users className="w-4 h-4 text-[#7248e6]" />
                             <span className="font-semibold text-sm text-[#7248e6]">
@@ -1718,7 +1735,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                               {getRsvpDisplayLabel(guest.rsvp)}
                             </Badge>
                           </TableCell>
-                          {relationMode !== 'disabled' && (
+                          {relationMode !== 'off' && (
                           <TableCell className="w-32">
                             <RelationBadge
                               display={guest.relation_display || ''}

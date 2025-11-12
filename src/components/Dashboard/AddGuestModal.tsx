@@ -367,8 +367,11 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
           return;
         }
       }
-      // Validate required relation if setting is enabled
-      if (relationSettings.relation_required) {
+      // Get current event's relation mode (type assertion needed as types haven't been regenerated yet)
+      const relationMode = (selectedEvent as any)?.relation_mode || 'two';
+      
+      // Validate required relation if setting is enabled AND relation mode is not 'off'
+      if (relationMode !== 'off' && relationSettings.relation_required) {
         if (!data.relation_partner || !data.relation_role) {
           form.setError('relation_partner', {
             type: 'manual',
@@ -1100,46 +1103,48 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
               )}
             />
 
-            {/* Relation Field */}
-            <div data-field="relation">
-              <FormField
-                control={form.control}
-                name="relation_partner"
-                render={() => (
-                  <FormItem>
-                    <FormLabel>
-                      Relation
-                      {relationSettings.relation_required && <span className="text-red-500 ml-1">*</span>}
-                    </FormLabel>
-                    <FormControl>
-                      <div>
-                        <RelationSelector
-                          value={{
-                            partner: form.watch('relation_partner') as RelationPartner,
-                            role: form.watch('relation_role') as RelationRole,
-                          }}
-                          onChange={handleRelationChange}
-                          partner1Name={selectedEvent?.partner1_name}
-                          partner2Name={selectedEvent?.partner2_name}
-                          customRoles={relationSettings.custom_roles}
-                          allowCustomRoles={relationSettings.relation_allow_custom_role}
-                          isSinglePerson={relationSettings.relation_allow_single_partner}
-                          isOpen={relationSelectorOpen}
-                          onToggle={() => setRelationSelectorOpen(!relationSelectorOpen)}
-                          error={form.formState.errors.relation_partner?.message || form.formState.errors.relation_role?.message}
-                        />
-                      </div>
-                    </FormControl>
-                    {(form.formState.errors.relation_partner || form.formState.errors.relation_role) && (
-                      <p className="text-sm text-red-500 mt-1 flex items-center gap-1">
-                        <AlertCircle className="w-4 h-4" />
-                        {form.formState.errors.relation_partner?.message || form.formState.errors.relation_role?.message}
-                      </p>
-                    )}
-                  </FormItem>
-                )}
-              />
-            </div>
+            {/* Relation Field - Only show if relation mode is not 'off' */}
+            {(selectedEvent as any)?.relation_mode !== 'off' && (
+              <div data-field="relation">
+                <FormField
+                  control={form.control}
+                  name="relation_partner"
+                  render={() => (
+                    <FormItem>
+                      <FormLabel>
+                        Relation
+                        {relationSettings.relation_required && <span className="text-red-500 ml-1">*</span>}
+                      </FormLabel>
+                      <FormControl>
+                        <div>
+                          <RelationSelector
+                            value={{
+                              partner: form.watch('relation_partner') as RelationPartner,
+                              role: form.watch('relation_role') as RelationRole,
+                            }}
+                            onChange={handleRelationChange}
+                            partner1Name={selectedEvent?.partner1_name}
+                            partner2Name={(selectedEvent as any)?.relation_mode === 'two' ? selectedEvent?.partner2_name : undefined}
+                            customRoles={relationSettings.custom_roles}
+                            allowCustomRoles={relationSettings.relation_allow_custom_role}
+                            isSinglePerson={(selectedEvent as any)?.relation_mode === 'single'}
+                            isOpen={relationSelectorOpen}
+                            onToggle={() => setRelationSelectorOpen(!relationSelectorOpen)}
+                            error={form.formState.errors.relation_partner?.message || form.formState.errors.relation_role?.message}
+                          />
+                        </div>
+                      </FormControl>
+                      {(form.formState.errors.relation_partner || form.formState.errors.relation_role) && (
+                        <p className="text-sm text-red-500 mt-1 flex items-center gap-1">
+                          <AlertCircle className="w-4 h-4" />
+                          {form.formState.errors.relation_partner?.message || form.formState.errors.relation_role?.message}
+                        </p>
+                      )}
+                    </FormItem>
+                  )}
+                />
+              </div>
+            )}
 
             {/* Notes */}
             <FormField
