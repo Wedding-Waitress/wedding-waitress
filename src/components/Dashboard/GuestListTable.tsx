@@ -1475,168 +1475,165 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
               </div>
             </div>
             
-            {/* Combined Stats and Actions Row */}
-            <div className="flex items-center justify-between gap-4">
-              {/* Left Side: Stats Pills */}
-              <div className="flex items-center gap-2">
-                {/* Total Guests Badge */}
-                <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium h-9 px-4 bg-white border border-primary text-foreground">
+            {/* Right Side: All Control Buttons */}
+            <div className="flex items-center gap-2 flex-wrap">
+              <TooltipProvider>
+                {/* Sort By Dropdown */}
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button 
+                            variant="default" 
+                            size="xs"
+                            className="rounded-full flex items-center gap-2"
+                            disabled={!selectedEventId}
+                          >
+                            <ArrowUpDown className="w-4 h-4" />
+                            Sort By
+                            <ChevronDown className="w-4 h-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-56">
+                          {SORT_OPTIONS.map((option) => (
+                            <DropdownMenuItem
+                              key={option.value}
+                              onClick={() => handleSortChange(option.value)}
+                              className={sortBy === option.value ? "bg-accent" : ""}
+                            >
+                              {option.label}
+                            </DropdownMenuItem>
+                          ))}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+                  </TooltipTrigger>
+                  {!selectedEventId && (
+                    <TooltipContent>
+                      <p>Choose an event first</p>
+                    </TooltipContent>
+                  )}
+                </Tooltip>
+
+                {/* Import/Export CSV Dropdown */}
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button 
+                            variant="default" 
+                            size="xs"
+                            className="rounded-full flex items-center gap-2"
+                            disabled={!selectedEventId}
+                          >
+                            <FileText className="w-4 h-4" />
+                            Import / Export CSV
+                            <ChevronDown className="w-4 h-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-48">
+                          <DropdownMenuItem onClick={downloadTemplate}>
+                            <Download className="w-4 h-4 mr-2" />
+                            Download Template
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={handleImportCSV}>
+                            <Upload className="w-4 h-4 mr-2" />
+                            Import CSV
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            onClick={exportGuestList}
+                            disabled={guestCount === 0}
+                          >
+                            <Download className="w-4 h-4 mr-2" />
+                            Export Guest List
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+                  </TooltipTrigger>
+                  {!selectedEventId && (
+                    <TooltipContent>
+                      <p>Choose an event first</p>
+                    </TooltipContent>
+                  )}
+                </Tooltip>
+
+                {/* Send Reminders Button */}
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div>
+                      <Button 
+                        variant="outline"
+                        size="xs"
+                        onClick={() => setShowReminderWizard(true)}
+                        disabled={!selectedEventId || guestCount === 0}
+                        className="rounded-full flex items-center gap-2 border-purple-500 text-purple-500 hover:bg-purple-50"
+                      >
+                        <Bell className="w-4 h-4" />
+                        Send Reminders
+                      </Button>
+                    </div>
+                  </TooltipTrigger>
+                  {(!selectedEventId || guestCount === 0) && (
+                    <TooltipContent>
+                      <p>{!selectedEventId ? "Choose an event first" : "Add guests first"}</p>
+                    </TooltipContent>
+                  )}
+                </Tooltip>
+              </TooltipProvider>
+
+              {/* Add Guests button */}
+              {totalGuestCount === 0 ? (
+                <Button 
+                  variant="default"
+                  size="sm"
+                  onClick={handleAddGuest}
+                  className={`${
+                    partnerNamesSaved || firstGuestAdded || totalGuestCount > 0
+                      ? 'bg-green-500 hover:bg-green-600 text-white'
+                      : 'bg-red-500 hover:bg-red-600 text-white'
+                  } rounded-full flex items-center gap-2`}
+                >
                   <Users className="w-4 h-4" />
-                  {guestCount} Guest{guestCount !== 1 ? 's' : ''}
-                </div>
+                  Add First Guest
+                </Button>
+              ) : (
+                <Button 
+                  variant="default" 
+                  size="sm"
+                  onClick={handleAddGuest}
+                  className="bg-green-500 hover:bg-green-600 text-white rounded-full flex items-center gap-2"
+                >
+                  <Users className="w-4 h-4" />
+                  Add Guest
+                </Button>
+              )}
+            </div>
+          </div>
 
-                {/* Individual Badge */}
-                <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium h-9 px-4 bg-[#ff1493] text-white">
-                  {individualCount} Individual
-                </div>
+          {/* Guest Type Stats Row */}
+          <div className="flex items-center justify-end gap-2 px-6 pt-4 pb-4">
+            {/* Total Guests Badge */}
+            <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium ring-offset-background h-9 px-3 w-[140px] bg-white border border-primary text-foreground">
+              <Users className="w-4 h-4" />
+              {guestCount} Guest{guestCount !== 1 ? 's' : ''}
+            </div>
 
-                {/* Couple Badge */}
-                <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium h-9 px-4 bg-[#FF5F1F] text-white">
-                  {coupleCount} Couple
-                </div>
+            {/* Individual Badge */}
+            <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium h-9 px-3 w-[140px] bg-[#ff1493] text-white">
+              {individualCount} Individual
+            </div>
 
-                {/* Family Badge */}
-                <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium h-9 px-4 bg-[#0000FF] text-white">
-                  {familyCount} Family
-                </div>
-              </div>
+            {/* Couple Badge */}
+            <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium h-9 px-3 w-[140px] bg-[#FF5F1F] text-white">
+              {coupleCount} Couple
+            </div>
 
-              {/* Right Side: Action Buttons */}
-              <div className="flex items-center gap-2 flex-wrap">
-                <TooltipProvider>
-                  {/* Sort By Dropdown */}
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <div>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button 
-                              variant="default" 
-                              size="xs"
-                              className="rounded-full flex items-center gap-2"
-                              disabled={!selectedEventId}
-                            >
-                              <ArrowUpDown className="w-4 h-4" />
-                              Sort By
-                              <ChevronDown className="w-4 h-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="w-56">
-                            {SORT_OPTIONS.map((option) => (
-                              <DropdownMenuItem
-                                key={option.value}
-                                onClick={() => handleSortChange(option.value)}
-                                className={sortBy === option.value ? "bg-accent" : ""}
-                              >
-                                {option.label}
-                              </DropdownMenuItem>
-                            ))}
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </div>
-                    </TooltipTrigger>
-                    {!selectedEventId && (
-                      <TooltipContent>
-                        <p>Choose an event first</p>
-                      </TooltipContent>
-                    )}
-                  </Tooltip>
-
-                  {/* Import/Export CSV Dropdown */}
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <div>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button 
-                              variant="default" 
-                              size="xs"
-                              className="rounded-full flex items-center gap-2"
-                              disabled={!selectedEventId}
-                            >
-                              <FileText className="w-4 h-4" />
-                              Import / Export CSV
-                              <ChevronDown className="w-4 h-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="w-48">
-                            <DropdownMenuItem onClick={downloadTemplate}>
-                              <Download className="w-4 h-4 mr-2" />
-                              Download Template
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={handleImportCSV}>
-                              <Upload className="w-4 h-4 mr-2" />
-                              Import CSV
-                            </DropdownMenuItem>
-                            <DropdownMenuItem 
-                              onClick={exportGuestList}
-                              disabled={guestCount === 0}
-                            >
-                              <Download className="w-4 h-4 mr-2" />
-                              Export Guest List
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </div>
-                    </TooltipTrigger>
-                    {!selectedEventId && (
-                      <TooltipContent>
-                        <p>Choose an event first</p>
-                      </TooltipContent>
-                    )}
-                  </Tooltip>
-
-                  {/* Send Reminders Button */}
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <div>
-                        <Button 
-                          variant="outline"
-                          size="xs"
-                          onClick={() => setShowReminderWizard(true)}
-                          disabled={!selectedEventId || guestCount === 0}
-                          className="rounded-full flex items-center gap-2 border-purple-500 text-purple-500 hover:bg-purple-50"
-                        >
-                          <Bell className="w-4 h-4" />
-                          Send Reminders
-                        </Button>
-                      </div>
-                    </TooltipTrigger>
-                    {(!selectedEventId || guestCount === 0) && (
-                      <TooltipContent>
-                        <p>{!selectedEventId ? "Choose an event first" : "Add guests first"}</p>
-                      </TooltipContent>
-                    )}
-                  </Tooltip>
-                </TooltipProvider>
-
-                {/* Add Guests button */}
-                {totalGuestCount === 0 ? (
-                  <Button 
-                    variant="default"
-                    size="sm"
-                    onClick={handleAddGuest}
-                    className={`${
-                      partnerNamesSaved || firstGuestAdded || totalGuestCount > 0
-                        ? 'bg-green-500 hover:bg-green-600 text-white'
-                        : 'bg-red-500 hover:bg-red-600 text-white'
-                    } rounded-full flex items-center gap-2`}
-                  >
-                    <Users className="w-4 h-4" />
-                    Add First Guest
-                  </Button>
-                ) : (
-                  <Button 
-                    variant="default" 
-                    size="sm"
-                    onClick={handleAddGuest}
-                    className="bg-green-500 hover:bg-green-600 text-white rounded-full flex items-center gap-2"
-                  >
-                    <Users className="w-4 h-4" />
-                    Add Guest
-                  </Button>
-                )}
-              </div>
+            {/* Family Badge */}
+            <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium h-9 px-3 w-[140px] bg-[#0000FF] text-white">
+              {familyCount} Family
             </div>
           </div>
         </div>
