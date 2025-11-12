@@ -276,11 +276,42 @@ export const Dashboard = () => {
       case 'table-list':
         if (selectedEventType === 'cocktail') {
           return (
-            <Card className="ww-box p-8 text-center">
-              <CardTitle className="mb-2">Table Management Unavailable</CardTitle>
-              <CardDescription>
-                This is a Cocktail/Stand-up event. Table creation and seating charts are disabled.
-              </CardDescription>
+            <Card className="ww-box">
+              <CardHeader className="flex flex-col gap-4 pb-6">
+                {/* Event Selector */}
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <label className="text-sm font-medium text-foreground whitespace-nowrap">
+                      Choose Event:
+                    </label>
+                    <Select value={globalSelectedEventId || "no-event"} onValueChange={handleGlobalEventSelect}>
+                      <SelectTrigger className="w-[300px] border-primary focus:ring-primary [&>span]:font-bold [&>span]:text-[#7248E6]">
+                        <SelectValue placeholder="Choose Event" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-popover border-border z-50">
+                        {events.length > 0 ? events.map(event => (
+                          <SelectItem key={event.id} value={event.id}>
+                            <div className="flex items-center space-x-2">
+                              <Calendar className="w-4 h-4" />
+                              <span>{event.name}</span>
+                            </div>
+                          </SelectItem>
+                        )) : (
+                          <SelectItem value="no-events" disabled>
+                            {eventsLoading ? "Loading events..." : "No events found"}
+                          </SelectItem>
+                        )}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="text-center py-8">
+                <CardTitle className="mb-2">Table Management Unavailable</CardTitle>
+                <CardDescription>
+                  This is a Cocktail/Stand-up event. Table creation and seating charts are disabled.
+                </CardDescription>
+              </CardContent>
             </Card>
           );
         }
