@@ -1740,7 +1740,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                               if (typeLabel === 'Couple') {
                                 colorClasses = 'bg-[#ffd700] text-black';
                               } else if (typeLabel === 'Family') {
-                                colorClasses = 'bg-[#00ff00] text-black';
+                                colorClasses = 'bg-[#0000FF] text-white';
                               }
                               
                               return (
