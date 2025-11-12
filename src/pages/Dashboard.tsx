@@ -118,16 +118,7 @@ export const Dashboard = () => {
 
   // Get selected event for tables
   const selectedEvent = selectedEventId ? events.find(e => e.id === selectedEventId) : null;
-  const [selectedEventType, setSelectedEventType] = useState<'seated' | 'cocktail' | null>(null);
-
-  useEffect(() => {
-    const loadEventType = async () => {
-      if (!selectedEventId) { setSelectedEventType(null); return; }
-      const { data } = await supabase.from('events').select('event_type').eq('id', selectedEventId).single();
-      setSelectedEventType((data?.event_type as 'seated' | 'cocktail') || 'seated');
-    };
-    loadEventType();
-  }, [selectedEventId, events]);
+  const selectedEventType = selectedEvent?.event_type || 'seated';
 
   // Get selected event for My Events countdown (use events active event)
   const selectedCountdownEvent = eventsActiveEventId ? events.find(e => e.id === eventsActiveEventId) : null;
