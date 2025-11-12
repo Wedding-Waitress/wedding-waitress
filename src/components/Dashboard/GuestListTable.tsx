@@ -158,9 +158,6 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
   // Search state
   const [searchTerm, setSearchTerm] = useState('');
   
-  // Local state for partner names to prevent input interruption
-  const [localPartner1Name, setLocalPartner1Name] = useState('');
-  const [localPartner2Name, setLocalPartner2Name] = useState('');
   const [partnerNamesSaved, setPartnerNamesSaved] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -474,15 +471,15 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
   // Get selected event
   const selectedEvent = events.find(event => event.id === selectedEventId);
 
-  // Update local partner names when selected event changes
+  // Initialize partner names and relation mode when selected event changes
   useEffect(() => {
     if (selectedEvent) {
-      setLocalPartner1Name(selectedEvent.partner1_name || '');
-      setLocalPartner2Name(selectedEvent.partner2_name || '');
+      // Initialize partner names from database
+      setPartner1Name(selectedEvent.partner1_name || '');
+      setPartner2Name(selectedEvent.partner2_name || '');
       
-      // Initialize relation mode from database
-      const mode = (selectedEvent as any).relation_mode || 
-                   (selectedEvent.relation_allow_single_partner !== false ? 'wedding' : 'single');
+      // Initialize relation mode from database with correct default
+      const mode = (selectedEvent as any).relation_mode || 'two'; // Default to 'two' for weddings
       setRelationMode(mode as RelationMode);
       
       // Check if partner names are already saved
@@ -516,103 +513,6 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
     return duplicates.length > 0;
   }, [guests]);
 
-  // Manual save function for partner names
-  const handleManualSavePartnerNames = useCallback(async () => {
-    if (!selectedEvent || isSaving) return;
-
-    const partner1Value = localPartner1Name?.trim();
-    const partner2Value = localPartner2Name?.trim();
-
-    // Validate based on toggle state
-    if (!partner1Value) {
-      toast({
-        title: "Error",
-        description: "Partner 1 name is required",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // Only validate Partner 2 if this is a wedding/engagement (two-person event)
-    if (relationMode === 'two' && !partner2Value) {
-      toast({
-        title: "Error",
-        description: "Both partner names are required for wedding/engagement events",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setIsSaving(true);
-
-    try {
-      const { error } = await supabase
-        .from('events')
-        .update({ 
-          partner1_name: partner1Value,
-          partner2_name: partner2Value 
-        })
-        .eq('id', selectedEvent.id);
-
-      if (error) {
-        console.error('Error updating partner names:', error);
-        toast({
-          title: "Error",
-          description: "Failed to save partner names",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      // Update the selected event in the events hook
-      await updateEvent(selectedEvent.id, { 
-        partner1_name: partner1Value,
-        partner2_name: partner2Value 
-      });
-      
-      setPartnerNamesSaved(true);
-      setHasUnsavedChanges(false);
-      
-      if (showNamesValidation) {
-        setShowNamesValidation(false);
-      }
-      
-      // Analytics tracking when partner names are set
-      whoIsAnalytics.partnerNamesSet(selectedEvent.id);
-      
-      toast({
-        title: "Success",
-        description: "Partner names saved successfully",
-      });
-    } catch (error) {
-      console.error('Error updating partner names:', error);
-      toast({
-        title: "Error",
-        description: "Failed to save partner names",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSaving(false);
-    }
-  }, [selectedEvent, updateEvent, showNamesValidation, localPartner1Name, localPartner2Name, isSaving]);
-
-  // Handler for partner name input changes (no auto-save)
-  const handlePartnerNameInputChange = (field: 'partner1_name' | 'partner2_name', value: string) => {
-    // Update local state immediately for responsive UI
-    if (field === 'partner1_name') {
-      setLocalPartner1Name(value);
-    } else {
-      setLocalPartner2Name(value);
-    }
-
-    // Mark as having unsaved changes
-    setHasUnsavedChanges(true);
-    
-    // Reset saved status since names changed
-    if (partnerNamesSaved) {
-      setPartnerNamesSaved(false);
-    }
-  };
 
   // Sort and filter guests based on selected option and search term
   // Group guests by family for visual display
@@ -1322,7 +1222,12 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                           } : undefined}
                         >
                           <div className="flex flex-col items-center gap-2">
-                            <span className="text-2xl">💍</span>
+                            <div className="relative">
+                              <span className="text-2xl">💍</span>
+                              {relationMode === 'two' && (
+                                <span className="absolute -top-1 -right-1 text-sm">✅</span>
+                              )}
+                            </div>
                             <span className="text-sm font-medium">Wedding / Engagement</span>
                             <span className="text-xs opacity-80">(two people)</span>
                           </div>
@@ -1352,7 +1257,12 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                           } : undefined}
                         >
                           <div className="flex flex-col items-center gap-2">
-                            <span className="text-2xl">🎂</span>
+                            <div className="relative">
+                              <span className="text-2xl">🎂</span>
+                              {relationMode === 'single' && (
+                                <span className="absolute -top-1 -right-1 text-sm">✅</span>
+                              )}
+                            </div>
                             <span className="text-sm font-medium">Single Person Event</span>
                             <span className="text-xs opacity-80">(birthday, etc.)</span>
                           </div>
@@ -1382,7 +1292,12 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                           } : undefined}
                         >
                           <div className="flex flex-col items-center gap-2">
-                            <span className="text-2xl">🚫</span>
+                            <div className="relative">
+                              <span className="text-2xl">🚫</span>
+                              {relationMode === 'off' && (
+                                <span className="absolute -top-1 -right-1 text-sm">✅</span>
+                              )}
+                            </div>
                             <span className="text-sm font-medium">Hide Guest Relation</span>
                             <span className="text-xs opacity-80">&nbsp;</span>
                           </div>
