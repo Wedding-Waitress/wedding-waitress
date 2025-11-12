@@ -24,6 +24,7 @@ export interface Event {
   slug: string | null;
   rsvp_deadline: string | null;
   relation_allow_single_partner: boolean | null;
+  relation_mode?: 'two' | 'single' | 'off' | null;
   event_type?: 'seated' | 'cocktail';
 }
 
@@ -42,7 +43,12 @@ export const useEvents = () => {
   const fetchEvents = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase.rpc('get_events_with_guest_count');
+      
+      // Fetch events with guest count AND relation_mode in parallel
+      const [{ data, error }, { data: modes, error: modeErr }] = await Promise.all([
+        supabase.rpc('get_events_with_guest_count'),
+        supabase.from('events').select('id, relation_mode'),
+      ]);
       
       if (error) {
         console.error('Error fetching events:', error);
@@ -54,11 +60,15 @@ export const useEvents = () => {
         return;
       }
 
+      // Build a map of relation_mode values
+      const modeMap = new Map((modes || []).map((e: any) => [e.id, e.relation_mode]));
+
       setEvents((data || []).map((event: any) => ({
         ...event,
         partner1_name: event.partner1_name || null,
         partner2_name: event.partner2_name || null,
         rsvp_deadline: event.rsvp_deadline || null,
+        relation_mode: modeMap.get(event.id) ?? event.relation_mode ?? null,
       })));
     } catch (error) {
       console.error('Error fetching events:', error);

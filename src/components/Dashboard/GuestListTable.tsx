@@ -486,9 +486,13 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
       setPartner1Name(selectedEvent.partner1_name || '');
       setPartner2Name(selectedEvent.partner2_name || '');
       
-      // Initialize relation mode from database with correct default
-      const mode = (selectedEvent as any).relation_mode || 'two'; // Default to 'two' for weddings
-      setRelationMode(mode as RelationMode);
+      // Only update relationMode if database provides a valid value
+      const modeFromDb = (selectedEvent as any)?.relation_mode;
+      if (modeFromDb === 'two' || modeFromDb === 'single' || modeFromDb === 'off') {
+        if (modeFromDb !== relationMode) {
+          setRelationMode(modeFromDb as RelationMode);
+        }
+      }
       
       // Check if partner names are already saved
       const bothNamesFilled = selectedEvent.partner1_name?.trim() && selectedEvent.partner2_name?.trim();
