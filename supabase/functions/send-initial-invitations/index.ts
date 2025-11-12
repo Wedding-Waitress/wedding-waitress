@@ -2,6 +2,13 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.38.4";
 import { Resend } from "npm:resend@2.0.0";
 import QRCode from "npm:qrcode@1.5.3";
+import { 
+  generateElegantTemplate, 
+  generateModernTemplate, 
+  generateRusticTemplate,
+  type TemplateData,
+  type TemplateType
+} from "./_templates/index.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -96,6 +103,19 @@ const handler = async (req: Request): Promise<Response> => {
 
     let sentCount = 0;
 
+    // Parse template settings from campaign
+    let templateSettings: { template_type?: TemplateType; custom_message?: string; custom_subject?: string } = {};
+    try {
+      if (campaign.message_template) {
+        templateSettings = JSON.parse(campaign.message_template);
+      }
+    } catch (e) {
+      console.log("Could not parse template settings, using defaults");
+    }
+
+    const templateType = templateSettings.template_type || 'modern';
+    const customSubject = templateSettings.custom_subject || `RSVP for ${event.name}`;
+
     // Send invitations
     for (const guest of guests || []) {
       try {
@@ -109,87 +129,46 @@ const handler = async (req: Request): Promise<Response> => {
           },
         });
 
-        // Build personalized email HTML
-        const html = `
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RSVP for ${event.name}</title>
-</head>
-<body style="margin: 0; padding: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f8f9fa;">
-  <table role="presentation" style="width: 100%; border-collapse: collapse;">
-    <tr>
-      <td align="center" style="padding: 40px 20px;">
-        <table role="presentation" style="max-width: 600px; width: 100%; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
-          <!-- Header -->
-          <tr>
-            <td style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px; text-align: center; border-radius: 12px 12px 0 0;">
-              <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 600;">You're Invited!</h1>
-            </td>
-          </tr>
-          
-          <!-- Content -->
-          <tr>
-            <td style="padding: 40px 30px;">
-              <p style="margin: 0 0 20px; color: #333333; font-size: 16px; line-height: 1.6;">
-                Dear ${guest.first_name} ${guest.last_name},
-              </p>
-              
-              <p style="margin: 0 0 30px; color: #555555; font-size: 16px; line-height: 1.6;">
-                ${event.partner1_name}${event.partner2_name ? ` and ${event.partner2_name}` : ''} request the pleasure of your company at their ${event.name}.
-              </p>
-              
-              <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 0 0 30px;">
-                <p style="margin: 0 0 10px; color: #333333; font-size: 14px;"><strong>Date:</strong> ${new Date(event.date).toLocaleDateString()}</p>
-                <p style="margin: 0; color: #333333; font-size: 14px;"><strong>Venue:</strong> ${event.venue}</p>
-              </div>
-              
-              <p style="margin: 0 0 20px; color: #555555; font-size: 16px; line-height: 1.6; text-align: center;">
-                Please scan this QR code or click the button below to RSVP:
-              </p>
-              
-              <!-- QR Code -->
-              <div style="text-align: center; margin: 0 0 30px;">
-                <img src="${qrCodeDataUrl}" alt="RSVP QR Code" style="width: 250px; height: 250px; border: 4px solid #667eea; border-radius: 8px;" />
-              </div>
-              
-              <!-- CTA Button -->
-              <div style="text-align: center; margin: 0 0 20px;">
-                <a href="${eventUrl}" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff; text-decoration: none; padding: 16px 40px; border-radius: 8px; font-size: 16px; font-weight: 600; box-shadow: 0 4px 6px rgba(102, 126, 234, 0.3);">
-                  View My RSVP Details
-                </a>
-              </div>
-              
-              <p style="margin: 0; color: #888888; font-size: 14px; text-align: center; line-height: 1.5;">
-                Can't scan the QR code? Click the button above or copy this link:<br/>
-                <a href="${eventUrl}" style="color: #667eea; text-decoration: none;">${eventUrl}</a>
-              </p>
-            </td>
-          </tr>
-          
-          <!-- Footer -->
-          <tr>
-            <td style="background-color: #f8f9fa; padding: 20px; text-align: center; border-radius: 0 0 12px 12px;">
-              <p style="margin: 0; color: #888888; font-size: 12px;">
-                Powered by <strong>Wedding Waitress</strong>
-              </p>
-            </td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-  </table>
-</body>
-</html>
-        `;
+        // Prepare template data
+        const templateData: TemplateData = {
+          eventName: event.name,
+          eventDate: new Date(event.date).toLocaleDateString('en-US', { 
+            weekday: 'long', 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+          }),
+          eventVenue: event.venue,
+          guestFirstName: guest.first_name,
+          guestLastName: guest.last_name,
+          qrCodeDataUrl,
+          eventUrl,
+          partner1Name: event.partner1_name,
+          partner2Name: event.partner2_name,
+          customMessage: templateSettings.custom_message,
+          customSubject,
+        };
+
+        // Generate HTML based on selected template
+        let html: string;
+        switch (templateType) {
+          case 'elegant':
+            html = generateElegantTemplate(templateData);
+            break;
+          case 'rustic':
+            html = generateRusticTemplate(templateData);
+            break;
+          case 'modern':
+          default:
+            html = generateModernTemplate(templateData);
+            break;
+        }
 
         // Send email via Resend
         const { error: emailError } = await resend.emails.send({
           from: `${notificationSettings.email_from_name || 'Wedding Waitress'} <${notificationSettings.email_from_address}>`,
           to: [guest.email],
-          subject: `RSVP for ${event.name}`,
+          subject: customSubject,
           html,
         });
 

@@ -9,6 +9,9 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { EmailTemplatePreview } from './EmailTemplatePreview';
+
+type TemplateType = 'elegant' | 'modern' | 'rustic';
 
 interface Guest {
   id: string;
@@ -39,6 +42,7 @@ export const InitialInvitationWizard = ({
   const [currentStep, setCurrentStep] = useState<'recipients' | 'template' | 'review'>('recipients');
   const [loading, setLoading] = useState(false);
   const [recipientFilter, setRecipientFilter] = useState<'all' | 'pending' | 'attending'>('all');
+  const [selectedTemplate, setSelectedTemplate] = useState<TemplateType>('modern');
   const [customSubject, setCustomSubject] = useState(`RSVP for ${eventName}`);
   const [customMessage, setCustomMessage] = useState('');
 
@@ -65,7 +69,7 @@ export const InitialInvitationWizard = ({
       if (recipientFilter === 'pending') targetStatus = ['Pending'];
       else if (recipientFilter === 'attending') targetStatus = ['Attending'];
 
-      // Create campaign
+      // Create campaign with template settings
       const { data: campaign, error: campaignError } = await supabase
         .from('rsvp_reminder_campaigns')
         .insert({
@@ -73,7 +77,11 @@ export const InitialInvitationWizard = ({
           user_id: user.id,
           name: `Initial Invitations - ${new Date().toLocaleDateString()}`,
           target_status: targetStatus,
-          message_template: customMessage || 'Default invitation message',
+          message_template: JSON.stringify({
+            template_type: selectedTemplate,
+            custom_message: customMessage,
+            custom_subject: customSubject,
+          }),
           delivery_method: 'email',
           campaign_type: 'initial_invitation',
           status: 'pending',
@@ -101,6 +109,8 @@ export const InitialInvitationWizard = ({
       // Reset wizard
       setCurrentStep('recipients');
       setRecipientFilter('all');
+      setSelectedTemplate('modern');
+      setCustomSubject(`RSVP for ${eventName}`);
       setCustomMessage('');
     } catch (error: any) {
       console.error('Failed to send invitations:', error);
@@ -191,44 +201,63 @@ export const InitialInvitationWizard = ({
           </TabsContent>
 
           {/* Step 2: Email Template */}
-          <TabsContent value="template" className="space-y-4 mt-4">
-            <div className="space-y-3">
-              <div>
-                <Label htmlFor="subject">Email Subject</Label>
-                <Input
-                  id="subject"
-                  value={customSubject}
-                  onChange={(e) => setCustomSubject(e.target.value)}
-                  placeholder={`RSVP for ${eventName}`}
-                  className="mt-1"
+          <TabsContent value="template" className="space-y-5 mt-4">
+            <div className="space-y-4">
+              {/* Template Selection */}
+              <div className="space-y-3">
+                <div>
+                  <Label className="text-base font-semibold">Choose Template Style</Label>
+                  <p className="text-sm text-muted-foreground mt-1">Select the design that matches your event aesthetic</p>
+                </div>
+                <EmailTemplatePreview 
+                  selectedTemplate={selectedTemplate}
+                  onSelectTemplate={setSelectedTemplate}
                 />
               </div>
 
-              <div>
-                <Label htmlFor="message">Custom Message (Optional)</Label>
-                <Textarea
-                  id="message"
-                  value={customMessage}
-                  onChange={(e) => setCustomMessage(e.target.value)}
-                  placeholder="Add a personal message that will appear in the invitation email..."
-                  rows={4}
-                  className="mt-1"
-                />
+              {/* Customization */}
+              <div className="space-y-3 pt-4 border-t">
+                <Label className="text-base font-semibold">Customize Details</Label>
+                
+                <div>
+                  <Label htmlFor="subject">Email Subject</Label>
+                  <Input
+                    id="subject"
+                    value={customSubject}
+                    onChange={(e) => setCustomSubject(e.target.value)}
+                    placeholder={`RSVP for ${eventName}`}
+                    className="mt-1"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="message">Custom Message (Optional)</Label>
+                  <Textarea
+                    id="message"
+                    value={customMessage}
+                    onChange={(e) => setCustomMessage(e.target.value)}
+                    placeholder="Add a personal message that will appear in the invitation email..."
+                    rows={4}
+                    className="mt-1"
+                  />
+                </div>
               </div>
 
+              {/* What's Included */}
               <div className="p-4 border rounded-lg bg-card">
-                <h4 className="font-semibold mb-2">Email Preview</h4>
-                <div className="text-sm text-muted-foreground space-y-2">
-                  <p>✅ Event details (date, venue)</p>
-                  <p>✅ QR code (auto-generated)</p>
+                <h4 className="font-semibold mb-2">What's Included</h4>
+                <div className="text-sm text-muted-foreground space-y-1.5">
+                  <p>✅ Personalized greeting with guest name</p>
+                  <p>✅ Event details (date, venue, hosts)</p>
+                  <p>✅ Embedded QR code for quick RSVP</p>
                   <p>✅ Clickable RSVP button</p>
-                  <p>✅ Guest personalization (first name, last name)</p>
-                  <p>✅ Professional HTML template with Wedding Waitress branding</p>
+                  <p>✅ Professional {selectedTemplate} design</p>
+                  <p>✅ Mobile-optimized layout</p>
                 </div>
               </div>
             </div>
 
-            <div className="flex justify-between">
+            <div className="flex justify-between pt-2">
               <Button variant="outline" onClick={() => setCurrentStep('recipients')}>
                 Back
               </Button>
@@ -245,6 +274,10 @@ export const InitialInvitationWizard = ({
                 <div>
                   <h4 className="font-semibold text-sm text-muted-foreground">Recipients</h4>
                   <p className="text-lg font-semibold">{filteredGuests.length} guests</p>
+                </div>
+                <div>
+                  <h4 className="font-semibold text-sm text-muted-foreground">Template Style</h4>
+                  <p className="text-lg font-semibold capitalize">{selectedTemplate}</p>
                 </div>
                 <div>
                   <h4 className="font-semibold text-sm text-muted-foreground">Delivery Method</h4>
