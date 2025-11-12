@@ -1726,9 +1726,9 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                           </TableCell>
                           )}
                     <TableCell className="w-24">
-                      <Badge variant="default" className="text-xs bg-primary text-white">
-                        {guest.dietary}
-                      </Badge>
+                      <span className="text-sm text-foreground">
+                        {guest.dietary || '—'}
+                      </span>
                     </TableCell>
                           <TableCell className="w-24 pl-16">{renderPill(!!guest.mobile && guest.mobile.trim() !== '')}</TableCell>
                           <TableCell className="w-36 pl-16">{renderPill(!!guest.email && guest.email.trim() !== '')}</TableCell>
