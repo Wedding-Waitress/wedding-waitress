@@ -30,11 +30,29 @@ serve(async (req) => {
     }
 
     // Get target guests
-    const { data: guests } = await supabase
+    let guestsQuery = supabase
       .from('guests')
       .select('*, communication_preferences:guest_communication_preferences(*)')
-      .eq('event_id', campaign.event_id)
-      .in('rsvp', campaign.target_status);
+      .eq('event_id', campaign.event_id);
+
+    // If target_status is 'Custom', use guest IDs from metadata
+    if (campaign.target_status.includes('Custom')) {
+      const guestIds = campaign.metadata?.guest_ids || [];
+      if (guestIds.length > 0) {
+        guestsQuery = guestsQuery.in('id', guestIds);
+      } else {
+        // No guest IDs provided for custom selection
+        return new Response(
+          JSON.stringify({ message: 'No guest IDs provided for custom selection' }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+        );
+      }
+    } else {
+      // Standard RSVP status filter
+      guestsQuery = guestsQuery.in('rsvp', campaign.target_status);
+    }
+
+    const { data: guests } = await guestsQuery;
 
     if (!guests || guests.length === 0) {
       return new Response(

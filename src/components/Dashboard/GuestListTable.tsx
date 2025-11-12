@@ -196,6 +196,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
   const [showReminderWizard, setShowReminderWizard] = useState(false);
   const [showIndividualReminder, setShowIndividualReminder] = useState(false);
   const [reminderGuest, setReminderGuest] = useState<any>(null);
+  const [showSelectedGuestsReminder, setShowSelectedGuestsReminder] = useState(false);
   
   // Bulk selection state
   const [selectedGuestIds, setSelectedGuestIds] = useState<Set<string>>(new Set());
@@ -1581,12 +1582,12 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <div>
-                      <Button 
+                       <Button 
                         variant="outline"
                         size="xs"
                         onClick={() => setShowReminderWizard(true)}
                         disabled={!selectedEventId || guestCount === 0}
-                        className="rounded-full flex items-center gap-2 border-purple-500 text-purple-500 hover:bg-purple-50"
+                        className="rounded-full flex items-center gap-2 bg-gradient-to-r from-purple-600 to-purple-700 hover:opacity-90 text-white border-0"
                       >
                         <Bell className="w-4 h-4" />
                         Send Reminders
@@ -1885,6 +1886,20 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
           />
         )}
 
+        {/* Bulk Reminder Wizard for Selected Guests */}
+        {showSelectedGuestsReminder && (
+          <BulkReminderWizard
+            isOpen={showSelectedGuestsReminder}
+            onClose={() => {
+              setShowSelectedGuestsReminder(false);
+              setSelectedGuestIds(new Set());
+            }}
+            eventId={selectedEventId || ''}
+            guests={sortedGuests.filter(g => selectedGuestIds.has(g.id))}
+            mode="selected"
+          />
+        )}
+
         {/* Individual Reminder Modal */}
         <IndividualReminderModal
           isOpen={showIndividualReminder}
@@ -1907,6 +1922,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
             onUpdateRsvp={() => setShowBulkRsvpModal(true)}
             onDelete={() => setShowBulkDeleteModal(true)}
             onCancel={handleDeselectAll}
+            onSendReminder={() => setShowSelectedGuestsReminder(true)}
           />
         )}
 

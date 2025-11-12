@@ -47,14 +47,30 @@ export const useReminderCampaigns = (eventId: string | null) => {
     }
   };
 
-  const createCampaign = async (campaignData: any) => {
+  const createCampaign = async (campaignData: {
+    event_id: string;
+    name: string;
+    target_status: string[];
+    message_template: string;
+    delivery_method: string;
+    status: string;
+    scheduled_for: string | null;
+    total_count: number;
+    guest_ids?: string[];
+  }) => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
       const { data, error } = await supabase
         .from('rsvp_reminder_campaigns')
-        .insert([{ ...campaignData, user_id: user.id }])
+        .insert([{ 
+          ...campaignData, 
+          user_id: user.id,
+          metadata: campaignData.guest_ids 
+            ? { guest_ids: campaignData.guest_ids }
+            : null
+        }])
         .select()
         .single();
 

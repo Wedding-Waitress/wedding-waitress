@@ -12,12 +12,14 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Send, ArrowRight, ArrowLeft, Check, DollarSign, Info } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useReminderCampaigns } from '@/hooks/useReminderCampaigns';
+import { getRsvpDisplayLabel } from '@/lib/rsvp';
 
 interface BulkReminderWizardProps {
   isOpen: boolean;
   onClose: () => void;
   eventId: string;
   guests: any[];
+  mode?: 'bulk' | 'selected';
 }
 
 const STEPS = ['Recipients', 'Method', 'Message', 'Schedule', 'Review'];
@@ -26,7 +28,8 @@ export const BulkReminderWizard: React.FC<BulkReminderWizardProps> = ({
   isOpen,
   onClose,
   eventId,
-  guests
+  guests,
+  mode = 'bulk'
 }) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [targetStatus, setTargetStatus] = useState(['Pending']);
@@ -62,13 +65,16 @@ export const BulkReminderWizard: React.FC<BulkReminderWizardProps> = ({
     try {
       const campaign = await createCampaign({
         event_id: eventId,
-        name: `Reminder - ${new Date().toLocaleDateString()}`,
-        target_status: targetStatus,
+        name: mode === 'selected' 
+          ? `Selected Guests - ${new Date().toLocaleDateString()}`
+          : `Reminder - ${new Date().toLocaleDateString()}`,
+        target_status: mode === 'selected' ? ['Custom'] : targetStatus,
         message_template: message,
         delivery_method: useCascade ? 'cascade' : deliveryMethod,
         status: scheduleType === 'immediate' ? 'sending' : 'scheduled',
         scheduled_for: scheduleType === 'scheduled' ? scheduledDate : null,
-        total_count: filteredGuests.length
+        total_count: mode === 'selected' ? guests.length : filteredGuests.length,
+        guest_ids: mode === 'selected' ? guests.map(g => g.id) : undefined
       });
 
       if (campaign && scheduleType === 'immediate') {
@@ -76,10 +82,10 @@ export const BulkReminderWizard: React.FC<BulkReminderWizardProps> = ({
       }
 
       toast({
-        title: '🎉 Success',
+        title: 'Success',
         description: scheduleType === 'immediate' 
-          ? `🎉 Reminders successfully sent to ${filteredGuests.length} guests`
-          : `⏰ Reminder scheduled for ${filteredGuests.length} guests`
+          ? `🎉 Reminders successfully sent to ${mode === 'selected' ? guests.length : filteredGuests.length} guests`
+          : `⏰ Reminder scheduled for ${mode === 'selected' ? guests.length : filteredGuests.length} guests`
       });
       
       onClose();
@@ -99,26 +105,49 @@ export const BulkReminderWizard: React.FC<BulkReminderWizardProps> = ({
       case 0: // Recipients
         return (
           <div className="space-y-4">
-            <div>
-              <Label>Target Recipients</Label>
-              <RadioGroup value={targetStatus[0]} onValueChange={(val) => setTargetStatus([val])} className="mt-2">
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="Pending" id="pending" />
-                  <Label htmlFor="pending">Pending RSVPs only</Label>
+            {mode === 'selected' ? (
+              <div>
+                <Label>Selected Guests</Label>
+                <div className="mt-2 p-4 bg-muted rounded-lg max-h-60 overflow-y-auto">
+                  <div className="space-y-2">
+                    {guests.map(guest => (
+                      <div key={guest.id} className="flex items-center gap-2 text-sm">
+                        <Badge variant="outline" className="text-xs">
+                          {getRsvpDisplayLabel(guest.rsvp)}
+                        </Badge>
+                        <span>{guest.first_name} {guest.last_name}</span>
+                        {guest.mobile && <span className="text-muted-foreground">📱</span>}
+                        {guest.email && <span className="text-muted-foreground">✉️</span>}
+                      </div>
+                    ))}
+                  </div>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="Not Attending" id="declined" />
-                  <Label htmlFor="declined">Declined</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="All" id="all" />
-                  <Label htmlFor="all">All guests</Label>
-                </div>
-              </RadioGroup>
-            </div>
-            <Badge variant="secondary" className="text-sm">
-              {filteredGuests.length} guests will receive this reminder
-            </Badge>
+                <Badge variant="secondary" className="text-sm mt-2">
+                  {guests.length} guest{guests.length !== 1 ? 's' : ''} selected
+                </Badge>
+              </div>
+            ) : (
+              <div>
+                <Label>Target Recipients</Label>
+                <RadioGroup value={targetStatus[0]} onValueChange={(val) => setTargetStatus([val])} className="mt-2">
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="Pending" id="pending" />
+                    <Label htmlFor="pending">Pending RSVPs only</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="Not Attending" id="declined" />
+                    <Label htmlFor="declined">Declined</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="All" id="all" />
+                    <Label htmlFor="all">All guests</Label>
+                  </div>
+                </RadioGroup>
+                <Badge variant="secondary" className="text-sm mt-2">
+                  {filteredGuests.length} guests will receive this reminder
+                </Badge>
+              </div>
+            )}
           </div>
         );
 
@@ -202,7 +231,7 @@ export const BulkReminderWizard: React.FC<BulkReminderWizardProps> = ({
         return (
           <div className="space-y-4">
             <div className="bg-muted p-4 rounded-lg space-y-2">
-              <p><strong>Recipients:</strong> {filteredGuests.length} guests ({targetStatus.join(', ')})</p>
+              <p><strong>Recipients:</strong> {mode === 'selected' ? guests.length : filteredGuests.length} guests {mode === 'bulk' ? `(${targetStatus.join(', ')})` : '(Custom Selection)'}</p>
               <p><strong>Method:</strong> {useCascade ? 'Cascade (WhatsApp → SMS → Email)' : deliveryMethod}</p>
               <p><strong>Schedule:</strong> {scheduleType === 'immediate' ? 'Send now' : scheduledDate}</p>
             </div>
@@ -223,7 +252,9 @@ export const BulkReminderWizard: React.FC<BulkReminderWizardProps> = ({
       <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            Send RSVP Follow-Up Reminders
+            {mode === 'selected' 
+              ? 'Send Reminder to Selected Guests' 
+              : 'Send RSVP Follow-Up Reminders'}
             <Badge variant="outline" className="ml-auto flex items-center gap-1">
               <DollarSign className="w-3 h-3" />
               SMS/WhatsApp Charges Apply
