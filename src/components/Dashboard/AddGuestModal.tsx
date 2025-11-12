@@ -709,7 +709,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                     className={cn(
                       "flex-1 py-2 px-6 rounded-full text-sm font-medium transition-all duration-200",
                       guestType === 'couple'
-                        ? "bg-[#FF5F1F] text-black shadow-sm"
+                        ? "bg-[#FF5F1F] text-white shadow-sm"
                         : "text-gray-600 hover:text-gray-900"
                     )}
                   >
