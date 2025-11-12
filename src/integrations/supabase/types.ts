@@ -2104,6 +2104,7 @@ export type Database = {
           date: string
           event_created: string
           event_timezone: string
+          event_type: string
           expiry_date: string
           expiry_date_local: string
           finish_time: string

@@ -37,6 +37,7 @@ interface Event {
   partner1_name: string | null;
   partner2_name: string | null;
   rsvp_deadline: string | null;
+  event_type?: 'seated' | 'cocktail';
 }
 
 // Format event date as DAY{ordinal}, Month YYYY (e.g., "20th, September 2025")
