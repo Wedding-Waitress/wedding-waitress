@@ -91,27 +91,34 @@ serve(async (req) => {
           deliveryStatus = 'sent';
           sentCount++;
         } else if ((campaign.delivery_method === 'sms' || campaign.delivery_method === 'whatsapp') && guest.mobile) {
-          const twilioModule = await import('npm:twilio@4.0.0');
-          const twilio = twilioModule.default(
-            apiSettings.twilio_account_sid,
-            apiSettings.twilio_auth_token
-          );
+          // Check if Twilio credentials are configured
+          if (!apiSettings?.twilio_account_sid || !apiSettings?.twilio_auth_token || !notifSettings?.twilio_sender_id) {
+            console.log(`[PREVIEW MODE] Would send ${campaign.delivery_method.toUpperCase()} to ${guest.first_name} ${guest.last_name} (${guest.mobile}):`, message);
+            deliveryStatus = 'preview';
+            errorMessage = 'Twilio credentials not configured (preview mode)';
+          } else {
+            const twilioModule = await import('npm:twilio@4.0.0');
+            const twilio = twilioModule.default(
+              apiSettings.twilio_account_sid,
+              apiSettings.twilio_auth_token
+            );
 
-          const fromNumber = campaign.delivery_method === 'whatsapp' 
-            ? `whatsapp:${notifSettings.twilio_sender_id}`
-            : notifSettings.twilio_sender_id;
-          
-          const toNumber = campaign.delivery_method === 'whatsapp'
-            ? `whatsapp:${guest.mobile}`
-            : guest.mobile;
+            const fromNumber = campaign.delivery_method === 'whatsapp' 
+              ? `whatsapp:${notifSettings.twilio_sender_id}`
+              : notifSettings.twilio_sender_id;
+            
+            const toNumber = campaign.delivery_method === 'whatsapp'
+              ? `whatsapp:${guest.mobile}`
+              : guest.mobile;
 
-          await twilio.messages.create({
-            from: fromNumber,
-            to: toNumber,
-            body: message,
-          });
-          deliveryStatus = 'sent';
-          sentCount++;
+            await twilio.messages.create({
+              from: fromNumber,
+              to: toNumber,
+              body: message,
+            });
+            deliveryStatus = 'sent';
+            sentCount++;
+          }
         } else {
           errorMessage = 'No contact method available';
         }

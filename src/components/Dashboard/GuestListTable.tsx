@@ -84,6 +84,7 @@ import { BulkReminderWizard } from './BulkReminderWizard';
 import { GuestBulkActionsBar } from './GuestBulkActionsBar';
 import { BulkTableAssignmentModal } from './BulkTableAssignmentModal';
 import { BulkRsvpUpdateModal } from './BulkRsvpUpdateModal';
+import { IndividualReminderModal } from './IndividualReminderModal';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Checkbox } from '@/components/ui/checkbox';
 import { 
@@ -193,6 +194,8 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
   const [partner1Name, setPartner1Name] = useState('');
   const [partner2Name, setPartner2Name] = useState('');
   const [showReminderWizard, setShowReminderWizard] = useState(false);
+  const [showIndividualReminder, setShowIndividualReminder] = useState(false);
+  const [reminderGuest, setReminderGuest] = useState<any>(null);
   
   // Bulk selection state
   const [selectedGuestIds, setSelectedGuestIds] = useState<Set<string>>(new Set());
@@ -1806,8 +1809,19 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                             })()}
                           </TableCell>
                           <TableCell className="w-20">{renderPill(!!guest.notes && guest.notes.trim() !== '')}</TableCell>
-                          <TableCell className="w-24">
-                            <div className="flex items-center space-x-2">
+                          <TableCell className="w-28">
+                            <div className="flex items-center space-x-1">
+                              <Button 
+                                variant="ghost" 
+                                size="sm"
+                                onClick={() => {
+                                  setReminderGuest(guest);
+                                  setShowIndividualReminder(true);
+                                }}
+                                title="Send individual reminder"
+                              >
+                                <Bell className="w-4 h-4 text-purple-500" />
+                              </Button>
                               <Button 
                                 variant="ghost" 
                                 size="sm"
@@ -1870,6 +1884,17 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
             guests={guests}
           />
         )}
+
+        {/* Individual Reminder Modal */}
+        <IndividualReminderModal
+          isOpen={showIndividualReminder}
+          onClose={() => {
+            setShowIndividualReminder(false);
+            setReminderGuest(null);
+          }}
+          guest={reminderGuest}
+          eventName={selectedEvent?.name || 'Your Event'}
+        />
 
         {/* Bulk Actions Toolbar */}
         {selectedGuestIds.size > 0 && (

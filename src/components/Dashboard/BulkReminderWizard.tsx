@@ -75,10 +75,10 @@ export const BulkReminderWizard: React.FC<BulkReminderWizardProps> = ({
       }
 
       toast({
-        title: 'Success',
+        title: '🎉 Success',
         description: scheduleType === 'immediate' 
-          ? `Sending reminders to ${filteredGuests.length} guests`
-          : `Reminder scheduled for ${filteredGuests.length} guests`
+          ? `🎉 Reminders successfully sent to ${filteredGuests.length} guests`
+          : `⏰ Reminder scheduled for ${filteredGuests.length} guests`
       });
       
       onClose();
@@ -163,7 +163,14 @@ export const BulkReminderWizard: React.FC<BulkReminderWizardProps> = ({
                 Variables: {'{guest_name}'}, {'{event_name}'}, {'{rsvp_deadline}'}, {'{qr_link}'}
               </p>
             </div>
-            <Badge variant="outline">{message.length} characters</Badge>
+            <div className="flex items-center gap-2">
+              <Badge variant="outline">{message.length} characters</Badge>
+              {deliveryMethod === 'sms' && (
+                <Badge variant="secondary" className="text-xs">
+                  📱 {Math.ceil(message.length / 160)} SMS {message.length > 160 ? '(Multi-part)' : ''}
+                </Badge>
+              )}
+            </div>
           </div>
         );
 
@@ -250,13 +257,17 @@ export const BulkReminderWizard: React.FC<BulkReminderWizardProps> = ({
             </Button>
             
             {currentStep === STEPS.length - 1 ? (
-              <Button onClick={handleSend} disabled={sending}>
+              <Button 
+                onClick={handleSend} 
+                disabled={sending}
+                className="bg-gradient-to-r from-[hsl(var(--primary))] to-[#764ba2] hover:opacity-90 text-white"
+              >
                 {sending ? (
                   'Sending...'
                 ) : (
                   <>
                     <Send className="w-4 h-4 mr-2" />
-                    Send Reminders
+                    📤 Send Reminders
                   </>
                 )}
               </Button>

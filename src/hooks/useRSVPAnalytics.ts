@@ -68,7 +68,7 @@ export const useRSVPAnalytics = (eventId: string | null) => {
   useEffect(() => {
     fetchAnalytics();
 
-    // Subscribe to real-time updates
+    // Subscribe to real-time updates for instant analytics refresh
     if (eventId) {
       const channel = supabase
         .channel(`rsvp-analytics:${eventId}`)
@@ -81,6 +81,20 @@ export const useRSVPAnalytics = (eventId: string | null) => {
             filter: `event_id=eq.${eventId}`,
           },
           () => {
+            console.log('📊 Real-time guest update detected, refreshing analytics...');
+            fetchAnalytics();
+          }
+        )
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'rsvp_reminder_campaigns',
+            filter: `event_id=eq.${eventId}`,
+          },
+          () => {
+            console.log('📧 Real-time campaign update detected, refreshing analytics...');
             fetchAnalytics();
           }
         )
