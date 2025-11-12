@@ -1735,18 +1735,18 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                           <TableCell className="w-28">
                             {(() => {
                               const typeLabel = getGuestTypeLabel(guest);
-                              let variant: 'single' | 'success' | 'default' = 'single';
+                              let colorClasses = 'bg-[#ff1493] text-white';
                               
                               if (typeLabel === 'Couple') {
-                                variant = 'default'; // Purple
+                                colorClasses = 'bg-[#ffd700] text-black';
                               } else if (typeLabel === 'Family') {
-                                variant = 'success'; // Green
+                                colorClasses = 'bg-[#00ff00] text-black';
                               }
                               
                               return (
-                                <Badge variant={variant} className="text-xs">
+                                <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${colorClasses}`}>
                                   {typeLabel}
-                                </Badge>
+                                </span>
                               );
                             })()}
                           </TableCell>
