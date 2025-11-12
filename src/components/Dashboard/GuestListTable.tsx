@@ -1555,7 +1555,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                   className={`${
                     partnerNamesSaved || firstGuestAdded || totalGuestCount > 0
                       ? 'bg-green-500 hover:bg-green-600 text-white'
-                      : 'bg-gradient-primary text-primary-foreground hover:shadow-purple-glow hover:scale-105 transform transition-all duration-300'
+                      : 'bg-red-500 hover:bg-red-600 text-white'
                   } rounded-full flex items-center gap-2`}
                 >
                   <Users className="w-4 h-4" />
