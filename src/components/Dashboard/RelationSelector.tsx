@@ -2,8 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { Check } from 'lucide-react';
 import { Button } from "@/components/ui/enhanced-button";
 import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { RelationPartner, RelationRole, getAllRoleOptions, computeRelationDisplay } from "@/lib/relationUtils";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface RelationSelectorProps {
   value: {
@@ -19,6 +22,8 @@ interface RelationSelectorProps {
   customRoles?: string[];
   allowCustomRoles?: boolean;
   isSinglePerson?: boolean;
+  eventId: string;
+  onCustomRoleAdded?: (roles: string[]) => void;
 }
 
 export const RelationSelector: React.FC<RelationSelectorProps> = ({
@@ -31,10 +36,15 @@ export const RelationSelector: React.FC<RelationSelectorProps> = ({
   error,
   customRoles = [],
   allowCustomRoles = false,
-  isSinglePerson = false
+  isSinglePerson = false,
+  eventId,
+  onCustomRoleAdded
 }) => {
+  const { toast } = useToast();
   const [selectedPartner, setSelectedPartner] = useState<RelationPartner>(value.partner);
   const [selectedRole, setSelectedRole] = useState<RelationRole>(value.role);
+  const [newCustomRole, setNewCustomRole] = useState('');
+  const [isAddingRole, setIsAddingRole] = useState(false);
 
   // Get all available role options (default + custom)
   const roleOptions = getAllRoleOptions(allowCustomRoles ? customRoles : []);
@@ -58,7 +68,65 @@ export const RelationSelector: React.FC<RelationSelectorProps> = ({
     // Reset to current value
     setSelectedPartner(value.partner);
     setSelectedRole(value.role);
+    setNewCustomRole('');
     onToggle();
+  };
+
+  const handleAddCustomRole = async () => {
+    const roleName = newCustomRole.trim();
+    if (!roleName) return;
+    
+    // Check if already exists (case-insensitive)
+    if (customRoles.some(r => r.toLowerCase() === roleName.toLowerCase())) {
+      toast({
+        title: "Already Exists",
+        description: "This custom relation already exists",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setIsAddingRole(true);
+    try {
+      const updatedRoles = [...customRoles, roleName];
+      
+      const { error } = await supabase
+        .from('events')
+        .update({ custom_roles: updatedRoles })
+        .eq('id', eventId);
+      
+      if (!error) {
+        // Create the custom role value
+        const customRoleValue = `custom_${roleName.toLowerCase().replace(/\s+/g, '_')}` as RelationRole;
+        
+        // Auto-select the newly created role
+        setSelectedRole(customRoleValue);
+        
+        // Clear input
+        setNewCustomRole('');
+        
+        // Notify parent
+        if (onCustomRoleAdded) {
+          onCustomRoleAdded(updatedRoles);
+        }
+        
+        toast({
+          title: "Custom Relation Added",
+          description: `"${roleName}" has been added and selected`,
+        });
+      } else {
+        throw error;
+      }
+    } catch (error) {
+      console.error('Error adding custom role:', error);
+      toast({
+        title: "Error",
+        description: "Failed to add custom relation",
+        variant: "destructive",
+      });
+    } finally {
+      setIsAddingRole(false);
+    }
   };
 
   // Display current selection
@@ -182,6 +250,40 @@ export const RelationSelector: React.FC<RelationSelectorProps> = ({
                 )}
               </div>
             </div>
+
+            {/* Add Custom Role Section - only show if allowCustomRoles is true */}
+            {allowCustomRoles && (
+              <div className="border-t bg-muted/10 p-3">
+                <div className="text-xs font-medium text-muted-foreground mb-2">
+                  Add New Custom Relation
+                </div>
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Type relation name..."
+                    value={newCustomRole}
+                    onChange={(e) => setNewCustomRole(e.target.value)}
+                    onKeyPress={(e) => {
+                      if (e.key === 'Enter' && newCustomRole.trim()) {
+                        e.preventDefault();
+                        handleAddCustomRole();
+                      }
+                    }}
+                    className="flex-1 h-8 text-sm"
+                    disabled={isAddingRole}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleAddCustomRole}
+                    disabled={!newCustomRole.trim() || isAddingRole}
+                    className="h-8 px-3"
+                  >
+                    {isAddingRole ? 'Adding...' : 'Add'}
+                  </Button>
+                </div>
+              </div>
+            )}
 
             {/* Footer Actions */}
             <div className="flex justify-end gap-2 p-3 border-t bg-muted/20">

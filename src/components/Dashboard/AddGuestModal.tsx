@@ -1149,6 +1149,13 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                             isOpen={relationSelectorOpen}
                             onToggle={() => setRelationSelectorOpen(!relationSelectorOpen)}
                             error={form.formState.errors.relation_partner?.message || form.formState.errors.relation_role?.message}
+                            eventId={eventId}
+                            onCustomRoleAdded={(updatedRoles) => {
+                              setRelationSettings(prev => ({
+                                ...prev,
+                                custom_roles: updatedRoles
+                              }));
+                            }}
                           />
                         </div>
                       </FormControl>
