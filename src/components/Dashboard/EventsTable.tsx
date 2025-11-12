@@ -28,6 +28,7 @@ interface Event {
   finish_time: string | null;
   guest_limit: number;
   guests_count: number;
+  unassigned_guests_count: number;
   created_at: string;
   event_created: string | null;
   expiry_date: string | null;
@@ -94,6 +95,40 @@ const getExpiryDateFallback = (createdDate: string | null, timezone?: string | n
   });
   return localDateString;
 };
+
+// Helper to get badge color and content based on unassigned count
+const getUnassignedBadge = (unassignedCount: number, totalGuests: number) => {
+  if (totalGuests === 0) {
+    return {
+      color: 'bg-gray-300 text-gray-600',
+      content: '0',
+      tooltip: 'No guests created yet'
+    };
+  }
+  
+  if (unassignedCount === 0) {
+    return {
+      color: 'bg-green-500 text-white',
+      content: '✓',
+      tooltip: 'All guests assigned to tables'
+    };
+  }
+  
+  if (unassignedCount >= 10) {
+    return {
+      color: 'bg-red-500 text-white',
+      content: unassignedCount.toString(),
+      tooltip: `${unassignedCount} guests unassigned`
+    };
+  }
+  
+  return {
+    color: 'bg-yellow-500 text-white',
+    content: unassignedCount.toString(),
+    tooltip: `${unassignedCount} guest${unassignedCount === 1 ? '' : 's'} unassigned`
+  };
+};
+
 interface EventsTableProps {
   events: Event[];
   loading: boolean;
@@ -274,14 +309,41 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                         <RadioGroupItem value={event.id} id={`countdown-${event.id}`} className="data-[state=checked]:border-green-500 data-[state=checked]:text-green-500" onClick={() => handleEventSelect(event.id)} />
                       </div>
                     </TableCell>
-                    <TableCell className="font-medium w-32">
-                      <div className="flex items-center">
-                        {event.name}
-                        {atCapacity && <Badge variant="success" className="ml-2 text-xs">
-                            Full
-                          </Badge>}
-                      </div>
-                    </TableCell>
+                <TableCell className="font-medium w-32">
+                  <div className="flex items-center gap-2">
+                    {event.name}
+                    
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span
+                            className={`
+                              inline-flex items-center justify-center
+                              min-w-[22px] h-[22px] px-1.5
+                              rounded-full text-[11px] font-bold
+                              cursor-help transition-all duration-200
+                              hover:scale-110 hover:shadow-md
+                              ${getUnassignedBadge(event.unassigned_guests_count, event.guests_count).color}
+                            `}
+                          >
+                            {getUnassignedBadge(event.unassigned_guests_count, event.guests_count).content}
+                          </span>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p className="text-xs">
+                            {getUnassignedBadge(event.unassigned_guests_count, event.guests_count).tooltip}
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                    
+                    {atCapacity && (
+                      <Badge variant="success" className="text-xs">
+                        Full
+                      </Badge>
+                    )}
+                  </div>
+                </TableCell>
                     <TableCell className="w-24">
                       <span className="text-muted-foreground">
                         {formatEventDate(event.date)}
