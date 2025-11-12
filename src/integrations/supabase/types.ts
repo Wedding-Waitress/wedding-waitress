@@ -533,6 +533,71 @@ export type Database = {
           },
         ]
       }
+      event_rsvp_automation_settings: {
+        Row: {
+          auto_reminders_enabled: boolean | null
+          created_at: string | null
+          daily_summary_enabled: boolean | null
+          daily_summary_time: string | null
+          event_id: string
+          id: string
+          last_daily_summary_sent_at: string | null
+          last_reminder_sent_at: string | null
+          next_reminder_scheduled_at: string | null
+          notify_both_partners: boolean | null
+          notify_event_planner: boolean | null
+          notify_partner1: boolean | null
+          notify_partner2: boolean | null
+          reminder_days_before: number | null
+          reminder_only_no_reply: boolean | null
+          updated_at: string | null
+        }
+        Insert: {
+          auto_reminders_enabled?: boolean | null
+          created_at?: string | null
+          daily_summary_enabled?: boolean | null
+          daily_summary_time?: string | null
+          event_id: string
+          id?: string
+          last_daily_summary_sent_at?: string | null
+          last_reminder_sent_at?: string | null
+          next_reminder_scheduled_at?: string | null
+          notify_both_partners?: boolean | null
+          notify_event_planner?: boolean | null
+          notify_partner1?: boolean | null
+          notify_partner2?: boolean | null
+          reminder_days_before?: number | null
+          reminder_only_no_reply?: boolean | null
+          updated_at?: string | null
+        }
+        Update: {
+          auto_reminders_enabled?: boolean | null
+          created_at?: string | null
+          daily_summary_enabled?: boolean | null
+          daily_summary_time?: string | null
+          event_id?: string
+          id?: string
+          last_daily_summary_sent_at?: string | null
+          last_reminder_sent_at?: string | null
+          next_reminder_scheduled_at?: string | null
+          notify_both_partners?: boolean | null
+          notify_event_planner?: boolean | null
+          notify_partner1?: boolean | null
+          notify_partner2?: boolean | null
+          reminder_days_before?: number | null
+          reminder_only_no_reply?: boolean | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_rsvp_automation_settings_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: true
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       event_shortlinks: {
         Row: {
           click_count: number | null
@@ -583,6 +648,7 @@ export type Database = {
           event_created: string
           event_date_override: string | null
           event_display_name: string | null
+          event_planner_email: string | null
           event_timezone: string | null
           event_type: string
           expiry_date: string | null
@@ -622,6 +688,7 @@ export type Database = {
           event_created?: string
           event_date_override?: string | null
           event_display_name?: string | null
+          event_planner_email?: string | null
           event_timezone?: string | null
           event_type?: string
           expiry_date?: string | null
@@ -661,6 +728,7 @@ export type Database = {
           event_created?: string
           event_date_override?: string | null
           event_display_name?: string | null
+          event_planner_email?: string | null
           event_timezone?: string | null
           event_type?: string
           expiry_date?: string | null
@@ -1738,7 +1806,9 @@ export type Database = {
           error_message: string | null
           guest_id: string
           id: string
+          reminder_type: string | null
           sent_at: string | null
+          sent_by_user_id: string | null
           status: string | null
         }
         Insert: {
@@ -1749,7 +1819,9 @@ export type Database = {
           error_message?: string | null
           guest_id: string
           id?: string
+          reminder_type?: string | null
           sent_at?: string | null
+          sent_by_user_id?: string | null
           status?: string | null
         }
         Update: {
@@ -1760,7 +1832,9 @@ export type Database = {
           error_message?: string | null
           guest_id?: string
           id?: string
+          reminder_type?: string | null
           sent_at?: string | null
+          sent_by_user_id?: string | null
           status?: string | null
         }
         Relationships: [
@@ -1789,8 +1863,11 @@ export type Database = {
           notify_on_accept: boolean | null
           notify_on_decline: boolean | null
           notify_on_update: boolean | null
+          sms_enabled: boolean | null
+          twilio_sender_id: string | null
           updated_at: string | null
           user_id: string
+          whatsapp_enabled: boolean | null
         }
         Insert: {
           created_at?: string | null
@@ -1800,8 +1877,11 @@ export type Database = {
           notify_on_accept?: boolean | null
           notify_on_decline?: boolean | null
           notify_on_update?: boolean | null
+          sms_enabled?: boolean | null
+          twilio_sender_id?: string | null
           updated_at?: string | null
           user_id: string
+          whatsapp_enabled?: boolean | null
         }
         Update: {
           created_at?: string | null
@@ -1811,8 +1891,11 @@ export type Database = {
           notify_on_accept?: boolean | null
           notify_on_decline?: boolean | null
           notify_on_update?: boolean | null
+          sms_enabled?: boolean | null
+          twilio_sender_id?: string | null
           updated_at?: string | null
           user_id?: string
+          whatsapp_enabled?: boolean | null
         }
         Relationships: []
       }

@@ -43,6 +43,19 @@ serve(async (req) => {
       );
     }
 
+    // Get notification settings
+    const { data: notifSettings } = await supabase
+      .from('rsvp_notification_settings')
+      .select('*')
+      .eq('user_id', campaign.user_id)
+      .single();
+
+    const { data: apiSettings } = await supabase
+      .from('notification_settings')
+      .select('*')
+      .eq('user_id', campaign.user_id)
+      .single();
+
     // Update campaign status
     await supabase
       .from('rsvp_reminder_campaigns')
@@ -53,6 +66,9 @@ serve(async (req) => {
 
     // Send reminders to each guest
     for (const guest of guests) {
+      let deliveryStatus = 'failed';
+      let errorMessage = null;
+
       try {
         // Replace template variables
         const message = campaign.message_template
@@ -61,35 +77,61 @@ serve(async (req) => {
           .replace(/{rsvp_deadline}/g, campaign.event.rsvp_deadline || 'soon')
           .replace(/{qr_link}/g, `https://xytxkidpourwdbzzwcdp.supabase.co/s/${campaign.event.slug}`);
 
-        // Determine delivery method (implement fallback logic)
-        let deliveryMethod = campaign.delivery_method;
-        let deliveryStatus = 'sent';
+        // Send based on delivery method
+        if (campaign.delivery_method === 'email' && guest.email) {
+          const { Resend } = await import('npm:resend@2.0.0');
+          const resend = new Resend(apiSettings.resend_api_key);
+          
+          await resend.emails.send({
+            from: apiSettings.from_email,
+            to: guest.email,
+            subject: `RSVP Reminder: ${campaign.event.name}`,
+            html: `<p>${message}</p>`,
+          });
+          deliveryStatus = 'sent';
+          sentCount++;
+        } else if ((campaign.delivery_method === 'sms' || campaign.delivery_method === 'whatsapp') && guest.mobile) {
+          const twilioModule = await import('npm:twilio@4.0.0');
+          const twilio = twilioModule.default(
+            apiSettings.twilio_account_sid,
+            apiSettings.twilio_auth_token
+          );
 
-        // For now, log the message (implement actual sending with WhatsApp/SMS/Email APIs)
-        console.log(`📱 Sending ${deliveryMethod} to ${guest.first_name} ${guest.last_name}:`);
-        console.log(message);
+          const fromNumber = campaign.delivery_method === 'whatsapp' 
+            ? `whatsapp:${notifSettings.twilio_sender_id}`
+            : notifSettings.twilio_sender_id;
+          
+          const toNumber = campaign.delivery_method === 'whatsapp'
+            ? `whatsapp:${guest.mobile}`
+            : guest.mobile;
 
-        // Log delivery
-        await supabase.from('reminder_deliveries').insert({
-          campaign_id,
-          guest_id: guest.id,
-          delivery_method: deliveryMethod,
-          status: deliveryStatus,
-          sent_at: new Date().toISOString(),
-        });
+          await twilio.messages.create({
+            from: fromNumber,
+            to: toNumber,
+            body: message,
+          });
+          deliveryStatus = 'sent';
+          sentCount++;
+        } else {
+          errorMessage = 'No contact method available';
+        }
 
-        sentCount++;
+        console.log(`✅ Sent ${campaign.delivery_method} to ${guest.first_name} ${guest.last_name}`);
       } catch (error) {
-        console.error(`Failed to send to ${guest.id}:`, error);
-        
-        await supabase.from('reminder_deliveries').insert({
-          campaign_id,
-          guest_id: guest.id,
-          delivery_method: campaign.delivery_method,
-          status: 'failed',
-          error_message: error.message,
-        });
+        console.error(`❌ Failed to send to ${guest.id}:`, error);
+        errorMessage = error.message;
       }
+
+      // Log delivery
+      await supabase.from('reminder_deliveries').insert({
+        campaign_id,
+        guest_id: guest.id,
+        delivery_method: campaign.delivery_method,
+        status: deliveryStatus,
+        error_message: errorMessage,
+        sent_at: deliveryStatus === 'sent' ? new Date().toISOString() : null,
+        reminder_type: 'bulk',
+      });
     }
 
     // Update campaign

@@ -24,6 +24,12 @@ verify_jwt = false
 [functions.send-bulk-reminders]
 verify_jwt = true
 
+[functions.schedule-auto-reminders]
+verify_jwt = false
+
+[functions.daily-rsvp-summary]
+verify_jwt = false
+
 [functions.generate-seating-suggestions]
 verify_jwt = true
 
