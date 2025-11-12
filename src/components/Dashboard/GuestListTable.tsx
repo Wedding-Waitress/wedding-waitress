@@ -1151,6 +1151,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
   const totalGuestCount = guests.length;
 
   // Calculate guest type counts for stats badges
+  // Count groups (not individual guests) for Couple and Family
   const guestTypeStats = useMemo(() => {
     const stats = {
       individual: 0,
@@ -1158,19 +1159,32 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
       family: 0
     };
 
+    // Build a map of family_group -> members
+    const familyGroups = new Map<string, any[]>();
+    
     guests.forEach(guest => {
-      const typeLabel = getGuestTypeLabel(guest);
-      if (typeLabel === 'Individual') {
+      if (guest.family_group && guest.family_group.trim()) {
+        if (!familyGroups.has(guest.family_group)) {
+          familyGroups.set(guest.family_group, []);
+        }
+        familyGroups.get(guest.family_group)!.push(guest);
+      } else {
+        // No family_group = Individual
         stats.individual++;
-      } else if (typeLabel === 'Couple') {
+      }
+    });
+
+    // Count couple groups (2 members) and family groups (3+ members)
+    familyGroups.forEach((members) => {
+      if (members.length === 2) {
         stats.couple++;
-      } else if (typeLabel === 'Family') {
+      } else if (members.length >= 3) {
         stats.family++;
       }
     });
 
     return stats;
-  }, [guests, getGuestTypeLabel]);
+  }, [guests]);
 
   const { individual: individualCount, couple: coupleCount, family: familyCount } = guestTypeStats;
 
