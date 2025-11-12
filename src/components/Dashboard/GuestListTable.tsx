@@ -1550,7 +1550,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
               {totalGuestCount === 0 ? (
                 <Button 
                   variant="default"
-                  size="xs"
+                  size="sm"
                   onClick={handleAddGuest}
                   className={`${
                     partnerNamesSaved || firstGuestAdded || totalGuestCount > 0
@@ -1564,7 +1564,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
               ) : (
                 <Button 
                   variant="default" 
-                  size="xs"
+                  size="sm"
                   onClick={handleAddGuest}
                   className="bg-green-500 hover:bg-green-600 text-white rounded-full flex items-center gap-2"
                 >

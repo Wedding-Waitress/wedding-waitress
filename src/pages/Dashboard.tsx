@@ -340,7 +340,7 @@ export const Dashboard = () => {
                         <div>
                           <Button 
                             variant="default" 
-                            size="xs" 
+                            size="sm" 
                             className="rounded-full flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white" 
                             disabled={!selectedEventId} 
                             onClick={handleCreateTable}
