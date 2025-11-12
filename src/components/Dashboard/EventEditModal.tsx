@@ -19,10 +19,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
 import { EventDatePicker } from './EventDatePicker';
 import { TimePicker } from './TimePicker';
-import { CustomRoleManager } from './CustomRoleManager';
 import { format } from 'date-fns';
 
 interface Event {
@@ -41,9 +39,6 @@ interface Event {
   event_timezone: string | null;
   rsvp_deadline: string | null;
   event_type?: 'seated' | 'cocktail';
-  relation_required?: boolean;
-  relation_allow_custom_role?: boolean;
-  custom_roles?: string[];
 }
 
 interface EventEditModalProps {
@@ -67,10 +62,7 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
     start_time: '',
     finish_time: '',
     guest_limit: 50,
-    rsvp_deadline: null as Date | null,
-    relation_required: true,
-    relation_allow_custom_role: false,
-    custom_roles: [] as string[]
+    rsvp_deadline: null as Date | null
   });
 
   const [isSaving, setIsSaving] = useState(false);
@@ -86,10 +78,7 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
         start_time: event.start_time || '',
         finish_time: event.finish_time || '',
         guest_limit: event.guest_limit,
-        rsvp_deadline: event.rsvp_deadline ? new Date(event.rsvp_deadline) : null,
-        relation_required: event.relation_required ?? true,
-        relation_allow_custom_role: event.relation_allow_custom_role ?? false,
-        custom_roles: Array.isArray(event.custom_roles) ? event.custom_roles : []
+        rsvp_deadline: event.rsvp_deadline ? new Date(event.rsvp_deadline) : null
       });
     }
   }, [event]);
@@ -107,10 +96,7 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
         start_time: formData.start_time || null,
         finish_time: formData.finish_time || null,
         guest_limit: formData.guest_limit,
-        rsvp_deadline: formData.rsvp_deadline ? formData.rsvp_deadline.toISOString() : null,
-        relation_required: formData.relation_required,
-        relation_allow_custom_role: formData.relation_allow_custom_role,
-        custom_roles: formData.custom_roles
+        rsvp_deadline: formData.rsvp_deadline ? formData.rsvp_deadline.toISOString() : null
       });
       onClose();
     } catch (error) {
@@ -124,7 +110,7 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col px-10">
+      <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col px-10">
         <DialogHeader>
           <DialogTitle className="text-2xl font-medium text-[#7248e6]">Edit My Events</DialogTitle>
         </DialogHeader>
@@ -238,67 +224,6 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
               onChange={(date) => setFormData(prev => ({ ...prev, rsvp_deadline: date }))}
               placeholder="Select RSVP deadline"
             />
-          </div>
-
-          {/* Relation Settings Section */}
-          <div className="space-y-4 border-t pt-6 mt-6">
-            <div className="space-y-2">
-              <h3 className="text-lg font-semibold text-[#7248e6]">Relation Settings</h3>
-              <p className="text-sm text-muted-foreground">
-                Configure how guest relationships are tracked for this event
-              </p>
-            </div>
-
-            {/* Toggle 1: Require Relation */}
-            <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg border border-border">
-              <div className="space-y-1 flex-1">
-                <Label htmlFor="relation-required" className="text-sm font-medium cursor-pointer">
-                  Require "Relation" on Add/Edit Guest
-                </Label>
-                <p className="text-xs text-muted-foreground">
-                  When enabled, guests must have a partner and role assigned
-                </p>
-              </div>
-              <Switch
-                id="relation-required"
-                checked={formData.relation_required}
-                onCheckedChange={(checked) => 
-                  setFormData(prev => ({ ...prev, relation_required: checked }))
-                }
-              />
-            </div>
-
-            {/* Toggle 2: Allow Custom Roles */}
-            <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg border border-border">
-              <div className="space-y-1 flex-1">
-                <Label htmlFor="allow-custom-role" className="text-sm font-medium cursor-pointer">
-                  Allow custom role text
-                </Label>
-                <p className="text-xs text-muted-foreground">
-                  When enabled, users can enter custom roles beyond the predefined list
-                </p>
-              </div>
-              <Switch
-                id="allow-custom-role"
-                checked={formData.relation_allow_custom_role}
-                onCheckedChange={(checked) => 
-                  setFormData(prev => ({ ...prev, relation_allow_custom_role: checked }))
-                }
-              />
-            </div>
-
-            {/* Custom Role Manager - only show when enabled */}
-            {formData.relation_allow_custom_role && (
-              <div className="p-4 bg-muted/50 rounded-lg border border-border">
-                <CustomRoleManager
-                  eventId={event.id}
-                  customRoles={formData.custom_roles || []}
-                  onRolesUpdate={(roles) => 
-                    setFormData(prev => ({ ...prev, custom_roles: roles }))
-                  }
-                />
-              </div>
-            )}
           </div>
         </div>
 
