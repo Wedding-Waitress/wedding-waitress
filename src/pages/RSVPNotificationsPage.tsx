@@ -10,6 +10,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useRSVPNotificationSettings } from '@/hooks/useRSVPNotificationSettings';
 import { useRSVPAnalytics } from '@/hooks/useRSVPAnalytics';
 import { useEvents } from '@/hooks/useEvents';
+import { useNotificationSettings } from '@/hooks/useNotificationSettings';
 import { ReminderHistoryModal } from '@/components/Dashboard/ReminderHistoryModal';
 import { Bell, Mail, MessageSquare, Users, Settings, BarChart3, AlertTriangle, Clock, CheckCircle2, XCircle } from 'lucide-react';
 import { StandardEventSelector } from '@/components/Dashboard/StandardEventSelector';
@@ -24,6 +25,7 @@ export const RSVPNotificationsPage = () => {
   const { events } = useEvents();
   const { userSettings, eventSettings, loading, saveUserSettings, saveEventSettings } = useRSVPNotificationSettings(selectedEventId);
   const { analytics } = useRSVPAnalytics(selectedEventId);
+  const { settings: apiSettings, updateSettings: updateApiSettings } = useNotificationSettings();
 
   useEffect(() => {
     if (selectedEventId) {
@@ -153,18 +155,89 @@ export const RSVPNotificationsPage = () => {
               </div>
 
               {(userSettings?.sms_enabled || userSettings?.whatsapp_enabled) && (
-                <div>
-                  <Label>Twilio Sender ID</Label>
-                  <Input
-                    placeholder="+1234567890"
-                    value={userSettings?.twilio_sender_id || ''}
-                    onChange={(e) =>
-                      userSettings && saveUserSettings({ ...userSettings, twilio_sender_id: e.target.value })
-                    }
-                  />
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Your Twilio phone number or messaging service SID
-                  </p>
+                <div className="space-y-4 p-4 border rounded-lg bg-muted/50">
+                  <div className="flex items-center gap-2">
+                    <Settings className="w-4 h-4 text-primary" />
+                    <h4 className="font-semibold">Twilio API Configuration</h4>
+                  </div>
+                  
+                  {/* Account SID */}
+                  <div>
+                    <Label htmlFor="twilio-sid">Twilio Account SID</Label>
+                    <Input
+                      id="twilio-sid"
+                      placeholder="AC..."
+                      value={apiSettings?.twilio_account_sid || ''}
+                      onChange={(e) => updateApiSettings({ twilio_account_sid: e.target.value })}
+                      className="font-mono text-sm"
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Find in <a href="https://console.twilio.com" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Twilio Console</a>
+                    </p>
+                  </div>
+
+                  {/* Auth Token */}
+                  <div>
+                    <Label htmlFor="twilio-token">Twilio Auth Token</Label>
+                    <Input
+                      id="twilio-token"
+                      type="password"
+                      placeholder="••••••••"
+                      value={apiSettings?.twilio_auth_token || ''}
+                      onChange={(e) => updateApiSettings({ twilio_auth_token: e.target.value })}
+                      className="font-mono text-sm"
+                    />
+                  </div>
+
+                  {/* Messaging Service SID */}
+                  <div>
+                    <Label htmlFor="twilio-msg-sid">Twilio Messaging Service SID (Optional)</Label>
+                    <Input
+                      id="twilio-msg-sid"
+                      placeholder="MG..."
+                      value={apiSettings?.twilio_messaging_service_sid || ''}
+                      onChange={(e) => updateApiSettings({ twilio_messaging_service_sid: e.target.value })}
+                      className="font-mono text-sm"
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Use Messaging Service SID or Phone Number below (not both)
+                    </p>
+                  </div>
+
+                  {/* Sender Phone Number */}
+                  <div>
+                    <Label htmlFor="twilio-sender">Twilio Phone Number (Optional)</Label>
+                    <Input
+                      id="twilio-sender"
+                      placeholder="+1234567890"
+                      value={userSettings?.twilio_sender_id || ''}
+                      onChange={(e) =>
+                        userSettings && saveUserSettings({ ...userSettings, twilio_sender_id: e.target.value })
+                      }
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Your verified Twilio phone number (include country code)
+                    </p>
+                  </div>
+
+                  {/* Configuration Status Alert */}
+                  {(!apiSettings?.twilio_account_sid || !apiSettings?.twilio_auth_token || (!apiSettings?.twilio_messaging_service_sid && !userSettings?.twilio_sender_id)) && (
+                    <Alert variant="destructive">
+                      <AlertTriangle className="w-4 h-4" />
+                      <AlertDescription>
+                        Missing Twilio credentials. SMS/WhatsApp will run in <strong>Preview Mode</strong> (logs only, no actual sending).
+                      </AlertDescription>
+                    </Alert>
+                  )}
+
+                  {(apiSettings?.twilio_account_sid && apiSettings?.twilio_auth_token && (apiSettings?.twilio_messaging_service_sid || userSettings?.twilio_sender_id)) && (
+                    <Alert className="border-success/50 bg-success/10">
+                      <CheckCircle2 className="w-4 h-4 text-success" />
+                      <AlertDescription className="text-success">
+                        Twilio configuration complete - live SMS/WhatsApp delivery enabled
+                      </AlertDescription>
+                    </Alert>
+                  )}
                 </div>
               )}
 
