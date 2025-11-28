@@ -213,15 +213,21 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
           <div className="space-y-3">
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium">RSVP Status:</span>
-              <div className={`flex items-center gap-1 ${getRsvpColor(localRsvp)}`}>
-                {React.createElement(getRsvpIcon(localRsvp), { className: "w-4 h-4" })}
-                <span className="text-sm font-medium">
-                  {getRsvpDisplayLabel(localRsvp)}
-                </span>
-              </div>
+              <Badge 
+                variant="outline" 
+                className={`text-base font-bold px-3 py-1 rounded-full border-2 ${
+                  localRsvp === "Attending" 
+                    ? "bg-green-100 text-green-700 border-green-500" 
+                    : localRsvp === "Not Attending"
+                    ? "bg-red-100 text-red-700 border-red-500"
+                    : "bg-yellow-100 text-yellow-700 border-yellow-500"
+                }`}
+              >
+                {getRsvpDisplayLabel(localRsvp)}
+              </Badge>
             </div>
             
-            {localRsvp !== 'Attending' && isEditable && (
+            {isEditable && (
               <div className="flex gap-2">
                 <Button
                   size="sm"
