@@ -19,8 +19,6 @@ import { PrivacyPolicy } from "./pages/PrivacyPolicy";
 import { TermsOfService } from "./pages/TermsOfService";
 import { Contact } from "./pages/Contact";
 import { DJQuestionnairePublicView } from "./pages/DJQuestionnairePublicView";
-import { GalleryPublicView } from "./pages/GalleryPublicView";
-import { AlbumOwnerDashboard } from "./pages/AlbumOwnerDashboard";
 import RunningSheet from "./pages/RunningSheet";
 
 const queryClient = new QueryClient();
@@ -83,10 +81,6 @@ const App = () => (
           <Route path="/contact" element={<Contact />} />
           {/* Guest seating lookup */}
           <Route path="/s/:eventSlug" element={<GuestLookup />} />
-          {/* Gallery / Photo & Video Sharing */}
-          <Route path="/g/:gallerySlug" element={<GalleryPublicView />} />
-          {/* Album Owner Dashboard */}
-          <Route path="/album/:eventId" element={<AlbumOwnerDashboard />} />
           {/* Kiosk mode */}
           <Route path="/kiosk/:eventSlug" element={<KioskView />} />
           {/* DJ Questionnaire public view */}
