@@ -68,8 +68,25 @@ export const PlaceCardExporter: React.FC<PlaceCardExporterProps> = ({
     });
   };
 
+  // HTML entity encoding to prevent XSS
+  const escapeHtml = (text: string): string => {
+    const map: { [key: string]: string } = {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;'
+    };
+    return text.replace(/[&<>"']/g, (m) => map[m]);
+  };
+
   const createPlaceCardHTML = (cardData: PlaceCardData): string => {
     const { guest, message, tableInfo } = cardData;
+    
+    // Escape user-provided content
+    const safeName = `${escapeHtml(guest.first_name)} ${escapeHtml(guest.last_name || '')}`;
+    const safeTableInfo = escapeHtml(tableInfo);
+    const safeMessage = message ? escapeHtml(message) : '';
     
     return `
       <div style="
@@ -102,16 +119,16 @@ export const PlaceCardExporter: React.FC<PlaceCardExporterProps> = ({
         }
         
         <div style="font-size: 18px; font-weight: bold; margin-bottom: 4mm; line-height: 1.2;">
-          ${guest.first_name} ${guest.last_name}
+          ${safeName}
         </div>
         
         <div style="font-size: 12px; margin-bottom: 6mm; opacity: 0.8;">
-          ${tableInfo}
+          ${safeTableInfo}
         </div>
         
-        ${message ? `
+        ${safeMessage ? `
           <div style="font-size: 10px; line-height: 1.4; border-top: 1px solid rgba(0,0,0,0.1); padding-top: 4mm; margin-top: auto; opacity: 0.7;">
-            ${message}
+            ${safeMessage}
           </div>
         ` : ''}
         

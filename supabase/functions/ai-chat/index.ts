@@ -18,6 +18,30 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
+    // Security: Verify event access before loading sensitive data
+    if (event_id) {
+      const { data: eventAccess, error: accessError } = await supabase
+        .from('events')
+        .select('id, user_id, qr_apply_to_live_view')
+        .eq('id', event_id)
+        .single();
+
+      if (accessError || !eventAccess) {
+        return new Response(
+          JSON.stringify({ error: 'Event not found or access denied' }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 403 }
+        );
+      }
+
+      // For guest access, require public access enabled
+      if (user_type === 'guest' && !eventAccess.qr_apply_to_live_view) {
+        return new Response(
+          JSON.stringify({ error: 'This event does not allow public access' }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 403 }
+        );
+      }
+    }
+
     // Load event data & knowledge base
     const { data: event } = await supabase
       .from('events')
