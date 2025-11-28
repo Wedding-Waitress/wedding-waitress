@@ -87,6 +87,13 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
     const prev = localRsvp;
     const normalized = normalizeRsvp(newRsvp);
     setLocalRsvp(normalized);
+    
+    console.log('📤 Updating RSVP:', {
+      guest_id: guest.id,
+      event_id: guest.event_id,
+      rsvp: normalized
+    });
+    
     try {
       // Use RPC function to bypass RLS for public updates
       const { data, error } = await supabase.rpc('update_guest_rsvp_public', {
@@ -95,9 +102,19 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
         _rsvp: normalized
       });
 
-      if (error) throw error;
-      if (!data) throw new Error('Update failed - event may not allow public updates');
+      console.log('📥 RPC Response:', { data, error });
 
+      if (error) {
+        console.error('❌ RPC Error:', error);
+        throw error;
+      }
+      
+      if (!data) {
+        console.error('❌ Update returned false - event may not allow public updates');
+        throw new Error('Update failed - event may not allow public updates');
+      }
+
+      console.log('✅ RSVP update successful');
       toast({
         title: "RSVP Updated",
         description: `Your RSVP has been updated to ${normalized}`,
@@ -105,7 +122,7 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
       
       onUpdate?.();
     } catch (error) {
-      console.error('Error updating RSVP:', error);
+      console.error('❌ Error updating RSVP:', error);
       setLocalRsvp(prev);
       toast({
         title: "Error",
@@ -235,7 +252,11 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
                   disabled={updatingRsvp}
                   className="flex-1 bg-success text-success-foreground hover:bg-success/90"
                 >
-                  <CheckCircle2 className="w-4 h-4 mr-2" />
+                  {updatingRsvp ? (
+                    <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
+                  ) : (
+                    <CheckCircle2 className="w-4 h-4 mr-2" />
+                  )}
                   Accept
                 </Button>
                 <Button
@@ -244,7 +265,11 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
                   disabled={updatingRsvp}
                   className="flex-1 bg-destructive text-destructive-foreground hover:bg-destructive/90"
                 >
-                  <X className="w-4 h-4 mr-2" />
+                  {updatingRsvp ? (
+                    <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
+                  ) : (
+                    <X className="w-4 h-4 mr-2" />
+                  )}
                   Decline
                 </Button>
               </div>
