@@ -10,7 +10,6 @@ import { flags } from "@/lib/featureFlags";
 import { Landing } from "./pages/Landing";
 import { Dashboard } from "./pages/Dashboard";
 import { Admin } from "./pages/Admin";
-import { AdminLogin } from "./pages/AdminLogin";
 import NotFound from "./pages/NotFound";
 import { GuestLookup } from "./pages/GuestLookup";
 import { KioskView } from "./pages/KioskView";
@@ -74,7 +73,6 @@ const App = () => (
             } 
           />
           <Route path="/admin" element={<Admin />} />
-          <Route path="/admin/old-login" element={<AdminLogin />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/terms" element={<TermsOfService />} />
