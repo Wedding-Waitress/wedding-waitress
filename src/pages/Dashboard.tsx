@@ -11,10 +11,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/enhanced-button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Calendar, Users, MapPin, QrCode, Mail, Heart, Settings, TrendingUp, Plus, Printer, Camera } from "lucide-react";
+import { Calendar, Users, MapPin, QrCode, Mail, Heart, Settings, TrendingUp, Plus, Printer } from "lucide-react";
 import { normalizeRsvp } from '@/lib/rsvp';
-import { useAlbumNavigation } from '@/hooks/useAlbumNavigation';
-import { AlbumContentInlineCard } from '@/components/Album/AlbumContentInlineCard';
 import { useEvents } from '@/hooks/useEvents';
 import { useTables, TableWithGuestCount } from '@/hooks/useTables';
 import { useRealtimeGuests } from '@/hooks/useRealtimeGuests';
@@ -420,64 +418,6 @@ export const Dashboard = () => {
         return <FloorPlanPage selectedEventId={selectedEventId} onEventSelect={setSelectedEventId} />;
       case 'signage':
         return <SignagePage selectedEventId={selectedEventId} onEventSelect={handleEventSelect} />;
-      case 'photo-video-gallery': {
-        // No events at all
-        if (events.length === 0) {
-          return (
-            <Card className="ww-box p-8 text-center">
-              <Camera className="w-16 h-16 mx-auto text-primary mb-4" />
-              <CardTitle className="mb-2">No Events Yet</CardTitle>
-              <CardDescription className="mb-6">
-                Create your first event to manage a photo and video album.
-              </CardDescription>
-              <Button variant="default" size="xs" className="rounded-full flex items-center gap-2" onClick={() => handleTabChange('my-events')}>
-                <Plus className="w-4 h-4" />
-                Create Event
-              </Button>
-            </Card>
-          );
-        }
-        
-        // Main card that contains EVERYTHING
-        return (
-          <Card className="ww-box">
-            <CardContent className="p-6">
-              {/* Event selector - always visible */}
-              <div className="mb-6 flex items-center space-x-4">
-                <label className="text-sm font-medium text-foreground whitespace-nowrap">
-                  Choose Event:
-                </label>
-                <Select
-                  value={globalSelectedEventId || "no-event"}
-                  onValueChange={(eventId) => {
-                    if (eventId === 'no-event') return;
-                    handleGlobalEventSelect(eventId);
-                  }}
-                >
-                  <SelectTrigger className="w-[300px] border-primary focus:ring-primary">
-                    <SelectValue placeholder="Choose Event" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-popover border-border z-50">
-                    {events.map((event) => (
-                      <SelectItem key={event.id} value={event.id}>
-                        <div className="flex items-center gap-2">
-                          <Calendar className="w-4 h-4" />
-                          <span>{event.name}</span>
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              {/* Album management content - only shown after selection */}
-              {globalSelectedEventId && (
-                <AlbumContentInlineCard eventId={globalSelectedEventId} />
-              )}
-            </CardContent>
-          </Card>
-        );
-      }
       case 'qr-code':
         return <QRCodeSeatingChart selectedEventId={globalSelectedEventId} onEventSelect={handleGlobalEventSelect} onNavigateToTab={handleTabChange} />;
       case 'kiosk-live-view':
@@ -599,8 +539,8 @@ export const Dashboard = () => {
         {/* Main Content */}
         <main className="flex-1 w-full px-6 sm:px-4 md:px-6 lg:px-8 py-6 min-w-0">
           <div className="w-full max-w-none">
-            {/* Stats Bar excluded from: My Events, QR Code, Dashboard, Vendor Team, Planner, Wishing Well, RSVP, Floor Plan, Kiosk Live View, Printables, Place Cards, Dietary Requirements, Full Seating Chart, Photo & Video Gallery, DJ & MC Questionnaire, Running Sheet, AI Features */}
-            {activeTab !== 'my-events' && activeTab !== 'qr-code' && activeTab !== 'dashboard' && activeTab !== 'vendor-team' && activeTab !== 'planner' && activeTab !== 'wishing-well' && activeTab !== 'rsvp-invite' && activeTab !== 'floor-plan' && activeTab !== 'kiosk-live-view' && activeTab !== 'printables' && activeTab !== 'individual-table-chart' && activeTab !== 'place-cards' && activeTab !== 'dietary-chart' && activeTab !== 'full-seating-chart' && activeTab !== 'photo-video-gallery' && activeTab !== 'dj-mc-questionnaire' && activeTab !== 'running-sheet' && activeTab !== 'ai-assistant' && activeTab !== 'ai-insights' && activeTab !== 'rsvp-notifications' && <div className="print:hidden">
+            {/* Stats Bar excluded from: My Events, QR Code, Dashboard, Vendor Team, Planner, Wishing Well, RSVP, Floor Plan, Kiosk Live View, Printables, Place Cards, Dietary Requirements, Full Seating Chart, DJ & MC Questionnaire, Running Sheet, AI Features */}
+            {activeTab !== 'my-events' && activeTab !== 'qr-code' && activeTab !== 'dashboard' && activeTab !== 'vendor-team' && activeTab !== 'planner' && activeTab !== 'wishing-well' && activeTab !== 'rsvp-invite' && activeTab !== 'floor-plan' && activeTab !== 'kiosk-live-view' && activeTab !== 'printables' && activeTab !== 'individual-table-chart' && activeTab !== 'place-cards' && activeTab !== 'dietary-chart' && activeTab !== 'full-seating-chart' && activeTab !== 'dj-mc-questionnaire' && activeTab !== 'running-sheet' && activeTab !== 'ai-assistant' && activeTab !== 'ai-insights' && activeTab !== 'rsvp-notifications' && <div className="print:hidden">
               <StatsBar stats={statsData} />
             </div>}
             

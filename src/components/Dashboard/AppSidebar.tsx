@@ -9,7 +9,6 @@ import {
   ChefHat,
   Monitor,
   Music,
-  Camera,
   LayoutGrid,
   FileText,
   LogOut,
@@ -58,7 +57,6 @@ interface AppSidebarProps {
     { id: "dietary-chart", label: "Dietary Requirements", icon: ChefHat },
     { id: "full-seating-chart", label: "Full Seating Chart", icon: FileText },
     { id: "kiosk-live-view", label: "Kiosk Live View", icon: Monitor },
-    { id: "photo-video-gallery", label: "Photo & Video Gallery", icon: Camera },
     { id: "email-templates", label: "Email Templates", icon: Mail },
     { id: "ai-assistant", label: "AI Assistant", icon: Bot },
     { id: "ai-insights", label: "AI Insights", icon: TrendingUp },
@@ -86,7 +84,6 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
     
     const mobileLabels: Record<string, string> = {
       "qr-code": "QR Chart",
-      "photo-video-gallery": "Gallery",
       "individual-table-chart": "Table Charts",
       "kiosk-live-view": "Kiosk View",
       "dietary-chart": "Dietary Req.",
@@ -114,8 +111,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
             <SidebarMenu>
               {menuItems.map((item) => {
                 const Icon = item.icon;
-                const isActive = activeTab === item.id || 
-                  (item.id === 'photo-video-gallery' && location.pathname.startsWith('/album'));
+                const isActive = activeTab === item.id;
                 
                 const isGreenItem = ['my-events', 'table-list', 'guest-list'].includes(item.id);
                 const getBadgeNumber = () => {
