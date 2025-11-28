@@ -31,6 +31,7 @@ import { GuestUpdateModal } from '@/components/GuestLookup/GuestUpdateModal';
 
 interface Guest {
   id: string;
+  event_id: string;
   first_name: string;
   last_name: string;
   table_no: number | null;
@@ -320,6 +321,7 @@ export const GuestLookup: React.FC = () => {
                 if (newRecord && !currentGuests.some(g => g.id === newRecord.id)) {
                   const transformedGuest = {
                     id: newRecord.id,
+                    event_id: newRecord.event_id,
                     first_name: newRecord.first_name,
                     last_name: newRecord.last_name,
                     table_id: newRecord.table_id,

@@ -136,65 +136,19 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
 
     setSaving(true);
     try {
-      // Update guest record
-      // Build update payload - only include RSVP if user changed it in modal
-      const updates: Record<string, any> = {
-        first_name: (formData.first_name || '').trim(),
-        last_name: (formData.last_name || '').trim(),
-        mobile: formData.mobile?.trim() || null,
-        email: formData.email?.trim() || null,
-        dietary: formData.dietary,
-        notes: formData.notes?.trim() || null,
-      };
-
-      // Only update RSVP if user changed it in the modal dropdown
-      if (formData.rsvp !== initialRsvp) {
-        updates.rsvp = formData.rsvp;
-        updates.rsvp_date = new Date().toISOString().slice(0, 10);
-      }
-
-      console.log('🔄 GuestUpdateModal: Saving guest updates...', {
-        guestId: guest.id,
-        updates,
-        previousRsvp: initialRsvp,
-        newRsvp: formData.rsvp,
-        rsvpChanged: formData.rsvp !== initialRsvp
+      // Use RPC function to bypass RLS for public updates
+      const { data, error } = await supabase.rpc('update_guest_rsvp_public', {
+        _guest_id: guest.id,
+        _event_id: guest.event_id || event?.id,
+        _rsvp: formData.rsvp !== initialRsvp ? formData.rsvp : null,
+        _dietary: formData.dietary,
+        _mobile: formData.mobile?.trim() || null,
+        _email: formData.email?.trim() || null,
+        _notes: formData.notes?.trim() || null
       });
 
-      const { error: updateError } = await supabase
-        .from('guests')
-        .update(updates)
-        .eq('id', guest.id);
-
-      if (updateError) {
-        console.error('❌ GuestUpdateModal: Database update failed:', updateError);
-        throw updateError;
-      }
-      
-      console.log('✅ GuestUpdateModal: Guest updated successfully in database');
-
-      // Log the change
-      const { error: logError } = await supabase
-        .from('guest_update_logs')
-        .insert({
-          event_id: event?.id || guest.event_id,
-          guest_id: guest.id,
-          changed_by: 'guest_live_view',
-          payload: {
-            previous: {
-              rsvp: guest.rsvp,
-              first_name: guest.first_name,
-              last_name: guest.last_name,
-              mobile: guest.mobile,
-              email: guest.email,
-              dietary: guest.dietary,
-              notes: guest.notes
-            },
-            updated: formData
-          }
-        });
-
-      if (logError) console.error('Error logging update:', logError);
+      if (error) throw error;
+      if (!data) throw new Error('Update failed - event may not allow public updates');
 
       toast({
         title: 'Saved and sent to organiser',
