@@ -2351,6 +2351,18 @@ export type Database = {
         }
         Returns: boolean
       }
+      update_guest_rsvp_public: {
+        Args: {
+          _dietary?: string
+          _email?: string
+          _event_id: string
+          _guest_id: string
+          _mobile?: string
+          _notes?: string
+          _rsvp?: string
+        }
+        Returns: boolean
+      }
       update_guest_with_token: {
         Args: {
           _access_token: string

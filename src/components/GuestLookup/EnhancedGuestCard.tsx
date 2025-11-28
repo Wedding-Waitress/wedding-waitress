@@ -19,6 +19,7 @@ import { formatDisplayDate } from '@/lib/utils';
 
 interface Guest {
   id: string;
+  event_id: string;
   first_name: string;
   last_name: string;
   table_no: number | null;
@@ -87,15 +88,15 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
     const normalized = normalizeRsvp(newRsvp);
     setLocalRsvp(normalized);
     try {
-      const { error } = await supabase
-        .from('guests')
-        .update({ 
-          rsvp: normalized,
-          rsvp_date: new Date().toISOString().slice(0, 10)
-        })
-        .eq('id', guest.id);
+      // Use RPC function to bypass RLS for public updates
+      const { data, error } = await supabase.rpc('update_guest_rsvp_public', {
+        _guest_id: guest.id,
+        _event_id: guest.event_id,
+        _rsvp: normalized
+      });
 
       if (error) throw error;
+      if (!data) throw new Error('Update failed - event may not allow public updates');
 
       toast({
         title: "RSVP Updated",
