@@ -141,7 +141,7 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
           {/* Guest Info */}
           <div className="flex items-start justify-between">
             <div className="flex-1">
-              <h3 className="text-xl font-semibold text-foreground">
+              <h3 className="text-xl font-bold text-foreground">
                 {guest.first_name} {guest.last_name}
               </h3>
               {guest.relation_display && (
