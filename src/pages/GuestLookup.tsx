@@ -463,10 +463,10 @@ export const GuestLookup: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-subtle">
+    <div className="min-h-screen bg-gradient-subtle font-inter">
       {/* Hero Section */}
       <div className="bg-gradient-hero text-white">
-        <div className="w-full px-4 py-8 md:py-12">
+        <div className="w-full px-4 py-5 md:py-6">
           <div className="text-center">
             {/* "You're invited to" text above event name */}
             <p className="text-white/90 text-lg md:text-xl font-medium mb-2">
@@ -611,7 +611,7 @@ export const GuestLookup: React.FC = () => {
             <TabsContent value="search">
               <Card className="ww-box card-elevated">
                 <CardHeader className="text-center">
-                  <CardTitle className="flex items-center justify-center gap-2">
+                  <CardTitle className="flex items-center justify-center gap-2 font-bold">
                     <Users className="w-5 h-5 md:w-6 md:h-6 text-primary" />
                     {isEditable ? "Update & Confirm Your Details" : "Type Your Full Name & Find Your Seat"}
                   </CardTitle>
