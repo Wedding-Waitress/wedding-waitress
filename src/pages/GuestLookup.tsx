@@ -18,8 +18,10 @@ import {
   Eye,
   Smartphone,
   Share2,
-  Mail
+  Mail,
+  Video
 } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { EnhancedGuestCard } from '@/components/GuestLookup/EnhancedGuestCard';
@@ -74,6 +76,8 @@ export const GuestLookup: React.FC = () => {
   const [liveViewSettings, setLiveViewSettings] = useState<any>(null);
   const [moduleSettings, setModuleSettings] = useState<any>(null);
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
+  const [showRsvpInviteModal, setShowRsvpInviteModal] = useState(false);
+  const [showWelcomeVideoModal, setShowWelcomeVideoModal] = useState(false);
   const { toast } = useToast();
   
   // Compute is_editable based on rsvp_deadline (inclusive through end-of-day)
@@ -88,12 +92,15 @@ export const GuestLookup: React.FC = () => {
     return now <= deadline;
   }, [event?.rsvp_deadline]);
 
-  // Check for tab parameter in URL
+  // Check for tab parameter in URL - default to search
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const tabParam = params.get('tab');
-    if (tabParam === 'rsvp-invite') {
-      setActiveTab('rsvp-invite');
+    // Only allow valid tabs: 'search' or 'visualization'
+    if (tabParam === 'visualization') {
+      setActiveTab('visualization');
+    } else {
+      setActiveTab('search');
     }
   }, []);
 
@@ -514,22 +521,55 @@ export const GuestLookup: React.FC = () => {
         </div>
       </div>
 
+      {/* Feature Cards Section - RSVP Invite & Welcome Video */}
+      {(liveViewSettings?.show_rsvp_invite || liveViewSettings?.show_welcome_video) && (
+        <div className="w-full px-4 py-4 md:py-6">
+          <div className="max-w-4xl mx-auto grid gap-4 md:grid-cols-2">
+            {/* RSVP Invite Button */}
+            {liveViewSettings?.show_rsvp_invite && (
+              <Card 
+                className="ww-box cursor-pointer hover:shadow-xl transition-all duration-300 hover:scale-[1.02]"
+                onClick={() => setShowRsvpInviteModal(true)}
+              >
+                <CardContent className="p-6 text-center">
+                  <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
+                    <Mail className="w-8 h-8 text-primary" />
+                  </div>
+                  <h3 className="text-lg md:text-xl font-bold text-primary mb-2">RSVP Invite</h3>
+                  <p className="text-sm text-muted-foreground">
+                    View your digital invitation
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Welcome Video Button */}
+            {liveViewSettings?.show_welcome_video && (
+              <Card 
+                className="ww-box cursor-pointer hover:shadow-xl transition-all duration-300 hover:scale-[1.02]"
+                onClick={() => setShowWelcomeVideoModal(true)}
+              >
+                <CardContent className="p-6 text-center">
+                  <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
+                    <Video className="w-8 h-8 text-primary" />
+                  </div>
+                  <h3 className="text-lg md:text-xl font-bold text-primary mb-2">Welcome Video</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Watch a special message
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Main Content */}
       <div className="w-full px-4 py-6 md:py-8">
         <div className="max-w-4xl mx-auto">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className={`grid w-full h-auto mb-6 ${liveViewSettings?.show_rsvp_invite ? 'grid-cols-3' : 'grid-cols-2'} bg-white p-2.5 rounded-xl border-2 border-gray-200 shadow-sm`}>
-              {liveViewSettings?.show_rsvp_invite && (
-                <TabsTrigger 
-                  value="rsvp-invite" 
-                  className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg border-2 border-transparent bg-white text-gray-600 data-[state=active]:border-green-500 data-[state=active]:bg-green-50 data-[state=active]:text-green-700 data-[state=active]:font-semibold data-[state=active]:shadow-md transition-all duration-200"
-                >
-                  <Mail className="w-4 h-4" />
-                  <span className="hidden sm:inline">RSVP Invite</span>
-                  <span className="sm:hidden">RSVP</span>
-                </TabsTrigger>
-              )}
-              <TabsTrigger 
+            <TabsList className="grid w-full h-auto mb-6 grid-cols-2 bg-white p-2.5 rounded-xl border-2 border-gray-200 shadow-sm">
+              <TabsTrigger
                 value="search" 
                 className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg border-2 border-transparent bg-white text-gray-600 data-[state=active]:border-green-500 data-[state=active]:bg-green-50 data-[state=active]:text-green-700 data-[state=active]:font-semibold data-[state=active]:shadow-md transition-all duration-200"
               >
@@ -551,54 +591,6 @@ export const GuestLookup: React.FC = () => {
                 <span>Table View</span>
               </TabsTrigger>
             </TabsList>
-
-            {/* RSVP Invite Tab Content */}
-            {liveViewSettings?.show_rsvp_invite && (
-              <TabsContent value="rsvp-invite">
-                <Card className="ww-box card-elevated">
-                  <CardHeader className="text-center">
-                    <CardTitle className="flex items-center justify-center gap-2">
-                      <Mail className="w-5 h-5 md:w-6 md:h-6 text-primary" />
-                      You Are Invited
-                    </CardTitle>
-                    <CardDescription>
-                      View your digital invitation
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    {moduleSettings?.rsvp_invite_config?.file_url ? (
-                      <div className="text-center">
-                        {moduleSettings.rsvp_invite_config.file_type?.includes('pdf') ? (
-                          <div className="aspect-[210/297] max-w-md mx-auto border rounded-lg overflow-hidden">
-                            <iframe 
-                              src={moduleSettings.rsvp_invite_config.file_url}
-                              className="w-full h-full"
-                              title="RSVP Invitation"
-                            />
-                          </div>
-                        ) : (
-                          <img 
-                            src={moduleSettings.rsvp_invite_config.file_url} 
-                            alt="RSVP Invitation"
-                            className="max-w-full h-auto mx-auto rounded-lg shadow-lg"
-                          />
-                        )}
-                        <p className="text-sm text-muted-foreground mt-4">
-                          Please review your invitation and RSVP using the tabs above.
-                        </p>
-                      </div>
-                    ) : (
-                      <div className="text-center py-8">
-                        <Mail className="w-12 h-12 mx-auto text-muted-foreground mb-3" />
-                        <p className="text-muted-foreground">
-                          Your invitation will appear here soon.
-                        </p>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              </TabsContent>
-            )}
 
             <TabsContent value="search">
               <Card className="ww-box card-elevated">
@@ -799,6 +791,85 @@ export const GuestLookup: React.FC = () => {
         showMessageField={moduleSettings?.update_details_config?.show_message_field ?? true}
         isEditable={isEditable}
       />
+
+      {/* RSVP Invite Modal */}
+      <Dialog open={showRsvpInviteModal} onOpenChange={setShowRsvpInviteModal}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-2xl">
+              <Mail className="w-6 h-6 text-primary" />
+              You Are Invited
+            </DialogTitle>
+          </DialogHeader>
+          <div className="mt-4">
+            {moduleSettings?.rsvp_invite_config?.file_url ? (
+              <div className="text-center">
+                {moduleSettings.rsvp_invite_config.file_type?.includes('pdf') ? (
+                  <div className="aspect-[210/297] w-full border rounded-lg overflow-hidden">
+                    <iframe 
+                      src={moduleSettings.rsvp_invite_config.file_url}
+                      className="w-full h-full"
+                      title="RSVP Invitation"
+                    />
+                  </div>
+                ) : (
+                  <img 
+                    src={moduleSettings.rsvp_invite_config.file_url} 
+                    alt="RSVP Invitation"
+                    className="max-w-full h-auto mx-auto rounded-lg shadow-lg"
+                  />
+                )}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <Mail className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
+                <p className="text-muted-foreground text-lg">
+                  Your invitation will appear here soon.
+                </p>
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Welcome Video Modal */}
+      <Dialog open={showWelcomeVideoModal} onOpenChange={setShowWelcomeVideoModal}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-2xl">
+              <Video className="w-6 h-6 text-primary" />
+              Welcome Video
+            </DialogTitle>
+          </DialogHeader>
+          <div className="mt-4">
+            {moduleSettings?.welcome_video_config?.video_url ? (
+              <div className="aspect-video w-full rounded-lg overflow-hidden bg-black">
+                <iframe
+                  src={moduleSettings.welcome_video_config.video_url}
+                  className="w-full h-full"
+                  title="Welcome Video"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              </div>
+            ) : (
+              <div className="aspect-video w-full rounded-lg bg-muted flex items-center justify-center">
+                <div className="text-center">
+                  <Video className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
+                  <p className="text-muted-foreground text-lg">
+                    Welcome video will appear here soon.
+                  </p>
+                </div>
+              </div>
+            )}
+            {moduleSettings?.welcome_video_config?.message && (
+              <p className="mt-4 text-center text-muted-foreground">
+                {moduleSettings.welcome_video_config.message}
+              </p>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
