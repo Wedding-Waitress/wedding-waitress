@@ -523,7 +523,7 @@ export const GuestLookup: React.FC = () => {
               {liveViewSettings?.show_rsvp_invite && (
                 <button
                   onClick={() => setShowRsvpInviteModal(true)}
-                  className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-full border-2 border-transparent bg-white text-gray-600 hover:border-primary hover:bg-primary/10 hover:text-primary transition-all duration-200"
+                  className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-full border-2 border-primary bg-primary/10 text-primary font-semibold transition-all duration-200"
                 >
                   <Mail className="w-4 h-4" />
                   <span className="text-sm font-medium">View RSVP Invite</span>
@@ -532,10 +532,10 @@ export const GuestLookup: React.FC = () => {
               {liveViewSettings?.show_welcome_video && (
                 <button
                   onClick={() => setShowWelcomeVideoModal(true)}
-                  className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-full border-2 border-transparent bg-white text-gray-600 hover:border-primary hover:bg-primary/10 hover:text-primary transition-all duration-200"
+                  className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-full border-2 border-primary bg-primary/10 text-primary font-semibold transition-all duration-200"
                 >
                   <Video className="w-4 h-4" />
-                  <span className="text-sm font-medium">View Welcome Video</span>
+                  <span className="text-sm font-medium">View Video</span>
                 </button>
               )}
             </div>
