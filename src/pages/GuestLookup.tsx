@@ -523,7 +523,7 @@ export const GuestLookup: React.FC = () => {
       <div className="w-full px-4 py-6 md:py-8">
         <div className="max-w-4xl mx-auto">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className={`grid w-full mb-6 ${liveViewSettings?.show_rsvp_invite ? 'grid-cols-3' : 'grid-cols-2'} bg-white p-1.5 rounded-xl border-2 border-gray-200 shadow-sm`}>
+            <TabsList className={`grid w-full mb-6 ${liveViewSettings?.show_rsvp_invite ? 'grid-cols-3' : 'grid-cols-2'} bg-white p-2.5 rounded-xl border-2 border-gray-200 shadow-sm`}>
               {liveViewSettings?.show_rsvp_invite && (
                 <TabsTrigger 
                   value="rsvp-invite" 
