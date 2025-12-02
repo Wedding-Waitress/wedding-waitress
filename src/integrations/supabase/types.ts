@@ -186,6 +186,90 @@ export type Database = {
           },
         ]
       }
+      communication_credits: {
+        Row: {
+          channel: string
+          credits_purchased: number
+          credits_remaining: number
+          credits_used: number
+          id: string
+          last_purchase_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          channel: string
+          credits_purchased?: number
+          credits_remaining?: number
+          credits_used?: number
+          id?: string
+          last_purchase_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          channel?: string
+          credits_purchased?: number
+          credits_remaining?: number
+          credits_used?: number
+          id?: string
+          last_purchase_at?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      communication_usage: {
+        Row: {
+          channel: string
+          cost_aud: number
+          edge_function_name: string | null
+          event_id: string | null
+          guest_id: string | null
+          id: string
+          sent_at: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          channel: string
+          cost_aud: number
+          edge_function_name?: string | null
+          event_id?: string | null
+          guest_id?: string | null
+          id?: string
+          sent_at?: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          channel?: string
+          cost_aud?: number
+          edge_function_name?: string | null
+          event_id?: string | null
+          guest_id?: string | null
+          id?: string
+          sent_at?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "communication_usage_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "communication_usage_guest_id_fkey"
+            columns: ["guest_id"]
+            isOneToOne: false
+            referencedRelation: "guests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       dietary_chart_settings: {
         Row: {
           created_at: string
@@ -570,6 +654,54 @@ export type Database = {
             columns: ["event_id"]
             isOneToOne: false
             referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_purchases: {
+        Row: {
+          amount_paid: number
+          event_id: string
+          id: string
+          payment_method: string | null
+          plan_id: string
+          purchased_at: string
+          stripe_payment_id: string | null
+          user_id: string
+        }
+        Insert: {
+          amount_paid: number
+          event_id: string
+          id?: string
+          payment_method?: string | null
+          plan_id: string
+          purchased_at?: string
+          stripe_payment_id?: string | null
+          user_id: string
+        }
+        Update: {
+          amount_paid?: number
+          event_id?: string
+          id?: string
+          payment_method?: string | null
+          plan_id?: string
+          purchased_at?: string
+          stripe_payment_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_purchases_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: true
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_purchases_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "subscription_plans"
             referencedColumns: ["id"]
           },
         ]
@@ -1913,6 +2045,51 @@ export type Database = {
           },
         ]
       }
+      subscription_plans: {
+        Row: {
+          can_send_email: boolean
+          can_send_sms: boolean
+          can_send_whatsapp: boolean
+          created_at: string
+          duration_days: number
+          extra_event_price: number
+          guest_limit: number | null
+          id: string
+          is_active: boolean
+          name: string
+          price_aud: number
+          team_members: number
+        }
+        Insert: {
+          can_send_email?: boolean
+          can_send_sms?: boolean
+          can_send_whatsapp?: boolean
+          created_at?: string
+          duration_days: number
+          extra_event_price: number
+          guest_limit?: number | null
+          id?: string
+          is_active?: boolean
+          name: string
+          price_aud: number
+          team_members?: number
+        }
+        Update: {
+          can_send_email?: boolean
+          can_send_sms?: boolean
+          can_send_whatsapp?: boolean
+          created_at?: string
+          duration_days?: number
+          extra_event_price?: number
+          guest_limit?: number | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          price_aud?: number
+          team_members?: number
+        }
+        Relationships: []
+      }
       tables: {
         Row: {
           created_at: string
@@ -1973,6 +2150,53 @@ export type Database = {
         }
         Relationships: []
       }
+      user_subscriptions: {
+        Row: {
+          created_at: string
+          expires_at: string
+          grace_period_ends_at: string | null
+          id: string
+          is_read_only: boolean
+          plan_id: string
+          started_at: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at: string
+          grace_period_ends_at?: string | null
+          id?: string
+          is_read_only?: boolean
+          plan_id: string
+          started_at?: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          grace_period_ends_at?: string | null
+          id?: string
+          is_read_only?: boolean
+          plan_id?: string
+          started_at?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_subscriptions_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "subscription_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -1982,8 +2206,27 @@ export type Database = {
         Args: { _event_id: string; _user_id: string }
         Returns: boolean
       }
+      check_communication_credits: {
+        Args: { _channel: string; _count: number; _user_id: string }
+        Returns: Json
+      }
+      check_guest_limit: {
+        Args: { _event_id: string; _user_id: string }
+        Returns: Json
+      }
       cleanup_old_access_attempts: { Args: never; Returns: undefined }
       cleanup_old_rate_limits: { Args: never; Returns: undefined }
+      deduct_communication_credit: {
+        Args: {
+          _channel: string
+          _cost: number
+          _edge_function: string
+          _event_id: string
+          _guest_id: string
+          _user_id: string
+        }
+        Returns: boolean
+      }
       generate_guest_access_token: {
         Args: { _event_id: string; _guest_id: string; _validity_days?: number }
         Returns: string
@@ -2091,6 +2334,20 @@ export type Database = {
           section_sort_index: number
           status: string
           template_type: string
+        }[]
+      }
+      get_user_plan: {
+        Args: { _user_id: string }
+        Returns: {
+          can_send_email: boolean
+          can_send_sms: boolean
+          can_send_whatsapp: boolean
+          expires_at: string
+          guest_limit: number
+          is_read_only: boolean
+          plan_name: string
+          status: string
+          team_members: number
         }[]
       }
       has_role: {
