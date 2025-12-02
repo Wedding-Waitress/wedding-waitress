@@ -513,22 +513,22 @@ export const GuestLookup: React.FC = () => {
             
             {/* Mobile-friendly action buttons */}
             <div className="flex justify-center gap-2 mt-4 md:hidden">
-              <Button 
-                variant="secondary" 
-                size="sm"
-                onClick={() => {
-                  if (navigator.share) {
-                    navigator.share({
-                      title: `${event.partner1_name && event.partner2_name ? `${event.partner1_name} & ${event.partner2_name}` : event.name}`,
-                      url: window.location.href
-                    });
-                  }
-                }}
-                className="bg-white/20 hover:bg-white/30 text-white border-white/30 shadow-lg shadow-black/30"
-              >
-                <Share2 className="w-4 h-4 mr-1" />
-                Share
-              </Button>
+                <Button 
+                  variant="secondary" 
+                  size="sm"
+                  onClick={() => {
+                    if (navigator.share) {
+                      navigator.share({
+                        title: `${event.partner1_name && event.partner2_name ? `${event.partner1_name} & ${event.partner2_name}` : event.name}`,
+                        url: window.location.href
+                      });
+                    }
+                  }}
+                  className="bg-white/20 hover:bg-white/30 text-white border-white/30 shadow-lg shadow-black/30 rounded-full px-4 py-1 h-auto text-xs"
+                >
+                  <Share2 className="w-3 h-3 mr-1" />
+                  Share
+                </Button>
             </div>
           </div>
         </div>
@@ -623,8 +623,7 @@ export const GuestLookup: React.FC = () => {
             <TabsContent value="search">
               <Card className="ww-box card-elevated">
                 <CardHeader className="text-center">
-                  <CardTitle className="flex items-center justify-center gap-2 font-bold whitespace-nowrap text-base md:text-lg">
-                    <Users className="w-5 h-5 md:w-6 md:h-6 text-primary" />
+                  <CardTitle className="flex items-center justify-center font-bold whitespace-nowrap text-base md:text-lg">
                     {isEditable ? "Update & Confirm Your Details" : "Type Your Full Name & Find Your Seat"}
                   </CardTitle>
                   <CardDescription>
