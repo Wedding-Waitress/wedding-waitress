@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import * as tus from 'tus-js-client';
+import { Upload } from 'tus-js-client';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -103,7 +103,7 @@ export const useWelcomeVideoUpload = (eventId: string | null) => {
 
       if (error) throw error;
 
-      const upload = new tus.Upload(file, {
+      const upload = new Upload(file, {
         uploadUrl: data.upload_url,
         chunkSize: 50 * 1024 * 1024, // 50MB chunks
         retryDelays: [0, 3000, 5000, 10000, 20000],
