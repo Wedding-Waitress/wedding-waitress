@@ -523,11 +523,11 @@ export const GuestLookup: React.FC = () => {
       <div className="w-full px-4 py-6 md:py-8">
         <div className="max-w-4xl mx-auto">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className={`grid w-full mb-6 ${liveViewSettings?.show_rsvp_invite ? 'grid-cols-3' : 'grid-cols-2'} bg-white p-1 rounded-xl border-2 border-gray-200`}>
+            <TabsList className={`grid w-full mb-6 ${liveViewSettings?.show_rsvp_invite ? 'grid-cols-3' : 'grid-cols-2'} bg-white p-1.5 rounded-xl border-2 border-gray-200 shadow-sm`}>
               {liveViewSettings?.show_rsvp_invite && (
                 <TabsTrigger 
                   value="rsvp-invite" 
-                  className="flex items-center gap-2 rounded-lg border-2 border-transparent data-[state=active]:border-green-500 data-[state=active]:bg-green-50 data-[state=active]:text-green-700 data-[state=active]:font-semibold transition-all"
+                  className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg border-2 border-transparent bg-white text-gray-600 data-[state=active]:border-green-500 data-[state=active]:bg-green-50 data-[state=active]:text-green-700 data-[state=active]:font-semibold data-[state=active]:shadow-md transition-all duration-200"
                 >
                   <Mail className="w-4 h-4" />
                   <span className="hidden sm:inline">RSVP Invite</span>
@@ -536,7 +536,7 @@ export const GuestLookup: React.FC = () => {
               )}
               <TabsTrigger 
                 value="search" 
-                className="flex items-center gap-2 rounded-lg border-2 border-transparent data-[state=active]:border-green-500 data-[state=active]:bg-green-50 data-[state=active]:text-green-700 data-[state=active]:font-semibold transition-all"
+                className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg border-2 border-transparent bg-white text-gray-600 data-[state=active]:border-green-500 data-[state=active]:bg-green-50 data-[state=active]:text-green-700 data-[state=active]:font-semibold data-[state=active]:shadow-md transition-all duration-200"
               >
                 <Search className="w-4 h-4" />
                 {isEditable ? (
@@ -544,13 +544,13 @@ export const GuestLookup: React.FC = () => {
                 ) : (
                   <>
                     <span className="hidden sm:inline">Find Your Table</span>
-                    <span className="sm:hidden">Search Your Name</span>
+                    <span className="sm:hidden">Search</span>
                   </>
                 )}
               </TabsTrigger>
               <TabsTrigger 
                 value="visualization" 
-                className="flex items-center gap-2 rounded-lg border-2 border-transparent data-[state=active]:border-green-500 data-[state=active]:bg-green-50 data-[state=active]:text-green-700 data-[state=active]:font-semibold transition-all"
+                className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg border-2 border-transparent bg-white text-gray-600 data-[state=active]:border-green-500 data-[state=active]:bg-green-50 data-[state=active]:text-green-700 data-[state=active]:font-semibold data-[state=active]:shadow-md transition-all duration-200"
               >
                 <Eye className="w-4 h-4" />
                 <span>Table View</span>
