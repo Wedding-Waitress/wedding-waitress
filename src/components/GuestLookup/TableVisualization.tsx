@@ -125,10 +125,7 @@ export const TableVisualization: React.FC<TableVisualizationProps> = ({
     <Card className="w-full card-elevated">
       <CardHeader className="text-center">
         <CardTitle className="flex items-center justify-center gap-2 flex-wrap text-base font-bold">
-          <span>{tableData.name || `Table ${tableData.table_no}`}</span>
-          <span className="text-sm font-normal text-muted-foreground">
-            ({tableData.guests.length} of {tableData.limit_seats} seated)
-          </span>
+          <span>Table {tableData.table_no}</span>
         </CardTitle>
         {tableData.notes && (
           <div className="flex items-center justify-center mt-1">
@@ -141,7 +138,7 @@ export const TableVisualization: React.FC<TableVisualizationProps> = ({
       
       <CardContent className="p-6">
         {/* Round Table Visualization */}
-        <div className="relative mx-auto w-[120px] h-[120px] md:w-[240px] md:h-[240px] mt-4">
+        <div className="relative mx-auto w-[180px] h-[180px] md:w-[280px] md:h-[280px] mt-4">
           {/* Table Surface */}
           <div 
             className="absolute inset-0 bg-gradient-card border-2 border-primary/30 rounded-full flex items-center justify-center"
@@ -149,9 +146,13 @@ export const TableVisualization: React.FC<TableVisualizationProps> = ({
               boxShadow: 'inset 0 2px 8px rgba(0,0,0,0.1), 0 4px 12px rgba(126, 110, 255, 0.15)' 
             }}
           >
-            <div className="text-center">
-              <div className="text-lg font-semibold text-primary">Table</div>
-              <div className="text-2xl font-bold text-primary">{tableData.table_no}</div>
+            <div className="text-center px-2">
+              <div className="text-xs md:text-sm font-semibold text-primary leading-tight">
+                {tableData.name || `Table ${tableData.table_no}`}
+              </div>
+              <div className="text-xs md:text-xs font-normal text-muted-foreground mt-1">
+                ({tableData.guests.length} of {tableData.limit_seats} seated)
+              </div>
             </div>
           </div>
 
@@ -167,7 +168,7 @@ export const TableVisualization: React.FC<TableVisualizationProps> = ({
             return (
               <div
                 key={seat.position}
-                className={`absolute w-8 h-8 md:w-16 md:h-16 rounded-full border-2 flex items-center justify-center text-xs font-medium transition-all ${
+                className={`absolute w-10 h-10 md:w-16 md:h-16 rounded-full border-2 flex items-center justify-center text-xs font-medium transition-all ${
                   seat.guest 
                     ? seat.guest.rsvp === 'Confirmed'
                       ? 'bg-success/10 border-success text-success-foreground'
