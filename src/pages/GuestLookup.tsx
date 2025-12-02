@@ -515,45 +515,30 @@ export const GuestLookup: React.FC = () => {
         </div>
       </div>
 
-      {/* Feature Cards Section - RSVP Invite & Welcome Video */}
+      {/* Feature Buttons Section - RSVP Invite & Welcome Video */}
       {(liveViewSettings?.show_rsvp_invite || liveViewSettings?.show_welcome_video) && (
-        <div className="w-full px-4 py-4 md:py-6">
-          <div className="max-w-4xl mx-auto grid gap-4 md:grid-cols-2">
-            {/* RSVP Invite Button */}
-            {liveViewSettings?.show_rsvp_invite && (
-              <Card 
-                className="ww-box cursor-pointer hover:shadow-xl transition-all duration-300 hover:scale-[1.02]"
-                onClick={() => setShowRsvpInviteModal(true)}
-              >
-                <CardContent className="p-6 text-center">
-                  <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
-                    <Mail className="w-8 h-8 text-primary" />
-                  </div>
-                  <h3 className="text-lg md:text-xl font-bold text-primary mb-2">RSVP Invite</h3>
-                  <p className="text-sm text-muted-foreground">
-                    View your digital invitation
-                  </p>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Welcome Video Button */}
-            {liveViewSettings?.show_welcome_video && (
-              <Card 
-                className="ww-box cursor-pointer hover:shadow-xl transition-all duration-300 hover:scale-[1.02]"
-                onClick={() => setShowWelcomeVideoModal(true)}
-              >
-                <CardContent className="p-6 text-center">
-                  <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
-                    <Video className="w-8 h-8 text-primary" />
-                  </div>
-                  <h3 className="text-lg md:text-xl font-bold text-primary mb-2">Welcome Video</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Watch a special message
-                  </p>
-                </CardContent>
-              </Card>
-            )}
+        <div className="w-full px-4 py-4">
+          <div className="max-w-4xl mx-auto">
+            <div className="grid w-full grid-cols-2 gap-3 bg-white p-2.5 rounded-xl border-2 border-gray-200 shadow-sm">
+              {liveViewSettings?.show_rsvp_invite && (
+                <button
+                  onClick={() => setShowRsvpInviteModal(true)}
+                  className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-full border-2 border-transparent bg-white text-gray-600 hover:border-primary hover:bg-primary/10 hover:text-primary transition-all duration-200"
+                >
+                  <Mail className="w-4 h-4" />
+                  <span className="text-sm font-medium">View RSVP Invite</span>
+                </button>
+              )}
+              {liveViewSettings?.show_welcome_video && (
+                <button
+                  onClick={() => setShowWelcomeVideoModal(true)}
+                  className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-full border-2 border-transparent bg-white text-gray-600 hover:border-primary hover:bg-primary/10 hover:text-primary transition-all duration-200"
+                >
+                  <Video className="w-4 h-4" />
+                  <span className="text-sm font-medium">View Welcome Video</span>
+                </button>
+              )}
+            </div>
           </div>
         </div>
       )}
@@ -565,7 +550,7 @@ export const GuestLookup: React.FC = () => {
             <TabsList className="grid w-full h-auto mb-6 grid-cols-2 bg-white p-2.5 rounded-xl border-2 border-gray-200 shadow-sm">
               <TabsTrigger
                 value="search" 
-                className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg border-2 border-transparent bg-white text-gray-600 data-[state=active]:border-green-500 data-[state=active]:bg-green-50 data-[state=active]:text-green-700 data-[state=active]:font-semibold data-[state=active]:shadow-md transition-all duration-200"
+                className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-full border-2 border-transparent bg-white text-gray-600 data-[state=active]:border-green-500 data-[state=active]:bg-green-50 data-[state=active]:text-green-700 data-[state=active]:font-semibold data-[state=active]:shadow-md transition-all duration-200"
               >
                 <Search className="w-4 h-4" />
                 {isEditable ? (
@@ -579,7 +564,7 @@ export const GuestLookup: React.FC = () => {
               </TabsTrigger>
               <TabsTrigger 
                 value="visualization" 
-                className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg border-2 border-transparent bg-white text-gray-600 data-[state=active]:border-green-500 data-[state=active]:bg-green-50 data-[state=active]:text-green-700 data-[state=active]:font-semibold data-[state=active]:shadow-md transition-all duration-200"
+                className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-full border-2 border-transparent bg-white text-gray-600 data-[state=active]:border-green-500 data-[state=active]:bg-green-50 data-[state=active]:text-green-700 data-[state=active]:font-semibold data-[state=active]:shadow-md transition-all duration-200"
               >
                 <Eye className="w-4 h-4" />
                 <span>Table View</span>
