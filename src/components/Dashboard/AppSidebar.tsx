@@ -49,8 +49,8 @@ interface AppSidebarProps {
   const allMenuItems = [
     { id: "dashboard", label: "Dashboard", icon: Home },
     { id: "my-events", label: "My Events", icon: Calendar },
-    { id: "table-list", label: "Tables", icon: MapPin },
     { id: "guest-list", label: "Guest List", icon: Users },
+    { id: "table-list", label: "Tables", icon: MapPin },
     { id: "qr-code", label: "QR Code Seating Chart", icon: QrCode },
     { id: "place-cards", label: "Place Cards", icon: CreditCard },
     { id: "individual-table-chart", label: "Individual Table Charts", icon: Users },
@@ -114,8 +114,8 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                 const isGreenItem = ['my-events', 'table-list', 'guest-list'].includes(item.id);
                 const getBadgeNumber = () => {
                   if (item.id === 'my-events') return '1';
-                  if (item.id === 'table-list') return '2';
-                  if (item.id === 'guest-list') return '3';
+                  if (item.id === 'guest-list') return '2';
+                  if (item.id === 'table-list') return '3';
                   return null;
                 };
                 const badgeNumber = getBadgeNumber();
