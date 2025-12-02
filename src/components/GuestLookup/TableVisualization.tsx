@@ -140,7 +140,7 @@ export const TableVisualization: React.FC<TableVisualizationProps> = ({
       
       <CardContent className="p-6">
         {/* Round Table Visualization */}
-        <div className="relative mx-auto" style={{ width: '240px', height: '240px' }}>
+        <div className="relative mx-auto w-[120px] h-[120px] md:w-[240px] md:h-[240px]">
           {/* Table Surface */}
           <div 
             className="absolute inset-0 bg-gradient-card border-2 border-primary/30 rounded-full flex items-center justify-center"
@@ -158,13 +158,15 @@ export const TableVisualization: React.FC<TableVisualizationProps> = ({
           {seats.map((seat, index) => {
             const angle = (index * 360) / seats.length;
             const radian = (angle - 90) * (Math.PI / 180);
-            const x = radius + (radius + 30) * Math.cos(radian);
-            const y = radius + (radius + 30) * Math.sin(radian);
+            // Use percentage-based positioning (45% from center = seats positioned outside table)
+            const seatDistancePercent = 45;
+            const x = 50 + seatDistancePercent * Math.cos(radian);
+            const y = 50 + seatDistancePercent * Math.sin(radian);
             
             return (
               <div
                 key={seat.position}
-                className={`absolute w-16 h-16 rounded-full border-2 flex items-center justify-center text-xs font-medium transition-all ${
+                className={`absolute w-8 h-8 md:w-16 md:h-16 rounded-full border-2 flex items-center justify-center text-xs font-medium transition-all ${
                   seat.guest 
                     ? seat.guest.rsvp === 'Confirmed'
                       ? 'bg-success/10 border-success text-success-foreground'
@@ -174,14 +176,15 @@ export const TableVisualization: React.FC<TableVisualizationProps> = ({
                     : 'bg-muted border-muted-foreground/30 text-muted-foreground'
                 }`}
                 style={{
-                  left: `${x - 32}px`,
-                  top: `${y - 32}px`,
+                  left: `${x}%`,
+                  top: `${y}%`,
+                  transform: 'translate(-50%, -50%)'
                 }}
                 title={seat.guest ? `${seat.guest.first_name} ${seat.guest.last_name}` : `Seat ${seat.position}`}
               >
                 {seat.guest ? (
                   <div className="text-center leading-tight">
-                    <div className="text-xs font-semibold">
+                    <div className="text-xs font-semibold text-black">
                       {seat.guest.first_name.charAt(0)}{seat.guest.last_name.charAt(0)}
                     </div>
                   </div>
