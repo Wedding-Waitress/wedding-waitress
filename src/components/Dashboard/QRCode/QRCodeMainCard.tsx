@@ -373,15 +373,28 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
 
           {/* Row 1, Col 2: Live View Actions */}
           <div className="lg:w-auto space-y-3 p-4 bg-purple-50 border-2 border-purple-600 rounded-lg flex flex-col justify-center my-[30px]">
-            <div className="space-y-2">
-              <Button onClick={handleLiveView} disabled={!selectedEvent?.slug} className="w-full lg:w-auto lg:min-w-[180px] mx-[5px]">
-                <ExternalLink className="h-4 w-4 mr-2" />
-                Open Live View
-              </Button>
-              <Button variant="outline" onClick={handleCopyLink} disabled={!selectedEvent?.slug} className="w-full lg:w-auto lg:min-w-[180px] mx-[5px]">
-                <Link className="h-4 w-4 mr-2" />
-                Copy Link
-              </Button>
+            <div className="space-y-4">
+              {/* Open Live View Button + Helper */}
+              <div className="space-y-1">
+                <Button onClick={handleLiveView} disabled={!selectedEvent?.slug} className="w-full lg:w-auto lg:min-w-[180px]">
+                  <ExternalLink className="h-4 w-4 mr-2" />
+                  Open Live View
+                </Button>
+                <p className="text-xs text-purple-600/70 pl-1">
+                  Preview what guests see when they scan
+                </p>
+              </div>
+              
+              {/* Copy Link Button + Helper */}
+              <div className="space-y-1">
+                <Button variant="outline" onClick={handleCopyLink} disabled={!selectedEvent?.slug} className="w-full lg:w-auto lg:min-w-[180px]">
+                  <Link className="h-4 w-4 mr-2" />
+                  Copy Link
+                </Button>
+                <p className="text-xs text-purple-600/70 pl-1">
+                  Share via SMS, WhatsApp, email, or socials
+                </p>
+              </div>
             </div>
           </div>
 
