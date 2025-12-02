@@ -124,9 +124,6 @@ export const TableVisualization: React.FC<TableVisualizationProps> = ({
   return (
     <Card className="w-full card-elevated">
       <CardHeader className="text-center">
-        <CardTitle className="flex items-center justify-center gap-2 flex-wrap text-base font-bold">
-          <span>Table {tableData.table_no}</span>
-        </CardTitle>
         {tableData.notes && (
           <div className="flex items-center justify-center mt-1">
             <Badge variant="outline" className="text-xs">
@@ -147,10 +144,16 @@ export const TableVisualization: React.FC<TableVisualizationProps> = ({
             }}
           >
             <div className="text-center px-2">
-              <div className="text-xs md:text-sm font-semibold text-primary leading-tight">
-                {tableData.name || `Table ${tableData.table_no}`}
+              {/* Line 1: "Table" - permanent label */}
+              <div className="text-sm md:text-base font-semibold text-primary">
+                Table
               </div>
-              <div className="text-xs md:text-xs font-normal text-muted-foreground mt-1">
+              {/* Line 2: Table number or name */}
+              <div className="text-sm md:text-lg font-bold text-primary leading-tight">
+                {tableData.name || tableData.table_no}
+              </div>
+              {/* Line 3: Seated count in brackets */}
+              <div className="text-xs md:text-sm font-normal text-muted-foreground mt-1">
                 ({tableData.guests.length} of {tableData.limit_seats} seated)
               </div>
             </div>
