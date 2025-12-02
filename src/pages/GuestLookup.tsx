@@ -24,6 +24,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { EnhancedGuestCard } from '@/components/GuestLookup/EnhancedGuestCard';
 import { normalizeRsvp } from '@/lib/rsvp';
+import { formatDisplayTime } from '@/lib/utils';
 import { TableVisualization } from '@/components/GuestLookup/TableVisualization';
 import { GuestProfileModal } from '@/components/GuestLookup/GuestProfileModal';
 import { GuestUpdateModal } from '@/components/GuestLookup/GuestUpdateModal';
@@ -55,6 +56,8 @@ interface Event {
   partner1_name: string | null;
   partner2_name: string | null;
   rsvp_deadline?: string | null;
+  start_time?: string | null;
+  finish_time?: string | null;
 }
 
 export const GuestLookup: React.FC = () => {
@@ -466,7 +469,7 @@ export const GuestLookup: React.FC = () => {
     <div className="min-h-screen bg-gradient-subtle font-inter">
       {/* Hero Section */}
       <div className="bg-gradient-hero text-white">
-        <div className="w-full px-4 pt-5 pb-2 md:pt-6 md:pb-3">
+        <div className="w-full px-4 pt-3 pb-1 md:pt-4 md:pb-2">
           <div className="text-center">
             {/* "You're invited to" text above event name */}
             <p className="text-white/90 text-lg md:text-xl font-medium mb-2">
@@ -491,12 +494,19 @@ export const GuestLookup: React.FC = () => {
                   day: 'numeric' 
                 })}</span>
               </div>
-              {event.venue && (
-                <div className="flex items-center">
-                  <MapPin className="w-4 h-4 mr-2" />
-                  <span className="text-center">{event.venue}</span>
-                </div>
-              )}
+            {event.venue && (
+              <div className="flex items-center">
+                <MapPin className="w-4 h-4 mr-2" />
+                <span className="text-center">
+                  {event.venue}
+                  {(event.start_time || event.finish_time) && (
+                    <span> - {event.start_time && formatDisplayTime(event.start_time)}
+                    {event.start_time && event.finish_time && ' to '}
+                    {event.finish_time && formatDisplayTime(event.finish_time)}</span>
+                  )}
+                </span>
+              </div>
+            )}
             </div>
             
             {/* Mobile-friendly action buttons */}
