@@ -459,7 +459,7 @@ export const GuestLookup: React.FC = () => {
             <AlertCircle className="w-16 h-16 mx-auto text-destructive mb-4" />
             <CardTitle className="mb-2">Event Not Found</CardTitle>
             <CardDescription>
-              The requested event could not be found. Please check the QR code or contact the event organizer.
+              The requested event could not be found. Please check the QR code or contact the event organiser.
             </CardDescription>
           </CardContent>
         </Card>
@@ -471,7 +471,7 @@ export const GuestLookup: React.FC = () => {
     <div className="min-h-screen bg-gradient-subtle font-inter">
       {/* Hero Section */}
       <div className="bg-gradient-hero text-white">
-        <div className="w-full px-4 pt-3 pb-1 md:pt-4 md:pb-2">
+        <div className="w-full px-4 pt-3 pb-3 md:pt-4 md:pb-4">
           <div className="text-center">
             {/* "You're invited to" text above event name */}
             <p className="text-white/90 text-lg md:text-xl font-medium mb-2">
@@ -509,26 +509,6 @@ export const GuestLookup: React.FC = () => {
                 </span>
               </div>
             )}
-            </div>
-            
-            {/* Mobile-friendly action buttons */}
-            <div className="flex justify-center gap-2 mt-4 md:hidden">
-                <Button 
-                  variant="secondary" 
-                  size="sm"
-                  onClick={() => {
-                    if (navigator.share) {
-                      navigator.share({
-                        title: `${event.partner1_name && event.partner2_name ? `${event.partner1_name} & ${event.partner2_name}` : event.name}`,
-                        url: window.location.href
-                      });
-                    }
-                  }}
-                  className="bg-white/20 hover:bg-white/30 text-white border-white/30 shadow-lg shadow-black/30 rounded-full px-4 py-1 h-auto text-xs"
-                >
-                  <Share2 className="w-3 h-3 mr-1" />
-                  Share
-                </Button>
             </div>
           </div>
         </div>
@@ -692,7 +672,7 @@ export const GuestLookup: React.FC = () => {
                           <AlertCircle className="w-10 h-10 md:w-12 md:h-12 mx-auto text-muted-foreground mb-3" />
                           <p className="text-muted-foreground mb-2 font-medium">No guests found</p>
                           <p className="text-sm text-muted-foreground">
-                            Please check your spelling or contact event organizer for assistance
+                            Please check your spelling or contact event organiser for assistance
                           </p>
                         </div>
                       )}
@@ -704,7 +684,27 @@ export const GuestLookup: React.FC = () => {
                   {/* Footer */}
                   <div className="text-center text-sm text-muted-foreground space-y-1">
                     <p className="font-medium">Having trouble finding your name?</p>
-                    <p>Please contact event organizer for assistance</p>
+                    <p>Please contact event organiser for assistance</p>
+                  </div>
+
+                  {/* Share Button - moved from hero */}
+                  <div className="flex justify-center mt-4">
+                    <Button 
+                      variant="secondary" 
+                      size="sm"
+                      onClick={() => {
+                        if (navigator.share) {
+                          navigator.share({
+                            title: `${event.partner1_name && event.partner2_name ? `${event.partner1_name} & ${event.partner2_name}` : event.name}`,
+                            url: window.location.href
+                          });
+                        }
+                      }}
+                      className="bg-primary hover:bg-primary/90 text-white shadow-lg shadow-black/30 rounded-full px-5 py-1.5 h-auto text-sm"
+                    >
+                      <Share2 className="w-4 h-4 mr-1.5" />
+                      Share
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
@@ -736,7 +736,7 @@ export const GuestLookup: React.FC = () => {
                           <MapPin className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
                           <CardTitle className="mb-2">No Table Assigned Yet</CardTitle>
                           <CardDescription>
-                            You haven't been assigned to a table yet. Please check back later or contact the event organizer.
+                            You haven't been assigned to a table yet. Please check back later or contact the event organiser.
                           </CardDescription>
                         </CardContent>
                       </Card>
@@ -762,7 +762,7 @@ export const GuestLookup: React.FC = () => {
                       <AlertCircle className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
                       <CardTitle className="mb-2">Guest Not Found</CardTitle>
                       <CardDescription>
-                        No guest found matching your search. Please verify your name or contact the event organizer.
+                        No guest found matching your search. Please verify your name or contact the event organiser.
                       </CardDescription>
                     </CardContent>
                   </Card>
