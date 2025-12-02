@@ -154,14 +154,16 @@ export const GuestLookup: React.FC = () => {
 
         // Extract event data from first row
         const firstRow = publicData[0];
-        const eventData = {
-          id: firstRow.event_id,
-          name: firstRow.event_name,
-          date: firstRow.event_date,
-          venue: firstRow.event_venue,
-          partner1_name: firstRow.partner1_name,
-          partner2_name: firstRow.partner2_name,
-        };
+            const eventData = {
+              id: firstRow.event_id,
+              name: firstRow.event_name,
+              date: firstRow.event_date,
+              venue: firstRow.event_venue,
+              partner1_name: firstRow.partner1_name,
+              partner2_name: firstRow.partner2_name,
+              start_time: firstRow.event_start_time,
+              finish_time: firstRow.event_finish_time,
+            };
         setEvent(eventData);
 
         // Transform guest data
@@ -621,7 +623,7 @@ export const GuestLookup: React.FC = () => {
             <TabsContent value="search">
               <Card className="ww-box card-elevated">
                 <CardHeader className="text-center">
-                  <CardTitle className="flex items-center justify-center gap-2 font-bold">
+                  <CardTitle className="flex items-center justify-center gap-2 font-bold whitespace-nowrap text-base md:text-lg">
                     <Users className="w-5 h-5 md:w-6 md:h-6 text-primary" />
                     {isEditable ? "Update & Confirm Your Details" : "Type Your Full Name & Find Your Seat"}
                   </CardTitle>
