@@ -124,8 +124,7 @@ export const TableVisualization: React.FC<TableVisualizationProps> = ({
   return (
     <Card className="w-full card-elevated">
       <CardHeader className="text-center">
-        <CardTitle className="flex items-center justify-center gap-2 flex-wrap">
-          <Users className="w-5 h-5 text-primary" />
+        <CardTitle className="flex items-center justify-center gap-2 flex-wrap text-base font-bold">
           <span>{tableData.name || `Table ${tableData.table_no}`}</span>
           <span className="text-sm font-normal text-muted-foreground">
             ({tableData.guests.length} of {tableData.limit_seats} seated)
@@ -142,7 +141,7 @@ export const TableVisualization: React.FC<TableVisualizationProps> = ({
       
       <CardContent className="p-6">
         {/* Round Table Visualization */}
-        <div className="relative mx-auto w-[120px] h-[120px] md:w-[240px] md:h-[240px]">
+        <div className="relative mx-auto w-[120px] h-[120px] md:w-[240px] md:h-[240px] mt-4">
           {/* Table Surface */}
           <div 
             className="absolute inset-0 bg-gradient-card border-2 border-primary/30 rounded-full flex items-center justify-center"
