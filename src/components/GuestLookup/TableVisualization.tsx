@@ -124,18 +124,20 @@ export const TableVisualization: React.FC<TableVisualizationProps> = ({
   return (
     <Card className="w-full card-elevated">
       <CardHeader className="text-center">
-        <CardTitle className="flex items-center justify-center gap-2">
+        <CardTitle className="flex items-center justify-center gap-2 flex-wrap">
           <Users className="w-5 h-5 text-primary" />
-          {tableData.name || `Table ${tableData.table_no}`}
+          <span>{tableData.name || `Table ${tableData.table_no}`}</span>
+          <span className="text-sm font-normal text-muted-foreground">
+            ({tableData.guests.length} of {tableData.limit_seats} seated)
+          </span>
         </CardTitle>
-        <div className="flex items-center justify-center gap-4 text-sm text-muted-foreground">
-          <span>{tableData.guests.length} of {tableData.limit_seats} seated</span>
-          {tableData.notes && (
+        {tableData.notes && (
+          <div className="flex items-center justify-center mt-1">
             <Badge variant="outline" className="text-xs">
               {tableData.notes}
             </Badge>
-          )}
-        </div>
+          </div>
+        )}
       </CardHeader>
       
       <CardContent className="p-6">
@@ -158,8 +160,8 @@ export const TableVisualization: React.FC<TableVisualizationProps> = ({
           {seats.map((seat, index) => {
             const angle = (index * 360) / seats.length;
             const radian = (angle - 90) * (Math.PI / 180);
-            // Use percentage-based positioning (45% from center = seats positioned outside table)
-            const seatDistancePercent = 45;
+            // Use percentage-based positioning (58% from center = seats positioned outside table)
+            const seatDistancePercent = 58;
             const x = 50 + seatDistancePercent * Math.cos(radian);
             const y = 50 + seatDistancePercent * Math.sin(radian);
             
