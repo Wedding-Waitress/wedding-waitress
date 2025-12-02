@@ -380,19 +380,19 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                   <ExternalLink className="h-4 w-4 mr-2" />
                   Open Live View
                 </Button>
-                <p className="text-xs text-purple-600/70 pl-1">
-                  Preview what guests see when they scan
+                <p className="text-xs text-gray-900 pl-1">
+                  Preview what guests see when you send them the link or they scan the QR code at your event.
                 </p>
               </div>
               
               {/* Copy Link Button + Helper */}
               <div className="space-y-1">
-                <Button variant="outline" onClick={handleCopyLink} disabled={!selectedEvent?.slug} className="w-full lg:w-auto lg:min-w-[180px]">
+                <Button onClick={handleCopyLink} disabled={!selectedEvent?.slug} className="w-full lg:w-auto lg:min-w-[180px]">
                   <Link className="h-4 w-4 mr-2" />
                   Copy Link
                 </Button>
-                <p className="text-xs text-purple-600/70 pl-1">
-                  Share via SMS, WhatsApp, email, or socials
+                <p className="text-xs text-gray-900 pl-1">
+                  Share seating chart link with your guests via SMS, WhatsApp, email or socials.
                 </p>
               </div>
             </div>
