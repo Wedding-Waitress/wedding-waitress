@@ -545,11 +545,10 @@ export const GuestLookup: React.FC = () => {
                   </>
                 )}
               </TabsTrigger>
-              <TabsTrigger value="visualization" className="flex items-center gap-2">
-                <Eye className="w-4 h-4" />
-                <span className="hidden sm:inline">Your Table</span>
-                <span className="sm:hidden">Table</span>
-              </TabsTrigger>
+            <TabsTrigger value="visualization" className="flex items-center gap-2">
+              <Eye className="w-4 h-4" />
+              <span>Table View</span>
+            </TabsTrigger>
             </TabsList>
 
             {/* RSVP Invite Tab Content */}
