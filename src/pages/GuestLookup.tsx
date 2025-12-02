@@ -623,7 +623,7 @@ export const GuestLookup: React.FC = () => {
             <TabsContent value="search">
               <Card className="ww-box card-elevated">
                 <CardHeader className="text-center">
-                  <CardTitle className="flex items-center justify-center font-bold whitespace-nowrap text-base md:text-lg">
+                  <CardTitle className="flex items-center justify-center font-bold whitespace-nowrap text-lg md:text-xl">
                     {isEditable ? "Update & Confirm Your Details" : "Type Your Full Name & Find Your Seat"}
                   </CardTitle>
                   <CardDescription>
@@ -662,15 +662,6 @@ export const GuestLookup: React.FC = () => {
                       <p className="text-muted-foreground text-sm md:text-base">
                         Type at least 2 letters of your name to search
                       </p>
-                      <div className="mt-4 p-4 bg-accent/50 rounded-lg">
-                        <div className="flex items-center justify-center gap-2 mb-2">
-                          <Smartphone className="w-4 h-4 text-accent-foreground" />
-                          <span className="text-sm font-medium text-accent-foreground">Mobile Tip</span>
-                        </div>
-                        <p className="text-xs text-muted-foreground">
-                          Add this page to your home screen for quick access during the event
-                        </p>
-                      </div>
                     </div>
                   )}
 
@@ -701,7 +692,7 @@ export const GuestLookup: React.FC = () => {
                           <AlertCircle className="w-10 h-10 md:w-12 md:h-12 mx-auto text-muted-foreground mb-3" />
                           <p className="text-muted-foreground mb-2 font-medium">No guests found</p>
                           <p className="text-sm text-muted-foreground">
-                            Please check your spelling or contact event staff for assistance
+                            Please check your spelling or contact event organizer for assistance
                           </p>
                         </div>
                       )}
@@ -713,7 +704,7 @@ export const GuestLookup: React.FC = () => {
                   {/* Footer */}
                   <div className="text-center text-sm text-muted-foreground space-y-1">
                     <p className="font-medium">Having trouble finding your name?</p>
-                    <p>Please contact event staff for assistance</p>
+                    <p>Please contact event organizer for assistance</p>
                   </div>
                 </CardContent>
               </Card>
