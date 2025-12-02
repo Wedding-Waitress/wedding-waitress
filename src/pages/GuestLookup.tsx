@@ -269,7 +269,7 @@ export const GuestLookup: React.FC = () => {
             user_id: '', // Not available in public view
             first_name: row.guest_first_name,
             last_name: row.guest_last_name,
-            table_id: null,
+            table_id: row.guest_table_id,
             table_no: row.guest_table_no,
             seat_no: row.guest_seat_no,
             rsvp_date: null,
