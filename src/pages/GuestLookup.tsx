@@ -773,11 +773,11 @@ export const GuestLookup: React.FC = () => {
 
       {/* RSVP Invite Modal */}
       <Dialog open={showRsvpInviteModal} onOpenChange={setShowRsvpInviteModal}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-primary [&>button]:text-white [&>button:hover]:text-white/80">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-2xl">
-              <Mail className="w-6 h-6 text-primary" />
-              You Are Invited
+            <DialogTitle className="flex items-center gap-2 text-2xl font-inter text-white">
+              <Mail className="w-6 h-6 text-white" />
+              You're invited
             </DialogTitle>
           </DialogHeader>
           <div className="mt-4">
