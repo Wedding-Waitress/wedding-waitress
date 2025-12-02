@@ -466,7 +466,7 @@ export const GuestLookup: React.FC = () => {
     <div className="min-h-screen bg-gradient-subtle font-inter">
       {/* Hero Section */}
       <div className="bg-gradient-hero text-white">
-        <div className="w-full px-4 py-5 md:py-6">
+        <div className="w-full px-4 pt-5 pb-2 md:pt-6 md:pb-3">
           <div className="text-center">
             {/* "You're invited to" text above event name */}
             <p className="text-white/90 text-lg md:text-xl font-medium mb-2">
@@ -512,7 +512,7 @@ export const GuestLookup: React.FC = () => {
                     });
                   }
                 }}
-                className="bg-white/20 hover:bg-white/30 text-white border-white/30"
+                className="bg-white/20 hover:bg-white/30 text-white border-white/30 shadow-lg shadow-black/30"
               >
                 <Share2 className="w-4 h-4 mr-1" />
                 Share
