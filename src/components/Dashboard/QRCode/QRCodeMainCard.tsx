@@ -562,9 +562,12 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                                         const file = (e.target as HTMLInputElement).files?.[0];
                                         if (file && eventId) {
                                           try {
+                                            const { data: { user } } = await supabase.auth.getUser();
+                                            if (!user) throw new Error('Not authenticated');
+                                            
                                             const fileExt = file.name.split('.').pop();
                                             const fileName = `${Date.now()}.${fileExt}`;
-                                            const filePath = `${eventId}/rsvp_invite/${fileName}`;
+                                            const filePath = `${user.id}/${eventId}/rsvp_invite/${fileName}`;
                                             
                                             const { error: uploadError } = await supabase.storage
                                               .from('invitations')
@@ -632,9 +635,12 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                                       const file = (e.target as HTMLInputElement).files?.[0];
                                       if (file && eventId) {
                                         try {
+                                          const { data: { user } } = await supabase.auth.getUser();
+                                          if (!user) throw new Error('Not authenticated');
+                                          
                                           const fileExt = file.name.split('.').pop();
                                           const fileName = `${Date.now()}.${fileExt}`;
-                                          const filePath = `${eventId}/rsvp_invite/${fileName}`;
+                                          const filePath = `${user.id}/${eventId}/rsvp_invite/${fileName}`;
                                           
                                           const { error: uploadError } = await supabase.storage
                                             .from('invitations')
