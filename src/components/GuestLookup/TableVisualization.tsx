@@ -39,39 +39,52 @@ export const TableVisualization: React.FC<TableVisualizationProps> = ({
   useEffect(() => {
     const fetchTableData = async () => {
       try {
-        // Fetch table details
-        const { data: table, error: tableError } = await supabase
-          .from('tables')
-          .select('*')
-          .eq('id', tableId)
-          .single();
-
-        if (tableError) throw tableError;
-
-        // Fetch guests for this table
-        const { data: guests, error: guestsError } = await supabase
-          .from('guests')
-          .select('id, first_name, last_name, seat_no, dietary, rsvp')
-          .eq('table_id', tableId)
-          .order('seat_no', { nullsFirst: false });
-
-        if (guestsError) throw guestsError;
-
-        setTableData({
-          ...table,
-          guests: guests || []
+        // Use public RPC function to fetch table data (bypasses RLS)
+        const { data, error } = await supabase.rpc('get_public_table_data', {
+          p_table_id: tableId,
+          p_event_id: eventId
         });
+
+        if (error) throw error;
+
+        if (!data || data.length === 0) {
+          setTableData(null);
+          return;
+        }
+
+        // Transform RPC response into TableData format
+        const firstRow = data[0];
+        const tableInfo: TableData = {
+          id: firstRow.table_id,
+          table_no: firstRow.table_no,
+          name: firstRow.table_name,
+          limit_seats: firstRow.limit_seats,
+          notes: firstRow.table_notes,
+          guests: data
+            .filter((row: any) => row.guest_id) // Only include rows with guest data
+            .map((row: any) => ({
+              id: row.guest_id,
+              first_name: row.guest_first_name,
+              last_name: row.guest_last_name,
+              seat_no: row.guest_seat_no,
+              dietary: row.guest_dietary || '',
+              rsvp: row.guest_rsvp || 'Pending'
+            }))
+        };
+
+        setTableData(tableInfo);
       } catch (error) {
         console.error('Error fetching table data:', error);
+        setTableData(null);
       } finally {
         setLoading(false);
       }
     };
 
-    if (tableId) {
+    if (tableId && eventId) {
       fetchTableData();
     }
-  }, [tableId]);
+  }, [tableId, eventId]);
 
   if (loading) {
     return (
