@@ -517,7 +517,7 @@ export const GuestLookup: React.FC = () => {
 
       {/* Feature Buttons Section - RSVP Invite & Welcome Video */}
       {(liveViewSettings?.show_rsvp_invite || liveViewSettings?.show_welcome_video) && (
-        <div className="w-full px-4 py-4">
+        <div className="w-full px-4 pt-4 pb-1">
           <div className="max-w-4xl mx-auto">
             <div className="grid w-full grid-cols-2 gap-3 bg-white p-2.5 rounded-xl border-2 border-gray-200 shadow-sm">
               {liveViewSettings?.show_rsvp_invite && (
@@ -544,7 +544,7 @@ export const GuestLookup: React.FC = () => {
       )}
 
       {/* Main Content */}
-      <div className="w-full px-4 py-6 md:py-8">
+      <div className="w-full px-4 pt-2 pb-6 md:pb-8">
         <div className="max-w-4xl mx-auto">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid w-full h-auto mb-6 grid-cols-2 bg-white p-2.5 rounded-xl border-2 border-gray-200 shadow-sm">
