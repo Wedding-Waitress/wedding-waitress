@@ -58,7 +58,6 @@ interface AppSidebarProps {
     { id: "full-seating-chart", label: "Full Seating Chart", icon: FileText },
     { id: "kiosk-live-view", label: "Kiosk Live View", icon: Monitor },
     { id: "email-templates", label: "Email Templates", icon: Mail },
-    { id: "ai-assistant", label: "AI Assistant", icon: Bot },
     { id: "ai-insights", label: "AI Insights", icon: TrendingUp },
     { id: "rsvp-notifications", label: "RSVP Notifications", icon: Bell },
     ...(flags.djQuestionnaire ? [{ id: "dj-mc-questionnaire", label: "DJ & MC Questionnaire", icon: Music }] : []),
