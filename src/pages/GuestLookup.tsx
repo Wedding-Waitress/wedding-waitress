@@ -813,10 +813,10 @@ export const GuestLookup: React.FC = () => {
 
       {/* Welcome Video Modal */}
       <Dialog open={showWelcomeVideoModal} onOpenChange={setShowWelcomeVideoModal}>
-        <DialogContent className="max-w-3xl">
+        <DialogContent className="max-w-3xl bg-primary [&>button]:text-white [&>button:hover]:text-white/80">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-2xl">
-              <Video className="w-6 h-6 text-primary" />
+            <DialogTitle className="flex items-center gap-2 text-2xl font-inter text-white">
+              <Video className="w-6 h-6 text-white" />
               Welcome Video
             </DialogTitle>
           </DialogHeader>

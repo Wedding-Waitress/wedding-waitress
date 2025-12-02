@@ -2083,6 +2083,56 @@ export type Database = {
           },
         ]
       }
+      welcome_video_uploads: {
+        Row: {
+          cloudflare_playback_url: string | null
+          cloudflare_uid: string
+          created_at: string | null
+          duration_seconds: number | null
+          event_id: string
+          file_name: string | null
+          file_size_bytes: number | null
+          id: string
+          status: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          cloudflare_playback_url?: string | null
+          cloudflare_uid: string
+          created_at?: string | null
+          duration_seconds?: number | null
+          event_id: string
+          file_name?: string | null
+          file_size_bytes?: number | null
+          id?: string
+          status?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          cloudflare_playback_url?: string | null
+          cloudflare_uid?: string
+          created_at?: string | null
+          duration_seconds?: number | null
+          event_id?: string
+          file_name?: string | null
+          file_size_bytes?: number | null
+          id?: string
+          status?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "welcome_video_uploads_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: true
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

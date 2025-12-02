@@ -7,11 +7,13 @@ import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { QrCode as QrCodeIcon, Copy, Download, RotateCcw, Save, Printer, FileDown, Palette, ChevronDown, FileText, Code, Image as ImageIcon, ExternalLink, Link, Eye, EyeOff, Upload, Mail, Edit } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
+import { QrCode as QrCodeIcon, Copy, Download, RotateCcw, Save, Printer, FileDown, Palette, ChevronDown, FileText, Code, Image as ImageIcon, ExternalLink, Link, Eye, EyeOff, Upload, Mail, Edit, Trash2, Loader2, Video } from 'lucide-react';
 import { useEvents } from '@/hooks/useEvents';
 import { useToast } from '@/hooks/use-toast';
 import { useLiveViewVisibility } from '@/hooks/useLiveViewVisibility';
 import { useLiveViewModuleSettings } from '@/hooks/useLiveViewModuleSettings';
+import { useWelcomeVideoUpload } from '@/hooks/useWelcomeVideoUpload';
 import { buildGuestLookupUrl } from '@/lib/urlUtils';
 import { supabase } from '@/integrations/supabase/client';
 import { AdvancedQRGenerator } from '@/lib/advancedQRGenerator';
@@ -39,6 +41,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
   } = useToast();
   const { settings: visibilitySettings, updateVisibility } = useLiveViewVisibility(eventId);
   const { settings: moduleSettings, updateModuleConfig } = useLiveViewModuleSettings(eventId);
+  const { uploadVideo, deleteVideo, uploadProgress, isUploading, isProcessing } = useWelcomeVideoUpload(eventId);
   const selectedEvent = events.find(event => event.id === eventId);
   const currentEvent = events.find(event => event.id === eventId);
   const eventUrl = selectedEvent?.slug ? buildGuestLookupUrl(selectedEvent.slug) : `https://…/live-view/${eventId}`;
@@ -749,10 +752,107 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                           <span className="text-purple-600">Configure Welcome Video Settings</span>
                         </AccordionTrigger>
                         <AccordionContent>
-                          <div className="p-4 bg-muted/30 rounded-md space-y-2">
-                            <p className="text-sm text-muted-foreground">
-                              Video upload feature coming soon. You'll be able to upload a personal welcome message for your guests.
-                            </p>
+                          <div className="p-4 bg-muted/30 rounded-md space-y-4">
+                            <div className="space-y-2">
+                              <Label className="text-sm font-medium">Welcome Video</Label>
+                              <p className="text-xs text-muted-foreground">
+                                Upload a personal video message for your guests (max 2 minutes, MP4/MOV/WebM, up to 500MB)
+                              </p>
+                            </div>
+                            
+                            {moduleSettings?.welcome_video_config?.video_url ? (
+                              <div className="space-y-3">
+                                <div className="relative rounded-lg overflow-hidden bg-black">
+                                  <iframe
+                                    src={moduleSettings.welcome_video_config.video_url}
+                                    className="w-full aspect-video"
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                    allowFullScreen
+                                  />
+                                </div>
+                                <div className="flex gap-2">
+                                  <Button 
+                                    variant="outline" 
+                                    size="sm" 
+                                    onClick={() => {
+                                      const input = document.createElement('input');
+                                      input.type = 'file';
+                                      input.accept = 'video/mp4,video/quicktime,video/webm';
+                                      input.onchange = async (e) => {
+                                        const file = (e.target as HTMLInputElement).files?.[0];
+                                        if (file) {
+                                          await uploadVideo(file);
+                                        }
+                                      };
+                                      input.click();
+                                    }}
+                                  >
+                                    <Upload className="w-4 h-4 mr-2" />
+                                    Replace Video
+                                  </Button>
+                                  <Button 
+                                    variant="outline" 
+                                    size="sm" 
+                                    className="text-destructive" 
+                                    onClick={async () => {
+                                      if (confirm('Are you sure you want to remove this video?')) {
+                                        await deleteVideo();
+                                      }
+                                    }}
+                                  >
+                                    <Trash2 className="w-4 h-4 mr-2" />
+                                    Remove
+                                  </Button>
+                                </div>
+                              </div>
+                            ) : (
+                              <div
+                                className="border-2 border-dashed border-muted-foreground/30 rounded-lg p-8 text-center cursor-pointer hover:border-primary/50 transition-colors"
+                                onClick={() => {
+                                  const input = document.createElement('input');
+                                  input.type = 'file';
+                                  input.accept = 'video/mp4,video/quicktime,video/webm';
+                                  input.onchange = async (e) => {
+                                    const file = (e.target as HTMLInputElement).files?.[0];
+                                    if (file) {
+                                      await uploadVideo(file);
+                                    }
+                                  };
+                                  input.click();
+                                }}
+                                onDrop={(e) => {
+                                  e.preventDefault();
+                                  const file = e.dataTransfer.files?.[0];
+                                  if (file) {
+                                    uploadVideo(file);
+                                  }
+                                }}
+                                onDragOver={(e) => e.preventDefault()}
+                              >
+                                <Video className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+                                <p className="text-sm font-medium">Click to upload or drag and drop</p>
+                                <p className="text-xs text-muted-foreground mt-1">MP4, MOV, or WebM (max 2 minutes, 500MB)</p>
+                              </div>
+                            )}
+                            
+                            {(isUploading || isProcessing) && (
+                              <div className="space-y-2">
+                                {isUploading && (
+                                  <>
+                                    <Progress value={uploadProgress} className="h-2" />
+                                    <p className="text-xs text-center text-muted-foreground">
+                                      Uploading... {uploadProgress}%
+                                    </p>
+                                  </>
+                                )}
+                                {isProcessing && (
+                                  <div className="flex items-center gap-2 text-sm text-muted-foreground justify-center">
+                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                    Processing video... This may take a few minutes.
+                                  </div>
+                                )}
+                              </div>
+                            )}
                           </div>
                         </AccordionContent>
                       </AccordionItem>
