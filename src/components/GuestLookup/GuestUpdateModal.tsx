@@ -136,6 +136,15 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
 
     setSaving(true);
     try {
+      console.log('🔄 [Guest Update] Starting update for guest:', guest.id);
+      console.log('📝 [Guest Update] Form data:', {
+        rsvp: formData.rsvp,
+        dietary: formData.dietary,
+        mobile: formData.mobile,
+        email: formData.email,
+        notes: formData.notes
+      });
+
       // Use RPC function to bypass RLS for public updates
       const { data, error } = await supabase.rpc('update_guest_rsvp_public', {
         _guest_id: guest.id,
@@ -147,8 +156,17 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
         _notes: formData.notes?.trim() || null
       });
 
-      if (error) throw error;
-      if (!data) throw new Error('Update failed - event may not allow public updates');
+      if (error) {
+        console.error('❌ [Guest Update] RPC error:', error);
+        throw error;
+      }
+      if (!data) {
+        console.error('❌ [Guest Update] No data returned - event may not allow public updates');
+        throw new Error('Update failed - event may not allow public updates');
+      }
+
+      console.log('✅ [Guest Update] Successfully updated guest data');
+      console.log('📤 [Guest Update] Triggering realtime sync...');
 
       toast({
         title: 'Saved and sent to organiser',
@@ -158,7 +176,7 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
       onUpdate();
       onOpenChange(false);
     } catch (error) {
-      console.error('Error updating guest:', error);
+      console.error('❌ [Guest Update] Fatal error:', error);
       toast({
         title: 'Error',
         description: 'Failed to update information. Please try again.',

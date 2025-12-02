@@ -475,68 +475,142 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
             </CardContent>
           </Card>
 
-          {/* Row 2, Col 2: Guest Live View Options Card */}
-          <Card className="ww-box w-full">
+          {/* Row 2, Col 2 & 3: Merged Guest Live View Configuration Card */}
+          <Card className="ww-box w-full lg:col-span-2">
               <CardHeader className="pb-3">
-                <CardTitle className="text-2xl font-medium text-[#7248e6]">Guest Live View Options in App</CardTitle>
+                <CardTitle className="text-2xl font-medium text-[#7248e6]">Guest Live View Configuration</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-6">
                 <p className="text-sm text-muted-foreground">
-                  Configure how guests interact with your live view.
+                  Configure which modules your guests can access when they scan the QR code or visit your event page.
                 </p>
                 
-                {/* Live View Modules Accordion */}
-                <div className="space-y-2">
-                  <h4 className="text-sm font-medium">Live View Modules</h4>
-                  <Accordion type="single" collapsible className="w-full">
-                    <AccordionItem value="rsvp-invite">
-                      <AccordionTrigger className="text-sm py-2 flex justify-between items-center pr-3">
-                        <span>RSVP Invite</span>
-                        <Badge 
-                          variant={visibilitySettings?.show_rsvp_invite ? "success" : "destructive"}
-                          className="ml-2"
-                        >
-                          {visibilitySettings?.show_rsvp_invite ? "ON" : "OFF"}
-                        </Badge>
-                      </AccordionTrigger>
-                      <AccordionContent>
-                        <div className="p-4 space-y-4">
-                          <h4 className="text-sm font-semibold">Upload Digital Invitation & Send it to your guests</h4>
-                          
-                          <p className="text-xs text-muted-foreground">
-                            We suggest you create an A4 Size (148W mm X 210H mm) Digital brochure and upload it for your guests to see on their mobile.
-                          </p>
-                          
-                          <div className="space-y-2">
-                            <p className="text-xs font-bold">We suggest adding the following details in your Digital Invitation</p>
-                            <ul className="text-xs text-muted-foreground space-y-1 pl-4 list-disc">
-                              <li>Invitation Message "You Are Invited". (to our wedding / Event)</li>
-                              <li>Event Date.</li>
-                              <li>Event Start & Finish Time.</li>
-                              <li>Event Venue Name & Location.</li>
-                              <li>Wedding Couple / Organiser Contact Details.</li>
-                              <li>Event RSVP Date.</li>
-                              <li>Will you attend our wedding / Event?</li>
-                              <li>Please "Update Your Details" in the next tab.</li>
-                            </ul>
-                          </div>
+                {/* RSVP Invite Module */}
+                <div className="space-y-3 p-4 rounded-lg border-2 border-border bg-muted/20">
+                  {/* Toggle Header */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <Mail className="h-5 w-5 text-purple-600" />
+                      <div>
+                        <h4 className="text-sm font-semibold">RSVP Invite</h4>
+                        <p className="text-xs text-muted-foreground">Let guests view your digital invitation and RSVP</p>
+                      </div>
+                    </div>
+                    <Switch
+                      checked={visibilitySettings?.show_rsvp_invite || false}
+                      onCheckedChange={(checked) => updateVisibility('show_rsvp_invite', checked)}
+                      className="data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-red-600"
+                    />
+                  </div>
 
-                          {/* Upload Area */}
-                          <div className="space-y-2 pt-2">
-                            <label className="text-xs font-medium">Upload Digital Invitation (PDF / JPG / PNG)</label>
-                            {moduleSettings?.rsvp_invite_config?.file_url ? (
-                              <div className="flex items-center gap-2 p-3 bg-muted rounded-md">
-                                <div className="flex-1 min-w-0">
-                                  <p className="text-xs font-medium truncate">
-                                    {moduleSettings.rsvp_invite_config.file_name}
-                                  </p>
-                                  <p className="text-xs text-muted-foreground">
-                                    Uploaded {new Date(moduleSettings.rsvp_invite_config.uploaded_at).toLocaleDateString()}
-                                  </p>
+                  {/* Configuration Panel (shown when enabled) */}
+                  {visibilitySettings?.show_rsvp_invite && (
+                    <Accordion type="single" collapsible className="w-full">
+                      <AccordionItem value="rsvp-config" className="border-0">
+                        <AccordionTrigger className="text-sm py-2 hover:no-underline">
+                          <span className="text-purple-600">Configure RSVP Invite Settings</span>
+                        </AccordionTrigger>
+                        <AccordionContent>
+                          <div className="space-y-4 pt-2">
+                            <div className="p-3 bg-purple-50/50 rounded-md space-y-2">
+                              <h5 className="text-xs font-semibold">Upload Your Digital Invitation</h5>
+                              <p className="text-xs text-muted-foreground">
+                                Create an A4 size (148W × 210H mm) digital invitation and upload it as PDF, JPG, or PNG.
+                              </p>
+                              <p className="text-xs font-medium mt-2">Suggested content:</p>
+                              <ul className="text-xs text-muted-foreground space-y-1 pl-4 list-disc">
+                                <li>Invitation message ("You Are Invited")</li>
+                                <li>Event date, time, and venue details</li>
+                                <li>Contact information</li>
+                                <li>RSVP deadline</li>
+                              </ul>
+                            </div>
+
+                            {/* Upload Area */}
+                            <div className="space-y-2">
+                              {moduleSettings?.rsvp_invite_config?.file_url ? (
+                                <div className="flex items-center gap-2 p-3 bg-background rounded-md border">
+                                  <div className="flex-1 min-w-0">
+                                    <p className="text-xs font-medium truncate">
+                                      {moduleSettings.rsvp_invite_config.file_name}
+                                    </p>
+                                    <p className="text-xs text-muted-foreground">
+                                      Uploaded {new Date(moduleSettings.rsvp_invite_config.uploaded_at).toLocaleDateString()}
+                                    </p>
+                                  </div>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => {
+                                      const input = document.createElement('input');
+                                      input.type = 'file';
+                                      input.accept = '.pdf,.jpg,.jpeg,.png';
+                                      input.onchange = async (e) => {
+                                        const file = (e.target as HTMLInputElement).files?.[0];
+                                        if (file && eventId) {
+                                          try {
+                                            const fileExt = file.name.split('.').pop();
+                                            const fileName = `${Date.now()}.${fileExt}`;
+                                            const filePath = `${eventId}/rsvp_invite/${fileName}`;
+                                            
+                                            const { error: uploadError } = await supabase.storage
+                                              .from('invitations')
+                                              .upload(filePath, file);
+                                            
+                                            if (uploadError) throw uploadError;
+                                            
+                                            const { data: { publicUrl } } = supabase.storage
+                                              .from('invitations')
+                                              .getPublicUrl(filePath);
+                                            
+                                            await updateModuleConfig('rsvp_invite_config', {
+                                              file_url: publicUrl,
+                                              file_name: file.name,
+                                              file_type: file.type,
+                                              uploaded_at: new Date().toISOString()
+                                            });
+                                            
+                                            toast({ title: 'Invitation replaced successfully' });
+                                          } catch (error: any) {
+                                            toast({ 
+                                              title: 'Upload failed', 
+                                              description: error.message,
+                                              variant: 'destructive' 
+                                            });
+                                          }
+                                        }
+                                      };
+                                      input.click();
+                                    }}
+                                  >
+                                    Replace
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="destructive"
+                                    onClick={async () => {
+                                      if (eventId && moduleSettings?.rsvp_invite_config?.file_url) {
+                                        try {
+                                          const path = moduleSettings.rsvp_invite_config.file_url.split('/invitations/')[1];
+                                          await supabase.storage.from('invitations').remove([path]);
+                                          await updateModuleConfig('rsvp_invite_config', {});
+                                          toast({ title: 'Invitation removed successfully' });
+                                        } catch (error: any) {
+                                          toast({ 
+                                            title: 'Remove failed', 
+                                            description: error.message,
+                                            variant: 'destructive' 
+                                          });
+                                        }
+                                      }
+                                    }}
+                                  >
+                                    Remove
+                                  </Button>
                                 </div>
-                                <Button
-                                  size="sm"
-                                  variant="outline"
+                              ) : (
+                                <div
+                                  className="border-2 border-dashed rounded-md p-6 text-center cursor-pointer hover:bg-muted/50 transition-colors"
                                   onClick={() => {
                                     const input = document.createElement('input');
                                     input.type = 'file';
@@ -566,7 +640,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                                             uploaded_at: new Date().toISOString()
                                           });
                                           
-                                          toast({ title: 'Invitation replaced successfully' });
+                                          toast({ title: 'Invitation uploaded successfully' });
                                         } catch (error: any) {
                                           toast({ 
                                             title: 'Upload failed', 
@@ -579,264 +653,95 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                                     input.click();
                                   }}
                                 >
-                                  Replace
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  variant="destructive"
-                                  onClick={async () => {
-                                    if (eventId && moduleSettings?.rsvp_invite_config?.file_url) {
-                                      try {
-                                        const path = moduleSettings.rsvp_invite_config.file_url.split('/invitations/')[1];
-                                        await supabase.storage.from('invitations').remove([path]);
-                                        await updateModuleConfig('rsvp_invite_config', {});
-                                        toast({ title: 'Invitation removed successfully' });
-                                      } catch (error: any) {
-                                        toast({ 
-                                          title: 'Remove failed', 
-                                          description: error.message,
-                                          variant: 'destructive' 
-                                        });
-                                      }
-                                    }
-                                  }}
-                                >
-                                  Remove
-                                </Button>
-                              </div>
-                            ) : (
-                              <div
-                                className="border-2 border-dashed rounded-md p-4 text-center cursor-pointer hover:bg-muted/50 transition-colors"
+                                  <Upload className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
+                                  <p className="text-sm font-medium mb-1">Upload Digital Invitation</p>
+                                  <p className="text-xs text-muted-foreground">
+                                    Click to upload PDF, JPG, or PNG
+                                  </p>
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Quick Actions */}
+                            <div className="flex gap-2">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="flex-1"
                                 onClick={() => {
-                                  const input = document.createElement('input');
-                                  input.type = 'file';
-                                  input.accept = '.pdf,.jpg,.jpeg,.png';
-                                  input.onchange = async (e) => {
-                                    const file = (e.target as HTMLInputElement).files?.[0];
-                                    if (file && eventId) {
-                                      try {
-                                        const fileExt = file.name.split('.').pop();
-                                        const fileName = `${Date.now()}.${fileExt}`;
-                                        const filePath = `${eventId}/rsvp_invite/${fileName}`;
-                                        
-                                        const { error: uploadError } = await supabase.storage
-                                          .from('invitations')
-                                          .upload(filePath, file);
-                                        
-                                        if (uploadError) throw uploadError;
-                                        
-                                        const { data: { publicUrl } } = supabase.storage
-                                          .from('invitations')
-                                          .getPublicUrl(filePath);
-                                        
-                                        await updateModuleConfig('rsvp_invite_config', {
-                                          file_url: publicUrl,
-                                          file_name: file.name,
-                                          file_type: file.type,
-                                          uploaded_at: new Date().toISOString()
-                                        });
-                                        
-                                        toast({ title: 'Invitation uploaded successfully' });
-                                      } catch (error: any) {
-                                        toast({ 
-                                          title: 'Upload failed', 
-                                          description: error.message,
-                                          variant: 'destructive' 
-                                        });
-                                      }
-                                    }
-                                  };
-                                  input.click();
+                                  if (currentEvent?.slug) {
+                                    const url = buildGuestLookupUrl(currentEvent.slug) + '?tab=rsvp-invite';
+                                    window.open(url, '_blank');
+                                  }
                                 }}
                               >
-                                <Upload className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
-                                <p className="text-xs text-muted-foreground">
-                                  Click to upload or drag and drop
-                                </p>
-                                <p className="text-xs text-muted-foreground mt-1">
-                                  PDF, JPG, or PNG
-                                </p>
-                              </div>
-                            )}
+                                <ExternalLink className="h-3 w-3 mr-1" />
+                                Preview
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="flex-1"
+                                onClick={() => {
+                                  if (currentEvent?.slug) {
+                                    const url = buildGuestLookupUrl(currentEvent.slug) + '?tab=rsvp-invite';
+                                    navigator.clipboard.writeText(url);
+                                    toast({
+                                      title: 'Link copied!',
+                                      description: 'Share this link with your guests'
+                                    });
+                                  }
+                                }}
+                              >
+                                <Copy className="h-3 w-3 mr-1" />
+                                Copy Link
+                              </Button>
+                            </div>
                           </div>
+                        </AccordionContent>
+                      </AccordionItem>
+                    </Accordion>
+                  )}
+                </div>
 
-                          {/* Quick Share Actions */}
-                          <div className="flex gap-2 pt-2">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="flex-1"
-                              onClick={() => {
-                                if (currentEvent?.slug) {
-                                  const url = buildGuestLookupUrl(currentEvent.slug) + '?tab=rsvp-invite';
-                                  window.open(url, '_blank');
-                                }
-                              }}
-                            >
-                              <ExternalLink className="h-3 w-3 mr-1" />
-                              Open Live View (RSVP Invite)
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="flex-1"
-                              onClick={() => {
-                                if (currentEvent?.slug) {
-                                  const url = buildGuestLookupUrl(currentEvent.slug) + '?tab=rsvp-invite';
-                                  navigator.clipboard.writeText(url);
-                                  toast({
-                                    title: 'Link copied!',
-                                    description: 'Share link with RSVP Invite tab has been copied to clipboard'
-                                  });
-                                }
-                              }}
-                            >
-                              <Copy className="h-3 w-3 mr-1" />
-                              Copy Share Link (RSVP Invite)
-                            </Button>
+                {/* Welcome Video Module */}
+                <div className="space-y-3 p-4 rounded-lg border-2 border-border bg-muted/20">
+                  {/* Toggle Header */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <ImageIcon className="h-5 w-5 text-purple-600" />
+                      <div>
+                        <h4 className="text-sm font-semibold">Welcome Video</h4>
+                        <p className="text-xs text-muted-foreground">Add a personal video message for your guests</p>
+                      </div>
+                    </div>
+                    <Switch
+                      checked={visibilitySettings?.show_welcome_video || false}
+                      onCheckedChange={(checked) => updateVisibility('show_welcome_video', checked)}
+                      className="data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-red-600"
+                    />
+                  </div>
+
+                  {/* Configuration Panel (shown when enabled) */}
+                  {visibilitySettings?.show_welcome_video && (
+                    <Accordion type="single" collapsible className="w-full">
+                      <AccordionItem value="video-config" className="border-0">
+                        <AccordionTrigger className="text-sm py-2 hover:no-underline">
+                          <span className="text-purple-600">Configure Welcome Video Settings</span>
+                        </AccordionTrigger>
+                        <AccordionContent>
+                          <div className="p-4 bg-muted/30 rounded-md space-y-2">
+                            <p className="text-sm text-muted-foreground">
+                              Video upload feature coming soon. You'll be able to upload a personal welcome message for your guests.
+                            </p>
                           </div>
-                        </div>
-                      </AccordionContent>
-                    </AccordionItem>
-
-                    <AccordionItem value="reception">
-                      <AccordionTrigger className="text-sm py-2 flex justify-between items-center pr-3">
-                        <span>Reception</span>
-                        <Badge 
-                          variant={visibilitySettings?.show_reception ? "success" : "destructive"}
-                          className="ml-2"
-                        >
-                          {visibilitySettings?.show_reception ? "ON" : "OFF"}
-                        </Badge>
-                      </AccordionTrigger>
-                      <AccordionContent>
-                        <div className="p-4 bg-muted/30 rounded-md">
-                          <p className="text-sm text-muted-foreground">
-                            Coming soon — settings will be added here.
-                          </p>
-                        </div>
-                      </AccordionContent>
-                    </AccordionItem>
-
-                    <AccordionItem value="invite-video">
-                      <AccordionTrigger className="text-sm py-2 flex justify-between items-center pr-3">
-                        <span>Invite Video</span>
-                        <Badge 
-                          variant={visibilitySettings?.show_invite_video ? "success" : "destructive"}
-                          className="ml-2"
-                        >
-                          {visibilitySettings?.show_invite_video ? "ON" : "OFF"}
-                        </Badge>
-                      </AccordionTrigger>
-                      <AccordionContent>
-                        <div className="p-4 bg-muted/30 rounded-md">
-                          <p className="text-sm text-muted-foreground">
-                            Coming soon — settings will be added here.
-                          </p>
-                        </div>
-                      </AccordionContent>
-                    </AccordionItem>
-
-                    <AccordionItem value="welcome-video">
-                      <AccordionTrigger className="text-sm py-2 flex justify-between items-center pr-3">
-                        <span>Welcome Video</span>
-                        <Badge 
-                          variant={visibilitySettings?.show_welcome_video ? "success" : "destructive"}
-                          className="ml-2"
-                        >
-                          {visibilitySettings?.show_welcome_video ? "ON" : "OFF"}
-                        </Badge>
-                      </AccordionTrigger>
-                      <AccordionContent>
-                        <div className="p-4 bg-muted/30 rounded-md">
-                          <p className="text-sm text-muted-foreground">
-                            Coming soon — settings will be added here.
-                          </p>
-                        </div>
-                      </AccordionContent>
-                    </AccordionItem>
-                  </Accordion>
+                        </AccordionContent>
+                      </AccordionItem>
+                    </Accordion>
+                  )}
                 </div>
               </CardContent>
             </Card>
-
-          {/* Row 2, Col 3: Choose What Your Guests See Card */}
-          <Card className="ww-box w-full">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-2xl font-medium text-[#7248e6]">Choose What Your Guests See in App</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <p className="text-sm text-muted-foreground">
-                  Toggle which sections are visible on the guest live view.
-                </p>
-                
-                <div className="space-y-3">
-                  {/* RSVP Invite Toggle */}
-                  <div className="flex items-center justify-between pl-3 pr-3 py-3 rounded-lg border border-border">
-                    <Label htmlFor="toggle-rsvp" className="text-sm font-medium cursor-pointer flex-1">
-                      RSVP Invite
-                    </Label>
-                    <div className="w-11 flex justify-end">
-                      <Switch
-                        id="toggle-rsvp"
-                        checked={visibilitySettings?.show_rsvp_invite || false}
-                        onCheckedChange={(checked) => updateVisibility('show_rsvp_invite', checked)}
-                        className="data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-red-600"
-                        aria-label="Toggle RSVP Invite visibility"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Reception Toggle */}
-                  <div className="flex items-center justify-between pl-3 pr-3 py-3 rounded-lg border border-border">
-                    <Label htmlFor="toggle-reception" className="text-sm font-medium cursor-pointer flex-1">
-                      Reception
-                    </Label>
-                    <div className="w-11 flex justify-end">
-                      <Switch
-                        id="toggle-reception"
-                        checked={visibilitySettings?.show_reception || false}
-                        onCheckedChange={(checked) => updateVisibility('show_reception', checked)}
-                        className="data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-red-600"
-                        aria-label="Toggle Reception visibility"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Invite Video Toggle */}
-                  <div className="flex items-center justify-between pl-3 pr-3 py-3 rounded-lg border border-border">
-                    <Label htmlFor="toggle-invite-video" className="text-sm font-medium cursor-pointer flex-1">
-                      Invite Video
-                    </Label>
-                    <div className="w-11 flex justify-end">
-                      <Switch
-                        id="toggle-invite-video"
-                        checked={visibilitySettings?.show_invite_video || false}
-                        onCheckedChange={(checked) => updateVisibility('show_invite_video', checked)}
-                        className="data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-red-600"
-                        aria-label="Toggle Invite Video visibility"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Welcome Video Toggle */}
-                  <div className="flex items-center justify-between pl-3 pr-3 py-3 rounded-lg border border-border">
-                    <Label htmlFor="toggle-welcome-video" className="text-sm font-medium cursor-pointer flex-1">
-                      Welcome Video
-                    </Label>
-                    <div className="w-11 flex justify-end">
-                      <Switch
-                        id="toggle-welcome-video"
-                        checked={visibilitySettings?.show_welcome_video || false}
-                        onCheckedChange={(checked) => updateVisibility('show_welcome_video', checked)}
-                        className="data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-red-600"
-                        aria-label="Toggle Welcome Video visibility"
-                      />
-                    </div>
-                  </div>
-              </div>
-            </CardContent>
-          </Card>
         </div>
 
       </CardContent>
