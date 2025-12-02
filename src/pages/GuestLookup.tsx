@@ -202,23 +202,17 @@ export const GuestLookup: React.FC = () => {
 
         setGuests(transformedGuests);
 
-        // Fetch live view settings
-        const { data: liveSettings } = await supabase
-          .from('live_view_settings')
-          .select('*')
-          .eq('event_id', eventData.id)
-          .maybeSingle();
-        
-        setLiveViewSettings(liveSettings);
-
-        // Fetch module settings
-        const { data: modSettings } = await supabase
-          .from('live_view_module_settings')
-          .select('*')
-          .eq('event_id', eventData.id)
-          .maybeSingle();
-        
-        setModuleSettings(modSettings);
+        // Extract live view settings from RPC response (already fetched securely)
+        if (firstRow) {
+          setLiveViewSettings({
+            show_rsvp_invite: firstRow.show_rsvp_invite || false,
+            show_welcome_video: firstRow.show_welcome_video || false,
+          });
+          setModuleSettings({
+            rsvp_invite_config: firstRow.rsvp_invite_config || null,
+            welcome_video_config: firstRow.welcome_video_config || null,
+          });
+        }
       } catch (error) {
         console.error('Error fetching event data:', error);
         toast({

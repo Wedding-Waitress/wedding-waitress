@@ -2187,6 +2187,10 @@ export type Database = {
           guest_table_no: number
           partner1_name: string
           partner2_name: string
+          rsvp_invite_config: Json
+          show_rsvp_invite: boolean
+          show_welcome_video: boolean
+          welcome_video_config: Json
         }[]
       }
       get_public_live_view_settings: {
