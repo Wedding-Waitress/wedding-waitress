@@ -145,11 +145,11 @@ export const TableVisualization: React.FC<TableVisualizationProps> = ({
           >
             <div className="text-center px-2">
               {/* Line 1: "Table" - permanent label */}
-              <div className="text-sm md:text-base font-semibold text-primary">
+              <div className="text-base md:text-xl font-bold text-primary">
                 Table
               </div>
               {/* Line 2: Table number or name */}
-              <div className="text-sm md:text-lg font-bold text-primary leading-tight">
+              <div className="text-base md:text-xl font-bold text-primary leading-tight">
                 {tableData.name || tableData.table_no}
               </div>
               {/* Line 3: Seated count in brackets */}
