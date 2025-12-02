@@ -392,7 +392,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                   Copy Link
                 </Button>
                 <p className="text-xs text-gray-900 pl-1">
-                  Share seating chart link with your guests via SMS, WhatsApp, email or socials.
+                  Share your QR Code Seating Chart link with your guests via SMS, WhatsApp, email or socials.
                 </p>
               </div>
             </div>
