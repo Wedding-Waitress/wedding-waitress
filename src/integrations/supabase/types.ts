@@ -2297,6 +2297,7 @@ export type Database = {
           guest_last_name: string
           guest_rsvp: string
           guest_seat_no: number
+          guest_table_id: string
           guest_table_no: number
           partner1_name: string
           partner2_name: string
@@ -2312,6 +2313,22 @@ export type Database = {
           show_search: boolean
           show_update_details: boolean
           show_welcome_video: boolean
+        }[]
+      }
+      get_public_table_data: {
+        Args: { p_event_id: string; p_table_id: string }
+        Returns: {
+          guest_dietary: string
+          guest_first_name: string
+          guest_id: string
+          guest_last_name: string
+          guest_rsvp: string
+          guest_seat_no: number
+          limit_seats: number
+          table_id: string
+          table_name: string
+          table_no: number
+          table_notes: string
         }[]
       }
       get_questionnaire_by_token: {

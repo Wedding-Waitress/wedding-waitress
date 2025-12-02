@@ -171,7 +171,7 @@ export const GuestLookup: React.FC = () => {
             user_id: '', // Not available in public view
             first_name: row.guest_first_name,
             last_name: row.guest_last_name,
-            table_id: null,
+            table_id: row.guest_table_id,
             table_no: row.guest_table_no,
             seat_no: row.guest_seat_no,
             rsvp_date: null,
@@ -547,8 +547,8 @@ export const GuestLookup: React.FC = () => {
               </TabsTrigger>
               <TabsTrigger value="visualization" className="flex items-center gap-2">
                 <Eye className="w-4 h-4" />
-                <span className="hidden sm:inline">Table View</span>
-                <span className="sm:hidden">View</span>
+                <span className="hidden sm:inline">Your Table</span>
+                <span className="sm:hidden">Table</span>
               </TabsTrigger>
             </TabsList>
 
@@ -704,19 +704,35 @@ export const GuestLookup: React.FC = () => {
             <TabsContent value="visualization">
               <div className="space-y-6">
                 {filteredGuests.length > 0 && searchTerm.length >= 2 && (
-                  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
-                    {Array.from(new Set(filteredGuests.map(g => g.table_id))).filter(Boolean).map((tableId) => {
-                      const tableGuest = filteredGuests.find(g => g.table_id === tableId);
-                      return tableGuest?.table_no ? (
-                        <TableVisualization
-                          key={tableId}
-                          tableId={tableId!}
-                          tableNumber={tableGuest.table_no}
-                          eventId={event.id}
-                        />
-                      ) : null;
-                    })}
-                  </div>
+                  <>
+                    {/* Show table visualization if guest has table assignment */}
+                    {filteredGuests.some(g => g.table_id) ? (
+                      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
+                        {Array.from(new Set(filteredGuests.map(g => g.table_id))).filter(Boolean).map((tableId) => {
+                          const tableGuest = filteredGuests.find(g => g.table_id === tableId);
+                          return tableGuest?.table_no ? (
+                            <TableVisualization
+                              key={tableId}
+                              tableId={tableId!}
+                              tableNumber={tableGuest.table_no}
+                              eventId={event.id}
+                            />
+                          ) : null;
+                        })}
+                      </div>
+                    ) : (
+                      /* Guest found but not assigned to a table */
+                      <Card className="ww-box card-elevated">
+                        <CardContent className="p-8 text-center">
+                          <MapPin className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+                          <CardTitle className="mb-2">No Table Assigned Yet</CardTitle>
+                          <CardDescription>
+                            You haven't been assigned to a table yet. Please check back later or contact the event organizer.
+                          </CardDescription>
+                        </CardContent>
+                      </Card>
+                    )}
+                  </>
                 )}
 
                 {searchTerm.length < 2 && (
@@ -735,9 +751,9 @@ export const GuestLookup: React.FC = () => {
                   <Card className="ww-box card-elevated">
                     <CardContent className="p-8 text-center">
                       <AlertCircle className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-                      <CardTitle className="mb-2">No Table Found</CardTitle>
+                      <CardTitle className="mb-2">Guest Not Found</CardTitle>
                       <CardDescription>
-                        No table assignments found for your search. Please verify your name or contact event staff.
+                        No guest found matching your search. Please verify your name or contact the event organizer.
                       </CardDescription>
                     </CardContent>
                   </Card>
