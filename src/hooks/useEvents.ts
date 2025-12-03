@@ -139,7 +139,8 @@ export const useEvents = () => {
           event_timezone: timezone,
           rsvp_deadline: eventData.rsvp_deadline || null,
           event_type: (eventData as any).event_type || 'seated',
-          relation_mode: ['two', 'single', 'off'].includes(relationMode) ? relationMode : 'two'
+          relation_mode: ['two', 'single', 'off'].includes(relationMode) ? relationMode : 'two',
+          qr_apply_to_live_view: true
         }])
         .select()
         .single();
