@@ -52,8 +52,7 @@ import {
   Download,
   Upload,
   FileText,
-  Search,
-  Bell
+  Search
 } from "lucide-react";
 import {
   Tooltip,
@@ -80,11 +79,9 @@ import { RELATION_ROLE_LABELS, computeRelationDisplay } from "@/lib/relationUtil
 import { DeleteConfirmationModal } from './DeleteConfirmationModal';
 import { ImportErrorModal } from './ImportErrorModal';
 import { whoIsAnalytics } from '@/lib/analytics';
-import { BulkReminderWizard } from './BulkReminderWizard';
 import { GuestBulkActionsBar } from './GuestBulkActionsBar';
 import { BulkTableAssignmentModal } from './BulkTableAssignmentModal';
 import { BulkRsvpUpdateModal } from './BulkRsvpUpdateModal';
-import { IndividualReminderModal } from './IndividualReminderModal';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Checkbox } from '@/components/ui/checkbox';
 import { 
@@ -193,10 +190,6 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
   const [showRelationSaved, setShowRelationSaved] = useState(false);
   const [partner1Name, setPartner1Name] = useState('');
   const [partner2Name, setPartner2Name] = useState('');
-  const [showReminderWizard, setShowReminderWizard] = useState(false);
-  const [showIndividualReminder, setShowIndividualReminder] = useState(false);
-  const [reminderGuest, setReminderGuest] = useState<any>(null);
-  const [showSelectedGuestsReminder, setShowSelectedGuestsReminder] = useState(false);
   
   // Bulk selection state
   const [selectedGuestIds, setSelectedGuestIds] = useState<Set<string>>(new Set());
@@ -1577,29 +1570,6 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                     </TooltipContent>
                   )}
                 </Tooltip>
-
-                {/* Send Reminders Button */}
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <div>
-                       <Button 
-                        variant="outline"
-                        size="xs"
-                        onClick={() => setShowReminderWizard(true)}
-                        disabled={!selectedEventId || guestCount === 0}
-                        className="rounded-full flex items-center gap-2 bg-gradient-to-r from-purple-600 to-purple-700 hover:opacity-90 text-white border-0"
-                      >
-                        <Bell className="w-4 h-4" />
-                        Send Reminders
-                      </Button>
-                    </div>
-                  </TooltipTrigger>
-                  {(!selectedEventId || guestCount === 0) && (
-                    <TooltipContent>
-                      <p>{!selectedEventId ? "Choose an event first" : "Add guests first"}</p>
-                    </TooltipContent>
-                  )}
-                </Tooltip>
               </TooltipProvider>
 
               {/* Add Guests button */}
@@ -1815,17 +1785,6 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                               <Button 
                                 variant="ghost" 
                                 size="sm"
-                                onClick={() => {
-                                  setReminderGuest(guest);
-                                  setShowIndividualReminder(true);
-                                }}
-                                title="Send individual reminder"
-                              >
-                                <Bell className="w-4 h-4 text-purple-500" />
-                              </Button>
-                              <Button 
-                                variant="ghost" 
-                                size="sm"
                                 onClick={() => handleEditGuest(guest)}
                               >
                                 <Edit className="w-4 h-4 text-green-500" />
@@ -1876,41 +1835,6 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
           successfulRows={importStats.successful}
         />
 
-        {/* Bulk Reminder Wizard */}
-        {showReminderWizard && (
-          <BulkReminderWizard
-            isOpen={showReminderWizard}
-            onClose={() => setShowReminderWizard(false)}
-            eventId={selectedEventId || ''}
-            guests={guests}
-          />
-        )}
-
-        {/* Bulk Reminder Wizard for Selected Guests */}
-        {showSelectedGuestsReminder && (
-          <BulkReminderWizard
-            isOpen={showSelectedGuestsReminder}
-            onClose={() => {
-              setShowSelectedGuestsReminder(false);
-              setSelectedGuestIds(new Set());
-            }}
-            eventId={selectedEventId || ''}
-            guests={sortedGuests.filter(g => selectedGuestIds.has(g.id))}
-            mode="selected"
-          />
-        )}
-
-        {/* Individual Reminder Modal */}
-        <IndividualReminderModal
-          isOpen={showIndividualReminder}
-          onClose={() => {
-            setShowIndividualReminder(false);
-            setReminderGuest(null);
-          }}
-          guest={reminderGuest}
-          eventName={selectedEvent?.name || 'Your Event'}
-        />
-
         {/* Bulk Actions Toolbar */}
         {selectedGuestIds.size > 0 && (
           <GuestBulkActionsBar
@@ -1922,7 +1846,6 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
             onUpdateRsvp={() => setShowBulkRsvpModal(true)}
             onDelete={() => setShowBulkDeleteModal(true)}
             onCancel={handleDeselectAll}
-            onSendReminder={() => setShowSelectedGuestsReminder(true)}
           />
         )}
 
