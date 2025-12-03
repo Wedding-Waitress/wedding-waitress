@@ -20,7 +20,7 @@ import {
   Mail,
   Video
 } from 'lucide-react';
-import weddingWaitressLogo from '@/assets/wedding-waitress-brand-logo.png';
+import weddingWaitressFooterLogo from '@/assets/wedding-waitress-footer-logo.png';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -472,15 +472,7 @@ export const GuestLookup: React.FC = () => {
     <div className="min-h-screen bg-gradient-subtle font-inter">
       {/* Hero Section */}
       <div className="bg-gradient-hero text-white">
-        <div className="w-full px-4 pt-3 pb-3 md:pt-4 md:pb-4 relative">
-          {/* Wedding Waitress Logo - Top Left */}
-          <div className="absolute top-3 left-4 md:top-4 md:left-6">
-            <img 
-              src={weddingWaitressLogo} 
-              alt="Wedding Waitress" 
-              className="h-8 md:h-10 w-auto"
-            />
-          </div>
+        <div className="w-full px-4 pt-3 pb-3 md:pt-4 md:pb-4">
           <div className="text-center">
             {/* "You're invited to" text above event name */}
             <p className="text-white/90 text-lg md:text-xl font-medium mb-2">
@@ -683,6 +675,21 @@ export const GuestLookup: React.FC = () => {
                       <Share2 className="w-4 h-4 mr-1.5" />
                       Share
                     </Button>
+                  </div>
+
+                  {/* Wedding Waitress Logo - Footer */}
+                  <div className="flex justify-center mt-6">
+                    <a 
+                      href="https://www.weddingwaitress.com/" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                    >
+                      <img 
+                        src={weddingWaitressFooterLogo} 
+                        alt="Wedding Waitress" 
+                        className="h-8 md:h-10 w-auto"
+                      />
+                    </a>
                   </div>
                 </CardContent>
               </Card>
