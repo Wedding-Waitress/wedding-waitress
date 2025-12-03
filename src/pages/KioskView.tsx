@@ -7,11 +7,11 @@ import {
   Search, 
   Calendar, 
   MapPin, 
-  Heart, 
   AlertCircle,
   User,
   HelpCircle
 } from 'lucide-react';
+import weddingWaitressLogo from '@/assets/wedding-waitress-brand-logo.png';
 import { supabase } from '@/integrations/supabase/client';
 import { KioskGuestCard } from '@/components/Kiosk/KioskGuestCard';
 import { normalizeRsvp } from '@/lib/rsvp';
@@ -260,10 +260,17 @@ export const KioskView: React.FC = () => {
     <div className="min-h-screen bg-gradient-hero text-white overflow-hidden">
       {/* Header */}
       <div className="bg-white/10 backdrop-blur-sm border-b border-white/20">
-        <div className="w-full px-8 py-6">
+        <div className="w-full px-8 py-6 relative">
+          {/* Wedding Waitress Logo - Top Left */}
+          <div className="absolute top-4 left-8">
+            <img 
+              src={weddingWaitressLogo} 
+              alt="Wedding Waitress" 
+              className="h-10 md:h-12 w-auto"
+            />
+          </div>
           <div className="text-center">
             <div className="flex items-center justify-center mb-3">
-              <Heart className="w-8 h-8 mr-4" />
               <h1 className="text-3xl font-bold">
                 {event.partner1_name && event.partner2_name 
                   ? `${event.partner1_name} & ${event.partner2_name}`

@@ -11,7 +11,6 @@ import {
   Users, 
   MapPin, 
   Calendar, 
-  Heart, 
   AlertCircle,
   CheckCircle2,
   User,
@@ -21,6 +20,7 @@ import {
   Mail,
   Video
 } from 'lucide-react';
+import weddingWaitressLogo from '@/assets/wedding-waitress-brand-logo.png';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -472,14 +472,21 @@ export const GuestLookup: React.FC = () => {
     <div className="min-h-screen bg-gradient-subtle font-inter">
       {/* Hero Section */}
       <div className="bg-gradient-hero text-white">
-        <div className="w-full px-4 pt-3 pb-3 md:pt-4 md:pb-4">
+        <div className="w-full px-4 pt-3 pb-3 md:pt-4 md:pb-4 relative">
+          {/* Wedding Waitress Logo - Top Left */}
+          <div className="absolute top-3 left-4 md:top-4 md:left-6">
+            <img 
+              src={weddingWaitressLogo} 
+              alt="Wedding Waitress" 
+              className="h-8 md:h-10 w-auto"
+            />
+          </div>
           <div className="text-center">
             {/* "You're invited to" text above event name */}
             <p className="text-white/90 text-lg md:text-xl font-medium mb-2">
               You're invited to
             </p>
             <div className="flex items-center justify-center mb-4">
-              <Heart className="w-6 h-6 md:w-8 md:h-8 mr-3" />
               <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold">
                 {event.partner1_name && event.partner2_name 
                   ? `${event.partner1_name} & ${event.partner2_name}`
