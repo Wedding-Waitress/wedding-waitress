@@ -11,7 +11,7 @@ import {
   User,
   HelpCircle
 } from 'lucide-react';
-import weddingWaitressLogo from '@/assets/wedding-waitress-brand-logo.png';
+import weddingWaitressFooterLogo from '@/assets/wedding-waitress-footer-logo.png';
 import { supabase } from '@/integrations/supabase/client';
 import { KioskGuestCard } from '@/components/Kiosk/KioskGuestCard';
 import { normalizeRsvp } from '@/lib/rsvp';
@@ -260,15 +260,7 @@ export const KioskView: React.FC = () => {
     <div className="min-h-screen bg-gradient-hero text-white overflow-hidden">
       {/* Header */}
       <div className="bg-white/10 backdrop-blur-sm border-b border-white/20">
-        <div className="w-full px-8 py-6 relative">
-          {/* Wedding Waitress Logo - Top Left */}
-          <div className="absolute top-4 left-8">
-            <img 
-              src={weddingWaitressLogo} 
-              alt="Wedding Waitress" 
-              className="h-10 md:h-12 w-auto"
-            />
-          </div>
+        <div className="w-full px-8 py-6">
           <div className="text-center">
             <div className="flex items-center justify-center mb-3">
               <h1 className="text-3xl font-bold">
@@ -383,10 +375,21 @@ export const KioskView: React.FC = () => {
       {/* Footer Help */}
       <div className="fixed bottom-0 left-0 right-0 bg-black/20 backdrop-blur-sm border-t border-white/20">
         <div className="w-full px-8 py-4">
-          <div className="text-center">
+          <div className="text-center space-y-3">
             <p className="text-lg text-white/90">
               Need assistance? Please contact event staff
             </p>
+            <a 
+              href="https://www.weddingwaitress.com/" 
+              target="_blank" 
+              rel="noopener noreferrer"
+            >
+              <img 
+                src={weddingWaitressFooterLogo} 
+                alt="Wedding Waitress" 
+                className="h-10 md:h-12 w-auto mx-auto"
+              />
+            </a>
           </div>
         </div>
       </div>
