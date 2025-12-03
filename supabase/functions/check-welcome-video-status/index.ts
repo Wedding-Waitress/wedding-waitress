@@ -63,7 +63,7 @@ serve(async (req) => {
                    "processing";
 
     const playbackUrl = videoData.status?.state === "ready" 
-      ? `https://customer-${CLOUDFLARE_ACCOUNT_ID}.cloudflarestream.com/${stream_uid}/iframe`
+      ? `https://iframe.cloudflarestream.com/${stream_uid}`
       : null;
 
     const { error: updateError } = await supabase
