@@ -16,9 +16,7 @@ import {
   Settings,
   ClipboardList,
   Bot,
-  TrendingUp,
-  Bell,
-  Mail
+  TrendingUp
 } from 'lucide-react';
 import { useIsAdmin } from '@/hooks/useIsAdmin';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -57,8 +55,6 @@ interface AppSidebarProps {
     { id: "dietary-chart", label: "Dietary Requirements", icon: ChefHat },
     { id: "full-seating-chart", label: "Full Seating Chart", icon: FileText },
     { id: "kiosk-live-view", label: "Kiosk Live View", icon: Monitor },
-    { id: "email-templates", label: "Email Templates", icon: Mail },
-    { id: "rsvp-notifications", label: "RSVP Notifications", icon: Bell },
     ...(flags.djQuestionnaire ? [{ id: "dj-mc-questionnaire", label: "DJ & MC Questionnaire", icon: Music }] : []),
     ...(flags.runningSheet ? [{ id: "running-sheet", label: "Running Sheet", icon: ClipboardList }] : []),
   ];

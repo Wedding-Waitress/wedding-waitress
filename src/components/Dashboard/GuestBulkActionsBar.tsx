@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { MapPin, CheckCircle2, Trash2, X, Bell } from "lucide-react";
+import { MapPin, CheckCircle2, Trash2, X } from "lucide-react";
 
 interface GuestBulkActionsBarProps {
   selectedCount: number;
@@ -11,7 +11,6 @@ interface GuestBulkActionsBarProps {
   onUpdateRsvp: () => void;
   onDelete: () => void;
   onCancel: () => void;
-  onSendReminder: () => void;
 }
 
 export const GuestBulkActionsBar = ({
@@ -22,8 +21,7 @@ export const GuestBulkActionsBar = ({
   onAssignTable,
   onUpdateRsvp,
   onDelete,
-  onCancel,
-  onSendReminder
+  onCancel
 }: GuestBulkActionsBarProps) => {
   const allSelected = selectedCount === totalCount;
 
@@ -74,16 +72,6 @@ export const GuestBulkActionsBar = ({
       >
         <CheckCircle2 className="w-4 h-4 mr-2" />
         Update RSVP
-      </Button>
-      
-      <Button 
-        variant="ghost" 
-        size="sm" 
-        onClick={onSendReminder}
-        className="text-white hover:bg-white/20"
-      >
-        <Bell className="w-4 h-4 mr-2" />
-        Send Reminder
       </Button>
       
       <Button 

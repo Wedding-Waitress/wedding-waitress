@@ -1,8 +1,5 @@
 project_id = "xytxkidpourwdbzzwcdp"
 
-[functions.send-test-email]
-verify_jwt = true
-
 [functions.send-dj-questionnaire-email]
 verify_jwt = true
 
@@ -10,21 +7,6 @@ verify_jwt = true
 verify_jwt = true
 
 [functions.acknowledge-dj-questionnaire]
-verify_jwt = false
-
-[functions.send-rsvp-notification]
-verify_jwt = false
-
-[functions.send-bulk-reminders]
-verify_jwt = true
-
-[functions.send-initial-invitations]
-verify_jwt = true
-
-[functions.schedule-auto-reminders]
-verify_jwt = false
-
-[functions.daily-rsvp-summary]
 verify_jwt = false
 
 [functions.generate-seating-suggestions]
