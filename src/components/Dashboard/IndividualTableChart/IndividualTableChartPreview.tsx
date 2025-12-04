@@ -304,7 +304,7 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
                 >
                   <div className={`font-bold ${getTitleSize(settings.fontSize)} text-gray-700 text-center`}>
                     <div>TABLE</div>
-                    <div>{table.table_no}</div>
+                    <div>{table.table_no ?? table.name}</div>
                   </div>
                 </div>
 
