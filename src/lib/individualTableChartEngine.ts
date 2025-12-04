@@ -500,6 +500,62 @@ export const generateIndividualTableSVG = (
     }  
   };
 
+  // Auto-fit font scaling for guest list to ensure logo is always visible
+  const getAutoFitGuestListFontSize = (guestCount: number, fontSize: string, includeGuestList: boolean, includeDietary: boolean): number => {
+    if (!includeGuestList) return 11; // Default 11pt if no guest list
+    
+    // A4 page height: 1123px, padding: 80px (40px top + 40px bottom)
+    const availableHeight = 1123 - 80; // 1043px available
+    
+    // Fixed heights (in pixels at 96 DPI)
+    const headerHeight = 110; // Header section including border
+    const tableVisualizationHeight = 480; // 450px + 30px margin
+    const logoHeight = 68; // 48px logo + 20px padding/margin
+    const guestListTitleHeight = 40; // Title with underline
+    
+    // Calculate remaining space for guest list content
+    const remainingHeight = availableHeight - headerHeight - tableVisualizationHeight - logoHeight - guestListTitleHeight;
+    
+    // Calculate rows needed (2 columns, so divide by 2 and round up)
+    const rowsNeeded = Math.ceil(guestCount / 2);
+    
+    // Base font sizes in pt and corresponding row heights in px
+    const fontConfigs = {
+      'small': { basePt: 10.5, rowHeight: 24 },
+      'medium': { basePt: 11, rowHeight: 28 },
+      'large': { basePt: 13.5, rowHeight: 34 }
+    };
+    
+    const config = fontConfigs[fontSize as keyof typeof fontConfigs] || fontConfigs['medium'];
+    const requiredHeight = rowsNeeded * config.rowHeight;
+    
+    if (requiredHeight <= remainingHeight) {
+      return config.basePt; // No scaling needed
+    }
+    
+    // Calculate scale factor to fit
+    const scaleFactor = remainingHeight / requiredHeight;
+    const scaledPt = config.basePt * scaleFactor;
+    
+    // Minimum readable font size is 8pt
+    return Math.max(scaledPt, 8);
+  };
+
+  const autoFitGuestListFontPt = getAutoFitGuestListFontSize(
+    sortedGuests.length, 
+    settings.fontSize, 
+    settings.includeGuestList, 
+    settings.includeDietary
+  );
+  
+  // Calculate scaled row height based on font size
+  const getScaledRowHeight = (fontPt: number): number => {
+    // Base ratio: 11pt = 28px row height, scale proportionally
+    return Math.round(fontPt * 2.5);
+  };
+  
+  const scaledRowHeight = getScaledRowHeight(autoFitGuestListFontPt);
+
   // Auto-fit function that scales font size based on text length to fit container
   const getAutoFitFontSize = (text: string, baseSize: number, containerWidth: number = 250) => {
     const charWidthRatio = 0.6;
@@ -806,20 +862,20 @@ export const generateIndividualTableSVG = (
         </div>
       </div>
 
-      <!-- Guest List -->
+      <!-- Guest List - Auto-scaled font size: ${autoFitGuestListFontPt.toFixed(1)}pt -->
       ${settings.includeGuestList ? `
-        <div style="margin-bottom: 30px;">
-          <h3 style="font-size: 16pt; font-weight: 600; color: #000000; margin-bottom: 15px; padding: 5px 0; line-height: 1.4; text-align: center; text-decoration: underline;">
+        <div style="margin-bottom: 20px;">
+          <h3 style="font-size: 16pt; font-weight: 600; color: #000000; margin-bottom: 12px; padding: 5px 0; line-height: 1.4; text-align: center; text-decoration: underline;">
             Guests on this Table & Meal Selection
           </h3>
-          <div style="display: flex; font-size: 11pt; line-height: 1.35;">
+          <div style="display: flex; font-size: ${autoFitGuestListFontPt}pt; line-height: 1.35;">
             <!-- Left Column (odd indices: 0, 2, 4...) -->
-            <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
+            <div style="flex: 1; display: flex; flex-direction: column; gap: 2px;">
               ${sortedGuests.filter((_, index) => index % 2 === 0).map((guest) => {
                 const actualIndex = sortedGuests.findIndex(g => g.id === guest.id);
                 return `
-                  <div style="display: flex; align-items: flex-start; padding: 4px 0; line-height: 1.7; min-height: 20px;">
-                    <span style="width: 24px; text-align: left; flex-shrink: 0;">${actualIndex + 1}.</span>
+                  <div style="display: flex; align-items: flex-start; padding: 2px 0; line-height: 1.5; min-height: ${scaledRowHeight}px;">
+                    <span style="width: 20px; text-align: left; flex-shrink: 0;">${actualIndex + 1}.</span>
                     <span style="word-wrap: break-word; text-align: left;">
                       <span style="font-weight: 700;">${guest.first_name} ${guest.last_name}</span>${settings.includeDietary && guest.dietary && guest.dietary !== 'NA' ? ` <span style="color: #6D28D9; font-weight: 700;">- ${guest.dietary}</span>` : ''}
                     </span>
@@ -828,12 +884,12 @@ export const generateIndividualTableSVG = (
               }).join('')}
             </div>
             <!-- Right Column (even indices: 1, 3, 5...) -->
-            <div style="flex: 1; display: flex; flex-direction: column; gap: 4px; margin-left: 16px;">
+            <div style="flex: 1; display: flex; flex-direction: column; gap: 2px; margin-left: 16px;">
               ${sortedGuests.filter((_, index) => index % 2 === 1).map((guest) => {
                 const actualIndex = sortedGuests.findIndex(g => g.id === guest.id);
                 return `
-                  <div style="display: flex; align-items: flex-start; padding: 4px 0; line-height: 1.7; min-height: 20px;">
-                    <span style="width: 24px; text-align: left; flex-shrink: 0;">${actualIndex + 1}.</span>
+                  <div style="display: flex; align-items: flex-start; padding: 2px 0; line-height: 1.5; min-height: ${scaledRowHeight}px;">
+                    <span style="width: 20px; text-align: left; flex-shrink: 0;">${actualIndex + 1}.</span>
                     <span style="word-wrap: break-word; text-align: left;">
                       <span style="font-weight: 700;">${guest.first_name} ${guest.last_name}</span>${settings.includeDietary && guest.dietary && guest.dietary !== 'NA' ? ` <span style="color: #6D28D9; font-weight: 700;">- ${guest.dietary}</span>` : ''}
                     </span>
