@@ -96,23 +96,17 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
   const calculateCapacityInfo = () => {
     if (!eventGuestLimit) return null;
 
-    // Calculate total capacity of existing tables (excluding the one being edited)
-    const existingCapacity = existingTables
-      .filter(table => table.id !== editingTable?.id)
-      .reduce((sum, table) => sum + table.limit_seats, 0);
-
-    // Add the current table's capacity
-    const newTotalCapacity = existingCapacity + limitSeats;
+    // Calculate ACTUAL guest count across all tables (this is what matters)
+    const actualGuestCount = existingTables.reduce((sum, table) => sum + (table.guest_count || 0), 0);
     
-    // Calculate remaining seats
-    const seatsRemaining = eventGuestLimit - existingCapacity;
-    const wouldExceed = newTotalCapacity > eventGuestLimit;
-    const exceedBy = wouldExceed ? newTotalCapacity - eventGuestLimit : 0;
+    // Calculate remaining guest slots
+    const guestsRemaining = eventGuestLimit - actualGuestCount;
+    const wouldExceed = actualGuestCount > eventGuestLimit;
+    const exceedBy = wouldExceed ? actualGuestCount - eventGuestLimit : 0;
 
     return {
-      existingCapacity,
-      newTotalCapacity,
-      seatsRemaining,
+      actualGuestCount,
+      guestsRemaining,
       wouldExceed,
       exceedBy,
       eventGuestLimit
@@ -302,7 +296,7 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
               <p className="text-sm text-destructive">{errors.limitSeats}</p>
             )}
             
-            {/* Real-time capacity warning */}
+            {/* Real-time capacity warning - only show if ACTUAL guests exceed limit */}
             {eventGuestLimit && (() => {
               const capacityInfo = calculateCapacityInfo();
               if (!capacityInfo) return null;
@@ -314,32 +308,19 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
                       ⚠️ Guest Limit Exceeded
                     </p>
                     <p className="text-xs text-red-600 mt-1">
-                      Event limit: {capacityInfo.eventGuestLimit} seats<br/>
-                      Existing tables: {capacityInfo.existingCapacity} seats<br/>
-                      This table: {limitSeats} seats<br/>
-                      <strong>Total: {capacityInfo.newTotalCapacity} seats (exceeds by {capacityInfo.exceedBy})</strong>
+                      Event limit: {capacityInfo.eventGuestLimit} guests<br/>
+                      <strong>Current guests: {capacityInfo.actualGuestCount} (exceeds by {capacityInfo.exceedBy})</strong>
                     </p>
                   </div>
                 );
-              } else if (capacityInfo.seatsRemaining > 0 && capacityInfo.seatsRemaining < 10) {
+              } else if (capacityInfo.guestsRemaining > 0 && capacityInfo.guestsRemaining < 10) {
                 return (
                   <div className="p-3 bg-yellow-50 border-2 border-yellow-500 rounded-lg">
                     <p className="text-sm font-semibold text-yellow-700">
-                      ⚡ {capacityInfo.seatsRemaining} seats remaining
+                      ⚡ {capacityInfo.guestsRemaining} guest slots remaining
                     </p>
                     <p className="text-xs text-yellow-600 mt-1">
-                      Event limit: {capacityInfo.eventGuestLimit} | Existing: {capacityInfo.existingCapacity} | After this: {capacityInfo.newTotalCapacity}
-                    </p>
-                  </div>
-                );
-              } else if (capacityInfo.seatsRemaining === 0 && !capacityInfo.wouldExceed) {
-                return (
-                  <div className="p-3 bg-orange-50 border-2 border-orange-500 rounded-lg">
-                    <p className="text-sm font-semibold text-orange-700">
-                      🚫 Maximum capacity reached
-                    </p>
-                    <p className="text-xs text-orange-600 mt-1">
-                      All {capacityInfo.eventGuestLimit} seats are allocated to tables.
+                      Event limit: {capacityInfo.eventGuestLimit} | Current guests: {capacityInfo.actualGuestCount}
                     </p>
                   </div>
                 );
