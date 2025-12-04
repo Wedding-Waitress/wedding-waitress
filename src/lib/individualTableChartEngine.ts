@@ -634,7 +634,7 @@ export const generateIndividualTableSVG = (
           // Right side - vertical line, chairs ~10% from table edge
           x = (88 / 100) * containerWidth; // Equal distance from table (~10% clearance)
           y = (positionPercent / 100) * containerHeight;
-          labelX = x + 20; // Labels right of chairs
+          labelX = x + 12; // Labels right of chairs (closer)
           labelY = y;
           textAlign = 'left';
           transform = 'translate(0, -50%)';
@@ -652,7 +652,7 @@ export const generateIndividualTableSVG = (
           // Left side - vertical line (reverse order), chairs ~10% from table edge
           x = (12 / 100) * containerWidth; // Equal distance from table (~10% clearance)
           y = ((100 - positionPercent) / 100) * containerHeight;
-          labelX = x - 20; // Labels left of chairs
+          labelX = x - 12; // Labels left of chairs (closer)
           labelY = y;
           textAlign = 'right';
           transform = 'translate(-100%, -50%)';
