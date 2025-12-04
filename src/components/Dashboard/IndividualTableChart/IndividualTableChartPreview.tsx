@@ -71,15 +71,24 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
 
   // Get arranged guests for long table (use custom arrangement or default)
   // Split numbering: Left side gets seats 1-N/2, Right side gets seats N/2+1 to N
+  // Optional end seats at top and bottom
   const longTableGuests = useMemo(() => {
-    if (settings.tableShape !== 'long') return { leftSide: [], rightSide: [] };
+    if (settings.tableShape !== 'long') return { leftSide: [], rightSide: [], topEnd: [], bottomEnd: [] };
     
-    // Split guests: first half to left side, second half to right side
-    const halfPoint = Math.ceil(sortedGuests.length / 2);
+    const endSeatsEnabled = settings.enableEndSeats;
+    const seatsPerEnd = settings.endSeatsCount || 1;
+    
+    // Reserve guests for end seats if enabled
+    const totalEndSeats = endSeatsEnabled ? seatsPerEnd * 2 : 0;
+    const sideGuests = sortedGuests.slice(0, sortedGuests.length - totalEndSeats);
+    const endGuests = sortedGuests.slice(sortedGuests.length - totalEndSeats);
+    
+    // Split side guests: first half to left side, second half to right side
+    const halfPoint = Math.ceil(sideGuests.length / 2);
     const leftSide: { guest: Guest; seatNumber: number }[] = [];
     const rightSide: { guest: Guest; seatNumber: number }[] = [];
     
-    sortedGuests.forEach((guest, index) => {
+    sideGuests.forEach((guest, index) => {
       const seatNumber = index + 1; // Sequential numbering 1, 2, 3...
       if (index < halfPoint) {
         // Left side: seats 1, 2, 3, 4, 5...
@@ -90,8 +99,24 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
       }
     });
     
-    return { leftSide, rightSide };
-  }, [settings.tableShape, sortedGuests]);
+    // Assign end seats (top gets first batch, bottom gets second batch)
+    const topEnd: { guest: Guest; seatNumber: number }[] = [];
+    const bottomEnd: { guest: Guest; seatNumber: number }[] = [];
+    
+    if (endSeatsEnabled && endGuests.length > 0) {
+      const baseSeatNumber = sideGuests.length + 1;
+      endGuests.forEach((guest, index) => {
+        const seatNumber = baseSeatNumber + index;
+        if (index < seatsPerEnd) {
+          topEnd.push({ guest, seatNumber });
+        } else {
+          bottomEnd.push({ guest, seatNumber });
+        }
+      });
+    }
+    
+    return { leftSide, rightSide, topEnd, bottomEnd };
+  }, [settings.tableShape, settings.enableEndSeats, settings.endSeatsCount, sortedGuests]);
 
   // Helper function to determine chair side for square tables
   const getChairSide = (angle: number) => {
@@ -513,6 +538,90 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
                         );
                       })}
                     </div>
+                    
+                    {/* Top End Seats - Only when enabled */}
+                    {settings.enableEndSeats && longTableGuests.topEnd.length > 0 && (
+                      <div 
+                        className="absolute left-1/2 flex gap-4 items-end"
+                        style={{ 
+                          top: '-40px', 
+                          transform: 'translateX(-50%)'
+                        }}
+                      >
+                        {longTableGuests.topEnd.map((item) => (
+                          <TooltipProvider key={item.guest.id}>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <div className="flex flex-col items-center gap-1">
+                                  {/* Guest Name + Dietary Text - Above Chair */}
+                                  <span 
+                                    className="text-center font-medium whitespace-nowrap"
+                                    style={{ fontSize: longTableScaling.fontSize }}
+                                  >
+                                    {item.guest.first_name} {item.guest.last_name}
+                                    {settings.includeDietary && item.guest.dietary && item.guest.dietary !== 'NA' && (
+                                      <span className="text-primary font-bold ml-1">- {item.guest.dietary}</span>
+                                    )}
+                                  </span>
+                                  {/* Chair Circle */}
+                                  <div 
+                                    className="rounded-full bg-white border border-black flex items-center justify-center font-bold cursor-help"
+                                    style={{ width: longTableScaling.chairSize, height: longTableScaling.chairSize, fontSize: longTableScaling.fontSize }}
+                                  >
+                                    {settings.showSeatNumbers && item.seatNumber}
+                                  </div>
+                                </div>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>{item.guest.first_name} {item.guest.last_name}{item.guest.dietary && item.guest.dietary !== 'NA' ? ` - ${item.guest.dietary}` : ''}</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        ))}
+                      </div>
+                    )}
+                    
+                    {/* Bottom End Seats - Only when enabled */}
+                    {settings.enableEndSeats && longTableGuests.bottomEnd.length > 0 && (
+                      <div 
+                        className="absolute left-1/2 flex gap-4 items-start"
+                        style={{ 
+                          bottom: '-40px', 
+                          transform: 'translateX(-50%)'
+                        }}
+                      >
+                        {longTableGuests.bottomEnd.map((item) => (
+                          <TooltipProvider key={item.guest.id}>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <div className="flex flex-col items-center gap-1">
+                                  {/* Chair Circle */}
+                                  <div 
+                                    className="rounded-full bg-white border border-black flex items-center justify-center font-bold cursor-help"
+                                    style={{ width: longTableScaling.chairSize, height: longTableScaling.chairSize, fontSize: longTableScaling.fontSize }}
+                                  >
+                                    {settings.showSeatNumbers && item.seatNumber}
+                                  </div>
+                                  {/* Guest Name + Dietary Text - Below Chair */}
+                                  <span 
+                                    className="text-center font-medium whitespace-nowrap"
+                                    style={{ fontSize: longTableScaling.fontSize }}
+                                  >
+                                    {item.guest.first_name} {item.guest.last_name}
+                                    {settings.includeDietary && item.guest.dietary && item.guest.dietary !== 'NA' && (
+                                      <span className="text-primary font-bold ml-1">- {item.guest.dietary}</span>
+                                    )}
+                                  </span>
+                                </div>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>{item.guest.first_name} {item.guest.last_name}{item.guest.dietary && item.guest.dietary !== 'NA' ? ` - ${item.guest.dietary}` : ''}</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
