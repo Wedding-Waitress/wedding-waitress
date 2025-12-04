@@ -846,28 +846,33 @@ export const generateIndividualTableSVG = (
                   <div>${table.table_no ?? table.name}</div>
                 </div>
                 
-                <!-- Left Side Chairs with Full Names + Dietary -->
+                <!-- Left Side Chairs with Full Names + Dietary - Perfect Straight Line -->
                 <div style="
                   position: absolute;
                   left: -200px;
                   top: 20px;
                   bottom: 20px;
-                  display: flex;
-                  flex-direction: column;
-                  justify-content: space-around;
                 ">
-                  ${leftSide.map(item => `
-                    <div style="display: flex; align-items: center; gap: 4px;">
-                      <!-- Full Guest Name + Dietary - Left of Chair -->
+                  ${leftSide.map((item, index) => {
+                    const totalGuests = leftSide.length;
+                    const topPercent = totalGuests === 1 ? 50 : (index / (totalGuests - 1)) * 100;
+                    return `
+                    <div style="
+                      position: absolute;
+                      top: ${topPercent}%;
+                      right: 0;
+                      transform: translateY(-50%);
+                      display: flex;
+                      align-items: center;
+                      gap: 4px;
+                    ">
+                      <!-- Full Guest Name + Dietary Text - Left of Chair -->
                       <span style="
                         text-align: right;
                         font-weight: 500;
                         font-size: ${fontSize}pt;
                         white-space: nowrap;
-                        overflow: hidden;
-                        text-overflow: ellipsis;
-                        max-width: 150px;
-                      ">${item.guest.first_name} ${item.guest.last_name}${settings.includeDietary && getDietaryIcon(item.guest.dietary) ? ` ${getDietaryIcon(item.guest.dietary)}` : ''}</span>
+                      ">${item.guest.first_name} ${item.guest.last_name}${settings.includeDietary && item.guest.dietary && item.guest.dietary !== 'NA' ? `<span style="color: #7c3aed; font-weight: 700; margin-left: 4px;">- ${item.guest.dietary}</span>` : ''}</span>
                       <!-- Chair Circle -->
                       <div style="
                         width: ${chairSize}px;
@@ -883,21 +888,29 @@ export const generateIndividualTableSVG = (
                         flex-shrink: 0;
                       ">${settings.showSeatNumbers ? item.seatNumber : ''}</div>
                     </div>
-                  `).join('')}
+                  `}).join('')}
                 </div>
                 
-                <!-- Right Side Chairs with Full Names + Dietary -->
+                <!-- Right Side Chairs with Full Names + Dietary - Perfect Straight Line -->
                 <div style="
                   position: absolute;
                   right: -200px;
                   top: 20px;
                   bottom: 20px;
-                  display: flex;
-                  flex-direction: column;
-                  justify-content: space-around;
                 ">
-                  ${rightSide.map(item => `
-                    <div style="display: flex; align-items: center; gap: 4px;">
+                  ${rightSide.map((item, index) => {
+                    const totalGuests = rightSide.length;
+                    const topPercent = totalGuests === 1 ? 50 : (index / (totalGuests - 1)) * 100;
+                    return `
+                    <div style="
+                      position: absolute;
+                      top: ${topPercent}%;
+                      left: 0;
+                      transform: translateY(-50%);
+                      display: flex;
+                      align-items: center;
+                      gap: 4px;
+                    ">
                       <!-- Chair Circle -->
                       <div style="
                         width: ${chairSize}px;
@@ -912,18 +925,15 @@ export const generateIndividualTableSVG = (
                         font-size: ${fontSize}pt;
                         flex-shrink: 0;
                       ">${settings.showSeatNumbers ? item.seatNumber : ''}</div>
-                      <!-- Full Guest Name + Dietary - Right of Chair -->
+                      <!-- Full Guest Name + Dietary Text - Right of Chair -->
                       <span style="
                         text-align: left;
                         font-weight: 500;
                         font-size: ${fontSize}pt;
                         white-space: nowrap;
-                        overflow: hidden;
-                        text-overflow: ellipsis;
-                        max-width: 150px;
-                      ">${item.guest.first_name} ${item.guest.last_name}${settings.includeDietary && getDietaryIcon(item.guest.dietary) ? ` ${getDietaryIcon(item.guest.dietary)}` : ''}</span>
+                      ">${item.guest.first_name} ${item.guest.last_name}${settings.includeDietary && item.guest.dietary && item.guest.dietary !== 'NA' ? `<span style="color: #7c3aed; font-weight: 700; margin-left: 4px;">- ${item.guest.dietary}</span>` : ''}</span>
                     </div>
-                  `).join('')}
+                  `}).join('')}
                 </div>
               </div>
             </div>
