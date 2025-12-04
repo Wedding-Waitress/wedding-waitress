@@ -264,22 +264,6 @@ export const exportIndividualTableChartToDocx = async (
   
   // Add guest list if enabled
   if (settings.includeGuestList && sortedGuests.length > 0) {
-    // Section title
-    sections.push(
-      new Paragraph({
-        children: [
-          new TextRun({
-            text: 'Guests on this Table & Meal Selection',
-            bold: true,
-            size: 32, // 16pt
-            underline: {},
-          }),
-        ],
-        alignment: AlignmentType.CENTER,
-        spacing: { before: 200, after: 300 },
-      })
-    );
-    
     // Two-column guest list
     const { leftColumn, rightColumn } = generateGuestListColumns(sortedGuests, settings, fontSize);
     
@@ -450,22 +434,6 @@ export const exportAllTablesChartToDocx = async (
     
     // Add guest list if enabled
     if (settings.includeGuestList && sortedGuests.length > 0) {
-      // Section title
-      allSections.push(
-        new Paragraph({
-          children: [
-            new TextRun({
-              text: 'Guests on this Table & Meal Selection',
-              bold: true,
-              size: 32, // 16pt
-              underline: {},
-            }),
-          ],
-          alignment: AlignmentType.CENTER,
-          spacing: { before: 200, after: 300 },
-        })
-      );
-      
       // Two-column guest list
       const { leftColumn, rightColumn } = generateGuestListColumns(sortedGuests, settings, fontSize);
       
