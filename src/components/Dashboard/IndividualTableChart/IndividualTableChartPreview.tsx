@@ -250,6 +250,55 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
     }
   };
 
+  // Auto-fit font scaling for guest list to ensure logo is always visible
+  const getAutoFitGuestListStyle = () => {
+    if (!settings.includeGuestList) return {};
+    
+    const guestCount = sortedGuests.length;
+    
+    // A4 page available height after header, table visualization, and logo
+    // Total: 297mm = ~1123px, padding ~80px, header ~110px, table ~480px, logo ~68px
+    const availableForGuestList = 1123 - 80 - 110 - 480 - 68 - 40; // 40px for title
+    
+    // Calculate rows needed (2 columns)
+    const rowsNeeded = Math.ceil(guestCount / 2);
+    
+    // Base row heights per font size
+    const rowHeights: Record<string, number> = {
+      'small': 24,
+      'medium': 28,
+      'large': 34
+    };
+    
+    const baseRowHeight = rowHeights[settings.fontSize] || 28;
+    const requiredHeight = rowsNeeded * baseRowHeight;
+    
+    if (requiredHeight <= availableForGuestList) {
+      return {}; // No scaling needed
+    }
+    
+    // Calculate scale factor
+    const scaleFactor = availableForGuestList / requiredHeight;
+    
+    // Get base font sizes in px
+    const baseFontSizes: Record<string, number> = {
+      'small': 14,   // text-sm
+      'medium': 16,  // text-base
+      'large': 18    // text-lg
+    };
+    
+    const baseFontSize = baseFontSizes[settings.fontSize] || 16;
+    const scaledFontSize = Math.max(baseFontSize * scaleFactor, 11); // Minimum 11px
+    const scaledLineHeight = Math.max(baseRowHeight * scaleFactor, 18);
+    
+    return {
+      fontSize: `${scaledFontSize}px`,
+      lineHeight: `${scaledLineHeight}px`
+    };
+  };
+
+  const autoFitGuestListStyle = getAutoFitGuestListStyle();
+
   return (
     <Card className="bg-transparent shadow-none border-0">
       <CardContent className="p-0">
@@ -371,20 +420,23 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
               </div>
             </div>
 
-            {/* Line 4 & 5: Guest List */}
+            {/* Line 4 & 5: Guest List - Auto-scaled to ensure logo visibility */}
             {settings.includeGuestList && (
-              <div className="mb-6">
-                <h3 className="font-semibold text-xl mb-3 text-center underline">
+              <div className="mb-4">
+                <h3 className="font-semibold text-xl mb-2 text-center underline">
                   Guests on this Table & Meal Selection
                 </h3>
-                <div className={`flex ${getGuestListSize(settings.fontSize)} leading-[1.35]`}>
+                <div 
+                  className={`flex ${Object.keys(autoFitGuestListStyle).length === 0 ? getGuestListSize(settings.fontSize) : ''}`}
+                  style={autoFitGuestListStyle}
+                >
                   {/* Left Column */}
-                  <div className="flex-1 space-y-1">
-                    {sortedGuests.filter((_, index) => index % 2 === 0).map((guest, originalIndex) => {
+                  <div className="flex-1 space-y-0.5">
+                    {sortedGuests.filter((_, index) => index % 2 === 0).map((guest) => {
                       const actualIndex = sortedGuests.findIndex(g => g.id === guest.id);
                       return (
-                        <div key={guest.id} className="flex items-start py-1 leading-[1.7] min-h-[20px]">
-                          <span className="w-6 text-left flex-shrink-0">{actualIndex + 1}.</span>
+                        <div key={guest.id} className="flex items-start py-0.5">
+                          <span className="w-5 text-left flex-shrink-0">{actualIndex + 1}.</span>
                           <span className="break-words text-left">
                             <span className="font-bold">{guest.first_name} {guest.last_name}</span>
                             {settings.includeDietary && guest.dietary && guest.dietary !== 'NA' && (
@@ -397,12 +449,12 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
                   </div>
                   
                   {/* Right Column */}
-                  <div className="flex-1 space-y-1 ml-4">
-                    {sortedGuests.filter((_, index) => index % 2 === 1).map((guest, originalIndex) => {
+                  <div className="flex-1 space-y-0.5 ml-4">
+                    {sortedGuests.filter((_, index) => index % 2 === 1).map((guest) => {
                       const actualIndex = sortedGuests.findIndex(g => g.id === guest.id);
                       return (
-                        <div key={guest.id} className="flex items-start py-1 leading-[1.7] min-h-[20px]">
-                          <span className="w-6 text-left flex-shrink-0">{actualIndex + 1}.</span>
+                        <div key={guest.id} className="flex items-start py-0.5">
+                          <span className="w-5 text-left flex-shrink-0">{actualIndex + 1}.</span>
                           <span className="break-words text-left">
                             <span className="font-bold">{guest.first_name} {guest.last_name}</span>
                             {settings.includeDietary && guest.dietary && guest.dietary !== 'NA' && (
