@@ -376,22 +376,59 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
                 {/* Seats */}
                 <TooltipProvider>
                   {seats.map((seat) => {
+                    // Auto-scale font for top/bottom sides to prevent overlap
+                    const getAutoScaledNameStyle = () => {
+                      if (settings.tableShape !== 'square') return {};
+                      
+                      // Check if this is a top or bottom side (textAlign === 'center')
+                      if (seat.textAlign !== 'center') return {};
+                      
+                      const guestCount = sortedGuests.length;
+                      const guestsPerSide = Math.ceil(guestCount / 4);
+                      
+                      // Calculate available width per name on horizontal sides
+                      const containerWidth = 500; // px
+                      const usableWidth = containerWidth * 0.85; // 85% usable
+                      const widthPerName = usableWidth / guestsPerSide;
+                      
+                      // Get base font size in px
+                      const baseFontSizes: Record<string, number> = {
+                        'small': 14,
+                        'medium': 16,
+                        'large': 18
+                      };
+                      const baseFontSize = baseFontSizes[settings.fontSize] || 16;
+                      
+                      // Estimate name width (first name only)
+                      const firstName = seat.guest?.first_name || '';
+                      const charWidthRatio = 0.6;
+                      const estimatedWidth = firstName.length * baseFontSize * charWidthRatio;
+                      
+                      if (estimatedWidth <= widthPerName) return {};
+                      
+                      // Scale down the font
+                      const scaleFactor = Math.min(widthPerName / estimatedWidth, 1);
+                      const scaledFontSize = Math.max(baseFontSize * scaleFactor, 10);
+                      
+                      return { fontSize: `${scaledFontSize}px` };
+                    };
+                    
                     return (
                       <div key={seat.number}>
-                        {/* Seat Circle with thin black border */}
+                        {/* Seat Circle with thin black border - 44px (w-11 h-11) for tight spacing */}
                         <div
-                          className="absolute w-14 h-14 border border-black rounded-full bg-white flex items-center justify-center transform -translate-x-1/2 -translate-y-1/2 shadow-md"
+                          className="absolute w-11 h-11 border border-black rounded-full bg-white flex items-center justify-center transform -translate-x-1/2 -translate-y-1/2 shadow-md"
                           style={{
                             left: `${seat.x}%`,
                             top: `${seat.y}%`,
                           }}
                         >
                           {settings.showSeatNumbers && (
-                            <span className="font-bold text-sm">{seat.number}</span>
+                            <span className="font-bold text-xs">{seat.number}</span>
                           )}
                         </div>
 
-                        {/* Guest Name - Side-aware positioning for square tables */}
+                        {/* Guest Name - Side-aware positioning with auto-scale for top/bottom */}
                         {seat.guest && settings.includeNames && (
                           <Tooltip>
                             <TooltipTrigger asChild>
@@ -406,8 +443,10 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
                                   lineHeight: '1.2',
                                   wordWrap: 'break-word',
                                   hyphens: 'auto',
-                                  maxHeight: '2.4em', // 2 lines at line-height 1.2
+                                  maxHeight: '2.4em',
                                   overflow: 'hidden',
+                                  whiteSpace: 'nowrap',
+                                  ...getAutoScaledNameStyle(),
                                 }}
                               >
                                 <div className="text-gray-800">

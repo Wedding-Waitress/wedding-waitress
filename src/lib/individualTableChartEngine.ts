@@ -811,15 +811,46 @@ export const generateIndividualTableSVG = (
           </div>
 
           <!-- Seats -->
-          ${seats.map(seat => `
-            <!-- Seat Circle with thin black border -->
+          ${seats.map(seat => {
+            // Auto-scale font for top/bottom sides to prevent overlap
+            const getAutoScaledFontSize = () => {
+              if (settings.tableShape !== 'square') return 11;
+              
+              // Check if this is a top or bottom side (textAlign === 'center')
+              if (seat.textAlign !== 'center') return 11;
+              
+              const guestCount = sortedGuests.length;
+              const guestsPerSide = Math.ceil(guestCount / 4);
+              
+              // Calculate available width per name on horizontal sides
+              const containerWidth = 500; // px
+              const usableWidth = containerWidth * 0.85; // 85% usable
+              const widthPerName = usableWidth / guestsPerSide;
+              
+              // Estimate name width (first name only)
+              const firstName = seat.guest?.first_name || '';
+              const baseFontPt = 11;
+              const charWidthRatio = 0.6;
+              const estimatedWidth = firstName.length * baseFontPt * charWidthRatio;
+              
+              if (estimatedWidth <= widthPerName) return baseFontPt;
+              
+              // Scale down the font
+              const scaleFactor = Math.min(widthPerName / estimatedWidth, 1);
+              return Math.max(baseFontPt * scaleFactor, 8);
+            };
+            
+            const scaledFontPt = getAutoScaledFontSize();
+            
+            return `
+            <!-- Seat Circle with thin black border - 44px for tight spacing -->
             <div style="
               position: absolute;
               left: ${seat.x}px;
               top: ${seat.y}px;
               transform: translate(-50%, -50%);
-              width: 56px;
-              height: 56px;
+              width: 44px;
+              height: 44px;
               border: 1px solid #000;
               border-radius: 50%;
               background: white;
@@ -827,13 +858,13 @@ export const generateIndividualTableSVG = (
               align-items: center;
               justify-content: center;
               font-weight: bold;
-              font-size: 14px;
+              font-size: 12px;
               box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             ">
               ${settings.showSeatNumbers ? seat.number : ''}
             </div>
 
-            <!-- Guest Name - Side-aware positioning -->
+            <!-- Guest Name - Side-aware positioning with auto-scale for top/bottom -->
             ${seat.guest && settings.includeNames ? `
               <div style="
                 position: absolute;
@@ -841,17 +872,14 @@ export const generateIndividualTableSVG = (
                 top: ${seat.labelY}px;
                 transform: ${seat.transform};
                 text-align: ${seat.textAlign};
-                font-size: 11pt;
+                font-size: ${scaledFontPt}pt;
                 font-weight: 700;
                 color: #000000;
-                line-height: 1.6;
-                word-wrap: break-word;
-                hyphens: auto;
-                max-height: 3.2em;
+                line-height: 1.4;
+                white-space: nowrap;
                 overflow: hidden;
                 max-width: 95px;
-                padding: 8px;
-                min-height: 1.6em;
+                padding: 4px;
                 display: inline-block;
                 vertical-align: baseline;
                 text-rendering: optimizeLegibility;
@@ -861,7 +889,7 @@ export const generateIndividualTableSVG = (
                 ${seat.guest.first_name}
               </div>
             ` : ''}
-          `).join('')}
+          `}).join('')}
         </div>
       </div>
 
