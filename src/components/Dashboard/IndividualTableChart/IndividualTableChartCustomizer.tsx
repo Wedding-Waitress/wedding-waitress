@@ -63,6 +63,16 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
                 <SelectItem value="long">Long Table</SelectItem>
               </SelectContent>
             </Select>
+            {settings.tableShape === 'round' && (
+              <p className="text-xs text-red-600 font-medium mt-2">
+                ⚠️ Maximum: 20 guests per round table
+              </p>
+            )}
+            {settings.tableShape === 'square' && (
+              <p className="text-xs text-red-600 font-medium mt-2">
+                ⚠️ Maximum: 20 guests per square table
+              </p>
+            )}
             {settings.tableShape === 'long' && (
               <>
                 <p className="text-xs text-red-600 font-medium mt-2">
