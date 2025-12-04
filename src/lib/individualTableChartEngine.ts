@@ -599,11 +599,9 @@ export const generateIndividualTableSVG = (
       let x, y, labelX, labelY, textAlign, transform, angle;
       
       if (settings.tableShape === 'square') {
-        // SQUARE TABLE: Position chairs evenly along the 4 sides
-        const seatsPerSide = Math.ceil(guestCount / 4);
-        const side = Math.floor(i / seatsPerSide); // 0=top, 1=right, 2=bottom, 3=left
-        const positionOnSide = i % seatsPerSide;
-        const sideFraction = (positionOnSide + 1) / (seatsPerSide + 1); // Evenly spaced
+        // SQUARE TABLE: Position chairs evenly around the full perimeter including corners
+        // Calculate position along perimeter (0 to 4, where each side = 1)
+        const perimeterPosition = (i / guestCount) * 4;
         
         const chairSize = 14; // 56px / 4 = 14% (w-14 h-14)
         const offset = 2.8; // 14px offset for labels
@@ -612,44 +610,61 @@ export const generateIndividualTableSVG = (
         const chairSizePixels = (chairSize / 100) * Math.min(containerWidth, containerHeight);
         const offsetPixels = (offset / 100) * Math.min(containerWidth, containerHeight);
         
-        switch (side) {
-          case 0: // Top
-            x = ((20 + (sideFraction * 60)) / 100) * containerWidth;
-            y = (10 / 100) * containerHeight;
-            labelX = x;
-            labelY = y - chairSizePixels/2 - offsetPixels;
-            textAlign = 'center';
-            transform = 'translate(-50%, -100%)';
-            angle = -Math.PI / 2;
-            break;
-          case 1: // Right
-            x = (85 / 100) * containerWidth;
-            y = ((20 + (sideFraction * 60)) / 100) * containerHeight;
-            labelX = x + chairSizePixels/2 + offsetPixels;
-            labelY = y;
-            textAlign = 'left';
-            transform = 'translate(0, -50%)';
-            angle = 0;
-            break;
-          case 2: // Bottom
-            x = ((20 + (sideFraction * 60)) / 100) * containerWidth;
-            y = (90 / 100) * containerHeight;
-            labelX = x;
-            labelY = y + chairSizePixels/2 + offsetPixels;
-            textAlign = 'center';
-            transform = 'translate(-50%, 0)';
-            angle = Math.PI / 2;
-            break;
-          case 3: // Left
-          default:
-            x = (15 / 100) * containerWidth;
-            y = ((20 + (sideFraction * 60)) / 100) * containerHeight;
-            labelX = x - chairSizePixels/2 - offsetPixels;
-            labelY = y;
-            textAlign = 'right';
-            transform = 'translate(-100%, -50%)';
-            angle = Math.PI;
-            break;
+        // Use full extent of each side (5% to 95%) to include corners
+        const minPos = 5;
+        const maxPos = 95;
+        const range = maxPos - minPos;
+        
+        let xPercent, yPercent;
+        
+        if (perimeterPosition < 1) {
+          // Top side (left to right): 0 to 1
+          const fraction = perimeterPosition;
+          xPercent = minPos + (fraction * range);
+          yPercent = 10;
+          x = (xPercent / 100) * containerWidth;
+          y = (yPercent / 100) * containerHeight;
+          labelX = x;
+          labelY = y - chairSizePixels/2 - offsetPixels;
+          textAlign = 'center';
+          transform = 'translate(-50%, -100%)';
+          angle = -Math.PI / 2;
+        } else if (perimeterPosition < 2) {
+          // Right side (top to bottom): 1 to 2
+          const fraction = perimeterPosition - 1;
+          xPercent = 88;
+          yPercent = minPos + (fraction * range);
+          x = (xPercent / 100) * containerWidth;
+          y = (yPercent / 100) * containerHeight;
+          labelX = x + chairSizePixels/2 + offsetPixels;
+          labelY = y;
+          textAlign = 'left';
+          transform = 'translate(0, -50%)';
+          angle = 0;
+        } else if (perimeterPosition < 3) {
+          // Bottom side (right to left): 2 to 3
+          const fraction = perimeterPosition - 2;
+          xPercent = maxPos - (fraction * range);
+          yPercent = 90;
+          x = (xPercent / 100) * containerWidth;
+          y = (yPercent / 100) * containerHeight;
+          labelX = x;
+          labelY = y + chairSizePixels/2 + offsetPixels;
+          textAlign = 'center';
+          transform = 'translate(-50%, 0)';
+          angle = Math.PI / 2;
+        } else {
+          // Left side (bottom to top): 3 to 4
+          const fraction = perimeterPosition - 3;
+          xPercent = 12;
+          yPercent = maxPos - (fraction * range);
+          x = (xPercent / 100) * containerWidth;
+          y = (yPercent / 100) * containerHeight;
+          labelX = x - chairSizePixels/2 - offsetPixels;
+          labelY = y;
+          textAlign = 'right';
+          transform = 'translate(-100%, -50%)';
+          angle = Math.PI;
         }
         
       } else {
