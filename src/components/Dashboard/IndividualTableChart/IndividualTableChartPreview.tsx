@@ -542,84 +542,236 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
                     {/* Top End Seats - Only when enabled */}
                     {settings.enableEndSeats && longTableGuests.topEnd.length > 0 && (
                       <div 
-                        className="absolute left-1/2 flex gap-2 items-end"
+                        className="absolute left-1/2 flex items-end"
                         style={{ 
                           top: '-40px', 
                           transform: 'translateX(-50%)'
                         }}
                       >
-                        {longTableGuests.topEnd.map((item) => (
-                          <TooltipProvider key={item.guest.id}>
+                        {longTableGuests.topEnd.length === 1 ? (
+                          // Single seat - centered with name above, dietary below name, chair at bottom
+                          <TooltipProvider key={longTableGuests.topEnd[0].guest.id}>
                             <Tooltip>
                               <TooltipTrigger asChild>
                                 <div className="flex flex-col items-center gap-1">
-                                  {/* Guest Name + Dietary Text - Above Chair */}
                                   <span 
                                     className="text-center font-medium whitespace-nowrap"
                                     style={{ fontSize: longTableScaling.fontSize }}
                                   >
-                                    {item.guest.first_name} {item.guest.last_name}
-                                    {settings.includeDietary && item.guest.dietary && item.guest.dietary !== 'NA' && (
-                                      <span className="text-primary font-bold ml-1">- {item.guest.dietary}</span>
-                                    )}
+                                    {longTableGuests.topEnd[0].guest.first_name} {longTableGuests.topEnd[0].guest.last_name}
                                   </span>
-                                  {/* Chair Circle */}
+                                  {settings.includeDietary && longTableGuests.topEnd[0].guest.dietary && longTableGuests.topEnd[0].guest.dietary !== 'NA' && (
+                                    <span 
+                                      className="text-primary font-bold text-center whitespace-nowrap"
+                                      style={{ fontSize: longTableScaling.fontSize }}
+                                    >
+                                      - {longTableGuests.topEnd[0].guest.dietary}
+                                    </span>
+                                  )}
                                   <div 
                                     className="rounded-full bg-white border border-black flex items-center justify-center font-bold cursor-help"
                                     style={{ width: longTableScaling.chairSize, height: longTableScaling.chairSize, fontSize: longTableScaling.fontSize }}
                                   >
-                                    {settings.showSeatNumbers && item.seatNumber}
+                                    {settings.showSeatNumbers && longTableGuests.topEnd[0].seatNumber}
                                   </div>
                                 </div>
                               </TooltipTrigger>
                               <TooltipContent>
-                                <p>{item.guest.first_name} {item.guest.last_name}{item.guest.dietary && item.guest.dietary !== 'NA' ? ` - ${item.guest.dietary}` : ''}</p>
+                                <p>{longTableGuests.topEnd[0].guest.first_name} {longTableGuests.topEnd[0].guest.last_name}{longTableGuests.topEnd[0].guest.dietary && longTableGuests.topEnd[0].guest.dietary !== 'NA' ? ` - ${longTableGuests.topEnd[0].guest.dietary}` : ''}</p>
                               </TooltipContent>
                             </Tooltip>
                           </TooltipProvider>
-                        ))}
+                        ) : (
+                          // Two seats - chairs close together in center, names on outer sides
+                          <div className="flex items-end gap-1">
+                            {/* First guest - name+dietary on left, chair on right */}
+                            <TooltipProvider key={longTableGuests.topEnd[0].guest.id}>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <div className="flex items-end gap-2">
+                                    <div className="flex flex-col items-end">
+                                      <span 
+                                        className="text-right font-medium whitespace-nowrap"
+                                        style={{ fontSize: longTableScaling.fontSize }}
+                                      >
+                                        {longTableGuests.topEnd[0].guest.first_name} {longTableGuests.topEnd[0].guest.last_name}
+                                      </span>
+                                      {settings.includeDietary && longTableGuests.topEnd[0].guest.dietary && longTableGuests.topEnd[0].guest.dietary !== 'NA' && (
+                                        <span 
+                                          className="text-primary font-bold text-right whitespace-nowrap"
+                                          style={{ fontSize: longTableScaling.fontSize }}
+                                        >
+                                          - {longTableGuests.topEnd[0].guest.dietary}
+                                        </span>
+                                      )}
+                                    </div>
+                                    <div 
+                                      className="rounded-full bg-white border border-black flex items-center justify-center font-bold cursor-help"
+                                      style={{ width: longTableScaling.chairSize, height: longTableScaling.chairSize, fontSize: longTableScaling.fontSize }}
+                                    >
+                                      {settings.showSeatNumbers && longTableGuests.topEnd[0].seatNumber}
+                                    </div>
+                                  </div>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>{longTableGuests.topEnd[0].guest.first_name} {longTableGuests.topEnd[0].guest.last_name}{longTableGuests.topEnd[0].guest.dietary && longTableGuests.topEnd[0].guest.dietary !== 'NA' ? ` - ${longTableGuests.topEnd[0].guest.dietary}` : ''}</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                            {/* Second guest - chair on left, name+dietary on right */}
+                            <TooltipProvider key={longTableGuests.topEnd[1].guest.id}>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <div className="flex items-end gap-2">
+                                    <div 
+                                      className="rounded-full bg-white border border-black flex items-center justify-center font-bold cursor-help"
+                                      style={{ width: longTableScaling.chairSize, height: longTableScaling.chairSize, fontSize: longTableScaling.fontSize }}
+                                    >
+                                      {settings.showSeatNumbers && longTableGuests.topEnd[1].seatNumber}
+                                    </div>
+                                    <div className="flex flex-col items-start">
+                                      <span 
+                                        className="text-left font-medium whitespace-nowrap"
+                                        style={{ fontSize: longTableScaling.fontSize }}
+                                      >
+                                        {longTableGuests.topEnd[1].guest.first_name} {longTableGuests.topEnd[1].guest.last_name}
+                                      </span>
+                                      {settings.includeDietary && longTableGuests.topEnd[1].guest.dietary && longTableGuests.topEnd[1].guest.dietary !== 'NA' && (
+                                        <span 
+                                          className="text-primary font-bold text-left whitespace-nowrap"
+                                          style={{ fontSize: longTableScaling.fontSize }}
+                                        >
+                                          - {longTableGuests.topEnd[1].guest.dietary}
+                                        </span>
+                                      )}
+                                    </div>
+                                  </div>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>{longTableGuests.topEnd[1].guest.first_name} {longTableGuests.topEnd[1].guest.last_name}{longTableGuests.topEnd[1].guest.dietary && longTableGuests.topEnd[1].guest.dietary !== 'NA' ? ` - ${longTableGuests.topEnd[1].guest.dietary}` : ''}</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          </div>
+                        )}
                       </div>
                     )}
                     
                     {/* Bottom End Seats - Only when enabled */}
                     {settings.enableEndSeats && longTableGuests.bottomEnd.length > 0 && (
                       <div 
-                        className="absolute left-1/2 flex gap-2 items-start"
+                        className="absolute left-1/2 flex items-start"
                         style={{ 
                           bottom: '-40px', 
                           transform: 'translateX(-50%)'
                         }}
                       >
-                        {longTableGuests.bottomEnd.map((item) => (
-                          <TooltipProvider key={item.guest.id}>
+                        {longTableGuests.bottomEnd.length === 1 ? (
+                          // Single seat - centered with chair at top, dietary below, name at bottom
+                          <TooltipProvider key={longTableGuests.bottomEnd[0].guest.id}>
                             <Tooltip>
                               <TooltipTrigger asChild>
                                 <div className="flex flex-col items-center gap-1">
-                                  {/* Chair Circle */}
                                   <div 
                                     className="rounded-full bg-white border border-black flex items-center justify-center font-bold cursor-help"
                                     style={{ width: longTableScaling.chairSize, height: longTableScaling.chairSize, fontSize: longTableScaling.fontSize }}
                                   >
-                                    {settings.showSeatNumbers && item.seatNumber}
+                                    {settings.showSeatNumbers && longTableGuests.bottomEnd[0].seatNumber}
                                   </div>
-                                  {/* Guest Name + Dietary Text - Below Chair */}
+                                  {settings.includeDietary && longTableGuests.bottomEnd[0].guest.dietary && longTableGuests.bottomEnd[0].guest.dietary !== 'NA' && (
+                                    <span 
+                                      className="text-primary font-bold text-center whitespace-nowrap"
+                                      style={{ fontSize: longTableScaling.fontSize }}
+                                    >
+                                      - {longTableGuests.bottomEnd[0].guest.dietary}
+                                    </span>
+                                  )}
                                   <span 
                                     className="text-center font-medium whitespace-nowrap"
                                     style={{ fontSize: longTableScaling.fontSize }}
                                   >
-                                    {item.guest.first_name} {item.guest.last_name}
-                                    {settings.includeDietary && item.guest.dietary && item.guest.dietary !== 'NA' && (
-                                      <span className="text-primary font-bold ml-1">- {item.guest.dietary}</span>
-                                    )}
+                                    {longTableGuests.bottomEnd[0].guest.first_name} {longTableGuests.bottomEnd[0].guest.last_name}
                                   </span>
                                 </div>
                               </TooltipTrigger>
                               <TooltipContent>
-                                <p>{item.guest.first_name} {item.guest.last_name}{item.guest.dietary && item.guest.dietary !== 'NA' ? ` - ${item.guest.dietary}` : ''}</p>
+                                <p>{longTableGuests.bottomEnd[0].guest.first_name} {longTableGuests.bottomEnd[0].guest.last_name}{longTableGuests.bottomEnd[0].guest.dietary && longTableGuests.bottomEnd[0].guest.dietary !== 'NA' ? ` - ${longTableGuests.bottomEnd[0].guest.dietary}` : ''}</p>
                               </TooltipContent>
                             </Tooltip>
                           </TooltipProvider>
-                        ))}
+                        ) : (
+                          // Two seats - chairs close together in center, names on outer sides
+                          <div className="flex items-start gap-1">
+                            {/* First guest - name+dietary on left, chair on right */}
+                            <TooltipProvider key={longTableGuests.bottomEnd[0].guest.id}>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <div className="flex items-start gap-2">
+                                    <div className="flex flex-col items-end">
+                                      {settings.includeDietary && longTableGuests.bottomEnd[0].guest.dietary && longTableGuests.bottomEnd[0].guest.dietary !== 'NA' && (
+                                        <span 
+                                          className="text-primary font-bold text-right whitespace-nowrap"
+                                          style={{ fontSize: longTableScaling.fontSize }}
+                                        >
+                                          - {longTableGuests.bottomEnd[0].guest.dietary}
+                                        </span>
+                                      )}
+                                      <span 
+                                        className="text-right font-medium whitespace-nowrap"
+                                        style={{ fontSize: longTableScaling.fontSize }}
+                                      >
+                                        {longTableGuests.bottomEnd[0].guest.first_name} {longTableGuests.bottomEnd[0].guest.last_name}
+                                      </span>
+                                    </div>
+                                    <div 
+                                      className="rounded-full bg-white border border-black flex items-center justify-center font-bold cursor-help"
+                                      style={{ width: longTableScaling.chairSize, height: longTableScaling.chairSize, fontSize: longTableScaling.fontSize }}
+                                    >
+                                      {settings.showSeatNumbers && longTableGuests.bottomEnd[0].seatNumber}
+                                    </div>
+                                  </div>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>{longTableGuests.bottomEnd[0].guest.first_name} {longTableGuests.bottomEnd[0].guest.last_name}{longTableGuests.bottomEnd[0].guest.dietary && longTableGuests.bottomEnd[0].guest.dietary !== 'NA' ? ` - ${longTableGuests.bottomEnd[0].guest.dietary}` : ''}</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                            {/* Second guest - chair on left, name+dietary on right */}
+                            <TooltipProvider key={longTableGuests.bottomEnd[1].guest.id}>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <div className="flex items-start gap-2">
+                                    <div 
+                                      className="rounded-full bg-white border border-black flex items-center justify-center font-bold cursor-help"
+                                      style={{ width: longTableScaling.chairSize, height: longTableScaling.chairSize, fontSize: longTableScaling.fontSize }}
+                                    >
+                                      {settings.showSeatNumbers && longTableGuests.bottomEnd[1].seatNumber}
+                                    </div>
+                                    <div className="flex flex-col items-start">
+                                      {settings.includeDietary && longTableGuests.bottomEnd[1].guest.dietary && longTableGuests.bottomEnd[1].guest.dietary !== 'NA' && (
+                                        <span 
+                                          className="text-primary font-bold text-left whitespace-nowrap"
+                                          style={{ fontSize: longTableScaling.fontSize }}
+                                        >
+                                          - {longTableGuests.bottomEnd[1].guest.dietary}
+                                        </span>
+                                      )}
+                                      <span 
+                                        className="text-left font-medium whitespace-nowrap"
+                                        style={{ fontSize: longTableScaling.fontSize }}
+                                      >
+                                        {longTableGuests.bottomEnd[1].guest.first_name} {longTableGuests.bottomEnd[1].guest.last_name}
+                                      </span>
+                                    </div>
+                                  </div>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>{longTableGuests.bottomEnd[1].guest.first_name} {longTableGuests.bottomEnd[1].guest.last_name}{longTableGuests.bottomEnd[1].guest.dietary && longTableGuests.bottomEnd[1].guest.dietary !== 'NA' ? ` - ${longTableGuests.bottomEnd[1].guest.dietary}` : ''}</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>

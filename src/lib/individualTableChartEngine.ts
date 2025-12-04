@@ -954,33 +954,54 @@ export const generateIndividualTableSVG = (
                   top: -40px;
                   transform: translateX(-50%);
                   display: flex;
-                  gap: 8px;
                   align-items: flex-end;
                 ">
-                  ${topEnd.map(item => `
+                  ${topEnd.length === 1 ? `
+                    <!-- Single seat - centered with name above, dietary below name, chair at bottom -->
                     <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
-                      <!-- Guest Name + Dietary Text - Above Chair -->
-                      <span style="
-                        text-align: center;
-                        font-weight: 500;
-                        font-size: ${fontSize}pt;
-                        white-space: nowrap;
-                      ">${item.guest.first_name} ${item.guest.last_name}${settings.includeDietary && item.guest.dietary && item.guest.dietary !== 'NA' ? `<span style="color: #7c3aed; font-weight: 700; margin-left: 4px;">- ${item.guest.dietary}</span>` : ''}</span>
-                      <!-- Chair Circle -->
-                      <div style="
-                        width: ${chairSize}px;
-                        height: ${chairSize}px;
-                        border-radius: 50%;
-                        background: white;
-                        border: 1px solid black;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        font-weight: 700;
-                        font-size: ${fontSize}pt;
-                      ">${settings.showSeatNumbers ? item.seatNumber : ''}</div>
+                      <span style="text-align: center; font-weight: 500; font-size: ${fontSize}pt; white-space: nowrap;">
+                        ${topEnd[0].guest.first_name} ${topEnd[0].guest.last_name}
+                      </span>
+                      ${settings.includeDietary && topEnd[0].guest.dietary && topEnd[0].guest.dietary !== 'NA' ? `
+                        <span style="color: #7c3aed; font-weight: 700; font-size: ${fontSize}pt; white-space: nowrap;">- ${topEnd[0].guest.dietary}</span>
+                      ` : ''}
+                      <div style="width: ${chairSize}px; height: ${chairSize}px; border-radius: 50%; background: white; border: 1px solid black; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: ${fontSize}pt;">
+                        ${settings.showSeatNumbers ? topEnd[0].seatNumber : ''}
+                      </div>
                     </div>
-                  `).join('')}
+                  ` : `
+                    <!-- Two seats - chairs close together in center, names on outer sides -->
+                    <div style="display: flex; align-items: flex-end; gap: 4px;">
+                      <!-- First guest - name+dietary on left, chair on right -->
+                      <div style="display: flex; align-items: flex-end; gap: 8px;">
+                        <div style="display: flex; flex-direction: column; align-items: flex-end;">
+                          <span style="text-align: right; font-weight: 500; font-size: ${fontSize}pt; white-space: nowrap;">
+                            ${topEnd[0].guest.first_name} ${topEnd[0].guest.last_name}
+                          </span>
+                          ${settings.includeDietary && topEnd[0].guest.dietary && topEnd[0].guest.dietary !== 'NA' ? `
+                            <span style="color: #7c3aed; font-weight: 700; font-size: ${fontSize}pt; white-space: nowrap; text-align: right;">- ${topEnd[0].guest.dietary}</span>
+                          ` : ''}
+                        </div>
+                        <div style="width: ${chairSize}px; height: ${chairSize}px; border-radius: 50%; background: white; border: 1px solid black; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: ${fontSize}pt;">
+                          ${settings.showSeatNumbers ? topEnd[0].seatNumber : ''}
+                        </div>
+                      </div>
+                      <!-- Second guest - chair on left, name+dietary on right -->
+                      <div style="display: flex; align-items: flex-end; gap: 8px;">
+                        <div style="width: ${chairSize}px; height: ${chairSize}px; border-radius: 50%; background: white; border: 1px solid black; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: ${fontSize}pt;">
+                          ${settings.showSeatNumbers ? topEnd[1].seatNumber : ''}
+                        </div>
+                        <div style="display: flex; flex-direction: column; align-items: flex-start;">
+                          <span style="text-align: left; font-weight: 500; font-size: ${fontSize}pt; white-space: nowrap;">
+                            ${topEnd[1].guest.first_name} ${topEnd[1].guest.last_name}
+                          </span>
+                          ${settings.includeDietary && topEnd[1].guest.dietary && topEnd[1].guest.dietary !== 'NA' ? `
+                            <span style="color: #7c3aed; font-weight: 700; font-size: ${fontSize}pt; white-space: nowrap; text-align: left;">- ${topEnd[1].guest.dietary}</span>
+                          ` : ''}
+                        </div>
+                      </div>
+                    </div>
+                  `}
                 </div>
                 ` : ''}
                 
@@ -992,33 +1013,54 @@ export const generateIndividualTableSVG = (
                   bottom: -40px;
                   transform: translateX(-50%);
                   display: flex;
-                  gap: 8px;
                   align-items: flex-start;
                 ">
-                  ${bottomEnd.map(item => `
+                  ${bottomEnd.length === 1 ? `
+                    <!-- Single seat - centered with chair at top, dietary below, name at bottom -->
                     <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
-                      <!-- Chair Circle -->
-                      <div style="
-                        width: ${chairSize}px;
-                        height: ${chairSize}px;
-                        border-radius: 50%;
-                        background: white;
-                        border: 1px solid black;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        font-weight: 700;
-                        font-size: ${fontSize}pt;
-                      ">${settings.showSeatNumbers ? item.seatNumber : ''}</div>
-                      <!-- Guest Name + Dietary Text - Below Chair -->
-                      <span style="
-                        text-align: center;
-                        font-weight: 500;
-                        font-size: ${fontSize}pt;
-                        white-space: nowrap;
-                      ">${item.guest.first_name} ${item.guest.last_name}${settings.includeDietary && item.guest.dietary && item.guest.dietary !== 'NA' ? `<span style="color: #7c3aed; font-weight: 700; margin-left: 4px;">- ${item.guest.dietary}</span>` : ''}</span>
+                      <div style="width: ${chairSize}px; height: ${chairSize}px; border-radius: 50%; background: white; border: 1px solid black; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: ${fontSize}pt;">
+                        ${settings.showSeatNumbers ? bottomEnd[0].seatNumber : ''}
+                      </div>
+                      ${settings.includeDietary && bottomEnd[0].guest.dietary && bottomEnd[0].guest.dietary !== 'NA' ? `
+                        <span style="color: #7c3aed; font-weight: 700; font-size: ${fontSize}pt; white-space: nowrap;">- ${bottomEnd[0].guest.dietary}</span>
+                      ` : ''}
+                      <span style="text-align: center; font-weight: 500; font-size: ${fontSize}pt; white-space: nowrap;">
+                        ${bottomEnd[0].guest.first_name} ${bottomEnd[0].guest.last_name}
+                      </span>
                     </div>
-                  `).join('')}
+                  ` : `
+                    <!-- Two seats - chairs close together in center, names on outer sides -->
+                    <div style="display: flex; align-items: flex-start; gap: 4px;">
+                      <!-- First guest - name+dietary on left (below), chair on right -->
+                      <div style="display: flex; align-items: flex-start; gap: 8px;">
+                        <div style="display: flex; flex-direction: column; align-items: flex-end;">
+                          ${settings.includeDietary && bottomEnd[0].guest.dietary && bottomEnd[0].guest.dietary !== 'NA' ? `
+                            <span style="color: #7c3aed; font-weight: 700; font-size: ${fontSize}pt; white-space: nowrap; text-align: right;">- ${bottomEnd[0].guest.dietary}</span>
+                          ` : ''}
+                          <span style="text-align: right; font-weight: 500; font-size: ${fontSize}pt; white-space: nowrap;">
+                            ${bottomEnd[0].guest.first_name} ${bottomEnd[0].guest.last_name}
+                          </span>
+                        </div>
+                        <div style="width: ${chairSize}px; height: ${chairSize}px; border-radius: 50%; background: white; border: 1px solid black; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: ${fontSize}pt;">
+                          ${settings.showSeatNumbers ? bottomEnd[0].seatNumber : ''}
+                        </div>
+                      </div>
+                      <!-- Second guest - chair on left, name+dietary on right -->
+                      <div style="display: flex; align-items: flex-start; gap: 8px;">
+                        <div style="width: ${chairSize}px; height: ${chairSize}px; border-radius: 50%; background: white; border: 1px solid black; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: ${fontSize}pt;">
+                          ${settings.showSeatNumbers ? bottomEnd[1].seatNumber : ''}
+                        </div>
+                        <div style="display: flex; flex-direction: column; align-items: flex-start;">
+                          ${settings.includeDietary && bottomEnd[1].guest.dietary && bottomEnd[1].guest.dietary !== 'NA' ? `
+                            <span style="color: #7c3aed; font-weight: 700; font-size: ${fontSize}pt; white-space: nowrap; text-align: left;">- ${bottomEnd[1].guest.dietary}</span>
+                          ` : ''}
+                          <span style="text-align: left; font-weight: 500; font-size: ${fontSize}pt; white-space: nowrap;">
+                            ${bottomEnd[1].guest.first_name} ${bottomEnd[1].guest.last_name}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  `}
                 </div>
                 ` : ''}
               </div>
