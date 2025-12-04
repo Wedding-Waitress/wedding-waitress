@@ -19,6 +19,8 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
+export type TableType = 'round' | 'square' | 'long';
+
 export interface Table {
   id: string;
   event_id: string;
@@ -27,6 +29,7 @@ export interface Table {
   limit_seats: number;
   notes?: string;
   table_no?: number | null;
+  table_type?: TableType | null;
   created_at: string;
   updated_at: string;
 }
@@ -70,11 +73,12 @@ export const useTables = (eventId: string | null) => {
       if (tablesError) throw tablesError;
 
       // Fetch guest counts for each table using single source of truth
-      const tablesWithCounts = await Promise.all(
+      const tablesWithCounts: TableWithGuestCount[] = await Promise.all(
         (tablesData || []).map(async (table) => {
           const guestCount = await getCurrentCount(table.id);
           return {
             ...table,
+            table_type: (table.table_type as TableType) || 'round',
             guest_count: guestCount
           };
         })
@@ -117,6 +121,7 @@ export const useTables = (eventId: string | null) => {
     limit_seats: number;
     notes?: string;
     table_no?: number | null;
+    table_type?: TableType | null;
   }) => {
     if (!eventId) return false;
 
@@ -167,6 +172,7 @@ export const useTables = (eventId: string | null) => {
     limit_seats: number;
     notes?: string;
     table_no?: number | null;
+    table_type?: TableType | null;
   }) => {
     try {
       const { error } = await supabase

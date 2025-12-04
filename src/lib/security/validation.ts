@@ -84,7 +84,7 @@ export const secureTableSchema = z.object({
   
   limit_seats: z.number()
     .min(1, "Minimum 1 seat required")
-    .max(50, "Maximum 50 seats allowed"),
+    .max(124, "Maximum 124 seats allowed"),
   
   notes: z.string()
     .max(500, "Notes must be less than 500 characters")
@@ -96,6 +96,11 @@ export const secureTableSchema = z.object({
     .max(999)
     .optional()
     .nullable(),
+  
+  table_type: z.enum(['round', 'square', 'long'])
+    .optional()
+    .nullable()
+    .default('round'),
 });
 
 // Enhanced email validation for authentication
