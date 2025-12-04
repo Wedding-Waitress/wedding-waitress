@@ -113,34 +113,34 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
         const positionPercent = startOffset + (positionInSide * chairSpacing);
         
         if (side === 0) {
-          // Top side - horizontal line, chairs closer to table
+          // Top side - horizontal line, chairs ~10% from table edge
           x = positionPercent;
-          y = 18; // Moved from 8% to 18% (closer to table)
+          y = 10; // Equal distance from table (~10% clearance)
           labelX = positionPercent;
-          labelY = 6; // Moved from -4% to 6% (inside container, above chairs)
+          labelY = 0; // Labels above chairs
           textAlign = 'center';
           angle = -Math.PI / 2;
         } else if (side === 1) {
-          // Right side - vertical line, chairs closer to table
-          x = 82; // Moved from 92% to 82% (closer to table)
+          // Right side - vertical line, chairs ~10% from table edge
+          x = 88; // Equal distance from table (~10% clearance)
           y = positionPercent;
-          labelX = 94; // Moved from 104% to 94% (inside container)
+          labelX = 98; // Labels right of chairs
           labelY = positionPercent;
           textAlign = 'left';
           angle = 0;
         } else if (side === 2) {
           // Bottom side - horizontal line (reverse order for natural reading)
           x = 100 - positionPercent;
-          y = 82; // Moved from 92% to 82% (closer to table)
+          y = 90; // Equal distance from table (~10% clearance)
           labelX = 100 - positionPercent;
-          labelY = 94; // Moved from 104% to 94% (inside container, below chairs)
+          labelY = 100; // Labels below chairs
           textAlign = 'center';
           angle = Math.PI / 2;
         } else {
-          // Left side - vertical line (reverse order), chairs closer to table
-          x = 18; // Moved from 8% to 18% (closer to table)
+          // Left side - vertical line (reverse order), chairs ~10% from table edge
+          x = 12; // Equal distance from table (~10% clearance)
           y = 100 - positionPercent;
-          labelX = 6; // Moved from -4% to 6% (inside container)
+          labelX = 2; // Labels left of chairs
           labelY = 100 - positionPercent;
           textAlign = 'right';
           angle = Math.PI;
