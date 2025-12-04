@@ -954,7 +954,7 @@ export const generateIndividualTableSVG = (
                   top: -40px;
                   transform: translateX(-50%);
                   display: flex;
-                  gap: 16px;
+                  gap: 8px;
                   align-items: flex-end;
                 ">
                   ${topEnd.map(item => `
@@ -992,7 +992,7 @@ export const generateIndividualTableSVG = (
                   bottom: -40px;
                   transform: translateX(-50%);
                   display: flex;
-                  gap: 16px;
+                  gap: 8px;
                   align-items: flex-start;
                 ">
                   ${bottomEnd.map(item => `
