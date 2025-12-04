@@ -397,123 +397,96 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
 
             {/* Line 3: Table Visualization */}
             {settings.tableShape === 'long' ? (
-              /* LONG TABLE LAYOUT - Centered with guest lists on both sides */
-              <div className="flex-1 flex gap-2 mb-4">
-                {/* Left Guest List Column (18%) */}
-                <div className="w-[18%] flex flex-col justify-center py-4" style={{ fontSize: `${longTableScaling.listFontSize}pt` }}>
-                  <div className="space-y-1">
-                    {longTableGuests.leftSide.map((item) => (
-                      <div key={item.guest.id} className="flex items-center gap-1 justify-end text-right">
-                        <span className="font-medium truncate">{item.guest.first_name} {item.guest.last_name}</span>
-                        {settings.includeDietary && getDietaryIcon(item.guest.dietary) && (
-                          <span title={item.guest.dietary || ''}>{getDietaryIcon(item.guest.dietary)}</span>
-                        )}
-                        <span className="w-6 flex-shrink-0 text-right font-bold">{item.seatNumber}.</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Center: Long Table Visualization (64%) */}
-                <div className="w-[64%] flex items-center justify-center relative">
-                  <div className="relative h-full w-full flex items-center justify-center py-4">
-                    {/* Long Table Rectangle */}
+              /* LONG TABLE LAYOUT - Table centered with full names + dietary next to chairs */
+              <div className="flex-1 flex items-center justify-center mb-4">
+                <div className="relative h-full w-full flex items-center justify-center py-4">
+                  {/* Long Table Rectangle */}
+                  <div 
+                    className="relative border-2 border-gray-700 bg-gray-50 rounded-lg"
+                    style={{ 
+                      width: '120px', 
+                      height: 'calc(100% - 40px)',
+                      minHeight: '400px'
+                    }}
+                  >
+                    {/* Rotated Table Name Inside */}
                     <div 
-                      className="relative border-2 border-gray-700 bg-gray-50 rounded-lg"
-                      style={{ 
-                        width: '120px', 
-                        height: 'calc(100% - 40px)',
-                        minHeight: '400px'
-                      }}
+                      className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 -rotate-90 whitespace-nowrap"
+                      style={{ fontSize: `${Math.max(14, 24 - sortedGuests.length / 5)}px` }}
                     >
-                      {/* Rotated Table Name Inside */}
-                      <div 
-                        className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 -rotate-90 whitespace-nowrap"
-                        style={{ fontSize: `${Math.max(14, 24 - sortedGuests.length / 5)}px` }}
-                      >
-                        <div className="font-bold text-gray-600 text-center">
-                          <div>TABLE</div>
-                          <div>{table.table_no ?? table.name}</div>
-                        </div>
-                      </div>
-                      
-                      {/* Left Side Chairs with Names */}
-                      <div className="absolute left-0 top-4 bottom-4 -translate-x-[calc(50%+28px)] flex flex-col justify-around">
-                        {longTableGuests.leftSide.map((item) => (
-                          <TooltipProvider key={item.guest.id}>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <div className="flex items-center gap-1">
-                                  {/* Guest Name - Left of Chair */}
-                                  <span 
-                                    className="text-right font-medium truncate max-w-[80px]"
-                                    style={{ fontSize: longTableScaling.fontSize }}
-                                  >
-                                    {item.guest.first_name}
-                                  </span>
-                                  {/* Chair Circle */}
-                                  <div 
-                                    className="rounded-full bg-white border border-black flex items-center justify-center font-bold cursor-help flex-shrink-0"
-                                    style={{ width: longTableScaling.chairSize, height: longTableScaling.chairSize, fontSize: longTableScaling.fontSize }}
-                                  >
-                                    {settings.showSeatNumbers && item.seatNumber}
-                                  </div>
-                                </div>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p>{item.guest.first_name} {item.guest.last_name}</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                        ))}
-                      </div>
-                      
-                      {/* Right Side Chairs with Names */}
-                      <div className="absolute right-0 top-4 bottom-4 translate-x-[calc(50%+28px)] flex flex-col justify-around">
-                        {longTableGuests.rightSide.map((item) => (
-                          <TooltipProvider key={item.guest.id}>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <div className="flex items-center gap-1">
-                                  {/* Chair Circle */}
-                                  <div 
-                                    className="rounded-full bg-white border border-black flex items-center justify-center font-bold cursor-help flex-shrink-0"
-                                    style={{ width: longTableScaling.chairSize, height: longTableScaling.chairSize, fontSize: longTableScaling.fontSize }}
-                                  >
-                                    {settings.showSeatNumbers && item.seatNumber}
-                                  </div>
-                                  {/* Guest Name - Right of Chair */}
-                                  <span 
-                                    className="text-left font-medium truncate max-w-[80px]"
-                                    style={{ fontSize: longTableScaling.fontSize }}
-                                  >
-                                    {item.guest.first_name}
-                                  </span>
-                                </div>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p>{item.guest.first_name} {item.guest.last_name}</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                        ))}
+                      <div className="font-bold text-gray-600 text-center">
+                        <div>TABLE</div>
+                        <div>{table.table_no ?? table.name}</div>
                       </div>
                     </div>
-                  </div>
-                </div>
-
-                {/* Right Guest List Column (18%) */}
-                <div className="w-[18%] flex flex-col justify-center py-4" style={{ fontSize: `${longTableScaling.listFontSize}pt` }}>
-                  <div className="space-y-1">
-                    {longTableGuests.rightSide.map((item) => (
-                      <div key={item.guest.id} className="flex items-center gap-1 text-left">
-                        <span className="w-6 flex-shrink-0 font-bold">{item.seatNumber}.</span>
-                        <span className="font-medium truncate">{item.guest.first_name} {item.guest.last_name}</span>
-                        {settings.includeDietary && getDietaryIcon(item.guest.dietary) && (
-                          <span title={item.guest.dietary || ''}>{getDietaryIcon(item.guest.dietary)}</span>
-                        )}
-                      </div>
-                    ))}
+                    
+                    {/* Left Side Chairs with Full Names + Dietary */}
+                    <div className="absolute left-0 top-4 bottom-4 -translate-x-[calc(50%+28px)] flex flex-col justify-around">
+                      {longTableGuests.leftSide.map((item) => (
+                        <TooltipProvider key={item.guest.id}>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div className="flex items-center gap-1">
+                                {/* Full Guest Name + Dietary - Left of Chair */}
+                                <span 
+                                  className="text-right font-medium truncate max-w-[140px]"
+                                  style={{ fontSize: longTableScaling.fontSize }}
+                                >
+                                  {item.guest.first_name} {item.guest.last_name}
+                                  {settings.includeDietary && getDietaryIcon(item.guest.dietary) && (
+                                    <span className="ml-1">{getDietaryIcon(item.guest.dietary)}</span>
+                                  )}
+                                </span>
+                                {/* Chair Circle */}
+                                <div 
+                                  className="rounded-full bg-white border border-black flex items-center justify-center font-bold cursor-help flex-shrink-0"
+                                  style={{ width: longTableScaling.chairSize, height: longTableScaling.chairSize, fontSize: longTableScaling.fontSize }}
+                                >
+                                  {settings.showSeatNumbers && item.seatNumber}
+                                </div>
+                              </div>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>{item.guest.first_name} {item.guest.last_name}{item.guest.dietary && item.guest.dietary !== 'NA' ? ` - ${item.guest.dietary}` : ''}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      ))}
+                    </div>
+                    
+                    {/* Right Side Chairs with Full Names + Dietary */}
+                    <div className="absolute right-0 top-4 bottom-4 translate-x-[calc(50%+28px)] flex flex-col justify-around">
+                      {longTableGuests.rightSide.map((item) => (
+                        <TooltipProvider key={item.guest.id}>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div className="flex items-center gap-1">
+                                {/* Chair Circle */}
+                                <div 
+                                  className="rounded-full bg-white border border-black flex items-center justify-center font-bold cursor-help flex-shrink-0"
+                                  style={{ width: longTableScaling.chairSize, height: longTableScaling.chairSize, fontSize: longTableScaling.fontSize }}
+                                >
+                                  {settings.showSeatNumbers && item.seatNumber}
+                                </div>
+                                {/* Full Guest Name + Dietary - Right of Chair */}
+                                <span 
+                                  className="text-left font-medium truncate max-w-[140px]"
+                                  style={{ fontSize: longTableScaling.fontSize }}
+                                >
+                                  {item.guest.first_name} {item.guest.last_name}
+                                  {settings.includeDietary && getDietaryIcon(item.guest.dietary) && (
+                                    <span className="ml-1">{getDietaryIcon(item.guest.dietary)}</span>
+                                  )}
+                                </span>
+                              </div>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>{item.guest.first_name} {item.guest.last_name}{item.guest.dietary && item.guest.dietary !== 'NA' ? ` - ${item.guest.dietary}` : ''}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -639,8 +612,8 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
             </div>
             )}
 
-            {/* Line 4 & 5: Guest List - Auto-scaled to ensure logo visibility */}
-            {settings.includeGuestList && (
+            {/* Line 4 & 5: Guest List - Auto-scaled to ensure logo visibility (hidden for long tables) */}
+            {settings.includeGuestList && settings.tableShape !== 'long' && (
               <div className="mb-4">
                 <div
                   className={`flex ${Object.keys(autoFitGuestListStyle).length === 0 ? getGuestListSize(settings.fontSize) : ''}`}
