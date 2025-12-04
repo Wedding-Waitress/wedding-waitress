@@ -124,7 +124,7 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
           // Right side - vertical line, chairs ~10% from table edge
           x = 88; // Equal distance from table (~10% clearance)
           y = positionPercent;
-          labelX = 98; // Labels right of chairs
+          labelX = 93; // Labels right of chairs (closer)
           labelY = positionPercent;
           textAlign = 'left';
           angle = 0;
@@ -140,7 +140,7 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
           // Left side - vertical line (reverse order), chairs ~10% from table edge
           x = 12; // Equal distance from table (~10% clearance)
           y = 100 - positionPercent;
-          labelX = 2; // Labels left of chairs
+          labelX = 7; // Labels left of chairs (closer)
           labelY = 100 - positionPercent;
           textAlign = 'right';
           angle = Math.PI;
