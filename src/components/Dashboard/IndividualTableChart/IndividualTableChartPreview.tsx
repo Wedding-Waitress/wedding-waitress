@@ -90,52 +90,54 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
       let x, y, labelX, labelY, textAlign, angle;
       
       if (settings.tableShape === 'square') {
-        // SQUARE TABLE: Position chairs evenly around the full perimeter including corners
-        // Calculate position along perimeter (0 to 4, where each side = 1)
-        const perimeterPosition = (i / guestCount) * 4;
+        // SQUARE TABLE: Side-based centered distribution with tight spacing
+        // Divide guests into 4 groups, one per side, centered on each side
+        const guestsPerSide = Math.ceil(guestCount / 4);
+        const chairSpacing = 10; // Tight spacing between chair centers (percentage)
         
-        const chairSize = 14; // 56px / 4 = 14% (w-14 h-14)
-        const offset = 2.8; // 14px offset for labels
+        const side = Math.floor(i / guestsPerSide); // 0=top, 1=right, 2=bottom, 3=left
+        const positionInSide = i % guestsPerSide;
         
-        // Use full extent of each side (5% to 95%) to include corners
-        const minPos = 5;
-        const maxPos = 95;
-        const range = maxPos - minPos;
+        // Calculate how many guests are actually on this side
+        const startIdx = side * guestsPerSide;
+        const endIdx = Math.min(startIdx + guestsPerSide, guestCount);
+        const guestsOnThisSide = endIdx - startIdx;
         
-        if (perimeterPosition < 1) {
-          // Top side (left to right): 0 to 1
-          const fraction = perimeterPosition;
-          x = minPos + (fraction * range);
-          y = 10;
-          labelX = x;
-          labelY = y - chairSize/2 - offset;
+        // Calculate centered positioning for this side's group
+        const totalWidth = (guestsOnThisSide - 1) * chairSpacing;
+        const startOffset = 50 - (totalWidth / 2);
+        const positionPercent = startOffset + (positionInSide * chairSpacing);
+        
+        if (side === 0) {
+          // Top side - horizontal line
+          x = positionPercent;
+          y = 8;
+          labelX = positionPercent;
+          labelY = -4;
           textAlign = 'center';
           angle = -Math.PI / 2;
-        } else if (perimeterPosition < 2) {
-          // Right side (top to bottom): 1 to 2
-          const fraction = perimeterPosition - 1;
-          x = 88;
-          y = minPos + (fraction * range);
-          labelX = x + chairSize/2 + offset;
-          labelY = y;
+        } else if (side === 1) {
+          // Right side - vertical line
+          x = 92;
+          y = positionPercent;
+          labelX = 104;
+          labelY = positionPercent;
           textAlign = 'left';
           angle = 0;
-        } else if (perimeterPosition < 3) {
-          // Bottom side (right to left): 2 to 3
-          const fraction = perimeterPosition - 2;
-          x = maxPos - (fraction * range);
-          y = 90;
-          labelX = x;
-          labelY = y + chairSize/2 + offset;
+        } else if (side === 2) {
+          // Bottom side - horizontal line (reverse order for natural reading)
+          x = 100 - positionPercent;
+          y = 92;
+          labelX = 100 - positionPercent;
+          labelY = 104;
           textAlign = 'center';
           angle = Math.PI / 2;
         } else {
-          // Left side (bottom to top): 3 to 4
-          const fraction = perimeterPosition - 3;
-          x = 12;
-          y = maxPos - (fraction * range);
-          labelX = x - chairSize/2 - offset;
-          labelY = y;
+          // Left side - vertical line (reverse order)
+          x = 8;
+          y = 100 - positionPercent;
+          labelX = -4;
+          labelY = 100 - positionPercent;
           textAlign = 'right';
           angle = Math.PI;
         }
