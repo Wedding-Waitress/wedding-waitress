@@ -65,21 +65,21 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
             </Select>
             {settings.tableShape === 'round' && (
               <p className="text-xs text-red-600 font-medium mt-2">
-                ⚠️ Maximum: 20 guests per round table
+                ⚠️ Maximum: 20 guests per ROUND TABLE
               </p>
             )}
             {settings.tableShape === 'square' && (
               <p className="text-xs text-red-600 font-medium mt-2">
-                ⚠️ Maximum: 20 guests per square table
+                ⚠️ Maximum: 20 guests per SQUARE TABLE
               </p>
             )}
             {settings.tableShape === 'long' && (
               <>
                 <p className="text-xs text-red-600 font-medium mt-2">
-                  ⚠️ Maximum: 124 guests per long table
+                  ⚠️ Maximum: 124 guests per LONG TABLE
                 </p>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Long tables use auto-scaling fonts. Full guest names and dietary icons are displayed next to each chair.
+                  Long tables use auto-scaling fonts.
                 </p>
               </>
             )}
