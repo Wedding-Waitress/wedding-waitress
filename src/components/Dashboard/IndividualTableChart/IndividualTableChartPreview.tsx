@@ -473,10 +473,7 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
             {/* Line 4 & 5: Guest List - Auto-scaled to ensure logo visibility */}
             {settings.includeGuestList && (
               <div className="mb-4">
-                <h3 className="font-semibold text-xl mb-2 text-center underline">
-                  Guests on this Table & Meal Selection
-                </h3>
-                <div 
+                <div
                   className={`flex ${Object.keys(autoFitGuestListStyle).length === 0 ? getGuestListSize(settings.fontSize) : ''}`}
                   style={autoFitGuestListStyle}
                 >

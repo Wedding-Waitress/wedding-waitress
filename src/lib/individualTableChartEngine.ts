@@ -900,9 +900,6 @@ export const generateIndividualTableSVG = (
       <!-- Guest List - Auto-scaled font size: ${autoFitGuestListFontPt.toFixed(1)}pt -->
       ${settings.includeGuestList ? `
         <div style="margin-bottom: 20px;">
-          <h3 style="font-size: 16pt; font-weight: 600; color: #000000; margin-bottom: 12px; padding: 5px 0; line-height: 1.4; text-align: center; text-decoration: underline;">
-            Guests on this Table & Meal Selection
-          </h3>
           <div style="display: flex; font-size: ${autoFitGuestListFontPt}pt; line-height: 1.35;">
             <!-- Left Column (odd indices: 0, 2, 4...) -->
             <div style="flex: 1; display: flex; flex-direction: column; gap: 2px;">
