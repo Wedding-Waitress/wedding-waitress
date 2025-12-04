@@ -11,11 +11,20 @@
  * Last completed: 2025-10-04
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Users, FileText, Move } from 'lucide-react';
+import { Users, FileText, Move, AlertTriangle } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogAction,
+} from '@/components/ui/alert-dialog';
 import { useEvents } from '@/hooks/useEvents';
 import { useTables } from '@/hooks/useTables';
 import { useRealtimeGuests } from '@/hooks/useRealtimeGuests';
@@ -75,6 +84,7 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
   const [isExportingAll, setIsExportingAll] = useState(false);
   const [isArrangementModalOpen, setIsArrangementModalOpen] = useState(false);
   const [longTableSuggestionShown, setLongTableSuggestionShown] = useState<Set<string>>(new Set());
+  const [showGuestLimitWarning, setShowGuestLimitWarning] = useState(false);
 
   const { events, loading: eventsLoading } = useEvents();
   const { tables, loading: tablesLoading } = useTables(selectedEventId);
@@ -95,6 +105,19 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
 
   // Format event date for display
   const eventDate = selectedEvent?.date ? format(new Date(selectedEvent.date), 'PPP') : '';
+
+  // Check if table has too many guests for round/square shape
+  const isTableTooLargeForShape = useMemo(() => {
+    return (settings.tableShape === 'round' || settings.tableShape === 'square') 
+      && tableGuests.length > 20;
+  }, [settings.tableShape, tableGuests.length]);
+
+  // Show warning when table is too large for selected shape
+  useEffect(() => {
+    if (isTableTooLargeForShape && selectedTableId) {
+      setShowGuestLimitWarning(true);
+    }
+  }, [isTableTooLargeForShape, selectedTableId]);
   
   // Auto-detect: Suggest Long Table for tables with 25+ guests
   useEffect(() => {
@@ -214,6 +237,26 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
 
   return (
     <div className="space-y-6">
+      {/* Guest Limit Warning Dialog */}
+      <AlertDialog open={showGuestLimitWarning} onOpenChange={setShowGuestLimitWarning}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-amber-600 flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5" />
+              Table Has Too Many Guests
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              To view a table that has 20+ guests, please choose the <strong>Long Table</strong> option in the Chart Settings.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={() => setShowGuestLimitWarning(false)}>
+              OK, I understand
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       {/* Long Table Arrangement Modal */}
       <LongTableArrangementModal
         isOpen={isArrangementModalOpen}
@@ -366,7 +409,7 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
         </Card>
       )}
 
-      {isDataReady && (
+      {isDataReady && !isTableTooLargeForShape && (
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 bg-transparent">
           {/* Customizer */}
           <div className="lg:col-span-1">
@@ -386,6 +429,33 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
               totalTables={tables.length}
               currentTableIndex={tables.findIndex(t => t.id === selectedTableId) + 1}
             />
+          </div>
+        </div>
+      )}
+
+      {isDataReady && isTableTooLargeForShape && (
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 bg-transparent">
+          {/* Customizer - still visible so user can change to Long Table */}
+          <div className="lg:col-span-1">
+            <IndividualTableChartCustomizer
+              settings={settings}
+              onSettingsChange={handleSettingsChange}
+            />
+          </div>
+
+          {/* Warning Message */}
+          <div className="lg:col-span-3">
+            <Card className="ww-box p-8 text-center">
+              <div className="text-amber-600 mb-4">
+                <AlertTriangle className="w-16 h-16 mx-auto" />
+              </div>
+              <CardTitle className="mb-2 text-amber-600">Table Has Too Many Guests</CardTitle>
+              <CardDescription className="text-base">
+                This table has {tableGuests.length} guests. Round and Square tables can only display up to 20 guests.
+                <br /><br />
+                Please select <strong>Long Table</strong> in Chart Settings to view this table.
+              </CardDescription>
+            </Card>
           </div>
         </div>
       )}
