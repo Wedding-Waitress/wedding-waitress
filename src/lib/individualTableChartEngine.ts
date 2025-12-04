@@ -622,19 +622,19 @@ export const generateIndividualTableSVG = (
         const positionPercent = startOffset + (positionInSide * chairSpacing);
         
         if (side === 0) {
-          // Top side - horizontal line, chairs closer to table
+          // Top side - horizontal line, chairs ~10% from table edge
           x = (positionPercent / 100) * containerWidth;
-          y = (18 / 100) * containerHeight; // Moved from 8% to 18%
+          y = (10 / 100) * containerHeight; // Equal distance from table (~10% clearance)
           labelX = x;
-          labelY = y - 14; // Adjusted for new position
+          labelY = y - 20; // Labels above chairs
           textAlign = 'center';
           transform = 'translate(-50%, -100%)';
           angle = -Math.PI / 2;
         } else if (side === 1) {
-          // Right side - vertical line, chairs closer to table
-          x = (82 / 100) * containerWidth; // Moved from 92% to 82%
+          // Right side - vertical line, chairs ~10% from table edge
+          x = (88 / 100) * containerWidth; // Equal distance from table (~10% clearance)
           y = (positionPercent / 100) * containerHeight;
-          labelX = x + 14; // Adjusted for new position
+          labelX = x + 20; // Labels right of chairs
           labelY = y;
           textAlign = 'left';
           transform = 'translate(0, -50%)';
@@ -642,17 +642,17 @@ export const generateIndividualTableSVG = (
         } else if (side === 2) {
           // Bottom side - horizontal line (reverse order for natural reading)
           x = ((100 - positionPercent) / 100) * containerWidth;
-          y = (82 / 100) * containerHeight; // Moved from 92% to 82%
+          y = (90 / 100) * containerHeight; // Equal distance from table (~10% clearance)
           labelX = x;
-          labelY = y + 14; // Adjusted for new position
+          labelY = y + 20; // Labels below chairs
           textAlign = 'center';
           transform = 'translate(-50%, 0)';
           angle = Math.PI / 2;
         } else {
-          // Left side - vertical line (reverse order), chairs closer to table
-          x = (18 / 100) * containerWidth; // Moved from 8% to 18%
+          // Left side - vertical line (reverse order), chairs ~10% from table edge
+          x = (12 / 100) * containerWidth; // Equal distance from table (~10% clearance)
           y = ((100 - positionPercent) / 100) * containerHeight;
-          labelX = x - 14; // Adjusted for new position
+          labelX = x - 20; // Labels left of chairs
           labelY = y;
           textAlign = 'right';
           transform = 'translate(-100%, -50%)';
