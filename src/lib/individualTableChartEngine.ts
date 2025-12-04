@@ -599,10 +599,9 @@ export const generateIndividualTableSVG = (
       let x, y, labelX, labelY, textAlign, transform, angle;
       
       if (settings.tableShape === 'square') {
-        // SQUARE TABLE: Side-based centered distribution with tight spacing
+        // SQUARE TABLE: Side-based centered distribution
         // Divide guests into 4 groups, one per side, centered on each side
         const guestsPerSide = Math.ceil(guestCount / 4);
-        const chairSpacing = 10; // Tight spacing between chair centers (percentage)
         
         const side = Math.floor(i / guestsPerSide); // 0=top, 1=right, 2=bottom, 3=left
         const positionInSide = i % guestsPerSide;
@@ -612,25 +611,30 @@ export const generateIndividualTableSVG = (
         const endIdx = Math.min(startIdx + guestsPerSide, guestCount);
         const guestsOnThisSide = endIdx - startIdx;
         
+        // Use wider spacing for top/bottom (horizontal names need more room)
+        // Use tighter spacing for left/right (vertical names extend outward)
+        const isHorizontalSide = side === 0 || side === 2;
+        const chairSpacing = isHorizontalSide ? 16 : 10; // 16% for top/bottom, 10% for left/right
+        
         // Calculate centered positioning for this side's group
         const totalWidth = (guestsOnThisSide - 1) * chairSpacing;
         const startOffset = 50 - (totalWidth / 2);
         const positionPercent = startOffset + (positionInSide * chairSpacing);
         
         if (side === 0) {
-          // Top side - horizontal line
+          // Top side - horizontal line, chairs closer to table
           x = (positionPercent / 100) * containerWidth;
-          y = (8 / 100) * containerHeight;
+          y = (18 / 100) * containerHeight; // Moved from 8% to 18%
           labelX = x;
-          labelY = y - 20;
+          labelY = y - 14; // Adjusted for new position
           textAlign = 'center';
           transform = 'translate(-50%, -100%)';
           angle = -Math.PI / 2;
         } else if (side === 1) {
-          // Right side - vertical line
-          x = (92 / 100) * containerWidth;
+          // Right side - vertical line, chairs closer to table
+          x = (82 / 100) * containerWidth; // Moved from 92% to 82%
           y = (positionPercent / 100) * containerHeight;
-          labelX = x + 20;
+          labelX = x + 14; // Adjusted for new position
           labelY = y;
           textAlign = 'left';
           transform = 'translate(0, -50%)';
@@ -638,17 +642,17 @@ export const generateIndividualTableSVG = (
         } else if (side === 2) {
           // Bottom side - horizontal line (reverse order for natural reading)
           x = ((100 - positionPercent) / 100) * containerWidth;
-          y = (92 / 100) * containerHeight;
+          y = (82 / 100) * containerHeight; // Moved from 92% to 82%
           labelX = x;
-          labelY = y + 20;
+          labelY = y + 14; // Adjusted for new position
           textAlign = 'center';
           transform = 'translate(-50%, 0)';
           angle = Math.PI / 2;
         } else {
-          // Left side - vertical line (reverse order)
-          x = (8 / 100) * containerWidth;
+          // Left side - vertical line (reverse order), chairs closer to table
+          x = (18 / 100) * containerWidth; // Moved from 8% to 18%
           y = ((100 - positionPercent) / 100) * containerHeight;
-          labelX = x - 20;
+          labelX = x - 14; // Adjusted for new position
           labelY = y;
           textAlign = 'right';
           transform = 'translate(-100%, -50%)';
