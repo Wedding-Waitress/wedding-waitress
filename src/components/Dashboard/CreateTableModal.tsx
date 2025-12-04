@@ -182,10 +182,9 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
       }
     }
 
-    // Check guest limit capacity
-    const capacityInfo = calculateCapacityInfo();
-    if (capacityInfo && capacityInfo.wouldExceed) {
-      newErrors.limitSeats = `Exceeds event guest limit by ${capacityInfo.exceedBy} seats`;
+    // Only hard-block if table limit is set below actual guest count on this table
+    if (editingTable && limitSeats < editingTable.guest_count) {
+      newErrors.limitSeats = `Cannot set limit below current guest count (${editingTable.guest_count} guests seated)`;
     }
 
     setErrors(newErrors);
@@ -398,26 +397,9 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
       <AlertDialog open={showWarningDialog} onOpenChange={setShowWarningDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>
-              {(() => {
-                const capacityInfo = calculateCapacityInfo();
-                if (capacityInfo?.wouldExceed) {
-                  return "Guest Limit Exceeded";
-                }
-                return "Invalid Table Information";
-              })()}
-            </AlertDialogTitle>
+            <AlertDialogTitle>Invalid Table Information</AlertDialogTitle>
             <AlertDialogDescription>
-              {(() => {
-                const capacityInfo = calculateCapacityInfo();
-                if (capacityInfo?.wouldExceed) {
-                  return `This table would exceed your event's guest limit of ${capacityInfo.eventGuestLimit}. Currently allocated: ${capacityInfo.existingCapacity} seats. This table: ${limitSeats} seats. Total would be: ${capacityInfo.newTotalCapacity} seats (${capacityInfo.exceedBy} over the limit). Please reduce the table size or only add ${capacityInfo.seatsRemaining} more seats.`;
-                }
-                if (errors.name) {
-                  return errors.name;
-                }
-                return "Please correct the form errors before saving.";
-              })()}
+              {errors.name || errors.limitSeats || "Please correct the form errors before saving."}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
