@@ -273,6 +273,9 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
                       {isExportingAll ? `Exporting ${tables.length} tables...` : 'Download All PDF'}
                     </Button>
                   </div>
+                  <p className="text-muted-foreground text-sm mt-3">
+                    For best results, save the PDF to a file and print directly.
+                  </p>
                 </div>
               </div>
             )}

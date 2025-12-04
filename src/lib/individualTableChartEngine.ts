@@ -704,15 +704,33 @@ export const generateIndividualTableSVG = (
 
   const eventName = event?.name || 'Event';
 
+  /**
+   * FIXED LAYOUT SIZES - DO NOT MODIFY
+   * ===================================
+   * Header Section:
+   *   - Event Name: 14pt (fixed, purple, bold)
+   *   - Date/Title Line: 11pt (fixed, black, bold)
+   *   - Venue/Info Line: 12pt (fixed, black)
+   * 
+   * Footer Section:
+   *   - Wedding Waitress Logo: 48px height (fixed)
+   * 
+   * The font size setting from the customizer ONLY affects:
+   *   - Table name inside the circular table
+   *   - Guest names in the guest list
+   * 
+   * Header and footer sizes remain constant regardless of font size setting
+   * to ensure consistent branding and professional appearance.
+   */
   return `
     <div style="width: 794px; height: 1123px; background: white; font-family: Arial, sans-serif; padding: 40px; box-sizing: border-box; display: flex; flex-direction: column; line-height: 1.4;">
-      <!-- Header Section -->
+      <!-- Header Section - FIXED SIZES: 14pt, 11pt, 12pt (do not change) -->
       <div style="text-align: center; margin-bottom: 10px; padding: 10px 0;">
-        <!-- Event Name - Purple and Bold -->
+        <!-- Event Name - Purple and Bold - FIXED 14pt -->
         <div style="font-size: 14pt; font-weight: 700; color: #6D28D9; text-align: center; margin-bottom: 8px; line-height: 1.5;">
           ${eventName}
         </div>
-        <!-- Title and Date with Day of Week -->
+        <!-- Title and Date with Day of Week - FIXED 11pt -->
         <div style="font-size: 11pt; font-weight: 700; color: #000000; text-align: center; margin-bottom: 8px; line-height: 1.3;">
           Table Seating Arrangements – ${event?.date ? (() => {
             const d = new Date(event.date);
@@ -724,7 +742,7 @@ export const generateIndividualTableSVG = (
             return `${weekday} ${day}${suffix}, ${month} ${year}`;
           })() : ''}
         </div>
-        <!-- Venue, Tables, Page Info and Timestamp -->
+        <!-- Venue, Tables, Page Info and Timestamp - FIXED 12pt -->
         <div style="font-size: 12pt; color: #000000; text-align: center; padding-bottom: 12px; margin-bottom: 12px; border-bottom: 1px solid #000000;">
           ${event?.venue || 'Venue'} – Total Tables: ${settings.totalTables || 1} – Page ${settings.currentTableIndex || 1} of ${settings.totalTables || 1} – Generated on: ${new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: '2-digit' })} Time: ${new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false })}
         </div>
@@ -851,7 +869,7 @@ export const generateIndividualTableSVG = (
         </div>
       ` : ''}
 
-      <!-- Logo -->
+      <!-- Logo - FIXED 48px height (do not change) -->
       ${settings.showLogo ? `
         <div style="display: flex; justify-content: center; margin-top: auto; padding: 10px 0;">
           <img 
