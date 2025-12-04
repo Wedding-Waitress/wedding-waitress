@@ -427,6 +427,9 @@ export const useRealtimeGuests = (eventId: string | null): UseRealtimeGuestsRetu
         return false;
       }
 
+      // Optimistic update - remove guest from local state immediately
+      setGuests(currentGuests => currentGuests.filter(g => g.id !== guestId));
+
       toast({
         title: "Success",
         description: "Guest deleted successfully",
