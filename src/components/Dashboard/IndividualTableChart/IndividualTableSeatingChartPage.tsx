@@ -272,7 +272,7 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
                 <SelectContent className="bg-popover border-border z-50">
                   {tables.map((table) => (
                     <SelectItem key={table.id} value={table.id}>
-                      Table {table.table_no} - {table.name} ({table.guest_count}/{table.limit_seats} guests)
+                      Table {table.table_no} ({table.guest_count} of {table.limit_seats} guests)
                     </SelectItem>
                   ))}
                 </SelectContent>
