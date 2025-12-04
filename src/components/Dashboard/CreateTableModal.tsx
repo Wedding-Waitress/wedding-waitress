@@ -307,7 +307,6 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
                 // Real-time validation
                 validateTableName(e.target.value);
               }}
-              onBlur={validateForm}
               placeholder="e.g., 1, Bridal, VIP A"
               disabled={isSubmitting}
               className={`rounded-full border-2 focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none ${
