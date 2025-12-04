@@ -206,17 +206,22 @@ export const useTables = (eventId: string | null) => {
   };
 
   const deleteTable = async (tableId: string) => {
+    if (!eventId) return false;
+
     try {
-      // First check if table has guests
+      // First check if table has guests (include event_id for consistency)
       const { count } = await supabase
         .from('guests')
         .select('*', { count: 'exact', head: true })
+        .eq('event_id', eventId)
         .eq('table_id', tableId);
 
       if (count && count > 0) {
+        // Refresh tables to sync UI with actual database state
+        await fetchTables();
         toast({
           title: "Cannot Delete",
-          description: "Move or remove guests from this table before deleting.",
+          description: `This table has ${count} guest${count > 1 ? 's' : ''} assigned. Move or remove them before deleting.`,
           variant: "destructive",
         });
         return false;
