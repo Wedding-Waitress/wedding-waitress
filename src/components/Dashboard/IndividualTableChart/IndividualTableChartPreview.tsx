@@ -542,7 +542,7 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
                     {/* Top End Seats - Only when enabled */}
                     {settings.enableEndSeats && longTableGuests.topEnd.length > 0 && (
                       <div 
-                        className="absolute left-1/2 flex gap-4 items-end"
+                        className="absolute left-1/2 flex gap-2 items-end"
                         style={{ 
                           top: '-40px', 
                           transform: 'translateX(-50%)'
@@ -584,7 +584,7 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
                     {/* Bottom End Seats - Only when enabled */}
                     {settings.enableEndSeats && longTableGuests.bottomEnd.length > 0 && (
                       <div 
-                        className="absolute left-1/2 flex gap-4 items-start"
+                        className="absolute left-1/2 flex gap-2 items-start"
                         style={{ 
                           bottom: '-40px', 
                           transform: 'translateX(-50%)'
