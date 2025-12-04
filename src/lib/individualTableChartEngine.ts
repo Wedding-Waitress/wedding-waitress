@@ -494,10 +494,25 @@ export const generateIndividualTableSVG = (
 
   const getTitleSize = (size: string) => {
     switch (size) {
-      case 'small': return '20pt';
-      case 'large': return '28pt';
-      default: return '24pt';
+      case 'small': return 18;   // Matches Tailwind text-lg
+      case 'large': return 30;   // Matches Tailwind text-3xl
+      default: return 24;        // Matches Tailwind text-2xl
     }  
+  };
+
+  // Auto-fit function that scales font size based on text length to fit container
+  const getAutoFitFontSize = (text: string, baseSize: number, containerWidth: number = 250) => {
+    const charWidthRatio = 0.6;
+    const textLength = String(text).length;
+    const estimatedWidth = textLength * baseSize * charWidthRatio;
+    
+    if (estimatedWidth <= containerWidth) {
+      return baseSize;
+    }
+    
+    const scaleFactor = containerWidth / estimatedWidth;
+    const scaledSize = Math.floor(baseSize * scaleFactor);
+    return Math.max(scaledSize, 12); // Minimum 12px
   };
 
   // Helper function to determine chair side for square tables
@@ -732,15 +747,14 @@ export const generateIndividualTableSVG = (
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: ${getTitleSize(settings.fontSize)};
             font-weight: 700;
             color: #000000;
             flex-direction: column;
             line-height: 1.2;
             text-rendering: optimizeLegibility;
             ">
-            <div style="padding: 2px 0; display: inline-block; vertical-align: baseline;">TABLE</div>
-            <div style="padding: 2px 0; display: inline-block; vertical-align: baseline;">${table.table_no ?? table.name}</div>
+            <div style="padding: 2px 0; display: inline-block; vertical-align: baseline; font-size: ${getTitleSize(settings.fontSize)}px;">TABLE</div>
+            <div style="padding: 2px 0; display: inline-block; vertical-align: baseline; font-size: ${getAutoFitFontSize(String(table.table_no ?? table.name), getTitleSize(settings.fontSize), 250)}px;">${table.table_no ?? table.name}</div>
           </div>
 
           <!-- Seats -->

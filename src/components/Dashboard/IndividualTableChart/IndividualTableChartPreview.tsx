@@ -230,6 +230,31 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
     }
   };
 
+  const getTitleSizePx = (size: string) => {
+    switch (size) {
+      case 'small': return 18;
+      case 'large': return 30;
+      default: return 24;
+    }
+  };
+
+  // Auto-fit function that scales font size based on text length to fit container
+  const getAutoFitStyle = (text: string | number, fontSize: string) => {
+    const baseSize = getTitleSizePx(fontSize);
+    const containerWidth = 250;
+    const charWidthRatio = 0.6;
+    const textLength = String(text).length;
+    const estimatedWidth = textLength * baseSize * charWidthRatio;
+    
+    if (estimatedWidth <= containerWidth) {
+      return {}; // No scaling needed, use Tailwind class
+    }
+    
+    const scaleFactor = containerWidth / estimatedWidth;
+    const scaledSize = Math.max(Math.floor(baseSize * scaleFactor), 12);
+    return { fontSize: `${scaledSize}px` };
+  };
+
   const getGuestNameSize = (size: string) => {
     switch (size) {
       case 'small': return 'text-sm print:text-[10.5pt]';
@@ -302,9 +327,14 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
                     height: '280px' // Increased from 200px
                   }}
                 >
-                  <div className={`font-bold ${getTitleSize(settings.fontSize)} text-gray-700 text-center`}>
-                    <div>TABLE</div>
-                    <div>{table.table_no ?? table.name}</div>
+                  <div className="font-bold text-gray-700 text-center">
+                    <div className={getTitleSize(settings.fontSize)}>TABLE</div>
+                    <div 
+                      className={getTitleSize(settings.fontSize)}
+                      style={getAutoFitStyle(table.table_no ?? table.name, settings.fontSize)}
+                    >
+                      {table.table_no ?? table.name}
+                    </div>
                   </div>
                 </div>
 
