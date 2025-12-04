@@ -791,31 +791,41 @@ export const generateIndividualTableSVG = (
       ${settings.tableShape === 'long' ? `
         <!-- LONG TABLE LAYOUT - Table centered with full names + dietary next to chairs -->
         ${(() => {
-          // Split guests: first half to left side, second half to right side
-          const halfPoint = Math.ceil(sortedGuests.length / 2);
-          const leftSide = sortedGuests.slice(0, halfPoint).map((guest, idx) => ({ guest, seatNumber: idx + 1 }));
-          const rightSide = sortedGuests.slice(halfPoint).map((guest, idx) => ({ guest, seatNumber: halfPoint + idx + 1 }));
+          const endSeatsEnabled = settings.enableEndSeats;
+          const seatsPerEnd = settings.endSeatsCount || 1;
+          
+          // Reserve guests for end seats if enabled
+          const totalEndSeats = endSeatsEnabled ? seatsPerEnd * 2 : 0;
+          const sideGuests = sortedGuests.slice(0, sortedGuests.length - totalEndSeats);
+          const endGuests = sortedGuests.slice(sortedGuests.length - totalEndSeats);
+          
+          // Split side guests: first half to left side, second half to right side
+          const halfPoint = Math.ceil(sideGuests.length / 2);
+          const leftSide = sideGuests.slice(0, halfPoint).map((guest, idx) => ({ guest, seatNumber: idx + 1 }));
+          const rightSide = sideGuests.slice(halfPoint).map((guest, idx) => ({ guest, seatNumber: halfPoint + idx + 1 }));
+          
+          // Assign end seats
+          const topEnd: { guest: any; seatNumber: number }[] = [];
+          const bottomEnd: { guest: any; seatNumber: number }[] = [];
+          
+          if (endSeatsEnabled && endGuests.length > 0) {
+            const baseSeatNumber = sideGuests.length + 1;
+            endGuests.forEach((guest, index) => {
+              const seatNumber = baseSeatNumber + index;
+              if (index < seatsPerEnd) {
+                topEnd.push({ guest, seatNumber });
+              } else {
+                bottomEnd.push({ guest, seatNumber });
+              }
+            });
+          }
           
           // Calculate scaling based on guest count
           const count = sortedGuests.length;
           const chairSize = count <= 40 ? 28 : count <= 60 ? 24 : count <= 80 ? 20 : 16;
           const fontSize = count <= 40 ? 10 : count <= 60 ? 9 : count <= 80 ? 8 : 7;
           
-          // Dietary icon helper
-          const getDietaryIcon = (dietary: string | null): string | null => {
-            if (!dietary || dietary === 'NA') return null;
-            const lower = dietary.toLowerCase();
-            if (lower.includes('vegan')) return '🌱';
-            if (lower.includes('vegetarian') || lower.includes('veg')) return '🥬';
-            if (lower.includes('gluten')) return '🌾';
-            if (lower.includes('nut')) return '🥜';
-            if (lower.includes('seafood') || lower.includes('fish')) return '🐟';
-            if (lower.includes('allergy') || lower.includes('allergic')) return '🚫';
-            return '🍽️';
-          };
-          
           // Calculate chair spacing based on number of guests per side
-          const maxSideGuests = Math.max(leftSide.length, rightSide.length);
           const tableHeight = 400;
           
           return `
@@ -935,6 +945,82 @@ export const generateIndividualTableSVG = (
                     </div>
                   `}).join('')}
                 </div>
+                
+                ${endSeatsEnabled && topEnd.length > 0 ? `
+                <!-- Top End Seats -->
+                <div style="
+                  position: absolute;
+                  left: 50%;
+                  top: -40px;
+                  transform: translateX(-50%);
+                  display: flex;
+                  gap: 16px;
+                  align-items: flex-end;
+                ">
+                  ${topEnd.map(item => `
+                    <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
+                      <!-- Guest Name + Dietary Text - Above Chair -->
+                      <span style="
+                        text-align: center;
+                        font-weight: 500;
+                        font-size: ${fontSize}pt;
+                        white-space: nowrap;
+                      ">${item.guest.first_name} ${item.guest.last_name}${settings.includeDietary && item.guest.dietary && item.guest.dietary !== 'NA' ? `<span style="color: #7c3aed; font-weight: 700; margin-left: 4px;">- ${item.guest.dietary}</span>` : ''}</span>
+                      <!-- Chair Circle -->
+                      <div style="
+                        width: ${chairSize}px;
+                        height: ${chairSize}px;
+                        border-radius: 50%;
+                        background: white;
+                        border: 1px solid black;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-weight: 700;
+                        font-size: ${fontSize}pt;
+                      ">${settings.showSeatNumbers ? item.seatNumber : ''}</div>
+                    </div>
+                  `).join('')}
+                </div>
+                ` : ''}
+                
+                ${endSeatsEnabled && bottomEnd.length > 0 ? `
+                <!-- Bottom End Seats -->
+                <div style="
+                  position: absolute;
+                  left: 50%;
+                  bottom: -40px;
+                  transform: translateX(-50%);
+                  display: flex;
+                  gap: 16px;
+                  align-items: flex-start;
+                ">
+                  ${bottomEnd.map(item => `
+                    <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
+                      <!-- Chair Circle -->
+                      <div style="
+                        width: ${chairSize}px;
+                        height: ${chairSize}px;
+                        border-radius: 50%;
+                        background: white;
+                        border: 1px solid black;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-weight: 700;
+                        font-size: ${fontSize}pt;
+                      ">${settings.showSeatNumbers ? item.seatNumber : ''}</div>
+                      <!-- Guest Name + Dietary Text - Below Chair -->
+                      <span style="
+                        text-align: center;
+                        font-weight: 500;
+                        font-size: ${fontSize}pt;
+                        white-space: nowrap;
+                      ">${item.guest.first_name} ${item.guest.last_name}${settings.includeDietary && item.guest.dietary && item.guest.dietary !== 'NA' ? `<span style="color: #7c3aed; font-weight: 700; margin-left: 4px;">- ${item.guest.dietary}</span>` : ''}</span>
+                    </div>
+                  `).join('')}
+                </div>
+                ` : ''}
               </div>
             </div>
           </div>

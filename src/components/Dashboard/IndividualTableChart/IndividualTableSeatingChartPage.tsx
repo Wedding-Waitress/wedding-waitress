@@ -41,6 +41,9 @@ export interface IndividualChartSettings {
   showLogo: boolean;
   totalTables?: number;
   currentTableIndex?: number;
+  // Long Table End Seats Options
+  enableEndSeats: boolean;
+  endSeatsCount: 1 | 2;
 }
 
 interface IndividualTableSeatingChartPageProps {
@@ -58,6 +61,8 @@ const defaultSettings: IndividualChartSettings = {
   paperSize: 'A4',
   title: '',
   showLogo: true,
+  enableEndSeats: false,
+  endSeatsCount: 1,
 };
 
 export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingChartPageProps> = ({

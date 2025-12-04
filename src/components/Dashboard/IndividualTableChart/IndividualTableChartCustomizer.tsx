@@ -158,18 +158,60 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
         )}
         
         {settings.tableShape === 'long' && (
-          <div className="space-y-4">
-            <h3 className="font-semibold text-sm">Long Table Info</h3>
-            <p className="text-xs text-muted-foreground">
-              Font sizes automatically scale based on guest count to ensure all content fits on one A4 page.
-            </p>
-            <div className="text-xs text-muted-foreground space-y-1">
-              <p>• 20-40 guests: Normal font</p>
-              <p>• 41-60 guests: Smaller font</p>
-              <p>• 61-80 guests: Tight spacing</p>
-              <p>• 81+ guests: Minimal spacing</p>
+          <>
+            <Separator />
+            <div className="space-y-4">
+              <h3 className="font-semibold text-sm">End Seats</h3>
+              
+              {/* Master Toggle */}
+              <div className="flex items-center justify-between">
+                <Label htmlFor="enable-end-seats">Add Top/Bottom Seats</Label>
+                <Switch
+                  id="enable-end-seats"
+                  checked={settings.enableEndSeats}
+                  onCheckedChange={(checked) => 
+                    onSettingsChange({ enableEndSeats: checked })
+                  }
+                />
+              </div>
+
+              {/* Seats Count Option - Only visible when end seats enabled */}
+              {settings.enableEndSeats && (
+                <div className="flex items-center justify-between">
+                  <Label>Seats per End</Label>
+                  <div className="flex items-center gap-2">
+                    <span className={`text-sm ${settings.endSeatsCount === 1 ? 'font-bold text-primary' : 'text-muted-foreground'}`}>1</span>
+                    <Switch
+                      checked={settings.endSeatsCount === 2}
+                      onCheckedChange={(checked) => 
+                        onSettingsChange({ endSeatsCount: checked ? 2 : 1 })
+                      }
+                    />
+                    <span className={`text-sm ${settings.endSeatsCount === 2 ? 'font-bold text-primary' : 'text-muted-foreground'}`}>2</span>
+                  </div>
+                </div>
+              )}
+              
+              <p className="text-xs text-muted-foreground">
+                Add seats at the top and bottom ends of the long table for special guests.
+              </p>
             </div>
-          </div>
+
+            <Separator />
+            
+            <div className="space-y-4">
+              <h3 className="font-semibold text-sm">Long Table Info</h3>
+              <p className="text-xs text-muted-foreground">
+                Font sizes automatically scale based on guest count to ensure all content fits on one A4 page.
+              </p>
+              <div className="text-xs text-muted-foreground space-y-1">
+                <p>• 20-40 guests: Normal font</p>
+                <p>• 41-60 guests: Smaller font</p>
+                <p>• 61-80 guests: Tight spacing</p>
+                <p>• 81+ guests: Minimal spacing</p>
+              </div>
+            </div>
+          </>
         )}
       </CardContent>
     </Card>
