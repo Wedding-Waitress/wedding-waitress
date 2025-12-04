@@ -189,7 +189,7 @@ export const generateAllTablesChartPDF = async (
     const tableGuests = guests.filter(guest => guest.table_id === table.id);
     const tableSettings = {
       ...settings,
-      title: `TABLE ${table.table_no || 'Unknown'}`,
+      title: `TABLE ${table.table_no ?? table.name}`,
       totalTables: tables.length,
       currentTableIndex: i + 1
     };
@@ -382,7 +382,7 @@ export const printAllTablesChart = (
     const tableGuests = guests.filter(guest => guest.table_id === table.id);
     const tableSettings = {
       ...settings,
-      title: `TABLE ${table.table_no || 'Unknown'}`,
+      title: `TABLE ${table.table_no ?? table.name}`,
       totalTables: tables.length,
       currentTableIndex: index + 1
     };
@@ -740,7 +740,7 @@ export const generateIndividualTableSVG = (
             text-rendering: optimizeLegibility;
             ">
             <div style="padding: 2px 0; display: inline-block; vertical-align: baseline;">TABLE</div>
-            <div style="padding: 2px 0; display: inline-block; vertical-align: baseline;">${table.table_no}</div>
+            <div style="padding: 2px 0; display: inline-block; vertical-align: baseline;">${table.table_no ?? table.name}</div>
           </div>
 
           <!-- Seats -->
