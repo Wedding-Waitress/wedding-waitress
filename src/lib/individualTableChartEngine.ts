@@ -258,6 +258,7 @@ export const generateAllTablesChartPDF = async (
 
 /**
  * Print individual table chart in a new window
+ * Uses proper A4 scaling to match PDF output
  */
 export const printIndividualTableChart = (
   settings: IndividualChartSettings,
@@ -267,11 +268,14 @@ export const printIndividualTableChart = (
 ): void => {
   const svgContent = generateIndividualTableSVG(settings, table, guests, event);
   
-  const printWindow = window.open('', '_blank', 'width=794,height=1123');
+  const printWindow = window.open('', '_blank', 'width=900,height=1200');
   if (!printWindow) {
     throw new Error('Unable to open print window. Please allow popups for this site.');
   }
 
+  // Scale factor: A4 is 210mm x 297mm, content is 794px x 1123px
+  // At 96 DPI: 210mm = 794px, 297mm = 1123px (already matched)
+  // We need to ensure the browser scales this correctly to A4
   const htmlContent = `
     <!DOCTYPE html>
     <html>
@@ -282,25 +286,60 @@ export const printIndividualTableChart = (
             size: A4 portrait;
             margin: 0;
           }
+          * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+          }
+          html, body {
+            width: 210mm;
+            height: 297mm;
+            margin: 0;
+            padding: 0;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+            color-adjust: exact;
+          }
+          .page-container {
+            width: 210mm;
+            height: 297mm;
+            overflow: hidden;
+            position: relative;
+          }
+          .page-content {
+            width: 794px;
+            height: 1123px;
+            transform-origin: top left;
+            /* Scale from 794px to 210mm (793.7px at 96dpi) - exact fit */
+            transform: scale(calc(210mm / 794px));
+          }
           @media print {
             html, body {
-              margin: 0;
-              padding: 0;
               width: 210mm;
               height: 297mm;
             }
-          }
-          body {
-            margin: 0;
-            padding: 0;
-            font-family: Arial, sans-serif;
-            -webkit-print-color-adjust: exact;
-            print-color-adjust: exact;
+            .page-container {
+              width: 210mm;
+              height: 297mm;
+            }
+            .page-content {
+              transform: scale(1);
+              width: 100%;
+              height: 100%;
+            }
+            .page-content > div {
+              width: 100% !important;
+              height: 100% !important;
+            }
           }
         </style>
       </head>
       <body>
-        ${svgContent}
+        <div class="page-container">
+          <div class="page-content">
+            ${svgContent}
+          </div>
+        </div>
         <script>
           window.onload = function() {
             setTimeout(function() {
@@ -321,6 +360,7 @@ export const printIndividualTableChart = (
 
 /**
  * Print all tables in a new window with page breaks
+ * Uses proper A4 scaling to match PDF output
  */
 export const printAllTablesChart = (
   settings: IndividualChartSettings,
@@ -332,12 +372,12 @@ export const printAllTablesChart = (
     throw new Error('No tables to print');
   }
 
-  const printWindow = window.open('', '_blank', 'width=794,height=1123');
+  const printWindow = window.open('', '_blank', 'width=900,height=1200');
   if (!printWindow) {
     throw new Error('Unable to open print window. Please allow popups for this site.');
   }
 
-  // Generate SVG content for each table
+  // Generate content for each table with proper page structure
   const allTablesContent = tables.map((table, index) => {
     const tableGuests = guests.filter(guest => guest.table_id === table.id);
     const tableSettings = {
@@ -349,10 +389,15 @@ export const printAllTablesChart = (
     
     const svgContent = generateIndividualTableSVG(tableSettings, table, tableGuests, event);
     
-    // Add page break after each table except the last one
-    const pageBreak = index < tables.length - 1 ? 'page-break-after: always;' : '';
-    
-    return `<div style="${pageBreak}">${svgContent}</div>`;
+    // Each table in its own page container
+    const isLastPage = index === tables.length - 1;
+    return `
+      <div class="page-container" style="${!isLastPage ? 'page-break-after: always;' : ''}">
+        <div class="page-content">
+          ${svgContent}
+        </div>
+      </div>
+    `;
   }).join('');
 
   const htmlContent = `
@@ -365,18 +410,44 @@ export const printAllTablesChart = (
             size: A4 portrait;
             margin: 0;
           }
-          @media print {
-            html, body {
-              margin: 0;
-              padding: 0;
-            }
-          }
-          body {
+          * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: Arial, sans-serif;
+          }
+          html, body {
+            margin: 0;
+            padding: 0;
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
+            color-adjust: exact;
+          }
+          .page-container {
+            width: 210mm;
+            height: 297mm;
+            overflow: hidden;
+            position: relative;
+          }
+          .page-content {
+            width: 794px;
+            height: 1123px;
+            transform-origin: top left;
+            transform: scale(calc(210mm / 794px));
+          }
+          @media print {
+            .page-container {
+              width: 210mm;
+              height: 297mm;
+            }
+            .page-content {
+              transform: scale(1);
+              width: 100%;
+              height: 100%;
+            }
+            .page-content > div {
+              width: 100% !important;
+              height: 100% !important;
+            }
           }
         </style>
       </head>
