@@ -365,11 +365,21 @@ export const exportIndividualTableChartToDocx = async (
     }],
   });
   
+  // Format event name: capitalize each word, single hyphen
+  const formatEventNameForFile = (name: string): string => {
+    return name
+      .split(/[^a-zA-Z0-9]+/)
+      .filter(word => word.length > 0)
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join('-');
+  };
+  
   // Generate and save
   const blob = await Packer.toBlob(doc);
-  const eventName = event?.name?.replace(/[^a-z0-9]/gi, '-').toLowerCase() || 'event';
+  const eventName = formatEventNameForFile(event?.name || 'Event');
+  const tableIdentifier = table.table_no ?? table.name;
   const date = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/\//g, '-');
-  const fileName = `${eventName}-Table-${table.table_no}-Seating-Chart-${date}.docx`;
+  const fileName = `${eventName}-Table-${tableIdentifier}-Seating-Chart-${date}.docx`;
   saveAs(blob, fileName);
 };
 
@@ -542,9 +552,18 @@ export const exportAllTablesChartToDocx = async (
     }],
   });
   
+  // Format event name: capitalize each word, single hyphen
+  const formatEventNameForFile = (name: string): string => {
+    return name
+      .split(/[^a-zA-Z0-9]+/)
+      .filter(word => word.length > 0)
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join('-');
+  };
+  
   // Generate and save
   const blob = await Packer.toBlob(doc);
-  const eventName = event?.name?.replace(/[^a-z0-9]/gi, '-').toLowerCase() || 'event';
+  const eventName = formatEventNameForFile(event?.name || 'Event');
   const date = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/\//g, '-');
   const fileName = `${eventName}-All-Tables-Seating-Charts-${date}.docx`;
   saveAs(blob, fileName);

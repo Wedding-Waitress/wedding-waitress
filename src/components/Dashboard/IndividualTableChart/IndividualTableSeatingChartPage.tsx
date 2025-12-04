@@ -157,13 +157,23 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
         selectedEvent
       );
       
-      const eventName = selectedEvent.name.replace(/[^a-z0-9]/gi, '-').toLowerCase();
+      // Format event name: capitalize each word, single hyphen
+      const formatEventNameForFile = (name: string): string => {
+        return name
+          .split(/[^a-zA-Z0-9]+/)
+          .filter(word => word.length > 0)
+          .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+          .join('-');
+      };
+      
+      const eventName = formatEventNameForFile(selectedEvent.name);
+      const tableIdentifier = selectedTable!.table_no ?? selectedTable!.name;
       const date = new Date().toLocaleDateString('en-GB', { 
         day: '2-digit', 
         month: '2-digit', 
         year: 'numeric' 
       }).replace(/\//g, '-');
-      const fileName = `${eventName}-Table-${selectedTable!.table_no}-Seating-Chart-${date}.pdf`;
+      const fileName = `${eventName}-Table-${tableIdentifier}-Seating-Chart-${date}.pdf`;
       
       saveAs(pdfBlob, fileName);
       toast.success('PDF downloaded successfully!');
@@ -189,7 +199,16 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
         selectedEvent
       );
       
-      const eventName = selectedEvent.name.replace(/[^a-z0-9]/gi, '-').toLowerCase();
+      // Format event name: capitalize each word, single hyphen
+      const formatEventNameForFile = (name: string): string => {
+        return name
+          .split(/[^a-zA-Z0-9]+/)
+          .filter(word => word.length > 0)
+          .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+          .join('-');
+      };
+      
+      const eventName = formatEventNameForFile(selectedEvent.name);
       const date = new Date().toLocaleDateString('en-GB', { 
         day: '2-digit', 
         month: '2-digit', 
