@@ -788,6 +788,168 @@ export const generateIndividualTableSVG = (
       </div>
 
       <!-- Table Visualization -->
+      ${settings.tableShape === 'long' ? `
+        <!-- LONG TABLE LAYOUT - Centered with guest lists on both sides -->
+        ${(() => {
+          // Split guests: first half to left side, second half to right side
+          const halfPoint = Math.ceil(sortedGuests.length / 2);
+          const leftSide = sortedGuests.slice(0, halfPoint).map((guest, idx) => ({ guest, seatNumber: idx + 1 }));
+          const rightSide = sortedGuests.slice(halfPoint).map((guest, idx) => ({ guest, seatNumber: halfPoint + idx + 1 }));
+          
+          // Calculate scaling based on guest count
+          const count = sortedGuests.length;
+          const chairSize = count <= 40 ? 28 : count <= 60 ? 24 : count <= 80 ? 20 : 16;
+          const fontSize = count <= 40 ? 10 : count <= 60 ? 9 : count <= 80 ? 8 : 7;
+          const listFontSize = count <= 40 ? 10 : count <= 60 ? 9 : count <= 80 ? 8 : 7;
+          
+          // Calculate chair spacing based on number of guests per side
+          const maxSideGuests = Math.max(leftSide.length, rightSide.length);
+          const tableHeight = 400;
+          const chairSpacing = maxSideGuests > 1 ? (tableHeight - 40) / (maxSideGuests - 1) : 0;
+          
+          return `
+          <div style="flex: 1; display: flex; gap: 8px; margin-bottom: 16px; min-height: 450px;">
+            <!-- Left Guest List Column (18%) -->
+            <div style="width: 18%; display: flex; flex-direction: column; justify-content: center; padding: 16px 0; font-size: ${listFontSize}pt;">
+              ${leftSide.map(item => `
+                <div style="display: flex; align-items: center; gap: 4px; justify-content: flex-end; text-align: right; padding: 2px 0;">
+                  <span style="font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 90px;">
+                    ${item.guest.first_name} ${item.guest.last_name}
+                  </span>
+                  ${settings.includeDietary && item.guest.dietary && item.guest.dietary !== 'NA' ? `<span>🍽️</span>` : ''}
+                  <span style="width: 20px; flex-shrink: 0; text-align: right; font-weight: 700;">${item.seatNumber}.</span>
+                </div>
+              `).join('')}
+            </div>
+
+            <!-- Center: Long Table Visualization (64%) -->
+            <div style="width: 64%; display: flex; align-items: center; justify-content: center; position: relative;">
+              <div style="position: relative; height: 100%; width: 100%; display: flex; align-items: center; justify-content: center; padding: 16px 0;">
+                <!-- Long Table Rectangle -->
+                <div style="
+                  position: relative; 
+                  width: 100px; 
+                  height: ${tableHeight}px; 
+                  border: 2px solid #374151; 
+                  background: #f9fafb; 
+                  border-radius: 8px;
+                ">
+                  <!-- Rotated Table Name Inside -->
+                  <div style="
+                    position: absolute;
+                    left: 50%;
+                    top: 50%;
+                    transform: translate(-50%, -50%) rotate(-90deg);
+                    white-space: nowrap;
+                    font-size: ${Math.max(12, 20 - count / 5)}px;
+                    font-weight: 700;
+                    color: #4b5563;
+                    text-align: center;
+                  ">
+                    <div>TABLE</div>
+                    <div>${table.table_no ?? table.name}</div>
+                  </div>
+                  
+                  <!-- Left Side Chairs with Names -->
+                  <div style="
+                    position: absolute;
+                    left: -80px;
+                    top: 20px;
+                    bottom: 20px;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: space-around;
+                  ">
+                    ${leftSide.map(item => `
+                      <div style="display: flex; align-items: center; gap: 4px;">
+                        <!-- Guest Name - Left of Chair -->
+                        <span style="
+                          text-align: right;
+                          font-weight: 500;
+                          font-size: ${fontSize}pt;
+                          white-space: nowrap;
+                          overflow: hidden;
+                          text-overflow: ellipsis;
+                          max-width: 50px;
+                        ">${item.guest.first_name}</span>
+                        <!-- Chair Circle -->
+                        <div style="
+                          width: ${chairSize}px;
+                          height: ${chairSize}px;
+                          border-radius: 50%;
+                          background: white;
+                          border: 1px solid black;
+                          display: flex;
+                          align-items: center;
+                          justify-content: center;
+                          font-weight: 700;
+                          font-size: ${fontSize}pt;
+                          flex-shrink: 0;
+                        ">${settings.showSeatNumbers ? item.seatNumber : ''}</div>
+                      </div>
+                    `).join('')}
+                  </div>
+                  
+                  <!-- Right Side Chairs with Names -->
+                  <div style="
+                    position: absolute;
+                    right: -80px;
+                    top: 20px;
+                    bottom: 20px;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: space-around;
+                  ">
+                    ${rightSide.map(item => `
+                      <div style="display: flex; align-items: center; gap: 4px;">
+                        <!-- Chair Circle -->
+                        <div style="
+                          width: ${chairSize}px;
+                          height: ${chairSize}px;
+                          border-radius: 50%;
+                          background: white;
+                          border: 1px solid black;
+                          display: flex;
+                          align-items: center;
+                          justify-content: center;
+                          font-weight: 700;
+                          font-size: ${fontSize}pt;
+                          flex-shrink: 0;
+                        ">${settings.showSeatNumbers ? item.seatNumber : ''}</div>
+                        <!-- Guest Name - Right of Chair -->
+                        <span style="
+                          text-align: left;
+                          font-weight: 500;
+                          font-size: ${fontSize}pt;
+                          white-space: nowrap;
+                          overflow: hidden;
+                          text-overflow: ellipsis;
+                          max-width: 50px;
+                        ">${item.guest.first_name}</span>
+                      </div>
+                    `).join('')}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Guest List Column (18%) -->
+            <div style="width: 18%; display: flex; flex-direction: column; justify-content: center; padding: 16px 0; font-size: ${listFontSize}pt;">
+              ${rightSide.map(item => `
+                <div style="display: flex; align-items: center; gap: 4px; text-align: left; padding: 2px 0;">
+                  <span style="width: 20px; flex-shrink: 0; font-weight: 700;">${item.seatNumber}.</span>
+                  <span style="font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 90px;">
+                    ${item.guest.first_name} ${item.guest.last_name}
+                  </span>
+                  ${settings.includeDietary && item.guest.dietary && item.guest.dietary !== 'NA' ? `<span>🍽️</span>` : ''}
+                </div>
+              `).join('')}
+            </div>
+          </div>
+          `;
+        })()}
+      ` : `
+        <!-- ROUND/SQUARE TABLE LAYOUT -->
       <div style="flex: 1; display: flex; align-items: center; justify-content: center; margin-bottom: 30px;">
         <div style="position: relative; width: 500px; height: 450px;">
           <!-- Table -->
@@ -896,9 +1058,10 @@ export const generateIndividualTableSVG = (
           `}).join('')}
         </div>
       </div>
+      `}
 
       <!-- Guest List - Auto-scaled font size: ${autoFitGuestListFontPt.toFixed(1)}pt -->
-      ${settings.includeGuestList ? `
+      ${settings.includeGuestList && settings.tableShape !== 'long' ? `
         <div style="margin-bottom: 20px;">
           <div style="display: flex; font-size: ${autoFitGuestListFontPt}pt; line-height: 1.35;">
             <!-- Left Column (odd indices: 0, 2, 4...) -->
