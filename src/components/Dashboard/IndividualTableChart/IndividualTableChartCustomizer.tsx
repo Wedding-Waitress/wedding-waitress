@@ -64,9 +64,14 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
               </SelectContent>
             </Select>
             {settings.tableShape === 'long' && (
-              <p className="text-xs text-muted-foreground">
-                Long tables use auto-scaling fonts and allow custom seat arrangement via the "Arrange Seats" button.
-              </p>
+              <>
+                <p className="text-xs text-red-600 font-medium mt-2">
+                  ⚠️ Maximum: 124 guests per long table
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Long tables use auto-scaling fonts. Full guest names and dietary icons are displayed next to each chair.
+                </p>
+              </>
             )}
           </div>
         </div>
