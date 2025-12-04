@@ -257,6 +257,150 @@ export const generateAllTablesChartPDF = async (
 };
 
 /**
+ * Print individual table chart in a new window
+ */
+export const printIndividualTableChart = (
+  settings: IndividualChartSettings,
+  table: TableWithGuestCount,
+  guests: Guest[],
+  event: any
+): void => {
+  const svgContent = generateIndividualTableSVG(settings, table, guests, event);
+  
+  const printWindow = window.open('', '_blank', 'width=794,height=1123');
+  if (!printWindow) {
+    throw new Error('Unable to open print window. Please allow popups for this site.');
+  }
+
+  const htmlContent = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <title>Table ${table.table_no} - ${event?.name || 'Event'}</title>
+        <style>
+          @page {
+            size: A4 portrait;
+            margin: 0;
+          }
+          @media print {
+            html, body {
+              margin: 0;
+              padding: 0;
+              width: 210mm;
+              height: 297mm;
+            }
+          }
+          body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+          }
+        </style>
+      </head>
+      <body>
+        ${svgContent}
+        <script>
+          window.onload = function() {
+            setTimeout(function() {
+              window.print();
+              window.onafterprint = function() {
+                window.close();
+              };
+            }, 500);
+          };
+        </script>
+      </body>
+    </html>
+  `;
+
+  printWindow.document.write(htmlContent);
+  printWindow.document.close();
+};
+
+/**
+ * Print all tables in a new window with page breaks
+ */
+export const printAllTablesChart = (
+  settings: IndividualChartSettings,
+  tables: TableWithGuestCount[],
+  guests: Guest[],
+  event: any
+): void => {
+  if (tables.length === 0) {
+    throw new Error('No tables to print');
+  }
+
+  const printWindow = window.open('', '_blank', 'width=794,height=1123');
+  if (!printWindow) {
+    throw new Error('Unable to open print window. Please allow popups for this site.');
+  }
+
+  // Generate SVG content for each table
+  const allTablesContent = tables.map((table, index) => {
+    const tableGuests = guests.filter(guest => guest.table_id === table.id);
+    const tableSettings = {
+      ...settings,
+      title: `TABLE ${table.table_no || 'Unknown'}`,
+      totalTables: tables.length,
+      currentTableIndex: index + 1
+    };
+    
+    const svgContent = generateIndividualTableSVG(tableSettings, table, tableGuests, event);
+    
+    // Add page break after each table except the last one
+    const pageBreak = index < tables.length - 1 ? 'page-break-after: always;' : '';
+    
+    return `<div style="${pageBreak}">${svgContent}</div>`;
+  }).join('');
+
+  const htmlContent = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <title>All Tables - ${event?.name || 'Event'}</title>
+        <style>
+          @page {
+            size: A4 portrait;
+            margin: 0;
+          }
+          @media print {
+            html, body {
+              margin: 0;
+              padding: 0;
+            }
+          }
+          body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+          }
+        </style>
+      </head>
+      <body>
+        ${allTablesContent}
+        <script>
+          window.onload = function() {
+            setTimeout(function() {
+              window.print();
+              window.onafterprint = function() {
+                window.close();
+              };
+            }, 500);
+          };
+        </script>
+      </body>
+    </html>
+  `;
+
+  printWindow.document.write(htmlContent);
+  printWindow.document.close();
+};
+
+/**
  * Generate SVG content for individual table chart
  */
 export const generateIndividualTableSVG = (
