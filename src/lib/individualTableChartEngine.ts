@@ -525,9 +525,9 @@ export const generateIndividualTableSVG = (
     return 'left';
   };
 
-  // Arrange seats around table - Using exact same logic as IndividualTableChartPreview
+  // Arrange seats around table - only for assigned guests
   const arrangeSeats = () => {
-    const seatCount = table.limit_seats;
+    const guestCount = sortedGuests.length;
     const seats = [];
     
     // Fixed container dimensions - match IndividualTableChartPreview exactly
@@ -536,24 +536,17 @@ export const generateIndividualTableSVG = (
     const centerX = containerWidth / 2;
     const centerY = containerHeight / 2;
     
-    for (let i = 1; i <= seatCount; i++) {
-      let guest = sortedGuests.find(g => g.seat_no === i);
-      
-      // If no guest assigned to this seat, try to assign unassigned guests
-      if (!guest) {
-        guest = sortedGuests.find(g => !g.seat_no || g.seat_no === 0);
-        if (guest) {
-          guest = { ...guest, seat_no: i };
-        }
-      }
+    // Only create seats for actual guests assigned to this table
+    for (let i = 0; i < guestCount; i++) {
+      const guest = sortedGuests[i];
       
       let x, y, labelX, labelY, textAlign, transform, angle;
       
       if (settings.tableShape === 'square') {
         // SQUARE TABLE: Position chairs evenly along the 4 sides
-        const seatsPerSide = Math.ceil(seatCount / 4);
-        const side = Math.floor((i - 1) / seatsPerSide); // 0=top, 1=right, 2=bottom, 3=left
-        const positionOnSide = (i - 1) % seatsPerSide;
+        const seatsPerSide = Math.ceil(guestCount / 4);
+        const side = Math.floor(i / seatsPerSide); // 0=top, 1=right, 2=bottom, 3=left
+        const positionOnSide = i % seatsPerSide;
         const sideFraction = (positionOnSide + 1) / (seatsPerSide + 1); // Evenly spaced
         
         const chairSize = 14; // 56px / 4 = 14% (w-14 h-14)
@@ -603,55 +596,38 @@ export const generateIndividualTableSVG = (
             break;
         }
         
-        // Override label position if no guest
-        if (!guest) {
-          labelX = x;
-          labelY = y;
-          transform = 'translate(-50%, -50%)';
-        }
-        
       } else {
         // ROUND TABLE: Use pixel-based positioning for perfect circle
-        angle = ((i - 1) / seatCount) * 2 * Math.PI - Math.PI / 2; // Start from top
+        angle = (i / guestCount) * 2 * Math.PI - Math.PI / 2; // Start from top, evenly distributed
         
         // Use smaller dimension to ensure perfect circle (not ellipse)
         const circleBaseDimension = Math.min(containerWidth, containerHeight);
-        const centerX = containerWidth / 2;
-        const centerY = containerHeight / 2;
         const radiusPixels = (37 / 100) * circleBaseDimension;
         
         // Calculate position directly in pixels using true circular geometry
         x = centerX + radiusPixels * Math.cos(angle);
         y = centerY + radiusPixels * Math.sin(angle);
         
-        // Calculate label position
-        labelX = x;
-        labelY = y;
-        textAlign = 'center';
-        transform = 'translate(-50%, -50%)';
+        // Position labels further outward - match preview offset
+        const labelOffsetPercent = 12.5; // Match preview exactly
+        const labelRadiusPixels = ((37 + labelOffsetPercent) / 100) * circleBaseDimension;
         
-        if (guest) {
-          // Position labels further outward - match preview offset
-          const labelOffsetPercent = 12.5; // Match preview exactly
-          const labelRadiusPixels = ((37 + labelOffsetPercent) / 100) * circleBaseDimension;
-          
-          labelX = centerX + labelRadiusPixels * Math.cos(angle);
-          labelY = centerY + labelRadiusPixels * Math.sin(angle);
-          
-          // Determine text alignment based on angle (hemisphere)
-          const angleDegrees = (angle * 180) / Math.PI;
-          if (angleDegrees >= -90 && angleDegrees <= 90) {
-            textAlign = 'left';
-            transform = 'translate(0, -50%)';
-          } else {
-            textAlign = 'right';
-            transform = 'translate(-100%, -50%)';
-          }
+        labelX = centerX + labelRadiusPixels * Math.cos(angle);
+        labelY = centerY + labelRadiusPixels * Math.sin(angle);
+        
+        // Determine text alignment based on angle (hemisphere)
+        const angleDegrees = (angle * 180) / Math.PI;
+        if (angleDegrees >= -90 && angleDegrees <= 90) {
+          textAlign = 'left';
+          transform = 'translate(0, -50%)';
+        } else {
+          textAlign = 'right';
+          transform = 'translate(-100%, -50%)';
         }
       }
       
       seats.push({
-        number: i,
+        number: guest.seat_no || i + 1,
         guest,
         x,
         y,
