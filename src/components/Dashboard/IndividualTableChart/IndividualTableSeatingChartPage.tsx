@@ -175,14 +175,48 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
       {/* Event and Table Selection */}
       <Card className="ww-box">
         <CardHeader className="space-y-4">
-          {/* Main Page Title */}
-          <div>
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            {/* Left: Title and Description */}
+            <div>
               <h1 className="text-2xl font-medium text-[#7248e6] mb-2">
                 Individual Table Seating Chart
               </h1>
-            <p className="text-muted-foreground">
-              Generate detailed seating charts for individual tables
-            </p>
+              <p className="text-muted-foreground">
+                Generate detailed seating charts for individual tables
+              </p>
+            </div>
+            
+            {/* Right: Export Controls Box */}
+            {isDataReady && (
+              <div className="border border-primary rounded-xl p-4 space-y-3">
+                <h3 className="text-sm font-medium">Export Controls</h3>
+                <p className="text-muted-foreground text-sm">
+                  For best results, save the PDF to a file and print directly.
+                </p>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <Button 
+                    variant="default"
+                    size="xs"
+                    onClick={handleDownloadPdf}
+                    disabled={isExporting || isExportingAll}
+                    className="rounded-full flex items-center gap-2"
+                  >
+                    <FileText className="w-4 h-4" />
+                    Download PDF
+                  </Button>
+                  <Button 
+                    variant="default"
+                    size="xs"
+                    onClick={handleDownloadAllPdf}
+                    disabled={isExporting || isExportingAll}
+                    className="rounded-full flex items-center gap-2"
+                  >
+                    <FileText className="w-4 h-4" />
+                    {isExportingAll ? `Exporting ${tables.length} tables...` : 'Download All PDF'}
+                  </Button>
+                </div>
+              </div>
+            )}
           </div>
         </CardHeader>
         <CardContent className="space-y-4 pt-8">
@@ -245,40 +279,6 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
               </Select>
             </div>
           </div>
-
-            {/* Action Buttons - PDF Export Only */}
-            {isDataReady && (
-              <div className="pt-4 border-t">
-                <div className="space-y-3">
-                  <h3 className="text-sm font-medium">Export Controls</h3>
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <Button 
-                      variant="default"
-                      size="xs"
-                      onClick={handleDownloadPdf}
-                      disabled={isExporting || isExportingAll}
-                      className="rounded-full flex items-center gap-2"
-                    >
-                      <FileText className="w-4 h-4" />
-                      Download PDF
-                    </Button>
-                    <Button 
-                      variant="default"
-                      size="xs"
-                      onClick={handleDownloadAllPdf}
-                      disabled={isExporting || isExportingAll}
-                      className="rounded-full flex items-center gap-2"
-                    >
-                      <FileText className="w-4 h-4" />
-                      {isExportingAll ? `Exporting ${tables.length} tables...` : 'Download All PDF'}
-                    </Button>
-                  </div>
-                  <p className="text-muted-foreground text-sm mt-3">
-                    For best results, save the PDF to a file and print directly.
-                  </p>
-                </div>
-              </div>
-            )}
         </CardContent>
       </Card>
 
