@@ -510,9 +510,9 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
                         </div>
                       )}
                     </div>
-              </div>
-            </div>
-            )}
+                  </div>
+                </div>
+                
                 {/* Right Side: Guest List (60%) */}
                 <div className="w-[60%] flex flex-col">
                   <div className="flex gap-4 flex-1" style={{ fontSize: `${longTableScaling.listFontSize}pt` }}>
@@ -688,6 +688,7 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
                 </TooltipProvider>
               </div>
             </div>
+            )}
 
             {/* Line 4 & 5: Guest List - Auto-scaled to ensure logo visibility */}
             {settings.includeGuestList && (
