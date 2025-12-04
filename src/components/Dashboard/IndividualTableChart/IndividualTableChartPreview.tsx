@@ -105,7 +105,7 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
         // Use wider spacing for top/bottom (horizontal names need more room)
         // Use tighter spacing for left/right (vertical names extend outward)
         const isHorizontalSide = side === 0 || side === 2;
-        const chairSpacing = isHorizontalSide ? 16 : 10; // 16% for top/bottom, 10% for left/right
+        const chairSpacing = isHorizontalSide ? 16 : 14; // 16% for top/bottom, 14% for left/right
         
         // Calculate centered positioning for this side's group
         const totalWidth = (guestsOnThisSide - 1) * chairSpacing;
