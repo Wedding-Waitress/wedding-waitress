@@ -48,7 +48,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { TableWithGuestCount } from '@/hooks/useTables';
 import { useToast } from '@/hooks/use-toast';
-import { Circle, Square, RectangleHorizontal } from 'lucide-react';
+import { Circle, Square } from 'lucide-react';
 
 export type TableType = 'round' | 'square' | 'long';
 
@@ -331,19 +331,19 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
 
           {/* Table Type Selection */}
           <div className="grid gap-2">
-            <Label>Are you creating a... *</Label>
+            <Label>Table Shape & Max Capacity Allowed<span className="text-red-500">*</span></Label>
             <div className="flex gap-3">
               <button
                 type="button"
                 onClick={() => handleTableTypeChange('round')}
                 disabled={isSubmitting}
-                className={`flex-1 flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all ${
+                className={`flex-1 flex flex-col items-center gap-1.5 p-2.5 rounded-xl border-2 transition-all ${
                   tableType === 'round'
                     ? 'border-[#7248e6] bg-purple-50'
                     : 'border-gray-200 hover:border-gray-300'
                 }`}
               >
-                <Circle className={`w-8 h-8 ${tableType === 'round' ? 'text-[#7248e6]' : 'text-gray-400'}`} />
+                <Circle className={`w-5 h-5 ${tableType === 'round' ? 'text-[#7248e6]' : 'text-gray-400'}`} />
                 <span className={`text-sm font-medium ${tableType === 'round' ? 'text-[#7248e6]' : 'text-gray-600'}`}>
                   Round Table
                 </span>
@@ -353,13 +353,13 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
                 type="button"
                 onClick={() => handleTableTypeChange('square')}
                 disabled={isSubmitting}
-                className={`flex-1 flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all ${
+                className={`flex-1 flex flex-col items-center gap-1.5 p-2.5 rounded-xl border-2 transition-all ${
                   tableType === 'square'
                     ? 'border-[#7248e6] bg-purple-50'
                     : 'border-gray-200 hover:border-gray-300'
                 }`}
               >
-                <Square className={`w-8 h-8 ${tableType === 'square' ? 'text-[#7248e6]' : 'text-gray-400'}`} />
+                <Square className={`w-5 h-5 ${tableType === 'square' ? 'text-[#7248e6]' : 'text-gray-400'}`} />
                 <span className={`text-sm font-medium ${tableType === 'square' ? 'text-[#7248e6]' : 'text-gray-600'}`}>
                   Square Table
                 </span>
@@ -369,13 +369,13 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
                 type="button"
                 onClick={() => handleTableTypeChange('long')}
                 disabled={isSubmitting}
-                className={`flex-1 flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all ${
+                className={`flex-1 flex flex-col items-center gap-1.5 p-2.5 rounded-xl border-2 transition-all ${
                   tableType === 'long'
                     ? 'border-[#7248e6] bg-purple-50'
                     : 'border-gray-200 hover:border-gray-300'
                 }`}
               >
-                <RectangleHorizontal className={`w-8 h-8 ${tableType === 'long' ? 'text-[#7248e6]' : 'text-gray-400'}`} />
+                <div className={`w-10 h-4 border-2 rounded-sm ${tableType === 'long' ? 'border-[#7248e6]' : 'border-gray-400'}`} />
                 <span className={`text-sm font-medium ${tableType === 'long' ? 'text-[#7248e6]' : 'text-gray-600'}`}>
                   Long Table
                 </span>
@@ -480,7 +480,7 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
             size="xs"
             className="rounded-full bg-green-500 hover:bg-green-600 text-white"
             onClick={handleSave}
-            disabled={isSubmitting || Object.keys(errors).length > 0 || validationState === 'duplicate'}
+            disabled={isSubmitting || Object.values(errors).some(Boolean) || validationState === 'duplicate'}
           >
             {isSubmitting ? 'Saving...' : 'Save'}
           </Button>
