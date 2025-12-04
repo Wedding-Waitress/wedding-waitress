@@ -90,10 +90,9 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
       let x, y, labelX, labelY, textAlign, angle;
       
       if (settings.tableShape === 'square') {
-        // SQUARE TABLE: Side-based centered distribution with tight spacing
+        // SQUARE TABLE: Side-based centered distribution
         // Divide guests into 4 groups, one per side, centered on each side
         const guestsPerSide = Math.ceil(guestCount / 4);
-        const chairSpacing = 10; // Tight spacing between chair centers (percentage)
         
         const side = Math.floor(i / guestsPerSide); // 0=top, 1=right, 2=bottom, 3=left
         const positionInSide = i % guestsPerSide;
@@ -103,40 +102,45 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
         const endIdx = Math.min(startIdx + guestsPerSide, guestCount);
         const guestsOnThisSide = endIdx - startIdx;
         
+        // Use wider spacing for top/bottom (horizontal names need more room)
+        // Use tighter spacing for left/right (vertical names extend outward)
+        const isHorizontalSide = side === 0 || side === 2;
+        const chairSpacing = isHorizontalSide ? 16 : 10; // 16% for top/bottom, 10% for left/right
+        
         // Calculate centered positioning for this side's group
         const totalWidth = (guestsOnThisSide - 1) * chairSpacing;
         const startOffset = 50 - (totalWidth / 2);
         const positionPercent = startOffset + (positionInSide * chairSpacing);
         
         if (side === 0) {
-          // Top side - horizontal line
+          // Top side - horizontal line, chairs closer to table
           x = positionPercent;
-          y = 8;
+          y = 18; // Moved from 8% to 18% (closer to table)
           labelX = positionPercent;
-          labelY = -4;
+          labelY = 6; // Moved from -4% to 6% (inside container, above chairs)
           textAlign = 'center';
           angle = -Math.PI / 2;
         } else if (side === 1) {
-          // Right side - vertical line
-          x = 92;
+          // Right side - vertical line, chairs closer to table
+          x = 82; // Moved from 92% to 82% (closer to table)
           y = positionPercent;
-          labelX = 104;
+          labelX = 94; // Moved from 104% to 94% (inside container)
           labelY = positionPercent;
           textAlign = 'left';
           angle = 0;
         } else if (side === 2) {
           // Bottom side - horizontal line (reverse order for natural reading)
           x = 100 - positionPercent;
-          y = 92;
+          y = 82; // Moved from 92% to 82% (closer to table)
           labelX = 100 - positionPercent;
-          labelY = 104;
+          labelY = 94; // Moved from 104% to 94% (inside container, below chairs)
           textAlign = 'center';
           angle = Math.PI / 2;
         } else {
-          // Left side - vertical line (reverse order)
-          x = 8;
+          // Left side - vertical line (reverse order), chairs closer to table
+          x = 18; // Moved from 8% to 18% (closer to table)
           y = 100 - positionPercent;
-          labelX = -4;
+          labelX = 6; // Moved from -4% to 6% (inside container)
           labelY = 100 - positionPercent;
           textAlign = 'right';
           angle = Math.PI;
