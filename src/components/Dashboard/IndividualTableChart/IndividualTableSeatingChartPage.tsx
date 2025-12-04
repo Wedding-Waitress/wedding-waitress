@@ -15,16 +15,14 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Separator } from '@/components/ui/separator';
-import { Users, FileText, Printer } from 'lucide-react';
+import { Users, FileText } from 'lucide-react';
 import { useEvents } from '@/hooks/useEvents';
 import { useTables } from '@/hooks/useTables';
 import { useRealtimeGuests } from '@/hooks/useRealtimeGuests';
 import { format } from 'date-fns';
 import { IndividualTableChartPreview } from './IndividualTableChartPreview';
 import { IndividualTableChartCustomizer } from './IndividualTableChartCustomizer';
-import { exportIndividualTableChartToDocx, exportAllTablesChartToDocx } from '@/lib/individualTableChartDocxExporter';
-import { generateIndividualTableChartPDF, generateAllTablesChartPDF, printIndividualTableChart, printAllTablesChart } from '@/lib/individualTableChartEngine';
+import { generateIndividualTableChartPDF, generateAllTablesChartPDF } from '@/lib/individualTableChartEngine';
 import { saveAs } from 'file-saver';
 import { toast } from 'sonner';
 
@@ -68,14 +66,13 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
   const [settings, setSettings] = useState<IndividualChartSettings>(defaultSettings);
   const [isExporting, setIsExporting] = useState(false);
   const [isExportingAll, setIsExportingAll] = useState(false);
-  const [isPrinting, setIsPrinting] = useState(false);
 
   const { events, loading: eventsLoading } = useEvents();
   const { tables, loading: tablesLoading } = useTables(selectedEventId);
   const { guests, loading: guestsLoading } = useRealtimeGuests(selectedEventId);
 
   const selectedEvent = events.find(event => event.id === selectedEventId);
-
+  const selectedTable = tables.find(table => table.id === selectedTableId);
 
   // Format event date for display
   const eventDate = selectedEvent?.date ? format(new Date(selectedEvent.date), 'PPP') : '';
@@ -83,11 +80,11 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
   // Update chart title when event or table changes
   useEffect(() => {
     if (selectedEvent && selectedTableId) {
-      const selectedTable = tables.find(table => table.id === selectedTableId);
-      if (selectedTable) {
+      const table = tables.find(table => table.id === selectedTableId);
+      if (table) {
         setSettings(prev => ({
           ...prev,
-          title: `TABLE ${selectedTable.table_no || 'Unknown'}`
+          title: `TABLE ${table.table_no || 'Unknown'}`
         }));
       }
     }
@@ -97,54 +94,17 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
     setSettings(prev => ({ ...prev, ...newSettings }));
   };
 
-  const handleDownloadWord = async () => {
-    if (!selectedEvent || !selectedTableId) return;
-    
-    setIsExporting(true);
-    try {
-      toast.info('Generating Word document...');
-      
-      await exportIndividualTableChartToDocx(
-        settings,
-        selectedTable!,
-        guests,
-        selectedEvent
-      );
-      
-      toast.success('Word document downloaded successfully!');
-    } catch (error) {
-      console.error('DOCX export error:', error);
-      toast.error('Failed to generate Word document');
-    } finally {
-      setIsExporting(false);
-    }
-  };
-
-  const handleDownloadAllWord = async () => {
-    if (!selectedEvent || tables.length === 0) return;
-    
-    setIsExportingAll(true);
-    try {
-      toast.info(`Generating Word document for ${tables.length} tables...`);
-      
-      await exportAllTablesChartToDocx(
-        settings,
-        tables,
-        guests,
-        selectedEvent
-      );
-      
-      toast.success(`Successfully exported ${tables.length} tables to Word!`);
-    } catch (error) {
-      console.error('DOCX export all error:', error);
-      toast.error('Failed to export all tables');
-    } finally {
-      setIsExportingAll(false);
-    }
+  // Format event name: capitalize each word, single hyphen
+  const formatEventNameForFile = (name: string): string => {
+    return name
+      .split(/[^a-zA-Z0-9]+/)
+      .filter(word => word.length > 0)
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join('-');
   };
 
   const handleDownloadPdf = async () => {
-    if (!selectedEvent || !selectedTableId) return;
+    if (!selectedEvent || !selectedTableId || !selectedTable) return;
     
     setIsExporting(true);
     try {
@@ -152,22 +112,13 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
       
       const pdfBlob = await generateIndividualTableChartPDF(
         settings,
-        selectedTable!,
+        selectedTable,
         guests,
         selectedEvent
       );
       
-      // Format event name: capitalize each word, single hyphen
-      const formatEventNameForFile = (name: string): string => {
-        return name
-          .split(/[^a-zA-Z0-9]+/)
-          .filter(word => word.length > 0)
-          .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-          .join('-');
-      };
-      
       const eventName = formatEventNameForFile(selectedEvent.name);
-      const tableIdentifier = selectedTable!.table_no ?? selectedTable!.name;
+      const tableIdentifier = selectedTable.table_no ?? selectedTable.name;
       const date = new Date().toLocaleDateString('en-GB', { 
         day: '2-digit', 
         month: '2-digit', 
@@ -199,15 +150,6 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
         selectedEvent
       );
       
-      // Format event name: capitalize each word, single hyphen
-      const formatEventNameForFile = (name: string): string => {
-        return name
-          .split(/[^a-zA-Z0-9]+/)
-          .filter(word => word.length > 0)
-          .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-          .join('-');
-      };
-      
       const eventName = formatEventNameForFile(selectedEvent.name);
       const date = new Date().toLocaleDateString('en-GB', { 
         day: '2-digit', 
@@ -226,45 +168,6 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
     }
   };
 
-  const handlePrint = () => {
-    if (!selectedEvent || !selectedTableId || !selectedTable) return;
-    
-    setIsPrinting(true);
-    
-    try {
-      const printSettings = {
-        ...settings,
-        totalTables: tables.length,
-        currentTableIndex: tables.findIndex(t => t.id === selectedTableId) + 1
-      };
-      
-      printIndividualTableChart(printSettings, selectedTable, guests, selectedEvent);
-      toast.success(`Print dialog opened for Table ${selectedTable.table_no}`);
-    } catch (error) {
-      console.error('Print error:', error);
-      toast.error('Failed to open print dialog. Please allow popups for this site.');
-    } finally {
-      setIsPrinting(false);
-    }
-  };
-
-  const handlePrintAll = () => {
-    if (!selectedEvent || tables.length === 0) return;
-    
-    setIsPrinting(true);
-    
-    try {
-      printAllTablesChart(settings, tables, guests, selectedEvent);
-      toast.success(`Print dialog opened for ${tables.length} tables`);
-    } catch (error) {
-      console.error('Print all error:', error);
-      toast.error('Failed to open print dialog. Please allow popups for this site.');
-    } finally {
-      setIsPrinting(false);
-    }
-  };
-
-  const selectedTable = tables.find(table => table.id === selectedTableId);
   const isDataReady = selectedEvent && selectedTable && !tablesLoading && !guestsLoading;
 
   return (
@@ -343,89 +246,32 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
             </div>
           </div>
 
-            {/* Action Buttons */}
+            {/* Action Buttons - PDF Export Only */}
             {isDataReady && (
               <div className="pt-4 border-t">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {/* Export Controls Section */}
-                  <div className="space-y-3">
-                    <h3 className="text-sm font-medium">Export Controls</h3>
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <Button 
-                        variant="default"
-                        size="xs"
-                        onClick={handleDownloadPdf}
-                        disabled={isExporting || isExportingAll || isPrinting}
-                        className="rounded-full flex items-center gap-2"
-                      >
-                        <FileText className="w-4 h-4" />
-                        Download PDF
-                      </Button>
-                      <Button 
-                        variant="default"
-                        size="xs"
-                        onClick={handleDownloadAllPdf}
-                        disabled={isExporting || isExportingAll || isPrinting}
-                        className="rounded-full flex items-center gap-2"
-                      >
-                        <FileText className="w-4 h-4" />
-                        {isExportingAll ? `Exporting ${tables.length} tables...` : 'Download All PDF'}
-                      </Button>
-                    </div>
-                  </div>
-
-                  {/* Word Export Section */}
-                  <div className="space-y-3">
-                    <h3 className="text-sm font-medium">Word Export</h3>
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <Button 
-                        variant="default"
-                        size="xs"
-                        onClick={handleDownloadWord}
-                        disabled={isExporting || isExportingAll || isPrinting}
-                        className="rounded-full flex items-center gap-2"
-                      >
-                        <FileText className="w-4 h-4" />
-                        Download Word
-                      </Button>
-                      <Button 
-                        variant="default"
-                        size="xs"
-                        onClick={handleDownloadAllWord}
-                        disabled={isExporting || isExportingAll || isPrinting}
-                        className="rounded-full flex items-center gap-2"
-                      >
-                        <FileText className="w-4 h-4" />
-                        {isExportingAll ? `Exporting ${tables.length} tables...` : 'Download All Word'}
-                      </Button>
-                    </div>
-                  </div>
-
-                  {/* Print Controls Section */}
-                  <div className="space-y-3">
-                    <h3 className="text-sm font-medium">Print Controls</h3>
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <Button 
-                        variant="default"
-                        size="xs"
-                        onClick={handlePrint}
-                        disabled={isExporting || isExportingAll || isPrinting}
-                        className="rounded-full flex items-center gap-2"
-                      >
-                        <Printer className="w-4 h-4" />
-                        Print
-                      </Button>
-                      <Button 
-                        variant="default"
-                        size="xs"
-                        onClick={handlePrintAll}
-                        disabled={isExporting || isExportingAll || isPrinting}
-                        className="rounded-full flex items-center gap-2"
-                      >
-                        <Printer className="w-4 h-4" />
-                        Print All
-                      </Button>
-                    </div>
+                <div className="space-y-3">
+                  <h3 className="text-sm font-medium">Export Controls</h3>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <Button 
+                      variant="default"
+                      size="xs"
+                      onClick={handleDownloadPdf}
+                      disabled={isExporting || isExportingAll}
+                      className="rounded-full flex items-center gap-2"
+                    >
+                      <FileText className="w-4 h-4" />
+                      Download PDF
+                    </Button>
+                    <Button 
+                      variant="default"
+                      size="xs"
+                      onClick={handleDownloadAllPdf}
+                      disabled={isExporting || isExportingAll}
+                      className="rounded-full flex items-center gap-2"
+                    >
+                      <FileText className="w-4 h-4" />
+                      {isExportingAll ? `Exporting ${tables.length} tables...` : 'Download All PDF'}
+                    </Button>
                   </div>
                 </div>
               </div>
