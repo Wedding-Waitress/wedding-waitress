@@ -220,7 +220,9 @@ export const exportIndividualTableChartToDocx = async (
   // Generate table settings with correct title
   const tableSettings = {
     ...settings,
-    title: `TABLE ${table.table_no || 'Unknown'}`
+    title: `TABLE ${table.table_no || 'Unknown'}`,
+    totalTables: 1,
+    currentTableIndex: 1
   };
   
   // Generate SVG and convert to image
@@ -403,7 +405,9 @@ export const exportAllTablesChartToDocx = async (
     // Generate table settings with correct title
     const tableSettings = {
       ...settings,
-      title: `TABLE ${table.table_no || 'Unknown'}`
+      title: `TABLE ${table.table_no || 'Unknown'}`,
+      totalTables: totalTables,
+      currentTableIndex: i + 1
     };
     
     // Generate SVG and convert to image

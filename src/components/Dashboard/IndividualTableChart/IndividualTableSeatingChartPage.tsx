@@ -73,6 +73,8 @@ export interface IndividualChartSettings {
   paperSize: 'A4';
   title: string;
   showLogo: boolean;
+  totalTables?: number;
+  currentTableIndex?: number;
 }
 
 interface IndividualTableSeatingChartPageProps {

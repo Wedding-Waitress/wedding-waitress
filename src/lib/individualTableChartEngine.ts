@@ -189,7 +189,9 @@ export const generateAllTablesChartPDF = async (
     const tableGuests = guests.filter(guest => guest.table_id === table.id);
     const tableSettings = {
       ...settings,
-      title: `TABLE ${table.table_no || 'Unknown'}`
+      title: `TABLE ${table.table_no || 'Unknown'}`,
+      totalTables: tables.length,
+      currentTableIndex: i + 1
     };
     
     const svgContent = generateIndividualTableSVG(tableSettings, table, tableGuests, event);
@@ -399,8 +401,8 @@ export const generateIndividualTableSVG = (
         transform = 'translate(-50%, -50%)';
         
         if (guest) {
-          // Position labels further outward (+6mm additional gap from seat edge)
-          const labelOffsetPercent = 14.2; // Increased by 6mm (8.5 + 5.7)
+          // Position labels further outward - match preview offset
+          const labelOffsetPercent = 12.5; // Match preview exactly
           const labelRadiusPixels = ((37 + labelOffsetPercent) / 100) * circleBaseDimension;
           
           labelX = centerX + labelRadiusPixels * Math.cos(angle);
@@ -475,14 +477,26 @@ export const generateIndividualTableSVG = (
   return `
     <div style="width: 794px; height: 1123px; background: white; font-family: Arial, sans-serif; padding: 40px; box-sizing: border-box; display: flex; flex-direction: column; line-height: 1.4;">
       <!-- Header Section -->
-      <div style="text-align: center; margin-bottom: 25px; padding: 10px 0;">
-        <!-- Title -->
-        <div style="font-size: 18pt; font-weight: 700; color: #000000; text-align: center; margin-bottom: 15px; line-height: 1.5; padding: 5px 0;">
-          ${event.venue_name ? event.venue_name + ' - ' : ''}Table Seating Arrangements
+      <div style="text-align: center; margin-bottom: 10px; padding: 10px 0;">
+        <!-- Event Name - Purple and Bold -->
+        <div style="font-size: 14pt; font-weight: 700; color: #6D28D9; text-align: center; margin-bottom: 8px; line-height: 1.5;">
+          ${eventName}
         </div>
-        <!-- Event name and date -->
-        <div style="font-size: 18pt; font-weight: 700; color: #000000; line-height: 1.3; padding: 8px 0; display: inline-block; vertical-align: baseline;">
-          ${eventName}${event?.date ? ' - ' + formatEventDate(event.date) : ''}
+        <!-- Title and Date with Day of Week -->
+        <div style="font-size: 11pt; font-weight: 700; color: #000000; text-align: center; margin-bottom: 8px; line-height: 1.3;">
+          Table Seating Arrangements – ${event?.date ? (() => {
+            const d = new Date(event.date);
+            const day = d.getDate();
+            const suffix = day > 3 && day < 21 ? 'th' : ['th', 'st', 'nd', 'rd'][day % 10] || 'th';
+            const weekday = d.toLocaleDateString('en-GB', { weekday: 'long' });
+            const month = d.toLocaleDateString('en-GB', { month: 'long' });
+            const year = d.getFullYear();
+            return `${weekday} ${day}${suffix}, ${month} ${year}`;
+          })() : ''}
+        </div>
+        <!-- Venue, Tables, Page Info and Timestamp -->
+        <div style="font-size: 12pt; color: #000000; text-align: center; padding-bottom: 12px; margin-bottom: 12px; border-bottom: 1px solid #000000;">
+          ${event?.venue || 'Venue'} – Total Tables: ${settings.totalTables || 1} – Page ${settings.currentTableIndex || 1} of ${settings.totalTables || 1} – Generated on: ${new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: '2-digit' })} Time: ${new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false })}
         </div>
       </div>
 
@@ -572,17 +586,38 @@ export const generateIndividualTableSVG = (
       <!-- Guest List -->
       ${settings.includeGuestList ? `
         <div style="margin-bottom: 30px;">
-          <h3 style="font-size: 16pt; font-weight: 700; color: #000000; margin-bottom: 15px; padding: 5px 0; line-height: 1.4; text-align: center; text-decoration: underline;">
-            Guests on this Table & Dietary - Printed on - ${getCurrentDateTime()}
+          <h3 style="font-size: 16pt; font-weight: 600; color: #000000; margin-bottom: 15px; padding: 5px 0; line-height: 1.4; text-align: center; text-decoration: underline;">
+            Guests on this Table & Meal Selection
           </h3>
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 11pt; line-height: 1.7; padding: 5px 0; text-align: center;">
-            ${sortedGuests.map((guest, index) => `
-              <div style="display: flex; align-items: flex-start; justify-content: center; padding: 2px 0; margin: 0; line-height: 1.7; word-wrap: break-word; overflow-wrap: break-word; min-height: 20px;">
-                <span style="display: inline-block; vertical-align: baseline; margin: 0; padding: 0; line-height: inherit;">
-                  ${index + 1}. ${guest.first_name} ${guest.last_name}${settings.includeDietary && guest.dietary && guest.dietary !== 'NA' ? ` - <span style="color: #22c55e; font-weight: 700;">${guest.dietary}</span>` : ''}
-                </span>
-              </div>
-            `).join('')}
+          <div style="display: flex; font-size: 11pt; line-height: 1.35;">
+            <!-- Left Column (odd indices: 0, 2, 4...) -->
+            <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
+              ${sortedGuests.filter((_, index) => index % 2 === 0).map((guest) => {
+                const actualIndex = sortedGuests.findIndex(g => g.id === guest.id);
+                return `
+                  <div style="display: flex; align-items: flex-start; padding: 4px 0; line-height: 1.7; min-height: 20px;">
+                    <span style="width: 24px; text-align: left; flex-shrink: 0;">${actualIndex + 1}.</span>
+                    <span style="word-wrap: break-word; text-align: left;">
+                      <span style="font-weight: 700;">${guest.first_name} ${guest.last_name}</span>${settings.includeDietary && guest.dietary && guest.dietary !== 'NA' ? ` <span style="color: #6D28D9; font-weight: 700;">- ${guest.dietary}</span>` : ''}
+                    </span>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+            <!-- Right Column (even indices: 1, 3, 5...) -->
+            <div style="flex: 1; display: flex; flex-direction: column; gap: 4px; margin-left: 16px;">
+              ${sortedGuests.filter((_, index) => index % 2 === 1).map((guest) => {
+                const actualIndex = sortedGuests.findIndex(g => g.id === guest.id);
+                return `
+                  <div style="display: flex; align-items: flex-start; padding: 4px 0; line-height: 1.7; min-height: 20px;">
+                    <span style="width: 24px; text-align: left; flex-shrink: 0;">${actualIndex + 1}.</span>
+                    <span style="word-wrap: break-word; text-align: left;">
+                      <span style="font-weight: 700;">${guest.first_name} ${guest.last_name}</span>${settings.includeDietary && guest.dietary && guest.dietary !== 'NA' ? ` <span style="color: #6D28D9; font-weight: 700;">- ${guest.dietary}</span>` : ''}
+                    </span>
+                  </div>
+                `;
+              }).join('')}
+            </div>
           </div>
         </div>
       ` : ''}
