@@ -1021,12 +1021,12 @@ export const generateIndividualTableSVG = (
                       <div style="width: ${chairSize}px; height: ${chairSize}px; border-radius: 50%; background: white; border: 1px solid black; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: ${fontSize}pt;">
                         ${settings.showSeatNumbers ? bottomEnd[0].seatNumber : ''}
                       </div>
-                      ${settings.includeDietary && bottomEnd[0].guest.dietary && bottomEnd[0].guest.dietary !== 'NA' ? `
-                        <span style="color: #7c3aed; font-weight: 700; font-size: ${fontSize}pt; white-space: nowrap;">- ${bottomEnd[0].guest.dietary}</span>
-                      ` : ''}
                       <span style="text-align: center; font-weight: 500; font-size: ${fontSize}pt; white-space: nowrap;">
                         ${bottomEnd[0].guest.first_name} ${bottomEnd[0].guest.last_name}
                       </span>
+                      ${settings.includeDietary && bottomEnd[0].guest.dietary && bottomEnd[0].guest.dietary !== 'NA' ? `
+                        <span style="color: #7c3aed; font-weight: 700; font-size: ${fontSize}pt; white-space: nowrap;">- ${bottomEnd[0].guest.dietary}</span>
+                      ` : ''}
                     </div>
                   ` : `
                     <!-- Two seats - chairs close together in center, names on outer sides -->
@@ -1034,12 +1034,12 @@ export const generateIndividualTableSVG = (
                       <!-- First guest - name+dietary on left (below), chair on right -->
                       <div style="display: flex; align-items: flex-start; gap: 8px;">
                         <div style="display: flex; flex-direction: column; align-items: flex-end;">
-                          ${settings.includeDietary && bottomEnd[0].guest.dietary && bottomEnd[0].guest.dietary !== 'NA' ? `
-                            <span style="color: #7c3aed; font-weight: 700; font-size: ${fontSize}pt; white-space: nowrap; text-align: right;">- ${bottomEnd[0].guest.dietary}</span>
-                          ` : ''}
                           <span style="text-align: right; font-weight: 500; font-size: ${fontSize}pt; white-space: nowrap;">
                             ${bottomEnd[0].guest.first_name} ${bottomEnd[0].guest.last_name}
                           </span>
+                          ${settings.includeDietary && bottomEnd[0].guest.dietary && bottomEnd[0].guest.dietary !== 'NA' ? `
+                            <span style="color: #7c3aed; font-weight: 700; font-size: ${fontSize}pt; white-space: nowrap; text-align: right;">- ${bottomEnd[0].guest.dietary}</span>
+                          ` : ''}
                         </div>
                         <div style="width: ${chairSize}px; height: ${chairSize}px; border-radius: 50%; background: white; border: 1px solid black; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: ${fontSize}pt;">
                           ${settings.showSeatNumbers ? bottomEnd[0].seatNumber : ''}
@@ -1051,12 +1051,12 @@ export const generateIndividualTableSVG = (
                           ${settings.showSeatNumbers ? bottomEnd[1].seatNumber : ''}
                         </div>
                         <div style="display: flex; flex-direction: column; align-items: flex-start;">
-                          ${settings.includeDietary && bottomEnd[1].guest.dietary && bottomEnd[1].guest.dietary !== 'NA' ? `
-                            <span style="color: #7c3aed; font-weight: 700; font-size: ${fontSize}pt; white-space: nowrap; text-align: left;">- ${bottomEnd[1].guest.dietary}</span>
-                          ` : ''}
                           <span style="text-align: left; font-weight: 500; font-size: ${fontSize}pt; white-space: nowrap;">
                             ${bottomEnd[1].guest.first_name} ${bottomEnd[1].guest.last_name}
                           </span>
+                          ${settings.includeDietary && bottomEnd[1].guest.dietary && bottomEnd[1].guest.dietary !== 'NA' ? `
+                            <span style="color: #7c3aed; font-weight: 700; font-size: ${fontSize}pt; white-space: nowrap; text-align: left;">- ${bottomEnd[1].guest.dietary}</span>
+                          ` : ''}
                         </div>
                       </div>
                     </div>

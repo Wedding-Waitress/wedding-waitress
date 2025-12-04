@@ -678,6 +678,12 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
                                   >
                                     {settings.showSeatNumbers && longTableGuests.bottomEnd[0].seatNumber}
                                   </div>
+                                  <span 
+                                    className="text-center font-medium whitespace-nowrap"
+                                    style={{ fontSize: longTableScaling.fontSize }}
+                                  >
+                                    {longTableGuests.bottomEnd[0].guest.first_name} {longTableGuests.bottomEnd[0].guest.last_name}
+                                  </span>
                                   {settings.includeDietary && longTableGuests.bottomEnd[0].guest.dietary && longTableGuests.bottomEnd[0].guest.dietary !== 'NA' && (
                                     <span 
                                       className="text-primary font-bold text-center whitespace-nowrap"
@@ -686,12 +692,6 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
                                       - {longTableGuests.bottomEnd[0].guest.dietary}
                                     </span>
                                   )}
-                                  <span 
-                                    className="text-center font-medium whitespace-nowrap"
-                                    style={{ fontSize: longTableScaling.fontSize }}
-                                  >
-                                    {longTableGuests.bottomEnd[0].guest.first_name} {longTableGuests.bottomEnd[0].guest.last_name}
-                                  </span>
                                 </div>
                               </TooltipTrigger>
                               <TooltipContent>
@@ -708,6 +708,12 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
                                 <TooltipTrigger asChild>
                                   <div className="flex items-start gap-2">
                                     <div className="flex flex-col items-end">
+                                      <span 
+                                        className="text-right font-medium whitespace-nowrap"
+                                        style={{ fontSize: longTableScaling.fontSize }}
+                                      >
+                                        {longTableGuests.bottomEnd[0].guest.first_name} {longTableGuests.bottomEnd[0].guest.last_name}
+                                      </span>
                                       {settings.includeDietary && longTableGuests.bottomEnd[0].guest.dietary && longTableGuests.bottomEnd[0].guest.dietary !== 'NA' && (
                                         <span 
                                           className="text-primary font-bold text-right whitespace-nowrap"
@@ -716,12 +722,6 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
                                           - {longTableGuests.bottomEnd[0].guest.dietary}
                                         </span>
                                       )}
-                                      <span 
-                                        className="text-right font-medium whitespace-nowrap"
-                                        style={{ fontSize: longTableScaling.fontSize }}
-                                      >
-                                        {longTableGuests.bottomEnd[0].guest.first_name} {longTableGuests.bottomEnd[0].guest.last_name}
-                                      </span>
                                     </div>
                                     <div 
                                       className="rounded-full bg-white border border-black flex items-center justify-center font-bold cursor-help"
@@ -748,6 +748,12 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
                                       {settings.showSeatNumbers && longTableGuests.bottomEnd[1].seatNumber}
                                     </div>
                                     <div className="flex flex-col items-start">
+                                      <span 
+                                        className="text-left font-medium whitespace-nowrap"
+                                        style={{ fontSize: longTableScaling.fontSize }}
+                                      >
+                                        {longTableGuests.bottomEnd[1].guest.first_name} {longTableGuests.bottomEnd[1].guest.last_name}
+                                      </span>
                                       {settings.includeDietary && longTableGuests.bottomEnd[1].guest.dietary && longTableGuests.bottomEnd[1].guest.dietary !== 'NA' && (
                                         <span 
                                           className="text-primary font-bold text-left whitespace-nowrap"
@@ -756,12 +762,6 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
                                           - {longTableGuests.bottomEnd[1].guest.dietary}
                                         </span>
                                       )}
-                                      <span 
-                                        className="text-left font-medium whitespace-nowrap"
-                                        style={{ fontSize: longTableScaling.fontSize }}
-                                      >
-                                        {longTableGuests.bottomEnd[1].guest.first_name} {longTableGuests.bottomEnd[1].guest.last_name}
-                                      </span>
                                     </div>
                                   </div>
                                 </TooltipTrigger>
