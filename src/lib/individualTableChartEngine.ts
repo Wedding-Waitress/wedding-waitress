@@ -672,7 +672,7 @@ export const generateIndividualTableSVG = (
         y = centerY + radiusPixels * Math.sin(angle);
         
         // Position labels further outward - match preview offset
-        const labelOffsetPercent = 12.5; // Match preview exactly
+        const labelOffsetPercent = 8; // Match preview exactly
         const labelRadiusPixels = ((37 + labelOffsetPercent) / 100) * circleBaseDimension;
         
         labelX = centerX + labelRadiusPixels * Math.cos(angle);

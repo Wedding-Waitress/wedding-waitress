@@ -166,7 +166,7 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
         y = (yPixels / containerHeight) * 100;
         
         // Position labels further outward (+6mm additional gap from seat edge)
-        const labelOffsetPercent = 12.5; // Additional offset as percentage
+        const labelOffsetPercent = 8; // Additional offset as percentage
         const labelRadiusPixels = ((37 + labelOffsetPercent) / 100) * containerHeight;
         
         const labelXPixels = centerX + labelRadiusPixels * Math.cos(angle);
