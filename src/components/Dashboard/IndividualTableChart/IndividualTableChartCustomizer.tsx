@@ -50,7 +50,7 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
             <Label htmlFor="table-shape">Table Shape</Label>
             <Select
               value={settings.tableShape}
-              onValueChange={(value: 'round' | 'square') => 
+              onValueChange={(value: 'round' | 'square' | 'long') => 
                 onSettingsChange({ tableShape: value })
               }
             >
@@ -60,8 +60,14 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
               <SelectContent>
                 <SelectItem value="round">Round</SelectItem>
                 <SelectItem value="square">Square</SelectItem>
+                <SelectItem value="long">Long Table</SelectItem>
               </SelectContent>
             </Select>
+            {settings.tableShape === 'long' && (
+              <p className="text-xs text-muted-foreground">
+                Long tables use auto-scaling fonts and allow custom seat arrangement via the "Arrange Seats" button.
+              </p>
+            )}
           </div>
         </div>
 
@@ -119,30 +125,47 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
 
         <Separator />
 
-        {/* Text Settings */}
-        <div className="space-y-4">
-          <h3 className="font-semibold text-sm">Text Settings</h3>
-          
-          <div className="space-y-2">
-            <Label htmlFor="font-size">Font Size</Label>
-            <Select
-              value={settings.fontSize}
-              onValueChange={(value: 'small' | 'medium' | 'large') => 
-                onSettingsChange({ fontSize: value })
-              }
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="small">Small</SelectItem>
-                <SelectItem value="medium">Medium</SelectItem>
-                <SelectItem value="large">Large</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+        {/* Text Settings - Hidden for Long Table (auto-scaling) */}
+        {settings.tableShape !== 'long' && (
+          <div className="space-y-4">
+            <h3 className="font-semibold text-sm">Text Settings</h3>
+            
+            <div className="space-y-2">
+              <Label htmlFor="font-size">Font Size</Label>
+              <Select
+                value={settings.fontSize}
+                onValueChange={(value: 'small' | 'medium' | 'large') => 
+                  onSettingsChange({ fontSize: value })
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="small">Small</SelectItem>
+                  <SelectItem value="medium">Medium</SelectItem>
+                  <SelectItem value="large">Large</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
-        </div>
+          </div>
+        )}
+        
+        {settings.tableShape === 'long' && (
+          <div className="space-y-4">
+            <h3 className="font-semibold text-sm">Long Table Info</h3>
+            <p className="text-xs text-muted-foreground">
+              Font sizes automatically scale based on guest count to ensure all content fits on one A4 page.
+            </p>
+            <div className="text-xs text-muted-foreground space-y-1">
+              <p>• 20-40 guests: Normal font</p>
+              <p>• 41-60 guests: Smaller font</p>
+              <p>• 61-80 guests: Tight spacing</p>
+              <p>• 81+ guests: Minimal spacing</p>
+            </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

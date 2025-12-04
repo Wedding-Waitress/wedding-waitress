@@ -1236,6 +1236,64 @@ export type Database = {
           },
         ]
       }
+      long_table_seat_arrangements: {
+        Row: {
+          created_at: string | null
+          event_id: string
+          guest_id: string
+          id: string
+          position: number
+          side: string
+          table_id: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          event_id: string
+          guest_id: string
+          id?: string
+          position: number
+          side: string
+          table_id: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          event_id?: string
+          guest_id?: string
+          id?: string
+          position?: number
+          side?: string
+          table_id?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "long_table_seat_arrangements_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "long_table_seat_arrangements_guest_id_fkey"
+            columns: ["guest_id"]
+            isOneToOne: false
+            referencedRelation: "guests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "long_table_seat_arrangements_table_id_fkey"
+            columns: ["table_id"]
+            isOneToOne: false
+            referencedRelation: "tables"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notification_settings: {
         Row: {
           created_at: string | null
