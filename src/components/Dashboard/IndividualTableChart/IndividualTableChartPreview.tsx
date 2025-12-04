@@ -420,72 +420,98 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
                       </div>
                     </div>
                     
-                    {/* Left Side Chairs with Full Names + Dietary */}
-                    <div className="absolute left-0 top-4 bottom-4 -translate-x-[calc(50%+28px)] flex flex-col justify-around">
-                      {longTableGuests.leftSide.map((item) => (
-                        <TooltipProvider key={item.guest.id}>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <div className="flex items-center gap-1">
-                                {/* Full Guest Name + Dietary - Left of Chair */}
-                                <span 
-                                  className="text-right font-medium truncate max-w-[140px]"
-                                  style={{ fontSize: longTableScaling.fontSize }}
-                                >
-                                  {item.guest.first_name} {item.guest.last_name}
-                                  {settings.includeDietary && getDietaryIcon(item.guest.dietary) && (
-                                    <span className="ml-1">{getDietaryIcon(item.guest.dietary)}</span>
-                                  )}
-                                </span>
-                                {/* Chair Circle */}
+                    {/* Left Side Chairs with Full Names + Dietary - Perfect Straight Line */}
+                    <div className="absolute left-0 top-4 bottom-4" style={{ transform: 'translateX(calc(-100% - 28px))' }}>
+                      {longTableGuests.leftSide.map((item, index) => {
+                        // Calculate even spacing for perfect straight line
+                        const totalGuests = longTableGuests.leftSide.length;
+                        const topPercent = totalGuests === 1 ? 50 : (index / (totalGuests - 1)) * 100;
+                        
+                        return (
+                          <TooltipProvider key={item.guest.id}>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
                                 <div 
-                                  className="rounded-full bg-white border border-black flex items-center justify-center font-bold cursor-help flex-shrink-0"
-                                  style={{ width: longTableScaling.chairSize, height: longTableScaling.chairSize, fontSize: longTableScaling.fontSize }}
+                                  className="absolute flex items-center gap-1"
+                                  style={{ 
+                                    top: `${topPercent}%`, 
+                                    right: 0,
+                                    transform: 'translateY(-50%)'
+                                  }}
                                 >
-                                  {settings.showSeatNumbers && item.seatNumber}
+                                  {/* Full Guest Name + Dietary Text - Left of Chair */}
+                                  <span 
+                                    className="text-right font-medium whitespace-nowrap"
+                                    style={{ fontSize: longTableScaling.fontSize }}
+                                  >
+                                    {item.guest.first_name} {item.guest.last_name}
+                                    {settings.includeDietary && item.guest.dietary && item.guest.dietary !== 'NA' && (
+                                      <span className="text-primary font-bold ml-1">- {item.guest.dietary}</span>
+                                    )}
+                                  </span>
+                                  {/* Chair Circle */}
+                                  <div 
+                                    className="rounded-full bg-white border border-black flex items-center justify-center font-bold cursor-help flex-shrink-0"
+                                    style={{ width: longTableScaling.chairSize, height: longTableScaling.chairSize, fontSize: longTableScaling.fontSize }}
+                                  >
+                                    {settings.showSeatNumbers && item.seatNumber}
+                                  </div>
                                 </div>
-                              </div>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>{item.guest.first_name} {item.guest.last_name}{item.guest.dietary && item.guest.dietary !== 'NA' ? ` - ${item.guest.dietary}` : ''}</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                      ))}
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>{item.guest.first_name} {item.guest.last_name}{item.guest.dietary && item.guest.dietary !== 'NA' ? ` - ${item.guest.dietary}` : ''}</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        );
+                      })}
                     </div>
                     
-                    {/* Right Side Chairs with Full Names + Dietary */}
-                    <div className="absolute right-0 top-4 bottom-4 translate-x-[calc(50%+28px)] flex flex-col justify-around">
-                      {longTableGuests.rightSide.map((item) => (
-                        <TooltipProvider key={item.guest.id}>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <div className="flex items-center gap-1">
-                                {/* Chair Circle */}
+                    {/* Right Side Chairs with Full Names + Dietary - Perfect Straight Line */}
+                    <div className="absolute right-0 top-4 bottom-4" style={{ transform: 'translateX(calc(100% + 28px))' }}>
+                      {longTableGuests.rightSide.map((item, index) => {
+                        // Calculate even spacing for perfect straight line
+                        const totalGuests = longTableGuests.rightSide.length;
+                        const topPercent = totalGuests === 1 ? 50 : (index / (totalGuests - 1)) * 100;
+                        
+                        return (
+                          <TooltipProvider key={item.guest.id}>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
                                 <div 
-                                  className="rounded-full bg-white border border-black flex items-center justify-center font-bold cursor-help flex-shrink-0"
-                                  style={{ width: longTableScaling.chairSize, height: longTableScaling.chairSize, fontSize: longTableScaling.fontSize }}
+                                  className="absolute flex items-center gap-1"
+                                  style={{ 
+                                    top: `${topPercent}%`, 
+                                    left: 0,
+                                    transform: 'translateY(-50%)'
+                                  }}
                                 >
-                                  {settings.showSeatNumbers && item.seatNumber}
+                                  {/* Chair Circle */}
+                                  <div 
+                                    className="rounded-full bg-white border border-black flex items-center justify-center font-bold cursor-help flex-shrink-0"
+                                    style={{ width: longTableScaling.chairSize, height: longTableScaling.chairSize, fontSize: longTableScaling.fontSize }}
+                                  >
+                                    {settings.showSeatNumbers && item.seatNumber}
+                                  </div>
+                                  {/* Full Guest Name + Dietary Text - Right of Chair */}
+                                  <span 
+                                    className="text-left font-medium whitespace-nowrap"
+                                    style={{ fontSize: longTableScaling.fontSize }}
+                                  >
+                                    {item.guest.first_name} {item.guest.last_name}
+                                    {settings.includeDietary && item.guest.dietary && item.guest.dietary !== 'NA' && (
+                                      <span className="text-primary font-bold ml-1">- {item.guest.dietary}</span>
+                                    )}
+                                  </span>
                                 </div>
-                                {/* Full Guest Name + Dietary - Right of Chair */}
-                                <span 
-                                  className="text-left font-medium truncate max-w-[140px]"
-                                  style={{ fontSize: longTableScaling.fontSize }}
-                                >
-                                  {item.guest.first_name} {item.guest.last_name}
-                                  {settings.includeDietary && getDietaryIcon(item.guest.dietary) && (
-                                    <span className="ml-1">{getDietaryIcon(item.guest.dietary)}</span>
-                                  )}
-                                </span>
-                              </div>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>{item.guest.first_name} {item.guest.last_name}{item.guest.dietary && item.guest.dietary !== 'NA' ? ` - ${item.guest.dietary}` : ''}</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                      ))}
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>{item.guest.first_name} {item.guest.last_name}{item.guest.dietary && item.guest.dietary !== 'NA' ? ` - ${item.guest.dietary}` : ''}</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        );
+                      })}
                     </div>
                   </div>
                 </div>
