@@ -106,11 +106,12 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
   // Format event date for display
   const eventDate = selectedEvent?.date ? format(new Date(selectedEvent.date), 'PPP') : '';
 
-  // Check if table has too many guests for round/square shape
+  // Check if table capacity exceeds limit for round/square shape
   const isTableTooLargeForShape = useMemo(() => {
+    const tableCapacity = selectedTable?.limit_seats || 0;
     return (settings.tableShape === 'round' || settings.tableShape === 'square') 
-      && tableGuests.length > 20;
-  }, [settings.tableShape, tableGuests.length]);
+      && tableCapacity > 20;
+  }, [settings.tableShape, selectedTable?.limit_seats]);
 
   // Show warning when table is too large for selected shape
   useEffect(() => {
@@ -451,7 +452,7 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
               </div>
               <CardTitle className="mb-2 text-amber-600">Table Has Too Many Guests</CardTitle>
               <CardDescription className="text-base">
-                This table has {tableGuests.length} guests. Round and Square tables can only display up to 20 guests.
+                This table has a capacity of {selectedTable?.limit_seats || 0} guests. Round and Square tables can only display up to 20 guests.
                 <br /><br />
                 Please select <strong>Long Table</strong> in Chart Settings to view this table.
               </CardDescription>
