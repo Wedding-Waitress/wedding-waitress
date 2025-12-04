@@ -1776,6 +1776,7 @@ export type Database = {
           name: string
           notes: string | null
           table_no: number | null
+          table_type: string | null
           updated_at: string
           user_id: string
         }
@@ -1787,6 +1788,7 @@ export type Database = {
           name: string
           notes?: string | null
           table_no?: number | null
+          table_type?: string | null
           updated_at?: string
           user_id: string
         }
@@ -1798,6 +1800,7 @@ export type Database = {
           name?: string
           notes?: string | null
           table_no?: number | null
+          table_type?: string | null
           updated_at?: string
           user_id?: string
         }

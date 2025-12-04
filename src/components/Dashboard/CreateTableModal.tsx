@@ -48,11 +48,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { TableWithGuestCount } from '@/hooks/useTables';
 import { useToast } from '@/hooks/use-toast';
+import { Circle, Square, RectangleHorizontal } from 'lucide-react';
+
+export type TableType = 'round' | 'square' | 'long';
 
 interface CreateTableModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (data: { name: string; limit_seats: number; notes?: string; table_no?: number | null }) => Promise<boolean>;
+  onSave: (data: { name: string; limit_seats: number; notes?: string; table_no?: number | null; table_type?: TableType }) => Promise<boolean>;
   editingTable?: TableWithGuestCount | null;
   existingTables?: TableWithGuestCount[];
   eventGuestLimit?: number;
@@ -71,11 +74,22 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
   const [name, setName] = useState('');
   const [limitSeats, setLimitSeats] = useState<number>(8);
   const [notes, setNotes] = useState('');
+  const [tableType, setTableType] = useState<TableType>('round');
   const [errors, setErrors] = useState<{ name?: string; limitSeats?: string }>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [validationState, setValidationState] = useState<'idle' | 'valid' | 'invalid' | 'duplicate'>('idle');
   const [showWarningDialog, setShowWarningDialog] = useState(false);
   const { toast } = useToast();
+
+  // Get min/max limits based on table type
+  const getTableLimits = (type: TableType) => {
+    if (type === 'long') {
+      return { min: 20, max: 124 };
+    }
+    return { min: 1, max: 20 };
+  };
+
+  const limits = getTableLimits(tableType);
 
   useEffect(() => {
     if (isOpen) {
@@ -83,15 +97,36 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
         setName(editingTable.name);
         setLimitSeats(editingTable.limit_seats);
         setNotes(editingTable.notes || '');
+        // Pre-populate table type from database, default to 'round' if null
+        setTableType((editingTable as any).table_type || 'round');
       } else {
         setName('');
         setLimitSeats(8);
         setNotes('');
+        setTableType('round');
       }
       setErrors({});
       setValidationState('idle');
     }
   }, [isOpen, editingTable]);
+
+  // Auto-adjust seat limit when switching table types
+  const handleTableTypeChange = (newType: TableType) => {
+    const newLimits = getTableLimits(newType);
+    setTableType(newType);
+    
+    // Auto-adjust limit if current value is outside new range
+    if (limitSeats < newLimits.min) {
+      setLimitSeats(newLimits.min);
+    } else if (limitSeats > newLimits.max) {
+      setLimitSeats(newLimits.max);
+    }
+    
+    // Clear limit error since we auto-adjusted
+    if (errors.limitSeats) {
+      setErrors(prev => ({ ...prev, limitSeats: undefined }));
+    }
+  };
 
   const calculateCapacityInfo = () => {
     if (!eventGuestLimit) return null;
@@ -150,8 +185,15 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
       newErrors.name = 'Table name is required';
     }
     
-    if (!limitSeats || limitSeats < 1 || limitSeats > 30) {
-      newErrors.limitSeats = 'Table limit must be between 1 and 30';
+    // Dynamic validation based on table type
+    if (tableType === 'long') {
+      if (!limitSeats || limitSeats < 20 || limitSeats > 124) {
+        newErrors.limitSeats = 'Long table limit must be between 20 and 124';
+      }
+    } else {
+      if (!limitSeats || limitSeats < 1 || limitSeats > 20) {
+        newErrors.limitSeats = 'Table limit must be between 1 and 20';
+      }
     }
 
     // Check for duplicates
@@ -202,7 +244,8 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
         name: trimmedName,
         limit_seats: limitSeats,
         notes: notes.trim() || undefined,
-        table_no: tableNo
+        table_no: tableNo,
+        table_type: tableType
       });
 
       setIsSubmitting(false);
@@ -225,6 +268,18 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
   const handleClose = () => {
     if (!isSubmitting) {
       onClose();
+    }
+  };
+
+  // Get helper text based on table type
+  const getTableTypeHelperText = () => {
+    switch (tableType) {
+      case 'round':
+        return 'Maximum round table limit is 1 to 20 guests';
+      case 'square':
+        return 'Maximum square table limit is 1 to 20 guests';
+      case 'long':
+        return 'Maximum long table limit is 20 to 124 guests';
     }
   };
 
@@ -274,13 +329,70 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
             )}
           </div>
 
+          {/* Table Type Selection */}
+          <div className="grid gap-2">
+            <Label>Are you creating a... *</Label>
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => handleTableTypeChange('round')}
+                disabled={isSubmitting}
+                className={`flex-1 flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all ${
+                  tableType === 'round'
+                    ? 'border-[#7248e6] bg-purple-50'
+                    : 'border-gray-200 hover:border-gray-300'
+                }`}
+              >
+                <Circle className={`w-8 h-8 ${tableType === 'round' ? 'text-[#7248e6]' : 'text-gray-400'}`} />
+                <span className={`text-sm font-medium ${tableType === 'round' ? 'text-[#7248e6]' : 'text-gray-600'}`}>
+                  Round Table
+                </span>
+              </button>
+              
+              <button
+                type="button"
+                onClick={() => handleTableTypeChange('square')}
+                disabled={isSubmitting}
+                className={`flex-1 flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all ${
+                  tableType === 'square'
+                    ? 'border-[#7248e6] bg-purple-50'
+                    : 'border-gray-200 hover:border-gray-300'
+                }`}
+              >
+                <Square className={`w-8 h-8 ${tableType === 'square' ? 'text-[#7248e6]' : 'text-gray-400'}`} />
+                <span className={`text-sm font-medium ${tableType === 'square' ? 'text-[#7248e6]' : 'text-gray-600'}`}>
+                  Square Table
+                </span>
+              </button>
+              
+              <button
+                type="button"
+                onClick={() => handleTableTypeChange('long')}
+                disabled={isSubmitting}
+                className={`flex-1 flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all ${
+                  tableType === 'long'
+                    ? 'border-[#7248e6] bg-purple-50'
+                    : 'border-gray-200 hover:border-gray-300'
+                }`}
+              >
+                <RectangleHorizontal className={`w-8 h-8 ${tableType === 'long' ? 'text-[#7248e6]' : 'text-gray-400'}`} />
+                <span className={`text-sm font-medium ${tableType === 'long' ? 'text-[#7248e6]' : 'text-gray-600'}`}>
+                  Long Table
+                </span>
+              </button>
+            </div>
+            <p className="text-sm text-red-600 font-medium mt-1">
+              {getTableTypeHelperText()}
+            </p>
+          </div>
+
           <div className="grid gap-2">
             <Label htmlFor="limit">Table Limit *</Label>
             <Input
               id="limit"
               type="number"
-              min="1"
-              max="30"
+              min={limits.min}
+              max={limits.max}
               value={limitSeats}
               onChange={(e) => {
                 setLimitSeats(parseInt(e.target.value) || 0);
