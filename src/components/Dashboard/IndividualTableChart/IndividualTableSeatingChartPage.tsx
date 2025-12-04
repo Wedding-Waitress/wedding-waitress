@@ -24,44 +24,10 @@ import { format } from 'date-fns';
 import { IndividualTableChartPreview } from './IndividualTableChartPreview';
 import { IndividualTableChartCustomizer } from './IndividualTableChartCustomizer';
 import { exportIndividualTableChartToDocx, exportAllTablesChartToDocx } from '@/lib/individualTableChartDocxExporter';
-import { generateIndividualTableChartPDF, generateAllTablesChartPDF } from '@/lib/individualTableChartEngine';
+import { generateIndividualTableChartPDF, generateAllTablesChartPDF, printIndividualTableChart, printAllTablesChart } from '@/lib/individualTableChartEngine';
 import { saveAs } from 'file-saver';
 import { toast } from 'sonner';
 
-// Print styles for clean browser printing
-const printStyles = `
-  @media print {
-    @page {
-      size: A4 portrait;
-      margin: 0;
-    }
-    
-    body * {
-      visibility: hidden;
-    }
-    
-    #printA4-individual-table,
-    #printA4-individual-table * {
-      visibility: visible;
-    }
-    
-    #printA4-individual-table {
-      position: absolute;
-      left: 0;
-      top: 0;
-      width: 210mm;
-      height: 297mm;
-    }
-    
-    /* Hide non-print elements */
-    button,
-    .no-print,
-    header,
-    nav {
-      display: none !important;
-    }
-  }
-`;
 
 export interface IndividualChartSettings {
   tableShape: 'round' | 'square';
@@ -110,16 +76,6 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
 
   const selectedEvent = events.find(event => event.id === selectedEventId);
 
-  // Inject print styles into document
-  useEffect(() => {
-    const styleElement = document.createElement('style');
-    styleElement.textContent = printStyles;
-    document.head.appendChild(styleElement);
-    
-    return () => {
-      document.head.removeChild(styleElement);
-    };
-  }, []);
 
   // Format event date for display
   const eventDate = selectedEvent?.date ? format(new Date(selectedEvent.date), 'PPP') : '';
@@ -252,29 +208,41 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
   };
 
   const handlePrint = () => {
-    if (!selectedEvent || !selectedTableId) return;
+    if (!selectedEvent || !selectedTableId || !selectedTable) return;
     
     setIsPrinting(true);
     
-    toast.info('Opening Print Dialog', {
-      description: `Preparing Table ${selectedTable?.table_no} for printing...`,
-    });
-    
-    // Small delay to show toast before print dialog
-    setTimeout(() => {
-      window.print();
+    try {
+      const printSettings = {
+        ...settings,
+        totalTables: tables.length,
+        currentTableIndex: tables.findIndex(t => t.id === selectedTableId) + 1
+      };
+      
+      printIndividualTableChart(printSettings, selectedTable, guests, selectedEvent);
+      toast.success(`Print dialog opened for Table ${selectedTable.table_no}`);
+    } catch (error) {
+      console.error('Print error:', error);
+      toast.error('Failed to open print dialog. Please allow popups for this site.');
+    } finally {
       setIsPrinting(false);
-    }, 500);
+    }
   };
 
   const handlePrintAll = () => {
     if (!selectedEvent || tables.length === 0) return;
     
-    toast.info('Print All Tables', {
-      description: 'To print all tables, use "Download All PDF" for best results. This will print the current table only.',
-    });
+    setIsPrinting(true);
     
-    handlePrint();
+    try {
+      printAllTablesChart(settings, tables, guests, selectedEvent);
+      toast.success(`Print dialog opened for ${tables.length} tables`);
+    } catch (error) {
+      console.error('Print all error:', error);
+      toast.error('Failed to open print dialog. Please allow popups for this site.');
+    } finally {
+      setIsPrinting(false);
+    }
   };
 
   const selectedTable = tables.find(table => table.id === selectedTableId);
