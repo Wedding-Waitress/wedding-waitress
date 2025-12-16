@@ -23,13 +23,6 @@ import {
   useDroppable,
   useDraggable
 } from '@dnd-kit/core';
-import {
-  arrayMove,
-  SortableContext,
-  sortableKeyboardCoordinates,
-  verticalListSortingStrategy,
-  useSortable
-} from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { GripVertical, RotateCcw, Save, Users } from 'lucide-react';
 import { Guest } from '@/hooks/useGuests';
@@ -52,14 +45,16 @@ const DroppableZone: React.FC<{
   title: string;
   children: React.ReactNode;
   className?: string;
-}> = ({ id, title, children, className }) => {
+  compact?: boolean;
+}> = ({ id, title, children, className, compact }) => {
   const { setNodeRef, isOver } = useDroppable({ id });
   
   return (
     <div
       ref={setNodeRef}
       className={cn(
-        'flex-1 min-h-[200px] p-3 rounded-lg border-2 border-dashed transition-colors',
+        'flex-1 p-3 rounded-lg border-2 border-dashed transition-colors',
+        compact ? 'min-h-[60px]' : 'min-h-[200px]',
         isOver ? 'border-primary bg-primary/10' : 'border-muted-foreground/30 bg-muted/30',
         className
       )}
@@ -83,13 +78,11 @@ const DraggableGuestCard: React.FC<{
     listeners,
     setNodeRef,
     transform,
-    transition,
     isDragging,
-  } = useSortable({ id: `${side}-${guest.id}` });
+  } = useDraggable({ id: `${side}-${guest.id}` });
 
   const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
+    transform: CSS.Translate.toString(transform),
   };
 
   // Get dietary icon
@@ -163,12 +156,10 @@ export const LongTableArrangementModal: React.FC<LongTableArrangementModalProps>
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
-        distance: 8, // Require 8px movement before drag starts
+        distance: 8,
       },
     }),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
+    useSensor(KeyboardSensor)
   );
 
   useEffect(() => {
@@ -209,7 +200,7 @@ export const LongTableArrangementModal: React.FC<LongTableArrangementModalProps>
     const overIdStr = over.id as string;
     
     // Parse active item
-    const [activeSide, activeGuestId] = activeIdStr.split('-');
+    const [, activeGuestId] = activeIdStr.split('-');
     const activeGuest = arrangement.find(a => a.guest.id === activeGuestId);
     
     if (!activeGuest) return;
@@ -320,20 +311,15 @@ export const LongTableArrangementModal: React.FC<LongTableArrangementModalProps>
           <ScrollArea className="flex-1 min-h-0 pr-4">
             <div className="space-y-4">
               {/* Top End */}
-              <DroppableZone id="T" title="Top End (Optional)" className="bg-amber-50">
-                <SortableContext 
-                  items={guestsBySide.T.map(a => `T-${a.guest.id}`)} 
-                  strategy={verticalListSortingStrategy}
-                >
-                  {guestsBySide.T.map((item, idx) => (
-                    <DraggableGuestCard 
-                      key={item.guest.id} 
-                      guest={item.guest} 
-                      position={idx + 1}
-                      side="T"
-                    />
-                  ))}
-                </SortableContext>
+              <DroppableZone id="T" title="Top End (Optional)" className="bg-amber-50" compact>
+                {guestsBySide.T.map((item, idx) => (
+                  <DraggableGuestCard 
+                    key={item.guest.id} 
+                    guest={item.guest} 
+                    position={idx + 1}
+                    side="T"
+                  />
+                ))}
                 {guestsBySide.T.length === 0 && (
                   <p className="text-xs text-muted-foreground text-center py-2">
                     Drop guests here for the top end of the table
@@ -345,19 +331,14 @@ export const LongTableArrangementModal: React.FC<LongTableArrangementModalProps>
               <div className="flex gap-4">
                 {/* Side A */}
                 <DroppableZone id="A" title="Side A (Left)">
-                  <SortableContext 
-                    items={guestsBySide.A.map(a => `A-${a.guest.id}`)} 
-                    strategy={verticalListSortingStrategy}
-                  >
-                    {guestsBySide.A.map((item, idx) => (
-                      <DraggableGuestCard 
-                        key={item.guest.id} 
-                        guest={item.guest} 
-                        position={idx + 1}
-                        side="A"
-                      />
-                    ))}
-                  </SortableContext>
+                  {guestsBySide.A.map((item, idx) => (
+                    <DraggableGuestCard 
+                      key={item.guest.id} 
+                      guest={item.guest} 
+                      position={idx + 1}
+                      side="A"
+                    />
+                  ))}
                   {guestsBySide.A.length === 0 && (
                     <p className="text-xs text-muted-foreground text-center py-4">
                       Drop guests here
@@ -367,19 +348,14 @@ export const LongTableArrangementModal: React.FC<LongTableArrangementModalProps>
 
                 {/* Side B */}
                 <DroppableZone id="B" title="Side B (Right)">
-                  <SortableContext 
-                    items={guestsBySide.B.map(a => `B-${a.guest.id}`)} 
-                    strategy={verticalListSortingStrategy}
-                  >
-                    {guestsBySide.B.map((item, idx) => (
-                      <DraggableGuestCard 
-                        key={item.guest.id} 
-                        guest={item.guest} 
-                        position={idx + 1}
-                        side="B"
-                      />
-                    ))}
-                  </SortableContext>
+                  {guestsBySide.B.map((item, idx) => (
+                    <DraggableGuestCard 
+                      key={item.guest.id} 
+                      guest={item.guest} 
+                      position={idx + 1}
+                      side="B"
+                    />
+                  ))}
                   {guestsBySide.B.length === 0 && (
                     <p className="text-xs text-muted-foreground text-center py-4">
                       Drop guests here
@@ -389,20 +365,15 @@ export const LongTableArrangementModal: React.FC<LongTableArrangementModalProps>
               </div>
 
               {/* Bottom End */}
-              <DroppableZone id="E" title="Bottom End (Optional)" className="bg-amber-50">
-                <SortableContext 
-                  items={guestsBySide.E.map(a => `E-${a.guest.id}`)} 
-                  strategy={verticalListSortingStrategy}
-                >
-                  {guestsBySide.E.map((item, idx) => (
-                    <DraggableGuestCard 
-                      key={item.guest.id} 
-                      guest={item.guest} 
-                      position={idx + 1}
-                      side="E"
-                    />
-                  ))}
-                </SortableContext>
+              <DroppableZone id="E" title="Bottom End (Optional)" className="bg-amber-50" compact>
+                {guestsBySide.E.map((item, idx) => (
+                  <DraggableGuestCard 
+                    key={item.guest.id} 
+                    guest={item.guest} 
+                    position={idx + 1}
+                    side="E"
+                  />
+                ))}
                 {guestsBySide.E.length === 0 && (
                   <p className="text-xs text-muted-foreground text-center py-2">
                     Drop guests here for the bottom end of the table
