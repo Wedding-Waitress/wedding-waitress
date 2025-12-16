@@ -50,7 +50,7 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
-import { X, AlertCircle, Users, Utensils, Calendar, MapPin, Plus } from 'lucide-react';
+import { X, AlertCircle, Users, Utensils, Calendar, MapPin, Plus, RefreshCw } from 'lucide-react';
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useTables } from "@/hooks/useTables";
@@ -104,7 +104,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
   const [relationSelectorOpen, setRelationSelectorOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [pendingFamilyMembers, setPendingFamilyMembers] = useState<string[]>([]);
-  const [takenSeats, setTakenSeats] = useState<{[key: string]: {seatNo: number, guestName: string}[]}>({});
+  const [takenSeats, setTakenSeats] = useState<{[key: string]: {seatNo: number, guestName: string, guestId: string}[]}>({});
   const [relationSettings, setRelationSettings] = useState({
     relation_required: true,
     relation_allow_custom_role: false,
@@ -112,6 +112,10 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
     relation_disable_first_guest_alert: false,
     custom_roles: [] as string[]
   });
+  
+  // Swap seat functionality
+  const [swapWithGuestId, setSwapWithGuestId] = useState<string | null>(null);
+  const [sameTableGuests, setSameTableGuests] = useState<{id: string, name: string, seat_no: number}[]>([]);
 
   // Guest type selection state
   const [guestType, setGuestType] = useState<'individual' | 'couple' | 'family'>('individual');
@@ -227,6 +231,8 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
     setPartyMembers([]);
     setShowAddMemberForm(false);
     setMemberForm({ first_name: '', last_name: '', mobile: '', email: '', dietary: 'None' });
+    setSwapWithGuestId(null);
+    setSameTableGuests([]);
     onClose();
   };
 
@@ -264,6 +270,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
   const fetchTakenSeats = useCallback(async (tableId: string) => {
     if (!tableId || tableId === "none") {
       setTakenSeats(prev => ({ ...prev, [tableId]: [] }));
+      setSameTableGuests([]);
       return;
     }
 
@@ -277,20 +284,35 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
 
       if (error) throw error;
 
-      const taken = (data || [])
+      const allGuests = (data || []).map(guest => ({
+        seatNo: guest.seat_no!,
+        guestName: `${guest.first_name} ${guest.last_name || ''}`.trim(),
+        guestId: guest.id
+      }));
+
+      // For swap dropdown: show all other guests on the same table (exclude current guest)
+      if (isEdit && editGuest) {
+        const otherGuests = allGuests
+          .filter(g => g.guestId !== editGuest.id)
+          .map(g => ({
+            id: g.guestId,
+            name: g.guestName,
+            seat_no: g.seatNo
+          }));
+        setSameTableGuests(otherGuests);
+      }
+
+      const taken = allGuests
         .filter(guest => 
           // Exclude current guest when editing
-          isEdit && editGuest ? guest.id !== editGuest.id : true
-        )
-        .map(guest => ({
-          seatNo: guest.seat_no!,
-          guestName: `${guest.first_name} ${guest.last_name || ''}`.trim()
-        }));
+          isEdit && editGuest ? guest.guestId !== editGuest.id : true
+        );
 
       setTakenSeats(prev => ({ ...prev, [tableId]: taken }));
     } catch (error) {
       console.error('Error fetching taken seats:', error);
       setTakenSeats(prev => ({ ...prev, [tableId]: [] }));
+      setSameTableGuests([]);
     }
   }, [eventId, isEdit, editGuest]);
 
@@ -324,6 +346,13 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
       };
     }
   }, [takenSeats, isEdit, editGuest]);
+
+  // Fetch same-table guests when editing and table has a seat
+  useEffect(() => {
+    if (isEdit && editGuest?.table_id && editGuest?.seat_no) {
+      fetchTakenSeats(editGuest.table_id);
+    }
+  }, [isEdit, editGuest?.table_id, editGuest?.seat_no, fetchTakenSeats]);
 
   // Auto-select first free seat when table is chosen
   const handleTableChange = useCallback((newTableId: string) => {
@@ -470,6 +499,32 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
       };
 
       if (isEdit && editGuest) {
+        // Handle seat swap if selected
+        if (swapWithGuestId && editGuest.seat_no) {
+          const swapGuest = sameTableGuests.find(g => g.id === swapWithGuestId);
+          if (swapGuest) {
+            // Update the other guest to take current guest's seat
+            const { error: swapError } = await supabase
+              .from('guests')
+              .update({ seat_no: editGuest.seat_no })
+              .eq('id', swapWithGuestId);
+            
+            if (swapError) {
+              console.error('Error swapping seat:', swapError);
+              toast({
+                title: "Swap Failed",
+                description: "Failed to swap seats. Please try again.",
+                variant: "destructive",
+              });
+              setLoading(false);
+              return;
+            }
+            
+            // Update current guest to take the other guest's seat
+            finalGuestData.seat_no = swapGuest.seat_no;
+          }
+        }
+
         // Update existing guest
         const { error } = await supabase
           .from('guests')
@@ -883,6 +938,35 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                 )}
               />
             </div>
+
+            {/* Swap Seat With - Only shown when editing a seated guest */}
+            {isEdit && editGuest?.seat_no && sameTableGuests.length > 0 && (
+              <div className="space-y-2">
+                <Label className="flex items-center gap-2 text-sm font-medium">
+                  <RefreshCw className="w-4 h-4" />
+                  Swap Seat With
+                </Label>
+                <Select 
+                  value={swapWithGuestId || "none"} 
+                  onValueChange={(value) => setSwapWithGuestId(value === "none" ? null : value)}
+                >
+                  <SelectTrigger className="w-full border-2 border-[#7248e6] hover:border-[#7248e6] focus:border-[#7248e6] focus:border-[3px] focus:ring-0 focus:outline-none rounded-full">
+                    <SelectValue placeholder="Select guest to swap seats with..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">Don't swap</SelectItem>
+                    {sameTableGuests.map(guest => (
+                      <SelectItem key={guest.id} value={guest.id}>
+                        {guest.name} — Seat {guest.seat_no}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">
+                  Select a guest to swap seats with. Both guests' seat numbers will be exchanged.
+                </p>
+              </div>
+            )}
 
             {/* RSVP Date */}
             <FormField
