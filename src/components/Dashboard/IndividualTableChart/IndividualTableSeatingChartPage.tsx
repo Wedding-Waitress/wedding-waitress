@@ -15,7 +15,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Users, FileText, Move, AlertTriangle } from 'lucide-react';
+import { Users, FileText, AlertTriangle } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogContent,
@@ -28,11 +28,9 @@ import {
 import { useEvents } from '@/hooks/useEvents';
 import { useTables } from '@/hooks/useTables';
 import { useRealtimeGuests } from '@/hooks/useRealtimeGuests';
-import { useLongTableArrangement } from '@/hooks/useLongTableArrangement';
 import { format } from 'date-fns';
 import { IndividualTableChartPreview } from './IndividualTableChartPreview';
 import { IndividualTableChartCustomizer } from './IndividualTableChartCustomizer';
-import { LongTableArrangementModal } from './LongTableArrangementModal';
 import { generateIndividualTableChartPDF, generateAllTablesChartPDF } from '@/lib/individualTableChartEngine';
 import { saveAs } from 'file-saver';
 import { toast } from 'sonner';
@@ -82,20 +80,12 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
   const [settings, setSettings] = useState<IndividualChartSettings>(defaultSettings);
   const [isExporting, setIsExporting] = useState(false);
   const [isExportingAll, setIsExportingAll] = useState(false);
-  const [isArrangementModalOpen, setIsArrangementModalOpen] = useState(false);
   const [longTableSuggestionShown, setLongTableSuggestionShown] = useState<Set<string>>(new Set());
   const [showGuestLimitWarning, setShowGuestLimitWarning] = useState(false);
 
   const { events, loading: eventsLoading } = useEvents();
   const { tables, loading: tablesLoading } = useTables(selectedEventId);
   const { guests, loading: guestsLoading } = useRealtimeGuests(selectedEventId);
-  
-  // Long table arrangement hook
-  const { 
-    getArrangedGuests, 
-    saveArrangements, 
-    resetToDefault 
-  } = useLongTableArrangement(selectedEventId, selectedTableId);
 
   const selectedEvent = events.find(event => event.id === selectedEventId);
   const selectedTable = tables.find(table => table.id === selectedTableId);
@@ -233,9 +223,6 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
 
   const isDataReady = selectedEvent && selectedTable && !tablesLoading && !guestsLoading;
 
-  // Get arranged guests for long table
-  const arrangedGuests = settings.tableShape === 'long' ? getArrangedGuests(tableGuests) : [];
-
   return (
     <div className="space-y-6">
       {/* Guest Limit Warning Dialog */}
@@ -257,17 +244,6 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-
-      {/* Long Table Arrangement Modal */}
-      <LongTableArrangementModal
-        isOpen={isArrangementModalOpen}
-        onClose={() => setIsArrangementModalOpen(false)}
-        guests={tableGuests}
-        initialArrangement={arrangedGuests}
-        onSave={saveArrangements}
-        onReset={resetToDefault}
-        tableName={`Table ${selectedTable?.table_no ?? selectedTable?.name ?? 'Unknown'}`}
-      />
       {/* Event and Table Selection */}
       <Card className="ww-box">
         <CardHeader className="space-y-4">
@@ -310,17 +286,6 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
                     <FileText className="w-4 h-4" />
                     {isExportingAll ? `Exporting ${tables.length} tables...` : 'Download All PDF'}
                   </Button>
-                  {settings.tableShape === 'long' && (
-                    <Button 
-                      variant="outline"
-                      size="xs"
-                      onClick={() => setIsArrangementModalOpen(true)}
-                      className="rounded-full flex items-center gap-2"
-                    >
-                      <Move className="w-4 h-4" />
-                      Arrange Seats
-                  </Button>
-                  )}
                 </div>
               </div>
             )}
