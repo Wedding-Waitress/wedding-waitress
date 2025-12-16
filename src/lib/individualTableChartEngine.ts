@@ -822,8 +822,8 @@ export const generateIndividualTableSVG = (
           
           // Calculate scaling based on guest count - MATCHING PREVIEW
           const count = sortedGuests.length;
-          const chairSize = count <= 40 ? 32 : count <= 60 ? 26 : count <= 80 ? 22 : 18;
-          const fontSize = count <= 40 ? 11 : count <= 60 ? 9 : count <= 80 ? 8 : 7;
+          const chairSize = count <= 40 ? 40 : count <= 60 ? 34 : count <= 80 ? 28 : 22;
+          const fontSize = count <= 40 ? 14 : count <= 60 ? 12 : count <= 80 ? 10 : 9;
           
           // Use larger table height for proper spacing - matching preview
           const tableHeight = 680;
