@@ -161,7 +161,11 @@ export const LongTableArrangementModal: React.FC<LongTableArrangementModalProps>
   const [isSaving, setIsSaving] = useState(false);
 
   const sensors = useSensors(
-    useSensor(PointerSensor),
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8, // Require 8px movement before drag starts
+      },
+    }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     })
@@ -295,7 +299,7 @@ export const LongTableArrangementModal: React.FC<LongTableArrangementModalProps>
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+      <DialogContent className="max-w-4xl h-[85vh] flex flex-col">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Users className="w-5 h-5 text-primary" />
@@ -313,7 +317,7 @@ export const LongTableArrangementModal: React.FC<LongTableArrangementModalProps>
           onDragStart={handleDragStart}
           onDragEnd={handleDragEnd}
         >
-          <ScrollArea className="flex-1 pr-4">
+          <ScrollArea className="flex-1 min-h-0 pr-4">
             <div className="space-y-4">
               {/* Top End */}
               <DroppableZone id="T" title="Top End (Optional)" className="bg-amber-50">
@@ -405,6 +409,9 @@ export const LongTableArrangementModal: React.FC<LongTableArrangementModalProps>
                   </p>
                 )}
               </DroppableZone>
+              
+              {/* Spacer to ensure bottom content isn't cut off */}
+              <div className="h-4" />
             </div>
           </ScrollArea>
 
@@ -415,7 +422,7 @@ export const LongTableArrangementModal: React.FC<LongTableArrangementModalProps>
           </DragOverlay>
         </DndContext>
 
-        <DialogFooter className="flex gap-2 pt-4 border-t">
+        <DialogFooter className="flex gap-2 pt-4 mt-2 border-t flex-shrink-0">
           <Button
             variant="outline"
             onClick={handleReset}
