@@ -179,12 +179,8 @@ export const TableCard: React.FC<TableCardProps> = ({
       const dragData = JSON.parse(e.dataTransfer.getData('text/plain'));
       const { guestId, guestName, sourceTableId } = dragData;
 
-      // Don't allow dropping on the same table
-      if (sourceTableId === table.id) {
-        return;
-      }
-
-      // Use the new real-time guest move function
+      // Allow dropping on the same table (for within-table reordering)
+      // The onGuestMove function will handle updating display_order for same-table moves
       await onGuestMove(guestId, sourceTableId, table.id, guestName);
     } catch (error) {
       console.error('Error handling drop:', error);

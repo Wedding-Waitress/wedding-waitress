@@ -12,7 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { 
   DndContext, 
-  closestCorners,
+  closestCenter,
   KeyboardSensor, 
   PointerSensor, 
   useSensor, 
@@ -76,12 +76,11 @@ const DroppableZone: React.FC<{
   );
 };
 
-// Sortable guest card component
+// Sortable guest card component - uses STABLE guest ID only
 const SortableGuestCard: React.FC<{
-  id: string;
   guest: Guest;
   position: number;
-}> = ({ id, guest, position }) => {
+}> = ({ guest, position }) => {
   const {
     attributes,
     listeners,
@@ -89,7 +88,7 @@ const SortableGuestCard: React.FC<{
     transform,
     transition,
     isDragging,
-  } = useSortable({ id });
+  } = useSortable({ id: guest.id }); // Use stable guest ID
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -179,7 +178,7 @@ export const LongTableArrangementModal: React.FC<LongTableArrangementModalProps>
     }
   }, [isOpen, initialArrangement]);
 
-  // Group guests by side with their sortable IDs
+  // Group guests by side
   const guestsBySide = useMemo(() => {
     const grouped: Record<SeatSide, ArrangedGuest[]> = {
       'T': [],
@@ -197,13 +196,11 @@ export const LongTableArrangementModal: React.FC<LongTableArrangementModalProps>
     return grouped;
   }, [arrangement]);
 
-  // Get sortable IDs for each side
-  const sortableIds = useMemo(() => ({
-    T: guestsBySide.T.map(item => `T-${item.guest.id}`),
-    A: guestsBySide.A.map(item => `A-${item.guest.id}`),
-    B: guestsBySide.B.map(item => `B-${item.guest.id}`),
-    E: guestsBySide.E.map(item => `E-${item.guest.id}`),
-  }), [guestsBySide]);
+  // Helper to find which side a guest is currently in
+  const findGuestSide = (guestId: string): SeatSide | null => {
+    const item = arrangement.find(a => a.guest.id === guestId);
+    return item ? item.side : null;
+  };
 
   const handleDragStart = (event: DragStartEvent) => {
     setActiveId(event.active.id as string);
@@ -214,11 +211,12 @@ export const LongTableArrangementModal: React.FC<LongTableArrangementModalProps>
     const { active, over } = event;
     if (!over) return;
 
-    const activeId = active.id as string;
+    const activeGuestId = active.id as string;
     const overId = over.id as string;
 
-    // Get the source side from the active item
-    const activeSide = activeId.split('-')[0] as SeatSide;
+    // Get the source side from arrangement state
+    const activeSide = findGuestSide(activeGuestId);
+    if (!activeSide) return;
     
     // Determine the target side
     let overSide: SeatSide;
@@ -226,8 +224,10 @@ export const LongTableArrangementModal: React.FC<LongTableArrangementModalProps>
       // Dropped on a zone directly
       overSide = overId as SeatSide;
     } else {
-      // Dropped on another guest
-      overSide = overId.split('-')[0] as SeatSide;
+      // Dropped on another guest - find their side
+      const overGuestSide = findGuestSide(overId);
+      if (!overGuestSide) return;
+      overSide = overGuestSide;
     }
 
     // If same container, don't do anything here (handled by handleDragEnd)
@@ -235,7 +235,6 @@ export const LongTableArrangementModal: React.FC<LongTableArrangementModalProps>
 
     // Move item to new container
     setArrangement(prev => {
-      const activeGuestId = activeId.split('-')[1];
       const activeItem = prev.find(a => a.guest.id === activeGuestId);
       if (!activeItem) return prev;
 
@@ -248,20 +247,14 @@ export const LongTableArrangementModal: React.FC<LongTableArrangementModalProps>
 
       // If dropped on a guest, insert at their position
       if (!['A', 'B', 'T', 'E'].includes(overId)) {
-        const overGuestId = overId.split('-')[1];
-        const overItemIndex = targetItems.findIndex(a => a.guest.id === overGuestId);
+        const overItemIndex = targetItems.findIndex(a => a.guest.id === overId);
         if (overItemIndex !== -1) {
           insertIndex = overItemIndex;
         }
       }
 
-      // Create new arrangement with updated positions
-      const newArrangement = withoutActive.map(item => {
-        if (item.side === overSide && item.position > insertIndex) {
-          return { ...item, position: item.position + 1 };
-        }
-        return item;
-      });
+      // Create new arrangement
+      const newArrangement = [...withoutActive];
 
       // Add the moved guest to the new side
       newArrangement.push({
@@ -270,7 +263,7 @@ export const LongTableArrangementModal: React.FC<LongTableArrangementModalProps>
         position: insertIndex + 1
       });
 
-      // Renumber all sides
+      // Renumber all positions within each side
       const sides: SeatSide[] = ['T', 'A', 'B', 'E'];
       sides.forEach(side => {
         const sideItems = newArrangement.filter(a => a.side === side);
@@ -291,26 +284,23 @@ export const LongTableArrangementModal: React.FC<LongTableArrangementModalProps>
 
     if (!over) return;
 
-    const activeId = active.id as string;
+    const activeGuestId = active.id as string;
     const overId = over.id as string;
 
-    // Skip if dropped on a zone directly (already handled by onDragOver for cross-container)
+    // Skip if dropped on a zone directly
     if (['A', 'B', 'T', 'E'].includes(overId)) return;
 
-    const activeSide = activeId.split('-')[0] as SeatSide;
-    const overSide = overId.split('-')[0] as SeatSide;
+    const activeSide = findGuestSide(activeGuestId);
+    const overSide = findGuestSide(overId);
 
     // Only handle reordering within same container
-    if (activeSide === overSide && activeId !== overId) {
+    if (activeSide && overSide && activeSide === overSide && activeGuestId !== overId) {
       setArrangement(prev => {
         const sideItems = prev.filter(a => a.side === activeSide);
         const otherItems = prev.filter(a => a.side !== activeSide);
         
-        const activeGuestId = activeId.split('-')[1];
-        const overGuestId = overId.split('-')[1];
-        
         const activeIndex = sideItems.findIndex(a => a.guest.id === activeGuestId);
-        const overIndex = sideItems.findIndex(a => a.guest.id === overGuestId);
+        const overIndex = sideItems.findIndex(a => a.guest.id === overId);
         
         if (activeIndex !== -1 && overIndex !== -1) {
           const reordered = arrayMove(sideItems, activeIndex, overIndex);
@@ -352,8 +342,7 @@ export const LongTableArrangementModal: React.FC<LongTableArrangementModalProps>
   // Get active item for overlay
   const activeItem = useMemo(() => {
     if (!activeId) return null;
-    const [, guestId] = activeId.split('-');
-    return arrangement.find(a => a.guest.id === guestId);
+    return arrangement.find(a => a.guest.id === activeId);
   }, [activeId, arrangement]);
 
   return (
@@ -372,7 +361,7 @@ export const LongTableArrangementModal: React.FC<LongTableArrangementModalProps>
 
         <DndContext
           sensors={sensors}
-          collisionDetection={closestCorners}
+          collisionDetection={closestCenter}
           onDragStart={handleDragStart}
           onDragOver={handleDragOver}
           onDragEnd={handleDragEnd}
@@ -381,11 +370,10 @@ export const LongTableArrangementModal: React.FC<LongTableArrangementModalProps>
             <div className="space-y-4">
               {/* Top End */}
               <DroppableZone id="T" title="Top End (Optional)" className="bg-amber-50" compact>
-                <SortableContext items={sortableIds.T} strategy={verticalListSortingStrategy}>
+                <SortableContext items={guestsBySide.T.map(item => item.guest.id)} strategy={verticalListSortingStrategy}>
                   {guestsBySide.T.map((item, idx) => (
                     <SortableGuestCard 
                       key={item.guest.id}
-                      id={`T-${item.guest.id}`}
                       guest={item.guest} 
                       position={idx + 1}
                     />
@@ -402,11 +390,10 @@ export const LongTableArrangementModal: React.FC<LongTableArrangementModalProps>
               <div className="flex gap-4">
                 {/* Side A */}
                 <DroppableZone id="A" title="Side A (Left)">
-                  <SortableContext items={sortableIds.A} strategy={verticalListSortingStrategy}>
+                  <SortableContext items={guestsBySide.A.map(item => item.guest.id)} strategy={verticalListSortingStrategy}>
                     {guestsBySide.A.map((item, idx) => (
                       <SortableGuestCard 
                         key={item.guest.id}
-                        id={`A-${item.guest.id}`}
                         guest={item.guest} 
                         position={idx + 1}
                       />
@@ -421,11 +408,10 @@ export const LongTableArrangementModal: React.FC<LongTableArrangementModalProps>
 
                 {/* Side B */}
                 <DroppableZone id="B" title="Side B (Right)">
-                  <SortableContext items={sortableIds.B} strategy={verticalListSortingStrategy}>
+                  <SortableContext items={guestsBySide.B.map(item => item.guest.id)} strategy={verticalListSortingStrategy}>
                     {guestsBySide.B.map((item, idx) => (
                       <SortableGuestCard 
                         key={item.guest.id}
-                        id={`B-${item.guest.id}`}
                         guest={item.guest} 
                         position={idx + 1}
                       />
@@ -441,11 +427,10 @@ export const LongTableArrangementModal: React.FC<LongTableArrangementModalProps>
 
               {/* Bottom End */}
               <DroppableZone id="E" title="Bottom End (Optional)" className="bg-amber-50" compact>
-                <SortableContext items={sortableIds.E} strategy={verticalListSortingStrategy}>
+                <SortableContext items={guestsBySide.E.map(item => item.guest.id)} strategy={verticalListSortingStrategy}>
                   {guestsBySide.E.map((item, idx) => (
                     <SortableGuestCard 
                       key={item.guest.id}
-                      id={`E-${item.guest.id}`}
                       guest={item.guest} 
                       position={idx + 1}
                     />
