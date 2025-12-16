@@ -52,7 +52,7 @@ export interface IndividualChartSettings {
   currentTableIndex?: number;
   // Long Table End Seats Options
   enableEndSeats: boolean;
-  endSeatsCount: 1 | 2;
+  endSeatsCount: 1; // Always 1 seat per end (removed 2-seat option)
 }
 
 interface IndividualTableSeatingChartPageProps {
