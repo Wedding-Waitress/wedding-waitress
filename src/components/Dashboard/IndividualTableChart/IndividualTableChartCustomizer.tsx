@@ -76,10 +76,10 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
             {settings.tableShape === 'long' && (
               <>
                 <p className="text-xs text-red-600 font-medium mt-2">
-                  ⚠️ Maximum: 124 guests per LONG TABLE
+                  ⚠️ Maximum: 42 guests per LONG TABLE
                 </p>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Long tables use auto-scaling fonts.
+                  Long tables use auto-scaling fonts. (20 per side + 1 at each end)
                 </p>
               </>
             )}
@@ -185,23 +185,6 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
                 />
               </div>
 
-              {/* Seats Count Option - Only visible when end seats enabled */}
-              {settings.enableEndSeats && (
-                <div className="flex items-center justify-between">
-                  <Label>Seats per End</Label>
-                  <div className="flex items-center gap-2">
-                    <span className={`text-sm ${settings.endSeatsCount === 1 ? 'font-bold text-primary' : 'text-muted-foreground'}`}>1</span>
-                    <Switch
-                      checked={settings.endSeatsCount === 2}
-                      onCheckedChange={(checked) => 
-                        onSettingsChange({ endSeatsCount: checked ? 2 : 1 })
-                      }
-                    />
-                    <span className={`text-sm ${settings.endSeatsCount === 2 ? 'font-bold text-primary' : 'text-muted-foreground'}`}>2</span>
-                  </div>
-                </div>
-              )}
-              
               <p className="text-xs text-muted-foreground">
                 Add seats at the top and bottom ends of the long table for special guests.
               </p>
@@ -215,10 +198,8 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
                 Font sizes automatically scale based on guest count to ensure all content fits on one A4 page.
               </p>
               <div className="text-xs text-muted-foreground space-y-1">
-                <p>• 20-40 guests: Normal font</p>
-                <p>• 41-60 guests: Smaller font</p>
-                <p>• 61-80 guests: Tight spacing</p>
-                <p>• 81+ guests: Minimal spacing</p>
+                <p>• 20-30 guests: Normal font</p>
+                <p>• 31-42 guests: Smaller font</p>
               </div>
             </div>
           </>
