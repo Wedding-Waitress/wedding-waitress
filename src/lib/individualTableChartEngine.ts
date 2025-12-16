@@ -789,7 +789,7 @@ export const generateIndividualTableSVG = (
 
       <!-- Table Visualization -->
       ${settings.tableShape === 'long' ? `
-        <!-- LONG TABLE LAYOUT - Table centered with full names + dietary next to chairs -->
+        <!-- LONG TABLE LAYOUT - Matching preview exactly -->
         ${(() => {
           const endSeatsEnabled = settings.enableEndSeats;
           const seatsPerEnd = settings.endSeatsCount || 1;
@@ -820,21 +820,23 @@ export const generateIndividualTableSVG = (
             });
           }
           
-          // Calculate scaling based on guest count
+          // Calculate scaling based on guest count - MATCHING PREVIEW
           const count = sortedGuests.length;
-          const chairSize = count <= 40 ? 28 : count <= 60 ? 24 : count <= 80 ? 20 : 16;
-          const fontSize = count <= 40 ? 10 : count <= 60 ? 9 : count <= 80 ? 8 : 7;
+          const chairSize = count <= 40 ? 32 : count <= 60 ? 26 : count <= 80 ? 22 : 18;
+          const fontSize = count <= 40 ? 11 : count <= 60 ? 9 : count <= 80 ? 8 : 7;
           
-          // Calculate chair spacing based on number of guests per side
-          const tableHeight = 400;
+          // Use larger table height for proper spacing
+          const tableHeight = 580;
+          const tableWidth = 120;
+          const chairGap = 28; // Fixed gap between chair and table edge
           
           return `
-          <div style="flex: 1; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; min-height: 450px;">
-            <div style="position: relative; height: 100%; width: 100%; display: flex; align-items: center; justify-content: center; padding: 16px 0;">
-              <!-- Long Table Rectangle -->
+          <div style="flex: 1; display: flex; align-items: center; justify-content: center; margin-bottom: 16px;">
+            <div style="position: relative; width: 100%; height: 620px; display: flex; align-items: center; justify-content: center;">
+              <!-- Long Table Rectangle - Centered -->
               <div style="
                 position: relative; 
-                width: 100px; 
+                width: ${tableWidth}px; 
                 height: ${tableHeight}px; 
                 border: 2px solid #374151; 
                 background: #f9fafb; 
@@ -847,7 +849,7 @@ export const generateIndividualTableSVG = (
                   top: 50%;
                   transform: translate(-50%, -50%) rotate(-90deg);
                   white-space: nowrap;
-                  font-size: ${Math.max(12, 20 - count / 5)}px;
+                  font-size: ${Math.max(14, 24 - count / 5)}px;
                   font-weight: 700;
                   color: #4b5563;
                   text-align: center;
@@ -856,22 +858,21 @@ export const generateIndividualTableSVG = (
                   <div>${table.table_no ?? table.name}</div>
                 </div>
                 
-                <!-- Left Side Chairs with Full Names + Dietary - Perfect Straight Line -->
+                <!-- Left Side Chairs Container - Positioned outside table -->
                 <div style="
                   position: absolute;
-                  left: -200px;
-                  top: 20px;
-                  bottom: 20px;
+                  left: 0;
+                  top: 16px;
+                  bottom: 16px;
+                  transform: translateX(calc(-100% - ${chairGap}px));
+                  display: flex;
+                  flex-direction: column;
+                  justify-content: space-between;
+                  align-items: flex-end;
                 ">
                   ${leftSide.map((item, index) => {
-                    const totalGuests = leftSide.length;
-                    const topPercent = totalGuests === 1 ? 50 : (index / (totalGuests - 1)) * 100;
                     return `
                     <div style="
-                      position: absolute;
-                      top: ${topPercent}%;
-                      right: 0;
-                      transform: translateY(-50%);
                       display: flex;
                       align-items: center;
                       gap: 4px;
@@ -896,27 +897,27 @@ export const generateIndividualTableSVG = (
                         font-weight: 700;
                         font-size: ${fontSize}pt;
                         flex-shrink: 0;
+                        line-height: 1;
                       ">${settings.showSeatNumbers ? item.seatNumber : ''}</div>
                     </div>
                   `}).join('')}
                 </div>
                 
-                <!-- Right Side Chairs with Full Names + Dietary - Perfect Straight Line -->
+                <!-- Right Side Chairs Container - Positioned outside table -->
                 <div style="
                   position: absolute;
-                  right: -200px;
-                  top: 20px;
-                  bottom: 20px;
+                  right: 0;
+                  top: 16px;
+                  bottom: 16px;
+                  transform: translateX(calc(100% + ${chairGap}px));
+                  display: flex;
+                  flex-direction: column;
+                  justify-content: space-between;
+                  align-items: flex-start;
                 ">
                   ${rightSide.map((item, index) => {
-                    const totalGuests = rightSide.length;
-                    const topPercent = totalGuests === 1 ? 50 : (index / (totalGuests - 1)) * 100;
                     return `
                     <div style="
-                      position: absolute;
-                      top: ${topPercent}%;
-                      left: 0;
-                      transform: translateY(-50%);
                       display: flex;
                       align-items: center;
                       gap: 4px;
@@ -934,6 +935,7 @@ export const generateIndividualTableSVG = (
                         font-weight: 700;
                         font-size: ${fontSize}pt;
                         flex-shrink: 0;
+                        line-height: 1;
                       ">${settings.showSeatNumbers ? item.seatNumber : ''}</div>
                       <!-- Full Guest Name + Dietary Text - Right of Chair -->
                       <span style="
@@ -965,7 +967,7 @@ export const generateIndividualTableSVG = (
                       ${settings.includeDietary && topEnd[0].guest.dietary && topEnd[0].guest.dietary !== 'NA' ? `
                         <span style="color: #7c3aed; font-weight: 700; font-size: ${fontSize}pt; white-space: nowrap;">- ${topEnd[0].guest.dietary}</span>
                       ` : ''}
-                      <div style="width: ${chairSize}px; height: ${chairSize}px; border-radius: 50%; background: white; border: 1px solid black; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: ${fontSize}pt;">
+                      <div style="width: ${chairSize}px; height: ${chairSize}px; border-radius: 50%; background: white; border: 1px solid black; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: ${fontSize}pt; line-height: 1;">
                         ${settings.showSeatNumbers ? topEnd[0].seatNumber : ''}
                       </div>
                     </div>
@@ -982,13 +984,13 @@ export const generateIndividualTableSVG = (
                             <span style="color: #7c3aed; font-weight: 700; font-size: ${fontSize}pt; white-space: nowrap; text-align: right;">- ${topEnd[0].guest.dietary}</span>
                           ` : ''}
                         </div>
-                        <div style="width: ${chairSize}px; height: ${chairSize}px; border-radius: 50%; background: white; border: 1px solid black; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: ${fontSize}pt;">
+                        <div style="width: ${chairSize}px; height: ${chairSize}px; border-radius: 50%; background: white; border: 1px solid black; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: ${fontSize}pt; line-height: 1;">
                           ${settings.showSeatNumbers ? topEnd[0].seatNumber : ''}
                         </div>
                       </div>
                       <!-- Second guest - chair on left, name+dietary on right -->
                       <div style="display: flex; align-items: flex-end; gap: 8px;">
-                        <div style="width: ${chairSize}px; height: ${chairSize}px; border-radius: 50%; background: white; border: 1px solid black; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: ${fontSize}pt;">
+                        <div style="width: ${chairSize}px; height: ${chairSize}px; border-radius: 50%; background: white; border: 1px solid black; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: ${fontSize}pt; line-height: 1;">
                           ${settings.showSeatNumbers ? topEnd[1].seatNumber : ''}
                         </div>
                         <div style="display: flex; flex-direction: column; align-items: flex-start;">
@@ -1018,7 +1020,7 @@ export const generateIndividualTableSVG = (
                   ${bottomEnd.length === 1 ? `
                     <!-- Single seat - centered with chair at top, dietary below, name at bottom -->
                     <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
-                      <div style="width: ${chairSize}px; height: ${chairSize}px; border-radius: 50%; background: white; border: 1px solid black; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: ${fontSize}pt;">
+                      <div style="width: ${chairSize}px; height: ${chairSize}px; border-radius: 50%; background: white; border: 1px solid black; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: ${fontSize}pt; line-height: 1;">
                         ${settings.showSeatNumbers ? bottomEnd[0].seatNumber : ''}
                       </div>
                       <span style="text-align: center; font-weight: 500; font-size: ${fontSize}pt; white-space: nowrap;">
@@ -1041,13 +1043,13 @@ export const generateIndividualTableSVG = (
                             <span style="color: #7c3aed; font-weight: 700; font-size: ${fontSize}pt; white-space: nowrap; text-align: right;">- ${bottomEnd[0].guest.dietary}</span>
                           ` : ''}
                         </div>
-                        <div style="width: ${chairSize}px; height: ${chairSize}px; border-radius: 50%; background: white; border: 1px solid black; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: ${fontSize}pt;">
+                        <div style="width: ${chairSize}px; height: ${chairSize}px; border-radius: 50%; background: white; border: 1px solid black; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: ${fontSize}pt; line-height: 1;">
                           ${settings.showSeatNumbers ? bottomEnd[0].seatNumber : ''}
                         </div>
                       </div>
                       <!-- Second guest - chair on left, name+dietary on right -->
                       <div style="display: flex; align-items: flex-start; gap: 8px;">
-                        <div style="width: ${chairSize}px; height: ${chairSize}px; border-radius: 50%; background: white; border: 1px solid black; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: ${fontSize}pt;">
+                        <div style="width: ${chairSize}px; height: ${chairSize}px; border-radius: 50%; background: white; border: 1px solid black; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: ${fontSize}pt; line-height: 1;">
                           ${settings.showSeatNumbers ? bottomEnd[1].seatNumber : ''}
                         </div>
                         <div style="display: flex; flex-direction: column; align-items: flex-start;">
