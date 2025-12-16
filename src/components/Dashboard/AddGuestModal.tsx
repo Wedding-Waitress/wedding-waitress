@@ -499,18 +499,21 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
       };
 
       if (isEdit && editGuest) {
-        // Handle seat swap if selected
+        // Handle seat swap if selected - use 3-step process to avoid unique constraint violation
         if (swapWithGuestId && editGuest.seat_no) {
           const swapGuest = sameTableGuests.find(g => g.id === swapWithGuestId);
           if (swapGuest) {
-            // Update the other guest to take current guest's seat
-            const { error: swapError } = await supabase
-              .from('guests')
-              .update({ seat_no: editGuest.seat_no })
-              .eq('id', swapWithGuestId);
+            const originalSeatNo = editGuest.seat_no;
+            const targetSeatNo = swapGuest.seat_no;
             
-            if (swapError) {
-              console.error('Error swapping seat:', swapError);
+            // Step 1: Set current guest's seat to NULL temporarily
+            const { error: nullError } = await supabase
+              .from('guests')
+              .update({ seat_no: null })
+              .eq('id', editGuest.id);
+            
+            if (nullError) {
+              console.error('Error clearing seat:', nullError);
               toast({
                 title: "Swap Failed",
                 description: "Failed to swap seats. Please try again.",
@@ -520,8 +523,27 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
               return;
             }
             
-            // Update current guest to take the other guest's seat
-            finalGuestData.seat_no = swapGuest.seat_no;
+            // Step 2: Update the other guest to take current guest's original seat
+            const { error: swapError } = await supabase
+              .from('guests')
+              .update({ seat_no: originalSeatNo })
+              .eq('id', swapWithGuestId);
+            
+            if (swapError) {
+              console.error('Error swapping seat:', swapError);
+              // Rollback: restore original guest's seat
+              await supabase.from('guests').update({ seat_no: originalSeatNo }).eq('id', editGuest.id);
+              toast({
+                title: "Swap Failed",
+                description: "Failed to swap seats. Please try again.",
+                variant: "destructive",
+              });
+              setLoading(false);
+              return;
+            }
+            
+            // Step 3: Update current guest to take the other guest's seat (done in main update below)
+            finalGuestData.seat_no = targetSeatNo;
           }
         }
 
