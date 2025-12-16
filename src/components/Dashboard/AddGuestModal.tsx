@@ -292,14 +292,15 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
 
       // For swap dropdown: show all other guests on the same table (exclude current guest)
       if (isEdit && editGuest) {
-        const otherGuests = allGuests
-          .filter(g => g.guestId !== editGuest.id)
-          .map(g => ({
-            id: g.guestId,
-            name: g.guestName,
-            seat_no: g.seatNo
-          }));
-        setSameTableGuests(otherGuests);
+const otherGuests = allGuests
+                .filter(g => g.guestId !== editGuest.id)
+                .map(g => ({
+                  id: g.guestId,
+                  name: g.guestName,
+                  seat_no: g.seatNo
+                }))
+                .sort((a, b) => (a.seat_no || 0) - (b.seat_no || 0));
+              setSameTableGuests(otherGuests);
       }
 
       const taken = allGuests
