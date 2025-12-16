@@ -12,7 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { 
   DndContext, 
-  closestCenter, 
+  pointerWithin, 
   KeyboardSensor, 
   PointerSensor, 
   useSensor, 
@@ -47,7 +47,10 @@ const DroppableZone: React.FC<{
   className?: string;
   compact?: boolean;
 }> = ({ id, title, children, className, compact }) => {
-  const { setNodeRef, isOver } = useDroppable({ id });
+  const { setNodeRef, isOver } = useDroppable({ 
+    id,
+    data: { type: 'zone', side: id }
+  });
   
   return (
     <div
@@ -304,7 +307,7 @@ export const LongTableArrangementModal: React.FC<LongTableArrangementModalProps>
 
         <DndContext
           sensors={sensors}
-          collisionDetection={closestCenter}
+          collisionDetection={pointerWithin}
           onDragStart={handleDragStart}
           onDragEnd={handleDragEnd}
         >
