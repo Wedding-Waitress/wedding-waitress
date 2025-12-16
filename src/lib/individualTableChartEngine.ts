@@ -900,6 +900,7 @@ export const generateIndividualTableSVG = (
                         font-size: ${fontSize}px;
                         flex-shrink: 0;
                         text-align: center;
+                        line-height: ${chairSize}px;
                       ">${settings.showSeatNumbers ? item.seatNumber : ''}</div>
                     </div>
                   `}).join('')}
@@ -940,6 +941,7 @@ export const generateIndividualTableSVG = (
                         font-size: ${fontSize}px;
                         flex-shrink: 0;
                         text-align: center;
+                        line-height: ${chairSize}px;
                       ">${settings.showSeatNumbers ? item.seatNumber : ''}</div>
                       <!-- Full Guest Name + Dietary Text - Right of Chair -->
                       <span style="
@@ -971,7 +973,7 @@ export const generateIndividualTableSVG = (
                       ${settings.includeDietary && topEnd[0].guest.dietary && topEnd[0].guest.dietary !== 'NA' ? `
                         <span style="color: #7c3aed; font-weight: 700; font-size: ${fontSize}px; white-space: nowrap;">- ${topEnd[0].guest.dietary}</span>
                       ` : ''}
-                      <div style="width: ${chairSize}px; height: ${chairSize}px; border-radius: 50%; background: white; border: 1px solid black; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: ${fontSize}px; text-align: center;">
+                      <div style="width: ${chairSize}px; height: ${chairSize}px; border-radius: 50%; background: white; border: 1px solid black; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: ${fontSize}px; text-align: center; line-height: ${chairSize}px;">
                         ${settings.showSeatNumbers ? topEnd[0].seatNumber : ''}
                       </div>
                     </div>
@@ -988,13 +990,13 @@ export const generateIndividualTableSVG = (
                             <span style="color: #7c3aed; font-weight: 700; font-size: ${fontSize}px; white-space: nowrap; text-align: right;">- ${topEnd[0].guest.dietary}</span>
                           ` : ''}
                         </div>
-                        <div style="width: ${chairSize}px; height: ${chairSize}px; border-radius: 50%; background: white; border: 1px solid black; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: ${fontSize}px; text-align: center;">
+                        <div style="width: ${chairSize}px; height: ${chairSize}px; border-radius: 50%; background: white; border: 1px solid black; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: ${fontSize}px; text-align: center; line-height: ${chairSize}px;">
                           ${settings.showSeatNumbers ? topEnd[0].seatNumber : ''}
                         </div>
                       </div>
                       <!-- Second guest - chair on left, name+dietary on right -->
                       <div style="display: flex; align-items: flex-end; gap: 8px;">
-                        <div style="width: ${chairSize}px; height: ${chairSize}px; border-radius: 50%; background: white; border: 1px solid black; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: ${fontSize}px; text-align: center;">
+                        <div style="width: ${chairSize}px; height: ${chairSize}px; border-radius: 50%; background: white; border: 1px solid black; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: ${fontSize}px; text-align: center; line-height: ${chairSize}px;">
                           ${settings.showSeatNumbers ? topEnd[1].seatNumber : ''}
                         </div>
                         <div style="display: flex; flex-direction: column; align-items: flex-start;">
@@ -1024,7 +1026,7 @@ export const generateIndividualTableSVG = (
                   ${bottomEnd.length === 1 ? `
                     <!-- Single seat - centered with chair at top, dietary below, name at bottom -->
                     <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
-                      <div style="width: ${chairSize}px; height: ${chairSize}px; border-radius: 50%; background: white; border: 1px solid black; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: ${fontSize}px; text-align: center;">
+                      <div style="width: ${chairSize}px; height: ${chairSize}px; border-radius: 50%; background: white; border: 1px solid black; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: ${fontSize}px; text-align: center; line-height: ${chairSize}px;">
                         ${settings.showSeatNumbers ? bottomEnd[0].seatNumber : ''}
                       </div>
                       <span style="text-align: center; font-weight: 500; font-size: ${fontSize}px; white-space: nowrap;">
@@ -1047,13 +1049,13 @@ export const generateIndividualTableSVG = (
                             <span style="color: #7c3aed; font-weight: 700; font-size: ${fontSize}px; white-space: nowrap; text-align: right;">- ${bottomEnd[0].guest.dietary}</span>
                           ` : ''}
                         </div>
-                        <div style="width: ${chairSize}px; height: ${chairSize}px; border-radius: 50%; background: white; border: 1px solid black; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: ${fontSize}px; text-align: center;">
+                        <div style="width: ${chairSize}px; height: ${chairSize}px; border-radius: 50%; background: white; border: 1px solid black; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: ${fontSize}px; text-align: center; line-height: ${chairSize}px;">
                           ${settings.showSeatNumbers ? bottomEnd[0].seatNumber : ''}
                         </div>
                       </div>
                       <!-- Second guest - chair on left, name+dietary on right -->
                       <div style="display: flex; align-items: flex-start; gap: 8px;">
-                        <div style="width: ${chairSize}px; height: ${chairSize}px; border-radius: 50%; background: white; border: 1px solid black; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: ${fontSize}px; text-align: center;">
+                        <div style="width: ${chairSize}px; height: ${chairSize}px; border-radius: 50%; background: white; border: 1px solid black; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: ${fontSize}px; text-align: center; line-height: ${chairSize}px;">
                           ${settings.showSeatNumbers ? bottomEnd[1].seatNumber : ''}
                         </div>
                         <div style="display: flex; flex-direction: column; align-items: flex-start;">
