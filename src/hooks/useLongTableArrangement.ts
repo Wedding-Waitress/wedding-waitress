@@ -23,6 +23,23 @@ export interface ArrangedGuest {
   position: number;
 }
 
+// Convert side and position to seat_no for syncing with guests table
+// Side A: 1-20, Side B: 21-40, Top: 41, End: 42
+const calculateSeatNo = (side: SeatSide, position: number): number => {
+  switch (side) {
+    case 'A':
+      return position; // 1-20
+    case 'B':
+      return 20 + position; // 21-40
+    case 'T':
+      return 41; // Top end seat
+    case 'E':
+      return 42; // Bottom end seat
+    default:
+      return position;
+  }
+};
+
 export const useLongTableArrangement = (eventId: string | null, tableId: string | null) => {
   const [arrangements, setArrangements] = useState<SeatArrangement[]>([]);
   const [loading, setLoading] = useState(false);
@@ -115,7 +132,7 @@ export const useLongTableArrangement = (eventId: string | null, tableId: string 
     });
   }, [arrangements, getDefaultArrangement]);
 
-  // Save arrangements to database
+  // Save arrangements to database AND sync seat_no to guests table
   const saveArrangements = useCallback(async (newArrangements: ArrangedGuest[]) => {
     if (!tableId || !eventId) return false;
 
@@ -148,6 +165,20 @@ export const useLongTableArrangement = (eventId: string | null, tableId: string 
           .insert(insertData);
 
         if (insertError) throw insertError;
+
+        // CRITICAL: Also update seat_no in the guests table for sync
+        // This ensures Tables page and Guest List page reflect the changes
+        for (const arr of newArrangements) {
+          const seatNo = calculateSeatNo(arr.side, arr.position);
+          const { error: guestUpdateError } = await supabase
+            .from('guests')
+            .update({ seat_no: seatNo })
+            .eq('id', arr.guest.id);
+
+          if (guestUpdateError) {
+            console.error('Error updating guest seat_no:', guestUpdateError);
+          }
+        }
       }
 
       await fetchArrangements();
