@@ -80,7 +80,7 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
   const [settings, setSettings] = useState<IndividualChartSettings>(defaultSettings);
   const [isExporting, setIsExporting] = useState(false);
   const [isExportingAll, setIsExportingAll] = useState(false);
-  const [longTableSuggestionShown, setLongTableSuggestionShown] = useState<Set<string>>(new Set());
+  
   const [showGuestLimitWarning, setShowGuestLimitWarning] = useState(false);
 
   const { events, loading: eventsLoading } = useEvents();
@@ -110,25 +110,6 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
     }
   }, [isTableTooLargeForShape, selectedTableId]);
   
-  // Auto-detect: Suggest Long Table for tables with 25+ guests
-  useEffect(() => {
-    if (selectedTable && tableGuests.length >= 25 && settings.tableShape !== 'long') {
-      const suggestionKey = `${selectedTableId}-${tableGuests.length}`;
-      if (!longTableSuggestionShown.has(suggestionKey)) {
-        setLongTableSuggestionShown(prev => new Set([...prev, suggestionKey]));
-        toast.info(
-          `This table has ${tableGuests.length} guests. Would you like to use the Long Table layout?`,
-          {
-            action: {
-              label: 'Switch to Long Table',
-              onClick: () => handleSettingsChange({ tableShape: 'long' })
-            },
-            duration: 8000
-          }
-        );
-      }
-    }
-  }, [selectedTableId, tableGuests.length, settings.tableShape]);
 
   // Update chart title when event or table changes
   useEffect(() => {
