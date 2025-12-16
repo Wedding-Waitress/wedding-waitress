@@ -12,7 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { 
   DndContext, 
-  pointerWithin, 
+  closestCorners,
   KeyboardSensor, 
   PointerSensor, 
   useSensor, 
@@ -20,9 +20,15 @@ import {
   DragEndEvent,
   DragOverlay,
   DragStartEvent,
+  DragOverEvent,
   useDroppable,
-  useDraggable
 } from '@dnd-kit/core';
+import {
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+  arrayMove,
+} from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { GripVertical, RotateCcw, Save, Users } from 'lucide-react';
 import { Guest } from '@/hooks/useGuests';
@@ -57,7 +63,7 @@ const DroppableZone: React.FC<{
       ref={setNodeRef}
       className={cn(
         'flex-1 p-3 rounded-lg border-2 border-dashed transition-colors',
-        compact ? 'min-h-[60px]' : 'min-h-[200px]',
+        compact ? 'min-h-[80px]' : 'min-h-[200px]',
         isOver ? 'border-primary bg-primary/10' : 'border-muted-foreground/30 bg-muted/30',
         className
       )}
@@ -70,22 +76,24 @@ const DroppableZone: React.FC<{
   );
 };
 
-// Draggable guest card component
-const DraggableGuestCard: React.FC<{
+// Sortable guest card component
+const SortableGuestCard: React.FC<{
+  id: string;
   guest: Guest;
   position: number;
-  side: SeatSide;
-}> = ({ guest, position, side }) => {
+}> = ({ id, guest, position }) => {
   const {
     attributes,
     listeners,
     setNodeRef,
     transform,
+    transition,
     isDragging,
-  } = useDraggable({ id: `${side}-${guest.id}` });
+  } = useSortable({ id });
 
   const style = {
-    transform: CSS.Translate.toString(transform),
+    transform: CSS.Transform.toString(transform),
+    transition,
   };
 
   // Get dietary icon
@@ -108,8 +116,8 @@ const DraggableGuestCard: React.FC<{
       {...attributes}
       {...listeners}
       className={cn(
-        'flex items-center gap-2 p-2 bg-white rounded-md border shadow-sm cursor-grab active:cursor-grabbing',
-        isDragging && 'opacity-50 shadow-lg'
+        'flex items-center gap-2 p-2 bg-white rounded-md border shadow-sm cursor-grab active:cursor-grabbing touch-none',
+        isDragging && 'opacity-50 shadow-lg z-50'
       )}
     >
       <GripVertical className="w-4 h-4 text-muted-foreground flex-shrink-0" />
@@ -159,7 +167,7 @@ export const LongTableArrangementModal: React.FC<LongTableArrangementModalProps>
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
-        distance: 8,
+        distance: 5,
       },
     }),
     useSensor(KeyboardSensor)
@@ -171,7 +179,7 @@ export const LongTableArrangementModal: React.FC<LongTableArrangementModalProps>
     }
   }, [isOpen, initialArrangement]);
 
-  // Group guests by side
+  // Group guests by side with their sortable IDs
   const guestsBySide = useMemo(() => {
     const grouped: Record<SeatSide, ArrangedGuest[]> = {
       'T': [],
@@ -189,76 +197,133 @@ export const LongTableArrangementModal: React.FC<LongTableArrangementModalProps>
     return grouped;
   }, [arrangement]);
 
+  // Get sortable IDs for each side
+  const sortableIds = useMemo(() => ({
+    T: guestsBySide.T.map(item => `T-${item.guest.id}`),
+    A: guestsBySide.A.map(item => `A-${item.guest.id}`),
+    B: guestsBySide.B.map(item => `B-${item.guest.id}`),
+    E: guestsBySide.E.map(item => `E-${item.guest.id}`),
+  }), [guestsBySide]);
+
   const handleDragStart = (event: DragStartEvent) => {
     setActiveId(event.active.id as string);
   };
 
-  const handleDragEnd = (event: DragEndEvent) => {
+  // Handle moving items between containers during drag
+  const handleDragOver = (event: DragOverEvent) => {
     const { active, over } = event;
-    setActiveId(null);
-
     if (!over) return;
 
-    const activeIdStr = active.id as string;
-    const overIdStr = over.id as string;
-    
-    // Parse active item
-    const [, activeGuestId] = activeIdStr.split('-');
-    const activeGuest = arrangement.find(a => a.guest.id === activeGuestId);
-    
-    if (!activeGuest) return;
+    const activeId = active.id as string;
+    const overId = over.id as string;
 
-    // Check if dropped on a zone (side) or another guest
-    const targetSide = (['A', 'B', 'T', 'E'].includes(overIdStr) 
-      ? overIdStr 
-      : overIdStr.split('-')[0]) as SeatSide;
+    // Get the source side from the active item
+    const activeSide = activeId.split('-')[0] as SeatSide;
+    
+    // Determine the target side
+    let overSide: SeatSide;
+    if (['A', 'B', 'T', 'E'].includes(overId)) {
+      // Dropped on a zone directly
+      overSide = overId as SeatSide;
+    } else {
+      // Dropped on another guest
+      overSide = overId.split('-')[0] as SeatSide;
+    }
 
-    // Create new arrangement
+    // If same container, don't do anything here (handled by handleDragEnd)
+    if (activeSide === overSide) return;
+
+    // Move item to new container
     setArrangement(prev => {
-      const newArr = prev.filter(a => a.guest.id !== activeGuestId);
+      const activeGuestId = activeId.split('-')[1];
+      const activeItem = prev.find(a => a.guest.id === activeGuestId);
+      if (!activeItem) return prev;
+
+      // Remove from old container
+      const withoutActive = prev.filter(a => a.guest.id !== activeGuestId);
       
-      // Get existing items in target side
-      const targetItems = newArr.filter(a => a.side === targetSide);
-      
-      // Find insertion position
-      let insertPosition = targetItems.length + 1;
-      
-      if (overIdStr !== targetSide) {
-        // Dropped on a guest, find their position
-        const [, overGuestId] = overIdStr.split('-');
-        const overGuest = newArr.find(a => a.guest.id === overGuestId);
-        if (overGuest && overGuest.side === targetSide) {
-          insertPosition = overGuest.position;
+      // Find insertion index in target container
+      const targetItems = withoutActive.filter(a => a.side === overSide);
+      let insertIndex = targetItems.length;
+
+      // If dropped on a guest, insert at their position
+      if (!['A', 'B', 'T', 'E'].includes(overId)) {
+        const overGuestId = overId.split('-')[1];
+        const overItemIndex = targetItems.findIndex(a => a.guest.id === overGuestId);
+        if (overItemIndex !== -1) {
+          insertIndex = overItemIndex;
         }
       }
 
-      // Update positions for items after insert point
-      const updatedArr = newArr.map(item => {
-        if (item.side === targetSide && item.position >= insertPosition) {
+      // Create new arrangement with updated positions
+      const newArrangement = withoutActive.map(item => {
+        if (item.side === overSide && item.position > insertIndex) {
           return { ...item, position: item.position + 1 };
         }
         return item;
       });
 
-      // Add the moved guest
-      updatedArr.push({
-        guest: activeGuest.guest,
-        side: targetSide,
-        position: insertPosition
+      // Add the moved guest to the new side
+      newArrangement.push({
+        guest: activeItem.guest,
+        side: overSide,
+        position: insertIndex + 1
       });
 
-      // Renumber positions within each side
+      // Renumber all sides
       const sides: SeatSide[] = ['T', 'A', 'B', 'E'];
       sides.forEach(side => {
-        const sideItems = updatedArr.filter(a => a.side === side);
+        const sideItems = newArrangement.filter(a => a.side === side);
         sideItems.sort((a, b) => a.position - b.position);
         sideItems.forEach((item, idx) => {
           item.position = idx + 1;
         });
       });
 
-      return updatedArr;
+      return newArrangement;
     });
+  };
+
+  // Handle reordering within the same container
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    setActiveId(null);
+
+    if (!over) return;
+
+    const activeId = active.id as string;
+    const overId = over.id as string;
+
+    // Skip if dropped on a zone directly (already handled by onDragOver for cross-container)
+    if (['A', 'B', 'T', 'E'].includes(overId)) return;
+
+    const activeSide = activeId.split('-')[0] as SeatSide;
+    const overSide = overId.split('-')[0] as SeatSide;
+
+    // Only handle reordering within same container
+    if (activeSide === overSide && activeId !== overId) {
+      setArrangement(prev => {
+        const sideItems = prev.filter(a => a.side === activeSide);
+        const otherItems = prev.filter(a => a.side !== activeSide);
+        
+        const activeGuestId = activeId.split('-')[1];
+        const overGuestId = overId.split('-')[1];
+        
+        const activeIndex = sideItems.findIndex(a => a.guest.id === activeGuestId);
+        const overIndex = sideItems.findIndex(a => a.guest.id === overGuestId);
+        
+        if (activeIndex !== -1 && overIndex !== -1) {
+          const reordered = arrayMove(sideItems, activeIndex, overIndex);
+          // Update positions
+          reordered.forEach((item, idx) => {
+            item.position = idx + 1;
+          });
+          return [...otherItems, ...reordered];
+        }
+        
+        return prev;
+      });
+    }
   };
 
   const handleSave = async () => {
@@ -307,22 +372,25 @@ export const LongTableArrangementModal: React.FC<LongTableArrangementModalProps>
 
         <DndContext
           sensors={sensors}
-          collisionDetection={pointerWithin}
+          collisionDetection={closestCorners}
           onDragStart={handleDragStart}
+          onDragOver={handleDragOver}
           onDragEnd={handleDragEnd}
         >
           <ScrollArea className="flex-1 min-h-0 pr-4">
             <div className="space-y-4">
               {/* Top End */}
               <DroppableZone id="T" title="Top End (Optional)" className="bg-amber-50" compact>
-                {guestsBySide.T.map((item, idx) => (
-                  <DraggableGuestCard 
-                    key={item.guest.id} 
-                    guest={item.guest} 
-                    position={idx + 1}
-                    side="T"
-                  />
-                ))}
+                <SortableContext items={sortableIds.T} strategy={verticalListSortingStrategy}>
+                  {guestsBySide.T.map((item, idx) => (
+                    <SortableGuestCard 
+                      key={item.guest.id}
+                      id={`T-${item.guest.id}`}
+                      guest={item.guest} 
+                      position={idx + 1}
+                    />
+                  ))}
+                </SortableContext>
                 {guestsBySide.T.length === 0 && (
                   <p className="text-xs text-muted-foreground text-center py-2">
                     Drop guests here for the top end of the table
@@ -334,14 +402,16 @@ export const LongTableArrangementModal: React.FC<LongTableArrangementModalProps>
               <div className="flex gap-4">
                 {/* Side A */}
                 <DroppableZone id="A" title="Side A (Left)">
-                  {guestsBySide.A.map((item, idx) => (
-                    <DraggableGuestCard 
-                      key={item.guest.id} 
-                      guest={item.guest} 
-                      position={idx + 1}
-                      side="A"
-                    />
-                  ))}
+                  <SortableContext items={sortableIds.A} strategy={verticalListSortingStrategy}>
+                    {guestsBySide.A.map((item, idx) => (
+                      <SortableGuestCard 
+                        key={item.guest.id}
+                        id={`A-${item.guest.id}`}
+                        guest={item.guest} 
+                        position={idx + 1}
+                      />
+                    ))}
+                  </SortableContext>
                   {guestsBySide.A.length === 0 && (
                     <p className="text-xs text-muted-foreground text-center py-4">
                       Drop guests here
@@ -351,14 +421,16 @@ export const LongTableArrangementModal: React.FC<LongTableArrangementModalProps>
 
                 {/* Side B */}
                 <DroppableZone id="B" title="Side B (Right)">
-                  {guestsBySide.B.map((item, idx) => (
-                    <DraggableGuestCard 
-                      key={item.guest.id} 
-                      guest={item.guest} 
-                      position={idx + 1}
-                      side="B"
-                    />
-                  ))}
+                  <SortableContext items={sortableIds.B} strategy={verticalListSortingStrategy}>
+                    {guestsBySide.B.map((item, idx) => (
+                      <SortableGuestCard 
+                        key={item.guest.id}
+                        id={`B-${item.guest.id}`}
+                        guest={item.guest} 
+                        position={idx + 1}
+                      />
+                    ))}
+                  </SortableContext>
                   {guestsBySide.B.length === 0 && (
                     <p className="text-xs text-muted-foreground text-center py-4">
                       Drop guests here
@@ -369,14 +441,16 @@ export const LongTableArrangementModal: React.FC<LongTableArrangementModalProps>
 
               {/* Bottom End */}
               <DroppableZone id="E" title="Bottom End (Optional)" className="bg-amber-50" compact>
-                {guestsBySide.E.map((item, idx) => (
-                  <DraggableGuestCard 
-                    key={item.guest.id} 
-                    guest={item.guest} 
-                    position={idx + 1}
-                    side="E"
-                  />
-                ))}
+                <SortableContext items={sortableIds.E} strategy={verticalListSortingStrategy}>
+                  {guestsBySide.E.map((item, idx) => (
+                    <SortableGuestCard 
+                      key={item.guest.id}
+                      id={`E-${item.guest.id}`}
+                      guest={item.guest} 
+                      position={idx + 1}
+                    />
+                  ))}
+                </SortableContext>
                 {guestsBySide.E.length === 0 && (
                   <p className="text-xs text-muted-foreground text-center py-2">
                     Drop guests here for the bottom end of the table
