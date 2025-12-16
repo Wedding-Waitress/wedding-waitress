@@ -26,84 +26,14 @@ const PAPER_SIZES = {
 };
 
 /**
- * Generate PDF by directly capturing the preview element (for Long tables)
- * This ensures 100% identical output to the on-screen preview
- */
-export const generateIndividualTableChartPDFFromElement = async (
-  previewElement: HTMLElement,
-  settings: IndividualChartSettings
-): Promise<Blob> => {
-  try {
-    // Wait for fonts to load before capturing
-    await new Promise(resolve => setTimeout(resolve, 500));
-    if (document.fonts && document.fonts.ready) {
-      await document.fonts.ready;
-    }
-
-    // Find the A4 container inside the preview element
-    const a4Container = previewElement.querySelector('#printA4-individual-table') as HTMLElement;
-    if (!a4Container) {
-      throw new Error('A4 container not found in preview element');
-    }
-
-    // Convert to canvas - capturing the actual visible element
-    const canvas = await html2canvas(a4Container, {
-      scale: 3, // Higher quality
-      useCORS: true,
-      backgroundColor: '#ffffff',
-      foreignObjectRendering: false,
-      allowTaint: false,
-      imageTimeout: 30000,
-      logging: false,
-      onclone: (clonedDoc) => {
-        const style = clonedDoc.createElement('style');
-        style.textContent = `
-          * {
-            -webkit-font-smoothing: antialiased !important;
-            -moz-osx-font-smoothing: grayscale !important;
-            text-rendering: optimizeLegibility !important;
-            font-display: swap !important;
-          }
-        `;
-        clonedDoc.head.appendChild(style);
-      }
-    });
-
-    // Create PDF
-    const { width, height } = PAPER_SIZES[settings.paperSize];
-    const pdf = new jsPDF({
-      orientation: 'portrait',
-      unit: 'mm',
-      format: [width, height]
-    });
-
-    // Add the canvas as image to PDF
-    const imgData = canvas.toDataURL('image/png');
-    pdf.addImage(imgData, 'PNG', 0, 0, width, height);
-
-    return pdf.output('blob');
-  } catch (error) {
-    console.error('Error capturing preview element:', error);
-    throw error;
-  }
-};
-
-/**
- * Generate PDF for individual table seating chart (for Round/Square tables)
+ * Generate PDF for individual table seating chart
  */
 export const generateIndividualTableChartPDF = async (
   settings: IndividualChartSettings,
   table: TableWithGuestCount,
   guests: Guest[],
-  event: any,
-  previewElement?: HTMLElement | null
+  event: any
 ): Promise<Blob> => {
-  // For Long tables with a preview element, capture directly
-  if (settings.tableShape === 'long' && previewElement) {
-    return generateIndividualTableChartPDFFromElement(previewElement, settings);
-  }
-
-  // For Round/Square tables, use the existing SVG generation approach
   const svgContent = generateIndividualTableSVG(settings, table, guests, event);
   
   // Create a temporary container for rendering

@@ -11,7 +11,7 @@
  * Last completed: 2025-10-04
  */
 
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -82,9 +82,6 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
   const [isExportingAll, setIsExportingAll] = useState(false);
   const [longTableSuggestionShown, setLongTableSuggestionShown] = useState<Set<string>>(new Set());
   const [showGuestLimitWarning, setShowGuestLimitWarning] = useState(false);
-  
-  // Ref to the preview component for direct capture (used for Long tables)
-  const previewRef = useRef<HTMLDivElement>(null);
 
   const { events, loading: eventsLoading } = useEvents();
   const { tables, loading: tablesLoading } = useTables(selectedEventId);
@@ -166,13 +163,11 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
     try {
       toast.info('Generating PDF...');
       
-      // For Long tables, pass the preview ref for direct capture
       const pdfBlob = await generateIndividualTableChartPDF(
         settings,
         selectedTable,
         guests,
-        selectedEvent,
-        settings.tableShape === 'long' ? previewRef.current : null
+        selectedEvent
       );
       
       const eventName = formatEventNameForFile(selectedEvent.name);
@@ -390,8 +385,8 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
             />
           </div>
 
-          {/* Preview - wrapped with ref for direct capture */}
-          <div className="lg:col-span-3" ref={previewRef}>
+          {/* Preview */}
+          <div className="lg:col-span-3">
             <IndividualTableChartPreview
               settings={settings}
               table={selectedTable}
