@@ -269,135 +269,7 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
     setReceptionLocationOpen(false);
   };
 
-  // Location Details Popover Component for Ceremony
-  const CeremonyLocationDetails = () => (
-    <Popover open={ceremonyLocationOpen} onOpenChange={(open) => {
-      if (open) handleCeremonyLocationOpen();
-    }}>
-      <PopoverTrigger asChild>
-        <Button 
-          variant="outline" 
-          className={`${inputClass} w-full justify-start font-normal ${
-            (formData.ceremony_venue_address || formData.ceremony_venue_phone || formData.ceremony_venue_contact) 
-              ? 'text-foreground' 
-              : 'text-muted-foreground'
-          }`}
-        >
-          <MapPin className="mr-2 h-4 w-4" />
-          {(formData.ceremony_venue_address || formData.ceremony_venue_phone || formData.ceremony_venue_contact) 
-            ? 'Details Added' 
-            : 'Add Details'}
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent 
-        className="w-80 p-4 space-y-3" 
-        align="start"
-        onInteractOutside={(e) => e.preventDefault()}
-        onEscapeKeyDown={(e) => e.preventDefault()}
-      >
-        <div className="space-y-1.5">
-          <Label className="text-xs">Address</Label>
-          <Input
-            value={tempCeremonyLocation.address}
-            onChange={(e) => setTempCeremonyLocation(prev => ({ ...prev, address: e.target.value }))}
-            placeholder="Enter venue address"
-            className={inputClass}
-          />
-        </div>
-        <div className="space-y-1.5">
-          <Label className="text-xs">Venue Phone Number</Label>
-          <Input
-            value={tempCeremonyLocation.phone}
-            onChange={(e) => setTempCeremonyLocation(prev => ({ ...prev, phone: e.target.value }))}
-            placeholder="Enter phone number"
-            className={inputClass}
-          />
-        </div>
-        <div className="space-y-1.5">
-          <Label className="text-xs">Venue Contact Person</Label>
-          <Input
-            value={tempCeremonyLocation.contact}
-            onChange={(e) => setTempCeremonyLocation(prev => ({ ...prev, contact: e.target.value }))}
-            placeholder="Enter contact person name"
-            className={inputClass}
-          />
-        </div>
-        <div className="flex justify-end gap-2 pt-2 border-t">
-          <Button variant="outline" size="sm" onClick={handleCeremonyLocationCancel}>
-            Cancel
-          </Button>
-          <Button size="sm" className="bg-green-500 hover:bg-green-600" onClick={handleCeremonyLocationSave}>
-            Save
-          </Button>
-        </div>
-      </PopoverContent>
-    </Popover>
-  );
-
-  // Location Details Popover Component for Reception
-  const ReceptionLocationDetails = () => (
-    <Popover open={receptionLocationOpen} onOpenChange={(open) => {
-      if (open) handleReceptionLocationOpen();
-    }}>
-      <PopoverTrigger asChild>
-        <Button 
-          variant="outline" 
-          className={`${inputClass} w-full justify-start font-normal ${
-            (formData.venue_address || formData.venue_phone || formData.venue_contact) 
-              ? 'text-foreground' 
-              : 'text-muted-foreground'
-          }`}
-        >
-          <MapPin className="mr-2 h-4 w-4" />
-          {(formData.venue_address || formData.venue_phone || formData.venue_contact) 
-            ? 'Details Added' 
-            : 'Add Details'}
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent 
-        className="w-80 p-4 space-y-3" 
-        align="start"
-        onInteractOutside={(e) => e.preventDefault()}
-        onEscapeKeyDown={(e) => e.preventDefault()}
-      >
-        <div className="space-y-1.5">
-          <Label className="text-xs">Address</Label>
-          <Input
-            value={tempReceptionLocation.address}
-            onChange={(e) => setTempReceptionLocation(prev => ({ ...prev, address: e.target.value }))}
-            placeholder="Enter venue address"
-            className={inputClass}
-          />
-        </div>
-        <div className="space-y-1.5">
-          <Label className="text-xs">Venue Phone Number</Label>
-          <Input
-            value={tempReceptionLocation.phone}
-            onChange={(e) => setTempReceptionLocation(prev => ({ ...prev, phone: e.target.value }))}
-            placeholder="Enter phone number"
-            className={inputClass}
-          />
-        </div>
-        <div className="space-y-1.5">
-          <Label className="text-xs">Venue Contact Person</Label>
-          <Input
-            value={tempReceptionLocation.contact}
-            onChange={(e) => setTempReceptionLocation(prev => ({ ...prev, contact: e.target.value }))}
-            placeholder="Enter contact person name"
-            className={inputClass}
-          />
-        </div>
-        <div className="flex justify-end gap-2 pt-2 border-t">
-          <Button variant="outline" size="sm" onClick={handleReceptionLocationCancel}>
-            Cancel
-          </Button>
-          <Button size="sm" className="bg-green-500 hover:bg-green-600" onClick={handleReceptionLocationSave}>
-            Save
-          </Button>
-        </div>
-      </PopoverContent>
-    </Popover>
-  );
+  // Popover content is now rendered inline to avoid component remounting issues
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
@@ -494,7 +366,67 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
                   </div>
                   <div className="space-y-1.5">
                     <Label className="text-xs">Location Details</Label>
-                    <CeremonyLocationDetails />
+                    <Popover open={ceremonyLocationOpen} onOpenChange={(open) => {
+                      if (open) handleCeremonyLocationOpen();
+                    }}>
+                      <PopoverTrigger asChild>
+                        <Button 
+                          variant="outline" 
+                          className={`${inputClass} w-full justify-start font-normal ${
+                            (formData.ceremony_venue_address || formData.ceremony_venue_phone || formData.ceremony_venue_contact) 
+                              ? 'text-foreground' 
+                              : 'text-muted-foreground'
+                          }`}
+                        >
+                          <MapPin className="mr-2 h-4 w-4" />
+                          {(formData.ceremony_venue_address || formData.ceremony_venue_phone || formData.ceremony_venue_contact) 
+                            ? 'Details Added' 
+                            : 'Add Details'}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent 
+                        className="w-80 p-4 space-y-3" 
+                        align="start"
+                        onInteractOutside={(e) => e.preventDefault()}
+                        onEscapeKeyDown={(e) => e.preventDefault()}
+                      >
+                        <div className="space-y-1.5">
+                          <Label className="text-xs">Address</Label>
+                          <Input
+                            value={tempCeremonyLocation.address}
+                            onChange={(e) => setTempCeremonyLocation(prev => ({ ...prev, address: e.target.value }))}
+                            placeholder="Enter venue address"
+                            className={inputClass}
+                          />
+                        </div>
+                        <div className="space-y-1.5">
+                          <Label className="text-xs">Venue Phone Number</Label>
+                          <Input
+                            value={tempCeremonyLocation.phone}
+                            onChange={(e) => setTempCeremonyLocation(prev => ({ ...prev, phone: e.target.value }))}
+                            placeholder="Enter phone number"
+                            className={inputClass}
+                          />
+                        </div>
+                        <div className="space-y-1.5">
+                          <Label className="text-xs">Venue Contact Person</Label>
+                          <Input
+                            value={tempCeremonyLocation.contact}
+                            onChange={(e) => setTempCeremonyLocation(prev => ({ ...prev, contact: e.target.value }))}
+                            placeholder="Enter contact person name"
+                            className={inputClass}
+                          />
+                        </div>
+                        <div className="flex justify-end gap-2 pt-2 border-t">
+                          <Button variant="outline" size="sm" onClick={handleCeremonyLocationCancel}>
+                            Cancel
+                          </Button>
+                          <Button size="sm" className="bg-green-500 hover:bg-green-600" onClick={handleCeremonyLocationSave}>
+                            Save
+                          </Button>
+                        </div>
+                      </PopoverContent>
+                    </Popover>
                   </div>
                 </div>
 
@@ -631,7 +563,67 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
                   </div>
                   <div className="space-y-1.5">
                     <Label className="text-xs">Location Details</Label>
-                    <ReceptionLocationDetails />
+                    <Popover open={receptionLocationOpen} onOpenChange={(open) => {
+                      if (open) handleReceptionLocationOpen();
+                    }}>
+                      <PopoverTrigger asChild>
+                        <Button 
+                          variant="outline" 
+                          className={`${inputClass} w-full justify-start font-normal ${
+                            (formData.venue_address || formData.venue_phone || formData.venue_contact) 
+                              ? 'text-foreground' 
+                              : 'text-muted-foreground'
+                          }`}
+                        >
+                          <MapPin className="mr-2 h-4 w-4" />
+                          {(formData.venue_address || formData.venue_phone || formData.venue_contact) 
+                            ? 'Details Added' 
+                            : 'Add Details'}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent 
+                        className="w-80 p-4 space-y-3" 
+                        align="start"
+                        onInteractOutside={(e) => e.preventDefault()}
+                        onEscapeKeyDown={(e) => e.preventDefault()}
+                      >
+                        <div className="space-y-1.5">
+                          <Label className="text-xs">Address</Label>
+                          <Input
+                            value={tempReceptionLocation.address}
+                            onChange={(e) => setTempReceptionLocation(prev => ({ ...prev, address: e.target.value }))}
+                            placeholder="Enter venue address"
+                            className={inputClass}
+                          />
+                        </div>
+                        <div className="space-y-1.5">
+                          <Label className="text-xs">Venue Phone Number</Label>
+                          <Input
+                            value={tempReceptionLocation.phone}
+                            onChange={(e) => setTempReceptionLocation(prev => ({ ...prev, phone: e.target.value }))}
+                            placeholder="Enter phone number"
+                            className={inputClass}
+                          />
+                        </div>
+                        <div className="space-y-1.5">
+                          <Label className="text-xs">Venue Contact Person</Label>
+                          <Input
+                            value={tempReceptionLocation.contact}
+                            onChange={(e) => setTempReceptionLocation(prev => ({ ...prev, contact: e.target.value }))}
+                            placeholder="Enter contact person name"
+                            className={inputClass}
+                          />
+                        </div>
+                        <div className="flex justify-end gap-2 pt-2 border-t">
+                          <Button variant="outline" size="sm" onClick={handleReceptionLocationCancel}>
+                            Cancel
+                          </Button>
+                          <Button size="sm" className="bg-green-500 hover:bg-green-600" onClick={handleReceptionLocationSave}>
+                            Save
+                          </Button>
+                        </div>
+                      </PopoverContent>
+                    </Popover>
                   </div>
                 </div>
 
