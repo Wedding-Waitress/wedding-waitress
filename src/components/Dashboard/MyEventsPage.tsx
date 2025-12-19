@@ -390,6 +390,31 @@ export const MyEventsPage: React.FC = () => {
         </div>
       </div>;
   };
+  // Helper to format date for ceremony/reception boxes
+  const formatBoxDate = (dateStr: string | null) => {
+    if (!dateStr) return 'TBD';
+    const d = new Date(dateStr);
+    return d.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  };
+
+  // Helper to format time range for boxes
+  const formatBoxTime = (startTime: string | null, finishTime: string | null) => {
+    if (!startTime) return 'TBD';
+    const formatTime = (time: string) => {
+      const [hours, minutes] = time.split(':');
+      const hour = parseInt(hours);
+      const ampm = hour >= 12 ? 'PM' : 'AM';
+      const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
+      return `${displayHour}:${minutes} ${ampm}`;
+    };
+    const start = formatTime(startTime);
+    const finish = finishTime ? formatTime(finishTime) : null;
+    return finish ? `${start} - ${finish}` : start;
+  };
+
+  const hasCeremony = selectedEvent?.ceremony_enabled;
+  const hasReception = selectedEvent?.reception_enabled !== false; // Default to true if not set
+
   return <div className="space-y-6">
       {/* Countdown Section */}
       <Card className="ww-box p-8 mx-0">
@@ -398,22 +423,90 @@ export const MyEventsPage: React.FC = () => {
           {/* D) Countdown Circles with Timer lifecycle - use key for reset */}
           <CountdownTimer key={activeEventId} eventId={activeEventId} />
 
-          {/* C) Event Name and Time Range binding */}
-          {selectedEvent && <div className="space-y-1 transition-opacity duration-300 ease-in-out">
+          {/* C) Event Name binding */}
+          {selectedEvent && <div className="space-y-4 transition-opacity duration-300 ease-in-out">
                 <p className="text-2xl font-medium text-[#7248e6]">
                   {selectedEvent.name}
                 </p>
-              <p className="text-muted-foreground">
-                {formatEventDate(selectedEvent)}
-                {formatTimeRange(selectedEvent) && <> - {formatTimeRange(selectedEvent)}</>}
-              </p>
+                
+                {/* Ceremony & Reception Detail Boxes */}
+                <div className={`flex justify-center gap-4 flex-wrap ${hasCeremony && hasReception ? '' : 'max-w-md mx-auto'}`}>
+                  {/* Ceremony Box */}
+                  {hasCeremony && (
+                    <div className="flex-1 min-w-[200px] max-w-[280px] bg-muted/30 rounded-xl p-4 border border-border">
+                      <h4 className="font-semibold text-primary mb-2">Ceremony</h4>
+                      <div className="space-y-1 text-sm text-muted-foreground">
+                        <p><span className="font-medium">Date:</span> {formatBoxDate(selectedEvent.ceremony_date)}</p>
+                        <p><span className="font-medium">Time:</span> {formatBoxTime(selectedEvent.ceremony_start_time, selectedEvent.ceremony_finish_time)}</p>
+                        <p><span className="font-medium">Venue:</span> {selectedEvent.ceremony_venue || 'TBD'}</p>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Reception Box */}
+                  {hasReception && (
+                    <div className="flex-1 min-w-[200px] max-w-[280px] bg-muted/30 rounded-xl p-4 border border-border">
+                      <h4 className="font-semibold text-primary mb-2">Reception</h4>
+                      <div className="space-y-1 text-sm text-muted-foreground">
+                        <p><span className="font-medium">Date:</span> {formatBoxDate(selectedEvent.date)}</p>
+                        <p><span className="font-medium">Time:</span> {formatBoxTime(selectedEvent.start_time, selectedEvent.finish_time)}</p>
+                        <p><span className="font-medium">Venue:</span> {selectedEvent.venue || 'TBD'}</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
             </div>}
         </div>
       </Card>
 
+      {/* Ceremony Details Card - only show when ceremony is enabled */}
+      {selectedEvent?.ceremony_enabled && (
+        <Card className="ww-box p-6 mx-0">
+          <h3 className="text-2xl font-medium text-[#7248e6] mb-4">
+            Ceremony Details - {selectedEvent.ceremony_name || selectedEvent.name}
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="space-y-1">
+              <p className="text-sm font-medium text-muted-foreground">Ceremony Name</p>
+              <p className="text-foreground">{selectedEvent.ceremony_name || 'Not set'}</p>
+            </div>
+            <div className="space-y-1">
+              <p className="text-sm font-medium text-muted-foreground">Ceremony Date</p>
+              <p className="text-foreground">{formatBoxDate(selectedEvent.ceremony_date)}</p>
+            </div>
+            <div className="space-y-1">
+              <p className="text-sm font-medium text-muted-foreground">Ceremony Venue</p>
+              <p className="text-foreground">{selectedEvent.ceremony_venue || 'Not set'}</p>
+            </div>
+            <div className="space-y-1">
+              <p className="text-sm font-medium text-muted-foreground">Start Time</p>
+              <p className="text-foreground">{selectedEvent.ceremony_start_time ? formatBoxTime(selectedEvent.ceremony_start_time, null) : 'Not set'}</p>
+            </div>
+            <div className="space-y-1">
+              <p className="text-sm font-medium text-muted-foreground">Finish Time</p>
+              <p className="text-foreground">{selectedEvent.ceremony_finish_time ? formatBoxTime(selectedEvent.ceremony_finish_time, null) : 'Not set'}</p>
+            </div>
+            <div className="space-y-1">
+              <p className="text-sm font-medium text-muted-foreground">Guest Limit</p>
+              <p className="text-foreground">{selectedEvent.ceremony_guest_limit || 'Not set'}</p>
+            </div>
+          </div>
+        </Card>
+      )}
+
       {/* Events Table with controlled radios */}
       <div className="overflow-x-auto">
-        <EventsTable events={events} loading={loading} activeEventId={activeEventId} setActiveEventId={setActiveEventId} createEvent={createEvent} updateEvent={updateEvent} deleteEvent={deleteEvent} onEventSelect={handleCountdownEventSelect} />
+        <EventsTable 
+          events={events} 
+          loading={loading} 
+          activeEventId={activeEventId} 
+          setActiveEventId={setActiveEventId} 
+          createEvent={createEvent} 
+          updateEvent={updateEvent} 
+          deleteEvent={deleteEvent} 
+          onEventSelect={handleCountdownEventSelect}
+          selectedEvent={selectedEvent}
+        />
       </div>
     </div>;
 };
