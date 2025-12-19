@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { StatsBar } from "@/components/Dashboard/StatsBar";
 import { AppSidebar } from "@/components/Dashboard/AppSidebar";
 import { DashboardHeader } from "@/components/Dashboard/DashboardHeader";
@@ -8,17 +8,21 @@ import { GuestListTable } from "@/components/Dashboard/GuestListTable";
 import { CreateTableModal } from "@/components/Dashboard/CreateTableModal";
 import { TableCard } from "@/components/Dashboard/TableCard";
 import { SortableTablesGrid } from "@/components/Dashboard/Tables/SortableTablesGrid";
+import { UnassignedGuestsPanel } from "@/components/Dashboard/Tables/UnassignedGuestsPanel";
+import { BulkMoveBar } from "@/components/Dashboard/Tables/BulkMoveBar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/enhanced-button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Calendar, Users, MapPin, QrCode, Mail, Heart, Settings, TrendingUp, Plus, Printer } from "lucide-react";
+import { Calendar, Users, MapPin, QrCode, Mail, Heart, Settings, TrendingUp, Plus, Printer, Undo2 } from "lucide-react";
 import { normalizeRsvp } from '@/lib/rsvp';
 import { useEvents } from '@/hooks/useEvents';
 import { useTables, TableWithGuestCount } from '@/hooks/useTables';
 import { useRealtimeGuests } from '@/hooks/useRealtimeGuests';
 import { useRealtimeTables } from '@/hooks/useRealtimeTables';
 import { useProfile } from '@/hooks/useProfile';
+import { useUndoStack } from '@/hooks/useUndoStack';
+import { useToast } from '@/hooks/use-toast';
 import { QRCodeSeatingChart } from '@/components/Dashboard/QRCode/QRCodeSeatingChart';
 import { QRCodeFeatureGrid } from '@/components/Dashboard/QRCode/QRCodeFeatureGrid';
 import { KitchenDietaryChart } from '@/components/Dashboard/QRCode/KitchenDietaryChart';
@@ -102,6 +106,14 @@ export const Dashboard = () => {
     moveGuest,
     reorderGuestsWithSeats
   } = useRealtimeGuests(selectedEventId);
+
+  // Undo stack for guest moves
+  const { pushAction, undo, canUndo, lastAction } = useUndoStack();
+  const { toast } = useToast();
+
+  // Bulk selection state
+  const [selectedGuestIds, setSelectedGuestIds] = useState<Set<string>>(new Set());
+  const [isBulkMoving, setIsBulkMoving] = useState(false);
 
   // Real-time tables with live guest counts
   const {
@@ -245,19 +257,109 @@ export const Dashboard = () => {
   const handleGuestMove = async (
     guestId: string, 
     sourceTableId: string | null, 
-    destTableId: string, 
+    destTableId: string | null, 
     guestName: string,
     insertAtIndex?: number
   ): Promise<boolean> => {
-    const destTable = tables.find(t => t.id === destTableId);
-    if (!destTable) return false;
+    const guest = guests.find(g => g.id === guestId);
+    const destTable = destTableId ? tables.find(t => t.id === destTableId) : null;
+    
+    // Save to undo stack before moving
+    if (guest) {
+      pushAction({
+        guestId,
+        guestName,
+        previousTableId: sourceTableId,
+        previousTableNo: guest.table_no,
+        previousSeatNo: guest.seat_no,
+        newTableId: destTableId,
+      });
+    }
+    
     return await moveGuest({
       guestId,
       sourceTableId,
       destTableId,
-      destTableNo: destTable.table_no,
+      destTableNo: destTable?.table_no ?? null,
       guestName,
       insertAtIndex
+    });
+  };
+
+  // Handle undo
+  const handleUndo = useCallback(async () => {
+    const action = undo();
+    if (!action) return;
+    
+    const prevTable = action.previousTableId ? tables.find(t => t.id === action.previousTableId) : null;
+    
+    await moveGuest({
+      guestId: action.guestId,
+      sourceTableId: action.newTableId,
+      destTableId: action.previousTableId,
+      destTableNo: prevTable?.table_no ?? null,
+      guestName: action.guestName,
+    });
+    
+    toast({
+      title: "Undo successful",
+      description: `Moved ${action.guestName} back`,
+    });
+  }, [undo, tables, moveGuest, toast]);
+
+  // Ctrl+Z keyboard shortcut
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'z' && canUndo && activeTab === 'table-list') {
+        e.preventDefault();
+        handleUndo();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [canUndo, handleUndo, activeTab]);
+
+  // Bulk move handler
+  const handleBulkMove = async (destTableId: string | null) => {
+    if (selectedGuestIds.size === 0) return;
+    setIsBulkMoving(true);
+    
+    const destTable = destTableId ? tables.find(t => t.id === destTableId) : null;
+    let successCount = 0;
+    
+    for (const guestId of selectedGuestIds) {
+      const guest = guests.find(g => g.id === guestId);
+      if (!guest) continue;
+      
+      const success = await moveGuest({
+        guestId,
+        sourceTableId: guest.table_id,
+        destTableId,
+        destTableNo: destTable?.table_no ?? null,
+        guestName: `${guest.first_name} ${guest.last_name || ''}`.trim(),
+      });
+      if (success) successCount++;
+    }
+    
+    setSelectedGuestIds(new Set());
+    setIsBulkMoving(false);
+    
+    toast({
+      title: "Bulk move complete",
+      description: `Moved ${successCount} guest${successCount !== 1 ? 's' : ''}`,
+    });
+  };
+
+  // Toggle guest selection
+  const toggleGuestSelection = (guestId: string) => {
+    setSelectedGuestIds(prev => {
+      const next = new Set(prev);
+      if (next.has(guestId)) {
+        next.delete(guestId);
+      } else {
+        next.add(guestId);
+      }
+      return next;
     });
   };
 

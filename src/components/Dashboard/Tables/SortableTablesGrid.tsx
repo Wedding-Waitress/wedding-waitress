@@ -7,6 +7,7 @@ import {
   rectIntersection,
   KeyboardSensor,
   PointerSensor,
+  TouchSensor,
   useSensor,
   useSensors,
   DragStartEvent,
@@ -14,6 +15,7 @@ import {
   DragEndEvent,
   UniqueIdentifier,
   CollisionDetection,
+  Announcements,
 } from '@dnd-kit/core';
 import { sortableKeyboardCoordinates, arrayMove } from '@dnd-kit/sortable';
 import { SortableGuestItem } from './SortableGuestItem';
@@ -26,12 +28,14 @@ interface DragStateContextType {
   activeGuestId: string | null;
   overGuestId: string | null;
   overTableId: string | null;
+  isOverUnassigned: boolean;
 }
 
 const DragStateContext = createContext<DragStateContextType>({
   activeGuestId: null,
   overGuestId: null,
   overTableId: null,
+  isOverUnassigned: false,
 });
 
 export const useDragState = () => useContext(DragStateContext);
@@ -43,7 +47,7 @@ interface SortableTablesGridProps {
   onMoveGuest: (
     guestId: string, 
     sourceTableId: string | null, 
-    destTableId: string, 
+    destTableId: string | null, 
     guestName: string,
     insertAtIndex?: number
   ) => Promise<boolean>;
@@ -51,6 +55,7 @@ interface SortableTablesGridProps {
     tableId: string,
     orderedGuestIds: string[]
   ) => Promise<boolean>;
+  onGuestMoved?: (guestName: string, tableName: string | null, previousTableId: string | null, previousSeatNo: number | null) => void;
 }
 
 export const SortableTablesGrid: React.FC<SortableTablesGridProps> = ({
@@ -59,21 +64,63 @@ export const SortableTablesGrid: React.FC<SortableTablesGridProps> = ({
   guests,
   onMoveGuest,
   onReorderGuests,
+  onGuestMoved,
 }) => {
   const [activeGuest, setActiveGuest] = useState<Guest | null>(null);
   const [activeTableId, setActiveTableId] = useState<string | null>(null);
   const [overTableId, setOverTableId] = useState<string | null>(null);
   const [overGuestId, setOverGuestId] = useState<string | null>(null);
+  const [isOverUnassigned, setIsOverUnassigned] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const processingRef = useRef(false);
   const lastOverGuestRef = useRef<string | null>(null);
   const stickyTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const { toast } = useToast();
 
+  // Accessibility announcements for screen readers
+  const announcements: Announcements = {
+    onDragStart({ active }) {
+      const guest = active.data.current?.guest;
+      return guest ? `Picked up ${guest.first_name} ${guest.last_name || ''}` : 'Picked up guest';
+    },
+    onDragOver({ active, over }) {
+      if (!over) return 'Not over a valid drop area';
+      const overData = over.data.current;
+      if (overData?.type === 'table') {
+        const table = tables.find(t => t.id === overData.tableId);
+        return table ? `Over table ${table.name}` : 'Over a table';
+      }
+      if (overData?.type === 'unassigned') {
+        return 'Over unassigned guests area';
+      }
+      if (overData?.type === 'guest') {
+        const overGuest = overData.guest;
+        return overGuest ? `Over ${overGuest.first_name} ${overGuest.last_name || ''}` : 'Over a guest';
+      }
+      return '';
+    },
+    onDragEnd({ active, over }) {
+      const guest = active.data.current?.guest;
+      if (!over) {
+        return guest ? `Dropped ${guest.first_name} outside valid area` : 'Dropped outside valid area';
+      }
+      return guest ? `Dropped ${guest.first_name}` : 'Dropped guest';
+    },
+    onDragCancel() {
+      return 'Drag cancelled';
+    },
+  };
+
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
         distance: 8,
+      },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 200,
+        tolerance: 5,
       },
     }),
     useSensor(KeyboardSensor, {
@@ -128,11 +175,23 @@ export const SortableTablesGrid: React.FC<SortableTablesGridProps> = ({
     if (!over) {
       setOverTableId(null);
       setOverGuestId(null);
+      setIsOverUnassigned(false);
       lastOverGuestRef.current = null;
       return;
     }
 
     const overData = over.data.current;
+    
+    // Check if over unassigned drop zone
+    if (overData?.type === 'unassigned') {
+      setOverTableId(null);
+      setOverGuestId(null);
+      setIsOverUnassigned(true);
+      lastOverGuestRef.current = null;
+      return;
+    }
+    
+    setIsOverUnassigned(false);
     
     // Check if over a table droppable
     if (overData?.type === 'table') {
@@ -169,6 +228,7 @@ export const SortableTablesGrid: React.FC<SortableTablesGridProps> = ({
     setActiveTableId(null);
     setOverTableId(null);
     setOverGuestId(null);
+    setIsOverUnassigned(false);
 
     if (!over || !active) return;
 
@@ -194,12 +254,17 @@ export const SortableTablesGrid: React.FC<SortableTablesGridProps> = ({
 
     const draggedGuest = activeData.guest as Guest;
     const sourceTableId = draggedGuest.table_id;
+    const previousSeatNo = draggedGuest.seat_no;
 
     // Determine destination table and position
     let destTableId: string | null = null;
     let insertAtIndex: number | undefined = undefined;
 
-    if (overData?.type === 'table') {
+    // Handle drop on unassigned area
+    if (overData?.type === 'unassigned') {
+      destTableId = null;
+      insertAtIndex = undefined;
+    } else if (overData?.type === 'table') {
       // Dropped directly on a table container
       destTableId = overData.tableId;
       // Insert at end - exclude dragged guest for consistent counting
@@ -240,7 +305,8 @@ export const SortableTablesGrid: React.FC<SortableTablesGridProps> = ({
       }
     }
 
-    if (!destTableId) return;
+    // If moving to same location (null to null), don't process
+    if (sourceTableId === null && destTableId === null) return;
 
       // Same table reordering
       if (sourceTableId === destTableId) {
@@ -306,14 +372,31 @@ export const SortableTablesGrid: React.FC<SortableTablesGridProps> = ({
       processingRef.current = false;
       setIsProcessing(false);
     }
-  }, [guests, onMoveGuest, onReorderGuests, toast]);
+  }, [guests, tables, onMoveGuest, onReorderGuests, onGuestMoved, toast]);
 
   // Create drag state context value
   const dragStateValue: DragStateContextType = {
     activeGuestId: activeGuest?.id || null,
     overGuestId,
     overTableId,
+    isOverUnassigned,
   };
+
+  // Compute predicted seat for overlay
+  const predictedSeat = (() => {
+    if (!activeGuest || !overTableId) return null;
+    const destTableGuests = guests
+      .filter(g => g.table_id === overTableId && g.id !== activeGuest.id)
+      .sort((a, b) => (a.seat_no || 0) - (b.seat_no || 0));
+    
+    if (overGuestId) {
+      const overIndex = destTableGuests.findIndex(g => g.id === overGuestId);
+      const isLastGuest = overIndex === destTableGuests.length - 1;
+      if (isLastGuest) return destTableGuests.length + 1;
+      return (overIndex >= 0 ? overIndex : destTableGuests.length) + 1;
+    }
+    return destTableGuests.length + 1;
+  })();
 
   return (
     <DndContext
@@ -322,6 +405,7 @@ export const SortableTablesGrid: React.FC<SortableTablesGridProps> = ({
       onDragStart={handleDragStart}
       onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}
+      accessibility={{ announcements }}
     >
       <DragStateContext.Provider value={dragStateValue}>
         {/* Pass overTableId to children via context or props if needed */}
@@ -339,6 +423,17 @@ export const SortableTablesGrid: React.FC<SortableTablesGridProps> = ({
         {activeGuest ? (
           <div className="w-48">
             <SortableGuestItem guest={activeGuest} isOverlay />
+            {/* Show predicted seat number when over a table */}
+            {overTableId && predictedSeat && (
+              <div className="text-xs text-center mt-1.5 text-primary font-medium bg-background/90 rounded-full px-2 py-0.5 shadow-sm">
+                → Seat #{predictedSeat}
+              </div>
+            )}
+            {isOverUnassigned && (
+              <div className="text-xs text-center mt-1.5 text-muted-foreground font-medium bg-background/90 rounded-full px-2 py-0.5 shadow-sm">
+                → Unassign
+              </div>
+            )}
           </div>
         ) : null}
       </DragOverlay>
