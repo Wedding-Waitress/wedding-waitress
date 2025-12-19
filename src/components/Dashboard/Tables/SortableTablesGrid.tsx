@@ -66,6 +66,8 @@ export const SortableTablesGrid: React.FC<SortableTablesGridProps> = ({
   const [overGuestId, setOverGuestId] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const processingRef = useRef(false);
+  const lastOverGuestRef = useRef<string | null>(null);
+  const stickyTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const { toast } = useToast();
 
   const sensors = useSensors(
@@ -79,19 +81,24 @@ export const SortableTablesGrid: React.FC<SortableTablesGridProps> = ({
     })
   );
 
-  // Custom collision detection for cross-container sorting
+  // Custom collision detection - prioritize guest collisions for stable targeting
   const collisionDetection: CollisionDetection = useCallback((args) => {
-    // First, check for intersections with the closest center
+    // First, check for closest center collisions
     const closestCenterCollisions = closestCenter(args);
     
-    // Then check pointer collision for table droppables
-    const pointerCollisions = pointerWithin(args);
+    // Filter to only guest collisions (prioritize guests over tables)
+    const guestCollisions = closestCenterCollisions.filter(collision => {
+      const container = args.droppableContainers.find(c => c.id === collision.id);
+      return container?.data?.current?.type === 'guest';
+    });
     
-    // Combine results, prioritizing guest collisions for sorting
-    if (closestCenterCollisions.length > 0) {
-      return closestCenterCollisions;
+    // Prioritize guest collisions if any exist
+    if (guestCollisions.length > 0) {
+      return guestCollisions;
     }
     
+    // Fall back to pointer detection for tables
+    const pointerCollisions = pointerWithin(args);
     if (pointerCollisions.length > 0) {
       return pointerCollisions;
     }
@@ -112,9 +119,16 @@ export const SortableTablesGrid: React.FC<SortableTablesGridProps> = ({
   const handleDragOver = useCallback((event: DragOverEvent) => {
     const { over } = event;
     
+    // Clear any pending sticky timeout
+    if (stickyTimeoutRef.current) {
+      clearTimeout(stickyTimeoutRef.current);
+      stickyTimeoutRef.current = null;
+    }
+    
     if (!over) {
       setOverTableId(null);
       setOverGuestId(null);
+      lastOverGuestRef.current = null;
       return;
     }
 
@@ -123,15 +137,28 @@ export const SortableTablesGrid: React.FC<SortableTablesGridProps> = ({
     // Check if over a table droppable
     if (overData?.type === 'table') {
       setOverTableId(overData.tableId);
-      setOverGuestId(null);
+      
+      // Add "stickiness" - don't immediately clear overGuestId if we just came from a guest
+      // This prevents jitter when near the boundary
+      if (lastOverGuestRef.current !== null) {
+        // Give a brief delay before clearing, to stabilize the indicator
+        stickyTimeoutRef.current = setTimeout(() => {
+          setOverGuestId(null);
+          lastOverGuestRef.current = null;
+        }, 80);
+      } else {
+        setOverGuestId(null);
+      }
     } else if (overData?.type === 'guest') {
       // Over a guest - track both the guest and the table
       const overGuest = overData.guest as Guest;
       setOverTableId(overGuest.table_id);
       setOverGuestId(overGuest.id);
+      lastOverGuestRef.current = overGuest.id;
     } else {
       setOverTableId(null);
       setOverGuestId(null);
+      lastOverGuestRef.current = null;
     }
   }, []);
 
@@ -175,17 +202,17 @@ export const SortableTablesGrid: React.FC<SortableTablesGridProps> = ({
     if (overData?.type === 'table') {
       // Dropped directly on a table container
       destTableId = overData.tableId;
-      // Insert at end
-      const destTableGuests = guests.filter(g => g.table_id === destTableId);
+      // Insert at end - exclude dragged guest for consistent counting
+      const destTableGuests = guests.filter(g => g.table_id === destTableId && g.id !== draggedGuest.id);
       insertAtIndex = destTableGuests.length;
     } else if (overData?.type === 'guest') {
       // Dropped on another guest - insert at that position
       const overGuest = overData.guest as Guest;
       destTableId = overGuest.table_id;
       
-      // Get all guests in the destination table sorted by seat_no
+      // CRITICAL: Exclude the dragged guest from destTableGuests to match useRealtimeGuests calculation
       const destTableGuests = guests
-        .filter(g => g.table_id === destTableId)
+        .filter(g => g.table_id === destTableId && g.id !== draggedGuest.id)
         .sort((a, b) => {
           const aHasSeat = a.seat_no !== null && a.seat_no !== undefined;
           const bHasSeat = b.seat_no !== null && b.seat_no !== undefined;
@@ -195,18 +222,21 @@ export const SortableTablesGrid: React.FC<SortableTablesGridProps> = ({
           return 0;
         });
       
-      // Find the index of the guest we're dropping on
+      // Find the index of the guest we're dropping on (in the filtered list)
       const overIndex = destTableGuests.findIndex(g => g.id === overGuest.id);
       
-      // If dropping on the LAST guest, place AFTER them (as the new last)
+      // If dropping on the LAST guest in the filtered list, place AFTER them
       const isLastGuest = overIndex === destTableGuests.length - 1;
       
       if (isLastGuest) {
         // Place after the last guest (at the end)
         insertAtIndex = destTableGuests.length;
+      } else if (overIndex >= 0) {
+        // Place before the target guest
+        insertAtIndex = overIndex;
       } else {
-        // Place before the target guest (existing behavior)
-        insertAtIndex = overIndex >= 0 ? overIndex : destTableGuests.length;
+        // Fallback: if overGuest not found (it's the dragged guest), place at end
+        insertAtIndex = destTableGuests.length;
       }
     }
 
