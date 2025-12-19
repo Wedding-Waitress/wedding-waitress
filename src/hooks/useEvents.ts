@@ -68,8 +68,10 @@ export const useEvents = () => {
         supabase.from('events').select(`
           id, relation_mode, 
           ceremony_enabled, ceremony_name, ceremony_date, ceremony_venue, 
-          ceremony_venue_address, ceremony_guest_limit, ceremony_start_time, 
-          ceremony_finish_time, ceremony_rsvp_deadline, reception_enabled
+          ceremony_venue_address, ceremony_venue_phone, ceremony_venue_contact,
+          ceremony_guest_limit, ceremony_start_time, 
+          ceremony_finish_time, ceremony_rsvp_deadline, reception_enabled,
+          venue_address, venue_phone, venue_contact
         `),
       ]);
       
@@ -99,11 +101,16 @@ export const useEvents = () => {
           ceremony_date: extraData.ceremony_date ?? null,
           ceremony_venue: extraData.ceremony_venue ?? null,
           ceremony_venue_address: extraData.ceremony_venue_address ?? null,
+          ceremony_venue_phone: extraData.ceremony_venue_phone ?? null,
+          ceremony_venue_contact: extraData.ceremony_venue_contact ?? null,
           ceremony_guest_limit: extraData.ceremony_guest_limit ?? null,
           ceremony_start_time: extraData.ceremony_start_time ?? null,
           ceremony_finish_time: extraData.ceremony_finish_time ?? null,
           ceremony_rsvp_deadline: extraData.ceremony_rsvp_deadline ?? null,
           reception_enabled: extraData.reception_enabled ?? true,
+          venue_address: extraData.venue_address ?? null,
+          venue_phone: extraData.venue_phone ?? null,
+          venue_contact: extraData.venue_contact ?? null,
         };
       }));
     } catch (error) {
@@ -162,11 +169,18 @@ export const useEvents = () => {
           ceremony_name: (eventData as any).ceremony_name || null,
           ceremony_date: (eventData as any).ceremony_date || null,
           ceremony_venue: (eventData as any).ceremony_venue || null,
+          ceremony_venue_address: (eventData as any).ceremony_venue_address || null,
+          ceremony_venue_phone: (eventData as any).ceremony_venue_phone || null,
+          ceremony_venue_contact: (eventData as any).ceremony_venue_contact || null,
           ceremony_guest_limit: (eventData as any).ceremony_guest_limit || null,
           ceremony_start_time: (eventData as any).ceremony_start_time || null,
           ceremony_finish_time: (eventData as any).ceremony_finish_time || null,
           ceremony_rsvp_deadline: (eventData as any).ceremony_rsvp_deadline || null,
           reception_enabled: (eventData as any).reception_enabled ?? true,
+          // Reception venue details
+          venue_address: (eventData as any).venue_address || null,
+          venue_phone: (eventData as any).venue_phone || null,
+          venue_contact: (eventData as any).venue_contact || null,
         }])
         .select()
         .single();
