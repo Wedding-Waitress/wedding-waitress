@@ -25,7 +25,7 @@ export const EventNameCombobox: React.FC<EventNameComboboxProps> = ({
   mainEventName,
   value,
   onChange,
-  placeholder = "e.g., Bride & Groom's Name"
+  placeholder = "e.g.; Bride & Groom's Name"
 }) => {
   const [open, setOpen] = useState(false);
   const [showCustomInput, setShowCustomInput] = useState(false);
@@ -68,17 +68,17 @@ export const EventNameCombobox: React.FC<EventNameComboboxProps> = ({
           role="combobox"
           aria-expanded={open}
           className={cn(
-            "w-full justify-between font-normal rounded-full border-2 h-9 text-sm pl-3 pr-6",
+            "w-full justify-between font-normal rounded-full border-2 h-9 text-sm pl-3 pr-3 overflow-hidden",
             "focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none",
             hasValue
               ? "border-green-500 hover:border-green-500 focus-visible:border-green-500"
               : "border-primary hover:border-primary focus-visible:border-primary"
           )}
         >
-          <span className={cn(!hasValue && "text-muted-foreground")}>
+          <span className={cn("truncate flex-1 text-left", !hasValue && "text-muted-foreground")}>
             {value || placeholder}
           </span>
-          <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50 mr-1" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[280px] p-0 bg-popover border border-border shadow-lg z-50" align="start">
