@@ -301,7 +301,9 @@ export const useRealtimeGuests = (eventId: string | null): UseRealtimeGuestsRetu
     try {
       // First, shift the seat numbers of guests that come after the insertion point
       if (guestsToShift.length > 0 && newSeatNo !== null) {
-        for (let i = 0; i < guestsToShift.length; i++) {
+        // Shift in reverse order to avoid unique constraint violations
+        // (each guest moves into a slot that's just been vacated)
+        for (let i = guestsToShift.length - 1; i >= 0; i--) {
           const guestToShift = guestsToShift[i];
           const shiftedSeatNo = newSeatNo + 1 + i;
           await supabase
