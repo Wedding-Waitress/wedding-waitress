@@ -438,7 +438,7 @@ export const MyEventsPage: React.FC = () => {
                       <div className="space-y-1 text-sm text-muted-foreground">
                         <p><span className="font-medium">Date:</span> {formatBoxDate(selectedEvent.ceremony_date)}</p>
                         <p><span className="font-medium">Time:</span> {formatBoxTime(selectedEvent.ceremony_start_time, selectedEvent.ceremony_finish_time)}</p>
-                        <p><span className="font-medium">Venue:</span> {selectedEvent.ceremony_venue || 'TBD'}</p>
+                        <p><span className="font-medium">Venue:</span> {selectedEvent.ceremony_venue ? `${selectedEvent.ceremony_venue}${selectedEvent.ceremony_venue_address ? ` - ${selectedEvent.ceremony_venue_address}` : ''}` : 'TBD'}</p>
                       </div>
                     </div>
                   )}
@@ -450,7 +450,7 @@ export const MyEventsPage: React.FC = () => {
                       <div className="space-y-1 text-sm text-muted-foreground">
                         <p><span className="font-medium">Date:</span> {formatBoxDate(selectedEvent.date)}</p>
                         <p><span className="font-medium">Time:</span> {formatBoxTime(selectedEvent.start_time, selectedEvent.finish_time)}</p>
-                        <p><span className="font-medium">Venue:</span> {selectedEvent.venue || 'TBD'}</p>
+                        <p><span className="font-medium">Venue:</span> {selectedEvent.venue ? `${selectedEvent.venue}${selectedEvent.venue_address ? ` - ${selectedEvent.venue_address}` : ''}` : 'TBD'}</p>
                       </div>
                     </div>
                   )}
@@ -476,7 +476,7 @@ export const MyEventsPage: React.FC = () => {
             </div>
             <div className="space-y-1">
               <p className="text-sm font-medium text-muted-foreground">Ceremony Venue</p>
-              <p className="text-foreground">{selectedEvent.ceremony_venue || 'Not set'}</p>
+              <p className="text-foreground">{selectedEvent.ceremony_venue ? `${selectedEvent.ceremony_venue}${selectedEvent.ceremony_venue_address ? ` - ${selectedEvent.ceremony_venue_address}` : ''}` : 'Not set'}</p>
             </div>
             <div className="space-y-1">
               <p className="text-sm font-medium text-muted-foreground">Start Time</p>
