@@ -18,6 +18,7 @@ import { Switch } from "@/components/ui/switch";
 import { EventDatePicker } from './EventDatePicker';
 import { TimePicker } from './TimePicker';
 import { LocationDetailsPopover } from './LocationDetailsPopover';
+import { EventNameCombobox } from './EventNameCombobox';
 import { format } from 'date-fns';
 
 interface Event {
@@ -294,11 +295,11 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
                 <div className="grid grid-cols-3 gap-3">
                   <div className="space-y-1.5">
                     <Label className="text-xs">Ceremony Name *</Label>
-                    <Input
+                    <EventNameCombobox
+                      mainEventName={formData.event_name}
                       value={formData.ceremony_name}
-                      onChange={(e) => setFormData(prev => ({ ...prev, ceremony_name: e.target.value }))}
+                      onChange={(name) => setFormData(prev => ({ ...prev, ceremony_name: name }))}
                       placeholder="e.g., Bride & Groom's Name"
-                      className={getInputClass(!!formData.ceremony_name.trim())}
                     />
                   </div>
                   <div className="space-y-1.5">
@@ -447,11 +448,11 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
                 <div className="grid grid-cols-3 gap-3">
                   <div className="space-y-1.5">
                     <Label className="text-xs">Event Name *</Label>
-                    <Input
+                    <EventNameCombobox
+                      mainEventName={formData.event_name}
                       value={formData.name}
-                      onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                      onChange={(name) => setFormData(prev => ({ ...prev, name }))}
                       placeholder="e.g., Bride & Groom's Name"
-                      className={getInputClass(!!formData.name.trim())}
                     />
                   </div>
                   <div className="space-y-1.5">
