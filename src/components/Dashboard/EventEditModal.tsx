@@ -102,6 +102,22 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
 
   const [isSaving, setIsSaving] = useState(false);
 
+  // Controlled popover states
+  const [ceremonyLocationOpen, setCeremonyLocationOpen] = useState(false);
+  const [receptionLocationOpen, setReceptionLocationOpen] = useState(false);
+
+  // Temporary state for location details editing
+  const [tempCeremonyLocation, setTempCeremonyLocation] = useState({
+    address: '',
+    phone: '',
+    contact: ''
+  });
+  const [tempReceptionLocation, setTempReceptionLocation] = useState({
+    address: '',
+    phone: '',
+    contact: ''
+  });
+
   // Populate form when event changes
   useEffect(() => {
     if (event) {
@@ -243,9 +259,59 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
 
   const inputClass = "rounded-full border-2 border-primary focus-visible:border-primary focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none h-9 text-sm";
 
+  // Ceremony location popover handlers
+  const handleCeremonyLocationOpen = () => {
+    setTempCeremonyLocation({
+      address: formData.ceremony_venue_address,
+      phone: formData.ceremony_venue_phone,
+      contact: formData.ceremony_venue_contact
+    });
+    setCeremonyLocationOpen(true);
+  };
+
+  const handleCeremonyLocationSave = () => {
+    setFormData(prev => ({
+      ...prev,
+      ceremony_venue_address: tempCeremonyLocation.address,
+      ceremony_venue_phone: tempCeremonyLocation.phone,
+      ceremony_venue_contact: tempCeremonyLocation.contact
+    }));
+    setCeremonyLocationOpen(false);
+  };
+
+  const handleCeremonyLocationCancel = () => {
+    setCeremonyLocationOpen(false);
+  };
+
+  // Reception location popover handlers
+  const handleReceptionLocationOpen = () => {
+    setTempReceptionLocation({
+      address: formData.venue_address,
+      phone: formData.venue_phone,
+      contact: formData.venue_contact
+    });
+    setReceptionLocationOpen(true);
+  };
+
+  const handleReceptionLocationSave = () => {
+    setFormData(prev => ({
+      ...prev,
+      venue_address: tempReceptionLocation.address,
+      venue_phone: tempReceptionLocation.phone,
+      venue_contact: tempReceptionLocation.contact
+    }));
+    setReceptionLocationOpen(false);
+  };
+
+  const handleReceptionLocationCancel = () => {
+    setReceptionLocationOpen(false);
+  };
+
   // Location Details Popover Component for Ceremony
   const CeremonyLocationDetails = () => (
-    <Popover>
+    <Popover open={ceremonyLocationOpen} onOpenChange={(open) => {
+      if (open) handleCeremonyLocationOpen();
+    }}>
       <PopoverTrigger asChild>
         <Button 
           variant="outline" 
@@ -261,12 +327,17 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
             : 'Add Details'}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-80 p-4 space-y-3" align="start">
+      <PopoverContent 
+        className="w-80 p-4 space-y-3" 
+        align="start"
+        onInteractOutside={(e) => e.preventDefault()}
+        onEscapeKeyDown={(e) => e.preventDefault()}
+      >
         <div className="space-y-1.5">
           <Label className="text-xs">Address</Label>
           <Input
-            value={formData.ceremony_venue_address}
-            onChange={(e) => setFormData(prev => ({ ...prev, ceremony_venue_address: e.target.value }))}
+            value={tempCeremonyLocation.address}
+            onChange={(e) => setTempCeremonyLocation(prev => ({ ...prev, address: e.target.value }))}
             placeholder="Enter venue address"
             className={inputClass}
           />
@@ -274,8 +345,8 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
         <div className="space-y-1.5">
           <Label className="text-xs">Venue Phone Number</Label>
           <Input
-            value={formData.ceremony_venue_phone}
-            onChange={(e) => setFormData(prev => ({ ...prev, ceremony_venue_phone: e.target.value }))}
+            value={tempCeremonyLocation.phone}
+            onChange={(e) => setTempCeremonyLocation(prev => ({ ...prev, phone: e.target.value }))}
             placeholder="Enter phone number"
             className={inputClass}
           />
@@ -283,11 +354,19 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
         <div className="space-y-1.5">
           <Label className="text-xs">Venue Contact Person</Label>
           <Input
-            value={formData.ceremony_venue_contact}
-            onChange={(e) => setFormData(prev => ({ ...prev, ceremony_venue_contact: e.target.value }))}
+            value={tempCeremonyLocation.contact}
+            onChange={(e) => setTempCeremonyLocation(prev => ({ ...prev, contact: e.target.value }))}
             placeholder="Enter contact person name"
             className={inputClass}
           />
+        </div>
+        <div className="flex justify-end gap-2 pt-2 border-t">
+          <Button variant="outline" size="sm" onClick={handleCeremonyLocationCancel}>
+            Cancel
+          </Button>
+          <Button size="sm" className="bg-green-500 hover:bg-green-600" onClick={handleCeremonyLocationSave}>
+            Save
+          </Button>
         </div>
       </PopoverContent>
     </Popover>
@@ -295,7 +374,9 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
 
   // Location Details Popover Component for Reception
   const ReceptionLocationDetails = () => (
-    <Popover>
+    <Popover open={receptionLocationOpen} onOpenChange={(open) => {
+      if (open) handleReceptionLocationOpen();
+    }}>
       <PopoverTrigger asChild>
         <Button 
           variant="outline" 
@@ -311,12 +392,17 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
             : 'Add Details'}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-80 p-4 space-y-3" align="start">
+      <PopoverContent 
+        className="w-80 p-4 space-y-3" 
+        align="start"
+        onInteractOutside={(e) => e.preventDefault()}
+        onEscapeKeyDown={(e) => e.preventDefault()}
+      >
         <div className="space-y-1.5">
           <Label className="text-xs">Address</Label>
           <Input
-            value={formData.venue_address}
-            onChange={(e) => setFormData(prev => ({ ...prev, venue_address: e.target.value }))}
+            value={tempReceptionLocation.address}
+            onChange={(e) => setTempReceptionLocation(prev => ({ ...prev, address: e.target.value }))}
             placeholder="Enter venue address"
             className={inputClass}
           />
@@ -324,8 +410,8 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
         <div className="space-y-1.5">
           <Label className="text-xs">Venue Phone Number</Label>
           <Input
-            value={formData.venue_phone}
-            onChange={(e) => setFormData(prev => ({ ...prev, venue_phone: e.target.value }))}
+            value={tempReceptionLocation.phone}
+            onChange={(e) => setTempReceptionLocation(prev => ({ ...prev, phone: e.target.value }))}
             placeholder="Enter phone number"
             className={inputClass}
           />
@@ -333,11 +419,19 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
         <div className="space-y-1.5">
           <Label className="text-xs">Venue Contact Person</Label>
           <Input
-            value={formData.venue_contact}
-            onChange={(e) => setFormData(prev => ({ ...prev, venue_contact: e.target.value }))}
+            value={tempReceptionLocation.contact}
+            onChange={(e) => setTempReceptionLocation(prev => ({ ...prev, contact: e.target.value }))}
             placeholder="Enter contact person name"
             className={inputClass}
           />
+        </div>
+        <div className="flex justify-end gap-2 pt-2 border-t">
+          <Button variant="outline" size="sm" onClick={handleReceptionLocationCancel}>
+            Cancel
+          </Button>
+          <Button size="sm" className="bg-green-500 hover:bg-green-600" onClick={handleReceptionLocationSave}>
+            Save
+          </Button>
         </div>
       </PopoverContent>
     </Popover>
