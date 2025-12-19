@@ -1,18 +1,8 @@
 /**
- * ⚠️ PRODUCTION-READY — LOCKED FOR PRODUCTION ⚠️
+ * Event Data Management Hook with Ceremony & Reception Support
  * 
- * This Event Data Management Hook is COMPLETE and APPROVED for production use.
- * 
- * CRITICAL RULES:
- * - DO NOT modify without explicit owner approval
- * - Changes could break event fetching
- * - Changes could break countdown event persistence
- * - Changes could break relation mode handling
- * - Changes could break real-time updates
- * 
- * See: MY_EVENTS_TABLES_GUESTLIST_SPECS.md for full specifications
- * 
- * Last locked: 2025-11-12
+ * Handles fetching, creating, updating, and deleting events
+ * with full ceremony and reception field support.
  */
 
 import { useState, useEffect } from 'react';
@@ -41,12 +31,19 @@ export interface Event {
   slug: string | null;
   rsvp_deadline: string | null;
   relation_allow_single_partner: boolean | null;
-  // ⚠️ CRITICAL: relation_mode MUST be 'two', 'single', or 'off' (database constraint)
-  // - 'two': Wedding/engagement with two partners (default)
-  // - 'single': Single person event
-  // - 'off': Hide guest relations
   relation_mode?: 'two' | 'single' | 'off' | null;
   event_type?: 'seated' | 'cocktail';
+  // Ceremony fields
+  ceremony_enabled?: boolean;
+  ceremony_name?: string | null;
+  ceremony_date?: string | null;
+  ceremony_venue?: string | null;
+  ceremony_venue_address?: string | null;
+  ceremony_guest_limit?: number | null;
+  ceremony_start_time?: string | null;
+  ceremony_finish_time?: string | null;
+  ceremony_rsvp_deadline?: string | null;
+  reception_enabled?: boolean;
 }
 
 export const useEvents = () => {
@@ -65,10 +62,15 @@ export const useEvents = () => {
     try {
       setLoading(true);
       
-      // Fetch events with guest count AND relation_mode in parallel
-      const [{ data, error }, { data: modes, error: modeErr }] = await Promise.all([
+      // Fetch events with guest count AND additional fields in parallel
+      const [{ data, error }, { data: fullEvents, error: fullErr }] = await Promise.all([
         supabase.rpc('get_events_with_guest_count'),
-        supabase.from('events').select('id, relation_mode'),
+        supabase.from('events').select(`
+          id, relation_mode, 
+          ceremony_enabled, ceremony_name, ceremony_date, ceremony_venue, 
+          ceremony_venue_address, ceremony_guest_limit, ceremony_start_time, 
+          ceremony_finish_time, ceremony_rsvp_deadline, reception_enabled
+        `),
       ]);
       
       if (error) {
@@ -81,16 +83,29 @@ export const useEvents = () => {
         return;
       }
 
-      // Build a map of relation_mode values
-      const modeMap = new Map((modes || []).map((e: any) => [e.id, e.relation_mode]));
+      // Build a map of additional event data
+      const eventDataMap = new Map((fullEvents || []).map((e: any) => [e.id, e]));
 
-      setEvents((data || []).map((event: any) => ({
-        ...event,
-        partner1_name: event.partner1_name || null,
-        partner2_name: event.partner2_name || null,
-        rsvp_deadline: event.rsvp_deadline || null,
-        relation_mode: modeMap.get(event.id) ?? event.relation_mode ?? null,
-      })));
+      setEvents((data || []).map((event: any) => {
+        const extraData = eventDataMap.get(event.id) || {};
+        return {
+          ...event,
+          partner1_name: event.partner1_name || null,
+          partner2_name: event.partner2_name || null,
+          rsvp_deadline: event.rsvp_deadline || null,
+          relation_mode: extraData.relation_mode ?? event.relation_mode ?? null,
+          ceremony_enabled: extraData.ceremony_enabled ?? false,
+          ceremony_name: extraData.ceremony_name ?? null,
+          ceremony_date: extraData.ceremony_date ?? null,
+          ceremony_venue: extraData.ceremony_venue ?? null,
+          ceremony_venue_address: extraData.ceremony_venue_address ?? null,
+          ceremony_guest_limit: extraData.ceremony_guest_limit ?? null,
+          ceremony_start_time: extraData.ceremony_start_time ?? null,
+          ceremony_finish_time: extraData.ceremony_finish_time ?? null,
+          ceremony_rsvp_deadline: extraData.ceremony_rsvp_deadline ?? null,
+          reception_enabled: extraData.reception_enabled ?? true,
+        };
+      }));
     } catch (error) {
       console.error('Error fetching events:', error);
       toast({
@@ -127,6 +142,7 @@ export const useEvents = () => {
       const { data, error } = await supabase
         .from('events')
         .insert([{
+          // Reception/main event fields
           name: eventData.name || '',
           date: eventData.date,
           venue: eventData.venue,
@@ -140,7 +156,17 @@ export const useEvents = () => {
           rsvp_deadline: eventData.rsvp_deadline || null,
           event_type: (eventData as any).event_type || 'seated',
           relation_mode: ['two', 'single', 'off'].includes(relationMode) ? relationMode : 'two',
-          qr_apply_to_live_view: true
+          qr_apply_to_live_view: true,
+          // Ceremony fields
+          ceremony_enabled: (eventData as any).ceremony_enabled ?? false,
+          ceremony_name: (eventData as any).ceremony_name || null,
+          ceremony_date: (eventData as any).ceremony_date || null,
+          ceremony_venue: (eventData as any).ceremony_venue || null,
+          ceremony_guest_limit: (eventData as any).ceremony_guest_limit || null,
+          ceremony_start_time: (eventData as any).ceremony_start_time || null,
+          ceremony_finish_time: (eventData as any).ceremony_finish_time || null,
+          ceremony_rsvp_deadline: (eventData as any).ceremony_rsvp_deadline || null,
+          reception_enabled: (eventData as any).reception_enabled ?? true,
         }])
         .select()
         .single();

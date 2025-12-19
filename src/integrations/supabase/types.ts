@@ -594,6 +594,15 @@ export type Database = {
       }
       events: {
         Row: {
+          ceremony_date: string | null
+          ceremony_enabled: boolean | null
+          ceremony_finish_time: string | null
+          ceremony_guest_limit: number | null
+          ceremony_name: string | null
+          ceremony_rsvp_deadline: string | null
+          ceremony_start_time: string | null
+          ceremony_venue: string | null
+          ceremony_venue_address: string | null
           created_at: string
           created_date_local: string | null
           custom_roles: Json | null
@@ -616,6 +625,7 @@ export type Database = {
           partner1_name: string | null
           partner2_name: string | null
           qr_apply_to_live_view: boolean | null
+          reception_enabled: boolean | null
           relation_allow_custom_role: boolean | null
           relation_allow_single_partner: boolean | null
           relation_disable_first_guest_alert: boolean | null
@@ -634,6 +644,15 @@ export type Database = {
           venue_place_id: string | null
         }
         Insert: {
+          ceremony_date?: string | null
+          ceremony_enabled?: boolean | null
+          ceremony_finish_time?: string | null
+          ceremony_guest_limit?: number | null
+          ceremony_name?: string | null
+          ceremony_rsvp_deadline?: string | null
+          ceremony_start_time?: string | null
+          ceremony_venue?: string | null
+          ceremony_venue_address?: string | null
           created_at?: string
           created_date_local?: string | null
           custom_roles?: Json | null
@@ -656,6 +675,7 @@ export type Database = {
           partner1_name?: string | null
           partner2_name?: string | null
           qr_apply_to_live_view?: boolean | null
+          reception_enabled?: boolean | null
           relation_allow_custom_role?: boolean | null
           relation_allow_single_partner?: boolean | null
           relation_disable_first_guest_alert?: boolean | null
@@ -674,6 +694,15 @@ export type Database = {
           venue_place_id?: string | null
         }
         Update: {
+          ceremony_date?: string | null
+          ceremony_enabled?: boolean | null
+          ceremony_finish_time?: string | null
+          ceremony_guest_limit?: number | null
+          ceremony_name?: string | null
+          ceremony_rsvp_deadline?: string | null
+          ceremony_start_time?: string | null
+          ceremony_venue?: string | null
+          ceremony_venue_address?: string | null
           created_at?: string
           created_date_local?: string | null
           custom_roles?: Json | null
@@ -696,6 +725,7 @@ export type Database = {
           partner1_name?: string | null
           partner2_name?: string | null
           qr_apply_to_live_view?: boolean | null
+          reception_enabled?: boolean | null
           relation_allow_custom_role?: boolean | null
           relation_allow_single_partner?: boolean | null
           relation_disable_first_guest_alert?: boolean | null

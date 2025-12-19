@@ -1,17 +1,12 @@
 /**
- * ⚠️ PRODUCTION-READY — LOCKED FOR PRODUCTION ⚠️
+ * Event Editing Modal with Ceremony & Reception Sections
  * 
- * This Event Editing Form feature is COMPLETE and APPROVED for production use.
+ * Two-section layout matching EventCreateModal:
+ * - Ceremony section (toggle on/off)
+ * - Reception section (toggle on/off)
  * 
- * CRITICAL RULES:
- * - DO NOT modify without explicit owner approval
- * - Changes could break event type toggle design
- * - Changes could break form population
- * - Changes could break event updates
- * 
- * See: MY_EVENTS_TABLES_GUESTLIST_SPECS.md for full specifications
- * 
- * Last locked: 2025-11-12
+ * At least one section must be enabled to save.
+ * 3-column layout for compact display.
  */
 
 import React, { useState, useEffect } from 'react';
@@ -19,9 +14,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { EventDatePicker } from './EventDatePicker';
 import { TimePicker } from './TimePicker';
 import { format } from 'date-fns';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 
 interface Event {
   id: string;
@@ -39,6 +36,16 @@ interface Event {
   event_timezone: string | null;
   rsvp_deadline: string | null;
   event_type?: 'seated' | 'cocktail';
+  // Ceremony fields
+  ceremony_enabled?: boolean;
+  ceremony_name?: string | null;
+  ceremony_date?: string | null;
+  ceremony_venue?: string | null;
+  ceremony_guest_limit?: number | null;
+  ceremony_start_time?: string | null;
+  ceremony_finish_time?: string | null;
+  ceremony_rsvp_deadline?: string | null;
+  reception_enabled?: boolean;
 }
 
 interface EventEditModalProps {
@@ -55,6 +62,18 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
   onSave
 }) => {
   const [formData, setFormData] = useState({
+    // Ceremony fields
+    ceremony_enabled: false,
+    ceremony_name: '',
+    ceremony_date: null as Date | null,
+    ceremony_venue: '',
+    ceremony_guest_limit: 50,
+    ceremony_start_time: '',
+    ceremony_finish_time: '',
+    ceremony_rsvp_deadline: null as Date | null,
+    
+    // Reception fields
+    reception_enabled: true,
     name: '',
     event_type: 'seated' as 'seated' | 'cocktail',
     date: null as Date | null,
@@ -66,11 +85,25 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
   });
 
   const [isSaving, setIsSaving] = useState(false);
+  const [ceremonyExpanded, setCeremonyExpanded] = useState(true);
+  const [receptionExpanded, setReceptionExpanded] = useState(true);
 
   // Populate form when event changes
   useEffect(() => {
     if (event) {
       setFormData({
+        // Ceremony fields
+        ceremony_enabled: event.ceremony_enabled ?? false,
+        ceremony_name: event.ceremony_name || '',
+        ceremony_date: event.ceremony_date ? new Date(event.ceremony_date) : null,
+        ceremony_venue: event.ceremony_venue || '',
+        ceremony_guest_limit: event.ceremony_guest_limit ?? 50,
+        ceremony_start_time: event.ceremony_start_time || '',
+        ceremony_finish_time: event.ceremony_finish_time || '',
+        ceremony_rsvp_deadline: event.ceremony_rsvp_deadline ? new Date(event.ceremony_rsvp_deadline) : null,
+        
+        // Reception fields
+        reception_enabled: event.reception_enabled ?? true,
         name: event.name,
         event_type: (event.event_type as 'seated' | 'cocktail') || 'seated',
         date: event.date ? new Date(event.date) : null,
@@ -83,20 +116,70 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
     }
   }, [event]);
 
+  const isFormValid = () => {
+    // At least one section must be enabled
+    if (!formData.ceremony_enabled && !formData.reception_enabled) {
+      return false;
+    }
+    
+    // Validate ceremony fields if enabled
+    if (formData.ceremony_enabled) {
+      if (!formData.ceremony_name.trim() || 
+          !formData.ceremony_date || 
+          !formData.ceremony_venue.trim() ||
+          !formData.ceremony_start_time ||
+          !formData.ceremony_finish_time ||
+          !formData.ceremony_rsvp_deadline) {
+        return false;
+      }
+    }
+    
+    // Validate reception fields if enabled
+    if (formData.reception_enabled) {
+      if (!formData.name.trim() || 
+          !formData.date || 
+          !formData.venue.trim() ||
+          !formData.start_time ||
+          !formData.finish_time ||
+          !formData.rsvp_deadline) {
+        return false;
+      }
+    }
+    
+    return true;
+  };
+
   const handleSave = async () => {
-    if (!event || !formData.name.trim()) return;
+    if (!event || !isFormValid()) return;
     
     setIsSaving(true);
     try {
       await onSave(event.id, {
-        name: formData.name,
+        // Ceremony fields
+        ceremony_enabled: formData.ceremony_enabled,
+        ceremony_name: formData.ceremony_enabled ? formData.ceremony_name : null,
+        ceremony_date: formData.ceremony_enabled && formData.ceremony_date 
+          ? format(formData.ceremony_date, 'yyyy-MM-dd') : null,
+        ceremony_venue: formData.ceremony_enabled ? formData.ceremony_venue : null,
+        ceremony_guest_limit: formData.ceremony_enabled ? formData.ceremony_guest_limit : null,
+        ceremony_start_time: formData.ceremony_enabled ? formData.ceremony_start_time : null,
+        ceremony_finish_time: formData.ceremony_enabled ? formData.ceremony_finish_time : null,
+        ceremony_rsvp_deadline: formData.ceremony_enabled && formData.ceremony_rsvp_deadline 
+          ? format(formData.ceremony_rsvp_deadline, 'yyyy-MM-dd') : null,
+        
+        // Reception fields
+        reception_enabled: formData.reception_enabled,
+        name: formData.reception_enabled ? formData.name : (formData.ceremony_name || event.name),
         event_type: formData.event_type,
-        date: formData.date ? format(formData.date, 'yyyy-MM-dd') : null,
-        venue: formData.venue,
-        start_time: formData.start_time || null,
-        finish_time: formData.finish_time || null,
-        guest_limit: formData.guest_limit,
-        rsvp_deadline: formData.rsvp_deadline ? formData.rsvp_deadline.toISOString() : null
+        date: formData.reception_enabled && formData.date 
+          ? format(formData.date, 'yyyy-MM-dd') 
+          : (formData.ceremony_date ? format(formData.ceremony_date, 'yyyy-MM-dd') : null),
+        venue: formData.reception_enabled ? formData.venue : null,
+        start_time: formData.reception_enabled ? formData.start_time : null,
+        finish_time: formData.reception_enabled ? formData.finish_time : null,
+        guest_limit: formData.reception_enabled ? formData.guest_limit : formData.ceremony_guest_limit,
+        rsvp_deadline: formData.reception_enabled && formData.rsvp_deadline 
+          ? formData.rsvp_deadline.toISOString() : null
       });
       onClose();
     } catch (error) {
@@ -108,130 +191,285 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
 
   if (!event) return null;
 
+  const inputClass = "rounded-full border-2 border-primary focus-visible:border-primary focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none h-9 text-sm";
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col px-10">
+      <DialogContent className="max-w-3xl max-h-[90vh] flex flex-col px-8">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-medium text-[#7248e6]">Edit My Events</DialogTitle>
+          <DialogTitle className="text-2xl font-medium text-primary">Edit Event</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-6 py-4 overflow-y-auto flex-1">
-          {/* Row 1: Event Type (Full Width) */}
-          <div className="space-y-2">
-            <Label>Event Type *</Label>
-            <div className="flex items-center gap-1 bg-gray-100 border-2 border-gray-300 rounded-full p-1">
-              <button
-                type="button"
-                onClick={() => setFormData(prev => ({ ...prev, event_type: 'seated' }))}
-                className={`flex-1 px-4 py-2 rounded-full transition-all font-medium ${
-                  formData.event_type === 'seated' 
-                    ? 'bg-green-500 text-white shadow-md' 
-                    : 'bg-transparent text-gray-500 hover:bg-gray-200'
-                }`}
-              >
-                Seated Event
-              </button>
-              <button
-                type="button"
-                onClick={() => setFormData(prev => ({ ...prev, event_type: 'cocktail' }))}
-                className={`flex-1 px-4 py-2 rounded-full transition-all font-medium ${
-                  formData.event_type === 'cocktail' 
-                    ? 'bg-green-500 text-white shadow-md' 
-                    : 'bg-transparent text-gray-500 hover:bg-gray-200'
-                }`}
-              >
-                Cocktail/Stand-up
-              </button>
+        <div className="space-y-4 py-3 overflow-y-auto flex-1">
+          {/* Validation Message */}
+          {!formData.ceremony_enabled && !formData.reception_enabled && (
+            <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-3 text-sm text-destructive">
+              Please enable at least one section (Ceremony or Reception) to save.
             </div>
-            <p className="text-xs text-muted-foreground">
-              {formData.event_type === 'seated' ? 'Guests will be assigned to tables with seats' : 'No table assignments needed - guests mingle freely'}
-            </p>
+          )}
+
+          {/* ========== CEREMONY SECTION ========== */}
+          <div className="border-2 border-border rounded-xl overflow-hidden">
+            {/* Ceremony Header */}
+            <div 
+              className="flex items-center justify-between px-4 py-3 bg-muted/50 cursor-pointer"
+              onClick={() => setCeremonyExpanded(!ceremonyExpanded)}
+            >
+              <div className="flex items-center gap-3">
+                <h3 className="text-lg font-semibold text-foreground">Ceremony</h3>
+                {ceremonyExpanded ? (
+                  <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                ) : (
+                  <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                )}
+              </div>
+              <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                <span className="text-sm text-muted-foreground">
+                  {formData.ceremony_enabled ? 'Yes' : 'No'}
+                </span>
+                <Switch
+                  checked={formData.ceremony_enabled}
+                  onCheckedChange={(checked) => setFormData(prev => ({ ...prev, ceremony_enabled: checked }))}
+                />
+              </div>
+            </div>
+
+            {/* Ceremony Content */}
+            {ceremonyExpanded && formData.ceremony_enabled && (
+              <div className="p-4 space-y-4">
+                {/* Row 1: Name, Date, Location */}
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Ceremony Name *</Label>
+                    <Input
+                      value={formData.ceremony_name}
+                      onChange={(e) => setFormData(prev => ({ ...prev, ceremony_name: e.target.value }))}
+                      placeholder="e.g., Wedding Ceremony"
+                      className={inputClass}
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Ceremony Date *</Label>
+                    <EventDatePicker
+                      value={formData.ceremony_date}
+                      onChange={(date) => setFormData(prev => ({ ...prev, ceremony_date: date }))}
+                      placeholder="Select date"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Location *</Label>
+                    <Input
+                      value={formData.ceremony_venue}
+                      onChange={(e) => setFormData(prev => ({ ...prev, ceremony_venue: e.target.value }))}
+                      placeholder="e.g., Church"
+                      className={inputClass}
+                    />
+                  </div>
+                </div>
+
+                {/* Row 2: Guest Limit, Start Time, Finish Time */}
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Guest Limit</Label>
+                    <Input
+                      type="number"
+                      value={formData.ceremony_guest_limit}
+                      onChange={(e) => setFormData(prev => ({ ...prev, ceremony_guest_limit: parseInt(e.target.value) || 50 }))}
+                      min="1"
+                      className={inputClass}
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Start Time *</Label>
+                    <TimePicker
+                      value={formData.ceremony_start_time}
+                      onChange={(time) => setFormData(prev => ({ ...prev, ceremony_start_time: time }))}
+                      placeholder="Select time"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Finish Time *</Label>
+                    <TimePicker
+                      value={formData.ceremony_finish_time}
+                      onChange={(time) => setFormData(prev => ({ ...prev, ceremony_finish_time: time }))}
+                      placeholder="Select time"
+                    />
+                  </div>
+                </div>
+
+                {/* Row 3: RSVP Deadline */}
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">RSVP Deadline *</Label>
+                    <EventDatePicker
+                      value={formData.ceremony_rsvp_deadline}
+                      onChange={(date) => setFormData(prev => ({ ...prev, ceremony_rsvp_deadline: date }))}
+                      placeholder="Select deadline"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Collapsed state message */}
+            {ceremonyExpanded && !formData.ceremony_enabled && (
+              <div className="p-4 text-center text-muted-foreground text-sm">
+                Toggle on to add ceremony details
+              </div>
+            )}
           </div>
 
-          {/* Row 2: Event Name & Event Date */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="event-name">Event Name *</Label>
-              <Input
-                id="event-name"
-                value={formData.name}
-                onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                placeholder="Enter event name"
-                autoFocus
-                className="rounded-full border-2 border-[#7248e6] focus-visible:border-[#7248e6] focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none"
-              />
+          {/* ========== RECEPTION SECTION ========== */}
+          <div className="border-2 border-border rounded-xl overflow-hidden">
+            {/* Reception Header */}
+            <div 
+              className="flex items-center justify-between px-4 py-3 bg-muted/50 cursor-pointer"
+              onClick={() => setReceptionExpanded(!receptionExpanded)}
+            >
+              <div className="flex items-center gap-3">
+                <h3 className="text-lg font-semibold text-foreground">Reception</h3>
+                {receptionExpanded ? (
+                  <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                ) : (
+                  <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                )}
+              </div>
+              <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                <span className="text-sm text-muted-foreground">
+                  {formData.reception_enabled ? 'Yes' : 'No'}
+                </span>
+                <Switch
+                  checked={formData.reception_enabled}
+                  onCheckedChange={(checked) => setFormData(prev => ({ ...prev, reception_enabled: checked }))}
+                />
+              </div>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="event-date">Event Date</Label>
-              <EventDatePicker
-                value={formData.date}
-                onChange={(date) => setFormData(prev => ({ ...prev, date }))}
-                placeholder="Select event date"
-              />
-            </div>
-          </div>
 
-          {/* Row 2: Venue & Guest Limit */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="venue">Venue</Label>
-              <Input
-                id="venue"
-                value={formData.venue}
-                onChange={(e) => setFormData(prev => ({ ...prev, venue: e.target.value }))}
-                placeholder="Enter venue location"
-                className="rounded-full border-2 border-[#7248e6] focus-visible:border-[#7248e6] focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="guest-limit">Guest Limit</Label>
-              <Input
-                id="guest-limit"
-                type="number"
-                value={formData.guest_limit}
-                onChange={(e) => setFormData(prev => ({ ...prev, guest_limit: parseInt(e.target.value) || 50 }))}
-                min="1"
-                className="rounded-full border-2 border-[#7248e6] focus-visible:border-[#7248e6] focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none"
-              />
-            </div>
-          </div>
+            {/* Reception Content */}
+            {receptionExpanded && formData.reception_enabled && (
+              <div className="p-4 space-y-4">
+                {/* Event Type Toggle - Smaller */}
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Event Type *</Label>
+                  <div className="flex items-center gap-1 bg-muted border border-border rounded-full p-0.5 w-fit">
+                    <button
+                      type="button"
+                      onClick={() => setFormData(prev => ({ ...prev, event_type: 'seated' }))}
+                      className={`px-3 py-1 rounded-full transition-all text-xs font-medium ${
+                        formData.event_type === 'seated' 
+                          ? 'bg-green-500 text-white shadow-sm' 
+                          : 'bg-transparent text-muted-foreground hover:bg-muted-foreground/10'
+                      }`}
+                    >
+                      Seated Event
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setFormData(prev => ({ ...prev, event_type: 'cocktail' }))}
+                      className={`px-3 py-1 rounded-full transition-all text-xs font-medium ${
+                        formData.event_type === 'cocktail' 
+                          ? 'bg-green-500 text-white shadow-sm' 
+                          : 'bg-transparent text-muted-foreground hover:bg-muted-foreground/10'
+                      }`}
+                    >
+                      Cocktail/Stand-up
+                    </button>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    {formData.event_type === 'seated' 
+                      ? 'Guests will be assigned to tables and seats' 
+                      : 'No table assignments - guests mingle freely'}
+                  </p>
+                </div>
 
-          {/* Row 3: Start Time & Finish Time */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="start-time">Start Time</Label>
-              <TimePicker
-                value={formData.start_time}
-                onChange={(time) => setFormData(prev => ({ ...prev, start_time: time }))}
-                placeholder="Select start time"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="finish-time">Finish Time</Label>
-              <TimePicker
-                value={formData.finish_time}
-                onChange={(time) => setFormData(prev => ({ ...prev, finish_time: time }))}
-                placeholder="Select finish time"
-              />
-            </div>
-          </div>
+                {/* Row 1: Name, Date, Venue */}
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Event Name *</Label>
+                    <Input
+                      value={formData.name}
+                      onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                      placeholder="e.g., Wedding Reception"
+                      className={inputClass}
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Event Date *</Label>
+                    <EventDatePicker
+                      value={formData.date}
+                      onChange={(date) => setFormData(prev => ({ ...prev, date }))}
+                      placeholder="Select date"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Venue *</Label>
+                    <Input
+                      value={formData.venue}
+                      onChange={(e) => setFormData(prev => ({ ...prev, venue: e.target.value }))}
+                      placeholder="e.g., Grand Ballroom"
+                      className={inputClass}
+                    />
+                  </div>
+                </div>
 
-          {/* Row 4: RSVP Deadline */}
-          <div className="space-y-2">
-            <Label htmlFor="rsvp-deadline">RSVP Deadline</Label>
-            <EventDatePicker
-              value={formData.rsvp_deadline}
-              onChange={(date) => setFormData(prev => ({ ...prev, rsvp_deadline: date }))}
-              placeholder="Select RSVP deadline"
-            />
+                {/* Row 2: Guest Limit, Start Time, Finish Time */}
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Guest Limit</Label>
+                    <Input
+                      type="number"
+                      value={formData.guest_limit}
+                      onChange={(e) => setFormData(prev => ({ ...prev, guest_limit: parseInt(e.target.value) || 50 }))}
+                      min="1"
+                      className={inputClass}
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Start Time *</Label>
+                    <TimePicker
+                      value={formData.start_time}
+                      onChange={(time) => setFormData(prev => ({ ...prev, start_time: time }))}
+                      placeholder="Select time"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Finish Time *</Label>
+                    <TimePicker
+                      value={formData.finish_time}
+                      onChange={(time) => setFormData(prev => ({ ...prev, finish_time: time }))}
+                      placeholder="Select time"
+                    />
+                  </div>
+                </div>
+
+                {/* Row 3: RSVP Deadline */}
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">RSVP Deadline *</Label>
+                    <EventDatePicker
+                      value={formData.rsvp_deadline}
+                      onChange={(date) => setFormData(prev => ({ ...prev, rsvp_deadline: date }))}
+                      placeholder="Select deadline"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Collapsed state message */}
+            {receptionExpanded && !formData.reception_enabled && (
+              <div className="p-4 text-center text-muted-foreground text-sm">
+                Toggle on to add reception details
+              </div>
+            )}
           </div>
         </div>
 
-        <DialogFooter>
+        <DialogFooter className="pt-2">
           <Button 
             variant="destructive" 
-            size="xs" 
-            className="rounded-full bg-red-600 hover:bg-red-700 text-white" 
+            size="sm" 
+            className="rounded-full" 
             onClick={onClose} 
             disabled={isSaving}
           >
@@ -239,10 +477,10 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
           </Button>
           <Button 
             variant="default"
-            size="xs"
+            size="sm"
             className="rounded-full bg-green-500 hover:bg-green-600 text-white"
             onClick={handleSave} 
-            disabled={!formData.name.trim() || isSaving}
+            disabled={!isFormValid() || isSaving}
           >
             {isSaving ? 'Saving...' : 'Save Changes'}
           </Button>
