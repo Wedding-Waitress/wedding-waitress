@@ -62,6 +62,9 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
   onSave
 }) => {
   const [formData, setFormData] = useState({
+    // Top-level event name
+    event_name: '',
+    
     // Ceremony fields
     ceremony_enabled: false,
     ceremony_name: '',
@@ -92,6 +95,9 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
   useEffect(() => {
     if (event) {
       setFormData({
+        // Top-level event name
+        event_name: (event as any).event_display_name || event.name || '',
+        
         // Ceremony fields
         ceremony_enabled: event.ceremony_enabled ?? false,
         ceremony_name: event.ceremony_name || '',
@@ -196,8 +202,16 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-3xl max-h-[90vh] flex flex-col px-8">
-        <DialogHeader>
-          <DialogTitle className="text-2xl font-medium text-primary">Edit Event</DialogTitle>
+        <DialogHeader className="flex flex-row items-center gap-4">
+          <DialogTitle className="text-2xl font-medium text-primary whitespace-nowrap">Edit Event</DialogTitle>
+          <div className="flex-1">
+            <Input
+              value={formData.event_name}
+              onChange={(e) => setFormData(prev => ({ ...prev, event_name: e.target.value }))}
+              placeholder="e.g., John & Jane's Wedding"
+              className={inputClass}
+            />
+          </div>
         </DialogHeader>
 
         <div className="space-y-4 py-3 overflow-y-auto flex-1">
@@ -244,7 +258,7 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
                     <Input
                       value={formData.ceremony_name}
                       onChange={(e) => setFormData(prev => ({ ...prev, ceremony_name: e.target.value }))}
-                      placeholder="e.g., Wedding Ceremony"
+                      placeholder="e.g., Bride & Groom's Name"
                       className={inputClass}
                     />
                   </div>
@@ -389,7 +403,7 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
                     <Input
                       value={formData.name}
                       onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                      placeholder="e.g., Wedding Reception"
+                      placeholder="e.g., Bride & Groom's Name"
                       className={inputClass}
                     />
                   </div>

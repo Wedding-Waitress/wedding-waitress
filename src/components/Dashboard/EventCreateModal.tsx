@@ -32,6 +32,9 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
   onCreate
 }) => {
   const [formData, setFormData] = useState({
+    // Top-level event name
+    event_name: '',
+    
     // Ceremony fields
     ceremony_enabled: false,
     ceremony_name: '',
@@ -136,6 +139,7 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
 
   const resetForm = () => {
     setFormData({
+      event_name: '',
       ceremony_enabled: false,
       ceremony_name: '',
       ceremony_date: null,
@@ -166,8 +170,16 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="max-w-3xl max-h-[90vh] flex flex-col px-8">
-        <DialogHeader>
-          <DialogTitle className="text-2xl font-medium text-primary">Create Event</DialogTitle>
+        <DialogHeader className="flex flex-row items-center gap-4">
+          <DialogTitle className="text-2xl font-medium text-primary whitespace-nowrap">Create Event</DialogTitle>
+          <div className="flex-1">
+            <Input
+              value={formData.event_name}
+              onChange={(e) => setFormData(prev => ({ ...prev, event_name: e.target.value }))}
+              placeholder="e.g., John & Jane's Wedding"
+              className={inputClass}
+            />
+          </div>
         </DialogHeader>
 
         <div className="space-y-4 py-3 overflow-y-auto flex-1">
@@ -214,7 +226,7 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
                     <Input
                       value={formData.ceremony_name}
                       onChange={(e) => setFormData(prev => ({ ...prev, ceremony_name: e.target.value }))}
-                      placeholder="e.g., Wedding Ceremony"
+                      placeholder="e.g., Bride & Groom's Name"
                       className={inputClass}
                     />
                   </div>
@@ -359,7 +371,7 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
                     <Input
                       value={formData.name}
                       onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                      placeholder="e.g., Wedding Reception"
+                      placeholder="e.g., Bride & Groom's Name"
                       className={inputClass}
                     />
                   </div>
