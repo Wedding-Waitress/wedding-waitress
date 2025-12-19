@@ -58,9 +58,9 @@ export const TableGuestList: React.FC<TableGuestListProps> = ({
         </div>
       </SortableContext>
       
-      {/* Drop indicator at the bottom when guests exist and hovering over table (not a specific guest) */}
+      {/* Drop indicator at the bottom when guests exist and hovering over table (not a specific guest) - solid dark purple with glow */}
       {guests.length > 0 && showDropIndicator && !overGuestId && (
-        <div className="h-2 bg-[#7C3AED] rounded-full mt-2 animate-pulse shadow-lg" />
+        <div className="h-2.5 bg-[#7C3AED] rounded-full mt-2 shadow-[0_0_10px_rgba(124,58,237,0.7)] border-2 border-[#5B21B6]" />
       )}
     </div>
   );
