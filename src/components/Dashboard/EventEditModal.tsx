@@ -9,7 +9,7 @@
  * 3-column layout for compact display.
  */
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -257,19 +257,47 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
 
   if (!event) return null;
 
-  const inputClass = "rounded-full border-2 border-primary focus-visible:border-primary focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none h-9 text-sm";
+  const inputClass = useMemo(() => 
+    "rounded-full border-2 border-primary focus-visible:border-primary focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none h-9 text-sm"
+  , []);
+
+  // Memoized input change handlers for ceremony location
+  const handleCeremonyAddressChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setTempCeremonyLocation(prev => ({ ...prev, address: e.target.value }));
+  }, []);
+
+  const handleCeremonyPhoneChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setTempCeremonyLocation(prev => ({ ...prev, phone: e.target.value }));
+  }, []);
+
+  const handleCeremonyContactChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setTempCeremonyLocation(prev => ({ ...prev, contact: e.target.value }));
+  }, []);
+
+  // Memoized input change handlers for reception location
+  const handleReceptionAddressChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setTempReceptionLocation(prev => ({ ...prev, address: e.target.value }));
+  }, []);
+
+  const handleReceptionPhoneChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setTempReceptionLocation(prev => ({ ...prev, phone: e.target.value }));
+  }, []);
+
+  const handleReceptionContactChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setTempReceptionLocation(prev => ({ ...prev, contact: e.target.value }));
+  }, []);
 
   // Ceremony location popover handlers
-  const handleCeremonyLocationOpen = () => {
+  const handleCeremonyLocationOpen = useCallback(() => {
     setTempCeremonyLocation({
       address: formData.ceremony_venue_address,
       phone: formData.ceremony_venue_phone,
       contact: formData.ceremony_venue_contact
     });
     setCeremonyLocationOpen(true);
-  };
+  }, [formData.ceremony_venue_address, formData.ceremony_venue_phone, formData.ceremony_venue_contact]);
 
-  const handleCeremonyLocationSave = () => {
+  const handleCeremonyLocationSave = useCallback(() => {
     setFormData(prev => ({
       ...prev,
       ceremony_venue_address: tempCeremonyLocation.address,
@@ -277,23 +305,23 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
       ceremony_venue_contact: tempCeremonyLocation.contact
     }));
     setCeremonyLocationOpen(false);
-  };
+  }, [tempCeremonyLocation]);
 
-  const handleCeremonyLocationCancel = () => {
+  const handleCeremonyLocationCancel = useCallback(() => {
     setCeremonyLocationOpen(false);
-  };
+  }, []);
 
   // Reception location popover handlers
-  const handleReceptionLocationOpen = () => {
+  const handleReceptionLocationOpen = useCallback(() => {
     setTempReceptionLocation({
       address: formData.venue_address,
       phone: formData.venue_phone,
       contact: formData.venue_contact
     });
     setReceptionLocationOpen(true);
-  };
+  }, [formData.venue_address, formData.venue_phone, formData.venue_contact]);
 
-  const handleReceptionLocationSave = () => {
+  const handleReceptionLocationSave = useCallback(() => {
     setFormData(prev => ({
       ...prev,
       venue_address: tempReceptionLocation.address,
@@ -301,11 +329,11 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
       venue_contact: tempReceptionLocation.contact
     }));
     setReceptionLocationOpen(false);
-  };
+  }, [tempReceptionLocation]);
 
-  const handleReceptionLocationCancel = () => {
+  const handleReceptionLocationCancel = useCallback(() => {
     setReceptionLocationOpen(false);
-  };
+  }, []);
 
   // Popover content is now rendered inline to avoid component remounting issues
 
@@ -432,7 +460,7 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
                           <Label className="text-xs">Address</Label>
                           <Input
                             value={tempCeremonyLocation.address}
-                            onChange={(e) => setTempCeremonyLocation(prev => ({ ...prev, address: e.target.value }))}
+                            onChange={handleCeremonyAddressChange}
                             placeholder="Enter venue address"
                             className={inputClass}
                           />
@@ -441,7 +469,7 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
                           <Label className="text-xs">Venue Phone Number</Label>
                           <Input
                             value={tempCeremonyLocation.phone}
-                            onChange={(e) => setTempCeremonyLocation(prev => ({ ...prev, phone: e.target.value }))}
+                            onChange={handleCeremonyPhoneChange}
                             placeholder="Enter phone number"
                             className={inputClass}
                           />
@@ -450,7 +478,7 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
                           <Label className="text-xs">Venue Contact Person</Label>
                           <Input
                             value={tempCeremonyLocation.contact}
-                            onChange={(e) => setTempCeremonyLocation(prev => ({ ...prev, contact: e.target.value }))}
+                            onChange={handleCeremonyContactChange}
                             placeholder="Enter contact person name"
                             className={inputClass}
                           />
@@ -629,7 +657,7 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
                           <Label className="text-xs">Address</Label>
                           <Input
                             value={tempReceptionLocation.address}
-                            onChange={(e) => setTempReceptionLocation(prev => ({ ...prev, address: e.target.value }))}
+                            onChange={handleReceptionAddressChange}
                             placeholder="Enter venue address"
                             className={inputClass}
                           />
@@ -638,7 +666,7 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
                           <Label className="text-xs">Venue Phone Number</Label>
                           <Input
                             value={tempReceptionLocation.phone}
-                            onChange={(e) => setTempReceptionLocation(prev => ({ ...prev, phone: e.target.value }))}
+                            onChange={handleReceptionPhoneChange}
                             placeholder="Enter phone number"
                             className={inputClass}
                           />
@@ -647,7 +675,7 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
                           <Label className="text-xs">Venue Contact Person</Label>
                           <Input
                             value={tempReceptionLocation.contact}
-                            onChange={(e) => setTempReceptionLocation(prev => ({ ...prev, contact: e.target.value }))}
+                            onChange={handleReceptionContactChange}
                             placeholder="Enter contact person name"
                             className={inputClass}
                           />
