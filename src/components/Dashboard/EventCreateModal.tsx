@@ -460,7 +460,7 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <Label className="text-xs">Location Details</Label>
+                    <Label className="text-xs">Location/Venue Details</Label>
                     <LocationDetailsPopover
                       address={formData.venue_address}
                       phone={formData.venue_phone}
