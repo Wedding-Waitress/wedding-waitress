@@ -278,7 +278,7 @@ export const useRealtimeGuests = (eventId: string | null): UseRealtimeGuestsRetu
     }
 
     // Handle seat number assignment for destination table
-    let newSeatNo: number | null = guestToMove.seat_no;
+    let newSeatNo: number | null = null;
     let guestsToShift: Guest[] = [];
     
     if (destTableId) {
@@ -287,30 +287,38 @@ export const useRealtimeGuests = (eventId: string | null): UseRealtimeGuestsRetu
         .filter(g => g.table_id === destTableId && g.id !== guestId)
         .sort((a, b) => (a.seat_no || 0) - (b.seat_no || 0));
       
-      if (insertAtIndex !== undefined && insertAtIndex <= destTableGuests.length) {
-        // Insert at specific position - need to shift other guests
-        newSeatNo = insertAtIndex + 1; // Seat numbers are 1-based
+      if (destTableGuests.length === 0) {
+        // Empty table - seat 1
+        newSeatNo = 1;
+        guestsToShift = [];
+      } else if (insertAtIndex !== undefined && insertAtIndex < destTableGuests.length) {
+        // Insert at specific position - get the seat number of the guest we're inserting BEFORE
+        const guestAtPosition = destTableGuests[insertAtIndex];
+        newSeatNo = guestAtPosition.seat_no || insertAtIndex + 1;
         
-        // Identify guests that need their seat numbers shifted
-        guestsToShift = destTableGuests.slice(insertAtIndex);
+        // Shift ALL guests whose seat_no >= newSeatNo (not just array slice)
+        guestsToShift = destTableGuests.filter(g => 
+          g.seat_no !== null && g.seat_no >= newSeatNo!
+        );
       } else {
-        // Insert at end - next seat number after existing guests
-        newSeatNo = destTableGuests.length + 1;
+        // Insert at end - next seat number after the last guest
+        const lastGuest = destTableGuests[destTableGuests.length - 1];
+        newSeatNo = (lastGuest?.seat_no || destTableGuests.length) + 1;
+        guestsToShift = [];
       }
     } else {
       // If moving to unassigned, clear seat number
       newSeatNo = null;
     }
 
-    // Build optimistic state update
+    // Build optimistic state update - shift each guest's seat by +1
     let optimisticGuests = guests.map(g => {
       if (g.id === guestId) {
         return { ...g, table_id: destTableId, table_no: destTableNo, seat_no: newSeatNo };
       }
-      // Shift seat numbers for guests after the insertion point
-      const shiftIndex = guestsToShift.findIndex(sg => sg.id === g.id);
-      if (shiftIndex !== -1 && newSeatNo !== null) {
-        return { ...g, seat_no: newSeatNo + 1 + shiftIndex };
+      // Shift seat numbers: each shifted guest gets their original seat + 1
+      if (guestsToShift.some(sg => sg.id === g.id)) {
+        return { ...g, seat_no: (g.seat_no || 0) + 1 };
       }
       return g;
     });
@@ -320,6 +328,14 @@ export const useRealtimeGuests = (eventId: string | null): UseRealtimeGuestsRetu
     isOperationInProgress.current = true;
 
     try {
+      // Phase 0: Clear the moving guest's seat number first (safety for same-table edge cases)
+      if (guestToMove.seat_no !== null) {
+        await supabase
+          .from('guests')
+          .update({ seat_no: null })
+          .eq('id', guestId);
+      }
+
       // Phase 1: Clear seat numbers for guests that need to shift (avoids unique constraint violations)
       if (guestsToShift.length > 0) {
         const { error: clearError } = await supabase
@@ -356,14 +372,14 @@ export const useRealtimeGuests = (eventId: string | null): UseRealtimeGuestsRetu
         return false;
       }
 
-      // Phase 3: Re-assign shifted guests with their new seat numbers
-      if (guestsToShift.length > 0 && newSeatNo !== null) {
-        for (let i = 0; i < guestsToShift.length; i++) {
-          const shiftedSeatNo = newSeatNo + 1 + i;
+      // Phase 3: Re-assign shifted guests - each gets their original seat_no + 1
+      if (guestsToShift.length > 0) {
+        for (const shiftGuest of guestsToShift) {
+          const newShiftedSeat = (shiftGuest.seat_no || 0) + 1;
           await supabase
             .from('guests')
-            .update({ seat_no: shiftedSeatNo })
-            .eq('id', guestsToShift[i].id);
+            .update({ seat_no: newShiftedSeat })
+            .eq('id', shiftGuest.id);
         }
       }
 
