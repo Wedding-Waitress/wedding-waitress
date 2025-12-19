@@ -225,17 +225,37 @@ export const SortableTablesGrid: React.FC<SortableTablesGridProps> = ({
           });
         
         const oldIndex = tableGuests.findIndex(g => g.id === draggedGuest.id);
-        let newIndex = insertAtIndex !== undefined ? insertAtIndex : tableGuests.length - 1;
         
-        // Adjust newIndex if it exceeds bounds (when placing at end)
-        if (newIndex > tableGuests.length - 1) {
-          newIndex = tableGuests.length - 1;
+        // Calculate target index based on where we're dropping
+        let targetIndex: number;
+        
+        if (overData?.type === 'guest') {
+          const overGuest = overData.guest as Guest;
+          const overIndex = tableGuests.findIndex(g => g.id === overGuest.id);
+          const isLastGuest = overIndex === tableGuests.length - 1;
+          
+          if (isLastGuest) {
+            // Dropping on last guest - place at end (indicator shows AFTER)
+            targetIndex = tableGuests.length - 1;
+          } else {
+            // Dropping on a non-last guest - indicator shows BEFORE them
+            // If dragging from BEFORE the target, subtract 1 because 
+            // arrayMove removes source first, shifting target down
+            if (oldIndex < overIndex) {
+              targetIndex = overIndex - 1;
+            } else {
+              targetIndex = overIndex;
+            }
+          }
+        } else {
+          // Dropped on table container - place at end
+          targetIndex = tableGuests.length - 1;
         }
         
-        if (oldIndex === newIndex) return; // No change
+        if (oldIndex === targetIndex) return; // No change
         
         // Reorder the guests
-        const reorderedGuests = arrayMove(tableGuests, oldIndex, newIndex);
+        const reorderedGuests = arrayMove(tableGuests, oldIndex, targetIndex);
         const orderedGuestIds = reorderedGuests.map(g => g.id);
         
         await onReorderGuests(sourceTableId, orderedGuestIds);
