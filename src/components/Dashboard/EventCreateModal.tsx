@@ -9,7 +9,7 @@
  * 3-column layout for compact display.
  */
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -65,6 +65,13 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
 
   const [isSaving, setIsSaving] = useState(false);
 
+  // Helper to get dynamic border class based on field value
+  const getInputClass = useCallback((hasValue: boolean) => {
+    const baseClass = "rounded-full border-2 focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none h-9 text-sm";
+    return hasValue 
+      ? `${baseClass} border-green-500 focus-visible:border-green-500`
+      : `${baseClass} border-primary focus-visible:border-primary`;
+  }, []);
 
   const isFormValid = useMemo(() => {
     // Event name is required
@@ -203,10 +210,6 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
     }
   };
 
-  const inputClass = useMemo(() => 
-    "rounded-full border-2 border-primary focus-visible:border-primary focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none h-9 text-sm"
-  , []);
-
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="max-w-3xl max-h-[90vh] flex flex-col px-8">
@@ -216,8 +219,8 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
             <Input
               value={formData.event_name}
               onChange={(e) => setFormData(prev => ({ ...prev, event_name: e.target.value }))}
-              placeholder="e.g., Jason & Linda's Wedding"
-              className={inputClass}
+              placeholder="Add the name of your event - e.g., Jason & Linda's Wedding"
+              className={getInputClass(!!formData.event_name.trim())}
             />
           </div>
         </DialogHeader>
@@ -257,7 +260,7 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
                       value={formData.ceremony_name}
                       onChange={(e) => setFormData(prev => ({ ...prev, ceremony_name: e.target.value }))}
                       placeholder="e.g., Bride & Groom's Name"
-                      className={inputClass}
+                      className={getInputClass(!!formData.ceremony_name.trim())}
                     />
                   </div>
                   <div className="space-y-1.5">
@@ -266,6 +269,7 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
                       value={formData.ceremony_date}
                       onChange={(date) => setFormData(prev => ({ ...prev, ceremony_date: date }))}
                       placeholder="Select date"
+                      filled={!!formData.ceremony_date}
                     />
                   </div>
                   <div className="space-y-1.5">
@@ -274,6 +278,7 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
                       value={formData.ceremony_rsvp_deadline}
                       onChange={(date) => setFormData(prev => ({ ...prev, ceremony_rsvp_deadline: date }))}
                       placeholder="Select deadline"
+                      filled={!!formData.ceremony_rsvp_deadline}
                     />
                   </div>
                 </div>
@@ -288,7 +293,7 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
                       value={formData.ceremony_guest_limit}
                       onChange={(e) => handleGuestLimitChange(e.target.value, 'ceremony_guest_limit')}
                       placeholder="10"
-                      className={inputClass}
+                      className={getInputClass(formData.ceremony_guest_limit !== '')}
                     />
                   </div>
                   <div className="space-y-1.5">
@@ -297,7 +302,7 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
                       value={formData.ceremony_venue}
                       onChange={(e) => setFormData(prev => ({ ...prev, ceremony_venue: e.target.value }))}
                       placeholder="e.g., Church/Venue"
-                      className={inputClass}
+                      className={getInputClass(!!formData.ceremony_venue.trim())}
                     />
                   </div>
                   <div className="space-y-1.5">
@@ -314,7 +319,6 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
                           ceremony_venue_contact: contact,
                         }))
                       }
-                      inputClass={inputClass}
                     />
                   </div>
                 </div>
@@ -327,6 +331,7 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
                       value={formData.ceremony_start_time}
                       onChange={(time) => setFormData(prev => ({ ...prev, ceremony_start_time: time }))}
                       placeholder="Select time"
+                      filled={!!formData.ceremony_start_time}
                     />
                   </div>
                   <div className="space-y-1.5">
@@ -335,6 +340,7 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
                       value={formData.ceremony_finish_time}
                       onChange={(time) => setFormData(prev => ({ ...prev, ceremony_finish_time: time }))}
                       placeholder="Select time"
+                      filled={!!formData.ceremony_finish_time}
                     />
                   </div>
                 </div>
@@ -407,7 +413,7 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
                       value={formData.name}
                       onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
                       placeholder="e.g., Bride & Groom's Name"
-                      className={inputClass}
+                      className={getInputClass(!!formData.name.trim())}
                     />
                   </div>
                   <div className="space-y-1.5">
@@ -416,6 +422,7 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
                       value={formData.date}
                       onChange={(date) => setFormData(prev => ({ ...prev, date }))}
                       placeholder="Select date"
+                      filled={!!formData.date}
                     />
                   </div>
                   <div className="space-y-1.5">
@@ -424,11 +431,12 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
                       value={formData.rsvp_deadline}
                       onChange={(date) => setFormData(prev => ({ ...prev, rsvp_deadline: date }))}
                       placeholder="Select deadline"
+                      filled={!!formData.rsvp_deadline}
                     />
                   </div>
                 </div>
 
-                {/* Row 2: Guest Limit, Venue, Location Details */}
+                {/* Row 2: Guest Limit, Location, Location Details */}
                 <div className="grid grid-cols-3 gap-3">
                   <div className="space-y-1.5">
                     <Label className="text-xs">Guest Limit</Label>
@@ -438,16 +446,16 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
                       value={formData.guest_limit}
                       onChange={(e) => handleGuestLimitChange(e.target.value, 'guest_limit')}
                       placeholder="10"
-                      className={inputClass}
+                      className={getInputClass(formData.guest_limit !== '')}
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <Label className="text-xs">Venue *</Label>
+                    <Label className="text-xs">Location *</Label>
                     <Input
                       value={formData.venue}
                       onChange={(e) => setFormData(prev => ({ ...prev, venue: e.target.value }))}
-                      placeholder="e.g., Grand Ballroom"
-                      className={inputClass}
+                      placeholder="e.g., Reception Venue"
+                      className={getInputClass(!!formData.venue.trim())}
                     />
                   </div>
                   <div className="space-y-1.5">
@@ -464,7 +472,6 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
                           venue_contact: contact,
                         }))
                       }
-                      inputClass={inputClass}
                     />
                   </div>
                 </div>
@@ -477,6 +484,7 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
                       value={formData.start_time}
                       onChange={(time) => setFormData(prev => ({ ...prev, start_time: time }))}
                       placeholder="Select time"
+                      filled={!!formData.start_time}
                     />
                   </div>
                   <div className="space-y-1.5">
@@ -485,6 +493,7 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
                       value={formData.finish_time}
                       onChange={(time) => setFormData(prev => ({ ...prev, finish_time: time }))}
                       placeholder="Select time"
+                      filled={!!formData.finish_time}
                     />
                   </div>
                 </div>
@@ -497,22 +506,19 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
           </div>
         </div>
 
-        <DialogFooter className="pt-2">
+        <DialogFooter className="pt-2 border-t">
           <Button 
-            variant="destructive" 
-            size="sm" 
-            className="rounded-full" 
-            onClick={handleClose} 
-            disabled={isSaving}
+            variant="outline" 
+            onClick={handleClose}
+            className="rounded-full"
           >
             Cancel
           </Button>
           <Button 
-            variant="default"
-            size="sm"
-            className="rounded-full bg-green-500 hover:bg-green-600 text-white"
-            onClick={handleCreate} 
+            variant="gradient"
+            onClick={handleCreate}
             disabled={!isFormValid || isSaving}
+            className="rounded-full"
           >
             {isSaving ? 'Creating...' : 'Create Event'}
           </Button>

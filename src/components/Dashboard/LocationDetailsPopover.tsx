@@ -68,9 +68,10 @@ export const LocationDetailsPopover = memo(function LocationDetailsPopover({
         <Button
           variant="outline"
           className={cn(
-            inputClass,
-            'w-full justify-start font-normal',
-            hasDetails ? 'text-foreground' : 'text-muted-foreground',
+            'w-full justify-start font-normal rounded-full border-2 focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none',
+            hasDetails 
+              ? 'border-green-500 hover:border-green-500 text-foreground' 
+              : 'border-[#7248e6] hover:border-[#7248e6] text-muted-foreground',
           )}
         >
           <MapPin className="mr-2 h-4 w-4" />
