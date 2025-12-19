@@ -68,7 +68,7 @@ export const EventNameCombobox: React.FC<EventNameComboboxProps> = ({
           role="combobox"
           aria-expanded={open}
           className={cn(
-            "w-full justify-between font-normal rounded-full border-2 h-9 text-sm px-3",
+            "w-full justify-between font-normal rounded-full border-2 h-9 text-sm pl-3 pr-4",
             "focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none",
             hasValue
               ? "border-green-500 hover:border-green-500 focus-visible:border-green-500"
