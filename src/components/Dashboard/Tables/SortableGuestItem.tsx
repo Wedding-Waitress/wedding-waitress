@@ -8,11 +8,15 @@ import { Guest } from '@/hooks/useGuests';
 interface SortableGuestItemProps {
   guest: Guest;
   isOverlay?: boolean;
+  isBeingDraggedOver?: boolean;
+  isLastInList?: boolean;
 }
 
 export const SortableGuestItem: React.FC<SortableGuestItemProps> = ({ 
   guest,
-  isOverlay = false
+  isOverlay = false,
+  isBeingDraggedOver = false,
+  isLastInList = false
 }) => {
   const {
     attributes,
@@ -32,7 +36,7 @@ export const SortableGuestItem: React.FC<SortableGuestItemProps> = ({
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-    opacity: isDragging ? 0.5 : 1,
+    opacity: isDragging ? 0.3 : 1,
     zIndex: isDragging ? 1000 : 'auto',
   };
 
@@ -41,7 +45,7 @@ export const SortableGuestItem: React.FC<SortableGuestItemProps> = ({
     return (
       <Badge
         variant="secondary"
-        className="w-full justify-between text-xs py-1 px-2 cursor-grabbing bg-primary/20 border-primary shadow-lg"
+        className="w-full justify-between text-xs py-1.5 px-2 cursor-grabbing bg-primary/20 border-primary shadow-lg scale-105"
       >
         <span className="truncate">
           {guest.first_name} {guest.last_name || ''}{guest.seat_no ? ` (Seat ${guest.seat_no})` : ''}
@@ -52,12 +56,17 @@ export const SortableGuestItem: React.FC<SortableGuestItemProps> = ({
   }
 
   return (
-    <div ref={setNodeRef} style={style}>
+    <div ref={setNodeRef} style={style} className="relative">
+      {/* Drop indicator BEFORE this guest */}
+      {isBeingDraggedOver && (
+        <div className="h-1 bg-primary rounded-full mb-1.5 animate-pulse shadow-sm" />
+      )}
+      
       <Badge
         variant="secondary"
-        className={`w-full justify-between text-xs py-1 px-2 cursor-grab active:cursor-grabbing hover:bg-secondary/80 transition-colors ${
+        className={`w-full justify-between text-xs py-1 px-2 cursor-grab active:cursor-grabbing hover:bg-secondary/80 transition-all duration-200 ${
           isDragging ? 'ring-2 ring-primary shadow-md' : ''
-        }`}
+        } ${isBeingDraggedOver ? 'mb-1' : ''}`}
         {...attributes}
         {...listeners}
       >
