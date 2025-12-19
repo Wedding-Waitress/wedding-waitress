@@ -436,9 +436,11 @@ export const MyEventsPage: React.FC = () => {
                     <div className="flex-1 min-w-[400px] max-w-[560px] bg-muted/30 rounded-xl p-4 border border-border">
                       <h4 className="font-semibold text-primary mb-2">Ceremony</h4>
                       <div className="space-y-1 text-sm text-muted-foreground">
-                        <p><span className="font-medium">Date:</span> {formatBoxDate(selectedEvent.ceremony_date)}</p>
-                        <p><span className="font-medium">Time:</span> {formatBoxTime(selectedEvent.ceremony_start_time, selectedEvent.ceremony_finish_time)}</p>
-                        <p><span className="font-medium">Venue:</span> {selectedEvent.ceremony_venue ? `${selectedEvent.ceremony_venue}${selectedEvent.ceremony_venue_address ? ` - ${selectedEvent.ceremony_venue_address}` : ''}` : 'TBD'}</p>
+                        <p><span className="font-medium">Ceremony Name:</span> {selectedEvent.ceremony_name || 'Not set'}</p>
+                        <p><span className="font-medium">Ceremony Date:</span> {formatBoxDate(selectedEvent.ceremony_date)}</p>
+                        <p><span className="font-medium">Ceremony Location:</span> {selectedEvent.ceremony_venue ? `${selectedEvent.ceremony_venue}${selectedEvent.ceremony_venue_address ? ` - ${selectedEvent.ceremony_venue_address}` : ''}` : 'TBD'}</p>
+                        <p><span className="font-medium">Start Time:</span> {selectedEvent.ceremony_start_time ? formatBoxTime(selectedEvent.ceremony_start_time, null) : 'TBD'} — <span className="font-medium">Finish Time:</span> {selectedEvent.ceremony_finish_time ? formatBoxTime(selectedEvent.ceremony_finish_time, null) : 'TBD'}</p>
+                        <p><span className="font-medium">Guest Limit:</span> {selectedEvent.ceremony_guest_limit || 'Not set'}</p>
                       </div>
                     </div>
                   )}
@@ -448,9 +450,11 @@ export const MyEventsPage: React.FC = () => {
                     <div className="flex-1 min-w-[400px] max-w-[560px] bg-muted/30 rounded-xl p-4 border border-border">
                       <h4 className="font-semibold text-primary mb-2">Reception</h4>
                       <div className="space-y-1 text-sm text-muted-foreground">
-                        <p><span className="font-medium">Date:</span> {formatBoxDate(selectedEvent.date)}</p>
-                        <p><span className="font-medium">Time:</span> {formatBoxTime(selectedEvent.start_time, selectedEvent.finish_time)}</p>
-                        <p><span className="font-medium">Venue:</span> {selectedEvent.venue ? `${selectedEvent.venue}${selectedEvent.venue_address ? ` - ${selectedEvent.venue_address}` : ''}` : 'TBD'}</p>
+                        <p><span className="font-medium">Reception Name:</span> {selectedEvent.name}</p>
+                        <p><span className="font-medium">Reception Date:</span> {formatBoxDate(selectedEvent.date)}</p>
+                        <p><span className="font-medium">Reception Location:</span> {selectedEvent.venue ? `${selectedEvent.venue}${selectedEvent.venue_address ? ` - ${selectedEvent.venue_address}` : ''}` : 'TBD'}</p>
+                        <p><span className="font-medium">Start Time:</span> {selectedEvent.start_time ? formatBoxTime(selectedEvent.start_time, null) : 'TBD'} — <span className="font-medium">Finish Time:</span> {selectedEvent.finish_time ? formatBoxTime(selectedEvent.finish_time, null) : 'TBD'}</p>
+                        <p><span className="font-medium">Guest Limit:</span> {selectedEvent.guest_limit || 'Not set'}</p>
                       </div>
                     </div>
                   )}
@@ -465,25 +469,7 @@ export const MyEventsPage: React.FC = () => {
           <h3 className="text-2xl font-medium text-[#7248e6] mb-4">
             Ceremony Details - {selectedEvent.ceremony_name || selectedEvent.name}
           </h3>
-          <div className="flex justify-center gap-4 flex-wrap">
-            {/* Left Gray Box - Ceremony Information */}
-            <div className="flex-1 min-w-[400px] max-w-[560px] bg-muted/30 rounded-xl p-4 border border-border">
-              <h4 className="font-semibold text-primary mb-3">Ceremony Information</h4>
-              <div className="space-y-2 text-sm">
-                <p><span className="font-medium text-muted-foreground">Ceremony Name:</span> <span className="text-foreground">{selectedEvent.ceremony_name || 'Not set'}</span></p>
-                <p><span className="font-medium text-muted-foreground">Ceremony Date:</span> <span className="text-foreground">{formatBoxDate(selectedEvent.ceremony_date)}</span></p>
-                <p><span className="font-medium text-muted-foreground">Ceremony Venue:</span> <span className="text-foreground">{selectedEvent.ceremony_venue ? `${selectedEvent.ceremony_venue}${selectedEvent.ceremony_venue_address ? ` - ${selectedEvent.ceremony_venue_address}` : ''}` : 'Not set'}</span></p>
-                <p><span className="font-medium text-muted-foreground">Start Time:</span> <span className="text-foreground">{selectedEvent.ceremony_start_time ? formatBoxTime(selectedEvent.ceremony_start_time, null) : 'Not set'}</span></p>
-                <p><span className="font-medium text-muted-foreground">Finish Time:</span> <span className="text-foreground">{selectedEvent.ceremony_finish_time ? formatBoxTime(selectedEvent.ceremony_finish_time, null) : 'Not set'}</span></p>
-                <p><span className="font-medium text-muted-foreground">Guest Limit:</span> <span className="text-foreground">{selectedEvent.ceremony_guest_limit || 'Not set'}</span></p>
-              </div>
-            </div>
-            
-            {/* Right Gray Box - Empty for now */}
-            <div className="flex-1 min-w-[400px] max-w-[560px] bg-muted/30 rounded-xl p-4 border border-border">
-              {/* Empty - content to be added later */}
-            </div>
-          </div>
+          {/* Content area - ready for ceremony seating layout feature */}
         </Card>
       )}
 
