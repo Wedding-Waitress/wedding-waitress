@@ -47,6 +47,8 @@ export const useRealtimeGuests = (eventId: string | null): UseRealtimeGuestsRetu
   const { toast } = useToast();
   const channelRef = useRef<any>(null);
   const refetchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  // Flag to prevent realtime updates from interfering with active drag operations
+  const isOperationInProgress = useRef(false);
 
   // Fetch guests from database
   const fetchGuests = useCallback(async () => {
@@ -116,6 +118,9 @@ export const useRealtimeGuests = (eventId: string | null): UseRealtimeGuestsRetu
       });
     });
 
+    // Set operation flag to prevent realtime conflicts
+    isOperationInProgress.current = true;
+
     try {
       // Phase 1: Clear all seat numbers for these guests to avoid unique constraint conflicts
       const { error: clearError } = await supabase
@@ -169,6 +174,9 @@ export const useRealtimeGuests = (eventId: string | null): UseRealtimeGuestsRetu
         variant: "destructive",
       });
       return false;
+    } finally {
+      // Always release the operation lock
+      isOperationInProgress.current = false;
     }
   }, [guests, toast]);
 
@@ -308,22 +316,24 @@ export const useRealtimeGuests = (eventId: string | null): UseRealtimeGuestsRetu
     });
     setGuests(optimisticGuests);
 
+    // Set operation flag to prevent realtime conflicts
+    isOperationInProgress.current = true;
+
     try {
-      // First, shift the seat numbers of guests that come after the insertion point
-      if (guestsToShift.length > 0 && newSeatNo !== null) {
-        // Shift in reverse order to avoid unique constraint violations
-        // (each guest moves into a slot that's just been vacated)
-        for (let i = guestsToShift.length - 1; i >= 0; i--) {
-          const guestToShift = guestsToShift[i];
-          const shiftedSeatNo = newSeatNo + 1 + i;
-          await supabase
-            .from('guests')
-            .update({ seat_no: shiftedSeatNo })
-            .eq('id', guestToShift.id);
+      // Phase 1: Clear seat numbers for guests that need to shift (avoids unique constraint violations)
+      if (guestsToShift.length > 0) {
+        const { error: clearError } = await supabase
+          .from('guests')
+          .update({ seat_no: null })
+          .in('id', guestsToShift.map(g => g.id));
+        
+        if (clearError) {
+          console.error('Error clearing seat numbers:', clearError);
+          throw clearError;
         }
       }
 
-      // Persist the moved guest to database
+      // Phase 2: Insert the moved guest with correct seat number
       const { error } = await supabase
         .from('guests')
         .update({
@@ -331,13 +341,12 @@ export const useRealtimeGuests = (eventId: string | null): UseRealtimeGuestsRetu
           table_no: destTableNo,
           seat_no: newSeatNo,
           assigned: !!destTableId,
-          display_order: null // Reset display_order when moving to new table
+          display_order: null
         })
         .eq('id', guestId);
 
       if (error) {
         console.error('Error moving guest:', error);
-        // Revert optimistic update
         setGuests(guests);
         toast({
           title: "Error",
@@ -345,6 +354,17 @@ export const useRealtimeGuests = (eventId: string | null): UseRealtimeGuestsRetu
           variant: "destructive",
         });
         return false;
+      }
+
+      // Phase 3: Re-assign shifted guests with their new seat numbers
+      if (guestsToShift.length > 0 && newSeatNo !== null) {
+        for (let i = 0; i < guestsToShift.length; i++) {
+          const shiftedSeatNo = newSeatNo + 1 + i;
+          await supabase
+            .from('guests')
+            .update({ seat_no: shiftedSeatNo })
+            .eq('id', guestsToShift[i].id);
+        }
       }
 
       // Success toast
@@ -360,7 +380,6 @@ export const useRealtimeGuests = (eventId: string | null): UseRealtimeGuestsRetu
       return true;
     } catch (error) {
       console.error('Error moving guest:', error);
-      // Revert optimistic update
       setGuests(guests);
       toast({
         title: "Error",
@@ -368,6 +387,9 @@ export const useRealtimeGuests = (eventId: string | null): UseRealtimeGuestsRetu
         variant: "destructive",
       });
       return false;
+    } finally {
+      // Always release the operation lock
+      isOperationInProgress.current = false;
     }
   }, [guests, toast]);
 
@@ -534,6 +556,12 @@ export const useRealtimeGuests = (eventId: string | null): UseRealtimeGuestsRetu
 
   // Handle realtime updates
   const handleRealtimeUpdate = useCallback((payload: any) => {
+    // Skip realtime updates during active operations to prevent conflicts
+    if (isOperationInProgress.current) {
+      console.log('Skipping realtime update - operation in progress');
+      return;
+    }
+    
     if (process.env.NODE_ENV === 'development') {
       console.log('Realtime update received:', payload);
     }

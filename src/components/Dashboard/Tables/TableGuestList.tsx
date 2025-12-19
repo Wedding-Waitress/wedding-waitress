@@ -34,7 +34,7 @@ export const TableGuestList: React.FC<TableGuestListProps> = ({
   return (
     <div ref={setNodeRef} className="min-h-[40px]">
       <SortableContext items={guestIds} strategy={verticalListSortingStrategy}>
-        <div className={`space-y-1 transition-colors duration-150 ${isDragging ? 'py-1' : ''}`}>
+        <div className="space-y-2">
           {guests.length > 0 ? (
             guests.map((guest, index) => (
               <SortableGuestItem 
