@@ -433,7 +433,7 @@ export const MyEventsPage: React.FC = () => {
                 <div className={`flex justify-center gap-4 flex-wrap ${hasCeremony && hasReception ? '' : 'max-w-md mx-auto'}`}>
                   {/* Ceremony Box */}
                   {hasCeremony && (
-                    <div className="flex-1 min-w-[200px] max-w-[280px] bg-muted/30 rounded-xl p-4 border border-border">
+                    <div className="flex-1 min-w-[400px] max-w-[560px] bg-muted/30 rounded-xl p-4 border border-border">
                       <h4 className="font-semibold text-primary mb-2">Ceremony</h4>
                       <div className="space-y-1 text-sm text-muted-foreground">
                         <p><span className="font-medium">Date:</span> {formatBoxDate(selectedEvent.ceremony_date)}</p>
@@ -445,7 +445,7 @@ export const MyEventsPage: React.FC = () => {
                   
                   {/* Reception Box */}
                   {hasReception && (
-                    <div className="flex-1 min-w-[200px] max-w-[280px] bg-muted/30 rounded-xl p-4 border border-border">
+                    <div className="flex-1 min-w-[400px] max-w-[560px] bg-muted/30 rounded-xl p-4 border border-border">
                       <h4 className="font-semibold text-primary mb-2">Reception</h4>
                       <div className="space-y-1 text-sm text-muted-foreground">
                         <p><span className="font-medium">Date:</span> {formatBoxDate(selectedEvent.date)}</p>
