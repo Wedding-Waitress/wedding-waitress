@@ -123,6 +123,7 @@ interface EventsTableProps {
   onEventSelect?: (eventId: string) => void;
   onEventEdit?: (eventId: string) => void;
   onEventDelete?: (eventId: string) => void;
+  selectedEvent?: Event | null;
 }
 export const EventsTable: React.FC<EventsTableProps> = ({
   events,
@@ -134,7 +135,8 @@ export const EventsTable: React.FC<EventsTableProps> = ({
   deleteEvent,
   onEventSelect,
   onEventEdit,
-  onEventDelete
+  onEventDelete,
+  selectedEvent: selectedEventProp
 }) => {
   const navigate = useNavigate();
   const selectedEvent = events.find(event => event.id === activeEventId);
@@ -225,7 +227,9 @@ export const EventsTable: React.FC<EventsTableProps> = ({
         <div className="px-6 py-4 border-b border-card-border bg-white">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-2xl font-medium text-[#7248e6]">My Events</h3>
+              <h3 className="text-2xl font-medium text-[#7248e6]">
+                My Events{selectedEventProp?.name ? ` - ${selectedEventProp.name}` : ''}
+              </h3>
               <div className="flex items-center gap-2 mt-3">
                 <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
                   <span className="text-white text-sm font-semibold">1</span>
