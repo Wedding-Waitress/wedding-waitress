@@ -123,6 +123,11 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
   }, [event]);
 
   const isFormValid = () => {
+    // Event name is required
+    if (!formData.event_name.trim()) {
+      return false;
+    }
+    
     // At least one section must be enabled
     if (!formData.ceremony_enabled && !formData.reception_enabled) {
       return false;
@@ -175,7 +180,7 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
         
         // Reception fields
         reception_enabled: formData.reception_enabled,
-        name: formData.reception_enabled ? formData.name : (formData.ceremony_name || event.name),
+        name: formData.event_name, // Use top-level event name as main name
         event_type: formData.event_type,
         date: formData.reception_enabled && formData.date 
           ? format(formData.date, 'yyyy-MM-dd') 
@@ -208,7 +213,7 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
             <Input
               value={formData.event_name}
               onChange={(e) => setFormData(prev => ({ ...prev, event_name: e.target.value }))}
-              placeholder="e.g., John & Jane's Wedding"
+              placeholder="e.g., Jason & Linda's Wedding"
               className={inputClass}
             />
           </div>
