@@ -180,7 +180,17 @@ export const SortableTablesGrid: React.FC<SortableTablesGridProps> = ({
       
       // Find the index of the guest we're dropping on
       const overIndex = destTableGuests.findIndex(g => g.id === overGuest.id);
-      insertAtIndex = overIndex >= 0 ? overIndex : destTableGuests.length;
+      
+      // If dropping on the LAST guest, place AFTER them (as the new last)
+      const isLastGuest = overIndex === destTableGuests.length - 1;
+      
+      if (isLastGuest) {
+        // Place after the last guest (at the end)
+        insertAtIndex = destTableGuests.length;
+      } else {
+        // Place before the target guest (existing behavior)
+        insertAtIndex = overIndex >= 0 ? overIndex : destTableGuests.length;
+      }
     }
 
     if (!destTableId) return;
@@ -199,7 +209,12 @@ export const SortableTablesGrid: React.FC<SortableTablesGridProps> = ({
         });
       
       const oldIndex = tableGuests.findIndex(g => g.id === draggedGuest.id);
-      const newIndex = insertAtIndex !== undefined ? insertAtIndex : tableGuests.length - 1;
+      let newIndex = insertAtIndex !== undefined ? insertAtIndex : tableGuests.length - 1;
+      
+      // Adjust newIndex if it exceeds bounds (when placing at end)
+      if (newIndex > tableGuests.length - 1) {
+        newIndex = tableGuests.length - 1;
+      }
       
       if (oldIndex === newIndex) return; // No change
       
