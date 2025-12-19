@@ -603,6 +603,8 @@ export type Database = {
           ceremony_start_time: string | null
           ceremony_venue: string | null
           ceremony_venue_address: string | null
+          ceremony_venue_contact: string | null
+          ceremony_venue_phone: string | null
           created_at: string
           created_date_local: string | null
           custom_roles: Json | null
@@ -638,9 +640,11 @@ export type Database = {
           user_id: string
           venue: string | null
           venue_address: string | null
+          venue_contact: string | null
           venue_lat: number | null
           venue_lng: number | null
           venue_name: string | null
+          venue_phone: string | null
           venue_place_id: string | null
         }
         Insert: {
@@ -653,6 +657,8 @@ export type Database = {
           ceremony_start_time?: string | null
           ceremony_venue?: string | null
           ceremony_venue_address?: string | null
+          ceremony_venue_contact?: string | null
+          ceremony_venue_phone?: string | null
           created_at?: string
           created_date_local?: string | null
           custom_roles?: Json | null
@@ -688,9 +694,11 @@ export type Database = {
           user_id: string
           venue?: string | null
           venue_address?: string | null
+          venue_contact?: string | null
           venue_lat?: number | null
           venue_lng?: number | null
           venue_name?: string | null
+          venue_phone?: string | null
           venue_place_id?: string | null
         }
         Update: {
@@ -703,6 +711,8 @@ export type Database = {
           ceremony_start_time?: string | null
           ceremony_venue?: string | null
           ceremony_venue_address?: string | null
+          ceremony_venue_contact?: string | null
+          ceremony_venue_phone?: string | null
           created_at?: string
           created_date_local?: string | null
           custom_roles?: Json | null
@@ -738,9 +748,11 @@ export type Database = {
           user_id?: string
           venue?: string | null
           venue_address?: string | null
+          venue_contact?: string | null
           venue_lat?: number | null
           venue_lng?: number | null
           venue_name?: string | null
+          venue_phone?: string | null
           venue_place_id?: string | null
         }
         Relationships: []

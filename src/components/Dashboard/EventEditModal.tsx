@@ -15,16 +15,20 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { EventDatePicker } from './EventDatePicker';
 import { TimePicker } from './TimePicker';
 import { format } from 'date-fns';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import { ChevronDown, ChevronUp, MapPin } from 'lucide-react';
 
 interface Event {
   id: string;
   name: string;
   date: string | null;
   venue: string | null;
+  venue_address?: string | null;
+  venue_phone?: string | null;
+  venue_contact?: string | null;
   start_time: string | null;
   finish_time: string | null;
   guest_limit: number;
@@ -41,6 +45,9 @@ interface Event {
   ceremony_name?: string | null;
   ceremony_date?: string | null;
   ceremony_venue?: string | null;
+  ceremony_venue_address?: string | null;
+  ceremony_venue_phone?: string | null;
+  ceremony_venue_contact?: string | null;
   ceremony_guest_limit?: number | null;
   ceremony_start_time?: string | null;
   ceremony_finish_time?: string | null;
@@ -70,7 +77,10 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
     ceremony_name: '',
     ceremony_date: null as Date | null,
     ceremony_venue: '',
-    ceremony_guest_limit: 50,
+    ceremony_venue_address: '',
+    ceremony_venue_phone: '',
+    ceremony_venue_contact: '',
+    ceremony_guest_limit: '' as string | number,
     ceremony_start_time: '',
     ceremony_finish_time: '',
     ceremony_rsvp_deadline: null as Date | null,
@@ -81,9 +91,12 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
     event_type: 'seated' as 'seated' | 'cocktail',
     date: null as Date | null,
     venue: '',
+    venue_address: '',
+    venue_phone: '',
+    venue_contact: '',
     start_time: '',
     finish_time: '',
-    guest_limit: 50,
+    guest_limit: '' as string | number,
     rsvp_deadline: null as Date | null
   });
 
@@ -103,7 +116,10 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
         ceremony_name: event.ceremony_name || '',
         ceremony_date: event.ceremony_date ? new Date(event.ceremony_date) : null,
         ceremony_venue: event.ceremony_venue || '',
-        ceremony_guest_limit: event.ceremony_guest_limit ?? 50,
+        ceremony_venue_address: event.ceremony_venue_address || '',
+        ceremony_venue_phone: event.ceremony_venue_phone || '',
+        ceremony_venue_contact: event.ceremony_venue_contact || '',
+        ceremony_guest_limit: event.ceremony_guest_limit ?? 10,
         ceremony_start_time: event.ceremony_start_time || '',
         ceremony_finish_time: event.ceremony_finish_time || '',
         ceremony_rsvp_deadline: event.ceremony_rsvp_deadline ? new Date(event.ceremony_rsvp_deadline) : null,
@@ -114,9 +130,12 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
         event_type: (event.event_type as 'seated' | 'cocktail') || 'seated',
         date: event.date ? new Date(event.date) : null,
         venue: event.venue || '',
+        venue_address: event.venue_address || '',
+        venue_phone: event.venue_phone || '',
+        venue_contact: event.venue_contact || '',
         start_time: event.start_time || '',
         finish_time: event.finish_time || '',
-        guest_limit: event.guest_limit,
+        guest_limit: event.guest_limit ?? 10,
         rsvp_deadline: event.rsvp_deadline ? new Date(event.rsvp_deadline) : null
       });
     }
@@ -165,6 +184,10 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
     
     setIsSaving(true);
     try {
+      // Convert guest limits to numbers for database
+      const ceremonyGuestLimit = formData.ceremony_guest_limit === '' ? 10 : Number(formData.ceremony_guest_limit);
+      const receptionGuestLimit = formData.guest_limit === '' ? 10 : Number(formData.guest_limit);
+      
       await onSave(event.id, {
         // Ceremony fields
         ceremony_enabled: formData.ceremony_enabled,
@@ -172,7 +195,10 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
         ceremony_date: formData.ceremony_enabled && formData.ceremony_date 
           ? format(formData.ceremony_date, 'yyyy-MM-dd') : null,
         ceremony_venue: formData.ceremony_enabled ? formData.ceremony_venue : null,
-        ceremony_guest_limit: formData.ceremony_enabled ? formData.ceremony_guest_limit : null,
+        ceremony_venue_address: formData.ceremony_enabled ? formData.ceremony_venue_address : null,
+        ceremony_venue_phone: formData.ceremony_enabled ? formData.ceremony_venue_phone : null,
+        ceremony_venue_contact: formData.ceremony_enabled ? formData.ceremony_venue_contact : null,
+        ceremony_guest_limit: formData.ceremony_enabled ? ceremonyGuestLimit : null,
         ceremony_start_time: formData.ceremony_enabled ? formData.ceremony_start_time : null,
         ceremony_finish_time: formData.ceremony_enabled ? formData.ceremony_finish_time : null,
         ceremony_rsvp_deadline: formData.ceremony_enabled && formData.ceremony_rsvp_deadline 
@@ -186,9 +212,12 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
           ? format(formData.date, 'yyyy-MM-dd') 
           : (formData.ceremony_date ? format(formData.ceremony_date, 'yyyy-MM-dd') : null),
         venue: formData.reception_enabled ? formData.venue : null,
+        venue_address: formData.reception_enabled ? formData.venue_address : null,
+        venue_phone: formData.reception_enabled ? formData.venue_phone : null,
+        venue_contact: formData.reception_enabled ? formData.venue_contact : null,
         start_time: formData.reception_enabled ? formData.start_time : null,
         finish_time: formData.reception_enabled ? formData.finish_time : null,
-        guest_limit: formData.reception_enabled ? formData.guest_limit : formData.ceremony_guest_limit,
+        guest_limit: formData.reception_enabled ? receptionGuestLimit : ceremonyGuestLimit,
         rsvp_deadline: formData.reception_enabled && formData.rsvp_deadline 
           ? formData.rsvp_deadline.toISOString() : null
       });
@@ -200,9 +229,121 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
     }
   };
 
+  // Handle guest limit input - allow empty string and typing
+  const handleGuestLimitChange = (value: string, field: 'ceremony_guest_limit' | 'guest_limit') => {
+    if (value === '') {
+      setFormData(prev => ({ ...prev, [field]: '' }));
+    } else {
+      const parsed = parseInt(value, 10);
+      if (!isNaN(parsed) && parsed >= 0) {
+        setFormData(prev => ({ ...prev, [field]: parsed }));
+      }
+    }
+  };
+
   if (!event) return null;
 
   const inputClass = "rounded-full border-2 border-primary focus-visible:border-primary focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none h-9 text-sm";
+
+  // Location Details Popover Component for Ceremony
+  const CeremonyLocationDetails = () => (
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button 
+          variant="outline" 
+          className={`${inputClass} w-full justify-start font-normal ${
+            (formData.ceremony_venue_address || formData.ceremony_venue_phone || formData.ceremony_venue_contact) 
+              ? 'text-foreground' 
+              : 'text-muted-foreground'
+          }`}
+        >
+          <MapPin className="mr-2 h-4 w-4" />
+          {(formData.ceremony_venue_address || formData.ceremony_venue_phone || formData.ceremony_venue_contact) 
+            ? 'Details Added' 
+            : 'Add Details'}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-80 p-4 space-y-3" align="start">
+        <div className="space-y-1.5">
+          <Label className="text-xs">Address</Label>
+          <Input
+            value={formData.ceremony_venue_address}
+            onChange={(e) => setFormData(prev => ({ ...prev, ceremony_venue_address: e.target.value }))}
+            placeholder="Enter venue address"
+            className={inputClass}
+          />
+        </div>
+        <div className="space-y-1.5">
+          <Label className="text-xs">Venue Phone Number</Label>
+          <Input
+            value={formData.ceremony_venue_phone}
+            onChange={(e) => setFormData(prev => ({ ...prev, ceremony_venue_phone: e.target.value }))}
+            placeholder="Enter phone number"
+            className={inputClass}
+          />
+        </div>
+        <div className="space-y-1.5">
+          <Label className="text-xs">Venue Contact Person</Label>
+          <Input
+            value={formData.ceremony_venue_contact}
+            onChange={(e) => setFormData(prev => ({ ...prev, ceremony_venue_contact: e.target.value }))}
+            placeholder="Enter contact person name"
+            className={inputClass}
+          />
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+
+  // Location Details Popover Component for Reception
+  const ReceptionLocationDetails = () => (
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button 
+          variant="outline" 
+          className={`${inputClass} w-full justify-start font-normal ${
+            (formData.venue_address || formData.venue_phone || formData.venue_contact) 
+              ? 'text-foreground' 
+              : 'text-muted-foreground'
+          }`}
+        >
+          <MapPin className="mr-2 h-4 w-4" />
+          {(formData.venue_address || formData.venue_phone || formData.venue_contact) 
+            ? 'Details Added' 
+            : 'Add Details'}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-80 p-4 space-y-3" align="start">
+        <div className="space-y-1.5">
+          <Label className="text-xs">Address</Label>
+          <Input
+            value={formData.venue_address}
+            onChange={(e) => setFormData(prev => ({ ...prev, venue_address: e.target.value }))}
+            placeholder="Enter venue address"
+            className={inputClass}
+          />
+        </div>
+        <div className="space-y-1.5">
+          <Label className="text-xs">Venue Phone Number</Label>
+          <Input
+            value={formData.venue_phone}
+            onChange={(e) => setFormData(prev => ({ ...prev, venue_phone: e.target.value }))}
+            placeholder="Enter phone number"
+            className={inputClass}
+          />
+        </div>
+        <div className="space-y-1.5">
+          <Label className="text-xs">Venue Contact Person</Label>
+          <Input
+            value={formData.venue_contact}
+            onChange={(e) => setFormData(prev => ({ ...prev, venue_contact: e.target.value }))}
+            placeholder="Enter contact person name"
+            className={inputClass}
+          />
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -256,7 +397,7 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
             {/* Ceremony Content */}
             {ceremonyExpanded && formData.ceremony_enabled && (
               <div className="p-4 space-y-4">
-                {/* Row 1: Name, Date, Location */}
+                {/* Row 1: Name, Date, Guest Limit */}
                 <div className="grid grid-cols-3 gap-3">
                   <div className="space-y-1.5">
                     <Label className="text-xs">Ceremony Name *</Label>
@@ -276,27 +417,32 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <Label className="text-xs">Location *</Label>
+                    <Label className="text-xs">Guest Limit</Label>
                     <Input
-                      value={formData.ceremony_venue}
-                      onChange={(e) => setFormData(prev => ({ ...prev, ceremony_venue: e.target.value }))}
-                      placeholder="e.g., Church"
+                      type="text"
+                      inputMode="numeric"
+                      value={formData.ceremony_guest_limit}
+                      onChange={(e) => handleGuestLimitChange(e.target.value, 'ceremony_guest_limit')}
+                      placeholder="10"
                       className={inputClass}
                     />
                   </div>
                 </div>
 
-                {/* Row 2: Guest Limit, Start Time, Finish Time */}
+                {/* Row 2: Location, Location Details, Start Time */}
                 <div className="grid grid-cols-3 gap-3">
                   <div className="space-y-1.5">
-                    <Label className="text-xs">Guest Limit</Label>
+                    <Label className="text-xs">Location *</Label>
                     <Input
-                      type="number"
-                      value={formData.ceremony_guest_limit}
-                      onChange={(e) => setFormData(prev => ({ ...prev, ceremony_guest_limit: parseInt(e.target.value) || 50 }))}
-                      min="1"
+                      value={formData.ceremony_venue}
+                      onChange={(e) => setFormData(prev => ({ ...prev, ceremony_venue: e.target.value }))}
+                      placeholder="e.g., Church/Venue"
                       className={inputClass}
                     />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Location Details</Label>
+                    <CeremonyLocationDetails />
                   </div>
                   <div className="space-y-1.5">
                     <Label className="text-xs">Start Time *</Label>
@@ -306,6 +452,10 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
                       placeholder="Select time"
                     />
                   </div>
+                </div>
+
+                {/* Row 3: Finish Time, RSVP Deadline */}
+                <div className="grid grid-cols-3 gap-3">
                   <div className="space-y-1.5">
                     <Label className="text-xs">Finish Time *</Label>
                     <TimePicker
@@ -314,10 +464,6 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
                       placeholder="Select time"
                     />
                   </div>
-                </div>
-
-                {/* Row 3: RSVP Deadline */}
-                <div className="grid grid-cols-3 gap-3">
                   <div className="space-y-1.5">
                     <Label className="text-xs">RSVP Deadline *</Label>
                     <EventDatePicker
@@ -401,7 +547,7 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
                   </p>
                 </div>
 
-                {/* Row 1: Name, Date, Venue */}
+                {/* Row 1: Name, Date, Guest Limit */}
                 <div className="grid grid-cols-3 gap-3">
                   <div className="space-y-1.5">
                     <Label className="text-xs">Event Name *</Label>
@@ -421,6 +567,21 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
                     />
                   </div>
                   <div className="space-y-1.5">
+                    <Label className="text-xs">Guest Limit</Label>
+                    <Input
+                      type="text"
+                      inputMode="numeric"
+                      value={formData.guest_limit}
+                      onChange={(e) => handleGuestLimitChange(e.target.value, 'guest_limit')}
+                      placeholder="10"
+                      className={inputClass}
+                    />
+                  </div>
+                </div>
+
+                {/* Row 2: Venue, Location Details, Start Time */}
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="space-y-1.5">
                     <Label className="text-xs">Venue *</Label>
                     <Input
                       value={formData.venue}
@@ -429,19 +590,9 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
                       className={inputClass}
                     />
                   </div>
-                </div>
-
-                {/* Row 2: Guest Limit, Start Time, Finish Time */}
-                <div className="grid grid-cols-3 gap-3">
                   <div className="space-y-1.5">
-                    <Label className="text-xs">Guest Limit</Label>
-                    <Input
-                      type="number"
-                      value={formData.guest_limit}
-                      onChange={(e) => setFormData(prev => ({ ...prev, guest_limit: parseInt(e.target.value) || 50 }))}
-                      min="1"
-                      className={inputClass}
-                    />
+                    <Label className="text-xs">Location Details</Label>
+                    <ReceptionLocationDetails />
                   </div>
                   <div className="space-y-1.5">
                     <Label className="text-xs">Start Time *</Label>
@@ -451,6 +602,10 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
                       placeholder="Select time"
                     />
                   </div>
+                </div>
+
+                {/* Row 3: Finish Time, RSVP Deadline */}
+                <div className="grid grid-cols-3 gap-3">
                   <div className="space-y-1.5">
                     <Label className="text-xs">Finish Time *</Label>
                     <TimePicker
@@ -459,10 +614,6 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
                       placeholder="Select time"
                     />
                   </div>
-                </div>
-
-                {/* Row 3: RSVP Deadline */}
-                <div className="grid grid-cols-3 gap-3">
                   <div className="space-y-1.5">
                     <Label className="text-xs">RSVP Deadline *</Label>
                     <EventDatePicker
