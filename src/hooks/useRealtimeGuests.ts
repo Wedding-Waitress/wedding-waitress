@@ -117,22 +117,32 @@ export const useRealtimeGuests = (eventId: string | null): UseRealtimeGuestsRetu
     });
 
     try {
-      // Batch update to Supabase - update each guest's seat_no
-      const updates = orderedGuestIds.map((guestId, index) => ({
-        id: guestId,
-        seat_no: index + 1,
-      }));
+      // Phase 1: Clear all seat numbers for these guests to avoid unique constraint conflicts
+      const { error: clearError } = await supabase
+        .from('guests')
+        .update({ seat_no: null })
+        .in('id', orderedGuestIds);
 
-      // Use a transaction-like approach: update all in sequence
-      for (const update of updates) {
+      if (clearError) {
+        console.error('Error clearing seat numbers:', clearError);
+        setGuests(originalGuests);
+        toast({
+          title: "Error",
+          description: "Failed to reorder guests",
+          variant: "destructive",
+        });
+        return false;
+      }
+
+      // Phase 2: Assign new seat numbers in order (no conflicts since all seats are cleared)
+      for (let i = 0; i < orderedGuestIds.length; i++) {
         const { error } = await supabase
           .from('guests')
-          .update({ seat_no: update.seat_no })
-          .eq('id', update.id);
+          .update({ seat_no: i + 1 })
+          .eq('id', orderedGuestIds[i]);
 
         if (error) {
           console.error('Error updating guest seat:', error);
-          // Revert optimistic update
           setGuests(originalGuests);
           toast({
             title: "Error",
