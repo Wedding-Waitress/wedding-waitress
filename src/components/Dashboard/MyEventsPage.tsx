@@ -465,30 +465,23 @@ export const MyEventsPage: React.FC = () => {
           <h3 className="text-2xl font-medium text-[#7248e6] mb-4">
             Ceremony Details - {selectedEvent.ceremony_name || selectedEvent.name}
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <div className="space-y-1">
-              <p className="text-sm font-medium text-muted-foreground">Ceremony Name</p>
-              <p className="text-foreground">{selectedEvent.ceremony_name || 'Not set'}</p>
+          <div className="flex justify-center gap-4 flex-wrap">
+            {/* Left Gray Box - Ceremony Information */}
+            <div className="flex-1 min-w-[400px] max-w-[560px] bg-muted/30 rounded-xl p-4 border border-border">
+              <h4 className="font-semibold text-primary mb-3">Ceremony Information</h4>
+              <div className="space-y-2 text-sm">
+                <p><span className="font-medium text-muted-foreground">Ceremony Name:</span> <span className="text-foreground">{selectedEvent.ceremony_name || 'Not set'}</span></p>
+                <p><span className="font-medium text-muted-foreground">Ceremony Date:</span> <span className="text-foreground">{formatBoxDate(selectedEvent.ceremony_date)}</span></p>
+                <p><span className="font-medium text-muted-foreground">Ceremony Venue:</span> <span className="text-foreground">{selectedEvent.ceremony_venue ? `${selectedEvent.ceremony_venue}${selectedEvent.ceremony_venue_address ? ` - ${selectedEvent.ceremony_venue_address}` : ''}` : 'Not set'}</span></p>
+                <p><span className="font-medium text-muted-foreground">Start Time:</span> <span className="text-foreground">{selectedEvent.ceremony_start_time ? formatBoxTime(selectedEvent.ceremony_start_time, null) : 'Not set'}</span></p>
+                <p><span className="font-medium text-muted-foreground">Finish Time:</span> <span className="text-foreground">{selectedEvent.ceremony_finish_time ? formatBoxTime(selectedEvent.ceremony_finish_time, null) : 'Not set'}</span></p>
+                <p><span className="font-medium text-muted-foreground">Guest Limit:</span> <span className="text-foreground">{selectedEvent.ceremony_guest_limit || 'Not set'}</span></p>
+              </div>
             </div>
-            <div className="space-y-1">
-              <p className="text-sm font-medium text-muted-foreground">Ceremony Date</p>
-              <p className="text-foreground">{formatBoxDate(selectedEvent.ceremony_date)}</p>
-            </div>
-            <div className="space-y-1">
-              <p className="text-sm font-medium text-muted-foreground">Ceremony Venue</p>
-              <p className="text-foreground">{selectedEvent.ceremony_venue ? `${selectedEvent.ceremony_venue}${selectedEvent.ceremony_venue_address ? ` - ${selectedEvent.ceremony_venue_address}` : ''}` : 'Not set'}</p>
-            </div>
-            <div className="space-y-1">
-              <p className="text-sm font-medium text-muted-foreground">Start Time</p>
-              <p className="text-foreground">{selectedEvent.ceremony_start_time ? formatBoxTime(selectedEvent.ceremony_start_time, null) : 'Not set'}</p>
-            </div>
-            <div className="space-y-1">
-              <p className="text-sm font-medium text-muted-foreground">Finish Time</p>
-              <p className="text-foreground">{selectedEvent.ceremony_finish_time ? formatBoxTime(selectedEvent.ceremony_finish_time, null) : 'Not set'}</p>
-            </div>
-            <div className="space-y-1">
-              <p className="text-sm font-medium text-muted-foreground">Guest Limit</p>
-              <p className="text-foreground">{selectedEvent.ceremony_guest_limit || 'Not set'}</p>
+            
+            {/* Right Gray Box - Empty for now */}
+            <div className="flex-1 min-w-[400px] max-w-[560px] bg-muted/30 rounded-xl p-4 border border-border">
+              {/* Empty - content to be added later */}
             </div>
           </div>
         </Card>
