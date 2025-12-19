@@ -15,6 +15,7 @@ export interface Event {
   user_id: string;
   name: string;
   date: string | null;
+  venue_address?: string | null;
   venue: string | null;
   start_time: string | null;
   finish_time: string | null;
