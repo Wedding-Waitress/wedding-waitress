@@ -19,7 +19,6 @@ import React, { useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/enhanced-button";
 import { Progress } from "@/components/ui/progress";
-import { Badge } from "@/components/ui/badge";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -37,9 +36,10 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Input } from "@/components/ui/input";
-import { Edit, Trash2, GripVertical } from "lucide-react";
+import { Edit, Trash2 } from "lucide-react";
 import { TableWithGuestCount } from '@/hooks/useTables';
 import { Guest } from '@/hooks/useGuests';
+import { TableGuestList } from './Tables/TableGuestList';
 
 interface TableCardProps {
   table: TableWithGuestCount;
@@ -47,7 +47,7 @@ interface TableCardProps {
   onDelete: (tableId: string) => Promise<boolean>;
   guests: Guest[];
   eventId: string;
-  onGuestMove: (guestId: string, sourceTableId: string | null, destTableId: string, guestName: string) => Promise<boolean>;
+  isOverTable?: string | null; // ID of table being hovered over during drag
 }
 
 export const TableCard: React.FC<TableCardProps> = ({
@@ -56,12 +56,11 @@ export const TableCard: React.FC<TableCardProps> = ({
   onDelete,
   guests: allGuests,
   eventId,
-  onGuestMove
+  isOverTable
 }) => {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
-  const [isDragOver, setIsDragOver] = useState(false);
   
   // Filter guests for this table from the real-time guest list
   const guests = allGuests.filter(guest => guest.table_id === table.id);
@@ -144,48 +143,8 @@ export const TableCard: React.FC<TableCardProps> = ({
     }
   };
 
-  const handleDragStart = (e: React.DragEvent, guest: Guest) => {
-    e.dataTransfer.setData('text/plain', JSON.stringify({
-      guestId: guest.id,
-      guestName: `${guest.first_name} ${guest.last_name || ''}`.trim(),
-      sourceTableId: guest.table_id,
-      sourceTableName: table.name
-    }));
-    e.dataTransfer.effectAllowed = 'move';
-  };
-
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-    setIsDragOver(true);
-  };
-
-  const handleDragLeave = (e: React.DragEvent) => {
-    // Only remove drag over state if leaving the card entirely
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX;
-    const y = e.clientY;
-    
-    if (x < rect.left || x > rect.right || y < rect.top || y > rect.bottom) {
-      setIsDragOver(false);
-    }
-  };
-
-  const handleDrop = async (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragOver(false);
-
-    try {
-      const dragData = JSON.parse(e.dataTransfer.getData('text/plain'));
-      const { guestId, guestName, sourceTableId } = dragData;
-
-      // Allow dropping on the same table (for within-table reordering)
-      // The onGuestMove function will handle updating display_order for same-table moves
-      await onGuestMove(guestId, sourceTableId, table.id, guestName);
-    } catch (error) {
-      console.error('Error handling drop:', error);
-    }
-  };
+  // Check if this table is currently being hovered during a drag operation
+  const isOver = isOverTable === table.id;
 
   return (
     <>
@@ -195,11 +154,8 @@ export const TableCard: React.FC<TableCardProps> = ({
             ? 'border-4 border-green-500' 
             : 'border-2 border-primary'
         } ${
-          isDragOver ? 'border-4 border-blue-500 bg-blue-50 dark:bg-blue-950' : ''
+          isOver ? 'border-4 border-blue-500 bg-blue-50 dark:bg-blue-950' : ''
         }`}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onDrop={handleDrop}
       >
         <CardContent className="p-4 flex flex-col min-h-fit">
           {/* Table Name */}
@@ -328,31 +284,14 @@ export const TableCard: React.FC<TableCardProps> = ({
             </div>
           )}
 
-          {/* Guest Chips - Auto-expanding */}
+          {/* Guest Chips - Using Sortable Components */}
           <div className="mb-3">
             <div className="text-xs text-muted-foreground mb-2">Guests:</div>
-            <div className="space-y-1">
-              {sortedGuests.length > 0 ? (
-                sortedGuests.map((guest) => (
-                  <Badge
-                    key={guest.id}
-                    variant="secondary"
-                    className="w-full justify-between text-xs py-1 px-2 cursor-grab active:cursor-grabbing hover:bg-secondary/80 transition-colors"
-                    draggable
-                    onDragStart={(e) => handleDragStart(e, guest)}
-                  >
-                    <span className="truncate">
-                      {guest.first_name} {guest.last_name || ''}{guest.seat_no ? ` (Seat ${guest.seat_no})` : ''}
-                    </span>
-                    <GripVertical className="h-3 w-3 flex-shrink-0 ml-1 opacity-50" />
-                  </Badge>
-                ))
-              ) : (
-                <div className="text-muted-foreground italic text-xs p-2 border-2 border-dashed border-muted rounded-md text-center">
-                  {isDragOver ? 'Drop guest here' : 'No guests assigned'}
-                </div>
-              )}
-            </div>
+            <TableGuestList 
+              tableId={table.id} 
+              guests={sortedGuests} 
+              isOver={isOver}
+            />
           </div>
 
         {/* Actions - Fixed at bottom */}

@@ -7,6 +7,7 @@ import { MyEventsPage } from "@/components/Dashboard/MyEventsPage";
 import { GuestListTable } from "@/components/Dashboard/GuestListTable";
 import { CreateTableModal } from "@/components/Dashboard/CreateTableModal";
 import { TableCard } from "@/components/Dashboard/TableCard";
+import { SortableTablesGrid } from "@/components/Dashboard/Tables/SortableTablesGrid";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/enhanced-button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -98,7 +99,8 @@ export const Dashboard = () => {
   const {
     guests,
     loading: guestsLoading,
-    moveGuest
+    moveGuest,
+    reorderGuestsWithSeats
   } = useRealtimeGuests(selectedEventId);
 
   // Real-time tables with live guest counts
@@ -239,8 +241,14 @@ export const Dashboard = () => {
     };
   }, [tables, guests, selectedEvent]);
 
-  // Handle guest movement between tables
-  const handleGuestMove = async (guestId: string, sourceTableId: string | null, destTableId: string, guestName: string): Promise<boolean> => {
+  // Handle guest movement between tables (with optional position)
+  const handleGuestMove = async (
+    guestId: string, 
+    sourceTableId: string | null, 
+    destTableId: string, 
+    guestName: string,
+    insertAtIndex?: number
+  ): Promise<boolean> => {
     const destTable = tables.find(t => t.id === destTableId);
     if (!destTable) return false;
     return await moveGuest({
@@ -248,8 +256,14 @@ export const Dashboard = () => {
       sourceTableId,
       destTableId,
       destTableNo: destTable.table_no,
-      guestName
+      guestName,
+      insertAtIndex
     });
+  };
+
+  // Handle reordering guests within a table
+  const handleReorderGuests = async (tableId: string, orderedGuestIds: string[]): Promise<boolean> => {
+    return await reorderGuestsWithSeats(tableId, orderedGuestIds);
   };
   const handleCloseModal = () => {
     setShowCreateTableModal(false);
@@ -390,9 +404,18 @@ export const Dashboard = () => {
                 <CardContent className="p-6">
                   {tablesLoading ? <div className="text-center py-8">
                       <div className="text-muted-foreground">Loading tables...</div>
-                    </div> : tables.length > 0 ? <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-                       {tables.map(table => <TableCard key={table.id} table={table} onEdit={handleEditTable} onDelete={deleteTable} guests={guests} eventId={selectedEventId} onGuestMove={handleGuestMove} />)}
-                     </div> : <div className="text-center py-8">
+                    </div> : tables.length > 0 ? (
+                      <SortableTablesGrid
+                        tables={tables}
+                        guests={guests}
+                        onMoveGuest={handleGuestMove}
+                        onReorderGuests={handleReorderGuests}
+                      >
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                          {tables.map(table => <TableCard key={table.id} table={table} onEdit={handleEditTable} onDelete={deleteTable} guests={guests} eventId={selectedEventId} />)}
+                        </div>
+                      </SortableTablesGrid>
+                    ) : <div className="text-center py-8">
                       <div className="text-muted-foreground mb-4">No tables created yet</div>
                       <Button variant="default" size="xs" className="rounded-full flex items-center gap-2" onClick={handleCreateTable}>
                         <Plus className="w-4 h-4" />

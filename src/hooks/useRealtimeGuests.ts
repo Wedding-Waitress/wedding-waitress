@@ -27,6 +27,7 @@ interface RealtimeGuestUpdate {
   destTableId: string | null;
   destTableNo: number | null;
   guestName: string;
+  insertAtIndex?: number; // Optional: position to insert guest at in destination table
 }
 
 interface UseRealtimeGuestsReturn {
@@ -37,6 +38,7 @@ interface UseRealtimeGuestsReturn {
   updateGuest: (guestId: string, updates: Partial<Guest>) => Promise<boolean>;
   deleteGuest: (guestId: string) => Promise<boolean>;
   refetchGuests: () => Promise<void>;
+  reorderGuestsWithSeats: (tableId: string, orderedGuestIds: string[]) => Promise<boolean>;
 }
 
 export const useRealtimeGuests = (eventId: string | null): UseRealtimeGuestsReturn => {
@@ -94,9 +96,75 @@ export const useRealtimeGuests = (eventId: string | null): UseRealtimeGuestsRetu
     }, 2000);
   }, [fetchGuests]);
 
+  // Reorder guests within a table and recalculate seat numbers
+  const reorderGuestsWithSeats = useCallback(async (
+    tableId: string,
+    orderedGuestIds: string[]
+  ): Promise<boolean> => {
+    if (!tableId || orderedGuestIds.length === 0) return false;
+
+    // Store original guests for potential revert
+    const originalGuests = [...guests];
+
+    // Optimistic update - reorder locally and assign new seat numbers
+    setGuests(currentGuests => {
+      return currentGuests.map(g => {
+        if (g.table_id !== tableId) return g;
+        const newIndex = orderedGuestIds.indexOf(g.id);
+        if (newIndex === -1) return g;
+        return { ...g, seat_no: newIndex + 1 };
+      });
+    });
+
+    try {
+      // Batch update to Supabase - update each guest's seat_no
+      const updates = orderedGuestIds.map((guestId, index) => ({
+        id: guestId,
+        seat_no: index + 1,
+      }));
+
+      // Use a transaction-like approach: update all in sequence
+      for (const update of updates) {
+        const { error } = await supabase
+          .from('guests')
+          .update({ seat_no: update.seat_no })
+          .eq('id', update.id);
+
+        if (error) {
+          console.error('Error updating guest seat:', error);
+          // Revert optimistic update
+          setGuests(originalGuests);
+          toast({
+            title: "Error",
+            description: "Failed to reorder guests",
+            variant: "destructive",
+          });
+          return false;
+        }
+      }
+
+      toast({
+        title: "Guests reordered",
+        description: "Seat numbers updated successfully",
+      });
+
+      return true;
+    } catch (error) {
+      console.error('Error reordering guests:', error);
+      // Revert optimistic update
+      setGuests(originalGuests);
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred",
+        variant: "destructive",
+      });
+      return false;
+    }
+  }, [guests, toast]);
+
   // Move guest with optimistic update and capacity validation
   const moveGuest = useCallback(async (update: RealtimeGuestUpdate): Promise<boolean> => {
-    const { guestId, sourceTableId, destTableId, destTableNo, guestName } = update;
+    const { guestId, sourceTableId, destTableId, destTableNo, guestName, insertAtIndex } = update;
     
     // Find the guest to move
     const guestToMove = guests.find(g => g.id === guestId);
@@ -109,18 +177,14 @@ export const useRealtimeGuests = (eventId: string | null): UseRealtimeGuestsRetu
       return false;
     }
 
-    // Handle intra-table moves (reordering within same table)
+    // Handle intra-table moves (reordering within same table) - now handled by reorderGuestsWithSeats
     if (sourceTableId === destTableId && sourceTableId !== null) {
-      // This is a reorder within the same table
-      // We need to update display_order to maintain the new position
-      
-      // Get all guests in this table excluding the one being moved
+      // This case is now handled by reorderGuestsWithSeats function
+      // But keep a fallback for simple reordering if needed
       const tableGuests = guests.filter(g => 
         g.table_id === sourceTableId && g.id !== guestId
       );
       
-      // Calculate new display_order based on position
-      // For simplicity, we'll assign display_order as index * 10 to allow for future insertions
       const newDisplayOrder = tableGuests.length * 10 + 10;
       
       try {
@@ -560,6 +624,7 @@ export const useRealtimeGuests = (eventId: string | null): UseRealtimeGuestsRetu
     addGuest,
     updateGuest,
     deleteGuest,
-    refetchGuests: fetchGuests
+    refetchGuests: fetchGuests,
+    reorderGuestsWithSeats
   };
 };
