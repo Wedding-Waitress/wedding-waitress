@@ -9,7 +9,7 @@
  * 3-column layout for compact display.
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -155,7 +155,7 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
     }
   }, [event]);
 
-  const isFormValid = () => {
+  const isFormValid = useMemo(() => {
     // Event name is required
     if (!formData.event_name.trim()) {
       return false;
@@ -191,10 +191,10 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
     }
     
     return true;
-  };
+  }, [formData]);
 
   const handleSave = async () => {
-    if (!event || !isFormValid()) return;
+    if (!event || !isFormValid) return;
     
     setIsSaving(true);
     try {
@@ -708,7 +708,7 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
             size="sm"
             className="rounded-full bg-green-500 hover:bg-green-600 text-white"
             onClick={handleSave} 
-            disabled={!isFormValid() || isSaving}
+            disabled={!isFormValid || isSaving}
           >
             {isSaving ? 'Saving...' : 'Save Changes'}
           </Button>

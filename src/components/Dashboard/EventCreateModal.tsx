@@ -9,7 +9,7 @@
  * 3-column layout for compact display.
  */
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -82,7 +82,7 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
     contact: ''
   });
 
-  const isFormValid = () => {
+  const isFormValid = useMemo(() => {
     // Event name is required
     if (!formData.event_name.trim()) {
       return false;
@@ -118,10 +118,10 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
     }
     
     return true;
-  };
+  }, [formData]);
 
   const handleCreate = async () => {
-    if (!isFormValid()) return;
+    if (!isFormValid) return;
     
     setIsSaving(true);
     try {
@@ -670,7 +670,7 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
             size="sm"
             className="rounded-full bg-green-500 hover:bg-green-600 text-white"
             onClick={handleCreate} 
-            disabled={!isFormValid() || isSaving}
+            disabled={!isFormValid || isSaving}
           >
             {isSaving ? 'Creating...' : 'Create Event'}
           </Button>
