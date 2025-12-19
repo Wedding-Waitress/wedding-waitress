@@ -84,7 +84,7 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
   // Get min/max limits based on table type
   const getTableLimits = (type: TableType) => {
     if (type === 'long') {
-      return { min: 20, max: 42 };
+      return { min: 1, max: 50 };
     }
     return { min: 1, max: 20 };
   };
@@ -187,8 +187,8 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
     
     // Dynamic validation based on table type
     if (tableType === 'long') {
-      if (!limitSeats || limitSeats < 20 || limitSeats > 42) {
-        newErrors.limitSeats = 'Long table limit must be between 20 and 42';
+      if (!limitSeats || limitSeats < 1 || limitSeats > 50) {
+        newErrors.limitSeats = 'Long table limit must be between 1 and 50';
       }
     } else {
       if (!limitSeats || limitSeats < 1 || limitSeats > 20) {
@@ -279,7 +279,7 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
       case 'square':
         return 'Maximum square table limit is 1 to 20 guests';
       case 'long':
-        return 'Maximum long table limit is 20 to 42 guests';
+        return 'Maximum long table limit is 1 to 50 guests';
     }
   };
 
