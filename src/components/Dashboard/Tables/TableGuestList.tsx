@@ -34,7 +34,7 @@ export const TableGuestList: React.FC<TableGuestListProps> = ({
   return (
     <div ref={setNodeRef} className="min-h-[40px]">
       <SortableContext items={guestIds} strategy={verticalListSortingStrategy}>
-        <div className={`space-y-1 transition-all duration-200 ${isDragging ? 'py-1' : ''}`}>
+        <div className={`space-y-1 transition-colors duration-150 ${isDragging ? 'py-1' : ''}`}>
           {guests.length > 0 ? (
             guests.map((guest, index) => (
               <SortableGuestItem 
@@ -42,13 +42,14 @@ export const TableGuestList: React.FC<TableGuestListProps> = ({
                 guest={guest} 
                 isBeingDraggedOver={overGuestId === guest.id && activeGuestId !== guest.id}
                 isLastInList={index === guests.length - 1}
+                showIndicatorAfter={index === guests.length - 1 && overGuestId === guest.id && activeGuestId !== guest.id}
               />
             ))
           ) : (
             <div 
-              className={`text-muted-foreground italic text-xs p-2 border-2 border-dashed rounded-md text-center transition-all duration-200 ${
+              className={`text-muted-foreground italic text-xs p-3 border-2 border-dashed rounded-md text-center transition-colors duration-150 ${
                 showDropIndicator 
-                  ? 'border-primary bg-primary/10 text-primary py-4' 
+                  ? 'border-[#7C3AED] bg-[#7C3AED]/10 text-[#7C3AED] shadow-[0_0_8px_rgba(124,58,237,0.4)]' 
                   : 'border-muted'
               }`}
             >
