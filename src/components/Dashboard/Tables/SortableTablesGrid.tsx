@@ -1,4 +1,4 @@
-import React, { useState, useCallback, createContext, useContext } from 'react';
+import React, { useState, useCallback, createContext, useContext, useRef } from 'react';
 import {
   DndContext,
   DragOverlay,
@@ -64,6 +64,8 @@ export const SortableTablesGrid: React.FC<SortableTablesGridProps> = ({
   const [activeTableId, setActiveTableId] = useState<string | null>(null);
   const [overTableId, setOverTableId] = useState<string | null>(null);
   const [overGuestId, setOverGuestId] = useState<string | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const processingRef = useRef(false);
   const { toast } = useToast();
 
   const sensors = useSensors(
@@ -143,6 +145,20 @@ export const SortableTablesGrid: React.FC<SortableTablesGridProps> = ({
 
     if (!over || !active) return;
 
+    // Prevent concurrent drag operations
+    if (processingRef.current) {
+      toast({
+        title: "Please wait",
+        description: "Previous operation is still processing",
+      });
+      return;
+    }
+
+    processingRef.current = true;
+    setIsProcessing(true);
+
+    try {
+
     const activeData = active.data.current;
     const overData = over.data.current;
 
@@ -195,40 +211,51 @@ export const SortableTablesGrid: React.FC<SortableTablesGridProps> = ({
 
     if (!destTableId) return;
 
-    // Same table reordering
-    if (sourceTableId === destTableId) {
-      const tableGuests = guests
-        .filter(g => g.table_id === sourceTableId)
-        .sort((a, b) => {
-          const aHasSeat = a.seat_no !== null && a.seat_no !== undefined;
-          const bHasSeat = b.seat_no !== null && b.seat_no !== undefined;
-          if (aHasSeat && bHasSeat) return (a.seat_no || 0) - (b.seat_no || 0);
-          if (aHasSeat && !bHasSeat) return -1;
-          if (!aHasSeat && bHasSeat) return 1;
-          return 0;
-        });
-      
-      const oldIndex = tableGuests.findIndex(g => g.id === draggedGuest.id);
-      let newIndex = insertAtIndex !== undefined ? insertAtIndex : tableGuests.length - 1;
-      
-      // Adjust newIndex if it exceeds bounds (when placing at end)
-      if (newIndex > tableGuests.length - 1) {
-        newIndex = tableGuests.length - 1;
+      // Same table reordering
+      if (sourceTableId === destTableId) {
+        const tableGuests = guests
+          .filter(g => g.table_id === sourceTableId)
+          .sort((a, b) => {
+            const aHasSeat = a.seat_no !== null && a.seat_no !== undefined;
+            const bHasSeat = b.seat_no !== null && b.seat_no !== undefined;
+            if (aHasSeat && bHasSeat) return (a.seat_no || 0) - (b.seat_no || 0);
+            if (aHasSeat && !bHasSeat) return -1;
+            if (!aHasSeat && bHasSeat) return 1;
+            return 0;
+          });
+        
+        const oldIndex = tableGuests.findIndex(g => g.id === draggedGuest.id);
+        let newIndex = insertAtIndex !== undefined ? insertAtIndex : tableGuests.length - 1;
+        
+        // Adjust newIndex if it exceeds bounds (when placing at end)
+        if (newIndex > tableGuests.length - 1) {
+          newIndex = tableGuests.length - 1;
+        }
+        
+        if (oldIndex === newIndex) return; // No change
+        
+        // Reorder the guests
+        const reorderedGuests = arrayMove(tableGuests, oldIndex, newIndex);
+        const orderedGuestIds = reorderedGuests.map(g => g.id);
+        
+        await onReorderGuests(sourceTableId, orderedGuestIds);
+      } else {
+        // Cross-table move
+        const guestName = `${draggedGuest.first_name} ${draggedGuest.last_name || ''}`.trim();
+        await onMoveGuest(draggedGuest.id, sourceTableId, destTableId, guestName, insertAtIndex);
       }
-      
-      if (oldIndex === newIndex) return; // No change
-      
-      // Reorder the guests
-      const reorderedGuests = arrayMove(tableGuests, oldIndex, newIndex);
-      const orderedGuestIds = reorderedGuests.map(g => g.id);
-      
-      await onReorderGuests(sourceTableId, orderedGuestIds);
-    } else {
-      // Cross-table move
-      const guestName = `${draggedGuest.first_name} ${draggedGuest.last_name || ''}`.trim();
-      await onMoveGuest(draggedGuest.id, sourceTableId, destTableId, guestName, insertAtIndex);
+    } catch (error) {
+      console.error('Error during drag operation:', error);
+      toast({
+        title: "Error",
+        description: "Failed to move guest. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      processingRef.current = false;
+      setIsProcessing(false);
     }
-  }, [guests, onMoveGuest, onReorderGuests]);
+  }, [guests, onMoveGuest, onReorderGuests, toast]);
 
   // Create drag state context value
   const dragStateValue: DragStateContextType = {
