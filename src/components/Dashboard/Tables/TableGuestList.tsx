@@ -9,12 +9,18 @@ interface TableGuestListProps {
   tableId: string;
   guests: Guest[];
   isOver?: boolean;
+  selectedGuestIds?: Set<string>;
+  onSelectGuest?: (guestId: string) => void;
+  showCheckboxes?: boolean;
 }
 
 export const TableGuestList: React.FC<TableGuestListProps> = ({
   tableId,
   guests,
-  isOver = false
+  isOver = false,
+  selectedGuestIds = new Set(),
+  onSelectGuest,
+  showCheckboxes = false
 }) => {
   const { setNodeRef, isOver: isDroppableOver } = useDroppable({
     id: `table-${tableId}`,
@@ -32,7 +38,12 @@ export const TableGuestList: React.FC<TableGuestListProps> = ({
   const isDragging = activeGuestId !== null;
 
   return (
-    <div ref={setNodeRef} className="min-h-[40px]">
+    <div 
+      ref={setNodeRef} 
+      className="min-h-[40px]"
+      role="list"
+      aria-label={`Guests at this table`}
+    >
       <SortableContext items={guestIds} strategy={verticalListSortingStrategy}>
         <div className="space-y-2">
           {guests.length > 0 ? (
@@ -43,11 +54,14 @@ export const TableGuestList: React.FC<TableGuestListProps> = ({
                 isBeingDraggedOver={overGuestId === guest.id && activeGuestId !== guest.id}
                 isLastInList={index === guests.length - 1}
                 showIndicatorAfter={index === guests.length - 1 && overGuestId === guest.id && activeGuestId !== guest.id}
+                isSelected={selectedGuestIds.has(guest.id)}
+                onSelect={onSelectGuest}
+                showCheckbox={showCheckboxes}
               />
             ))
           ) : (
             <div 
-              className={`text-muted-foreground italic text-xs p-3 border-2 border-dashed rounded-md text-center transition-colors duration-150 ${
+              className={`text-muted-foreground italic text-xs p-3 border-2 border-dashed rounded-md text-center transition-colors duration-150 animate-in fade-in-50 scale-in-95 ${
                 showDropIndicator 
                   ? 'border-[#7C3AED] bg-[#7C3AED]/10 text-[#7C3AED] shadow-[0_0_8px_rgba(124,58,237,0.4)]' 
                   : 'border-muted'
