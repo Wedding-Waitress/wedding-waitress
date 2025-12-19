@@ -154,15 +154,16 @@ export const SortableTablesGrid: React.FC<SortableTablesGridProps> = ({
       return;
     }
 
+    const activeData = active.data.current;
+    const overData = over.data.current;
+
+    // Early validation - don't lock processing for invalid drags
+    if (!activeData || activeData.type !== 'guest') return;
+
     processingRef.current = true;
     setIsProcessing(true);
 
     try {
-
-    const activeData = active.data.current;
-    const overData = over.data.current;
-
-    if (!activeData || activeData.type !== 'guest') return;
 
     const draggedGuest = activeData.guest as Guest;
     const sourceTableId = draggedGuest.table_id;

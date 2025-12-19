@@ -35,9 +35,10 @@ export const SortableGuestItem: React.FC<SortableGuestItemProps> = ({
     }
   });
 
+  // Only apply transition when actively dragging, not during drag-over
   const style = {
     transform: CSS.Transform.toString(transform),
-    transition,
+    transition: isDragging ? transition : undefined,
     opacity: isDragging ? 0.3 : 1,
     zIndex: isDragging ? 1000 : 'auto',
   };
@@ -59,14 +60,14 @@ export const SortableGuestItem: React.FC<SortableGuestItemProps> = ({
 
   return (
     <div ref={setNodeRef} style={style} className="relative">
-      {/* Drop indicator BEFORE this guest - solid dark purple with glow */}
+      {/* Drop indicator BEFORE this guest - absolute positioned to prevent layout shift */}
       {isBeingDraggedOver && !showIndicatorAfter && (
-        <div className="h-2.5 bg-[#7C3AED] rounded-full mb-1.5 shadow-[0_0_10px_rgba(124,58,237,0.7)] border-2 border-[#5B21B6]" />
+        <div className="absolute -top-1.5 left-0 right-0 h-2 bg-[#7C3AED] rounded-full shadow-[0_0_10px_rgba(124,58,237,0.7)] border border-[#5B21B6] z-20 pointer-events-none" />
       )}
       
       <Badge
         variant="secondary"
-        className={`w-full justify-between text-xs py-1 px-2 cursor-grab active:cursor-grabbing hover:bg-secondary/80 transition-all duration-200 ${
+        className={`w-full justify-between text-xs py-1 px-2 cursor-grab active:cursor-grabbing hover:bg-secondary/80 ${
           isDragging ? 'ring-2 ring-primary shadow-md' : ''
         }`}
         {...attributes}
@@ -78,9 +79,9 @@ export const SortableGuestItem: React.FC<SortableGuestItemProps> = ({
         <GripVertical className="h-3 w-3 flex-shrink-0 ml-1 opacity-50" />
       </Badge>
       
-      {/* Drop indicator AFTER this guest (for last guest in list) */}
+      {/* Drop indicator AFTER this guest (for last guest in list) - absolute positioned */}
       {isBeingDraggedOver && showIndicatorAfter && (
-        <div className="h-2.5 bg-[#7C3AED] rounded-full mt-1.5 shadow-[0_0_10px_rgba(124,58,237,0.7)] border-2 border-[#5B21B6]" />
+        <div className="absolute -bottom-1.5 left-0 right-0 h-2 bg-[#7C3AED] rounded-full shadow-[0_0_10px_rgba(124,58,237,0.7)] border border-[#5B21B6] z-20 pointer-events-none" />
       )}
     </div>
   );
