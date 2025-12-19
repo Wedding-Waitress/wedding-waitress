@@ -433,7 +433,7 @@ export const MyEventsPage: React.FC = () => {
                 <div className={`flex justify-center gap-4 flex-wrap ${hasCeremony && hasReception ? '' : 'max-w-md mx-auto'}`}>
                   {/* Ceremony Box */}
                   {hasCeremony && (
-                    <div className="flex-1 min-w-[400px] max-w-[560px] bg-muted/30 rounded-xl p-4 border border-border">
+                    <div className="flex-1 min-w-[400px] max-w-[560px] bg-muted/30 rounded-xl p-4 border border-border text-left">
                       <h4 className="font-semibold text-primary mb-2">Ceremony</h4>
                       <div className="space-y-1 text-sm text-muted-foreground">
                         <p><span className="font-medium">Ceremony Name:</span> {selectedEvent.ceremony_name || 'Not set'}</p>
@@ -447,7 +447,7 @@ export const MyEventsPage: React.FC = () => {
                   
                   {/* Reception Box */}
                   {hasReception && (
-                    <div className="flex-1 min-w-[400px] max-w-[560px] bg-muted/30 rounded-xl p-4 border border-border">
+                    <div className="flex-1 min-w-[400px] max-w-[560px] bg-muted/30 rounded-xl p-4 border border-border text-left">
                       <h4 className="font-semibold text-primary mb-2">Reception</h4>
                       <div className="space-y-1 text-sm text-muted-foreground">
                         <p><span className="font-medium">Reception Name:</span> {selectedEvent.name}</p>
@@ -466,9 +466,9 @@ export const MyEventsPage: React.FC = () => {
       {/* Ceremony Details Card - only show when ceremony is enabled */}
       {selectedEvent?.ceremony_enabled && (
         <Card className="ww-box p-6 mx-0">
-          <h3 className="text-2xl font-medium text-[#7248e6] mb-4">
-            Ceremony Details - {selectedEvent.ceremony_name || selectedEvent.name}
-          </h3>
+            <h3 className="text-2xl font-medium text-[#7248e6] mb-4">
+              Ceremony Floorplan - {selectedEvent.ceremony_name || selectedEvent.name}
+            </h3>
           {/* Content area - ready for ceremony seating layout feature */}
         </Card>
       )}
