@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, createContext, useContext } from 'react';
 import {
   DndContext,
   DragOverlay,
@@ -20,6 +20,21 @@ import { SortableGuestItem } from './SortableGuestItem';
 import { Guest } from '@/hooks/useGuests';
 import { TableWithGuestCount } from '@/hooks/useTables';
 import { useToast } from '@/hooks/use-toast';
+
+// Context to share drag state with children
+interface DragStateContextType {
+  activeGuestId: string | null;
+  overGuestId: string | null;
+  overTableId: string | null;
+}
+
+const DragStateContext = createContext<DragStateContextType>({
+  activeGuestId: null,
+  overGuestId: null,
+  overTableId: null,
+});
+
+export const useDragState = () => useContext(DragStateContext);
 
 interface SortableTablesGridProps {
   children: React.ReactNode;
@@ -48,6 +63,7 @@ export const SortableTablesGrid: React.FC<SortableTablesGridProps> = ({
   const [activeGuest, setActiveGuest] = useState<Guest | null>(null);
   const [activeTableId, setActiveTableId] = useState<string | null>(null);
   const [overTableId, setOverTableId] = useState<string | null>(null);
+  const [overGuestId, setOverGuestId] = useState<string | null>(null);
   const { toast } = useToast();
 
   const sensors = useSensors(
@@ -96,6 +112,7 @@ export const SortableTablesGrid: React.FC<SortableTablesGridProps> = ({
     
     if (!over) {
       setOverTableId(null);
+      setOverGuestId(null);
       return;
     }
 
@@ -104,11 +121,15 @@ export const SortableTablesGrid: React.FC<SortableTablesGridProps> = ({
     // Check if over a table droppable
     if (overData?.type === 'table') {
       setOverTableId(overData.tableId);
+      setOverGuestId(null);
     } else if (overData?.type === 'guest') {
-      // Over a guest - find which table that guest belongs to
-      setOverTableId(overData.guest.table_id);
+      // Over a guest - track both the guest and the table
+      const overGuest = overData.guest as Guest;
+      setOverTableId(overGuest.table_id);
+      setOverGuestId(overGuest.id);
     } else {
       setOverTableId(null);
+      setOverGuestId(null);
     }
   }, []);
 
@@ -118,6 +139,7 @@ export const SortableTablesGrid: React.FC<SortableTablesGridProps> = ({
     setActiveGuest(null);
     setActiveTableId(null);
     setOverTableId(null);
+    setOverGuestId(null);
 
     if (!over || !active) return;
 
@@ -193,6 +215,13 @@ export const SortableTablesGrid: React.FC<SortableTablesGridProps> = ({
     }
   }, [guests, onMoveGuest, onReorderGuests]);
 
+  // Create drag state context value
+  const dragStateValue: DragStateContextType = {
+    activeGuestId: activeGuest?.id || null,
+    overGuestId,
+    overTableId,
+  };
+
   return (
     <DndContext
       sensors={sensors}
@@ -201,15 +230,17 @@ export const SortableTablesGrid: React.FC<SortableTablesGridProps> = ({
       onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}
     >
-      {/* Pass overTableId to children via context or props if needed */}
-      {React.Children.map(children, child => {
-        if (React.isValidElement(child)) {
-          return React.cloneElement(child as React.ReactElement<any>, {
-            isOverTable: overTableId,
-          });
-        }
-        return child;
-      })}
+      <DragStateContext.Provider value={dragStateValue}>
+        {/* Pass overTableId to children via context or props if needed */}
+        {React.Children.map(children, child => {
+          if (React.isValidElement(child)) {
+            return React.cloneElement(child as React.ReactElement<any>, {
+              isOverTable: overTableId,
+            });
+          }
+          return child;
+        })}
+      </DragStateContext.Provider>
       
       <DragOverlay>
         {activeGuest ? (
