@@ -260,49 +260,58 @@ export const useRealtimeGuests = (eventId: string | null): UseRealtimeGuestsRetu
     }
 
     // Handle seat number assignment for destination table
-    let newSeatNo = guestToMove.seat_no;
+    let newSeatNo: number | null = guestToMove.seat_no;
+    let guestsToShift: Guest[] = [];
     
     if (destTableId) {
-      // Always assign a seat number when moving to a table
-      const destTableGuests = guests.filter(g => 
-        g.table_id === destTableId && g.id !== guestId
-      );
+      // Get guests in destination table sorted by seat number
+      const destTableGuests = guests
+        .filter(g => g.table_id === destTableId && g.id !== guestId)
+        .sort((a, b) => (a.seat_no || 0) - (b.seat_no || 0));
       
-      const takenSeatNumbers = destTableGuests
-        .map(g => g.seat_no)
-        .filter(seatNo => seatNo !== null && seatNo !== undefined)
-        .sort((a, b) => a - b);
-      
-      // Find the first available seat number (starting from 1)
-      let availableSeat = 1;
-      while (takenSeatNumbers.includes(availableSeat)) {
-        availableSeat++;
-      }
-      
-      newSeatNo = availableSeat;
-      
-      // Only show toast if seat number actually changed
-      if (newSeatNo !== guestToMove.seat_no) {
-        toast({
-          title: "Seat assigned",
-          description: `Assigned seat ${newSeatNo}`,
-        });
+      if (insertAtIndex !== undefined && insertAtIndex <= destTableGuests.length) {
+        // Insert at specific position - need to shift other guests
+        newSeatNo = insertAtIndex + 1; // Seat numbers are 1-based
+        
+        // Identify guests that need their seat numbers shifted
+        guestsToShift = destTableGuests.slice(insertAtIndex);
+      } else {
+        // Insert at end - next seat number after existing guests
+        newSeatNo = destTableGuests.length + 1;
       }
     } else {
       // If moving to unassigned, clear seat number
       newSeatNo = null;
     }
 
-    // Optimistic update
-    const optimisticGuests = guests.map(g => 
-      g.id === guestId 
-        ? { ...g, table_id: destTableId, table_no: destTableNo, seat_no: newSeatNo }
-        : g
-    );
+    // Build optimistic state update
+    let optimisticGuests = guests.map(g => {
+      if (g.id === guestId) {
+        return { ...g, table_id: destTableId, table_no: destTableNo, seat_no: newSeatNo };
+      }
+      // Shift seat numbers for guests after the insertion point
+      const shiftIndex = guestsToShift.findIndex(sg => sg.id === g.id);
+      if (shiftIndex !== -1 && newSeatNo !== null) {
+        return { ...g, seat_no: newSeatNo + 1 + shiftIndex };
+      }
+      return g;
+    });
     setGuests(optimisticGuests);
 
     try {
-      // Persist to database with display_order reset for new table
+      // First, shift the seat numbers of guests that come after the insertion point
+      if (guestsToShift.length > 0 && newSeatNo !== null) {
+        for (let i = 0; i < guestsToShift.length; i++) {
+          const guestToShift = guestsToShift[i];
+          const shiftedSeatNo = newSeatNo + 1 + i;
+          await supabase
+            .from('guests')
+            .update({ seat_no: shiftedSeatNo })
+            .eq('id', guestToShift.id);
+        }
+      }
+
+      // Persist the moved guest to database
       const { error } = await supabase
         .from('guests')
         .update({

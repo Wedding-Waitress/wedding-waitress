@@ -59,14 +59,14 @@ export const SortableGuestItem: React.FC<SortableGuestItemProps> = ({
     <div ref={setNodeRef} style={style} className="relative">
       {/* Drop indicator BEFORE this guest */}
       {isBeingDraggedOver && (
-        <div className="h-1 bg-primary rounded-full mb-1.5 animate-pulse shadow-sm" />
+        <div className="h-1.5 bg-[#5b3db8] rounded-full mb-1.5 animate-pulse shadow-md" />
       )}
       
       <Badge
         variant="secondary"
         className={`w-full justify-between text-xs py-1 px-2 cursor-grab active:cursor-grabbing hover:bg-secondary/80 transition-all duration-200 ${
           isDragging ? 'ring-2 ring-primary shadow-md' : ''
-        } ${isBeingDraggedOver ? 'mb-1' : ''}`}
+        }`}
         {...attributes}
         {...listeners}
       >
