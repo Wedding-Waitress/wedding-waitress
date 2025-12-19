@@ -336,7 +336,7 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <Label className="text-xs">Location *</Label>
+                    <Label className="text-xs">Location Name *</Label>
                     <Input
                       value={formData.ceremony_venue}
                       onChange={(e) => setFormData(prev => ({ ...prev, ceremony_venue: e.target.value }))}
@@ -489,7 +489,7 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <Label className="text-xs">Location *</Label>
+                    <Label className="text-xs">Location/Venue *</Label>
                     <Input
                       value={formData.venue}
                       onChange={(e) => setFormData(prev => ({ ...prev, venue: e.target.value }))}
