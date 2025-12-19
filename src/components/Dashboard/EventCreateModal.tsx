@@ -359,7 +359,7 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
             {/* Ceremony Content */}
             {ceremonyExpanded && formData.ceremony_enabled && (
               <div className="p-4 space-y-4">
-                {/* Row 1: Name, Date, Guest Limit */}
+                {/* Row 1: Name, Date, RSVP Deadline */}
                 <div className="grid grid-cols-3 gap-3">
                   <div className="space-y-1.5">
                     <Label className="text-xs">Ceremony Name *</Label>
@@ -379,20 +379,28 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
                     />
                   </div>
                   <div className="space-y-1.5">
+                    <Label className="text-xs">RSVP Deadline *</Label>
+                    <EventDatePicker
+                      value={formData.ceremony_rsvp_deadline}
+                      onChange={(date) => setFormData(prev => ({ ...prev, ceremony_rsvp_deadline: date }))}
+                      placeholder="Select deadline"
+                    />
+                  </div>
+                </div>
+
+                {/* Row 2: Guest Limit, Location, Location Details */}
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="space-y-1.5">
                     <Label className="text-xs">Guest Limit</Label>
                     <Input
-                      type="text"
-                      inputMode="numeric"
+                      type="number"
+                      min="0"
                       value={formData.ceremony_guest_limit}
                       onChange={(e) => handleGuestLimitChange(e.target.value, 'ceremony_guest_limit')}
                       placeholder="10"
                       className={inputClass}
                     />
                   </div>
-                </div>
-
-                {/* Row 2: Location, Location Details, Start Time */}
-                <div className="grid grid-cols-3 gap-3">
                   <div className="space-y-1.5">
                     <Label className="text-xs">Location *</Label>
                     <Input
@@ -406,6 +414,10 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
                     <Label className="text-xs">Location Details</Label>
                     <CeremonyLocationDetails />
                   </div>
+                </div>
+
+                {/* Row 3: Start Time, Finish Time */}
+                <div className="grid grid-cols-3 gap-3">
                   <div className="space-y-1.5">
                     <Label className="text-xs">Start Time *</Label>
                     <TimePicker
@@ -414,24 +426,12 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
                       placeholder="Select time"
                     />
                   </div>
-                </div>
-
-                {/* Row 3: Finish Time, RSVP Deadline */}
-                <div className="grid grid-cols-3 gap-3">
                   <div className="space-y-1.5">
                     <Label className="text-xs">Finish Time *</Label>
                     <TimePicker
                       value={formData.ceremony_finish_time}
                       onChange={(time) => setFormData(prev => ({ ...prev, ceremony_finish_time: time }))}
                       placeholder="Select time"
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label className="text-xs">RSVP Deadline *</Label>
-                    <EventDatePicker
-                      value={formData.ceremony_rsvp_deadline}
-                      onChange={(date) => setFormData(prev => ({ ...prev, ceremony_rsvp_deadline: date }))}
-                      placeholder="Select deadline"
                     />
                   </div>
                 </div>
@@ -509,7 +509,7 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
                   </p>
                 </div>
 
-                {/* Row 1: Name, Date, Guest Limit */}
+                {/* Row 1: Name, Date, RSVP Deadline */}
                 <div className="grid grid-cols-3 gap-3">
                   <div className="space-y-1.5">
                     <Label className="text-xs">Event Name *</Label>
@@ -529,20 +529,28 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
                     />
                   </div>
                   <div className="space-y-1.5">
+                    <Label className="text-xs">RSVP Deadline *</Label>
+                    <EventDatePicker
+                      value={formData.rsvp_deadline}
+                      onChange={(date) => setFormData(prev => ({ ...prev, rsvp_deadline: date }))}
+                      placeholder="Select deadline"
+                    />
+                  </div>
+                </div>
+
+                {/* Row 2: Guest Limit, Venue, Location Details */}
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="space-y-1.5">
                     <Label className="text-xs">Guest Limit</Label>
                     <Input
-                      type="text"
-                      inputMode="numeric"
+                      type="number"
+                      min="0"
                       value={formData.guest_limit}
                       onChange={(e) => handleGuestLimitChange(e.target.value, 'guest_limit')}
                       placeholder="10"
                       className={inputClass}
                     />
                   </div>
-                </div>
-
-                {/* Row 2: Venue, Location Details, Start Time */}
-                <div className="grid grid-cols-3 gap-3">
                   <div className="space-y-1.5">
                     <Label className="text-xs">Venue *</Label>
                     <Input
@@ -556,6 +564,10 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
                     <Label className="text-xs">Location Details</Label>
                     <ReceptionLocationDetails />
                   </div>
+                </div>
+
+                {/* Row 3: Start Time, Finish Time */}
+                <div className="grid grid-cols-3 gap-3">
                   <div className="space-y-1.5">
                     <Label className="text-xs">Start Time *</Label>
                     <TimePicker
@@ -564,24 +576,12 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
                       placeholder="Select time"
                     />
                   </div>
-                </div>
-
-                {/* Row 3: Finish Time, RSVP Deadline */}
-                <div className="grid grid-cols-3 gap-3">
                   <div className="space-y-1.5">
                     <Label className="text-xs">Finish Time *</Label>
                     <TimePicker
                       value={formData.finish_time}
                       onChange={(time) => setFormData(prev => ({ ...prev, finish_time: time }))}
                       placeholder="Select time"
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label className="text-xs">RSVP Deadline *</Label>
-                    <EventDatePicker
-                      value={formData.rsvp_deadline}
-                      onChange={(date) => setFormData(prev => ({ ...prev, rsvp_deadline: date }))}
-                      placeholder="Select deadline"
                     />
                   </div>
                 </div>
