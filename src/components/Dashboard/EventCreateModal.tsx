@@ -19,7 +19,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { EventDatePicker } from './EventDatePicker';
 import { TimePicker } from './TimePicker';
 import { format } from 'date-fns';
-import { ChevronDown, ChevronUp, MapPin } from 'lucide-react';
+import { MapPin } from 'lucide-react';
 
 interface EventCreateModalProps {
   isOpen: boolean;
@@ -50,7 +50,7 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
     ceremony_rsvp_deadline: null as Date | null,
     
     // Reception fields
-    reception_enabled: true,
+    reception_enabled: false,
     name: '',
     event_type: 'seated' as 'seated' | 'cocktail',
     date: null as Date | null,
@@ -65,8 +65,6 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
   });
 
   const [isSaving, setIsSaving] = useState(false);
-  const [ceremonyExpanded, setCeremonyExpanded] = useState(true);
-  const [receptionExpanded, setReceptionExpanded] = useState(true);
 
   const isFormValid = () => {
     // Event name is required
@@ -173,7 +171,7 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
       ceremony_start_time: '',
       ceremony_finish_time: '',
       ceremony_rsvp_deadline: null,
-      reception_enabled: true,
+      reception_enabled: false,
       name: '',
       event_type: 'seated',
       date: null,
@@ -333,19 +331,9 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
           {/* ========== CEREMONY SECTION ========== */}
           <div className="border-2 border-border rounded-xl overflow-hidden">
             {/* Ceremony Header */}
-            <div 
-              className="flex items-center justify-between px-4 py-3 bg-muted/50 cursor-pointer"
-              onClick={() => setCeremonyExpanded(!ceremonyExpanded)}
-            >
-              <div className="flex items-center gap-3">
-                <h3 className="text-lg font-semibold text-foreground">Ceremony</h3>
-                {ceremonyExpanded ? (
-                  <ChevronUp className="h-4 w-4 text-muted-foreground" />
-                ) : (
-                  <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                )}
-              </div>
-              <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between px-4 py-3 bg-muted/50">
+              <h3 className="text-lg font-semibold text-foreground">Ceremony</h3>
+              <div className="flex items-center gap-2">
                 <span className="text-sm text-muted-foreground">
                   {formData.ceremony_enabled ? 'Yes' : 'No'}
                 </span>
@@ -356,8 +344,8 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
               </div>
             </div>
 
-            {/* Ceremony Content */}
-            {ceremonyExpanded && formData.ceremony_enabled && (
+            {/* Ceremony Content - controlled by toggle */}
+            {formData.ceremony_enabled ? (
               <div className="p-4 space-y-4">
                 {/* Row 1: Name, Date, RSVP Deadline */}
                 <div className="grid grid-cols-3 gap-3">
@@ -436,10 +424,7 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
                   </div>
                 </div>
               </div>
-            )}
-
-            {/* Collapsed state message */}
-            {ceremonyExpanded && !formData.ceremony_enabled && (
+            ) : (
               <div className="p-4 text-center text-muted-foreground text-sm">
                 Toggle on to add ceremony details
               </div>
@@ -449,19 +434,9 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
           {/* ========== RECEPTION SECTION ========== */}
           <div className="border-2 border-border rounded-xl overflow-hidden">
             {/* Reception Header */}
-            <div 
-              className="flex items-center justify-between px-4 py-3 bg-muted/50 cursor-pointer"
-              onClick={() => setReceptionExpanded(!receptionExpanded)}
-            >
-              <div className="flex items-center gap-3">
-                <h3 className="text-lg font-semibold text-foreground">Reception</h3>
-                {receptionExpanded ? (
-                  <ChevronUp className="h-4 w-4 text-muted-foreground" />
-                ) : (
-                  <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                )}
-              </div>
-              <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between px-4 py-3 bg-muted/50">
+              <h3 className="text-lg font-semibold text-foreground">Reception</h3>
+              <div className="flex items-center gap-2">
                 <span className="text-sm text-muted-foreground">
                   {formData.reception_enabled ? 'Yes' : 'No'}
                 </span>
@@ -472,8 +447,8 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
               </div>
             </div>
 
-            {/* Reception Content */}
-            {receptionExpanded && formData.reception_enabled && (
+            {/* Reception Content - controlled by toggle */}
+            {formData.reception_enabled ? (
               <div className="p-4 space-y-4">
                 {/* Event Type Toggle - Smaller */}
                 <div className="space-y-1.5">
@@ -586,10 +561,7 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
                   </div>
                 </div>
               </div>
-            )}
-
-            {/* Collapsed state message */}
-            {receptionExpanded && !formData.reception_enabled && (
+            ) : (
               <div className="p-4 text-center text-muted-foreground text-sm">
                 Toggle on to add reception details
               </div>
