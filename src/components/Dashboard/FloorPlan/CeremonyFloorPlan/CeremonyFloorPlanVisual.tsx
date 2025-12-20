@@ -245,16 +245,18 @@ export const CeremonyFloorPlanVisual = ({
     const leftCount = floorPlan.bridal_party_count_left || 0;
     const rightCount = floorPlan.bridal_party_count_right || 0;
 
-    if (leftCount === 0 && rightCount === 0) return null;
-
     // Determine labels based on couple arrangement
     const isGroomLeft = floorPlan.couple_side_arrangement !== 'bride_left';
     const leftLabel = isGroomLeft ? 'Groomsmen' : 'Bridesmaids';
     const rightLabel = isGroomLeft ? 'Bridesmaids' : 'Groomsmen';
 
+    // Get couple names (fallback to defaults)
+    const leftPersonName = floorPlan.person_left_name || (isGroomLeft ? 'Groom' : 'Bride');
+    const rightPersonName = floorPlan.person_right_name || (isGroomLeft ? 'Bride' : 'Groom');
+
     return (
       <div className="flex items-start justify-center gap-4">
-        {/* Left side */}
+        {/* Left side bridal party */}
         {leftCount > 0 && (
           <div className="flex flex-col items-center">
             <span className="text-xs text-muted-foreground mb-2">{leftLabel}</span>
@@ -264,14 +266,33 @@ export const CeremonyFloorPlanVisual = ({
           </div>
         )}
 
-        {/* Center - Celebrant indicator */}
-        <div className="flex flex-col items-center justify-center px-4">
+        {/* Center - Left person + Celebrant + Right person */}
+        <div className="flex items-center justify-center gap-3 px-2">
+          {/* Left person (Groom or Bride depending on arrangement) */}
+          <div className="flex flex-col items-center">
+            <div className="w-12 h-12 rounded-full bg-primary/20 border-2 border-primary flex items-center justify-center">
+              <span className="text-[9px] text-primary font-medium text-center leading-tight px-1">
+                {leftPersonName}
+              </span>
+            </div>
+          </div>
+          
+          {/* Celebrant (center, stationary) */}
           <div className="w-10 h-10 rounded-full bg-muted/50 border border-border flex items-center justify-center">
             <span className="text-[8px] text-muted-foreground text-center">Celebrant</span>
           </div>
+          
+          {/* Right person (Bride or Groom depending on arrangement) */}
+          <div className="flex flex-col items-center">
+            <div className="w-12 h-12 rounded-full bg-primary/20 border-2 border-primary flex items-center justify-center">
+              <span className="text-[9px] text-primary font-medium text-center leading-tight px-1">
+                {rightPersonName}
+              </span>
+            </div>
+          </div>
         </div>
 
-        {/* Right side */}
+        {/* Right side bridal party */}
         {rightCount > 0 && (
           <div className="flex flex-col items-center">
             <span className="text-xs text-muted-foreground mb-2">{rightLabel}</span>

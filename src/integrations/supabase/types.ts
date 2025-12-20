@@ -86,6 +86,8 @@ export type Database = {
           event_id: string
           id: string
           left_side_label: string
+          person_left_name: string | null
+          person_right_name: string | null
           right_side_label: string
           seat_assignments: Json
           show_row_numbers: boolean
@@ -107,6 +109,8 @@ export type Database = {
           event_id: string
           id?: string
           left_side_label?: string
+          person_left_name?: string | null
+          person_right_name?: string | null
           right_side_label?: string
           seat_assignments?: Json
           show_row_numbers?: boolean
@@ -128,6 +132,8 @@ export type Database = {
           event_id?: string
           id?: string
           left_side_label?: string
+          person_left_name?: string | null
+          person_right_name?: string | null
           right_side_label?: string
           seat_assignments?: Json
           show_row_numbers?: boolean
