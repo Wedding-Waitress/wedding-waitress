@@ -13,10 +13,6 @@ interface EventData {
   ceremony_finish_time?: string | null;
 }
 
-export interface CeremonyFloorPlanPDFResult {
-  blob: Blob;
-  fileName: string;
-}
 
 // Constants matching Individual Table Charts
 const PAGE_WIDTH = 210; // A4 width in mm
@@ -41,7 +37,7 @@ const formatTime = (time: string | null | undefined): string => {
 export const generateCeremonyFloorPlanPDF = async (
   floorPlan: CeremonyFloorPlan,
   event: EventData
-): Promise<CeremonyFloorPlanPDFResult> => {
+): Promise<void> => {
   const pdf = new jsPDF({
     orientation: 'portrait',
     unit: 'mm',
@@ -460,8 +456,5 @@ export const generateCeremonyFloorPlanPDF = async (
   const date = format(new Date(), 'dd-MM-yyyy');
   const fileName = `${eventName}-Ceremony-Floor-Plan-${date}.pdf`;
 
-  return {
-    blob: pdf.output('blob'),
-    fileName,
-  };
+  pdf.save(fileName);
 };
