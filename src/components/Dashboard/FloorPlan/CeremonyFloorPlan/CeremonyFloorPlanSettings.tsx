@@ -16,6 +16,15 @@ export const CeremonyFloorPlanSettings = ({
   onUpdate,
 }: CeremonyFloorPlanSettingsProps) => {
   const handleChange = (key: keyof CeremonyFloorPlan, value: number | string | boolean) => {
+    // When couple arrangement changes, swap the person names
+    if (key === 'couple_side_arrangement' && value !== floorPlan.couple_side_arrangement) {
+      onUpdate({ 
+        couple_side_arrangement: value as 'groom_left' | 'bride_left',
+        person_left_name: floorPlan.person_right_name,
+        person_right_name: floorPlan.person_left_name,
+      });
+      return;
+    }
     onUpdate({ [key]: value });
   };
 
