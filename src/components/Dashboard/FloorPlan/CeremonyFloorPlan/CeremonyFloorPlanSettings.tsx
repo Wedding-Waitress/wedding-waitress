@@ -145,11 +145,11 @@ export const CeremonyFloorPlanSettings = ({
               value={[floorPlan.bridal_party_count_left]}
               onValueChange={([value]) => handleChange('bridal_party_count_left', value)}
               min={0}
-              max={8}
+              max={12}
               step={1}
               className="w-full"
             />
-            <p className="text-xs text-muted-foreground">Left side of altar (0-8)</p>
+            <p className="text-xs text-muted-foreground">Left side of altar (0-12)</p>
           </div>
 
           <div className="space-y-3">
@@ -163,11 +163,11 @@ export const CeremonyFloorPlanSettings = ({
               value={[floorPlan.bridal_party_count_right]}
               onValueChange={([value]) => handleChange('bridal_party_count_right', value)}
               min={0}
-              max={8}
+              max={12}
               step={1}
               className="w-full"
             />
-            <p className="text-xs text-muted-foreground">Right side of altar (0-8)</p>
+            <p className="text-xs text-muted-foreground">Right side of altar (0-12)</p>
           </div>
         </div>
 

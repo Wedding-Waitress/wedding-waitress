@@ -254,14 +254,30 @@ export const CeremonyFloorPlanVisual = ({
     const leftPersonName = floorPlan.person_left_name || (isGroomLeft ? 'Groom' : 'Bride');
     const rightPersonName = floorPlan.person_right_name || (isGroomLeft ? 'Bride' : 'Groom');
 
+    // Max 6 per row
+    const MAX_PER_ROW = 6;
+    const leftFirstRow = Math.min(leftCount, MAX_PER_ROW);
+    const leftSecondRow = Math.max(0, leftCount - MAX_PER_ROW);
+    const rightFirstRow = Math.min(rightCount, MAX_PER_ROW);
+    const rightSecondRow = Math.max(0, rightCount - MAX_PER_ROW);
+
     return (
       <div className="flex items-start justify-center gap-4">
         {/* Left side bridal party */}
         {leftCount > 0 && (
           <div className="flex flex-col items-center">
             <span className="text-sm font-semibold text-primary mb-2">{leftLabel}</span>
-            <div className="flex gap-1">
-              {Array.from({ length: leftCount }).map((_, i) => renderBridalPartyBox('left', i))}
+            <div className="flex flex-col items-center gap-1">
+              {/* First row - up to 6 members */}
+              <div className="flex gap-1">
+                {Array.from({ length: leftFirstRow }).map((_, i) => renderBridalPartyBox('left', i))}
+              </div>
+              {/* Second row - members 7-12 if they exist */}
+              {leftSecondRow > 0 && (
+                <div className="flex gap-1">
+                  {Array.from({ length: leftSecondRow }).map((_, i) => renderBridalPartyBox('left', i + MAX_PER_ROW))}
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -296,8 +312,17 @@ export const CeremonyFloorPlanVisual = ({
         {rightCount > 0 && (
           <div className="flex flex-col items-center">
             <span className="text-sm font-semibold text-primary mb-2">{rightLabel}</span>
-            <div className="flex gap-1">
-              {Array.from({ length: rightCount }).map((_, i) => renderBridalPartyBox('right', i))}
+            <div className="flex flex-col items-center gap-1">
+              {/* First row - up to 6 members */}
+              <div className="flex gap-1">
+                {Array.from({ length: rightFirstRow }).map((_, i) => renderBridalPartyBox('right', i))}
+              </div>
+              {/* Second row - members 7-12 if they exist */}
+              {rightSecondRow > 0 && (
+                <div className="flex gap-1">
+                  {Array.from({ length: rightSecondRow }).map((_, i) => renderBridalPartyBox('right', i + MAX_PER_ROW))}
+                </div>
+              )}
             </div>
           </div>
         )}
