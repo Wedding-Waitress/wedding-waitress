@@ -37,11 +37,11 @@ export const CeremonyFloorPlanSettings = ({
             value={[floorPlan.chairs_per_row]}
             onValueChange={([value]) => handleChange('chairs_per_row', value)}
             min={1}
-            max={10}
+            max={6}
             step={1}
             className="w-full"
           />
-          <p className="text-xs text-muted-foreground">1-10 chairs on each side</p>
+          <p className="text-xs text-muted-foreground">1-6 chairs on each side</p>
         </div>
 
         {/* Total Rows */}
@@ -71,7 +71,7 @@ export const CeremonyFloorPlanSettings = ({
             value={[floorPlan.assigned_rows]}
             onValueChange={([value]) => handleChange('assigned_rows', Math.min(value, floorPlan.total_rows))}
             min={1}
-            max={Math.min(floorPlan.total_rows, 10)}
+            max={Math.min(floorPlan.total_rows, 15)}
             step={1}
             className="w-full"
           />

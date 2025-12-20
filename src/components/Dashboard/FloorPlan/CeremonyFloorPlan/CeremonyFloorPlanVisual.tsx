@@ -62,7 +62,7 @@ export const CeremonyFloorPlanVisual = ({
           onChange={(e) => setEditingValue(e.target.value)}
           onBlur={handleSeatSave}
           onKeyDown={handleKeyDown}
-          className="w-16 h-8 text-xs p-1 text-center"
+          className="w-20 h-10 text-xs p-1 text-center"
           placeholder="Name"
         />
       );
@@ -73,7 +73,7 @@ export const CeremonyFloorPlanVisual = ({
         key={`${side}-${row}-${seat}`}
         onClick={() => handleSeatClick(side, row, seat)}
         className={cn(
-          "w-16 h-8 rounded border text-xs flex items-center justify-center transition-all",
+          "w-20 h-10 rounded border text-xs flex items-center justify-center transition-all",
           isAssignedRow 
             ? "cursor-pointer hover:border-primary hover:bg-primary/5"
             : "cursor-not-allowed",
@@ -171,7 +171,7 @@ export const CeremonyFloorPlanVisual = ({
       </div>
 
       {/* Seating Area */}
-      <div className="flex items-start justify-center gap-2 lg:gap-4">
+      <div className="flex items-start justify-center gap-1 lg:gap-2">
         {/* Left Side */}
         {renderSide('left')}
 
