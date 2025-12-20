@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState, KeyboardEvent } from 'react';
 import { CeremonyFloorPlan } from '@/hooks/useCeremonyFloorPlan';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
@@ -15,11 +15,11 @@ interface EditingSeat {
   seat: number;
 }
 
-export const CeremonyFloorPlanVisual: React.FC<CeremonyFloorPlanVisualProps> = ({
+export const CeremonyFloorPlanVisual = ({
   floorPlan,
   onSeatUpdate,
   getSeatName,
-}) => {
+}: CeremonyFloorPlanVisualProps) => {
   const [editingSeat, setEditingSeat] = useState<EditingSeat | null>(null);
   const [editingValue, setEditingValue] = useState('');
 
@@ -39,7 +39,7 @@ export const CeremonyFloorPlanVisual: React.FC<CeremonyFloorPlanVisualProps> = (
     setEditingValue('');
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
+  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       handleSeatSave();
     } else if (e.key === 'Escape') {

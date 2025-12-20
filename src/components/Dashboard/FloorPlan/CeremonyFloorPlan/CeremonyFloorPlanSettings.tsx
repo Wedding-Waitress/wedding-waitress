@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -11,10 +11,10 @@ interface CeremonyFloorPlanSettingsProps {
   onUpdate: (updates: Partial<CeremonyFloorPlan>) => Promise<boolean>;
 }
 
-export const CeremonyFloorPlanSettings: React.FC<CeremonyFloorPlanSettingsProps> = ({
+export const CeremonyFloorPlanSettings = ({
   floorPlan,
   onUpdate,
-}) => {
+}: CeremonyFloorPlanSettingsProps) => {
   const handleChange = (key: keyof CeremonyFloorPlan, value: number | string | boolean) => {
     onUpdate({ [key]: value });
   };
