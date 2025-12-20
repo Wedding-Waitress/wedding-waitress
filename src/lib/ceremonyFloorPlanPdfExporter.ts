@@ -444,7 +444,7 @@ export const generateCeremonyFloorPlanPDF = async (
     pdf.text('Wedding Waitress', PAGE_WIDTH / 2, PAGE_HEIGHT - MARGIN_BOTTOM + 6, { align: 'center' });
   }
 
-  // Generate filename and save directly (no permission popup)
+  // Generate filename
   const eventName = event.name
     .split(/[^a-zA-Z0-9]+/)
     .filter(word => word.length > 0)
@@ -454,5 +454,14 @@ export const generateCeremonyFloorPlanPDF = async (
   const date = format(new Date(), 'dd-MM-yyyy');
   const fileName = `${eventName}-Ceremony-Floor-Plan-${date}.pdf`;
   
-  pdf.save(fileName);
+  // Use blob + link method to avoid permission popups
+  const pdfBlob = pdf.output('blob');
+  const url = URL.createObjectURL(pdfBlob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = fileName;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
 };
