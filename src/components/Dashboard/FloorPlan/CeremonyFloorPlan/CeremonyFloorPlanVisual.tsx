@@ -1,5 +1,5 @@
 import { useState, KeyboardEvent } from 'react';
-import { CeremonyFloorPlan } from '@/hooks/useCeremonyFloorPlan';
+import { CeremonyFloorPlan, getDefaultBridalRole } from '@/hooks/useCeremonyFloorPlan';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 
@@ -9,6 +9,8 @@ interface CeremonyFloorPlanVisualProps {
   getSeatName: (side: 'left' | 'right', row: number, seat: number) => string;
   onBridalPartyUpdate: (side: 'left' | 'right', index: number, name: string) => Promise<boolean>;
   getBridalPartyName: (side: 'left' | 'right', index: number) => string;
+  onBridalPartyRoleUpdate: (side: 'left' | 'right', index: number, role: string) => Promise<boolean>;
+  getBridalPartyRole: (side: 'left' | 'right', index: number) => string;
 }
 
 interface EditingSeat {
@@ -22,17 +24,26 @@ interface EditingBridalParty {
   index: number;
 }
 
+interface EditingRole {
+  side: 'left' | 'right';
+  index: number;
+}
+
 export const CeremonyFloorPlanVisual = ({
   floorPlan,
   onSeatUpdate,
   getSeatName,
   onBridalPartyUpdate,
   getBridalPartyName,
+  onBridalPartyRoleUpdate,
+  getBridalPartyRole,
 }: CeremonyFloorPlanVisualProps) => {
   const [editingSeat, setEditingSeat] = useState<EditingSeat | null>(null);
   const [editingValue, setEditingValue] = useState('');
   const [editingBridalParty, setEditingBridalParty] = useState<EditingBridalParty | null>(null);
   const [editingBridalValue, setEditingBridalValue] = useState('');
+  const [editingRole, setEditingRole] = useState<EditingRole | null>(null);
+  const [editingRoleValue, setEditingRoleValue] = useState('');
 
   const handleSeatClick = (side: 'left' | 'right', row: number, seat: number) => {
     if (row > floorPlan.assigned_rows) return; // Only allow editing assigned rows
@@ -79,6 +90,29 @@ export const CeremonyFloorPlanVisual = ({
     } else if (e.key === 'Escape') {
       setEditingBridalParty(null);
       setEditingBridalValue('');
+    }
+  };
+
+  const handleRoleClick = (side: 'left' | 'right', index: number) => {
+    const currentRole = getBridalPartyRole(side, index);
+    setEditingRole({ side, index });
+    setEditingRoleValue(currentRole);
+  };
+
+  const handleRoleSave = async () => {
+    if (!editingRole) return;
+    
+    await onBridalPartyRoleUpdate(editingRole.side, editingRole.index, editingRoleValue);
+    setEditingRole(null);
+    setEditingRoleValue('');
+  };
+
+  const handleRoleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleRoleSave();
+    } else if (e.key === 'Escape') {
+      setEditingRole(null);
+      setEditingRoleValue('');
     }
   };
 
@@ -147,40 +181,62 @@ export const CeremonyFloorPlanVisual = ({
   };
 
   const renderBridalPartyBox = (side: 'left' | 'right', index: number) => {
-    const isEditing = editingBridalParty?.side === side && editingBridalParty?.index === index;
+    const isEditingName = editingBridalParty?.side === side && editingBridalParty?.index === index;
+    const isEditingRoleLabel = editingRole?.side === side && editingRole?.index === index;
     const name = getBridalPartyName(side, index);
-
-    if (isEditing) {
-      return (
-        <Input
-          key={`bridal-${side}-${index}`}
-          autoFocus
-          value={editingBridalValue}
-          onChange={(e) => setEditingBridalValue(e.target.value)}
-          onBlur={handleBridalPartySave}
-          onKeyDown={handleBridalPartyKeyDown}
-          className="w-16 h-12 text-xs p-1 text-center"
-          placeholder="Name"
-        />
-      );
-    }
+    const role = getBridalPartyRole(side, index);
 
     return (
-      <div
-        key={`bridal-${side}-${index}`}
-        onClick={() => handleBridalPartyClick(side, index)}
-        className={cn(
-          "w-16 h-12 rounded border text-xs flex items-center justify-center transition-all cursor-pointer hover:border-primary hover:bg-primary/5",
-          name 
-            ? "bg-transparent border-primary font-medium" 
-            : "bg-muted/30 border-border text-muted-foreground"
-        )}
-        title={name || 'Click to assign'}
-      >
-        {name ? (
-          renderName(name)
+      <div key={`bridal-${side}-${index}`} className="flex flex-col items-center">
+        {/* Name box */}
+        {isEditingName ? (
+          <Input
+            autoFocus
+            value={editingBridalValue}
+            onChange={(e) => setEditingBridalValue(e.target.value)}
+            onBlur={handleBridalPartySave}
+            onKeyDown={handleBridalPartyKeyDown}
+            className="w-16 h-12 text-xs p-1 text-center"
+            placeholder="Name"
+          />
         ) : (
-          <span className="text-[10px]">{index + 1}</span>
+          <div
+            onClick={() => handleBridalPartyClick(side, index)}
+            className={cn(
+              "w-16 h-12 rounded border text-xs flex items-center justify-center transition-all cursor-pointer hover:border-primary hover:bg-primary/5",
+              name 
+                ? "bg-transparent border-primary font-medium" 
+                : "bg-muted/30 border-border text-muted-foreground"
+            )}
+            title={name || 'Click to assign'}
+          >
+            {name ? (
+              renderName(name)
+            ) : (
+              <span className="text-[10px]">{index + 1}</span>
+            )}
+          </div>
+        )}
+        
+        {/* Role label */}
+        {isEditingRoleLabel ? (
+          <Input
+            autoFocus
+            value={editingRoleValue}
+            onChange={(e) => setEditingRoleValue(e.target.value)}
+            onBlur={handleRoleSave}
+            onKeyDown={handleRoleKeyDown}
+            className="w-16 h-5 text-[9px] p-0.5 text-center mt-0.5"
+            placeholder="Role"
+          />
+        ) : (
+          <span
+            onClick={() => handleRoleClick(side, index)}
+            className="text-[9px] text-muted-foreground italic mt-0.5 cursor-pointer hover:text-primary transition-colors truncate max-w-16 text-center"
+            title="Click to edit role"
+          >
+            {role}
+          </span>
         )}
       </div>
     );
@@ -267,7 +323,7 @@ export const CeremonyFloorPlanVisual = ({
         {leftCount > 0 && (
           <div className="flex flex-col items-center">
             <span className="text-sm font-semibold text-primary mb-2">{leftLabel}</span>
-            <div className="flex flex-col items-center gap-1">
+            <div className="flex flex-col items-center gap-2">
               {/* First row - up to 6 members */}
               <div className="flex gap-1">
                 {Array.from({ length: leftFirstRow }).map((_, i) => renderBridalPartyBox('left', i))}
@@ -312,7 +368,7 @@ export const CeremonyFloorPlanVisual = ({
         {rightCount > 0 && (
           <div className="flex flex-col items-center">
             <span className="text-sm font-semibold text-primary mb-2">{rightLabel}</span>
-            <div className="flex flex-col items-center gap-1">
+            <div className="flex flex-col items-center gap-2">
               {/* First row - up to 6 members */}
               <div className="flex gap-1">
                 {Array.from({ length: rightFirstRow }).map((_, i) => renderBridalPartyBox('right', i))}

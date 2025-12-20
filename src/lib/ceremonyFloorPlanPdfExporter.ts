@@ -1,5 +1,5 @@
 import jsPDF from 'jspdf';
-import { CeremonyFloorPlan } from '@/hooks/useCeremonyFloorPlan';
+import { CeremonyFloorPlan, getDefaultBridalRole } from '@/hooks/useCeremonyFloorPlan';
 import { format } from 'date-fns';
 
 // Define the event type inline to avoid circular dependency with hooks
@@ -110,6 +110,7 @@ export const generateCeremonyFloorPlanPDF = async (
   const bridalBoxHeight = 9;
   const bridalGap = 1;
   const bridalRowGap = 2;
+  const roleHeight = 3; // Height for role label below each box
   const celebrantRadius = 4.5;
   const coupleCircleRadius = 5.5;
   const celebrantX = PAGE_WIDTH / 2;
@@ -124,7 +125,15 @@ export const generateCeremonyFloorPlanPDF = async (
   // Calculate if we have a second row (need extra vertical space)
   const hasSecondRow = leftSecondRowCount > 0 || rightSecondRowCount > 0;
   
-  // Helper to render bridal party boxes for a given row
+  // Helper to get role for a bridal party member
+  const getBridalRole = (side: 'left' | 'right', index: number): string => {
+    const rolesArray = side === 'left' ? floorPlan.bridal_party_roles_left : floorPlan.bridal_party_roles_right;
+    const savedRole = rolesArray?.[index];
+    if (savedRole) return savedRole;
+    return getDefaultBridalRole(side, index, floorPlan.couple_side_arrangement);
+  };
+  
+  // Helper to render bridal party boxes for a given row (with role labels)
   const renderBridalRow = (side: 'left' | 'right', startIndex: number, count: number, rowYOffset: number) => {
     if (count === 0) return;
     
@@ -144,7 +153,9 @@ export const generateCeremonyFloorPlanPDF = async (
       const name = side === 'left' 
         ? floorPlan.bridal_party_left?.[startIndex + i] || ''
         : floorPlan.bridal_party_right?.[startIndex + i] || '';
+      const role = getBridalRole(side, startIndex + i);
       
+      // Draw box
       if (name) {
         pdf.setFillColor(255, 255, 255);
         pdf.setDrawColor(114, 72, 230);
@@ -155,7 +166,9 @@ export const generateCeremonyFloorPlanPDF = async (
       pdf.setLineWidth(0.2);
       pdf.roundedRect(boxX, yPos + rowYOffset, bridalBoxWidth, bridalBoxHeight, 0.5, 0.5, 'FD');
       
+      // Draw name
       if (name) {
+        pdf.setFont('helvetica', 'normal');
         pdf.setFontSize(5.5);
         pdf.setTextColor(0, 0, 0);
         const parts = name.split(' ');
@@ -166,6 +179,13 @@ export const generateCeremonyFloorPlanPDF = async (
           pdf.text(name.substring(0, 8), boxX + (bridalBoxWidth / 2), yPos + rowYOffset + 3.5, { align: 'center' });
         }
       }
+      
+      // Draw role label below the box
+      pdf.setFont('helvetica', 'italic');
+      pdf.setFontSize(4.5);
+      pdf.setTextColor(120, 120, 120);
+      const truncatedRole = role.length > 12 ? role.substring(0, 11) + '.' : role;
+      pdf.text(truncatedRole, boxX + (bridalBoxWidth / 2), yPos + rowYOffset + bridalBoxHeight + 2.5, { align: 'center' });
     }
   };
   
@@ -237,10 +257,11 @@ export const generateCeremonyFloorPlanPDF = async (
   pdf.text(rightPersonName.substring(0, 8), rightPersonX, coupleCircleY + 0.5, { align: 'center' });
   
   // Adjust yPos based on whether we have a second row - add extra gap before guest seating
+  // Include roleHeight for the role labels below each bridal party box
   if (hasSecondRow) {
-    yPos += secondRowYOffset + bridalBoxHeight + 20;
+    yPos += secondRowYOffset + bridalBoxHeight + roleHeight + 22;
   } else {
-    yPos += bridalBoxHeight + 24;
+    yPos += bridalBoxHeight + roleHeight + 26;
   }
 
 
