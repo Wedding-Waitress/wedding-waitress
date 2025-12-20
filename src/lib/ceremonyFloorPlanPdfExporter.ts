@@ -372,9 +372,9 @@ export const generateCeremonyFloorPlanPDF = async (
 
   }
 
-  // Draw "Bride's Walkway - Aisle" text in the TRUE center of the page (no gray lines)
+  // Draw "Bride's Walkway - Aisle" text in the walkway area above all seats
   const walkwayText = "Bride's Walkway - Aisle";
-  const walkwayTextY = aisleStartY + ((aisleEndY - aisleStartY) / 2);
+  const walkwayTextY = aisleStartY - 5;
   const trueCenterX = PAGE_WIDTH / 2;
 
   pdf.setFont('helvetica', 'bold');
