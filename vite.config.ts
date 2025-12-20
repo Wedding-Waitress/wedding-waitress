@@ -13,7 +13,12 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      // Force a single React instance across all dependencies
+      react: path.resolve(__dirname, "./node_modules/react"),
+      "react-dom": path.resolve(__dirname, "./node_modules/react-dom"),
     },
+    // Prevent duplicate React copies (fixes "Cannot read properties of null (reading 'useEffect')")
+    dedupe: ["react", "react-dom"],
   },
   build: {
     rollupOptions: {
