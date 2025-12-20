@@ -375,7 +375,7 @@ export const generateCeremonyFloorPlanPDF = async (
   // Draw "Bride's Walkway - Aisle" text in the walkway area above all seats
   const walkwayText = "Bride's Walkway - Aisle";
   const walkwayTextY = aisleStartY - 5;
-  const trueCenterX = PAGE_WIDTH / 2;
+  const trueCenterX = (PAGE_WIDTH / 2) + 40;
 
   pdf.setFont('helvetica', 'bold');
   pdf.setFontSize(11);
