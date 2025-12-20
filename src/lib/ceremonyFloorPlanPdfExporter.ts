@@ -35,7 +35,7 @@ const formatTime = (time: string | null | undefined): string => {
 export const generateCeremonyFloorPlanPDF = async (
   floorPlan: CeremonyFloorPlan,
   event: EventData
-): Promise<Blob> => {
+): Promise<void> => {
   const pdf = new jsPDF({
     orientation: 'portrait',
     unit: 'mm',
@@ -383,5 +383,15 @@ export const generateCeremonyFloorPlanPDF = async (
     pdf.text('Wedding Waitress', PAGE_WIDTH / 2, PAGE_HEIGHT - MARGIN_BOTTOM + 6, { align: 'center' });
   }
 
-  return pdf.output('blob');
+  // Generate filename and save directly (no permission popup)
+  const eventName = event.name
+    .split(/[^a-zA-Z0-9]+/)
+    .filter(word => word.length > 0)
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join('-');
+
+  const date = format(new Date(), 'dd-MM-yyyy');
+  const fileName = `${eventName}-Ceremony-Floor-Plan-${date}.pdf`;
+  
+  pdf.save(fileName);
 };
