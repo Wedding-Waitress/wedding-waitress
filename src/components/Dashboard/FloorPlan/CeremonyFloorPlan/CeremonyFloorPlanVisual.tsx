@@ -104,7 +104,8 @@ export const CeremonyFloorPlanVisual = ({
     
     return (
       <div key={`${side}-row-${rowNum}`} className="flex items-center gap-1 mb-1">
-        {floorPlan.show_row_numbers && (
+        {/* Row number on LEFT for left side (Groom's Family) */}
+        {floorPlan.show_row_numbers && side === 'left' && (
           <span className="w-6 text-xs text-muted-foreground text-right mr-1">
             {rowNum}
           </span>
@@ -112,6 +113,12 @@ export const CeremonyFloorPlanVisual = ({
         <div className="flex gap-1">
           {seats}
         </div>
+        {/* Row number on RIGHT for right side (Bride's Family) */}
+        {floorPlan.show_row_numbers && side === 'right' && (
+          <span className="w-6 text-xs text-muted-foreground text-left ml-1">
+            {rowNum}
+          </span>
+        )}
       </div>
     );
   };
@@ -127,7 +134,7 @@ export const CeremonyFloorPlanVisual = ({
         <h4 className="text-sm font-semibold text-foreground mb-3">
           {side === 'left' ? floorPlan.left_side_label : floorPlan.right_side_label}
         </h4>
-        <div className={cn(!floorPlan.show_row_numbers && 'pl-7')}>
+        <div>
           {rows}
         </div>
         {/* Separator for assigned vs general seating */}
