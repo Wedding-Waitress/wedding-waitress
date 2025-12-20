@@ -109,8 +109,8 @@ export const generateCeremonyFloorPlanPDF = async (
   const bridalBoxWidth = 9;
   const bridalBoxHeight = 7;
   const bridalGap = 1;
-  const celebrantRadius = 4;
-  const coupleCircleRadius = 5;
+  const celebrantRadius = 6;
+  const coupleCircleRadius = 7;
   const celebrantX = PAGE_WIDTH / 2;
   
   // Labels for bridal party
@@ -158,7 +158,7 @@ export const generateCeremonyFloorPlanPDF = async (
   pdf.setDrawColor(114, 72, 230);
   pdf.setLineWidth(0.4);
   pdf.circle(leftPersonX, yPos + 7, coupleCircleRadius, 'FD');
-  pdf.setFontSize(4);
+  pdf.setFontSize(5.5);
   pdf.setTextColor(114, 72, 230);
   pdf.text(leftPersonName.substring(0, 8), leftPersonX, yPos + 7.5, { align: 'center' });
   
@@ -167,7 +167,7 @@ export const generateCeremonyFloorPlanPDF = async (
   pdf.setDrawColor(180, 180, 180);
   pdf.setLineWidth(0.2);
   pdf.circle(celebrantX, yPos + 7, celebrantRadius, 'FD');
-  pdf.setFontSize(4);
+  pdf.setFontSize(5.5);
   pdf.setTextColor(100, 100, 100);
   pdf.text('Cel.', celebrantX, yPos + 7.5, { align: 'center' });
   
@@ -177,7 +177,7 @@ export const generateCeremonyFloorPlanPDF = async (
   pdf.setDrawColor(114, 72, 230);
   pdf.setLineWidth(0.4);
   pdf.circle(rightPersonX, yPos + 7, coupleCircleRadius, 'FD');
-  pdf.setFontSize(4);
+  pdf.setFontSize(5.5);
   pdf.setTextColor(114, 72, 230);
   pdf.text(rightPersonName.substring(0, 8), rightPersonX, yPos + 7.5, { align: 'center' });
   
