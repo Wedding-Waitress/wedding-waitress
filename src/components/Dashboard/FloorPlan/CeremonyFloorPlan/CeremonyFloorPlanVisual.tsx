@@ -270,22 +270,22 @@ export const CeremonyFloorPlanVisual = ({
         <div className="flex items-center justify-center gap-3 px-2">
           {/* Left person (Groom or Bride depending on arrangement) */}
           <div className="flex flex-col items-center">
-            <div className="w-12 h-12 rounded-full bg-primary/20 border-2 border-primary flex items-center justify-center">
-              <span className="text-[9px] text-primary font-medium text-center leading-tight px-1">
+            <div className="w-16 h-16 rounded-full bg-primary/20 border-2 border-primary flex items-center justify-center">
+              <span className="text-[11px] text-primary font-medium text-center leading-tight px-1">
                 {leftPersonName}
               </span>
             </div>
           </div>
           
           {/* Celebrant (center, stationary) */}
-          <div className="w-10 h-10 rounded-full bg-muted/50 border border-border flex items-center justify-center">
-            <span className="text-[8px] text-muted-foreground text-center">Celebrant</span>
+          <div className="w-14 h-14 rounded-full bg-muted/50 border border-border flex items-center justify-center">
+            <span className="text-[11px] text-muted-foreground text-center">Celebrant</span>
           </div>
           
           {/* Right person (Bride or Groom depending on arrangement) */}
           <div className="flex flex-col items-center">
-            <div className="w-12 h-12 rounded-full bg-primary/20 border-2 border-primary flex items-center justify-center">
-              <span className="text-[9px] text-primary font-medium text-center leading-tight px-1">
+            <div className="w-16 h-16 rounded-full bg-primary/20 border-2 border-primary flex items-center justify-center">
+              <span className="text-[11px] text-primary font-medium text-center leading-tight px-1">
                 {rightPersonName}
               </span>
             </div>
