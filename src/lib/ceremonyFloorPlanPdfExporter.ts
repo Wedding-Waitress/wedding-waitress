@@ -82,9 +82,9 @@ export const generateCeremonyFloorPlanPDF = async (
 
   // === FLOOR PLAN VISUAL ===
   
-  // Calculate dimensions - SQUARE seats
-  const seatWidth = 9;
-  const seatHeight = 9; // Square now
+  // Calculate dimensions - wider rectangles
+  const seatWidth = 12;
+  const seatHeight = 9;
   const seatGap = 1.5;
   const rowGap = 2;
   
@@ -106,7 +106,8 @@ export const generateCeremonyFloorPlanPDF = async (
   const leftCount = floorPlan.bridal_party_count_left || 0;
   const rightCount = floorPlan.bridal_party_count_right || 0;
   
-  const bridalBoxSize = 7;
+  const bridalBoxWidth = 9;
+  const bridalBoxHeight = 7;
   const bridalGap = 1;
   const celebrantRadius = 4;
   const coupleCircleRadius = 5;
@@ -119,12 +120,12 @@ export const generateCeremonyFloorPlanPDF = async (
   
   // Left bridal party
   if (leftCount > 0) {
-    const leftTotalWidth = (leftCount * bridalBoxSize) + ((leftCount - 1) * bridalGap);
+    const leftTotalWidth = (leftCount * bridalBoxWidth) + ((leftCount - 1) * bridalGap);
     const leftStartX = celebrantX - celebrantRadius - coupleCircleRadius * 2 - 8 - leftTotalWidth;
     pdf.text(leftPartyLabel, leftStartX + (leftTotalWidth / 2), yPos, { align: 'center' });
     
     for (let i = 0; i < leftCount; i++) {
-      const boxX = leftStartX + (i * (bridalBoxSize + bridalGap));
+      const boxX = leftStartX + (i * (bridalBoxWidth + bridalGap));
       const name = floorPlan.bridal_party_left?.[i] || '';
       
       if (name) {
@@ -135,17 +136,17 @@ export const generateCeremonyFloorPlanPDF = async (
         pdf.setDrawColor(180, 180, 180);
       }
       pdf.setLineWidth(0.2);
-      pdf.roundedRect(boxX, yPos + 3, bridalBoxSize, bridalBoxSize, 0.5, 0.5, 'FD');
+      pdf.roundedRect(boxX, yPos + 3, bridalBoxWidth, bridalBoxHeight, 0.5, 0.5, 'FD');
       
       if (name) {
-        pdf.setFontSize(3.5);
+        pdf.setFontSize(4.5);
         pdf.setTextColor(114, 72, 230);
         const parts = name.split(' ');
         if (parts.length > 1) {
-          pdf.text(parts[0], boxX + (bridalBoxSize / 2), yPos + 5.5, { align: 'center' });
-          pdf.text(parts.slice(1).join(' ').substring(0, 6), boxX + (bridalBoxSize / 2), yPos + 8, { align: 'center' });
+          pdf.text(parts[0], boxX + (bridalBoxWidth / 2), yPos + 5.5, { align: 'center' });
+          pdf.text(parts.slice(1).join(' ').substring(0, 6), boxX + (bridalBoxWidth / 2), yPos + 8, { align: 'center' });
         } else {
-          pdf.text(name.substring(0, 8), boxX + (bridalBoxSize / 2), yPos + 6.5, { align: 'center' });
+          pdf.text(name.substring(0, 8), boxX + (bridalBoxWidth / 2), yPos + 6.5, { align: 'center' });
         }
       }
     }
@@ -182,14 +183,14 @@ export const generateCeremonyFloorPlanPDF = async (
   
   // Right bridal party
   if (rightCount > 0) {
-    const rightTotalWidth = (rightCount * bridalBoxSize) + ((rightCount - 1) * bridalGap);
+    const rightTotalWidth = (rightCount * bridalBoxWidth) + ((rightCount - 1) * bridalGap);
     const rightStartX = celebrantX + celebrantRadius + coupleCircleRadius * 2 + 8;
     pdf.setFontSize(7);
     pdf.setTextColor(100, 100, 100);
     pdf.text(rightPartyLabel, rightStartX + (rightTotalWidth / 2), yPos, { align: 'center' });
     
     for (let i = 0; i < rightCount; i++) {
-      const boxX = rightStartX + (i * (bridalBoxSize + bridalGap));
+      const boxX = rightStartX + (i * (bridalBoxWidth + bridalGap));
       const name = floorPlan.bridal_party_right?.[i] || '';
       
       if (name) {
@@ -200,23 +201,23 @@ export const generateCeremonyFloorPlanPDF = async (
         pdf.setDrawColor(180, 180, 180);
       }
       pdf.setLineWidth(0.2);
-      pdf.roundedRect(boxX, yPos + 3, bridalBoxSize, bridalBoxSize, 0.5, 0.5, 'FD');
+      pdf.roundedRect(boxX, yPos + 3, bridalBoxWidth, bridalBoxHeight, 0.5, 0.5, 'FD');
       
       if (name) {
-        pdf.setFontSize(3.5);
+        pdf.setFontSize(4.5);
         pdf.setTextColor(114, 72, 230);
         const parts = name.split(' ');
         if (parts.length > 1) {
-          pdf.text(parts[0], boxX + (bridalBoxSize / 2), yPos + 5.5, { align: 'center' });
-          pdf.text(parts.slice(1).join(' ').substring(0, 6), boxX + (bridalBoxSize / 2), yPos + 8, { align: 'center' });
+          pdf.text(parts[0], boxX + (bridalBoxWidth / 2), yPos + 5.5, { align: 'center' });
+          pdf.text(parts.slice(1).join(' ').substring(0, 6), boxX + (bridalBoxWidth / 2), yPos + 8, { align: 'center' });
         } else {
-          pdf.text(name.substring(0, 8), boxX + (bridalBoxSize / 2), yPos + 6.5, { align: 'center' });
+          pdf.text(name.substring(0, 8), boxX + (bridalBoxWidth / 2), yPos + 6.5, { align: 'center' });
         }
       }
     }
   }
   
-  yPos += bridalBoxSize + 8;
+  yPos += bridalBoxHeight + 8;
 
   // Aisle label
   pdf.setTextColor(100, 100, 100);
@@ -270,14 +271,14 @@ export const generateCeremonyFloorPlanPDF = async (
       pdf.roundedRect(seatX, rowY, seatWidth, seatHeight, 0.5, 0.5, 'FD');
 
       // Seat content - Two lines for first/surname
-      pdf.setFontSize(4.5);
+      pdf.setFontSize(5.5);
       if (seatName) {
         pdf.setTextColor(114, 72, 230);
         const parts = seatName.split(' ');
         if (parts.length > 1) {
           pdf.text(parts[0], seatX + (seatWidth / 2), rowY + 3.5, { align: 'center' });
           const surname = parts.slice(1).join(' ');
-          const truncatedSurname = surname.length > 8 ? surname.substring(0, 7) + '.' : surname;
+          const truncatedSurname = surname.length > 10 ? surname.substring(0, 9) + '.' : surname;
           pdf.text(truncatedSurname, seatX + (seatWidth / 2), rowY + 6.5, { align: 'center' });
         } else {
           pdf.text(seatName, seatX + (seatWidth / 2), rowY + 5, { align: 'center' });
@@ -310,14 +311,14 @@ export const generateCeremonyFloorPlanPDF = async (
       pdf.roundedRect(seatX, rowY, seatWidth, seatHeight, 0.5, 0.5, 'FD');
 
       // Seat content - Two lines for first/surname
-      pdf.setFontSize(4.5);
+      pdf.setFontSize(5.5);
       if (seatName) {
         pdf.setTextColor(114, 72, 230);
         const parts = seatName.split(' ');
         if (parts.length > 1) {
           pdf.text(parts[0], seatX + (seatWidth / 2), rowY + 3.5, { align: 'center' });
           const surname = parts.slice(1).join(' ');
-          const truncatedSurname = surname.length > 8 ? surname.substring(0, 7) + '.' : surname;
+          const truncatedSurname = surname.length > 10 ? surname.substring(0, 9) + '.' : surname;
           pdf.text(truncatedSurname, seatX + (seatWidth / 2), rowY + 6.5, { align: 'center' });
         } else {
           pdf.text(seatName, seatX + (seatWidth / 2), rowY + 5, { align: 'center' });
