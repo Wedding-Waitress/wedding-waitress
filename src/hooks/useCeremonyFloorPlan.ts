@@ -27,6 +27,7 @@ export interface CeremonyFloorPlan {
   bridal_party_right: string[];
   bridal_party_count_left: number;
   bridal_party_count_right: number;
+  couple_side_arrangement: 'groom_left' | 'bride_left';
   created_at: string;
   updated_at: string;
 }
@@ -45,6 +46,7 @@ const defaultFloorPlan: Omit<CeremonyFloorPlan, 'id' | 'event_id' | 'user_id' | 
   bridal_party_right: [],
   bridal_party_count_left: 3,
   bridal_party_count_right: 3,
+  couple_side_arrangement: 'groom_left',
 };
 
 export const useCeremonyFloorPlan = (eventId: string | null) => {
@@ -90,6 +92,7 @@ export const useCeremonyFloorPlan = (eventId: string | null) => {
           bridal_party_right: bridalPartyRight,
           bridal_party_count_left: (data as any).bridal_party_count_left ?? 3,
           bridal_party_count_right: (data as any).bridal_party_count_right ?? 3,
+          couple_side_arrangement: (data as any).couple_side_arrangement ?? 'groom_left',
         });
       } else {
         setFloorPlan(null);
@@ -141,6 +144,7 @@ export const useCeremonyFloorPlan = (eventId: string | null) => {
         bridal_party_right: [],
         bridal_party_count_left: (data as any).bridal_party_count_left ?? 3,
         bridal_party_count_right: (data as any).bridal_party_count_right ?? 3,
+        couple_side_arrangement: (data as any).couple_side_arrangement ?? 'groom_left',
       };
 
       setFloorPlan(newPlan);

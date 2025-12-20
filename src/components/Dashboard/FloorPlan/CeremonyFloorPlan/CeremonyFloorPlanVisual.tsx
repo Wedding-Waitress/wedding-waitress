@@ -247,13 +247,18 @@ export const CeremonyFloorPlanVisual = ({
 
     if (leftCount === 0 && rightCount === 0) return null;
 
+    // Determine labels based on couple arrangement
+    const isGroomLeft = floorPlan.couple_side_arrangement !== 'bride_left';
+    const leftLabel = isGroomLeft ? 'Groomsmen' : 'Bridesmaids';
+    const rightLabel = isGroomLeft ? 'Bridesmaids' : 'Groomsmen';
+
     return (
-      <div className="flex items-start justify-center gap-6">
-        {/* Left side - Groomsmen */}
+      <div className="flex items-start justify-center gap-4">
+        {/* Left side */}
         {leftCount > 0 && (
           <div className="flex flex-col items-center">
-            <span className="text-xs text-muted-foreground mb-2">Groomsmen</span>
-            <div className="flex gap-1 flex-wrap justify-center max-w-[200px]">
+            <span className="text-xs text-muted-foreground mb-2">{leftLabel}</span>
+            <div className="flex gap-1">
               {Array.from({ length: leftCount }).map((_, i) => renderBridalPartyBox('left', i))}
             </div>
           </div>
@@ -266,11 +271,11 @@ export const CeremonyFloorPlanVisual = ({
           </div>
         </div>
 
-        {/* Right side - Bridesmaids */}
+        {/* Right side */}
         {rightCount > 0 && (
           <div className="flex flex-col items-center">
-            <span className="text-xs text-muted-foreground mb-2">Bridesmaids</span>
-            <div className="flex gap-1 flex-wrap justify-center max-w-[200px]">
+            <span className="text-xs text-muted-foreground mb-2">{rightLabel}</span>
+            <div className="flex gap-1">
               {Array.from({ length: rightCount }).map((_, i) => renderBridalPartyBox('right', i))}
             </div>
           </div>
@@ -281,16 +286,6 @@ export const CeremonyFloorPlanVisual = ({
 
   return (
     <div className="flex flex-col items-center space-y-6">
-      {/* Altar - Wider and taller */}
-      <div className="w-full max-w-2xl">
-        <div className="bg-primary text-primary-foreground rounded-lg py-5 px-8 text-center shadow-md">
-          <span className="text-sm font-semibold uppercase tracking-wide">
-            {floorPlan.altar_label}
-          </span>
-          <p className="text-xs opacity-80 mt-1">Celebrant, Bride & Groom</p>
-        </div>
-      </div>
-
       {/* Bridal Party Area */}
       {renderBridalParty()}
 

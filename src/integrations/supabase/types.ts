@@ -81,6 +81,7 @@ export type Database = {
           bridal_party_left: Json | null
           bridal_party_right: Json | null
           chairs_per_row: number
+          couple_side_arrangement: string | null
           created_at: string
           event_id: string
           id: string
@@ -101,6 +102,7 @@ export type Database = {
           bridal_party_left?: Json | null
           bridal_party_right?: Json | null
           chairs_per_row?: number
+          couple_side_arrangement?: string | null
           created_at?: string
           event_id: string
           id?: string
@@ -121,6 +123,7 @@ export type Database = {
           bridal_party_left?: Json | null
           bridal_party_right?: Json | null
           chairs_per_row?: number
+          couple_side_arrangement?: string | null
           created_at?: string
           event_id?: string
           id?: string

@@ -1,9 +1,9 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Slider } from '@/components/ui/slider';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { CeremonyFloorPlan } from '@/hooks/useCeremonyFloorPlan';
 
 interface CeremonyFloorPlanSettingsProps {
@@ -78,40 +78,66 @@ export const CeremonyFloorPlanSettings = ({
           <p className="text-xs text-muted-foreground">First rows for family assignment</p>
         </div>
 
+        {/* Couple Side Arrangement */}
+        <div className="space-y-4 pt-2 border-t border-border">
+          <h4 className="text-sm font-medium">Couple Arrangement</h4>
+          
+          <div className="space-y-2">
+            <Label className="text-xs text-muted-foreground">Which side is the Groom on?</Label>
+            <Select
+              value={floorPlan.couple_side_arrangement}
+              onValueChange={(value) => handleChange('couple_side_arrangement', value)}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="groom_left">Groom on Left, Bride on Right</SelectItem>
+                <SelectItem value="bride_left">Bride on Left, Groom on Right</SelectItem>
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-muted-foreground">This affects where groomsmen/bridesmaids stand</p>
+          </div>
+        </div>
+
         {/* Bridal Party Section */}
         <div className="space-y-4 pt-2 border-t border-border">
           <h4 className="text-sm font-medium">Bridal Party (Altar Area)</h4>
           
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <Label className="text-sm">Groomsmen Count</Label>
+              <Label className="text-sm">
+                {floorPlan.couple_side_arrangement === 'groom_left' ? 'Groomsmen' : 'Bridesmaids'} Count (Left)
+              </Label>
               <span className="text-sm font-medium text-primary">{floorPlan.bridal_party_count_left}</span>
             </div>
             <Slider
               value={[floorPlan.bridal_party_count_left]}
               onValueChange={([value]) => handleChange('bridal_party_count_left', value)}
               min={0}
-              max={8}
+              max={12}
               step={1}
               className="w-full"
             />
-            <p className="text-xs text-muted-foreground">Left side of altar (0-8)</p>
+            <p className="text-xs text-muted-foreground">Left side of altar (0-12)</p>
           </div>
 
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <Label className="text-sm">Bridesmaids Count</Label>
+              <Label className="text-sm">
+                {floorPlan.couple_side_arrangement === 'groom_left' ? 'Bridesmaids' : 'Groomsmen'} Count (Right)
+              </Label>
               <span className="text-sm font-medium text-primary">{floorPlan.bridal_party_count_right}</span>
             </div>
             <Slider
               value={[floorPlan.bridal_party_count_right]}
               onValueChange={([value]) => handleChange('bridal_party_count_right', value)}
               min={0}
-              max={8}
+              max={12}
               step={1}
               className="w-full"
             />
-            <p className="text-xs text-muted-foreground">Right side of altar (0-8)</p>
+            <p className="text-xs text-muted-foreground">Right side of altar (0-12)</p>
           </div>
         </div>
 
