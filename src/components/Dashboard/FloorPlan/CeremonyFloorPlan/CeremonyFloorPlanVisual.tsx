@@ -410,21 +410,6 @@ export const CeremonyFloorPlanVisual = ({
         {renderSide('right')}
       </div>
 
-      {/* Legend */}
-      <div className="flex items-center gap-6 pt-4 border-t border-border w-full justify-center flex-wrap">
-        <div className="flex items-center gap-2">
-          <div className="w-4 h-4 rounded bg-transparent border border-primary" />
-          <span className="text-xs text-muted-foreground">Assigned Seat</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="w-4 h-4 rounded bg-muted/30 border border-border" />
-          <span className="text-xs text-muted-foreground">Click to Assign</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="w-4 h-4 rounded bg-muted/10 border border-border/50" />
-          <span className="text-xs text-muted-foreground">General Seating</span>
-        </div>
-      </div>
     </div>
   );
 };

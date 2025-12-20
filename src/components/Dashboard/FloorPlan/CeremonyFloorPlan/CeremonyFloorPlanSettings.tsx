@@ -195,15 +195,6 @@ export const CeremonyFloorPlanSettings = ({
             />
           </div>
 
-          <div className="space-y-2">
-            <Label className="text-xs text-muted-foreground">Altar</Label>
-            <Input
-              value={floorPlan.altar_label}
-              onChange={(e) => handleChange('altar_label', e.target.value)}
-              placeholder="e.g., Altar"
-              className="text-sm"
-            />
-          </div>
         </div>
 
         {/* Display Options */}
