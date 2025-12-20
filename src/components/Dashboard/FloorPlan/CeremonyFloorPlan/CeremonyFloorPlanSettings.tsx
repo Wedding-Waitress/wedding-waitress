@@ -78,6 +78,43 @@ export const CeremonyFloorPlanSettings = ({
           <p className="text-xs text-muted-foreground">First rows for family assignment</p>
         </div>
 
+        {/* Bridal Party Section */}
+        <div className="space-y-4 pt-2 border-t border-border">
+          <h4 className="text-sm font-medium">Bridal Party (Altar Area)</h4>
+          
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <Label className="text-sm">Groomsmen Count</Label>
+              <span className="text-sm font-medium text-primary">{floorPlan.bridal_party_count_left}</span>
+            </div>
+            <Slider
+              value={[floorPlan.bridal_party_count_left]}
+              onValueChange={([value]) => handleChange('bridal_party_count_left', value)}
+              min={0}
+              max={8}
+              step={1}
+              className="w-full"
+            />
+            <p className="text-xs text-muted-foreground">Left side of altar (0-8)</p>
+          </div>
+
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <Label className="text-sm">Bridesmaids Count</Label>
+              <span className="text-sm font-medium text-primary">{floorPlan.bridal_party_count_right}</span>
+            </div>
+            <Slider
+              value={[floorPlan.bridal_party_count_right]}
+              onValueChange={([value]) => handleChange('bridal_party_count_right', value)}
+              min={0}
+              max={8}
+              step={1}
+              className="w-full"
+            />
+            <p className="text-xs text-muted-foreground">Right side of altar (0-8)</p>
+          </div>
+        </div>
+
         {/* Side Labels */}
         <div className="space-y-4 pt-2 border-t border-border">
           <h4 className="text-sm font-medium">Labels</h4>

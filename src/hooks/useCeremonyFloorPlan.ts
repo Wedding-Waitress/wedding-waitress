@@ -23,6 +23,10 @@ export interface CeremonyFloorPlan {
   seat_assignments: SeatAssignment[];
   show_row_numbers: boolean;
   show_seat_numbers: boolean;
+  bridal_party_left: string[];
+  bridal_party_right: string[];
+  bridal_party_count_left: number;
+  bridal_party_count_right: number;
   created_at: string;
   updated_at: string;
 }
@@ -37,6 +41,10 @@ const defaultFloorPlan: Omit<CeremonyFloorPlan, 'id' | 'event_id' | 'user_id' | 
   seat_assignments: [],
   show_row_numbers: true,
   show_seat_numbers: true,
+  bridal_party_left: [],
+  bridal_party_right: [],
+  bridal_party_count_left: 3,
+  bridal_party_count_right: 3,
 };
 
 export const useCeremonyFloorPlan = (eventId: string | null) => {
@@ -67,9 +75,21 @@ export const useCeremonyFloorPlan = (eventId: string | null) => {
           ? (data.seat_assignments as unknown as SeatAssignment[])
           : [];
         
+        // Parse bridal party arrays
+        const bridalPartyLeft = Array.isArray((data as any).bridal_party_left)
+          ? ((data as any).bridal_party_left as string[])
+          : [];
+        const bridalPartyRight = Array.isArray((data as any).bridal_party_right)
+          ? ((data as any).bridal_party_right as string[])
+          : [];
+        
         setFloorPlan({
           ...data,
           seat_assignments: seatAssignments,
+          bridal_party_left: bridalPartyLeft,
+          bridal_party_right: bridalPartyRight,
+          bridal_party_count_left: (data as any).bridal_party_count_left ?? 3,
+          bridal_party_count_right: (data as any).bridal_party_count_right ?? 3,
         });
       } else {
         setFloorPlan(null);
@@ -97,6 +117,8 @@ export const useCeremonyFloorPlan = (eventId: string | null) => {
           user_id: user.id,
           ...defaultFloorPlan,
           seat_assignments: [] as unknown as Json,
+          bridal_party_left: [] as unknown as Json,
+          bridal_party_right: [] as unknown as Json,
         }, {
           onConflict: 'event_id',
           ignoreDuplicates: true,
@@ -115,6 +137,10 @@ export const useCeremonyFloorPlan = (eventId: string | null) => {
       const newPlan: CeremonyFloorPlan = {
         ...data,
         seat_assignments: [],
+        bridal_party_left: [],
+        bridal_party_right: [],
+        bridal_party_count_left: (data as any).bridal_party_count_left ?? 3,
+        bridal_party_count_right: (data as any).bridal_party_count_right ?? 3,
       };
 
       setFloorPlan(newPlan);
@@ -134,10 +160,16 @@ export const useCeremonyFloorPlan = (eventId: string | null) => {
     if (!floorPlan) return false;
 
     try {
-      // Convert seat_assignments to Json for Supabase
+      // Convert arrays to Json for Supabase
       const dbUpdates: Record<string, unknown> = { ...updates };
       if (updates.seat_assignments) {
         dbUpdates.seat_assignments = updates.seat_assignments as unknown as Json;
+      }
+      if (updates.bridal_party_left) {
+        dbUpdates.bridal_party_left = updates.bridal_party_left as unknown as Json;
+      }
+      if (updates.bridal_party_right) {
+        dbUpdates.bridal_party_right = updates.bridal_party_right as unknown as Json;
       }
 
       const { error } = await supabase
@@ -195,12 +227,38 @@ export const useCeremonyFloorPlan = (eventId: string | null) => {
     return await updateFloorPlan({ seat_assignments: newAssignments });
   }, [floorPlan, updateFloorPlan]);
 
+  const updateBridalPartyMember = useCallback(async (
+    side: 'left' | 'right',
+    index: number,
+    name: string
+  ) => {
+    if (!floorPlan) return false;
+
+    const key = side === 'left' ? 'bridal_party_left' : 'bridal_party_right';
+    const currentArray = [...(floorPlan[key] || [])];
+    
+    // Ensure array is large enough
+    while (currentArray.length <= index) {
+      currentArray.push('');
+    }
+    
+    currentArray[index] = name;
+    
+    return await updateFloorPlan({ [key]: currentArray });
+  }, [floorPlan, updateFloorPlan]);
+
   const getSeatName = useCallback((side: 'left' | 'right', row: number, seat: number): string => {
     if (!floorPlan) return '';
     const assignment = floorPlan.seat_assignments?.find(
       a => a.side === side && a.row === row && a.seat === seat
     );
     return assignment?.name || '';
+  }, [floorPlan]);
+
+  const getBridalPartyName = useCallback((side: 'left' | 'right', index: number): string => {
+    if (!floorPlan) return '';
+    const key = side === 'left' ? 'bridal_party_left' : 'bridal_party_right';
+    return floorPlan[key]?.[index] || '';
   }, [floorPlan]);
 
   useEffect(() => {
@@ -214,7 +272,9 @@ export const useCeremonyFloorPlan = (eventId: string | null) => {
     createFloorPlan,
     updateFloorPlan,
     updateSeatAssignment,
+    updateBridalPartyMember,
     getSeatName,
+    getBridalPartyName,
     refetch: fetchFloorPlan,
     defaultFloorPlan,
   };

@@ -33,7 +33,9 @@ export const FloorPlanPage = ({
     createFloorPlan, 
     updateFloorPlan,
     updateSeatAssignment,
+    updateBridalPartyMember,
     getSeatName,
+    getBridalPartyName,
   } = useCeremonyFloorPlan(selectedEventId);
 
   const selectedEvent = events.find(event => event.id === selectedEventId);
@@ -227,6 +229,8 @@ export const FloorPlanPage = ({
                 floorPlan={floorPlan}
                 onSeatUpdate={updateSeatAssignment}
                 getSeatName={getSeatName}
+                onBridalPartyUpdate={updateBridalPartyMember}
+                getBridalPartyName={getBridalPartyName}
               />
             </Card>
           </div>
