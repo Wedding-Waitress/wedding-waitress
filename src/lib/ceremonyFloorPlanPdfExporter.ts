@@ -113,10 +113,10 @@ export const generateCeremonyFloorPlanPDF = async (
   const coupleCircleRadius = 7;
   const celebrantX = PAGE_WIDTH / 2;
   
-  // Labels for bridal party
-  pdf.setFont('helvetica', 'normal');
-  pdf.setFontSize(7);
-  pdf.setTextColor(100, 100, 100);
+  // Labels for bridal party - purple to match side labels
+  pdf.setFont('helvetica', 'bold');
+  pdf.setFontSize(9);
+  pdf.setTextColor(114, 72, 230);
   
   // Left bridal party
   if (leftCount > 0) {
@@ -129,7 +129,7 @@ export const generateCeremonyFloorPlanPDF = async (
       const name = floorPlan.bridal_party_left?.[i] || '';
       
       if (name) {
-        pdf.setFillColor(240, 235, 255);
+        pdf.setFillColor(255, 255, 255); // White background
         pdf.setDrawColor(114, 72, 230);
       } else {
         pdf.setFillColor(245, 245, 245);
@@ -140,7 +140,7 @@ export const generateCeremonyFloorPlanPDF = async (
       
       if (name) {
         pdf.setFontSize(4.5);
-        pdf.setTextColor(114, 72, 230);
+        pdf.setTextColor(0, 0, 0); // Black text
         const parts = name.split(' ');
         if (parts.length > 1) {
           pdf.text(parts[0], boxX + (bridalBoxWidth / 2), yPos + 5.5, { align: 'center' });
@@ -154,16 +154,16 @@ export const generateCeremonyFloorPlanPDF = async (
   
   // Left person circle (beside celebrant)
   const leftPersonX = celebrantX - celebrantRadius - coupleCircleRadius - 2;
-  pdf.setFillColor(240, 235, 255);
+  pdf.setFillColor(255, 255, 255); // White background
   pdf.setDrawColor(114, 72, 230);
   pdf.setLineWidth(0.4);
   pdf.circle(leftPersonX, yPos + 7, coupleCircleRadius, 'FD');
-  pdf.setFontSize(5.5);
-  pdf.setTextColor(114, 72, 230);
+  pdf.setFontSize(7); // Larger font for couple names
+  pdf.setTextColor(0, 0, 0); // Black text
   pdf.text(leftPersonName.substring(0, 8), leftPersonX, yPos + 7.5, { align: 'center' });
   
   // Celebrant circle (center)
-  pdf.setFillColor(245, 245, 245);
+  pdf.setFillColor(255, 255, 255); // White background
   pdf.setDrawColor(180, 180, 180);
   pdf.setLineWidth(0.2);
   pdf.circle(celebrantX, yPos + 7, celebrantRadius, 'FD');
@@ -173,20 +173,21 @@ export const generateCeremonyFloorPlanPDF = async (
   
   // Right person circle (beside celebrant)
   const rightPersonX = celebrantX + celebrantRadius + coupleCircleRadius + 2;
-  pdf.setFillColor(240, 235, 255);
+  pdf.setFillColor(255, 255, 255); // White background
   pdf.setDrawColor(114, 72, 230);
   pdf.setLineWidth(0.4);
   pdf.circle(rightPersonX, yPos + 7, coupleCircleRadius, 'FD');
-  pdf.setFontSize(5.5);
-  pdf.setTextColor(114, 72, 230);
+  pdf.setFontSize(7); // Larger font for couple names
+  pdf.setTextColor(0, 0, 0); // Black text
   pdf.text(rightPersonName.substring(0, 8), rightPersonX, yPos + 7.5, { align: 'center' });
   
   // Right bridal party
   if (rightCount > 0) {
     const rightTotalWidth = (rightCount * bridalBoxWidth) + ((rightCount - 1) * bridalGap);
     const rightStartX = celebrantX + celebrantRadius + coupleCircleRadius * 2 + 8;
-    pdf.setFontSize(7);
-    pdf.setTextColor(100, 100, 100);
+    pdf.setFont('helvetica', 'bold');
+    pdf.setFontSize(9); // Match side labels
+    pdf.setTextColor(114, 72, 230); // Purple
     pdf.text(rightPartyLabel, rightStartX + (rightTotalWidth / 2), yPos, { align: 'center' });
     
     for (let i = 0; i < rightCount; i++) {
@@ -194,7 +195,7 @@ export const generateCeremonyFloorPlanPDF = async (
       const name = floorPlan.bridal_party_right?.[i] || '';
       
       if (name) {
-        pdf.setFillColor(240, 235, 255);
+        pdf.setFillColor(255, 255, 255); // White background
         pdf.setDrawColor(114, 72, 230);
       } else {
         pdf.setFillColor(245, 245, 245);
@@ -205,7 +206,7 @@ export const generateCeremonyFloorPlanPDF = async (
       
       if (name) {
         pdf.setFontSize(4.5);
-        pdf.setTextColor(114, 72, 230);
+        pdf.setTextColor(0, 0, 0); // Black text
         const parts = name.split(' ');
         if (parts.length > 1) {
           pdf.text(parts[0], boxX + (bridalBoxWidth / 2), yPos + 5.5, { align: 'center' });
@@ -225,13 +226,13 @@ export const generateCeremonyFloorPlanPDF = async (
   pdf.text('↓ Aisle ↓', PAGE_WIDTH / 2, yPos, { align: 'center' });
   yPos += 6;
 
-  // Side labels
+  // Side labels - dark purple
   const leftSideCenter = startX + (sideWidth / 2);
   const rightSideCenter = startX + sideWidth + aisleWidth + (sideWidth / 2);
   
   pdf.setFont('helvetica', 'bold');
   pdf.setFontSize(9);
-  pdf.setTextColor(0, 0, 0);
+  pdf.setTextColor(114, 72, 230); // Purple
   pdf.text(floorPlan.left_side_label, leftSideCenter, yPos, { align: 'center' });
   pdf.text(floorPlan.right_side_label, rightSideCenter, yPos, { align: 'center' });
   yPos += 6;
@@ -258,7 +259,7 @@ export const generateCeremonyFloorPlanPDF = async (
 
       // Seat box
       if (seatName) {
-        pdf.setFillColor(240, 235, 255); // Light purple
+        pdf.setFillColor(255, 255, 255); // White background
         pdf.setDrawColor(114, 72, 230);
       } else if (isAssignedRow) {
         pdf.setFillColor(245, 245, 245);
@@ -270,10 +271,10 @@ export const generateCeremonyFloorPlanPDF = async (
       pdf.setLineWidth(0.2);
       pdf.roundedRect(seatX, rowY, seatWidth, seatHeight, 0.5, 0.5, 'FD');
 
-      // Seat content - Two lines for first/surname
+      // Seat content - Two lines for first/surname - BLACK text
       pdf.setFontSize(5.5);
       if (seatName) {
-        pdf.setTextColor(114, 72, 230);
+        pdf.setTextColor(0, 0, 0); // Black
         const parts = seatName.split(' ');
         if (parts.length > 1) {
           pdf.text(parts[0], seatX + (seatWidth / 2), rowY + 3.5, { align: 'center' });
@@ -298,7 +299,7 @@ export const generateCeremonyFloorPlanPDF = async (
 
       // Seat box
       if (seatName) {
-        pdf.setFillColor(240, 235, 255);
+        pdf.setFillColor(255, 255, 255); // White background
         pdf.setDrawColor(114, 72, 230);
       } else if (isAssignedRow) {
         pdf.setFillColor(245, 245, 245);
@@ -310,10 +311,10 @@ export const generateCeremonyFloorPlanPDF = async (
       pdf.setLineWidth(0.2);
       pdf.roundedRect(seatX, rowY, seatWidth, seatHeight, 0.5, 0.5, 'FD');
 
-      // Seat content - Two lines for first/surname
+      // Seat content - Two lines for first/surname - BLACK text
       pdf.setFontSize(5.5);
       if (seatName) {
-        pdf.setTextColor(114, 72, 230);
+        pdf.setTextColor(0, 0, 0); // Black
         const parts = seatName.split(' ');
         if (parts.length > 1) {
           pdf.text(parts[0], seatX + (seatWidth / 2), rowY + 3.5, { align: 'center' });
