@@ -171,7 +171,7 @@ export const CeremonyFloorPlanVisual = ({
       </div>
 
       {/* Seating Area */}
-      <div className="flex items-start justify-center gap-4 lg:gap-8">
+      <div className="flex items-start justify-center gap-2 lg:gap-4">
         {/* Left Side */}
         {renderSide('left')}
 
