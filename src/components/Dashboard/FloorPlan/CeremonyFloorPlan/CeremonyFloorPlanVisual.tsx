@@ -348,9 +348,8 @@ export const CeremonyFloorPlanVisual = ({
         {renderSide('left')}
 
         {/* Center Aisle */}
-        <div className="flex flex-col items-center justify-center h-full">
-          <div className="w-px bg-border h-full min-h-[200px]" />
-          <span className="text-xs text-muted-foreground rotate-90 whitespace-nowrap mt-4">
+        <div className="flex flex-col items-center justify-center h-full px-2">
+          <span className="text-xs text-muted-foreground rotate-90 whitespace-nowrap">
             ↑ Bride's Walkway ↑
           </span>
         </div>

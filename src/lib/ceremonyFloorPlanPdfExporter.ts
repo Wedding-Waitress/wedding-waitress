@@ -106,12 +106,12 @@ export const generateCeremonyFloorPlanPDF = async (
   const leftCount = floorPlan.bridal_party_count_left || 0;
   const rightCount = floorPlan.bridal_party_count_right || 0;
   
-  const bridalBoxWidth = 9;
-  const bridalBoxHeight = 7;
+  const bridalBoxWidth = 12;
+  const bridalBoxHeight = 9;
   const bridalGap = 1;
   const bridalRowGap = 2;
-  const celebrantRadius = 6;
-  const coupleCircleRadius = 7;
+  const celebrantRadius = 4.5;
+  const coupleCircleRadius = 5.5;
   const celebrantX = PAGE_WIDTH / 2;
   
   // Max 6 per row
@@ -156,7 +156,7 @@ export const generateCeremonyFloorPlanPDF = async (
       pdf.roundedRect(boxX, yPos + rowYOffset, bridalBoxWidth, bridalBoxHeight, 0.5, 0.5, 'FD');
       
       if (name) {
-        pdf.setFontSize(4.5);
+        pdf.setFontSize(5.5);
         pdf.setTextColor(0, 0, 0);
         const parts = name.split(' ');
         if (parts.length > 1) {
@@ -222,9 +222,9 @@ export const generateCeremonyFloorPlanPDF = async (
   pdf.setDrawColor(180, 180, 180);
   pdf.setLineWidth(0.2);
   pdf.circle(celebrantX, coupleCircleY, celebrantRadius, 'FD');
-  pdf.setFontSize(5.5);
+  pdf.setFontSize(4);
   pdf.setTextColor(100, 100, 100);
-  pdf.text('Cel.', celebrantX, coupleCircleY + 0.5, { align: 'center' });
+  pdf.text('Celebrant', celebrantX, coupleCircleY + 0.5, { align: 'center' });
   
   // Right person circle (beside celebrant)
   const rightPersonX = celebrantX + celebrantRadius + coupleCircleRadius + 2;
@@ -370,13 +370,6 @@ export const generateCeremonyFloorPlanPDF = async (
       pdf.text('General Seating', rightSideCenter, sepY + 2, { align: 'center' });
     }
 
-    // Aisle line
-    const aisleX = PAGE_WIDTH / 2;
-    pdf.setDrawColor(200, 200, 200);
-    pdf.setLineWidth(0.3);
-    pdf.setLineDashPattern([2, 2], 0);
-    pdf.line(aisleX, rowY, aisleX, rowY + seatHeight);
-    pdf.setLineDashPattern([], 0);
   }
 
   // === FOOTER ===
