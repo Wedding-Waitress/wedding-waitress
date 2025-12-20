@@ -406,11 +406,19 @@ export const CeremonyFloorPlanVisual = ({
         {renderSide('left')}
 
         {/* Center Aisle with vertical line and walkway text */}
-        <div className="flex flex-col items-center justify-end h-full px-2 relative min-h-[200px] pb-4">
+        <div className="flex flex-col items-center justify-center h-full px-4 relative min-h-[300px]">
           {/* Vertical aisle line */}
           <div className="absolute inset-y-0 left-1/2 w-px bg-border -translate-x-1/2" />
-          {/* Walkway text - purple to match family labels */}
-          <span className="text-base font-semibold text-primary rotate-90 whitespace-nowrap relative z-10 bg-background px-2">
+          {/* Walkway text - rotated to match PDF style */}
+          <span 
+            className="text-sm font-bold whitespace-nowrap relative z-10"
+            style={{ 
+              writingMode: 'vertical-rl', 
+              transform: 'rotate(180deg)',
+              color: 'hsl(262, 83%, 58%)',
+              letterSpacing: '0.5px'
+            }}
+          >
             Bride's Walkway - Aisle
           </span>
         </div>
