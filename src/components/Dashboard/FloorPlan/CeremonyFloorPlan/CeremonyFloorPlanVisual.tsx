@@ -82,20 +82,20 @@ export const CeremonyFloorPlanVisual = ({
     }
   };
 
-  // Render name with first/surname on two lines if there's a space
+  // Render name with first/surname on two lines if there's a space - BLACK text
   const renderName = (name: string) => {
     if (!name) return null;
     
     const parts = name.trim().split(' ');
     if (parts.length > 1) {
       return (
-        <span className="text-[11px] leading-tight text-center px-0.5 flex flex-col items-center justify-center">
+        <span className="text-[11px] leading-tight text-center px-0.5 flex flex-col items-center justify-center text-foreground">
           <span>{parts[0]}</span>
           <span>{parts.slice(1).join(' ')}</span>
         </span>
       );
     }
-    return <span className="text-[11px] leading-tight text-center px-0.5">{name}</span>;
+    return <span className="text-[11px] leading-tight text-center px-0.5 text-foreground">{name}</span>;
   };
 
   const renderSeat = (side: 'left' | 'right', row: number, seat: number) => {
@@ -128,7 +128,7 @@ export const CeremonyFloorPlanVisual = ({
             ? "cursor-pointer hover:border-primary hover:bg-primary/5"
             : "cursor-not-allowed",
           name 
-            ? "bg-primary/10 border-primary text-primary font-medium" 
+            ? "bg-transparent border-primary font-medium" 
             : isAssignedRow 
               ? "bg-muted/30 border-border text-muted-foreground"
               : "bg-muted/10 border-border/50 text-muted-foreground/50"
@@ -172,7 +172,7 @@ export const CeremonyFloorPlanVisual = ({
         className={cn(
           "w-16 h-12 rounded border text-xs flex items-center justify-center transition-all cursor-pointer hover:border-primary hover:bg-primary/5",
           name 
-            ? "bg-primary/10 border-primary text-primary font-medium" 
+            ? "bg-transparent border-primary font-medium" 
             : "bg-muted/30 border-border text-muted-foreground"
         )}
         title={name || 'Click to assign'}
@@ -221,7 +221,7 @@ export const CeremonyFloorPlanVisual = ({
     
     return (
       <div className="flex flex-col items-center">
-        <h4 className="text-sm font-semibold text-foreground mb-3">
+        <h4 className="text-sm font-semibold text-primary mb-3">
           {side === 'left' ? floorPlan.left_side_label : floorPlan.right_side_label}
         </h4>
         <div>
@@ -259,7 +259,7 @@ export const CeremonyFloorPlanVisual = ({
         {/* Left side bridal party */}
         {leftCount > 0 && (
           <div className="flex flex-col items-center">
-            <span className="text-xs text-muted-foreground mb-2">{leftLabel}</span>
+            <span className="text-sm font-semibold text-primary mb-2">{leftLabel}</span>
             <div className="flex gap-1">
               {Array.from({ length: leftCount }).map((_, i) => renderBridalPartyBox('left', i))}
             </div>
@@ -270,22 +270,22 @@ export const CeremonyFloorPlanVisual = ({
         <div className="flex items-center justify-center gap-3 px-2">
           {/* Left person (Groom or Bride depending on arrangement) */}
           <div className="flex flex-col items-center">
-            <div className="w-16 h-16 rounded-full bg-primary/20 border-2 border-primary flex items-center justify-center">
-              <span className="text-[11px] text-primary font-medium text-center leading-tight px-1">
+            <div className="w-16 h-16 rounded-full bg-transparent border-2 border-primary flex items-center justify-center">
+              <span className="text-[14px] text-foreground font-medium text-center leading-tight px-1">
                 {leftPersonName}
               </span>
             </div>
           </div>
           
           {/* Celebrant (center, stationary) */}
-          <div className="w-14 h-14 rounded-full bg-muted/50 border border-border flex items-center justify-center">
+          <div className="w-14 h-14 rounded-full bg-transparent border border-border flex items-center justify-center">
             <span className="text-[11px] text-muted-foreground text-center">Celebrant</span>
           </div>
           
           {/* Right person (Bride or Groom depending on arrangement) */}
           <div className="flex flex-col items-center">
-            <div className="w-16 h-16 rounded-full bg-primary/20 border-2 border-primary flex items-center justify-center">
-              <span className="text-[11px] text-primary font-medium text-center leading-tight px-1">
+            <div className="w-16 h-16 rounded-full bg-transparent border-2 border-primary flex items-center justify-center">
+              <span className="text-[14px] text-foreground font-medium text-center leading-tight px-1">
                 {rightPersonName}
               </span>
             </div>
@@ -295,7 +295,7 @@ export const CeremonyFloorPlanVisual = ({
         {/* Right side bridal party */}
         {rightCount > 0 && (
           <div className="flex flex-col items-center">
-            <span className="text-xs text-muted-foreground mb-2">{rightLabel}</span>
+            <span className="text-sm font-semibold text-primary mb-2">{rightLabel}</span>
             <div className="flex gap-1">
               {Array.from({ length: rightCount }).map((_, i) => renderBridalPartyBox('right', i))}
             </div>
@@ -337,7 +337,7 @@ export const CeremonyFloorPlanVisual = ({
       {/* Legend */}
       <div className="flex items-center gap-6 pt-4 border-t border-border w-full justify-center flex-wrap">
         <div className="flex items-center gap-2">
-          <div className="w-4 h-4 rounded bg-primary/10 border border-primary" />
+          <div className="w-4 h-4 rounded bg-transparent border border-primary" />
           <span className="text-xs text-muted-foreground">Assigned Seat</span>
         </div>
         <div className="flex items-center gap-2">
