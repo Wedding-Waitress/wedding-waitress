@@ -27,12 +27,32 @@ export interface CeremonyFloorPlan {
   bridal_party_right: string[];
   bridal_party_count_left: number;
   bridal_party_count_right: number;
+  bridal_party_roles_left: string[];
+  bridal_party_roles_right: string[];
   couple_side_arrangement: 'groom_left' | 'bride_left';
   person_left_name: string;
   person_right_name: string;
   created_at: string;
   updated_at: string;
 }
+
+// Helper to get default role based on position and side
+export const getDefaultBridalRole = (
+  side: 'left' | 'right',
+  index: number,
+  arrangement: 'groom_left' | 'bride_left'
+): string => {
+  const isGroomsSide = (arrangement === 'groom_left' && side === 'left') || 
+                       (arrangement === 'bride_left' && side === 'right');
+  
+  if (isGroomsSide) {
+    if (index === 0) return 'Best Man';
+    return 'Groomsman';
+  } else {
+    if (index === 0) return 'Maid of Honor';
+    return 'Bridesmaid';
+  }
+};
 
 const defaultFloorPlan: Omit<CeremonyFloorPlan, 'id' | 'event_id' | 'user_id' | 'created_at' | 'updated_at'> = {
   chairs_per_row: 5,
@@ -48,6 +68,8 @@ const defaultFloorPlan: Omit<CeremonyFloorPlan, 'id' | 'event_id' | 'user_id' | 
   bridal_party_right: [],
   bridal_party_count_left: 3,
   bridal_party_count_right: 3,
+  bridal_party_roles_left: [],
+  bridal_party_roles_right: [],
   couple_side_arrangement: 'groom_left',
   person_left_name: 'Groom',
   person_right_name: 'Bride',
@@ -82,11 +104,19 @@ export const useCeremonyFloorPlan = (eventId: string | null) => {
           : [];
         
         // Parse bridal party arrays
-        const bridalPartyLeft = Array.isArray((data as any).bridal_party_left)
-          ? ((data as any).bridal_party_left as string[])
+        const bridalPartyLeft = Array.isArray(data.bridal_party_left)
+          ? (data.bridal_party_left as unknown as string[])
           : [];
-        const bridalPartyRight = Array.isArray((data as any).bridal_party_right)
-          ? ((data as any).bridal_party_right as string[])
+        const bridalPartyRight = Array.isArray(data.bridal_party_right)
+          ? (data.bridal_party_right as unknown as string[])
+          : [];
+        
+        // Parse bridal party roles arrays
+        const bridalPartyRolesLeft = Array.isArray(data.bridal_party_roles_left)
+          ? (data.bridal_party_roles_left as unknown as string[])
+          : [];
+        const bridalPartyRolesRight = Array.isArray(data.bridal_party_roles_right)
+          ? (data.bridal_party_roles_right as unknown as string[])
           : [];
         
         setFloorPlan({
@@ -94,11 +124,13 @@ export const useCeremonyFloorPlan = (eventId: string | null) => {
           seat_assignments: seatAssignments,
           bridal_party_left: bridalPartyLeft,
           bridal_party_right: bridalPartyRight,
-          bridal_party_count_left: (data as any).bridal_party_count_left ?? 3,
-          bridal_party_count_right: (data as any).bridal_party_count_right ?? 3,
-          couple_side_arrangement: (data as any).couple_side_arrangement ?? 'groom_left',
-          person_left_name: (data as any).person_left_name ?? 'Groom',
-          person_right_name: (data as any).person_right_name ?? 'Bride',
+          bridal_party_roles_left: bridalPartyRolesLeft,
+          bridal_party_roles_right: bridalPartyRolesRight,
+          bridal_party_count_left: data.bridal_party_count_left ?? 3,
+          bridal_party_count_right: data.bridal_party_count_right ?? 3,
+          couple_side_arrangement: (data.couple_side_arrangement as 'groom_left' | 'bride_left') ?? 'groom_left',
+          person_left_name: data.person_left_name ?? 'Groom',
+          person_right_name: data.person_right_name ?? 'Bride',
         });
       } else {
         setFloorPlan(null);
@@ -148,11 +180,13 @@ export const useCeremonyFloorPlan = (eventId: string | null) => {
         seat_assignments: [],
         bridal_party_left: [],
         bridal_party_right: [],
-        bridal_party_count_left: (data as any).bridal_party_count_left ?? 3,
-        bridal_party_count_right: (data as any).bridal_party_count_right ?? 3,
-        couple_side_arrangement: (data as any).couple_side_arrangement ?? 'groom_left',
-        person_left_name: (data as any).person_left_name ?? 'Groom',
-        person_right_name: (data as any).person_right_name ?? 'Bride',
+        bridal_party_roles_left: [],
+        bridal_party_roles_right: [],
+        bridal_party_count_left: data.bridal_party_count_left ?? 3,
+        bridal_party_count_right: data.bridal_party_count_right ?? 3,
+        couple_side_arrangement: (data.couple_side_arrangement as 'groom_left' | 'bride_left') ?? 'groom_left',
+        person_left_name: data.person_left_name ?? 'Groom',
+        person_right_name: data.person_right_name ?? 'Bride',
       };
 
       setFloorPlan(newPlan);
@@ -182,6 +216,12 @@ export const useCeremonyFloorPlan = (eventId: string | null) => {
       }
       if (updates.bridal_party_right) {
         dbUpdates.bridal_party_right = updates.bridal_party_right as unknown as Json;
+      }
+      if (updates.bridal_party_roles_left) {
+        dbUpdates.bridal_party_roles_left = updates.bridal_party_roles_left as unknown as Json;
+      }
+      if (updates.bridal_party_roles_right) {
+        dbUpdates.bridal_party_roles_right = updates.bridal_party_roles_right as unknown as Json;
       }
 
       const { error } = await supabase
@@ -273,6 +313,37 @@ export const useCeremonyFloorPlan = (eventId: string | null) => {
     return floorPlan[key]?.[index] || '';
   }, [floorPlan]);
 
+  const updateBridalPartyRole = useCallback(async (
+    side: 'left' | 'right',
+    index: number,
+    role: string
+  ) => {
+    if (!floorPlan) return false;
+
+    const key = side === 'left' ? 'bridal_party_roles_left' : 'bridal_party_roles_right';
+    const currentArray = [...(floorPlan[key] || [])];
+    
+    // Ensure array is large enough
+    while (currentArray.length <= index) {
+      currentArray.push('');
+    }
+    
+    currentArray[index] = role;
+    
+    return await updateFloorPlan({ [key]: currentArray });
+  }, [floorPlan, updateFloorPlan]);
+
+  const getBridalPartyRole = useCallback((side: 'left' | 'right', index: number): string => {
+    if (!floorPlan) return '';
+    const key = side === 'left' ? 'bridal_party_roles_left' : 'bridal_party_roles_right';
+    const savedRole = floorPlan[key]?.[index];
+    
+    // Return saved role if it exists, otherwise return default
+    if (savedRole) return savedRole;
+    
+    return getDefaultBridalRole(side, index, floorPlan.couple_side_arrangement);
+  }, [floorPlan]);
+
   useEffect(() => {
     fetchFloorPlan();
   }, [fetchFloorPlan]);
@@ -285,8 +356,10 @@ export const useCeremonyFloorPlan = (eventId: string | null) => {
     updateFloorPlan,
     updateSeatAssignment,
     updateBridalPartyMember,
+    updateBridalPartyRole,
     getSeatName,
     getBridalPartyName,
+    getBridalPartyRole,
     refetch: fetchFloorPlan,
     defaultFloorPlan,
   };
