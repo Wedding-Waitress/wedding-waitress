@@ -70,7 +70,7 @@ export const generateCeremonyFloorPlanPDF = async (
   pdf.setFontSize(10);
   const venue = event.ceremony_venue || event.venue || 'Venue TBD';
   const generatedDate = format(new Date(), 'dd/MM/yy');
-  const generatedTime = format(new Date(), 'HH:mm');
+  const generatedTime = format(new Date(), 'h:mm a');
   pdf.text(`${venue} – Generated on: ${generatedDate} Time: ${generatedTime}`, PAGE_WIDTH / 2, yPos, { align: 'center' });
   yPos += 6;
 
@@ -236,18 +236,13 @@ export const generateCeremonyFloorPlanPDF = async (
   pdf.setTextColor(0, 0, 0);
   pdf.text(rightPersonName.substring(0, 8), rightPersonX, coupleCircleY + 0.5, { align: 'center' });
   
-  // Adjust yPos based on whether we have a second row
+  // Adjust yPos based on whether we have a second row - add extra gap before guest seating
   if (hasSecondRow) {
-    yPos += secondRowYOffset + bridalBoxHeight + 5;
+    yPos += secondRowYOffset + bridalBoxHeight + 12;
   } else {
-    yPos += bridalBoxHeight + 8;
+    yPos += bridalBoxHeight + 16;
   }
 
-  // Aisle label
-  pdf.setTextColor(100, 100, 100);
-  pdf.setFontSize(8);
-  pdf.text('↓ Aisle ↓', PAGE_WIDTH / 2, yPos, { align: 'center' });
-  yPos += 6;
 
   // Side labels - dark purple
   const leftSideCenter = startX + (sideWidth / 2);
@@ -259,6 +254,11 @@ export const generateCeremonyFloorPlanPDF = async (
   pdf.text(floorPlan.left_side_label, leftSideCenter, yPos, { align: 'center' });
   pdf.text(floorPlan.right_side_label, rightSideCenter, yPos, { align: 'center' });
   yPos += 6;
+
+  // Calculate aisle line coordinates
+  const aisleX = PAGE_WIDTH / 2;
+  const aisleStartY = yPos;
+  const aisleEndY = yPos + (floorPlan.total_rows * (seatHeight + rowGap)) - rowGap;
 
   // Draw seats - SQUARE with two-line names
   for (let row = 1; row <= floorPlan.total_rows; row++) {
@@ -371,6 +371,18 @@ export const generateCeremonyFloorPlanPDF = async (
     }
 
   }
+
+  // Draw center aisle line
+  pdf.setDrawColor(200, 200, 200);
+  pdf.setLineWidth(0.5);
+  pdf.line(aisleX, aisleStartY, aisleX, aisleEndY);
+
+  // Draw "Bride's Walkway" text vertically in center - purple to match family labels
+  pdf.setTextColor(114, 72, 230);
+  pdf.setFont('helvetica', 'bold');
+  pdf.setFontSize(9);
+  const walkwayTextY = aisleStartY + ((aisleEndY - aisleStartY) / 2);
+  pdf.text("Bride's Walkway", aisleX, walkwayTextY, { align: 'center', angle: 90 });
 
   // === FOOTER ===
   // Wedding Waitress logo
