@@ -31,7 +31,7 @@ import { PlaceCardsPage } from '@/components/Dashboard/PlaceCards/PlaceCardsPage
 import { FullSeatingChartPage } from '@/components/Dashboard/FullSeatingChart/FullSeatingChartPage';
 import { IndividualTableSeatingChartPage } from '@/components/Dashboard/IndividualTableChart/IndividualTableSeatingChartPage';
 import { KioskSetup } from '@/components/Dashboard/Kiosk/KioskSetup';
-import { FloorPlanPage } from '@/components/Dashboard/FloorPlan/FloorPlanPage';
+import { FloorPlanPage } from '@/components/Dashboard/FloorPlan';
 import { RunningSheetPage } from '@/components/Dashboard/RunningSheet';
 import { flags } from '@/lib/featureFlags';
 import { supabase } from '@/integrations/supabase/client';
@@ -552,6 +552,8 @@ export const Dashboard = () => {
       case 'individual-table-chart':
         // Individual table seating chart feature
         return <IndividualTableSeatingChartPage selectedEventId={globalSelectedEventId} onEventSelect={handleGlobalEventSelect} />;
+      case 'floor-plan':
+        return <FloorPlanPage selectedEventId={globalSelectedEventId} onEventSelect={handleGlobalEventSelect} />;
       case 'running-sheet':
         return flags.runningSheet ? (
           <RunningSheetPage />

@@ -463,16 +463,6 @@ export const MyEventsPage: React.FC = () => {
         </div>
       </Card>
 
-      {/* Ceremony Details Card - only show when ceremony is enabled */}
-      {selectedEvent?.ceremony_enabled && (
-        <Card className="ww-box p-6 mx-0">
-            <h3 className="text-2xl font-medium text-[#7248e6] mb-4">
-              Ceremony Floorplan - {selectedEvent.ceremony_name || selectedEvent.name}
-            </h3>
-          {/* Content area - ready for ceremony seating layout feature */}
-        </Card>
-      )}
-
       {/* Events Table with controlled radios */}
       <div className="overflow-x-auto">
         <EventsTable 

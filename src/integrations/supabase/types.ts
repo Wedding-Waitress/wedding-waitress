@@ -72,6 +72,65 @@ export type Database = {
           },
         ]
       }
+      ceremony_floor_plans: {
+        Row: {
+          altar_label: string
+          assigned_rows: number
+          chairs_per_row: number
+          created_at: string
+          event_id: string
+          id: string
+          left_side_label: string
+          right_side_label: string
+          seat_assignments: Json
+          show_row_numbers: boolean
+          show_seat_numbers: boolean
+          total_rows: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          altar_label?: string
+          assigned_rows?: number
+          chairs_per_row?: number
+          created_at?: string
+          event_id: string
+          id?: string
+          left_side_label?: string
+          right_side_label?: string
+          seat_assignments?: Json
+          show_row_numbers?: boolean
+          show_seat_numbers?: boolean
+          total_rows?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          altar_label?: string
+          assigned_rows?: number
+          chairs_per_row?: number
+          created_at?: string
+          event_id?: string
+          id?: string
+          left_side_label?: string
+          right_side_label?: string
+          seat_assignments?: Json
+          show_row_numbers?: boolean
+          show_seat_numbers?: boolean
+          total_rows?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ceremony_floor_plans_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: true
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       communication_credits: {
         Row: {
           channel: string
