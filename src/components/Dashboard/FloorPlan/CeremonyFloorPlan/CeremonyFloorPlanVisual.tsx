@@ -85,9 +85,9 @@ export const CeremonyFloorPlanVisual = ({
         )}
         title={isAssignedRow ? (name || 'Click to assign') : 'General seating'}
       >
-        {name ? (
-          <span className="truncate px-1">{name}</span>
-        ) : (
+          {name ? (
+            <span className="text-[9px] leading-tight text-center px-0.5 break-words line-clamp-2">{name}</span>
+          ) : (
           <span className="text-[10px]">
             {floorPlan.show_seat_numbers ? seat : '—'}
           </span>
