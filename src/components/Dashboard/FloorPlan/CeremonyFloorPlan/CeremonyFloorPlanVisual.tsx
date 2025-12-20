@@ -306,9 +306,18 @@ export const CeremonyFloorPlanVisual = ({
     const leftLabel = isGroomLeft ? 'Groomsmen' : 'Bridesmaids';
     const rightLabel = isGroomLeft ? 'Bridesmaids' : 'Groomsmen';
 
-    // Get couple names (fallback to defaults)
-    const leftPersonName = floorPlan.person_left_name || (isGroomLeft ? 'Groom' : 'Bride');
-    const rightPersonName = floorPlan.person_right_name || (isGroomLeft ? 'Bride' : 'Groom');
+    // Check if stored names are truly custom (not defaults like "Groom"/"Bride")
+    const defaultNames = ['Groom', 'Bride', 'groom', 'bride'];
+    const isLeftCustomName = floorPlan.person_left_name && !defaultNames.includes(floorPlan.person_left_name);
+    const isRightCustomName = floorPlan.person_right_name && !defaultNames.includes(floorPlan.person_right_name);
+
+    // Derive couple names: use custom names if set, otherwise derive from arrangement
+    const leftPersonName = isLeftCustomName 
+      ? floorPlan.person_left_name 
+      : (isGroomLeft ? 'Groom' : 'Bride');
+    const rightPersonName = isRightCustomName 
+      ? floorPlan.person_right_name 
+      : (isGroomLeft ? 'Bride' : 'Groom');
 
     // Max 6 per row
     const MAX_PER_ROW = 6;
