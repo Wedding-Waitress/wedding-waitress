@@ -345,7 +345,7 @@ export const CeremonyFloorPlanVisual = ({
           {/* Vertical aisle line */}
           <div className="absolute inset-y-0 left-1/2 w-px bg-border -translate-x-1/2" />
           {/* Walkway text - purple to match family labels */}
-          <span className="text-sm font-semibold text-primary rotate-90 whitespace-nowrap relative z-10 bg-background px-2">
+          <span className="text-base font-semibold text-primary rotate-90 whitespace-nowrap relative z-10 bg-background px-2">
             Bride's Walkway - Aisle
           </span>
         </div>
