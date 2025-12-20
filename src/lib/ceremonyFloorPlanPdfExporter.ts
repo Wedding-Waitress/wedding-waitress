@@ -372,18 +372,26 @@ export const generateCeremonyFloorPlanPDF = async (
 
   }
 
-  // Draw center aisle line
+  // Draw center aisle lines with a gap for the walkway label
   pdf.setDrawColor(200, 200, 200);
   pdf.setLineWidth(0.5);
-  pdf.line(aisleX, aisleStartY, aisleX, aisleEndY);
 
-  // Draw "Bride's Walkway - Aisle" text vertically in center - purple to match family labels
-  pdf.setTextColor(114, 72, 230);
+  const walkwayText = "Bride's Walkway - Aisle";
+  const walkwayTextY = aisleStartY + ((aisleEndY - aisleStartY) / 2);
+
+  // Measure text (in mm) to split the aisle line cleanly above/below the label
   pdf.setFont('helvetica', 'bold');
   pdf.setFontSize(11);
-  const walkwayTextY = aisleStartY + ((aisleEndY - aisleStartY) / 2);
-  // For rotated text, add small X offset to truly center it
-  pdf.text("Bride's Walkway - Aisle", aisleX + 2, walkwayTextY, { align: 'center', angle: 90 });
+  const textHalfHeight = pdf.getTextWidth(walkwayText) / 2;
+  const lineGap = textHalfHeight + 3;
+
+  // Top + bottom aisle line (leave a clear gap behind the text)
+  pdf.line(aisleX, aisleStartY, aisleX, walkwayTextY - lineGap);
+  pdf.line(aisleX, walkwayTextY + lineGap, aisleX, aisleEndY);
+
+  // Draw walkway text vertically in the center, facing the Groom's side
+  pdf.setTextColor(114, 72, 230);
+  pdf.text(walkwayText, aisleX, walkwayTextY, { align: 'center', angle: -90 });
 
   // === FOOTER ===
   // Wedding Waitress logo
