@@ -130,8 +130,19 @@ export const generateCeremonyFloorPlanPDF = async (
     const rolesArray = side === 'left' ? floorPlan.bridal_party_roles_left : floorPlan.bridal_party_roles_right;
     const totalCount = side === 'left' ? leftCount : rightCount;
     const savedRole = rolesArray?.[index];
-    if (savedRole) return savedRole;
-    return getDefaultBridalRole(side, index, floorPlan.couple_side_arrangement, totalCount);
+    
+    // Get the calculated default role for this position based on arrangement
+    const defaultRole = getDefaultBridalRole(side, index, floorPlan.couple_side_arrangement, totalCount);
+    
+    // Standard roles that should always follow the arrangement
+    const standardRoles = ['Best Man', 'Groomsman', 'Maid of Honor', 'Bridesmaid'];
+    
+    // Only use saved role if it's truly custom (not a standard default)
+    if (savedRole && !standardRoles.includes(savedRole)) {
+      return savedRole;
+    }
+    
+    return defaultRole;
   };
   
   // Helper to render bridal party boxes for a given row (with role labels)
@@ -215,7 +226,7 @@ export const generateCeremonyFloorPlanPDF = async (
   renderBridalRow('right', 0, rightFirstRowCount, firstRowYOffset);
   
   // Render second row if needed
-  const secondRowYOffset = firstRowYOffset + bridalBoxHeight + bridalRowGap;
+  const secondRowYOffset = firstRowYOffset + bridalBoxHeight + roleHeight + bridalRowGap + 2;
   if (leftSecondRowCount > 0) {
     renderBridalRow('left', MAX_PER_ROW, leftSecondRowCount, secondRowYOffset);
   }
