@@ -1,7 +1,14 @@
 import jsPDF from 'jspdf';
 import { CeremonyFloorPlan } from '@/hooks/useCeremonyFloorPlan';
-import { Event } from '@/hooks/useEvents';
 import { format } from 'date-fns';
+
+// Define the event type inline to avoid circular dependency with hooks
+interface EventData {
+  name: string;
+  date: string | null;
+  venue: string | null;
+  ceremony_venue?: string | null;
+}
 
 // Constants matching Individual Table Charts
 const PAGE_WIDTH = 210; // A4 width in mm
@@ -15,7 +22,7 @@ const PRIMARY_COLOR = '#7248e6';
 
 export const generateCeremonyFloorPlanPDF = async (
   floorPlan: CeremonyFloorPlan,
-  event: Event
+  event: EventData
 ): Promise<Blob> => {
   const pdf = new jsPDF({
     orientation: 'portrait',
