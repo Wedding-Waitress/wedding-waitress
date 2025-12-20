@@ -348,13 +348,21 @@ export const useCeremonyFloorPlan = (eventId: string | null) => {
     if (!floorPlan) return '';
     const key = side === 'left' ? 'bridal_party_roles_left' : 'bridal_party_roles_right';
     const countKey = side === 'left' ? 'bridal_party_count_left' : 'bridal_party_count_right';
+    const totalCount = floorPlan[countKey] || 0;
     const savedRole = floorPlan[key]?.[index];
     
-    // Return saved role if it exists, otherwise return default
-    if (savedRole) return savedRole;
+    // Get the calculated default role for this position
+    const defaultRole = getDefaultBridalRole(side, index, floorPlan.couple_side_arrangement, totalCount);
     
-    const totalCount = floorPlan[countKey] || 0;
-    return getDefaultBridalRole(side, index, floorPlan.couple_side_arrangement, totalCount);
+    // Only use saved role if it's a truly custom role (not a standard default)
+    // This ensures Maid of Honor/Best Man are always at the correct position
+    const standardRoles = ['Best Man', 'Groomsman', 'Maid of Honor', 'Bridesmaid'];
+    if (savedRole && !standardRoles.includes(savedRole)) {
+      return savedRole; // Custom role like "Junior Bridesmaid", "Ring Bearer", etc.
+    }
+    
+    // Otherwise, always use the calculated default based on position
+    return defaultRole;
   }, [floorPlan]);
 
   useEffect(() => {
