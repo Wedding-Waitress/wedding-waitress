@@ -76,6 +76,10 @@ export type Database = {
         Row: {
           altar_label: string
           assigned_rows: number
+          bridal_party_count_left: number | null
+          bridal_party_count_right: number | null
+          bridal_party_left: Json | null
+          bridal_party_right: Json | null
           chairs_per_row: number
           created_at: string
           event_id: string
@@ -92,6 +96,10 @@ export type Database = {
         Insert: {
           altar_label?: string
           assigned_rows?: number
+          bridal_party_count_left?: number | null
+          bridal_party_count_right?: number | null
+          bridal_party_left?: Json | null
+          bridal_party_right?: Json | null
           chairs_per_row?: number
           created_at?: string
           event_id: string
@@ -108,6 +116,10 @@ export type Database = {
         Update: {
           altar_label?: string
           assigned_rows?: number
+          bridal_party_count_left?: number | null
+          bridal_party_count_right?: number | null
+          bridal_party_left?: Json | null
+          bridal_party_right?: Json | null
           chairs_per_row?: number
           created_at?: string
           event_id?: string
