@@ -28,7 +28,8 @@ export const FloorPlanPage = ({
   const { events, loading: eventsLoading } = useEvents();
   const { 
     floorPlan, 
-    loading: floorPlanLoading, 
+    loading: floorPlanLoading,
+    initialLoadComplete,
     createFloorPlan, 
     updateFloorPlan,
     updateSeatAssignment,
@@ -38,11 +39,12 @@ export const FloorPlanPage = ({
   const selectedEvent = events.find(event => event.id === selectedEventId);
 
   // Create floor plan if it doesn't exist when ceremony type is selected
+  // Only attempt after initial load confirms no plan exists
   useEffect(() => {
-    if (selectedEventId && floorPlanType === 'ceremony' && !floorPlan && !floorPlanLoading) {
+    if (selectedEventId && floorPlanType === 'ceremony' && !floorPlan && initialLoadComplete && !floorPlanLoading) {
       createFloorPlan();
     }
-  }, [selectedEventId, floorPlanType, floorPlan, floorPlanLoading, createFloorPlan]);
+  }, [selectedEventId, floorPlanType, floorPlan, initialLoadComplete, floorPlanLoading, createFloorPlan]);
 
   const handleDownloadPdf = async () => {
     if (!selectedEvent || !floorPlan) return;

@@ -41,7 +41,8 @@ const defaultFloorPlan: Omit<CeremonyFloorPlan, 'id' | 'event_id' | 'user_id' | 
 
 export const useCeremonyFloorPlan = (eventId: string | null) => {
   const [floorPlan, setFloorPlan] = useState<CeremonyFloorPlan | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true); // Start as true to prevent premature creation
+  const [initialLoadComplete, setInitialLoadComplete] = useState(false);
   const { toast } = useToast();
 
   const fetchFloorPlan = useCallback(async () => {
@@ -77,6 +78,7 @@ export const useCeremonyFloorPlan = (eventId: string | null) => {
       console.error('Error fetching ceremony floor plan:', error);
     } finally {
       setLoading(false);
+      setInitialLoadComplete(true);
     }
   }, [eventId]);
 
@@ -87,18 +89,28 @@ export const useCeremonyFloorPlan = (eventId: string | null) => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
+      // Use upsert with ignoreDuplicates to prevent race condition errors
       const { data, error } = await supabase
         .from('ceremony_floor_plans')
-        .insert({
+        .upsert({
           event_id: eventId,
           user_id: user.id,
           ...defaultFloorPlan,
           seat_assignments: [] as unknown as Json,
+        }, {
+          onConflict: 'event_id',
+          ignoreDuplicates: true,
         })
         .select()
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
+      
+      // If upsert was ignored (already exists), fetch existing
+      if (!data) {
+        await fetchFloorPlan();
+        return floorPlan;
+      }
 
       const newPlan: CeremonyFloorPlan = {
         ...data,
@@ -116,7 +128,7 @@ export const useCeremonyFloorPlan = (eventId: string | null) => {
       });
       return null;
     }
-  }, [eventId, toast]);
+  }, [eventId, toast, fetchFloorPlan, floorPlan]);
 
   const updateFloorPlan = useCallback(async (updates: Partial<Omit<CeremonyFloorPlan, 'id' | 'event_id' | 'user_id' | 'created_at' | 'updated_at'>>) => {
     if (!floorPlan) return false;
@@ -198,6 +210,7 @@ export const useCeremonyFloorPlan = (eventId: string | null) => {
   return {
     floorPlan,
     loading,
+    initialLoadComplete,
     createFloorPlan,
     updateFloorPlan,
     updateSeatAssignment,
