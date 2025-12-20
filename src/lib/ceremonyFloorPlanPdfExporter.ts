@@ -380,9 +380,10 @@ export const generateCeremonyFloorPlanPDF = async (
   // Draw "Bride's Walkway - Aisle" text vertically in center - purple to match family labels
   pdf.setTextColor(114, 72, 230);
   pdf.setFont('helvetica', 'bold');
-  pdf.setFontSize(9);
-  const walkwayTextY = aisleStartY + ((aisleEndY - aisleStartY) / 2) + 10;
-  pdf.text("Bride's Walkway - Aisle", aisleX, walkwayTextY, { align: 'center', angle: 90 });
+  pdf.setFontSize(11);
+  const walkwayTextY = aisleStartY + ((aisleEndY - aisleStartY) / 2);
+  // For rotated text, add small X offset to truly center it
+  pdf.text("Bride's Walkway - Aisle", aisleX + 2, walkwayTextY, { align: 'center', angle: 90 });
 
   // === FOOTER ===
   // Wedding Waitress logo
