@@ -63,11 +63,11 @@ export const CeremonyFloorPlanSettings = ({
             value={[floorPlan.total_rows]}
             onValueChange={([value]) => handleChange('total_rows', value)}
             min={1}
-            max={20}
+            max={15}
             step={1}
             className="w-full"
           />
-          <p className="text-xs text-muted-foreground">1-20 rows total</p>
+          <p className="text-xs text-muted-foreground">1-15 rows total</p>
         </div>
 
         {/* Assigned Rows (for family) */}
