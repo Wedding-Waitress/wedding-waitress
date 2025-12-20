@@ -127,7 +127,7 @@ export const CeremonyFloorPlanVisual = ({
         <h4 className="text-sm font-semibold text-foreground mb-3">
           {side === 'left' ? floorPlan.left_side_label : floorPlan.right_side_label}
         </h4>
-        <div className={cn(side === 'right' && !floorPlan.show_row_numbers && 'pl-7')}>
+        <div className={cn(!floorPlan.show_row_numbers && 'pl-7')}>
           {rows}
         </div>
         {/* Separator for assigned vs general seating */}
@@ -164,7 +164,7 @@ export const CeremonyFloorPlanVisual = ({
       </div>
 
       {/* Seating Area */}
-      <div className="flex items-start justify-center gap-8 lg:gap-16">
+      <div className="flex items-start justify-center gap-4 lg:gap-8">
         {/* Left Side */}
         {renderSide('left')}
 
