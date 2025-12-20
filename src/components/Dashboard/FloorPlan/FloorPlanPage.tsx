@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -18,10 +18,10 @@ interface FloorPlanPageProps {
 
 type FloorPlanType = 'ceremony' | 'reception';
 
-export const FloorPlanPage: React.FC<FloorPlanPageProps> = ({
+export const FloorPlanPage = ({
   selectedEventId,
   onEventSelect,
-}) => {
+}: FloorPlanPageProps) => {
   const [floorPlanType, setFloorPlanType] = useState<FloorPlanType>('ceremony');
   const [isExporting, setIsExporting] = useState(false);
 
