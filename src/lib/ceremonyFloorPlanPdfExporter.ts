@@ -1,7 +1,7 @@
 import jsPDF from 'jspdf';
 import { CeremonyFloorPlan, getDefaultBridalRole } from '@/hooks/useCeremonyFloorPlan';
 import { format } from 'date-fns';
-import { saveAs } from 'file-saver';
+
 
 // Define the event type inline to avoid circular dependency with hooks
 interface EventData {
@@ -11,6 +11,11 @@ interface EventData {
   ceremony_venue?: string | null;
   ceremony_start_time?: string | null;
   ceremony_finish_time?: string | null;
+}
+
+export interface CeremonyFloorPlanPDFResult {
+  blob: Blob;
+  fileName: string;
 }
 
 // Constants matching Individual Table Charts
@@ -36,7 +41,7 @@ const formatTime = (time: string | null | undefined): string => {
 export const generateCeremonyFloorPlanPDF = async (
   floorPlan: CeremonyFloorPlan,
   event: EventData
-): Promise<void> => {
+): Promise<CeremonyFloorPlanPDFResult> => {
   const pdf = new jsPDF({
     orientation: 'portrait',
     unit: 'mm',
@@ -454,8 +459,9 @@ export const generateCeremonyFloorPlanPDF = async (
 
   const date = format(new Date(), 'dd-MM-yyyy');
   const fileName = `${eventName}-Ceremony-Floor-Plan-${date}.pdf`;
-  
-  // Use file-saver for reliable cross-browser downloads
-  const pdfBlob = pdf.output('blob');
-  saveAs(pdfBlob, fileName);
+
+  return {
+    blob: pdf.output('blob'),
+    fileName,
+  };
 };

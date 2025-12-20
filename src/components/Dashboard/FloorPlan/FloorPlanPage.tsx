@@ -9,6 +9,7 @@ import { CeremonyFloorPlanVisual } from './CeremonyFloorPlan/CeremonyFloorPlanVi
 import { CeremonyFloorPlanSettings } from './CeremonyFloorPlan/CeremonyFloorPlanSettings';
 import { generateCeremonyFloorPlanPDF } from '@/lib/ceremonyFloorPlanPdfExporter';
 import { toast } from 'sonner';
+import { saveAs } from 'file-saver';
 
 interface FloorPlanPageProps {
   selectedEventId: string | null;
@@ -55,7 +56,8 @@ export const FloorPlanPage = ({
     setIsExporting(true);
     try {
       toast.info('Generating PDF...');
-      await generateCeremonyFloorPlanPDF(floorPlan, selectedEvent);
+      const { blob, fileName } = await generateCeremonyFloorPlanPDF(floorPlan, selectedEvent);
+      saveAs(blob, fileName);
       toast.success('PDF downloaded successfully!');
     } catch (error) {
       console.error('PDF export error:', error);
