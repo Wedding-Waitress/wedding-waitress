@@ -8,7 +8,6 @@ import { useCeremonyFloorPlan } from '@/hooks/useCeremonyFloorPlan';
 import { CeremonyFloorPlanVisual } from './CeremonyFloorPlan/CeremonyFloorPlanVisual';
 import { CeremonyFloorPlanSettings } from './CeremonyFloorPlan/CeremonyFloorPlanSettings';
 import { generateCeremonyFloorPlanPDF } from '@/lib/ceremonyFloorPlanPdfExporter';
-import { saveAs } from 'file-saver';
 import { toast } from 'sonner';
 
 interface FloorPlanPageProps {
@@ -54,24 +53,7 @@ export const FloorPlanPage = ({
     setIsExporting(true);
     try {
       toast.info('Generating PDF...');
-      
-      const pdfBlob = await generateCeremonyFloorPlanPDF(floorPlan, selectedEvent);
-      
-      const eventName = selectedEvent.name
-        .split(/[^a-zA-Z0-9]+/)
-        .filter(word => word.length > 0)
-        .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-        .join('-');
-      
-      const date = new Date().toLocaleDateString('en-GB', { 
-        day: '2-digit', 
-        month: '2-digit', 
-        year: 'numeric' 
-      }).replace(/\//g, '-');
-      
-      const fileName = `${eventName}-Ceremony-Floor-Plan-${date}.pdf`;
-      
-      saveAs(pdfBlob, fileName);
+      await generateCeremonyFloorPlanPDF(floorPlan, selectedEvent);
       toast.success('PDF downloaded successfully!');
     } catch (error) {
       console.error('PDF export error:', error);
