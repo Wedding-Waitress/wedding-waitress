@@ -52,6 +52,7 @@ interface AppSidebarProps {
     { id: "qr-code", label: "QR Code Seating Chart", icon: QrCode },
     { id: "place-cards", label: "Place Cards", icon: CreditCard },
     { id: "individual-table-chart", label: "Individual Table Charts", icon: Users },
+    { id: "floor-plan", label: "Floor Plan", icon: LayoutGrid },
     { id: "dietary-chart", label: "Dietary Requirements", icon: ChefHat },
     { id: "full-seating-chart", label: "Full Seating Chart", icon: FileText },
     { id: "kiosk-live-view", label: "Kiosk Live View", icon: Monitor },

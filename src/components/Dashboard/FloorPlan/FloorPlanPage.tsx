@@ -1,330 +1,235 @@
-import React, { useState, useCallback } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import React, { useState, useEffect } from 'react';
+import { Card, CardContent, CardDescription, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Input } from '@/components/ui/input';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
-import { Plus, Save, Download, FileText, Image, MapPin, ArrowLeft } from 'lucide-react';
-import { Object as FabricObject } from 'fabric';
-
+import { Users, FileText, LayoutGrid } from 'lucide-react';
 import { useEvents } from '@/hooks/useEvents';
-import { useFloorPlans } from '@/hooks/useFloorPlans';
-import { FloorPlanCanvas } from './FloorPlanCanvas';
-import { FloorPlanToolbar } from './FloorPlanToolbar';
-import { FloorPlanPropertiesPanel } from './FloorPlanPropertiesPanel';
-import { useToast } from '@/hooks/use-toast';
+import { useCeremonyFloorPlan } from '@/hooks/useCeremonyFloorPlan';
+import { CeremonyFloorPlanVisual } from './CeremonyFloorPlan/CeremonyFloorPlanVisual';
+import { CeremonyFloorPlanSettings } from './CeremonyFloorPlan/CeremonyFloorPlanSettings';
+import { generateCeremonyFloorPlanPDF } from '@/lib/ceremonyFloorPlanPdfExporter';
+import { saveAs } from 'file-saver';
+import { toast } from 'sonner';
 
 interface FloorPlanPageProps {
   selectedEventId: string | null;
   onEventSelect: (eventId: string) => void;
 }
 
+type FloorPlanType = 'ceremony' | 'reception';
+
 export const FloorPlanPage: React.FC<FloorPlanPageProps> = ({
   selectedEventId,
   onEventSelect,
 }) => {
-  const { events } = useEvents();
+  const [floorPlanType, setFloorPlanType] = useState<FloorPlanType>('ceremony');
+  const [isExporting, setIsExporting] = useState(false);
+
+  const { events, loading: eventsLoading } = useEvents();
   const { 
-    floorPlans, 
-    activeFloorPlan, 
-    setActiveFloorPlan,
+    floorPlan, 
+    loading: floorPlanLoading, 
     createFloorPlan, 
     updateFloorPlan,
-    loading 
-  } = useFloorPlans(selectedEventId);
-  
-  const [isDesignerMode, setIsDesignerMode] = useState(false);
-  const [currentTool, setCurrentTool] = useState('select');
-  const [selectedObject, setSelectedObject] = useState<FabricObject | null>(null);
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [newFloorPlanName, setNewFloorPlanName] = useState('');
-  const [lastSaved, setLastSaved] = useState<Date | null>(null);
-  const { toast } = useToast();
-
-  // Default settings
-  const defaultSettings = {
-    width: 800,
-    height: 600,
-    gridSize: 20,
-    showGrid: true,
-    snapToGrid: true,
-    measurementUnit: 'feet' as const,
-  };
-
-  const defaultRoomDimensions = {
-    width: 0,
-    height: 0,
-    realWidth: 0,
-    realHeight: 0,
-    unit: 'feet',
-  };
-
-  const currentSettings = activeFloorPlan?.settings || defaultSettings;
-  const currentRoomDimensions = activeFloorPlan?.room_dimensions || defaultRoomDimensions;
+    updateSeatAssignment,
+    getSeatName,
+  } = useCeremonyFloorPlan(selectedEventId);
 
   const selectedEvent = events.find(event => event.id === selectedEventId);
 
-  const handleCreateFloorPlan = async () => {
-    if (!newFloorPlanName.trim()) {
-      toast({
-        title: "Error",
-        description: "Please enter a floor plan name",
-        variant: "destructive",
-      });
-      return;
+  // Create floor plan if it doesn't exist when ceremony type is selected
+  useEffect(() => {
+    if (selectedEventId && floorPlanType === 'ceremony' && !floorPlan && !floorPlanLoading) {
+      createFloorPlan();
     }
+  }, [selectedEventId, floorPlanType, floorPlan, floorPlanLoading, createFloorPlan]);
 
-    const success = await createFloorPlan({
-      name: newFloorPlanName,
-      description: `Floor plan for ${selectedEvent?.name || 'event'}`,
-    });
-
-    if (success) {
-      setNewFloorPlanName('');
-      setIsCreateModalOpen(false);
+  const handleDownloadPdf = async () => {
+    if (!selectedEvent || !floorPlan) return;
+    
+    setIsExporting(true);
+    try {
+      toast.info('Generating PDF...');
+      
+      const pdfBlob = await generateCeremonyFloorPlanPDF(floorPlan, selectedEvent);
+      
+      const eventName = selectedEvent.name
+        .split(/[^a-zA-Z0-9]+/)
+        .filter(word => word.length > 0)
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+        .join('-');
+      
+      const date = new Date().toLocaleDateString('en-GB', { 
+        day: '2-digit', 
+        month: '2-digit', 
+        year: 'numeric' 
+      }).replace(/\//g, '-');
+      
+      const fileName = `${eventName}-Ceremony-Floor-Plan-${date}.pdf`;
+      
+      saveAs(pdfBlob, fileName);
+      toast.success('PDF downloaded successfully!');
+    } catch (error) {
+      console.error('PDF export error:', error);
+      toast.error('Failed to generate PDF');
+    } finally {
+      setIsExporting(false);
     }
   };
 
-  const handleCanvasChange = useCallback(async (canvasData: any) => {
-    if (!activeFloorPlan) return;
-    
-    // Auto-save the canvas data
-    await updateFloorPlan(activeFloorPlan.id, {
-      canvas_data: canvasData,
-    });
-    
-    setLastSaved(new Date());
-  }, [activeFloorPlan, updateFloorPlan]);
+  const isDataReady = selectedEvent && floorPlan && !floorPlanLoading;
 
-  const handleSettingsChange = useCallback(async (newSettings: any) => {
-    if (!activeFloorPlan) return;
-    
-    await updateFloorPlan(activeFloorPlan.id, {
-      settings: newSettings,
-    });
-  }, [activeFloorPlan, updateFloorPlan]);
-
-  const handleRoomDimensionsChange = useCallback(async (newDimensions: any) => {
-    if (!activeFloorPlan) return;
-    
-    await updateFloorPlan(activeFloorPlan.id, {
-      room_dimensions: newDimensions,
-    });
-  }, [activeFloorPlan, updateFloorPlan]);
-
-  const handleObjectChange = useCallback((object: FabricObject, properties: any) => {
-    if (!object) return;
-    
-    object.set(properties);
-    object.canvas?.renderAll();
-  }, []);
-
-  const handleExport = () => {
-    toast({
-      title: "Export",
-      description: "Export functionality will be implemented in the next version",
-    });
-  };
-
-  if (!selectedEventId) {
-    return (
-      <Card className="ww-box p-8 text-center">
-        <CardTitle className="mb-4">Select an Event</CardTitle>
-        <p className="text-muted-foreground mb-6">
-          Choose an event to start designing your floor plan
-        </p>
-        <Select onValueChange={onEventSelect}>
-          <SelectTrigger className="w-64 mx-auto">
-            <SelectValue placeholder="Select an event" />
-          </SelectTrigger>
-          <SelectContent>
-            {events.map((event) => (
-              <SelectItem key={event.id} value={event.id}>
-                {event.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </Card>
-    );
-  }
-
-  // Landing page view
-  if (!isDesignerMode) {
-    return (
-      <div className="flex items-center justify-center min-h-[600px] p-8">
-        <Card className="ww-box w-full max-w-md text-center">
-          <CardHeader className="pb-4">
-            <div className="mx-auto mb-4 w-16 h-16 bg-gradient-to-br from-primary to-primary/80 rounded-2xl flex items-center justify-center">
-              <MapPin className="w-8 h-8 text-primary-foreground" />
-            </div>
-            <CardTitle className="text-2xl">Floor Plan Designer</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-muted-foreground mb-6">
-              Visualize and design your wedding venue layout
-            </p>
-            <Button 
-              onClick={() => setIsDesignerMode(true)}
-              className="bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground"
-            >
-              Design Floor Plan
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
-  // Designer mode view
   return (
-    <div className="flex flex-col h-screen">
-      {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-border">
-        <div className="flex items-center space-x-4">
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            onClick={() => setIsDesignerMode(false)}
-            className="mr-2"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Floor Plans
-          </Button>
-          <Select value={selectedEventId} onValueChange={onEventSelect}>
-            <SelectTrigger className="w-48">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {events.map((event) => (
-                <SelectItem key={event.id} value={event.id}>
-                  {event.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          {floorPlans.length > 0 && (
-            <Select 
-              value={activeFloorPlan?.id || ''} 
-              onValueChange={(value) => {
-                const plan = floorPlans.find(p => p.id === value);
-                if (plan) setActiveFloorPlan(plan);
-              }}
-            >
-              <SelectTrigger className="w-48">
-                <SelectValue placeholder="Select floor plan" />
-              </SelectTrigger>
-              <SelectContent>
-                {floorPlans.map((plan) => (
-                  <SelectItem key={plan.id} value={plan.id}>
-                    {plan.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          )}
-        </div>
-
-        <div className="flex items-center space-x-2">
-          {lastSaved && (
-            <span className="text-xs text-muted-foreground">
-              Last saved: {lastSaved.toLocaleTimeString()}
-            </span>
-          )}
-          
-          <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
-            <DialogTrigger asChild>
-              <Button size="sm">
-                <Plus className="w-4 h-4 mr-2" />
-                New Floor Plan
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Create New Floor Plan</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4">
-                <div>
-                  <Label>Floor Plan Name</Label>
-                  <Input
-                    value={newFloorPlanName}
-                    onChange={(e) => setNewFloorPlanName(e.target.value)}
-                    placeholder="Enter floor plan name"
-                  />
-                </div>
-                <div className="flex justify-end space-x-2">
-                  <Button variant="outline" onClick={() => setIsCreateModalOpen(false)}>
-                    Cancel
-                  </Button>
-                  <Button onClick={handleCreateFloorPlan}>
-                    Create Floor Plan
+    <div className="space-y-6">
+      {/* Header Card */}
+      <Card className="ww-box">
+        <CardContent className="pt-6 space-y-4">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            {/* Left: Title and Description */}
+            <div>
+              <h1 className="text-2xl font-medium text-[#7248e6] mb-2">
+                Floor Plan
+              </h1>
+              <p className="text-muted-foreground">
+                Design and visualize your ceremony or reception seating layout
+              </p>
+            </div>
+            
+            {/* Right: Export Controls Box */}
+            {isDataReady && floorPlanType === 'ceremony' && (
+              <div className="border border-primary rounded-xl p-4 space-y-3">
+                <h3 className="text-sm font-medium">Export Controls</h3>
+                <p className="text-muted-foreground text-sm">
+                  Download your floor plan for venue staff.
+                </p>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <Button 
+                    variant="default"
+                    size="xs"
+                    onClick={handleDownloadPdf}
+                    disabled={isExporting}
+                    className="rounded-full flex items-center gap-2"
+                  >
+                    <FileText className="w-4 h-4" />
+                    {isExporting ? 'Exporting...' : 'Download PDF'}
                   </Button>
                 </div>
               </div>
-            </DialogContent>
-          </Dialog>
+            )}
+          </div>
 
-          <Button variant="outline" size="sm" onClick={handleExport}>
-            <Download className="w-4 h-4 mr-2" />
-            Export
-          </Button>
-        </div>
-      </div>
+          {/* Event and Type Selection */}
+          <div className="flex items-center gap-8 flex-wrap pt-4">
+            {/* Choose Event Section */}
+            <div className="flex items-center gap-4">
+              <label className="text-sm font-medium text-foreground whitespace-nowrap">
+                Choose Event:
+              </label>
+              <Select
+                value={selectedEventId || 'no-event'} 
+                onValueChange={(value) => {
+                  if (value === 'no-event') return;
+                  onEventSelect(value);
+                }}
+                disabled={eventsLoading}
+              >
+                <SelectTrigger className="w-[300px] border-primary focus:ring-primary font-bold text-[#7248e6]">
+                  <SelectValue placeholder="Choose Event" />
+                </SelectTrigger>
+                <SelectContent className="bg-popover border-border z-50">
+                  {events.length > 0 ? (
+                    events.map((event) => (
+                      <SelectItem key={event.id} value={event.id}>
+                        <div className="flex items-center space-x-2">
+                          <Users className="w-4 h-4" />
+                          <span>{event.name}</span>
+                        </div>
+                      </SelectItem>
+                    ))
+                  ) : (
+                    <SelectItem value="no-events" disabled>
+                      {eventsLoading ? "Loading events..." : "No events found"}
+                    </SelectItem>
+                  )}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Floor Plan Type Section */}
+            <div className="flex items-center gap-4">
+              <label className="text-sm font-medium text-foreground whitespace-nowrap">
+                Floor Plan Type:
+              </label>
+              <Select 
+                value={floorPlanType} 
+                onValueChange={(value) => setFloorPlanType(value as FloorPlanType)}
+              >
+                <SelectTrigger className="w-[200px] border-primary focus:ring-primary">
+                  <SelectValue placeholder="Select type" />
+                </SelectTrigger>
+                <SelectContent className="bg-popover border-border z-50">
+                  <SelectItem value="ceremony">
+                    <div className="flex items-center space-x-2">
+                      <LayoutGrid className="w-4 h-4" />
+                      <span>Ceremony</span>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="reception" disabled>
+                    <div className="flex items-center space-x-2">
+                      <LayoutGrid className="w-4 h-4" />
+                      <span>Reception (Coming Soon)</span>
+                    </div>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Empty States */}
+      {!selectedEventId && (
+        <Card className="ww-box p-8 text-center">
+          <LayoutGrid className="w-16 h-16 mx-auto text-primary mb-4" />
+          <CardTitle className="mb-2">Select an Event</CardTitle>
+          <CardDescription>
+            Choose an event to start designing your floor plan
+          </CardDescription>
+        </Card>
+      )}
+
+      {selectedEventId && floorPlanLoading && (
+        <Card className="ww-box p-8 text-center">
+          <div className="animate-pulse">
+            <LayoutGrid className="w-16 h-16 mx-auto text-primary/50 mb-4" />
+            <p className="text-muted-foreground">Loading floor plan...</p>
+          </div>
+        </Card>
+      )}
 
       {/* Main Content */}
-      <div className="flex flex-1 overflow-hidden">
-        {/* Left Toolbar */}
-        <FloorPlanToolbar
-          currentTool={currentTool}
-          onToolChange={setCurrentTool}
-        />
+      {isDataReady && floorPlanType === 'ceremony' && (
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          {/* Settings */}
+          <div className="lg:col-span-1">
+            <CeremonyFloorPlanSettings
+              floorPlan={floorPlan}
+              onUpdate={updateFloorPlan}
+            />
+          </div>
 
-        {/* Canvas Area */}
-        <div className="flex-1 flex flex-col">
-          {activeFloorPlan ? (
-            <div className="flex-1 p-4">
-              <FloorPlanCanvas
-                canvasData={activeFloorPlan.canvas_data}
-                settings={currentSettings}
-                currentTool={currentTool}
-                onCanvasChange={handleCanvasChange}
-                onObjectSelected={setSelectedObject}
+          {/* Visual Preview */}
+          <div className="lg:col-span-3">
+            <Card className="ww-box p-6">
+              <CeremonyFloorPlanVisual
+                floorPlan={floorPlan}
+                onSeatUpdate={updateSeatAssignment}
+                getSeatName={getSeatName}
               />
-            </div>
-          ) : (
-            <div className="flex-1 flex items-center justify-center">
-              <Card className="ww-box p-8 text-center max-w-md">
-                <CardHeader>
-                  <CardTitle>No Floor Plans</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground mb-4">
-                    Create your first floor plan to get started
-                  </p>
-                  <Button onClick={() => setIsCreateModalOpen(true)}>
-                    <Plus className="w-4 h-4 mr-2" />
-                    Create Floor Plan
-                  </Button>
-                </CardContent>
-              </Card>
-            </div>
-          )}
+            </Card>
+          </div>
         </div>
-
-        {/* Right Properties Panel */}
-        {activeFloorPlan && (
-          <FloorPlanPropertiesPanel
-            selectedObject={selectedObject}
-            settings={currentSettings}
-            roomDimensions={currentRoomDimensions}
-            onSettingsChange={handleSettingsChange}
-            onRoomDimensionsChange={handleRoomDimensionsChange}
-            onObjectChange={handleObjectChange}
-          />
-        )}
-      </div>
+      )}
     </div>
   );
 };
