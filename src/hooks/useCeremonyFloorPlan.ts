@@ -37,19 +37,30 @@ export interface CeremonyFloorPlan {
 }
 
 // Helper to get default role based on position and side
+// The person closest to the couple gets the special role (Best Man/Maid of Honor)
+// - On the LEFT side: the LAST index (closest to couple)
+// - On the RIGHT side: the FIRST index (closest to couple)
 export const getDefaultBridalRole = (
   side: 'left' | 'right',
   index: number,
-  arrangement: 'groom_left' | 'bride_left'
+  arrangement: 'groom_left' | 'bride_left',
+  totalCount: number
 ): string => {
   const isGroomsSide = (arrangement === 'groom_left' && side === 'left') || 
                        (arrangement === 'bride_left' && side === 'right');
   
+  // The person closest to the couple is:
+  // - On the LEFT side: the LAST index (totalCount - 1)
+  // - On the RIGHT side: the FIRST index (0)
+  const isClosestToCouple = side === 'left' 
+    ? index === totalCount - 1
+    : index === 0;
+  
   if (isGroomsSide) {
-    if (index === 0) return 'Best Man';
+    if (isClosestToCouple) return 'Best Man';
     return 'Groomsman';
   } else {
-    if (index === 0) return 'Maid of Honor';
+    if (isClosestToCouple) return 'Maid of Honor';
     return 'Bridesmaid';
   }
 };
@@ -336,12 +347,14 @@ export const useCeremonyFloorPlan = (eventId: string | null) => {
   const getBridalPartyRole = useCallback((side: 'left' | 'right', index: number): string => {
     if (!floorPlan) return '';
     const key = side === 'left' ? 'bridal_party_roles_left' : 'bridal_party_roles_right';
+    const countKey = side === 'left' ? 'bridal_party_count_left' : 'bridal_party_count_right';
     const savedRole = floorPlan[key]?.[index];
     
     // Return saved role if it exists, otherwise return default
     if (savedRole) return savedRole;
     
-    return getDefaultBridalRole(side, index, floorPlan.couple_side_arrangement);
+    const totalCount = floorPlan[countKey] || 0;
+    return getDefaultBridalRole(side, index, floorPlan.couple_side_arrangement, totalCount);
   }, [floorPlan]);
 
   useEffect(() => {

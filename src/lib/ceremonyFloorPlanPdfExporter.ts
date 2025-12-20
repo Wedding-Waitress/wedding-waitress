@@ -128,9 +128,10 @@ export const generateCeremonyFloorPlanPDF = async (
   // Helper to get role for a bridal party member
   const getBridalRole = (side: 'left' | 'right', index: number): string => {
     const rolesArray = side === 'left' ? floorPlan.bridal_party_roles_left : floorPlan.bridal_party_roles_right;
+    const totalCount = side === 'left' ? leftCount : rightCount;
     const savedRole = rolesArray?.[index];
     if (savedRole) return savedRole;
-    return getDefaultBridalRole(side, index, floorPlan.couple_side_arrangement);
+    return getDefaultBridalRole(side, index, floorPlan.couple_side_arrangement, totalCount);
   };
   
   // Helper to render bridal party boxes for a given row (with role labels)
