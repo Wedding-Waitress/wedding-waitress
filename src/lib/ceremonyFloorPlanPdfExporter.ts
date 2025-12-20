@@ -238,9 +238,9 @@ export const generateCeremonyFloorPlanPDF = async (
   
   // Adjust yPos based on whether we have a second row - add extra gap before guest seating
   if (hasSecondRow) {
-    yPos += secondRowYOffset + bridalBoxHeight + 12;
+    yPos += secondRowYOffset + bridalBoxHeight + 20;
   } else {
-    yPos += bridalBoxHeight + 16;
+    yPos += bridalBoxHeight + 24;
   }
 
 
@@ -377,12 +377,12 @@ export const generateCeremonyFloorPlanPDF = async (
   pdf.setLineWidth(0.5);
   pdf.line(aisleX, aisleStartY, aisleX, aisleEndY);
 
-  // Draw "Bride's Walkway" text vertically in center - purple to match family labels
+  // Draw "Bride's Walkway - Aisle" text vertically in center - purple to match family labels
   pdf.setTextColor(114, 72, 230);
   pdf.setFont('helvetica', 'bold');
   pdf.setFontSize(9);
-  const walkwayTextY = aisleStartY + ((aisleEndY - aisleStartY) / 2);
-  pdf.text("Bride's Walkway", aisleX, walkwayTextY, { align: 'center', angle: 90 });
+  const walkwayTextY = aisleStartY + ((aisleEndY - aisleStartY) / 2) + 10;
+  pdf.text("Bride's Walkway - Aisle", aisleX, walkwayTextY, { align: 'center', angle: 90 });
 
   // === FOOTER ===
   // Wedding Waitress logo
