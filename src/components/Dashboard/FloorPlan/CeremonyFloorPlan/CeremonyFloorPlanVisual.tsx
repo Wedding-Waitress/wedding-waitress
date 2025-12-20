@@ -331,26 +331,22 @@ export const CeremonyFloorPlanVisual = ({
   };
 
   return (
-    <div className="flex flex-col items-center space-y-6">
+    <div className="flex flex-col items-center space-y-10">
       {/* Bridal Party Area */}
       {renderBridalParty()}
-
-      {/* Aisle indicator */}
-      <div className="flex items-center gap-2 text-muted-foreground">
-        <div className="w-8 h-px bg-border" />
-        <span className="text-xs">Aisle</span>
-        <div className="w-8 h-px bg-border" />
-      </div>
 
       {/* Seating Area */}
       <div className="flex items-start justify-center gap-1 lg:gap-2">
         {/* Left Side */}
         {renderSide('left')}
 
-        {/* Center Aisle */}
-        <div className="flex flex-col items-center justify-center h-full px-2">
-          <span className="text-xs text-muted-foreground rotate-90 whitespace-nowrap">
-            ↑ Bride's Walkway ↑
+        {/* Center Aisle with vertical line and walkway text */}
+        <div className="flex flex-col items-center justify-center h-full px-2 relative min-h-[200px]">
+          {/* Vertical aisle line */}
+          <div className="absolute inset-y-0 left-1/2 w-px bg-border -translate-x-1/2" />
+          {/* Walkway text - purple to match family labels */}
+          <span className="text-sm font-semibold text-primary rotate-90 whitespace-nowrap relative z-10 bg-background px-2">
+            Bride's Walkway
           </span>
         </div>
 
