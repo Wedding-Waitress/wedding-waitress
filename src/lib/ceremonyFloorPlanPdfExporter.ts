@@ -1,6 +1,7 @@
 import jsPDF from 'jspdf';
 import { CeremonyFloorPlan, getDefaultBridalRole } from '@/hooks/useCeremonyFloorPlan';
 import { format } from 'date-fns';
+import { saveAs } from 'file-saver';
 
 // Define the event type inline to avoid circular dependency with hooks
 interface EventData {
@@ -454,14 +455,7 @@ export const generateCeremonyFloorPlanPDF = async (
   const date = format(new Date(), 'dd-MM-yyyy');
   const fileName = `${eventName}-Ceremony-Floor-Plan-${date}.pdf`;
   
-  // Use blob + link method to avoid permission popups
+  // Use file-saver for reliable cross-browser downloads
   const pdfBlob = pdf.output('blob');
-  const url = URL.createObjectURL(pdfBlob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = fileName;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(url);
+  saveAs(pdfBlob, fileName);
 };
