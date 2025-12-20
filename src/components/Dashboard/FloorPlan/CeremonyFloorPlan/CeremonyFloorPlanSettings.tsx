@@ -100,6 +100,36 @@ export const CeremonyFloorPlanSettings = ({
           </div>
         </div>
 
+        {/* Couple Names Section */}
+        <div className="space-y-4 pt-2 border-t border-border">
+          <h4 className="text-sm font-medium">Couple Names</h4>
+          <p className="text-xs text-muted-foreground">These names appear beside the celebrant at the altar</p>
+          
+          <div className="space-y-2">
+            <Label className="text-xs text-muted-foreground">
+              {floorPlan.couple_side_arrangement === 'groom_left' ? 'Left (Groom)' : 'Left (Bride)'}
+            </Label>
+            <Input
+              value={floorPlan.person_left_name}
+              onChange={(e) => handleChange('person_left_name', e.target.value)}
+              placeholder={floorPlan.couple_side_arrangement === 'groom_left' ? 'e.g., John or Groom' : 'e.g., Jane or Bride'}
+              className="text-sm"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label className="text-xs text-muted-foreground">
+              {floorPlan.couple_side_arrangement === 'groom_left' ? 'Right (Bride)' : 'Right (Groom)'}
+            </Label>
+            <Input
+              value={floorPlan.person_right_name}
+              onChange={(e) => handleChange('person_right_name', e.target.value)}
+              placeholder={floorPlan.couple_side_arrangement === 'groom_left' ? 'e.g., Jane or Bride' : 'e.g., John or Groom'}
+              className="text-sm"
+            />
+          </div>
+        </div>
+
         {/* Bridal Party Section */}
         <div className="space-y-4 pt-2 border-t border-border">
           <h4 className="text-sm font-medium">Bridal Party (Altar Area)</h4>
@@ -115,11 +145,11 @@ export const CeremonyFloorPlanSettings = ({
               value={[floorPlan.bridal_party_count_left]}
               onValueChange={([value]) => handleChange('bridal_party_count_left', value)}
               min={0}
-              max={12}
+              max={8}
               step={1}
               className="w-full"
             />
-            <p className="text-xs text-muted-foreground">Left side of altar (0-12)</p>
+            <p className="text-xs text-muted-foreground">Left side of altar (0-8)</p>
           </div>
 
           <div className="space-y-3">
@@ -133,11 +163,11 @@ export const CeremonyFloorPlanSettings = ({
               value={[floorPlan.bridal_party_count_right]}
               onValueChange={([value]) => handleChange('bridal_party_count_right', value)}
               min={0}
-              max={12}
+              max={8}
               step={1}
               className="w-full"
             />
-            <p className="text-xs text-muted-foreground">Right side of altar (0-12)</p>
+            <p className="text-xs text-muted-foreground">Right side of altar (0-8)</p>
           </div>
         </div>
 
