@@ -89,13 +89,13 @@ export const CeremonyFloorPlanVisual = ({
     const parts = name.trim().split(' ');
     if (parts.length > 1) {
       return (
-        <span className="text-[9px] leading-tight text-center px-0.5 flex flex-col items-center justify-center">
+        <span className="text-[11px] leading-tight text-center px-0.5 flex flex-col items-center justify-center">
           <span>{parts[0]}</span>
           <span>{parts.slice(1).join(' ')}</span>
         </span>
       );
     }
-    return <span className="text-[9px] leading-tight text-center px-0.5">{name}</span>;
+    return <span className="text-[11px] leading-tight text-center px-0.5">{name}</span>;
   };
 
   const renderSeat = (side: 'left' | 'right', row: number, seat: number) => {
@@ -112,7 +112,7 @@ export const CeremonyFloorPlanVisual = ({
           onChange={(e) => setEditingValue(e.target.value)}
           onBlur={handleSeatSave}
           onKeyDown={handleKeyDown}
-          className="w-12 h-12 text-xs p-1 text-center"
+          className="w-16 h-12 text-xs p-1 text-center"
           placeholder="Name"
         />
       );
@@ -123,7 +123,7 @@ export const CeremonyFloorPlanVisual = ({
         key={`${side}-${row}-${seat}`}
         onClick={() => handleSeatClick(side, row, seat)}
         className={cn(
-          "w-12 h-12 rounded border text-xs flex items-center justify-center transition-all",
+          "w-16 h-12 rounded border text-xs flex items-center justify-center transition-all",
           isAssignedRow 
             ? "cursor-pointer hover:border-primary hover:bg-primary/5"
             : "cursor-not-allowed",
@@ -159,7 +159,7 @@ export const CeremonyFloorPlanVisual = ({
           onChange={(e) => setEditingBridalValue(e.target.value)}
           onBlur={handleBridalPartySave}
           onKeyDown={handleBridalPartyKeyDown}
-          className="w-12 h-12 text-xs p-1 text-center"
+          className="w-16 h-12 text-xs p-1 text-center"
           placeholder="Name"
         />
       );
@@ -170,7 +170,7 @@ export const CeremonyFloorPlanVisual = ({
         key={`bridal-${side}-${index}`}
         onClick={() => handleBridalPartyClick(side, index)}
         className={cn(
-          "w-12 h-12 rounded border text-xs flex items-center justify-center transition-all cursor-pointer hover:border-primary hover:bg-primary/5",
+          "w-16 h-12 rounded border text-xs flex items-center justify-center transition-all cursor-pointer hover:border-primary hover:bg-primary/5",
           name 
             ? "bg-primary/10 border-primary text-primary font-medium" 
             : "bg-muted/30 border-border text-muted-foreground"
