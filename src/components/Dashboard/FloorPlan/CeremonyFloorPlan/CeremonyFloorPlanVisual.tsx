@@ -278,7 +278,7 @@ export const CeremonyFloorPlanVisual = ({
     return (
       <div className="flex flex-col items-center">
         <h4 className="text-sm font-semibold text-primary mb-3">
-          {side === 'left' ? floorPlan.left_side_label : floorPlan.right_side_label}
+          {side === 'left' ? floorPlan.left_side_label : floorPlan.right_side_label} ({floorPlan.total_rows * floorPlan.chairs_per_row})
         </h4>
         <div>
           {rows}
