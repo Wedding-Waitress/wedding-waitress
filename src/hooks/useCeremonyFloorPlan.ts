@@ -1,3 +1,14 @@
+/**
+ * ⚠️ WARNING: PRODUCTION LOCKED - DO NOT MODIFY ⚠️
+ * 
+ * This file is part of the Ceremony Floor Plan feature which has been
+ * finalized and locked for production use as of 2025-12-21.
+ * 
+ * ANY MODIFICATIONS require explicit written approval from the project owner.
+ * 
+ * See CEREMONY_FLOOR_PLAN_SPECS.md for complete technical specifications.
+ */
+
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';

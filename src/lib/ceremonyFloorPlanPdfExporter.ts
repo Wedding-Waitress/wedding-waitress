@@ -1,3 +1,14 @@
+/**
+ * ⚠️ WARNING: PRODUCTION LOCKED - DO NOT MODIFY ⚠️
+ * 
+ * This file is part of the Ceremony Floor Plan feature which has been
+ * finalized and locked for production use as of 2025-12-21.
+ * 
+ * ANY MODIFICATIONS require explicit written approval from the project owner.
+ * 
+ * See CEREMONY_FLOOR_PLAN_SPECS.md for complete technical specifications.
+ */
+
 import jsPDF from 'jspdf';
 import { CeremonyFloorPlan, getDefaultBridalRole } from '@/hooks/useCeremonyFloorPlan';
 import { format } from 'date-fns';
