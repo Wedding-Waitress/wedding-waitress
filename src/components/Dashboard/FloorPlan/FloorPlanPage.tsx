@@ -171,6 +171,17 @@ export const FloorPlanPage = ({
                 </SelectContent>
               </Select>
             </div>
+
+            {/* Total Attending Ceremony - shown when ceremony floor plan is loaded */}
+            {floorPlan && floorPlanType === 'ceremony' && (
+              <div className="flex items-center gap-2 ml-4">
+                <span className="text-sm font-medium text-primary whitespace-nowrap">
+                  Total Attending Ceremony: <span className="font-bold">
+                    {3 + (floorPlan.bridal_party_count_left || 0) + (floorPlan.bridal_party_count_right || 0) + (floorPlan.total_rows * floorPlan.chairs_per_row * 2)}
+                  </span>
+                </span>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
