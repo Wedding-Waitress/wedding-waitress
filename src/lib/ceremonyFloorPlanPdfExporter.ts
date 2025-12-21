@@ -84,7 +84,7 @@ export const generateCeremonyFloorPlanPDF = async (
   pdf.setFontSize(8);
   pdf.setTextColor(0, 0, 0);
   pdf.text(
-    `Total Attending Ceremony: ${totalAttendingCeremony} (This includes Bride & Groom + Celebrant + Bridal Party + all Family & Friends Attending)`,
+    `Total Attending Ceremony: ${totalAttendingCeremony} (This includes Bride & Groom + Celebrant + Bridal Party + all Family & Friends)`,
     PAGE_WIDTH / 2,
     yPos,
     { align: 'center' }
@@ -322,6 +322,15 @@ export const generateCeremonyFloorPlanPDF = async (
       pdf.setFontSize(7);
       pdf.setTextColor(100, 100, 100);
       pdf.text(String(row), startX - 4, rowY + (seatHeight / 2) + 1, { align: 'right' });
+    }
+
+    // Row number on right (for Bride's Family)
+    if (floorPlan.show_row_numbers) {
+      pdf.setFont('helvetica', 'normal');
+      pdf.setFontSize(7);
+      pdf.setTextColor(100, 100, 100);
+      const rightRowNumberX = startX + sideWidth + aisleWidth + (floorPlan.chairs_per_row * (seatWidth + seatGap)) + 2;
+      pdf.text(String(row), rightRowNumberX, rowY + (seatHeight / 2) + 1, { align: 'left' });
     }
 
     // Left side seats
