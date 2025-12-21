@@ -180,7 +180,7 @@ export const FloorPlanPage = ({
                     {3 + (floorPlan.bridal_party_count_left || 0) + (floorPlan.bridal_party_count_right || 0) + (floorPlan.total_rows * floorPlan.chairs_per_row * 2)}
                   </span>
                   <span className="text-xs text-muted-foreground ml-2">
-                    (This includes Bride & Groom + Celebrant + Bridal Party + all Family & Friends Attending)
+                    (This includes Bride & Groom + Celebrant + Bridal Party + all Family & Friends)
                   </span>
                 </span>
               </div>
