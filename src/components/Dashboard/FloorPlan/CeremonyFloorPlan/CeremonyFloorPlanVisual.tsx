@@ -331,7 +331,7 @@ export const CeremonyFloorPlanVisual = ({
         {/* Left side bridal party */}
         {leftCount > 0 && (
           <div className="flex flex-col items-center">
-            <span className="text-sm font-semibold text-primary mb-2">{leftLabel}</span>
+            <span className="text-sm font-semibold text-primary mb-2">{leftLabel} ({leftCount})</span>
             <div className="flex flex-col items-center gap-2">
               {/* First row - up to 6 members */}
               <div className="flex gap-1">
@@ -376,7 +376,7 @@ export const CeremonyFloorPlanVisual = ({
         {/* Right side bridal party */}
         {rightCount > 0 && (
           <div className="flex flex-col items-center">
-            <span className="text-sm font-semibold text-primary mb-2">{rightLabel}</span>
+            <span className="text-sm font-semibold text-primary mb-2">{rightLabel} ({rightCount})</span>
             <div className="flex flex-col items-center gap-2">
               {/* First row - up to 6 members */}
               <div className="flex gap-1">
