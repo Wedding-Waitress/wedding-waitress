@@ -74,7 +74,22 @@ export const generateCeremonyFloorPlanPDF = async (
   const generatedDate = format(new Date(), 'dd/MM/yy');
   const generatedTime = format(new Date(), 'h:mm a');
   pdf.text(`${venue} – Generated on: ${generatedDate} Time: ${generatedTime}`, PAGE_WIDTH / 2, yPos, { align: 'center' });
-  yPos += 6;
+  yPos += 5;
+
+  // Total Attending Ceremony line
+  const leftBridalCount = floorPlan.bridal_party_count_left || 0;
+  const rightBridalCount = floorPlan.bridal_party_count_right || 0;
+  const familySeatsTotal = floorPlan.total_rows * floorPlan.chairs_per_row * 2;
+  const totalAttendingCeremony = 3 + leftBridalCount + rightBridalCount + familySeatsTotal;
+  pdf.setFontSize(8);
+  pdf.setTextColor(0, 0, 0);
+  pdf.text(
+    `Total Attending Ceremony: ${totalAttendingCeremony} (This includes Bride & Groom + Celebrant + Bridal Party + all Family & Friends Attending)`,
+    PAGE_WIDTH / 2,
+    yPos,
+    { align: 'center' }
+  );
+  yPos += 5;
 
   // Separator line
   pdf.setDrawColor(0, 0, 0);
@@ -208,18 +223,18 @@ export const generateCeremonyFloorPlanPDF = async (
   pdf.setFontSize(9);
   pdf.setTextColor(114, 72, 230);
   
-  // Left bridal party label
+  // Left bridal party label with count
   if (leftCount > 0) {
     const leftFirstRowWidth = (leftFirstRowCount * bridalBoxWidth) + ((leftFirstRowCount - 1) * bridalGap);
     const leftStartX = celebrantX - celebrantRadius - coupleCircleRadius * 2 - 8 - leftFirstRowWidth;
-    pdf.text(leftPartyLabel, leftStartX + (leftFirstRowWidth / 2), yPos, { align: 'center' });
+    pdf.text(`${leftPartyLabel} (${leftCount})`, leftStartX + (leftFirstRowWidth / 2), yPos, { align: 'center' });
   }
   
-  // Right bridal party label
+  // Right bridal party label with count
   if (rightCount > 0) {
     const rightFirstRowWidth = (rightFirstRowCount * bridalBoxWidth) + ((rightFirstRowCount - 1) * bridalGap);
     const rightStartX = celebrantX + celebrantRadius + coupleCircleRadius * 2 + 8;
-    pdf.text(rightPartyLabel, rightStartX + (rightFirstRowWidth / 2), yPos, { align: 'center' });
+    pdf.text(`${rightPartyLabel} (${rightCount})`, rightStartX + (rightFirstRowWidth / 2), yPos, { align: 'center' });
   }
   
   // Render first row of bridal party
@@ -286,8 +301,9 @@ export const generateCeremonyFloorPlanPDF = async (
   pdf.setFont('helvetica', 'bold');
   pdf.setFontSize(9);
   pdf.setTextColor(114, 72, 230); // Purple
-  pdf.text(floorPlan.left_side_label, leftSideCenter, yPos, { align: 'center' });
-  pdf.text(floorPlan.right_side_label, rightSideCenter, yPos, { align: 'center' });
+  const familySeatsPerSide = floorPlan.total_rows * floorPlan.chairs_per_row;
+  pdf.text(`${floorPlan.left_side_label} (${familySeatsPerSide})`, leftSideCenter, yPos, { align: 'center' });
+  pdf.text(`${floorPlan.right_side_label} (${familySeatsPerSide})`, rightSideCenter, yPos, { align: 'center' });
   yPos += 6;
 
   // Calculate aisle line coordinates
