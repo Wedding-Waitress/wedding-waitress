@@ -1,3 +1,14 @@
+/**
+ * ⚠️ WARNING: PRODUCTION LOCKED - DO NOT MODIFY ⚠️
+ * 
+ * This file is part of the Ceremony Floor Plan feature which has been
+ * finalized and locked for production use as of 2025-12-21.
+ * 
+ * ANY MODIFICATIONS require explicit written approval from the project owner.
+ * 
+ * See CEREMONY_FLOOR_PLAN_SPECS.md for complete technical specifications.
+ */
+
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
