@@ -17,6 +17,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 
 import { useEvents } from '@/hooks/useEvents';
 import { useRealtimeGuests } from '@/hooks/useRealtimeGuests';
+import { useTables } from '@/hooks/useTables';
 import { Guest } from '@/hooks/useGuests';
 import { usePlaceCardSettings } from '@/hooks/usePlaceCardSettings';
 import { PlaceCardCustomizer } from './PlaceCardCustomizer';
@@ -41,18 +42,30 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
   const [isExporting, setIsExporting] = useState(false);
   const [selectedPage, setSelectedPage] = useState<number>(0);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [selectedTableId, setSelectedTableId] = useState<string | null>(null);
+  
   const { events, loading: eventsLoading } = useEvents();
   const { guests, loading: guestsLoading } = useRealtimeGuests(selectedEventId);
+  const { tables, loading: tablesLoading } = useTables(selectedEventId);
   const { settings, loading: settingsLoading, updateSettings } = usePlaceCardSettings(selectedEventId);
   const { toast } = useToast();
 
   const selectedEvent = events.find(event => event.id === selectedEventId);
-  const assignedGuests = guests.filter(guest => guest.assigned && guest.table_no && guest.seat_no);
+  const selectedTable = tables.find(table => table.id === selectedTableId);
+  
+  // Filter guests by assigned status and optionally by selected table
+  const assignedGuests = guests.filter(guest => 
+    guest.assigned && 
+    guest.table_no && 
+    guest.seat_no &&
+    (selectedTableId ? guest.table_id === selectedTableId : true)
+  );
   const totalPages = Math.ceil(assignedGuests.length / 6);
 
   const handleEventChange = (eventId: string) => {
     if (eventId === "no-event") return;
     onEventSelect(eventId);
+    setSelectedTableId(null); // Reset table selection when event changes
   };
 
   const handleDownloadPdfPage = async () => {
@@ -269,6 +282,7 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
             <div className="text-sm space-y-2">
               {/* Main stats line */}
               <p className="font-medium">
+                {selectedTable ? `Table ${selectedTable.table_no} - ` : ''}
                 {assignedGuests.length} assigned guests - {assignedGuests.length} place cards ready for export. {totalPages} A4 page{totalPages !== 1 ? 's' : ''} (6 cards per page). Standard 105mm × 99mm foldable place cards.
               </p>
               
@@ -282,32 +296,60 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
             </div>
           )}
 
-          {/* CHOOSE EVENT DROPDOWN */}
-          <div className="flex items-center space-x-4 pt-2">
-            <label className="text-sm font-medium text-foreground whitespace-nowrap">
-              Choose Event:
-            </label>
-            <Select value={selectedEventId || "no-event"} onValueChange={handleEventChange}>
-              <SelectTrigger className="w-[300px] border-primary focus:ring-primary font-bold text-primary">
-                <SelectValue placeholder="Choose Event" />
-              </SelectTrigger>
-              <SelectContent className="bg-popover border-border z-50">
-                {events.length > 0 ? (
-                  events.map((event) => (
-                    <SelectItem key={event.id} value={event.id}>
-                      <div className="flex items-center space-x-2">
-                        <Calendar className="w-4 h-4" />
-                        <span>{event.name}</span>
-                      </div>
+          {/* CHOOSE EVENT & TABLE DROPDOWNS */}
+          <div className="flex items-center gap-8 flex-wrap pt-2">
+            {/* Choose Event */}
+            <div className="flex items-center gap-4">
+              <label className="text-sm font-medium text-foreground whitespace-nowrap">
+                Choose Event:
+              </label>
+              <Select value={selectedEventId || "no-event"} onValueChange={handleEventChange}>
+                <SelectTrigger className="w-[300px] border-primary focus:ring-primary font-bold text-primary">
+                  <SelectValue placeholder="Choose Event" />
+                </SelectTrigger>
+                <SelectContent className="bg-popover border-border z-50">
+                  {events.length > 0 ? (
+                    events.map((event) => (
+                      <SelectItem key={event.id} value={event.id}>
+                        <div className="flex items-center space-x-2">
+                          <Calendar className="w-4 h-4" />
+                          <span>{event.name}</span>
+                        </div>
+                      </SelectItem>
+                    ))
+                  ) : (
+                    <SelectItem value="no-events" disabled>
+                      {eventsLoading ? "Loading events..." : "No events found"}
                     </SelectItem>
-                  ))
-                ) : (
-                  <SelectItem value="no-events" disabled>
-                    {eventsLoading ? "Loading events..." : "No events found"}
-                  </SelectItem>
-                )}
-              </SelectContent>
-            </Select>
+                  )}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Table Selection (only when event is selected) */}
+            {selectedEventId && (
+              <div className="flex items-center gap-4">
+                <label className="text-sm font-medium text-foreground whitespace-nowrap">
+                  Table:
+                </label>
+                <Select 
+                  value={selectedTableId || ''} 
+                  onValueChange={setSelectedTableId}
+                  disabled={!selectedEventId || tablesLoading}
+                >
+                  <SelectTrigger className="w-[300px] border-primary focus:ring-primary">
+                    <SelectValue placeholder="Select a table" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-popover border-border z-50">
+                    {tables.map((table) => (
+                      <SelectItem key={table.id} value={table.id}>
+                        Table {table.table_no} ({table.guest_count} of {table.limit_seats} guests)
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
