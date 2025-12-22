@@ -162,7 +162,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
         )}
 
         {/* Full Front of Card Image - only on front (bottom) half */}
-        {(currentSettings as any).front_image_url && currentSettings.background_image_type === 'full_front' && (
+        {currentSettings.background_image_url && currentSettings.background_image_type === 'full_front' && (
           <div
             className="absolute pointer-events-none"
             style={{
@@ -170,8 +170,8 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
               left: 0,
               right: 0,
               bottom: 0,
-              backgroundImage: `url(${(currentSettings as any).front_image_url})`,
-              backgroundPosition: 'center',
+              backgroundImage: `url(${currentSettings.background_image_url})`,
+              backgroundPosition: `${currentSettings.background_image_x_position || 50}% ${currentSettings.background_image_y_position || 50}%`,
               backgroundSize: 'cover',
               backgroundRepeat: 'no-repeat',
               opacity: (currentSettings.background_image_opacity || 100) / 100,
@@ -180,7 +180,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
         )}
 
         {/* Full Back of Card Image - only on back (top) half, pre-rotated */}
-        {(currentSettings as any).back_image_url && currentSettings.background_image_type === 'full_back' && (
+        {currentSettings.background_image_url && currentSettings.background_image_type === 'full_back' && (
           <div
             className="absolute pointer-events-none"
             style={{
@@ -188,8 +188,8 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
               left: 0,
               right: 0,
               height: '49.5mm',
-              backgroundImage: `url(${(currentSettings as any).back_image_url})`,
-              backgroundPosition: 'center',
+              backgroundImage: `url(${currentSettings.background_image_url})`,
+              backgroundPosition: `${currentSettings.background_image_x_position || 50}% ${currentSettings.background_image_y_position || 50}%`,
               backgroundSize: 'cover',
               backgroundRepeat: 'no-repeat',
               opacity: (currentSettings.background_image_opacity || 100) / 100,
