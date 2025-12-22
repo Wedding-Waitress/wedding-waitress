@@ -23,6 +23,7 @@ interface PlaceCardPreviewProps {
   event: any;
   isExporting?: boolean;
   focusedPage?: number | null;
+  selectedTable?: { name: string; table_no?: number | null } | null;
 }
 
 export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps>(({
@@ -30,7 +31,8 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
   guests,
   event,
   isExporting = false,
-  focusedPage = null
+  focusedPage = null,
+  selectedTable = null
 }, ref) => {
   const [currentPage, setCurrentPage] = useState(1);
   
@@ -52,6 +54,13 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
     guest_name_font_size: 24,
     info_font_size: 12,
     name_spacing: 4
+  };
+
+  // Get table display value - prefer table name, fall back to table_no
+  const getTableDisplay = () => {
+    if (selectedTable?.name) return selectedTable.name;
+    if (selectedTable?.table_no) return selectedTable.table_no;
+    return '—';
   };
 
   // Sort guests by table number then seat number
@@ -119,9 +128,10 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
   };
 
   const renderPlaceCard = (guest: Guest) => {
-    const tableInfo = guest.table_no && guest.seat_no
-      ? `Table ${guest.table_no}, Seat ${guest.seat_no}`
-      : `Table —, Seat —`;
+    const tableDisplay = getTableDisplay();
+    const tableInfo = guest.seat_no
+      ? `Table ${tableDisplay}, Seat ${guest.seat_no}`
+      : `Table ${tableDisplay}, Seat —`;
 
     const individualMessage = currentSettings.individual_messages?.[guest.id];
     const message = individualMessage || currentSettings.mass_message || '';
@@ -252,7 +262,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                     color: currentSettings.font_color,
                   }}
                 >
-                  {guest.table_no || '—'}
+                  {tableDisplay}
                 </div>
               </div>
 

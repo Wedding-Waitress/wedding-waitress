@@ -404,6 +404,7 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
               event={selectedEvent}
               isExporting={isExporting}
               focusedPage={focusedPage}
+              selectedTable={selectedTable}
             />
           </div>
         </div>
