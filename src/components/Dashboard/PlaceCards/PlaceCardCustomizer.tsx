@@ -23,7 +23,8 @@ import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
 import { PlaceCardSettings } from '@/hooks/usePlaceCardSettings';
 import { Guest } from '@/hooks/useGuests';
-import { Palette, Type, Image, MessageSquare, Sparkles, Grid3X3, Trash2, Upload } from 'lucide-react';
+import { Palette, Type, Image, MessageSquare, Sparkles, Grid3X3, Trash2, Upload, Images } from 'lucide-react';
+import { PlaceCardGalleryModal } from './PlaceCardGalleryModal';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { PLACE_CARD_TEMPLATES, TEMPLATE_CATEGORIES, getTemplatesByCategory, getTemplateById } from '@/lib/PlaceCardTemplates';
@@ -219,6 +220,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   const [localMassMessage, setLocalMassMessage] = useState<string>(settings?.mass_message || '');
   const [guestSearchQuery, setGuestSearchQuery] = useState('');
+  const [galleryModalOpen, setGalleryModalOpen] = useState(false);
   const {
     toast
   } = useToast();
@@ -410,7 +412,8 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
       setUploading(false);
     }
   };
-  return <Card className="ww-box h-fit sticky top-0 mt-12 bg-white">
+  return <>
+    <Card className="ww-box h-fit sticky top-0 mt-12 bg-white">
       <CardHeader>
         <CardTitle className="flex items-center gap-2 py-[10px] text-2xl font-medium text-[#7248e6]">
           <Palette className="h-5 w-5 text-purple-600" />
@@ -627,20 +630,31 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                     />
                     
                     {/* Side-by-side buttons */}
-                    <div className="flex gap-2">
-                      {/* Green "Choose File" button - left */}
+                    <div className="flex gap-2 flex-wrap">
+                      {/* Green "Choose File" button */}
                       <Button
                         type="button"
                         size="sm"
                         onClick={() => document.getElementById('background-image-upload')?.click()}
                         disabled={uploading}
-                        className="flex-1 rounded-full flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white"
+                        className="flex-1 min-w-[100px] rounded-full flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white"
                       >
                         <Upload className="h-4 w-4" />
                         {uploading ? 'Uploading...' : 'Choose File'}
                       </Button>
                       
-                      {/* Red "Remove Image" button - right (only show if image exists) */}
+                      {/* Purple "Image Gallery" button */}
+                      <Button
+                        type="button"
+                        size="sm"
+                        onClick={() => setGalleryModalOpen(true)}
+                        className="flex-1 min-w-[100px] rounded-full flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground"
+                      >
+                        <Images className="h-4 w-4" />
+                        Image Gallery
+                      </Button>
+                      
+                      {/* Red "Remove Image" button (only show if image exists) */}
                       {currentSettings.background_image_url && (
                         <Button
                           variant="destructive"
@@ -652,7 +666,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                               description: "Background image has been removed"
                             });
                           }}
-                          className="flex-1 rounded-full flex items-center justify-center gap-2"
+                          className="flex-1 min-w-[100px] rounded-full flex items-center justify-center gap-2"
                         >
                           <Trash2 className="h-4 w-4" />
                           Remove Image
@@ -833,5 +847,19 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
           </TabsContent>
         </Tabs>
       </CardContent>
-    </Card>;
+    </Card>
+    
+    {/* Gallery Modal */}
+    <PlaceCardGalleryModal
+      open={galleryModalOpen}
+      onOpenChange={setGalleryModalOpen}
+      onSelectImage={async (imageUrl) => {
+        await handleSettingChange('background_image_url', imageUrl);
+        toast({
+          title: "Image Selected",
+          description: "Gallery image has been applied"
+        });
+      }}
+    />
+  </>;
 };
