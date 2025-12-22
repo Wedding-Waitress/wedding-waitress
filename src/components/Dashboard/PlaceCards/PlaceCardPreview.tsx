@@ -210,7 +210,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
           style={{ 
             height: '49.5mm',
             padding: '5mm',
-            paddingTop: '8mm'
+            paddingTop: currentSettings.background_image_type === 'decorative' ? '3mm' : '8mm'
           }}
         >
           {/* Guest Name */}
