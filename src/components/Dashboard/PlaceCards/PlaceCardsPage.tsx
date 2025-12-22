@@ -217,49 +217,21 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
     <div className="space-y-6 place-cards-page">
       {/* Combined Header Box */}
       <Card className="ww-box">
-        <CardContent className="space-y-6 pt-6">
-          {/* LINE 1: Event Selection & Title */}
-          <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
-            {/* Left: Event Selection */}
-            <div className="flex items-center space-x-4">
-              <label className="text-sm font-medium text-foreground whitespace-nowrap">
-                Choose Event:
-              </label>
-              <Select value={selectedEventId || "no-event"} onValueChange={handleEventChange}>
-                <SelectTrigger className="w-[300px] border-primary focus:ring-primary font-bold text-[#7248e6]">
-                  <SelectValue placeholder="Choose Event" />
-                </SelectTrigger>
-                <SelectContent className="bg-popover border-border z-50">
-                  {events.length > 0 ? (
-                    events.map((event) => (
-                      <SelectItem key={event.id} value={event.id}>
-                        <div className="flex items-center space-x-2">
-                          <Calendar className="w-4 h-4" />
-                          <span>{event.name}</span>
-                        </div>
-                      </SelectItem>
-                    ))
-                  ) : (
-                    <SelectItem value="no-events" disabled>
-                      {eventsLoading ? "Loading events..." : "No events found"}
-                    </SelectItem>
-                  )}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Right: Title & Subtitle */}
-            <div className="text-right">
-              <h1 className="text-2xl font-medium text-[#7248e6]">Table Name Place Cards</h1>
-              <p className="text-sm text-muted-foreground mt-1">
-                Create professional foldable place cards for your guests
-              </p>
-            </div>
+        <CardContent className="space-y-4 pt-6">
+          {/* TOP: Title & Subtitle (LEFT ALIGNED) */}
+          <div className="text-left">
+            <h1 className="text-2xl font-medium text-primary">Table Name Place Cards</h1>
+            <p className="text-sm text-muted-foreground mt-1">
+              Create professional foldable place cards for your guests
+            </p>
           </div>
 
-          {/* LINE 2: Statistics & Information */}
+          {/* SEPARATOR */}
+          <div className="border-b border-border" />
+
+          {/* STATISTICS & INFORMATION */}
           {selectedEvent && assignedGuests.length > 0 && (
-            <div className="text-sm space-y-2 py-4 border-y border-border">
+            <div className="text-sm space-y-2">
               {/* Main stats line */}
               <p className="font-medium">
                 {assignedGuests.length} assigned guests - {assignedGuests.length} place cards ready for export. {totalPages} A4 page{totalPages !== 1 ? 's' : ''} (6 cards per page). Standard 105mm × 99mm foldable place cards.
@@ -274,6 +246,34 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
               </div>
             </div>
           )}
+
+          {/* CHOOSE EVENT DROPDOWN */}
+          <div className="flex items-center space-x-4 pt-2">
+            <label className="text-sm font-medium text-foreground whitespace-nowrap">
+              Choose Event:
+            </label>
+            <Select value={selectedEventId || "no-event"} onValueChange={handleEventChange}>
+              <SelectTrigger className="w-[300px] border-primary focus:ring-primary font-bold text-primary">
+                <SelectValue placeholder="Choose Event" />
+              </SelectTrigger>
+              <SelectContent className="bg-popover border-border z-50">
+                {events.length > 0 ? (
+                  events.map((event) => (
+                    <SelectItem key={event.id} value={event.id}>
+                      <div className="flex items-center space-x-2">
+                        <Calendar className="w-4 h-4" />
+                        <span>{event.name}</span>
+                      </div>
+                    </SelectItem>
+                  ))
+                ) : (
+                  <SelectItem value="no-events" disabled>
+                    {eventsLoading ? "Loading events..." : "No events found"}
+                  </SelectItem>
+                )}
+              </SelectContent>
+            </Select>
+          </div>
 
           {/* LINE 3: Export Controls (after separator) */}
           {selectedEventId && selectedEvent && assignedGuests.length > 0 && (
