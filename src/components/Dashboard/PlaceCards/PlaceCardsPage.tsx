@@ -231,21 +231,22 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
       {/* Combined Header Box */}
       <Card className="ww-box">
         <CardContent className="space-y-4 pt-6">
-          {/* TOP ROW: Title (left) + Export Controls Box (right) */}
-          <div className="flex flex-wrap items-start justify-between gap-4">
-            {/* Left: Title & Subtitle */}
-            <div className="text-left">
-              <h1 className="text-2xl font-medium text-primary">Table Name Place Cards</h1>
-              <p className="text-sm text-muted-foreground mt-1">
-                Create professional foldable place cards for your guests
-              </p>
-            </div>
+          {/* Two-Column Layout */}
+          <div className="flex flex-col lg:flex-row gap-4">
+            
+            {/* LEFT BOX: Title, Export Controls, Statistics */}
+            <div className="flex-1 border border-primary rounded-xl p-4 space-y-4">
+              {/* Title & Subtitle */}
+              <div className="text-left">
+                <h1 className="text-2xl font-medium text-primary">Table Name Place Cards</h1>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Create professional foldable place cards for your guests
+                </p>
+              </div>
 
-            {/* Right: Export Controls & Dimensions Boxes */}
-            {selectedEvent && assignedGuests.length > 0 && !guestsLoading && !settingsLoading && (
-              <div className="flex flex-col gap-4">
-                {/* Export Controls Box */}
-                <div className="border border-primary rounded-xl p-4 space-y-3">
+              {/* Export Controls (nested section) */}
+              {selectedEvent && assignedGuests.length > 0 && !guestsLoading && !settingsLoading && (
+                <div className="border border-border rounded-lg p-3 space-y-2 bg-muted/30">
                   <h3 className="text-sm font-medium">Export Controls</h3>
                   <p className="text-muted-foreground text-sm">
                     Download your place cards as PDF.
@@ -273,53 +274,59 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
                     </Button>
                   </div>
                 </div>
+              )}
 
-                {/* Card Dimensions Info Box */}
-                <div className="border border-primary rounded-xl p-4 space-y-2">
-                  <div className="flex items-center gap-2">
-                    <Ruler className="w-4 h-4 text-primary" />
-                    <h3 className="text-sm font-medium">Card Dimensions</h3>
-                  </div>
-                  <div className="space-y-1 text-sm">
-                    <div className="flex justify-between items-center gap-4">
-                      <span className="text-muted-foreground">Full Card (front + back):</span>
-                      <span className="text-lg font-bold text-primary">105 × 99 mm</span>
-                    </div>
-                    <div className="flex justify-between items-center gap-4">
-                      <span className="text-muted-foreground">Single Side (front or back):</span>
-                      <span className="text-lg font-bold text-primary">105 × 49.5 mm</span>
-                    </div>
-                    <p className="text-xs text-muted-foreground pt-1">
-                      Fold line at 49.5mm from top edge
-                    </p>
+              {/* Separator */}
+              <div className="border-b border-border" />
+
+              {/* Statistics & Information */}
+              {selectedEvent && assignedGuests.length > 0 && (
+                <div className="text-sm space-y-2">
+                  {/* Main stats line */}
+                  <p className="font-medium">
+                    {selectedTable ? (() => {
+                      const displayName = selectedTable.table_no && selectedTable.name === String(selectedTable.table_no)
+                        ? `Table ${selectedTable.table_no}`
+                        : selectedTable.name || `Table ${selectedTable.table_no}`;
+                      return `${displayName} - `;
+                    })() : ''}
+                    {assignedGuests.length} assigned guests - {assignedGuests.length} place cards ready for export. {totalPages} A4 page{totalPages !== 1 ? 's' : ''} (6 cards per page). Standard 105mm × 99mm foldable place cards.
+                  </p>
+                  
+                  {/* Quality information */}
+                  <div className="text-muted-foreground space-y-1 mt-3">
+                    <p>• All exports are 300 DPI for professional quality</p>
+                    <p>• PDF exports maintain exact A4 dimensions (210×297mm)</p>
+                    <p>• Image exports are 2480×3508 pixels (A4 @ 300 DPI)</p>
+                    <p>• We have made it easy for you to print & cut at home or get it done at your local printer</p>
+                    <p>• Background images must be smaller than 5MB</p>
                   </div>
                 </div>
+              )}
+            </div>
+
+            {/* RIGHT BOX: Card Dimensions */}
+            <div className="w-full lg:w-80 border border-primary rounded-xl p-4 space-y-2 h-fit">
+              <div className="flex items-center gap-2">
+                <Ruler className="w-4 h-4 text-primary" />
+                <h3 className="text-sm font-medium">Card Dimensions</h3>
               </div>
-            )}
-          </div>
-
-          {/* SEPARATOR */}
-          <div className="border-b border-border" />
-
-          {/* STATISTICS & INFORMATION */}
-          {selectedEvent && assignedGuests.length > 0 && (
-            <div className="text-sm space-y-2">
-              {/* Main stats line */}
-              <p className="font-medium">
-                {selectedTable ? `Table ${selectedTable.table_no} - ` : ''}
-                {assignedGuests.length} assigned guests - {assignedGuests.length} place cards ready for export. {totalPages} A4 page{totalPages !== 1 ? 's' : ''} (6 cards per page). Standard 105mm × 99mm foldable place cards.
-              </p>
-              
-              {/* Quality information */}
-              <div className="text-muted-foreground space-y-1 mt-3">
-                <p>• All exports are 300 DPI for professional quality</p>
-                <p>• PDF exports maintain exact A4 dimensions (210×297mm)</p>
-                <p>• Image exports are 2480×3508 pixels (A4 @ 300 DPI)</p>
-                <p>• We have made it easy for you to print & cut at home or get it done at your local printer</p>
-                <p>• Background images must be smaller than 5MB</p>
+              <div className="space-y-1 text-sm">
+                <div className="flex justify-between items-center gap-4">
+                  <span className="text-muted-foreground">Full Card (front + back):</span>
+                  <span className="text-lg font-bold text-primary">105 × 99 mm</span>
+                </div>
+                <div className="flex justify-between items-center gap-4">
+                  <span className="text-muted-foreground">Single Side (front or back):</span>
+                  <span className="text-lg font-bold text-primary">105 × 49.5 mm</span>
+                </div>
+                <p className="text-xs text-muted-foreground pt-1">
+                  Fold line at 49.5mm from top edge
+                </p>
               </div>
             </div>
-          )}
+            
+          </div>
 
           {/* CHOOSE EVENT & TABLE DROPDOWNS */}
           <div className="flex items-center gap-8 flex-wrap pt-2">
