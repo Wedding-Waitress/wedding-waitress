@@ -23,7 +23,7 @@ import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
 import { PlaceCardSettings } from '@/hooks/usePlaceCardSettings';
 import { Guest } from '@/hooks/useGuests';
-import { Palette, Type, Image, MessageSquare, Sparkles, Grid3X3 } from 'lucide-react';
+import { Palette, Type, Image, MessageSquare, Sparkles, Grid3X3, Trash2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { PLACE_CARD_TEMPLATES, TEMPLATE_CATEGORIES, getTemplatesByCategory, getTemplateById } from '@/lib/PlaceCardTemplates';
@@ -615,6 +615,21 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                           <Image className="h-4 w-4" />
                           <span>We recommend a horizontal photo or Logo</span>
                         </div>
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={async () => {
+                            await handleSettingChange('background_image_url', null);
+                            toast({
+                              title: "Image Removed",
+                              description: "Background image has been removed"
+                            });
+                          }}
+                          className="w-full rounded-full flex items-center justify-center gap-2"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                          Remove Image
+                        </Button>
                       </div>}
                   </div>
                 </div>}
