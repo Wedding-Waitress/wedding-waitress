@@ -23,7 +23,7 @@ import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
 import { PlaceCardSettings } from '@/hooks/usePlaceCardSettings';
 import { Guest } from '@/hooks/useGuests';
-import { Palette, Type, Image, MessageSquare, Sparkles, Grid3X3, Trash2 } from 'lucide-react';
+import { Palette, Type, Image, MessageSquare, Sparkles, Grid3X3, Trash2, Upload } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { PLACE_CARD_TEMPLATES, TEMPLATE_CATEGORIES, getTemplatesByCategory, getTemplateById } from '@/lib/PlaceCardTemplates';
@@ -607,14 +607,32 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
               {currentSettings.background_image_type !== 'none' && <div>
                   <Label className="mb-2 block">Upload Background Image</Label>
                   <div className="space-y-2">
-                    <Input type="file" accept="image/*" onChange={handleImageUpload} disabled={uploading} />
-                    {uploading && <p className="text-sm text-muted-foreground">Uploading...</p>}
-                    {currentSettings.background_image_url && <div className="mt-2 space-y-2">
-                        <img src={currentSettings.background_image_url} alt="Background preview" className="w-full h-auto object-contain rounded border max-h-32" />
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                          <Image className="h-4 w-4" />
-                          <span>We recommend a horizontal photo or Logo</span>
-                        </div>
+                    {/* Hidden file input */}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      disabled={uploading}
+                      className="hidden"
+                      id="background-image-upload"
+                    />
+                    
+                    {/* Side-by-side buttons */}
+                    <div className="flex gap-2">
+                      {/* Green "Choose File" button - left */}
+                      <Button
+                        type="button"
+                        size="sm"
+                        onClick={() => document.getElementById('background-image-upload')?.click()}
+                        disabled={uploading}
+                        className="flex-1 rounded-full flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white"
+                      >
+                        <Upload className="h-4 w-4" />
+                        {uploading ? 'Uploading...' : 'Choose File'}
+                      </Button>
+                      
+                      {/* Red "Remove Image" button - right (only show if image exists) */}
+                      {currentSettings.background_image_url && (
                         <Button
                           variant="destructive"
                           size="sm"
@@ -625,12 +643,24 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                               description: "Background image has been removed"
                             });
                           }}
-                          className="w-full rounded-full flex items-center justify-center gap-2"
+                          className="flex-1 rounded-full flex items-center justify-center gap-2"
                         >
                           <Trash2 className="h-4 w-4" />
                           Remove Image
                         </Button>
-                      </div>}
+                      )}
+                    </div>
+                    
+                    {/* Image preview and recommendation text */}
+                    {currentSettings.background_image_url && (
+                      <div className="mt-2 space-y-2">
+                        <img src={currentSettings.background_image_url} alt="Background preview" className="w-full h-auto object-contain rounded border max-h-32" />
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <Image className="h-4 w-4" />
+                          <span>We recommend a horizontal photo or Logo</span>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>}
 
