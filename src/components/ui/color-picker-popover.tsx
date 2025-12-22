@@ -10,25 +10,6 @@ interface ColorPickerPopoverProps {
   className?: string;
 }
 
-// Wedding-themed color palette
-const THEME_COLORS = [
-  // Whites & Creams
-  ['#FFFFFF', '#F8F9FA', '#F1F3F5', '#E9ECEF', '#DEE2E6'],
-  ['#FFF8F0', '#FFF0E0', '#FFE8D0', '#FFD8B8', '#FFC8A0'],
-  // Soft Pinks & Roses
-  ['#FFF0F5', '#FFE0EB', '#FFD0E1', '#FFC0D7', '#FFB0CD'],
-  ['#FFE5E5', '#FFD5D5', '#FFC5C5', '#FFB5B5', '#FFA5A5'],
-  // Soft Blues
-  ['#F0F8FF', '#E0F0FF', '#D0E8FF', '#C0E0FF', '#B0D8FF'],
-  ['#E8F4F8', '#D8E8F0', '#C8DCE8', '#B8D0E0', '#A8C4D8'],
-  // Golds & Yellows
-  ['#FFFEF0', '#FFF8E0', '#FFF0D0', '#FFE8C0', '#FFE0B0'],
-  ['#FFE8B8', '#FFD898', '#FFC878', '#FFB858', '#FFA838'],
-  // Soft Greens
-  ['#F0FFF0', '#E0FFE8', '#D0FFE0', '#C0FFD8', '#B0FFD0'],
-  ['#E8F8E8', '#D8F0D8', '#C8E8C8', '#B8E0B8', '#A8D8A8'],
-];
-
 const STANDARD_COLORS = [
   // Black to Gray shades (5 shades)
   ['#000000', '#404040', '#808080', '#B0B0B0', '#D0D0D0'],
@@ -89,28 +70,6 @@ export function ColorPickerPopover({ value, onChange, className }: ColorPickerPo
       </PopoverTrigger>
       <PopoverContent className="w-[280px] p-3" align="start">
         <div className="space-y-3">
-          {/* Theme Colors */}
-          <div>
-            <p className="text-xs font-medium mb-2 text-muted-foreground">Theme Colors</p>
-            <div className="grid grid-cols-5 gap-1">
-              {THEME_COLORS.map((row, rowIndex) => (
-                <React.Fragment key={rowIndex}>
-                  {row.map((color, colIndex) => (
-                    <button
-                      key={`${rowIndex}-${colIndex}`}
-                      className="h-6 w-full rounded border border-border hover:ring-2 hover:ring-primary transition-all relative group"
-                      style={{ backgroundColor: color }}
-                      onClick={() => handleColorSelect(color)}
-                      onMouseEnter={() => setHoveredColor(color)}
-                      onMouseLeave={() => setHoveredColor(null)}
-                      title={color}
-                    />
-                  ))}
-                </React.Fragment>
-              ))}
-            </div>
-          </div>
-
           {/* Standard Colors */}
           <div>
             <p className="text-xs font-medium mb-2 text-muted-foreground">Standard Colors</p>
@@ -133,12 +92,10 @@ export function ColorPickerPopover({ value, onChange, className }: ColorPickerPo
             </div>
           </div>
 
-          {/* Hovered Color Display */}
-          {hoveredColor && (
-            <div className="text-xs text-center text-muted-foreground pt-2 border-t">
-              {hoveredColor.toUpperCase()}
-            </div>
-          )}
+          {/* Hovered Color Display - always visible with fixed height to prevent jittering */}
+          <div className="text-xs text-center text-muted-foreground pt-2 border-t h-5">
+            {hoveredColor ? hoveredColor.toUpperCase() : '\u00A0'}
+          </div>
         </div>
       </PopoverContent>
     </Popover>
