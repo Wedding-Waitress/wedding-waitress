@@ -292,6 +292,7 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
                 <p>• PDF exports maintain exact A4 dimensions (210×297mm)</p>
                 <p>• Image exports are 2480×3508 pixels (A4 @ 300 DPI)</p>
                 <p>• We have made it easy for you to print & cut at home or get it done at your local printer</p>
+                <p>• Background images must be smaller than 5MB</p>
               </div>
             </div>
           )}
