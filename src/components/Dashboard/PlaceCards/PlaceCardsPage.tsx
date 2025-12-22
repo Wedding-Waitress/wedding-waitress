@@ -23,7 +23,7 @@ import { usePlaceCardSettings } from '@/hooks/usePlaceCardSettings';
 import { PlaceCardCustomizer } from './PlaceCardCustomizer';
 import { PlaceCardPreview } from './PlaceCardPreview';
 import { PlaceCardExporter } from './PlaceCardExporter';
-import { Loader2, Users, Settings, FileText, Printer, Calendar } from 'lucide-react';
+import { Loader2, Users, Settings, FileText, Printer, Calendar, Ruler } from 'lucide-react';
 import { Label } from "@/components/ui/label";
 import { useToast } from '@/hooks/use-toast';
 import { exportPlaceCardPageToPdf, exportAllPlaceCardsToPdf } from '@/lib/placeCardsPdfExporter';
@@ -241,34 +241,58 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
               </p>
             </div>
 
-            {/* Right: Export Controls Box (only when event selected and guests exist) */}
+            {/* Right: Export Controls & Dimensions Boxes */}
             {selectedEvent && assignedGuests.length > 0 && !guestsLoading && !settingsLoading && (
-              <div className="border border-primary rounded-xl p-4 space-y-3">
-                <h3 className="text-sm font-medium">Export Controls</h3>
-                <p className="text-muted-foreground text-sm">
-                  Download your place cards as PDF.
-                </p>
-                <div className="flex items-center gap-2 flex-wrap">
-                  <Button 
-                    variant="default"
-                    size="xs"
-                    onClick={handleDownloadPdfPage}
-                    disabled={isProcessing}
-                    className="rounded-full flex items-center gap-2"
-                  >
-                    <FileText className="w-4 h-4" />
-                    Download PDF
-                  </Button>
-                  <Button 
-                    variant="default"
-                    size="xs"
-                    onClick={handleDownloadPdfAll}
-                    disabled={isProcessing}
-                    className="rounded-full flex items-center gap-2"
-                  >
-                    <FileText className="w-4 h-4" />
-                    Download All PDF
-                  </Button>
+              <div className="flex flex-col gap-4">
+                {/* Export Controls Box */}
+                <div className="border border-primary rounded-xl p-4 space-y-3">
+                  <h3 className="text-sm font-medium">Export Controls</h3>
+                  <p className="text-muted-foreground text-sm">
+                    Download your place cards as PDF.
+                  </p>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <Button 
+                      variant="default"
+                      size="xs"
+                      onClick={handleDownloadPdfPage}
+                      disabled={isProcessing}
+                      className="rounded-full flex items-center gap-2"
+                    >
+                      <FileText className="w-4 h-4" />
+                      Download PDF
+                    </Button>
+                    <Button 
+                      variant="default"
+                      size="xs"
+                      onClick={handleDownloadPdfAll}
+                      disabled={isProcessing}
+                      className="rounded-full flex items-center gap-2"
+                    >
+                      <FileText className="w-4 h-4" />
+                      Download All PDF
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Card Dimensions Info Box */}
+                <div className="border border-primary rounded-xl p-4 space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Ruler className="w-4 h-4 text-primary" />
+                    <h3 className="text-sm font-medium">Card Dimensions</h3>
+                  </div>
+                  <div className="space-y-1 text-sm">
+                    <div className="flex justify-between items-center gap-4">
+                      <span className="text-muted-foreground">Full Card (front + back):</span>
+                      <span className="text-lg font-bold text-primary">105 × 99 mm</span>
+                    </div>
+                    <div className="flex justify-between items-center gap-4">
+                      <span className="text-muted-foreground">Single Side (front or back):</span>
+                      <span className="text-lg font-bold text-primary">105 × 49.5 mm</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground pt-1">
+                      Fold line at 49.5mm from top edge
+                    </p>
+                  </div>
                 </div>
               </div>
             )}
