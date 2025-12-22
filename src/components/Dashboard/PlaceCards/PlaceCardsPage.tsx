@@ -244,26 +244,37 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
                 </p>
               </div>
 
-              {/* Card Dimensions (nested section) */}
-              <div className="border border-border rounded-lg p-3 space-y-2 bg-muted/30">
-                <div className="flex items-center gap-2">
-                  <Ruler className="w-4 h-4 text-primary" />
-                  <h3 className="text-sm font-medium">Card Dimensions</h3>
-                </div>
-                <div className="space-y-1 text-sm">
-                  <div className="flex justify-between items-center gap-4">
-                    <span className="text-muted-foreground">Full Card (front + back):</span>
-                    <span className="text-lg font-bold text-primary">105 × 99 mm</span>
-                  </div>
-                  <div className="flex justify-between items-center gap-4">
-                    <span className="text-muted-foreground">Single Side (front or back):</span>
-                    <span className="text-lg font-bold text-primary">105 × 49.5 mm</span>
-                  </div>
-                  <p className="text-xs text-muted-foreground pt-1">
-                    Fold line at 49.5mm from top edge
+              {/* Export Controls (nested section) */}
+              {selectedEvent && assignedGuests.length > 0 && !guestsLoading && !settingsLoading && (
+                <div className="border border-border rounded-lg p-3 space-y-2 bg-muted/30">
+                  <h3 className="text-sm font-medium">Export Controls</h3>
+                  <p className="text-muted-foreground text-sm">
+                    Download your place cards as PDF.
                   </p>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <Button 
+                      variant="default"
+                      size="xs"
+                      onClick={handleDownloadPdfPage}
+                      disabled={isProcessing}
+                      className="rounded-full flex items-center gap-2"
+                    >
+                      <FileText className="w-4 h-4" />
+                      Download PDF
+                    </Button>
+                    <Button 
+                      variant="default"
+                      size="xs"
+                      onClick={handleDownloadPdfAll}
+                      disabled={isProcessing}
+                      className="rounded-full flex items-center gap-2"
+                    >
+                      <FileText className="w-4 h-4" />
+                      Download All PDF
+                    </Button>
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* Separator */}
               <div className="border-b border-border" />
@@ -294,37 +305,26 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
               )}
             </div>
 
-            {/* RIGHT BOX: Export Controls */}
-            {selectedEvent && assignedGuests.length > 0 && !guestsLoading && !settingsLoading && (
-              <div className="w-full lg:w-80 border border-primary rounded-xl p-4 space-y-2 h-fit">
-                <h3 className="text-sm font-medium">Export Controls</h3>
-                <p className="text-muted-foreground text-sm">
-                  Download your place cards as PDF.
-                </p>
-                <div className="flex items-center gap-2 flex-wrap">
-                  <Button 
-                    variant="default"
-                    size="xs"
-                    onClick={handleDownloadPdfPage}
-                    disabled={isProcessing}
-                    className="rounded-full flex items-center gap-2"
-                  >
-                    <FileText className="w-4 h-4" />
-                    Download PDF
-                  </Button>
-                  <Button 
-                    variant="default"
-                    size="xs"
-                    onClick={handleDownloadPdfAll}
-                    disabled={isProcessing}
-                    className="rounded-full flex items-center gap-2"
-                  >
-                    <FileText className="w-4 h-4" />
-                    Download All PDF
-                  </Button>
-                </div>
+            {/* RIGHT BOX: Card Dimensions */}
+            <div className="w-full lg:w-80 border border-primary rounded-xl p-4 space-y-2 h-fit">
+              <div className="flex items-center gap-2">
+                <Ruler className="w-4 h-4 text-primary" />
+                <h3 className="text-sm font-medium">Card Dimensions</h3>
               </div>
-            )}
+              <div className="space-y-1 text-sm">
+                <div className="flex justify-between items-center gap-4">
+                  <span className="text-muted-foreground">Full Card (front + back):</span>
+                  <span className="text-lg font-bold text-primary">105 × 99 mm</span>
+                </div>
+                <div className="flex justify-between items-center gap-4">
+                  <span className="text-muted-foreground">Single Side (front or back):</span>
+                  <span className="text-lg font-bold text-primary">105 × 49.5 mm</span>
+                </div>
+                <p className="text-xs text-muted-foreground pt-1">
+                  Fold line at 49.5mm from top edge
+                </p>
+              </div>
+            </div>
             
           </div>
 
