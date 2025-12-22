@@ -221,7 +221,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
               fontStyle: currentSettings.guest_name_italic ? 'italic' : 'normal',
               textDecoration: currentSettings.guest_name_underline ? 'underline' : 'none',
               fontSize: `${currentSettings.guest_name_font_size}pt`,
-              marginBottom: `${currentSettings.name_spacing}mm`,
+              marginBottom: currentSettings.background_image_type === 'decorative' ? '1mm' : `${currentSettings.name_spacing}mm`,
             }}
           >
             {currentSettings.background_behind_names ? (
