@@ -156,14 +156,14 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
           <div
             className="absolute left-1/2 -translate-x-1/2 pointer-events-none"
             style={{
-              bottom: '2mm',
+              bottom: '1mm',
               width: '90%',
-              height: '18mm',
+              height: '30mm',
               backgroundImage: `url(${currentSettings.background_image_url})`,
               backgroundPosition: 'center',
               backgroundSize: 'contain',
               backgroundRepeat: 'no-repeat',
-              opacity: 0.3,
+              opacity: 1,
             }}
           />
         )}
