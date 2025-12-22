@@ -630,14 +630,14 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                     />
                     
                     {/* Side-by-side buttons */}
-                    <div className="flex gap-2 flex-wrap">
+                    <div className="flex gap-2">
                       {/* Green "Choose File" button */}
                       <Button
                         type="button"
                         size="sm"
                         onClick={() => document.getElementById('background-image-upload')?.click()}
                         disabled={uploading}
-                        className="flex-1 min-w-[100px] rounded-full flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white"
+                        className="flex-1 rounded-full flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white"
                       >
                         <Upload className="h-4 w-4" />
                         {uploading ? 'Uploading...' : 'Choose File'}
@@ -648,14 +648,22 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                         type="button"
                         size="sm"
                         onClick={() => setGalleryModalOpen(true)}
-                        className="flex-1 min-w-[100px] rounded-full flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground"
+                        className="flex-1 rounded-full flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground"
                       >
                         <Images className="h-4 w-4" />
                         Image Gallery
                       </Button>
-                      
-                      {/* Red "Remove Image" button (only show if image exists) */}
-                      {currentSettings.background_image_url && (
+                    </div>
+                    
+                    {/* Image preview, recommendation text, and remove button */}
+                    {currentSettings.background_image_url && (
+                      <div className="mt-2 space-y-2">
+                        <img src={currentSettings.background_image_url} alt="Background preview" className="w-full h-auto object-contain rounded border max-h-32" />
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <Image className="h-4 w-4" />
+                          <span>We recommend a horizontal photo or Logo</span>
+                        </div>
+                        {/* Red "Remove Image" button */}
                         <Button
                           variant="destructive"
                           size="sm"
@@ -666,22 +674,11 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                               description: "Background image has been removed"
                             });
                           }}
-                          className="flex-1 min-w-[100px] rounded-full flex items-center justify-center gap-2"
+                          className="w-full rounded-full flex items-center justify-center gap-2"
                         >
                           <Trash2 className="h-4 w-4" />
                           Remove Image
                         </Button>
-                      )}
-                    </div>
-                    
-                    {/* Image preview and recommendation text */}
-                    {currentSettings.background_image_url && (
-                      <div className="mt-2 space-y-2">
-                        <img src={currentSettings.background_image_url} alt="Background preview" className="w-full h-auto object-contain rounded border max-h-32" />
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                          <Image className="h-4 w-4" />
-                          <span>We recommend a horizontal photo or Logo</span>
-                        </div>
                       </div>
                     )}
                   </div>
