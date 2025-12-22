@@ -1469,6 +1469,7 @@ export type Database = {
       }
       place_card_settings: {
         Row: {
+          back_image_url: string | null
           background_behind_names: boolean | null
           background_behind_table_seats: boolean | null
           background_color: string
@@ -1482,6 +1483,7 @@ export type Database = {
           event_id: string
           font_color: string
           font_family: string
+          front_image_url: string | null
           guest_font_family: string | null
           guest_name_bold: boolean | null
           guest_name_font_size: number | null
@@ -1497,6 +1499,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          back_image_url?: string | null
           background_behind_names?: boolean | null
           background_behind_table_seats?: boolean | null
           background_color?: string
@@ -1510,6 +1513,7 @@ export type Database = {
           event_id: string
           font_color?: string
           font_family?: string
+          front_image_url?: string | null
           guest_font_family?: string | null
           guest_name_bold?: boolean | null
           guest_name_font_size?: number | null
@@ -1525,6 +1529,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          back_image_url?: string | null
           background_behind_names?: boolean | null
           background_behind_table_seats?: boolean | null
           background_color?: string
@@ -1538,6 +1543,7 @@ export type Database = {
           event_id?: string
           font_color?: string
           font_family?: string
+          front_image_url?: string | null
           guest_font_family?: string | null
           guest_name_bold?: boolean | null
           guest_name_font_size?: number | null

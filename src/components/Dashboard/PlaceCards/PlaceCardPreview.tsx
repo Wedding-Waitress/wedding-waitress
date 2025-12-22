@@ -161,6 +161,43 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
           />
         )}
 
+        {/* Full Front of Card Image - only on front (bottom) half */}
+        {(currentSettings as any).front_image_url && currentSettings.background_image_type === 'full_front' && (
+          <div
+            className="absolute pointer-events-none"
+            style={{
+              top: '49.5mm',
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundImage: `url(${(currentSettings as any).front_image_url})`,
+              backgroundPosition: 'center',
+              backgroundSize: 'cover',
+              backgroundRepeat: 'no-repeat',
+              opacity: (currentSettings.background_image_opacity || 100) / 100,
+            }}
+          />
+        )}
+
+        {/* Full Back of Card Image - only on back (top) half, pre-rotated */}
+        {(currentSettings as any).back_image_url && currentSettings.background_image_type === 'full_back' && (
+          <div
+            className="absolute pointer-events-none"
+            style={{
+              top: 0,
+              left: 0,
+              right: 0,
+              height: '49.5mm',
+              backgroundImage: `url(${(currentSettings as any).back_image_url})`,
+              backgroundPosition: 'center',
+              backgroundSize: 'cover',
+              backgroundRepeat: 'no-repeat',
+              opacity: (currentSettings.background_image_opacity || 100) / 100,
+              transform: 'rotate(180deg)',
+            }}
+          />
+        )}
+
         {/* BACK Half (Top) - MESSAGE ONLY */}
         <div 
           className="relative z-10 flex items-center justify-start"

@@ -22,11 +22,13 @@ export interface PlaceCardSettings {
   font_color: string;
   background_color: string;
   background_image_url?: string | null;
-  background_image_type: 'none' | 'decorative' | 'full';
+  background_image_type: 'none' | 'decorative' | 'full' | 'full_front' | 'full_back';
   background_image_x_position?: number;
   background_image_y_position?: number;
   background_image_scale?: number;
   background_image_opacity?: number;
+  front_image_url?: string | null;
+  back_image_url?: string | null;
   mass_message: string;
   individual_messages: Record<string, string>;
   guest_font_family: string;
@@ -74,7 +76,7 @@ export const usePlaceCardSettings = (eventId: string | null) => {
 
       setSettings(data ? {
         ...data,
-        background_image_type: data.background_image_type as 'none' | 'decorative' | 'full',
+        background_image_type: data.background_image_type as 'none' | 'decorative' | 'full' | 'full_front' | 'full_back',
         individual_messages: data.individual_messages as Record<string, string>
       } : null);
     } catch (error) {
@@ -139,7 +141,7 @@ export const usePlaceCardSettings = (eventId: string | null) => {
 
       setSettings({
         ...result.data,
-        background_image_type: result.data.background_image_type as 'none' | 'decorative' | 'full',
+        background_image_type: result.data.background_image_type as 'none' | 'decorative' | 'full' | 'full_front' | 'full_back',
         individual_messages: result.data.individual_messages as Record<string, string>
       });
       toast({
