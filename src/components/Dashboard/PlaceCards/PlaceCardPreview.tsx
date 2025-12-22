@@ -221,7 +221,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
               <div style={{
                 background: 'white',
                 borderRadius: '9999px',
-                padding: '1mm 3mm',
+                padding: '0.5mm 3mm',
                 display: 'inline-block'
               }}>
                 {guest.first_name} {guest.last_name}
