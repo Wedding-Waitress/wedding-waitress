@@ -87,7 +87,7 @@ export const PlaceCardGalleryModal: React.FC<PlaceCardGalleryModalProps> = ({
               </div>
             ) : (
               <ScrollArea className="h-[550px]">
-                <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 pr-4">
+                <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
                   {filteredImages.map(image => (
                     <button
                       key={image.id}
@@ -112,7 +112,7 @@ export const PlaceCardGalleryModal: React.FC<PlaceCardGalleryModalProps> = ({
           </TabsContent>
         </Tabs>
 
-        <div className="flex justify-end pt-4 border-t">
+        <div className="flex justify-end pt-4">
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
