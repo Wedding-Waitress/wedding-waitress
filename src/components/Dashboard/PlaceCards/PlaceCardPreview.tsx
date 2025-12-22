@@ -92,6 +92,32 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
     );
   }
 
+  // Render empty card slot with background and fold line
+  const renderEmptyCard = (index: number) => {
+    return (
+      <div
+        key={`empty-${index}`}
+        className="relative"
+        style={{
+          width: '105mm',
+          height: '99mm',
+          backgroundColor: currentSettings.background_color,
+        }}
+      >
+        {/* CREASE LINE at Y = 49.5mm - same as real cards */}
+        <div 
+          className="absolute left-0 right-0" 
+          style={{ 
+            top: '49.5mm',
+            borderTop: '0.5px solid #d3d3d3',
+            opacity: 0.3,
+            zIndex: 100
+          }}
+        />
+      </div>
+    );
+  };
+
   const renderPlaceCard = (guest: Guest) => {
     const tableInfo = guest.table_no && guest.seat_no
       ? `Table ${guest.table_no}, Seat ${guest.seat_no}`
@@ -302,9 +328,12 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                       />
                     </div>
 
-                    {/* 2x3 grid for 6 cards */}
+                    {/* 2x3 grid for 6 cards - always render all 6 positions */}
                     <div className="grid grid-cols-2 grid-rows-3" style={{ height: '297mm' }}>
-                      {currentPageGuests.map((guest) => renderPlaceCard(guest))}
+                      {Array.from({ length: 6 }).map((_, index) => {
+                        const guest = currentPageGuests[index];
+                        return guest ? renderPlaceCard(guest) : renderEmptyCard(index);
+                      })}
                     </div>
                   </div>
                 </div>
@@ -383,9 +412,12 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                     />
                   </div>
 
-                  {/* Cards Grid */}
+                  {/* Cards Grid - always render all 6 positions */}
                   <div className="grid grid-cols-2 grid-rows-3" style={{ height: '297mm' }}>
-                    {pageGuests.map((guest) => renderPlaceCard(guest))}
+                    {Array.from({ length: 6 }).map((_, index) => {
+                      const guest = pageGuests[index];
+                      return guest ? renderPlaceCard(guest) : renderEmptyCard(index);
+                    })}
                   </div>
                 </div>
               </div>
