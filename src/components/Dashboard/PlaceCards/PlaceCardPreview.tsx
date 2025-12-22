@@ -151,12 +151,19 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
           />
         )}
 
-        {/* Decorative Image */}
+        {/* Decorative Image - centered at bottom of front half */}
         {currentSettings.background_image_url && currentSettings.background_image_type === 'decorative' && (
           <div
-            className="absolute bottom-0 right-0 w-1/3 h-1/3 bg-cover bg-center opacity-30"
+            className="absolute left-1/2 -translate-x-1/2 pointer-events-none"
             style={{
+              bottom: '50.5mm',
+              width: '90%',
+              height: '18mm',
               backgroundImage: `url(${currentSettings.background_image_url})`,
+              backgroundPosition: 'center bottom',
+              backgroundSize: 'contain',
+              backgroundRepeat: 'no-repeat',
+              opacity: 0.3,
             }}
           />
         )}
@@ -203,7 +210,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
           style={{ 
             height: '49.5mm',
             padding: '5mm',
-            paddingTop: '8mm'
+            paddingTop: currentSettings.background_image_type === 'decorative' ? '3mm' : '8mm'
           }}
         >
           {/* Guest Name */}
@@ -214,7 +221,9 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
               fontStyle: currentSettings.guest_name_italic ? 'italic' : 'normal',
               textDecoration: currentSettings.guest_name_underline ? 'underline' : 'none',
               fontSize: `${currentSettings.guest_name_font_size}pt`,
-              marginBottom: `${currentSettings.name_spacing}mm`,
+              marginBottom: currentSettings.background_image_type === 'decorative' 
+                ? '1mm' 
+                : `${currentSettings.name_spacing}mm`,
             }}
           >
             {currentSettings.background_behind_names ? (

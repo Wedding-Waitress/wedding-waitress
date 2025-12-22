@@ -575,7 +575,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                   </div>
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="decorative" id="decorative" />
-                    <Label htmlFor="decorative">Small decorative image on side</Label>
+                    <Label htmlFor="decorative">Small image on card</Label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="full" id="full" />
