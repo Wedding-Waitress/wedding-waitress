@@ -303,7 +303,7 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
 
           {/* STATISTICS & INFORMATION */}
           {selectedEvent && assignedGuests.length > 0 && (
-            <div className="text-sm space-y-2">
+            <div className="border border-primary rounded-xl p-4 text-sm space-y-2">
               {/* Main stats line */}
               <p className="font-medium">
                 {selectedTable ? `Table ${selectedTable.table_no} - ` : ''}
