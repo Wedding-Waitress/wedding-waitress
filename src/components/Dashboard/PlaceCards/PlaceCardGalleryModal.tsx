@@ -40,7 +40,7 @@ export const PlaceCardGalleryModal: React.FC<PlaceCardGalleryModalProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[80vh] flex flex-col">
+      <DialogContent className="max-w-6xl max-h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <ImageIcon className="h-5 w-5 text-primary" />
@@ -86,8 +86,8 @@ export const PlaceCardGalleryModal: React.FC<PlaceCardGalleryModalProps> = ({
                 <p className="text-sm">Gallery images will be added by the admin</p>
               </div>
             ) : (
-              <ScrollArea className="h-[400px]">
-                <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 pr-4">
+              <ScrollArea className="h-[550px]">
+                <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 pr-4">
                   {filteredImages.map(image => (
                     <button
                       key={image.id}
