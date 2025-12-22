@@ -341,11 +341,18 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
                     <SelectValue placeholder="Select a table" />
                   </SelectTrigger>
                   <SelectContent className="bg-popover border-border z-50">
-                    {[...tables].sort((a, b) => (a.table_no || 0) - (b.table_no || 0)).map((table) => (
-                      <SelectItem key={table.id} value={table.id}>
-                        Table {table.table_no} ({table.guest_count} of {table.limit_seats} guests)
-                      </SelectItem>
-                    ))}
+                    {[...tables].sort((a, b) => (a.table_no || 0) - (b.table_no || 0)).map((table) => {
+                      // Display table name, or "Table {number}" if name is just a number
+                      const displayName = table.table_no && table.name === String(table.table_no)
+                        ? `Table ${table.table_no}`
+                        : table.name || `Table ${table.table_no}`;
+                      
+                      return (
+                        <SelectItem key={table.id} value={table.id}>
+                          {displayName} ({table.guest_count} of {table.limit_seats} guests)
+                        </SelectItem>
+                      );
+                    })}
                   </SelectContent>
                 </Select>
               </div>
