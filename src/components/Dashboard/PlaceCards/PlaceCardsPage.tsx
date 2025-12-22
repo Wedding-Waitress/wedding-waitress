@@ -53,13 +53,13 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
   const selectedEvent = events.find(event => event.id === selectedEventId);
   const selectedTable = tables.find(table => table.id === selectedTableId);
   
-  // Filter guests by assigned status and optionally by selected table
-  const assignedGuests = guests.filter(guest => 
-    guest.assigned && 
-    guest.table_no && 
-    guest.seat_no &&
-    (selectedTableId ? guest.table_id === selectedTableId : true)
-  );
+  // Filter guests by assigned status - require table selection to show guests
+  const assignedGuests = selectedTableId 
+    ? guests.filter(guest => 
+        guest.assigned && 
+        guest.table_id === selectedTableId
+      )
+    : [];
   const totalPages = Math.ceil(assignedGuests.length / 6);
 
   const handleEventChange = (eventId: string) => {
@@ -341,7 +341,7 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
                     <SelectValue placeholder="Select a table" />
                   </SelectTrigger>
                   <SelectContent className="bg-popover border-border z-50">
-                    {tables.map((table) => (
+                    {[...tables].sort((a, b) => (a.table_no || 0) - (b.table_no || 0)).map((table) => (
                       <SelectItem key={table.id} value={table.id}>
                         Table {table.table_no} ({table.guest_count} of {table.limit_seats} guests)
                       </SelectItem>
@@ -365,8 +365,19 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
         </Card>
       )}
 
+      {/* Placeholder when event selected but no table selected */}
+      {selectedEventId && !selectedTableId && (
+        <Card className="ww-box p-12 text-center">
+          <Users className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
+          <CardTitle className="text-xl mb-2 text-muted-foreground">Select a Table</CardTitle>
+          <CardDescription className="text-base">
+            Choose a table above to view and create place cards for guests at that table
+          </CardDescription>
+        </Card>
+      )}
+
       {/* Bottom Section - Grid Layout */}
-      {selectedEventId && selectedEvent && assignedGuests.length > 0 && !guestsLoading && !settingsLoading && (
+      {selectedEventId && selectedTableId && selectedEvent && assignedGuests.length > 0 && !guestsLoading && !settingsLoading && (
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Left Panel - Customizer */}
           <div className="lg:col-span-1">
