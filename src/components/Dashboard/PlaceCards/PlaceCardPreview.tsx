@@ -260,7 +260,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
               <div
                 style={{
                   width: '55%',
-                  height: '28mm',
+                  height: '35mm',
                   backgroundImage: `url(${currentSettings.background_image_url})`,
                   backgroundPosition: 'center',
                   backgroundSize: 'contain',
