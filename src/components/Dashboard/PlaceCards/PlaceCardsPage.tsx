@@ -231,17 +231,40 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
       {/* Combined Header Box */}
       <Card className="ww-box">
         <CardContent className="space-y-4 pt-6">
-          {/* TOP ROW: Title (left) + Export Controls Box (right) */}
+          {/* TOP ROW: Title + Statistics (left) + Export Controls Box (right) */}
           <div className="flex flex-wrap items-start justify-between gap-4">
-            {/* Left: Title & Subtitle */}
-            <div className="text-left">
-              <h1 className="text-2xl font-medium text-primary">Table Name Place Cards</h1>
-              <p className="text-sm text-muted-foreground mt-1">
-                Create professional foldable place cards for your guests
-              </p>
+            {/* Left Column: Title & Statistics */}
+            <div className="flex-1 space-y-4">
+              {/* Title & Subtitle */}
+              <div className="text-left">
+                <h1 className="text-2xl font-medium text-primary">Table Name Place Cards</h1>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Create professional foldable place cards for your guests
+                </p>
+              </div>
+
+              {/* STATISTICS & INFORMATION - Now in left column */}
+              {selectedEvent && assignedGuests.length > 0 && (
+                <div className="border border-primary rounded-xl p-4 text-sm space-y-2">
+                  {/* Main stats line */}
+                  <p className="font-medium">
+                    {selectedTable ? `Table ${selectedTable.table_no} - ` : ''}
+                    {assignedGuests.length} assigned guests - {assignedGuests.length} place cards ready for export. {totalPages} A4 page{totalPages !== 1 ? 's' : ''} (6 cards per page). Standard 105mm × 99mm foldable place cards.
+                  </p>
+                  
+                  {/* Quality information */}
+                  <div className="text-muted-foreground space-y-1 mt-3">
+                    <p>• All exports are 300 DPI for professional quality</p>
+                    <p>• PDF exports maintain exact A4 dimensions (210×297mm)</p>
+                    <p>• Image exports are 2480×3508 pixels (A4 @ 300 DPI)</p>
+                    <p>• We have made it easy for you to print & cut at home or get it done at your local printer</p>
+                    <p>• Background images must be smaller than 5MB</p>
+                  </div>
+                </div>
+              )}
             </div>
 
-            {/* Right: Export Controls & Dimensions Boxes */}
+            {/* Right Column: Export Controls & Dimensions Boxes */}
             {selectedEvent && assignedGuests.length > 0 && !guestsLoading && !settingsLoading && (
               <div className="flex flex-col gap-4">
                 {/* Export Controls Box */}
@@ -300,26 +323,6 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
 
           {/* SEPARATOR */}
           <div className="border-b border-border" />
-
-          {/* STATISTICS & INFORMATION */}
-          {selectedEvent && assignedGuests.length > 0 && (
-            <div className="border border-primary rounded-xl p-4 text-sm space-y-2">
-              {/* Main stats line */}
-              <p className="font-medium">
-                {selectedTable ? `Table ${selectedTable.table_no} - ` : ''}
-                {assignedGuests.length} assigned guests - {assignedGuests.length} place cards ready for export. {totalPages} A4 page{totalPages !== 1 ? 's' : ''} (6 cards per page). Standard 105mm × 99mm foldable place cards.
-              </p>
-              
-              {/* Quality information */}
-              <div className="text-muted-foreground space-y-1 mt-3">
-                <p>• All exports are 300 DPI for professional quality</p>
-                <p>• PDF exports maintain exact A4 dimensions (210×297mm)</p>
-                <p>• Image exports are 2480×3508 pixels (A4 @ 300 DPI)</p>
-                <p>• We have made it easy for you to print & cut at home or get it done at your local printer</p>
-                <p>• Background images must be smaller than 5MB</p>
-              </div>
-            </div>
-          )}
 
           {/* CHOOSE EVENT & TABLE DROPDOWNS */}
           <div className="flex items-center gap-8 flex-wrap pt-2">
