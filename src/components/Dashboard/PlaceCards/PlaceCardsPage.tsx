@@ -218,12 +218,47 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
       {/* Combined Header Box */}
       <Card className="ww-box">
         <CardContent className="space-y-4 pt-6">
-          {/* TOP: Title & Subtitle (LEFT ALIGNED) */}
-          <div className="text-left">
-            <h1 className="text-2xl font-medium text-primary">Table Name Place Cards</h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              Create professional foldable place cards for your guests
-            </p>
+          {/* TOP ROW: Title (left) + Export Controls Box (right) */}
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            {/* Left: Title & Subtitle */}
+            <div className="text-left">
+              <h1 className="text-2xl font-medium text-primary">Table Name Place Cards</h1>
+              <p className="text-sm text-muted-foreground mt-1">
+                Create professional foldable place cards for your guests
+              </p>
+            </div>
+
+            {/* Right: Export Controls Box (only when event selected and guests exist) */}
+            {selectedEvent && assignedGuests.length > 0 && !guestsLoading && !settingsLoading && (
+              <div className="border border-primary rounded-xl p-4 space-y-3">
+                <h3 className="text-sm font-medium">Export Controls</h3>
+                <p className="text-muted-foreground text-sm">
+                  Download your place cards as PDF.
+                </p>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <Button 
+                    variant="default"
+                    size="xs"
+                    onClick={handleDownloadPdfPage}
+                    disabled={isProcessing}
+                    className="rounded-full flex items-center gap-2"
+                  >
+                    <FileText className="w-4 h-4" />
+                    Download PDF
+                  </Button>
+                  <Button 
+                    variant="default"
+                    size="xs"
+                    onClick={handleDownloadPdfAll}
+                    disabled={isProcessing}
+                    className="rounded-full flex items-center gap-2"
+                  >
+                    <FileText className="w-4 h-4" />
+                    Download All PDF
+                  </Button>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* SEPARATOR */}
@@ -274,101 +309,6 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
               </SelectContent>
             </Select>
           </div>
-
-          {/* LINE 3: Export Controls (after separator) */}
-          {selectedEventId && selectedEvent && assignedGuests.length > 0 && (
-            <>
-              {(guestsLoading || settingsLoading) ? (
-                <div className="flex items-center justify-center py-8">
-                  <Loader2 className="h-6 w-6 animate-spin text-primary" />
-                  <span className="ml-2 text-muted-foreground">Loading export options...</span>
-                </div>
-              ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* PDF Export Controls */}
-                  <div className="space-y-2">
-                    <Label>Export Controls</Label>
-                    <div className="grid grid-cols-2 gap-2">
-                      <Button
-                        variant="default"
-                        size="xs"
-                        className="rounded-full"
-                        onClick={handleDownloadPdfPage}
-                        disabled={isProcessing}
-                      >
-                        <FileText className="h-4 w-4 mr-2" />
-                        Download PDF
-                      </Button>
-                      <Button
-                        variant="default"
-                        size="xs"
-                        className="rounded-full"
-                        onClick={handleDownloadPdfAll}
-                        disabled={isProcessing}
-                      >
-                        <FileText className="h-4 w-4 mr-2" />
-                        Download All PDF
-                      </Button>
-                    </div>
-                  </div>
-
-                  {/* Word Export */}
-                  <div className="space-y-2">
-                    <Label>Word Export</Label>
-                    <div className="grid grid-cols-2 gap-2">
-                      <Button
-                        variant="default"
-                        size="xs"
-                        className="rounded-full"
-                        onClick={handleDownloadWordPage}
-                        disabled={isProcessing}
-                      >
-                        <FileText className="h-4 w-4 mr-2" />
-                        Download Word
-                      </Button>
-                      <Button
-                        variant="default"
-                        size="xs"
-                        className="rounded-full"
-                        onClick={handleDownloadWordAll}
-                        disabled={isProcessing}
-                      >
-                        <FileText className="h-4 w-4 mr-2" />
-                        Download All Word
-                      </Button>
-                    </div>
-                  </div>
-
-                  {/* Print Controls */}
-                  <div className="space-y-2">
-                    <Label>Print Controls</Label>
-                    <div className="grid grid-cols-2 gap-2">
-                      <Button
-                        variant="default"
-                        size="xs"
-                        className="rounded-full"
-                        onClick={handlePrint}
-                        disabled={isProcessing}
-                      >
-                        <Printer className="h-4 w-4 mr-2" />
-                        Print
-                      </Button>
-                      <Button
-                        variant="default"
-                        size="xs"
-                        className="rounded-full"
-                        onClick={handlePrintAll}
-                        disabled={isProcessing}
-                      >
-                        <Printer className="h-4 w-4 mr-2" />
-                        Print All
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </>
-          )}
         </CardContent>
       </Card>
 
