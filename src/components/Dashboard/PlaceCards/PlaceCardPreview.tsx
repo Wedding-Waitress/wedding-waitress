@@ -151,23 +151,6 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
           />
         )}
 
-        {/* Decorative Image - centered at bottom of front card */}
-        {currentSettings.background_image_url && currentSettings.background_image_type === 'decorative' && (
-          <div
-            className="absolute left-1/2 -translate-x-1/2 pointer-events-none"
-            style={{
-              bottom: '1mm',
-              width: '90%',
-              height: '30mm',
-              backgroundImage: `url(${currentSettings.background_image_url})`,
-              backgroundPosition: 'center',
-              backgroundSize: 'contain',
-              backgroundRepeat: 'no-repeat',
-              opacity: 1,
-            }}
-          />
-        )}
-
         {/* BACK Half (Top) - MESSAGE ONLY */}
         <div 
           className="relative z-10 flex items-center justify-start"
@@ -238,26 +221,98 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
             )}
           </div>
           
-          {/* Table/Seat Info */}
-          <div
-            style={{
-              fontFamily: currentSettings.info_font_family,
-              fontSize: `${currentSettings.info_font_size}pt`,
-            }}
-          >
-            {currentSettings.background_behind_table_seats ? (
-              <div style={{
-                background: 'white',
-                borderRadius: '12px',
-                padding: '0.75mm 1.5mm',
-                display: 'inline-block'
-              }}>
-                {tableInfo}
+          {/* Table/Seat Info - Different layout for decorative mode */}
+          {currentSettings.background_image_type === 'decorative' && currentSettings.background_image_url ? (
+            /* Three-column layout: Table | Image | Seat */
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'flex-start',
+                width: '100%',
+                marginTop: '2mm',
+              }}
+            >
+              {/* Left - Table info stacked */}
+              <div style={{ textAlign: 'center', minWidth: '18mm' }}>
+                <div
+                  style={{
+                    fontFamily: currentSettings.info_font_family,
+                    fontSize: `${currentSettings.info_font_size}pt`,
+                    color: currentSettings.font_color,
+                  }}
+                >
+                  Table
+                </div>
+                <div
+                  style={{
+                    fontFamily: currentSettings.info_font_family,
+                    fontSize: `${(currentSettings.info_font_size || 10) + 2}pt`,
+                    fontWeight: '600',
+                    color: currentSettings.font_color,
+                  }}
+                >
+                  {guest.table_no || '—'}
+                </div>
               </div>
-            ) : (
-              <>{tableInfo}</>
-            )}
-          </div>
+
+              {/* Center - Decorative Image */}
+              <div
+                style={{
+                  width: '55%',
+                  height: '35mm',
+                  backgroundImage: `url(${currentSettings.background_image_url})`,
+                  backgroundPosition: 'center',
+                  backgroundSize: 'contain',
+                  backgroundRepeat: 'no-repeat',
+                }}
+              />
+
+              {/* Right - Seat info stacked */}
+              <div style={{ textAlign: 'center', minWidth: '18mm' }}>
+                <div
+                  style={{
+                    fontFamily: currentSettings.info_font_family,
+                    fontSize: `${currentSettings.info_font_size}pt`,
+                    color: currentSettings.font_color,
+                  }}
+                >
+                  Seat
+                </div>
+                <div
+                  style={{
+                    fontFamily: currentSettings.info_font_family,
+                    fontSize: `${(currentSettings.info_font_size || 10) + 2}pt`,
+                    fontWeight: '600',
+                    color: currentSettings.font_color,
+                  }}
+                >
+                  {guest.seat_no || '—'}
+                </div>
+              </div>
+            </div>
+          ) : (
+            /* Standard centered table/seat layout for other modes */
+            <div
+              style={{
+                fontFamily: currentSettings.info_font_family,
+                fontSize: `${currentSettings.info_font_size}pt`,
+              }}
+            >
+              {currentSettings.background_behind_table_seats ? (
+                <div style={{
+                  background: 'white',
+                  borderRadius: '12px',
+                  padding: '0.75mm 1.5mm',
+                  display: 'inline-block'
+                }}>
+                  {tableInfo}
+                </div>
+              ) : (
+                <>{tableInfo}</>
+              )}
+            </div>
+          )}
         </div>
       </div>
     );
