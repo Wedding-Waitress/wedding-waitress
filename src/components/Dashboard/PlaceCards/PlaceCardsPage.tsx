@@ -245,7 +245,7 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
               {/* Left: Statistics Box */}
               <div className="flex-1 border border-primary rounded-xl p-4 text-sm space-y-2">
                 {/* Main stats line */}
-                <p className="font-medium">
+                <p className="font-medium text-green-600">
                   {selectedTable ? `${selectedTable.name || `Table ${selectedTable.table_no}`} - ` : ''}
                   {assignedGuests.length} assigned guests - {assignedGuests.length} place cards ready for export. {totalPages} A4 page{totalPages !== 1 ? 's' : ''} (6 cards per page). Standard 105mm × 99mm foldable place cards.
                 </p>
