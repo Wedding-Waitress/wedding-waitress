@@ -264,39 +264,9 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
               )}
             </div>
 
-            {/* Right Column: Export Controls & Dimensions Boxes */}
+            {/* Right Column: Card Dimensions Box Only */}
             {selectedEvent && assignedGuests.length > 0 && !guestsLoading && !settingsLoading && (
               <div className="flex flex-col gap-4">
-                {/* Export Controls Box */}
-                <div className="border border-primary rounded-xl p-4 space-y-3">
-                  <h3 className="text-sm font-medium">Export Controls</h3>
-                  <p className="text-muted-foreground text-sm">
-                    Download your place cards as PDF.
-                  </p>
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <Button 
-                      variant="default"
-                      size="xs"
-                      onClick={handleDownloadPdfPage}
-                      disabled={isProcessing}
-                      className="rounded-full flex items-center gap-2"
-                    >
-                      <FileText className="w-4 h-4" />
-                      Download PDF
-                    </Button>
-                    <Button 
-                      variant="default"
-                      size="xs"
-                      onClick={handleDownloadPdfAll}
-                      disabled={isProcessing}
-                      className="rounded-full flex items-center gap-2"
-                    >
-                      <FileText className="w-4 h-4" />
-                      Download All PDF
-                    </Button>
-                  </div>
-                </div>
-
                 {/* Card Dimensions Info Box */}
                 <div className="border border-primary rounded-xl p-4 space-y-2">
                   <div className="flex items-center gap-2">
@@ -324,10 +294,12 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
           {/* SEPARATOR */}
           <div className="border-b border-border" />
 
-          {/* CHOOSE EVENT & TABLE DROPDOWNS */}
-          <div className="flex items-center gap-8 flex-wrap pt-2">
-            {/* Choose Event */}
-            <div className="flex items-center gap-4">
+          {/* CHOOSE EVENT & TABLE DROPDOWNS + EXPORT CONTROLS */}
+          <div className="flex items-center justify-between gap-4 flex-wrap pt-2">
+            {/* Left side: Dropdowns */}
+            <div className="flex items-center gap-8 flex-wrap">
+              {/* Choose Event */}
+              <div className="flex items-center gap-4">
               <label className="text-sm font-medium text-foreground whitespace-nowrap">
                 Choose Event:
               </label>
@@ -383,6 +355,39 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
                     })}
                   </SelectContent>
                 </Select>
+              </div>
+            )}
+            </div>
+
+            {/* Right side: Export Controls */}
+            {selectedEvent && assignedGuests.length > 0 && !guestsLoading && !settingsLoading && (
+              <div className="border border-primary rounded-xl p-3 flex items-center gap-4">
+                <div className="text-sm">
+                  <span className="font-medium">Export Controls</span>
+                  <span className="text-muted-foreground ml-2">Download your place cards as PDF.</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button 
+                    variant="default"
+                    size="xs"
+                    onClick={handleDownloadPdfPage}
+                    disabled={isProcessing}
+                    className="rounded-full flex items-center gap-2"
+                  >
+                    <FileText className="w-4 h-4" />
+                    Download PDF
+                  </Button>
+                  <Button 
+                    variant="default"
+                    size="xs"
+                    onClick={handleDownloadPdfAll}
+                    disabled={isProcessing}
+                    className="rounded-full flex items-center gap-2"
+                  >
+                    <FileText className="w-4 h-4" />
+                    Download All PDF
+                  </Button>
+                </div>
               </div>
             )}
           </div>
