@@ -220,8 +220,8 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
             {currentSettings.background_behind_names ? (
               <div style={{
                 background: 'white',
-                borderRadius: '12px',
-                padding: '1mm 2mm',
+                borderRadius: '9999px',
+                padding: '1mm 3mm',
                 display: 'inline-block'
               }}>
                 {guest.first_name} {guest.last_name}
