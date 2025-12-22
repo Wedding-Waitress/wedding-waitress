@@ -193,7 +193,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
           style={{ 
             height: '49.5mm',
             padding: '5mm',
-            paddingTop: currentSettings.background_image_type === 'decorative' ? '3mm' : '8mm'
+            paddingTop: currentSettings.background_image_type === 'decorative' ? '1mm' : '8mm'
           }}
         >
           {/* Guest Name */}
@@ -230,7 +230,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                 justifyContent: 'space-between',
                 alignItems: 'flex-start',
                 width: '100%',
-                marginTop: '2mm',
+                marginTop: '0mm',
               }}
             >
               {/* Left - Table info stacked */}
