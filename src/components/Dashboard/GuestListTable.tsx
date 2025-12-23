@@ -1377,8 +1377,23 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
               </div>
             </div>
             
-            {/* Right Side: All Control Buttons */}
+            {/* Right Side: Stats + Control Buttons (all on one line) */}
             <div className="flex items-center gap-2 flex-wrap">
+              {/* Stats Badges (left side of this group) */}
+              <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium ring-offset-background h-9 px-3 bg-white border border-primary text-foreground">
+                <Users className="w-4 h-4" />
+                {guestCount} Guest{guestCount !== 1 ? 's' : ''}
+              </div>
+              <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium h-9 px-3 bg-[#ff1493] text-white">
+                {individualCount} Individual{individualCount !== 1 ? 's' : ''}
+              </div>
+              <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium h-9 px-3 bg-[#FF5F1F] text-white">
+                {coupleCount} Couple{coupleCount !== 1 ? 's' : ''}
+              </div>
+              <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium h-9 px-3 bg-[#0000FF] text-white">
+                {familyCount} Famil{familyCount !== 1 ? 'ies' : 'y'}
+              </div>
+
               <TooltipProvider>
                 {/* Sort By Dropdown */}
                 <Tooltip>
@@ -1489,30 +1504,6 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                   Add Guest
                 </Button>
               )}
-            </div>
-          </div>
-
-          {/* Guest Type Stats Row */}
-          <div className="flex items-center justify-end gap-2 px-6 pt-4 pb-4">
-            {/* Total Guests Badge */}
-            <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium ring-offset-background h-9 px-3 w-[140px] bg-white border border-primary text-foreground">
-              <Users className="w-4 h-4" />
-              {guestCount} Guest{guestCount !== 1 ? 's' : ''}
-            </div>
-
-            {/* Individual Badge */}
-            <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium h-9 px-3 w-[140px] bg-[#ff1493] text-white">
-              {individualCount} Individual{individualCount !== 1 ? 's' : ''}
-            </div>
-
-            {/* Couple Badge */}
-            <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium h-9 px-3 w-[140px] bg-[#FF5F1F] text-white">
-              {coupleCount} Couple{coupleCount !== 1 ? 's' : ''}
-            </div>
-
-            {/* Family Badge */}
-            <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium h-9 px-3 w-[140px] bg-[#0000FF] text-white">
-              {familyCount} Famil{familyCount !== 1 ? 'ies' : 'y'}
             </div>
           </div>
         </div>
