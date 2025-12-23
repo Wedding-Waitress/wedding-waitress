@@ -152,6 +152,15 @@ const getTableColumns = (settings: DietaryChartSettings) => {
   return columns;
 };
 
+// Calculate row height based on font size (in mm)
+const getRowHeight = (fontSize: 'small' | 'medium' | 'large'): number => {
+  switch (fontSize) {
+    case 'small': return 5;
+    case 'medium': return 5.5;
+    case 'large': return 6;
+  }
+};
+
 export const exportDietaryChartToPdf = async (
   event: Event,
   guests: DietaryGuest[],
@@ -167,10 +176,20 @@ export const exportDietaryChartToPdf = async (
   const pageHeight = 297; // A4 height in mm
   const margin = 12.7; // 1.27cm margins
   const contentWidth = pageWidth - (2 * margin);
-  const guestsPerPage = 20;
-  const totalPages = Math.ceil(guests.length / guestsPerPage);
   const fontSize = getFontSize(settings.fontSize);
   const timestamp = formatGeneratedTimestamp();
+
+  // AUTOFIT CALCULATION - Dynamic guests per page based on font size
+  const headerHeight = 22; // mm for header section (title, date, meta line)
+  const tableHeaderHeight = 6; // mm for table column headers
+  const footerHeight = settings.showLogo ? 15 : 5; // mm for footer (logo or spacing)
+  const rowHeight = getRowHeight(settings.fontSize);
+  
+  // Calculate available height for guest rows
+  const availableContentHeight = pageHeight - (2 * margin) - headerHeight - tableHeaderHeight - footerHeight;
+  const guestsPerPage = Math.floor(availableContentHeight / rowHeight);
+  
+  const totalPages = Math.ceil(guests.length / guestsPerPage);
 
   // Load logo if needed
   let logoBase64: string | null = null;
@@ -243,7 +262,7 @@ export const exportDietaryChartToPdf = async (
     // Underline headers
     pdf.setLineWidth(0.5);
     pdf.line(margin, yPos + 1, pageWidth - margin, yPos + 1);
-    yPos += 5;
+    yPos += rowHeight;
 
     // Draw guest rows
     pageGuests.forEach((guest, index) => {
@@ -252,7 +271,7 @@ export const exportDietaryChartToPdf = async (
       // Alternating row backgrounds
       if (index % 2 === 1) {
         pdf.setFillColor(249, 250, 251); // #F9FAFB
-        pdf.rect(margin, yPos - 3, contentWidth, 5, 'F');
+        pdf.rect(margin, yPos - 3, contentWidth, rowHeight, 'F');
       }
 
       let colIdx = 0;
@@ -313,15 +332,15 @@ export const exportDietaryChartToPdf = async (
         pdf.text(relationTextWrapped, xPos, yPos);
       }
 
-      yPos += 5; // Row spacing
+      yPos += rowHeight; // Dynamic row spacing based on font size
     });
 
-    // Footer - Logo (if enabled)
+    // Footer - Logo (if enabled) - FIXED position at bottom of page
     if (logoBase64) {
       const logoHeight = 10.5; // mm
       const logoWidth = 35; // mm (approximate)
       const logoX = (pageWidth - logoWidth) / 2;
-      const logoY = pageHeight - margin - logoHeight;
+      const logoY = pageHeight - margin - logoHeight; // Fixed at bottom
       
       try {
         pdf.addImage(logoBase64, 'PNG', logoX, logoY, logoWidth, logoHeight);

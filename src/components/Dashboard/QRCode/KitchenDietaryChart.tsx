@@ -139,11 +139,22 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
     });
   }, [guests, settings.sortBy]);
 
-  // Pagination logic - calculate guests per page for A4
+  // AUTOFIT: Dynamic guests per page based on font size
+  // A4 = 297mm height, margins = 12.7mm each, header ~22mm, table header ~6mm, footer ~15mm
+  // Available height = 297 - 25.4 - 22 - 6 - 15 = ~228.6mm for guest rows
   const guestsPerPage = useMemo(() => {
-    // Fixed: Always show exactly 20 guests per page regardless of font size
-    return 20;
-  }, []);
+    const availableHeight = 228; // mm for guest rows (after header, footer, margins)
+    
+    // Row height varies by font size (matching PDF exporter)
+    const rowHeightByFontSize: Record<string, number> = {
+      'small': 9,    // Smaller text = more rows fit
+      'medium': 10,  // Medium text
+      'large': 11.5  // Larger text = fewer rows
+    };
+    
+    const rowHeight = rowHeightByFontSize[settings.fontSize] || 10;
+    return Math.floor(availableHeight / rowHeight);
+  }, [settings.fontSize]);
 
   const totalPages = Math.ceil(dietaryGuests.length / guestsPerPage);
   const paginatedGuests = useMemo(() => {
@@ -289,7 +300,6 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
             page-break-after: auto;
           }
           
-          /* Print-specific table styling */
           .print-page table {
             width: 100%;
             border-collapse: collapse;
@@ -320,8 +330,21 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
             line-height: 1.15 !important;
           }
           
+          /* Dynamic row heights based on font size - matches PDF autofit */
+          .print-font-small table td { height: 9mm !important; }
+          .print-font-medium table td { height: 10mm !important; }
+          .print-font-large table td { height: 11.5mm !important; }
+          
           .print-page table tbody tr {
             break-inside: avoid;
+          }
+          
+          .print-page table tbody tr:nth-child(even) {
+            background-color: #f9fafb !important;
+          }
+          
+          .print-page table tbody tr:nth-child(odd) {
+            background-color: white !important;
           }
           
           .print-page table tbody tr:nth-child(even) {
