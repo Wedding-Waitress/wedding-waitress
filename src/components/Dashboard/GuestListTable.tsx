@@ -508,14 +508,14 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
       setPartner1Name(selectedEvent.partner1_name || '');
       setPartner2Name(selectedEvent.partner2_name || '');
       
-      // Only update relationMode if database provides a valid value (two or single only)
+      // Only update relationMode if database provides a valid value (two, single, or off)
       const modeFromDb = (selectedEvent as any)?.relation_mode;
-      if (modeFromDb === 'two' || modeFromDb === 'single') {
+      if (modeFromDb === 'two' || modeFromDb === 'single' || modeFromDb === 'off') {
         if (modeFromDb !== relationMode) {
           setRelationMode(modeFromDb as RelationMode);
         }
       } else {
-        // Default to 'two' for invalid modes (including legacy 'off')
+        // Default to 'two' for truly invalid modes
         setRelationMode('two');
       }
       
@@ -1376,10 +1376,6 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                         Hide guest relations
                       </Label>
                     </div>
-                    
-                    <span className="text-xs text-muted-foreground">
-                      Clear names to hide couple display
-                    </span>
                   </div>
                 </div>
               )}
