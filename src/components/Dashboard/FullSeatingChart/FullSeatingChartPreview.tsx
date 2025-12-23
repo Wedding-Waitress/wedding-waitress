@@ -86,7 +86,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
     if (settings.showRelation) rowHeight += 2.5;
     
     // Available height for guest rows (after header, footer, margins)
-    const availableHeight = 234; // mm
+    const availableHeight = 224; // mm (10mm buffer above footer)
     
     const GUESTS_PER_COLUMN = Math.floor(availableHeight / rowHeight);
     const GUESTS_PER_PAGE = GUESTS_PER_COLUMN * 2; // Two columns
