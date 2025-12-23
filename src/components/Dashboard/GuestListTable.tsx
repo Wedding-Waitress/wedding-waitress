@@ -1290,26 +1290,21 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                   />
                 </div>
               </div>
-            </div>
 
-            {/* Right: Compact Couple Names Section */}
-            {selectedEventId && (
-              <div className="flex flex-col gap-3 p-4 rounded-xl border-2 border-primary/20 bg-gradient-to-br from-white to-purple-50/30" style={{ minWidth: '320px' }}>
-                <div className="flex items-center justify-between">
+              {/* Couple Names Section - Single line layout */}
+              {selectedEventId && (
+                <div className="flex items-center gap-3 flex-wrap mt-4">
                   <span className="text-sm font-semibold text-[#7248e6]">Couple Names</span>
                   {showRelationSaved && (
                     <span className="text-xs font-medium text-green-600 bg-green-50 px-2 py-0.5 rounded-full">✓ Saved</span>
                   )}
-                </div>
-                
-                {/* Event Type Toggle - Two options only */}
-                <div className="flex gap-2">
+                  
                   <Button
                     type="button"
                     size="sm"
                     onClick={() => handleRelationModeChange('two')}
                     className={cn(
-                      "flex-1 h-8 text-xs rounded-full transition-all",
+                      "h-7 text-xs rounded-full transition-all",
                       relationMode === 'two'
                         ? "bg-primary text-primary-foreground shadow-md"
                         : "bg-white border border-primary/30 text-foreground hover:bg-primary/5"
@@ -1322,7 +1317,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                     size="sm"
                     onClick={() => handleRelationModeChange('single')}
                     className={cn(
-                      "flex-1 h-8 text-xs rounded-full transition-all",
+                      "h-7 text-xs rounded-full transition-all",
                       relationMode === 'single'
                         ? "bg-primary text-primary-foreground shadow-md"
                         : "bg-white border border-primary/30 text-foreground hover:bg-primary/5"
@@ -1330,14 +1325,10 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                   >
                     🎂 Single Person
                   </Button>
-                </div>
 
-                {/* Name Fields */}
-                <div className="flex gap-2">
-                  {/* Left/Partner 1 Name */}
-                  <div className="flex-1">
-                    <Label htmlFor="partner1_name" className="text-xs text-muted-foreground mb-1 block">
-                      {relationMode === 'two' ? 'Left' : 'Host Name'}
+                  <div className="flex items-center gap-1">
+                    <Label htmlFor="partner1_name" className="text-xs text-muted-foreground whitespace-nowrap">
+                      {relationMode === 'two' ? 'Partner one:' : 'Host Name:'}
                     </Label>
                     <Input
                       id="partner1_name"
@@ -1345,15 +1336,14 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                       onChange={(e) => setPartner1Name(e.target.value)}
                       onBlur={handleSavePartnerNames}
                       placeholder={relationMode === 'two' ? "Bride" : "Name"}
-                      className="h-8 text-sm rounded-full border-primary/40 focus:border-primary"
+                      className="h-7 text-sm w-24 rounded-full border-primary/40 focus:border-primary"
                     />
                   </div>
 
-                  {/* Right/Partner 2 Name - Only show for two-person events */}
                   {relationMode === 'two' && (
-                    <div className="flex-1">
-                      <Label htmlFor="partner2_name" className="text-xs text-muted-foreground mb-1 block">
-                        Right
+                    <div className="flex items-center gap-1">
+                      <Label htmlFor="partner2_name" className="text-xs text-muted-foreground whitespace-nowrap">
+                        Partner two:
                       </Label>
                       <Input
                         id="partner2_name"
@@ -1361,19 +1351,19 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                         onChange={(e) => setPartner2Name(e.target.value)}
                         onBlur={handleSavePartnerNames}
                         placeholder="Groom"
-                        className="h-8 text-sm rounded-full border-primary/40 focus:border-primary"
+                        className="h-7 text-sm w-24 rounded-full border-primary/40 focus:border-primary"
                       />
                     </div>
                   )}
+                  
+                  <span className="text-xs text-muted-foreground">
+                    {relationMode === 'two' 
+                      ? "Clear names to hide couple display" 
+                      : "Enter the host's name for this event"}
+                  </span>
                 </div>
-                
-                <p className="text-xs text-muted-foreground">
-                  {relationMode === 'two' 
-                    ? "Clear names to hide couple display" 
-                    : "Enter the host's name for this event"}
-                </p>
-              </div>
-            )}
+              )}
+            </div>
           </div>
 
           {/* Stats + Control Buttons */}
@@ -1477,36 +1467,37 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
               </Tooltip>
             </TooltipProvider>
 
-            {/* Add Guests button */}
-            {totalGuestCount === 0 ? (
-              <Button 
-                variant="default"
-                size="sm"
-                onClick={handleAddGuest}
-                className={`${
-                  partnerNamesSaved || firstGuestAdded || totalGuestCount > 0
-                    ? 'bg-green-500 hover:bg-green-600 text-white'
-                    : 'bg-red-500 hover:bg-red-600 text-white'
-                } rounded-full flex items-center gap-2`}
-              >
-                <Users className="w-4 h-4" />
-                Add First Guest
-              </Button>
-            ) : (
-              <Button 
-                variant="default" 
-                size="sm"
-                onClick={handleAddGuest}
-                className="bg-green-500 hover:bg-green-600 text-white rounded-full flex items-center gap-2"
-              >
-                <Users className="w-4 h-4" />
-                Add Guest
-              </Button>
-            )}
           </div>
         </div>
 
-        {/* Who Is Filters */}
+        {/* Add Guest Button - positioned above Actions column */}
+        <div className="flex justify-end mb-2">
+          {totalGuestCount === 0 ? (
+            <Button 
+              variant="default"
+              size="sm"
+              onClick={handleAddGuest}
+              className={`${
+                partnerNamesSaved || firstGuestAdded || totalGuestCount > 0
+                  ? 'bg-green-500 hover:bg-green-600 text-white'
+                  : 'bg-red-500 hover:bg-red-600 text-white'
+              } rounded-full flex items-center gap-2`}
+            >
+              <Users className="w-4 h-4" />
+              Add First Guest
+            </Button>
+          ) : (
+            <Button 
+              variant="default" 
+              size="sm"
+              onClick={handleAddGuest}
+              className="bg-green-500 hover:bg-green-600 text-white rounded-full flex items-center gap-2"
+            >
+              <Users className="w-4 h-4" />
+              Add Guest
+            </Button>
+          )}
+        </div>
 
         <div className="overflow-x-auto">
           <Table className="table-fixed w-full">
