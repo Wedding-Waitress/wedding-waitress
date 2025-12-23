@@ -1252,9 +1252,44 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
               <h1 className="text-2xl font-medium text-[#7248e6] mb-2">
                 Guest List
               </h1>
-              <p className="text-muted-foreground">
+              <p className="text-muted-foreground mb-4">
                 Manage your event guests, track RSVPs, assign tables, and organize seating arrangements
               </p>
+              
+              {/* Event selector and search - moved here */}
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                <div className="flex items-center space-x-2">
+                  <Label htmlFor="event-select" className="whitespace-nowrap text-sm font-medium">
+                    Choose Event:
+                  </Label>
+                  <Select value={selectedEventId || "no-event"} onValueChange={handleEventSelect}>
+                    <SelectTrigger className="w-[300px] border-[#7248E6] [&>span]:font-bold [&>span]:text-[#7248E6]">
+                      <SelectValue placeholder="Select an event..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {events.map((event) => (
+                        <SelectItem key={event.id} value={event.id}>
+                          <div className="flex items-center space-x-2">
+                            <Calendar className="w-4 h-4" />
+                            <span>{event.name}</span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                {/* Search field */}
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                  <Input
+                    placeholder="Search guests by name..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10 w-[250px] border-[#7248E6]"
+                  />
+                </div>
+              </div>
             </div>
 
             {/* Right: Compact Couple Names Section */}
@@ -1341,42 +1376,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
             )}
           </div>
 
-          {/* Row 1: Event selector and search */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-            <div className="flex items-center space-x-2">
-              <Label htmlFor="event-select" className="whitespace-nowrap text-sm font-medium">
-                Choose Event:
-              </Label>
-              <Select value={selectedEventId || "no-event"} onValueChange={handleEventSelect}>
-                <SelectTrigger className="w-[300px] border-[#7248E6] [&>span]:font-bold [&>span]:text-[#7248E6]">
-                  <SelectValue placeholder="Select an event..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {events.map((event) => (
-                    <SelectItem key={event.id} value={event.id}>
-                      <div className="flex items-center space-x-2">
-                        <Calendar className="w-4 h-4" />
-                        <span>{event.name}</span>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            
-            {/* Search field */}
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-              <Input
-                placeholder="Search guests by name..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 w-[250px] border-[#7248E6]"
-              />
-            </div>
-          </div>
-
-          {/* Row 2: Stats + Control Buttons */}
+          {/* Stats + Control Buttons */}
           <div className="flex items-center gap-2 flex-wrap">
             {/* Stats Badges */}
             <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium ring-offset-background h-9 px-3 bg-white border border-primary text-foreground">
