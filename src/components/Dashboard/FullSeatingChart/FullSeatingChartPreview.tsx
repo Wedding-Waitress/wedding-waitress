@@ -469,19 +469,17 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
                 </p>
               </div>
 
-              {/* Guest List - Constrained height to prevent overflow into footer */}
+              {/* Guest List - Pagination already calculates exact guest count with FOOTER_SAFE_ROWS */}
               <div 
                 style={{ 
                   flex: 1, 
                   display: 'grid', 
                   gridTemplateColumns: '1fr 1fr', 
-                  columnGap: '12mm',
-                  overflow: 'hidden',
-                  maxHeight: 'calc(100% - 60px - 15mm)' // Subtract header (~60px) and footer (15mm)
+                  columnGap: '12mm'
                 }}
               >
                 {/* Left Column */}
-                <div className="space-y-0.5 overflow-hidden">
+                <div className="space-y-0.5">
                   {col1Guests.length > 0 && (
                     <>
                       <h3 className="font-semibold text-xs text-muted-foreground mb-2 uppercase tracking-wide">
@@ -497,7 +495,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
                 </div>
 
                 {/* Right Column */}
-                <div className="space-y-0.5 overflow-hidden">
+                <div className="space-y-0.5">
                   {col2Guests.length > 0 && (
                     <>
                       <h3 className="font-semibold text-xs text-muted-foreground mb-2 uppercase tracking-wide">
