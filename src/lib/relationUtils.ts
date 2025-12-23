@@ -55,22 +55,27 @@ export const computeRelationDisplay = (
 ): string => {
   if (!partner || !role) return '';
   
-  const partnerName = partner === 'partner_one' ? partner1Name : partner2Name;
+  // Use fallback names if partner names are empty
+  const effectivePartner1Name = partner1Name?.trim() || 'Partner 1';
+  const effectivePartner2Name = partner2Name?.trim() || 'Partner 2';
+  
+  const partnerName = partner === 'partner_one' ? effectivePartner1Name : effectivePartner2Name;
   
   // Handle custom roles
   if (role.startsWith('custom_')) {
     const customRoleName = customRoles.find(cr => 
       `custom_${cr.toLowerCase().replace(/\s+/g, '_')}` === role
     );
-  if (customRoleName && partnerName) {
+    if (customRoleName) {
       return `${partnerName} — ${customRoleName}`;
     }
+    return '';
   }
   
   // Handle standard roles
   const roleLabel = RELATION_ROLE_LABELS[role];
   
-  if (!partnerName || !roleLabel) return '';
+  if (!roleLabel) return '';
   
   return `${partnerName} — ${roleLabel}`;
 };
