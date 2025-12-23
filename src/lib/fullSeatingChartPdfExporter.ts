@@ -110,14 +110,23 @@ export const exportFullSeatingChartToPdf = async (
   const margin = 12.7; // 1.27cm margins
   const contentWidth = pageWidth - (2 * margin);
   
-  // AUTOFIT: Calculate guests per page based on font size
-  const availableHeight = 228; // mm for guest rows (after header, footer, margins)
-  const rowHeightByFontSize: Record<string, number> = {
-    'small': 6,
-    'medium': 6.5,
-    'large': 7.5
+  /**
+   * AUTOFIT CALCULATION - Dynamic guests per page based on font size and visible fields
+   * Must match the calculation in FullSeatingChartPreview and FullSeatingChartPage
+   */
+  const baseRowHeight: Record<string, number> = {
+    'small': 5.5,
+    'medium': 6,
+    'large': 7
   };
-  const rowHeight = rowHeightByFontSize[settings.fontSize] || 6.5;
+  
+  let rowHeight = baseRowHeight[settings.fontSize] || 6;
+  
+  // Add extra height if dietary or relation info is shown
+  if (settings.showDietary) rowHeight += 2.5;
+  if (settings.showRelation) rowHeight += 2.5;
+  
+  const availableHeight = 234; // mm for guest rows
   const guestsPerColumn = Math.floor(availableHeight / rowHeight);
   const guestsPerPage = guestsPerColumn * 2;
   
@@ -218,9 +227,9 @@ export const exportFullSeatingChartToPdf = async (
         pdf.setFontSize(fontSize);
         
         // Draw purple circle checkbox
-        pdf.setDrawColor(purple.r, purple.g, purple.b); // Purple stroke
-        pdf.setLineWidth(0.4); // Thin line
-        pdf.circle(xPos + 1.5, currentY - 1.5, 1.5, 'S'); // 'S' = stroke only (hollow circle)
+        pdf.setDrawColor(purple.r, purple.g, purple.b);
+        pdf.setLineWidth(0.4);
+        pdf.circle(xPos + 1.5, currentY - 1.5, 1.5, 'S');
         
         // Guest name (black)
         pdf.setTextColor(0, 0, 0);
@@ -233,24 +242,24 @@ export const exportFullSeatingChartToPdf = async (
         const tableX = xPos + columnWidth - pdf.getTextWidth(tableText);
         pdf.text(tableText, Math.max(xPos + nameWidth + 10, tableX), currentY);
         
-        currentY += hasDietary || hasRelation ? 3 : 4;
+        // Use calculated row height for consistent spacing
+        currentY += rowHeight;
 
         // Dietary row (if enabled)
         if (hasDietary) {
           pdf.setFont('helvetica', 'normal');
           pdf.setFontSize(fontSize - 1);
-          pdf.setTextColor(102, 102, 102); // Gray
-          pdf.text(`Dietary: ${guest.dietary}`, xPos + 5, currentY);
-          currentY += hasRelation ? 3 : 4;
+          pdf.setTextColor(102, 102, 102);
+          pdf.text(`Dietary: ${guest.dietary}`, xPos + 5, currentY - (rowHeight - 3.5));
         }
 
         // Relation row (if enabled)
         if (hasRelation) {
           pdf.setFont('helvetica', 'normal');
           pdf.setFontSize(fontSize - 1);
-          pdf.setTextColor(102, 102, 102); // Gray
-          pdf.text(guest.relation_display!, xPos + 5, currentY);
-          currentY += 4;
+          pdf.setTextColor(102, 102, 102);
+          const relationY = hasDietary ? currentY - (rowHeight - 6) : currentY - (rowHeight - 3.5);
+          pdf.text(guest.relation_display!, xPos + 5, relationY);
         }
 
         return currentY;

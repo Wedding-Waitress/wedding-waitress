@@ -52,34 +52,44 @@ interface FullSeatingChartPreviewProps {
   event: any;
   guests: Guest[];
   settings: FullSeatingChartSettings;
-  guestsPerPage?: number; // Auto-fit from parent
 }
 
 export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = ({
   event,
   guests,
   settings,
-  guestsPerPage: propGuestsPerPage
 }) => {
   const [checkedGuests, setCheckedGuests] = useState<Set<string>>(new Set());
   const [currentPage, setCurrentPage] = useState(1);
 
-  // AUTOFIT: Dynamic pagination based on font size
+  /**
+   * AUTOFIT CALCULATION - Dynamic guests per page based on font size and visible fields
+   * 
+   * A4 dimensions: 297mm height
+   * Margins: 12.7mm top + 12.7mm bottom = 25.4mm
+   * Header section: ~22mm (event name, chart title, stats line, border)
+   * Footer section: 15mm (reserved for logo)
+   * Available for guests: 297 - 25.4 - 22 - 15 = 234.6mm ≈ 234mm
+   */
   const paginationInfo = useMemo(() => {
-    // Use passed guestsPerPage or calculate based on font size
-    const GUESTS_PER_PAGE = propGuestsPerPage || (() => {
-      const availableHeight = 228; // mm for guest rows
-      const rowHeightByFontSize: Record<string, number> = {
-        'small': 6,
-        'medium': 6.5,
-        'large': 7.5
-      };
-      const rowHeight = rowHeightByFontSize[settings.fontSize] || 6.5;
-      const guestsPerColumn = Math.floor(availableHeight / rowHeight);
-      return guestsPerColumn * 2;
-    })();
+    // Calculate row height based on font size AND whether dietary/relation is shown
+    const baseRowHeight: Record<string, number> = {
+      'small': 5.5,
+      'medium': 6,
+      'large': 7
+    };
     
-    const GUESTS_PER_COLUMN = Math.ceil(GUESTS_PER_PAGE / 2);
+    let rowHeight = baseRowHeight[settings.fontSize] || 6;
+    
+    // Add extra height if dietary or relation info is shown
+    if (settings.showDietary) rowHeight += 2.5;
+    if (settings.showRelation) rowHeight += 2.5;
+    
+    // Available height for guest rows (after header, footer, margins)
+    const availableHeight = 234; // mm
+    
+    const GUESTS_PER_COLUMN = Math.floor(availableHeight / rowHeight);
+    const GUESTS_PER_PAGE = GUESTS_PER_COLUMN * 2; // Two columns
     
     interface PageInfo {
       guests: Guest[];
@@ -102,8 +112,8 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
       });
     }
     
-    return { pages, guestsPerColumn: GUESTS_PER_COLUMN };
-  }, [guests, settings.fontSize, propGuestsPerPage]);
+    return { pages, guestsPerColumn: GUESTS_PER_COLUMN, guestsPerPage: GUESTS_PER_PAGE };
+  }, [guests, settings.fontSize, settings.showDietary, settings.showRelation]);
 
   const totalPages = paginationInfo.pages.length;
   const currentPageInfo = paginationInfo.pages[currentPage - 1] || { guests: [], col1Count: 0 };
@@ -455,10 +465,19 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
                 </p>
               </div>
 
-              {/* Guest List */}
-              <div className="flex-1" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', columnGap: '12mm' }}>
+              {/* Guest List - Constrained height to prevent overflow into footer */}
+              <div 
+                style={{ 
+                  flex: 1, 
+                  display: 'grid', 
+                  gridTemplateColumns: '1fr 1fr', 
+                  columnGap: '12mm',
+                  overflow: 'hidden',
+                  maxHeight: 'calc(100% - 60px - 15mm)' // Subtract header (~60px) and footer (15mm)
+                }}
+              >
                 {/* Left Column */}
-                <div className="space-y-1">
+                <div className="space-y-0.5 overflow-hidden">
                   {col1Guests.length > 0 && (
                     <>
                       <h3 className="font-semibold text-xs text-muted-foreground mb-2 uppercase tracking-wide">
@@ -474,7 +493,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
                 </div>
 
                 {/* Right Column */}
-                <div className="space-y-1">
+                <div className="space-y-0.5 overflow-hidden">
                   {col2Guests.length > 0 && (
                     <>
                       <h3 className="font-semibold text-xs text-muted-foreground mb-2 uppercase tracking-wide">
