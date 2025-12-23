@@ -126,7 +126,7 @@ export const exportFullSeatingChartToPdf = async (
   if (settings.showDietary) rowHeight += 2.5;
   if (settings.showRelation) rowHeight += 2.5;
   
-  const availableHeight = 214; // mm for guest rows (20mm buffer above footer)
+  const availableHeight = 190; // mm for guest rows (2-3 empty lines above footer)
   const guestsPerColumn = Math.floor(availableHeight / rowHeight);
   const guestsPerPage = guestsPerColumn * 2;
   
