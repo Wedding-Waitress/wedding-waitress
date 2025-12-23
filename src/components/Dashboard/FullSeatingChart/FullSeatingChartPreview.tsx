@@ -86,9 +86,13 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
     if (settings.showRelation) rowHeight += 2.5;
     
     // Available height for guest rows (after header, footer, margins)
-    const availableHeight = 190; // mm (2-3 empty lines above footer)
+    const availableHeight = 214; // mm for guest rows
     
-    const GUESTS_PER_COLUMN = Math.floor(availableHeight / rowHeight);
+    // FOOTER SAFE ZONE: Reserve 3 rows worth of space above the footer logo
+    const FOOTER_SAFE_ROWS = 3;
+    
+    const calculatedGuestsPerColumn = Math.floor(availableHeight / rowHeight);
+    const GUESTS_PER_COLUMN = calculatedGuestsPerColumn - FOOTER_SAFE_ROWS;
     const GUESTS_PER_PAGE = GUESTS_PER_COLUMN * 2; // Two columns
     
     interface PageInfo {
