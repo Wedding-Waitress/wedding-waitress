@@ -12,14 +12,13 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { FileText, ChefHat, AlertCircle, ChevronLeft, ChevronRight, Printer } from 'lucide-react';
+import { FileText, ChefHat, AlertCircle, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useRealtimeGuests } from '@/hooks/useRealtimeGuests';
 import { useEvents } from '@/hooks/useEvents';
 import { useTables } from '@/hooks/useTables';
 import { useDietaryChartSettings } from '@/hooks/useDietaryChartSettings';
 import { DietaryChartCustomizer } from './DietaryChartCustomizer';
 import { useToast } from '@/hooks/use-toast';
-import { exportDietaryChartToDocx } from '@/lib/dietaryChartDocxExporter';
 import { exportDietaryChartToPdf } from '@/lib/dietaryChartPdfExporter';
 import { format } from 'date-fns';
 import dietaryLogo from '@/assets/wedding-waitress-dietary-logo.png';
@@ -176,15 +175,44 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
     }
   };
 
-  // PDF Export functionality
+  // PDF Export functionality - Current page only
   const handleDownloadPdf = async () => {
+    if (!currentEvent || paginatedGuests.length === 0) return;
+    
+    setIsExporting(true);
+    try {
+      toast({
+        title: 'Generating PDF',
+        description: 'Creating your dietary chart (current page)...',
+      });
+
+      await exportDietaryChartToPdf(currentEvent, paginatedGuests, settings);
+
+      toast({
+        title: 'PDF Downloaded',
+        description: 'Your dietary chart has been saved',
+      });
+    } catch (error) {
+      console.error('PDF export error:', error);
+      toast({
+        title: 'Export Failed',
+        description: 'Failed to generate PDF',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  // PDF Export functionality - All pages
+  const handleDownloadPdfAll = async () => {
     if (!currentEvent || dietaryGuests.length === 0) return;
     
     setIsExporting(true);
     try {
       toast({
         title: 'Generating PDF',
-        description: 'Creating your dietary chart...',
+        description: 'Creating your dietary chart (all pages)...',
       });
 
       await exportDietaryChartToPdf(currentEvent, dietaryGuests, settings);
@@ -203,49 +231,6 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
     } finally {
       setIsExporting(false);
     }
-  };
-
-  // Word Export functionality
-  const handleDownloadWord = async () => {
-    if (!currentEvent || dietaryGuests.length === 0) return;
-    
-    setIsExporting(true);
-    try {
-      toast({
-        title: 'Generating Word Document',
-        description: 'Creating your dietary chart...',
-      });
-
-      await exportDietaryChartToDocx(currentEvent, dietaryGuests, settings);
-
-      toast({
-        title: 'Word Document Downloaded',
-        description: 'Your dietary chart has been saved',
-      });
-    } catch (error) {
-      console.error('DOCX export error:', error);
-      toast({
-        title: 'Export Failed',
-        description: 'Failed to generate Word document',
-        variant: 'destructive',
-      });
-    } finally {
-      setIsExporting(false);
-    }
-  };
-
-  const handlePrint = () => {
-    if (!currentEvent || dietaryGuests.length === 0) return;
-    
-    toast({
-      title: 'Opening Print Dialog',
-      description: 'Preparing dietary chart for printing...',
-    });
-    
-    // Small delay to show toast before print dialog
-    setTimeout(() => {
-      window.print();
-    }, 500);
   };
 
   if (guestsLoading) {
@@ -493,7 +478,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                     size="xs" 
                     className="rounded-full"
                     onClick={handleDownloadPdf}
-                    disabled={isExporting || dietaryGuests.length === 0}
+                    disabled={isExporting || paginatedGuests.length === 0}
                   >
                     <FileText className="w-4 h-4" />
                     Download PDF
@@ -502,21 +487,11 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                     variant="default" 
                     size="xs" 
                     className="rounded-full"
-                    onClick={handleDownloadWord}
+                    onClick={handleDownloadPdfAll}
                     disabled={isExporting || dietaryGuests.length === 0}
                   >
                     <FileText className="w-4 h-4" />
-                    Download Word
-                  </Button>
-                  <Button 
-                    variant="default" 
-                    size="xs" 
-                    className="rounded-full"
-                    onClick={handlePrint}
-                    disabled={isExporting || dietaryGuests.length === 0}
-                  >
-                    <Printer className="w-4 h-4" />
-                    Print
+                    Download PDF All
                   </Button>
                 </div>
               </div>
