@@ -87,8 +87,13 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
     if (settings.showDietary) rowHeight += 2.5;
     if (settings.showRelation) rowHeight += 2.5;
     
-    const availableHeight = 190; // mm for guest rows (2-3 empty lines above footer)
-    const guestsPerColumn = Math.floor(availableHeight / rowHeight);
+    const availableHeight = 214; // mm for guest rows
+    
+    // FOOTER SAFE ZONE: Reserve 3 rows worth of space above the footer logo
+    const FOOTER_SAFE_ROWS = 3;
+    
+    const calculatedGuestsPerColumn = Math.floor(availableHeight / rowHeight);
+    const guestsPerColumn = calculatedGuestsPerColumn - FOOTER_SAFE_ROWS;
     return guestsPerColumn * 2; // Two columns
   }, [settings.fontSize, settings.showDietary, settings.showRelation]);
 
