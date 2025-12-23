@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
 export interface DietaryChartSettings {
-  sortBy: 'firstName' | 'lastName' | 'tableNo';
+  sortBy: 'firstName' | 'lastName' | 'tableNo' | 'dietary';
   fontSize: 'small' | 'medium' | 'large';
   showMobile: boolean;
   showRelation: boolean;

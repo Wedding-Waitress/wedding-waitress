@@ -131,6 +131,13 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
           return lastNameA.localeCompare(lastNameB);
         }
         return a.first_name.localeCompare(b.first_name);
+      } else if (settings.sortBy === 'dietary') {
+        const dietaryA = a.dietary || '';
+        const dietaryB = b.dietary || '';
+        if (dietaryA !== dietaryB) {
+          return dietaryA.localeCompare(dietaryB);
+        }
+        return a.first_name.localeCompare(b.first_name);
       } else {
         // firstName (default)
         return a.first_name.localeCompare(b.first_name);
@@ -410,40 +417,37 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
         {/* Combined Header Card - Always Visible */}
         <Card className="ww-box print:hidden">
           <CardContent className="p-6">
-              {/* Top Row: Event Selector (Left) + Title & Description (Right) */}
-              <div className="flex items-start justify-between gap-6">
-                {/* Left Side: Event Selector */}
-                <div className="flex items-center gap-3">
-                  <span className="text-sm font-medium whitespace-nowrap">Choose Event:</span>
-                  <Select value={eventId || "no-event"} onValueChange={handleEventSelect}>
-                    <SelectTrigger className="w-[300px] border-primary focus:ring-primary font-bold text-[#7248e6]">
-                      <SelectValue placeholder="Choose Event" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-popover border-border z-50">
-                      {events.map(event => (
-                        <SelectItem key={event.id} value={event.id}>
-                          <div className="flex items-center gap-2">
-                            <Calendar className="w-4 h-4" />
-                            <span>{event.name}</span>
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+              {/* Title and Description - Left aligned at top */}
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-2 rounded-lg bg-primary/10">
+                  <ChefHat className="w-5 h-5 text-primary" />
                 </div>
+                <div>
+                  <h2 className="text-2xl font-medium text-[#7248e6]">Kitchen Dietary Requirements</h2>
+                  <p className="text-muted-foreground text-sm">
+                    Staff reference sheet for guests with dietary requirements and allergies
+                  </p>
+                </div>
+              </div>
 
-                {/* Right Side: Title and Description */}
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-primary/10">
-                    <ChefHat className="w-5 h-5 text-primary" />
-                  </div>
-                  <div>
-                    <h2 className="text-2xl font-medium text-[#7248e6]">Kitchen Dietary Requirements</h2>
-                    <p className="text-muted-foreground text-sm">
-                      Staff reference sheet for guests with dietary requirements and allergies
-                    </p>
-                  </div>
-                </div>
+              {/* Event Selector */}
+              <div className="flex items-center gap-3">
+                <span className="text-sm font-medium whitespace-nowrap">Choose Event:</span>
+                <Select value={eventId || "no-event"} onValueChange={handleEventSelect}>
+                  <SelectTrigger className="w-[300px] border-primary focus:ring-primary font-bold text-[#7248e6]">
+                    <SelectValue placeholder="Choose Event" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-popover border-border z-50">
+                    {events.map(event => (
+                      <SelectItem key={event.id} value={event.id}>
+                        <div className="flex items-center gap-2">
+                          <Calendar className="w-4 h-4" />
+                          <span>{event.name}</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
               {currentEvent && (
@@ -491,7 +495,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                     disabled={isExporting || dietaryGuests.length === 0}
                   >
                     <FileText className="w-4 h-4" />
-                    Download PDF All
+                    Download All PDF
                   </Button>
                 </div>
               </div>

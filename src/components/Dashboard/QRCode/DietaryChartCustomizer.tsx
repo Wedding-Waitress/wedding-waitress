@@ -39,6 +39,7 @@ export const DietaryChartCustomizer: React.FC<DietaryChartCustomizerProps> = ({
               <SelectItem value="firstName">First Name</SelectItem>
               <SelectItem value="lastName">Last Name</SelectItem>
               <SelectItem value="tableNo">Table Number</SelectItem>
+              <SelectItem value="dietary">Dietary</SelectItem>
             </SelectContent>
           </Select>
         </div>
