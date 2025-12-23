@@ -70,21 +70,27 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
     onEventSelect(eventId);
   };
 
-  // AUTOFIT: Calculate guests per page based on font size
+  /**
+   * AUTOFIT CALCULATION - Dynamic guests per page based on font size and visible fields
+   * Must match the calculation in FullSeatingChartPreview and fullSeatingChartPdfExporter
+   */
   const guestsPerPage = React.useMemo(() => {
-    const availableHeight = 228; // mm for guest rows (after header, footer, margins)
-    
-    // Row height varies by font size - adjusted for 2-column layout
-    const rowHeightByFontSize: Record<string, number> = {
-      'small': 6,     // More guests fit with small font
-      'medium': 6.5,  // Medium
-      'large': 7.5    // Fewer guests with large font
+    const baseRowHeight: Record<string, number> = {
+      'small': 5.5,
+      'medium': 6,
+      'large': 7
     };
     
-    const rowHeight = rowHeightByFontSize[settings.fontSize] || 6.5;
+    let rowHeight = baseRowHeight[settings.fontSize] || 6;
+    
+    // Add extra height if dietary or relation info is shown
+    if (settings.showDietary) rowHeight += 2.5;
+    if (settings.showRelation) rowHeight += 2.5;
+    
+    const availableHeight = 234; // mm for guest rows
     const guestsPerColumn = Math.floor(availableHeight / rowHeight);
     return guestsPerColumn * 2; // Two columns
-  }, [settings.fontSize]);
+  }, [settings.fontSize, settings.showDietary, settings.showRelation]);
 
   const handleDownloadPdf = async () => {
     if (!selectedEvent) return;
@@ -292,7 +298,6 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
                 event={selectedEvent!} 
                 guests={sortedGuests}
                 settings={settings}
-                guestsPerPage={guestsPerPage}
               />
             </div>
           </div>
