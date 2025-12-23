@@ -86,13 +86,12 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
     if (settings.showRelation) rowHeight += 2.5;
     
     // Available height for guest rows (after header, footer, margins)
-    const availableHeight = 214; // mm for guest rows
-    
-    // FOOTER SAFE ZONE: Reserve 3 rows worth of space above the footer logo
-    const FOOTER_SAFE_ROWS = 3;
+    // Reduced from 234mm to account for header (~22mm) and footer safe zone
+    const availableHeight = 190; // mm for guest rows - leaves ~24mm gap above footer
     
     const calculatedGuestsPerColumn = Math.floor(availableHeight / rowHeight);
-    const GUESTS_PER_COLUMN = calculatedGuestsPerColumn - FOOTER_SAFE_ROWS;
+    // Clamp to minimum 1 guest per column
+    const GUESTS_PER_COLUMN = Math.max(1, calculatedGuestsPerColumn);
     const GUESTS_PER_PAGE = GUESTS_PER_COLUMN * 2; // Two columns
     
     interface PageInfo {
@@ -208,9 +207,27 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
     return `${dateStr} Time: ${timeStr}`;
   };
 
-  // Screen version guest row
+  // Calculate the minimum row height in mm based on current settings
+  const getRowHeightMm = () => {
+    const baseRowHeight: Record<string, number> = {
+      'small': 5.5,
+      'medium': 6,
+      'large': 7
+    };
+    let rowHeight = baseRowHeight[settings.fontSize] || 6;
+    if (settings.showDietary) rowHeight += 2.5;
+    if (settings.showRelation) rowHeight += 2.5;
+    return rowHeight;
+  };
+
+  const rowHeightMm = getRowHeightMm();
+
+  // Screen version guest row - enforces consistent row height
   const ScreenGuestRow = ({ guest }: { guest: Guest }) => (
-    <div className="flex items-center gap-3 py-0.5 px-1 hover:bg-muted/30 rounded-sm">
+    <div 
+      className="flex items-center gap-3 py-0.5 px-1 hover:bg-muted/30 rounded-sm"
+      style={{ minHeight: `${rowHeightMm}mm` }}
+    >
       <Checkbox
         id={`guest-${guest.id}`}
         checked={checkedGuests.has(guest.id)}
@@ -221,14 +238,16 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
         <div className={`font-bold ${getFontSizeClass()} text-foreground`}>
           {formatGuestName(guest)}
         </div>
-        {settings.showDietary && guest.dietary && guest.dietary !== 'NA' && (
-          <div className="text-xs text-muted-foreground mt-0.5">
-            Dietary: {guest.dietary}
+        {/* Always render placeholder space for dietary if enabled, to maintain consistent row height */}
+        {settings.showDietary && (
+          <div className="text-xs text-muted-foreground mt-0.5" style={{ visibility: (guest.dietary && guest.dietary !== 'NA') ? 'visible' : 'hidden' }}>
+            Dietary: {guest.dietary || 'None'}
           </div>
         )}
-        {settings.showRelation && guest.relation_display && (
-          <div className="text-xs text-muted-foreground mt-0.5">
-            {guest.relation_display}
+        {/* Always render placeholder space for relation if enabled, to maintain consistent row height */}
+        {settings.showRelation && (
+          <div className="text-xs text-muted-foreground mt-0.5" style={{ visibility: guest.relation_display ? 'visible' : 'hidden' }}>
+            {guest.relation_display || 'None'}
           </div>
         )}
       </div>
