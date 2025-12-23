@@ -39,14 +39,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/enhanced-button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { FileText, Users, Layout, Printer, Calendar } from 'lucide-react';
+import { FileText, Users, Layout, Calendar } from 'lucide-react';
 import { useEvents } from '@/hooks/useEvents';
 import { useRealtimeGuests } from '@/hooks/useRealtimeGuests';
 import { useFullSeatingChartSettings } from '@/hooks/useFullSeatingChartSettings';
 import { useToast } from '@/hooks/use-toast';
 import { FullSeatingChartPreview } from './FullSeatingChartPreview';
 import { FullSeatingChartCustomizer } from './FullSeatingChartCustomizer';
-import { exportFullSeatingChartToDocx } from '@/lib/fullSeatingChartDocxExporter';
 import { exportFullSeatingChartToPdf } from '@/lib/fullSeatingChartPdfExporter';
 
 interface FullSeatingChartPageProps {
@@ -71,33 +70,21 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
     onEventSelect(eventId);
   };
 
-  const handleDownloadWord = async () => {
-    if (!selectedEvent) return;
+  // AUTOFIT: Calculate guests per page based on font size
+  const guestsPerPage = React.useMemo(() => {
+    const availableHeight = 228; // mm for guest rows (after header, footer, margins)
     
-    setIsExporting(true);
-    try {
-      toast({
-        title: 'Generating Word Document',
-        description: 'Creating your seating chart...',
-      });
-
-      await exportFullSeatingChartToDocx(selectedEvent, sortedGuests, settings);
-
-      toast({
-        title: 'Word Document Downloaded',
-        description: 'Your seating chart has been saved',
-      });
-    } catch (error) {
-      console.error('DOCX export error:', error);
-      toast({
-        title: 'Export Failed',
-        description: 'Failed to generate Word document',
-        variant: 'destructive',
-      });
-    } finally {
-      setIsExporting(false);
-    }
-  };
+    // Row height varies by font size - adjusted for 2-column layout
+    const rowHeightByFontSize: Record<string, number> = {
+      'small': 6,     // More guests fit with small font
+      'medium': 6.5,  // Medium
+      'large': 7.5    // Fewer guests with large font
+    };
+    
+    const rowHeight = rowHeightByFontSize[settings.fontSize] || 6.5;
+    const guestsPerColumn = Math.floor(availableHeight / rowHeight);
+    return guestsPerColumn * 2; // Two columns
+  }, [settings.fontSize]);
 
   const handleDownloadPdf = async () => {
     if (!selectedEvent) return;
@@ -109,11 +96,17 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
         description: 'Creating your seating chart...',
       });
 
-      await exportFullSeatingChartToPdf(selectedEvent, sortedGuests, settings);
+      // Calculate current page guests based on auto-fit
+      const currentPageIndex = 0; // For single page download, we use first page logic
+      const startIdx = currentPageIndex * guestsPerPage;
+      const endIdx = Math.min(startIdx + guestsPerPage, sortedGuests.length);
+      const currentPageGuests = sortedGuests.slice(startIdx, endIdx);
+
+      await exportFullSeatingChartToPdf(selectedEvent, currentPageGuests, settings, 1, 1);
 
       toast({
         title: 'PDF Downloaded',
-        description: 'Your seating chart has been saved',
+        description: 'Current page has been saved',
       });
     } catch (error) {
       console.error('PDF export error:', error);
@@ -127,18 +120,32 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
     }
   };
 
-  const handlePrint = () => {
+  const handleDownloadPdfAll = async () => {
     if (!selectedEvent) return;
     
-    toast({
-      title: 'Opening Print Dialog',
-      description: 'Preparing seating chart for printing...',
-    });
-    
-    // Small delay to show toast before print dialog
-    setTimeout(() => {
-      window.print();
-    }, 500);
+    setIsExporting(true);
+    try {
+      toast({
+        title: 'Generating PDF',
+        description: 'Creating your full seating chart...',
+      });
+
+      await exportFullSeatingChartToPdf(selectedEvent, sortedGuests, settings);
+
+      toast({
+        title: 'PDF Downloaded',
+        description: 'Your complete seating chart has been saved',
+      });
+    } catch (error) {
+      console.error('PDF export error:', error);
+      toast({
+        title: 'Export Failed',
+        description: 'Failed to generate PDF',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   // Sort guests based on selected sort option from settings
@@ -254,21 +261,11 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
                     variant="default"
                     size="xs"
                     className="rounded-full"
-                    onClick={handleDownloadWord}
+                    onClick={handleDownloadPdfAll}
                     disabled={isExporting}
                   >
                     <FileText className="w-4 h-4 mr-2" />
-                    Download Word
-                  </Button>
-                  <Button
-                    variant="default"
-                    size="xs"
-                    className="rounded-full"
-                    onClick={handlePrint}
-                    disabled={isExporting}
-                  >
-                    <Printer className="w-4 h-4 mr-2" />
-                    Print
+                    Download All PDF
                   </Button>
                 </div>
               )}
@@ -295,6 +292,7 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
                 event={selectedEvent!} 
                 guests={sortedGuests}
                 settings={settings}
+                guestsPerPage={guestsPerPage}
               />
             </div>
           </div>

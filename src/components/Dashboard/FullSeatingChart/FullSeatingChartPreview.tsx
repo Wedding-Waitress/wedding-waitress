@@ -52,20 +52,34 @@ interface FullSeatingChartPreviewProps {
   event: any;
   guests: Guest[];
   settings: FullSeatingChartSettings;
+  guestsPerPage?: number; // Auto-fit from parent
 }
 
 export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = ({
   event,
   guests,
-  settings
+  settings,
+  guestsPerPage: propGuestsPerPage
 }) => {
   const [checkedGuests, setCheckedGuests] = useState<Set<string>>(new Set());
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Fixed pagination: 15 guests per column (30 total per page)
+  // AUTOFIT: Dynamic pagination based on font size
   const paginationInfo = useMemo(() => {
-    const GUESTS_PER_COLUMN = 15;
-    const GUESTS_PER_PAGE = GUESTS_PER_COLUMN * 2; // 30 total
+    // Use passed guestsPerPage or calculate based on font size
+    const GUESTS_PER_PAGE = propGuestsPerPage || (() => {
+      const availableHeight = 228; // mm for guest rows
+      const rowHeightByFontSize: Record<string, number> = {
+        'small': 6,
+        'medium': 6.5,
+        'large': 7.5
+      };
+      const rowHeight = rowHeightByFontSize[settings.fontSize] || 6.5;
+      const guestsPerColumn = Math.floor(availableHeight / rowHeight);
+      return guestsPerColumn * 2;
+    })();
+    
+    const GUESTS_PER_COLUMN = Math.ceil(GUESTS_PER_PAGE / 2);
     
     interface PageInfo {
       guests: Guest[];
@@ -88,8 +102,8 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
       });
     }
     
-    return { pages };
-  }, [guests]);
+    return { pages, guestsPerColumn: GUESTS_PER_COLUMN };
+  }, [guests, settings.fontSize, propGuestsPerPage]);
 
   const totalPages = paginationInfo.pages.length;
   const currentPageInfo = paginationInfo.pages[currentPage - 1] || { guests: [], col1Count: 0 };
@@ -269,12 +283,12 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
         }
 
         .print-footer {
-          position: absolute;
-          bottom: 0;
-          left: 0;
-          right: 0;
+          flex-shrink: 0;
+          min-height: 15mm;
           display: flex;
           justify-content: center;
+          align-items: center;
+          margin-top: auto;
         }
 
         .print-footer img {
@@ -320,6 +334,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
             column-gap: 12mm;
             align-items: start;
             margin-top: 0;
+            overflow: hidden;
           }
           
           .print-guest-column {
@@ -475,17 +490,19 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
                 </div>
               </div>
 
-              {/* Footer Logo */}
-              {settings.showLogo && (
-                <div className="mt-auto flex justify-center">
-                  <img 
-                    src="/jpeg-2.jpg" 
-                    alt="Wedding Waitress" 
-                    style={{ height: '10.5mm', width: 'auto' }}
-                    className="object-contain"
-                  />
-                </div>
-              )}
+              {/* Footer Logo - Reserved space to prevent cut-off */}
+              <div className="flex-shrink-0" style={{ minHeight: '15mm', marginTop: 'auto' }}>
+                {settings.showLogo && (
+                  <div className="flex justify-center pt-2">
+                    <img 
+                      src="/jpeg-2.jpg" 
+                      alt="Wedding Waitress" 
+                      style={{ height: '10.5mm', width: 'auto' }}
+                      className="object-contain"
+                    />
+                  </div>
+                )}
+              </div>
 
             </div>
           </div>
@@ -547,19 +564,23 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
             <div className="print-guest-list">
               <div className="print-guest-column">
                 <div className="print-column-header">
-                  GUESTS {pageInfo.startIndex + 1}-{Math.min(pageInfo.startIndex + 10, guests.length)}
+                  GUESTS {pageInfo.startIndex + 1}-{pageInfo.startIndex + pageInfo.col1Count}
                 </div>
-                {pageInfo.guests.slice(0, 10).map((guest) => (
+                {pageInfo.guests.slice(0, pageInfo.col1Count).map((guest) => (
                   <PrintGuestRow key={guest.id} guest={guest} />
                 ))}
               </div>
               <div className="print-guest-column">
-                <div className="print-column-header">
-                  GUESTS {Math.min(pageInfo.startIndex + 11, guests.length + 1)}-{Math.min(pageInfo.startIndex + 20, guests.length)}
-                </div>
-                {pageInfo.guests.slice(10, 20).map((guest) => (
-                  <PrintGuestRow key={guest.id} guest={guest} />
-                ))}
+                {pageInfo.guests.length > pageInfo.col1Count && (
+                  <>
+                    <div className="print-column-header">
+                      GUESTS {pageInfo.startIndex + pageInfo.col1Count + 1}-{pageInfo.endIndex}
+                    </div>
+                    {pageInfo.guests.slice(pageInfo.col1Count).map((guest) => (
+                      <PrintGuestRow key={guest.id} guest={guest} />
+                    ))}
+                  </>
+                )}
               </div>
             </div>
             

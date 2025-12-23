@@ -95,7 +95,9 @@ const loadLogoAsBase64 = async (): Promise<string | null> => {
 export const exportFullSeatingChartToPdf = async (
   event: Event,
   guests: Guest[],
-  settings: FullSeatingChartSettings
+  settings: FullSeatingChartSettings,
+  pageNum?: number,
+  totalPagesOverride?: number
 ): Promise<void> => {
   const pdf = new jsPDF({
     orientation: 'portrait',
@@ -107,9 +109,19 @@ export const exportFullSeatingChartToPdf = async (
   const pageHeight = 297; // A4 height in mm
   const margin = 12.7; // 1.27cm margins
   const contentWidth = pageWidth - (2 * margin);
-  const guestsPerColumn = 15;
-  const guestsPerPage = 30;
-  const totalPages = Math.ceil(guests.length / guestsPerPage);
+  
+  // AUTOFIT: Calculate guests per page based on font size
+  const availableHeight = 228; // mm for guest rows (after header, footer, margins)
+  const rowHeightByFontSize: Record<string, number> = {
+    'small': 6,
+    'medium': 6.5,
+    'large': 7.5
+  };
+  const rowHeight = rowHeightByFontSize[settings.fontSize] || 6.5;
+  const guestsPerColumn = Math.floor(availableHeight / rowHeight);
+  const guestsPerPage = guestsPerColumn * 2;
+  
+  const totalPages = totalPagesOverride || Math.ceil(guests.length / guestsPerPage);
   const fontSize = getFontSize(settings.fontSize);
   const timestamp = formatGeneratedTimestamp();
 
@@ -122,15 +134,19 @@ export const exportFullSeatingChartToPdf = async (
   // Purple color for event name and checkboxes
   const purple = { r: 109, g: 40, b: 217 }; // #6D28D9
 
-  // Generate each page
-  for (let pageNum = 1; pageNum <= totalPages; pageNum++) {
-    if (pageNum > 1) pdf.addPage();
+  // Determine actual pages to generate
+  const startPage = pageNum || 1;
+  const endPage = pageNum || totalPages;
 
-    const startIdx = (pageNum - 1) * guestsPerPage;
+  // Generate each page
+  for (let currentPageNum = startPage; currentPageNum <= endPage; currentPageNum++) {
+    if (currentPageNum > startPage) pdf.addPage();
+
+    const startIdx = (currentPageNum - 1) * guestsPerPage;
     const endIdx = Math.min(startIdx + guestsPerPage, guests.length);
     const pageGuests = guests.slice(startIdx, endIdx);
 
-    // Split into two columns
+    // Split into two columns based on auto-fit
     const col1Guests = pageGuests.slice(0, guestsPerColumn);
     const col2Guests = pageGuests.slice(guestsPerColumn);
 
@@ -152,7 +168,7 @@ export const exportFullSeatingChartToPdf = async (
     // Header - Venue/Stats Line (10pt, black)
     pdf.setFont('helvetica', 'normal');
     pdf.setFontSize(10);
-    const statsLine = `${event.venue} - Total Guests: ${guests.length} - Page ${pageNum} of ${totalPages} - Generated on: ${timestamp}`;
+    const statsLine = `${event.venue} - Total Guests: ${guests.length} - Page ${currentPageNum} of ${totalPages} - Generated on: ${timestamp}`;
     pdf.text(statsLine, pageWidth / 2, yPos, { align: 'center' });
     yPos += 3;
 
@@ -253,12 +269,13 @@ export const exportFullSeatingChartToPdf = async (
       }
     }
 
-    // Footer - Logo (if enabled)
+    // Footer - Logo (if enabled) with reserved space
     if (logoBase64) {
       const logoHeight = 10.5; // mm
       const logoWidth = 35; // mm (approximate)
       const logoX = (pageWidth - logoWidth) / 2;
-      const logoY = pageHeight - margin - logoHeight;
+      const footerReservedSpace = 15; // mm reserved for footer
+      const logoY = pageHeight - margin - footerReservedSpace + ((footerReservedSpace - logoHeight) / 2);
       
       try {
         pdf.addImage(logoBase64, 'JPEG', logoX, logoY, logoWidth, logoHeight);
