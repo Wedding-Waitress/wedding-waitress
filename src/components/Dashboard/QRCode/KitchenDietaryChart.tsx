@@ -469,9 +469,11 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                       </span>
                     </>
                   )}
-                  <span className="text-muted-foreground">-</span>
-                  <span className="text-muted-foreground">
-                    {dietaryGuests.length} Guest{dietaryGuests.length !== 1 ? 's' : ''} with dietary requirements
+                  <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/50 bg-white text-sm">
+                    <span>🍽️</span>
+                    <span className="text-muted-foreground">
+                      {dietaryGuests.length} Guest{dietaryGuests.length !== 1 ? 's' : ''} with dietary requirements
+                    </span>
                   </span>
                 </div>
 
