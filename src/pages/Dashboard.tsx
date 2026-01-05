@@ -640,7 +640,16 @@ export const Dashboard = () => {
       </div>;
   }
   return <SidebarProvider>
-    <div className="relative min-h-screen bg-gradient-subtle w-full">
+    <div 
+      className="relative min-h-screen w-full"
+      style={{
+        backgroundImage: "url('/backgrounds/Dark_Purple_Background.jpg')",
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+        backgroundAttachment: 'fixed'
+      }}
+    >
       {/* Universal Header - Full Width */}
       <DashboardHeader />
       
