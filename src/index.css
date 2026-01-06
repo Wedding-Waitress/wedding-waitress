@@ -413,6 +413,30 @@
       0 1px 2px rgba(255, 255, 255, 0.2) inset;
   }
 
+  /* Purple Glass Background - 60% lighter with overlay */
+  .purple-glass-background {
+    position: relative;
+    background-image: url('/backgrounds/Dark_Purple_Background.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+  }
+
+  .purple-glass-background::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.6);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .purple-glass-background > * {
+    position: relative;
+    z-index: 1;
+  }
+
   /* Full Seating Chart - Darker Purple Theme */
   .full-seating-chart-dark-purple {
     --primary: 262 83% 58%;

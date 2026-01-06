@@ -257,7 +257,7 @@ export const KioskView: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-hero text-white overflow-hidden">
+    <div className="min-h-screen purple-glass-background text-white overflow-hidden">
       {/* Header */}
       <div className="bg-white/10 backdrop-blur-sm border-b border-white/20">
         <div className="w-full px-8 py-6">

@@ -640,16 +640,7 @@ export const Dashboard = () => {
       </div>;
   }
   return <SidebarProvider>
-    <div 
-      className="relative min-h-screen w-full"
-      style={{
-        backgroundImage: "url('/backgrounds/Dark_Purple_Background.jpg')",
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
-        backgroundAttachment: 'fixed'
-      }}
-    >
+    <div className="relative min-h-screen w-full purple-glass-background">
       {/* Universal Header - Full Width */}
       <DashboardHeader />
       

@@ -135,7 +135,7 @@ export const Landing = () => {
     title: "QR Code & Signage",
     description: "Create beautiful digital signage and QR codes for seamless guest experience."
   }];
-  return <div className="min-h-screen bg-gradient-subtle">
+  return <div className="min-h-screen purple-glass-background">
       <Header />
       
       {/* Hero Section */}

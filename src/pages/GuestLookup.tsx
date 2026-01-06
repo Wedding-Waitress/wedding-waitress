@@ -469,7 +469,7 @@ export const GuestLookup: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-subtle font-inter">
+    <div className="min-h-screen purple-glass-background font-inter">
       {/* Hero Section */}
       <div className="bg-gradient-hero text-white">
         <div className="w-full px-4 pt-3 pb-3 md:pt-4 md:pb-4">
