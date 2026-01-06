@@ -51,7 +51,7 @@ export const Admin = () => {
   }
 
   return (
-    <div className="min-h-screen purple-glass-background">
+    <div className="min-h-screen bg-gradient-subtle">
       {/* Header */}
       <div className="border-b bg-white">
         <div className="container mx-auto px-6 py-4">

@@ -132,7 +132,7 @@ export default function Index() {
   ];
 
   return (
-    <div className="min-h-screen purple-glass-background">
+    <div className="min-h-screen bg-white">
       {/* Header */}
       <header className="border-b sticky top-0 bg-white z-50 shadow-sm">
         <div className="container mx-auto px-6 py-4">

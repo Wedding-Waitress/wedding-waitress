@@ -640,7 +640,7 @@ export const Dashboard = () => {
       </div>;
   }
   return <SidebarProvider>
-    <div className="relative min-h-screen w-full purple-glass-background">
+    <div className="relative min-h-screen bg-gradient-subtle w-full">
       {/* Universal Header - Full Width */}
       <DashboardHeader />
       
