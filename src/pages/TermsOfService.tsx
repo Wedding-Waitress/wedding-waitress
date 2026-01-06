@@ -6,7 +6,7 @@ import { ArrowLeft, FileText } from 'lucide-react';
 
 export const TermsOfService = () => {
   return (
-    <div className="min-h-screen bg-gradient-subtle">
+    <div className="min-h-screen purple-glass-background">
       {/* Header */}
       <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="w-full px-4 py-4 flex items-center justify-between">
