@@ -244,62 +244,39 @@ export const exportFullSeatingChartToDocx = async (
       })
     );
 
-    // Helper function to build guest paragraphs with stacked layout
+    // Helper function to build guest paragraphs with inline layout
     const buildGuestParagraphs = (guest: Guest | undefined): Paragraph[] => {
       if (!guest) return [new Paragraph({ text: '' })];
       
-      const paragraphs: Paragraph[] = [];
       const hasDietary = settings.showDietary && guest.dietary && guest.dietary !== 'NA';
       const hasRelation = settings.showRelation && guest.relation_display;
       
-      // Main row: checkbox + name + table
-      paragraphs.push(
+      // Build inline info string
+      const infoParts: string[] = [];
+      if (hasDietary) infoParts.push(`Dietary: ${guest.dietary}`);
+      if (hasRelation) infoParts.push(guest.relation_display!);
+      const inlineInfo = infoParts.join(' — ');
+      
+      // Single row: checkbox + name + inline info + table
+      const children: TextRun[] = [
+        new TextRun({ text: '◯ ', size: fontSize, color: '6D28D9' }),
+        new TextRun({ text: formatGuestName(guest, settings.sortBy), size: fontSize, bold: true }),
+      ];
+      
+      if (inlineInfo) {
+        children.push(new TextRun({ text: '  ', size: fontSize }));
+        children.push(new TextRun({ text: inlineInfo, size: fontSize - 4, color: '666666' }));
+      }
+      
+      children.push(new TextRun({ text: '    ', size: fontSize }));
+      children.push(new TextRun({ text: formatTableAssignment(guest.table_no), bold: true, size: fontSize }));
+      
+      return [
         new Paragraph({
-          spacing: { after: hasDietary || hasRelation ? 60 : 160 },
-          children: [
-            new TextRun({ text: '◯ ', size: fontSize, color: '6D28D9' }),
-            new TextRun({ text: formatGuestName(guest, settings.sortBy), size: fontSize, bold: true }),
-            new TextRun({ text: '    ', size: fontSize }),
-            new TextRun({ text: formatTableAssignment(guest.table_no), bold: true, size: fontSize })
-          ]
+          spacing: { after: 160 },
+          children
         })
-      );
-      
-      // Dietary row (if enabled and exists)
-      if (hasDietary) {
-        paragraphs.push(
-          new Paragraph({
-            spacing: { after: hasRelation ? 60 : 160 },
-            indent: { left: 360 },
-            children: [
-              new TextRun({ 
-                text: `Dietary: ${guest.dietary}`, 
-                size: fontSize - 4, 
-                color: '666666' 
-              })
-            ]
-          })
-        );
-      }
-      
-      // Relation row (if enabled and exists)
-      if (hasRelation) {
-        paragraphs.push(
-          new Paragraph({
-            spacing: { after: 160 },
-            indent: { left: 360 },
-            children: [
-              new TextRun({ 
-                text: guest.relation_display, 
-                size: fontSize - 4, 
-                color: '666666' 
-              })
-            ]
-          })
-        );
-      }
-      
-      return paragraphs;
+      ];
     };
 
     // Guest data rows

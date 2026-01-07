@@ -72,18 +72,14 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
    * Available for guests: 297 - 25.4 - 22 - 15 = 234.6mm ≈ 234mm
    */
   const paginationInfo = useMemo(() => {
-    // Calculate row height based on font size AND whether dietary/relation is shown
+    // Calculate row height based on font size only (dietary/relation now inline)
     const baseRowHeight: Record<string, number> = {
       'small': 5.5,
       'medium': 6,
       'large': 7
     };
     
-    let rowHeight = baseRowHeight[settings.fontSize] || 6;
-    
-    // Add extra height if dietary or relation info is shown
-    if (settings.showDietary) rowHeight += 2.5;
-    if (settings.showRelation) rowHeight += 2.5;
+    const rowHeight = baseRowHeight[settings.fontSize] || 6;
     
     // Available height for guest rows (after header, footer, margins)
     // Reduced from 234mm to account for header (~22mm) and footer safe zone
@@ -116,7 +112,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
     }
     
     return { pages, guestsPerColumn: GUESTS_PER_COLUMN, guestsPerPage: GUESTS_PER_PAGE };
-  }, [guests, settings.fontSize, settings.showDietary, settings.showRelation]);
+  }, [guests, settings.fontSize]);
 
   const totalPages = paginationInfo.pages.length;
   const currentPageInfo = paginationInfo.pages[currentPage - 1] || { guests: [], col1Count: 0 };
@@ -214,69 +210,68 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
       'medium': 6,
       'large': 7
     };
-    let rowHeight = baseRowHeight[settings.fontSize] || 6;
-    if (settings.showDietary) rowHeight += 2.5;
-    if (settings.showRelation) rowHeight += 2.5;
-    return rowHeight;
+    return baseRowHeight[settings.fontSize] || 6;
   };
 
   const rowHeightMm = getRowHeightMm();
 
-  // Screen version guest row - enforces consistent row height
-  const ScreenGuestRow = ({ guest }: { guest: Guest }) => (
-    <div 
-      className="flex items-center gap-3 py-0.5 px-1 hover:bg-muted/30 rounded-sm"
-      style={{ minHeight: `${rowHeightMm}mm` }}
-    >
-      <Checkbox
-        id={`guest-${guest.id}`}
-        checked={checkedGuests.has(guest.id)}
-        onCheckedChange={(checked) => handleGuestCheck(guest.id, checked === true)}
-        className="w-4 h-4"
-      />
-      <div className="flex-1 min-w-0">
-        <div className={`font-bold ${getFontSizeClass()} text-foreground`}>
+  // Build inline info string for dietary and relation
+  const buildInlineInfo = (guest: Guest) => {
+    const parts: string[] = [];
+    if (settings.showDietary && guest.dietary && guest.dietary !== 'NA') {
+      parts.push(`Dietary: ${guest.dietary}`);
+    }
+    if (settings.showRelation && guest.relation_display) {
+      parts.push(guest.relation_display);
+    }
+    return parts.join(' — ');
+  };
+
+  // Screen version guest row - enforces consistent row height with inline layout
+  const ScreenGuestRow = ({ guest }: { guest: Guest }) => {
+    const inlineInfo = buildInlineInfo(guest);
+    return (
+      <div 
+        className="flex items-center gap-2 py-0.5 px-1 hover:bg-muted/30 rounded-sm"
+        style={{ minHeight: `${rowHeightMm}mm` }}
+      >
+        <Checkbox
+          id={`guest-${guest.id}`}
+          checked={checkedGuests.has(guest.id)}
+          onCheckedChange={(checked) => handleGuestCheck(guest.id, checked === true)}
+          className="w-4 h-4 flex-shrink-0"
+        />
+        <span className={`font-bold ${getFontSizeClass()} text-foreground flex-shrink-0`}>
           {formatGuestName(guest)}
-        </div>
-        {/* Always render placeholder space for dietary if enabled, to maintain consistent row height */}
-        {settings.showDietary && (
-          <div className="text-xs text-muted-foreground mt-0.5" style={{ visibility: (guest.dietary && guest.dietary !== 'NA') ? 'visible' : 'hidden' }}>
-            Dietary: {guest.dietary || 'None'}
-          </div>
+        </span>
+        {/* Inline dietary and relation info */}
+        {inlineInfo && (
+          <span className="text-xs text-muted-foreground flex-1 min-w-0 truncate">
+            {inlineInfo}
+          </span>
         )}
-        {/* Always render placeholder space for relation if enabled, to maintain consistent row height */}
-        {settings.showRelation && (
-          <div className="text-xs text-muted-foreground mt-0.5" style={{ visibility: guest.relation_display ? 'visible' : 'hidden' }}>
-            {guest.relation_display || 'None'}
-          </div>
-        )}
-      </div>
-      <div className="flex-shrink-0">
-        <span className={`font-bold ${getFontSizeClass()} px-2 py-1 bg-muted rounded`}>
+        {!inlineInfo && <span className="flex-1" />}
+        <span className={`font-bold ${getFontSizeClass()} px-2 py-1 bg-muted rounded flex-shrink-0`}>
           {guest.table_no ? `Table ${guest.table_no}` : 'Unassigned'}
         </span>
       </div>
-    </div>
-  );
+    );
+  };
 
-  // Print version guest row - matches screen layout exactly
-  const PrintGuestRow = ({ guest }: { guest: Guest }) => (
-    <div className="print-guest-item">
-      <span className="print-checkbox">☐</span>
-      <div className="print-guest-details">
-        <div className="print-guest-name">{formatGuestName(guest)}</div>
-        {settings.showDietary && guest.dietary && guest.dietary !== 'NA' && (
-          <div className="print-dietary">Dietary: {guest.dietary}</div>
-        )}
-        {settings.showRelation && guest.relation_display && (
-          <div className="print-relation">{guest.relation_display}</div>
-        )}
+  // Print version guest row - matches screen layout exactly with inline info
+  const PrintGuestRow = ({ guest }: { guest: Guest }) => {
+    const inlineInfo = buildInlineInfo(guest);
+    return (
+      <div className="print-guest-item">
+        <span className="print-checkbox">☐</span>
+        <span className="print-guest-name">{formatGuestName(guest)}</span>
+        {inlineInfo && <span className="print-guest-info">{inlineInfo}</span>}
+        <span className="print-table">
+          {guest.table_no ? `Table ${guest.table_no}` : 'Unassigned'}
+        </span>
       </div>
-      <span className="print-table">
-        {guest.table_no ? `Table ${guest.table_no}` : 'Unassigned'}
-      </span>
-    </div>
-  );
+    );
+  };
 
   return (
     <>
@@ -377,8 +372,8 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
           
           .print-guest-item {
             display: flex;
-            align-items: flex-start;
-            gap: 8px;
+            align-items: center;
+            gap: 6px;
             break-inside: avoid;
             font-size: ${printFontSizes.main};
             line-height: 1.2;
@@ -391,29 +386,22 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
             font-family: monospace;
             font-size: ${printFontSizes.checkbox};
             flex-shrink: 0;
-            padding-top: 1px;
-          }
-          
-          .print-guest-details {
-            flex: 1;
-            min-width: 0;
           }
           
           .print-guest-name {
             font-weight: 700;
             color: #000;
+            flex-shrink: 0;
           }
           
-          .print-dietary {
+          .print-guest-info {
+            flex: 1;
+            min-width: 0;
             font-size: ${printFontSizes.checkbox};
             color: #666;
-            margin-top: 1px;
-          }
-          
-          .print-relation {
-            font-size: ${printFontSizes.checkbox};
-            color: #666;
-            margin-top: 1px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
           }
           
           .print-table {

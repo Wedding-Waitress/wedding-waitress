@@ -120,11 +120,8 @@ export const exportFullSeatingChartToPdf = async (
     'large': 7
   };
   
-  let rowHeight = baseRowHeight[settings.fontSize] || 6;
-  
-  // Add extra height if dietary or relation info is shown
-  if (settings.showDietary) rowHeight += 2.5;
-  if (settings.showRelation) rowHeight += 2.5;
+  // Row height is now fixed per font size (dietary/relation displayed inline)
+  const rowHeight = baseRowHeight[settings.fontSize] || 6;
   
   // Available height for guest rows - reduced to leave ~24mm gap above footer
   const availableHeight = 190; // mm for guest rows
@@ -218,55 +215,49 @@ export const exportFullSeatingChartToPdf = async (
       const guest1 = col1Guests[i];
       const guest2 = col2Guests[i];
 
-      // Helper function to draw a guest
+      // Helper function to draw a guest with inline dietary/relation
       const drawGuest = (guest: Guest | undefined, xPos: number, yPos: number): number => {
         if (!guest) return yPos;
 
-        let currentY = yPos;
         const hasDietary = settings.showDietary && guest.dietary && guest.dietary !== 'NA';
         const hasRelation = settings.showRelation && guest.relation_display;
 
-        // Main row: checkbox + name + table
-        pdf.setFont('helvetica', 'bold');
-        pdf.setFontSize(fontSize);
-        
         // Draw purple circle checkbox
         pdf.setDrawColor(purple.r, purple.g, purple.b);
         pdf.setLineWidth(0.4);
-        pdf.circle(xPos + 1.5, currentY - 1.5, 1.5, 'S');
+        pdf.circle(xPos + 1.5, yPos - 1.5, 1.5, 'S');
         
-        // Guest name (black)
+        // Guest name (bold, black)
+        pdf.setFont('helvetica', 'bold');
+        pdf.setFontSize(fontSize);
         pdf.setTextColor(0, 0, 0);
         const guestName = formatGuestName(guest, settings.sortBy);
-        pdf.text(guestName, xPos + 5, currentY);
+        pdf.text(guestName, xPos + 5, yPos);
+        const nameWidth = pdf.getTextWidth(guestName);
+        
+        // Build inline info string
+        const infoParts: string[] = [];
+        if (hasDietary) infoParts.push(`Dietary: ${guest.dietary}`);
+        if (hasRelation) infoParts.push(guest.relation_display!);
+        const inlineInfo = infoParts.join(' — ');
+        
+        // Draw inline info (smaller, grey)
+        if (inlineInfo) {
+          pdf.setFont('helvetica', 'normal');
+          pdf.setFontSize(fontSize - 2);
+          pdf.setTextColor(102, 102, 102);
+          pdf.text(inlineInfo, xPos + 5 + nameWidth + 3, yPos);
+        }
         
         // Table assignment (bold, black, right-aligned within column)
+        pdf.setFont('helvetica', 'bold');
+        pdf.setFontSize(fontSize);
+        pdf.setTextColor(0, 0, 0);
         const tableText = formatTableAssignment(guest.table_no);
-        const nameWidth = pdf.getTextWidth(guestName);
         const tableX = xPos + columnWidth - pdf.getTextWidth(tableText);
-        pdf.text(tableText, Math.max(xPos + nameWidth + 10, tableX), currentY);
-        
-        // Use calculated row height for consistent spacing
-        currentY += rowHeight;
+        pdf.text(tableText, tableX, yPos);
 
-        // Dietary row (if enabled)
-        if (hasDietary) {
-          pdf.setFont('helvetica', 'normal');
-          pdf.setFontSize(fontSize - 1);
-          pdf.setTextColor(102, 102, 102);
-          pdf.text(`Dietary: ${guest.dietary}`, xPos + 5, currentY - (rowHeight - 3.5));
-        }
-
-        // Relation row (if enabled)
-        if (hasRelation) {
-          pdf.setFont('helvetica', 'normal');
-          pdf.setFontSize(fontSize - 1);
-          pdf.setTextColor(102, 102, 102);
-          const relationY = hasDietary ? currentY - (rowHeight - 6) : currentY - (rowHeight - 3.5);
-          pdf.text(guest.relation_display!, xPos + 5, relationY);
-        }
-
-        return currentY;
+        return yPos + rowHeight;
       };
 
       // Draw both guests in parallel
