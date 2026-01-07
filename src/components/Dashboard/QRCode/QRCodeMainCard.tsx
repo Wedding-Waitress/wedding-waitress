@@ -448,30 +448,17 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
   };
   return <Card className="ww-box h-full">
       <CardHeader className="pb-2">
-        <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2 text-2xl font-medium text-[#7248e6]">
-            <QrCodeIcon className="h-5 w-5 text-purple-600" />
-            QR Code Generator
-          </CardTitle>
-          {/* Action buttons in header */}
-          <div className="flex items-center gap-2">
-            <Button onClick={handleLiveView} disabled={!selectedEvent?.slug} size="sm">
-              <ExternalLink className="h-3 w-3 mr-1" />
-              Open Live View
-            </Button>
-            <Button onClick={handleCopyLink} disabled={!selectedEvent?.slug} size="sm" variant="outline" className="border-purple-400">
-              <Link className="h-3 w-3 mr-1" />
-              Copy Link
-            </Button>
-          </div>
-        </div>
+        <CardTitle className="flex items-center gap-2 text-2xl font-medium text-[#7248e6]">
+          <QrCodeIcon className="h-5 w-5 text-purple-600" />
+          QR Code Generator
+        </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6 pt-4">
-        {/* Top Row: QR Preview + Customization + Action Buttons (3 columns) */}
-        <div className="grid grid-cols-1 lg:grid-cols-[280px_minmax(250px,350px)_1fr] gap-3 lg:gap-4 w-full items-stretch">
-          {/* Col 1: QR Code Preview (Larger - 280px) */}
-          <div className="bg-white rounded-lg border-2 border-purple-200 p-3 flex items-center justify-center">
-            <div id="qr-preview" className="w-[260px] h-[260px] flex items-center justify-center">
+        {/* Top Row: QR Preview + Customization + Action Buttons (3 equal columns) */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 w-full items-stretch">
+          {/* Col 1: QR Code Preview */}
+          <div className="bg-white rounded-lg border-2 border-purple-200 p-4 flex items-center justify-center min-h-[320px]">
+            <div id="qr-preview" className="w-full max-w-[280px] aspect-square flex items-center justify-center">
               {qrDataUrl ? (
                 <img src={qrDataUrl} alt="QR Code Preview" className="w-full h-full" style={{ imageRendering: 'pixelated' }} />
               ) : (
@@ -481,7 +468,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
           </div>
 
           {/* Col 2: Customization Panel */}
-          <div className="bg-muted/30 rounded-lg border border-border p-3 space-y-3 overflow-y-auto max-h-[320px]">
+          <div className="bg-muted/30 rounded-lg border border-border p-3 space-y-3 overflow-y-auto min-h-[320px]">
             {/* Accordions for Color, Shape, Logo */}
             <Accordion type="multiple" className="w-full space-y-2">
               {/* COLOR Section */}
@@ -667,9 +654,20 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
             </Accordion>
           </div>
 
-          {/* Col 3: Action Buttons (Wider) */}
-          <div className="flex flex-col gap-3 justify-center bg-muted/20 rounded-lg border border-border p-4">
-            {/* Row 1: PNG and JPG side-by-side */}
+          {/* Col 3: Action Buttons */}
+          <div className="flex flex-col gap-3 justify-center bg-muted/20 rounded-lg border border-border p-4 min-h-[320px]">
+            {/* Row 1: Open Live View and Copy Link */}
+            <div className="grid grid-cols-2 gap-3">
+              <Button variant="default" size="default" onClick={handleLiveView} disabled={!selectedEvent?.slug} className="w-full">
+                <ExternalLink className="h-4 w-4 mr-2" />
+                Open Live View
+              </Button>
+              <Button variant="outline" size="default" onClick={handleCopyLink} disabled={!selectedEvent?.slug} className="border-purple-400 w-full">
+                <Link className="h-4 w-4 mr-2" />
+                Copy Link
+              </Button>
+            </div>
+            {/* Row 2: PNG and JPG */}
             <div className="grid grid-cols-2 gap-3">
               <Button variant="outline" size="default" onClick={handleDownloadPNG} className="border-purple-300 w-full">
                 <FileDown className="h-4 w-4 mr-2" />
@@ -680,7 +678,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                 JPG
               </Button>
             </div>
-            {/* Row 2: Reset and Save side-by-side */}
+            {/* Row 3: Reset and Save */}
             <div className="grid grid-cols-2 gap-3">
               <Button variant="outline" size="default" onClick={handleResetQR} className="border-purple-300 w-full">
                 <RotateCcw className="h-4 w-4 mr-2" />
