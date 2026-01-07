@@ -39,8 +39,8 @@ export class AdvancedQRGenerator {
     // Generate base QR code data
     const qrMatrix = await this.getQRMatrix(url);
     
-    // Apply QR pattern with shape and style
-    this.applyQRPattern(qrMatrix, settings);
+    // Apply QR pattern with shape and style (including finder patterns)
+    this.applyQRPatternWithFinders(qrMatrix, settings);
 
     // Apply border effects
     this.applyBorder(settings);
@@ -158,168 +158,174 @@ export class AdvancedQRGenerator {
     this.ctx.globalAlpha = 1;
   }
 
-  private applyQRPattern(matrix: boolean[][], settings: QRCodeSettings) {
+  // Check if a cell is part of a finder pattern
+  private isFinderPatternCell(x: number, y: number, matrixSize: number): boolean {
+    const finderSize = 7;
+    
+    // Top-left finder
+    if (x < finderSize && y < finderSize) return true;
+    // Top-right finder
+    if (x >= matrixSize - finderSize && y < finderSize) return true;
+    // Bottom-left finder
+    if (x < finderSize && y >= matrixSize - finderSize) return true;
+    
+    return false;
+  }
+
+  private applyQRPatternWithFinders(matrix: boolean[][], settings: QRCodeSettings) {
     const cellSize = this.canvas.width / matrix.length;
+    const matrixSize = matrix.length;
     
     // Ensure no filters or opacity issues
     this.ctx.globalAlpha = 1;
     this.ctx.filter = 'none';
-    this.ctx.fillStyle = settings.foreground_color;
+
+    // Draw regular data modules (excluding finder patterns)
+    const dotsColor = settings.dots_color || settings.foreground_color;
+    this.ctx.fillStyle = dotsColor;
 
     for (let y = 0; y < matrix.length; y++) {
       for (let x = 0; x < matrix[y].length; x++) {
-        if (matrix[y][x]) {
-          this.drawQRCell(x * cellSize, y * cellSize, cellSize, settings);
+        if (matrix[y][x] && !this.isFinderPatternCell(x, y, matrixSize)) {
+          this.drawDotsModule(x * cellSize, y * cellSize, cellSize, settings);
         }
       }
     }
+
+    // Draw finder patterns separately
+    this.drawFinderPattern(0, 0, cellSize, matrix, settings); // Top-left
+    this.drawFinderPattern(matrixSize - 7, 0, cellSize, matrix, settings); // Top-right
+    this.drawFinderPattern(0, matrixSize - 7, cellSize, matrix, settings); // Bottom-left
   }
 
-  private drawQRCell(x: number, y: number, size: number, settings: QRCodeSettings) {
+  private drawDotsModule(x: number, y: number, size: number, settings: QRCodeSettings) {
     const centerX = x + size / 2;
     const centerY = y + size / 2;
+    const dotsShape = settings.dots_shape || 'square';
 
     this.ctx.save();
     this.ctx.translate(centerX, centerY);
+    this.ctx.fillStyle = settings.dots_color || settings.foreground_color;
 
-    switch (settings.shape) {
+    switch (dotsShape) {
       case 'circle':
-        this.drawCircle(size);
+        this.ctx.beginPath();
+        this.ctx.arc(0, 0, size * 0.4, 0, Math.PI * 2);
+        this.ctx.fill();
         break;
       case 'rounded':
-        this.drawRoundedSquare(size);
+        const half = size * 0.4;
+        const radius = size * 0.15;
+        this.ctx.beginPath();
+        this.ctx.roundRect(-half, -half, size * 0.8, size * 0.8, radius);
+        this.ctx.fill();
         break;
       case 'diamond':
-        this.drawDiamond(size);
+        const halfD = size * 0.4;
+        this.ctx.beginPath();
+        this.ctx.moveTo(0, -halfD);
+        this.ctx.lineTo(halfD, 0);
+        this.ctx.lineTo(0, halfD);
+        this.ctx.lineTo(-halfD, 0);
+        this.ctx.closePath();
+        this.ctx.fill();
         break;
-      case 'hexagon':
-        this.drawPolygon(6, size);
+      case 'plus':
+        const thickness = size * 0.25;
+        const length = size * 0.4;
+        this.ctx.fillRect(-thickness/2, -length, thickness, length * 2);
+        this.ctx.fillRect(-length, -thickness/2, length * 2, thickness);
         break;
-      case 'octagon':
-        this.drawPolygon(8, size);
+      case 'vertical':
+        this.ctx.fillRect(-size * 0.15, -size * 0.4, size * 0.3, size * 0.8);
         break;
-      case 'triangle':
-        this.drawPolygon(3, size);
+      case 'horizontal':
+        this.ctx.fillRect(-size * 0.4, -size * 0.15, size * 0.8, size * 0.3);
         break;
-      case 'pentagon':
-        this.drawPolygon(5, size);
-        break;
-      case 'heart':
-        this.drawHeart(size);
-        break;
-      case 'star':
-        this.drawStar(size);
-        break;
-      case 'flower':
-        this.drawFlower(size);
-        break;
-      default:
-        this.drawSquare(size);
+      default: // square
+        this.ctx.fillRect(-size/2, -size/2, size, size);
     }
 
     this.ctx.restore();
   }
 
-  private drawCircle(size: number) {
-    this.ctx.beginPath();
-    this.ctx.arc(0, 0, size * 0.4, 0, Math.PI * 2);
-    this.ctx.fill();
+  private drawFinderPattern(startX: number, startY: number, cellSize: number, matrix: boolean[][], settings: QRCodeSettings) {
+    const finderSize = 7 * cellSize;
+    const x = startX * cellSize;
+    const y = startY * cellSize;
+    const borderShape = settings.marker_border_shape || 'square';
+    const centerShape = settings.marker_center_shape || 'square';
+    const borderColor = settings.marker_border_color || settings.foreground_color;
+    const centerColor = settings.marker_center_color || settings.foreground_color;
+
+    // Draw outer border (7x7 with 1-cell thick border)
+    this.ctx.fillStyle = borderColor;
+    this.drawFinderBorder(x, y, finderSize, cellSize, borderShape);
+
+    // Draw white middle ring (5x5 area, but we clear the inner 5x5)
+    this.ctx.fillStyle = settings.background_color;
+    const innerOffset = cellSize;
+    const innerSize = 5 * cellSize;
+    this.drawFinderInner(x + innerOffset, y + innerOffset, innerSize, cellSize, borderShape);
+
+    // Draw center (3x3)
+    this.ctx.fillStyle = centerColor;
+    const centerOffset = 2 * cellSize;
+    const centerSize = 3 * cellSize;
+    this.drawFinderCenter(x + centerOffset, y + centerOffset, centerSize, centerShape);
   }
 
-  private drawSquare(size: number) {
-    this.ctx.fillRect(-size/2, -size/2, size, size);
-  }
-
-  private drawRoundedSquare(size: number) {
-    const half = size * 0.4;
-    const radius = size * 0.1;
+  private drawFinderBorder(x: number, y: number, size: number, cellSize: number, shape: string) {
+    const radius = cellSize * 1.5;
     
-    this.ctx.beginPath();
-    this.ctx.roundRect(-half, -half, size * 0.8, size * 0.8, radius);
-    this.ctx.fill();
-  }
-
-  private drawDiamond(size: number) {
-    const half = size * 0.4;
-    this.ctx.beginPath();
-    this.ctx.moveTo(0, -half);
-    this.ctx.lineTo(half, 0);
-    this.ctx.lineTo(0, half);
-    this.ctx.lineTo(-half, 0);
-    this.ctx.closePath();
-    this.ctx.fill();
-  }
-
-  private drawPolygon(sides: number, size: number) {
-    const radius = size * 0.4;
-    this.ctx.beginPath();
-    
-    for (let i = 0; i < sides; i++) {
-      const angle = (i * 2 * Math.PI) / sides - Math.PI / 2;
-      const x = radius * Math.cos(angle);
-      const y = radius * Math.sin(angle);
-      
-      if (i === 0) {
-        this.ctx.moveTo(x, y);
-      } else {
-        this.ctx.lineTo(x, y);
-      }
+    switch (shape) {
+      case 'circle':
+        this.ctx.beginPath();
+        this.ctx.arc(x + size / 2, y + size / 2, size / 2, 0, Math.PI * 2);
+        this.ctx.fill();
+        break;
+      case 'rounded':
+        this.ctx.beginPath();
+        this.ctx.roundRect(x, y, size, size, radius);
+        this.ctx.fill();
+        break;
+      default: // square
+        this.ctx.fillRect(x, y, size, size);
     }
-    
-    this.ctx.closePath();
-    this.ctx.fill();
   }
 
-  private drawHeart(size: number) {
-    const scale = size * 0.02;
-    this.ctx.beginPath();
-    this.ctx.moveTo(0, 3 * scale);
-    this.ctx.bezierCurveTo(-15 * scale, -5 * scale, -25 * scale, 5 * scale, 0, 15 * scale);
-    this.ctx.bezierCurveTo(25 * scale, 5 * scale, 15 * scale, -5 * scale, 0, 3 * scale);
-    this.ctx.fill();
-  }
-
-  private drawStar(size: number) {
-    const radius = size * 0.4;
-    const innerRadius = radius * 0.4;
-    this.ctx.beginPath();
+  private drawFinderInner(x: number, y: number, size: number, cellSize: number, shape: string) {
+    const radius = cellSize;
     
-    for (let i = 0; i < 10; i++) {
-      const angle = (i * Math.PI) / 5 - Math.PI / 2;
-      const r = i % 2 === 0 ? radius : innerRadius;
-      const x = r * Math.cos(angle);
-      const y = r * Math.sin(angle);
-      
-      if (i === 0) {
-        this.ctx.moveTo(x, y);
-      } else {
-        this.ctx.lineTo(x, y);
-      }
+    switch (shape) {
+      case 'circle':
+        this.ctx.beginPath();
+        this.ctx.arc(x + size / 2, y + size / 2, size / 2, 0, Math.PI * 2);
+        this.ctx.fill();
+        break;
+      case 'rounded':
+        this.ctx.beginPath();
+        this.ctx.roundRect(x, y, size, size, radius);
+        this.ctx.fill();
+        break;
+      default: // square
+        this.ctx.fillRect(x, y, size, size);
     }
-    
-    this.ctx.closePath();
-    this.ctx.fill();
   }
 
-  private drawFlower(size: number) {
-    const petalRadius = size * 0.2;
-    const centerRadius = size * 0.15;
+  private drawFinderCenter(x: number, y: number, size: number, shape: string) {
+    const centerX = x + size / 2;
+    const centerY = y + size / 2;
     
-    // Draw petals
-    for (let i = 0; i < 6; i++) {
-      const angle = (i * Math.PI) / 3;
-      const x = centerRadius * Math.cos(angle);
-      const y = centerRadius * Math.sin(angle);
-      
-      this.ctx.beginPath();
-      this.ctx.arc(x, y, petalRadius, 0, Math.PI * 2);
-      this.ctx.fill();
+    switch (shape) {
+      case 'circle':
+        this.ctx.beginPath();
+        this.ctx.arc(centerX, centerY, size / 2, 0, Math.PI * 2);
+        this.ctx.fill();
+        break;
+      default: // square
+        this.ctx.fillRect(x, y, size, size);
     }
-    
-    // Draw center
-    this.ctx.beginPath();
-    this.ctx.arc(0, 0, centerRadius, 0, Math.PI * 2);
-    this.ctx.fill();
   }
 
   private applyBorder(settings: QRCodeSettings) {
@@ -359,9 +365,12 @@ export class AdvancedQRGenerator {
         const x = (this.canvas.width - size) / 2;
         const y = (this.canvas.height - size) / 2;
         
-        // Create a white background for the logo
+        // Create a white background for the logo with padding
+        const padding = size * 0.1;
         this.ctx.fillStyle = '#ffffff';
-        this.ctx.fillRect(x - 10, y - 10, size + 20, size + 20);
+        this.ctx.beginPath();
+        this.ctx.roundRect(x - padding, y - padding, size + padding * 2, size + padding * 2, padding);
+        this.ctx.fill();
         
         this.ctx.drawImage(img, x, y, size, size);
         resolve();
