@@ -206,15 +206,28 @@ const handler = async (req: Request): Promise<Response> => {
     // Generate HTML email
     const htmlContent = generateEmailHtml(firstName, otp, magicLink, emailType);
 
-    // Send email via Resend
+    // Send email via Resend (using resend.dev testing domain until weddingwaitress.com is verified)
     const emailResponse = await resend.emails.send({
-      from: "Wedding Waitress <noreply@weddingwaitress.com>",
+      from: "Wedding Waitress <onboarding@resend.dev>",
       to: [userEmail],
       subject: subject,
       html: htmlContent,
     });
 
-    console.log("Email sent successfully:", emailResponse);
+    console.log("Resend response:", emailResponse);
+
+    // Check if Resend returned an error
+    if (emailResponse.error) {
+      console.error("Resend error:", emailResponse.error);
+      return new Response(JSON.stringify({ 
+        error: emailResponse.error.message || "Failed to send email" 
+      }), {
+        status: 500,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
+
+    console.log("Email sent successfully:", emailResponse.data);
 
     return new Response(JSON.stringify({ success: true }), {
       status: 200,
