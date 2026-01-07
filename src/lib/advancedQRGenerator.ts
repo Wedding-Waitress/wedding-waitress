@@ -64,39 +64,21 @@ export class AdvancedQRGenerator {
   }
 
   private async getQRMatrix(url: string): Promise<boolean[][]> {
-    if (process.env.NODE_ENV === 'development') {
-      console.log('Generating QR matrix for URL:', url); // Debug logging
+    // Use QRCode.create to get the actual module data (not pixel data)
+    const qr = await QRCode.create(url, { errorCorrectionLevel: 'H' });
+    const moduleCount = qr.modules.size;
+    const modules = qr.modules.data;
+    
+    const matrix: boolean[][] = [];
+    for (let y = 0; y < moduleCount; y++) {
+      matrix[y] = [];
+      for (let x = 0; x < moduleCount; x++) {
+        // modules.data is a Uint8Array where each element is a module
+        matrix[y][x] = modules[y * moduleCount + x] === 1;
+      }
     }
-    const qrDataURL = await QRCode.toDataURL(url, {
-      errorCorrectionLevel: 'H', // Increased error correction for better scanning
-      margin: 0,
-      width: this.canvas.width,
-      color: { dark: '#000000', light: '#FFFFFF' }
-    });
-
-    return new Promise((resolve) => {
-      const img = new Image();
-      img.onload = () => {
-        const tempCanvas = document.createElement('canvas');
-        const tempCtx = tempCanvas.getContext('2d')!;
-        tempCanvas.width = img.width;
-        tempCanvas.height = img.height;
-        tempCtx.drawImage(img, 0, 0);
-        
-        const imageData = tempCtx.getImageData(0, 0, img.width, img.height);
-        const matrix: boolean[][] = [];
-        
-        for (let y = 0; y < img.height; y++) {
-          matrix[y] = [];
-          for (let x = 0; x < img.width; x++) {
-            const i = (y * img.width + x) * 4;
-            matrix[y][x] = imageData.data[i] < 128; // true for dark pixels
-          }
-        }
-        resolve(matrix);
-      };
-      img.src = qrDataURL;
-    });
+    
+    return matrix;
   }
 
   private async applyBackground(settings: QRCodeSettings) {
@@ -158,23 +140,23 @@ export class AdvancedQRGenerator {
     this.ctx.globalAlpha = 1;
   }
 
-  // Check if a cell is part of a finder pattern
-  private isFinderPatternCell(x: number, y: number, matrixSize: number): boolean {
+  // Check if a cell is part of a finder pattern (works with module coordinates)
+  private isFinderPatternCell(moduleX: number, moduleY: number, moduleCount: number): boolean {
     const finderSize = 7;
     
     // Top-left finder
-    if (x < finderSize && y < finderSize) return true;
-    // Top-right finder
-    if (x >= matrixSize - finderSize && y < finderSize) return true;
+    if (moduleX < finderSize && moduleY < finderSize) return true;
+    // Top-right finder  
+    if (moduleX >= moduleCount - finderSize && moduleY < finderSize) return true;
     // Bottom-left finder
-    if (x < finderSize && y >= matrixSize - finderSize) return true;
+    if (moduleX < finderSize && moduleY >= moduleCount - finderSize) return true;
     
     return false;
   }
 
   private applyQRPatternWithFinders(matrix: boolean[][], settings: QRCodeSettings) {
-    const cellSize = this.canvas.width / matrix.length;
-    const matrixSize = matrix.length;
+    const moduleCount = matrix.length;
+    const cellSize = this.canvas.width / moduleCount;
     
     // Ensure no filters or opacity issues
     this.ctx.globalAlpha = 1;
@@ -184,18 +166,18 @@ export class AdvancedQRGenerator {
     const dotsColor = settings.dots_color || settings.foreground_color;
     this.ctx.fillStyle = dotsColor;
 
-    for (let y = 0; y < matrix.length; y++) {
-      for (let x = 0; x < matrix[y].length; x++) {
-        if (matrix[y][x] && !this.isFinderPatternCell(x, y, matrixSize)) {
+    for (let y = 0; y < moduleCount; y++) {
+      for (let x = 0; x < moduleCount; x++) {
+        if (matrix[y][x] && !this.isFinderPatternCell(x, y, moduleCount)) {
           this.drawDotsModule(x * cellSize, y * cellSize, cellSize, settings);
         }
       }
     }
 
-    // Draw finder patterns separately
-    this.drawFinderPattern(0, 0, cellSize, matrix, settings); // Top-left
-    this.drawFinderPattern(matrixSize - 7, 0, cellSize, matrix, settings); // Top-right
-    this.drawFinderPattern(0, matrixSize - 7, cellSize, matrix, settings); // Bottom-left
+    // Draw finder patterns separately with custom colors
+    this.drawFinderPattern(0, 0, cellSize, settings); // Top-left
+    this.drawFinderPattern(moduleCount - 7, 0, cellSize, settings); // Top-right
+    this.drawFinderPattern(0, moduleCount - 7, cellSize, settings); // Bottom-left
   }
 
   private drawDotsModule(x: number, y: number, size: number, settings: QRCodeSettings) {
@@ -249,10 +231,10 @@ export class AdvancedQRGenerator {
     this.ctx.restore();
   }
 
-  private drawFinderPattern(startX: number, startY: number, cellSize: number, matrix: boolean[][], settings: QRCodeSettings) {
+  private drawFinderPattern(startModuleX: number, startModuleY: number, cellSize: number, settings: QRCodeSettings) {
     const finderSize = 7 * cellSize;
-    const x = startX * cellSize;
-    const y = startY * cellSize;
+    const x = startModuleX * cellSize;
+    const y = startModuleY * cellSize;
     const borderShape = settings.marker_border_shape || 'square';
     const centerShape = settings.marker_center_shape || 'square';
     const borderColor = settings.marker_border_color || settings.foreground_color;
@@ -262,7 +244,7 @@ export class AdvancedQRGenerator {
     this.ctx.fillStyle = borderColor;
     this.drawFinderBorder(x, y, finderSize, cellSize, borderShape);
 
-    // Draw white middle ring (5x5 area, but we clear the inner 5x5)
+    // Draw white middle ring (5x5 area)
     this.ctx.fillStyle = settings.background_color;
     const innerOffset = cellSize;
     const innerSize = 5 * cellSize;
