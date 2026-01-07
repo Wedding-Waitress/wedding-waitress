@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "npm:resend@2.0.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
+import { Webhook } from "https://esm.sh/standardwebhooks@1.0.0";
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
@@ -8,26 +9,6 @@ const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
-
-// Verify webhook signature using HMAC-SHA256
-async function verifyWebhookSignature(payload: string, signature: string, secret: string): Promise<boolean> {
-  try {
-    const encoder = new TextEncoder();
-    const key = await crypto.subtle.importKey(
-      "raw",
-      encoder.encode(secret),
-      { name: "HMAC", hash: "SHA-256" },
-      false,
-      ["sign"]
-    );
-    const signatureBytes = await crypto.subtle.sign("HMAC", key, encoder.encode(payload));
-    const computedSignature = btoa(String.fromCharCode(...new Uint8Array(signatureBytes)));
-    return computedSignature === signature;
-  } catch (error) {
-    console.error("Signature verification error:", error);
-    return false;
-  }
-}
 
 // Generate branded HTML email template
 function generateEmailHtml(firstName: string | null, otp: string, magicLink: string, emailType: string): string {
@@ -145,30 +126,28 @@ const handler = async (req: Request): Promise<Response> => {
       });
     }
 
+    // Strip the v1,whsec_ prefix as required by standardwebhooks
+    const cleanSecret = hookSecret.replace("v1,whsec_", "");
+
     // Get the raw body for signature verification
     const rawBody = await req.text();
-    const signature = req.headers.get("x-supabase-signature");
+    const headers = Object.fromEntries(req.headers);
 
-    if (!signature) {
-      console.error("Missing webhook signature");
-      return new Response(JSON.stringify({ error: "Missing signature" }), {
-        status: 401,
-        headers: { "Content-Type": "application/json", ...corsHeaders },
-      });
-    }
-
-    // Verify the webhook signature
-    const isValid = await verifyWebhookSignature(rawBody, signature, hookSecret);
-    if (!isValid) {
-      console.error("Invalid webhook signature");
+    // Verify the webhook signature using standardwebhooks library
+    const wh = new Webhook(cleanSecret);
+    let payload: any;
+    
+    try {
+      payload = wh.verify(rawBody, headers);
+      console.log("Webhook verified successfully");
+    } catch (verifyError) {
+      console.error("Webhook verification failed:", verifyError);
       return new Response(JSON.stringify({ error: "Invalid signature" }), {
         status: 401,
         headers: { "Content-Type": "application/json", ...corsHeaders },
       });
     }
 
-    // Parse the payload
-    const payload = JSON.parse(rawBody);
     console.log("Auth hook payload received:", JSON.stringify(payload, null, 2));
 
     const { user, email_data } = payload;
