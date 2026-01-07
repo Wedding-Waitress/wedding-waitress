@@ -181,13 +181,27 @@ export class AdvancedQRGenerator {
   }
 
   private drawDotsModule(x: number, y: number, size: number, settings: QRCodeSettings) {
+    const dotsShape = settings.dots_shape || 'square';
+    const dotsColor = settings.dots_color || settings.foreground_color;
+
+    this.ctx.fillStyle = dotsColor;
+
+    // For square shape, draw directly without translate to avoid sub-pixel gaps
+    if (dotsShape === 'square') {
+      // Use Math.floor for position and Math.ceil for size to ensure full coverage
+      const px = Math.floor(x);
+      const py = Math.floor(y);
+      const pSize = Math.ceil(size) + 0.5; // Slight overlap to eliminate gaps
+      this.ctx.fillRect(px, py, pSize, pSize);
+      return;
+    }
+
+    // For other shapes, continue using the centered approach
     const centerX = x + size / 2;
     const centerY = y + size / 2;
-    const dotsShape = settings.dots_shape || 'square';
 
     this.ctx.save();
     this.ctx.translate(centerX, centerY);
-    this.ctx.fillStyle = settings.dots_color || settings.foreground_color;
 
     switch (dotsShape) {
       case 'circle':
@@ -224,8 +238,6 @@ export class AdvancedQRGenerator {
       case 'horizontal':
         this.ctx.fillRect(-size * 0.4, -size * 0.15, size * 0.8, size * 0.3);
         break;
-      default: // square
-        this.ctx.fillRect(-size/2, -size/2, size, size);
     }
 
     this.ctx.restore();
