@@ -505,34 +505,34 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                 <AccordionTrigger className="px-3 py-2 hover:no-underline">
                   <div className="flex items-center gap-2">
                     <Palette className="h-4 w-4 text-purple-600" />
-                    <span className="text-xs font-medium">Color</span>
+                    <span className="text-sm font-medium">Color</span>
                   </div>
                 </AccordionTrigger>
                 <AccordionContent className="px-3 pb-3 space-y-3">
                   <div className="grid grid-cols-2 gap-2">
                     <div className="space-y-1">
-                      <Label className="text-xs">Background</Label>
+                      <Label className="text-sm">Background</Label>
                       <div className="flex items-center gap-1">
                         <input type="color" value={qrColors.background} onChange={e => updateColors({ background: e.target.value })} className="w-6 h-6 rounded border cursor-pointer" />
                         <Input value={qrColors.background} onChange={e => updateColors({ background: e.target.value })} className="text-xs font-mono h-7 flex-1" />
                       </div>
                     </div>
                     <div className="space-y-1">
-                      <Label className="text-xs">Dots</Label>
+                      <Label className="text-sm">Dots</Label>
                       <div className="flex items-center gap-1">
                         <input type="color" value={qrColors.dotsColor} onChange={e => updateColors({ dotsColor: e.target.value })} className="w-6 h-6 rounded border cursor-pointer" />
                         <Input value={qrColors.dotsColor} onChange={e => updateColors({ dotsColor: e.target.value })} className="text-xs font-mono h-7 flex-1" />
                       </div>
                     </div>
                     <div className="space-y-1">
-                      <Label className="text-xs">Marker Border</Label>
+                      <Label className="text-sm">Marker Border</Label>
                       <div className="flex items-center gap-1">
                         <input type="color" value={qrColors.markerBorderColor} onChange={e => updateColors({ markerBorderColor: e.target.value })} className="w-6 h-6 rounded border cursor-pointer" />
                         <Input value={qrColors.markerBorderColor} onChange={e => updateColors({ markerBorderColor: e.target.value })} className="text-xs font-mono h-7 flex-1" />
                       </div>
                     </div>
                     <div className="space-y-1">
-                      <Label className="text-xs">Marker Center</Label>
+                      <Label className="text-sm">Marker Center</Label>
                       <div className="flex items-center gap-1">
                         <input type="color" value={qrColors.markerCenterColor} onChange={e => updateColors({ markerCenterColor: e.target.value })} className="w-6 h-6 rounded border cursor-pointer" />
                         <Input value={qrColors.markerCenterColor} onChange={e => updateColors({ markerCenterColor: e.target.value })} className="text-xs font-mono h-7 flex-1" />
@@ -550,12 +550,12 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                 <AccordionTrigger className="px-3 py-2 hover:no-underline">
                   <div className="flex items-center gap-2">
                     <Square className="h-4 w-4 text-purple-600" />
-                    <span className="text-xs font-medium">Shape & Form</span>
+                    <span className="text-sm font-medium">Shape & Form</span>
                   </div>
                 </AccordionTrigger>
                 <AccordionContent className="px-3 pb-3 space-y-3">
                   <div className="space-y-2">
-                    <Label className="text-xs">Dots</Label>
+                    <Label className="text-sm">Dots</Label>
                     <div className="flex flex-wrap gap-1">
                       {(['square', 'rounded', 'circle', 'diamond', 'plus', 'vertical', 'horizontal'] as const).map((shape) => (
                         <button
@@ -581,7 +581,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                   </div>
                   <div className="grid grid-cols-2 gap-2">
                     <div className="space-y-1">
-                      <Label className="text-xs">Marker Border</Label>
+                      <Label className="text-sm">Marker Border</Label>
                       <div className="flex gap-1">
                         {(['square', 'rounded', 'circle'] as const).map((shape) => (
                           <button
@@ -602,7 +602,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                       </div>
                     </div>
                     <div className="space-y-1">
-                      <Label className="text-xs">Marker Center</Label>
+                      <Label className="text-sm">Marker Center</Label>
                       <div className="flex gap-1">
                         {(['square', 'circle'] as const).map((shape) => (
                           <button
@@ -630,7 +630,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                 <AccordionTrigger className="px-3 py-2 hover:no-underline">
                   <div className="flex items-center gap-2">
                     <ImageIcon className="h-4 w-4 text-purple-600" />
-                    <span className="text-xs font-medium">Logo</span>
+                    <span className="text-sm font-medium">Logo</span>
                   </div>
                 </AccordionTrigger>
                 <AccordionContent className="px-3 pb-3 space-y-3">
