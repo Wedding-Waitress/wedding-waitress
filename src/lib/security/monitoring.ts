@@ -151,11 +151,19 @@ export class RateLimiter {
     return Math.max(0, this.maxAttempts - entry.count);
   }
 
+  getRemainingTime(identifier: string): number {
+    const entry = this.attempts.get(identifier);
+    if (!entry || Date.now() > entry.resetTime) {
+      return 0;
+    }
+    return Math.max(0, Math.ceil((entry.resetTime - Date.now()) / 1000));
+  }
+
   reset(identifier: string): void {
     this.attempts.delete(identifier);
   }
 }
 
 // Global rate limiter instances
-export const loginRateLimiter = new RateLimiter(5, 15 * 60 * 1000); // 5 attempts per 15 minutes
+export const loginRateLimiter = new RateLimiter(1, 90 * 1000); // 1 attempt per 90 seconds
 export const guestAddRateLimiter = new RateLimiter(20, 60 * 1000); // 20 guests per minute
