@@ -9,7 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Progress } from '@/components/ui/progress';
 import { Slider } from '@/components/ui/slider';
-import { QrCode as QrCodeIcon, Copy, Download, RotateCcw, Save, Printer, FileDown, Palette, ChevronDown, FileText, Code, Image as ImageIcon, ExternalLink, Link, Eye, EyeOff, Upload, Mail, Edit, Trash2, Loader2, Video, Square, Circle, Diamond, Plus, Minus } from 'lucide-react';
+import { QrCode as QrCodeIcon, Copy, Download, RotateCcw, Save, FileDown, Palette, ChevronDown, FileText, Code, Image as ImageIcon, ExternalLink, Link, Eye, EyeOff, Upload, Mail, Edit, Trash2, Loader2, Video, Square, Circle, Diamond, Plus, Minus } from 'lucide-react';
 import { useEvents } from '@/hooks/useEvents';
 import { useToast } from '@/hooks/use-toast';
 import { useLiveViewVisibility } from '@/hooks/useLiveViewVisibility';
@@ -448,38 +448,39 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
   };
   return <Card className="ww-box h-full">
       <CardHeader className="pb-2">
-        <CardTitle className="flex items-center gap-2 text-2xl font-medium text-[#7248e6]">
-          <QrCodeIcon className="h-5 w-5 text-purple-600" />
-          QR Code Generator
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-6 pt-4">
-        {/* Top Row: Actions + QR Preview + Customization (3 columns) */}
-        <div className="grid grid-cols-1 lg:grid-cols-[auto_200px_1fr] gap-3 lg:gap-4 w-full items-stretch">
-          {/* Col 1: Live View Actions (Compact) */}
-          <div className="space-y-2 p-3 bg-purple-50 border-2 border-purple-600 rounded-lg flex flex-col justify-center">
-            <Button onClick={handleLiveView} disabled={!selectedEvent?.slug} size="sm" className="w-full">
+        <div className="flex items-center justify-between">
+          <CardTitle className="flex items-center gap-2 text-2xl font-medium text-[#7248e6]">
+            <QrCodeIcon className="h-5 w-5 text-purple-600" />
+            QR Code Generator
+          </CardTitle>
+          {/* Action buttons in header */}
+          <div className="flex items-center gap-2">
+            <Button onClick={handleLiveView} disabled={!selectedEvent?.slug} size="sm">
               <ExternalLink className="h-3 w-3 mr-1" />
               Open Live View
             </Button>
-            <Button onClick={handleCopyLink} disabled={!selectedEvent?.slug} size="sm" variant="outline" className="w-full border-purple-400">
+            <Button onClick={handleCopyLink} disabled={!selectedEvent?.slug} size="sm" variant="outline" className="border-purple-400">
               <Link className="h-3 w-3 mr-1" />
               Copy Link
             </Button>
           </div>
-
-          {/* Col 2: QR Code Preview (Fixed 200px) */}
-          <div className="bg-white rounded-lg border-2 border-purple-200 p-2 flex items-center justify-center">
-            <div id="qr-preview" className="w-[180px] h-[180px] flex items-center justify-center">
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-6 pt-4">
+        {/* Top Row: QR Preview + Customization + Action Buttons (3 columns) */}
+        <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr_auto] gap-3 lg:gap-4 w-full items-stretch">
+          {/* Col 1: QR Code Preview (Larger - 280px) */}
+          <div className="bg-white rounded-lg border-2 border-purple-200 p-3 flex items-center justify-center">
+            <div id="qr-preview" className="w-[260px] h-[260px] flex items-center justify-center">
               {qrDataUrl ? (
                 <img src={qrDataUrl} alt="QR Code Preview" className="w-full h-full" style={{ imageRendering: 'pixelated' }} />
               ) : (
-                <QrCodeIcon className="h-16 w-16 text-muted-foreground/50" />
+                <QrCodeIcon className="h-20 w-20 text-muted-foreground/50" />
               )}
             </div>
           </div>
 
-          {/* Col 4: Customization Panel */}
+          {/* Col 2: Customization Panel */}
           <div className="bg-muted/30 rounded-lg border border-border p-3 space-y-3 overflow-y-auto max-h-[320px]">
             {/* Accordions for Color, Shape, Logo */}
             <Accordion type="multiple" className="w-full space-y-2">
@@ -664,30 +665,32 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                 </AccordionContent>
               </AccordionItem>
             </Accordion>
+          </div>
 
-            {/* Action Buttons */}
-            <div className="grid grid-cols-4 gap-2">
-              <Button variant="outline" size="sm" onClick={handleDownloadPNG} className="border-purple-300 text-xs px-2">
+          {/* Col 3: Action Buttons (Compact 2x2 Grid) */}
+          <div className="flex flex-col gap-2 justify-center">
+            {/* Row 1: PNG and JPG side-by-side */}
+            <div className="grid grid-cols-2 gap-2">
+              <Button variant="outline" size="sm" onClick={handleDownloadPNG} className="border-purple-300 text-xs px-3">
                 <FileDown className="h-3 w-3 mr-1" />
                 PNG
               </Button>
-              <Button variant="outline" size="sm" onClick={handleDownloadJPG} className="border-purple-300 text-xs px-2">
+              <Button variant="outline" size="sm" onClick={handleDownloadJPG} className="border-purple-300 text-xs px-3">
                 <ImageIcon className="h-3 w-3 mr-1" />
                 JPG
               </Button>
-              <Button variant="outline" size="sm" onClick={handleResetQR} className="border-purple-300 text-xs px-2">
+            </div>
+            {/* Row 2: Reset and Save side-by-side */}
+            <div className="grid grid-cols-2 gap-2">
+              <Button variant="outline" size="sm" onClick={handleResetQR} className="border-purple-300 text-xs px-3">
                 <RotateCcw className="h-3 w-3 mr-1" />
                 Reset
               </Button>
-              <Button variant="outline" size="sm" onClick={handlePrintQR} className="border-purple-300 text-xs px-2">
-                <Printer className="h-3 w-3 mr-1" />
-                Print
+              <Button variant="success" size="sm" onClick={handleSaveQR} className="text-xs px-3">
+                <Save className="h-3 w-3 mr-1" />
+                Save
               </Button>
             </div>
-            <Button variant="success" size="sm" onClick={handleSaveQR} className="w-full">
-              <Save className="h-3 w-3 mr-1" />
-              Save
-            </Button>
           </div>
         </div>
 
