@@ -4,21 +4,26 @@ import { QRCodeSettings } from '@/hooks/useQRCodeSettings';
 export class AdvancedQRGenerator {
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
+  private renderScale: number;
   
   constructor(size: number = 512) {
+    // Render at 2x resolution internally for smoother curves and anti-aliased edges
+    this.renderScale = 2;
+    const renderSize = size * this.renderScale;
     this.canvas = document.createElement('canvas');
-    this.canvas.width = size;
-    this.canvas.height = size;
+    this.canvas.width = renderSize;
+    this.canvas.height = renderSize;
     this.ctx = this.canvas.getContext('2d')!;
   }
 
   async generate(url: string, settings: QRCodeSettings): Promise<string> {
     const { output_size = 512 } = settings;
+    const renderSize = output_size * this.renderScale;
     
-    // Resize canvas if needed
-    if (this.canvas.width !== output_size) {
-      this.canvas.width = output_size;
-      this.canvas.height = output_size;
+    // Resize canvas if needed (at 2x for high quality)
+    if (this.canvas.width !== renderSize) {
+      this.canvas.width = renderSize;
+      this.canvas.height = renderSize;
     }
 
     // Clear canvas
@@ -31,7 +36,10 @@ export class AdvancedQRGenerator {
     this.ctx.shadowColor = 'transparent';
     this.ctx.shadowBlur = 0;
     this.ctx.globalCompositeOperation = 'source-over';
-    this.ctx.imageSmoothingEnabled = false;
+    
+    // Enable anti-aliasing for smooth curves and high-quality rendering
+    this.ctx.imageSmoothingEnabled = true;
+    this.ctx.imageSmoothingQuality = 'high';
 
     // Apply background
     await this.applyBackground(settings);
@@ -60,7 +68,16 @@ export class AdvancedQRGenerator {
       this.applyScanText(settings);
     }
 
-    return this.canvas.toDataURL(`image/${settings.output_format}`, 0.9);
+    // Create output canvas at requested size (downscale from 2x for crisp result)
+    const outputCanvas = document.createElement('canvas');
+    outputCanvas.width = output_size;
+    outputCanvas.height = output_size;
+    const outputCtx = outputCanvas.getContext('2d')!;
+    outputCtx.imageSmoothingEnabled = true;
+    outputCtx.imageSmoothingQuality = 'high';
+    outputCtx.drawImage(this.canvas, 0, 0, output_size, output_size);
+
+    return outputCanvas.toDataURL(`image/${settings.output_format}`, 0.95);
   }
 
   private async getQRMatrix(url: string): Promise<boolean[][]> {
