@@ -416,32 +416,16 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
     setQrShapes(prev => ({ ...prev, ...updates }));
   };
   return <Card className="ww-box h-full">
-      <CardHeader>
+      <CardHeader className="pb-2">
         <CardTitle className="flex items-center gap-2 text-2xl font-medium text-[#7248e6]">
           <QrCodeIcon className="h-5 w-5 text-purple-600" />
           QR Code Generator
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-6">
-        {/* Top Row: Status + Actions + QR Preview + Customization */}
-        <div className="grid grid-cols-1 lg:grid-cols-[auto_auto_200px_1fr] gap-3 lg:gap-4 w-full items-stretch">
-          {/* Col 1: Connection Status (Compact) */}
-          <div className="space-y-2 p-3 bg-green-50 border-2 border-green-600 rounded-lg">
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-              <span className="text-xs font-medium text-green-800">Connected & Synced</span>
-            </div>
-            {selectedEvent && (
-              <div className="text-xs text-green-700">
-                <span>Linked: <strong className="truncate max-w-[100px] inline-block align-bottom">{selectedEvent.name}</strong></span>
-              </div>
-            )}
-            <div className="text-xs text-green-600 bg-green-100 px-2 py-1 rounded">
-              📱 Opens guest lookup
-            </div>
-          </div>
-
-          {/* Col 2: Live View Actions (Compact) */}
+      <CardContent className="space-y-6 pt-4">
+        {/* Top Row: Actions + QR Preview + Customization (3 columns) */}
+        <div className="grid grid-cols-1 lg:grid-cols-[auto_200px_1fr] gap-3 lg:gap-4 w-full items-stretch">
+          {/* Col 1: Live View Actions (Compact) */}
           <div className="space-y-2 p-3 bg-purple-50 border-2 border-purple-600 rounded-lg flex flex-col justify-center">
             <Button onClick={handleLiveView} disabled={!selectedEvent?.slug} size="sm" className="w-full">
               <ExternalLink className="h-3 w-3 mr-1" />
@@ -453,7 +437,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
             </Button>
           </div>
 
-          {/* Col 3: QR Code Preview (Fixed 200px) */}
+          {/* Col 2: QR Code Preview (Fixed 200px) */}
           <div className="bg-white rounded-lg border-2 border-purple-200 p-2 flex items-center justify-center">
             <div id="qr-preview" className="w-[180px] h-[180px] flex items-center justify-center">
               {qrDataUrl ? (
