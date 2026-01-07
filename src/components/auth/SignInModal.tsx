@@ -28,9 +28,26 @@ export const SignInModal: React.FC<SignInModalProps> = ({
   const [verificationCode, setVerificationCode] = useState(['', '', '', '', '', '']);
   const [error, setError] = useState('');
   const [resendTimer, setResendTimer] = useState(0);
+  const [cooldownTimer, setCooldownTimer] = useState(0);
   const { toast } = useToast();
   const navigate = useNavigate();
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  // Cooldown timer effect
+  useEffect(() => {
+    if (cooldownTimer > 0) {
+      const timer = setInterval(() => {
+        setCooldownTimer((prev) => {
+          if (prev <= 1) {
+            clearInterval(timer);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+      return () => clearInterval(timer);
+    }
+  }, [cooldownTimer]);
 
   // Focus first field when modal opens
   useEffect(() => {
@@ -66,8 +83,10 @@ export const SignInModal: React.FC<SignInModalProps> = ({
     setError('');
     
     // Check rate limiting
+    const remainingTime = loginRateLimiter.getRemainingTime(email);
     if (!loginRateLimiter.isAllowed(email)) {
-      setError(`Too many login attempts. Please try again later.`);
+      setCooldownTimer(remainingTime);
+      setError(`Please wait ${remainingTime} seconds before trying again.`);
       logSecurityEvent.authFailure('Rate limit exceeded', email);
       return;
     }
@@ -273,19 +292,22 @@ export const SignInModal: React.FC<SignInModalProps> = ({
                 />
               </div>
 
-              {error && (
+              {(error || cooldownTimer > 0) && (
                 <div className="text-sm text-destructive bg-destructive/10 p-2 rounded">
-                  {error}
+                  {cooldownTimer > 0 
+                    ? `Please wait ${cooldownTimer} seconds before trying again.`
+                    : error
+                  }
                 </div>
               )}
 
               <Button 
                 type="submit" 
                 className="w-full" 
-                disabled={loading || !email}
+                disabled={loading || !email || cooldownTimer > 0}
               >
                 {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Email me the code
+                {cooldownTimer > 0 ? `Wait ${cooldownTimer}s` : 'Email me the code'}
               </Button>
             </form>
 
