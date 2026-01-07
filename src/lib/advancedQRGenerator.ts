@@ -354,7 +354,15 @@ export class AdvancedQRGenerator {
         this.ctx.roundRect(x - padding, y - padding, size + padding * 2, size + padding * 2, padding);
         this.ctx.fill();
         
+        // Enable high-quality image smoothing for the logo
+        this.ctx.imageSmoothingEnabled = true;
+        this.ctx.imageSmoothingQuality = 'high';
+        
         this.ctx.drawImage(img, x, y, size, size);
+        
+        // Restore to disabled for any subsequent QR rendering
+        this.ctx.imageSmoothingEnabled = false;
+        
         resolve();
       };
       img.onerror = () => resolve();
