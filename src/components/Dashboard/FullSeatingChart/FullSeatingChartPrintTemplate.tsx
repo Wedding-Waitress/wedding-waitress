@@ -165,48 +165,44 @@ export const FullSeatingChartPrintTemplate: React.FC<FullSeatingChartPrintTempla
           {leftColumn.map((guest) => {
             const guestName = formatGuestName(guest);
             const tableInfo = guest.table_no ? `Table ${guest.table_no}` : 'Unassigned';
+            const hasDietary = settings.showDietary && guest.dietary && guest.dietary !== 'NA';
+            const hasRelation = settings.showRelation && guest.relation_display;
+            const infoParts: string[] = [];
+            if (hasDietary) infoParts.push(`Dietary: ${guest.dietary}`);
+            if (hasRelation) infoParts.push(guest.relation_display || '');
+            const inlineInfo = infoParts.join(' — ');
             
             return (
-              <div key={guest.id} style={{ marginBottom: '1.5mm', breakInside: 'avoid' }}>
-                {/* Name line with checkbox and table */}
+              <div key={guest.id} style={{ 
+                display: 'flex', 
+                alignItems: 'center',
+                gap: '3mm',
+                marginBottom: '1.5mm', 
+                breakInside: 'avoid',
+                fontSize: currentFontSize.name,
+                lineHeight: currentFontSize.lineHeight
+              }}>
                 <div style={{ 
-                  display: 'flex', 
-                  alignItems: 'center',
-                  fontSize: currentFontSize.name,
-                  lineHeight: currentFontSize.lineHeight
-                }}>
-                  <div style={{ 
-                    width: '3mm', 
-                    height: '3mm', 
-                    border: '0.3mm solid #000',
-                    marginRight: '3mm',
-                    flexShrink: 0
-                  }}></div>
-                  <span style={{ fontWeight: 'bold', flex: 1 }}>{guestName}</span>
-                  <span style={{ fontWeight: 'normal', marginLeft: '2mm' }}>{tableInfo}</span>
-                </div>
-
-                {/* Details */}
-                <div style={{ marginLeft: '6mm' }}>
-                  {settings.showDietary && guest.dietary && (
-                    <div style={{ 
-                      fontSize: currentFontSize.details,
-                      color: '#2563eb',
-                      lineHeight: currentFontSize.lineHeight
-                    }}>
-                      Dietary: {guest.dietary}
-                    </div>
-                  )}
-                  {settings.showRelation && guest.relation_display && (
-                    <div style={{ 
-                      fontSize: currentFontSize.details,
-                      color: '#7C3AED',
-                      lineHeight: currentFontSize.lineHeight
-                    }}>
-                      Relation: {guest.relation_display}
-                    </div>
-                  )}
-                </div>
+                  width: '3mm', 
+                  height: '3mm', 
+                  border: '0.3mm solid #000',
+                  flexShrink: 0
+                }}></div>
+                <span style={{ fontWeight: 'bold', flexShrink: 0 }}>{guestName}</span>
+                {inlineInfo && (
+                  <span style={{ 
+                    flex: 1,
+                    fontSize: currentFontSize.details,
+                    color: '#666',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap'
+                  }}>
+                    {inlineInfo}
+                  </span>
+                )}
+                {!inlineInfo && <span style={{ flex: 1 }} />}
+                <span style={{ fontWeight: 'normal', flexShrink: 0 }}>{tableInfo}</span>
               </div>
             );
           })}
@@ -217,48 +213,44 @@ export const FullSeatingChartPrintTemplate: React.FC<FullSeatingChartPrintTempla
           {rightColumn.map((guest) => {
             const guestName = formatGuestName(guest);
             const tableInfo = guest.table_no ? `Table ${guest.table_no}` : 'Unassigned';
+            const hasDietary = settings.showDietary && guest.dietary && guest.dietary !== 'NA';
+            const hasRelation = settings.showRelation && guest.relation_display;
+            const infoParts: string[] = [];
+            if (hasDietary) infoParts.push(`Dietary: ${guest.dietary}`);
+            if (hasRelation) infoParts.push(guest.relation_display || '');
+            const inlineInfo = infoParts.join(' — ');
             
             return (
-              <div key={guest.id} style={{ marginBottom: '1.5mm', breakInside: 'avoid' }}>
-                {/* Name line with checkbox and table */}
+              <div key={guest.id} style={{ 
+                display: 'flex', 
+                alignItems: 'center',
+                gap: '3mm',
+                marginBottom: '1.5mm', 
+                breakInside: 'avoid',
+                fontSize: currentFontSize.name,
+                lineHeight: currentFontSize.lineHeight
+              }}>
                 <div style={{ 
-                  display: 'flex', 
-                  alignItems: 'center',
-                  fontSize: currentFontSize.name,
-                  lineHeight: currentFontSize.lineHeight
-                }}>
-                  <div style={{ 
-                    width: '3mm', 
-                    height: '3mm', 
-                    border: '0.3mm solid #000',
-                    marginRight: '3mm',
-                    flexShrink: 0
-                  }}></div>
-                  <span style={{ fontWeight: 'bold', flex: 1 }}>{guestName}</span>
-                  <span style={{ fontWeight: 'normal', marginLeft: '2mm' }}>{tableInfo}</span>
-                </div>
-
-                {/* Details */}
-                <div style={{ marginLeft: '6mm' }}>
-                  {settings.showDietary && guest.dietary && (
-                    <div style={{ 
-                      fontSize: currentFontSize.details,
-                      color: '#2563eb',
-                      lineHeight: currentFontSize.lineHeight
-                    }}>
-                      Dietary: {guest.dietary}
-                    </div>
-                  )}
-                  {settings.showRelation && guest.relation_display && (
-                    <div style={{ 
-                      fontSize: currentFontSize.details,
-                      color: '#7C3AED',
-                      lineHeight: currentFontSize.lineHeight
-                    }}>
-                      Relation: {guest.relation_display}
-                    </div>
-                  )}
-                </div>
+                  width: '3mm', 
+                  height: '3mm', 
+                  border: '0.3mm solid #000',
+                  flexShrink: 0
+                }}></div>
+                <span style={{ fontWeight: 'bold', flexShrink: 0 }}>{guestName}</span>
+                {inlineInfo && (
+                  <span style={{ 
+                    flex: 1,
+                    fontSize: currentFontSize.details,
+                    color: '#666',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap'
+                  }}>
+                    {inlineInfo}
+                  </span>
+                )}
+                {!inlineInfo && <span style={{ flex: 1 }} />}
+                <span style={{ fontWeight: 'normal', flexShrink: 0 }}>{tableInfo}</span>
               </div>
             );
           })}
