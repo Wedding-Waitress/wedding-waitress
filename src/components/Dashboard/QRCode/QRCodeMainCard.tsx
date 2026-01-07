@@ -9,7 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Progress } from '@/components/ui/progress';
 import { Slider } from '@/components/ui/slider';
-import { QrCode as QrCodeIcon, Copy, Download, RotateCcw, Save, FileDown, Palette, ChevronDown, FileText, Code, Image as ImageIcon, ExternalLink, Link, Eye, EyeOff, Upload, Mail, Edit, Trash2, Loader2, Video, Square, Circle, Diamond, Plus, Minus } from 'lucide-react';
+import { QrCode as QrCodeIcon, Copy, Download, RotateCcw, FileDown, Palette, ChevronDown, FileText, Code, Image as ImageIcon, ExternalLink, Link, Eye, EyeOff, Upload, Mail, Edit, Trash2, Loader2, Video, Square, Circle, Diamond, Plus, Minus } from 'lucide-react';
 import { useEvents } from '@/hooks/useEvents';
 import { useToast } from '@/hooks/use-toast';
 import { useLiveViewVisibility } from '@/hooks/useLiveViewVisibility';
@@ -397,12 +397,41 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
       title: "QR code sent to printer"
     });
   }, [qrDataUrl, selectedEvent?.name, toast]);
-  const handleSaveQR = useCallback(() => {
-    // For now, just show a toast - this could be extended to save to database
-    toast({
-      title: "QR code settings saved!"
-    });
-  }, [toast]);
+  // Auto-save QR settings when colors, shapes, or logo changes
+  useEffect(() => {
+    const saveTimer = setTimeout(async () => {
+      if (!eventId) return;
+      
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        const settingsToSave = {
+          event_id: eventId,
+          user_id: user.id,
+          background_color: qrColors.background,
+          foreground_color: qrColors.foreground,
+          dots_color: qrColors.dotsColor,
+          marker_border_color: qrColors.markerBorderColor,
+          marker_center_color: qrColors.markerCenterColor,
+          dots_shape: qrShapes.dotsShape,
+          marker_border_shape: qrShapes.markerBorderShape,
+          marker_center_shape: qrShapes.markerCenterShape,
+          center_image_url: qrLogo.url,
+          center_image_size: qrLogo.size,
+          updated_at: new Date().toISOString()
+        };
+
+        await supabase
+          .from('qr_code_settings')
+          .upsert(settingsToSave, { onConflict: 'event_id' });
+      } catch (error) {
+        console.error('Auto-save QR settings error:', error);
+      }
+    }, 500);
+
+    return () => clearTimeout(saveTimer);
+  }, [eventId, qrColors, qrShapes, qrLogo]);
   const handleLiveView = () => {
     if (selectedEvent?.slug) {
       const liveViewUrl = buildGuestLookupUrl(selectedEvent.slug);
@@ -655,38 +684,38 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
           </div>
 
           {/* Col 3: Action Buttons */}
-          <div className="flex flex-col gap-3 justify-center bg-muted/20 rounded-lg border border-border p-4 min-h-[320px]">
-            {/* Row 1: Open Live View and Copy Link */}
-            <div className="grid grid-cols-2 gap-3">
-              <Button variant="default" size="default" onClick={handleLiveView} disabled={!selectedEvent?.slug} className="w-full">
-                <ExternalLink className="h-4 w-4 mr-2" />
-                Open Live View
-              </Button>
-              <Button variant="outline" size="default" onClick={handleCopyLink} disabled={!selectedEvent?.slug} className="border-purple-400 w-full">
-                <Link className="h-4 w-4 mr-2" />
-                Copy Link
-              </Button>
-            </div>
-            {/* Row 2: PNG and JPG */}
-            <div className="grid grid-cols-2 gap-3">
-              <Button variant="outline" size="default" onClick={handleDownloadPNG} className="border-purple-300 w-full">
-                <FileDown className="h-4 w-4 mr-2" />
-                PNG
-              </Button>
-              <Button variant="outline" size="default" onClick={handleDownloadJPG} className="border-purple-300 w-full">
-                <ImageIcon className="h-4 w-4 mr-2" />
-                JPG
-              </Button>
-            </div>
-            {/* Row 3: Reset and Save */}
-            <div className="grid grid-cols-2 gap-3">
-              <Button variant="outline" size="default" onClick={handleResetQR} className="border-purple-300 w-full">
-                <RotateCcw className="h-4 w-4 mr-2" />
-                Reset
-              </Button>
-              <Button variant="success" size="default" onClick={handleSaveQR} className="w-full">
-                <Save className="h-4 w-4 mr-2" />
-                Save
+          <div className="flex flex-col gap-3 justify-start bg-muted/20 rounded-lg border border-border p-4 min-h-[320px]">
+            {/* Open Live View - Full Width */}
+            <Button variant="default" size="default" onClick={handleLiveView} disabled={!selectedEvent?.slug} className="w-full">
+              <ExternalLink className="h-4 w-4 mr-2" />
+              Open Live View
+            </Button>
+            
+            {/* Copy Link - Full Width */}
+            <Button variant="outline" size="default" onClick={handleCopyLink} disabled={!selectedEvent?.slug} className="border-purple-400 w-full">
+              <Link className="h-4 w-4 mr-2" />
+              Copy Link
+            </Button>
+            
+            {/* PNG - Full Width */}
+            <Button variant="outline" size="default" onClick={handleDownloadPNG} className="border-purple-300 w-full">
+              <FileDown className="h-4 w-4 mr-2" />
+              PNG
+            </Button>
+            
+            {/* JPG - Full Width */}
+            <Button variant="outline" size="default" onClick={handleDownloadJPG} className="border-purple-300 w-full">
+              <ImageIcon className="h-4 w-4 mr-2" />
+              JPG
+            </Button>
+            
+            {/* Spacer to push Reset to bottom */}
+            <div className="flex-grow" />
+            
+            {/* Reset to Default - Red Destructive, Full Width, Rounded (Like Place Cards) */}
+            <div className="pt-4 border-t border-border">
+              <Button variant="destructive" onClick={handleResetQR} className="w-full rounded-full">
+                Reset to Default
               </Button>
             </div>
           </div>
