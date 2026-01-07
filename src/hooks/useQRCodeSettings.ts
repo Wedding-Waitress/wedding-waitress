@@ -30,9 +30,48 @@ export interface QRCodeSettings {
   output_format: string;
   color_palette: string;
   advanced_settings: any;
+  // Enhanced QR customization fields
+  dots_color: string;
+  marker_border_color: string;
+  marker_center_color: string;
+  dots_shape: 'square' | 'rounded' | 'circle' | 'diamond' | 'plus' | 'vertical' | 'horizontal';
+  marker_border_shape: 'square' | 'rounded' | 'circle';
+  marker_center_shape: 'square' | 'circle';
   created_at?: string;
   updated_at?: string;
 }
+
+export const DEFAULT_QR_SETTINGS: Partial<QRCodeSettings> = {
+  shape: 'square',
+  pattern: 'basic',
+  pattern_style: 'basic',
+  background_color: '#ffffff',
+  foreground_color: '#000000',
+  corner_style: 'square',
+  has_scan_text: false,
+  scan_text: '',
+  gradient_type: 'none',
+  gradient_colors: [],
+  border_style: 'none',
+  border_width: 0,
+  border_color: '#000000',
+  shadow_enabled: false,
+  shadow_blur: 10,
+  shadow_color: '#00000033',
+  center_image_size: 25,
+  background_opacity: 1.0,
+  output_size: 1024,
+  output_format: 'png',
+  color_palette: 'default',
+  advanced_settings: {},
+  // Enhanced defaults
+  dots_color: '#000000',
+  marker_border_color: '#000000',
+  marker_center_color: '#000000',
+  dots_shape: 'square',
+  marker_border_shape: 'square',
+  marker_center_shape: 'square',
+};
 
 export const useQRCodeSettings = (eventId: string | null) => {
   const [settings, setSettings] = useState<QRCodeSettings | null>(null);
@@ -64,38 +103,18 @@ export const useQRCodeSettings = (eventId: string | null) => {
       }
 
       if (data) {
-        // Ensure gradient_colors is always an array
+        // Ensure gradient_colors is always an array and merge with defaults
         const processedData = {
+          ...DEFAULT_QR_SETTINGS,
           ...data,
           gradient_colors: Array.isArray(data.gradient_colors) ? data.gradient_colors : []
         };
-        setSettings(processedData);
+        setSettings(processedData as QRCodeSettings);
       } else {
         // Create default settings if none exist
         const defaultSettings: Partial<QRCodeSettings> = {
+          ...DEFAULT_QR_SETTINGS,
           event_id: eventId,
-          shape: 'square',
-          pattern: 'basic',
-          pattern_style: 'basic',
-          background_color: '#ffffff',
-          foreground_color: '#000000',
-          corner_style: 'square',
-          has_scan_text: true,
-          scan_text: 'SCAN ME',
-          gradient_type: 'none',
-          gradient_colors: [],
-          border_style: 'none',
-          border_width: 0,
-          border_color: '#000000',
-          shadow_enabled: false,
-          shadow_blur: 10,
-          shadow_color: '#00000033',
-          center_image_size: 80,
-          background_opacity: 1.0,
-          output_size: 1024,
-          output_format: 'png',
-          color_palette: 'default',
-          advanced_settings: {},
         };
         setSettings(defaultSettings as QRCodeSettings);
       }

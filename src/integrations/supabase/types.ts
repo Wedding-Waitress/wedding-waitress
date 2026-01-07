@@ -1639,6 +1639,8 @@ export type Database = {
           color_palette: string | null
           corner_style: string | null
           created_at: string
+          dots_color: string | null
+          dots_shape: string | null
           event_id: string
           foreground_color: string | null
           gradient_colors: Json | null
@@ -1646,7 +1648,9 @@ export type Database = {
           has_scan_text: boolean | null
           id: string
           marker_border_color: string | null
+          marker_border_shape: string | null
           marker_center_color: string | null
+          marker_center_shape: string | null
           output_format: string | null
           output_size: number | null
           pattern: string | null
@@ -1673,6 +1677,8 @@ export type Database = {
           color_palette?: string | null
           corner_style?: string | null
           created_at?: string
+          dots_color?: string | null
+          dots_shape?: string | null
           event_id: string
           foreground_color?: string | null
           gradient_colors?: Json | null
@@ -1680,7 +1686,9 @@ export type Database = {
           has_scan_text?: boolean | null
           id?: string
           marker_border_color?: string | null
+          marker_border_shape?: string | null
           marker_center_color?: string | null
+          marker_center_shape?: string | null
           output_format?: string | null
           output_size?: number | null
           pattern?: string | null
@@ -1707,6 +1715,8 @@ export type Database = {
           color_palette?: string | null
           corner_style?: string | null
           created_at?: string
+          dots_color?: string | null
+          dots_shape?: string | null
           event_id?: string
           foreground_color?: string | null
           gradient_colors?: Json | null
@@ -1714,7 +1724,9 @@ export type Database = {
           has_scan_text?: boolean | null
           id?: string
           marker_border_color?: string | null
+          marker_border_shape?: string | null
           marker_center_color?: string | null
+          marker_center_shape?: string | null
           output_format?: string | null
           output_size?: number | null
           pattern?: string | null
