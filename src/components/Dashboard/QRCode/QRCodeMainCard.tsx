@@ -468,7 +468,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
       </CardHeader>
       <CardContent className="space-y-6 pt-4">
         {/* Top Row: QR Preview + Customization + Action Buttons (3 columns) */}
-        <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr_auto] gap-3 lg:gap-4 w-full items-stretch">
+        <div className="grid grid-cols-1 lg:grid-cols-[280px_minmax(250px,350px)_1fr] gap-3 lg:gap-4 w-full items-stretch">
           {/* Col 1: QR Code Preview (Larger - 280px) */}
           <div className="bg-white rounded-lg border-2 border-purple-200 p-3 flex items-center justify-center">
             <div id="qr-preview" className="w-[260px] h-[260px] flex items-center justify-center">
@@ -667,27 +667,27 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
             </Accordion>
           </div>
 
-          {/* Col 3: Action Buttons (Compact 2x2 Grid) */}
-          <div className="flex flex-col gap-2 justify-center">
+          {/* Col 3: Action Buttons (Wider) */}
+          <div className="flex flex-col gap-3 justify-center bg-muted/20 rounded-lg border border-border p-4">
             {/* Row 1: PNG and JPG side-by-side */}
-            <div className="grid grid-cols-2 gap-2">
-              <Button variant="outline" size="sm" onClick={handleDownloadPNG} className="border-purple-300 text-xs px-3">
-                <FileDown className="h-3 w-3 mr-1" />
+            <div className="grid grid-cols-2 gap-3">
+              <Button variant="outline" size="default" onClick={handleDownloadPNG} className="border-purple-300 w-full">
+                <FileDown className="h-4 w-4 mr-2" />
                 PNG
               </Button>
-              <Button variant="outline" size="sm" onClick={handleDownloadJPG} className="border-purple-300 text-xs px-3">
-                <ImageIcon className="h-3 w-3 mr-1" />
+              <Button variant="outline" size="default" onClick={handleDownloadJPG} className="border-purple-300 w-full">
+                <ImageIcon className="h-4 w-4 mr-2" />
                 JPG
               </Button>
             </div>
             {/* Row 2: Reset and Save side-by-side */}
-            <div className="grid grid-cols-2 gap-2">
-              <Button variant="outline" size="sm" onClick={handleResetQR} className="border-purple-300 text-xs px-3">
-                <RotateCcw className="h-3 w-3 mr-1" />
+            <div className="grid grid-cols-2 gap-3">
+              <Button variant="outline" size="default" onClick={handleResetQR} className="border-purple-300 w-full">
+                <RotateCcw className="h-4 w-4 mr-2" />
                 Reset
               </Button>
-              <Button variant="success" size="sm" onClick={handleSaveQR} className="text-xs px-3">
-                <Save className="h-3 w-3 mr-1" />
+              <Button variant="success" size="default" onClick={handleSaveQR} className="w-full">
+                <Save className="h-4 w-4 mr-2" />
                 Save
               </Button>
             </div>
