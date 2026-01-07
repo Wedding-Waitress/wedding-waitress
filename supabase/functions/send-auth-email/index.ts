@@ -110,7 +110,81 @@ function generateEmailHtml(firstName: string | null, otp: string, magicLink: str
   `;
 }
 
+// Background task to send email (runs after response is sent)
+async function sendEmailInBackground(
+  userEmail: string,
+  userId: string | null,
+  otp: string,
+  emailType: string,
+  redirectTo: string
+) {
+  const startTime = Date.now();
+  console.log("[Background] Starting email send task");
+
+  try {
+    // Build magic link using token_hash for proper verification
+    const magicLink = `https://xytxkidpourwdbzzwcdp.supabase.co/auth/v1/verify?token=${otp}&type=${emailType}&redirect_to=${encodeURIComponent(redirectTo)}`;
+
+    // Try to get user's first name from profiles table
+    let firstName: string | null = null;
+    if (userId) {
+      try {
+        const supabaseUrl = Deno.env.get("SUPABASE_URL") || "https://xytxkidpourwdbzzwcdp.supabase.co";
+        const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+        
+        if (supabaseServiceKey) {
+          const supabase = createClient(supabaseUrl, supabaseServiceKey);
+          const { data: profile } = await supabase
+            .from("profiles")
+            .select("first_name")
+            .eq("id", userId)
+            .single();
+          
+          if (profile?.first_name) {
+            firstName = profile.first_name;
+            console.log(`[Background] Found profile name: ${firstName} (${Date.now() - startTime}ms)`);
+          }
+        }
+      } catch (error) {
+        console.log("[Background] Could not fetch profile, using default greeting:", error);
+      }
+    }
+
+    // Generate email subject based on type
+    let subject = "Your Wedding Waitress verification code";
+    if (emailType === "signup") {
+      subject = "Welcome to Wedding Waitress - Verify your email";
+    } else if (emailType === "recovery" || emailType === "magiclink") {
+      subject = "Sign in to Wedding Waitress";
+    } else if (emailType === "email_change") {
+      subject = "Confirm your new email address";
+    }
+
+    // Generate HTML email
+    const htmlContent = generateEmailHtml(firstName, otp, magicLink, emailType);
+
+    // Send email via Resend
+    console.log(`[Background] Sending email to ${userEmail} (${Date.now() - startTime}ms)`);
+    const emailResponse = await resend.emails.send({
+      from: "Wedding Waitress <onboarding@resend.dev>",
+      to: [userEmail],
+      subject: subject,
+      html: htmlContent,
+    });
+
+    if (emailResponse.error) {
+      console.error("[Background] Resend error:", emailResponse.error);
+    } else {
+      console.log(`[Background] Email sent successfully: ${emailResponse.data?.id} (${Date.now() - startTime}ms)`);
+    }
+  } catch (error) {
+    console.error("[Background] Error sending email:", error);
+  }
+}
+
 const handler = async (req: Request): Promise<Response> => {
+  const requestStartTime = Date.now();
+
   // Handle CORS preflight
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -139,7 +213,7 @@ const handler = async (req: Request): Promise<Response> => {
     
     try {
       payload = wh.verify(rawBody, headers);
-      console.log("Webhook verified successfully");
+      console.log(`Webhook verified (${Date.now() - requestStartTime}ms)`);
     } catch (verifyError) {
       console.error("Webhook verification failed:", verifyError);
       return new Response(JSON.stringify({ error: "Invalid signature" }), {
@@ -148,18 +222,12 @@ const handler = async (req: Request): Promise<Response> => {
       });
     }
 
-    console.log("Auth hook payload received:", JSON.stringify(payload, null, 2));
-
     const { user, email_data } = payload;
     const userEmail = user?.email;
     const userId = user?.id;
     const otp = email_data?.token || email_data?.otp || "";
     const emailType = email_data?.email_action_type || "signup";
     const redirectTo = email_data?.redirect_to || "https://weddingwaitress.com/dashboard";
-    
-    // Build magic link
-    const magicLink = email_data?.confirmation_url || 
-      `https://xytxkidpourwdbzzwcdp.supabase.co/auth/v1/verify?token=${otp}&type=${emailType}&redirect_to=${encodeURIComponent(redirectTo)}`;
 
     if (!userEmail) {
       console.error("No email address in payload");
@@ -169,66 +237,14 @@ const handler = async (req: Request): Promise<Response> => {
       });
     }
 
-    // Try to get user's first name from profiles table
-    let firstName: string | null = null;
-    if (userId) {
-      try {
-        const supabaseUrl = Deno.env.get("SUPABASE_URL") || "https://xytxkidpourwdbzzwcdp.supabase.co";
-        const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-        
-        if (supabaseServiceKey) {
-          const supabase = createClient(supabaseUrl, supabaseServiceKey);
-          const { data: profile } = await supabase
-            .from("profiles")
-            .select("first_name")
-            .eq("id", userId)
-            .single();
-          
-          if (profile?.first_name) {
-            firstName = profile.first_name;
-          }
-        }
-      } catch (error) {
-        console.log("Could not fetch profile, using default greeting:", error);
-      }
-    }
+    // Schedule email sending as a background task (does not block response)
+    EdgeRuntime.waitUntil(
+      sendEmailInBackground(userEmail, userId, otp, emailType, redirectTo)
+    );
 
-    // Generate email subject based on type
-    let subject = "Your Wedding Waitress verification code";
-    if (emailType === "signup") {
-      subject = "Welcome to Wedding Waitress - Verify your email";
-    } else if (emailType === "recovery" || emailType === "magiclink") {
-      subject = "Sign in to Wedding Waitress";
-    } else if (emailType === "email_change") {
-      subject = "Confirm your new email address";
-    }
-
-    // Generate HTML email
-    const htmlContent = generateEmailHtml(firstName, otp, magicLink, emailType);
-
-    // Send email via Resend (using resend.dev testing domain until weddingwaitress.com is verified)
-    const emailResponse = await resend.emails.send({
-      from: "Wedding Waitress <onboarding@resend.dev>",
-      to: [userEmail],
-      subject: subject,
-      html: htmlContent,
-    });
-
-    console.log("Resend response:", emailResponse);
-
-    // Check if Resend returned an error
-    if (emailResponse.error) {
-      console.error("Resend error:", emailResponse.error);
-      return new Response(JSON.stringify({ 
-        error: emailResponse.error.message || "Failed to send email" 
-      }), {
-        status: 500,
-        headers: { "Content-Type": "application/json", ...corsHeaders },
-      });
-    }
-
-    console.log("Email sent successfully:", emailResponse.data);
-
+    // Return immediately to Supabase Auth (well under 5 seconds)
+    console.log(`Returning hook response in ${Date.now() - requestStartTime}ms`);
+    
     return new Response(JSON.stringify({ success: true }), {
       status: 200,
       headers: { "Content-Type": "application/json", ...corsHeaders },

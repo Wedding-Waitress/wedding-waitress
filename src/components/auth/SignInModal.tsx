@@ -67,7 +67,6 @@ export const SignInModal: React.FC<SignInModalProps> = ({
     
     // Check rate limiting
     if (!loginRateLimiter.isAllowed(email)) {
-      const remaining = loginRateLimiter.getRemainingAttempts(email);
       setError(`Too many login attempts. Please try again later.`);
       logSecurityEvent.authFailure('Rate limit exceeded', email);
       return;
@@ -91,8 +90,20 @@ export const SignInModal: React.FC<SignInModalProps> = ({
       });
 
       if (error) {
-        setError(mapSupabaseError(error));
-        logSecurityEvent.authFailure(error.message || 'Unknown error', sanitizedEmail);
+        // Handle hook timeout gracefully - email may still be sent
+        if (error.message?.includes('Failed to reach hook within maximum time')) {
+          console.warn('Auth hook timeout - proceeding to verify step as email may still arrive');
+          setStep('verify');
+          startResendTimer();
+          toast({
+            title: "Code may be on its way",
+            description: "If you don't receive it within a minute, tap Resend.",
+            variant: "default"
+          });
+        } else {
+          setError(mapSupabaseError(error));
+          logSecurityEvent.authFailure(error.message || 'Unknown error', sanitizedEmail);
+        }
       } else {
         setStep('verify');
         startResendTimer();
