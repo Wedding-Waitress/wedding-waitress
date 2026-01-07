@@ -1,0 +1,253 @@
+import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { Resend } from "npm:resend@2.0.0";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
+
+const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+};
+
+// Verify webhook signature using HMAC-SHA256
+async function verifyWebhookSignature(payload: string, signature: string, secret: string): Promise<boolean> {
+  try {
+    const encoder = new TextEncoder();
+    const key = await crypto.subtle.importKey(
+      "raw",
+      encoder.encode(secret),
+      { name: "HMAC", hash: "SHA-256" },
+      false,
+      ["sign"]
+    );
+    const signatureBytes = await crypto.subtle.sign("HMAC", key, encoder.encode(payload));
+    const computedSignature = btoa(String.fromCharCode(...new Uint8Array(signatureBytes)));
+    return computedSignature === signature;
+  } catch (error) {
+    console.error("Signature verification error:", error);
+    return false;
+  }
+}
+
+// Generate branded HTML email template
+function generateEmailHtml(firstName: string | null, otp: string, magicLink: string, emailType: string): string {
+  const greeting = firstName ? `Hi ${firstName},` : "Hi there,";
+  
+  let subject = "Your verification code";
+  let heading = "Verify your email";
+  let description = "Use the code below to verify your email address:";
+  
+  if (emailType === "signup" || emailType === "email_change") {
+    heading = "Welcome to Wedding Waitress!";
+    description = "Use the code below to complete your sign up:";
+  } else if (emailType === "recovery" || emailType === "magiclink") {
+    heading = "Sign in to Wedding Waitress";
+    description = "Use the code below to sign in:";
+  }
+
+  return `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${subject}</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f4f5;">
+  <table role="presentation" style="width: 100%; border-collapse: collapse;">
+    <tr>
+      <td align="center" style="padding: 40px 20px;">
+        <table role="presentation" style="width: 100%; max-width: 480px; border-collapse: collapse; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);">
+          <!-- Header with gradient -->
+          <tr>
+            <td style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 32px 40px; text-align: center;">
+              <img src="https://weddingwaitress.com/wedding-waitress-logo-full-hq.png" alt="Wedding Waitress" style="height: 40px; width: auto;" />
+            </td>
+          </tr>
+          
+          <!-- Main content -->
+          <tr>
+            <td style="padding: 40px;">
+              <h1 style="margin: 0 0 8px 0; font-size: 24px; font-weight: 600; color: #18181b; text-align: center;">
+                ${heading}
+              </h1>
+              <p style="margin: 0 0 32px 0; font-size: 16px; color: #71717a; text-align: center;">
+                ${greeting}
+              </p>
+              <p style="margin: 0 0 24px 0; font-size: 14px; color: #52525b; text-align: center;">
+                ${description}
+              </p>
+              
+              <!-- OTP Code Display -->
+              <div style="background: linear-gradient(135deg, #f8f7ff 0%, #f3f1ff 100%); border: 2px solid #e9e5ff; border-radius: 12px; padding: 24px; text-align: center; margin-bottom: 24px;">
+                <span style="font-size: 36px; font-weight: 700; letter-spacing: 8px; color: #667eea; font-family: 'Courier New', monospace;">
+                  ${otp}
+                </span>
+              </div>
+              
+              <p style="margin: 0 0 24px 0; font-size: 13px; color: #a1a1aa; text-align: center;">
+                This code expires in <strong style="color: #71717a;">10 minutes</strong>
+              </p>
+              
+              <!-- Divider -->
+              <div style="border-top: 1px solid #e4e4e7; margin: 24px 0;"></div>
+              
+              <p style="margin: 0 0 16px 0; font-size: 14px; color: #71717a; text-align: center;">
+                Or click the button below to sign in directly:
+              </p>
+              
+              <!-- Magic Link Button -->
+              <table role="presentation" style="width: 100%; border-collapse: collapse;">
+                <tr>
+                  <td align="center">
+                    <a href="${magicLink}" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff; text-decoration: none; font-size: 14px; font-weight: 600; padding: 14px 32px; border-radius: 8px; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);">
+                      Sign In with Magic Link
+                    </a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          
+          <!-- Footer -->
+          <tr>
+            <td style="background-color: #fafafa; padding: 24px 40px; border-top: 1px solid #e4e4e7;">
+              <p style="margin: 0 0 8px 0; font-size: 12px; color: #a1a1aa; text-align: center;">
+                If you didn't request this email, you can safely ignore it.
+              </p>
+              <p style="margin: 0; font-size: 12px; color: #a1a1aa; text-align: center;">
+                © ${new Date().getFullYear()} Wedding Waitress. All rights reserved.
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+  `;
+}
+
+const handler = async (req: Request): Promise<Response> => {
+  // Handle CORS preflight
+  if (req.method === "OPTIONS") {
+    return new Response(null, { headers: corsHeaders });
+  }
+
+  try {
+    const hookSecret = Deno.env.get("SEND_AUTH_EMAIL_HOOK_SECRET");
+    if (!hookSecret) {
+      console.error("SEND_AUTH_EMAIL_HOOK_SECRET not configured");
+      return new Response(JSON.stringify({ error: "Hook secret not configured" }), {
+        status: 500,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
+
+    // Get the raw body for signature verification
+    const rawBody = await req.text();
+    const signature = req.headers.get("x-supabase-signature");
+
+    if (!signature) {
+      console.error("Missing webhook signature");
+      return new Response(JSON.stringify({ error: "Missing signature" }), {
+        status: 401,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
+
+    // Verify the webhook signature
+    const isValid = await verifyWebhookSignature(rawBody, signature, hookSecret);
+    if (!isValid) {
+      console.error("Invalid webhook signature");
+      return new Response(JSON.stringify({ error: "Invalid signature" }), {
+        status: 401,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
+
+    // Parse the payload
+    const payload = JSON.parse(rawBody);
+    console.log("Auth hook payload received:", JSON.stringify(payload, null, 2));
+
+    const { user, email_data } = payload;
+    const userEmail = user?.email;
+    const userId = user?.id;
+    const otp = email_data?.token || email_data?.otp || "";
+    const emailType = email_data?.email_action_type || "signup";
+    const redirectTo = email_data?.redirect_to || "https://weddingwaitress.com/dashboard";
+    
+    // Build magic link
+    const magicLink = email_data?.confirmation_url || 
+      `https://xytxkidpourwdbzzwcdp.supabase.co/auth/v1/verify?token=${otp}&type=${emailType}&redirect_to=${encodeURIComponent(redirectTo)}`;
+
+    if (!userEmail) {
+      console.error("No email address in payload");
+      return new Response(JSON.stringify({ error: "No email address" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
+
+    // Try to get user's first name from profiles table
+    let firstName: string | null = null;
+    if (userId) {
+      try {
+        const supabaseUrl = Deno.env.get("SUPABASE_URL") || "https://xytxkidpourwdbzzwcdp.supabase.co";
+        const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+        
+        if (supabaseServiceKey) {
+          const supabase = createClient(supabaseUrl, supabaseServiceKey);
+          const { data: profile } = await supabase
+            .from("profiles")
+            .select("first_name")
+            .eq("id", userId)
+            .single();
+          
+          if (profile?.first_name) {
+            firstName = profile.first_name;
+          }
+        }
+      } catch (error) {
+        console.log("Could not fetch profile, using default greeting:", error);
+      }
+    }
+
+    // Generate email subject based on type
+    let subject = "Your Wedding Waitress verification code";
+    if (emailType === "signup") {
+      subject = "Welcome to Wedding Waitress - Verify your email";
+    } else if (emailType === "recovery" || emailType === "magiclink") {
+      subject = "Sign in to Wedding Waitress";
+    } else if (emailType === "email_change") {
+      subject = "Confirm your new email address";
+    }
+
+    // Generate HTML email
+    const htmlContent = generateEmailHtml(firstName, otp, magicLink, emailType);
+
+    // Send email via Resend
+    const emailResponse = await resend.emails.send({
+      from: "Wedding Waitress <noreply@weddingwaitress.com>",
+      to: [userEmail],
+      subject: subject,
+      html: htmlContent,
+    });
+
+    console.log("Email sent successfully:", emailResponse);
+
+    return new Response(JSON.stringify({ success: true }), {
+      status: 200,
+      headers: { "Content-Type": "application/json", ...corsHeaders },
+    });
+  } catch (error: any) {
+    console.error("Error in send-auth-email function:", error);
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 500,
+      headers: { "Content-Type": "application/json", ...corsHeaders },
+    });
+  }
+};
+
+serve(handler);
