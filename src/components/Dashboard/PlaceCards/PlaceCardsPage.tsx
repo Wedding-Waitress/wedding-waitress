@@ -369,7 +369,7 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
                     className="rounded-full flex items-center gap-2"
                   >
                     <FileText className="w-4 h-4" />
-                    Download PDF
+                    Download single page PDF
                   </Button>
                   <Button 
                     variant="default"
@@ -379,7 +379,7 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
                     className="rounded-full flex items-center gap-2"
                   >
                     <FileText className="w-4 h-4" />
-                    Download All PDF
+                    Download all pages PDF
                   </Button>
                 </div>
               </div>
