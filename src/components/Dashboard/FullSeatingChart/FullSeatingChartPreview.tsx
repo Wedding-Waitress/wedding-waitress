@@ -220,7 +220,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
       parts.push(guest.dietary);
     }
     if (settings.showRelation && guest.relation_display) {
-      parts.push(guest.relation_display);
+      parts.push(guest.relation_display.replace(' — ', ' / '));
     }
     return parts.join(' / ');
   };
