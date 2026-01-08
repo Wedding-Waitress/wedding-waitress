@@ -265,7 +265,7 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
                     disabled={isExporting}
                   >
                     <FileText className="w-4 h-4 mr-2" />
-                    Download PDF
+                    Download single page PDF
                   </Button>
                   <Button
                     variant="default"
@@ -275,7 +275,7 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
                     disabled={isExporting}
                   >
                     <FileText className="w-4 h-4 mr-2" />
-                    Download All PDF
+                    Download all pages PDF
                   </Button>
                 </div>
               )}
