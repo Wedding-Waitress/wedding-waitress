@@ -235,26 +235,42 @@ export const exportFullSeatingChartToPdf = async (
         pdf.text(guestName, xPos + 5, yPos);
         const nameWidth = pdf.getTextWidth(guestName);
         
-        // Build inline info string
+        // Build inline info string (no "Dietary:" prefix, slash separator)
         const infoParts: string[] = [];
-        if (hasDietary) infoParts.push(`Dietary: ${guest.dietary}`);
+        if (hasDietary) infoParts.push(guest.dietary!);
         if (hasRelation) infoParts.push(guest.relation_display!);
-        const inlineInfo = infoParts.join(' — ');
+        const inlineInfo = infoParts.join(' / ');
         
-        // Draw inline info (smaller, grey)
-        if (inlineInfo) {
+        // Table assignment text and position (smaller font)
+        const tableText = formatTableAssignment(guest.table_no);
+        pdf.setFont('helvetica', 'bold');
+        pdf.setFontSize(fontSize - 1);
+        const tableWidth = pdf.getTextWidth(tableText);
+        const tableX = xPos + columnWidth - tableWidth;
+        
+        // Calculate available width for inline info with auto-truncation
+        const infoStartX = xPos + 5 + nameWidth + 3;
+        const maxInfoWidth = tableX - infoStartX - 2;
+        
+        // Draw inline info (smaller, grey) with truncation
+        if (inlineInfo && maxInfoWidth > 10) {
           pdf.setFont('helvetica', 'normal');
           pdf.setFontSize(fontSize - 2);
           pdf.setTextColor(102, 102, 102);
-          pdf.text(inlineInfo, xPos + 5 + nameWidth + 3, yPos);
+          
+          let truncatedInfo = inlineInfo;
+          while (pdf.getTextWidth(truncatedInfo) > maxInfoWidth && truncatedInfo.length > 3) {
+            truncatedInfo = truncatedInfo.slice(0, -4) + '...';
+          }
+          if (pdf.getTextWidth(truncatedInfo) <= maxInfoWidth) {
+            pdf.text(truncatedInfo, infoStartX, yPos);
+          }
         }
         
-        // Table assignment (bold, black, right-aligned within column)
+        // Draw table assignment (right-aligned)
         pdf.setFont('helvetica', 'bold');
-        pdf.setFontSize(fontSize);
+        pdf.setFontSize(fontSize - 1);
         pdf.setTextColor(0, 0, 0);
-        const tableText = formatTableAssignment(guest.table_no);
-        const tableX = xPos + columnWidth - pdf.getTextWidth(tableText);
         pdf.text(tableText, tableX, yPos);
 
         return yPos + rowHeight;
