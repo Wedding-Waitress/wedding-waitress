@@ -124,7 +124,7 @@ export const exportFullSeatingChartToPdf = async (
   const rowHeight = baseRowHeight[settings.fontSize] || 6;
   
   // Available height for guest rows - reduced to leave ~24mm gap above footer
-  const availableHeight = 190; // mm for guest rows
+  const availableHeight = 175; // mm for guest rows - must match preview calculation
   
   const calculatedGuestsPerColumn = Math.floor(availableHeight / rowHeight);
   // Clamp to minimum 1 guest per column
@@ -283,8 +283,8 @@ export const exportFullSeatingChartToPdf = async (
       // Move to the lower of the two positions
       yPos = Math.max(leftY, rightY);
 
-      // Check if we need more space for the next guest
-      if (yPos > pageHeight - margin - 30) {
+      // Check if we need more space for the next guest - increased safety margin
+      if (yPos > pageHeight - margin - 35) {
         break; // Stop if we're running out of space
       }
     }
