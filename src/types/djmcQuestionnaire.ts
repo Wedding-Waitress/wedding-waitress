@@ -88,11 +88,11 @@ export interface DJMCQuestionnaireWithData extends DJMCQuestionnaire {
 
 // Default template data
 export const CEREMONY_MUSIC_MOMENTS = [
-  'Bridesmaids Walking Down the Aisle',
-  'Bride Walking Down the Aisle',
-  'Signing the Registry (Song 1)',
-  'Signing the Registry (Song 2)',
-  'Leaving the Chapel',
+  'Prelude (Before Ceremony)',
+  'Processional (Bridal Party Entry)',
+  'Bride Entry',
+  'Interlude (During Ceremony / Signing)',
+  'Recessional (Couple Leaving)',
 ];
 
 export const BRIDAL_PARTY_DEFAULTS = [
