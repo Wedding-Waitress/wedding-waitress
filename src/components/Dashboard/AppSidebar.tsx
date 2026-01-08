@@ -8,15 +8,11 @@ import {
   CreditCard,
   ChefHat,
   Monitor,
-  Music,
   LayoutGrid,
   FileText,
   LogOut,
   Shield,
-  Settings,
-  ClipboardList,
-  Bot,
-  TrendingUp
+  ClipboardList
 } from 'lucide-react';
 import { useIsAdmin } from '@/hooks/useIsAdmin';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -28,13 +24,11 @@ import {
   SidebarHeader,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
 } from '@/components/ui/sidebar';
-import { Separator } from '@/components/ui/separator';
 import logoImage from '@/assets/wedding-waitress-full-logo.png';
 
 interface AppSidebarProps {
@@ -56,7 +50,6 @@ interface AppSidebarProps {
     { id: "dietary-chart", label: "Dietary Requirements", icon: ChefHat },
     { id: "full-seating-chart", label: "Full Seating Chart", icon: FileText },
     { id: "kiosk-live-view", label: "Kiosk Live View", icon: Monitor },
-    ...(flags.djQuestionnaire ? [{ id: "dj-mc-questionnaire", label: "DJ & MC Questionnaire", icon: Music }] : []),
     ...(flags.runningSheet ? [{ id: "running-sheet", label: "Running Sheet", icon: ClipboardList }] : []),
   ];
   

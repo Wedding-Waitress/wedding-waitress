@@ -17,7 +17,6 @@ export const AdminSystemSettings = () => {
   });
   
   const [featureFlags, setFeatureFlags] = useState({
-    djQuestionnaire: flags.djQuestionnaire as boolean,
     runningSheet: flags.runningSheet as boolean,
   });
   
@@ -84,26 +83,6 @@ export const AdminSystemSettings = () => {
               id="kiosk"
               checked={settings.kioskModeEnabled}
               onCheckedChange={() => handleToggle('kioskModeEnabled')}
-            />
-          </div>
-
-          <div className="flex items-center justify-between">
-            <div className="space-y-0.5">
-              <Label htmlFor="djQuestionnaire">DJ & MC Questionnaire</Label>
-              <p className="text-sm text-muted-foreground">
-                Enable DJ questionnaire feature for all users
-              </p>
-            </div>
-            <Switch
-              id="djQuestionnaire"
-              checked={featureFlags.djQuestionnaire}
-              onCheckedChange={() => {
-                setFeatureFlags(prev => ({ ...prev, djQuestionnaire: !prev.djQuestionnaire }));
-                toast({
-                  title: 'Feature Updated',
-                  description: `DJ Questionnaire is now ${!featureFlags.djQuestionnaire ? 'enabled' : 'disabled'}. Update featureFlags.ts to persist.`,
-                });
-              }}
             />
           </div>
 
