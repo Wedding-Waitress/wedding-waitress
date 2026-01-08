@@ -3,8 +3,8 @@
  * Use these to control experimental or unstable features
  */
 export const flags = {
-  // DJ & MC Questionnaire - enabled
-  djQuestionnaire: true,
+  // DJ Questionnaire - main feature (soft-disabled)
+  djQuestionnaire: false,
   
   // Bulk import for songs - keep disabled until verified stable
   djBulkImport: false,
