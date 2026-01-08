@@ -83,7 +83,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
     
     // Available height for guest rows (after header, footer, margins)
     // Reduced from 234mm to account for header (~22mm) and footer safe zone
-    const availableHeight = 190; // mm for guest rows - leaves ~24mm gap above footer
+    const availableHeight = 175; // mm for guest rows - reduced to prevent cut-off at bottom
     
     const calculatedGuestsPerColumn = Math.floor(availableHeight / rowHeight);
     // Clamp to minimum 1 guest per column
@@ -484,7 +484,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
                   gridTemplateColumns: '1fr 1fr', 
                   columnGap: '12mm',
                   overflow: 'hidden',
-                  maxHeight: 'calc(100% - 60px - 15mm)' // Subtract header (~60px) and footer (15mm)
+                  maxHeight: 'calc(100% - 80px - 20mm)' // Subtract header (~80px) and footer (20mm) - increased safety margin
                 }}
               >
                 {/* Left Column */}
