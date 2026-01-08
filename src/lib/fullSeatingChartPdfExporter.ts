@@ -61,12 +61,9 @@ const formatGeneratedTimestamp = (): string => {
   return `${day}/${month}/${year} ${hours}:${minutes}`;
 };
 
-// Format guest name based on sort setting
-const formatGuestName = (guest: Guest, sortBy: 'firstName' | 'lastName' | 'tableNo'): string => {
-  if (sortBy === 'lastName') {
-    return `${guest.last_name || ''}, ${guest.first_name}`.trim();
-  }
-  return `${guest.first_name} ${guest.last_name || ''}`.trim();
+// Format guest name - first name only for two-line display
+const formatGuestName = (guest: Guest): string => {
+  return guest.first_name;
 };
 
 // Format table assignment
@@ -113,11 +110,12 @@ export const exportFullSeatingChartToPdf = async (
   /**
    * AUTOFIT CALCULATION - Dynamic guests per page based on font size and visible fields
    * Must match the calculation in FullSeatingChartPreview and FullSeatingChartPage
+   * Increased heights for two-line format
    */
   const baseRowHeight: Record<string, number> = {
-    'small': 5.5,
-    'medium': 6,
-    'large': 7
+    'small': 9,
+    'medium': 10,
+    'large': 12
   };
   
   // Row height is now fixed per font size (dietary/relation displayed inline)
@@ -215,7 +213,7 @@ export const exportFullSeatingChartToPdf = async (
       const guest1 = col1Guests[i];
       const guest2 = col2Guests[i];
 
-      // Helper function to draw a guest with inline dietary/relation
+      // Helper function to draw a guest with two-line format
       const drawGuest = (guest: Guest | undefined, xPos: number, yPos: number): number => {
         if (!guest) return yPos;
 
@@ -227,53 +225,45 @@ export const exportFullSeatingChartToPdf = async (
         pdf.setLineWidth(0.4);
         pdf.circle(xPos + 1.5, yPos - 1.5, 1.5, 'S');
         
-        // Guest name (bold, black)
+        // Line 1: Guest first name (bold, black)
         pdf.setFont('helvetica', 'bold');
         pdf.setFontSize(fontSize);
         pdf.setTextColor(0, 0, 0);
-        const guestName = formatGuestName(guest, settings.sortBy);
+        const guestName = formatGuestName(guest);
         pdf.text(guestName, xPos + 5, yPos);
-        const nameWidth = pdf.getTextWidth(guestName);
         
-        // Build inline info string (no "Dietary:" prefix, slash separator)
-        const infoParts: string[] = [];
-        if (hasDietary) infoParts.push(guest.dietary!);
-        if (hasRelation) infoParts.push(guest.relation_display!);
-        const inlineInfo = infoParts.join(' / ');
-        
-        // Table assignment text and position (smaller font)
+        // Table assignment text (right-aligned, same line as name)
         const tableText = formatTableAssignment(guest.table_no);
         pdf.setFont('helvetica', 'bold');
         pdf.setFontSize(fontSize - 1);
         const tableWidth = pdf.getTextWidth(tableText);
         const tableX = xPos + columnWidth - tableWidth;
+        pdf.text(tableText, tableX, yPos);
         
-        // Calculate available width for inline info with auto-truncation
-        const infoStartX = xPos + 5 + nameWidth + 3;
-        const maxInfoWidth = tableX - infoStartX - 2;
+        // Line 2: Build info string (dietary/relation)
+        const infoParts: string[] = [];
+        if (hasDietary) infoParts.push(guest.dietary!);
+        if (hasRelation) infoParts.push(guest.relation_display!);
+        const inlineInfo = infoParts.join('/');
         
-        // Draw inline info (smaller, grey) with truncation
-        if (inlineInfo && maxInfoWidth > 10) {
+        // Draw info on second line if present
+        if (inlineInfo) {
+          const line2Y = yPos + (fontSize * 0.4);
           pdf.setFont('helvetica', 'normal');
           pdf.setFontSize(fontSize - 2);
           pdf.setTextColor(102, 102, 102);
           
+          // Truncate if too long
+          const maxInfoWidth = columnWidth - 10;
           let truncatedInfo = inlineInfo;
           while (pdf.getTextWidth(truncatedInfo) > maxInfoWidth && truncatedInfo.length > 3) {
             truncatedInfo = truncatedInfo.slice(0, -4) + '...';
           }
-          if (pdf.getTextWidth(truncatedInfo) <= maxInfoWidth) {
-            pdf.text(truncatedInfo, infoStartX, yPos);
-          }
+          pdf.text(truncatedInfo, xPos + 5, line2Y);
         }
-        
-        // Draw table assignment (right-aligned)
-        pdf.setFont('helvetica', 'bold');
-        pdf.setFontSize(fontSize - 1);
-        pdf.setTextColor(0, 0, 0);
-        pdf.text(tableText, tableX, yPos);
 
-        return yPos + rowHeight;
+        // Return position for next row (account for two lines)
+        return yPos + rowHeight * 1.5;
       };
 
       // Draw both guests in parallel
