@@ -39,10 +39,10 @@ import { useNavigate } from 'react-router-dom';
 import type { Session } from '@supabase/supabase-js';
 import { AppErrorBoundary } from '@/components/core/AppErrorBoundary';
 
-// Lazy load DJ Questionnaire to prevent it from crashing the app
-const DJQuestionnaireMain = React.lazy(() => 
-  import('@/components/Dashboard/DJQuestionnaire').then(module => ({
-    default: module.DJQuestionnaireMain
+// Lazy load DJ-MC Questionnaire
+const DJMCQuestionnairePage = React.lazy(() => 
+  import('@/components/Dashboard/DJMCQuestionnaire').then(module => ({
+    default: module.DJMCQuestionnairePage
   }))
 );
 
@@ -575,15 +575,15 @@ export const Dashboard = () => {
               </CardDescription>
             </Card>
           }>
-            <React.Suspense fallback={<div className="p-8 text-center">Loading DJ Questionnaire...</div>}>
-              <DJQuestionnaireMain selectedEventId={selectedEventId} onEventSelect={handleEventSelect} events={events} />
+            <React.Suspense fallback={<div className="p-8 text-center">Loading DJ & MC Questionnaire...</div>}>
+              <DJMCQuestionnairePage selectedEventId={globalSelectedEventId} onEventSelect={handleGlobalEventSelect} />
             </React.Suspense>
           </AppErrorBoundary>
         ) : (
           <Card className="p-8 text-center">
             <CardTitle className="mb-2">Feature Disabled</CardTitle>
             <CardDescription>
-              DJ Questionnaire is currently disabled. Please contact support.
+              DJ & MC Questionnaire is currently disabled. Please contact support.
             </CardDescription>
           </Card>
         );
