@@ -219,12 +219,12 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
   const buildInlineInfo = (guest: Guest) => {
     const parts: string[] = [];
     if (settings.showDietary && guest.dietary && guest.dietary !== 'NA') {
-      parts.push(`Dietary: ${guest.dietary}`);
+      parts.push(guest.dietary);
     }
     if (settings.showRelation && guest.relation_display) {
       parts.push(guest.relation_display);
     }
-    return parts.join(' — ');
+    return parts.join(' / ');
   };
 
   // Screen version guest row - enforces consistent row height with inline layout
@@ -251,7 +251,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
           </span>
         )}
         {!inlineInfo && <span className="flex-1" />}
-        <span className={`font-bold ${getFontSizeClass()} px-2 py-1 bg-muted rounded flex-shrink-0`}>
+        <span className="text-xs font-medium px-1.5 py-0.5 bg-muted rounded flex-shrink-0 whitespace-nowrap">
           {guest.table_no ? `Table ${guest.table_no}` : 'Unassigned'}
         </span>
       </div>
