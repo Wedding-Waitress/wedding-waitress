@@ -85,12 +85,12 @@ export const useDJMCQuestionnaire = (eventId: string | null) => {
               id: item.id,
               section_id: item.section_id,
               sort_index: item.sort_index,
-              item_type: item.type as any,
-              data: answer?.value || item.meta || {},
-              pronunciation_audio_url: (item.meta as any)?.pronunciation_audio_url || null,
-            };
+              item_type: item.type,
+              data: (answer?.value || item.meta || {}) as unknown as ItemData,
+              pronunciation_audio_url: (item.meta as Record<string, unknown>)?.pronunciation_audio_url as string | null || null,
+            } as DJMCItem;
           }),
-      }));
+      })) as (DJMCSection & { items: DJMCItem[] })[];
 
       setQuestionnaire({
         id: q.id,
