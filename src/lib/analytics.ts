@@ -11,7 +11,6 @@ export interface AnalyticsEvent {
 // Guard function to prevent analytics for disabled features
 const shouldTrack = (eventName: string): boolean => {
   // Block analytics for disabled features
-  if (eventName.toLowerCase().includes('dj') && !flags.djQuestionnaire) return false;
   if (eventName.toLowerCase().includes('running_sheet') && !flags.runningSheet) return false;
   return true;
 };

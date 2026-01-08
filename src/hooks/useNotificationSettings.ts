@@ -1,7 +1,17 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import type { NotificationSettings } from '@/types/djQuestionnaire';
+
+export interface NotificationSettings {
+  resend_api_key: string | null;
+  from_email: string | null;
+  email_enabled: boolean;
+  sms_provider: string | null;
+  twilio_account_sid: string | null;
+  twilio_auth_token: string | null;
+  twilio_messaging_service_sid: string | null;
+  sms_enabled: boolean;
+}
 
 export const useNotificationSettings = () => {
   const [settings, setSettings] = useState<NotificationSettings | null>(null);
