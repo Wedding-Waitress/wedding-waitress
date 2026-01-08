@@ -255,7 +255,7 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
                     className="rounded-full flex items-center gap-2"
                   >
                     <FileText className="w-4 h-4" />
-                    Download PDF
+                    Download single page PDF
                   </Button>
                   <Button 
                     variant="default"
@@ -265,7 +265,7 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
                     className="rounded-full flex items-center gap-2"
                   >
                     <FileText className="w-4 h-4" />
-                    {isExportingAll ? `Exporting ${tables.length} tables...` : 'Download All PDF'}
+                    {isExportingAll ? `Exporting ${tables.length} tables...` : 'Download all pages PDF'}
                   </Button>
                 </div>
               </div>
