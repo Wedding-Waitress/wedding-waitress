@@ -42,7 +42,7 @@ function generateEmailHtml(firstName: string | null, otp: string, magicLink: str
           <!-- Header with gradient -->
           <tr>
             <td style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 32px 40px; text-align: center;">
-              <img src="https://weddingwaitress.com/wedding-waitress-logo-full-hq.png" alt="Wedding Waitress" style="height: 40px; width: auto;" />
+              <img src="https://weddingwaitress.com/wedding-waitress-logo-full-hq.png" alt="Wedding Waitress" width="200" height="auto" style="max-width: 200px; height: auto; display: block; margin: 0 auto;" />
             </td>
           </tr>
           
