@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { Trash2, Mic } from 'lucide-react';
+import { Trash2, Mic, Copy } from 'lucide-react';
 import type { SpeechData, ItemData } from '@/types/djmcQuestionnaire';
 
 interface SpeechRowEditorProps {
@@ -10,6 +9,7 @@ interface SpeechRowEditorProps {
   index: number;
   onSave: (data: ItemData) => void;
   onDelete: () => void;
+  onDuplicate: () => void;
 }
 
 export const SpeechRowEditor: React.FC<SpeechRowEditorProps> = ({
@@ -17,6 +17,7 @@ export const SpeechRowEditor: React.FC<SpeechRowEditorProps> = ({
   index,
   onSave,
   onDelete,
+  onDuplicate,
 }) => {
   const speechData = data as SpeechData;
   const [name, setName] = useState(speechData.name || '');
@@ -65,7 +66,7 @@ export const SpeechRowEditor: React.FC<SpeechRowEditorProps> = ({
         </div>
 
         {/* Notes */}
-        <div className="md:col-span-4">
+        <div className="md:col-span-3">
           <Input
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
@@ -74,8 +75,17 @@ export const SpeechRowEditor: React.FC<SpeechRowEditorProps> = ({
           />
         </div>
 
-        {/* Delete */}
-        <div className="md:col-span-1 flex items-center justify-end">
+        {/* Actions */}
+        <div className="md:col-span-2 flex items-center justify-end gap-1">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-9 w-9 text-muted-foreground hover:text-foreground"
+            onClick={onDuplicate}
+            title="Duplicate row"
+          >
+            <Copy className="w-4 h-4" />
+          </Button>
           <Button
             variant="ghost"
             size="icon"

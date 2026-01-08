@@ -19,13 +19,15 @@ interface DJMCQuestionnaireFormProps {
 
 interface SortableItemProps {
   item: DJMCItem;
+  sectionId: string;
   sectionType: string;
   index: number;
   onSave: (data: ItemData) => void;
   onDelete: () => void;
+  onDuplicate: () => void;
 }
 
-const SortableItem: React.FC<SortableItemProps> = ({ item, sectionType, index, onSave, onDelete }) => {
+const SortableItem: React.FC<SortableItemProps> = ({ item, sectionId, sectionType, index, onSave, onDelete, onDuplicate }) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id });
 
   const style = {
@@ -38,11 +40,11 @@ const SortableItem: React.FC<SortableItemProps> = ({ item, sectionType, index, o
     switch (sectionType) {
       case 'ceremony_music':
       case 'main_event_songs':
-      case 'background_music':
+      case 'cocktail_hour_music':
       case 'background___dinner_music':
       case 'dance_music':
-      case 'cultural_music':
-      case 'traditional___multicultural_music':
+      case 'traditional___multicultural_music_1':
+      case 'traditional___multicultural_music_2':
         return (
           <SongRowEditor
             data={item.data}
@@ -50,9 +52,9 @@ const SortableItem: React.FC<SortableItemProps> = ({ item, sectionType, index, o
             index={index}
             onSave={onSave}
             onDelete={onDelete}
+            onDuplicate={onDuplicate}
           />
         );
-      case 'bridal_party':
       case 'bridal_party_introductions':
         return (
           <NameRowEditor
@@ -62,6 +64,7 @@ const SortableItem: React.FC<SortableItemProps> = ({ item, sectionType, index, o
             itemId={item.id}
             onSave={onSave}
             onDelete={onDelete}
+            onDuplicate={onDuplicate}
           />
         );
       case 'speeches':
@@ -71,9 +74,9 @@ const SortableItem: React.FC<SortableItemProps> = ({ item, sectionType, index, o
             index={index}
             onSave={onSave}
             onDelete={onDelete}
+            onDuplicate={onDuplicate}
           />
         );
-      case 'do_not_play':
       case 'do_not_play_list':
         return (
           <DoNotPlayRowEditor
@@ -81,6 +84,7 @@ const SortableItem: React.FC<SortableItemProps> = ({ item, sectionType, index, o
             index={index}
             onSave={onSave}
             onDelete={onDelete}
+            onDuplicate={onDuplicate}
           />
         );
       default:
@@ -91,6 +95,7 @@ const SortableItem: React.FC<SortableItemProps> = ({ item, sectionType, index, o
             index={index}
             onSave={onSave}
             onDelete={onDelete}
+            onDuplicate={onDuplicate}
           />
         );
     }
@@ -116,7 +121,7 @@ export const DJMCQuestionnaireForm: React.FC<DJMCQuestionnaireFormProps> = ({
   questionnaire,
   onRefresh,
 }) => {
-  const { saveItem, deleteItem, reorderItems } = useDJMCQuestionnaire(questionnaire.event_id);
+  const { saveItem, deleteItem, duplicateItem, reorderItems } = useDJMCQuestionnaire(questionnaire.event_id);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -154,14 +159,17 @@ export const DJMCQuestionnaireForm: React.FC<DJMCQuestionnaireFormProps> = ({
     onRefresh();
   };
 
+  const handleDuplicateItem = async (sectionId: string, itemId: string) => {
+    await duplicateItem(sectionId, itemId);
+    onRefresh();
+  };
+
   const getDefaultData = (sectionType: string): ItemData => {
     switch (sectionType) {
-      case 'bridal_party':
       case 'bridal_party_introductions':
         return { role: '', names: '', pronunciation: '' };
       case 'speeches':
         return { order: 0, name: '', role: '', notes: '' };
-      case 'do_not_play':
       case 'do_not_play_list':
         return { song_or_genre: '', notes: '' };
       default:
@@ -171,12 +179,10 @@ export const DJMCQuestionnaireForm: React.FC<DJMCQuestionnaireFormProps> = ({
 
   const getItemType = (sectionType: string): string => {
     switch (sectionType) {
-      case 'bridal_party':
       case 'bridal_party_introductions':
         return 'name';
       case 'speeches':
         return 'speech';
-      case 'do_not_play':
       case 'do_not_play_list':
         return 'do_not_play';
       default:
@@ -185,7 +191,7 @@ export const DJMCQuestionnaireForm: React.FC<DJMCQuestionnaireFormProps> = ({
   };
 
   const getSectionType = (label: string): string => {
-    return label.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z_]/g, '');
+    return label.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
   };
 
   return (
@@ -217,10 +223,12 @@ export const DJMCQuestionnaireForm: React.FC<DJMCQuestionnaireFormProps> = ({
                     <SortableItem
                       key={item.id}
                       item={item}
+                      sectionId={section.id}
                       sectionType={sectionType}
                       index={index}
                       onSave={(data) => handleSaveItem(section.id, item.id, data, sectionType)}
                       onDelete={() => handleDeleteItem(item.id)}
+                      onDuplicate={() => handleDuplicateItem(section.id, item.id)}
                     />
                   ))}
                 </SortableContext>

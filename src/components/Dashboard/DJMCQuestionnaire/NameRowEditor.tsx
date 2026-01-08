@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Trash2, Users } from 'lucide-react';
+import { Trash2, Users, Copy } from 'lucide-react';
 import { AudioRecorder } from './AudioRecorder';
 import type { NameData, ItemData } from '@/types/djmcQuestionnaire';
 
@@ -12,6 +12,7 @@ interface NameRowEditorProps {
   itemId: string;
   onSave: (data: ItemData) => void;
   onDelete: () => void;
+  onDuplicate: () => void;
 }
 
 export const NameRowEditor: React.FC<NameRowEditorProps> = ({
@@ -21,6 +22,7 @@ export const NameRowEditor: React.FC<NameRowEditorProps> = ({
   itemId,
   onSave,
   onDelete,
+  onDuplicate,
 }) => {
   const nameData = data as NameData;
   const [role, setRole] = useState(nameData.role || '');
@@ -43,7 +45,7 @@ export const NameRowEditor: React.FC<NameRowEditorProps> = ({
     <div className="bg-muted/30 rounded-lg p-3 space-y-3">
       <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
         <Users className="w-4 h-4" />
-        Order {index + 1}
+        Introduction {index + 1}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
@@ -62,7 +64,7 @@ export const NameRowEditor: React.FC<NameRowEditorProps> = ({
           <Input
             value={names}
             onChange={(e) => setNames(e.target.value)}
-            placeholder="Names..."
+            placeholder="Full names..."
             className="bg-background"
           />
         </div>
@@ -77,13 +79,21 @@ export const NameRowEditor: React.FC<NameRowEditorProps> = ({
           />
         </div>
 
-        {/* Audio Recorder & Delete */}
-        <div className="md:col-span-2 flex items-center gap-2 justify-end">
+        {/* Actions */}
+        <div className="md:col-span-2 flex items-center justify-end gap-1">
           <AudioRecorder 
             itemId={itemId} 
             existingAudioUrl={pronunciationAudioUrl}
           />
-          
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-9 w-9 text-muted-foreground hover:text-foreground"
+            onClick={onDuplicate}
+            title="Duplicate row"
+          >
+            <Copy className="w-4 h-4" />
+          </Button>
           <Button
             variant="ghost"
             size="icon"

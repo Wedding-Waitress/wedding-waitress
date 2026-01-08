@@ -37,6 +37,7 @@ export type SectionType =
   | 'ceremony_music'
   | 'bridal_party'
   | 'speeches'
+  | 'cocktail_hour_music'
   | 'main_event_songs'
   | 'background_music'
   | 'dance_music'
@@ -86,23 +87,22 @@ export interface DJMCQuestionnaireWithData extends DJMCQuestionnaire {
   sections: (DJMCSection & { items: DJMCItem[] })[];
 }
 
-// Default template data
+// Default template data - Updated per user specifications
 export const CEREMONY_MUSIC_MOMENTS = [
-  'Prelude (Before Ceremony)',
-  'Processional (Bridal Party Entry)',
-  'Bride Entry',
-  'Interlude (During Ceremony / Signing)',
-  'Recessional (Couple Leaving)',
+  'Bridesmaids Walking Down the Aisle',
+  'Bride Walking Down the Aisle',
+  'During the Ceremony - Signing the Registry',
+  'Leaving the Chapel - Ceremony',
 ];
 
 export const BRIDAL_PARTY_DEFAULTS = [
   { role: "Groom's Parents", placeholder: 'Full names' },
   { role: "Bride's Parents", placeholder: 'Full names' },
   { role: 'Page Boy & Flower Girl', placeholder: 'First names' },
-  { role: 'Groomsmen & Bridesmaids', placeholder: 'First names' },
-  { role: 'Groomsmen & Bridesmaids', placeholder: 'First names' },
-  { role: 'Groomsmen & Bridesmaids', placeholder: 'First names' },
-  { role: 'Best Man & Maid of Honour', placeholder: 'First names' },
+  { role: 'Groomsman & Bridesmaid', placeholder: 'First names' },
+  { role: 'Groomsman & Bridesmaid', placeholder: 'First names' },
+  { role: 'Groomsman & Bridesmaid', placeholder: 'First names' },
+  { role: 'Best Man & Maid of Honor', placeholder: 'First names' },
   { role: 'Groom & Bride', placeholder: 'First names' },
 ];
 
@@ -115,19 +115,97 @@ export const SPEECH_DEFAULTS = [
 ];
 
 export const MAIN_EVENT_MOMENTS = [
-  'Bridal Party Entrance',
-  'Bride & Groom Entrance',
-  'Cutting of Cake',
+  "Groom's Parents Entry",
+  "Bride's Parents Entry",
+  'Bridal Party Entry',
+  'Bride & Groom Entry',
+  'Cutting of the Cake',
   'Bridal Dance',
   'Father & Daughter Dance',
   'Mother & Son Dance',
   'Garter Toss',
   'Flower Toss',
-  'Farewell Arch/Circle',
-  'Last Song of the Night',
-  'Custom Moment 1',
-  'Custom Moment 2',
-  'Custom Moment 3',
+  'Farewell Arch or Circle',
+];
+
+// Section definitions with instructions
+export const SECTION_DEFINITIONS = [
+  {
+    label: 'Ceremony Music',
+    sort_index: 0,
+    instructions: 'Choose songs for each moment of your ceremony. Add YouTube or Spotify links.',
+    defaultItems: CEREMONY_MUSIC_MOMENTS.map((moment, i) => ({
+      type: 'song' as ItemType,
+      data: { moment, song_title: '', artist: '', link: '' } as SongData,
+      sort_index: i,
+    })),
+  },
+  {
+    label: 'Bridal Party Introductions',
+    sort_index: 1,
+    instructions: 'List names in order of introduction. You can add pronunciation guides and drag to reorder.',
+    defaultItems: BRIDAL_PARTY_DEFAULTS.map((item, i) => ({
+      type: 'name' as ItemType,
+      data: { role: item.role, names: '', pronunciation: '' } as NameData,
+      sort_index: i,
+    })),
+  },
+  {
+    label: 'Speeches',
+    sort_index: 2,
+    instructions: 'List speakers in order. Keep speeches to 3-5 minutes each.',
+    defaultItems: SPEECH_DEFAULTS.map((item, i) => ({
+      type: 'speech' as ItemType,
+      data: { order: i + 1, name: '', role: item.role, notes: '' } as SpeechData,
+      sort_index: i,
+    })),
+  },
+  {
+    label: 'Cocktail Hour Music',
+    sort_index: 3,
+    instructions: 'Add songs to play during cocktail hour while guests mingle.',
+    defaultItems: [],
+  },
+  {
+    label: 'Main Event Songs',
+    sort_index: 4,
+    instructions: 'Choose songs for key reception moments. Click on any moment name to edit it.',
+    defaultItems: MAIN_EVENT_MOMENTS.map((moment, i) => ({
+      type: 'song' as ItemType,
+      data: { moment, song_title: '', artist: '', link: '' } as SongData,
+      sort_index: i,
+    })),
+  },
+  {
+    label: 'Background / Dinner Music',
+    sort_index: 5,
+    instructions: 'Add songs for dinner service and background ambiance.',
+    defaultItems: [],
+  },
+  {
+    label: 'Dance Music',
+    sort_index: 6,
+    instructions: 'Add songs to get your guests dancing!',
+    defaultItems: [],
+  },
+  {
+    label: 'Traditional / Multicultural Music 1',
+    sort_index: 7,
+    instructions: 'Add songs that celebrate your cultural heritage (e.g., Italian Music).',
+    defaultItems: [],
+  },
+  {
+    label: 'Traditional / Multicultural Music 2',
+    sort_index: 8,
+    instructions: 'Add songs that celebrate your cultural heritage (e.g., Indian Music).',
+    defaultItems: [],
+  },
+  {
+    label: 'Do Not Play List',
+    sort_index: 9,
+    instructions: 'List any songs or genres you do NOT want played.',
+    defaultItems: [],
+  },
 ];
 
 export interface NotificationSettings {
