@@ -116,7 +116,7 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
               <Monitor className="w-6 h-6 text-primary" />
             </div>
             <div>
-              <CardTitle className="text-2xl font-medium text-[#7248e6]">Kiosk Live View Setup</CardTitle>
+              <CardTitle className="text-2xl font-medium text-[#7248e6]">Kiosk Live View Setup - This is for corporate events and corporate seminars</CardTitle>
               <CardDescription>
                 Configure a self-service guest lookup kiosk for your event entrance
               </CardDescription>
