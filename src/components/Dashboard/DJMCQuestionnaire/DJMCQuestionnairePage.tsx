@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/enhanced-button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Music, Plus, Download, Calendar, FileText } from 'lucide-react';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { Music, Plus, Download, Calendar, FileText, RotateCcw } from 'lucide-react';
 import { useDJMCQuestionnaire } from '@/hooks/useDJMCQuestionnaire';
 import { useEvents } from '@/hooks/useEvents';
 import { DJMCQuestionnaireForm } from './DJMCQuestionnaireForm';
@@ -20,8 +21,9 @@ export const DJMCQuestionnairePage: React.FC<DJMCQuestionnairePageProps> = ({
   onEventSelect,
 }) => {
   const { events, loading: eventsLoading } = useEvents();
-  const { questionnaire, loading, createQuestionnaire, refetch } = useDJMCQuestionnaire(selectedEventId);
+  const { questionnaire, loading, createQuestionnaire, resetQuestionnaire, refetch } = useDJMCQuestionnaire(selectedEventId);
   const [showExporter, setShowExporter] = useState(false);
+  const [isResetting, setIsResetting] = useState(false);
   const { toast } = useToast();
 
   const selectedEvent = selectedEventId ? events.find(e => e.id === selectedEventId) : null;
@@ -33,6 +35,15 @@ export const DJMCQuestionnairePage: React.FC<DJMCQuestionnairePageProps> = ({
         title: 'Questionnaire Created',
         description: 'Your DJ & MC Questionnaire is ready to fill out.',
       });
+    }
+  };
+
+  const handleResetQuestionnaire = async () => {
+    setIsResetting(true);
+    try {
+      await resetQuestionnaire();
+    } finally {
+      setIsResetting(false);
     }
   };
 
@@ -90,6 +101,34 @@ export const DJMCQuestionnairePage: React.FC<DJMCQuestionnairePageProps> = ({
             {/* Action Buttons */}
             {questionnaire && (
               <div className="flex items-center gap-2">
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="rounded-full flex items-center gap-2"
+                      disabled={isResetting}
+                    >
+                      <RotateCcw className="w-4 h-4" />
+                      Reset to Defaults
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Reset Questionnaire?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This will delete all your current entries and reset the questionnaire to the default template. 
+                        This action cannot be undone.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction onClick={handleResetQuestionnaire} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                        Reset Questionnaire
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
                 <Button
                   variant="outline"
                   size="sm"

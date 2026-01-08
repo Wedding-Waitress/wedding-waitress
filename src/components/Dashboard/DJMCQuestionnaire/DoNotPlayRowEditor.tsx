@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Trash2, Ban } from 'lucide-react';
+import { Trash2, Ban, Copy } from 'lucide-react';
 import type { DoNotPlayData, ItemData } from '@/types/djmcQuestionnaire';
 
 interface DoNotPlayRowEditorProps {
@@ -9,6 +9,7 @@ interface DoNotPlayRowEditorProps {
   index: number;
   onSave: (data: ItemData) => void;
   onDelete: () => void;
+  onDuplicate: () => void;
 }
 
 export const DoNotPlayRowEditor: React.FC<DoNotPlayRowEditorProps> = ({
@@ -16,6 +17,7 @@ export const DoNotPlayRowEditor: React.FC<DoNotPlayRowEditorProps> = ({
   index,
   onSave,
   onDelete,
+  onDuplicate,
 }) => {
   const doNotPlayData = data as DoNotPlayData;
   const [songOrGenre, setSongOrGenre] = useState(doNotPlayData.song_or_genre || '');
@@ -51,7 +53,7 @@ export const DoNotPlayRowEditor: React.FC<DoNotPlayRowEditorProps> = ({
         </div>
 
         {/* Notes */}
-        <div className="md:col-span-6">
+        <div className="md:col-span-5">
           <Input
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
@@ -60,8 +62,17 @@ export const DoNotPlayRowEditor: React.FC<DoNotPlayRowEditorProps> = ({
           />
         </div>
 
-        {/* Delete */}
-        <div className="md:col-span-1 flex items-center justify-end">
+        {/* Actions */}
+        <div className="md:col-span-2 flex items-center justify-end gap-1">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-9 w-9 text-muted-foreground hover:text-foreground"
+            onClick={onDuplicate}
+            title="Duplicate row"
+          >
+            <Copy className="w-4 h-4" />
+          </Button>
           <Button
             variant="ghost"
             size="icon"

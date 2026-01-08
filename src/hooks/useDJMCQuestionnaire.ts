@@ -8,11 +8,8 @@ import type {
   DJMCQuestionnaireWithData,
   SectionType,
   ItemData,
-  CEREMONY_MUSIC_MOMENTS,
-  BRIDAL_PARTY_DEFAULTS,
-  SPEECH_DEFAULTS,
-  MAIN_EVENT_MOMENTS
 } from '@/types/djmcQuestionnaire';
+import { SECTION_DEFINITIONS } from '@/types/djmcQuestionnaire';
 
 export const useDJMCQuestionnaire = (eventId: string | null) => {
   const [questionnaire, setQuestionnaire] = useState<DJMCQuestionnaireWithData | null>(null);
@@ -76,7 +73,7 @@ export const useDJMCQuestionnaire = (eventId: string | null) => {
       // Build the full structure
       const sectionsWithItems = (sections || []).map(section => ({
         ...section,
-        section_type: section.label.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z_]/g, '') as SectionType,
+        section_type: section.label.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '') as SectionType,
         items: (items || [])
           .filter(item => item.section_id === section.id)
           .map(item => {
@@ -130,7 +127,7 @@ export const useDJMCQuestionnaire = (eventId: string | null) => {
         .insert({
           event_id: eventId,
           created_by: user.id,
-          template_type: 'wedding_mr_mrs',
+          template_type: 'wedding',
           status: 'draft',
         })
         .select()
@@ -138,26 +135,77 @@ export const useDJMCQuestionnaire = (eventId: string | null) => {
 
       if (qError) throw qError;
 
-      // Create default sections
-      const defaultSections = [
-        { label: 'Ceremony Music', sort_index: 0 },
-        { label: 'Bridal Party Introductions', sort_index: 1 },
-        { label: 'Speeches', sort_index: 2 },
-        { label: 'Main Event Songs', sort_index: 3 },
-        { label: 'Background / Dinner Music', sort_index: 4 },
-        { label: 'Dance Music', sort_index: 5 },
-        { label: 'Traditional / Multicultural Music', sort_index: 6 },
-        { label: 'Do Not Play List', sort_index: 7 },
-      ];
+      // Create sections with instructions
+      const sectionsToInsert = SECTION_DEFINITIONS.map(s => ({
+        questionnaire_id: q.id,
+        label: s.label,
+        sort_index: s.sort_index,
+        instructions: s.instructions,
+      }));
 
-      const { error: sError } = await supabase
+      const { data: createdSections, error: sError } = await supabase
         .from('dj_sections')
-        .insert(defaultSections.map(s => ({
-          ...s,
-          questionnaire_id: q.id,
-        })));
+        .insert(sectionsToInsert)
+        .select();
 
       if (sError) throw sError;
+
+      // Create default items for each section
+      const itemsToInsert: Array<{
+        section_id: string;
+        type: string;
+        prompt: string;
+        sort_index: number;
+        meta: any;
+      }> = [];
+
+      const answersToInsert: Array<{
+        item_id: string;
+        value: any;
+      }> = [];
+
+      // Map section labels to created section IDs
+      const sectionMap = new Map(createdSections.map(s => [s.label, s.id]));
+
+      for (const sectionDef of SECTION_DEFINITIONS) {
+        const sectionId = sectionMap.get(sectionDef.label);
+        if (!sectionId) continue;
+
+        for (const itemDef of sectionDef.defaultItems) {
+          itemsToInsert.push({
+            section_id: sectionId,
+            type: itemDef.type,
+            prompt: '',
+            sort_index: itemDef.sort_index,
+            meta: itemDef.data,
+          });
+        }
+      }
+
+      if (itemsToInsert.length > 0) {
+        const { data: createdItems, error: iError } = await supabase
+          .from('dj_items')
+          .insert(itemsToInsert)
+          .select();
+
+        if (iError) throw iError;
+
+        // Create answers for each item with the default data
+        if (createdItems && createdItems.length > 0) {
+          for (const item of createdItems) {
+            answersToInsert.push({
+              item_id: item.id,
+              value: item.meta || {},
+            });
+          }
+
+          const { error: aError } = await supabase
+            .from('dj_answers')
+            .insert(answersToInsert);
+
+          if (aError) throw aError;
+        }
+      }
 
       toast({
         title: 'Success',
@@ -171,6 +219,40 @@ export const useDJMCQuestionnaire = (eventId: string | null) => {
       toast({
         title: 'Error',
         description: 'Failed to create questionnaire',
+        variant: 'destructive',
+      });
+      return false;
+    }
+  };
+
+  const resetQuestionnaire = async (): Promise<boolean> => {
+    if (!eventId || !questionnaire) return false;
+
+    try {
+      // Delete existing questionnaire (cascade will delete sections, items, answers)
+      const { error: deleteError } = await supabase
+        .from('dj_questionnaires')
+        .delete()
+        .eq('id', questionnaire.id);
+
+      if (deleteError) throw deleteError;
+
+      // Create new questionnaire with defaults
+      const success = await createQuestionnaire();
+      
+      if (success) {
+        toast({
+          title: 'Success',
+          description: 'Questionnaire reset to defaults',
+        });
+      }
+
+      return success;
+    } catch (error) {
+      console.error('Error resetting questionnaire:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to reset questionnaire',
         variant: 'destructive',
       });
       return false;
@@ -234,6 +316,72 @@ export const useDJMCQuestionnaire = (eventId: string | null) => {
         variant: 'destructive',
       });
       return null;
+    }
+  };
+
+  const duplicateItem = async (sectionId: string, itemId: string): Promise<boolean> => {
+    try {
+      // Get the item to duplicate
+      const { data: originalItem, error: fetchError } = await supabase
+        .from('dj_items')
+        .select('*')
+        .eq('id', itemId)
+        .single();
+
+      if (fetchError) throw fetchError;
+
+      // Get the answer for this item
+      const { data: originalAnswer } = await supabase
+        .from('dj_answers')
+        .select('*')
+        .eq('item_id', itemId)
+        .maybeSingle();
+
+      // Get current max sort_index
+      const { data: items } = await supabase
+        .from('dj_items')
+        .select('sort_index')
+        .eq('section_id', sectionId)
+        .order('sort_index', { ascending: false })
+        .limit(1);
+
+      const nextIndex = items && items.length > 0 ? items[0].sort_index + 1 : 0;
+
+      // Create duplicate item
+      const { data: newItem, error: insertError } = await supabase
+        .from('dj_items')
+        .insert({
+          section_id: sectionId,
+          type: originalItem.type,
+          prompt: originalItem.prompt,
+          sort_index: nextIndex,
+          meta: originalItem.meta,
+        })
+        .select()
+        .single();
+
+      if (insertError) throw insertError;
+
+      // Create answer for duplicate
+      if (originalAnswer) {
+        await supabase
+          .from('dj_answers')
+          .insert({
+            item_id: newItem.id,
+            value: originalAnswer.value,
+          });
+      }
+
+      await fetchQuestionnaire();
+      return true;
+    } catch (error) {
+      console.error('Error duplicating item:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to duplicate row',
+        variant: 'destructive',
+      });
+      return false;
     }
   };
 
@@ -334,7 +482,9 @@ export const useDJMCQuestionnaire = (eventId: string | null) => {
     questionnaire,
     loading,
     createQuestionnaire,
+    resetQuestionnaire,
     saveItem,
+    duplicateItem,
     deleteItem,
     reorderItems,
     savePronunciationAudio,
