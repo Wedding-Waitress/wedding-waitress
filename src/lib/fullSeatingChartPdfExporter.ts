@@ -113,16 +113,16 @@ export const exportFullSeatingChartToPdf = async (
    * Increased heights for two-line format
    */
   const baseRowHeight: Record<string, number> = {
-    'small': 9,
-    'medium': 10,
-    'large': 12
+    'small': 10,
+    'medium': 11,
+    'large': 13
   };
   
   // Row height is now fixed per font size (dietary/relation displayed inline)
-  const rowHeight = baseRowHeight[settings.fontSize] || 6;
+  const rowHeight = baseRowHeight[settings.fontSize] || 11;
   
-  // Available height for guest rows - reduced to leave ~24mm gap above footer
-  const availableHeight = 175; // mm for guest rows - must match preview calculation
+  // Available height for guest rows - reduced to 155mm to ensure 2-3 line gap above footer
+  const availableHeight = 155; // mm for guest rows - must match preview calculation
   
   const calculatedGuestsPerColumn = Math.floor(availableHeight / rowHeight);
   // Clamp to minimum 1 guest per column
