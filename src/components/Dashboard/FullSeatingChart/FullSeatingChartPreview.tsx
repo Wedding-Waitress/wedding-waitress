@@ -72,14 +72,14 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
    * Available for guests: 297 - 25.4 - 22 - 15 = 234.6mm ≈ 234mm
    */
   const paginationInfo = useMemo(() => {
-    // Calculate row height based on font size only (dietary/relation now inline)
+    // Calculate row height based on font size - increased for two-line format
     const baseRowHeight: Record<string, number> = {
-      'small': 5.5,
-      'medium': 6,
-      'large': 7
+      'small': 9,
+      'medium': 10,
+      'large': 12
     };
     
-    const rowHeight = baseRowHeight[settings.fontSize] || 6;
+    const rowHeight = baseRowHeight[settings.fontSize] || 10;
     
     // Available height for guest rows (after header, footer, margins)
     // Reduced from 234mm to account for header (~22mm) and footer safe zone
@@ -120,11 +120,9 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
   const col1Guests = currentGuests.slice(0, currentPageInfo.col1Count);
   const col2Guests = currentGuests.slice(currentPageInfo.col1Count);
 
+  // Format guest name - first name only for two-line display
   const formatGuestName = (guest: Guest) => {
-    if (settings.sortBy === 'lastName') {
-      return `${guest.last_name || ''}, ${guest.first_name}`.trim();
-    }
-    return `${guest.first_name} ${guest.last_name || ''}`.trim();
+    return guest.first_name;
   };
 
   // Get font size class based on settings
@@ -203,14 +201,14 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
     return `${dateStr} Time: ${timeStr}`;
   };
 
-  // Calculate the minimum row height in mm based on current settings
+  // Calculate the minimum row height in mm based on current settings (two-line format)
   const getRowHeightMm = () => {
     const baseRowHeight: Record<string, number> = {
-      'small': 5.5,
-      'medium': 6,
-      'large': 7
+      'small': 9,
+      'medium': 10,
+      'large': 12
     };
-    return baseRowHeight[settings.fontSize] || 6;
+    return baseRowHeight[settings.fontSize] || 10;
   };
 
   const rowHeightMm = getRowHeightMm();
@@ -227,45 +225,47 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
     return parts.join(' / ');
   };
 
-  // Screen version guest row - enforces consistent row height with inline layout
+  // Screen version guest row - two-line format: Name on line 1, info on line 2
   const ScreenGuestRow = ({ guest }: { guest: Guest }) => {
     const inlineInfo = buildInlineInfo(guest);
     return (
       <div 
-        className="flex items-center gap-2 py-0.5 px-1 hover:bg-muted/30 rounded-sm"
-        style={{ minHeight: `${rowHeightMm}mm` }}
+        className="flex items-start gap-2 py-0.5 px-1 hover:bg-muted/30 rounded-sm"
+        style={{ minHeight: `${rowHeightMm * 2}mm` }}
       >
         <Checkbox
           id={`guest-${guest.id}`}
           checked={checkedGuests.has(guest.id)}
           onCheckedChange={(checked) => handleGuestCheck(guest.id, checked === true)}
-          className="w-4 h-4 flex-shrink-0"
+          className="w-4 h-4 flex-shrink-0 mt-0.5"
         />
-        <span className={`font-bold ${getFontSizeClass()} text-foreground flex-shrink-0`}>
-          {formatGuestName(guest)}
-        </span>
-        {/* Inline dietary and relation info */}
-        {inlineInfo && (
-          <span className="text-xs text-muted-foreground flex-1 min-w-0 truncate">
-            {inlineInfo}
+        <div className="flex flex-col flex-1 min-w-0">
+          <span className={`font-bold ${getFontSizeClass()} text-foreground`}>
+            {formatGuestName(guest)}
           </span>
-        )}
-        {!inlineInfo && <span className="flex-1" />}
-        <span className="text-xs font-medium px-1.5 py-0.5 bg-muted rounded flex-shrink-0 whitespace-nowrap">
+          {inlineInfo && (
+            <span className="text-xs text-muted-foreground truncate">
+              {inlineInfo}
+            </span>
+          )}
+        </div>
+        <span className="text-xs font-medium px-1.5 py-0.5 bg-muted rounded flex-shrink-0 whitespace-nowrap mt-0.5">
           {guest.table_no ? `Table ${guest.table_no}` : 'Unassigned'}
         </span>
       </div>
     );
   };
 
-  // Print version guest row - matches screen layout exactly with inline info
+  // Print version guest row - two-line format matching screen
   const PrintGuestRow = ({ guest }: { guest: Guest }) => {
     const inlineInfo = buildInlineInfo(guest);
     return (
-      <div className="print-guest-item">
+      <div className="print-guest-item print-guest-two-line">
         <span className="print-checkbox">☐</span>
-        <span className="print-guest-name">{formatGuestName(guest)}</span>
-        {inlineInfo && <span className="print-guest-info">{inlineInfo}</span>}
+        <div className="print-guest-content">
+          <span className="print-guest-name">{formatGuestName(guest)}</span>
+          {inlineInfo && <span className="print-guest-info">{inlineInfo}</span>}
+        </div>
         <span className="print-table">
           {guest.table_no ? `Table ${guest.table_no}` : 'Unassigned'}
         </span>
@@ -372,31 +372,36 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
           
           .print-guest-item {
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             gap: 6px;
             break-inside: avoid;
             font-size: ${printFontSizes.main};
             line-height: 1.2;
-            margin-bottom: 0px;
+            margin-bottom: 2px;
             color: #000;
             padding: 2px 2px;
+          }
+          
+          .print-guest-two-line .print-guest-content {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-width: 0;
           }
           
           .print-checkbox {
             font-family: monospace;
             font-size: ${printFontSizes.checkbox};
             flex-shrink: 0;
+            margin-top: 1px;
           }
           
           .print-guest-name {
             font-weight: 700;
             color: #000;
-            flex-shrink: 0;
           }
           
           .print-guest-info {
-            flex: 1;
-            min-width: 0;
             font-size: ${printFontSizes.checkbox};
             color: #666;
             overflow: hidden;
