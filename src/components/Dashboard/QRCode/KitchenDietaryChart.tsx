@@ -487,7 +487,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                     disabled={isExporting || paginatedGuests.length === 0}
                   >
                     <FileText className="w-4 h-4" />
-                    Download PDF
+                    Download single page PDF
                   </Button>
                   <Button 
                     variant="default" 
@@ -497,7 +497,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                     disabled={isExporting || dietaryGuests.length === 0}
                   >
                     <FileText className="w-4 h-4" />
-                    Download All PDF
+                    Download all pages PDF
                   </Button>
                 </div>
               </div>
