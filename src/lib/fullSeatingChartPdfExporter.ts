@@ -243,7 +243,7 @@ export const exportFullSeatingChartToPdf = async (
         // Line 2: Build info string (dietary/relation)
         const infoParts: string[] = [];
         if (hasDietary) infoParts.push(guest.dietary!);
-        if (hasRelation) infoParts.push(guest.relation_display!);
+        if (hasRelation) infoParts.push(guest.relation_display!.replace(' — ', ' / '));
         const inlineInfo = infoParts.join('/');
         
         // Draw info on second line if present
