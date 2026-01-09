@@ -67,7 +67,6 @@ export function DJMCQuestionnairePage() {
                 events={events}
                 selectedEventId={selectedEventId}
                 onEventSelect={setSelectedEventId}
-                placeholder="Select an event to manage..."
               />
             </div>
 
