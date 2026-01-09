@@ -44,7 +44,7 @@ export const DEFAULT_SECTION_TEMPLATES: DefaultSectionTemplate[] = [
       { row_label: 'Mother of the Groom' },
       { row_label: 'Best Man' },
       { row_label: 'Maid/Matron of Honour' },
-      { row_label: 'Other Speaker' },
+      { row_label: 'Groom & Bride' },
     ],
   },
   {
