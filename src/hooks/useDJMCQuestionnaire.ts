@@ -533,19 +533,68 @@ export function useDJMCQuestionnaire(eventId: string | null) {
         };
       });
 
-      toast({
-        title: 'Section Duplicated',
-        description: 'You can rename the new section by clicking its title',
-      });
-    } catch (error) {
-      console.error('Error duplicating section:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to duplicate section',
-        variant: 'destructive',
-      });
+    toast({
+      title: 'Section Duplicated',
+      description: 'You can rename the new section by clicking its title',
+    });
+  } catch (error) {
+    console.error('Error duplicating section:', error);
+    toast({
+      title: 'Error',
+      description: 'Failed to duplicate section',
+      variant: 'destructive',
+    });
+  }
+}, [questionnaire, toast]);
+
+const deleteSection = useCallback(async (sectionId: string) => {
+  if (!questionnaire) return;
+
+  const section = questionnaire.sections.find(s => s.id === sectionId);
+  if (!section) return;
+
+  try {
+    // Delete all items in the section first
+    await supabase.from('dj_mc_items').delete().eq('section_id', sectionId);
+
+    // Delete the section
+    const { error } = await supabase.from('dj_mc_sections').delete().eq('id', sectionId);
+    if (error) throw error;
+
+    // Update order_index for subsequent sections
+    const sectionsToUpdate = questionnaire.sections.filter(s => s.order_index > section.order_index);
+    if (sectionsToUpdate.length > 0) {
+      await Promise.all(
+        sectionsToUpdate.map(s =>
+          supabase.from('dj_mc_sections').update({ order_index: s.order_index - 1 }).eq('id', s.id)
+        )
+      );
     }
-  }, [questionnaire, toast]);
+
+    // Update local state
+    setQuestionnaire(prev => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        sections: prev.sections
+          .filter(s => s.id !== sectionId)
+          .map((s, idx) => ({ ...s, order_index: idx })),
+      };
+    });
+
+    toast({
+      title: 'Section Deleted',
+      description: 'The section and all its items have been removed',
+    });
+  } catch (error) {
+    console.error('Error deleting section:', error);
+    toast({
+      title: 'Error',
+      description: 'Failed to delete section',
+      variant: 'destructive',
+    });
+  }
+}, [questionnaire, toast]);
 
   // Generate share token
   const generateShareToken = useCallback(async (
@@ -643,6 +692,7 @@ export function useDJMCQuestionnaire(eventId: string | null) {
     reorderItems,
     resetSectionToDefault,
     duplicateSection,
+    deleteSection,
     generateShareToken,
     deleteShareToken,
     calculateProgress,

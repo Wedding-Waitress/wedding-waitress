@@ -39,7 +39,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { ChevronDown, ChevronRight, Plus, MoreVertical, RotateCcw, MessageSquare, Copy } from 'lucide-react';
+import { ChevronDown, ChevronRight, Plus, MoreVertical, RotateCcw, MessageSquare, Copy, Trash } from 'lucide-react';
 import { DJMCSection, DJMCItem } from '@/types/djMCQuestionnaire';
 import { DJMCSectionRow } from './DJMCSectionRow';
 
@@ -53,6 +53,7 @@ interface DJMCQuestionnaireSectionProps {
   onReorderItems: (items: DJMCItem[]) => void;
   onResetToDefault: () => void;
   onDuplicateSection: () => void;
+  onDeleteSection: () => void;
   disabled?: boolean;
 }
 
@@ -66,12 +67,14 @@ export function DJMCQuestionnaireSection({
   onReorderItems,
   onResetToDefault,
   onDuplicateSection,
+  onDeleteSection,
   disabled = false,
 }: DJMCQuestionnaireSectionProps) {
   const [editingLabel, setEditingLabel] = useState(false);
   const [localLabel, setLocalLabel] = useState(section.section_label);
   const [showNotes, setShowNotes] = useState(!!section.notes);
   const [showResetDialog, setShowResetDialog] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const labelInputRef = useRef<HTMLInputElement>(null);
 
   const sensors = useSensors(
@@ -192,11 +195,18 @@ export function DJMCQuestionnaireSection({
                       <Copy className="h-4 w-4 mr-2" />
                       Duplicate Section
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setShowResetDialog(true)}>
-                      <RotateCcw className="h-4 w-4 mr-2" />
-                      Reset to Default
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
+                  <DropdownMenuItem onClick={() => setShowResetDialog(true)}>
+                    <RotateCcw className="h-4 w-4 mr-2" />
+                    Reset to Default
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    onClick={() => setShowDeleteDialog(true)}
+                    className="text-destructive focus:text-destructive"
+                  >
+                    <Trash className="h-4 w-4 mr-2" />
+                    Delete Section
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
                 </DropdownMenu>
               </div>
             </div>
@@ -293,6 +303,31 @@ export function DJMCQuestionnaireSection({
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               Reset
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Delete confirmation dialog */}
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Section?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete "{section.section_label}" and all its rows.
+              This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                onDeleteSection();
+                setShowDeleteDialog(false);
+              }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
