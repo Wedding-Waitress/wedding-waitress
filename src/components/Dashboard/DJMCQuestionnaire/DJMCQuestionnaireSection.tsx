@@ -232,14 +232,27 @@ export function DJMCQuestionnaireSection({
               <div className="flex items-center gap-2 px-2 py-2 border-b border-border text-xs font-medium text-muted-foreground uppercase tracking-wide">
                 <div className="w-6" /> {/* Drag handle space */}
                 <div className="flex-1">Item</div>
-                <div className="flex-1">
-                  {['ceremony', 'cocktail', 'main_event', 'dinner', 'dance', 'traditional'].includes(section.section_type)
-                    ? 'Music with Link'
-                    : 'Names / Details'}
-                </div>
-                {section.section_type === 'introductions' && (
+                
+                {/* Names/Details header for ceremony and introductions */}
+                {(section.section_type === 'ceremony' || section.section_type === 'introductions') && (
+                  <div className="flex-1">Names / Details</div>
+                )}
+                
+                {/* Audio header for ceremony and introductions */}
+                {(section.section_type === 'ceremony' || section.section_type === 'introductions') && (
                   <div className="w-20 text-center">Audio</div>
                 )}
+                
+                {/* Music with Link header for music sections */}
+                {['ceremony', 'cocktail', 'main_event', 'dinner', 'dance', 'traditional'].includes(section.section_type) && (
+                  <div className="flex-1">Music with Link</div>
+                )}
+                
+                {/* Names/Details header for non-music sections (excluding ceremony/introductions) */}
+                {!['ceremony', 'cocktail', 'main_event', 'dinner', 'dance', 'traditional', 'introductions'].includes(section.section_type) && (
+                  <div className="flex-1">Names / Details</div>
+                )}
+                
                 <div className="w-16" /> {/* Actions space */}
               </div>
 
