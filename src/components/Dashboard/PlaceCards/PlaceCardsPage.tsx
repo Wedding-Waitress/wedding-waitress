@@ -42,13 +42,35 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
   const [isExporting, setIsExporting] = useState(false);
   const [selectedPage, setSelectedPage] = useState<number>(0);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [selectedTableId, setSelectedTableId] = useState<string | null>(null);
+  const [selectedTableId, setSelectedTableId] = useState<string | null>(() => {
+    return sessionStorage.getItem('ww:place_cards_selected_table') || null;
+  });
   
   const { events, loading: eventsLoading } = useEvents();
   const { guests, loading: guestsLoading } = useRealtimeGuests(selectedEventId);
   const { tables, loading: tablesLoading } = useTables(selectedEventId);
   const { settings, loading: settingsLoading, updateSettings } = usePlaceCardSettings(selectedEventId);
   const { toast } = useToast();
+
+  // Persist table selection to sessionStorage
+  React.useEffect(() => {
+    if (selectedTableId) {
+      sessionStorage.setItem('ww:place_cards_selected_table', selectedTableId);
+    } else {
+      sessionStorage.removeItem('ww:place_cards_selected_table');
+    }
+  }, [selectedTableId]);
+
+  // Validate that stored table belongs to current event
+  React.useEffect(() => {
+    if (selectedTableId && tables.length > 0 && !tablesLoading) {
+      const tableExists = tables.some(table => table.id === selectedTableId);
+      if (!tableExists) {
+        setSelectedTableId(null);
+        sessionStorage.removeItem('ww:place_cards_selected_table');
+      }
+    }
+  }, [selectedTableId, tables, tablesLoading]);
 
   const selectedEvent = events.find(event => event.id === selectedEventId);
   const selectedTable = tables.find(table => table.id === selectedTableId);
@@ -65,7 +87,8 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
   const handleEventChange = (eventId: string) => {
     if (eventId === "no-event") return;
     onEventSelect(eventId);
-    setSelectedTableId(null); // Reset table selection when event changes
+    setSelectedTableId(null);
+    sessionStorage.removeItem('ww:place_cards_selected_table');
   };
 
   const handleDownloadPdfPage = async () => {
