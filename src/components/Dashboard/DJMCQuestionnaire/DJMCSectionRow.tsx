@@ -49,7 +49,8 @@ export function DJMCSectionRow({
 
   // Determine what fields to show based on section type
   const showMusicUrl = ['ceremony', 'cocktail', 'main_event', 'dinner', 'dance', 'traditional'].includes(sectionType);
-  const showPronunciation = sectionType === 'introductions';
+  const showPronunciation = sectionType === 'introductions' || sectionType === 'ceremony';
+  const showBothValueAndMusicUrl = sectionType === 'ceremony';
 
   // Handle label editing
   const handleLabelClick = useCallback(() => {
@@ -171,41 +172,48 @@ export function DJMCSectionRow({
         )}
       </div>
 
-      {/* Right column - Value or Music URL */}
-      <div className="flex-1 min-w-0">
-        {showMusicUrl ? (
-          <DJMCMusicUrlField
-            value={item.music_url}
-            onChange={(url) => onUpdate({ music_url: url })}
-            disabled={disabled}
-          />
-        ) : editingValue ? (
-          <Input
-            ref={valueInputRef}
-            value={localValue}
-            onChange={(e) => setLocalValue(e.target.value)}
-            onBlur={handleValueBlur}
-            onKeyDown={handleValueKeyDown}
-            className="h-8 text-sm"
-            placeholder={(item as any).placeholder || "Enter name or details..."}
-          />
-        ) : (
-          <div
-            onClick={handleValueClick}
-            className="cursor-text px-3 py-1.5 text-sm rounded hover:bg-muted/50 truncate text-muted-foreground"
-          >
-            {item.value_text || (item as any).placeholder || 'Click to add...'}
-          </div>
-        )}
-      </div>
+      {/* Middle column - Names/Details (for ceremony and introductions) */}
+      {(showBothValueAndMusicUrl || !showMusicUrl) && (
+        <div className="flex-1 min-w-0">
+          {editingValue ? (
+            <Input
+              ref={valueInputRef}
+              value={localValue}
+              onChange={(e) => setLocalValue(e.target.value)}
+              onBlur={handleValueBlur}
+              onKeyDown={handleValueKeyDown}
+              className="h-8 text-sm"
+              placeholder={showBothValueAndMusicUrl ? "Names / Details..." : (item as any).placeholder || "Enter name or details..."}
+            />
+          ) : (
+            <div
+              onClick={handleValueClick}
+              className="cursor-text px-3 py-1.5 text-sm rounded hover:bg-muted/50 truncate text-muted-foreground"
+            >
+              {item.value_text || (showBothValueAndMusicUrl ? 'Names / Details...' : (item as any).placeholder || 'Click to add...')}
+            </div>
+          )}
+        </div>
+      )}
 
-      {/* Pronunciation recorder (for introductions section) */}
+      {/* Pronunciation recorder (for introductions and ceremony sections) */}
       {showPronunciation && (
         <DJMCPronunciationRecorder
           audioUrl={item.pronunciation_audio_url}
           onChange={(url) => onUpdate({ pronunciation_audio_url: url })}
           disabled={disabled}
         />
+      )}
+
+      {/* Right column - Music URL (for music sections) */}
+      {showMusicUrl && (
+        <div className="flex-1 min-w-0">
+          <DJMCMusicUrlField
+            value={item.music_url}
+            onChange={(url) => onUpdate({ music_url: url })}
+            disabled={disabled}
+          />
+        </div>
       )}
 
       {/* Action buttons */}

@@ -6,11 +6,11 @@ export const DEFAULT_SECTION_TEMPLATES: DefaultSectionTemplate[] = [
     section_type: 'ceremony',
     section_label: 'Ceremony Music',
     items: [
-      { row_label: 'Prelude (As Guests Arrive) × 10 Songs (Optional)', has_music_url: true },
-      { row_label: 'Processional (Bridesmaids Entrance) × 1 Song', has_music_url: true },
-      { row_label: 'Bride Walking Down the Aisle × 1 Song', has_music_url: true },
-      { row_label: 'Interlude (During Signing) × 2 Songs', has_music_url: true },
-      { row_label: 'Recessional (Exit) × 1 Song', has_music_url: true },
+      { row_label: 'Prelude (As Guests Arrive) × 10 Songs (Optional)', has_music_url: true, has_pronunciation: true },
+      { row_label: 'Processional (Bridesmaids Entrance) × 1 Song', has_music_url: true, has_pronunciation: true },
+      { row_label: 'Bride Walking Down the Aisle × 1 Song', has_music_url: true, has_pronunciation: true },
+      { row_label: 'Interlude (During Signing) × 2 Songs', has_music_url: true, has_pronunciation: true },
+      { row_label: 'Recessional (Exit) × 1 Song', has_music_url: true, has_pronunciation: true },
     ],
   },
   {
