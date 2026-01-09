@@ -152,7 +152,19 @@ export function DJMCSectionRow({
             onClick={handleLabelClick}
             className="cursor-text px-3 py-1.5 text-sm rounded hover:bg-muted/50 truncate"
           >
-            {item.row_label}
+            {(() => {
+              // Parse label to separate main text from parenthetical text
+              const match = item.row_label.match(/^(.+?)(\s*\(.+\))$/);
+              if (match) {
+                return (
+                  <>
+                    <span className="font-semibold text-foreground">{match[1]}</span>
+                    <span className="font-normal text-muted-foreground">{match[2]}</span>
+                  </>
+                );
+              }
+              return <span className="font-semibold text-foreground">{item.row_label}</span>;
+            })()}
           </div>
         )}
       </div>
