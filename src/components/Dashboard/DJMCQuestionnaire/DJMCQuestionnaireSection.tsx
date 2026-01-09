@@ -243,8 +243,8 @@ export function DJMCQuestionnaireSection({
                   <div className="flex-1">Dedication / Name and Details</div>
                 )}
                 
-                {/* Audio header for ceremony, introductions, and main_event (NOT traditional) */}
-                {(section.section_type === 'ceremony' || section.section_type === 'introductions' || section.section_type === 'main_event') && (
+                {/* Audio header for ceremony, introductions, main_event, and traditional */}
+                {(section.section_type === 'ceremony' || section.section_type === 'introductions' || section.section_type === 'main_event' || section.section_type === 'traditional') && (
                   <div className="w-20 text-center">Audio</div>
                 )}
                 
