@@ -9,9 +9,13 @@ import { DJMCShareModal } from './DJMCShareModal';
 import { useDJMCQuestionnaire } from '@/hooks/useDJMCQuestionnaire';
 import { useEvents } from '@/hooks/useEvents';
 
-export function DJMCQuestionnairePage() {
+interface DJMCQuestionnairePageProps {
+  selectedEventId: string | null;
+  onEventSelect: (eventId: string) => void;
+}
+
+export function DJMCQuestionnairePage({ selectedEventId, onEventSelect }: DJMCQuestionnairePageProps) {
   const { events } = useEvents();
-  const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [showShareModal, setShowShareModal] = useState(false);
 
   const {
@@ -68,7 +72,7 @@ export function DJMCQuestionnairePage() {
               <StandardEventSelector
                 events={events}
                 selectedEventId={selectedEventId}
-                onEventSelect={setSelectedEventId}
+                onEventSelect={onEventSelect}
               />
             </div>
 

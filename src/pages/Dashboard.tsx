@@ -561,7 +561,7 @@ export const Dashboard = () => {
           </Card>
         );
       case 'dj-mc-questionnaire':
-        return <DJMCQuestionnairePage />;
+        return <DJMCQuestionnairePage selectedEventId={globalSelectedEventId} onEventSelect={handleGlobalEventSelect} />;
       default:
         return <Card className="p-8 text-center">
             <TrendingUp className="w-16 h-16 mx-auto text-primary mb-4" />
