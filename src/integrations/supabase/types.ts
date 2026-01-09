@@ -287,6 +287,173 @@ export type Database = {
         }
         Relationships: []
       }
+      dj_mc_items: {
+        Row: {
+          created_at: string
+          duration: string | null
+          id: string
+          is_default: boolean
+          music_url: string | null
+          order_index: number
+          pronunciation_audio_url: string | null
+          row_label: string
+          section_id: string
+          updated_at: string
+          value_text: string | null
+        }
+        Insert: {
+          created_at?: string
+          duration?: string | null
+          id?: string
+          is_default?: boolean
+          music_url?: string | null
+          order_index?: number
+          pronunciation_audio_url?: string | null
+          row_label: string
+          section_id: string
+          updated_at?: string
+          value_text?: string | null
+        }
+        Update: {
+          created_at?: string
+          duration?: string | null
+          id?: string
+          is_default?: boolean
+          music_url?: string | null
+          order_index?: number
+          pronunciation_audio_url?: string | null
+          row_label?: string
+          section_id?: string
+          updated_at?: string
+          value_text?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dj_mc_items_section_id_fkey"
+            columns: ["section_id"]
+            isOneToOne: false
+            referencedRelation: "dj_mc_sections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dj_mc_questionnaires: {
+        Row: {
+          created_at: string
+          event_id: string
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dj_mc_questionnaires_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dj_mc_sections: {
+        Row: {
+          created_at: string
+          id: string
+          is_collapsed: boolean
+          notes: string | null
+          order_index: number
+          questionnaire_id: string
+          section_label: string
+          section_type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_collapsed?: boolean
+          notes?: string | null
+          order_index?: number
+          questionnaire_id: string
+          section_label: string
+          section_type: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_collapsed?: boolean
+          notes?: string | null
+          order_index?: number
+          questionnaire_id?: string
+          section_label?: string
+          section_type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dj_mc_sections_questionnaire_id_fkey"
+            columns: ["questionnaire_id"]
+            isOneToOne: false
+            referencedRelation: "dj_mc_questionnaires"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dj_mc_share_tokens: {
+        Row: {
+          created_at: string
+          expires_at: string | null
+          id: string
+          last_accessed_at: string | null
+          permission: string
+          questionnaire_id: string
+          recipient_name: string | null
+          token: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          last_accessed_at?: string | null
+          permission?: string
+          questionnaire_id: string
+          recipient_name?: string | null
+          token: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          last_accessed_at?: string | null
+          permission?: string
+          questionnaire_id?: string
+          recipient_name?: string | null
+          token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dj_mc_share_tokens_questionnaire_id_fkey"
+            columns: ["questionnaire_id"]
+            isOneToOne: false
+            referencedRelation: "dj_mc_questionnaires"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       event_collaborators: {
         Row: {
           created_at: string | null
@@ -1863,6 +2030,15 @@ export type Database = {
         }
         Returns: boolean
       }
+      generate_dj_mc_share_token: {
+        Args: {
+          _permission?: string
+          _questionnaire_id: string
+          _recipient_name?: string
+          _validity_days?: number
+        }
+        Returns: string
+      }
       generate_guest_access_token: {
         Args: { _event_id: string; _guest_id: string; _validity_days?: number }
         Returns: string
@@ -1877,6 +2053,18 @@ export type Database = {
       }
       generate_short_slug: { Args: never; Returns: string }
       generate_slug: { Args: { input_text: string }; Returns: string }
+      get_dj_mc_questionnaire_by_token: {
+        Args: { share_token: string }
+        Returns: {
+          event_date: string
+          event_id: string
+          event_name: string
+          event_venue: string
+          permission: string
+          questionnaire_id: string
+          sections: Json
+        }[]
+      }
       get_events_with_guest_count: {
         Args: never
         Returns: {
@@ -1989,6 +2177,16 @@ export type Database = {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
+        }
+        Returns: boolean
+      }
+      update_dj_mc_item_by_token: {
+        Args: {
+          item_id: string
+          new_music_url?: string
+          new_row_label?: string
+          new_value_text?: string
+          share_token: string
         }
         Returns: boolean
       }
