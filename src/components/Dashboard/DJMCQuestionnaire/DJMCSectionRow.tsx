@@ -122,123 +122,233 @@ export function DJMCSectionRow({
     setLocalValue(item.value_text || '');
   }, [item.value_text]);
 
+  // Parse label for display (some labels have parenthetical text)
+  const labelMatch = item.row_label.match(/^([^(]+)(?:\s*\(([^)]+)\))?$/);
+  const displayLabel = labelMatch ? labelMatch[1].trim() : item.row_label;
+  const parentheticalText = labelMatch ? labelMatch[2] : null;
+
+  // Special simple layout for do_not_play section
+  if (sectionType === 'do_not_play') {
+    return (
+      <div
+        ref={setNodeRef}
+        style={style}
+        className="flex items-center gap-2 py-2 px-1 rounded-md hover:bg-muted/50 group"
+      >
+        {/* Drag Handle */}
+        <div
+          {...attributes}
+          {...listeners}
+          className="cursor-grab active:cursor-grabbing p-1 hover:bg-muted rounded opacity-0 group-hover:opacity-100 transition-opacity"
+        >
+          <GripVertical className="h-4 w-4 text-muted-foreground" />
+        </div>
+
+        {/* Single full-width input for song name */}
+        <div className="flex-1 min-w-0">
+          {editingLabel ? (
+            <Input
+              ref={labelInputRef}
+              value={localLabel}
+              onChange={(e) => setLocalLabel(e.target.value)}
+              onBlur={handleLabelBlur}
+              onKeyDown={handleLabelKeyDown}
+              placeholder="Enter song name..."
+              className="h-8 text-sm"
+            />
+          ) : (
+            <div
+              onClick={handleLabelClick}
+              className="px-3 py-1.5 text-sm rounded border border-transparent hover:border-border hover:bg-background cursor-text min-h-[32px] flex items-center"
+            >
+              {item.row_label || <span className="text-muted-foreground">Enter song name...</span>}
+            </div>
+          )}
+        </div>
+
+        {/* Action buttons */}
+        <div className="flex items-center gap-1 w-16 justify-end opacity-0 group-hover:opacity-100 transition-opacity">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-7 w-7"
+            onClick={onDuplicate}
+            title="Duplicate row"
+          >
+            <Copy className="h-3.5 w-3.5" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-7 w-7 text-destructive hover:text-destructive"
+            onClick={onDelete}
+            title="Delete row"
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  // Standard layout for all other sections
   return (
     <div
       ref={setNodeRef}
       style={style}
-      className="group flex items-center gap-2 py-2 px-2 border-b border-border/50 hover:bg-muted/30 transition-colors"
+      className="flex items-center gap-2 py-2 px-1 rounded-md hover:bg-muted/50 group"
     >
-      {/* Drag handle */}
+      {/* Drag Handle */}
       <div
         {...attributes}
         {...listeners}
-        className="cursor-grab opacity-0 group-hover:opacity-100 transition-opacity"
+        className="cursor-grab active:cursor-grabbing p-1 hover:bg-muted rounded opacity-0 group-hover:opacity-100 transition-opacity"
       >
         <GripVertical className="h-4 w-4 text-muted-foreground" />
       </div>
 
-      {/* Left column - Label */}
-      <div className="flex-1 min-w-0">
-        {editingLabel ? (
-          <Input
-            ref={labelInputRef}
-            value={localLabel}
-            onChange={(e) => setLocalLabel(e.target.value)}
-            onBlur={handleLabelBlur}
-            onKeyDown={handleLabelKeyDown}
-            className="h-8 text-sm"
-          />
-        ) : (
-          <div
-            onClick={handleLabelClick}
-            className="cursor-text px-3 py-1.5 text-sm rounded hover:bg-muted/50 truncate"
-          >
-            {(() => {
-              // Parse label to separate main text from parenthetical text
-              const match = item.row_label.match(/^(.+?)(\s*\(.+\))$/);
-              if (match) {
-                // If trailing parentheses is "(Optional)", render it bold like the rest
-                const isOptional = match[2].trim().toLowerCase() === '(optional)';
-                return (
-                  <>
-                    <span className="font-semibold text-foreground">{match[1]}</span>
-                    <span className={isOptional ? "font-semibold text-foreground" : "font-normal text-muted-foreground"}>{match[2]}</span>
-                  </>
-                );
-              }
-              return <span className="font-semibold text-foreground">{item.row_label}</span>;
-            })()}
-          </div>
-        )}
-      </div>
+      {/* ITEM Label - not for speeches */}
+      {sectionType !== 'speeches' && (
+        <div className="w-32 shrink-0">
+          {editingLabel ? (
+            <Input
+              ref={labelInputRef}
+              value={localLabel}
+              onChange={(e) => setLocalLabel(e.target.value)}
+              onBlur={handleLabelBlur}
+              onKeyDown={handleLabelKeyDown}
+              className="h-8 text-sm"
+            />
+          ) : (
+            <div
+              onClick={handleLabelClick}
+              className="px-2 py-1 text-sm font-medium rounded hover:bg-muted cursor-text"
+            >
+              {displayLabel}
+              {parentheticalText && (
+                <span className="text-muted-foreground font-normal"> ({parentheticalText})</span>
+              )}
+            </div>
+          )}
+        </div>
+      )}
 
-      {/* Middle column - Names/Details (for ceremony and introductions) */}
-      {(showBothValueAndMusicUrl || !showMusicUrl) && (
-        <div className="flex-1 min-w-0">
-          {editingValue ? (
+      {/* Value/Details Input - shows for all sections */}
+      <div className="flex-1 min-w-0">
+        {sectionType === 'speeches' ? (
+          // Speeches: Guest/Speaker name - full width editable
+          editingLabel ? (
+            <Input
+              ref={labelInputRef}
+              value={localLabel}
+              onChange={(e) => setLocalLabel(e.target.value)}
+              onBlur={handleLabelBlur}
+              onKeyDown={handleLabelKeyDown}
+              placeholder="Guest / Speaker name"
+              className="h-8 text-sm"
+            />
+          ) : (
+            <div
+              onClick={handleLabelClick}
+              className="px-3 py-1.5 text-sm rounded border border-transparent hover:border-border hover:bg-background cursor-text min-h-[32px] flex items-center"
+            >
+              {item.row_label || <span className="text-muted-foreground">Click to add guest/speaker...</span>}
+            </div>
+          )
+        ) : showBothValueAndMusicUrl ? (
+          // Ceremony, Introductions, Main Event, Traditional: Dedication / Name and Details
+          editingValue ? (
             <Input
               ref={valueInputRef}
               value={localValue}
               onChange={(e) => setLocalValue(e.target.value)}
               onBlur={handleValueBlur}
               onKeyDown={handleValueKeyDown}
+              placeholder="Enter dedication or details..."
               className="h-8 text-sm"
-              placeholder={showBothValueAndMusicUrl ? "Names / Details..." : (item as any).placeholder || "Enter name or details..."}
             />
           ) : (
             <div
               onClick={handleValueClick}
-              className="cursor-text px-3 py-1.5 text-sm rounded hover:bg-muted/50 truncate text-muted-foreground"
+              className="px-3 py-1.5 text-sm rounded border border-transparent hover:border-border hover:bg-background cursor-text min-h-[32px] flex items-center"
             >
-              {item.value_text || (showBothValueAndMusicUrl ? 'Names / Details...' : (item as any).placeholder || 'Click to add...')}
+              {item.value_text || <span className="text-muted-foreground">Click to add...</span>}
             </div>
-          )}
+          )
+        ) : (
+          // Other sections: Names / Details (also clickable text area)
+          editingValue ? (
+            <Input
+              ref={valueInputRef}
+              value={localValue}
+              onChange={(e) => setLocalValue(e.target.value)}
+              onBlur={handleValueBlur}
+              onKeyDown={handleValueKeyDown}
+              placeholder="Enter names or details..."
+              className="h-8 text-sm"
+            />
+          ) : (
+            <div
+              onClick={handleValueClick}
+              className="px-3 py-1.5 text-sm rounded border border-transparent hover:border-border hover:bg-background cursor-text min-h-[32px] flex items-center"
+            >
+              {item.value_text || <span className="text-muted-foreground">Click to add...</span>}
+            </div>
+          )
+        )}
+      </div>
+
+      {/* Pronunciation Recorder - for ceremony, introductions, main_event, traditional */}
+      {showPronunciation && (
+        <div className="w-20 flex justify-center">
+          <DJMCPronunciationRecorder
+            audioUrl={item.pronunciation_audio_url}
+            onChange={(url) => onUpdate({ pronunciation_audio_url: url })}
+          />
         </div>
       )}
 
-      {/* Pronunciation recorder (for introductions and ceremony sections) */}
-      {showPronunciation && (
-        <DJMCPronunciationRecorder
-          audioUrl={item.pronunciation_audio_url}
-          onChange={(url) => onUpdate({ pronunciation_audio_url: url })}
-          disabled={disabled}
-        />
+      {/* Music URL field - for ceremony, cocktail, main_event, dinner, dance, traditional, introductions */}
+      {showMusicUrl && (
+        <div className="w-64 shrink-0">
+          <DJMCMusicUrlField
+            value={item.music_url || ''}
+            onChange={(url) => onUpdate({ music_url: url })}
+          />
+        </div>
       )}
 
-      {/* Right column - Music URL (for music sections) */}
-      {showMusicUrl && (
-        <div className="flex-1 min-w-0">
-          <DJMCMusicUrlField
-            value={item.music_url}
-            onChange={(url) => onUpdate({ music_url: url })}
-            disabled={disabled}
+      {/* Duration field - for speeches only */}
+      {sectionType === 'speeches' && (
+        <div className="w-24 shrink-0">
+          <Input
+            value={item.duration || ''}
+            onChange={(e) => onUpdate({ duration: e.target.value })}
+            placeholder="e.g., 5 min"
+            className="h-8 text-sm"
           />
         </div>
       )}
 
       {/* Action buttons */}
-      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+      <div className="flex items-center gap-1 w-16 justify-end opacity-0 group-hover:opacity-100 transition-opacity">
         <Button
-          type="button"
           variant="ghost"
           size="icon"
           className="h-7 w-7"
           onClick={onDuplicate}
-          disabled={disabled}
           title="Duplicate row"
         >
-          <Copy className="h-3.5 w-3.5 text-muted-foreground" />
+          <Copy className="h-3.5 w-3.5" />
         </Button>
         <Button
-          type="button"
           variant="ghost"
           size="icon"
-          className="h-7 w-7"
+          className="h-7 w-7 text-destructive hover:text-destructive"
           onClick={onDelete}
-          disabled={disabled}
           title="Delete row"
         >
-          <Trash2 className="h-3.5 w-3.5 text-destructive" />
+          <Trash2 className="h-3.5 w-3.5" />
         </Button>
       </div>
     </div>

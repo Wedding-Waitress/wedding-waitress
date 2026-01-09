@@ -88,10 +88,11 @@ export const DEFAULT_SECTION_TEMPLATES: DefaultSectionTemplate[] = [
   },
   {
     section_type: 'do_not_play',
-    section_label: 'Do Not Play',
+    section_label: 'Do Not Play List',
+    section_subtitle: 'Following songs are not to be played',
     items: [
-      { row_label: 'Song 1' },
-      { row_label: 'Song 2' },
+      { row_label: '' },
+      { row_label: '' },
     ],
   },
 ];
