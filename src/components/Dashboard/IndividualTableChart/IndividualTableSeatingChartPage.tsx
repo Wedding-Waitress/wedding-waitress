@@ -76,7 +76,9 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
   selectedEventId,
   onEventSelect,
 }) => {
-  const [selectedTableId, setSelectedTableId] = useState<string | null>(null);
+  const [selectedTableId, setSelectedTableId] = useState<string | null>(() => {
+    return sessionStorage.getItem('ww:individual_table_chart_selected_table') || null;
+  });
   const [settings, setSettings] = useState<IndividualChartSettings>(defaultSettings);
   const [isExporting, setIsExporting] = useState(false);
   const [isExportingAll, setIsExportingAll] = useState(false);
@@ -86,6 +88,26 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
   const { events, loading: eventsLoading } = useEvents();
   const { tables, loading: tablesLoading } = useTables(selectedEventId);
   const { guests, loading: guestsLoading } = useRealtimeGuests(selectedEventId);
+
+  // Persist table selection to sessionStorage
+  useEffect(() => {
+    if (selectedTableId) {
+      sessionStorage.setItem('ww:individual_table_chart_selected_table', selectedTableId);
+    } else {
+      sessionStorage.removeItem('ww:individual_table_chart_selected_table');
+    }
+  }, [selectedTableId]);
+
+  // Validate that stored table belongs to current event
+  useEffect(() => {
+    if (selectedTableId && tables.length > 0 && !tablesLoading) {
+      const tableExists = tables.some(table => table.id === selectedTableId);
+      if (!tableExists) {
+        setSelectedTableId(null);
+        sessionStorage.removeItem('ww:individual_table_chart_selected_table');
+      }
+    }
+  }, [selectedTableId, tables, tablesLoading]);
 
   const selectedEvent = events.find(event => event.id === selectedEventId);
   const selectedTable = tables.find(table => table.id === selectedTableId);
@@ -284,6 +306,8 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
                 onValueChange={(value) => {
                   if (value === 'no-event') return;
                   onEventSelect(value);
+                  setSelectedTableId(null);
+                  sessionStorage.removeItem('ww:individual_table_chart_selected_table');
                 }}
                 disabled={eventsLoading}
               >
