@@ -156,10 +156,12 @@ export function DJMCSectionRow({
               // Parse label to separate main text from parenthetical text
               const match = item.row_label.match(/^(.+?)(\s*\(.+\))$/);
               if (match) {
+                // If trailing parentheses is "(Optional)", render it bold like the rest
+                const isOptional = match[2].trim().toLowerCase() === '(optional)';
                 return (
                   <>
                     <span className="font-semibold text-foreground">{match[1]}</span>
-                    <span className="font-normal text-muted-foreground">{match[2]}</span>
+                    <span className={isOptional ? "font-semibold text-foreground" : "font-normal text-muted-foreground"}>{match[2]}</span>
                   </>
                 );
               }
