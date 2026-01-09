@@ -51,6 +51,12 @@ export const DEFAULT_SECTION_TEMPLATES: DefaultSectionTemplate[] = [
     section_type: 'main_event',
     section_label: 'Main Event Songs',
     items: [
+      { row_label: "Groom's Parents Entrance", has_music_url: true },
+      { row_label: "Bride's Parents Entrance", has_music_url: true },
+      { row_label: 'Flower Girl & Page Boy Entrance', has_music_url: true },
+      { row_label: 'Groomsman & Bridesmaid Entrance', has_music_url: true },
+      { row_label: 'Best Man & Maid/Matron of Honour Entrance', has_music_url: true },
+      { row_label: 'Groom & Bride Entrance', has_music_url: true },
       { row_label: 'First Dance', has_music_url: true },
       { row_label: 'Father/Daughter Dance', has_music_url: true },
       { row_label: 'Mother/Son Dance', has_music_url: true },
