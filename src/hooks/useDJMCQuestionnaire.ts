@@ -455,6 +455,98 @@ export function useDJMCQuestionnaire(eventId: string | null) {
     }
   }, [questionnaire, toast]);
 
+  // Duplicate entire section with items
+  const duplicateSection = useCallback(async (sectionId: string) => {
+    if (!questionnaire) return;
+
+    const section = questionnaire.sections.find(s => s.id === sectionId);
+    if (!section) return;
+
+    const sectionIndex = questionnaire.sections.findIndex(s => s.id === sectionId);
+    const newOrderIndex = section.order_index + 1;
+
+    try {
+      // Update order_index for all subsequent sections
+      const sectionsToUpdate = questionnaire.sections.filter(s => s.order_index > section.order_index);
+      if (sectionsToUpdate.length > 0) {
+        await Promise.all(
+          sectionsToUpdate.map(s =>
+            supabase.from('dj_mc_sections').update({ order_index: s.order_index + 1 }).eq('id', s.id)
+          )
+        );
+      }
+
+      // Create new section
+      const { data: newSection, error: sectionError } = await supabase
+        .from('dj_mc_sections')
+        .insert({
+          questionnaire_id: questionnaire.id,
+          section_type: section.section_type,
+          section_label: `${section.section_label} (Copy)`,
+          order_index: newOrderIndex,
+          notes: section.notes,
+          is_collapsed: false,
+        })
+        .select()
+        .single();
+
+      if (sectionError) throw sectionError;
+
+      // Duplicate items
+      let newItems: DJMCItem[] = [];
+      if (section.items.length > 0) {
+        const itemsToInsert = section.items.map((item, index) => ({
+          section_id: newSection.id,
+          row_label: item.row_label,
+          value_text: item.value_text,
+          music_url: item.music_url,
+          pronunciation_audio_url: item.pronunciation_audio_url,
+          duration: item.duration,
+          order_index: index,
+          is_default: false,
+        }));
+
+        const { data: insertedItems, error: itemsError } = await supabase
+          .from('dj_mc_items')
+          .insert(itemsToInsert)
+          .select();
+
+        if (itemsError) throw itemsError;
+        newItems = insertedItems as DJMCItem[];
+      }
+
+      // Update local state
+      setQuestionnaire(prev => {
+        if (!prev) return prev;
+        const newSectionWithItems: DJMCSection = {
+          ...newSection,
+          section_type: section.section_type,
+          items: newItems,
+        };
+        const updatedSections = [...prev.sections];
+        // Insert after the original section
+        updatedSections.splice(sectionIndex + 1, 0, newSectionWithItems);
+        // Update order_index for all sections
+        return {
+          ...prev,
+          sections: updatedSections.map((s, idx) => ({ ...s, order_index: idx })),
+        };
+      });
+
+      toast({
+        title: 'Section Duplicated',
+        description: 'You can rename the new section by clicking its title',
+      });
+    } catch (error) {
+      console.error('Error duplicating section:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to duplicate section',
+        variant: 'destructive',
+      });
+    }
+  }, [questionnaire, toast]);
+
   // Generate share token
   const generateShareToken = useCallback(async (
     permission: 'view_only' | 'can_edit',
@@ -550,6 +642,7 @@ export function useDJMCQuestionnaire(eventId: string | null) {
     duplicateItem,
     reorderItems,
     resetSectionToDefault,
+    duplicateSection,
     generateShareToken,
     deleteShareToken,
     calculateProgress,

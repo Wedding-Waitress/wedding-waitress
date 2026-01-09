@@ -26,6 +26,7 @@ export function DJMCQuestionnairePage() {
     duplicateItem,
     reorderItems,
     resetSectionToDefault,
+    duplicateSection,
     generateShareToken,
     deleteShareToken,
     calculateProgress,
@@ -134,6 +135,7 @@ export function DJMCQuestionnairePage() {
               onDuplicateItem={(item) => duplicateItem(item)}
               onReorderItems={(items) => reorderItems(section.id, items)}
               onResetToDefault={() => resetSectionToDefault(section.id)}
+              onDuplicateSection={() => duplicateSection(section.id)}
             />
           ))}
         </div>
