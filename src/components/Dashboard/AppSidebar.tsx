@@ -12,7 +12,8 @@ import {
   FileText,
   LogOut,
   Shield,
-  ClipboardList
+  ClipboardList,
+  Music
 } from 'lucide-react';
 import { useIsAdmin } from '@/hooks/useIsAdmin';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -50,6 +51,7 @@ interface AppSidebarProps {
     { id: "dietary-chart", label: "Dietary Requirements", icon: ChefHat },
     { id: "full-seating-chart", label: "Full Seating Chart", icon: FileText },
     { id: "kiosk-live-view", label: "Kiosk Live View", icon: Monitor },
+    { id: "dj-mc-questionnaire", label: "DJ-MC Questionnaire", icon: Music },
     ...(flags.runningSheet ? [{ id: "running-sheet", label: "Running Sheet", icon: ClipboardList }] : []),
   ];
   

@@ -33,6 +33,7 @@ import { IndividualTableSeatingChartPage } from '@/components/Dashboard/Individu
 import { KioskSetup } from '@/components/Dashboard/Kiosk/KioskSetup';
 import { FloorPlanPage } from '@/components/Dashboard/FloorPlan';
 import { RunningSheetPage } from '@/components/Dashboard/RunningSheet';
+import { DJMCQuestionnairePage } from '@/components/Dashboard/DJMCQuestionnaire';
 import { flags } from '@/lib/featureFlags';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
@@ -559,6 +560,8 @@ export const Dashboard = () => {
             </CardDescription>
           </Card>
         );
+      case 'dj-mc-questionnaire':
+        return <DJMCQuestionnairePage />;
       default:
         return <Card className="p-8 text-center">
             <TrendingUp className="w-16 h-16 mx-auto text-primary mb-4" />
