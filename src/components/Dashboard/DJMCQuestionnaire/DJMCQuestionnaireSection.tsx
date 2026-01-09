@@ -244,7 +244,7 @@ export function DJMCQuestionnaireSection({
                 )}
                 
                 {/* Music with Link header for music sections */}
-                {['ceremony', 'cocktail', 'main_event', 'dinner', 'dance', 'traditional'].includes(section.section_type) && (
+                {['ceremony', 'cocktail', 'main_event', 'dinner', 'dance', 'traditional', 'introductions'].includes(section.section_type) && (
                   <div className="flex-1">Music with Link</div>
                 )}
                 
