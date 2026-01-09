@@ -66,5 +66,6 @@ export interface DefaultSectionTemplate {
     row_label: string;
     has_music_url?: boolean;
     has_pronunciation?: boolean;
+    placeholder?: string;
   }[];
 }
