@@ -39,7 +39,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { ChevronDown, ChevronRight, Plus, MoreVertical, RotateCcw, MessageSquare } from 'lucide-react';
+import { ChevronDown, ChevronRight, Plus, MoreVertical, RotateCcw, MessageSquare, Copy } from 'lucide-react';
 import { DJMCSection, DJMCItem } from '@/types/djMCQuestionnaire';
 import { DJMCSectionRow } from './DJMCSectionRow';
 
@@ -52,6 +52,7 @@ interface DJMCQuestionnaireSectionProps {
   onDuplicateItem: (item: DJMCItem) => void;
   onReorderItems: (items: DJMCItem[]) => void;
   onResetToDefault: () => void;
+  onDuplicateSection: () => void;
   disabled?: boolean;
 }
 
@@ -64,6 +65,7 @@ export function DJMCQuestionnaireSection({
   onDuplicateItem,
   onReorderItems,
   onResetToDefault,
+  onDuplicateSection,
   disabled = false,
 }: DJMCQuestionnaireSectionProps) {
   const [editingLabel, setEditingLabel] = useState(false);
@@ -186,6 +188,10 @@ export function DJMCQuestionnaireSection({
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={onDuplicateSection}>
+                      <Copy className="h-4 w-4 mr-2" />
+                      Duplicate Section
+                    </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => setShowResetDialog(true)}>
                       <RotateCcw className="h-4 w-4 mr-2" />
                       Reset to Default
