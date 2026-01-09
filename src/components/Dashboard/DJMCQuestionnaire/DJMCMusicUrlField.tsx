@@ -1,8 +1,9 @@
 import React, { useState, useCallback } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Link, Play, X, Music } from 'lucide-react';
+import { Link, Play, Copy, X, Music } from 'lucide-react';
 import { detectMusicPlatform, extractYouTubeId, extractSpotifyId } from '@/lib/djMCQuestionnaireTemplates';
+import { useToast } from '@/hooks/use-toast';
 import {
   Dialog,
   DialogContent,
@@ -25,6 +26,7 @@ export function DJMCMusicUrlField({
 }: DJMCMusicUrlFieldProps) {
   const [showPreview, setShowPreview] = useState(false);
   const platform = value ? detectMusicPlatform(value) : 'unknown';
+  const { toast } = useToast();
 
   const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value || null;
@@ -34,6 +36,24 @@ export function DJMCMusicUrlField({
   const clearUrl = useCallback(() => {
     onChange(null);
   }, [onChange]);
+
+  const copyUrl = useCallback(async () => {
+    if (value) {
+      try {
+        await navigator.clipboard.writeText(value);
+        toast({
+          title: "Link Copied",
+          description: "Music link copied to clipboard",
+        });
+      } catch (err) {
+        toast({
+          title: "Copy Failed",
+          description: "Failed to copy link to clipboard",
+          variant: "destructive",
+        });
+      }
+    }
+  }, [value, toast]);
 
   const renderPlatformIcon = () => {
     switch (platform) {
@@ -117,7 +137,7 @@ export function DJMCMusicUrlField({
           onChange={handleChange}
           placeholder={placeholder}
           disabled={disabled}
-          className="pl-10 pr-20 text-sm"
+          className="pl-10 pr-28 text-sm"
         />
         <div className="absolute right-2 flex items-center gap-1">
           {value && (
@@ -131,6 +151,16 @@ export function DJMCMusicUrlField({
                 title="Preview"
               >
                 <Play className="h-4 w-4 text-primary" />
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7"
+                onClick={copyUrl}
+                title="Copy Link"
+              >
+                <Copy className="h-4 w-4 text-muted-foreground" />
               </Button>
               <Button
                 type="button"
