@@ -82,8 +82,8 @@ export const DEFAULT_SECTION_TEMPLATES: DefaultSectionTemplate[] = [
     section_type: 'traditional',
     section_label: 'Traditional/Multicultural Music',
     items: [
-      { row_label: 'Song 1', has_music_url: true },
-      { row_label: 'Song 2', has_music_url: true },
+      { row_label: 'Song 1', has_music_url: true, has_pronunciation: true },
+      { row_label: 'Song 2', has_music_url: true, has_pronunciation: true },
     ],
   },
   {

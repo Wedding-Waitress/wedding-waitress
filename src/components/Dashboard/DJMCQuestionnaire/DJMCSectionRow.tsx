@@ -50,7 +50,7 @@ export function DJMCSectionRow({
   // Determine what fields to show based on section type
   const showMusicUrl = ['ceremony', 'cocktail', 'main_event', 'dinner', 'dance', 'traditional', 'introductions'].includes(sectionType);
   const showPronunciation = sectionType === 'introductions' || sectionType === 'ceremony' || sectionType === 'main_event';
-  const showBothValueAndMusicUrl = sectionType === 'ceremony' || sectionType === 'introductions' || sectionType === 'main_event';
+  const showBothValueAndMusicUrl = sectionType === 'ceremony' || sectionType === 'introductions' || sectionType === 'main_event' || sectionType === 'traditional';
 
   // Handle label editing
   const handleLabelClick = useCallback(() => {
