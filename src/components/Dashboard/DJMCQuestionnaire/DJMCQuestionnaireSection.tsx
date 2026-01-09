@@ -233,13 +233,13 @@ export function DJMCQuestionnaireSection({
                 <div className="w-6" /> {/* Drag handle space */}
                 <div className="flex-1">Item</div>
                 
-                {/* Names/Details header for ceremony and introductions */}
-                {(section.section_type === 'ceremony' || section.section_type === 'introductions') && (
+                {/* Names/Details header for ceremony, introductions, and main_event */}
+                {(section.section_type === 'ceremony' || section.section_type === 'introductions' || section.section_type === 'main_event') && (
                   <div className="flex-1">Names / Details</div>
                 )}
                 
-                {/* Audio header for ceremony and introductions */}
-                {(section.section_type === 'ceremony' || section.section_type === 'introductions') && (
+                {/* Audio header for ceremony, introductions, and main_event */}
+                {(section.section_type === 'ceremony' || section.section_type === 'introductions' || section.section_type === 'main_event') && (
                   <div className="w-20 text-center">Audio</div>
                 )}
                 
@@ -248,7 +248,7 @@ export function DJMCQuestionnaireSection({
                   <div className="flex-1">Music with Link</div>
                 )}
                 
-                {/* Names/Details header for non-music sections (excluding ceremony/introductions) */}
+                {/* Names/Details header for non-music sections (excluding ceremony/introductions/main_event) */}
                 {!['ceremony', 'cocktail', 'main_event', 'dinner', 'dance', 'traditional', 'introductions'].includes(section.section_type) && (
                   <div className="flex-1">Names / Details</div>
                 )}
