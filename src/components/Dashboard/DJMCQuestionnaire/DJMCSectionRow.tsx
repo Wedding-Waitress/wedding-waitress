@@ -187,14 +187,14 @@ export function DJMCSectionRow({
             onBlur={handleValueBlur}
             onKeyDown={handleValueKeyDown}
             className="h-8 text-sm"
-            placeholder="Enter name or details..."
+            placeholder={(item as any).placeholder || "Enter name or details..."}
           />
         ) : (
           <div
             onClick={handleValueClick}
             className="cursor-text px-3 py-1.5 text-sm rounded hover:bg-muted/50 truncate text-muted-foreground"
           >
-            {item.value_text || 'Click to add...'}
+            {item.value_text || (item as any).placeholder || 'Click to add...'}
           </div>
         )}
       </div>

@@ -28,13 +28,10 @@ export const DEFAULT_SECTION_TEMPLATES: DefaultSectionTemplate[] = [
     items: [
       { row_label: "Groom's Parents (Full Names)", has_pronunciation: true },
       { row_label: "Bride's Parents (Full Names)", has_pronunciation: true },
-      { row_label: 'Flower Girl(s)', has_pronunciation: true },
-      { row_label: 'Ring Bearer(s)', has_pronunciation: true },
-      { row_label: 'Groomsmen', has_pronunciation: true },
-      { row_label: 'Bridesmaids', has_pronunciation: true },
-      { row_label: 'Best Man', has_pronunciation: true },
-      { row_label: 'Maid/Matron of Honour', has_pronunciation: true },
-      { row_label: 'Bride & Groom (Mr & Mrs...)', has_pronunciation: true },
+      { row_label: 'Flower Girl & Page Boy (First Names Only)', has_pronunciation: true },
+      { row_label: 'Groomsman & Bridesmaid (First Names Only)', has_pronunciation: true },
+      { row_label: 'Best Man & Maid/Matron of Honour (First Names Only)', has_pronunciation: true },
+      { row_label: 'Bride & Groom (Mr & Mrs)', has_pronunciation: true, placeholder: 'How would you like to be announced?' },
     ],
   },
   {
