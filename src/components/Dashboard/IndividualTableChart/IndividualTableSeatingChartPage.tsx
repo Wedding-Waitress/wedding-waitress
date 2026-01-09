@@ -79,7 +79,17 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
   const [selectedTableId, setSelectedTableId] = useState<string | null>(() => {
     return sessionStorage.getItem('ww:individual_table_chart_selected_table') || null;
   });
-  const [settings, setSettings] = useState<IndividualChartSettings>(defaultSettings);
+  const [settings, setSettings] = useState<IndividualChartSettings>(() => {
+    const stored = sessionStorage.getItem('ww:individual_table_chart_settings');
+    if (stored) {
+      try {
+        return { ...defaultSettings, ...JSON.parse(stored) };
+      } catch {
+        return defaultSettings;
+      }
+    }
+    return defaultSettings;
+  });
   const [isExporting, setIsExporting] = useState(false);
   const [isExportingAll, setIsExportingAll] = useState(false);
   
@@ -108,6 +118,11 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
       }
     }
   }, [selectedTableId, tables, tablesLoading]);
+
+  // Persist chart settings to sessionStorage
+  useEffect(() => {
+    sessionStorage.setItem('ww:individual_table_chart_settings', JSON.stringify(settings));
+  }, [settings]);
 
   const selectedEvent = events.find(event => event.id === selectedEventId);
   const selectedTable = tables.find(table => table.id === selectedTableId);
