@@ -14,6 +14,38 @@ interface DJMCQuestionnairePageProps {
   onEventSelect: (eventId: string) => void;
 }
 
+// Format date as "Saturday, 5th December 2026"
+const formatFullDate = (dateStr: string | null | undefined): string => {
+  if (!dateStr) return 'TBD';
+  const d = new Date(dateStr + 'T00:00:00');
+  const dayOfWeek = d.toLocaleDateString('en-US', { weekday: 'long' });
+  const day = d.getDate();
+  const month = d.toLocaleDateString('en-US', { month: 'long' });
+  const year = d.getFullYear();
+  
+  const getOrdinalSuffix = (day: number) => {
+    if (day > 3 && day < 21) return 'th';
+    switch (day % 10) {
+      case 1: return 'st';
+      case 2: return 'nd';
+      case 3: return 'rd';
+      default: return 'th';
+    }
+  };
+  
+  return `${dayOfWeek}, ${day}${getOrdinalSuffix(day)} ${month} ${year}`;
+};
+
+// Format time as "3:00 PM"
+const formatTimeDisplay = (time: string | null | undefined): string => {
+  if (!time) return 'TBD';
+  const [hours, minutes] = time.split(':');
+  const hour = parseInt(hours);
+  const ampm = hour >= 12 ? 'PM' : 'AM';
+  const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
+  return `${displayHour}:${minutes} ${ampm}`;
+};
+
 export function DJMCQuestionnairePage({ selectedEventId, onEventSelect }: DJMCQuestionnairePageProps) {
   const { events } = useEvents();
   const [showShareModal, setShowShareModal] = useState(false);
@@ -118,13 +150,53 @@ export function DJMCQuestionnairePage({ selectedEventId, onEventSelect }: DJMCQu
         <div className="space-y-4">
           {/* Event header */}
           {selectedEvent && (
-            <div className="text-center py-4 border-b border-border">
+            <div className="text-center py-4 border-b border-border space-y-3">
               <h2 className="text-xl font-semibold text-primary">{selectedEvent.name}</h2>
-              {selectedEvent.date && (
-                <p className="text-sm text-muted-foreground">
-                  {selectedEvent.date} {selectedEvent.venue && `• ${selectedEvent.venue}`}
-                </p>
-              )}
+              
+              {/* Ceremony & Reception Details */}
+              <div className={`flex justify-center gap-8 flex-wrap ${
+                selectedEvent.ceremony_enabled && selectedEvent.reception_enabled !== false ? '' : 'max-w-md mx-auto'
+              }`}>
+                {/* Ceremony Section */}
+                {selectedEvent.ceremony_enabled && (
+                  <div className="text-left min-w-[280px]">
+                    <div>
+                      <span className="font-semibold text-primary">Ceremony:</span>
+                      <span className="ml-2 text-muted-foreground">
+                        {formatFullDate(selectedEvent.ceremony_date)}
+                      </span>
+                    </div>
+                    <div className="text-sm text-muted-foreground mt-1">
+                      Start: {formatTimeDisplay(selectedEvent.ceremony_start_time)} — Finish: {formatTimeDisplay(selectedEvent.ceremony_finish_time)}
+                    </div>
+                    {selectedEvent.ceremony_venue && (
+                      <div className="text-sm text-muted-foreground">
+                        {selectedEvent.ceremony_venue}
+                      </div>
+                    )}
+                  </div>
+                )}
+                
+                {/* Reception Section */}
+                {selectedEvent.reception_enabled !== false && (
+                  <div className="text-left min-w-[280px]">
+                    <div>
+                      <span className="font-semibold text-primary">Reception:</span>
+                      <span className="ml-2 text-muted-foreground">
+                        {formatFullDate(selectedEvent.date)}
+                      </span>
+                    </div>
+                    <div className="text-sm text-muted-foreground mt-1">
+                      Start: {formatTimeDisplay(selectedEvent.start_time)} — Finish: {formatTimeDisplay(selectedEvent.finish_time)}
+                    </div>
+                    {selectedEvent.venue && (
+                      <div className="text-sm text-muted-foreground">
+                        {selectedEvent.venue}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
           )}
 
