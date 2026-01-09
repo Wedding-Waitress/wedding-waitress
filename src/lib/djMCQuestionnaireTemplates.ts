@@ -26,12 +26,12 @@ export const DEFAULT_SECTION_TEMPLATES: DefaultSectionTemplate[] = [
     section_type: 'introductions',
     section_label: 'Bridal Party Introductions (Names & Order)',
     items: [
-      { row_label: "Groom's Parents (Full Names)", has_pronunciation: true },
-      { row_label: "Bride's Parents (Full Names)", has_pronunciation: true },
-      { row_label: 'Flower Girl & Page Boy (First Names Only)', has_pronunciation: true },
-      { row_label: 'Groomsman & Bridesmaid (First Names Only)', has_pronunciation: true },
-      { row_label: 'Best Man & Maid/Matron of Honour (First Names Only)', has_pronunciation: true },
-      { row_label: 'Groom & Bride (How would you like to be announced - Mr & Mrs?)', has_pronunciation: true },
+      { row_label: "Groom's Parents (Full Names)", has_pronunciation: true, has_music_url: true },
+      { row_label: "Bride's Parents (Full Names)", has_pronunciation: true, has_music_url: true },
+      { row_label: 'Flower Girl & Page Boy (First Names Only)', has_pronunciation: true, has_music_url: true },
+      { row_label: 'Groomsman & Bridesmaid (First Names Only)', has_pronunciation: true, has_music_url: true },
+      { row_label: 'Best Man & Maid/Matron of Honour (First Names Only)', has_pronunciation: true, has_music_url: true },
+      { row_label: 'Groom & Bride (How would you like to be announced - Mr & Mrs?)', has_pronunciation: true, has_music_url: true },
     ],
   },
   {
