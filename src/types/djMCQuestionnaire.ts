@@ -30,6 +30,7 @@ export interface DJMCSection {
   questionnaire_id: string;
   section_type: SectionType;
   section_label: string;
+  section_subtitle?: string | null;
   order_index: number;
   notes: string | null;
   is_collapsed: boolean;
@@ -62,6 +63,7 @@ export interface DJMCShareToken {
 export interface DefaultSectionTemplate {
   section_type: SectionType;
   section_label: string;
+  section_subtitle?: string;
   items: {
     row_label: string;
     has_music_url?: boolean;

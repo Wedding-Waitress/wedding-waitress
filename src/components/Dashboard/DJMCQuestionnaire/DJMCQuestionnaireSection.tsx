@@ -226,40 +226,55 @@ export function DJMCQuestionnaireSection({
             )}
           </CardHeader>
 
-          <CollapsibleContent>
-            <CardContent className="pt-0 px-2 pb-3">
-              {/* Column headers */}
-              <div className="flex items-center gap-2 px-2 py-2 border-b border-border text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                <div className="w-6" /> {/* Drag handle space */}
-                <div className="flex-1">Item</div>
-                
-                {/* Names/Details header for ceremony, introductions, and main_event */}
-                {(section.section_type === 'ceremony' || section.section_type === 'introductions' || section.section_type === 'main_event') && (
-                  <div className="flex-1">Names / Details</div>
-                )}
-                
-                {/* Dedication / Name and Details header for traditional section */}
-                {section.section_type === 'traditional' && (
-                  <div className="flex-1">Dedication / Name and Details</div>
-                )}
-                
-                {/* Audio header for ceremony, introductions, main_event, and traditional */}
-                {(section.section_type === 'ceremony' || section.section_type === 'introductions' || section.section_type === 'main_event' || section.section_type === 'traditional') && (
-                  <div className="w-20 text-center">Audio</div>
-                )}
-                
-                {/* Music with Link header for music sections */}
-                {['ceremony', 'cocktail', 'main_event', 'dinner', 'dance', 'traditional', 'introductions'].includes(section.section_type) && (
-                  <div className="flex-1">Music with Link</div>
-                )}
-                
-                {/* Names/Details header for non-music sections (excluding ceremony/introductions/main_event) */}
-                {!['ceremony', 'cocktail', 'main_event', 'dinner', 'dance', 'traditional', 'introductions'].includes(section.section_type) && (
-                  <div className="flex-1">Names / Details</div>
-                )}
-                
-                <div className="w-16" /> {/* Actions space */}
-              </div>
+        <CollapsibleContent>
+          <CardContent className="pt-0 px-2 pb-3">
+            {/* Subtitle for sections that have one (e.g., Do Not Play List) */}
+            {section.section_subtitle && (
+              <p className="text-sm text-muted-foreground mb-3 italic px-2">
+                {section.section_subtitle}
+              </p>
+            )}
+            
+            {/* Column headers */}
+            <div className="flex items-center gap-2 px-2 py-2 border-b border-border text-xs font-medium text-muted-foreground uppercase tracking-wide">
+              <div className="w-6" /> {/* Drag handle space */}
+              
+              {/* Special header for do_not_play - single column */}
+              {section.section_type === 'do_not_play' ? (
+                <div className="flex-1">Song Name</div>
+              ) : (
+                <>
+                  <div className="flex-1">Item</div>
+                  
+                  {/* Names/Details header for ceremony, introductions, and main_event */}
+                  {(section.section_type === 'ceremony' || section.section_type === 'introductions' || section.section_type === 'main_event') && (
+                    <div className="flex-1">Names / Details</div>
+                  )}
+                  
+                  {/* Dedication / Name and Details header for traditional section */}
+                  {section.section_type === 'traditional' && (
+                    <div className="flex-1">Dedication / Name and Details</div>
+                  )}
+                  
+                  {/* Audio header for ceremony, introductions, main_event, and traditional */}
+                  {(section.section_type === 'ceremony' || section.section_type === 'introductions' || section.section_type === 'main_event' || section.section_type === 'traditional') && (
+                    <div className="w-20 text-center">Audio</div>
+                  )}
+                  
+                  {/* Music with Link header for music sections */}
+                  {['ceremony', 'cocktail', 'main_event', 'dinner', 'dance', 'traditional', 'introductions'].includes(section.section_type) && (
+                    <div className="flex-1">Music with Link</div>
+                  )}
+                  
+                  {/* Names/Details header for non-music sections (excluding ceremony/introductions/main_event) */}
+                  {!['ceremony', 'cocktail', 'main_event', 'dinner', 'dance', 'traditional', 'introductions'].includes(section.section_type) && (
+                    <div className="flex-1">Names / Details</div>
+                  )}
+                </>
+              )}
+              
+              <div className="w-16" /> {/* Actions space */}
+            </div>
 
               {/* Items */}
               <DndContext
