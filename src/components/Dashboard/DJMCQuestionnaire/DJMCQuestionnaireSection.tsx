@@ -214,6 +214,7 @@ export function DJMCQuestionnaireSection({
             {/* Notes field */}
             {showNotes && (
               <div className="mt-3">
+                <div className="text-sm font-medium text-primary mb-1">Notes for DJ-MC</div>
                 <Textarea
                   value={section.notes || ''}
                   onChange={(e) => onUpdateSection({ notes: e.target.value || null })}
