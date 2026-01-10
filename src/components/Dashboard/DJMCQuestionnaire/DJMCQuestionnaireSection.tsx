@@ -161,9 +161,11 @@ export function DJMCQuestionnaireSection({
   const speakerCount = useMemo(() => {
     if (section.section_type !== 'speeches') return 0;
     
-    // Count rows that have a row_label (speaker title) with actual content
+    // Count rows that have a row_label (speaker title) with actual content, excluding "New Item" placeholders
     return section.items.filter(item => 
-      item.row_label && item.row_label.trim() !== ''
+      item.row_label && 
+      item.row_label.trim() !== '' && 
+      item.row_label.trim() !== 'New Item'
     ).length;
   }, [section.items, section.section_type]);
 
@@ -241,7 +243,7 @@ export function DJMCQuestionnaireSection({
                           variant="default" 
                           className="bg-primary text-primary-foreground border border-primary/20 px-3 py-1 text-xs font-medium"
                         >
-                          Total Time: {totalSpeechTime} min
+                          Total Time Allocated for Speeches: {totalSpeechTime} min
                         </Badge>
                       </>
                     )}
