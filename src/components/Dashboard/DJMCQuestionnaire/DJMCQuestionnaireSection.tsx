@@ -244,17 +244,29 @@ export function DJMCQuestionnaireSection({
                 <div className="flex-1">Song Name</div>
               ) : (
                 <>
-                  {/* COLUMN 1: Speaker Status (wider) for speeches, Item for others */}
-{section.section_type === 'speeches' ? (
+                  {/* COLUMN 1: Speaker Status for speeches, Event for ceremony, Song Number for cocktail, Item for others */}
+                  {section.section_type === 'speeches' ? (
                     <div className="w-80 shrink-0">Speaker Status & Order</div>
+                  ) : section.section_type === 'ceremony' ? (
+                    <div className="flex-1 basis-1/3 min-w-0">Event</div>
+                  ) : section.section_type === 'cocktail' ? (
+                    <div className="flex-1 basis-1/3 min-w-0">Song Number</div>
                   ) : (
                     <div className="flex-1 basis-1/3 min-w-0">Item</div>
                   )}
                   
                   {/* COLUMN 2: Names/Details + Audio - 1/3 width (combined) */}
-                  {(section.section_type === 'ceremony' || section.section_type === 'introductions' || section.section_type === 'main_event') && (
+                  {(section.section_type === 'introductions' || section.section_type === 'main_event') && (
                     <div className="flex-1 basis-1/3 min-w-0 flex items-center gap-2">
                       <span className="flex-1">Names / Details</span>
+                      <span className="w-10 text-center shrink-0">Audio</span>
+                    </div>
+                  )}
+                  
+                  {/* COLUMN 2: Song Title (Optional) + Audio for ceremony */}
+                  {section.section_type === 'ceremony' && (
+                    <div className="flex-1 basis-1/3 min-w-0 flex items-center gap-2">
+                      <span className="flex-1">Song Title (Optional)</span>
                       <span className="w-10 text-center shrink-0">Audio</span>
                     </div>
                   )}
