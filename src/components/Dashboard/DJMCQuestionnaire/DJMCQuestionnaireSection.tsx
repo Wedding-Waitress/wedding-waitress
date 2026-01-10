@@ -157,7 +157,35 @@ export function DJMCQuestionnaireSection({
     ).length;
   }, [section.items, section.section_type]);
 
+  // Calculate speaker count for speeches section (only count rows with content)
+  const speakerCount = useMemo(() => {
+    if (section.section_type !== 'speeches') return 0;
+    
+    // Count rows that have a row_label (speaker title) with actual content
+    return section.items.filter(item => 
+      item.row_label && item.row_label.trim() !== ''
+    ).length;
+  }, [section.items, section.section_type]);
+
+  // Calculate total time for speeches section
+  const totalSpeechTime = useMemo(() => {
+    if (section.section_type !== 'speeches') return 0;
+    
+    return section.items.reduce((total, item) => {
+      if (!item.duration) return total;
+      
+      // Parse the duration string to extract minutes
+      // Handles formats like "5 min", "5", "10 min", etc.
+      const match = item.duration.match(/(\d+)/);
+      if (match) {
+        return total + parseInt(match[1], 10);
+      }
+      return total;
+    }, 0);
+  }, [section.items, section.section_type]);
+
   const isMusicSection = MUSIC_SECTION_TYPES.includes(section.section_type);
+  const isSpeechesSection = section.section_type === 'speeches';
 
   return (
     <>
@@ -200,6 +228,22 @@ export function DJMCQuestionnaireSection({
                       >
                         Total Song Count: {songCount}
                       </Badge>
+                    )}
+                    {isSpeechesSection && (
+                      <>
+                        <Badge 
+                          variant="default" 
+                          className="bg-primary text-primary-foreground border border-primary/20 px-3 py-1 text-xs font-medium"
+                        >
+                          Total Speakers: {speakerCount}
+                        </Badge>
+                        <Badge 
+                          variant="default" 
+                          className="bg-primary text-primary-foreground border border-primary/20 px-3 py-1 text-xs font-medium"
+                        >
+                          Total Time: {totalSpeechTime} min
+                        </Badge>
+                      </>
                     )}
                   </div>
                 )}
