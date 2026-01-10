@@ -30,7 +30,7 @@ export function DJMCSectionRow({
   const [editingSongTitleArtist, setEditingSongTitleArtist] = useState(false);
   const [localLabel, setLocalLabel] = useState(item.row_label);
   const [localValue, setLocalValue] = useState(item.value_text || '');
-  const [localSongTitleArtist, setLocalSongTitleArtist] = useState('');
+  const [localSongTitleArtist, setLocalSongTitleArtist] = useState(item.song_title_artist || '');
   const labelInputRef = useRef<HTMLInputElement>(null);
   const valueInputRef = useRef<HTMLInputElement>(null);
   const songTitleArtistInputRef = useRef<HTMLInputElement>(null);
@@ -131,6 +131,10 @@ export function DJMCSectionRow({
   useEffect(() => {
     setLocalValue(item.value_text || '');
   }, [item.value_text]);
+
+  useEffect(() => {
+    setLocalSongTitleArtist(item.song_title_artist || '');
+  }, [item.song_title_artist]);
 
   // Parse label for display (some labels have parenthetical text)
   const labelMatch = item.row_label.match(/^([^(]+)(?:\s*\(([^)]+)\))?$/);
@@ -376,9 +380,20 @@ export function DJMCSectionRow({
               ref={songTitleArtistInputRef}
               value={localSongTitleArtist}
               onChange={(e) => setLocalSongTitleArtist(e.target.value)}
-              onBlur={() => setEditingSongTitleArtist(false)}
+              onBlur={() => {
+                setEditingSongTitleArtist(false);
+                if (localSongTitleArtist !== (item.song_title_artist || '')) {
+                  onUpdate({ song_title_artist: localSongTitleArtist || null });
+                }
+              }}
               onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === 'Escape') {
+                if (e.key === 'Enter') {
+                  setEditingSongTitleArtist(false);
+                  if (localSongTitleArtist !== (item.song_title_artist || '')) {
+                    onUpdate({ song_title_artist: localSongTitleArtist || null });
+                  }
+                } else if (e.key === 'Escape') {
+                  setLocalSongTitleArtist(item.song_title_artist || '');
                   setEditingSongTitleArtist(false);
                 }
               }}
@@ -467,6 +482,7 @@ export function DJMCSectionRow({
                 ? `${metadata.title} – ${metadata.artist}`
                 : metadata.title;
               setLocalSongTitleArtist(formattedTitle);
+              onUpdate({ song_title_artist: formattedTitle });
             }}
           />
         </div>
