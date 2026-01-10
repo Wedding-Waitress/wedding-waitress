@@ -253,14 +253,24 @@ export function DJMCQuestionnaireSection({
                     <div className="flex-1 basis-1/3 min-w-0">Song Number</div>
                   ) : section.section_type === 'introductions' ? (
                     <div className="flex-1 basis-1/3 min-w-0">Bridal Party Intro Order</div>
+                  ) : section.section_type === 'main_event' ? (
+                    <div className="flex-1 basis-1/3 min-w-0">Event</div>
                   ) : (
                     <div className="flex-1 basis-1/3 min-w-0">Item</div>
                   )}
                   
-                  {/* COLUMN 2: Names/Details + Audio - 1/3 width (combined) */}
-                  {(section.section_type === 'introductions' || section.section_type === 'main_event') && (
+                  {/* COLUMN 2: Names/Details + Audio for introductions */}
+                  {section.section_type === 'introductions' && (
                     <div className="flex-1 basis-1/3 min-w-0 flex items-center gap-2">
                       <span className="flex-1">Names / Details</span>
+                      <span className="w-10 text-center shrink-0">Audio</span>
+                    </div>
+                  )}
+                  
+                  {/* COLUMN 2: Song Title (Optional) + Audio for main_event */}
+                  {section.section_type === 'main_event' && (
+                    <div className="flex-1 basis-1/3 min-w-0 flex items-center gap-2">
+                      <span className="flex-1">Song Title (Optional)</span>
                       <span className="w-10 text-center shrink-0">Audio</span>
                     </div>
                   )}
