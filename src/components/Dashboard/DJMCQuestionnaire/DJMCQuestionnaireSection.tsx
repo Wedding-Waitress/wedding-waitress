@@ -220,7 +220,7 @@ export function DJMCQuestionnaireSection({
                     value={section.notes || ''}
                     onChange={(e) => onUpdateSection({ notes: e.target.value || null })}
                     placeholder="e.g., special instructions, timing, etc."
-                    className="text-sm resize-none border-0 p-0 focus-visible:ring-0 focus-visible:ring-offset-0 min-h-[40px]"
+                    className="text-sm resize-y border-0 p-0 focus-visible:ring-0 focus-visible:ring-offset-0 min-h-[40px]"
                     rows={2}
                     disabled={disabled}
                   />
