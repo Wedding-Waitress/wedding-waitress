@@ -334,19 +334,22 @@ export function DJMCQuestionnaireSection({
                   ) : ['cocktail', 'dinner', 'dance', 'traditional'].includes(section.section_type) ? (
                     <div className="flex-1 basis-1/3 min-w-0">Song Number</div>
                   ) : section.section_type === 'introductions' ? (
-                    <div className="flex-1 basis-1/3 min-w-0">Bridal Party Intro Order</div>
+                    <div className="flex-1 basis-1/4 min-w-0">Bridal Party Intro Order</div>
                   ) : section.section_type === 'main_event' ? (
                     <div className="flex-1 basis-1/3 min-w-0">Event</div>
                   ) : (
                     <div className="flex-1 basis-1/3 min-w-0">Item</div>
                   )}
                   
-                  {/* COLUMN 2: Names/Details + Audio for introductions */}
+                  {/* COLUMNS 2, 3 for introductions: Names + Audio | Song Title & Artist */}
                   {section.section_type === 'introductions' && (
-                    <div className="flex-1 basis-1/3 min-w-0 flex items-center gap-2">
-                      <span className="flex-1">Names / Details</span>
-                      <span className="w-10 text-center shrink-0">Audio</span>
-                    </div>
+                    <>
+                      <div className="flex-1 basis-1/4 min-w-0 flex items-center gap-2">
+                        <span className="flex-1">Names</span>
+                        <span className="w-10 text-center shrink-0">Audio</span>
+                      </div>
+                      <div className="flex-1 basis-1/4 min-w-0">Song Title & Artist</div>
+                    </>
                   )}
                   
                   {/* COLUMN 2: Song Title & Artist (Optional) + Audio for main_event */}
@@ -385,9 +388,12 @@ export function DJMCQuestionnaireSection({
                     </>
                   )}
                   
-                  {/* COLUMN 3: Music with Link - 1/3 width */}
-                  {['ceremony', 'cocktail', 'main_event', 'dinner', 'dance', 'traditional', 'introductions'].includes(section.section_type) && (
+                  {/* COLUMN 3/4: Music with Link - 1/3 width (1/4 for introductions) */}
+                  {['ceremony', 'cocktail', 'main_event', 'dinner', 'dance', 'traditional'].includes(section.section_type) && (
                     <div className="flex-1 basis-1/3 min-w-0">Music with Link</div>
+                  )}
+                  {section.section_type === 'introductions' && (
+                    <div className="flex-1 basis-1/4 min-w-0">Music with Link</div>
                   )}
                   
                   {/* For non-music/non-speeches sections - Names/Details takes remaining space */}
