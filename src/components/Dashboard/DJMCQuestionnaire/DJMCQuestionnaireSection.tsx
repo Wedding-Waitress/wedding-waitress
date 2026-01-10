@@ -235,46 +235,46 @@ export function DJMCQuestionnaireSection({
               </p>
             )}
             
-            {/* Column headers */}
+            {/* Column headers - 3 equal columns */}
             <div className="flex items-center gap-2 px-2 py-2 border-b border-border text-xs font-medium text-muted-foreground uppercase tracking-wide">
-              <div className="w-6" /> {/* Drag handle space */}
+              <div className="w-6 shrink-0" /> {/* Drag handle space */}
               
               {/* Special header for do_not_play - single column */}
               {section.section_type === 'do_not_play' ? (
                 <div className="flex-1">Song Name</div>
               ) : (
                 <>
-                  {/* ITEM header - w-48 to match row */}
-                  <div className="w-48 shrink-0">Item</div>
+                  {/* COLUMN 1: Item - 1/3 width */}
+                  <div className="flex-1 basis-1/3 min-w-0">Item</div>
                   
-                  {/* Names/Details header for ceremony, introductions, and main_event - w-48 to match row */}
+                  {/* COLUMN 2: Names/Details + Audio - 1/3 width (combined) */}
                   {(section.section_type === 'ceremony' || section.section_type === 'introductions' || section.section_type === 'main_event') && (
-                    <div className="w-48 shrink-0">Names / Details</div>
+                    <div className="flex-1 basis-1/3 min-w-0 flex items-center gap-2">
+                      <span className="flex-1">Names / Details</span>
+                      <span className="w-10 text-center shrink-0">Audio</span>
+                    </div>
                   )}
                   
-                  {/* Dedication / Name and Details header for traditional section - w-48 to match row */}
                   {section.section_type === 'traditional' && (
-                    <div className="w-48 shrink-0">Dedication / Name and Details</div>
+                    <div className="flex-1 basis-1/3 min-w-0 flex items-center gap-2">
+                      <span className="flex-1">Dedication / Details</span>
+                      <span className="w-10 text-center shrink-0">Audio</span>
+                    </div>
                   )}
                   
-                  {/* Audio header for ceremony, introductions, main_event, and traditional - w-16 to match row */}
-                  {(section.section_type === 'ceremony' || section.section_type === 'introductions' || section.section_type === 'main_event' || section.section_type === 'traditional') && (
-                    <div className="w-16 text-center shrink-0">Audio</div>
-                  )}
-                  
-                  {/* Music with Link header for music sections - flex-1 to take remaining space */}
+                  {/* COLUMN 3: Music with Link - 1/3 width */}
                   {['ceremony', 'cocktail', 'main_event', 'dinner', 'dance', 'traditional', 'introductions'].includes(section.section_type) && (
-                    <div className="flex-1">Music with Link</div>
+                    <div className="flex-1 basis-1/3 min-w-0">Music with Link</div>
                   )}
                   
-                  {/* Names/Details header for non-music sections (excluding ceremony/introductions/main_event) */}
+                  {/* For non-music sections - Names/Details takes remaining space */}
                   {!['ceremony', 'cocktail', 'main_event', 'dinner', 'dance', 'traditional', 'introductions'].includes(section.section_type) && (
                     <div className="flex-1">Names / Details</div>
                   )}
                 </>
               )}
               
-              <div className="w-16" /> {/* Actions space */}
+              <div className="w-16 shrink-0" /> {/* Actions space */}
             </div>
 
               {/* Items */}

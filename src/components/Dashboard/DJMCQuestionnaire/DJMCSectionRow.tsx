@@ -207,9 +207,9 @@ export function DJMCSectionRow({
         <GripVertical className="h-4 w-4 text-muted-foreground" />
       </div>
 
-      {/* ITEM Label - not for speeches */}
+      {/* COLUMN 1: ITEM Label - 1/3 width (not for speeches) */}
       {sectionType !== 'speeches' && (
-        <div className="w-48 shrink-0">
+        <div className="flex-1 basis-1/3 min-w-0">
           {editingLabel ? (
             <Input
               ref={labelInputRef}
@@ -222,7 +222,7 @@ export function DJMCSectionRow({
           ) : (
             <div
               onClick={handleLabelClick}
-              className="px-2 py-1 text-sm font-medium rounded hover:bg-muted cursor-text whitespace-nowrap"
+              className="px-2 py-1 text-sm font-medium rounded hover:bg-muted cursor-text truncate"
             >
               {displayLabel}
               {parentheticalText && (
@@ -233,84 +233,87 @@ export function DJMCSectionRow({
         </div>
       )}
 
-      {/* Value/Details Input - shows for all sections */}
-      <div className="w-48 shrink-0">
-        {sectionType === 'speeches' ? (
-          // Speeches: Guest/Speaker name - full width editable
-          editingLabel ? (
-            <Input
-              ref={labelInputRef}
-              value={localLabel}
-              onChange={(e) => setLocalLabel(e.target.value)}
-              onBlur={handleLabelBlur}
-              onKeyDown={handleLabelKeyDown}
-              placeholder="Guest / Speaker name"
-              className="h-8 text-sm"
-            />
+      {/* COLUMN 2: Names/Details + Audio - 1/3 width (combined) */}
+      <div className="flex-1 basis-1/3 min-w-0 flex items-center gap-2">
+        {/* Value/Details Input */}
+        <div className="flex-1 min-w-0">
+          {sectionType === 'speeches' ? (
+            // Speeches: Guest/Speaker name - full width editable
+            editingLabel ? (
+              <Input
+                ref={labelInputRef}
+                value={localLabel}
+                onChange={(e) => setLocalLabel(e.target.value)}
+                onBlur={handleLabelBlur}
+                onKeyDown={handleLabelKeyDown}
+                placeholder="Guest / Speaker name"
+                className="h-8 text-sm"
+              />
+            ) : (
+              <div
+                onClick={handleLabelClick}
+                className="px-3 py-1.5 text-sm rounded border border-transparent hover:border-border hover:bg-background cursor-text min-h-[32px] flex items-center truncate"
+              >
+                {item.row_label || <span className="text-muted-foreground">Click to add guest/speaker...</span>}
+              </div>
+            )
+          ) : showBothValueAndMusicUrl ? (
+            // Ceremony, Introductions, Main Event, Traditional: Dedication / Name and Details
+            editingValue ? (
+              <Input
+                ref={valueInputRef}
+                value={localValue}
+                onChange={(e) => setLocalValue(e.target.value)}
+                onBlur={handleValueBlur}
+                onKeyDown={handleValueKeyDown}
+                placeholder="Enter dedication or details..."
+                className="h-8 text-sm"
+              />
+            ) : (
+              <div
+                onClick={handleValueClick}
+                className="px-3 py-1.5 text-sm rounded border border-transparent hover:border-border hover:bg-background cursor-text min-h-[32px] flex items-center truncate"
+              >
+                {item.value_text || <span className="text-muted-foreground">Click to add...</span>}
+              </div>
+            )
           ) : (
-            <div
-              onClick={handleLabelClick}
-              className="px-3 py-1.5 text-sm rounded border border-transparent hover:border-border hover:bg-background cursor-text min-h-[32px] flex items-center"
-            >
-              {item.row_label || <span className="text-muted-foreground">Click to add guest/speaker...</span>}
-            </div>
-          )
-        ) : showBothValueAndMusicUrl ? (
-          // Ceremony, Introductions, Main Event, Traditional: Dedication / Name and Details
-          editingValue ? (
-            <Input
-              ref={valueInputRef}
-              value={localValue}
-              onChange={(e) => setLocalValue(e.target.value)}
-              onBlur={handleValueBlur}
-              onKeyDown={handleValueKeyDown}
-              placeholder="Enter dedication or details..."
-              className="h-8 text-sm"
+            // Other sections: Names / Details (also clickable text area)
+            editingValue ? (
+              <Input
+                ref={valueInputRef}
+                value={localValue}
+                onChange={(e) => setLocalValue(e.target.value)}
+                onBlur={handleValueBlur}
+                onKeyDown={handleValueKeyDown}
+                placeholder="Enter names or details..."
+                className="h-8 text-sm"
+              />
+            ) : (
+              <div
+                onClick={handleValueClick}
+                className="px-3 py-1.5 text-sm rounded border border-transparent hover:border-border hover:bg-background cursor-text min-h-[32px] flex items-center truncate"
+              >
+                {item.value_text || <span className="text-muted-foreground">Click to add...</span>}
+              </div>
+            )
+          )}
+        </div>
+
+        {/* Audio button - within column 2 */}
+        {showPronunciation && (
+          <div className="w-10 shrink-0 flex justify-center">
+            <DJMCPronunciationRecorder
+              audioUrl={item.pronunciation_audio_url}
+              onChange={(url) => onUpdate({ pronunciation_audio_url: url })}
             />
-          ) : (
-            <div
-              onClick={handleValueClick}
-              className="px-3 py-1.5 text-sm rounded border border-transparent hover:border-border hover:bg-background cursor-text min-h-[32px] flex items-center"
-            >
-              {item.value_text || <span className="text-muted-foreground">Click to add...</span>}
-            </div>
-          )
-        ) : (
-          // Other sections: Names / Details (also clickable text area)
-          editingValue ? (
-            <Input
-              ref={valueInputRef}
-              value={localValue}
-              onChange={(e) => setLocalValue(e.target.value)}
-              onBlur={handleValueBlur}
-              onKeyDown={handleValueKeyDown}
-              placeholder="Enter names or details..."
-              className="h-8 text-sm"
-            />
-          ) : (
-            <div
-              onClick={handleValueClick}
-              className="px-3 py-1.5 text-sm rounded border border-transparent hover:border-border hover:bg-background cursor-text min-h-[32px] flex items-center"
-            >
-              {item.value_text || <span className="text-muted-foreground">Click to add...</span>}
-            </div>
-          )
+          </div>
         )}
       </div>
 
-      {/* Pronunciation Recorder - for ceremony, introductions, main_event, traditional */}
-      {showPronunciation && (
-        <div className="w-16 flex justify-center shrink-0">
-          <DJMCPronunciationRecorder
-            audioUrl={item.pronunciation_audio_url}
-            onChange={(url) => onUpdate({ pronunciation_audio_url: url })}
-          />
-        </div>
-      )}
-
-      {/* Music URL field - for ceremony, cocktail, main_event, dinner, dance, traditional, introductions */}
+      {/* COLUMN 3: Music with Link - 1/3 width */}
       {showMusicUrl && (
-        <div className="flex-1 min-w-0">
+        <div className="flex-1 basis-1/3 min-w-0">
           <DJMCMusicUrlField
             value={item.music_url || ''}
             onChange={(url) => onUpdate({ music_url: url })}
