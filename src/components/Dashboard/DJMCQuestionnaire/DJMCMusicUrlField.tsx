@@ -1,9 +1,10 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Link, Play, Copy, X, Music } from 'lucide-react';
+import { Link, Play, Copy, X, Music, Loader2 } from 'lucide-react';
 import { detectMusicPlatform, extractYouTubeId, extractSpotifyId } from '@/lib/djMCQuestionnaireTemplates';
 import { useToast } from '@/hooks/use-toast';
+import { fetchSongMetadata } from '@/lib/musicMetadataFetcher';
 import {
   Dialog,
   DialogContent,
@@ -14,6 +15,7 @@ import {
 interface DJMCMusicUrlFieldProps {
   value: string | null;
   onChange: (url: string | null) => void;
+  onMetadataFetched?: (metadata: { title: string; artist: string }) => void;
   placeholder?: string;
   disabled?: boolean;
 }
@@ -21,17 +23,39 @@ interface DJMCMusicUrlFieldProps {
 export function DJMCMusicUrlField({
   value,
   onChange,
+  onMetadataFetched,
   placeholder = 'Paste YouTube, Spotify, or Apple Music link',
   disabled = false,
 }: DJMCMusicUrlFieldProps) {
   const [showPreview, setShowPreview] = useState(false);
+  const [isFetchingMetadata, setIsFetchingMetadata] = useState(false);
   const platform = value ? detectMusicPlatform(value) : 'unknown';
   const { toast } = useToast();
+  const lastFetchedUrlRef = useRef<string | null>(null);
 
-  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value || null;
     onChange(newValue);
-  }, [onChange]);
+
+    // Fetch metadata if we have a callback and a valid URL
+    if (onMetadataFetched && newValue && newValue.includes('://') && newValue !== lastFetchedUrlRef.current) {
+      lastFetchedUrlRef.current = newValue;
+      setIsFetchingMetadata(true);
+      try {
+        const metadata = await fetchSongMetadata(newValue);
+        if (metadata.title !== 'Unknown Song') {
+          onMetadataFetched({
+            title: metadata.title,
+            artist: metadata.artist
+          });
+        }
+      } catch (error) {
+        console.warn('Could not fetch song metadata:', error);
+      } finally {
+        setIsFetchingMetadata(false);
+      }
+    }
+  }, [onChange, onMetadataFetched]);
 
   const clearUrl = useCallback(() => {
     onChange(null);
@@ -129,7 +153,11 @@ export function DJMCMusicUrlField({
     <>
       <div className="relative flex items-center gap-2">
         <div className="absolute left-3 flex items-center pointer-events-none">
-          {renderPlatformIcon()}
+          {isFetchingMetadata ? (
+            <Loader2 className="h-4 w-4 animate-spin text-primary" />
+          ) : (
+            renderPlatformIcon()
+          )}
         </div>
         <Input
           type="url"

@@ -368,6 +368,16 @@ export function DJMCSectionRow({
           <DJMCMusicUrlField
             value={item.music_url || ''}
             onChange={(url) => onUpdate({ music_url: url })}
+            onMetadataFetched={(metadata) => {
+              // Only auto-fill if the value_text field is empty
+              if (!item.value_text || item.value_text.trim() === '') {
+                const formattedTitle = metadata.artist !== 'Unknown Artist'
+                  ? `${metadata.title} – ${metadata.artist}`
+                  : metadata.title;
+                onUpdate({ value_text: formattedTitle });
+                setLocalValue(formattedTitle);
+              }
+            }}
           />
         </div>
       )}
