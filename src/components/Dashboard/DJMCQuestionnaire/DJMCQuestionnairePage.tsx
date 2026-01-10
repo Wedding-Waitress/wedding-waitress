@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Music, Download, Loader2, FileText } from 'lucide-react';
+import { Music, Download, Loader2, FileText, Share2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { exportEntireQuestionnairePDF, exportSectionPDF } from '@/lib/djMCQuestionnairePdfExporter';
 import { Button } from '@/components/ui/button';
@@ -153,25 +153,39 @@ export function DJMCQuestionnairePage({ selectedEventId, onEventSelect }: DJMCQu
             </div>
 
             {selectedEventId && questionnaire && (
-              <div className="border border-primary rounded-xl p-3 flex items-center gap-4">
-                <div className="text-sm">
-                  <span className="font-medium">Export Controls</span>
-                  <span className="text-muted-foreground ml-2">Download your questionnaire and share it with your DJ-MC or wedding venue.</span>
-                </div>
-                <Button 
-                  variant="default"
+              <div className="flex items-center gap-3 flex-wrap">
+                {/* Share Button */}
+                <Button
+                  variant="outline"
                   size="sm"
-                  onClick={handleDownloadEntirePDF}
-                  disabled={downloadingPDF}
+                  onClick={() => setShowShareModal(true)}
                   className="rounded-full flex items-center gap-2"
                 >
-                  {downloadingPDF ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <FileText className="w-4 h-4" />
-                  )}
-                  Download entire questionnaire PDF
+                  <Share2 className="h-4 w-4" />
+                  Share with DJ/MC
                 </Button>
+
+                {/* Export Controls Tablet */}
+                <div className="border border-primary rounded-xl p-3 flex items-center gap-4">
+                  <div className="text-sm">
+                    <span className="font-medium">Export Controls</span>
+                    <span className="text-muted-foreground ml-2">Download your questionnaire and share it with your DJ-MC or wedding venue.</span>
+                  </div>
+                  <Button 
+                    variant="default"
+                    size="sm"
+                    onClick={handleDownloadEntirePDF}
+                    disabled={downloadingPDF}
+                    className="rounded-full flex items-center gap-2"
+                  >
+                    {downloadingPDF ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <FileText className="w-4 h-4" />
+                    )}
+                    Download entire questionnaire PDF
+                  </Button>
+                </div>
               </div>
             )}
           </div>

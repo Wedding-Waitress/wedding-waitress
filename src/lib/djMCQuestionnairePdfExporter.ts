@@ -249,8 +249,24 @@ const drawSectionTable = (
     
     cellValues.forEach((value, colIdx) => {
       const colWidth = contentWidth * config.widths[colIdx];
-      const truncatedValue = truncateText(pdf, value, colWidth - 4);
-      pdf.text(truncatedValue, xPos, yPos + 5);
+      
+      // Check if this is a music URL column (last column for sections with music links)
+      const isMusicUrlColumn = 
+        (section.section_type !== 'speeches' && section.section_type !== 'do_not_play') && 
+        colIdx === cellValues.length - 1 && 
+        value && 
+        (value.startsWith('http://') || value.startsWith('https://'));
+      
+      if (isMusicUrlColumn && value) {
+        // Render as clickable link
+        const displayText = truncateText(pdf, 'Click to open', colWidth - 4);
+        pdf.setTextColor(109, 40, 217); // Purple color for links
+        pdf.textWithLink(displayText, xPos, yPos + 5, { url: value });
+        pdf.setTextColor(0, 0, 0); // Reset to black
+      } else {
+        const truncatedValue = truncateText(pdf, value, colWidth - 4);
+        pdf.text(truncatedValue, xPos, yPos + 5);
+      }
       xPos += colWidth;
     });
 
