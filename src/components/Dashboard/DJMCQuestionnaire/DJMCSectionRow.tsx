@@ -146,12 +146,24 @@ export function DJMCSectionRow({
 
         {/* Column 1: Song Number (1/3 width) - displays row_label */}
         <div className="flex-1 basis-1/3 min-w-0">
-          <div
-            onClick={handleLabelClick}
-            className="px-2 py-1 text-sm font-medium rounded hover:bg-muted cursor-text truncate"
-          >
-            {item.row_label || 'Song 1'}
-          </div>
+          {editingLabel ? (
+            <Input
+              ref={labelInputRef}
+              value={localLabel}
+              onChange={(e) => setLocalLabel(e.target.value)}
+              onBlur={handleLabelBlur}
+              onKeyDown={handleLabelKeyDown}
+              placeholder="Song 1"
+              className="h-8 text-sm"
+            />
+          ) : (
+            <div
+              onClick={handleLabelClick}
+              className="px-2 py-1 text-sm font-medium rounded hover:bg-muted cursor-text truncate"
+            >
+              {item.row_label || 'Song 1'}
+            </div>
+          )}
         </div>
 
         {/* Column 2: Song Name (2/3 width) - editable value_text */}
