@@ -214,15 +214,17 @@ export function DJMCQuestionnaireSection({
             {/* Notes field */}
             {showNotes && (
               <div className="mt-3">
-                <div className="text-sm font-medium text-primary mb-1">Notes for DJ-MC</div>
-                <Textarea
-                  value={section.notes || ''}
-                  onChange={(e) => onUpdateSection({ notes: e.target.value || null })}
-                  placeholder="Notes for DJ/MC (e.g., special instructions, timing, etc.)"
-                  className="text-sm resize-none"
-                  rows={2}
-                  disabled={disabled}
-                />
+                <div className="border border-input rounded-md bg-background px-3 py-2">
+                  <div className="text-sm font-medium text-primary mb-1">Notes for DJ-MC</div>
+                  <Textarea
+                    value={section.notes || ''}
+                    onChange={(e) => onUpdateSection({ notes: e.target.value || null })}
+                    placeholder="e.g., special instructions, timing, etc."
+                    className="text-sm resize-none border-0 p-0 focus-visible:ring-0 focus-visible:ring-offset-0 min-h-[40px]"
+                    rows={2}
+                    disabled={disabled}
+                  />
+                </div>
               </div>
             )}
           </CardHeader>
