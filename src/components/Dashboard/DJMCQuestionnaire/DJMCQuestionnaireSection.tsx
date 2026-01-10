@@ -161,11 +161,9 @@ export function DJMCQuestionnaireSection({
   const speakerCount = useMemo(() => {
     if (section.section_type !== 'speeches') return 0;
     
-    // Count rows that have a row_label (speaker title) with actual content, excluding "New Item" placeholders
+    // Count rows where user has entered an actual speaker name in the "SPEAKER NAME" column
     return section.items.filter(item => 
-      item.row_label && 
-      item.row_label.trim() !== '' && 
-      item.row_label.trim() !== 'New Item'
+      item.value_text && item.value_text.trim() !== ''
     ).length;
   }, [section.items, section.section_type]);
 
