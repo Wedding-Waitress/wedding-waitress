@@ -127,7 +127,7 @@ export function DJMCSectionRow({
   const displayLabel = labelMatch ? labelMatch[1].trim() : item.row_label;
   const parentheticalText = labelMatch ? labelMatch[2] : null;
 
-  // Special simple layout for do_not_play section
+  // Special two-column layout for do_not_play section
   if (sectionType === 'do_not_play') {
     return (
       <div
@@ -144,24 +144,34 @@ export function DJMCSectionRow({
           <GripVertical className="h-4 w-4 text-muted-foreground" />
         </div>
 
-        {/* Single full-width input for song name */}
-        <div className="flex-1 min-w-0">
-          {editingLabel ? (
+        {/* Column 1: Song Number (1/3 width) - displays row_label */}
+        <div className="flex-1 basis-1/3 min-w-0">
+          <div
+            onClick={handleLabelClick}
+            className="px-2 py-1 text-sm font-medium rounded hover:bg-muted cursor-text truncate"
+          >
+            {item.row_label || 'Song 1'}
+          </div>
+        </div>
+
+        {/* Column 2: Song Name (2/3 width) - editable value_text */}
+        <div className="flex-1 basis-2/3 min-w-0">
+          {editingValue ? (
             <Input
-              ref={labelInputRef}
-              value={localLabel}
-              onChange={(e) => setLocalLabel(e.target.value)}
-              onBlur={handleLabelBlur}
-              onKeyDown={handleLabelKeyDown}
+              ref={valueInputRef}
+              value={localValue}
+              onChange={(e) => setLocalValue(e.target.value)}
+              onBlur={handleValueBlur}
+              onKeyDown={handleValueKeyDown}
               placeholder="Enter song name..."
               className="h-8 text-sm"
             />
           ) : (
             <div
-              onClick={handleLabelClick}
+              onClick={handleValueClick}
               className="px-3 py-1.5 text-sm rounded border border-transparent hover:border-border hover:bg-background cursor-text min-h-[32px] flex items-center"
             >
-              {item.row_label || <span className="text-muted-foreground">Enter song name...</span>}
+              {item.value_text || <span className="text-muted-foreground">Enter song name...</span>}
             </div>
           )}
         </div>
