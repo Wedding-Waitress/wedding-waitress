@@ -352,7 +352,7 @@ export function DJMCQuestionnaireSection({
                   {/* COLUMN 2: Song Title & Artist (Optional) + Audio for main_event */}
                   {section.section_type === 'main_event' && (
                     <div className="flex-1 basis-1/3 min-w-0 flex items-center gap-2">
-                      <span className="flex-1">Song Title & Artist (Optional)</span>
+                  <span className="flex-1">Song Title & Artist</span>
                       <span className="w-10 text-center shrink-0">Audio</span>
                     </div>
                   )}
@@ -360,7 +360,7 @@ export function DJMCQuestionnaireSection({
                   {/* COLUMN 2: Song Title & Artist (Optional) + Audio for ceremony */}
                   {section.section_type === 'ceremony' && (
                     <div className="flex-1 basis-1/3 min-w-0 flex items-center gap-2">
-                      <span className="flex-1">Song Title & Artist (Optional)</span>
+                      <span className="flex-1">Song Title & Artist</span>
                       <span className="w-10 text-center shrink-0">Audio</span>
                     </div>
                   )}
@@ -374,7 +374,7 @@ export function DJMCQuestionnaireSection({
                   
                   {/* COLUMN 2: Song Title & Artist (Optional) - for cocktail, dinner, dance - 1/3 width */}
                   {(section.section_type === 'cocktail' || section.section_type === 'dinner' || section.section_type === 'dance') && (
-                    <div className="flex-1 basis-1/3 min-w-0">Song Title & Artist (Optional)</div>
+                    <div className="flex-1 basis-1/3 min-w-0">Song Title & Artist</div>
                   )}
                   
                   {/* COLUMN 2 & 3: Speeches - Names/Details + Allowed Time */}
