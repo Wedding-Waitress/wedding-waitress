@@ -207,9 +207,9 @@ export function DJMCSectionRow({
         <GripVertical className="h-4 w-4 text-muted-foreground" />
       </div>
 
-      {/* COLUMN 1: Speaker Status for speeches, Item for others */}
+      {/* COLUMN 1: Speaker Status for speeches (narrower to align Speaker Name with other sections) */}
       {sectionType === 'speeches' ? (
-        <div className="flex-1 basis-1/3 min-w-0">
+        <div className="basis-1/6 min-w-0 shrink-0">
           {editingLabel ? (
             <Input
               ref={labelInputRef}
