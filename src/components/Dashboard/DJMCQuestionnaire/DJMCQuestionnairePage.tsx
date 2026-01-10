@@ -170,7 +170,7 @@ export function DJMCQuestionnairePage({ selectedEventId, onEventSelect }: DJMCQu
                 <div className="border border-primary rounded-xl p-3 flex items-center gap-4">
                   <div className="text-sm">
                     <span className="font-medium">Export Controls</span>
-                    <span className="text-muted-foreground ml-2">Download your questionnaire as PDF.</span>
+                    <span className="text-muted-foreground ml-2">Download your questionnaire and share it with your DJ-MC or wedding venue.</span>
                   </div>
                   <Button 
                     variant="default"
