@@ -244,13 +244,15 @@ export function DJMCQuestionnaireSection({
                 <div className="flex-1">Song Name</div>
               ) : (
                 <>
-                  {/* COLUMN 1: Speaker Status for speeches, Event for ceremony, Song Number for cocktail, Item for others */}
+                  {/* COLUMN 1: Speaker Status for speeches, Event for ceremony, Song Number for cocktail, Bridal Party Intro Order for introductions, Item for others */}
                   {section.section_type === 'speeches' ? (
                     <div className="w-80 shrink-0">Speaker Status & Order</div>
                   ) : section.section_type === 'ceremony' ? (
                     <div className="flex-1 basis-1/3 min-w-0">Event</div>
                   ) : section.section_type === 'cocktail' ? (
                     <div className="flex-1 basis-1/3 min-w-0">Song Number</div>
+                  ) : section.section_type === 'introductions' ? (
+                    <div className="flex-1 basis-1/3 min-w-0">Bridal Party Intro Order</div>
                   ) : (
                     <div className="flex-1 basis-1/3 min-w-0">Item</div>
                   )}
