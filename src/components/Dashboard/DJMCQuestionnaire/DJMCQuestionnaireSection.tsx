@@ -244,8 +244,12 @@ export function DJMCQuestionnaireSection({
                 <div className="flex-1">Song Name</div>
               ) : (
                 <>
-                  {/* COLUMN 1: Item - 1/3 width */}
-                  <div className="flex-1 basis-1/3 min-w-0">Item</div>
+                  {/* COLUMN 1: Speaker Status (wider) for speeches, Item for others */}
+                  {section.section_type === 'speeches' ? (
+                    <div className="w-80 shrink-0">Speaker Status</div>
+                  ) : (
+                    <div className="flex-1 basis-1/3 min-w-0">Item</div>
+                  )}
                   
                   {/* COLUMN 2: Names/Details + Audio - 1/3 width (combined) */}
                   {(section.section_type === 'ceremony' || section.section_type === 'introductions' || section.section_type === 'main_event') && (
@@ -267,10 +271,10 @@ export function DJMCQuestionnaireSection({
                     <div className="flex-1 basis-1/3 min-w-0">Song Title (Optional)</div>
                   )}
                   
-                  {/* COLUMN 2 & 3: Speeches - 3 specific columns */}
+                  {/* COLUMN 2 & 3: Speeches - Names/Details + Allowed Time */}
                   {section.section_type === 'speeches' && (
                     <>
-                      <div className="flex-1 min-w-0">Names of Speaker</div>
+                      <div className="flex-1 min-w-0">Names / Details</div>
                       <div className="w-24 shrink-0 text-center">Allowed Time</div>
                     </>
                   )}
