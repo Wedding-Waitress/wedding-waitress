@@ -267,8 +267,8 @@ export function DJMCSectionRow({
             </div>
           )}
         </div>
-      ) : sectionType === 'introductions' ? (
-        // Special 1/4 width for introductions (4-column layout)
+      ) : sectionType === 'introductions' || sectionType === 'ceremony' ? (
+        // Special 1/4 width for introductions and ceremony (4-column layout)
         <div className="flex-1 basis-1/4 min-w-0">
           {editingLabel ? (
             <Input
@@ -340,8 +340,8 @@ export function DJMCSectionRow({
         </div>
       )}
 
-      {/* COLUMN 2: Names + Audio - for introductions (1/4 width) */}
-      {sectionType === 'introductions' && (
+      {/* COLUMN 2: Names + Audio - for introductions and ceremony (1/4 width) */}
+      {(sectionType === 'introductions' || sectionType === 'ceremony') && (
         <div className="flex-1 basis-1/4 min-w-0 flex items-center gap-2">
           <div className="flex-1 min-w-0">
             {editingValue ? (
@@ -372,8 +372,8 @@ export function DJMCSectionRow({
         </div>
       )}
 
-      {/* COLUMN 3: Song Title & Artist - for introductions (1/4 width) */}
-      {sectionType === 'introductions' && (
+      {/* COLUMN 3: Song Title & Artist - for introductions and ceremony (1/4 width) */}
+      {(sectionType === 'introductions' || sectionType === 'ceremony') && (
         <div className="flex-1 basis-1/4 min-w-0">
           {editingSongTitleArtist ? (
             <Input
@@ -411,8 +411,8 @@ export function DJMCSectionRow({
         </div>
       )}
 
-      {/* COLUMN 2: Names/Details + Audio - 1/3 width (combined) - for non-speeches, non-introductions */}
-      {sectionType !== 'speeches' && sectionType !== 'introductions' && (
+      {/* COLUMN 2: Names/Details + Audio - 1/3 width (combined) - for non-speeches, non-introductions, non-ceremony */}
+      {sectionType !== 'speeches' && sectionType !== 'introductions' && sectionType !== 'ceremony' && (
         <div className="flex-1 basis-1/3 min-w-0 flex items-center gap-2">
           {/* Value/Details Input */}
           <div className="flex-1 min-w-0">
@@ -471,8 +471,8 @@ export function DJMCSectionRow({
         </div>
       )}
 
-      {/* COLUMN 4: Music with Link - 1/4 width for introductions */}
-      {sectionType === 'introductions' && (
+      {/* COLUMN 4: Music with Link - 1/4 width for introductions and ceremony */}
+      {(sectionType === 'introductions' || sectionType === 'ceremony') && (
         <div className="flex-1 basis-1/4 min-w-0">
           <DJMCMusicUrlField
             value={item.music_url || ''}
@@ -488,8 +488,8 @@ export function DJMCSectionRow({
         </div>
       )}
 
-      {/* COLUMN 3: Music with Link - 1/3 width for non-introductions */}
-      {showMusicUrl && sectionType !== 'introductions' && (
+      {/* COLUMN 3: Music with Link - 1/3 width for non-introductions, non-ceremony */}
+      {showMusicUrl && sectionType !== 'introductions' && sectionType !== 'ceremony' && (
         <div className="flex-1 basis-1/3 min-w-0">
           <DJMCMusicUrlField
             value={item.music_url || ''}
