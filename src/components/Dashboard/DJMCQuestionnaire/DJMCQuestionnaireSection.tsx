@@ -239,9 +239,12 @@ export function DJMCQuestionnaireSection({
             <div className="flex items-center gap-2 px-2 py-2 border-b border-border text-xs font-medium text-muted-foreground uppercase tracking-wide">
               <div className="w-6 shrink-0" /> {/* Drag handle space */}
               
-              {/* Special header for do_not_play - single column */}
+              {/* Special header for do_not_play - two columns */}
               {section.section_type === 'do_not_play' ? (
-                <div className="flex-1">Song Name</div>
+                <>
+                  <div className="flex-1 basis-1/3 min-w-0">Song Number</div>
+                  <div className="flex-1 basis-2/3 min-w-0">Song Name</div>
+                </>
               ) : (
                 <>
                   {/* COLUMN 1: Speaker Status for speeches, Event for ceremony, Song Number for cocktail, Bridal Party Intro Order for introductions, Item for others */}
@@ -249,7 +252,7 @@ export function DJMCQuestionnaireSection({
                     <div className="basis-1/3 min-w-0 shrink-0">Speaker Status & Order</div>
                   ) : section.section_type === 'ceremony' ? (
                     <div className="flex-1 basis-1/3 min-w-0">Event</div>
-                  ) : section.section_type === 'cocktail' ? (
+                  ) : ['cocktail', 'dinner', 'dance', 'traditional'].includes(section.section_type) ? (
                     <div className="flex-1 basis-1/3 min-w-0">Song Number</div>
                   ) : section.section_type === 'introductions' ? (
                     <div className="flex-1 basis-1/3 min-w-0">Bridal Party Intro Order</div>
