@@ -267,8 +267,8 @@ export function DJMCSectionRow({
             </div>
           )}
         </div>
-      ) : sectionType === 'introductions' || sectionType === 'ceremony' ? (
-        // Special 1/4 width for introductions and ceremony (4-column layout)
+      ) : sectionType === 'introductions' || sectionType === 'ceremony' || sectionType === 'traditional' ? (
+        // Special 1/4 width for introductions, ceremony, and traditional (4-column layout)
         <div className="flex-1 basis-1/4 min-w-0">
           {editingLabel ? (
             <Input
@@ -411,8 +411,8 @@ export function DJMCSectionRow({
         </div>
       )}
 
-      {/* COLUMN 2: Names/Details + Audio - 1/3 width (combined) - for non-speeches, non-introductions, non-ceremony */}
-      {sectionType !== 'speeches' && sectionType !== 'introductions' && sectionType !== 'ceremony' && (
+      {/* COLUMN 2: Names/Details + Audio - 1/3 width (combined) - for non-speeches, non-introductions, non-ceremony, non-traditional */}
+      {sectionType !== 'speeches' && sectionType !== 'introductions' && sectionType !== 'ceremony' && sectionType !== 'traditional' && (
         <div className="flex-1 basis-1/3 min-w-0 flex items-center gap-2">
           {/* Value/Details Input */}
           <div className="flex-1 min-w-0">
@@ -471,8 +471,79 @@ export function DJMCSectionRow({
         </div>
       )}
 
-      {/* COLUMN 4: Music with Link - 1/4 width for introductions and ceremony */}
-      {(sectionType === 'introductions' || sectionType === 'ceremony') && (
+      {/* COLUMN 2: Dedication / Details - for traditional (1/4 width, no audio) */}
+      {sectionType === 'traditional' && (
+        <div className="flex-1 basis-1/4 min-w-0">
+          {editingValue ? (
+            <Input
+              ref={valueInputRef}
+              value={localValue}
+              onChange={(e) => setLocalValue(e.target.value)}
+              onBlur={handleValueBlur}
+              onKeyDown={handleValueKeyDown}
+              placeholder="Enter dedication or details..."
+              className="h-8 text-sm"
+            />
+          ) : (
+            <div
+              onClick={handleValueClick}
+              className="px-3 py-1.5 text-sm rounded border border-transparent hover:border-border hover:bg-background cursor-text min-h-[32px] flex items-center truncate"
+            >
+              {item.value_text || <span className="text-muted-foreground">Click to add...</span>}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* COLUMN 3: Song Title & Artist + Audio - for traditional (1/4 width) */}
+      {sectionType === 'traditional' && (
+        <div className="flex-1 basis-1/4 min-w-0 flex items-center gap-2">
+          <div className="flex-1 min-w-0">
+            {editingSongTitleArtist ? (
+              <Input
+                ref={songTitleArtistInputRef}
+                value={localSongTitleArtist}
+                onChange={(e) => setLocalSongTitleArtist(e.target.value)}
+                onBlur={() => {
+                  setEditingSongTitleArtist(false);
+                  if (localSongTitleArtist !== (item.song_title_artist || '')) {
+                    onUpdate({ song_title_artist: localSongTitleArtist || null });
+                  }
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    setEditingSongTitleArtist(false);
+                    if (localSongTitleArtist !== (item.song_title_artist || '')) {
+                      onUpdate({ song_title_artist: localSongTitleArtist || null });
+                    }
+                  } else if (e.key === 'Escape') {
+                    setLocalSongTitleArtist(item.song_title_artist || '');
+                    setEditingSongTitleArtist(false);
+                  }
+                }}
+                placeholder="Auto-fills from music link..."
+                className="h-8 text-sm"
+              />
+            ) : (
+              <div
+                onClick={() => !disabled && setEditingSongTitleArtist(true)}
+                className="px-3 py-1.5 text-sm rounded border border-transparent hover:border-border hover:bg-background cursor-text min-h-[32px] flex items-center truncate"
+              >
+                {localSongTitleArtist || <span className="text-muted-foreground">Auto-fills from music link...</span>}
+              </div>
+            )}
+          </div>
+          <div className="w-10 shrink-0 flex justify-center">
+            <DJMCPronunciationRecorder
+              audioUrl={item.pronunciation_audio_url}
+              onChange={(url) => onUpdate({ pronunciation_audio_url: url })}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* COLUMN 4: Music with Link - 1/4 width for introductions, ceremony, traditional */}
+      {(sectionType === 'introductions' || sectionType === 'ceremony' || sectionType === 'traditional') && (
         <div className="flex-1 basis-1/4 min-w-0">
           <DJMCMusicUrlField
             value={item.music_url || ''}
@@ -488,8 +559,8 @@ export function DJMCSectionRow({
         </div>
       )}
 
-      {/* COLUMN 3: Music with Link - 1/3 width for non-introductions, non-ceremony */}
-      {showMusicUrl && sectionType !== 'introductions' && sectionType !== 'ceremony' && (
+      {/* COLUMN 3: Music with Link - 1/3 width for non-introductions, non-ceremony, non-traditional */}
+      {showMusicUrl && sectionType !== 'introductions' && sectionType !== 'ceremony' && sectionType !== 'traditional' && (
         <div className="flex-1 basis-1/3 min-w-0">
           <DJMCMusicUrlField
             value={item.music_url || ''}
