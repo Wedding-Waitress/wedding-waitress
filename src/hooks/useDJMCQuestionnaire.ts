@@ -422,10 +422,10 @@ export function useDJMCQuestionnaire(eventId: string | null) {
 
       if (error) throw error;
 
-      // Reset section label
+      // Reset section label and notes
       await supabase
         .from('dj_mc_sections')
-        .update({ section_label: template.section_label })
+        .update({ section_label: template.section_label, notes: null })
         .eq('id', sectionId);
 
       // Update local state
@@ -435,7 +435,7 @@ export function useDJMCQuestionnaire(eventId: string | null) {
           ...prev,
           sections: prev.sections.map(s =>
             s.id === sectionId
-              ? { ...s, section_label: template.section_label, items: newItems as DJMCItem[] }
+              ? { ...s, section_label: template.section_label, notes: null, items: newItems as DJMCItem[] }
               : s
           ),
         };
