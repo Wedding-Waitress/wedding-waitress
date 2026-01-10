@@ -10,7 +10,7 @@ export const DEFAULT_SECTION_TEMPLATES: DefaultSectionTemplate[] = [
       { row_label: 'Processional (Bridesmaids Entrance) × 1 Song', has_music_url: true, has_pronunciation: true },
       { row_label: 'Bride Walking Down the Aisle × 1 Song', has_music_url: true, has_pronunciation: true },
       { row_label: 'Interlude (During Signing) × 2 Songs', has_music_url: true, has_pronunciation: true },
-      { row_label: 'Recessional (Exit) × 1 Song', has_music_url: true, has_pronunciation: true },
+      { row_label: 'Recessional (Newlyweds Exit) × 1 Song', has_music_url: true, has_pronunciation: true },
     ],
   },
   {
