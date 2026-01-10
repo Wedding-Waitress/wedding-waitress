@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { Music, Share2, Download, Loader2 } from 'lucide-react';
+import { Music, Share2, Download, Loader2, FileText } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { exportEntireQuestionnairePDF, exportSectionPDF } from '@/lib/djMCQuestionnairePdfExporter';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { StandardEventSelector } from '../StandardEventSelector';
@@ -48,7 +50,9 @@ const formatTimeDisplay = (time: string | null | undefined): string => {
 
 export function DJMCQuestionnairePage({ selectedEventId, onEventSelect }: DJMCQuestionnairePageProps) {
   const { events } = useEvents();
+  const { toast } = useToast();
   const [showShareModal, setShowShareModal] = useState(false);
+  const [downloadingPDF, setDownloadingPDF] = useState(false);
 
   const {
     questionnaire,
@@ -71,6 +75,47 @@ export function DJMCQuestionnairePage({ selectedEventId, onEventSelect }: DJMCQu
 
   const selectedEvent = events.find(e => e.id === selectedEventId);
   const progress = calculateProgress();
+
+  const handleDownloadEntirePDF = async () => {
+    if (!questionnaire || !selectedEvent) return;
+    
+    setDownloadingPDF(true);
+    try {
+      await exportEntireQuestionnairePDF(questionnaire, selectedEvent);
+      toast({
+        title: "PDF Downloaded",
+        description: "Your DJ-MC Questionnaire has been downloaded.",
+      });
+    } catch (error) {
+      console.error('Failed to download PDF:', error);
+      toast({
+        title: "Download Failed",
+        description: "There was an error generating the PDF.",
+        variant: "destructive",
+      });
+    } finally {
+      setDownloadingPDF(false);
+    }
+  };
+
+  const handleDownloadSectionPDF = async (section: typeof questionnaire.sections[0]) => {
+    if (!selectedEvent) return;
+    
+    try {
+      await exportSectionPDF(section, selectedEvent);
+      toast({
+        title: "Section PDF Downloaded",
+        description: `"${section.section_label}" has been downloaded.`,
+      });
+    } catch (error) {
+      console.error('Failed to download section PDF:', error);
+      toast({
+        title: "Download Failed",
+        description: "There was an error generating the PDF.",
+        variant: "destructive",
+      });
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -121,9 +166,18 @@ export function DJMCQuestionnairePage({ selectedEventId, onEventSelect }: DJMCQu
                   Share
                 </Button>
 
-                <Button variant="outline" size="sm" disabled>
-                  <Download className="h-4 w-4 mr-2" />
-                  PDF
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={handleDownloadEntirePDF}
+                  disabled={downloadingPDF}
+                >
+                  {downloadingPDF ? (
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  ) : (
+                    <FileText className="h-4 w-4 mr-2" />
+                  )}
+                  Download Entire Questionnaire
                 </Button>
               </div>
             )}
@@ -214,6 +268,7 @@ export function DJMCQuestionnairePage({ selectedEventId, onEventSelect }: DJMCQu
               onResetToDefault={() => resetSectionToDefault(section.id)}
               onDuplicateSection={() => duplicateSection(section.id)}
               onDeleteSection={() => deleteSection(section.id)}
+              onDownloadSectionPDF={() => handleDownloadSectionPDF(section)}
             />
           ))}
         </div>

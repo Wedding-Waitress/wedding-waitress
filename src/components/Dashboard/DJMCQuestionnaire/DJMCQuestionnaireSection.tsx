@@ -39,7 +39,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { ChevronDown, ChevronRight, Plus, MoreVertical, RotateCcw, MessageSquare, Copy, Trash } from 'lucide-react';
+import { ChevronDown, ChevronRight, Plus, MoreVertical, RotateCcw, MessageSquare, Copy, Trash, Download } from 'lucide-react';
 import { DJMCSection, DJMCItem } from '@/types/djMCQuestionnaire';
 import { DJMCSectionRow } from './DJMCSectionRow';
 import { Badge } from '@/components/ui/badge';
@@ -57,6 +57,7 @@ interface DJMCQuestionnaireSectionProps {
   onResetToDefault: () => void;
   onDuplicateSection: () => void;
   onDeleteSection: () => void;
+  onDownloadSectionPDF?: () => void;
   disabled?: boolean;
 }
 
@@ -71,6 +72,7 @@ export function DJMCQuestionnaireSection({
   onResetToDefault,
   onDuplicateSection,
   onDeleteSection,
+  onDownloadSectionPDF,
   disabled = false,
 }: DJMCQuestionnaireSectionProps) {
   const [editingLabel, setEditingLabel] = useState(false);
@@ -284,6 +286,16 @@ export function DJMCQuestionnaireSection({
                   </DropdownMenuItem>
                 </DropdownMenuContent>
                 </DropdownMenu>
+
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={() => onDownloadSectionPDF?.()}
+                  title="Download Section PDF"
+                >
+                  <Download className="h-4 w-4 text-muted-foreground" />
+                </Button>
               </div>
             </div>
 
