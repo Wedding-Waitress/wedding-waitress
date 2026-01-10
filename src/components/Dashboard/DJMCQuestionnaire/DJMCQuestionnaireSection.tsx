@@ -144,6 +144,14 @@ export function DJMCQuestionnaireSection({
   const songCount = useMemo(() => {
     if (!MUSIC_SECTION_TYPES.includes(section.section_type)) return 0;
     
+    // Do Not Play List uses song names (value_text), not music URLs
+    if (section.section_type === 'do_not_play') {
+      return section.items.filter(item => 
+        item.value_text && item.value_text.trim() !== ''
+      ).length;
+    }
+    
+    // All other music sections count music URLs
     return section.items.filter(item => 
       item.music_url && item.music_url.trim() !== ''
     ).length;
