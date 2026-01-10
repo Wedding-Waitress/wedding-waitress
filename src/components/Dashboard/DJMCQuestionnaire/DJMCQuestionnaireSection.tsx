@@ -331,8 +331,10 @@ export function DJMCQuestionnaireSection({
                     <div className="basis-1/3 min-w-0 shrink-0">Speaker Status & Order</div>
                   ) : section.section_type === 'ceremony' ? (
                     <div className="flex-1 basis-1/4 min-w-0">Event</div>
-                  ) : ['cocktail', 'dinner', 'dance', 'traditional'].includes(section.section_type) ? (
+                  ) : ['cocktail', 'dinner', 'dance'].includes(section.section_type) ? (
                     <div className="flex-1 basis-1/3 min-w-0">Song Number</div>
+                  ) : section.section_type === 'traditional' ? (
+                    <div className="flex-1 basis-1/4 min-w-0">Song Number</div>
                   ) : section.section_type === 'introductions' ? (
                     <div className="flex-1 basis-1/4 min-w-0">Bridal Party Intro Order</div>
                   ) : section.section_type === 'main_event' ? (
@@ -360,22 +362,26 @@ export function DJMCQuestionnaireSection({
                     </div>
                   )}
                   
-                  {/* COLUMNS 2, 3 for ceremony: Names + Audio | Song Title & Artist */}
+                  {/* COLUMNS 2, 3 for ceremony: Names / Info + Audio | Song Title & Artist */}
                   {section.section_type === 'ceremony' && (
                     <>
                       <div className="flex-1 basis-1/4 min-w-0 flex items-center gap-2">
-                        <span className="flex-1">Names</span>
+                        <span className="flex-1">Names / Info</span>
                         <span className="w-10 text-center shrink-0">Audio</span>
                       </div>
                       <div className="flex-1 basis-1/4 min-w-0">Song Title & Artist</div>
                     </>
                   )}
                   
+                  {/* COLUMNS 2, 3, 4 for traditional: Dedication / Details | Song Title & Artist + Audio | Music with Link */}
                   {section.section_type === 'traditional' && (
-                    <div className="flex-1 basis-1/3 min-w-0 flex items-center gap-2">
-                      <span className="flex-1">Dedication / Details</span>
-                      <span className="w-10 text-center shrink-0">Audio</span>
-                    </div>
+                    <>
+                      <div className="flex-1 basis-1/4 min-w-0">Dedication / Details</div>
+                      <div className="flex-1 basis-1/4 min-w-0 flex items-center gap-2">
+                        <span className="flex-1">Song Title & Artist</span>
+                        <span className="w-10 text-center shrink-0">Audio</span>
+                      </div>
+                    </>
                   )}
                   
                   {/* COLUMN 2: Song Title & Artist (Optional) - for cocktail, dinner, dance - 1/3 width */}
@@ -391,11 +397,11 @@ export function DJMCQuestionnaireSection({
                     </>
                   )}
                   
-                  {/* COLUMN 3/4: Music with Link - 1/3 width (1/4 for introductions and ceremony) */}
-                  {['cocktail', 'main_event', 'dinner', 'dance', 'traditional'].includes(section.section_type) && (
+                  {/* COLUMN 3/4: Music with Link - 1/3 width (1/4 for introductions, ceremony, traditional) */}
+                  {['cocktail', 'main_event', 'dinner', 'dance'].includes(section.section_type) && (
                     <div className="flex-1 basis-1/3 min-w-0">Music with Link</div>
                   )}
-                  {(section.section_type === 'introductions' || section.section_type === 'ceremony') && (
+                  {(section.section_type === 'introductions' || section.section_type === 'ceremony' || section.section_type === 'traditional') && (
                     <div className="flex-1 basis-1/4 min-w-0">Music with Link</div>
                   )}
                   
