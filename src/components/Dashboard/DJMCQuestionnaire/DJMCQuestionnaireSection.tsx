@@ -244,24 +244,25 @@ export function DJMCQuestionnaireSection({
                 <div className="flex-1">Song Name</div>
               ) : (
                 <>
-                  <div className="flex-1">Item</div>
+                  {/* ITEM header - w-48 to match row */}
+                  <div className="w-48 shrink-0">Item</div>
                   
-                  {/* Names/Details header for ceremony, introductions, and main_event */}
+                  {/* Names/Details header for ceremony, introductions, and main_event - w-48 to match row */}
                   {(section.section_type === 'ceremony' || section.section_type === 'introductions' || section.section_type === 'main_event') && (
-                    <div className="flex-1">Names / Details</div>
+                    <div className="w-48 shrink-0">Names / Details</div>
                   )}
                   
-                  {/* Dedication / Name and Details header for traditional section */}
+                  {/* Dedication / Name and Details header for traditional section - w-48 to match row */}
                   {section.section_type === 'traditional' && (
-                    <div className="flex-1">Dedication / Name and Details</div>
+                    <div className="w-48 shrink-0">Dedication / Name and Details</div>
                   )}
                   
-                  {/* Audio header for ceremony, introductions, main_event, and traditional */}
+                  {/* Audio header for ceremony, introductions, main_event, and traditional - w-16 to match row */}
                   {(section.section_type === 'ceremony' || section.section_type === 'introductions' || section.section_type === 'main_event' || section.section_type === 'traditional') && (
-                    <div className="w-20 text-center">Audio</div>
+                    <div className="w-16 text-center shrink-0">Audio</div>
                   )}
                   
-                  {/* Music with Link header for music sections */}
+                  {/* Music with Link header for music sections - flex-1 to take remaining space */}
                   {['ceremony', 'cocktail', 'main_event', 'dinner', 'dance', 'traditional', 'introductions'].includes(section.section_type) && (
                     <div className="flex-1">Music with Link</div>
                   )}
