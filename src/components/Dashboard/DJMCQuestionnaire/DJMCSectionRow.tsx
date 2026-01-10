@@ -209,7 +209,7 @@ export function DJMCSectionRow({
 
       {/* ITEM Label - not for speeches */}
       {sectionType !== 'speeches' && (
-        <div className="w-32 shrink-0">
+        <div className="w-48 shrink-0">
           {editingLabel ? (
             <Input
               ref={labelInputRef}
@@ -222,7 +222,7 @@ export function DJMCSectionRow({
           ) : (
             <div
               onClick={handleLabelClick}
-              className="px-2 py-1 text-sm font-medium rounded hover:bg-muted cursor-text"
+              className="px-2 py-1 text-sm font-medium rounded hover:bg-muted cursor-text whitespace-nowrap"
             >
               {displayLabel}
               {parentheticalText && (
@@ -234,7 +234,7 @@ export function DJMCSectionRow({
       )}
 
       {/* Value/Details Input - shows for all sections */}
-      <div className="flex-1 min-w-0">
+      <div className="w-48 shrink-0">
         {sectionType === 'speeches' ? (
           // Speeches: Guest/Speaker name - full width editable
           editingLabel ? (
@@ -300,7 +300,7 @@ export function DJMCSectionRow({
 
       {/* Pronunciation Recorder - for ceremony, introductions, main_event, traditional */}
       {showPronunciation && (
-        <div className="w-20 flex justify-center">
+        <div className="w-16 flex justify-center shrink-0">
           <DJMCPronunciationRecorder
             audioUrl={item.pronunciation_audio_url}
             onChange={(url) => onUpdate({ pronunciation_audio_url: url })}
@@ -310,7 +310,7 @@ export function DJMCSectionRow({
 
       {/* Music URL field - for ceremony, cocktail, main_event, dinner, dance, traditional, introductions */}
       {showMusicUrl && (
-        <div className="w-64 shrink-0">
+        <div className="flex-1 min-w-0">
           <DJMCMusicUrlField
             value={item.music_url || ''}
             onChange={(url) => onUpdate({ music_url: url })}
