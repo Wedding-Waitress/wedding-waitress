@@ -274,8 +274,8 @@ export function DJMCQuestionnaireSection({
                   {/* COLUMN 2 & 3: Speeches - Names/Details + Allowed Time */}
                   {section.section_type === 'speeches' && (
                     <>
-                      <div className="flex-1 min-w-0">Names / Details</div>
-                      <div className="w-24 shrink-0 text-center">Allowed Time</div>
+                      <div className="flex-1 min-w-0">Speaker Name</div>
+                      <div className="w-24 shrink-0 text-center">Time Allowed</div>
                     </>
                   )}
                   
