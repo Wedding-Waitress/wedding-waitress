@@ -44,7 +44,7 @@ import { DJMCSection, DJMCItem } from '@/types/djMCQuestionnaire';
 import { DJMCSectionRow } from './DJMCSectionRow';
 import { Badge } from '@/components/ui/badge';
 
-const MUSIC_SECTION_TYPES = ['ceremony', 'cocktail', 'main_event', 'dinner', 'dance', 'traditional', 'do_not_play'];
+const MUSIC_SECTION_TYPES = ['ceremony', 'cocktail', 'introductions', 'main_event', 'dinner', 'dance', 'traditional', 'do_not_play'];
 
 interface DJMCQuestionnaireSectionProps {
   section: DJMCSection;
