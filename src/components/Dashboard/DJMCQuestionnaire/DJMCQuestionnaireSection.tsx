@@ -145,8 +145,7 @@ export function DJMCQuestionnaireSection({
     if (!MUSIC_SECTION_TYPES.includes(section.section_type)) return 0;
     
     return section.items.filter(item => 
-      (item.value_text && item.value_text.trim() !== '') || 
-      (item.music_url && item.music_url.trim() !== '')
+      item.music_url && item.music_url.trim() !== ''
     ).length;
   }, [section.items, section.section_type]);
 
