@@ -298,6 +298,7 @@ export type Database = {
           pronunciation_audio_url: string | null
           row_label: string
           section_id: string
+          song_title_artist: string | null
           updated_at: string
           value_text: string | null
         }
@@ -311,6 +312,7 @@ export type Database = {
           pronunciation_audio_url?: string | null
           row_label: string
           section_id: string
+          song_title_artist?: string | null
           updated_at?: string
           value_text?: string | null
         }
@@ -324,6 +326,7 @@ export type Database = {
           pronunciation_audio_url?: string | null
           row_label?: string
           section_id?: string
+          song_title_artist?: string | null
           updated_at?: string
           value_text?: string | null
         }

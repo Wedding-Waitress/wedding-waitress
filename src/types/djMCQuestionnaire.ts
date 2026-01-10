@@ -16,6 +16,7 @@ export interface DJMCItem {
   section_id: string;
   row_label: string;
   value_text: string | null;
+  song_title_artist: string | null;
   music_url: string | null;
   pronunciation_audio_url: string | null;
   duration: string | null;
