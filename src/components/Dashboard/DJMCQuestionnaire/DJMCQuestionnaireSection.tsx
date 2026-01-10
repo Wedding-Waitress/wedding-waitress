@@ -267,13 +267,21 @@ export function DJMCQuestionnaireSection({
                     <div className="flex-1 basis-1/3 min-w-0">Song Title (Optional)</div>
                   )}
                   
+                  {/* COLUMN 2 & 3: Speeches - 3 specific columns */}
+                  {section.section_type === 'speeches' && (
+                    <>
+                      <div className="flex-1 min-w-0">Names of Speaker</div>
+                      <div className="w-24 shrink-0 text-center">Allowed Time</div>
+                    </>
+                  )}
+                  
                   {/* COLUMN 3: Music with Link - 1/3 width */}
                   {['ceremony', 'cocktail', 'main_event', 'dinner', 'dance', 'traditional', 'introductions'].includes(section.section_type) && (
                     <div className="flex-1 basis-1/3 min-w-0">Music with Link</div>
                   )}
                   
-                  {/* For non-music sections - Names/Details takes remaining space */}
-                  {!['ceremony', 'cocktail', 'main_event', 'dinner', 'dance', 'traditional', 'introductions'].includes(section.section_type) && (
+                  {/* For non-music/non-speeches sections - Names/Details takes remaining space */}
+                  {!['ceremony', 'cocktail', 'main_event', 'dinner', 'dance', 'traditional', 'introductions', 'speeches'].includes(section.section_type) && (
                     <div className="flex-1">Names / Details</div>
                   )}
                 </>
