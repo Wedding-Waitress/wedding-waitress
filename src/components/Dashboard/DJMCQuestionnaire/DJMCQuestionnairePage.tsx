@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
-import { Music, Share2, Download, Loader2, FileText } from 'lucide-react';
+import { Music, Download, Loader2, FileText } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { exportEntireQuestionnairePDF, exportSectionPDF } from '@/lib/djMCQuestionnairePdfExporter';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { StandardEventSelector } from '../StandardEventSelector';
 import { DJMCQuestionnaireSection } from './DJMCQuestionnaireSection';
-import { DJMCProgressIndicator } from './DJMCProgressIndicator';
 import { DJMCShareModal } from './DJMCShareModal';
 import { useDJMCQuestionnaire } from '@/hooks/useDJMCQuestionnaire';
 import { useEvents } from '@/hooks/useEvents';
@@ -145,7 +144,7 @@ export function DJMCQuestionnairePage({ selectedEventId, onEventSelect }: DJMCQu
       <Card>
         <CardContent className="py-4">
           <div className="flex items-center justify-between gap-4 flex-wrap">
-            <div className="flex-1 min-w-[250px]">
+            <div className="flex-shrink-0">
               <StandardEventSelector
                 events={events}
                 selectedEventId={selectedEventId}
@@ -154,39 +153,25 @@ export function DJMCQuestionnairePage({ selectedEventId, onEventSelect }: DJMCQu
             </div>
 
             {selectedEventId && questionnaire && (
-              <div className="flex items-center gap-4 flex-wrap">
-                <DJMCProgressIndicator progress={progress} />
-                
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setShowShareModal(true)}
-                >
-                  <Share2 className="h-4 w-4 mr-2" />
-                  Share
-                </Button>
-
-                {/* Export Controls Tablet - matching Place Cards style */}
-                <div className="border border-primary rounded-xl p-3 flex items-center gap-4">
-                  <div className="text-sm">
-                    <span className="font-medium">Export Controls</span>
-                    <span className="text-muted-foreground ml-2">Download your questionnaire and share it with your DJ-MC or wedding venue.</span>
-                  </div>
-                  <Button 
-                    variant="default"
-                    size="sm"
-                    onClick={handleDownloadEntirePDF}
-                    disabled={downloadingPDF}
-                    className="rounded-full flex items-center gap-2"
-                  >
-                    {downloadingPDF ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                    ) : (
-                      <FileText className="w-4 h-4" />
-                    )}
-                    Download entire questionnaire PDF
-                  </Button>
+              <div className="border border-primary rounded-xl p-3 flex items-center gap-4">
+                <div className="text-sm">
+                  <span className="font-medium">Export Controls</span>
+                  <span className="text-muted-foreground ml-2">Download your questionnaire and share it with your DJ-MC or wedding venue.</span>
                 </div>
+                <Button 
+                  variant="default"
+                  size="sm"
+                  onClick={handleDownloadEntirePDF}
+                  disabled={downloadingPDF}
+                  className="rounded-full flex items-center gap-2"
+                >
+                  {downloadingPDF ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <FileText className="w-4 h-4" />
+                  )}
+                  Download entire questionnaire PDF
+                </Button>
               </div>
             )}
           </div>
