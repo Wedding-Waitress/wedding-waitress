@@ -27,10 +27,13 @@ export function DJMCSectionRow({
 }: DJMCSectionRowProps) {
   const [editingLabel, setEditingLabel] = useState(false);
   const [editingValue, setEditingValue] = useState(false);
+  const [editingSongTitleArtist, setEditingSongTitleArtist] = useState(false);
   const [localLabel, setLocalLabel] = useState(item.row_label);
   const [localValue, setLocalValue] = useState(item.value_text || '');
+  const [localSongTitleArtist, setLocalSongTitleArtist] = useState('');
   const labelInputRef = useRef<HTMLInputElement>(null);
   const valueInputRef = useRef<HTMLInputElement>(null);
+  const songTitleArtistInputRef = useRef<HTMLInputElement>(null);
 
   const {
     attributes,
@@ -112,6 +115,13 @@ export function DJMCSectionRow({
       valueInputRef.current.select();
     }
   }, [editingValue]);
+
+  useEffect(() => {
+    if (editingSongTitleArtist && songTitleArtistInputRef.current) {
+      songTitleArtistInputRef.current.focus();
+      songTitleArtistInputRef.current.select();
+    }
+  }, [editingSongTitleArtist]);
 
   // Sync local state with props
   useEffect(() => {
@@ -253,6 +263,30 @@ export function DJMCSectionRow({
             </div>
           )}
         </div>
+      ) : sectionType === 'introductions' ? (
+        // Special 1/4 width for introductions (4-column layout)
+        <div className="flex-1 basis-1/4 min-w-0">
+          {editingLabel ? (
+            <Input
+              ref={labelInputRef}
+              value={localLabel}
+              onChange={(e) => setLocalLabel(e.target.value)}
+              onBlur={handleLabelBlur}
+              onKeyDown={handleLabelKeyDown}
+              className="h-8 text-sm"
+            />
+          ) : (
+            <div
+              onClick={handleLabelClick}
+              className="px-2 py-1 text-sm font-medium rounded hover:bg-muted cursor-text truncate"
+            >
+              {displayLabel}
+              {parentheticalText && (
+                <span className="text-muted-foreground font-normal"> ({parentheticalText})</span>
+              )}
+            </div>
+          )}
+        </div>
       ) : (
         <div className="flex-1 basis-1/3 min-w-0">
           {editingLabel ? (
@@ -302,13 +336,73 @@ export function DJMCSectionRow({
         </div>
       )}
 
-      {/* COLUMN 2: Names/Details + Audio - 1/3 width (combined) - for non-speeches */}
-      {sectionType !== 'speeches' && (
+      {/* COLUMN 2: Names + Audio - for introductions (1/4 width) */}
+      {sectionType === 'introductions' && (
+        <div className="flex-1 basis-1/4 min-w-0 flex items-center gap-2">
+          <div className="flex-1 min-w-0">
+            {editingValue ? (
+              <Input
+                ref={valueInputRef}
+                value={localValue}
+                onChange={(e) => setLocalValue(e.target.value)}
+                onBlur={handleValueBlur}
+                onKeyDown={handleValueKeyDown}
+                placeholder="Enter names..."
+                className="h-8 text-sm"
+              />
+            ) : (
+              <div
+                onClick={handleValueClick}
+                className="px-3 py-1.5 text-sm rounded border border-transparent hover:border-border hover:bg-background cursor-text min-h-[32px] flex items-center truncate"
+              >
+                {item.value_text || <span className="text-muted-foreground">Click to add names...</span>}
+              </div>
+            )}
+          </div>
+          <div className="w-10 shrink-0 flex justify-center">
+            <DJMCPronunciationRecorder
+              audioUrl={item.pronunciation_audio_url}
+              onChange={(url) => onUpdate({ pronunciation_audio_url: url })}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* COLUMN 3: Song Title & Artist - for introductions (1/4 width) */}
+      {sectionType === 'introductions' && (
+        <div className="flex-1 basis-1/4 min-w-0">
+          {editingSongTitleArtist ? (
+            <Input
+              ref={songTitleArtistInputRef}
+              value={localSongTitleArtist}
+              onChange={(e) => setLocalSongTitleArtist(e.target.value)}
+              onBlur={() => setEditingSongTitleArtist(false)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === 'Escape') {
+                  setEditingSongTitleArtist(false);
+                }
+              }}
+              placeholder="Auto-fills from music link..."
+              className="h-8 text-sm"
+            />
+          ) : (
+            <div
+              onClick={() => !disabled && setEditingSongTitleArtist(true)}
+              className="px-3 py-1.5 text-sm rounded border border-transparent hover:border-border hover:bg-background cursor-text min-h-[32px] flex items-center truncate"
+            >
+              {localSongTitleArtist || <span className="text-muted-foreground">Auto-fills from music link...</span>}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* COLUMN 2: Names/Details + Audio - 1/3 width (combined) - for non-speeches, non-introductions */}
+      {sectionType !== 'speeches' && sectionType !== 'introductions' && (
         <div className="flex-1 basis-1/3 min-w-0 flex items-center gap-2">
           {/* Value/Details Input */}
           <div className="flex-1 min-w-0">
             {showBothValueAndMusicUrl ? (
-            // Ceremony, Introductions, Main Event, Traditional: Dedication / Name and Details
+            // Ceremony, Main Event, Traditional: Dedication / Name and Details
             editingValue ? (
               <Input
                 ref={valueInputRef}
@@ -362,8 +456,24 @@ export function DJMCSectionRow({
         </div>
       )}
 
-      {/* COLUMN 3: Music with Link - 1/3 width */}
-      {showMusicUrl && (
+      {/* COLUMN 4: Music with Link - 1/4 width for introductions */}
+      {sectionType === 'introductions' && (
+        <div className="flex-1 basis-1/4 min-w-0">
+          <DJMCMusicUrlField
+            value={item.music_url || ''}
+            onChange={(url) => onUpdate({ music_url: url })}
+            onMetadataFetched={(metadata) => {
+              const formattedTitle = metadata.artist !== 'Unknown Artist'
+                ? `${metadata.title} – ${metadata.artist}`
+                : metadata.title;
+              setLocalSongTitleArtist(formattedTitle);
+            }}
+          />
+        </div>
+      )}
+
+      {/* COLUMN 3: Music with Link - 1/3 width for non-introductions */}
+      {showMusicUrl && sectionType !== 'introductions' && (
         <div className="flex-1 basis-1/3 min-w-0">
           <DJMCMusicUrlField
             value={item.music_url || ''}

@@ -31,7 +31,7 @@ export const DEFAULT_SECTION_TEMPLATES: DefaultSectionTemplate[] = [
       { row_label: 'Flower Girl & Page Boy (First Names Only)', has_pronunciation: true, has_music_url: true },
       { row_label: 'Groomsman & Bridesmaid (First Names Only)', has_pronunciation: true, has_music_url: true },
       { row_label: 'Best Man & Maid/Matron of Honour (First Names Only)', has_pronunciation: true, has_music_url: true },
-      { row_label: 'Groom & Bride (How would you like to be announced - Mr & Mrs?)', has_pronunciation: true, has_music_url: true },
+      { row_label: 'Groom & Bride (Announce as Mr & Mrs?)', has_pronunciation: true, has_music_url: true },
     ],
   },
   {
