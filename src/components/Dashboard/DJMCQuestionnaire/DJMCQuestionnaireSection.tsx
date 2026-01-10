@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef, useEffect } from 'react';
+import React, { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import {
   DndContext,
   closestCenter,
@@ -42,6 +42,9 @@ import {
 import { ChevronDown, ChevronRight, Plus, MoreVertical, RotateCcw, MessageSquare, Copy, Trash } from 'lucide-react';
 import { DJMCSection, DJMCItem } from '@/types/djMCQuestionnaire';
 import { DJMCSectionRow } from './DJMCSectionRow';
+import { Badge } from '@/components/ui/badge';
+
+const MUSIC_SECTION_TYPES = ['ceremony', 'cocktail', 'dinner', 'dance', 'do_not_play'];
 
 interface DJMCQuestionnaireSectionProps {
   section: DJMCSection;
@@ -137,6 +140,18 @@ export function DJMCQuestionnaireSection({
     onUpdateSection({ is_collapsed: !section.is_collapsed });
   }, [section.is_collapsed, onUpdateSection]);
 
+  // Calculate song count for music sections (only count rows with actual content)
+  const songCount = useMemo(() => {
+    if (!MUSIC_SECTION_TYPES.includes(section.section_type)) return 0;
+    
+    return section.items.filter(item => 
+      (item.value_text && item.value_text.trim() !== '') || 
+      (item.music_url && item.music_url.trim() !== '')
+    ).length;
+  }, [section.items, section.section_type]);
+
+  const isMusicSection = MUSIC_SECTION_TYPES.includes(section.section_type);
+
   return (
     <>
       <Card className="shadow-sm border-border">
@@ -164,12 +179,22 @@ export function DJMCQuestionnaireSection({
                     className="h-8 text-lg font-bold flex-1"
                   />
                 ) : (
-                  <h3
-                    onClick={handleLabelClick}
-                    className="text-lg font-bold text-primary cursor-text hover:bg-muted/50 px-2 py-1 rounded transition-colors"
-                  >
-                    {section.section_label}
-                  </h3>
+                  <div className="flex items-center gap-3">
+                    <h3
+                      onClick={handleLabelClick}
+                      className="text-lg font-bold text-primary cursor-text hover:bg-muted/50 px-2 py-1 rounded transition-colors"
+                    >
+                      {section.section_label}
+                    </h3>
+                    {isMusicSection && (
+                      <Badge 
+                        variant="default" 
+                        className="bg-primary text-primary-foreground border border-primary/20 px-3 py-1 text-xs font-medium"
+                      >
+                        Total Song Count: {songCount}
+                      </Badge>
+                    )}
+                  </div>
                 )}
               </div>
 
