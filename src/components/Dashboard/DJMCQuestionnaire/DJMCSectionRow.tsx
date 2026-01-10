@@ -209,7 +209,7 @@ export function DJMCSectionRow({
 
       {/* COLUMN 1: Speaker Status for speeches (narrower to align Speaker Name with other sections) */}
       {sectionType === 'speeches' ? (
-        <div className="basis-1/6 min-w-0 shrink-0">
+        <div className="basis-1/3 min-w-0 shrink-0">
           {editingLabel ? (
             <Input
               ref={labelInputRef}
