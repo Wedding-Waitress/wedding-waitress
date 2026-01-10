@@ -245,8 +245,8 @@ export function DJMCQuestionnaireSection({
               ) : (
                 <>
                   {/* COLUMN 1: Speaker Status (wider) for speeches, Item for others */}
-                  {section.section_type === 'speeches' ? (
-                    <div className="w-80 shrink-0">Speaker Status</div>
+{section.section_type === 'speeches' ? (
+                    <div className="w-80 shrink-0">Speaker Status & Order</div>
                   ) : (
                     <div className="flex-1 basis-1/3 min-w-0">Item</div>
                   )}
