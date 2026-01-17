@@ -4,20 +4,20 @@
   "description": "Wedding seating management and guest lookup platform for seamless event coordination",
   "icons": [
     {
-      "src": "/wedding-waitress-favicon.png",
-      "sizes": "32x32",
-      "type": "image/png"
+      "src": "/favicon.ico",
+      "sizes": "16x16 32x32",
+      "type": "image/x-icon"
     },
     {
-      "src": "/wedding-waitress-favicon.png",
+      "src": "/placeholder.svg",
       "sizes": "192x192",
-      "type": "image/png",
+      "type": "image/svg+xml",
       "purpose": "any maskable"
     },
     {
-      "src": "/wedding-waitress-favicon.png",
+      "src": "/placeholder.svg",
       "sizes": "512x512",
-      "type": "image/png",
+      "type": "image/svg+xml",
       "purpose": "any maskable"
     }
   ],

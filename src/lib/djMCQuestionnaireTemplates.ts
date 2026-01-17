@@ -76,7 +76,6 @@ export const DEFAULT_SECTION_TEMPLATES: DefaultSectionTemplate[] = [
     items: [
       { row_label: 'Song 1', has_music_url: true },
       { row_label: 'Song 2', has_music_url: true },
-      { row_label: 'Song 3', has_music_url: true },
     ],
   },
   {
@@ -85,7 +84,6 @@ export const DEFAULT_SECTION_TEMPLATES: DefaultSectionTemplate[] = [
     items: [
       { row_label: 'Song 1', has_music_url: true, has_pronunciation: true },
       { row_label: 'Song 2', has_music_url: true, has_pronunciation: true },
-      { row_label: 'Song 3', has_music_url: true, has_pronunciation: true },
     ],
   },
   {
@@ -93,7 +91,6 @@ export const DEFAULT_SECTION_TEMPLATES: DefaultSectionTemplate[] = [
     section_label: 'Do Not Play List',
     section_subtitle: 'Following songs are not to be played',
     items: [
-      { row_label: '' },
       { row_label: '' },
       { row_label: '' },
     ],
