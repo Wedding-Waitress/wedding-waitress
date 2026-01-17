@@ -218,7 +218,7 @@ export function DJMCShareModal({
                               asChild
                             >
                               <a
-                                href={`/dj-mc/${token.token}`}
+                                href={`${getPublicBaseUrl()}/dj-mc/${token.token}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
                               >
