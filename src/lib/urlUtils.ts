@@ -40,5 +40,5 @@ export function buildKioskUrl(eventSlug: string): string {
  */
 export function buildDJQuestionnaireUrl(shareToken: string): string {
   const baseUrl = getPublicBaseUrl();
-  return `${baseUrl}/dj-questionnaire/${shareToken}`;
+  return `${baseUrl}/dj-mc/${shareToken}`;
 }
