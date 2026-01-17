@@ -6,6 +6,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from '@/components/ui/dialog';
+import { getPublicBaseUrl } from '@/lib/urlUtils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -53,7 +54,7 @@ export function DJMCShareModal({
     setGenerating(false);
 
     if (token) {
-      const url = `${window.location.origin}/dj-mc/${token}`;
+      const url = `${getPublicBaseUrl()}/dj-mc/${token}`;
       await navigator.clipboard.writeText(url);
       toast({
         title: 'Share Link Created',
@@ -64,7 +65,7 @@ export function DJMCShareModal({
   }, [permission, recipientName, onGenerateToken, toast]);
 
   const copyLink = useCallback(async (token: string) => {
-    const url = `${window.location.origin}/dj-mc/${token}`;
+    const url = `${getPublicBaseUrl()}/dj-mc/${token}`;
     await navigator.clipboard.writeText(url);
     setCopiedId(token);
     setTimeout(() => setCopiedId(null), 2000);
@@ -201,7 +202,7 @@ export function DJMCShareModal({
                         asChild
                       >
                         <a
-                          href={`/dj-mc/${token.token}`}
+                          href={`${getPublicBaseUrl()}/dj-mc/${token.token}`}
                           target="_blank"
                           rel="noopener noreferrer"
                         >
