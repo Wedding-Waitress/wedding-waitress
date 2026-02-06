@@ -415,9 +415,9 @@ export const MyEventsPage: React.FC = () => {
   const hasCeremony = selectedEvent?.ceremony_enabled;
   const hasReception = selectedEvent?.reception_enabled !== false; // Default to true if not set
 
-  return <div className="space-y-6">
+  return <div className="space-y-4 sm:space-y-6">
       {/* Countdown Section */}
-      <Card className="ww-box p-8 mx-0">
+      <Card className="ww-box p-4 sm:p-8 mx-0">
         <div className="text-center space-y-6">
 
           {/* D) Countdown Circles with Timer lifecycle - use key for reset */}
@@ -430,31 +430,31 @@ export const MyEventsPage: React.FC = () => {
                 </p>
                 
                 {/* Ceremony & Reception Detail Boxes */}
-                <div className={`flex justify-center gap-4 flex-wrap ${hasCeremony && hasReception ? '' : 'max-w-md mx-auto'}`}>
+                <div className={`flex flex-col sm:flex-row justify-center gap-4 ${hasCeremony && hasReception ? '' : 'max-w-md mx-auto'}`}>
                   {/* Ceremony Box */}
                   {hasCeremony && (
-                    <div className="flex-1 min-w-[400px] max-w-[560px] bg-muted/30 rounded-xl p-4 border border-border text-left">
-                      <h4 className="font-semibold text-primary mb-2">Ceremony</h4>
-                      <div className="space-y-1 text-sm text-muted-foreground">
-                        <p><span className="font-medium">Ceremony Name:</span> {selectedEvent.ceremony_name || 'Not set'}</p>
-                        <p><span className="font-medium">Ceremony Date:</span> {formatBoxDate(selectedEvent.ceremony_date)}</p>
-                        <p><span className="font-medium">Ceremony Location:</span> {selectedEvent.ceremony_venue ? `${selectedEvent.ceremony_venue}${selectedEvent.ceremony_venue_address ? ` - ${selectedEvent.ceremony_venue_address}` : ''}` : 'TBD'}</p>
-                        <p><span className="font-medium">Start Time:</span> {selectedEvent.ceremony_start_time ? formatBoxTime(selectedEvent.ceremony_start_time, null) : 'TBD'} — <span className="font-medium">Finish Time:</span> {selectedEvent.ceremony_finish_time ? formatBoxTime(selectedEvent.ceremony_finish_time, null) : 'TBD'}</p>
-                        <p><span className="font-medium">Guest Limit:</span> {selectedEvent.ceremony_guest_limit || 'Not set'}</p>
+                    <div className="flex-1 min-w-0 sm:min-w-[300px] sm:max-w-[560px] bg-muted/30 rounded-xl p-3 sm:p-4 border border-border text-left">
+                      <h4 className="font-semibold text-primary mb-2 text-sm sm:text-base">Ceremony</h4>
+                      <div className="space-y-1 text-xs sm:text-sm text-muted-foreground">
+                        <p><span className="font-medium">Name:</span> {selectedEvent.ceremony_name || 'Not set'}</p>
+                        <p><span className="font-medium">Date:</span> {formatBoxDate(selectedEvent.ceremony_date)}</p>
+                        <p className="break-words"><span className="font-medium">Location:</span> {selectedEvent.ceremony_venue ? `${selectedEvent.ceremony_venue}${selectedEvent.ceremony_venue_address ? ` - ${selectedEvent.ceremony_venue_address}` : ''}` : 'TBD'}</p>
+                        <p><span className="font-medium">Time:</span> {selectedEvent.ceremony_start_time ? formatBoxTime(selectedEvent.ceremony_start_time, null) : 'TBD'} — {selectedEvent.ceremony_finish_time ? formatBoxTime(selectedEvent.ceremony_finish_time, null) : 'TBD'}</p>
+                        <p><span className="font-medium">Guests:</span> {selectedEvent.ceremony_guest_limit || 'Not set'}</p>
                       </div>
                     </div>
                   )}
                   
                   {/* Reception Box */}
                   {hasReception && (
-                    <div className="flex-1 min-w-[400px] max-w-[560px] bg-muted/30 rounded-xl p-4 border border-border text-left">
-                      <h4 className="font-semibold text-primary mb-2">Reception</h4>
-                      <div className="space-y-1 text-sm text-muted-foreground">
-                        <p><span className="font-medium">Reception Name:</span> {selectedEvent.name}</p>
-                        <p><span className="font-medium">Reception Date:</span> {formatBoxDate(selectedEvent.date)}</p>
-                        <p><span className="font-medium">Reception Location:</span> {selectedEvent.venue ? `${selectedEvent.venue}${selectedEvent.venue_address ? ` - ${selectedEvent.venue_address}` : ''}` : 'TBD'}</p>
-                        <p><span className="font-medium">Start Time:</span> {selectedEvent.start_time ? formatBoxTime(selectedEvent.start_time, null) : 'TBD'} — <span className="font-medium">Finish Time:</span> {selectedEvent.finish_time ? formatBoxTime(selectedEvent.finish_time, null) : 'TBD'}</p>
-                        <p><span className="font-medium">Guest Limit:</span> {selectedEvent.guest_limit || 'Not set'}</p>
+                    <div className="flex-1 min-w-0 sm:min-w-[300px] sm:max-w-[560px] bg-muted/30 rounded-xl p-3 sm:p-4 border border-border text-left">
+                      <h4 className="font-semibold text-primary mb-2 text-sm sm:text-base">Reception</h4>
+                      <div className="space-y-1 text-xs sm:text-sm text-muted-foreground">
+                        <p><span className="font-medium">Name:</span> {selectedEvent.name}</p>
+                        <p><span className="font-medium">Date:</span> {formatBoxDate(selectedEvent.date)}</p>
+                        <p className="break-words"><span className="font-medium">Location:</span> {selectedEvent.venue ? `${selectedEvent.venue}${selectedEvent.venue_address ? ` - ${selectedEvent.venue_address}` : ''}` : 'TBD'}</p>
+                        <p><span className="font-medium">Time:</span> {selectedEvent.start_time ? formatBoxTime(selectedEvent.start_time, null) : 'TBD'} — {selectedEvent.finish_time ? formatBoxTime(selectedEvent.finish_time, null) : 'TBD'}</p>
+                        <p><span className="font-medium">Guests:</span> {selectedEvent.guest_limit || 'Not set'}</p>
                       </div>
                     </div>
                   )}

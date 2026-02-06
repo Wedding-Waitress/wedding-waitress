@@ -160,22 +160,22 @@ export const Landing = () => {
 Streamline your wedding & event planning with our sophisticated guest management system. Create stunning event managed  arrangement, RSVPs invites and delight your guests with seamless table assignments.</p>
               </div>
               
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 my-6 md:my-8">
-                <Button variant="hero" size="lg" className="btn-glow text-sm md:text-base w-full sm:w-auto">
+              <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 sm:gap-4 my-4 sm:my-6 md:my-8">
+                <Button variant="hero" size="lg" className="btn-glow text-sm md:text-base w-full sm:w-auto touch-target">
                   Start Planning Today
                   <ArrowRight className="w-4 h-4 md:w-5 md:h-5 ml-2" />
                 </Button>
-                <Button variant="outline" size="lg" className="glass w-full sm:w-auto">
+                <Button variant="outline" size="lg" className="glass w-full sm:w-auto touch-target">
                   Watch Demo
                 </Button>
               </div>
 
               {/* Trust Indicators */}
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-6 pt-6 md:pt-8">
+              <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-2 sm:gap-6 pt-4 sm:pt-6 md:pt-8">
                 <div className="flex items-center gap-1 flex-wrap justify-center">
                   {[...Array(5)].map((_, i) => <Star key={i} className="w-4 h-4 fill-primary text-primary" />)}
                 </div>
-                <span className="text-muted-foreground text-sm md:text-base lg:text-lg text-center leading-relaxed">
+                <span className="text-muted-foreground text-xs sm:text-sm md:text-base lg:text-lg text-center lg:text-left leading-relaxed">
                   5-Star rating from 2,000+ couples<br className="sm:hidden" />
                   Australian Made - Servicing Events Worldwide
                 </span>
@@ -251,15 +251,15 @@ Streamline your wedding & event planning with our sophisticated guest management
       </section>
 
       {/* Features Section */}
-      <section id="how-it-works" className="py-20 bg-background">
+      <section id="how-it-works" className="py-12 sm:py-16 md:py-20 bg-background">
         <div className="w-full px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold mb-4">
+          <div className="text-center mb-8 sm:mb-12 md:mb-16">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4">
               How <span className="gradient-text">Wedding Waitress</span> Works
             </h2>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto my-[75px]">Our intelligent platform helps you save time, money & lots of stress. 
+            <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto my-6 sm:my-12 md:my-[75px]">Our intelligent platform helps you save time, money & lots of stress. 
 It handles every detail of your event's seating chart, RSVP & more so you can focus on what matters most - celebrating your special day.</p>
-            <h2 className="text-4xl font-bold mb-4 my-[100px]">
+            <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold mb-4 my-8 sm:my-12 md:my-[100px]">
               Four Simple Steps To <span className="gradient-text">Create Your Perfect Wedding</span> Or Event Experience
             </h2>
           </div>
@@ -362,22 +362,22 @@ It handles every detail of your event's seating chart, RSVP & more so you can fo
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 relative overflow-hidden">
+      <section className="py-12 sm:py-16 md:py-20 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-hero opacity-5"></div>
         <div className="w-full px-4 text-center relative z-10">
-          <div className="max-w-3xl mx-auto space-y-8">
-            <h2 className="text-4xl font-bold">
+          <div className="max-w-3xl mx-auto space-y-6 sm:space-y-8">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold">
               Ready to Plan Your Perfect Wedding?
             </h2>
-            <p className="text-xl text-muted-foreground">
+            <p className="text-base sm:text-lg md:text-xl text-muted-foreground">
               Join thousands of couples who trust Wedding Waitress to make their dream day a reality.
             </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Button variant="hero" size="xl" className="btn-glow">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
+              <Button variant="hero" size="lg" className="btn-glow w-full sm:w-auto touch-target">
                 Get Started for Free
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
-              <Button variant="outline" size="xl" className="glass">
+              <Button variant="outline" size="lg" className="glass w-full sm:w-auto touch-target">
                 Book a Demo
               </Button>
             </div>
