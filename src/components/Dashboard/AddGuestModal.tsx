@@ -746,14 +746,14 @@ const otherGuests = allGuests
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col px-10">
+      <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col px-4 sm:px-10" fullScreenOnMobile>
         <DialogHeader>
-          <DialogTitle className="text-2xl font-medium text-[#7248e6]">
+          <DialogTitle className="text-xl sm:text-2xl font-medium text-primary">
             {isEdit ? 'Edit Guest' : 'Add New Guest'}
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-6 py-4 overflow-y-auto flex-1">
+        <div className="space-y-4 sm:space-y-6 py-4 overflow-y-auto flex-1 mobile-scroll-container">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             
@@ -809,8 +809,8 @@ const otherGuests = allGuests
               </div>
             )}
 
-            {/* Basic Information */}
-            <div className="grid grid-cols-2 gap-4">
+            {/* Basic Information - Stack on mobile */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
                 name="first_name"
@@ -820,7 +820,7 @@ const otherGuests = allGuests
                     <FormControl>
                       <Input 
                         placeholder="Enter first name" 
-                        className="rounded-full border-2 border-[#7248e6] focus-visible:border-[#7248e6] focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none"
+                        className="rounded-full border-2 border-primary focus-visible:border-primary focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none h-11 sm:h-10"
                         {...field} 
                       />
                     </FormControl>
@@ -838,7 +838,7 @@ const otherGuests = allGuests
                     <FormControl>
                       <Input 
                         placeholder="Enter last name" 
-                        className="rounded-full border-2 border-[#7248e6] focus-visible:border-[#7248e6] focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none"
+                        className="rounded-full border-2 border-primary focus-visible:border-primary focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none h-11 sm:h-10"
                         {...field} 
                       />
                     </FormControl>
@@ -848,8 +848,8 @@ const otherGuests = allGuests
               />
             </div>
 
-            {/* Contact Information */}
-            <div className="grid grid-cols-2 gap-4">
+            {/* Contact Information - Stack on mobile */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
                 name="mobile"
@@ -859,7 +859,7 @@ const otherGuests = allGuests
                     <FormControl>
                       <Input 
                         placeholder="Enter mobile number" 
-                        className="rounded-full border-2 border-[#7248e6] focus-visible:border-[#7248e6] focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none"
+                        className="rounded-full border-2 border-primary focus-visible:border-primary focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none h-11 sm:h-10"
                         {...field} 
                       />
                     </FormControl>
@@ -877,7 +877,7 @@ const otherGuests = allGuests
                     <FormControl>
                       <Input 
                         placeholder="Enter email address" 
-                        className="rounded-full border-2 border-[#7248e6] focus-visible:border-[#7248e6] focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none"
+                        className="rounded-full border-2 border-primary focus-visible:border-primary focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none h-11 sm:h-10"
                         {...field} 
                       />
                     </FormControl>
@@ -887,8 +887,8 @@ const otherGuests = allGuests
               />
             </div>
 
-            {/* Table Assignment */}
-            <div className="grid grid-cols-2 gap-4">
+            {/* Table Assignment - Stack on mobile */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <FormField
                 control={form.control}
                 name="table_id"
@@ -903,7 +903,7 @@ const otherGuests = allGuests
                       handleTableChange(value);
                     }} value={field.value}>
                       <FormControl>
-                        <SelectTrigger className="w-full border-2 border-[#7248e6] hover:border-[#7248e6] focus:border-[#7248e6] focus:border-[3px] focus:ring-0 focus:outline-none rounded-full">
+                        <SelectTrigger className="w-full border-2 border-primary hover:border-primary focus:border-primary focus:border-[3px] focus:ring-0 focus:outline-none rounded-full h-11 sm:h-10">
                           <SelectValue placeholder="Select table" />
                         </SelectTrigger>
                       </FormControl>
@@ -935,7 +935,7 @@ const otherGuests = allGuests
                       disabled={!form.watch('table_id')}
                     >
                       <FormControl>
-                        <SelectTrigger className="w-full border-2 border-[#7248e6] hover:border-[#7248e6] focus:border-[#7248e6] focus:border-[3px] focus:ring-0 focus:outline-none rounded-full">
+                        <SelectTrigger className="w-full border-2 border-primary hover:border-primary focus:border-primary focus:border-[3px] focus:ring-0 focus:outline-none rounded-full h-11 sm:h-10">
                           <SelectValue placeholder="Select seat" />
                         </SelectTrigger>
                       </FormControl>
@@ -1012,8 +1012,8 @@ const otherGuests = allGuests
               )}
             />
 
-            {/* RSVP and Dietary */}
-            <div className="grid grid-cols-2 gap-4">
+            {/* RSVP and Dietary - Stack on mobile */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
                 name="rsvp"
@@ -1025,7 +1025,7 @@ const otherGuests = allGuests
                     </FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
-                        <SelectTrigger className="w-full border-2 border-[#7248e6] hover:border-[#7248e6] focus:border-[#7248e6] focus:border-[3px] focus:ring-0 focus:outline-none rounded-full">
+                        <SelectTrigger className="w-full border-2 border-primary hover:border-primary focus:border-primary focus:border-[3px] focus:ring-0 focus:outline-none rounded-full h-11 sm:h-10">
                           <SelectValue placeholder="Select RSVP status" />
                         </SelectTrigger>
                       </FormControl>
@@ -1051,7 +1051,7 @@ const otherGuests = allGuests
                     </FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
-                        <SelectTrigger className="w-full border-2 border-[#7248e6] hover:border-[#7248e6] focus:border-[#7248e6] focus:border-[3px] focus:ring-0 focus:outline-none rounded-full">
+                        <SelectTrigger className="w-full border-2 border-primary hover:border-primary focus:border-primary focus:border-[3px] focus:ring-0 focus:outline-none rounded-full h-11 sm:h-10">
                           <SelectValue placeholder="Select dietary requirements" />
                         </SelectTrigger>
                       </FormControl>

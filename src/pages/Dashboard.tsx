@@ -615,19 +615,19 @@ export const Dashboard = () => {
       </div>;
   }
   return <SidebarProvider>
-    <div className="relative min-h-screen bg-gradient-subtle w-full">
+    <div className="relative min-h-screen bg-gradient-subtle w-full mobile-contain">
       {/* Universal Header - Full Width */}
       <DashboardHeader />
       
       {/* Sidebar and Main Content */}
-      <div className="flex pt-20 sm:pt-16 w-full">
+      <div className="flex pt-16 sm:pt-14 md:pt-16 w-full">
         {/* Sidebar */}
         <div className="print:hidden">
           <AppSidebar activeTab={activeTab} onTabChange={handleTabChange} onSignOut={handleSignOut} />
         </div>
         
-        {/* Main Content */}
-        <main className="flex-1 w-full px-6 sm:px-4 md:px-6 lg:px-8 py-6 min-w-0">
+        {/* Main Content - Mobile optimized padding */}
+        <main className="flex-1 w-full px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 min-w-0 overflow-x-hidden">
           <div className="w-full max-w-none">
             {/* Stats Bar excluded from: My Events, QR Code, Dashboard, Vendor Team, Planner, Wishing Well, RSVP, Floor Plan, Kiosk Live View, Printables, Place Cards, Dietary Requirements, Full Seating Chart, DJ & MC Questionnaire, Running Sheet, AI Features */}
             {activeTab !== 'my-events' && activeTab !== 'qr-code' && activeTab !== 'dashboard' && activeTab !== 'vendor-team' && activeTab !== 'planner' && activeTab !== 'wishing-well' && activeTab !== 'rsvp-invite' && activeTab !== 'floor-plan' && activeTab !== 'kiosk-live-view' && activeTab !== 'printables' && activeTab !== 'individual-table-chart' && activeTab !== 'place-cards' && activeTab !== 'dietary-chart' && activeTab !== 'full-seating-chart' && activeTab !== 'dj-mc-questionnaire' && activeTab !== 'running-sheet' && <div className="print:hidden">
@@ -635,7 +635,7 @@ export const Dashboard = () => {
             </div>}
             
             {/* Tab Content */}
-            <div className="space-y-6 mt-6">
+            <div className="space-y-4 sm:space-y-6 mt-4 sm:mt-6">
               {renderTabContent()}
             </div>
           </div>
