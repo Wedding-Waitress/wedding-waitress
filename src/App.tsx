@@ -83,6 +83,7 @@ const App = () => (
           <Route path="/kiosk/:eventSlug" element={<KioskView />} />
           {/* DJ-MC Questionnaire public view */}
           <Route path="/dj-mc/:token" element={<DJMCPublicView />} />
+          <Route path="/djmc/:token" element={<DJMCPublicView />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
           </Routes>
