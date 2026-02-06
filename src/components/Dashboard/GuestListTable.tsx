@@ -1244,26 +1244,26 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
     <>
       <Card className="border-2 border-primary" style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
         {/* Header Controls */}
-        <div className="px-6 py-4">
+        <div className="px-3 sm:px-6 py-4">
           {/* Page Title with Couple Names Section */}
-          <div className="flex flex-col xl:flex-row xl:items-start xl:justify-between gap-6 mb-6">
+          <div className="flex flex-col xl:flex-row xl:items-start xl:justify-between gap-4 sm:gap-6 mb-4 sm:mb-6">
             {/* Left: Title, Description, Event selector and Search */}
             <div className="flex-shrink-0">
-              <h1 className="text-2xl font-medium text-[#7248e6] mb-2">
+              <h1 className="text-xl sm:text-2xl font-medium text-primary mb-2">
                 Guest List
               </h1>
-              <p className="text-muted-foreground mb-4">
+              <p className="text-sm text-muted-foreground mb-4 hidden sm:block">
                 Manage your event guests, track RSVPs, assign tables, and organize seating arrangements
               </p>
               
-              {/* Event selector and search */}
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                <div className="flex items-center space-x-2">
+              {/* Event selector and search - Stack on mobile */}
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                   <Label htmlFor="event-select" className="whitespace-nowrap text-sm font-medium">
                     Choose Event:
                   </Label>
                   <Select value={selectedEventId || "no-event"} onValueChange={handleEventSelect}>
-                    <SelectTrigger className="w-[300px] border-2 border-[#7248E6] [&>span]:font-bold [&>span]:text-[#7248E6]">
+                    <SelectTrigger className="w-full sm:w-[300px] border-2 border-primary [&>span]:font-bold [&>span]:text-primary h-11 sm:h-10">
                       <SelectValue placeholder="Select an event..." />
                     </SelectTrigger>
                     <SelectContent>
@@ -1283,10 +1283,10 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                   <Input
-                    placeholder="Search guests by name..."
+                    placeholder="Search guests..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 w-[250px] border-2 border-[#7248E6]"
+                    className="pl-10 w-full sm:w-[250px] border-2 border-primary h-11 sm:h-10"
                   />
                 </div>
               </div>
@@ -1386,110 +1386,114 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
             )}
           </div>
 
-          {/* Stats + Control Buttons - Left/Right Layout */}
-          <div className="flex items-center justify-between gap-4 flex-wrap mb-6">
-            {/* LEFT SIDE: Individuals, Couples, Families */}
-            <div className="flex items-center gap-2 flex-wrap">
-              <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium h-9 px-3 bg-[#ff1493] text-white">
+          {/* Stats + Control Buttons - Left/Right Layout - Stack on mobile */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 flex-wrap mb-4 sm:mb-6">
+            {/* LEFT SIDE: Individuals, Couples, Families - Horizontal scroll on mobile */}
+            <div className="flex items-center gap-2 overflow-x-auto pb-1 -mx-1 px-1">
+              <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-xs sm:text-sm font-medium h-8 sm:h-9 px-3 bg-pink-500 text-white flex-shrink-0">
                 {individualCount} Individual{individualCount !== 1 ? 's' : ''}
               </div>
-              <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium h-9 px-3 bg-[#FF5F1F] text-white">
+              <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-xs sm:text-sm font-medium h-8 sm:h-9 px-3 bg-orange-500 text-white flex-shrink-0">
                 {coupleCount} Couple{coupleCount !== 1 ? 's' : ''}
               </div>
-              <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium h-9 px-3 bg-[#0000FF] text-white">
+              <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-xs sm:text-sm font-medium h-8 sm:h-9 px-3 bg-blue-600 text-white flex-shrink-0">
                 {familyCount} Famil{familyCount !== 1 ? 'ies' : 'y'}
               </div>
             </div>
 
-            {/* RIGHT SIDE: Guests count, Sort By, Import/Export, Add Guest */}
+            {/* RIGHT SIDE: Guests count, Sort By, Import/Export, Add Guest - wrap on mobile */}
             <div className="flex items-center gap-2 flex-wrap">
-              <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium ring-offset-background h-9 px-3 bg-white border border-primary text-foreground">
+              <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-xs sm:text-sm font-medium ring-offset-background h-8 sm:h-9 px-3 bg-white border border-primary text-foreground">
                 <Users className="w-4 h-4" />
                 {guestCount} Guest{guestCount !== 1 ? 's' : ''}
               </div>
 
               <TooltipProvider>
-                {/* Sort By Dropdown */}
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <div>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button 
-                            variant="default" 
-                            size="xs"
-                            className="rounded-full flex items-center gap-2"
-                            disabled={!selectedEventId}
-                          >
-                            <ArrowUpDown className="w-4 h-4" />
-                            Sort By
-                            <ChevronDown className="w-4 h-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-56">
-                          {SORT_OPTIONS.map((option) => (
-                            <DropdownMenuItem
-                              key={option.value}
-                              onClick={() => handleSortChange(option.value)}
-                              className={sortBy === option.value ? "bg-accent" : ""}
+                {/* Sort By Dropdown - hidden on mobile */}
+                <div className="hidden sm:block">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button 
+                              variant="default" 
+                              size="xs"
+                              className="rounded-full flex items-center gap-2"
+                              disabled={!selectedEventId}
                             >
-                              {option.label}
-                            </DropdownMenuItem>
-                          ))}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
-                  </TooltipTrigger>
-                  {!selectedEventId && (
-                    <TooltipContent>
-                      <p>Choose an event first</p>
-                    </TooltipContent>
-                  )}
-                </Tooltip>
+                              <ArrowUpDown className="w-4 h-4" />
+                              Sort By
+                              <ChevronDown className="w-4 h-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-56">
+                            {SORT_OPTIONS.map((option) => (
+                              <DropdownMenuItem
+                                key={option.value}
+                                onClick={() => handleSortChange(option.value)}
+                                className={sortBy === option.value ? "bg-accent" : ""}
+                              >
+                                {option.label}
+                              </DropdownMenuItem>
+                            ))}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    </TooltipTrigger>
+                    {!selectedEventId && (
+                      <TooltipContent>
+                        <p>Choose an event first</p>
+                      </TooltipContent>
+                    )}
+                  </Tooltip>
+                </div>
 
-                {/* Import/Export CSV Dropdown */}
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <div>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button 
-                            variant="default" 
-                            size="xs"
-                            className="rounded-full flex items-center gap-2"
-                            disabled={!selectedEventId}
-                          >
-                            <FileText className="w-4 h-4" />
-                            Import / Export CSV
-                            <ChevronDown className="w-4 h-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-48">
-                          <DropdownMenuItem onClick={downloadTemplate}>
-                            <Download className="w-4 h-4 mr-2" />
-                            Download Template
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={handleImportCSV}>
-                            <Upload className="w-4 h-4 mr-2" />
-                            Import CSV
-                          </DropdownMenuItem>
-                          <DropdownMenuItem 
-                            onClick={exportGuestList}
-                            disabled={guestCount === 0}
-                          >
-                            <Download className="w-4 h-4 mr-2" />
-                            Export Guest List
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
-                  </TooltipTrigger>
-                  {!selectedEventId && (
-                    <TooltipContent>
-                      <p>Choose an event first</p>
-                    </TooltipContent>
-                  )}
-                </Tooltip>
+                {/* Import/Export CSV Dropdown - hidden on mobile */}
+                <div className="hidden sm:block">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button 
+                              variant="default" 
+                              size="xs"
+                              className="rounded-full flex items-center gap-2"
+                              disabled={!selectedEventId}
+                            >
+                              <FileText className="w-4 h-4" />
+                              Import / Export CSV
+                              <ChevronDown className="w-4 h-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-48">
+                            <DropdownMenuItem onClick={downloadTemplate}>
+                              <Download className="w-4 h-4 mr-2" />
+                              Download Template
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={handleImportCSV}>
+                              <Upload className="w-4 h-4 mr-2" />
+                              Import CSV
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={exportGuestList}
+                              disabled={guestCount === 0}
+                            >
+                              <Download className="w-4 h-4 mr-2" />
+                              Export Guest List
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    </TooltipTrigger>
+                    {!selectedEventId && (
+                      <TooltipContent>
+                        <p>Choose an event first</p>
+                      </TooltipContent>
+                    )}
+                  </Tooltip>
+                </div>
               </TooltipProvider>
 
               {/* Add Guest Button */}

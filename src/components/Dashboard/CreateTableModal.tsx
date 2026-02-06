@@ -285,14 +285,14 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-xl max-h-[85vh] flex flex-col px-10">
+      <DialogContent className="max-w-xl max-h-[85vh] flex flex-col px-4 sm:px-10" fullScreenOnMobile>
         <DialogHeader>
-          <DialogTitle className="text-2xl font-medium text-[#7248e6]">
+          <DialogTitle className="text-xl sm:text-2xl font-medium text-primary">
             {editingTable ? 'Edit Table' : 'Create Table'}
           </DialogTitle>
         </DialogHeader>
         
-        <div className="space-y-6 py-4 overflow-y-auto flex-1">
+        <div className="space-y-4 sm:space-y-6 py-4 overflow-y-auto flex-1 mobile-scroll-container">
           <div className="grid gap-2">
             <Label htmlFor="name">Table Name or No *</Label>
             <Input
@@ -331,20 +331,20 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
           {/* Table Type Selection */}
           <div className="grid gap-2">
             <Label>Table Shape & Max Capacity Allowed<span className="text-red-500">*</span></Label>
-            <div className="flex gap-3">
+            <div className="grid grid-cols-3 gap-2 sm:gap-3">
               <button
                 type="button"
                 onClick={() => handleTableTypeChange('round')}
                 disabled={isSubmitting}
-                className={`flex-1 flex flex-col items-center gap-1.5 p-2.5 rounded-xl border-2 transition-all ${
+                className={`flex flex-col items-center gap-1 sm:gap-1.5 p-2 sm:p-2.5 rounded-xl border-2 transition-all touch-target ${
                   tableType === 'round'
-                    ? 'border-[#7248e6] bg-purple-50'
-                    : 'border-gray-200 hover:border-gray-300'
+                    ? 'border-primary bg-primary/10'
+                    : 'border-border hover:border-muted-foreground'
                 }`}
               >
-                <Circle className={`w-5 h-5 ${tableType === 'round' ? 'text-[#7248e6]' : 'text-gray-400'}`} />
-                <span className={`text-sm font-medium ${tableType === 'round' ? 'text-[#7248e6]' : 'text-gray-600'}`}>
-                  Round Table
+                <Circle className={`w-4 h-4 sm:w-5 sm:h-5 ${tableType === 'round' ? 'text-primary' : 'text-muted-foreground'}`} />
+                <span className={`text-xs sm:text-sm font-medium ${tableType === 'round' ? 'text-primary' : 'text-muted-foreground'}`}>
+                  Round
                 </span>
               </button>
               
@@ -352,15 +352,15 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
                 type="button"
                 onClick={() => handleTableTypeChange('square')}
                 disabled={isSubmitting}
-                className={`flex-1 flex flex-col items-center gap-1.5 p-2.5 rounded-xl border-2 transition-all ${
+                className={`flex flex-col items-center gap-1 sm:gap-1.5 p-2 sm:p-2.5 rounded-xl border-2 transition-all touch-target ${
                   tableType === 'square'
-                    ? 'border-[#7248e6] bg-purple-50'
-                    : 'border-gray-200 hover:border-gray-300'
+                    ? 'border-primary bg-primary/10'
+                    : 'border-border hover:border-muted-foreground'
                 }`}
               >
-                <Square className={`w-5 h-5 ${tableType === 'square' ? 'text-[#7248e6]' : 'text-gray-400'}`} />
-                <span className={`text-sm font-medium ${tableType === 'square' ? 'text-[#7248e6]' : 'text-gray-600'}`}>
-                  Square Table
+                <Square className={`w-4 h-4 sm:w-5 sm:h-5 ${tableType === 'square' ? 'text-primary' : 'text-muted-foreground'}`} />
+                <span className={`text-xs sm:text-sm font-medium ${tableType === 'square' ? 'text-primary' : 'text-muted-foreground'}`}>
+                  Square
                 </span>
               </button>
               
@@ -368,19 +368,19 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
                 type="button"
                 onClick={() => handleTableTypeChange('long')}
                 disabled={isSubmitting}
-                className={`flex-1 flex flex-col items-center gap-1.5 p-2.5 rounded-xl border-2 transition-all ${
+                className={`flex flex-col items-center gap-1 sm:gap-1.5 p-2 sm:p-2.5 rounded-xl border-2 transition-all touch-target ${
                   tableType === 'long'
-                    ? 'border-[#7248e6] bg-purple-50'
-                    : 'border-gray-200 hover:border-gray-300'
+                    ? 'border-primary bg-primary/10'
+                    : 'border-border hover:border-muted-foreground'
                 }`}
               >
-                <div className={`w-10 h-4 border-2 rounded-sm ${tableType === 'long' ? 'border-[#7248e6]' : 'border-gray-400'}`} />
-                <span className={`text-sm font-medium ${tableType === 'long' ? 'text-[#7248e6]' : 'text-gray-600'}`}>
-                  Long Table
+                <div className={`w-8 sm:w-10 h-3 sm:h-4 border-2 rounded-sm ${tableType === 'long' ? 'border-primary' : 'border-muted-foreground'}`} />
+                <span className={`text-xs sm:text-sm font-medium ${tableType === 'long' ? 'text-primary' : 'text-muted-foreground'}`}>
+                  Long
                 </span>
               </button>
             </div>
-            <p className="text-sm text-red-600 font-medium mt-1">
+            <p className="text-xs sm:text-sm text-destructive font-medium mt-1">
               {getTableTypeHelperText()}
             </p>
           </div>

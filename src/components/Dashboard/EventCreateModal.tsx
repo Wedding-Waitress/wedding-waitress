@@ -213,20 +213,20 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-3xl max-h-[90vh] flex flex-col px-8">
-        <DialogHeader className="flex flex-row items-center gap-4">
-          <DialogTitle className="text-2xl font-medium text-primary whitespace-nowrap">Create Event</DialogTitle>
+      <DialogContent className="max-w-3xl max-h-[90vh] flex flex-col px-4 sm:px-8" fullScreenOnMobile>
+        <DialogHeader className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+          <DialogTitle className="text-xl sm:text-2xl font-medium text-primary whitespace-nowrap">Create Event</DialogTitle>
           <div className="flex-1">
             <Input
               value={formData.event_name}
               onChange={(e) => setFormData(prev => ({ ...prev, event_name: e.target.value }))}
-              placeholder="Add the name of your event - e.g., Jason & Linda's Wedding"
-              className={getInputClass(!!formData.event_name.trim())}
+              placeholder="Event name - e.g., Jason & Linda's Wedding"
+              className={`h-10 sm:h-9 ${getInputClass(!!formData.event_name.trim())}`}
             />
           </div>
         </DialogHeader>
 
-        <div className="space-y-4 py-3 overflow-y-auto flex-1">
+        <div className="space-y-4 py-3 overflow-y-auto flex-1 mobile-scroll-container">
           {/* Validation Message */}
           {!formData.ceremony_enabled && !formData.reception_enabled && (
             <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-3 text-sm text-destructive">
@@ -252,9 +252,9 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
 
             {/* Ceremony Content - controlled by toggle */}
             {formData.ceremony_enabled ? (
-              <div className="p-4 space-y-4">
-                {/* Row 1: Name, Date, RSVP Deadline */}
-                <div className="grid grid-cols-3 gap-3">
+              <div className="p-3 sm:p-4 space-y-3 sm:space-y-4">
+                {/* Row 1: Name, Date, RSVP Deadline - Stack on mobile */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div className="space-y-1.5">
                     <Label className="text-xs">Ceremony Name *</Label>
                     <EventNameCombobox
@@ -284,8 +284,8 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
                   </div>
                 </div>
 
-                {/* Row 2: Guest Limit, Location, Location Details */}
-                <div className="grid grid-cols-3 gap-3">
+                {/* Row 2: Guest Limit, Location, Location Details - Stack on mobile */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div className="space-y-1.5">
                     <Label className="text-xs">Guest Limit</Label>
                     <Input
@@ -294,7 +294,7 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
                       value={formData.ceremony_guest_limit}
                       onChange={(e) => handleGuestLimitChange(e.target.value, 'ceremony_guest_limit')}
                       placeholder="10"
-                      className={getInputClass(formData.ceremony_guest_limit !== '')}
+                      className={`h-10 sm:h-9 ${getInputClass(formData.ceremony_guest_limit !== '')}`}
                     />
                   </div>
                   <div className="space-y-1.5">
@@ -303,7 +303,7 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
                       value={formData.ceremony_venue}
                       onChange={(e) => setFormData(prev => ({ ...prev, ceremony_venue: e.target.value }))}
                       placeholder="e.g., Church/Venue"
-                      className={getInputClass(!!formData.ceremony_venue.trim())}
+                      className={`h-10 sm:h-9 ${getInputClass(!!formData.ceremony_venue.trim())}`}
                     />
                   </div>
                   <div className="space-y-1.5">
@@ -324,8 +324,8 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
                   </div>
                 </div>
 
-                {/* Row 3: Start Time, Finish Time */}
-                <div className="grid grid-cols-3 gap-3">
+                {/* Row 3: Start Time, Finish Time - 2 cols on mobile */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                   <div className="space-y-1.5">
                     <Label className="text-xs">Start Time *</Label>
                     <TimePicker
