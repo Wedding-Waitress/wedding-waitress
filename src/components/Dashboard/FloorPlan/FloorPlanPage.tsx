@@ -82,32 +82,32 @@ export const FloorPlanPage = ({
     <div className="space-y-6">
       {/* Header Card */}
       <Card className="ww-box">
-        <CardContent className="pt-6 space-y-4">
-          <div className="flex flex-wrap items-start justify-between gap-4">
+        <CardContent className="pt-4 sm:pt-6 space-y-4">
+          <div className="flex flex-col sm:flex-row sm:flex-wrap items-start justify-between gap-4">
             {/* Left: Title and Description */}
-            <div>
-              <h1 className="text-2xl font-medium text-[#7248e6] mb-2">
+            <div className="flex-1 min-w-0">
+              <h1 className="text-xl sm:text-2xl font-medium text-[#7248e6] mb-2">
                 Floor Plan
               </h1>
-              <p className="text-muted-foreground">
+              <p className="text-sm sm:text-base text-muted-foreground">
                 Design and visualize your ceremony or reception seating layout
               </p>
             </div>
             
             {/* Right: Export Controls Box */}
             {isDataReady && floorPlanType === 'ceremony' && (
-              <div className="border border-primary rounded-xl p-4 space-y-3">
+              <div className="w-full sm:w-auto border border-primary rounded-xl p-3 sm:p-4 space-y-2 sm:space-y-3">
                 <h3 className="text-sm font-medium">Export Controls</h3>
-                <p className="text-muted-foreground text-sm">
+                <p className="text-muted-foreground text-xs sm:text-sm">
                   Download your floor plan for venue staff.
                 </p>
                 <div className="flex items-center gap-2 flex-wrap">
                   <Button 
                     variant="default"
-                    size="xs"
+                    size="sm"
                     onClick={handleDownloadPdf}
                     disabled={isExporting}
-                    className="rounded-full flex items-center gap-2"
+                    className="rounded-full flex items-center gap-2 touch-target"
                   >
                     <FileText className="w-4 h-4" />
                     {isExporting ? 'Exporting...' : 'Download PDF'}
@@ -118,9 +118,9 @@ export const FloorPlanPage = ({
           </div>
 
           {/* Event and Type Selection */}
-          <div className="flex items-center gap-8 flex-wrap pt-4">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-8 pt-4">
             {/* Choose Event Section */}
-            <div className="flex items-center gap-4">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
               <label className="text-sm font-medium text-foreground whitespace-nowrap">
                 Choose Event:
               </label>
@@ -132,7 +132,7 @@ export const FloorPlanPage = ({
                 }}
                 disabled={eventsLoading}
               >
-                <SelectTrigger className="w-[300px] border-primary focus:ring-primary font-bold text-[#7248e6]">
+                <SelectTrigger className="w-full sm:w-[300px] border-primary focus:ring-primary font-bold text-[#7248e6]">
                   <SelectValue placeholder="Choose Event" />
                 </SelectTrigger>
                 <SelectContent className="bg-popover border-border z-50">
@@ -155,7 +155,7 @@ export const FloorPlanPage = ({
             </div>
 
             {/* Floor Plan Type Section */}
-            <div className="flex items-center gap-4">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
               <label className="text-sm font-medium text-foreground whitespace-nowrap">
                 Floor Plan Type:
               </label>
@@ -163,7 +163,7 @@ export const FloorPlanPage = ({
                 value={floorPlanType} 
                 onValueChange={(value) => setFloorPlanType(value as FloorPlanType)}
               >
-                <SelectTrigger className="w-[200px] border-primary focus:ring-primary">
+                <SelectTrigger className="w-full sm:w-[200px] border-primary focus:ring-primary">
                   <SelectValue placeholder="Select type" />
                 </SelectTrigger>
                 <SelectContent className="bg-popover border-border z-50">
@@ -185,14 +185,14 @@ export const FloorPlanPage = ({
 
             {/* Total Attending Ceremony - shown when ceremony floor plan is loaded */}
             {floorPlan && floorPlanType === 'ceremony' && (
-              <div className="flex items-center gap-2 ml-4">
-                <span className="text-sm font-medium text-primary whitespace-nowrap">
-                  Total Attending Ceremony: <span className="font-bold">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 sm:ml-4 mt-2 sm:mt-0">
+                <span className="text-sm font-medium text-primary">
+                  Total Attending: <span className="font-bold">
                     {3 + (floorPlan.bridal_party_count_left || 0) + (floorPlan.bridal_party_count_right || 0) + (floorPlan.total_rows * floorPlan.chairs_per_row * 2)}
                   </span>
-                  <span className="text-xs text-muted-foreground ml-2">
-                    (This includes Bride & Groom + Celebrant + Bridal Party + all Family & Friends)
-                  </span>
+                </span>
+                <span className="text-xs text-muted-foreground">
+                  (Bride & Groom + Celebrant + Bridal Party + Family & Friends)
                 </span>
               </div>
             )}
@@ -222,9 +222,9 @@ export const FloorPlanPage = ({
 
       {/* Main Content */}
       {isDataReady && floorPlanType === 'ceremony' && (
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-6">
           {/* Settings */}
-          <div className="lg:col-span-1">
+          <div className="lg:col-span-1 order-2 lg:order-1">
             <CeremonyFloorPlanSettings
               floorPlan={floorPlan}
               onUpdate={updateFloorPlan}
@@ -232,8 +232,8 @@ export const FloorPlanPage = ({
           </div>
 
           {/* Visual Preview */}
-          <div className="lg:col-span-3">
-            <Card className="ww-box p-6">
+          <div className="lg:col-span-3 order-1 lg:order-2">
+            <Card className="ww-box p-3 sm:p-6 overflow-x-auto">
               <CeremonyFloorPlanVisual
                 floorPlan={floorPlan}
                 onSeatUpdate={updateSeatAssignment}

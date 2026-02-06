@@ -84,34 +84,36 @@ export const QRCodeSeatingChart: React.FC<QRCodeSeatingChartProps> = ({
           </div>
         </CardHeader>
         <CardContent className="pt-0 space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-            <label className="text-sm font-medium text-foreground whitespace-nowrap">
-              Choose Event:
-            </label>
-            <Select value={currentEventId || "no-event"} onValueChange={handleEventSelect}>
-              <SelectTrigger className="w-[300px] border-primary focus:ring-primary font-bold text-[#7248e6]">
-                <SelectValue placeholder="Choose Event" />
-              </SelectTrigger>
-              <SelectContent className="bg-popover border-border z-50">
-                {events.length > 0 ? events.map(event => <SelectItem key={event.id} value={event.id}>
-                      <div className="flex items-center space-x-2">
-                        <Calendar className="w-4 h-4" />
-                        <span>{event.name}</span>
-                      </div>
-                    </SelectItem>) : <SelectItem value="no-events" disabled>
-                    {eventsLoading ? "Loading events..." : "No events found"}
-                  </SelectItem>}
-              </SelectContent>
-            </Select>
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+              <label className="text-sm font-medium text-foreground whitespace-nowrap">
+                Choose Event:
+              </label>
+              <Select value={currentEventId || "no-event"} onValueChange={handleEventSelect}>
+                <SelectTrigger className="w-full sm:w-[300px] border-primary focus:ring-primary font-bold text-[#7248e6]">
+                  <SelectValue placeholder="Choose Event" />
+                </SelectTrigger>
+                <SelectContent className="bg-popover border-border z-50">
+                  {events.length > 0 ? events.map(event => <SelectItem key={event.id} value={event.id}>
+                        <div className="flex items-center space-x-2">
+                          <Calendar className="w-4 h-4" />
+                          <span>{event.name}</span>
+                        </div>
+                      </SelectItem>) : <SelectItem value="no-events" disabled>
+                      {eventsLoading ? "Loading events..." : "No events found"}
+                    </SelectItem>}
+                </SelectContent>
+              </Select>
+            </div>
             
             {selectedEvent && (
-              <div className="text-lg font-medium text-[#7248e6]">
-                <span>{selectedEvent.venue || 'Venue not specified'}</span>
-                {' - '}
-                <span>{formatEventDate(selectedEvent.date)}</span>
+              <div className="text-sm sm:text-lg font-medium text-[#7248e6] space-y-1 sm:space-y-0">
+                <span className="block sm:inline">{selectedEvent.venue || 'Venue not specified'}</span>
+                <span className="hidden sm:inline">{' - '}</span>
+                <span className="block sm:inline">{formatEventDate(selectedEvent.date)}</span>
                 {(selectedEvent.start_time || selectedEvent.finish_time) && (
-                  <>
-                    {' - '}
+                  <span className="block sm:inline">
+                    <span className="hidden sm:inline">{' - '}</span>
                     {selectedEvent.start_time && (
                       <span>Start {formatDisplayTime(selectedEvent.start_time)}</span>
                     )}
@@ -119,7 +121,7 @@ export const QRCodeSeatingChart: React.FC<QRCodeSeatingChartProps> = ({
                     {selectedEvent.finish_time && (
                       <span>Finish {formatDisplayTime(selectedEvent.finish_time)}</span>
                     )}
-                  </>
+                  </span>
                 )}
               </div>
             )}
@@ -127,12 +129,12 @@ export const QRCodeSeatingChart: React.FC<QRCodeSeatingChartProps> = ({
           
           {/* Connected & Synced Status Bar */}
           {selectedEvent && (
-            <div className="flex items-center gap-3 px-4 py-2 bg-green-50 border border-green-300 rounded-lg">
-              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-              <span className="text-sm font-medium text-green-800">Connected & Synced</span>
-              <span className="text-sm text-green-700">—</span>
-              <span className="text-sm text-green-700">Linked: <strong>{selectedEvent.name}</strong></span>
-              <span className="text-xs text-green-600 bg-green-100 px-2 py-0.5 rounded ml-auto">📱 Opens guest lookup</span>
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 bg-green-50 border border-green-300 rounded-lg">
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse flex-shrink-0"></div>
+              <span className="text-xs sm:text-sm font-medium text-green-800">Connected & Synced</span>
+              <span className="hidden sm:inline text-sm text-green-700">—</span>
+              <span className="text-xs sm:text-sm text-green-700 truncate">Linked: <strong>{selectedEvent.name}</strong></span>
+              <span className="hidden sm:inline text-xs text-green-600 bg-green-100 px-2 py-0.5 rounded ml-auto">📱 Opens guest lookup</span>
             </div>
           )}
         </CardContent>

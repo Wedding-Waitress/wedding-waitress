@@ -251,20 +251,20 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-3xl max-h-[90vh] flex flex-col px-8">
-        <DialogHeader className="flex flex-row items-center gap-4">
-          <DialogTitle className="text-2xl font-medium text-primary whitespace-nowrap">Edit Event</DialogTitle>
+      <DialogContent className="max-w-3xl max-h-[90vh] flex flex-col px-4 sm:px-8" fullScreenOnMobile>
+        <DialogHeader className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+          <DialogTitle className="text-xl sm:text-2xl font-medium text-primary whitespace-nowrap">Edit Event</DialogTitle>
           <div className="flex-1">
             <Input
               value={formData.event_name}
               onChange={(e) => setFormData(prev => ({ ...prev, event_name: e.target.value }))}
               placeholder="Add the name of your event - e.g., Jason & Linda's Wedding"
-              className={getInputClass(!!formData.event_name.trim())}
+              className={`${getInputClass(!!formData.event_name.trim())} h-11 sm:h-9`}
             />
           </div>
         </DialogHeader>
 
-        <div className="space-y-4 py-3 overflow-y-auto flex-1">
+        <div className="space-y-4 py-3 overflow-y-auto flex-1 mobile-scroll-container">
           {/* Validation Message */}
           {!formData.ceremony_enabled && !formData.reception_enabled && (
             <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-3 text-sm text-destructive">
@@ -292,7 +292,7 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
             {formData.ceremony_enabled ? (
               <div className="p-4 space-y-4">
                 {/* Row 1: Name, Date, RSVP Deadline */}
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div className="space-y-1.5">
                     <Label className="text-xs">Ceremony Name *</Label>
                     <EventNameCombobox
@@ -323,7 +323,7 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
                 </div>
 
                 {/* Row 2: Guest Limit, Location, Location Details */}
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div className="space-y-1.5">
                     <Label className="text-xs">Guest Limit</Label>
                     <Input
@@ -363,7 +363,7 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
                 </div>
 
                 {/* Row 3: Start Time, Finish Time */}
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div className="space-y-1.5">
                     <Label className="text-xs">Start Time *</Label>
                     <TimePicker
