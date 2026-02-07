@@ -219,9 +219,15 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Pending">Pending</SelectItem>
-                  <SelectItem value="Attending">Accept</SelectItem>
-                  <SelectItem value="Not Attending">Decline</SelectItem>
+                  <SelectItem value="Pending" className="text-amber-500 font-medium">
+                    Pending
+                  </SelectItem>
+                  <SelectItem value="Attending" className="text-green-600 font-medium">
+                    Accept
+                  </SelectItem>
+                  <SelectItem value="Not Attending" className="text-red-500 font-medium">
+                    Decline
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -323,7 +329,11 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
             Cancel
           </Button>
           {isEditable && (
-            <Button onClick={handleSave} disabled={saving}>
+            <Button 
+              onClick={handleSave} 
+              disabled={saving}
+              className="bg-green-500 hover:bg-green-600 text-white"
+            >
               {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Save Changes
             </Button>
