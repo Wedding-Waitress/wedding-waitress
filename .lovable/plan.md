@@ -1,72 +1,74 @@
 
-# Fix QR Code URLs - Domain Configuration Issue
 
-## Problem Identified
+# Colorize RSVP Dropdown & Save Button in Guest Update Modal
 
-The QR codes are generating links to `weddingwaitress.com/s/reema-hossam` but that domain doesn't exist (DNS error `DNS_PROBE_FINISHED_NXDOMAIN`).
+## Summary
+Update the "Update Your Information" modal in the Guest Lookup page to:
+1. Add colored text to RSVP dropdown options (Pending = yellow/orange, Accept = green, Decline = red)
+2. Change the "Save Changes" button from purple to green
 
-**Root Cause:** The environment variable `VITE_PUBLIC_BASE_URL` is set to `https://weddingwaitress.com` but this domain is not connected/configured.
+## Technical Details
 
-**Your working URL is:** `https://wedding-waitress.lovable.app`
+### File to Modify
+`src/components/GuestLookup/GuestUpdateModal.tsx`
 
----
+### Change 1: Colored RSVP Dropdown Options
 
-## Solution Options
-
-### Option A: Use Your Existing Lovable Domain (Quick Fix)
-
-Update the environment variable to use your working domain:
-
-**File:** `.env`
+**Current code (lines 221-225):**
+```tsx
+<SelectContent>
+  <SelectItem value="Pending">Pending</SelectItem>
+  <SelectItem value="Attending">Accept</SelectItem>
+  <SelectItem value="Not Attending">Decline</SelectItem>
+</SelectContent>
 ```
-VITE_PUBLIC_BASE_URL="https://wedding-waitress.lovable.app"
+
+**Updated code:**
+```tsx
+<SelectContent>
+  <SelectItem value="Pending" className="text-amber-500 font-medium">
+    Pending
+  </SelectItem>
+  <SelectItem value="Attending" className="text-green-600 font-medium">
+    Accept
+  </SelectItem>
+  <SelectItem value="Not Attending" className="text-red-500 font-medium">
+    Decline
+  </SelectItem>
+</SelectContent>
 ```
 
-This will make QR codes generate working links immediately.
+**Colors match the existing Wedding Waitress design system:**
+- `text-amber-500` → matches `--warning: 38 90% 55%` (yellow/orange for Pending)
+- `text-green-600` → matches `--success: 142.1 70.5% 45.3%` (green for Accept/Attending)
+- `text-red-500` → matches `--destructive: 0 84% 60%` (red for Decline/Not Attending)
 
----
+### Change 2: Green Save Changes Button
 
-### Option B: Configure Custom Domain `weddingwaitress.com` (If You Own This Domain)
+**Current code (lines 326-329):**
+```tsx
+<Button onClick={handleSave} disabled={saving}>
+  {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+  Save Changes
+</Button>
+```
 
-If you want to use `weddingwaitress.com`, you need to:
+**Updated code:**
+```tsx
+<Button 
+  onClick={handleSave} 
+  disabled={saving}
+  className="bg-green-500 hover:bg-green-600 text-white"
+>
+  {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+  Save Changes
+</Button>
+```
 
-1. **Purchase/own the domain** `weddingwaitress.com` from a registrar (GoDaddy, Namecheap, Cloudflare, etc.)
+This uses the same green color (`bg-green-500`) that's used throughout Wedding Waitress for save/confirm actions.
 
-2. **Add DNS records** at your domain registrar:
-   - **A Record** for `@` (root domain): `185.158.133.1`
-   - **A Record** for `www`: `185.158.133.1`
-   - **TXT Record** for `_lovable`: (Lovable will provide the verification value)
-
-3. **Connect the domain in Lovable:**
-   - Go to Project Settings → Domains
-   - Click "Connect Domain"
-   - Enter `weddingwaitress.com`
-   - Follow the verification steps
-
-4. **Wait for DNS propagation** (up to 72 hours)
-
----
-
-## Recommended Action
-
-**For immediate fix:** I'll update the `.env` file to use `https://wedding-waitress.lovable.app`
-
-**After this change:**
-- All QR codes will generate working links
-- Existing QR codes pointing to `weddingwaitress.com` will need to be regenerated/reprinted
-- You can later switch to a custom domain after configuring it properly
-
----
-
-## Files to Change
-
+## Files Changed
 | File | Change |
 |------|--------|
-| `.env` | Update `VITE_PUBLIC_BASE_URL` to `https://wedding-waitress.lovable.app` |
+| `src/components/GuestLookup/GuestUpdateModal.tsx` | Add colored classes to RSVP SelectItems + green styling to Save button |
 
----
-
-## Do You Want Option A or Option B?
-
-- **Option A (Quick fix)**: Approve this plan and I'll update the environment variable
-- **Option B (Custom domain)**: You'll need to configure DNS at your domain registrar first - this is not a code change
