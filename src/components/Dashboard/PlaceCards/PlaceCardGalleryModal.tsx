@@ -118,16 +118,16 @@ export const PlaceCardGalleryModal: React.FC<PlaceCardGalleryModalProps> = ({
                   </div>
                 ) : (
                   <ScrollArea className="h-[550px] [&>[data-radix-scroll-area-scrollbar]]:!bg-transparent [&>[data-radix-scroll-area-scrollbar]]:!border-0 [&>div]:!border-0">
-                    <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 pr-2">
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 pr-2">
                       {filteredImages.map(image => (
                         <div
                           key={image.id}
-                          className="group relative aspect-[5/7] rounded-lg overflow-hidden border-2 border-transparent hover:border-primary transition-all"
+                          className="group relative aspect-[7/5] rounded-lg overflow-hidden border-2 border-transparent hover:border-primary transition-all bg-muted"
                         >
                           <img
                             src={image.image_url}
                             alt={image.name}
-                            className="w-full h-full object-cover"
+                            className="w-full h-full object-contain"
                           />
                           {/* Hover overlay with View & Select buttons */}
                           <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2">
