@@ -1,0 +1,1 @@
+UPDATE public.place_card_gallery_images SET category = 'Gold' WHERE name = 'Golden Shadow' AND image_url = '/gallery-images/Golden_Shadow.jpg';
