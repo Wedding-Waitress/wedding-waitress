@@ -1,44 +1,24 @@
 
 
-# Add 4 New Flowers Gallery Images
+# Add 8 Gallery Images (Batch 4)
 
 ## What will be done
 
-### 1. Flowers_2-2.jpg
-- Copy to `public/gallery-images/Flowers_2.jpg`
-- Insert into `place_card_gallery_images` with:
-  - **Name:** "Flowers 2"
-  - **Category:** "Blue"
-  - **image_url:** `/gallery-images/Flowers_2.jpg`
-  - **sort_order:** 0
-
-### 2. Flowers_3-2.jpg
-- Copy to `public/gallery-images/Flowers_3.jpg`
-- Insert into `place_card_gallery_images` with:
-  - **Name:** "Flowers 3"
-  - **Category:** "Pink"
-  - **image_url:** `/gallery-images/Flowers_3.jpg`
-  - **sort_order:** 0
-
-### 3. Flowers_4-2.jpg
-- Copy to `public/gallery-images/Flowers_4.jpg`
-- Insert into `place_card_gallery_images` with:
-  - **Name:** "Flowers 4"
-  - **Category:** "Orange"
-  - **image_url:** `/gallery-images/Flowers_4.jpg`
-  - **sort_order:** 0
-
-### 4. Flowers_5-2.jpg
-- Copy to `public/gallery-images/Flowers_5.jpg`
-- Insert into `place_card_gallery_images` with:
-  - **Name:** "Flowers 5"
-  - **Category:** "Pink"
-  - **image_url:** `/gallery-images/Flowers_5.jpg`
-  - **sort_order:** 0
+| # | File | Name | Category |
+|---|------|------|----------|
+| 1 | Golden_Shadow.jpg | Golden Shadow | Pink |
+| 2 | Green_1.jpg | Green 1 | Green |
+| 3 | Green_3.jpg | Green 3 | Green |
+| 4 | Green_4.jpg | Green 4 | Green |
+| 5 | Green_Autumn.jpg | Green Autumn | Green |
+| 6 | Green_Leaves.jpg | Green Leaves | Green |
+| 7 | Green_Timber_1.jpg | Green Timber 1 | Green |
+| 8 | Green_with_Leaves_1.jpg | Green with Leaves 1 | Green |
 
 ## Technical Details
 
-- All 4 files copied from user uploads to `public/gallery-images/`
-- Single database migration to insert all 4 records
+- All 8 files already exist in `public/gallery-images/` -- no file copies needed
+- Single database migration to insert all 8 records into `place_card_gallery_images`
+- All entries use `sort_order: 0`
 - No existing records are modified
 
