@@ -1,25 +1,34 @@
 
 
-# Add 9 Gallery Images (Batch 6)
+# Add 10 Gallery Images (Batch 8)
 
 ## What will be done
 
 | # | File | Name | Category |
 |---|------|------|----------|
-| 1 | Pastel_Orange_Flowers.jpg | Pastel Orange Flowers | Orange |
-| 2 | Pink_1.jpg | Pink 1 | Pink |
-| 3 | Pink_2.jpg | Pink 2 | Pink |
-| 4 | Pink_3.jpg | Pink 3 | Pink |
-| 5 | Pink_4.jpg | Pink 4 | Pink |
-| 6 | Pink_5.jpg | Pink 5 | Pink |
-| 7 | Purple_1.jpg | Purple 1 | Purple |
-| 8 | Purple_2.jpg | Purple 2 | Purple |
-| 9 | Rainbow_1.jpg | Rainbow 1 | Rainbow |
+| 1 | Wedding_Waitress_1923247_XL-2.jpg | Colourful Tulips | Flowers |
+| 2 | Wedding_Waitress_43934197_XL-2.jpg | Watercolor Floral Frame | Flowers |
+| 3 | Wedding_Waitress_46752785_XL-2.jpg | Pink Flowers Blue | Flowers |
+| 4 | Wedding_Waitress_108648998_XL-2.jpg | Red Tulips Timber | Red |
+| 5 | Wedding_Waitress_112430572_XL-2.jpg | White Jasmine Timber | Brown |
+| 6 | Wedding_Waitress_181149284_XL-2.jpg | Pink Tulips Timber | Pink |
+| 7 | Wedding_Waitress_181149418_XL-2.jpg | Pink Carnations Timber | Pink |
+| 8 | Wedding_Waitress_183207812_XL-2.jpg | Pink Tulips Side | Pink |
+| 9 | Wedding_Waitress_184231276_XL-2.jpg | Red Yellow Tulips | Rainbow |
+| 10 | Wedding_Waitress_188634464_XL-2.jpg | Red Roses Timber | Red |
+
+## Going Forward
+
+From now on, for every batch you upload I will automatically:
+- Pick a descriptive display name based on the image content
+- Assign the most fitting category (e.g. Flowers, Pink, Red, Rainbow, Brown, etc.)
+
+You can always override if you disagree with any choice.
 
 ## Technical Details
 
-- All 9 files already exist in `public/gallery-images/` -- no file copies needed
-- Single database INSERT to add all 9 records into `place_card_gallery_images`
+- All 10 files already copied to `public/gallery-images/`
+- Single database INSERT to add all 10 records into `place_card_gallery_images`
 - All entries use `sort_order: 0`
 - No existing records are modified
 
