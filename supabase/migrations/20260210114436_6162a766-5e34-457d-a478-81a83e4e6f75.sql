@@ -1,0 +1,1 @@
+UPDATE place_card_gallery_images SET category = 'Silver' WHERE id IN ('968c52a6-88f5-4e4d-a464-f466c9e51a6f', '9889656f-3cc4-4823-9097-1bb408f84035');
