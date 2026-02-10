@@ -1,0 +1,27 @@
+DELETE FROM place_card_gallery_images
+WHERE id IN (
+  'ead10c0a-459d-461c-911b-dbaa7ff1317e',
+  '615963ed-f5e6-4dcb-998e-4cf6cf55a475',
+  '6333f5f1-7819-4d9e-b677-3f11f55f6bd3',
+  '965327de-2a93-4845-b9a9-a909ea1455e3',
+  '5a76e05a-6659-466c-8857-f83ed804d300',
+  'fc81b03d-2932-473e-88a6-fe29bebdf28b',
+  '472b53d4-5803-4d90-aaf0-9e86ac8937b4',
+  '61b69893-4c4e-42e7-a57c-0e9fda4035e9',
+  'c0bf8437-2788-4be2-a20e-540db4f5c0ad',
+  '54dee8b8-b3fd-45d9-b531-9777aa028b1f',
+  'da90e383-b895-404a-8b78-3f9071c39099',
+  '53a0ee94-3ae4-4111-9e69-1d3e1cc8c4a8',
+  'c42c2091-c502-489f-9630-61bb4aed3b2c',
+  '155ccbce-c80f-40ef-87ed-088126e50eeb',
+  'b06ce6d4-ff05-4e10-957c-6806b2819058',
+  'e60db38f-af45-49e8-9a1d-54d23dbd0038',
+  'a78bb911-1d4b-48ad-87c9-11146bf0cd2e',
+  'a9b60df0-1b7d-49ee-b55f-423598ab5fa6',
+  '58f32bc9-897c-4477-abb1-3e4f5f901893',
+  '5766f8c2-ccf3-44ab-ab80-d666017bacdc',
+  'aeb4dd2d-8044-4ea9-b67a-5271c6d605e2',
+  'dc91d447-efc5-4354-8a03-c925858bcb7a',
+  '46bc6402-b235-4919-bde1-5c8a648f8793',
+  '06ec8b2d-d909-488a-984b-bb2c5269f477'
+);
