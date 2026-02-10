@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { usePlaceCardGallery, GalleryImage } from '@/hooks/usePlaceCardGallery';
-import { Search, ImageIcon, Loader2 } from 'lucide-react';
+import { Search, ImageIcon, Loader2, Eye, Check, ArrowLeft } from 'lucide-react';
 
 interface PlaceCardGalleryModalProps {
   open: boolean;
@@ -26,6 +26,7 @@ export const PlaceCardGalleryModal: React.FC<PlaceCardGalleryModalProps> = ({
   const { images, categories, loading, error } = usePlaceCardGallery();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [previewImage, setPreviewImage] = useState<GalleryImage | null>(null);
 
   const filteredImages = images.filter(img => {
     const matchesSearch = img.name.toLowerCase().includes(searchQuery.toLowerCase());
@@ -35,11 +36,12 @@ export const PlaceCardGalleryModal: React.FC<PlaceCardGalleryModalProps> = ({
 
   const handleSelectImage = (image: GalleryImage) => {
     onSelectImage(image.image_url);
+    setPreviewImage(null);
     onOpenChange(false);
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={(val) => { if (!val) setPreviewImage(null); onOpenChange(val); }}>
       <DialogContent className="max-w-6xl max-h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
@@ -48,75 +50,122 @@ export const PlaceCardGalleryModal: React.FC<PlaceCardGalleryModalProps> = ({
           </DialogTitle>
         </DialogHeader>
 
-        {/* Search */}
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search images..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
-          />
-        </div>
-
-        {/* Category Tabs */}
-        <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="flex-1 flex flex-col min-h-0">
-          <TabsList className="w-full justify-start overflow-x-auto flex-shrink-0">
-            <TabsTrigger value="all">All</TabsTrigger>
-            {categories.map(category => (
-              <TabsTrigger key={category} value={category}>
-                {category}
-              </TabsTrigger>
-            ))}
-          </TabsList>
-
-          <TabsContent value={selectedCategory} className="flex-1 mt-4 min-h-0">
-            {loading ? (
-              <div className="flex items-center justify-center h-64">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        {previewImage ? (
+          /* Preview View */
+          <div className="flex-1 flex flex-col min-h-0">
+            <div className="flex items-center gap-3 mb-4">
+              <Button variant="outline" size="sm" onClick={() => setPreviewImage(null)}>
+                <ArrowLeft className="h-4 w-4 mr-1" />
+                Back to Gallery
+              </Button>
+              <div className="flex-1 min-w-0">
+                <h3 className="font-semibold text-foreground truncate">{previewImage.name}</h3>
+                <p className="text-xs text-muted-foreground">{previewImage.category}</p>
               </div>
-            ) : error ? (
-              <div className="flex items-center justify-center h-64 text-destructive">
-                {error}
-              </div>
-            ) : filteredImages.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-64 text-muted-foreground">
-                <ImageIcon className="h-12 w-12 mb-4 opacity-50" />
-                <p>No images available yet</p>
-                <p className="text-sm">Gallery images will be added by the admin</p>
-              </div>
-            ) : (
-              <ScrollArea className="h-[550px] [&>[data-radix-scroll-area-scrollbar]]:!bg-transparent">
-                <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 pr-2">
-                  {filteredImages.map(image => (
-                    <button
-                      key={image.id}
-                      onClick={() => handleSelectImage(image)}
-                      className="group relative aspect-[5/7] rounded-lg overflow-hidden border-2 border-transparent hover:border-primary transition-all focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
-                    >
-                      <img
-                        src={image.image_url}
-                        alt={image.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                      />
-                      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <p className="text-white text-xs font-medium truncate">
-                          {image.name}
-                        </p>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </ScrollArea>
-            )}
-          </TabsContent>
-        </Tabs>
+              <Button variant="gradient" onClick={() => handleSelectImage(previewImage)}>
+                <Check className="h-4 w-4 mr-1" />
+                Use This Image
+              </Button>
+            </div>
+            <div className="flex-1 flex items-center justify-center bg-muted/30 rounded-xl border border-border overflow-hidden min-h-0">
+              <img
+                src={previewImage.image_url}
+                alt={previewImage.name}
+                className="max-w-full max-h-[60vh] object-contain"
+              />
+            </div>
+          </div>
+        ) : (
+          /* Gallery Grid View */
+          <>
+            {/* Search */}
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search images..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
+              />
+            </div>
 
-        <div className="flex justify-end pt-4 border-t-0">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
-          </Button>
-        </div>
+            {/* Category Tabs */}
+            <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="flex-1 flex flex-col min-h-0">
+              <TabsList className="w-full justify-start overflow-x-auto flex-shrink-0">
+                <TabsTrigger value="all">All</TabsTrigger>
+                {categories.map(category => (
+                  <TabsTrigger key={category} value={category}>
+                    {category}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+
+              <TabsContent value={selectedCategory} className="flex-1 mt-4 min-h-0">
+                {loading ? (
+                  <div className="flex items-center justify-center h-64">
+                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                  </div>
+                ) : error ? (
+                  <div className="flex items-center justify-center h-64 text-destructive">
+                    {error}
+                  </div>
+                ) : filteredImages.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center h-64 text-muted-foreground">
+                    <ImageIcon className="h-12 w-12 mb-4 opacity-50" />
+                    <p>No images available yet</p>
+                    <p className="text-sm">Gallery images will be added by the admin</p>
+                  </div>
+                ) : (
+                  <ScrollArea className="h-[550px] [&>[data-radix-scroll-area-scrollbar]]:!bg-transparent">
+                    <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 pr-2">
+                      {filteredImages.map(image => (
+                        <div
+                          key={image.id}
+                          className="group relative aspect-[5/7] rounded-lg overflow-hidden border-2 border-transparent hover:border-primary transition-all"
+                        >
+                          <img
+                            src={image.image_url}
+                            alt={image.name}
+                            className="w-full h-full object-cover"
+                          />
+                          {/* Hover overlay with View & Select buttons */}
+                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2">
+                            <button
+                              onClick={() => setPreviewImage(image)}
+                              className="flex items-center gap-1.5 bg-white/90 text-foreground rounded-full px-3 py-1.5 text-xs font-medium hover:bg-white transition-colors"
+                            >
+                              <Eye className="h-3.5 w-3.5" />
+                              View
+                            </button>
+                            <button
+                              onClick={() => handleSelectImage(image)}
+                              className="flex items-center gap-1.5 bg-primary text-primary-foreground rounded-full px-3 py-1.5 text-xs font-medium hover:bg-primary/90 transition-colors"
+                            >
+                              <Check className="h-3.5 w-3.5" />
+                              Select
+                            </button>
+                          </div>
+                          {/* Name label */}
+                          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                            <p className="text-white text-xs font-medium truncate">
+                              {image.name}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </ScrollArea>
+                )}
+              </TabsContent>
+            </Tabs>
+
+            <div className="flex justify-end pt-4 border-t-0">
+              <Button variant="outline" onClick={() => onOpenChange(false)}>
+                Cancel
+              </Button>
+            </div>
+          </>
+        )}
       </DialogContent>
     </Dialog>
   );
