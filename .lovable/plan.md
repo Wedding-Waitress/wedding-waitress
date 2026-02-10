@@ -1,62 +1,53 @@
 
 
-# Upload 10 New Place Card Gallery Images
+# Upload 10 New Place Card Gallery Images (Batch 2)
 
 ## Overview
-Upload 10 new background images to the Place Card Image Gallery, adding them to Supabase Storage (`place-card-gallery` bucket) and inserting database records into `place_card_gallery_images`.
+Upload 10 new background images to the Place Card Image Gallery using the same process as the previous batch.
 
 ## Image Assignments
 
-### New Category: Christmas (3 images)
+### Category: Pink (currently 7 images, max sort 7)
 | File | Display Name | Sort Order |
 |------|-------------|------------|
-| Christmas_1.jpg | Christmas Tree and Ornaments | 1 |
-| Christmas_2.jpg | Pine Branches and Snow | 2 |
-| Christmas_3.jpg | Gifts and Candy Canes | 3 |
+| Wedding_Waitress_181149284_XL.jpg | Pink Tulips on Timber | 8 |
+| Wedding_Waitress_181149418_XL.jpg | Pink Carnations on Timber | 9 |
+| Wedding_Waitress_183207812_XL.jpg | Pink Tulips Side | 10 |
+| Wedding_Waitress_497593504_XL.jpg | Pink Peonies on Timber | 11 |
 
-### New Category: Islamic (2 images)
+### Category: Red (currently 5 images, max sort 7)
 | File | Display Name | Sort Order |
 |------|-------------|------------|
-| Islamic_1.jpg | Golden Lanterns | 1 |
-| Islamic_2.jpg | Ornate Gold Frame | 2 |
+| Wedding_Waitress_188634464_XL.jpg | Red Roses on Timber | 8 |
 
-### Existing Category: Rainbow (currently 4 images, max sort 4)
+### Category: Rainbow (currently 5 images, max sort 5)
 | File | Display Name | Sort Order |
 |------|-------------|------------|
-| Wedding_Waitress_1923247_XL.jpg | Colourful Tulips | 5 |
+| Wedding_Waitress_184231276_XL.jpg | Red and Yellow Tulips | 6 |
+| Wedding_Waitress_241367454_XL.jpg | Spring Tulip Bouquet | 7 |
 
-### Existing Category: Blue (currently 9 images, max sort 10)
+### Category: Green (currently 10 images, max sort 10)
 | File | Display Name | Sort Order |
 |------|-------------|------------|
-| Wedding_Waitress_43934197_XL.jpg | Watercolor Flower Frame | 11 |
-| Wedding_Waitress_46752785_XL.jpg | Pink Blossoms on Blue | 12 |
+| Wedding_Waitress_202485012_XL.jpg | Eucalyptus on Blush | 11 |
+| Wedding_Waitress_249419520_XL.jpg | Eucalyptus on Lavender | 12 |
 
-### Existing Category: Red (currently 4 images, max sort 6)
+### Category: Blue (currently 11 images, max sort 12)
 | File | Display Name | Sort Order |
 |------|-------------|------------|
-| Wedding_Waitress_108648998_XL.jpg | Red Tulips on Timber | 7 |
-
-### Existing Category: Brown (currently 5 images, max sort 8)
-| File | Display Name | Sort Order |
-|------|-------------|------------|
-| Wedding_Waitress_112430572_XL.jpg | Jasmine on Wood | 9 |
+| Wedding_Waitress_309349986_XL.jpg | White Blossoms on Turquoise | 13 |
 
 ## Technical Steps
 
-1. **Copy images to public folder** for staging:
-   - Copy all 10 images from `user-uploads://` to `public/gallery-images/`
-
-2. **Upload to Supabase Storage** via an edge function or migration:
-   - Upload each file to the `place-card-gallery` bucket under organized folder paths (e.g., `christmas/Christmas_1.jpg`, `islamic/Islamic_1.jpg`, `blue/Watercolor_Flower_Frame.jpg`, etc.)
-
-3. **Insert database records** via SQL migration:
-   - Insert 10 rows into `place_card_gallery_images` with name, category, image_url (public storage URL), and sort_order
-
-4. **No code changes needed** -- the existing `usePlaceCardGallery` hook and `PlaceCardGalleryModal` component will automatically pick up the new images
+1. **Copy images** from `user-uploads://` to `public/gallery-images/`
+2. **Create and deploy** a temporary edge function to upload all 10 files to `place-card-gallery` Supabase Storage bucket
+3. **Insert 10 database records** into `place_card_gallery_images` with correct category, name, and sort_order
+4. **Clean up** the temporary edge function after upload completes
+5. **No code changes needed** -- existing hooks and UI will automatically display the new images
 
 ## Files Changed
 | File | Change |
 |------|--------|
 | public/gallery-images/*.jpg | 10 new image files copied |
-| SQL migration | INSERT 10 records into place_card_gallery_images |
+| SQL INSERT | 10 new records into place_card_gallery_images |
 
