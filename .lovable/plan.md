@@ -1,24 +1,29 @@
 
 
-# Add 8 Gallery Images (Batch 4)
+# Add 7 Gallery Images (Batch 5)
 
 ## What will be done
 
 | # | File | Name | Category |
 |---|------|------|----------|
-| 1 | Golden_Shadow.jpg | Golden Shadow | Pink |
-| 2 | Green_1.jpg | Green 1 | Green |
-| 3 | Green_3.jpg | Green 3 | Green |
-| 4 | Green_4.jpg | Green 4 | Green |
-| 5 | Green_Autumn.jpg | Green Autumn | Green |
-| 6 | Green_Leaves.jpg | Green Leaves | Green |
-| 7 | Green_Timber_1.jpg | Green Timber 1 | Green |
-| 8 | Green_with_Leaves_1.jpg | Green with Leaves 1 | Green |
+| 1 | Green_with_Leaves_2.jpg | Green with Leaves 2 | Green |
+| 2 | Grey_Timber_with_Leaves.jpg | Grey Timber with Leaves | Grey |
+| 3 | Islamic_1.jpg | Islamic 1 | Islamic |
+| 4 | Islamic_2.jpg | Islamic 2 | Islamic |
+| 5 | Light_Timber_with_Autumn_Leaves.jpg | Light Timber with Autumn Leaves | Brown |
+| 6 | Orange_1.jpg | Orange 1 | Orange |
+| 7 | Orange_2.jpg | Orange 2 | Orange |
+
+## Already registered (no action needed)
+
+- Grey Textured (Grey)
+- Dark Marble (Grey)
+- Light Green Timber (Green)
 
 ## Technical Details
 
-- All 8 files already exist in `public/gallery-images/` -- no file copies needed
-- Single database migration to insert all 8 records into `place_card_gallery_images`
+- All 7 files already exist in `public/gallery-images/` -- no file copies needed
+- Single database INSERT to add all 7 records into `place_card_gallery_images`
 - All entries use `sort_order: 0`
 - No existing records are modified
 
