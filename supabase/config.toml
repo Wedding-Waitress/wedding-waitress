@@ -11,3 +11,6 @@ verify_jwt = true
 
 [functions.check-welcome-video-status]
 verify_jwt = true
+
+[functions.fix-gallery-upload]
+verify_jwt = false
