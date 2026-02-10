@@ -1,0 +1,1 @@
+DELETE FROM place_card_gallery_images WHERE id = 'dc355c71-6396-41bc-8266-faf381f293b0';
