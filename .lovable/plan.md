@@ -1,32 +1,35 @@
 
 
-# Fix: Background Lines Bleeding Through Image Gallery Modal
+# Fix Image Gallery: White Lines + Duplicate Removal
 
-## Problem
-The Place Cards page has elements with `z-index: 50` (guide lines in PlaceCardPreview). The Dialog overlay is also `z-50` with `bg-black/80` (semi-transparent). Because they share the same stacking level and the overlay isn't fully opaque, the page lines show through the modal.
+## Issue 1: White Lines Still Showing
 
-## Root Cause
-- Dialog overlay: `z-50`, `bg-black/80`
-- PlaceCardPreview guide lines: `zIndex: 50`
-- Same z-index + semi-transparent overlay = visible bleed-through
+**Root cause found:** The guide lines in `PlaceCardPreview.tsx` use `zIndex: 100`, while the gallery modal content is only at `zIndex: 60` and the overlay at `z-[55]`. The background elements are literally painted **on top** of the modal because they have a higher z-index.
 
-## Solution
+**Fix:** Raise the gallery modal's z-index values above 100:
+- **Overlay:** Change from `z-[55]` to `z-[105]` 
+- **DialogContent:** Change from `zIndex: 60` to `zIndex: 110`
 
-### 1. Update `src/components/ui/dialog.tsx`
-Add an optional `overlayClassName` prop to `DialogContent` so individual modals can customize the overlay without affecting all dialogs globally.
+This keeps the background lines untouched on the Place Cards page while ensuring the gallery modal fully covers them.
 
-- Add `overlayClassName?: string` to `DialogContentProps`
-- Pass it to the `DialogOverlay` component rendered inside `DialogContent`
+**File:** `src/components/Dashboard/PlaceCards/PlaceCardGalleryModal.tsx` -- update the `overlayClassName` and `style` props on `DialogContent`.
 
-### 2. Update `src/components/Dashboard/PlaceCards/PlaceCardGalleryModal.tsx`
-Use the new `overlayClassName` prop to set the gallery modal's overlay to:
-- `z-[55]` -- higher than the Place Cards page elements
-- `bg-black/95` -- nearly fully opaque so nothing bleeds through
+---
 
-The DialogContent itself already has `zIndex: 60` which is above the overlay's `z-[55]`.
+## Issue 2: Duplicate Image in Black Category
 
-## Scope
-- Small addition to `dialog.tsx` (one prop, one line change) -- backward compatible, no impact on other dialogs
-- One prop addition in `PlaceCardGalleryModal.tsx`
-- No changes to Place Cards page itself
+The 3rd image in the Black category (marked with red X) is **"Black Smoke"** (`Black_3.jpg`, ID: `dc355c71-6396-41bc-8266-faf381f293b0`). It duplicates the 1st image **"Black Smoke"** (`Black_1.jpg`).
+
+**Fix:** Delete this record from the `place_card_gallery_images` database table.
+
+**Note:** You mentioned there are 8 pages of duplicates. Please share the remaining 7 screenshots and I will remove all duplicates together. For now, I will remove the one shown in this screenshot.
+
+---
+
+## Technical Details
+
+| Change | File | What |
+|--------|------|------|
+| z-index fix | `PlaceCardGalleryModal.tsx` | Overlay to `z-[105]`, content to `zIndex: 110` |
+| Delete duplicate | Database | Remove record `dc355c71-...` from `place_card_gallery_images` |
 
