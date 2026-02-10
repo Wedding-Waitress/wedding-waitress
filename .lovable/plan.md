@@ -1,25 +1,14 @@
 
 
-# Remove 12 Duplicate Images from Gallery
+# Delete 1 Duplicate Image from Blue Category
 
-Delete these 12 duplicate records from the `place_card_gallery_images` table via a single database migration:
+Remove the "Blue Watercolor Flowers" image (Blue_Watercolor_Flowers.jpg) from the `place_card_gallery_images` table.
 
-| Category | Name | File |
-|----------|------|------|
-| Blue | Light Blue Wood | Blue_9.jpg |
-| Brown | Autumn Leaves Top Border | White_with_Autumn_Leaves-2.jpg |
-| Orange | Orange Abstract | Orange_Abstract.jpg |
-| Pink | Pink Watercolor Flowers | Pink_Watercolor_Flowers.jpg |
-| Pink | Pastel Pink Flowers | Pastel_Pink_Flowers.jpg |
-| Purple | Purple Textured | Purple_Textured.jpg |
-| Purple | Purple Silk | Purple_Silk.jpg |
-| Red | Dark Red | Red_6.jpg |
-| Red | Red Tulips on Timber | Wedding_Waitress_108648998_XL.jpg |
-| Red | Red Roses Bouquet | Red_Roses_Bouquet.jpg |
-| White | Autumn Leaves Top | White_with_Autumn_Leaves.jpg |
-| White | Jasmine on White Timber | Wedding_Waitress_599699858_XL.jpg |
+| Category | Name | File | ID |
+|----------|------|------|----|
+| Blue | Blue Watercolor Flowers | Blue_Watercolor_Flowers.jpg | faaed8af-f669-4212-8c02-d802c781bea7 |
 
 ## Technical Details
 
-One SQL migration file with a single `DELETE ... WHERE id IN (...)` statement targeting all 12 IDs. No other files or features are modified.
+One database migration with a single `DELETE FROM place_card_gallery_images WHERE id = 'faaed8af-f669-4212-8c02-d802c781bea7';` statement. No other files or features are modified.
 
