@@ -1,14 +1,14 @@
 
 
-# Delete 1 Duplicate Image from Blue Category
+# Delete 1 Image from Brown Category
 
-Remove the "Blue Watercolor Flowers" image (Blue_Watercolor_Flowers.jpg) from the `place_card_gallery_images` table.
+Remove the "Jasmine on Wood" image from the `place_card_gallery_images` table.
 
 | Category | Name | File | ID |
 |----------|------|------|----|
-| Blue | Blue Watercolor Flowers | Blue_Watercolor_Flowers.jpg | faaed8af-f669-4212-8c02-d802c781bea7 |
+| Brown | Jasmine on Wood | Wedding_Waitress_112430572_XL.jpg | 29943f29-1b87-4070-9ca0-5c956d990cc5 |
 
 ## Technical Details
 
-One database migration with a single `DELETE FROM place_card_gallery_images WHERE id = 'faaed8af-f669-4212-8c02-d802c781bea7';` statement. No other files or features are modified.
+One database migration with a single `DELETE FROM place_card_gallery_images WHERE id = '29943f29-1b87-4070-9ca0-5c956d990cc5';` statement. No other files or features are modified.
 
