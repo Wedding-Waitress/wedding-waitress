@@ -1,72 +1,70 @@
 
 
-# Fix Broken Gallery Images
+# Delete 10 Lost Images + Fix 2 Duplicates
 
-## The Problem
+## What happened
 
-26 out of your gallery images still point to old **Supabase Storage bucket URLs** that are now returning 404 (the files were deleted from the bucket). That's why they show as broken/blank in the gallery.
+- The last migration successfully fixed 15 images using IDs from one set of records
+- However, **2 images** (Jasmine on White Timber, White Jasmine Border) have **duplicate database records** — one was fixed, one still points to the dead bucket
+- The remaining **10 images** are genuinely lost (no local file exists) and need to be deleted
 
-## What I Found
+## The Fix (single migration)
 
-I split the 26 broken images into two groups:
+**Part 1 — Fix 2 duplicate White images** by updating their bucket URL to local path:
 
-### Group A: 15 images I CAN fix right now (local file exists)
+| Name | ID | Local File |
+|------|----|------------|
+| Jasmine on White Timber | 1ac72cec-... | /gallery-images/Wedding_Waitress_599699858_XL.jpg |
+| White Jasmine Border | 3e5c02d9-... | /gallery-images/Wedding_Waitress_639146570_XL.jpg |
 
-These images already exist in your project's `public/gallery-images/` folder — they just need their database URL updated from the broken bucket link to the local path.
+**Part 2 — Delete 10 lost images** (no local file, bucket is 404):
 
-| Name | Category | Local File |
-|------|----------|------------|
-| Watercolor Flower Frame | Blue | Wedding_Waitress_43934197_XL.jpg |
-| Pink Blossoms on Blue | Blue | Wedding_Waitress_46752785_XL.jpg |
-| Jasmine on Wood | Brown | Wedding_Waitress_112430572_XL.jpg |
-| Christmas Tree and Ornaments | Christmas | Christmas_1.jpg |
-| Pine Branches and Snow | Christmas | Christmas_2.jpg |
-| Gifts and Candy Canes | Christmas | Christmas_3.jpg |
-| Pink and Gold Ornaments | Christmas | Wedding_Waitress_613771420_XL.jpg |
-| Golden Lanterns | Islamic | Islamic_1.jpg |
-| Ornate Gold Frame | Islamic | Islamic_2.jpg |
-| Pink Gift with Baby's Breath | Pink | Wedding_Waitress_826407602_XL.jpg |
-| Pink Peonies on White Timber | Pink | Wedding_Waitress_497593504_XL-2.jpg |
-| Colourful Tulips | Rainbow | Wedding_Waitress_1923247_XL.jpg |
-| Red Tulips on Timber | Red | Wedding_Waitress_108648998_XL.jpg |
-| Jasmine on White Timber | White | Wedding_Waitress_599699858_XL.jpg |
-| White Jasmine Border | White | Wedding_Waitress_639146570_XL.jpg |
+| Name | Category | ID |
+|------|----------|----|
+| White Blossoms on Turquoise | Blue | 2452f501-... |
+| Eucalyptus on Blush | Green | f0701d8b-... |
+| Eucalyptus on Lavender | Green | 5e3b4c57-... |
+| Pink Carnations on Timber | Pink | 171805f0-... |
+| Pink Peonies on Timber | Pink | b96ecd66-... |
+| Pink Tulips on Timber | Pink | f0810c43-... |
+| Pink Tulips Side | Pink | 956d21ec-... |
+| Red and Yellow Tulips | Rainbow | 6a54a760-... |
+| Spring Tulip Bouquet | Rainbow | 7a89fd9d-... |
+| Red Roses on Timber | Red | c068fa37-... |
 
-### Group B: 11 images that are LOST (no local file, bucket is 404)
+## Why the images were lost
 
-These were uploaded to the Supabase storage bucket with custom descriptive names. The bucket files are gone and no local copy exists. You would need to re-upload these.
-
-| Name | Category | Missing File |
-|------|----------|-------------|
-| White Blossoms on Turquoise | Blue | White_Blossoms_on_Turquoise.jpg |
-| Eucalyptus on Blush | Green | Eucalyptus_on_Blush.jpg |
-| Eucalyptus on Lavender | Green | Eucalyptus_on_Lavender.jpg |
-| Pink Carnations on Timber | Pink | Pink_Carnations_on_Timber.jpg |
-| Pink Peonies on Timber | Pink | Pink_Peonies_on_Timber.jpg |
-| Pink Tulips on Timber | Pink | Pink_Tulips_on_Timber.jpg |
-| Pink Tulips Side | Pink | Pink_Tulips_Side.jpg |
-| Red and Yellow Tulips | Rainbow | Red_and_Yellow_Tulips.jpg |
-| Spring Tulip Bouquet | Rainbow | Spring_Tulip_Bouquet.jpg |
-| Red Roses on Timber | Red | Red_Roses_on_Timber.jpg |
-
-Note: "White Blossoms on Turquoise" makes it 11 total but the table shows 10 because it's in the Blue category separate from the rest.
-
-## The Fix
-
-**Step 1 (immediate):** Run a single database migration with 15 UPDATE statements to point Group A images to their local `/gallery-images/` paths. This fixes 15 images instantly.
-
-**Step 2 (your decision for Group B):** For the 11 lost images, you have two options:
-- **Option A:** Delete those 11 database records (the images are gone anyway, so they just show as broken placeholders)
-- **Option B:** You re-upload those 11 images to me and I add them back as local files
-
-No code files are modified — this is purely a database URL update.
+You're right — those 10 images were uploaded to the Supabase storage bucket with custom descriptive filenames (e.g., `Pink_Carnations_on_Timber.jpg`) rather than their original camera/stock filenames. When the bucket was cleared, there was no matching local file to fall back on. The Group A images survived because their original filenames (like `Wedding_Waitress_XXX.jpg`) matched files already sitting in `public/gallery-images/`.
 
 ## Technical Details
 
-Single migration file with 15 UPDATE statements like:
+Single migration with 2 UPDATEs and 1 DELETE:
+
 ```sql
+-- Fix 2 duplicate White records
 UPDATE place_card_gallery_images
-SET image_url = '/gallery-images/Wedding_Waitress_43934197_XL.jpg'
-WHERE id = 'df4e9057-...';
+SET image_url = '/gallery-images/Wedding_Waitress_599699858_XL.jpg'
+WHERE id = '1ac72cec-80fc-4d8f-88c8-334b26270ac2';
+
+UPDATE place_card_gallery_images
+SET image_url = '/gallery-images/Wedding_Waitress_639146570_XL.jpg'
+WHERE id = '3e5c02d9-a62f-4bb8-a3db-c0b9b8a11e44';
+
+-- Delete 10 lost images
+DELETE FROM place_card_gallery_images
+WHERE id IN (
+  '2452f501-ae12-4204-b4d3-6c52ab9d86f7',
+  'f0701d8b-e4a5-43fe-9fab-901f484e1472',
+  '5e3b4c57-8d4e-40b0-894e-41934fe63c5a',
+  '171805f0-29a0-4fd5-9954-9ccc8795cf57',
+  'b96ecd66-78e7-4efb-96f9-7d856d0599f0',
+  'f0810c43-2a45-4eb1-9416-3fb59d305e11',
+  '956d21ec-babd-466d-8d68-7d2ff1bd70a9',
+  '6a54a760-0dee-4775-93e4-7395eaad10e6',
+  '7a89fd9d-a71f-4c73-b526-b201557cd5bf',
+  'c068fa37-167f-4334-972c-982bc102d240'
+);
 ```
+
+No code files are modified.
 
