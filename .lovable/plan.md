@@ -1,33 +1,25 @@
 
 
-# Add 10 Gallery Images (Batch 8)
+# Add 10 Gallery Images (Batch 9)
 
 ## What will be done
 
 | # | File | Name | Category |
 |---|------|------|----------|
-| 1 | Wedding_Waitress_1923247_XL-2.jpg | Colourful Tulips | Flowers |
-| 2 | Wedding_Waitress_43934197_XL-2.jpg | Watercolor Floral Frame | Flowers |
-| 3 | Wedding_Waitress_46752785_XL-2.jpg | Pink Flowers Blue | Flowers |
-| 4 | Wedding_Waitress_108648998_XL-2.jpg | Red Tulips Timber | Red |
-| 5 | Wedding_Waitress_112430572_XL-2.jpg | White Jasmine Timber | Brown |
-| 6 | Wedding_Waitress_181149284_XL-2.jpg | Pink Tulips Timber | Pink |
-| 7 | Wedding_Waitress_181149418_XL-2.jpg | Pink Carnations Timber | Pink |
-| 8 | Wedding_Waitress_183207812_XL-2.jpg | Pink Tulips Side | Pink |
-| 9 | Wedding_Waitress_184231276_XL-2.jpg | Red Yellow Tulips | Rainbow |
-| 10 | Wedding_Waitress_188634464_XL-2.jpg | Red Roses Timber | Red |
-
-## Going Forward
-
-From now on, for every batch you upload I will automatically:
-- Pick a descriptive display name based on the image content
-- Assign the most fitting category (e.g. Flowers, Pink, Red, Rainbow, Brown, etc.)
-
-You can always override if you disagree with any choice.
+| 1 | Wedding_Waitress_202485012_XL-2.jpg | Eucalyptus Blush | Green |
+| 2 | Wedding_Waitress_241367454_XL-2.jpg | Tulips White Timber | Rainbow |
+| 3 | Wedding_Waitress_249419520_XL-2.jpg | Eucalyptus Pink | Green |
+| 4 | Wedding_Waitress_309349986_XL-2.jpg | White Blossom Blue Timber | Blue |
+| 5 | Wedding_Waitress_497593504_XL-3.jpg | Pink Peonies Timber | Pink |
+| 6 | Wedding_Waitress_599699858_XL-2.jpg | Jasmine White Timber | White |
+| 7 | Wedding_Waitress_613771420_XL-2.jpg | Pink Gift Gold Baubles | Pink |
+| 8 | Wedding_Waitress_639146570_XL-2.jpg | Jasmine Blossoms Grey | White |
+| 9 | Wedding_Waitress_826407602_XL-2.jpg | Pink Gift Baby's Breath | Pink |
+| 10 | White_Eucalyptus-2.jpg | White Eucalyptus Border | Green |
 
 ## Technical Details
 
-- All 10 files already copied to `public/gallery-images/`
+- Copy all 10 files from `user-uploads://` to `public/gallery-images/`
 - Single database INSERT to add all 10 records into `place_card_gallery_images`
 - All entries use `sort_order: 0`
 - No existing records are modified
