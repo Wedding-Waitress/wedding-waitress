@@ -116,7 +116,7 @@ export const PlaceCardGalleryModal: React.FC<PlaceCardGalleryModalProps> = ({
                     <p className="text-sm">Gallery images will be added by the admin</p>
                   </div>
                 ) : (
-                  <ScrollArea className="h-[550px] [&>[data-radix-scroll-area-scrollbar]]:!bg-transparent">
+                  <ScrollArea className="h-[550px] [&>[data-radix-scroll-area-scrollbar]]:!bg-transparent [&>[data-radix-scroll-area-scrollbar]]:!border-0 [&>div]:!border-0">
                     <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 pr-2">
                       {filteredImages.map(image => (
                         <div
