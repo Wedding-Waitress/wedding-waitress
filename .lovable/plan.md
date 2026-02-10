@@ -1,46 +1,24 @@
 
 
-# Add "View Image" Preview to Place Card Gallery
+# Remove Two White Lines from Image Gallery
 
-## Overview
+## Problem
+Two visible horizontal white lines appear across the Image Gallery modal. These are rendering artifacts from the Radix ScrollArea component's internal border styling.
 
-Currently, clicking a gallery thumbnail immediately selects it and closes the modal. This adds a two-step workflow: users can **view** an image full-size first, then decide whether to **select** it or go back to browsing.
+## Fix
 
-## How It Will Work
+**File:** `src/components/Dashboard/PlaceCards/PlaceCardGalleryModal.tsx`
 
-1. Hovering over a thumbnail shows two overlay buttons: **View** (eye icon) and **Select** (check icon)
-2. Clicking **View** opens a large preview overlay within the same modal showing the full image, its name, and category
-3. From the preview, the user can click **Use This Image** to select it, or **Back to Gallery** to return
-4. Clicking **Select** on the thumbnail works like the current behaviour -- immediate selection
+Update the ScrollArea element (around line 119) to override all scrollbar border styling:
 
-## Technical Details
+- Add CSS overrides to remove borders from the ScrollArea's scrollbar elements: `[&>[data-radix-scroll-area-scrollbar]]:!border-0`
+- Also target the viewport to remove any inherited borders: `[&>div]:!border-0`
 
-All changes are in a single file: `src/components/Dashboard/PlaceCards/PlaceCardGalleryModal.tsx`
+**File:** `src/components/ui/scroll-area.tsx`
 
-### Changes
+The vertical ScrollBar has `border-l border-l-transparent` which, despite being transparent, can render as a visible line in some browsers due to sub-pixel rendering. This will be left untouched as it affects all ScrollAreas globally. Instead, the fix is scoped to the gallery modal only via the className overrides above.
 
-1. **Add state** for the previewed image:
-   - `const [previewImage, setPreviewImage] = useState<GalleryImage | null>(null);`
-
-2. **Add icons** to imports:
-   - Import `Eye`, `Check`, and `ArrowLeft` from `lucide-react`
-
-3. **Replace the single-click thumbnail button** with a two-button hover overlay:
-   - **Eye button** -- calls `setPreviewImage(image)` to open the preview
-   - **Check button** -- calls `handleSelectImage(image)` for direct selection
-
-4. **Add a preview view** that renders when `previewImage` is set:
-   - Full-size image display within the modal
-   - Image name and category label
-   - "Back to Gallery" button (clears `previewImage`)
-   - "Use This Image" button (calls `handleSelectImage` with the previewed image)
-
-5. **Conditionally render** either the gallery grid or the preview view based on whether `previewImage` is set
-
-### Design
-
-- Matches existing Wedding Waitress style: white cards, purple accents, rounded corners
-- Preview uses `object-contain` so the full image is visible without cropping
-- Overlay buttons use semi-transparent dark backgrounds with white icons for contrast
-- Responsive layout works on desktop, tablet, and mobile
+## Scope
+- Single line change in one file
+- No functional changes -- only removes the two visual artifact lines
 
