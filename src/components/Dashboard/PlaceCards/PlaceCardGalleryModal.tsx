@@ -42,7 +42,7 @@ export const PlaceCardGalleryModal: React.FC<PlaceCardGalleryModalProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={(val) => { if (!val) setPreviewImage(null); onOpenChange(val); }}>
-      <DialogContent className="max-w-6xl max-h-[90vh] flex flex-col bg-white [&~[data-radix-scroll-area-viewport]]:!border-0" style={{ zIndex: 60 }}>
+      <DialogContent className="max-w-6xl max-h-[90vh] flex flex-col bg-white [&~[data-radix-scroll-area-viewport]]:!border-0" style={{ zIndex: 60 }} overlayClassName="z-[55] bg-black/95">
 
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
