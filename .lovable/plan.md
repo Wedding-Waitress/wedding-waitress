@@ -1,25 +1,80 @@
 
 
-## Image Gallery Layout: Vertical to Horizontal Thumbnails
+## Add Floor Plan and Menu Modules to Guest Live View Configuration
 
-### What's Changing
+### Important: What Will NOT Change
 
-The gallery grid will switch from tall portrait thumbnails to wide landscape thumbnails, and from 6 columns to 5 columns. Each image will show its full content (no cropping) by using `object-contain` instead of `object-cover`, with a subtle background fill behind any letterboxing.
+The existing Table View functionality (shown in the mobile screenshots) will remain exactly as-is. The round table visualization, seated guest list, and all current live view features (RSVP Invite, View Video, Update Your Details, Table View) are untouched.
 
-### Visual Summary
+### What's Being Added
 
-- **Current**: 6 columns, tall portrait boxes (`aspect-[5/7]`), images cropped to fill
-- **New**: 5 columns, wide landscape boxes (`aspect-[7/5]`), full image visible with no cropping
+Two new modules in the "Guest Live View Configuration" card on the QR Code Seating Chart dashboard page, and corresponding buttons/modals on the public guest live view:
 
-### Technical Details
+1. **Floor Plan** -- couple chooses between uploading a static image OR displaying their existing ceremony/reception floor plan. Only one option can be active (mutually exclusive green-highlighted toggle cards).
+2. **Menu** -- couple uploads their wedding menu (image or PDF) for guests to view.
 
-**File:** `src/components/Dashboard/PlaceCards/PlaceCardGalleryModal.tsx`
+### Database Changes
 
-1. **Grid columns** (line ~121): Change from `grid-cols-3 md:grid-cols-4 lg:grid-cols-6` to `grid-cols-2 md:grid-cols-3 lg:grid-cols-5`
+**1. New columns on `live_view_settings`:**
+- `show_floor_plan` (boolean, default false)
+- `show_menu` (boolean, default false)
 
-2. **Thumbnail aspect ratio** (line ~123): Change from `aspect-[5/7]` (portrait) to `aspect-[7/5]` (landscape)
+**2. New columns on `live_view_module_settings`:**
+- `floor_plan_config` (jsonb, default '{}')
+- `menu_config` (jsonb, default '{}')
 
-3. **Image fitting** (line ~128): Change from `object-cover` (crops to fill) to `object-contain` (shows entire image). Add a subtle neutral background (`bg-gray-100`) to the container so any empty space around the image looks clean rather than blank white.
+**3. Update RPC functions:**
+- `get_public_event_with_data_secure` -- return `show_floor_plan`, `show_menu`, `floor_plan_config`, `menu_config`
+- `get_public_live_view_settings` -- return `show_floor_plan`, `show_menu`
 
-No other files or features are affected. The hover overlay (View/Select buttons), preview mode, and all other gallery functionality remain untouched.
+**4. New storage bucket:** `live-view-uploads` (public) for floor plan images and menu files.
+
+### Config Data Shapes
+
+Floor plan config:
+```text
+{
+  "source": "upload" | "existing",
+  "file_url": "https://...",
+  "file_name": "venue-layout.jpg"
+}
+```
+
+Menu config:
+```text
+{
+  "file_url": "https://...",
+  "file_name": "menu.pdf",
+  "file_type": "image/jpeg" | "application/pdf"
+}
+```
+
+### Frontend Changes
+
+**`src/components/Dashboard/QRCode/QRCodeMainCard.tsx`**
+- Add Floor Plan module card (green/red toggle, accordion with two selectable source cards)
+- Add Menu module card (green/red toggle, accordion with file upload area)
+- Both follow the exact same visual pattern as the existing RSVP Invite and Welcome Video cards
+
+**`src/hooks/useLiveViewVisibility.ts`**
+- Add `show_floor_plan` and `show_menu` to interface and default insert
+
+**`src/hooks/useLiveViewModuleSettings.ts`**
+- Add `floor_plan_config` and `menu_config` to interface and defaults
+
+**`src/pages/GuestLookup.tsx`**
+- Extract new settings from RPC response
+- Add "Floor Plan" and "Menu" action buttons (same row as existing buttons)
+- Add modals: Floor Plan shows uploaded image or existing floor plan visual; Menu shows uploaded image or PDF
+- NO changes to Table View, Update Your Details, RSVP Invite, or View Video
+
+### Files Modified
+
+| File | Change |
+|------|--------|
+| New migration SQL | Add columns, update RPCs, create bucket |
+| `src/hooks/useLiveViewVisibility.ts` | Add new boolean fields |
+| `src/hooks/useLiveViewModuleSettings.ts` | Add new config fields |
+| `src/components/Dashboard/QRCode/QRCodeMainCard.tsx` | Add 2 new module cards |
+| `src/pages/GuestLookup.tsx` | Add 2 new buttons and modals (no changes to existing features) |
 
