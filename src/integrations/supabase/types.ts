@@ -1344,10 +1344,12 @@ export type Database = {
           from_email: string | null
           id: string
           resend_api_key: string | null
+          resend_api_key_encrypted: string | null
           sms_enabled: boolean | null
           sms_provider: string | null
           twilio_account_sid: string | null
           twilio_auth_token: string | null
+          twilio_auth_token_encrypted: string | null
           twilio_messaging_service_sid: string | null
           updated_at: string | null
           user_id: string
@@ -1358,10 +1360,12 @@ export type Database = {
           from_email?: string | null
           id?: string
           resend_api_key?: string | null
+          resend_api_key_encrypted?: string | null
           sms_enabled?: boolean | null
           sms_provider?: string | null
           twilio_account_sid?: string | null
           twilio_auth_token?: string | null
+          twilio_auth_token_encrypted?: string | null
           twilio_messaging_service_sid?: string | null
           updated_at?: string | null
           user_id: string
@@ -1372,10 +1376,12 @@ export type Database = {
           from_email?: string | null
           id?: string
           resend_api_key?: string | null
+          resend_api_key_encrypted?: string | null
           sms_enabled?: boolean | null
           sms_provider?: string | null
           twilio_account_sid?: string | null
           twilio_auth_token?: string | null
+          twilio_auth_token_encrypted?: string | null
           twilio_messaging_service_sid?: string | null
           updated_at?: string | null
           user_id?: string
@@ -2121,6 +2127,7 @@ export type Database = {
           table_no: number
         }[]
       }
+      get_notification_settings: { Args: { _user_id: string }; Returns: Json }
       get_public_event_with_data_secure: {
         Args: { access_token?: string; event_slug: string }
         Returns: {
@@ -2232,6 +2239,20 @@ export type Database = {
           _rsvp?: string
         }
         Returns: boolean
+      }
+      upsert_notification_settings: {
+        Args: {
+          _email_enabled?: boolean
+          _from_email?: string
+          _resend_api_key?: string
+          _sms_enabled?: boolean
+          _sms_provider?: string
+          _twilio_account_sid?: string
+          _twilio_auth_token?: string
+          _twilio_messaging_service_sid?: string
+          _user_id: string
+        }
+        Returns: Json
       }
       validate_guest_access: {
         Args: { _access_token: string; _guest_id: string }

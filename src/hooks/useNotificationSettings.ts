@@ -27,24 +27,36 @@ export const useNotificationSettings = () => {
         return;
       }
 
-      const { data, error } = await supabase
-        .from('notification_settings')
-        .select('*')
-        .eq('user_id', user.id)
-        .maybeSingle();
+      // Use secure RPC function that decrypts sensitive fields server-side
+      const { data, error } = await supabase.rpc('get_notification_settings', {
+        _user_id: user.id,
+      });
 
       if (error) throw error;
 
-      setSettings((data as NotificationSettings) || {
-        resend_api_key: null,
-        from_email: null,
-        email_enabled: false,
-        sms_provider: null,
-        twilio_account_sid: null,
-        twilio_auth_token: null,
-        twilio_messaging_service_sid: null,
-        sms_enabled: false,
-      });
+      if (data) {
+        setSettings({
+          resend_api_key: (data as any).resend_api_key || null,
+          from_email: (data as any).from_email || null,
+          email_enabled: (data as any).email_enabled || false,
+          sms_provider: (data as any).sms_provider || null,
+          twilio_account_sid: (data as any).twilio_account_sid || null,
+          twilio_auth_token: (data as any).twilio_auth_token || null,
+          twilio_messaging_service_sid: (data as any).twilio_messaging_service_sid || null,
+          sms_enabled: (data as any).sms_enabled || false,
+        });
+      } else {
+        setSettings({
+          resend_api_key: null,
+          from_email: null,
+          email_enabled: false,
+          sms_provider: null,
+          twilio_account_sid: null,
+          twilio_auth_token: null,
+          twilio_messaging_service_sid: null,
+          sms_enabled: false,
+        });
+      }
     } catch (error) {
       console.error('Error fetching notification settings:', error);
       toast({
@@ -62,19 +74,24 @@ export const useNotificationSettings = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
-      const { data, error } = await supabase
-        .from('notification_settings')
-        .upsert({
-          user_id: user.id,
-          ...updates,
-          updated_at: new Date().toISOString(),
-        })
-        .select()
-        .single();
+      // Use secure RPC function that encrypts sensitive fields server-side
+      const { data, error } = await supabase.rpc('upsert_notification_settings', {
+        _user_id: user.id,
+        _resend_api_key: updates.resend_api_key || null,
+        _from_email: updates.from_email || null,
+        _email_enabled: updates.email_enabled || false,
+        _sms_provider: updates.sms_provider || null,
+        _twilio_account_sid: updates.twilio_account_sid || null,
+        _twilio_auth_token: updates.twilio_auth_token || null,
+        _twilio_messaging_service_sid: updates.twilio_messaging_service_sid || null,
+        _sms_enabled: updates.sms_enabled || false,
+      });
 
       if (error) throw error;
 
-      setSettings(data as NotificationSettings);
+      // Re-fetch to get decrypted values
+      await fetchSettings();
+
       toast({
         title: 'Success',
         description: 'Notification settings saved',
