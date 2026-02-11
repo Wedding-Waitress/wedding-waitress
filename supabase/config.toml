@@ -4,7 +4,7 @@ project_id = "xytxkidpourwdbzzwcdp"
 verify_jwt = false
 
 [functions.generate-seating-suggestions]
-verify_jwt = true
+verify_jwt = false
 
 [functions.create-welcome-video-upload]
 verify_jwt = true

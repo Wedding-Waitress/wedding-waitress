@@ -12,11 +12,85 @@ serve(async (req) => {
   }
 
   try {
-    const { event_id } = await req.json();
+    // Validate input
+    const body = await req.json();
+    const { event_id } = body;
+
+    if (!event_id || typeof event_id !== 'string') {
+      return new Response(
+        JSON.stringify({ error: 'Missing or invalid event_id' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+      );
+    }
+
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(event_id)) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid UUID format for event_id' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+      );
+    }
+
+    // Authenticate user
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader?.startsWith('Bearer ')) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 401 }
+      );
+    }
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+
+    // Verify user identity
+    const userSupabase = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } }
+    });
+    const token = authHeader.replace('Bearer ', '');
+    const { data: claimsData, error: claimsError } = await userSupabase.auth.getClaims(token);
+    if (claimsError || !claimsData?.claims?.sub) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 401 }
+      );
+    }
+    const userId = claimsData.claims.sub;
+
+    // Use service role for data access
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+    // Verify user owns or can access this event
+    const { data: eventData, error: eventError } = await supabase
+      .from('events')
+      .select('user_id')
+      .eq('id', event_id)
+      .single();
+
+    if (eventError || !eventData) {
+      return new Response(
+        JSON.stringify({ error: 'Event not found' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 404 }
+      );
+    }
+
+    if (eventData.user_id !== userId) {
+      // Check collaborator access
+      const { data: collab } = await supabase
+        .from('event_collaborators')
+        .select('id')
+        .eq('event_id', event_id)
+        .eq('user_id', userId)
+        .maybeSingle();
+
+      if (!collab) {
+        return new Response(
+          JSON.stringify({ error: 'Unauthorized access to event' }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 403 }
+        );
+      }
+    }
 
     // Fetch guests and tables
     const { data: guests } = await supabase
