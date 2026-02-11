@@ -12,6 +12,8 @@ interface LiveViewVisibility {
   show_reception: boolean;
   show_invite_video: boolean;
   show_welcome_video: boolean;
+  show_floor_plan: boolean;
+  show_menu: boolean;
   updated_at: string;
 }
 
@@ -49,6 +51,8 @@ export const useLiveViewVisibility = (eventId: string | null) => {
             show_reception: false,
             show_invite_video: false,
             show_welcome_video: false,
+            show_floor_plan: false,
+            show_menu: false,
           })
           .select()
           .single();
