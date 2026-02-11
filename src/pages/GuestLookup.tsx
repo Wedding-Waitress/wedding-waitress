@@ -18,7 +18,8 @@ import {
   Smartphone,
   Share2,
   Mail,
-  Video
+  Video,
+  UtensilsCrossed
 } from 'lucide-react';
 import weddingWaitressFooterLogo from '@/assets/wedding-waitress-footer-logo.png';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -78,6 +79,8 @@ export const GuestLookup: React.FC = () => {
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
   const [showRsvpInviteModal, setShowRsvpInviteModal] = useState(false);
   const [showWelcomeVideoModal, setShowWelcomeVideoModal] = useState(false);
+  const [showFloorPlanModal, setShowFloorPlanModal] = useState(false);
+  const [showMenuModal, setShowMenuModal] = useState(false);
   const { toast } = useToast();
   
   // Compute is_editable based on rsvp_deadline (inclusive through end-of-day)
@@ -207,10 +210,14 @@ export const GuestLookup: React.FC = () => {
           setLiveViewSettings({
             show_rsvp_invite: firstRow.show_rsvp_invite || false,
             show_welcome_video: firstRow.show_welcome_video || false,
+            show_floor_plan: firstRow.show_floor_plan || false,
+            show_menu: firstRow.show_menu || false,
           });
           setModuleSettings({
             rsvp_invite_config: firstRow.rsvp_invite_config || null,
             welcome_video_config: firstRow.welcome_video_config || null,
+            floor_plan_config: firstRow.floor_plan_config || null,
+            menu_config: firstRow.menu_config || null,
           });
         }
       } catch (error) {
@@ -514,8 +521,8 @@ export const GuestLookup: React.FC = () => {
         </div>
       </div>
 
-      {/* Feature Buttons Section - RSVP Invite & Welcome Video */}
-      {(liveViewSettings?.show_rsvp_invite || liveViewSettings?.show_welcome_video) && (
+      {/* Feature Buttons Section */}
+      {(liveViewSettings?.show_rsvp_invite || liveViewSettings?.show_welcome_video || liveViewSettings?.show_floor_plan || liveViewSettings?.show_menu) && (
         <div className="w-full px-4 pt-4 pb-1">
           <div className="max-w-4xl mx-auto">
             <div className="grid w-full grid-cols-2 gap-3 bg-white p-2.5 rounded-xl border-2 border-gray-200 shadow-sm">
@@ -535,6 +542,24 @@ export const GuestLookup: React.FC = () => {
                 >
                   <Video className="w-4 h-4" />
                   <span className="text-sm font-medium">View Video</span>
+                </button>
+              )}
+              {liveViewSettings?.show_floor_plan && (
+                <button
+                  onClick={() => setShowFloorPlanModal(true)}
+                  className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-full border-2 border-primary bg-primary/10 text-primary font-semibold transition-all duration-200"
+                >
+                  <MapPin className="w-4 h-4" />
+                  <span className="text-sm font-medium">Floor Plan</span>
+                </button>
+              )}
+              {liveViewSettings?.show_menu && (
+                <button
+                  onClick={() => setShowMenuModal(true)}
+                  className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-full border-2 border-primary bg-primary/10 text-primary font-semibold transition-all duration-200"
+                >
+                  <UtensilsCrossed className="w-4 h-4" />
+                  <span className="text-sm font-medium">View Menu</span>
                 </button>
               )}
             </div>
@@ -859,6 +884,84 @@ export const GuestLookup: React.FC = () => {
               <p className="mt-4 text-center text-muted-foreground">
                 {moduleSettings.welcome_video_config.message}
               </p>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Floor Plan Modal */}
+      <Dialog open={showFloorPlanModal} onOpenChange={setShowFloorPlanModal}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-primary [&>button]:text-white [&>button:hover]:text-white/80">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-2xl font-inter text-white">
+              <MapPin className="w-6 h-6 text-white" />
+              Floor Plan
+            </DialogTitle>
+          </DialogHeader>
+          <div className="mt-4">
+            {moduleSettings?.floor_plan_config?.source === 'upload' && moduleSettings?.floor_plan_config?.file_url ? (
+              <img 
+                src={moduleSettings.floor_plan_config.file_url} 
+                alt="Venue Floor Plan"
+                className="max-w-full h-auto mx-auto rounded-lg shadow-lg"
+              />
+            ) : moduleSettings?.floor_plan_config?.source === 'existing' ? (
+              <div className="text-center py-8">
+                <MapPin className="w-16 h-16 mx-auto text-white/70 mb-4" />
+                <p className="text-white/90 text-lg font-medium">
+                  Venue Floor Plan
+                </p>
+                <p className="text-white/70 text-sm mt-2">
+                  The venue floor plan will be available soon.
+                </p>
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <MapPin className="w-16 h-16 mx-auto text-white/50 mb-4" />
+                <p className="text-white/70 text-lg">
+                  Floor plan will appear here soon.
+                </p>
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Menu Modal */}
+      <Dialog open={showMenuModal} onOpenChange={setShowMenuModal}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-primary [&>button]:text-white [&>button:hover]:text-white/80">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-2xl font-inter text-white">
+              <UtensilsCrossed className="w-6 h-6 text-white" />
+              Wedding Menu
+            </DialogTitle>
+          </DialogHeader>
+          <div className="mt-4">
+            {moduleSettings?.menu_config?.file_url ? (
+              <div className="text-center">
+                {moduleSettings.menu_config.file_type?.includes('pdf') ? (
+                  <div className="aspect-[210/297] w-full border rounded-lg overflow-hidden">
+                    <iframe 
+                      src={moduleSettings.menu_config.file_url}
+                      className="w-full h-full"
+                      title="Wedding Menu"
+                    />
+                  </div>
+                ) : (
+                  <img 
+                    src={moduleSettings.menu_config.file_url} 
+                    alt="Wedding Menu"
+                    className="max-w-full h-auto mx-auto rounded-lg shadow-lg"
+                  />
+                )}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <UtensilsCrossed className="w-16 h-16 mx-auto text-white/50 mb-4" />
+                <p className="text-white/70 text-lg">
+                  The wedding menu will appear here soon.
+                </p>
+              </div>
             )}
           </div>
         </DialogContent>

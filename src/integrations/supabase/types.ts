@@ -2121,6 +2121,49 @@ export type Database = {
           table_no: number
         }[]
       }
+      get_public_event_with_data_secure: {
+        Args: { access_token?: string; event_slug: string }
+        Returns: {
+          event_date: string
+          event_finish_time: string
+          event_id: string
+          event_name: string
+          event_start_time: string
+          event_venue: string
+          floor_plan_config: Json
+          guest_dietary: string
+          guest_first_name: string
+          guest_id: string
+          guest_last_name: string
+          guest_rsvp: string
+          guest_seat_no: number
+          guest_table_id: string
+          guest_table_no: number
+          menu_config: Json
+          partner1_name: string
+          partner2_name: string
+          rsvp_invite_config: Json
+          show_floor_plan: boolean
+          show_menu: boolean
+          show_rsvp_invite: boolean
+          show_welcome_video: boolean
+          welcome_video_config: Json
+        }[]
+      }
+      get_public_live_view_settings: {
+        Args: { _event_slug: string }
+        Returns: {
+          show_ceremony: boolean
+          show_floor_plan: boolean
+          show_invite_video: boolean
+          show_menu: boolean
+          show_reception: boolean
+          show_rsvp_invite: boolean
+          show_search: boolean
+          show_update_details: boolean
+          show_welcome_video: boolean
+        }[]
+      }
       get_public_table_data: {
         Args: { p_event_id: string; p_table_id: string }
         Returns: {
