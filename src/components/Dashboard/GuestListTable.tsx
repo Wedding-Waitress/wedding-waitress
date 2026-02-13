@@ -1275,7 +1275,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
                 <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                   {totalGuestCount === 0 && (
-                    <span className="bg-green-500 text-white font-normal text-lg w-8 h-8 rounded-full inline-flex items-center justify-center">1st</span>
+                    <span className="bg-green-500 text-white font-normal text-2xl w-16 h-16 rounded-full inline-flex items-center justify-center">1st</span>
                   )}
                   <Label htmlFor="event-select" className="whitespace-nowrap text-sm font-medium">
                     Choose Event:
@@ -1315,18 +1315,18 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
           {selectedEventId && (
             <div className="flex flex-col md:flex-row gap-4">
               {/* Box 1: Type of Event */}
-              <div className="border-2 border-[#7248E6] rounded-lg p-4">
-                {totalGuestCount === 0 && (
-                  <div className="mb-2">
-                    <span className="bg-green-500 text-white font-normal text-lg w-8 h-8 rounded-full inline-flex items-center justify-center">2nd</span>
-                  </div>
-                )}
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="text-sm font-semibold text-primary">Type of Event:</span>
-                  <span className="text-xs text-muted-foreground">(Two people or single person event)</span>
-                  {showRelationSaved && (
-                    <span className="text-xs font-medium text-green-600 bg-green-50 px-2 py-0.5 rounded-full">✓ Saved</span>
+              <div className="border-2 border-[#7248E6] rounded-lg p-4 flex-1">
+                <div className="flex items-center gap-3 mb-3">
+                  {totalGuestCount === 0 && (
+                    <span className="bg-green-500 text-white font-normal text-2xl w-16 h-16 rounded-full inline-flex items-center justify-center shrink-0">2nd</span>
                   )}
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-sm font-semibold text-primary">Type of Event:</span>
+                    <span className="text-xs text-muted-foreground">(Two people or single person event)</span>
+                    {showRelationSaved && (
+                      <span className="text-xs font-medium text-green-600 bg-green-50 px-2 py-0.5 rounded-full">✓ Saved</span>
+                    )}
+                  </div>
                 </div>
                 <div className="flex flex-col gap-2">
                   <Button
@@ -1355,18 +1355,16 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                   >
                     🎂 Birthday - single person
                   </Button>
-                </div>
+                  </div>
               </div>
 
               {/* Box 2: Guest Relations */}
-              <div className="border-2 border-[#7248E6] rounded-lg p-4 min-w-[340px]">
-                {totalGuestCount === 0 && (
-                  <div className="mb-2">
-                    <span className="bg-green-500 text-white font-normal text-lg w-8 h-8 rounded-full inline-flex items-center justify-center">3rd</span>
-                  </div>
-                )}
-                <div className="mb-3">
-                  <span className="text-sm font-semibold text-primary whitespace-nowrap">Add what relation your guests are to each of you:</span>
+              <div className="border-2 border-[#7248E6] rounded-lg p-4 flex-1">
+                <div className="flex items-center gap-3 mb-3">
+                  {totalGuestCount === 0 && (
+                    <span className="bg-green-500 text-white font-normal text-2xl w-16 h-16 rounded-full inline-flex items-center justify-center shrink-0">3rd</span>
+                  )}
+                  <span className="text-sm font-semibold text-primary">Add what relation each guest is to both of you:</span>
                 </div>
                 <div className="flex flex-col gap-3">
                   {/* Toggle: Use default names or custom names */}
