@@ -1275,7 +1275,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
                 <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                   {totalGuestCount === 0 && (
-                    <span className="bg-[#f1fd32] text-[#7248e6] font-normal text-lg px-3 py-1 rounded-full inline-block">1st</span>
+                    <span className="bg-green-500 text-white font-normal text-lg w-8 h-8 rounded-full inline-flex items-center justify-center">1st</span>
                   )}
                   <Label htmlFor="event-select" className="whitespace-nowrap text-sm font-medium">
                     Choose Event:
@@ -1318,7 +1318,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
               <div className="border-2 border-[#7248E6] rounded-lg p-4">
                 {totalGuestCount === 0 && (
                   <div className="mb-2">
-                    <span className="bg-[#f1fd32] text-[#7248e6] font-normal text-lg px-3 py-1 rounded-full inline-block">2nd</span>
+                    <span className="bg-green-500 text-white font-normal text-lg w-8 h-8 rounded-full inline-flex items-center justify-center">2nd</span>
                   </div>
                 )}
                 <div className="flex items-center gap-2 mb-3">
@@ -1362,7 +1362,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
               <div className="border-2 border-[#7248E6] rounded-lg p-4 min-w-[340px]">
                 {totalGuestCount === 0 && (
                   <div className="mb-2">
-                    <span className="bg-[#f1fd32] text-[#7248e6] font-normal text-lg px-3 py-1 rounded-full inline-block">3rd</span>
+                    <span className="bg-green-500 text-white font-normal text-lg w-8 h-8 rounded-full inline-flex items-center justify-center">3rd</span>
                   </div>
                 )}
                 <div className="mb-3">
