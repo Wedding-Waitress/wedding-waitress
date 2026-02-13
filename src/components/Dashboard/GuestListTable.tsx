@@ -1312,7 +1312,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
 
             {/* Right: Two Side-by-Side Settings Boxes */}
             {selectedEventId && (
-              <div className="flex flex-col md:flex-row gap-4">
+              <div className="flex flex-col gap-4">
                 {/* Box 1: Type of Event */}
                 <div className="border-2 border-[#7248E6] rounded-lg p-4">
                   {totalGuestCount === 0 && (
