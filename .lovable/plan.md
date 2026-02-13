@@ -1,37 +1,47 @@
 
 
-## Update Green Circle Badges and Box Layout
+## Two Changes to Guest List Page Layout
 
-### Changes Summary
-Four modifications to `src/components/Dashboard/GuestListTable.tsx`:
+### Change 1: Move "Hide what the guest relation is to you" toggle inline with the heading
 
-### 1. Double the size of all three green circles
-Change from `w-8 h-8 text-lg` to `w-16 h-16 text-2xl` on lines 1278, 1321, and 1365.
+Currently the toggle and label sit at the bottom of the third box as a separate row (lines 1442-1451). Move this toggle and its label to sit on the same line as the "Add what relation each guest is to both of you:" heading, to the right of that text.
 
-### 2. Move "Type of Event" title to the right of the 2nd circle
-Currently the 2nd badge is in its own `div` above the title. Restructure so the badge and title sit side by side using a flex row container.
-
-**Lines 1319-1327** -- combine the badge and the "Type of Event" heading into one horizontal flex row:
+**Lines 1363-1368** currently:
 ```
 <div className="flex items-center gap-3 mb-3">
   {totalGuestCount === 0 && (
-    <span className="bg-green-500 text-white font-normal text-2xl w-16 h-16 rounded-full inline-flex items-center justify-center shrink-0">2nd</span>
+    <span ...>3rd</span>
   )}
-  <div className="flex items-center gap-2">
-    <span className="text-sm font-semibold text-primary">Type of Event:</span>
-    <span className="text-xs text-muted-foreground">(Two people or single person event)</span>
-    {/* saved indicator stays here */}
+  <span ...>Add what relation each guest is to both of you:</span>
+</div>
+```
+
+Restructure to include the toggle inline:
+```
+<div className="flex items-center gap-3 mb-3 flex-wrap">
+  {totalGuestCount === 0 && (
+    <span ...>3rd</span>
+  )}
+  <span ...>Add what relation each guest is to both of you:</span>
+  <div className="flex items-center gap-2 ml-auto">
+    <Switch ... />
+    <Label ...>Hide what the guest relation is to you</Label>
   </div>
 </div>
 ```
 
-### 3. Change 3rd box text and move it beside the circle
-Change wording from "Add what relation your guests are to each of you:" to "Add what relation each guest is to both of you:"
+Then remove the original toggle block at lines 1442-1451.
 
-Restructure lines 1363-1370 so the 3rd badge and heading sit side by side, same pattern as box 2.
+### Change 2: Add spacing gap between the config boxes and the stats/buttons row
 
-### 4. Make both boxes equal width
-Add `flex-1` to both box containers (lines 1318 and 1362) so they share equal width.
+At line 1454 (after the closing `</div>` of the two boxes), the next element is the stats/buttons bar at line 1458. There is no margin between them. Add `mt-4` to the stats bar container (line 1458), changing:
+```
+<div className="flex flex-col sm:flex-row ...">
+```
+to:
+```
+<div className="flex flex-col sm:flex-row ... mt-4">
+```
 
 ### Files Modified
 - `src/components/Dashboard/GuestListTable.tsx` only
