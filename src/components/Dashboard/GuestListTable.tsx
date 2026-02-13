@@ -1360,11 +1360,21 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
 
               {/* Box 2: Guest Relations */}
               <div className="border-2 border-[#7248E6] rounded-lg p-4 flex-1">
-                <div className="flex items-center gap-3 mb-3">
+                <div className="flex items-center gap-3 mb-3 flex-wrap">
                   {totalGuestCount === 0 && (
                     <span className="bg-green-500 text-white font-normal text-2xl w-16 h-16 rounded-full inline-flex items-center justify-center shrink-0">3rd</span>
                   )}
                   <span className="text-sm font-semibold text-primary">Add what relation each guest is to both of you:</span>
+                  <div className="flex items-center gap-2 ml-auto">
+                    <Switch
+                      id="hide-relations"
+                      checked={relationMode === 'off'}
+                      onCheckedChange={(checked) => handleRelationModeChange(checked ? 'off' : 'two')}
+                    />
+                    <Label htmlFor="hide-relations" className="text-sm text-muted-foreground">
+                      Hide what the guest relation is to you
+                    </Label>
+                  </div>
                 </div>
                 <div className="flex flex-col gap-3">
                   {/* Toggle: Use default names or custom names */}
@@ -1439,23 +1449,13 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                     </>
                   )}
 
-                  <div className="flex items-center gap-2 pt-1">
-                    <Switch
-                      id="hide-relations"
-                      checked={relationMode === 'off'}
-                      onCheckedChange={(checked) => handleRelationModeChange(checked ? 'off' : 'two')}
-                    />
-                    <Label htmlFor="hide-relations" className="text-sm text-muted-foreground">
-                      Hide what the guest relation is to you
-                    </Label>
-                  </div>
                 </div>
               </div>
             </div>
           )}
 
           {/* Stats + Control Buttons - Left/Right Layout - Stack on mobile */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 flex-wrap mb-4 sm:mb-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 flex-wrap mb-4 sm:mb-6 mt-4">
             {/* LEFT SIDE: Individuals, Couples, Families - Horizontal scroll on mobile */}
             <div className="flex items-center gap-2 overflow-x-auto pb-1 -mx-1 px-1">
               <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-xs sm:text-sm font-medium h-8 sm:h-9 px-3 bg-pink-500 text-white flex-shrink-0">
