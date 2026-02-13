@@ -1,27 +1,23 @@
 
+## Fix Create Event Modal: Date Picker Positioning + Footer Buttons
 
-## Update Table Setup Description Text
+### Problem
+1. **Date picker flipping**: In the Reception section, when navigating to future months (May, August, etc.), the calendar popover flips above the trigger button due to insufficient space at the bottom of the scrollable area.
+2. **Cancel button**: Currently plain outline style -- needs red background to match other forms.
+3. **Create Event button**: Currently uses gradient purple -- needs to use the common green color.
 
-### What Changes
-Replace the single paragraph of text in the "Table Setup" card (line 441-443 in `src/pages/Dashboard.tsx`) with 6 styled bullet points matching the user's exact wording and formatting.
+### Changes
 
-### File to Modify
-- `src/pages/Dashboard.tsx` (lines 441-443)
+**File: `src/components/Dashboard/EventCreateModal.tsx`**
 
-### New Content
-The existing `<CardDescription>` block will be replaced with a styled `<ul>` list containing 6 bullet points:
+1. **Add bottom padding to scrollable area** (line 229): Add `pb-40` (160px) to the scrollable container's className so there is always enough room below the last row for the date picker calendar to open downward without flipping.
 
-1. **Important -- Please Read:** (bold, red text)
-2. Design your perfect seating arrangements by adding the number of tables you want to host your guests.
-3. We suggest firstly adding a **"Bridal Table"** then the **"1 Groom's Family"** table, then the **"2 Bride's Family"** table.
-4. Then add sequential numbering tables like **"1, 2, 3, 4, 5 & etc"**
-5. Alternatively, have some fun by creating table names like **"Paris, New York, Rome, or Cairo"**.
-6. Once you have set up all the table with names or numbers then move onto the next page > **"Guest List"**, to add your guest names & details.
-7. Remember, you can always come back here, drag / drop & re-allocate that aunty who still doesn't talk to the other aunts or Uncles ha ha -- Have Fun!
+2. **Cancel button** (lines 511-516): Change from `variant="outline"` to `variant="destructive"` so it has a red background, matching other modal forms.
 
-### Technical Details
-- Replace the `<CardDescription>` with a `<div>` containing a `<ul>` with `list-disc` styling
-- First bullet uses `text-red-600 font-bold` for the red bold "Important" line
-- Bold words wrapped in `<strong>` tags
-- All other styling (card layout, icon, title) remains untouched
+3. **Create Event button** (lines 518-525): Change from `variant="gradient"` to a green background using `className="rounded-full bg-green-500 hover:bg-green-600 text-white"` and remove the gradient variant.
 
+### Summary of Visual Changes
+- Reception date pickers will always have room to open downward (no more flipping)
+- Cancel button: red background (consistent with other forms)
+- Create Event button: green background (consistent with other forms)
+- No other changes anywhere else
