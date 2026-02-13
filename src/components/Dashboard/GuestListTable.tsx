@@ -1176,7 +1176,9 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
 
     // Count couple groups (2 members) and family groups (3+ members)
     familyGroups.forEach((members) => {
-      if (members.length === 2) {
+      if (members.length === 1) {
+        stats.individual++;
+      } else if (members.length === 2) {
         stats.couple++;
       } else if (members.length >= 3) {
         stats.family++;
