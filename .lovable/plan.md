@@ -1,33 +1,38 @@
 
 
-## Update Step Indicator Badges to Green Circles with White Text
+## Update Green Circle Badges and Box Layout
 
-### What's Changing
-The "1st", "2nd", and "3rd" step badges on the Guest List page need to be updated to match the reference screenshot: a green circular badge with white text.
+### Changes Summary
+Four modifications to `src/components/Dashboard/GuestListTable.tsx`:
 
-### Target Locations
-Three badges in `src/components/Dashboard/GuestListTable.tsx`:
-1. **Line 1278** - "1st" badge
-2. **Line 1321** - "2nd" badge
-3. **Line 1365** - "3rd" badge
+### 1. Double the size of all three green circles
+Change from `w-8 h-8 text-lg` to `w-16 h-16 text-2xl` on lines 1278, 1321, and 1365.
 
-### CSS Changes
-Each badge currently has:
+### 2. Move "Type of Event" title to the right of the 2nd circle
+Currently the 2nd badge is in its own `div` above the title. Restructure so the badge and title sit side by side using a flex row container.
+
+**Lines 1319-1327** -- combine the badge and the "Type of Event" heading into one horizontal flex row:
 ```
-className="bg-[#f1fd32] text-[#7248e6] font-normal text-lg px-3 py-1 rounded-full inline-block"
+<div className="flex items-center gap-3 mb-3">
+  {totalGuestCount === 0 && (
+    <span className="bg-green-500 text-white font-normal text-2xl w-16 h-16 rounded-full inline-flex items-center justify-center shrink-0">2nd</span>
+  )}
+  <div className="flex items-center gap-2">
+    <span className="text-sm font-semibold text-primary">Type of Event:</span>
+    <span className="text-xs text-muted-foreground">(Two people or single person event)</span>
+    {/* saved indicator stays here */}
+  </div>
+</div>
 ```
 
-Change to:
-```
-className="bg-green-500 text-white font-normal text-lg w-8 h-8 rounded-full inline-flex items-center justify-center"
-```
+### 3. Change 3rd box text and move it beside the circle
+Change wording from "Add what relation your guests are to each of you:" to "Add what relation each guest is to both of you:"
 
-### Key Modifications
-- **Background**: `bg-[#f1fd32]` (yellow) -> `bg-green-500` (green)
-- **Text color**: `text-[#7248e6]` (purple) -> `text-white`
-- **Shape**: Replace `px-3 py-1` padding with fixed `w-8 h-8` dimensions + `inline-flex items-center justify-center` to make a true circle
-- **No other changes** to any other element on the page
+Restructure lines 1363-1370 so the 3rd badge and heading sit side by side, same pattern as box 2.
+
+### 4. Make both boxes equal width
+Add `flex-1` to both box containers (lines 1318 and 1362) so they share equal width.
 
 ### Files Modified
-- `src/components/Dashboard/GuestListTable.tsx` (3 instances)
+- `src/components/Dashboard/GuestListTable.tsx` only
 
