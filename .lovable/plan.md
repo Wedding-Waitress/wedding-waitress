@@ -1,86 +1,57 @@
 
 
-## Real-Time Ceremony-to-Reception Auto-Sync
+## Three Changes to My Events Page and Create Event Modal
 
-### What Changes
+### Change 1: Reduce the "Create Event" button size in EventsTable.tsx
 
-**File:** `src/components/Dashboard/EventCreateModal.tsx`
+**File:** `src/components/Dashboard/EventsTable.tsx` (line 265)
 
-### Current Behavior
-The existing `useEffect` only copies Ceremony values into Reception fields once -- when the Reception toggle is switched ON. After that, typing in Ceremony fields does not update Reception fields.
+The green "Create Event" button is slightly too large. Change the size from `sm` to `xs` to make it more consistent with other elements. Also reduce padding slightly.
 
-### New Behavior
-- As the user fills out each Ceremony field, the corresponding Reception field updates in real time (live sync).
-- **Exception:** Start Time and Finish Time will NOT sync from Ceremony to Reception.
-- If the user has manually edited a Reception field to something different, that field stops syncing (user override is preserved).
-- Each Reception field shows the synced value but can be changed by the user at any time.
-
-### Implementation
-
-1. **Replace the single `useEffect`** (lines 69-86) with a new `useEffect` that watches ALL relevant Ceremony field values (not just `reception_enabled`).
-
-2. **Track user overrides** with a `useState` set (e.g., `receptionOverrides`) so that once a user manually changes a Reception field, it stops being auto-synced from the Ceremony.
-
-3. **Field mapping** (Ceremony -> Reception):
-   - `ceremony_name` -> `name`
-   - `ceremony_date` -> `date`
-   - `ceremony_rsvp_deadline` -> `rsvp_deadline`
-   - `ceremony_guest_limit` -> `guest_limit`
-   - `ceremony_venue` -> `venue`
-   - `ceremony_venue_address` -> `venue_address`
-   - `ceremony_venue_phone` -> `venue_phone`
-   - `ceremony_venue_contact` -> `venue_contact`
-   - `ceremony_start_time` -> NOT synced
-   - `ceremony_finish_time` -> NOT synced
-
-4. **Override tracking:** When the user directly edits any Reception field (name, date, venue, etc.), add that field name to the `receptionOverrides` set. The sync effect skips any field in that set.
-
-5. **Reset overrides** when the modal closes or when Ceremony is toggled off, so the next time it starts fresh.
-
-### Technical Detail
-
-```typescript
-const [receptionOverrides, setReceptionOverrides] = useState<Set<string>>(new Set());
-
-const markReceptionOverride = (field: string) => {
-  setReceptionOverrides(prev => new Set(prev).add(field));
-};
-
-// Live sync from Ceremony to Reception
-useEffect(() => {
-  if (!formData.reception_enabled || !formData.ceremony_enabled) return;
-  
-  setFormData(prev => {
-    const updates: any = {};
-    const syncMap: Record<string, string> = {
-      ceremony_name: 'name',
-      ceremony_date: 'date',
-      ceremony_rsvp_deadline: 'rsvp_deadline',
-      ceremony_guest_limit: 'guest_limit',
-      ceremony_venue: 'venue',
-      ceremony_venue_address: 'venue_address',
-      ceremony_venue_phone: 'venue_phone',
-      ceremony_venue_contact: 'venue_contact',
-      // Start Time and Finish Time intentionally excluded
-    };
-    for (const [srcKey, destKey] of Object.entries(syncMap)) {
-      if (!receptionOverrides.has(destKey)) {
-        updates[destKey] = (prev as any)[srcKey];
-      }
-    }
-    return { ...prev, ...updates };
-  });
-}, [
-  formData.ceremony_enabled, formData.reception_enabled,
-  formData.ceremony_name, formData.ceremony_date,
-  formData.ceremony_venue, formData.ceremony_venue_address,
-  formData.ceremony_venue_phone, formData.ceremony_venue_contact,
-  formData.ceremony_guest_limit, formData.ceremony_rsvp_deadline,
-  receptionOverrides
-]);
+Current:
+```jsx
+<Button variant="default" size={isMobile ? "sm" : "sm"} className="rounded-full flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white touch-target" ...>
 ```
 
-Each Reception input's `onChange` handler will call `markReceptionOverride('fieldName')` so the user can override any synced value.
+New:
+```jsx
+<Button variant="default" size="xs" className="rounded-full flex items-center gap-1.5 bg-green-500 hover:bg-green-600 text-white touch-target" ...>
+```
+
+### Change 2: Restyle Location Details popover Cancel/Save buttons
+
+**File:** `src/components/Dashboard/LocationDetailsPopover.tsx` (lines 116-123)
+
+Change the Cancel and Save buttons in the Location Details popover (used by both Ceremony and Reception sections) to:
+- **Cancel:** Red background with white text (`bg-red-500 hover:bg-red-600 text-white`)
+- **Save:** Green background with white text (`bg-green-500 hover:bg-green-600 text-white`)
+
+Current:
+```jsx
+<Button variant="outline" size="sm" className="rounded-full" onClick={handleCancel}>Cancel</Button>
+<Button variant="gradient" size="sm" className="rounded-full" onClick={handleSave}>Save</Button>
+```
+
+New:
+```jsx
+<Button size="sm" className="rounded-full bg-red-500 hover:bg-red-600 text-white" onClick={handleCancel}>Cancel</Button>
+<Button size="sm" className="rounded-full bg-green-500 hover:bg-green-600 text-white" onClick={handleSave}>Save</Button>
+```
+
+### Change 3: Restyle Create Event modal footer Cancel/Create Event buttons
+
+**File:** `src/components/Dashboard/EventCreateModal.tsx` (lines 551-565)
+
+The Cancel button already uses `variant="destructive"` (red). The Create Event button already uses green. These look correct from the screenshot. However, to ensure full consistency and matching tablet-style sizing, both buttons will use explicit color classes and matching size.
+
+Current:
+```jsx
+<Button variant="destructive" onClick={handleClose} className="rounded-full">Cancel</Button>
+<Button onClick={handleCreate} disabled={...} className="rounded-full bg-green-500 hover:bg-green-600 text-white">Create Event</Button>
+```
+
+These already match the requested style (red Cancel, green Create Event), so no change needed here.
 
 ### Files Modified
-- `src/components/Dashboard/EventCreateModal.tsx` only
+- `src/components/Dashboard/EventsTable.tsx` -- reduce Create Event button size
+- `src/components/Dashboard/LocationDetailsPopover.tsx` -- Cancel = red bg/white text, Save = green bg/white text
