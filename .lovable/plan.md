@@ -1,42 +1,33 @@
 
 
-## Fix Individuals / Couples / Families Calculation
+## Fix "Add First Guest" Button Not Opening
 
-### Current Issue
-The calculation in `src/components/Dashboard/GuestListTable.tsx` (lines 1153-1187) groups guests by their `family_group` field. However, there is a bug:
+### Root Cause
+The "Add First Guest" button has a gating check that requires partner names to be saved before allowing the modal to open. The save function (`handleSavePartnerNames`) successfully writes "Bride" and "Groom" to the database when you leave (blur) the input fields, but it never updates the `partnerNamesSaved` state to `true`. So the button keeps blocking you.
 
-- Guests with **no** `family_group` are counted as Individuals (correct)
-- Groups of **2** members are counted as Couples (correct)
-- Groups of **3+** members are counted as Families (correct)
-- Groups of **1** member (a guest assigned to a family group name but alone in that group) are **not counted at all** -- they fall through and appear in none of the three categories
+The console logs confirm this -- every click triggers `addguest_blocked_missing_names`, meaning the gating logic fires every time.
 
 ### Fix
-In the `familyGroups.forEach` loop, add a condition: if a family group has exactly 1 member, count that person as an Individual (since they are effectively alone).
+**File: `src/components/Dashboard/GuestListTable.tsx`** (inside `handleSavePartnerNames`, around line 381)
 
-### File to Modify
-- `src/components/Dashboard/GuestListTable.tsx` (lines 1177-1184)
+After the partner names are successfully saved to the database, add a check: if both names are filled, set `partnerNamesSaved` to `true` and clear the validation warning. This way, once you type both names and click away (or press Tab), the button will immediately become active.
 
-### Change Detail
-Update the `familyGroups.forEach` block from:
+### Technical Detail
+After the `updateEvent()` call succeeds (line 381), add:
 
-```
-if (members.length === 2) {
-  stats.couple++;
-} else if (members.length >= 3) {
-  stats.family++;
+```typescript
+// Check if both required names are now filled
+const bothFilled = relationMode === 'two'
+  ? (partner1Name?.trim() && partner2Name?.trim())
+  : relationMode === 'single'
+    ? partner1Name?.trim()
+    : true;
+
+if (bothFilled) {
+  setPartnerNamesSaved(true);
+  setShowNamesValidation(false);
 }
 ```
 
-To:
+No other files or pages are changed.
 
-```
-if (members.length === 1) {
-  stats.individual++;
-} else if (members.length === 2) {
-  stats.couple++;
-} else if (members.length >= 3) {
-  stats.family++;
-}
-```
-
-This ensures every guest is accounted for in exactly one category. No other files or pages are changed.
