@@ -438,9 +438,17 @@ export const Dashboard = () => {
                     <MapPin className="w-16 h-16 text-primary flex-shrink-0" />
                     <div className="flex flex-col">
                       <CardTitle className="mb-2 text-left text-2xl font-medium text-[#7248e6]">Table Setup</CardTitle>
-                      <CardDescription className="text-left">
-                        Design your perfect seating arrangements by adding the number of tables you want to host your guests. We suggest firstly adding a "Bridal Table" then the "Groom's Family 1" table, then the "Bride's Family 2" table. Then add sequential numbering tables or have some fun by creating table names like Paris, New York, Rome, or Cairo. Once you have set up the table arrangements, then move onto the next "Guest List" page to add your guests with all other required info. You can always come back here, drag / drop & re-allocate that aunty who still doesn't want to talk to the other aunts.
-                      </CardDescription>
+                      <div className="text-left text-sm text-muted-foreground">
+                        <ul className="list-disc pl-5 space-y-1">
+                          <li className="text-red-600 font-bold">Important – Please Read:</li>
+                          <li>Design your perfect seating arrangements by adding the number of tables you want to host your guests.</li>
+                          <li>We suggest firstly adding a <strong>"Bridal Table"</strong> then the <strong>"1 Groom's Family"</strong> table, then the <strong>"2 Bride's Family"</strong> table.</li>
+                          <li>Then add sequential numbering tables like <strong>"1, 2, 3, 4, 5 & etc"</strong></li>
+                          <li>Alternatively, have some fun by creating table names like <strong>"Paris, New York, Rome, or Cairo"</strong>.</li>
+                          <li>Once you have set up all the table with names or numbers then move onto the next page &gt; <strong>"Guest List"</strong>, to add your guest names & details.</li>
+                          <li>Remember, you can always come back here, drag / drop & re-allocate that aunty who still doesn't talk to the other aunts or Uncles ha ha – Have Fun!</li>
+                        </ul>
+                      </div>
                     </div>
                   </div>
                 </div>
