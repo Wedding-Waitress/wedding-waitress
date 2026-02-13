@@ -226,7 +226,7 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
           </div>
         </DialogHeader>
 
-        <div className="space-y-4 py-3 overflow-y-auto flex-1 mobile-scroll-container">
+        <div className="space-y-4 py-3 pb-40 overflow-y-auto flex-1 mobile-scroll-container">
           {/* Validation Message */}
           {!formData.ceremony_enabled && !formData.reception_enabled && (
             <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-3 text-sm text-destructive">
@@ -509,17 +509,16 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
 
         <DialogFooter className="pt-2 border-t">
           <Button 
-            variant="outline" 
+            variant="destructive" 
             onClick={handleClose}
             className="rounded-full"
           >
             Cancel
           </Button>
           <Button 
-            variant="gradient"
             onClick={handleCreate}
             disabled={!isFormValid || isSaving}
-            className="rounded-full"
+            className="rounded-full bg-green-500 hover:bg-green-600 text-white"
           >
             {isSaving ? 'Creating...' : 'Create Event'}
           </Button>
