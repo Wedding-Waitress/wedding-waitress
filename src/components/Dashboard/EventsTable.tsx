@@ -234,11 +234,13 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                 My Events{selectedEventProp?.name && !isMobile ? ` - ${selectedEventProp.name}` : ''}
               </h3>
               <div className="flex items-start gap-2 mt-3">
-                <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
-                  <span className="text-white text-sm font-semibold">1</span>
-                </div>
                 <p className="text-xs sm:text-sm text-muted-foreground">
-                  {isMobile ? "Create & manage events here." : "Start here by creating & managing your events, then create the number of tables you want in the next \"Tables\" page."}
+                  {isMobile ? "Create & manage events here." : (
+                    <>
+                      <span className="bg-green-500 text-white text-xs sm:text-sm font-medium px-2 py-0.5 rounded">Start here</span>
+                      {" "}by creating & managing your events, then create the number of tables you want in the next "Tables" page.
+                    </>
+                  )}
                 </p>
               </div>
               {selectedEvent && !isMobile && (

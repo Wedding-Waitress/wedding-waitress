@@ -9,7 +9,7 @@
  * 3-column layout for compact display.
  */
 
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -65,6 +65,25 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
   });
 
   const [isSaving, setIsSaving] = useState(false);
+
+  // When reception is toggled ON, pre-fill empty reception fields from ceremony data
+  useEffect(() => {
+    if (formData.reception_enabled && formData.ceremony_enabled) {
+      setFormData(prev => ({
+        ...prev,
+        name: prev.name || prev.ceremony_name,
+        date: prev.date || prev.ceremony_date,
+        venue: prev.venue || prev.ceremony_venue,
+        venue_address: prev.venue_address || prev.ceremony_venue_address,
+        venue_phone: prev.venue_phone || prev.ceremony_venue_phone,
+        venue_contact: prev.venue_contact || prev.ceremony_venue_contact,
+        guest_limit: (prev.guest_limit === '' || prev.guest_limit === 10) ? prev.ceremony_guest_limit : prev.guest_limit,
+        start_time: prev.start_time || prev.ceremony_start_time,
+        finish_time: prev.finish_time || prev.ceremony_finish_time,
+        rsvp_deadline: prev.rsvp_deadline || prev.ceremony_rsvp_deadline,
+      }));
+    }
+  }, [formData.reception_enabled]);
 
   // Helper to get dynamic border class based on field value
   const getInputClass = useCallback((hasValue: boolean) => {
