@@ -182,6 +182,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
   const [searchTerm, setSearchTerm] = useState('');
   
   const [partnerNamesSaved, setPartnerNamesSaved] = useState(false);
+  const [useDefaultNames, setUseDefaultNames] = useState(true);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [firstGuestAdded, setFirstGuestAdded] = useState(false);
@@ -1273,6 +1274,9 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
               {/* Event selector and search - Stack on mobile */}
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
                 <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                  {totalGuestCount === 0 && (
+                    <span className="bg-yellow-400 text-red-600 font-extrabold text-lg px-3 py-1 rounded-lg inline-block">1st</span>
+                  )}
                   <Label htmlFor="event-select" className="whitespace-nowrap text-sm font-medium">
                     Choose Event:
                   </Label>
@@ -1311,6 +1315,11 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
               <div className="flex flex-col md:flex-row gap-4">
                 {/* Box 1: Type of Event */}
                 <div className="border-2 border-[#7248E6] rounded-lg p-4">
+                  {totalGuestCount === 0 && (
+                    <div className="mb-2">
+                      <span className="bg-yellow-400 text-red-600 font-extrabold text-lg px-3 py-1 rounded-lg inline-block">2nd</span>
+                    </div>
+                  )}
                   <div className="flex items-center gap-2 mb-3">
                     <span className="text-sm font-semibold text-primary">Type of Event:</span>
                     <span className="text-xs text-muted-foreground">(Two people or single person event)</span>
@@ -1326,7 +1335,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                       className={cn(
                         "h-8 text-sm justify-start transition-all",
                         relationMode === 'two'
-                          ? "bg-primary text-primary-foreground shadow-md"
+                          ? "bg-green-500 text-white shadow-md hover:bg-green-600"
                           : "bg-white border border-primary/30 text-foreground hover:bg-primary/5"
                       )}
                     >
@@ -1339,7 +1348,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                       className={cn(
                         "h-8 text-sm justify-start transition-all",
                         relationMode === 'single'
-                          ? "bg-primary text-primary-foreground shadow-md"
+                          ? "bg-green-500 text-white shadow-md hover:bg-green-600"
                           : "bg-white border border-primary/30 text-foreground hover:bg-primary/5"
                       )}
                     >
@@ -1350,38 +1359,85 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
 
                 {/* Box 2: Guest Relations */}
                 <div className="border-2 border-[#7248E6] rounded-lg p-4 min-w-[340px]">
+                  {totalGuestCount === 0 && (
+                    <div className="mb-2">
+                      <span className="bg-yellow-400 text-red-600 font-extrabold text-lg px-3 py-1 rounded-lg inline-block">3rd</span>
+                    </div>
+                  )}
                   <div className="mb-3">
                     <span className="text-sm font-semibold text-primary whitespace-nowrap">Add what relation your guests are to each of you:</span>
                   </div>
                   <div className="flex flex-col gap-3">
-                    <div className="flex items-center gap-2">
-                      <Label htmlFor="partner1_name" className="text-sm text-muted-foreground whitespace-nowrap min-w-[110px]">
-                        Partner 1 name:
-                      </Label>
-                      <Input
-                        id="partner1_name"
-                        value={partner1Name}
-                        onChange={(e) => setPartner1Name(e.target.value)}
-                        onBlur={handleSavePartnerNames}
-                        placeholder={relationMode === 'two' ? "Bride" : "Name"}
-                        className="h-8 text-sm flex-1 border-primary/40 focus:border-primary"
-                      />
+                    {/* Toggle: Use default names or custom names */}
+                    <div className="flex flex-col gap-2">
+                      <label
+                        className={cn(
+                          "flex items-center gap-2 cursor-pointer rounded-lg border p-2 text-sm transition-all",
+                          useDefaultNames
+                            ? "border-green-500 bg-green-50 text-foreground"
+                            : "border-muted text-muted-foreground hover:border-primary/30"
+                        )}
+                        onClick={() => {
+                          setUseDefaultNames(true);
+                          setPartner1Name('Bride');
+                          setPartner2Name('Groom');
+                          setPartnerNamesSaved(true);
+                          setShowNamesValidation(false);
+                          handleSavePartnerNames();
+                        }}
+                      >
+                        <input type="radio" name="nameChoice" checked={useDefaultNames} readOnly className="accent-green-500" />
+                        Leave Partner 1 and Partner 2 names as Bride and Groom
+                      </label>
+                      <label
+                        className={cn(
+                          "flex items-center gap-2 cursor-pointer rounded-lg border p-2 text-sm transition-all",
+                          !useDefaultNames
+                            ? "border-green-500 bg-green-50 text-foreground"
+                            : "border-muted text-muted-foreground hover:border-primary/30"
+                        )}
+                        onClick={() => {
+                          setUseDefaultNames(false);
+                        }}
+                      >
+                        <input type="radio" name="nameChoice" checked={!useDefaultNames} readOnly className="accent-green-500" />
+                        Add new names for Partner 1 and Partner 2
+                      </label>
                     </div>
 
-                    {relationMode === 'two' && (
-                      <div className="flex items-center gap-2">
-                        <Label htmlFor="partner2_name" className="text-sm text-muted-foreground whitespace-nowrap min-w-[110px]">
-                          Partner 2 name:
-                        </Label>
-                        <Input
-                          id="partner2_name"
-                          value={partner2Name}
-                          onChange={(e) => setPartner2Name(e.target.value)}
-                          onBlur={handleSavePartnerNames}
-                          placeholder="Groom"
-                          className="h-8 text-sm flex-1 border-primary/40 focus:border-primary"
-                        />
-                      </div>
+                    {/* Custom name inputs - only shown when useDefaultNames is false */}
+                    {!useDefaultNames && (
+                      <>
+                        <div className="flex items-center gap-2">
+                          <Label htmlFor="partner1_name" className="text-sm text-muted-foreground whitespace-nowrap min-w-[110px]">
+                            Partner 1 name:
+                          </Label>
+                          <Input
+                            id="partner1_name"
+                            value={partner1Name}
+                            onChange={(e) => setPartner1Name(e.target.value)}
+                            onBlur={handleSavePartnerNames}
+                            placeholder={relationMode === 'two' ? "Bride" : "Name"}
+                            className="h-8 text-sm flex-1 border-primary/40 focus:border-primary"
+                          />
+                        </div>
+
+                        {relationMode === 'two' && (
+                          <div className="flex items-center gap-2">
+                            <Label htmlFor="partner2_name" className="text-sm text-muted-foreground whitespace-nowrap min-w-[110px]">
+                              Partner 2 name:
+                            </Label>
+                            <Input
+                              id="partner2_name"
+                              value={partner2Name}
+                              onChange={(e) => setPartner2Name(e.target.value)}
+                              onBlur={handleSavePartnerNames}
+                              placeholder="Groom"
+                              className="h-8 text-sm flex-1 border-primary/40 focus:border-primary"
+                            />
+                          </div>
+                        )}
+                      </>
                     )}
 
                     <div className="flex items-center gap-2 pt-1">
