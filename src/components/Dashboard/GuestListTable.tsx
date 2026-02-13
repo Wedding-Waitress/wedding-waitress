@@ -379,6 +379,18 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
         partner1_name: partner1Name,
         partner2_name: partner2Name 
       });
+
+      // Update local state so "Add Guest" button becomes active
+      const bothFilled = relationMode === 'two'
+        ? (partner1Name?.trim() && partner2Name?.trim())
+        : relationMode === 'single'
+          ? partner1Name?.trim()
+          : true;
+
+      if (bothFilled) {
+        setPartnerNamesSaved(true);
+        setShowNamesValidation(false);
+      }
     } catch (error) {
       console.error('Error saving partner names:', error);
       toast({
