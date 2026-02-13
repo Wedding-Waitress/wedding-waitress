@@ -1,48 +1,75 @@
 
 
-## Two Changes to Guest List Page Layout
+## Two Changes to My Events Page
 
-### Change 1: Move "Hide what the guest relation is to you" toggle inline with the heading
+### Change 1: Restyle the "Start here" indicator in EventsTable.tsx
 
-Currently the toggle and label sit at the bottom of the third box as a separate row (lines 1442-1451). Move this toggle and its label to sit on the same line as the "Add what relation each guest is to both of you:" heading, to the right of that text.
+**File:** `src/components/Dashboard/EventsTable.tsx` (lines 236-243)
 
-**Lines 1363-1368** currently:
-```
-<div className="flex items-center gap-3 mb-3">
-  {totalGuestCount === 0 && (
-    <span ...>3rd</span>
-  )}
-  <span ...>Add what relation each guest is to both of you:</span>
+**Current:** A small green circle with "1" inside, followed by "Start here by creating & managing your events..." text as muted foreground.
+
+**New:** Remove the green circle with "1". Replace with a green badge/tablet behind the words "Start here" in white text, followed by the rest of the instruction text in normal muted style. Move the text to be left-aligned (it already is).
+
+Replace lines 236-243:
+```jsx
+<div className="flex items-start gap-2 mt-3">
+  <p className="text-xs sm:text-sm text-muted-foreground">
+    {isMobile ? "Create & manage events here." : (
+      <>
+        <span className="bg-green-500 text-white text-xs sm:text-sm font-medium px-2 py-0.5 rounded">Start here</span>
+        {" "}by creating & managing your events, then create the number of tables you want in the next "Tables" page.
+      </>
+    )}
+  </p>
 </div>
 ```
 
-Restructure to include the toggle inline:
-```
-<div className="flex items-center gap-3 mb-3 flex-wrap">
-  {totalGuestCount === 0 && (
-    <span ...>3rd</span>
-  )}
-  <span ...>Add what relation each guest is to both of you:</span>
-  <div className="flex items-center gap-2 ml-auto">
-    <Switch ... />
-    <Label ...>Hide what the guest relation is to you</Label>
-  </div>
-</div>
-```
+This removes the green circle with "1", adds a green tablet/badge behind "Start here" with white text, and keeps the remaining instruction text as-is.
 
-Then remove the original toggle block at lines 1442-1451.
+---
 
-### Change 2: Add spacing gap between the config boxes and the stats/buttons row
+### Change 2: Auto-populate Reception fields from Ceremony data
 
-At line 1454 (after the closing `</div>` of the two boxes), the next element is the stats/buttons bar at line 1458. There is no margin between them. Add `mt-4` to the stats bar container (line 1458), changing:
-```
-<div className="flex flex-col sm:flex-row ...">
-```
-to:
-```
-<div className="flex flex-col sm:flex-row ... mt-4">
+**File:** `src/components/Dashboard/EventCreateModal.tsx`
+
+When the user enables the Reception toggle (or has both enabled), and Ceremony fields have been filled in, auto-populate the corresponding empty Reception fields with the Ceremony values. The user can still override any field.
+
+**Fields to carry over** (only when the Reception field is currently empty/default):
+- `ceremony_name` -> `name` (Event Name)
+- `ceremony_date` -> `date` (Event Date)
+- `ceremony_venue` -> `venue` (Location/Venue)
+- `ceremony_venue_address` -> `venue_address`
+- `ceremony_venue_phone` -> `venue_phone`
+- `ceremony_venue_contact` -> `venue_contact`
+- `ceremony_guest_limit` -> `guest_limit`
+- `ceremony_start_time` -> `start_time`
+- `ceremony_finish_time` -> `finish_time`
+- `ceremony_rsvp_deadline` -> `rsvp_deadline`
+
+**Implementation:** Add a `useEffect` that watches for `reception_enabled` turning ON. When it does, copy any filled Ceremony values into the corresponding empty Reception fields. This is a one-time population -- once the user edits a Reception field, it stays as-is.
+
+```typescript
+// When reception is toggled ON, pre-fill empty reception fields from ceremony data
+useEffect(() => {
+  if (formData.reception_enabled && formData.ceremony_enabled) {
+    setFormData(prev => ({
+      ...prev,
+      name: prev.name || prev.ceremony_name,
+      date: prev.date || prev.ceremony_date,
+      venue: prev.venue || prev.ceremony_venue,
+      venue_address: prev.venue_address || prev.ceremony_venue_address,
+      venue_phone: prev.venue_phone || prev.ceremony_venue_phone,
+      venue_contact: prev.venue_contact || prev.ceremony_venue_contact,
+      guest_limit: (prev.guest_limit === '' || prev.guest_limit === 10) ? prev.ceremony_guest_limit : prev.guest_limit,
+      start_time: prev.start_time || prev.ceremony_start_time,
+      finish_time: prev.finish_time || prev.ceremony_finish_time,
+      rsvp_deadline: prev.rsvp_deadline || prev.ceremony_rsvp_deadline,
+    }));
+  }
+}, [formData.reception_enabled]);
 ```
 
 ### Files Modified
-- `src/components/Dashboard/GuestListTable.tsx` only
+- `src/components/Dashboard/EventsTable.tsx` -- "Start here" badge restyle
+- `src/components/Dashboard/EventCreateModal.tsx` -- ceremony-to-reception auto-fill
 
