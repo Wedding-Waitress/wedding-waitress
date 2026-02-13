@@ -1101,6 +1101,8 @@ export type Database = {
           relation_role: string
           rsvp: string | null
           rsvp_date: string | null
+          rsvp_invite_sent_at: string | null
+          rsvp_invite_status: string
           seat_no: number | null
           table_id: string | null
           table_no: number | null
@@ -1126,6 +1128,8 @@ export type Database = {
           relation_role?: string
           rsvp?: string | null
           rsvp_date?: string | null
+          rsvp_invite_sent_at?: string | null
+          rsvp_invite_status?: string
           seat_no?: number | null
           table_id?: string | null
           table_no?: number | null
@@ -1151,6 +1155,8 @@ export type Database = {
           relation_role?: string
           rsvp?: string | null
           rsvp_date?: string | null
+          rsvp_invite_sent_at?: string | null
+          rsvp_invite_status?: string
           seat_no?: number | null
           table_id?: string | null
           table_no?: number | null
@@ -1700,6 +1706,54 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      rsvp_invite_logs: {
+        Row: {
+          channel: string
+          error_message: string | null
+          event_id: string
+          guest_id: string
+          id: string
+          sent_at: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          channel: string
+          error_message?: string | null
+          event_id: string
+          guest_id: string
+          id?: string
+          sent_at?: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          channel?: string
+          error_message?: string | null
+          event_id?: string
+          guest_id?: string
+          id?: string
+          sent_at?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rsvp_invite_logs_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rsvp_invite_logs_guest_id_fkey"
+            columns: ["guest_id"]
+            isOneToOne: false
+            referencedRelation: "guests"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       running_sheet_items: {
         Row: {

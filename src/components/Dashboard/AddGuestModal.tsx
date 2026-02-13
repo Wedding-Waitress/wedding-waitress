@@ -991,26 +991,29 @@ const otherGuests = allGuests
               </div>
             )}
 
-            {/* RSVP Date */}
-            <FormField
-              control={form.control}
-              name="rsvp_date"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>RSVP Date</FormLabel>
-                  <FormControl>
-                    <EventDatePicker
-                      value={field.value}
-                      onChange={field.onChange}
-                      placeholder="Select RSVP date"
-                      dateFormat="dd/MM/yyyy"
-                      allowPastDates={true}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            {/* RSVP Invite Status Badge - Show when editing */}
+            {isEdit && editGuest && (
+              <div className="space-y-1">
+                <Label className="text-sm font-medium">RSVP Invite Status</Label>
+                <div>
+                  {(() => {
+                    const status = (editGuest as any).rsvp_invite_status || 'not_sent';
+                    const statusConfig: Record<string, { label: string; className: string }> = {
+                      'not_sent': { label: 'Not Sent', className: 'bg-gray-400 text-white' },
+                      'email_sent': { label: 'Email Sent', className: 'bg-blue-500 text-white' },
+                      'sms_sent': { label: 'SMS Sent', className: 'bg-green-500 text-white' },
+                      'both_sent': { label: 'Both Sent', className: 'bg-purple-500 text-white' },
+                    };
+                    const config = statusConfig[status] || statusConfig['not_sent'];
+                    return (
+                      <Badge className={`text-xs ${config.className}`}>
+                        {config.label}
+                      </Badge>
+                    );
+                  })()}
+                </div>
+              </div>
+            )}
 
             {/* RSVP and Dietary - Stack on mobile */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

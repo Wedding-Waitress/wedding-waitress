@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { MapPin, CheckCircle2, Trash2, X } from "lucide-react";
+import { MapPin, CheckCircle2, Trash2, X, Mail, Phone } from "lucide-react";
 
 interface GuestBulkActionsBarProps {
   selectedCount: number;
@@ -11,6 +11,8 @@ interface GuestBulkActionsBarProps {
   onUpdateRsvp: () => void;
   onDelete: () => void;
   onCancel: () => void;
+  onSendEmail?: () => void;
+  onSendSms?: () => void;
 }
 
 export const GuestBulkActionsBar = ({
@@ -21,7 +23,9 @@ export const GuestBulkActionsBar = ({
   onAssignTable,
   onUpdateRsvp,
   onDelete,
-  onCancel
+  onCancel,
+  onSendEmail,
+  onSendSms
 }: GuestBulkActionsBarProps) => {
   const allSelected = selectedCount === totalCount;
 
@@ -83,6 +87,33 @@ export const GuestBulkActionsBar = ({
         <Trash2 className="w-4 h-4 mr-2" />
         Delete
       </Button>
+
+      <Separator orientation="vertical" className="h-8 bg-white/20" />
+
+      {/* Send Email/SMS Actions */}
+      {onSendEmail && (
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          onClick={onSendEmail}
+          className="text-white hover:bg-blue-500/30"
+        >
+          <Mail className="w-4 h-4 mr-2" />
+          Send Email
+        </Button>
+      )}
+      
+      {onSendSms && (
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          onClick={onSendSms}
+          className="text-white hover:bg-green-500/30"
+        >
+          <Phone className="w-4 h-4 mr-2" />
+          Send SMS
+        </Button>
+      )}
 
       <Separator orientation="vertical" className="h-8 bg-white/20" />
 

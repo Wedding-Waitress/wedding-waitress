@@ -52,7 +52,9 @@ import {
   Download,
   Upload,
   FileText,
-  Search
+  Search,
+  Mail,
+  Phone
 } from "lucide-react";
 import {
   Tooltip,
@@ -82,6 +84,8 @@ import { whoIsAnalytics } from '@/lib/analytics';
 import { GuestBulkActionsBar } from './GuestBulkActionsBar';
 import { BulkTableAssignmentModal } from './BulkTableAssignmentModal';
 import { BulkRsvpUpdateModal } from './BulkRsvpUpdateModal';
+import { SendRsvpConfirmModal } from './SendRsvpConfirmModal';
+import { useRsvpInvites } from '@/hooks/useRsvpInvites';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Checkbox } from '@/components/ui/checkbox';
 import { 
@@ -197,7 +201,9 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
   const [showBulkTableModal, setShowBulkTableModal] = useState(false);
   const [showBulkRsvpModal, setShowBulkRsvpModal] = useState(false);
   const [showBulkDeleteModal, setShowBulkDeleteModal] = useState(false);
-
+  const [showSendModal, setShowSendModal] = useState(false);
+  const [sendChannel, setSendChannel] = useState<'email' | 'sms'>('email');
+  const { sendEmailInvites, sendSmsInvites, sending } = useRsvpInvites();
   // Selection handlers
   const handleSelectGuest = (guestId: string, checked: boolean) => {
     setSelectedGuestIds(prev => {
@@ -1606,13 +1612,14 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                 </TableHead>
                 <TableHead className="w-28">First Name</TableHead>
                 <TableHead className="w-28">Last Name</TableHead>
-                <TableHead className="w-20">Table No</TableHead>
-                <TableHead className="w-20">Seat No.</TableHead>
-                <TableHead className="w-24">RSVP Status</TableHead>
-                <TableHead className="w-32">Relation</TableHead>
-                <TableHead className="w-24">Dietary Requirements</TableHead>
                 <TableHead className="w-24 pl-16">Mobile</TableHead>
                 <TableHead className="w-36 pl-16">Email</TableHead>
+                <TableHead className="w-24">RSVP Invite</TableHead>
+                <TableHead className="w-24">RSVP Status</TableHead>
+                <TableHead className="w-20">Table No</TableHead>
+                <TableHead className="w-20">Seat No.</TableHead>
+                <TableHead className="w-32">Relation</TableHead>
+                <TableHead className="w-24">Dietary Requirements</TableHead>
                 <TableHead className="w-28">Family/Group</TableHead>
                 <TableHead className="w-20">Notes</TableHead>
                 <TableHead className="w-24 rounded-tr-lg">Actions</TableHead>
@@ -1621,13 +1628,13 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
             <TableBody>
               {guestsLoading ? (
                 <TableRow className="border-card-border">
-                  <TableCell colSpan={12} className="text-center py-8">
+                  <TableCell colSpan={14} className="text-center py-8">
                     Loading guests...
                   </TableCell>
                 </TableRow>
               ) : totalGuestCount === 0 ? (
                 <TableRow className="border-card-border">
-                  <TableCell colSpan={12} className="text-center py-8">
+                  <TableCell colSpan={14} className="text-center py-8">
                     {/* Empty - the "No Guests Yet" widget is now in the header */}
                   </TableCell>
                 </TableRow>
@@ -1637,7 +1644,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                     {/* Group Header (for couples and families) */}
                     {group.type !== 'individual' && (
                       <TableRow className="bg-purple-50/50 border-l-4 border-l-[#7248e6]">
-                        <TableCell colSpan={13} className="py-2 px-4">
+                        <TableCell colSpan={14} className="py-2 px-4">
                           <div className="flex items-center gap-2">
                             <Users className="w-4 h-4 text-[#7248e6]" />
                             <span className="font-semibold text-sm text-[#7248e6]">
@@ -1677,6 +1684,33 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                             {guest.first_name}
                           </TableCell>
                           <TableCell className="font-medium w-28">{guest.last_name}</TableCell>
+                          <TableCell className="w-24 pl-16">{renderPill(!!guest.mobile && guest.mobile.trim() !== '')}</TableCell>
+                          <TableCell className="w-36 pl-16">{renderPill(!!guest.email && guest.email.trim() !== '')}</TableCell>
+                          <TableCell className="w-24">
+                            {(() => {
+                              const status = guest.rsvp_invite_status || 'not_sent';
+                              const statusConfig: Record<string, { label: string; className: string }> = {
+                                'not_sent': { label: 'Not Sent', className: 'bg-gray-400 text-white' },
+                                'email_sent': { label: 'Email Sent', className: 'bg-blue-500 text-white' },
+                                'sms_sent': { label: 'SMS Sent', className: 'bg-green-500 text-white' },
+                                'both_sent': { label: 'Both Sent', className: 'bg-purple-500 text-white' },
+                              };
+                              const config = statusConfig[status] || statusConfig['not_sent'];
+                              return (
+                                <Badge className={`text-xs ${config.className}`}>
+                                  {config.label}
+                                </Badge>
+                              );
+                            })()}
+                          </TableCell>
+                          <TableCell className="w-24">
+                            <Badge 
+                              variant={getRsvpBadgeVariant(guest.rsvp)} 
+                              className="text-xs text-white"
+                            >
+                              {getRsvpDisplayLabel(guest.rsvp)}
+                            </Badge>
+                          </TableCell>
                           <TableCell className="w-20">{getTableName(guest) || '—'}</TableCell>
                           <TableCell className="w-20">
                             {guest.seat_no ? (
@@ -1700,14 +1734,6 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                               '—'
                             )}
                           </TableCell>
-                          <TableCell className="w-24">
-                            <Badge 
-                              variant={getRsvpBadgeVariant(guest.rsvp)} 
-                              className="text-xs text-white"
-                            >
-                              {getRsvpDisplayLabel(guest.rsvp)}
-                            </Badge>
-                          </TableCell>
                           <TableCell className="w-32">
                             <RelationBadge
                               display={guest.relation_display || ''}
@@ -1723,8 +1749,6 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                         {guest.dietary || '—'}
                       </span>
                     </TableCell>
-                          <TableCell className="w-24 pl-16">{renderPill(!!guest.mobile && guest.mobile.trim() !== '')}</TableCell>
-                          <TableCell className="w-36 pl-16">{renderPill(!!guest.email && guest.email.trim() !== '')}</TableCell>
                           <TableCell className="w-28">
                             {(() => {
                               const typeLabel = getGuestTypeLabel(guest);
@@ -1810,6 +1834,8 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
             onUpdateRsvp={() => setShowBulkRsvpModal(true)}
             onDelete={() => setShowBulkDeleteModal(true)}
             onCancel={handleDeselectAll}
+            onSendEmail={() => { setSendChannel('email'); setShowSendModal(true); }}
+            onSendSms={() => { setSendChannel('sms'); setShowSendModal(true); }}
           />
         )}
 
@@ -1847,6 +1873,27 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
+
+        {/* Send RSVP Confirm Modal */}
+        <SendRsvpConfirmModal
+          isOpen={showSendModal}
+          onClose={() => setShowSendModal(false)}
+          channel={sendChannel}
+          selectedGuests={sortedGuests.filter(g => selectedGuestIds.has(g.id))}
+          totalGuestCount={guests.length}
+          isSending={sending}
+          onConfirm={async () => {
+            const guestIds = Array.from(selectedGuestIds);
+            const result = sendChannel === 'email'
+              ? await sendEmailInvites(selectedEventId!, guestIds)
+              : await sendSmsInvites(selectedEventId!, guestIds);
+            if (result) {
+              setShowSendModal(false);
+              setSelectedGuestIds(new Set());
+              await refetchGuests();
+            }
+          }}
+        />
       </>
     );
 };
