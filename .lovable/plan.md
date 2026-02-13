@@ -1,23 +1,42 @@
 
-## Fix Create Event Modal: Date Picker Positioning + Footer Buttons
 
-### Problem
-1. **Date picker flipping**: In the Reception section, when navigating to future months (May, August, etc.), the calendar popover flips above the trigger button due to insufficient space at the bottom of the scrollable area.
-2. **Cancel button**: Currently plain outline style -- needs red background to match other forms.
-3. **Create Event button**: Currently uses gradient purple -- needs to use the common green color.
+## Fix Individuals / Couples / Families Calculation
 
-### Changes
+### Current Issue
+The calculation in `src/components/Dashboard/GuestListTable.tsx` (lines 1153-1187) groups guests by their `family_group` field. However, there is a bug:
 
-**File: `src/components/Dashboard/EventCreateModal.tsx`**
+- Guests with **no** `family_group` are counted as Individuals (correct)
+- Groups of **2** members are counted as Couples (correct)
+- Groups of **3+** members are counted as Families (correct)
+- Groups of **1** member (a guest assigned to a family group name but alone in that group) are **not counted at all** -- they fall through and appear in none of the three categories
 
-1. **Add bottom padding to scrollable area** (line 229): Add `pb-40` (160px) to the scrollable container's className so there is always enough room below the last row for the date picker calendar to open downward without flipping.
+### Fix
+In the `familyGroups.forEach` loop, add a condition: if a family group has exactly 1 member, count that person as an Individual (since they are effectively alone).
 
-2. **Cancel button** (lines 511-516): Change from `variant="outline"` to `variant="destructive"` so it has a red background, matching other modal forms.
+### File to Modify
+- `src/components/Dashboard/GuestListTable.tsx` (lines 1177-1184)
 
-3. **Create Event button** (lines 518-525): Change from `variant="gradient"` to a green background using `className="rounded-full bg-green-500 hover:bg-green-600 text-white"` and remove the gradient variant.
+### Change Detail
+Update the `familyGroups.forEach` block from:
 
-### Summary of Visual Changes
-- Reception date pickers will always have room to open downward (no more flipping)
-- Cancel button: red background (consistent with other forms)
-- Create Event button: green background (consistent with other forms)
-- No other changes anywhere else
+```
+if (members.length === 2) {
+  stats.couple++;
+} else if (members.length >= 3) {
+  stats.family++;
+}
+```
+
+To:
+
+```
+if (members.length === 1) {
+  stats.individual++;
+} else if (members.length === 2) {
+  stats.couple++;
+} else if (members.length >= 3) {
+  stats.family++;
+}
+```
+
+This ensures every guest is accounted for in exactly one category. No other files or pages are changed.
