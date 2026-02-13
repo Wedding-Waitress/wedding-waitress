@@ -1309,152 +1309,152 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                 </div>
               </div>
             </div>
+          </div>
 
-            {/* Right: Two Side-by-Side Settings Boxes */}
-            {selectedEventId && (
-              <div className="flex flex-col gap-4">
-                {/* Box 1: Type of Event */}
-                <div className="border-2 border-[#7248E6] rounded-lg p-4">
-                  {totalGuestCount === 0 && (
-                    <div className="mb-2">
-                      <span className="bg-yellow-400 text-red-600 font-extrabold text-lg px-3 py-1 rounded-lg inline-block">2nd</span>
-                    </div>
+          {/* Settings Boxes - Stacked below Choose Event */}
+          {selectedEventId && (
+            <div className="flex flex-col gap-4">
+              {/* Box 1: Type of Event */}
+              <div className="border-2 border-[#7248E6] rounded-lg p-4">
+                {totalGuestCount === 0 && (
+                  <div className="mb-2">
+                    <span className="bg-yellow-400 text-red-600 font-extrabold text-lg px-3 py-1 rounded-lg inline-block">2nd</span>
+                  </div>
+                )}
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="text-sm font-semibold text-primary">Type of Event:</span>
+                  <span className="text-xs text-muted-foreground">(Two people or single person event)</span>
+                  {showRelationSaved && (
+                    <span className="text-xs font-medium text-green-600 bg-green-50 px-2 py-0.5 rounded-full">✓ Saved</span>
                   )}
-                  <div className="flex items-center gap-2 mb-3">
-                    <span className="text-sm font-semibold text-primary">Type of Event:</span>
-                    <span className="text-xs text-muted-foreground">(Two people or single person event)</span>
-                    {showRelationSaved && (
-                      <span className="text-xs font-medium text-green-600 bg-green-50 px-2 py-0.5 rounded-full">✓ Saved</span>
-                    )}
-                  </div>
-                  <div className="flex flex-col gap-2">
-                    <Button
-                      type="button"
-                      size="sm"
-                      onClick={() => handleRelationModeChange('two')}
-                      className={cn(
-                        "h-8 text-sm justify-start transition-all",
-                        relationMode === 'two'
-                          ? "bg-green-500 text-white shadow-md hover:bg-green-600"
-                          : "bg-white border border-primary/30 text-foreground hover:bg-primary/5"
-                      )}
-                    >
-                      💍 Wedding - Engagement
-                    </Button>
-                    <Button
-                      type="button"
-                      size="sm"
-                      onClick={() => handleRelationModeChange('single')}
-                      className={cn(
-                        "h-8 text-sm justify-start transition-all",
-                        relationMode === 'single'
-                          ? "bg-green-500 text-white shadow-md hover:bg-green-600"
-                          : "bg-white border border-primary/30 text-foreground hover:bg-primary/5"
-                      )}
-                    >
-                      🎂 Birthday - single person
-                    </Button>
-                  </div>
                 </div>
+                <div className="flex flex-col gap-2">
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={() => handleRelationModeChange('two')}
+                    className={cn(
+                      "h-8 text-sm justify-start transition-all",
+                      relationMode === 'two'
+                        ? "bg-green-500 text-white shadow-md hover:bg-green-600"
+                        : "bg-white border border-primary/30 text-foreground hover:bg-primary/5"
+                    )}
+                  >
+                    💍 Wedding - Engagement
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={() => handleRelationModeChange('single')}
+                    className={cn(
+                      "h-8 text-sm justify-start transition-all",
+                      relationMode === 'single'
+                        ? "bg-green-500 text-white shadow-md hover:bg-green-600"
+                        : "bg-white border border-primary/30 text-foreground hover:bg-primary/5"
+                    )}
+                  >
+                    🎂 Birthday - single person
+                  </Button>
+                </div>
+              </div>
 
-                {/* Box 2: Guest Relations */}
-                <div className="border-2 border-[#7248E6] rounded-lg p-4 min-w-[340px]">
-                  {totalGuestCount === 0 && (
-                    <div className="mb-2">
-                      <span className="bg-yellow-400 text-red-600 font-extrabold text-lg px-3 py-1 rounded-lg inline-block">3rd</span>
-                    </div>
-                  )}
-                  <div className="mb-3">
-                    <span className="text-sm font-semibold text-primary whitespace-nowrap">Add what relation your guests are to each of you:</span>
+              {/* Box 2: Guest Relations */}
+              <div className="border-2 border-[#7248E6] rounded-lg p-4 min-w-[340px]">
+                {totalGuestCount === 0 && (
+                  <div className="mb-2">
+                    <span className="bg-yellow-400 text-red-600 font-extrabold text-lg px-3 py-1 rounded-lg inline-block">3rd</span>
                   </div>
-                  <div className="flex flex-col gap-3">
-                    {/* Toggle: Use default names or custom names */}
-                    <div className="flex flex-col gap-2">
-                      <label
-                        className={cn(
-                          "flex items-center gap-2 cursor-pointer rounded-lg border p-2 text-sm transition-all",
-                          useDefaultNames
-                            ? "border-green-500 bg-green-50 text-foreground"
-                            : "border-muted text-muted-foreground hover:border-primary/30"
-                        )}
-                        onClick={() => {
-                          setUseDefaultNames(true);
-                          setPartner1Name('Bride');
-                          setPartner2Name('Groom');
-                          setPartnerNamesSaved(true);
-                          setShowNamesValidation(false);
-                          handleSavePartnerNames();
-                        }}
-                      >
-                        <input type="radio" name="nameChoice" checked={useDefaultNames} readOnly className="accent-green-500" />
-                        Leave Partner 1 and Partner 2 names as Bride and Groom
-                      </label>
-                      <label
-                        className={cn(
-                          "flex items-center gap-2 cursor-pointer rounded-lg border p-2 text-sm transition-all",
-                          !useDefaultNames
-                            ? "border-green-500 bg-green-50 text-foreground"
-                            : "border-muted text-muted-foreground hover:border-primary/30"
-                        )}
-                        onClick={() => {
-                          setUseDefaultNames(false);
-                        }}
-                      >
-                        <input type="radio" name="nameChoice" checked={!useDefaultNames} readOnly className="accent-green-500" />
-                        Add new names for Partner 1 and Partner 2
-                      </label>
-                    </div>
+                )}
+                <div className="mb-3">
+                  <span className="text-sm font-semibold text-primary whitespace-nowrap">Add what relation your guests are to each of you:</span>
+                </div>
+                <div className="flex flex-col gap-3">
+                  {/* Toggle: Use default names or custom names */}
+                  <div className="flex flex-col gap-2">
+                    <label
+                      className={cn(
+                        "flex items-center gap-2 cursor-pointer rounded-lg border p-2 text-sm transition-all",
+                        useDefaultNames
+                          ? "border-green-500 bg-green-50 text-foreground"
+                          : "border-muted text-muted-foreground hover:border-primary/30"
+                      )}
+                      onClick={() => {
+                        setUseDefaultNames(true);
+                        setPartner1Name('Bride');
+                        setPartner2Name('Groom');
+                        setPartnerNamesSaved(true);
+                        setShowNamesValidation(false);
+                        handleSavePartnerNames();
+                      }}
+                    >
+                      <input type="radio" name="nameChoice" checked={useDefaultNames} readOnly className="accent-green-500" />
+                      Leave Partner 1 and Partner 2 names as Bride and Groom
+                    </label>
+                    <label
+                      className={cn(
+                        "flex items-center gap-2 cursor-pointer rounded-lg border p-2 text-sm transition-all",
+                        !useDefaultNames
+                          ? "border-green-500 bg-green-50 text-foreground"
+                          : "border-muted text-muted-foreground hover:border-primary/30"
+                      )}
+                      onClick={() => {
+                        setUseDefaultNames(false);
+                      }}
+                    >
+                      <input type="radio" name="nameChoice" checked={!useDefaultNames} readOnly className="accent-green-500" />
+                      Add new names for Partner 1 and Partner 2
+                    </label>
+                  </div>
 
-                    {/* Custom name inputs - only shown when useDefaultNames is false */}
-                    {!useDefaultNames && (
-                      <>
+                  {/* Custom name inputs - only shown when useDefaultNames is false */}
+                  {!useDefaultNames && (
+                    <>
+                      <div className="flex items-center gap-2">
+                        <Label htmlFor="partner1_name" className="text-sm text-muted-foreground whitespace-nowrap min-w-[110px]">
+                          Partner 1 name:
+                        </Label>
+                        <Input
+                          id="partner1_name"
+                          value={partner1Name}
+                          onChange={(e) => setPartner1Name(e.target.value)}
+                          onBlur={handleSavePartnerNames}
+                          placeholder={relationMode === 'two' ? "Bride" : "Name"}
+                          className="h-8 text-sm flex-1 border-primary/40 focus:border-primary"
+                        />
+                      </div>
+
+                      {relationMode === 'two' && (
                         <div className="flex items-center gap-2">
-                          <Label htmlFor="partner1_name" className="text-sm text-muted-foreground whitespace-nowrap min-w-[110px]">
-                            Partner 1 name:
+                          <Label htmlFor="partner2_name" className="text-sm text-muted-foreground whitespace-nowrap min-w-[110px]">
+                            Partner 2 name:
                           </Label>
                           <Input
-                            id="partner1_name"
-                            value={partner1Name}
-                            onChange={(e) => setPartner1Name(e.target.value)}
+                            id="partner2_name"
+                            value={partner2Name}
+                            onChange={(e) => setPartner2Name(e.target.value)}
                             onBlur={handleSavePartnerNames}
-                            placeholder={relationMode === 'two' ? "Bride" : "Name"}
+                            placeholder="Groom"
                             className="h-8 text-sm flex-1 border-primary/40 focus:border-primary"
                           />
                         </div>
+                      )}
+                    </>
+                  )}
 
-                        {relationMode === 'two' && (
-                          <div className="flex items-center gap-2">
-                            <Label htmlFor="partner2_name" className="text-sm text-muted-foreground whitespace-nowrap min-w-[110px]">
-                              Partner 2 name:
-                            </Label>
-                            <Input
-                              id="partner2_name"
-                              value={partner2Name}
-                              onChange={(e) => setPartner2Name(e.target.value)}
-                              onBlur={handleSavePartnerNames}
-                              placeholder="Groom"
-                              className="h-8 text-sm flex-1 border-primary/40 focus:border-primary"
-                            />
-                          </div>
-                        )}
-                      </>
-                    )}
-
-                    <div className="flex items-center gap-2 pt-1">
-                      <Switch
-                        id="hide-relations"
-                        checked={relationMode === 'off'}
-                        onCheckedChange={(checked) => handleRelationModeChange(checked ? 'off' : 'two')}
-                      />
-                      <Label htmlFor="hide-relations" className="text-sm text-muted-foreground">
-                        Hide what the guest relation is to you
-                      </Label>
-                    </div>
+                  <div className="flex items-center gap-2 pt-1">
+                    <Switch
+                      id="hide-relations"
+                      checked={relationMode === 'off'}
+                      onCheckedChange={(checked) => handleRelationModeChange(checked ? 'off' : 'two')}
+                    />
+                    <Label htmlFor="hide-relations" className="text-sm text-muted-foreground">
+                      Hide what the guest relation is to you
+                    </Label>
                   </div>
                 </div>
               </div>
-            )}
-          </div>
+            </div>
+          )}
 
           {/* Stats + Control Buttons - Left/Right Layout - Stack on mobile */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 flex-wrap mb-4 sm:mb-6">
