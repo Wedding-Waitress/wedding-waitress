@@ -114,10 +114,10 @@ export const LocationDetailsPopover = memo(function LocationDetailsPopover({
         </div>
 
         <div className="flex justify-end gap-2 pt-2 border-t">
-          <Button variant="outline" size="sm" className="rounded-full" onClick={handleCancel}>
+          <Button size="sm" className="rounded-full bg-red-500 hover:bg-red-600 text-white" onClick={handleCancel}>
             Cancel
           </Button>
-          <Button variant="gradient" size="sm" className="rounded-full" onClick={handleSave}>
+          <Button size="sm" className="rounded-full bg-green-500 hover:bg-green-600 text-white" onClick={handleSave}>
             Save
           </Button>
         </div>
