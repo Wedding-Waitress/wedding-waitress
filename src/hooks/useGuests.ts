@@ -24,6 +24,8 @@ export interface Guest {
   created_at: string;
   display_order: number | null;
   family_group?: string | null;
+  rsvp_invite_status?: string;
+  rsvp_invite_sent_at?: string | null;
 }
 
 export const useGuests = (eventId: string | null) => {
