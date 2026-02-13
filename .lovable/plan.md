@@ -1,57 +1,35 @@
 
+## Revert Button Size to Match Badge Size
 
-## Three Changes to My Events Page and Create Event Modal
+**File:** `src/components/Dashboard/EventsTable.tsx` (lines 265-268)
 
-### Change 1: Reduce the "Create Event" button size in EventsTable.tsx
+### Issue
+The "Create Event" button was recently reduced in size (to `xs`) to match a different design. However, the user wants the button text and icon to be the same size as the "1 Event Created" badge text, which uses `text-sm`.
 
-**File:** `src/components/Dashboard/EventsTable.tsx` (line 265)
-
-The green "Create Event" button is slightly too large. Change the size from `sm` to `xs` to make it more consistent with other elements. Also reduce padding slightly.
-
-Current:
+### Current Code (lines 265-268)
 ```jsx
-<Button variant="default" size={isMobile ? "sm" : "sm"} className="rounded-full flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white touch-target" ...>
+<Button variant="default" size="xs" className="rounded-full flex items-center gap-1.5 bg-green-500 hover:bg-green-600 text-white touch-target" onClick={() => setCreateModal(true)}>
+  <Plus className="w-3 h-3" />
+  {isMobile ? "Create" : "Create Event"}
+</Button>
 ```
 
-New:
+### Proposed Change
+Change the button back to `size="sm"` to match the badge sizing, and revert the icon and gap spacing:
+- Change `size="xs"` → `size="sm"` (this gives text-sm instead of text-xs)
+- Change icon from `w-3 h-3` → `w-4 h-4` (match badge icon size)
+- Change gap from `gap-1.5` → `gap-2` (restore original spacing)
+
+### New Code
 ```jsx
-<Button variant="default" size="xs" className="rounded-full flex items-center gap-1.5 bg-green-500 hover:bg-green-600 text-white touch-target" ...>
+<Button variant="default" size="sm" className="rounded-full flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white touch-target" onClick={() => setCreateModal(true)}>
+  <Plus className="w-4 h-4" />
+  {isMobile ? "Create" : "Create Event"}
+</Button>
 ```
 
-### Change 2: Restyle Location Details popover Cancel/Save buttons
-
-**File:** `src/components/Dashboard/LocationDetailsPopover.tsx` (lines 116-123)
-
-Change the Cancel and Save buttons in the Location Details popover (used by both Ceremony and Reception sections) to:
-- **Cancel:** Red background with white text (`bg-red-500 hover:bg-red-600 text-white`)
-- **Save:** Green background with white text (`bg-green-500 hover:bg-green-600 text-white`)
-
-Current:
-```jsx
-<Button variant="outline" size="sm" className="rounded-full" onClick={handleCancel}>Cancel</Button>
-<Button variant="gradient" size="sm" className="rounded-full" onClick={handleSave}>Save</Button>
-```
-
-New:
-```jsx
-<Button size="sm" className="rounded-full bg-red-500 hover:bg-red-600 text-white" onClick={handleCancel}>Cancel</Button>
-<Button size="sm" className="rounded-full bg-green-500 hover:bg-green-600 text-white" onClick={handleSave}>Save</Button>
-```
-
-### Change 3: Restyle Create Event modal footer Cancel/Create Event buttons
-
-**File:** `src/components/Dashboard/EventCreateModal.tsx` (lines 551-565)
-
-The Cancel button already uses `variant="destructive"` (red). The Create Event button already uses green. These look correct from the screenshot. However, to ensure full consistency and matching tablet-style sizing, both buttons will use explicit color classes and matching size.
-
-Current:
-```jsx
-<Button variant="destructive" onClick={handleClose} className="rounded-full">Cancel</Button>
-<Button onClick={handleCreate} disabled={...} className="rounded-full bg-green-500 hover:bg-green-600 text-white">Create Event</Button>
-```
-
-These already match the requested style (red Cancel, green Create Event), so no change needed here.
+### Result
+The "Create Event" button text will now be the same size as the "1 Event Created" badge text, making them visually consistent.
 
 ### Files Modified
-- `src/components/Dashboard/EventsTable.tsx` -- reduce Create Event button size
-- `src/components/Dashboard/LocationDetailsPopover.tsx` -- Cancel = red bg/white text, Save = green bg/white text
+- `src/components/Dashboard/EventsTable.tsx` (lines 265-268 only)
