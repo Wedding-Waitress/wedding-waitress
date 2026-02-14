@@ -2035,6 +2035,7 @@ export type Database = {
           plan_id: string
           started_at: string
           status: string
+          trial_extended: boolean
           updated_at: string
           user_id: string
         }
@@ -2047,6 +2048,7 @@ export type Database = {
           plan_id: string
           started_at?: string
           status?: string
+          trial_extended?: boolean
           updated_at?: string
           user_id: string
         }
@@ -2059,6 +2061,7 @@ export type Database = {
           plan_id?: string
           started_at?: string
           status?: string
+          trial_extended?: boolean
           updated_at?: string
           user_id?: string
         }

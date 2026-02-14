@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -9,18 +9,61 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { AlertCircle, Sparkles } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface PlanExpiredModalProps {
   isOpen: boolean;
   onClose: () => void;
   onUpgrade: () => void;
+  trialExtended?: boolean;
 }
 
 export const PlanExpiredModal: React.FC<PlanExpiredModalProps> = ({
   isOpen,
   onClose,
   onUpgrade,
+  trialExtended = false,
 }) => {
+  const [extending, setExtending] = useState(false);
+  const { toast } = useToast();
+
+  const handleExtendTrial = async () => {
+    setExtending(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { error } = await supabase
+        .from('user_subscriptions')
+        .update({
+          expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+          trial_extended: true,
+          status: 'active',
+          is_read_only: false,
+        } as any)
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Trial Extended",
+        description: "Your trial has been extended by 7 days.",
+      });
+      onClose();
+      window.location.reload();
+    } catch (err) {
+      console.error('Error extending trial:', err);
+      toast({
+        title: "Error",
+        description: "Failed to extend trial. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setExtending(false);
+    }
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-md">
@@ -30,7 +73,7 @@ export const PlanExpiredModal: React.FC<PlanExpiredModalProps> = ({
             <DialogTitle className="text-lg">Free Trial Expired</DialogTitle>
           </div>
           <DialogDescription className="pt-2">
-            Your 24-hour free trial has ended. Upgrade to a paid plan to continue 
+            Your 7-day free trial has ended. Upgrade to a paid plan to continue 
             managing your event with unlimited access.
           </DialogDescription>
         </DialogHeader>
@@ -66,6 +109,18 @@ export const PlanExpiredModal: React.FC<PlanExpiredModalProps> = ({
             Choose a Plan
           </Button>
         </DialogFooter>
+
+        {!trialExtended && (
+          <div className="text-center pt-1 pb-2">
+            <button
+              onClick={handleExtendTrial}
+              disabled={extending}
+              className="text-xs text-muted-foreground/60 hover:text-muted-foreground transition-colors underline-offset-2 hover:underline"
+            >
+              {extending ? "Extending..." : "Need more time?"}
+            </button>
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   );
