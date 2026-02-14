@@ -28,10 +28,13 @@ interface SendRsvpConfirmModalProps {
   isSending: boolean;
 }
 
-const getPricingTier = (count: number, channel: 'email' | 'sms') => {
-  if (count <= 300) return { price: 50, label: '1–300 guests' };
-  if (count <= 500) return { price: 100, label: '301–500 guests' };
-  return { price: 150, label: '501–1000 guests' };
+const getPricingTier = (count: number) => {
+  if (count <= 100) return { price: 99, label: '1–100 guests' };
+  if (count <= 200) return { price: 129, label: '101–200 guests' };
+  if (count <= 300) return { price: 149, label: '201–300 guests' };
+  if (count <= 400) return { price: 159, label: '301–400 guests' };
+  if (count <= 500) return { price: 199, label: '401–500 guests' };
+  return { price: 299, label: '501–1000 guests' };
 };
 
 export const SendRsvpConfirmModal: React.FC<SendRsvpConfirmModalProps> = ({
@@ -56,15 +59,15 @@ export const SendRsvpConfirmModal: React.FC<SendRsvpConfirmModalProps> = ({
     return !value || value.trim() === '';
   });
 
-  const pricing = getPricingTier(totalGuestCount, channel);
+  const pricing = getPricingTier(totalGuestCount);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-lg">
-            {isEmail ? <Mail className="w-5 h-5 text-blue-500" /> : <Phone className="w-5 h-5 text-green-500" />}
-            Send {isEmail ? 'Email' : 'SMS'} RSVP Invites
+            <Mail className="w-5 h-5 text-primary" />
+            RSVP Invite Bundle (Email & SMS)
           </DialogTitle>
         </DialogHeader>
 
@@ -72,7 +75,7 @@ export const SendRsvpConfirmModal: React.FC<SendRsvpConfirmModalProps> = ({
           {/* Summary */}
           <div className="bg-muted/50 rounded-lg p-4 space-y-2">
             <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground">Will send to:</span>
+              <span className="text-sm text-muted-foreground">Will send {isEmail ? 'email' : 'SMS'} to:</span>
               <Badge className="bg-green-500 text-white">{validGuests.length} guests</Badge>
             </div>
             {skippedGuests.length > 0 && (
@@ -109,10 +112,10 @@ export const SendRsvpConfirmModal: React.FC<SendRsvpConfirmModalProps> = ({
 
           {/* Pricing info */}
           <div className="border rounded-lg p-3 space-y-1">
-            <p className="text-sm font-medium">Pricing ({pricing.label}):</p>
+            <p className="text-sm font-medium">Combined Email & SMS ({pricing.label}):</p>
             <p className="text-lg font-bold text-primary">${pricing.price} AUD</p>
             <p className="text-xs text-muted-foreground">
-              One-time charge per event. Payment integration coming soon.
+              One-time charge per event. Includes both Email and SMS invitations.
             </p>
           </div>
         </div>
