@@ -12,6 +12,7 @@ export interface UserPlan {
   status: string;
   is_read_only: boolean;
   expires_at: string | null;
+  trial_extended: boolean;
 }
 
 export const useUserPlan = () => {
@@ -37,10 +38,18 @@ export const useUserPlan = () => {
 
         if (data && data.length > 0) {
           const row = data[0];
+          // Fetch trial_extended from user_subscriptions
+          const { data: subData } = await supabase
+            .from('user_subscriptions')
+            .select('plan_id, trial_extended')
+            .eq('user_id', user.id)
+            .limit(1)
+            .single();
+
           setPlan({
             plan_name: row.plan_name,
             guest_limit: row.guest_limit,
-            table_limit: null, // Will be fetched separately
+            table_limit: null,
             team_members: row.team_members,
             can_send_email: row.can_send_email,
             can_send_sms: row.can_send_sms,
@@ -48,21 +57,14 @@ export const useUserPlan = () => {
             status: row.status,
             is_read_only: row.is_read_only,
             expires_at: row.expires_at,
+            trial_extended: (subData as any)?.trial_extended ?? false,
           });
-
-          // Fetch table_limit from subscription_plans
-          const { data: subData } = await supabase
-            .from('user_subscriptions')
-            .select('plan_id')
-            .eq('user_id', user.id)
-            .limit(1)
-            .single();
 
           if (subData?.plan_id) {
             const { data: planData } = await supabase
               .from('subscription_plans')
               .select('table_limit')
-              .eq('id', subData.plan_id)
+              .eq('id', (subData as any).plan_id)
               .single();
 
             if (planData) {

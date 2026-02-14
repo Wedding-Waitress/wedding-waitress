@@ -52,7 +52,7 @@ export const Dashboard = () => {
   const [showCreateTableModal, setShowCreateTableModal] = useState(false);
   const [editingTable, setEditingTable] = useState<TableWithGuestCount | null>(null);
   const navigate = useNavigate();
-  const { isTrialExpired, isStarterPlan } = useUserPlan();
+  const { plan, isTrialExpired, isStarterPlan } = useUserPlan();
   const [showPlanExpired, setShowPlanExpired] = useState(false);
 
   // Show plan expired modal when trial expires
@@ -678,12 +678,12 @@ export const Dashboard = () => {
         onClose={() => setShowPlanExpired(false)}
         onUpgrade={() => {
           setShowPlanExpired(false);
-          // TODO: Navigate to pricing/upgrade page when available
           toast({
             title: "Upgrade Coming Soon",
             description: "Plan upgrades will be available once Stripe is connected.",
           });
         }}
+        trialExtended={plan?.trial_extended ?? false}
       />
     </div>
   </SidebarProvider>;
