@@ -39,6 +39,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import type { Session } from '@supabase/supabase-js';
 import { AppErrorBoundary } from '@/components/core/AppErrorBoundary';
+import { PlanExpiredModal } from '@/components/Dashboard/PlanExpiredModal';
+import { useUserPlan } from '@/hooks/useUserPlan';
 
 
 export const Dashboard = () => {
@@ -50,6 +52,15 @@ export const Dashboard = () => {
   const [showCreateTableModal, setShowCreateTableModal] = useState(false);
   const [editingTable, setEditingTable] = useState<TableWithGuestCount | null>(null);
   const navigate = useNavigate();
+  const { isTrialExpired, isStarterPlan } = useUserPlan();
+  const [showPlanExpired, setShowPlanExpired] = useState(false);
+
+  // Show plan expired modal when trial expires
+  useEffect(() => {
+    if (isTrialExpired && isStarterPlan) {
+      setShowPlanExpired(true);
+    }
+  }, [isTrialExpired, isStarterPlan]);
   const {
     events,
     loading: eventsLoading,
@@ -659,6 +670,20 @@ export const Dashboard = () => {
         existingTables={tables}
         eventGuestLimit={events.find(e => e.id === selectedEventId)?.guest_limit}
         currentEventName={events.find(e => e.id === selectedEventId)?.name}
+      />
+
+      {/* Plan Expired Modal */}
+      <PlanExpiredModal
+        isOpen={showPlanExpired}
+        onClose={() => setShowPlanExpired(false)}
+        onUpgrade={() => {
+          setShowPlanExpired(false);
+          // TODO: Navigate to pricing/upgrade page when available
+          toast({
+            title: "Upgrade Coming Soon",
+            description: "Plan upgrades will be available once Stripe is connected.",
+          });
+        }}
       />
     </div>
   </SidebarProvider>;

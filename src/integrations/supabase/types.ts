@@ -1755,6 +1755,50 @@ export type Database = {
           },
         ]
       }
+      rsvp_invite_purchases: {
+        Row: {
+          amount_paid: number
+          created_at: string
+          event_id: string
+          guest_tier_label: string | null
+          id: string
+          status: string
+          stripe_payment_id: string | null
+          stripe_session_id: string | null
+          user_id: string
+        }
+        Insert: {
+          amount_paid: number
+          created_at?: string
+          event_id: string
+          guest_tier_label?: string | null
+          id?: string
+          status?: string
+          stripe_payment_id?: string | null
+          stripe_session_id?: string | null
+          user_id: string
+        }
+        Update: {
+          amount_paid?: number
+          created_at?: string
+          event_id?: string
+          guest_tier_label?: string | null
+          id?: string
+          status?: string
+          stripe_payment_id?: string | null
+          stripe_session_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rsvp_invite_purchases_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       running_sheet_items: {
         Row: {
           created_at: string | null
@@ -1883,6 +1927,7 @@ export type Database = {
           is_active: boolean
           name: string
           price_aud: number
+          table_limit: number | null
           team_members: number
         }
         Insert: {
@@ -1897,6 +1942,7 @@ export type Database = {
           is_active?: boolean
           name: string
           price_aud: number
+          table_limit?: number | null
           team_members?: number
         }
         Update: {
@@ -1911,6 +1957,7 @@ export type Database = {
           is_active?: boolean
           name?: string
           price_aud?: number
+          table_limit?: number | null
           team_members?: number
         }
         Relationships: []

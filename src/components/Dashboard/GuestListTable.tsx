@@ -85,7 +85,9 @@ import { GuestBulkActionsBar } from './GuestBulkActionsBar';
 import { BulkTableAssignmentModal } from './BulkTableAssignmentModal';
 import { BulkRsvpUpdateModal } from './BulkRsvpUpdateModal';
 import { SendRsvpConfirmModal } from './SendRsvpConfirmModal';
+import { RsvpActivationModal } from './RsvpActivationModal';
 import { useRsvpInvites } from '@/hooks/useRsvpInvites';
+import { useRsvpPurchase } from '@/hooks/useRsvpPurchase';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Checkbox } from '@/components/ui/checkbox';
 import { 
@@ -202,8 +204,10 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
   const [showBulkRsvpModal, setShowBulkRsvpModal] = useState(false);
   const [showBulkDeleteModal, setShowBulkDeleteModal] = useState(false);
   const [showSendModal, setShowSendModal] = useState(false);
+  const [showActivationModal, setShowActivationModal] = useState(false);
   const [sendChannel, setSendChannel] = useState<'email' | 'sms'>('email');
   const { sendEmailInvites, sendSmsInvites, sending } = useRsvpInvites();
+  const { hasPurchased: hasRsvpPurchase, loading: rsvpPurchaseLoading } = useRsvpPurchase(selectedEventId);
   // Selection handlers
   const handleSelectGuest = (guestId: string, checked: boolean) => {
     setSelectedGuestIds(prev => {
@@ -1834,8 +1838,22 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
             onUpdateRsvp={() => setShowBulkRsvpModal(true)}
             onDelete={() => setShowBulkDeleteModal(true)}
             onCancel={handleDeselectAll}
-            onSendEmail={() => { setSendChannel('email'); setShowSendModal(true); }}
-            onSendSms={() => { setSendChannel('sms'); setShowSendModal(true); }}
+            onSendEmail={() => {
+              setSendChannel('email');
+              if (hasRsvpPurchase) {
+                setShowSendModal(true);
+              } else {
+                setShowActivationModal(true);
+              }
+            }}
+            onSendSms={() => {
+              setSendChannel('sms');
+              if (hasRsvpPurchase) {
+                setShowSendModal(true);
+              } else {
+                setShowActivationModal(true);
+              }
+            }}
           />
         )}
 
@@ -1892,6 +1910,20 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
               setSelectedGuestIds(new Set());
               await refetchGuests();
             }
+          }}
+        />
+
+        {/* RSVP Activation Modal (payment gate) */}
+        <RsvpActivationModal
+          isOpen={showActivationModal}
+          onClose={() => setShowActivationModal(false)}
+          totalGuestCount={guests.length}
+          onPayNow={() => {
+            setShowActivationModal(false);
+            toast({
+              title: "Stripe Not Connected",
+              description: "Payment processing will be available once Stripe is connected. Contact support for assistance.",
+            });
           }}
         />
       </>
