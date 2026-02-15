@@ -246,11 +246,11 @@ export const EventsTable: React.FC<EventsTableProps> = ({
               {selectedEvent && !isMobile && (
                 <p className="text-sm mt-1">
                   <span className="text-green-500">
-                    Created: {formatLocalDate(selectedEvent.created_date_local, selectedEvent.created_at, selectedEvent.event_timezone)}
+                    Your account was created on {formatLocalDate(selectedEvent.created_date_local, selectedEvent.created_at, selectedEvent.event_timezone)}
                   </span>
                   <span className="text-muted-foreground"> | </span>
                   <span className="text-red-600">
-                    Expiry: {formatLocalDate(selectedEvent.expiry_date_local, null, selectedEvent.event_timezone) || getExpiryDateFallback(selectedEvent.created_at, selectedEvent.event_timezone)}
+                    Your account will expire on {formatLocalDate(selectedEvent.expiry_date_local, null, selectedEvent.event_timezone) || getExpiryDateFallback(selectedEvent.created_at, selectedEvent.event_timezone)}
                   </span>
                 </p>
               )}

@@ -27,5 +27,8 @@ verify_jwt = false
 [functions.verify-payment]
 verify_jwt = false
 
+[functions.create-extension-checkout]
+verify_jwt = false
+
 [functions.admin-manage-subscription]
 verify_jwt = false

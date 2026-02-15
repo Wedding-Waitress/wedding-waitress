@@ -41,6 +41,7 @@ import type { Session } from '@supabase/supabase-js';
 import { AppErrorBoundary } from '@/components/core/AppErrorBoundary';
 import { PlanExpiredModal } from '@/components/Dashboard/PlanExpiredModal';
 import { useUserPlan } from '@/hooks/useUserPlan';
+import { ExpiryWarningBanner } from '@/components/Dashboard/ExpiryWarningBanner';
 
 
 export const Dashboard = () => {
@@ -637,6 +638,11 @@ export const Dashboard = () => {
     <div className="relative min-h-screen bg-gradient-subtle w-full mobile-contain">
       {/* Universal Header - Full Width */}
       <DashboardHeader />
+      
+      {/* Expiry Warning Banner */}
+      <div className="print:hidden">
+        <ExpiryWarningBanner />
+      </div>
       
       {/* Sidebar and Main Content */}
       <div className="flex pt-16 sm:pt-14 md:pt-16 w-full">
