@@ -1,50 +1,96 @@
 
+# Stripe Payment Integration for Wedding Waitress
 
-## 7-Day Free Trial + One-Time Extension
+## What We're Building
 
-This plan updates the free trial from 1 day to 7 days and adds a subtle "Need more time?" one-time extension option on the trial expiry popup.
-
----
-
-### 1. Update Trial Duration to 7 Days
-
-Change the Starter plan's `duration_days` from 1 to 7 in the database via a migration.
-
-### 2. Track One-Time Extension
-
-Add a column `trial_extended` (boolean, default false) to the `user_subscriptions` table. When a user clicks "Need more time?", this flag is set to true and `expires_at` is pushed forward by 7 days. The extension link only appears when `trial_extended` is false.
-
-### 3. Update the Plan Expired Modal
-
-Modify `PlanExpiredModal.tsx` to:
-- Show the main upgrade prompt (as it already does)
-- At the very bottom, in small muted text: "Need more time?" as a subtle text link
-- Clicking it calls an update to extend the trial by 7 days and sets `trial_extended = true`
-- Show a brief toast confirmation: "Your trial has been extended by 7 days"
-- On second expiry, the modal appears again but **without** the extension link
-
-### 4. Extension Logic in useUserPlan
-
-Update `useUserPlan.ts` to also fetch `trial_extended` from `user_subscriptions` so the modal knows whether to show the extension option.
+Connecting your live Stripe account to Wedding Waitress so users can purchase plans directly from the app. This covers both the **one-time plan purchases** (Essential, Premium, Unlimited) and the **monthly vendor subscriptions** (Vendor Pro).
 
 ---
 
-### Technical Details
+## Step 1: Create Stripe Products and Prices
 
-**Database migration:**
-- `UPDATE subscription_plans SET duration_days = 7 WHERE name = 'Starter';`
-- `ALTER TABLE user_subscriptions ADD COLUMN trial_extended boolean NOT NULL DEFAULT false;`
+We'll create the following products in your live Stripe account to match your existing `subscription_plans` database table:
 
-**Files to modify:**
-- `src/components/Dashboard/PlanExpiredModal.tsx` -- Add the subtle "Need more time?" text link at the bottom, conditionally shown when `trialExtended` is false. On click, update the subscription's `expires_at` by +7 days and set `trial_extended = true`.
-- `src/hooks/useUserPlan.ts` -- Fetch and expose `trial_extended` from `user_subscriptions` so the modal can decide whether to show the extension option.
-- `src/pages/Dashboard.tsx` -- Pass `trialExtended` to the `PlanExpiredModal`.
+| Product Name | Price (AUD) | Type | Guest Limit |
+|---|---|---|---|
+| Essential Plan | $99 | One-time | 100 |
+| Premium Plan | $149 | One-time | 300 |
+| Unlimited Plan | $249 | One-time | Unlimited |
+| Vendor Pro | $249/mo | Recurring (monthly) | Unlimited |
 
-**Extension flow:**
-1. User's 7-day trial expires, they log in
-2. `PlanExpiredModal` appears with upgrade options
-3. At the bottom in small text: "Need more time?" (clickable)
-4. Click triggers: `UPDATE user_subscriptions SET expires_at = now() + interval '7 days', trial_extended = true, status = 'active', is_read_only = false WHERE user_id = X`
-5. Modal closes, toast shows "Trial extended by 7 days"
-6. After second expiry, modal shows again but without the extension link -- upgrade is the only option
+We will also create an RSVP Invite Bundle product with tiered pricing:
 
+| RSVP Tier | Price (AUD) | Guest Range |
+|---|---|---|
+| RSVP 1-100 | $99 | 1-100 guests |
+| RSVP 101-200 | $129 | 101-200 guests |
+| RSVP 201-300 | $149 | 201-300 guests |
+| RSVP 301-400 | $159 | 301-400 guests |
+| RSVP 401-500 | $199 | 401-500 guests |
+| RSVP 501-1000 | $299 | 501-1000 guests |
+
+---
+
+## Step 2: Create Edge Functions
+
+### 2a. `create-checkout` Edge Function
+- Accepts `price_id` and optional `event_id` from the frontend
+- Authenticates the user via Supabase auth
+- Finds or creates the Stripe customer by email
+- Creates a Checkout Session (mode: `payment` for one-time plans, mode: `subscription` for Vendor Pro)
+- Passes `event_id` in metadata for RSVP purchases
+- Returns the checkout URL
+
+### 2b. `verify-payment` Edge Function
+- Called after the user returns from Stripe Checkout
+- Verifies the Checkout Session status
+- Updates the `user_subscriptions` table with the correct plan
+- For RSVP purchases, inserts a record into `rsvp_invite_purchases`
+- Returns success/failure
+
+---
+
+## Step 3: Frontend Integration
+
+### 3a. Pricing/Upgrade Page or Modal
+- Add a "Plans & Pricing" section accessible from the dashboard (or upgrade modal)
+- Each plan shows a "Buy Now" button that calls the `create-checkout` edge function
+- Redirects the user to Stripe Checkout in a new tab
+- On return to success URL, calls `verify-payment` to confirm and update the subscription
+
+### 3b. RSVP Activation Flow
+- Update the existing `RsvpActivationModal` to call the `create-checkout` edge function with the correct RSVP tier price
+- On successful payment, mark the event's RSVP as activated
+
+### 3c. Success Page
+- Create a `/payment-success` route that verifies the payment and shows a confirmation message
+- Redirects back to the dashboard after a few seconds
+
+---
+
+## Step 4: Store Stripe Price IDs
+
+Create a constants file (`src/lib/stripePrices.ts`) mapping each plan to its Stripe price ID. This keeps price references centralized and easy to maintain.
+
+---
+
+## Technical Details
+
+- **No webhooks needed** -- we verify payment status on-demand when the user returns from checkout
+- **Edge functions** use the `STRIPE_SECRET_KEY` already stored in your Supabase secrets
+- **Security**: All edge functions authenticate the user via Supabase JWT before creating checkout sessions
+- **Currency**: All prices in AUD matching your Stripe account configuration
+- The existing `subscription_plans` table and `user_subscriptions` table stay as-is; we just update records after successful payment verification
+- The `PlanExpiredModal` and `useUserPlan` hook continue to work as they do now, reading from the same database tables
+
+---
+
+## Sequence of Work
+
+1. Create Stripe products and prices (using Stripe tools)
+2. Create `create-checkout` edge function
+3. Create `verify-payment` edge function
+4. Create the `stripePrices.ts` constants file
+5. Create the `/payment-success` page
+6. Wire up the pricing UI and RSVP activation modal to use Stripe checkout
+7. Test the full flow end-to-end
