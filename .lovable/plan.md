@@ -1,65 +1,109 @@
 
 
-# Fix: Intermittent "Expired Code" on Sign-In
+# Account Label Updates and Expiry Warning System
 
-## Root Cause
+## Part 1: Update Account Created/Expiry Labels
 
-When the `send-auth-email` edge function cold-starts, it exceeds Supabase Auth's 5-second hook timeout. Supabase Auth then discards the OTP token, but the edge function still sends the email containing that now-invalid code. The user receives a code that was never saved, so it always fails with "Token has expired or is invalid."
+**File:** `src/components/Dashboard/EventsTable.tsx`
 
-## The Fix
+Change the top-level account dates (lines 248-254) from:
+- "Created: 13/02/2026" --> "Your account was created on 13/02/2026"
+- "Expiry: 13/02/2027" --> "Your account will expire on 13/02/2027"
 
-### 1. Auto-retry on hook timeout (SignInModal.tsx)
+The per-event "Created Date" and "Expiry Date" columns in the table below remain unchanged -- those are event-specific and already clear.
 
-Instead of proceeding to the verify step when a hook timeout occurs, **automatically retry the OTP request** after a short delay. The first request warms up the edge function, so the retry will succeed (responds in ~5ms when warm).
+---
 
-**Changes to `handleEmailSubmit` in `src/components/auth/SignInModal.tsx`:**
+## Part 2: Expiry Warning Banner System
 
-- When error contains "Failed to reach hook within maximum time":
-  - Wait 2 seconds (let the function finish booting)
-  - Silently retry `supabase.auth.signInWithOtp()` 
-  - If retry succeeds: proceed to verify step with "Code sent!" toast
-  - If retry also fails: show error asking user to try again
-  - Do NOT proceed to verify step on the first timeout (the code in that email is invalid)
+A non-intrusive banner at the top of the dashboard (below the header) that appears at these intervals before account expiry:
 
-### 2. Improve error message for expired codes (SignInModal.tsx)
+- **30 days** before expiry
+- **14 days** before expiry
+- **7 days** before expiry
+- **24 hours** before expiry
 
-Update `mapSupabaseError` to handle the `otp_expired` error code with a friendlier message:
+### Banner Design
+- Colored banner bar below the dashboard header
+- 30 days: amber/yellow background with warning icon
+- 14 days: orange background
+- 7 days: red background
+- 24 hours: dark red, pulsing/bold
+- Dismissible (X button), but reappears on next login/page load
+- Contains message like: "Your account expires in X days. Extend your plan to keep your data."
+- Contains an "Extend Plan" button that opens the extension modal
 
-- Map "Token has expired or is invalid" to: "This code has expired. Please tap 'Resend code' to get a new one."
+### New Files
+| File | Purpose |
+|------|---------|
+| `src/components/Dashboard/ExpiryWarningBanner.tsx` | Banner component with countdown logic and dismiss |
+| `src/components/Dashboard/ExtendPlanModal.tsx` | Modal showing extension duration options and pricing |
 
-### 3. Keep the edge function warm (optional optimization)
+### Integration
+- Add `ExpiryWarningBanner` to `Dashboard.tsx`, positioned below the header
+- Banner reads `expires_at` from `useUserPlan` hook
+- Only shows for Essential, Premium, and Unlimited plans
+- Does NOT show for Starter or Vendor Pro
 
-No code changes needed for this -- the auto-retry approach solves the problem. The edge function already responds in 5ms when warm, and the retry acts as a self-warming mechanism.
+---
 
-## Files to Edit
+## Part 3: Plan Extension Modal and Pricing
 
-| File | Change |
+When user clicks "Extend Plan" on the banner, a modal appears with duration options.
+
+### Extension Pricing (Essential / Premium / Unlimited)
+
+| Duration | Essential | Premium | Unlimited |
+|----------|-----------|---------|-----------|
+| 1 month  | $19 AUD   | $29 AUD | $39 AUD   |
+| 2 months | $35 AUD   | $49 AUD | $69 AUD   |
+| 3 months | $49 AUD   | $69 AUD | $99 AUD   |
+| 4 months | $59 AUD   | $85 AUD | $119 AUD  |
+| 5 months | $69 AUD   | $99 AUD | $139 AUD  |
+| 6 months | $79 AUD   | $109 AUD| $149 AUD  |
+| 12 months| $99 AUD   | $149 AUD| $249 AUD  |
+
+### Implementation
+1. Create Stripe Products and Prices for each extension tier (21 prices total: 7 durations x 3 plans)
+2. Add a new `src/lib/stripeExtensionPrices.ts` as a central reference for all extension Price IDs
+3. Create a new Edge Function `create-extension-checkout` that:
+   - Validates the user's current plan
+   - Creates a Stripe Checkout session with the correct extension price
+   - Passes metadata (plan_id, extension_months) for fulfillment
+4. Update the existing `verify-payment` Edge Function to handle extension payments:
+   - On successful payment, extend `expires_at` in `user_subscriptions` by the purchased months
+   - Record the purchase in `event_purchases`
+
+### ExtendPlanModal UI
+- Shows current plan name and expiry date
+- Radio/card selection for 1-6 months or 12 months
+- Each option shows the price in AUD
+- 12-month option highlighted as "Best Value" 
+- "Pay Now" button redirects to Stripe Checkout
+- After payment, user returns to a success page and `expires_at` is updated
+
+---
+
+## Part 4: Stripe Products (to be created)
+
+21 new Stripe Price objects will be created for extension durations. These will be created using the Stripe tools before coding begins, and the Price IDs recorded in `stripeExtensionPrices.ts`.
+
+---
+
+## Files Summary
+
+| File | Action |
 |------|--------|
-| `src/components/auth/SignInModal.tsx` | Auto-retry on hook timeout instead of proceeding to verify; improve expired code error message |
-
-## Technical Detail
-
-```text
-Current flow (broken):
-  User submits email
-    --> Hook times out (cold start)
-    --> Frontend shows "Code may be on its way"
-    --> Edge function sends email with dead OTP
-    --> User enters code --> ALWAYS fails
-
-Fixed flow:
-  User submits email
-    --> Hook times out (cold start, warms up function)
-    --> Frontend waits 2 seconds
-    --> Frontend retries OTP request (function now warm, ~5ms)
-    --> Supabase Auth saves valid OTP
-    --> Edge function sends email with valid OTP
-    --> User enters code --> Works
-```
+| `src/components/Dashboard/EventsTable.tsx` | Edit: Update account label text |
+| `src/components/Dashboard/ExpiryWarningBanner.tsx` | New: Banner component |
+| `src/components/Dashboard/ExtendPlanModal.tsx` | New: Extension duration picker modal |
+| `src/lib/stripeExtensionPrices.ts` | New: Extension price ID mappings |
+| `src/pages/Dashboard.tsx` | Edit: Add ExpiryWarningBanner |
+| `supabase/functions/create-extension-checkout/index.ts` | New: Edge function for extension payments |
+| `supabase/functions/verify-payment/index.ts` | Edit: Handle extension payment fulfillment |
 
 ## What stays the same
-- Edge function code (no changes needed)
-- Email template and delivery
-- All other sign-in/sign-up flows
-- Resend functionality
-
+- All existing dashboard features and locked components
+- Current sign-in flow (recently fixed)
+- Existing plan upgrade flow via landing page
+- Per-event created/expiry dates in the table columns
