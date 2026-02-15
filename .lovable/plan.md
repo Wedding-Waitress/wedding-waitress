@@ -1,96 +1,99 @@
 
-# Stripe Payment Integration for Wedding Waitress
 
-## What We're Building
+# Stripe Products, Prices & Database Updates
 
-Connecting your live Stripe account to Wedding Waitress so users can purchase plans directly from the app. This covers both the **one-time plan purchases** (Essential, Premium, Unlimited) and the **monthly vendor subscriptions** (Vendor Pro).
+## Part 1: Database Updates
 
----
+Update `team_members` from 1 to **2** for Essential, Premium, and Unlimited plans in the `subscription_plans` table.
 
-## Step 1: Create Stripe Products and Prices
+No schema changes needed -- this is a data update only.
 
-We'll create the following products in your live Stripe account to match your existing `subscription_plans` database table:
+## Part 2: Create Stripe Products and Prices
 
-| Product Name | Price (AUD) | Type | Guest Limit |
-|---|---|---|---|
-| Essential Plan | $99 | One-time | 100 |
-| Premium Plan | $149 | One-time | 300 |
-| Unlimited Plan | $249 | One-time | Unlimited |
-| Vendor Pro | $249/mo | Recurring (monthly) | Unlimited |
+### Wedding Plans (one-time payments)
 
-We will also create an RSVP Invite Bundle product with tiered pricing:
-
-| RSVP Tier | Price (AUD) | Guest Range |
+| Product | Price (AUD) | Stripe Mode |
 |---|---|---|
-| RSVP 1-100 | $99 | 1-100 guests |
-| RSVP 101-200 | $129 | 101-200 guests |
-| RSVP 201-300 | $149 | 201-300 guests |
-| RSVP 301-400 | $159 | 301-400 guests |
-| RSVP 401-500 | $199 | 401-500 guests |
-| RSVP 501-1000 | $299 | 501-1000 guests |
+| Essential Plan -- Up to 100 guests | $99.00 | One-time |
+| Premium Plan -- Up to 300 guests | $149.00 | One-time |
+| Unlimited Plan -- Unlimited guests | $249.00 | One-time |
+
+### Vendor Plan (recurring)
+
+| Product | Price (AUD) | Stripe Mode |
+|---|---|---|
+| Vendor Pro -- Unlimited, 5 team members | $249.00/month | Subscription (monthly) |
+
+Note: Vendor Pro purchases will require admin approval before activation. This logic will be handled in the `verify-payment` edge function and database (not in Stripe itself).
+
+### RSVP Invite Bundle (one-time, per event)
+
+| Product | Price (AUD) |
+|---|---|
+| RSVP Bundle -- 1-100 guests | $99.00 |
+| RSVP Bundle -- 101-200 guests | $129.00 |
+| RSVP Bundle -- 201-300 guests | $149.00 |
+| RSVP Bundle -- 301-400 guests | $159.00 |
+| RSVP Bundle -- 401-500 guests | $199.00 |
+| RSVP Bundle -- 501-1000 guests | $299.00 |
+
+All prices in **AUD**. Total: **4 plan products + 6 RSVP tier prices = 10 Stripe products/prices**.
+
+## Part 3: Edge Functions
+
+### `create-checkout` Edge Function
+- Accepts `price_id`, `mode` (payment or subscription), and optional `event_id`
+- Authenticates user via Supabase JWT
+- Finds or creates Stripe customer by email
+- Creates Checkout Session with appropriate mode
+- Passes `event_id` and `plan_type` in session metadata
+- Returns checkout URL
+
+### `verify-payment` Edge Function
+- Accepts `session_id` from the success page
+- Retrieves the Checkout Session from Stripe
+- If plan purchase: updates `user_subscriptions` with correct plan, sets `expires_at` to 12 months out (or 30 days for Vendor Pro)
+- If Vendor Pro: sets a pending/approval-required status so admin must approve within 24 hours
+- If RSVP purchase: inserts record into `rsvp_invite_purchases` with `status = 'completed'`
+- Returns confirmation details
+
+## Part 4: Frontend Files
+
+### `src/lib/stripePrices.ts`
+Constants file mapping each plan and RSVP tier to its Stripe price ID and product ID. Single source of truth for all Stripe references.
+
+### `src/pages/PaymentSuccess.tsx`
+- Reads `session_id` from URL query params
+- Calls `verify-payment` edge function
+- Shows confirmation message with plan details
+- Auto-redirects to dashboard after 5 seconds
+- Handles errors gracefully
+
+### Route Addition in `App.tsx`
+- Add `/payment-success` route
+
+### Update `RsvpActivationModal.tsx`
+- Wire "Pay Now" button to call `create-checkout` with the correct RSVP tier price ID
+- Open Stripe Checkout in new tab
+
+### Vendor Pro Admin Approval
+- Add an `admin_approved` column (boolean, default false) to `user_subscriptions` if not present, or handle via the existing `status` field by setting it to `pending_approval` for Vendor Pro purchases
+- Admin dashboard can then list pending vendor approvals and toggle activation
+
+## Part 5: Strikethrough Pricing (UI only, later phase)
+The marketing prices (~~$199~~ $99, ~~$299~~ $149, ~~$499~~ $249) will be implemented in the landing page and upgrade UI as a visual-only feature. This does not affect Stripe or the database -- purely frontend styling applied when displaying plan cards.
 
 ---
 
-## Step 2: Create Edge Functions
+## Sequence of Implementation
 
-### 2a. `create-checkout` Edge Function
-- Accepts `price_id` and optional `event_id` from the frontend
-- Authenticates the user via Supabase auth
-- Finds or creates the Stripe customer by email
-- Creates a Checkout Session (mode: `payment` for one-time plans, mode: `subscription` for Vendor Pro)
-- Passes `event_id` in metadata for RSVP purchases
-- Returns the checkout URL
+1. Update database: set `team_members = 2` for Essential, Premium, Unlimited
+2. Create all 10 Stripe products and prices
+3. Create `src/lib/stripePrices.ts` with all price/product IDs
+4. Create `create-checkout` edge function
+5. Create `verify-payment` edge function
+6. Add `supabase/config.toml` entries for new edge functions
+7. Create `PaymentSuccess` page and add route to `App.tsx`
+8. Wire `RsvpActivationModal` to use Stripe checkout
+9. Add vendor approval logic (database + admin UI integration)
 
-### 2b. `verify-payment` Edge Function
-- Called after the user returns from Stripe Checkout
-- Verifies the Checkout Session status
-- Updates the `user_subscriptions` table with the correct plan
-- For RSVP purchases, inserts a record into `rsvp_invite_purchases`
-- Returns success/failure
-
----
-
-## Step 3: Frontend Integration
-
-### 3a. Pricing/Upgrade Page or Modal
-- Add a "Plans & Pricing" section accessible from the dashboard (or upgrade modal)
-- Each plan shows a "Buy Now" button that calls the `create-checkout` edge function
-- Redirects the user to Stripe Checkout in a new tab
-- On return to success URL, calls `verify-payment` to confirm and update the subscription
-
-### 3b. RSVP Activation Flow
-- Update the existing `RsvpActivationModal` to call the `create-checkout` edge function with the correct RSVP tier price
-- On successful payment, mark the event's RSVP as activated
-
-### 3c. Success Page
-- Create a `/payment-success` route that verifies the payment and shows a confirmation message
-- Redirects back to the dashboard after a few seconds
-
----
-
-## Step 4: Store Stripe Price IDs
-
-Create a constants file (`src/lib/stripePrices.ts`) mapping each plan to its Stripe price ID. This keeps price references centralized and easy to maintain.
-
----
-
-## Technical Details
-
-- **No webhooks needed** -- we verify payment status on-demand when the user returns from checkout
-- **Edge functions** use the `STRIPE_SECRET_KEY` already stored in your Supabase secrets
-- **Security**: All edge functions authenticate the user via Supabase JWT before creating checkout sessions
-- **Currency**: All prices in AUD matching your Stripe account configuration
-- The existing `subscription_plans` table and `user_subscriptions` table stay as-is; we just update records after successful payment verification
-- The `PlanExpiredModal` and `useUserPlan` hook continue to work as they do now, reading from the same database tables
-
----
-
-## Sequence of Work
-
-1. Create Stripe products and prices (using Stripe tools)
-2. Create `create-checkout` edge function
-3. Create `verify-payment` edge function
-4. Create the `stripePrices.ts` constants file
-5. Create the `/payment-success` page
-6. Wire up the pricing UI and RSVP activation modal to use Stripe checkout
-7. Test the full flow end-to-end
