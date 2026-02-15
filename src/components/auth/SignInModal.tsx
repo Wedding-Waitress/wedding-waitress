@@ -68,6 +68,9 @@ export const SignInModal: React.FC<SignInModalProps> = ({
       case 'Invalid login credentials':
       case 'invalid_credentials':
         return 'Invalid verification code';
+      case 'Token has expired or is invalid':
+      case 'otp_expired':
+        return 'This code has expired. Please tap "Resend code" to get a new one.';
       case 'Email not confirmed':
         return 'Please check your email and click the confirmation link';
       case 'Too many requests':
@@ -109,16 +112,35 @@ export const SignInModal: React.FC<SignInModalProps> = ({
       });
 
       if (error) {
-        // Handle hook timeout gracefully - email may still be sent
+        // Handle hook timeout (cold start) - retry after warming up the function
         if (error.message?.includes('Failed to reach hook within maximum time')) {
-          console.warn('Auth hook timeout - proceeding to verify step as email may still arrive');
-          setStep('verify');
-          startResendTimer();
+          console.warn('Auth hook timeout (cold start) - warming up and retrying...');
           toast({
-            title: "Code may be on its way",
-            description: "If you don't receive it within a minute, tap Resend.",
+            title: "Warming up...",
+            description: "Please wait a moment while we prepare your code.",
             variant: "default"
           });
+          
+          // Wait 2 seconds for the edge function to finish booting
+          await new Promise(resolve => setTimeout(resolve, 2000));
+          
+          // Retry - the function is now warm and will respond in ~5ms
+          const { error: retryError } = await supabase.auth.signInWithOtp({
+            email: sanitizedEmail
+          });
+          
+          if (retryError) {
+            console.error('Retry also failed:', retryError.message);
+            setError('Something went wrong. Please try again.');
+            logSecurityEvent.authFailure(retryError.message || 'Retry failed', sanitizedEmail);
+          } else {
+            setStep('verify');
+            startResendTimer();
+            toast({
+              title: "Code sent!",
+              description: "Check your email for the verification code."
+            });
+          }
         } else {
           setError(mapSupabaseError(error));
           logSecurityEvent.authFailure(error.message || 'Unknown error', sanitizedEmail);
