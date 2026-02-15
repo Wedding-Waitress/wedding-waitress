@@ -1,99 +1,75 @@
 
+# Admin UI for Vendor Pro Approval Toggle
 
-# Stripe Products, Prices & Database Updates
+## Why This First?
+The checkout and verify-payment edge functions are already deployed and their logs are viewable anytime via the Supabase dashboard. The Vendor Pro approval toggle is the critical missing piece -- without it, vendors who pay are stuck in `pending_approval` forever with no way for you to activate them.
 
-## Part 1: Database Updates
+## What We'll Build
 
-Update `team_members` from 1 to **2** for Essential, Premium, and Unlimited plans in the `subscription_plans` table.
+### 1. New Admin Tab: "Subscriptions"
+Add a new tab to the Admin Dashboard (`/admin`) between "Events" and "Settings" called **"Subscriptions"**.
 
-No schema changes needed -- this is a data update only.
+### 2. AdminSubscriptions Component
+A new component `src/components/Admin/AdminSubscriptions.tsx` that shows:
 
-## Part 2: Create Stripe Products and Prices
+- **Summary cards** at top:
+  - Total Active Subscriptions
+  - Pending Vendor Approvals (highlighted in amber/orange)
+  - Expired Subscriptions
 
-### Wedding Plans (one-time payments)
+- **Pending Vendor Approvals section** (shown prominently if any exist):
+  - Table with columns: User Name, Email, Plan, Payment Date, Status, Actions
+  - Each row has an **"Approve"** button (green) and a **"Reject"** button (red)
+  - Approve: updates `user_subscriptions` to `status = 'active'` and `is_read_only = false`
+  - Reject: updates `user_subscriptions` to `status = 'rejected'` and keeps `is_read_only = true`
+  - Toast confirmation after each action
 
-| Product | Price (AUD) | Stripe Mode |
-|---|---|---|
-| Essential Plan -- Up to 100 guests | $99.00 | One-time |
-| Premium Plan -- Up to 300 guests | $149.00 | One-time |
-| Unlimited Plan -- Unlimited guests | $249.00 | One-time |
+- **All Subscriptions table** below:
+  - Searchable/filterable list of all `user_subscriptions` joined with `profiles` and `subscription_plans`
+  - Shows: User, Plan Name, Status (color-coded badge), Started, Expires, Read-Only flag
+  - Status badges: green for active, amber for pending_approval, red for expired/rejected, gray for cancelled
 
-### Vendor Plan (recurring)
+### 3. Edge Function: `admin-manage-subscription`
+A new edge function at `supabase/functions/admin-manage-subscription/index.ts` that:
+- Accepts `{ subscription_id, action: 'approve' | 'reject' }` 
+- Validates the caller is an admin (checks `user_roles` table for admin role)
+- Uses service role key to update `user_subscriptions`
+- On approve: sets `status = 'active'`, `is_read_only = false`
+- On reject: sets `status = 'rejected'`, keeps `is_read_only = true`
+- Returns success/error response
 
-| Product | Price (AUD) | Stripe Mode |
-|---|---|---|
-| Vendor Pro -- Unlimited, 5 team members | $249.00/month | Subscription (monthly) |
+This is needed because the admin can't directly update other users' subscriptions via RLS -- we need a server-side function with service role access.
 
-Note: Vendor Pro purchases will require admin approval before activation. This logic will be handled in the `verify-payment` edge function and database (not in Stripe itself).
+### 4. Files to Create/Edit
 
-### RSVP Invite Bundle (one-time, per event)
+| File | Action | Purpose |
+|------|--------|---------|
+| `src/components/Admin/AdminSubscriptions.tsx` | Create | New subscription management UI |
+| `supabase/functions/admin-manage-subscription/index.ts` | Create | Server-side approval/rejection |
+| `src/pages/Admin.tsx` | Edit | Add "Subscriptions" tab |
+| `supabase/config.toml` | Edit | Register new edge function |
 
-| Product | Price (AUD) |
-|---|---|
-| RSVP Bundle -- 1-100 guests | $99.00 |
-| RSVP Bundle -- 101-200 guests | $129.00 |
-| RSVP Bundle -- 201-300 guests | $149.00 |
-| RSVP Bundle -- 301-400 guests | $159.00 |
-| RSVP Bundle -- 401-500 guests | $199.00 |
-| RSVP Bundle -- 501-1000 guests | $299.00 |
+### 5. Technical Details
 
-All prices in **AUD**. Total: **4 plan products + 6 RSVP tier prices = 10 Stripe products/prices**.
+**AdminSubscriptions.tsx** will:
+- Query `user_subscriptions` joined with `profiles` (for name/email) and `subscription_plans` (for plan name)
+- Filter pending approvals into a highlighted section
+- Call `supabase.functions.invoke('admin-manage-subscription', ...)` for approve/reject actions
+- Auto-refresh list after each action
 
-## Part 3: Edge Functions
+**admin-manage-subscription edge function** will:
+- Use `verify_jwt = false` in config.toml with manual JWT verification
+- Check admin role via `user_roles` table using service role client
+- Update the target subscription record
+- Return the updated status
 
-### `create-checkout` Edge Function
-- Accepts `price_id`, `mode` (payment or subscription), and optional `event_id`
-- Authenticates user via Supabase JWT
-- Finds or creates Stripe customer by email
-- Creates Checkout Session with appropriate mode
-- Passes `event_id` and `plan_type` in session metadata
-- Returns checkout URL
+**Admin.tsx** changes:
+- Import `AdminSubscriptions`
+- Add 7th tab "Subscriptions" with a badge showing pending count
+- Grid cols updated from 6 to 7
 
-### `verify-payment` Edge Function
-- Accepts `session_id` from the success page
-- Retrieves the Checkout Session from Stripe
-- If plan purchase: updates `user_subscriptions` with correct plan, sets `expires_at` to 12 months out (or 30 days for Vendor Pro)
-- If Vendor Pro: sets a pending/approval-required status so admin must approve within 24 hours
-- If RSVP purchase: inserts record into `rsvp_invite_purchases` with `status = 'completed'`
-- Returns confirmation details
-
-## Part 4: Frontend Files
-
-### `src/lib/stripePrices.ts`
-Constants file mapping each plan and RSVP tier to its Stripe price ID and product ID. Single source of truth for all Stripe references.
-
-### `src/pages/PaymentSuccess.tsx`
-- Reads `session_id` from URL query params
-- Calls `verify-payment` edge function
-- Shows confirmation message with plan details
-- Auto-redirects to dashboard after 5 seconds
-- Handles errors gracefully
-
-### Route Addition in `App.tsx`
-- Add `/payment-success` route
-
-### Update `RsvpActivationModal.tsx`
-- Wire "Pay Now" button to call `create-checkout` with the correct RSVP tier price ID
-- Open Stripe Checkout in new tab
-
-### Vendor Pro Admin Approval
-- Add an `admin_approved` column (boolean, default false) to `user_subscriptions` if not present, or handle via the existing `status` field by setting it to `pending_approval` for Vendor Pro purchases
-- Admin dashboard can then list pending vendor approvals and toggle activation
-
-## Part 5: Strikethrough Pricing (UI only, later phase)
-The marketing prices (~~$199~~ $99, ~~$299~~ $149, ~~$499~~ $249) will be implemented in the landing page and upgrade UI as a visual-only feature. This does not affect Stripe or the database -- purely frontend styling applied when displaying plan cards.
-
----
-
-## Sequence of Implementation
-
-1. Update database: set `team_members = 2` for Essential, Premium, Unlimited
-2. Create all 10 Stripe products and prices
-3. Create `src/lib/stripePrices.ts` with all price/product IDs
-4. Create `create-checkout` edge function
-5. Create `verify-payment` edge function
-6. Add `supabase/config.toml` entries for new edge functions
-7. Create `PaymentSuccess` page and add route to `App.tsx`
-8. Wire `RsvpActivationModal` to use Stripe checkout
-9. Add vendor approval logic (database + admin UI integration)
-
+### 6. Design
+- Matches existing admin panel style (purple headings, `ww-box` cards, shadcn components)
+- Pending approvals highlighted with amber/warning border
+- Status badges use color-coded pills (green/amber/red/gray)
+- Responsive table layout consistent with AdminUsers
