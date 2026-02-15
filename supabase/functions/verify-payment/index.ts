@@ -31,6 +31,22 @@ const RSVP_PRODUCT_IDS = new Set([
   "prod_Tyt6a9w3AuwyzB",
 ]);
 
+// Extension product IDs
+const EXTENSION_PRODUCT_IDS = new Set([
+  // Essential extensions
+  "prod_TytxX16sHIR9nG", "prod_Tyu7cnAAMQfoWM", "prod_Tyu8DeDOjwI7kF",
+  "prod_Tyu9Penbgx0b5M", "prod_TyuAWtZzBIK8VU", "prod_TyuBFmQiiIO7aU",
+  "prod_TyuChtV169WvvQ",
+  // Premium extensions
+  "prod_TyuO2FCjdV9e4c", "prod_TyuOOztgn9A91A", "prod_TyuPcRhvbTuVaQ",
+  "prod_TyuQ0vCns1b6sN", "prod_TyuRtJpRuT1GWs", "prod_TyuSqYELiHGkIS",
+  "prod_TyuScTpMTUDABh",
+  // Unlimited extensions
+  "prod_TyuTlpKyA7RoeG", "prod_TyuTVX1fTZbeCc", "prod_TyuUVFhtZRyVYj",
+  "prod_TyuUsIDNTY1S16", "prod_TyuUvck5CobTGg", "prod_TyuVXb9EZNXWEz",
+  "prod_TyuVFVumB5xkRa",
+]);
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -112,7 +128,56 @@ serve(async (req) => {
       });
     }
 
-    // ── Plan Purchase ──
+    // ── Plan Extension Purchase ──
+    if (EXTENSION_PRODUCT_IDS.has(productId)) {
+      const extensionMonths = parseInt(metadata.extension_months || "0", 10);
+      if (!extensionMonths) throw new Error("extension_months metadata missing");
+
+      // Get current subscription
+      const { data: subData, error: subFetchError } = await supabase
+        .from("user_subscriptions")
+        .select("expires_at, grace_period_ends_at")
+        .eq("user_id", userId)
+        .single();
+
+      if (subFetchError || !subData) throw new Error("Could not fetch subscription");
+
+      // Extend from current expiry (or now if already expired)
+      const currentExpiry = new Date(subData.expires_at);
+      const baseDate = currentExpiry > new Date() ? currentExpiry : new Date();
+      const newExpiry = new Date(baseDate);
+      newExpiry.setMonth(newExpiry.getMonth() + extensionMonths);
+
+      const newGrace = new Date(newExpiry);
+      newGrace.setMonth(newGrace.getMonth() + 6);
+
+      const { error: updateError } = await supabase
+        .from("user_subscriptions")
+        .update({
+          expires_at: newExpiry.toISOString(),
+          grace_period_ends_at: newGrace.toISOString(),
+          status: "active",
+          is_read_only: false,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("user_id", userId);
+
+      if (updateError) throw new Error(`Failed to extend: ${updateError.message}`);
+
+      logStep("Plan extended", { extensionMonths, newExpiry: newExpiry.toISOString() });
+
+      return new Response(JSON.stringify({
+        type: "extension",
+        status: "active",
+        extension_months: extensionMonths,
+        new_expires_at: newExpiry.toISOString(),
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 200,
+      });
+    }
+
+
     const planInfo = PRODUCT_TO_PLAN[productId];
     if (!planInfo) throw new Error(`Unknown product: ${productId}`);
 
