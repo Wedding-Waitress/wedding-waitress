@@ -12,6 +12,7 @@ import { AdminEvents } from '@/components/Admin/AdminEvents';
 import { AdminSystemSettings } from '@/components/Admin/AdminSystemSettings';
 import { AdminLogs } from '@/components/Admin/AdminLogs';
 import { AdminNotificationSettings } from '@/components/Admin/AdminNotificationSettings';
+import { AdminSubscriptions } from '@/components/Admin/AdminSubscriptions';
 
 export const Admin = () => {
   const { isAdmin, loading: adminLoading } = useIsAdmin();
@@ -82,10 +83,11 @@ export const Admin = () => {
       {/* Main Content */}
       <div className="container mx-auto px-6 py-8">
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-6 lg:w-auto lg:inline-grid">
+          <TabsList className="grid w-full grid-cols-7 lg:w-auto lg:inline-grid">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="users">Users</TabsTrigger>
             <TabsTrigger value="events">Events</TabsTrigger>
+            <TabsTrigger value="subscriptions">Subscriptions</TabsTrigger>
             <TabsTrigger value="settings">Settings</TabsTrigger>
             <TabsTrigger value="notifications">Notifications</TabsTrigger>
             <TabsTrigger value="logs">Logs</TabsTrigger>
@@ -101,6 +103,10 @@ export const Admin = () => {
 
           <TabsContent value="events">
             <AdminEvents />
+          </TabsContent>
+
+          <TabsContent value="subscriptions">
+            <AdminSubscriptions />
           </TabsContent>
 
           <TabsContent value="settings">
