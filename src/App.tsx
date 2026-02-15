@@ -19,6 +19,7 @@ import { TermsOfService } from "./pages/TermsOfService";
 import { Contact } from "./pages/Contact";
 import RunningSheet from "./pages/RunningSheet";
 import { DJMCPublicView } from "./pages/DJMCPublicView";
+import { PaymentSuccess } from "./pages/PaymentSuccess";
 
 const queryClient = new QueryClient();
 
@@ -84,6 +85,8 @@ const App = () => (
           {/* DJ-MC Questionnaire public view */}
           <Route path="/dj-mc/:token" element={<DJMCPublicView />} />
           <Route path="/djmc/:token" element={<DJMCPublicView />} />
+           {/* Payment success */}
+          <Route path="/payment-success" element={<PaymentSuccess />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
           </Routes>

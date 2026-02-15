@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -7,14 +7,18 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Mail, Phone, CreditCard, Check } from "lucide-react";
+import { Mail, Phone, CreditCard, Check, Loader2 } from "lucide-react";
 import { getPricingTier } from '@/hooks/useRsvpPurchase';
+import { getRsvpTier } from '@/lib/stripePrices';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 interface RsvpActivationModalProps {
   isOpen: boolean;
   onClose: () => void;
   totalGuestCount: number;
   onPayNow: () => void;
+  eventId?: string | null;
 }
 
 export const RsvpActivationModal: React.FC<RsvpActivationModalProps> = ({
@@ -22,8 +26,47 @@ export const RsvpActivationModal: React.FC<RsvpActivationModalProps> = ({
   onClose,
   totalGuestCount,
   onPayNow,
+  eventId,
 }) => {
   const pricing = getPricingTier(totalGuestCount);
+  const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
+
+  const handlePayNow = async () => {
+    if (!eventId) {
+      onPayNow();
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const tier = getRsvpTier(totalGuestCount);
+
+      const { data, error } = await supabase.functions.invoke('create-checkout', {
+        body: {
+          price_id: tier.price_id,
+          mode: 'payment',
+          event_id: eventId,
+          plan_type: 'rsvp',
+        },
+      });
+
+      if (error) throw new Error(error.message);
+      if (data?.error) throw new Error(data.error);
+      if (data?.url) {
+        window.open(data.url, '_blank');
+        onClose();
+      }
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: err instanceof Error ? err.message : "Failed to start checkout",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -66,14 +109,19 @@ export const RsvpActivationModal: React.FC<RsvpActivationModalProps> = ({
         </div>
 
         <DialogFooter className="gap-2">
-          <Button variant="outline" onClick={onClose} className="rounded-full">
+          <Button variant="outline" onClick={onClose} className="rounded-full" disabled={loading}>
             Cancel
           </Button>
           <Button
-            onClick={onPayNow}
+            onClick={handlePayNow}
+            disabled={loading}
             className="rounded-full bg-primary hover:bg-primary/90 text-primary-foreground"
           >
-            <CreditCard className="w-4 h-4 mr-2" />
+            {loading ? (
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            ) : (
+              <CreditCard className="w-4 h-4 mr-2" />
+            )}
             Pay Now — ${pricing.price} AUD
           </Button>
         </DialogFooter>
