@@ -1764,22 +1764,22 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                             group.type !== 'individual' && isLastMember && "border-b-2 border-b-[#7248e6]"
                           )}
                         >
-                          <TableCell className="w-12">
+                          <TableCell className="py-1 w-12">
                             <Checkbox
                               checked={selectedGuestIds.has(guest.id)}
                               onCheckedChange={(checked) => handleSelectGuest(guest.id, checked as boolean)}
                             />
                           </TableCell>
-                          <TableCell className="font-medium w-28">
+                          <TableCell className="py-1 font-medium w-28">
                             {group.type !== 'individual' && (
                               <span className="inline-block w-2 h-2 rounded-full bg-[#7248e6] mr-2 align-middle" />
                             )}
                             {guest.first_name}
                           </TableCell>
-                          <TableCell className="font-medium w-28">{guest.last_name}</TableCell>
-                          <TableCell className="w-24 pl-16">{renderPill(!!guest.mobile && guest.mobile.trim() !== '')}</TableCell>
-                          <TableCell className="w-36 pl-16">{renderPill(!!guest.email && guest.email.trim() !== '')}</TableCell>
-                          <TableCell className="w-24">
+                          <TableCell className="py-1 font-medium w-28">{guest.last_name}</TableCell>
+                          <TableCell className="py-1 w-24 pl-16">{renderPill(!!guest.mobile && guest.mobile.trim() !== '')}</TableCell>
+                          <TableCell className="py-1 w-36 pl-16">{renderPill(!!guest.email && guest.email.trim() !== '')}</TableCell>
+                          <TableCell className="py-1 w-24">
                             {(() => {
                               const status = guest.rsvp_invite_status || 'not_sent';
                               const statusConfig: Record<string, { label: string; className: string }> = {
@@ -1796,7 +1796,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                               );
                             })()}
                           </TableCell>
-                          <TableCell className="w-24">
+                          <TableCell className="py-1 w-24">
                             <Badge 
                               variant={getRsvpBadgeVariant(guest.rsvp)} 
                               className="text-xs text-white"
@@ -1804,8 +1804,8 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                               {getRsvpDisplayLabel(guest.rsvp)}
                             </Badge>
                           </TableCell>
-                          <TableCell className="w-20">{getTableName(guest) || '—'}</TableCell>
-                          <TableCell className="w-20">
+                          <TableCell className="py-1 w-20">{getTableName(guest) || '—'}</TableCell>
+                          <TableCell className="py-1 w-20">
                             {guest.seat_no ? (
                               isDuplicateSeat(guest) ? (
                                 <TooltipProvider>
@@ -1827,7 +1827,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                               '—'
                             )}
                           </TableCell>
-                          <TableCell className="w-32">
+                          <TableCell className="py-1 w-32">
                             <RelationBadge
                               display={guest.relation_display || ''}
                               partner={guest.relation_partner || ''}
@@ -1837,12 +1837,12 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                               isEmpty={!guest.relation_display}
                             />
                           </TableCell>
-                    <TableCell className="w-24">
+                    <TableCell className="py-1 w-24">
                       <span className="text-sm text-foreground">
                         {guest.dietary || '—'}
                       </span>
                     </TableCell>
-                          <TableCell className="w-28">
+                          <TableCell className="py-1 w-28">
                             {(() => {
                               const typeLabel = getGuestTypeLabel(guest);
                               let colorClasses = 'bg-[#ff1493] text-white';
@@ -1860,8 +1860,8 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                               );
                             })()}
                           </TableCell>
-                          <TableCell className="w-20">{renderPill(!!guest.notes && guest.notes.trim() !== '')}</TableCell>
-                          <TableCell className="w-28">
+                          <TableCell className="py-1 w-20">{renderPill(!!guest.notes && guest.notes.trim() !== '')}</TableCell>
+                          <TableCell className="py-1 w-28">
                             <div className="flex items-center space-x-1">
                               <Button 
                                 variant="ghost" 
