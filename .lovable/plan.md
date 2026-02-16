@@ -1,21 +1,25 @@
 
 
-## Make Guest List Rows More Compact
-
-Reduce the vertical height of each guest row in the Guest List table so more guests are visible on screen at once. No content or styling will be distorted -- only the vertical spacing (padding) inside each cell is reduced.
+## Add Hover Tooltips to Guest List Actions and Notes Column
 
 ### What Changes
 
 **File: `src/components/Dashboard/GuestListTable.tsx`**
 
-Add `py-1` (4px vertical padding instead of 16px) to every `TableCell` in the guest data rows (lines 1767-1880). This cuts each row's height roughly in half while keeping all text, badges, and buttons fully readable.
+1. **Edit button tooltip**: Wrap the green Edit icon button (line 1866-1872) with a `Tooltip` component that shows "Edit" on hover.
 
-The change applies to:
-- All guest data rows (every `TableCell` inside the guest `.map()` loop)
-- This covers all current and future guests since it's part of the rendering template
+2. **Delete button tooltip**: Wrap the red Trash2 icon button (line 1873-1879) with a `Tooltip` component that shows "Delete" on hover.
+
+3. **Notes "YES" badge tooltip**: Update the Notes column (line 1863) so that when the guest has notes (green "YES" badge), hovering over it shows the actual notes content. The red "NO" badge will have no tooltip.
+
+   This will be done by replacing the `renderPill` call for notes with inline logic:
+   - If notes exist: wrap the green YES badge in a `Tooltip` that displays `guest.notes`
+   - If no notes: show the red NO badge as-is (no tooltip)
+
+4. **Add Tooltip imports**: Import `Tooltip`, `TooltipTrigger`, `TooltipContent`, and `TooltipProvider` from `@/components/ui/tooltip` (already exists in the project).
 
 ### What Does NOT Change
-- Table header row (stays the same height)
-- Group header rows (Family/Couple banners stay the same)
-- No column widths, fonts, or content changes
-- No other pages or features affected
+- No other columns, pages, or features affected
+- The Edit/Delete button functionality stays the same
+- The Notes badge styling stays the same (green YES / red NO)
+
