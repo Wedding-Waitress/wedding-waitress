@@ -17,7 +17,7 @@
  */
 
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
-import * as XLSX from 'xlsx';
+import * as XLSX from 'xlsx-js-style';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/enhanced-button";
 import { Input } from "@/components/ui/input";
