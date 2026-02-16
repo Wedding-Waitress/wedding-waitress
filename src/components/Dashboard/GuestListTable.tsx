@@ -586,11 +586,64 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
     const familyMap = new Map<string, any[]>();
     const individuals: any[] = [];
 
-    // First, sort all guests
+    // First, sort all guests using the selected sortBy option
     const allSortedGuests = [...guests].sort((a, b) => {
-      const firstA = a.first_name?.toLowerCase() || '';
-      const firstB = b.first_name?.toLowerCase() || '';
-      return firstA.localeCompare(firstB);
+      switch (sortBy) {
+        case 'first_name_asc':
+          return (a.first_name || '').localeCompare(b.first_name || '');
+        case 'first_name_desc':
+          return (b.first_name || '').localeCompare(a.first_name || '');
+        case 'last_name_asc':
+          return (a.last_name || '').localeCompare(b.last_name || '');
+        case 'last_name_desc':
+          return (b.last_name || '').localeCompare(a.last_name || '');
+        case 'table_name_asc': {
+          const tA = getTableName(a) || 'zzz';
+          const tB = getTableName(b) || 'zzz';
+          return tA.localeCompare(tB);
+        }
+        case 'table_name_desc': {
+          const tA = getTableName(a) || '';
+          const tB = getTableName(b) || '';
+          return tB.localeCompare(tA);
+        }
+        case 'seat_no_asc':
+          return (a.seat_no || 999) - (b.seat_no || 999);
+        case 'rsvp_attending_first': {
+          const oA = a.rsvp === 'Attending' ? 0 : a.rsvp === 'Pending' ? 1 : 2;
+          const oB = b.rsvp === 'Attending' ? 0 : b.rsvp === 'Pending' ? 1 : 2;
+          return oA - oB;
+        }
+        case 'rsvp_not_attending_first': {
+          const oA = a.rsvp === 'Not Attending' ? 0 : a.rsvp === 'Pending' ? 1 : 2;
+          const oB = b.rsvp === 'Not Attending' ? 0 : b.rsvp === 'Pending' ? 1 : 2;
+          return oA - oB;
+        }
+        case 'relation_asc': {
+          const pA = a.relation_partner === 'partner_one' ? selectedEvent?.partner1_name : selectedEvent?.partner2_name;
+          const pB = b.relation_partner === 'partner_one' ? selectedEvent?.partner1_name : selectedEvent?.partner2_name;
+          const rA = RELATION_ROLE_LABELS[a.relation_role] || '';
+          const rB = RELATION_ROLE_LABELS[b.relation_role] || '';
+          const pc = (pA || 'zzz').localeCompare(pB || 'zzz');
+          if (pc !== 0) return pc;
+          return rA.localeCompare(rB);
+        }
+        case 'relation_desc': {
+          const pA = a.relation_partner === 'partner_one' ? selectedEvent?.partner1_name : selectedEvent?.partner2_name;
+          const pB = b.relation_partner === 'partner_one' ? selectedEvent?.partner1_name : selectedEvent?.partner2_name;
+          const rA = RELATION_ROLE_LABELS[a.relation_role] || '';
+          const rB = RELATION_ROLE_LABELS[b.relation_role] || '';
+          const pc = (pB || '').localeCompare(pA || '');
+          if (pc !== 0) return pc;
+          return rB.localeCompare(rA);
+        }
+        case 'family_group_asc':
+          return (a.family_group || '').localeCompare(b.family_group || '');
+        case 'family_group_desc':
+          return (b.family_group || '').localeCompare(a.family_group || '');
+        default:
+          return (a.first_name || '').localeCompare(b.first_name || '');
+      }
     });
 
     // Apply search filter
@@ -630,7 +683,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
     });
 
     return groups;
-  }, [guests, searchTerm]);
+  }, [guests, searchTerm, sortBy, tables, selectedEvent]);
 
   // Create a map of family_group -> type for quick lookup
   const familyGroupTypeMap = useMemo(() => {
