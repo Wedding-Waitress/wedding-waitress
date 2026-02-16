@@ -1,34 +1,21 @@
 
 
-## Fix Export Guest List: Filename, Title Case Headers, and Bold Headers
+## Make Guest List Rows More Compact
 
-### Problem
-The previous changes are in the code but two issues remain:
+Reduce the vertical height of each guest row in the Guest List table so more guests are visible on screen at once. No content or styling will be distorted -- only the vertical spacing (padding) inside each cell is reduced.
 
-1. **Bold headers do not work**: The free `xlsx` (SheetJS community edition) silently ignores the `.s` style property. Bold formatting requires switching to `xlsx-js-style`, a drop-in replacement that supports cell styles.
-2. **The changes may not have deployed properly** to your browser — the screenshots show old CSV behavior.
-
-### Changes
+### What Changes
 
 **File: `src/components/Dashboard/GuestListTable.tsx`**
 
-1. **Replace `xlsx` import with `xlsx-js-style`** — this is a compatible drop-in replacement that supports cell styles including bold. Change `import * as XLSX from 'xlsx'` to `import * as XLSX from 'xlsx-js-style'`.
+Add `py-1` (4px vertical padding instead of 16px) to every `TableCell` in the guest data rows (lines 1767-1880). This cuts each row's height roughly in half while keeping all text, badges, and buttons fully readable.
 
-2. **Verify filename logic** (already in code, will confirm it works):
-   - Format: `Guest-List-Jason-Lindas-Wedding-05-12-2026.xlsx`
-   - Each word capitalized, single hyphens, event date as DD-MM-YYYY
+The change applies to:
+- All guest data rows (every `TableCell` inside the guest `.map()` loop)
+- This covers all current and future guests since it's part of the rendering template
 
-3. **Verify Title Case headers** (already in code, will confirm):
-   - `First Name, Last Name, Table Name, Seat No, RSVP, Dietary, Mobile, Email, Notes, Relation Partner, Relation Role, Relation Display`
-
-4. **Bold headers will now work** because `xlsx-js-style` supports `ws[cellRef].s = { font: { bold: true } }` — applied to both Download Template and Export Guest List.
-
-**File: `package.json`**
-
-- Add `xlsx-js-style` dependency (replaces usage of `xlsx` for this file)
-
-### What Is NOT Changed
-- Import logic (still accepts both `.csv` and `.xlsx`)
-- No other files or features modified
-- Guest list table display unchanged
-
+### What Does NOT Change
+- Table header row (stays the same height)
+- Group header rows (Family/Couple banners stay the same)
+- No column widths, fonts, or content changes
+- No other pages or features affected
