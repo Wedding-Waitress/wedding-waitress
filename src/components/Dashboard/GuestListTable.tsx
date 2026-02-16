@@ -101,7 +101,7 @@ type SortOption =
   | 'first_name_asc' | 'first_name_desc'
   | 'last_name_asc' | 'last_name_desc' 
   | 'table_name_asc' | 'table_name_desc'
-  | 'seat_no_asc' | 'seat_no_desc'
+  
   | 'rsvp_attending_first' | 'rsvp_not_attending_first'
   | 'relation_asc' | 'relation_desc'
   | 'family_group_asc' | 'family_group_desc';
@@ -113,7 +113,7 @@ const SORT_OPTIONS = [
   { value: 'last_name_desc', label: 'Last Name (Z–A)' },
   { value: 'table_name_asc', label: 'Table (A→Z)' },
   { value: 'table_name_desc', label: 'Table (Z→A)' },
-  { value: 'seat_no_asc', label: 'Seat No. (1→9)' },
+  
   { value: 'rsvp_attending_first', label: 'RSVP (Attending → Pending → Not Attending)' },
   { value: 'rsvp_not_attending_first', label: 'RSVP (Not Attending → Pending → Attending)' },
   { value: 'relation_asc', label: 'Relation (A–Z)' },
@@ -607,8 +607,6 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
           const tB = getTableName(b) || '';
           return tB.localeCompare(tA);
         }
-        case 'seat_no_asc':
-          return (a.seat_no || 999) - (b.seat_no || 999);
         case 'rsvp_attending_first': {
           const oA = a.rsvp === 'Attending' ? 0 : a.rsvp === 'Pending' ? 1 : 2;
           const oB = b.rsvp === 'Attending' ? 0 : b.rsvp === 'Pending' ? 1 : 2;
@@ -747,8 +745,6 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
           const tableA2 = getTableName(a) || '';
           const tableB2 = getTableName(b) || '';
           return tableB2.localeCompare(tableA2);
-        case 'seat_no_asc':
-          return (a.seat_no || 999) - (b.seat_no || 999);
         case 'rsvp_attending_first':
           const orderA = a.rsvp === 'Attending' ? 0 : a.rsvp === 'Pending' ? 1 : 2;
           const orderB = b.rsvp === 'Attending' ? 0 : b.rsvp === 'Pending' ? 1 : 2;
