@@ -638,22 +638,83 @@ const otherGuests = allGuests
         // Save party members if any
         if (partyMembers.length > 0 && autoFamilyGroup) {
           const { data: authData } = await supabase.auth.getUser();
-          const memberInserts = partyMembers.map(member => ({
-            event_id: eventId,
-            user_id: authData.user?.id!,
-            first_name: member.first_name,
-            last_name: member.last_name,
-            mobile: member.mobile || null,
-            email: member.email || null,
-            dietary: member.dietary || 'None',
-            table_id: member.table_id || null,
-            seat_no: member.seat_no || null,
-            family_group: autoFamilyGroup,
-            rsvp: 'Pending',
-            relation_partner: '',
-            relation_role: '',
-            relation_display: ''
-          }));
+
+          // Fetch taken seats for the selected table to avoid collisions
+          let takenSeatNumbers: number[] = [];
+          let tableSeatLimit = 0;
+          if (finalGuestData.table_id) {
+            const { data: existingGuests } = await supabase
+              .from('guests')
+              .select('seat_no')
+              .eq('table_id', finalGuestData.table_id)
+              .not('seat_no', 'is', null);
+            
+            takenSeatNumbers = (existingGuests || []).map(g => g.seat_no!);
+            // Add the primary guest's seat as taken
+            if (finalGuestData.seat_no) {
+              takenSeatNumbers.push(finalGuestData.seat_no);
+            }
+            
+            const selectedTable = tables.find(t => t.id === finalGuestData.table_id);
+            tableSeatLimit = selectedTable?.limit_seats || 0;
+          }
+
+          // Calculate sequential available seats for members
+          const getNextAvailableSeat = (startFrom: number): number | null => {
+            let candidate = startFrom;
+            while (candidate <= tableSeatLimit) {
+              if (!takenSeatNumbers.includes(candidate)) {
+                return candidate;
+              }
+              candidate++;
+            }
+            return null; // No available seat
+          };
+
+          let nextSeatStart = (finalGuestData.seat_no || 0) + 1;
+          let unseatedMembers: string[] = [];
+
+          const memberInserts = partyMembers.map(member => {
+            let memberSeatNo: number | null = null;
+            let memberTableId = finalGuestData.table_id || null;
+            let memberTableNo = finalGuestData.table_no || null;
+            let memberAssigned = false;
+
+            if (memberTableId && tableSeatLimit > 0) {
+              const availableSeat = getNextAvailableSeat(nextSeatStart);
+              if (availableSeat !== null) {
+                memberSeatNo = availableSeat;
+                takenSeatNumbers.push(availableSeat);
+                nextSeatStart = availableSeat + 1;
+                memberAssigned = true;
+              } else {
+                unseatedMembers.push(`${member.first_name} ${member.last_name}`);
+                // Still assign to same table, just no seat
+                memberAssigned = true;
+              }
+            } else if (memberTableId) {
+              memberAssigned = true;
+            }
+
+            return {
+              event_id: eventId,
+              user_id: authData.user?.id!,
+              first_name: member.first_name,
+              last_name: member.last_name,
+              mobile: member.mobile || null,
+              email: member.email || null,
+              dietary: member.dietary || 'None',
+              table_id: memberTableId,
+              table_no: memberTableNo,
+              seat_no: memberSeatNo,
+              assigned: memberAssigned,
+              family_group: autoFamilyGroup,
+              rsvp: 'Pending',
+              relation_partner: finalGuestData.relation_partner || '',
+              relation_role: finalGuestData.relation_role || '',
+              relation_display: finalGuestData.relation_display || ''
+            };
+          });
 
           const { error: membersError } = await supabase
             .from('guests')
@@ -661,6 +722,15 @@ const otherGuests = allGuests
 
           if (membersError) {
             console.error('Error adding party members:', membersError);
+          }
+
+          // Warn if some members couldn't get a seat
+          if (unseatedMembers.length > 0) {
+            toast({
+              title: "Some Members Unseated",
+              description: `${unseatedMembers.join(', ')} could not be assigned a seat — table is at capacity. You can reassign them manually.`,
+              variant: "destructive",
+            });
           }
         }
 
