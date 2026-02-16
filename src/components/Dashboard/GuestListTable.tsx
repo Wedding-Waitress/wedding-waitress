@@ -792,8 +792,9 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
 
   // CSV Functions
   const downloadTemplate = () => {
+    const DISPLAY_HEADERS = ['First Name', 'Last Name', 'Table Name', 'Seat No', 'RSVP', 'Dietary', 'Mobile', 'Email', 'Notes', 'Relation Partner', 'Relation Role'];
     const csvContent = [
-      IMPORT_TEMPLATE_HEADERS.join(','),
+      DISPLAY_HEADERS.join(','),
       'John,Doe,Table 1,1,Attending,NA,1234567890,john@example.com,Sample note,partner_one,father',
       'Jane,Smith,Table 2,3,Pending,Vegan,,jane@example.com,,partner_two,bridal_party'
     ].join('\n');
@@ -801,7 +802,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = 'guest-list-import-template.csv';
+    link.download = 'Guest-List-Import-Template.csv';
     link.click();
   };
 
@@ -865,7 +866,13 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
             return;
           }
           
-          const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
+          const rawHeaders = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
+          const headerNormMap: Record<string, string> = {
+            'First Name': 'first_name', 'Last Name': 'last_name', 'Table Name': 'table_name',
+            'Seat No': 'seat_no', 'RSVP': 'rsvp', 'Dietary': 'dietary', 'Mobile': 'mobile',
+            'Email': 'email', 'Notes': 'notes', 'Relation Partner': 'relation_partner', 'Relation Role': 'relation_role',
+          };
+          const headers = rawHeaders.map(h => headerNormMap[h] || h);
           const expectedHeaders = IMPORT_TEMPLATE_HEADERS;
           
           // Check if headers match (flexible - not all columns required)
