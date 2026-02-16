@@ -20,6 +20,7 @@ import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import * as XLSX from 'xlsx-js-style';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/enhanced-button";
+
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { 
@@ -1860,23 +1861,52 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                               );
                             })()}
                           </TableCell>
-                          <TableCell className="py-1 w-20">{renderPill(!!guest.notes && guest.notes.trim() !== '')}</TableCell>
+                          <TableCell className="py-1 w-20">
+                            {guest.notes && guest.notes.trim() !== '' ? (
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Badge className="text-white bg-green-500 cursor-pointer">Yes</Badge>
+                                  </TooltipTrigger>
+                                  <TooltipContent side="top" className="max-w-xs">
+                                    <p className="whitespace-pre-wrap">{guest.notes}</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            ) : (
+                              <Badge className="text-white bg-red-500">No</Badge>
+                            )}
+                          </TableCell>
                           <TableCell className="py-1 w-28">
                             <div className="flex items-center space-x-1">
-                              <Button 
-                                variant="ghost" 
-                                size="sm"
-                                onClick={() => handleEditGuest(guest)}
-                              >
-                                <Edit className="w-4 h-4 text-green-500" />
-                              </Button>
-                              <Button 
-                                variant="ghost" 
-                                size="sm"
-                                onClick={() => handleDeleteGuest(guest)}
-                              >
-                                <Trash2 className="w-4 h-4 text-red-500" />
-                              </Button>
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button 
+                                      variant="ghost" 
+                                      size="sm"
+                                      onClick={() => handleEditGuest(guest)}
+                                    >
+                                      <Edit className="w-4 h-4 text-green-500" />
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent side="top"><p>Edit</p></TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button 
+                                      variant="ghost" 
+                                      size="sm"
+                                      onClick={() => handleDeleteGuest(guest)}
+                                    >
+                                      <Trash2 className="w-4 h-4 text-red-500" />
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent side="top"><p>Delete</p></TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
                             </div>
                           </TableCell>
                         </TableRow>
