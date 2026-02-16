@@ -1,40 +1,55 @@
 
 
-## Capitalize CSV Template Filename and Headers
+## Fix Export Guest List CSV: Filename, Headers, and Bold Headers (Template + Export)
 
-### 1. Capitalize the Download Filename
+### 1. Export Guest List -- Fix Filename Format
 
-Change the downloaded file name from `guest-list-import-template.csv` to `Guest-List-Import-Template.csv`.
+**Current**: `guest-list-Jason---Linda-s-Weddidng-20260216.csv`
 
-Single line change in `GuestListTable.tsx` at line 804.
+**New format**: `Guest-List-Jason-Lindas-Wedding-05-12-2026.csv`
 
-### 2. Capitalize the Column Headers in the Template
+Changes in `GuestListTable.tsx` (around line 834-836):
+- Capitalize "Guest-List" prefix
+- Clean up event name: collapse multiple hyphens into one, remove standalone `-s-` artifacts (keep possessives like "Linda's" as "Lindas")
+- Use the **event date** (from `selectedEvent.date`) instead of today's date
+- Format date as `DD-MM-YYYY` with hyphens (not `YYYYMMDD`)
+- Capitalize the first letter of each word segment in the event name
 
-Change the template CSV headers from snake_case (e.g., `first_name`, `last_name`) to Title Case (e.g., `First Name`, `Last Name`).
+### 2. Export Guest List -- Capitalize Column Headers
 
-A new display header array will be created for the template:
-```
-First Name, Last Name, Table Name, Seat No, RSVP, Dietary, Mobile, Email, Notes, Relation Partner, Relation Role
-```
+**Current**: `first_name, last_name, table_name, seat_no, rsvp, dietary, mobile, email, notes, relation_partner, relation_role, relation_display`
 
-The existing `IMPORT_TEMPLATE_HEADERS` array (lowercase/snake_case) will remain unchanged because the import parser depends on it.
+**New**: `First Name, Last Name, Table Name, Seat No, RSVP, Dietary, Mobile, Email, Notes, Relation Partner, Relation Role, Relation Display`
 
-The `downloadTemplate` function will use these new display headers instead.
+Add a `DISPLAY_EXPORT_HEADERS` array with Title Case headers and use it in the `exportGuestList` function instead of `EXPORT_HEADERS`.
 
-### 3. Update the Import Parser to Accept Both Formats
+### 3. Bold Headers -- Switch from CSV to XLSX
 
-Since users will now download a template with capitalized headers like "First Name", the import logic needs to accept both formats. A small mapping step will be added so that when headers like "First Name" are found, they get normalized back to `first_name` before processing. This ensures both old and new templates work for import.
+CSV is plain text and cannot support bold formatting. To achieve bold headers as requested, both the **Download Template** and **Export Guest List** functions will be updated to generate `.xlsx` (Excel) files instead of `.csv` using the `xlsx` library (SheetJS).
 
-### 4. Bold Headers -- Limitation
+This library allows:
+- Setting cell styles including **bold** font on the header row
+- Proper Excel formatting out of the box
+- Title Case headers that appear bold when opened
 
-CSV is a plain text format and does not support any formatting such as bold, font size, or colors. When opened in Excel, all rows look the same. Making headers bold would require generating an Excel (.xlsx) file instead, which would need adding a new library. For now, the headers will be capitalized (Title Case) which already makes them stand out visually. If you want actual bold formatting in the future, we can look into adding Excel file generation.
+The import function will continue to accept `.csv` files (no change to import logic).
+
+**Changes:**
+- Install the `xlsx` npm package
+- Update `downloadTemplate` to generate `.xlsx` with bold Title Case headers
+- Update `exportGuestList` to generate `.xlsx` with bold Title Case headers
+- Update filenames to use `.xlsx` extension
+- The file input for import will also accept `.xlsx` in addition to `.csv`
 
 ### Summary of Changes
 
 **File: `src/components/Dashboard/GuestListTable.tsx`**
 
-- Add a display headers array: `['First Name', 'Last Name', 'Table Name', ...]`
-- Update `downloadTemplate` to use display headers and capitalize the filename
-- Update the import parser to normalize capitalized headers back to snake_case so imports still work with both old and new templates
-- No other changes anywhere
+1. Add `DISPLAY_EXPORT_HEADERS` array with Title Case versions of all export columns
+2. Update `exportGuestList`: use Title Case headers, fix filename (capitalize words, single hyphens, event date as DD-MM-YYYY)
+3. Update `downloadTemplate`: generate `.xlsx` with bold header row
+4. Update `exportGuestList`: generate `.xlsx` with bold header row
+5. Update import file input to accept both `.csv` and `.xlsx`
+
+No other files or features are changed.
 
