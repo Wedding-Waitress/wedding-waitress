@@ -74,7 +74,7 @@ export const RsvpActivationModal: React.FC<RsvpActivationModalProps> = ({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-lg">
             <Mail className="w-5 h-5 text-primary" />
-            Activate RSVP Invites
+            Activate and Send RSVP Invites
           </DialogTitle>
         </DialogHeader>
 
@@ -109,13 +109,13 @@ export const RsvpActivationModal: React.FC<RsvpActivationModalProps> = ({
         </div>
 
         <DialogFooter className="gap-2">
-          <Button variant="outline" onClick={onClose} className="rounded-full" disabled={loading}>
+          <Button onClick={onClose} className="rounded-full bg-red-500 hover:bg-red-600 text-white" disabled={loading}>
             Cancel
           </Button>
           <Button
             onClick={handlePayNow}
             disabled={loading}
-            className="rounded-full bg-primary hover:bg-primary/90 text-primary-foreground"
+            className="rounded-full bg-green-500 hover:bg-green-600 text-white"
           >
             {loading ? (
               <Loader2 className="w-4 h-4 mr-2 animate-spin" />
