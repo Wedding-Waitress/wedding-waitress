@@ -1,33 +1,44 @@
 
 
-## Styling Updates for Add Guest Modal - Party Members Section
+## Guest List Group Headers - Color-Coded by Type
 
-Three targeted styling changes in `src/components/Dashboard/AddGuestModal.tsx`:
+### What Changes
 
-### 1. "Add a member to this party" Button - Green Background with White Text
-**Line 1166**: Change from purple outline style to green filled button with white text.
+Update the group header rows in the guest list table so that:
+- **Family groups** get a **blue background** (`bg-blue-600`) matching the blue "Families" badge, with white text
+- **Couple groups** get an **orange background** (`bg-orange-500`) matching the orange "Couples" badge, with white text
+- **Individuals** remain unchanged (no group header)
 
-Before: `className="rounded-full border-[#7248e6] text-[#7248e6] hover:bg-[#7248e6]/10"`
-After: `className="rounded-full bg-green-500 hover:bg-green-600 text-white border-0"`
+### File to Modify
 
-The plus icon and text will both appear in white on a green background, making it much more visible.
+**`src/components/Dashboard/GuestListTable.tsx`** - Lines 1649-1663
 
-### 2. "Party Members (count)" Label - Green Text
-**Line 1156**: Change the text and icon color from purple to green.
+### Current Code (Group Header)
+```tsx
+<TableRow className="bg-purple-50/50 border-l-4 border-l-[#7248e6]">
+  <TableCell colSpan={14} className="py-2 px-4">
+    <div className="flex items-center gap-2">
+      <Users className="w-4 h-4 text-[#7248e6]" />
+      <span className="font-semibold text-sm text-[#7248e6]">
+        {group.groupName}
+      </span>
+      <Badge variant="secondary" className="text-xs">
+        {group.type === 'couple' ? 'Couple' : 'Family'} ...
+      </Badge>
+    </div>
+  </TableCell>
+</TableRow>
+```
 
-Before: `className="flex items-center gap-2 text-sm font-medium text-[#7248e6]"`
-After: `className="flex items-center gap-2 text-sm font-medium text-green-500"`
-
-### 3. Party Member Rows - Reduce Height
-**Line 1245**: Reduce padding on each member row from `p-3` to `p-2` for a more compact list.
-
-Before: `className="flex items-center justify-between bg-white p-3 rounded-lg border border-gray-200"`
-After: `className="flex items-center justify-between bg-white p-2 rounded-lg border border-gray-200"`
-
-This makes rows shorter so lists of many members remain easy to scan without being bulky.
+### Updated Code
+- **TableRow background**: Conditionally apply `bg-blue-600` for families or `bg-orange-500` for couples (full solid background, not faint purple)
+- **Users icon**: Change to `text-white`
+- **Group name text**: Change to `text-white`
+- **Badge**: Change to white text on a semi-transparent white background (`bg-white/20 text-white`) so it blends with the colored header
+- **Border-left**: Remove the purple left border since the full background already indicates the group
 
 ### Summary
-- All changes are in one file: `AddGuestModal.tsx`
-- Three lines changed, purely cosmetic
-- No logic or functionality affected
-
+- Single file change, purely cosmetic
+- Families get the same blue as the "2 Families" badge at the top
+- Couples get the same orange as the "0 Couples" badge at the top
+- Individuals are not affected (they have no group header)
