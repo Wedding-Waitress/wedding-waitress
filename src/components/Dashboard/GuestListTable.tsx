@@ -1918,6 +1918,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
           isOpen={showActivationModal}
           onClose={() => setShowActivationModal(false)}
           totalGuestCount={guests.length}
+          eventId={selectedEventId}
           onPayNow={() => {
             setShowActivationModal(false);
             toast({
