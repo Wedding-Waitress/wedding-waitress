@@ -1153,7 +1153,7 @@ const otherGuests = allGuests
             {!isEdit && (guestType === 'couple' || guestType === 'family') && (
               <div className="space-y-3 border-t border-gray-200 pt-4">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-sm font-medium text-[#7248e6]">
+                  <div className="flex items-center gap-2 text-sm font-medium text-green-500">
                     <Users className="w-4 h-4" />
                     <span>Party Members ({partyMembers.length})</span>
                   </div>
@@ -1163,7 +1163,7 @@ const otherGuests = allGuests
                     size="sm"
                     onClick={() => setShowAddMemberForm(true)}
                     disabled={guestType === 'couple' && partyMembers.length >= 1}
-                    className="rounded-full border-[#7248e6] text-[#7248e6] hover:bg-[#7248e6]/10"
+                    className="rounded-full bg-green-500 hover:bg-green-600 text-white border-0"
                   >
                     <Plus className="w-4 h-4 mr-1" />
                     Add a member to this party
@@ -1242,7 +1242,7 @@ const otherGuests = allGuests
                 {partyMembers.length > 0 && (
                   <div className="space-y-2">
                     {partyMembers.map((member, index) => (
-                      <div key={index} className="flex items-center justify-between bg-white p-3 rounded-lg border border-gray-200">
+                      <div key={index} className="flex items-center justify-between bg-white p-2 rounded-lg border border-gray-200">
                         <div className="flex-1">
                           <p className="font-medium text-sm">{member.first_name} {member.last_name}</p>
                           {(member.mobile || member.email) && (
