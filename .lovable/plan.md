@@ -1,25 +1,44 @@
 
 
-## Add Hover Tooltips to Guest List Actions and Notes Column
+## Fix Email Delivery: Verify Domain and Update Sender Address
 
-### What Changes
+The emails ARE being sent successfully (confirmed in logs), but they're landing in spam because they come from Resend's generic sandbox address `onboarding@resend.dev`. Here's exactly how to fix this:
 
-**File: `src/components/Dashboard/GuestListTable.tsx`**
+---
 
-1. **Edit button tooltip**: Wrap the green Edit icon button (line 1866-1872) with a `Tooltip` component that shows "Edit" on hover.
+### Step 1: Verify your domain in Resend (you do this manually)
 
-2. **Delete button tooltip**: Wrap the red Trash2 icon button (line 1873-1879) with a `Tooltip` component that shows "Delete" on hover.
+1. Go to [resend.com/domains](https://resend.com/domains) and log in
+2. Click **Add Domain**
+3. Enter `weddingwaitress.com`
+4. Resend will show you DNS records to add (typically MX, TXT/SPF, and DKIM records)
+5. Log in to your domain registrar (wherever you bought weddingwaitress.com) and add those DNS records
+6. Go back to Resend and click **Verify** -- it can take a few minutes to propagate
 
-3. **Notes "YES" badge tooltip**: Update the Notes column (line 1863) so that when the guest has notes (green "YES" badge), hovering over it shows the actual notes content. The red "NO" badge will have no tooltip.
+### Step 2: Update the Edge Function sender address (I do this)
 
-   This will be done by replacing the `renderPill` call for notes with inline logic:
-   - If notes exist: wrap the green YES badge in a `Tooltip` that displays `guest.notes`
-   - If no notes: show the red NO badge as-is (no tooltip)
+Once the domain is verified, I will update one line in the `send-auth-email` edge function:
 
-4. **Add Tooltip imports**: Import `Tooltip`, `TooltipTrigger`, `TooltipContent`, and `TooltipProvider` from `@/components/ui/tooltip` (already exists in the project).
+**File:** `supabase/functions/send-auth-email/index.ts`
 
-### What Does NOT Change
-- No other columns, pages, or features affected
-- The Edit/Delete button functionality stays the same
-- The Notes badge styling stays the same (green YES / red NO)
+Change the `from` field from:
+```
+from: "Wedding Waitress <onboarding@resend.dev>"
+```
+to:
+```
+from: "Wedding Waitress <noreply@weddingwaitress.com>"
+```
+
+This is the only code change needed. Everything else in the function stays the same.
+
+### Step 3: Check your Resend API key scope
+
+If your current Resend API key was created for the sandbox only, you may need to create a new one scoped to `weddingwaitress.com` and update the `RESEND_API_KEY` secret in Supabase. If your key is already a full-access key, no change is needed.
+
+---
+
+### Immediate Workaround (to sign in right now)
+
+While you set up the domain, please check your **Spam/Junk folder** or Gmail's **Promotions/Updates tabs** for emails from `onboarding@resend.dev` with subject "Sign in to Wedding Waitress". The codes were sent -- they're just being filtered.
 
