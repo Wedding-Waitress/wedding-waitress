@@ -17,6 +17,7 @@
  */
 
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import * as XLSX from 'xlsx';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/enhanced-button";
 import { Input } from "@/components/ui/input";
@@ -129,11 +130,18 @@ const IMPORT_TEMPLATE_HEADERS = [
   'relation_partner', 'relation_role'
 ];
 
-// Export headers (includes who_is_display)
+// Export headers (internal keys)
 const EXPORT_HEADERS = [
   'first_name', 'last_name', 'table_name', 'seat_no',
   'rsvp', 'dietary', 'mobile', 'email', 'notes', 
   'relation_partner', 'relation_role', 'relation_display'
+];
+
+// Display export headers (Title Case for XLSX output)
+const DISPLAY_EXPORT_HEADERS = [
+  'First Name', 'Last Name', 'Table Name', 'Seat No',
+  'RSVP', 'Dietary', 'Mobile', 'Email', 'Notes',
+  'Relation Partner', 'Relation Role', 'Relation Display'
 ];
 
 const DIETARY_OPTIONS = [
@@ -792,50 +800,75 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
 
   // CSV Functions
   const downloadTemplate = () => {
-    const DISPLAY_HEADERS = ['First Name', 'Last Name', 'Table Name', 'Seat No', 'RSVP', 'Dietary', 'Mobile', 'Email', 'Notes', 'Relation Partner', 'Relation Role'];
-    const csvContent = [
-      DISPLAY_HEADERS.join(','),
-      'John,Doe,Table 1,1,Attending,NA,1234567890,john@example.com,Sample note,partner_one,father',
-      'Jane,Smith,Table 2,3,Pending,Vegan,,jane@example.com,,partner_two,bridal_party'
-    ].join('\n');
-    
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = 'Guest-List-Import-Template.csv';
-    link.click();
+    const TEMPLATE_HEADERS = ['First Name', 'Last Name', 'Table Name', 'Seat No', 'RSVP', 'Dietary', 'Mobile', 'Email', 'Notes', 'Relation Partner', 'Relation Role'];
+    const sampleData = [
+      ['John', 'Doe', 'Table 1', 1, 'Attending', 'NA', '1234567890', 'john@example.com', 'Sample note', 'partner_one', 'father'],
+      ['Jane', 'Smith', 'Table 2', 3, 'Pending', 'Vegan', '', 'jane@example.com', '', 'partner_two', 'bridal_party']
+    ];
+    const ws = XLSX.utils.aoa_to_sheet([TEMPLATE_HEADERS, ...sampleData]);
+    // Bold header row
+    TEMPLATE_HEADERS.forEach((_, i) => {
+      const cellRef = XLSX.utils.encode_cell({ r: 0, c: i });
+      if (!ws[cellRef]) ws[cellRef] = { v: TEMPLATE_HEADERS[i], t: 's' };
+      ws[cellRef].s = { font: { bold: true } };
+    });
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Template');
+    XLSX.writeFile(wb, 'Guest-List-Import-Template.xlsx');
   };
 
   const exportGuestList = () => {
     if (!selectedEvent || !sortedGuests.length) return;
     
-    const csvRows = [
-      EXPORT_HEADERS.join(','),
-      ...sortedGuests.map(guest => [
-        guest.first_name || '',
-        guest.last_name || '',
-        getTableName(guest) || '',
-        guest.seat_no || '',
-        guest.rsvp || 'Pending',
-        guest.dietary || 'NA',
-        guest.mobile || '',
-        guest.email || '',
-        guest.family_group || '',
-        guest.relation_display || '',
-        (guest.notes || '').replace(/,/g, ';').replace(/\n/g, ' ')
-      ].map(field => `"${field}"`).join(','))
-    ];
+    const rows = sortedGuests.map(guest => [
+      guest.first_name || '',
+      guest.last_name || '',
+      getTableName(guest) || '',
+      guest.seat_no || '',
+      guest.rsvp || 'Pending',
+      guest.dietary || 'NA',
+      guest.mobile || '',
+      guest.email || '',
+      guest.family_group || '',
+      guest.relation_display || '',
+      (guest.notes || '').replace(/\n/g, ' ')
+    ]);
     
-    const csvContent = csvRows.join('\n');
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
+    const ws = XLSX.utils.aoa_to_sheet([DISPLAY_EXPORT_HEADERS, ...rows]);
+    // Bold header row
+    DISPLAY_EXPORT_HEADERS.forEach((_, i) => {
+      const cellRef = XLSX.utils.encode_cell({ r: 0, c: i });
+      if (!ws[cellRef]) ws[cellRef] = { v: DISPLAY_EXPORT_HEADERS[i], t: 's' };
+      ws[cellRef].s = { font: { bold: true } };
+    });
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Guest List');
     
-    const eventName = selectedEvent.name.replace(/[^a-zA-Z0-9]/g, '-');
-    const dateStr = new Date().toISOString().split('T')[0].replace(/-/g, '');
-    link.download = `guest-list-${eventName}-${dateStr}.csv`;
-    link.click();
+    // Build filename: Guest-List-EventName-DD-MM-YYYY.xlsx
+    const cleanName = selectedEvent.name
+      .replace(/'/g, '')
+      .replace(/[^a-zA-Z0-9]+/g, '-')
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '')
+      .split('-')
+      .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+      .join('-');
     
+    let dateStr = '';
+    if (selectedEvent.date) {
+      const d = new Date(selectedEvent.date);
+      const dd = String(d.getDate()).padStart(2, '0');
+      const mm = String(d.getMonth() + 1).padStart(2, '0');
+      const yyyy = d.getFullYear();
+      dateStr = `${dd}-${mm}-${yyyy}`;
+    } else {
+      const now = new Date();
+      const dd = String(now.getDate()).padStart(2, '0');
+      const mm = String(now.getMonth() + 1).padStart(2, '0');
+      dateStr = `${dd}-${mm}-${now.getFullYear()}`;
+    }
+    
+    XLSX.writeFile(wb, `Guest-List-${cleanName}-${dateStr}.xlsx`);
     toast({ title: `Exported ${sortedGuests.length} guests successfully` });
   };
 
@@ -846,7 +879,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
     
     const input = document.createElement('input');
     input.type = 'file';
-    input.accept = '.csv';
+    input.accept = '.csv,.xlsx';
     input.onchange = (e) => {
       const file = (e.target as HTMLInputElement).files?.[0];
       if (!file) return;
