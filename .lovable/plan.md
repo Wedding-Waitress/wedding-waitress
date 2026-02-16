@@ -1,46 +1,23 @@
 
 
-## Fix: "Stripe Not Connected" Error on RSVP Activation
+## RSVP Activation Modal - Styling Updates
 
-### What's Wrong
+Three simple changes to `src/components/Dashboard/RsvpActivationModal.tsx`:
 
-The `RsvpActivationModal` component at the bottom of `GuestListTable.tsx` (line 1917) is **missing the `eventId` prop**. Without it, the modal's internal Stripe checkout logic falls back to the `onPayNow` callback, which is a placeholder that shows "Stripe Not Connected."
+### 1. Title Update
+Change "Activate RSVP Invites" to **"Activate and Send RSVP Invites"** (line 77).
 
-Stripe itself IS connected -- the secret key is configured, the edge functions are deployed. This is purely a missing prop.
+### 2. Cancel Button - Red Background, White Text
+Change the Cancel button from the current outline style to a red background with white text, matching the destructive/cancel pattern used throughout Wedding Waitress (line 112).
 
-### The Fix
+Before: `variant="outline"` with default styling
+After: `bg-red-500 hover:bg-red-600 text-white`
 
-**File:** `src/components/Dashboard/GuestListTable.tsx`
+### 3. Pay Now Button - Green Background
+Change the Pay Now button from purple (`bg-primary`) to the brand green used across all primary action buttons (line 118).
 
-**Change:** Add `eventId={selectedEventId}` to the `RsvpActivationModal` component (around line 1917).
+Before: `bg-primary hover:bg-primary/90 text-primary-foreground`
+After: `bg-green-500 hover:bg-green-600 text-white`
 
-Before:
-```tsx
-<RsvpActivationModal
-  isOpen={showActivationModal}
-  onClose={() => setShowActivationModal(false)}
-  totalGuestCount={guests.length}
-  onPayNow={() => { ... }}
-/>
-```
-
-After:
-```tsx
-<RsvpActivationModal
-  isOpen={showActivationModal}
-  onClose={() => setShowActivationModal(false)}
-  totalGuestCount={guests.length}
-  eventId={selectedEventId}
-  onPayNow={() => { ... }}
-/>
-```
-
-This one-line addition ensures the modal uses its built-in Stripe checkout flow (calling the `create-checkout` edge function) instead of the fallback placeholder.
-
-### Why This Is Safe
-
-- The `RsvpActivationModal` already has full Stripe integration built in (lines 35-67 of `RsvpActivationModal.tsx`)
-- The `create-checkout` edge function is already deployed and working
-- The `STRIPE_SECRET_KEY` secret is already configured in Supabase
-- No other files need to change
-
+### Summary
+All three changes are in a single file, purely cosmetic, and match the existing Wedding Waitress button conventions (red Cancel, green action).
