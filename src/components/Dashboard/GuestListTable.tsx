@@ -1863,12 +1863,12 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                           </TableCell>
                           <TableCell className="py-1 w-20">
                             {guest.notes && guest.notes.trim() !== '' ? (
-                              <TooltipProvider>
+                              <TooltipProvider delayDuration={100}>
                                 <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <Badge className="text-white bg-green-500 cursor-pointer">Yes</Badge>
+                                  <TooltipTrigger>
+                                    <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold text-white bg-green-500 cursor-pointer">Yes</span>
                                   </TooltipTrigger>
-                                  <TooltipContent side="top" className="max-w-xs">
+                                  <TooltipContent side="top" className="max-w-xs z-[9999]">
                                     <p className="whitespace-pre-wrap">{guest.notes}</p>
                                   </TooltipContent>
                                 </Tooltip>
