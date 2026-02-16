@@ -1153,7 +1153,7 @@ const otherGuests = allGuests
             {!isEdit && (guestType === 'couple' || guestType === 'family') && (
               <div className="space-y-3 border-t border-gray-200 pt-4">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-sm font-medium text-green-500">
+                  <div className="flex items-center gap-2 text-sm font-medium text-green-500 border border-green-500 rounded-full px-3 py-1">
                     <Users className="w-4 h-4" />
                     <span>Party Members ({partyMembers.length})</span>
                   </div>
@@ -1242,7 +1242,7 @@ const otherGuests = allGuests
                 {partyMembers.length > 0 && (
                   <div className="space-y-2">
                     {partyMembers.map((member, index) => (
-                      <div key={index} className="flex items-center justify-between bg-white p-2 rounded-lg border border-gray-200">
+                      <div key={index} className="flex items-center justify-between bg-white py-1 px-2 rounded-lg border border-gray-200">
                         <div className="flex-1">
                           <p className="font-medium text-sm">{member.first_name} {member.last_name}</p>
                           {(member.mobile || member.email) && (
