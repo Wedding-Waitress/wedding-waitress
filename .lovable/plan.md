@@ -1,19 +1,40 @@
 
 
-## Remove "Seat No." Sort Option from Guest List
+## Capitalize CSV Template Filename and Headers
 
-### What Changes
+### 1. Capitalize the Download Filename
 
-Remove the "Seat No. (1->9)" option from the Sort By dropdown menu. This involves removing it from three places in `GuestListTable.tsx`:
+Change the downloaded file name from `guest-list-import-template.csv` to `Guest-List-Import-Template.csv`.
 
-1. **Type definition** (line 104): Remove `'seat_no_asc' | 'seat_no_desc'` from the SortOption type
-2. **Dropdown options array** (line 116): Remove the `{ value: 'seat_no_asc', label: 'Seat No. (1→9)' }` entry
-3. **Sort logic in `groupedGuests`** (lines 610-611): Remove the `case 'seat_no_asc'` branch
-4. **Sort logic in `sortedGuests`** (lines 750-751): Remove the duplicate `case 'seat_no_asc'` branch
+Single line change in `GuestListTable.tsx` at line 804.
 
-### What Is NOT Changed
-- The "Seat No." column in the table remains visible
-- No UI or styling changes
-- All other sort options remain intact
-- No other files are modified
+### 2. Capitalize the Column Headers in the Template
+
+Change the template CSV headers from snake_case (e.g., `first_name`, `last_name`) to Title Case (e.g., `First Name`, `Last Name`).
+
+A new display header array will be created for the template:
+```
+First Name, Last Name, Table Name, Seat No, RSVP, Dietary, Mobile, Email, Notes, Relation Partner, Relation Role
+```
+
+The existing `IMPORT_TEMPLATE_HEADERS` array (lowercase/snake_case) will remain unchanged because the import parser depends on it.
+
+The `downloadTemplate` function will use these new display headers instead.
+
+### 3. Update the Import Parser to Accept Both Formats
+
+Since users will now download a template with capitalized headers like "First Name", the import logic needs to accept both formats. A small mapping step will be added so that when headers like "First Name" are found, they get normalized back to `first_name` before processing. This ensures both old and new templates work for import.
+
+### 4. Bold Headers -- Limitation
+
+CSV is a plain text format and does not support any formatting such as bold, font size, or colors. When opened in Excel, all rows look the same. Making headers bold would require generating an Excel (.xlsx) file instead, which would need adding a new library. For now, the headers will be capitalized (Title Case) which already makes them stand out visually. If you want actual bold formatting in the future, we can look into adding Excel file generation.
+
+### Summary of Changes
+
+**File: `src/components/Dashboard/GuestListTable.tsx`**
+
+- Add a display headers array: `['First Name', 'Last Name', 'Table Name', ...]`
+- Update `downloadTemplate` to use display headers and capitalize the filename
+- Update the import parser to normalize capitalized headers back to snake_case so imports still work with both old and new templates
+- No other changes anywhere
 
