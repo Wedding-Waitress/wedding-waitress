@@ -41,18 +41,29 @@ export const RsvpActivationModal: React.FC<RsvpActivationModalProps> = ({
     setLoading(true);
     try {
       const tier = getRsvpTier(totalGuestCount);
+      const body = {
+        price_id: tier.price_id,
+        mode: 'payment',
+        event_id: eventId,
+        plan_type: 'rsvp',
+      };
 
-      const { data, error } = await supabase.functions.invoke('create-checkout', {
-        body: {
-          price_id: tier.price_id,
-          mode: 'payment',
-          event_id: eventId,
-          plan_type: 'rsvp',
-        },
-      });
+      const invokeAttempt = async () => {
+        const { data, error } = await supabase.functions.invoke('create-checkout', { body });
+        if (error) throw new Error(error.message);
+        if (data?.error) throw new Error(data.error);
+        return data;
+      };
 
-      if (error) throw new Error(error.message);
-      if (data?.error) throw new Error(data.error);
+      let data;
+      try {
+        data = await invokeAttempt();
+      } catch {
+        // Retry once after 2s (handles cold starts)
+        await new Promise(r => setTimeout(r, 2000));
+        data = await invokeAttempt();
+      }
+
       if (data?.url) {
         window.open(data.url, '_blank');
         onClose();
