@@ -1450,21 +1450,21 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                 {/* Box 2: Guest Relations */}
                 {selectedEventId && (
                   <div className="border-2 border-[#7248E6] rounded-lg p-4 flex-1">
-                    <div className="flex items-center gap-3 mb-3 flex-wrap">
+                    <div className="flex items-center gap-3 mb-2">
                       {totalGuestCount === 0 && (
                         <span className="bg-green-500 text-white font-normal text-xs w-8 h-8 rounded-full inline-flex items-center justify-center shrink-0">3rd</span>
                       )}
                       <span className="text-sm font-semibold text-primary">Add what relation each guest is to both of you:</span>
-                      <div className="flex items-center gap-2 ml-auto">
-                        <Switch
-                          id="hide-relations"
-                          checked={relationMode === 'off'}
-                          onCheckedChange={(checked) => handleRelationModeChange(checked ? 'off' : 'two')}
-                        />
-                        <Label htmlFor="hide-relations" className="text-sm text-muted-foreground">
-                          Hide what the guest relation is to you
-                        </Label>
-                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 mb-3">
+                      <Switch
+                        id="hide-relations"
+                        checked={relationMode === 'off'}
+                        onCheckedChange={(checked) => handleRelationModeChange(checked ? 'off' : 'two')}
+                      />
+                      <Label htmlFor="hide-relations" className="text-sm text-primary">
+                        Hide what the guest relation is to you
+                      </Label>
                     </div>
                     <div className="flex flex-col gap-3">
                       {/* Toggle: Use default names or custom names */}
