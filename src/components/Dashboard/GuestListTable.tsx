@@ -203,6 +203,8 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
   const [firstGuestAdded, setFirstGuestAdded] = useState(false);
   type RelationMode = 'two' | 'single' | 'off';
   const [relationMode, setRelationMode] = useState<RelationMode>('two');
+  const [eventType, setEventType] = useState<'two' | 'single'>('two');
+  const [relationsHidden, setRelationsHidden] = useState(false);
   const [showRelationSaved, setShowRelationSaved] = useState(false);
   const [partner1Name, setPartner1Name] = useState('');
   const [partner2Name, setPartner2Name] = useState('');
@@ -371,7 +373,51 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
     }
   };
 
-  // Handle saving partner names
+  // Handle event type change (Box 2) - decoupled from hide relations toggle
+  const handleEventTypeChange = async (newType: 'two' | 'single') => {
+    if (!selectedEventId) return;
+    setEventType(newType);
+    setShowRelationSaved(true);
+    setTimeout(() => setShowRelationSaved(false), 2000);
+
+    // Only update DB if relations are visible
+    if (!relationsHidden) {
+      try {
+        setRelationMode(newType);
+        const { error } = await supabase
+          .from('events')
+          .update({ relation_mode: newType })
+          .eq('id', selectedEventId);
+        if (error) throw error;
+      } catch (error) {
+        console.error('Error updating event type:', error);
+      }
+    }
+  };
+
+  // Handle hide relations toggle (Box 3) - decoupled from event type
+  const handleHideRelationsToggle = async (hidden: boolean) => {
+    if (!selectedEventId) return;
+    setRelationsHidden(hidden);
+    const newMode: RelationMode = hidden ? 'off' : eventType;
+    setRelationMode(newMode);
+    setShowRelationSaved(true);
+    setTimeout(() => setShowRelationSaved(false), 2000);
+
+    try {
+      const { error } = await supabase
+        .from('events')
+        .update({ relation_mode: newMode })
+        .eq('id', selectedEventId);
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error updating relation visibility:', error);
+      // Revert
+      setRelationsHidden(!hidden);
+      setRelationMode(hidden ? eventType : 'off');
+    }
+  };
+
   const handleSavePartnerNames = async () => {
     if (!selectedEventId) return;
 
@@ -395,11 +441,11 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
       });
 
       // Update local state so "Add Guest" button becomes active
-      const bothFilled = relationMode === 'two'
-        ? (partner1Name?.trim() && partner2Name?.trim())
-        : relationMode === 'single'
-          ? partner1Name?.trim()
-          : true;
+      const bothFilled = relationsHidden
+        ? true
+        : eventType === 'two'
+          ? (partner1Name?.trim() && partner2Name?.trim())
+          : partner1Name?.trim();
 
       if (bothFilled) {
         setPartnerNamesSaved(true);
@@ -536,13 +582,19 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
       
       // Only update relationMode if database provides a valid value (two, single, or off)
       const modeFromDb = (selectedEvent as any)?.relation_mode;
-      if (modeFromDb === 'two' || modeFromDb === 'single' || modeFromDb === 'off') {
-        if (modeFromDb !== relationMode) {
-          setRelationMode(modeFromDb as RelationMode);
-        }
+      if (modeFromDb === 'off') {
+        setRelationMode('off');
+        setRelationsHidden(true);
+        // Keep eventType as whatever it was (don't reset)
+      } else if (modeFromDb === 'two' || modeFromDb === 'single') {
+        setRelationMode(modeFromDb as RelationMode);
+        setRelationsHidden(false);
+        setEventType(modeFromDb as 'two' | 'single');
       } else {
         // Default to 'two' for truly invalid modes
         setRelationMode('two');
+        setRelationsHidden(false);
+        setEventType('two');
       }
       
       // Check if partner names are already saved
@@ -1205,11 +1257,11 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
     const shouldBlockFirstGuest = !relationSettings.relation_disable_first_guest_alert;
     
     // Determine if required names are missing based on toggle state
-    const namesAreMissing = relationMode === 'two'
-      ? (partner1Missing || partner2Missing)  // Wedding/engagement: need BOTH
-      : relationMode === 'single' 
-        ? partner1Missing                       // Single event: only need Partner 1
-        : false;                                // Off mode: names not required
+    const namesAreMissing = relationsHidden
+      ? false                                   // Off mode: names not required
+      : eventType === 'two'
+        ? (partner1Missing || partner2Missing)  // Wedding/engagement: need BOTH
+        : partner1Missing;                       // Single event: only need Partner 1
     
     // Gating rule: Only block for first guest if required names are missing AND haven't been saved
     if (shouldBlockFirstGuest && guestCount === 0 && namesAreMissing && !partnerNamesSaved) {
@@ -1414,10 +1466,10 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                       <Button
                         type="button"
                         size="sm"
-                        onClick={() => handleRelationModeChange('two')}
+                        onClick={() => handleEventTypeChange('two')}
                          className={cn(
                            "h-8 text-sm justify-start transition-all",
-                           relationMode === 'two'
+                           eventType === 'two'
                              ? "border-2 border-green-500 bg-green-50 text-green-500 shadow-md hover:bg-green-100"
                              : "border-2 border-primary bg-primary/10 text-primary hover:bg-primary/15"
                          )}
@@ -1427,10 +1479,10 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                       <Button
                         type="button"
                         size="sm"
-                        onClick={() => handleRelationModeChange('single')}
+                        onClick={() => handleEventTypeChange('single')}
                          className={cn(
                            "h-8 text-sm justify-start transition-all",
-                           relationMode === 'single'
+                           eventType === 'single'
                              ? "border-2 border-green-500 bg-green-50 text-green-500 shadow-md hover:bg-green-100"
                              : "border-2 border-primary bg-primary/10 text-primary hover:bg-primary/15"
                          )}
@@ -1453,15 +1505,15 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                     <div className="flex items-center gap-2 mb-3">
                       <Switch
                         id="hide-relations"
-                        checked={relationMode === 'off'}
-                        onCheckedChange={(checked) => handleRelationModeChange(checked ? 'off' : 'two')}
+                        checked={relationsHidden}
+                        onCheckedChange={(checked) => handleHideRelationsToggle(checked)}
                         className="data-[state=checked]:bg-destructive data-[state=unchecked]:bg-green-500"
                       />
                       <Label htmlFor="hide-relations" className="text-sm text-primary">
                         Hide what the guest relation is to you
                       </Label>
                     </div>
-                    {relationMode !== 'off' && (
+                    {!relationsHidden && (
                     <div className="flex flex-col gap-3">
                       {/* Toggle: Use default names or custom names */}
                       <div className="flex flex-col gap-2">
