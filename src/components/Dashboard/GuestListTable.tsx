@@ -348,7 +348,13 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
     setTimeout(() => setShowRelationSaved(false), 2000);
 
     try {
-      await updateEvent(selectedEventId, { relation_mode: newMode } as any);
+      // Direct DB update only — no refetch, no toast. Realtime handles sync.
+      const { error } = await supabase
+        .from('events')
+        .update({ relation_mode: newMode })
+        .eq('id', selectedEventId);
+
+      if (error) throw error;
     } catch (error) {
       console.error('Error updating relation mode:', error);
       
@@ -1473,7 +1479,10 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                               setPartnerNamesSaved(true);
                               setShowNamesValidation(false);
                               if (selectedEventId) {
-                                await updateEvent(selectedEventId, { partner1_name: 'Bride', partner2_name: 'Groom' } as any);
+                                await supabase
+                                  .from('events')
+                                  .update({ partner1_name: 'Bride', partner2_name: 'Groom' })
+                                  .eq('id', selectedEventId);
                               }
                             } catch (err) {
                               console.error('Error saving default partner names:', err);
