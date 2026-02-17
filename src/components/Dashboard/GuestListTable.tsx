@@ -1364,12 +1364,14 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
           <div className="flex flex-col xl:flex-row xl:items-start xl:justify-between gap-4 sm:gap-6 mb-4 sm:mb-6">
             {/* Left: Title, Description, Event selector and Search */}
             <div className="flex-shrink-0">
-              <h1 className="text-xl sm:text-2xl font-medium text-primary mb-2">
-                Guest List
-              </h1>
-              <p className="text-sm text-muted-foreground mb-4 hidden sm:block">
-                Manage your event guests, track RSVPs, assign tables, and organize seating arrangements
-              </p>
+              <div className="flex items-baseline gap-3 mb-4">
+                <h1 className="text-xl sm:text-2xl font-medium text-primary whitespace-nowrap">
+                  Guest List
+                </h1>
+                <p className="text-sm text-muted-foreground hidden sm:block">
+                  Manage your event guests, track RSVPs, assign tables, and organize seating arrangements
+                </p>
+              </div>
               
               {/* Event selector + Type of Event + Guest Relations - all on same row */}
               <div className="flex flex-col md:flex-row gap-4">
