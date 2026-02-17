@@ -1374,7 +1374,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
               </div>
               
               {/* Event selector + Type of Event + Guest Relations - all on same row */}
-              <div className="flex flex-col md:flex-row gap-4 pr-1">
+              <div className="flex flex-col md:flex-row gap-4">
                 <div className="border-2 border-[#7248E6] rounded-lg p-4 flex-1">
                   <div className="flex items-center gap-2 mb-3">
                     {totalGuestCount === 0 && (
