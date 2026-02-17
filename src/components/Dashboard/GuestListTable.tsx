@@ -1461,6 +1461,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                         id="hide-relations"
                         checked={relationMode === 'off'}
                         onCheckedChange={(checked) => handleRelationModeChange(checked ? 'off' : 'two')}
+                        className="border-2 border-primary"
                       />
                       <Label htmlFor="hide-relations" className="text-sm text-primary">
                         Hide what the guest relation is to you
@@ -1471,10 +1472,10 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                       <div className="flex flex-col gap-2">
                         <label
                           className={cn(
-                            "flex items-center gap-2 cursor-pointer rounded-lg border p-2 text-sm transition-all",
+                            "flex items-center gap-2 cursor-pointer rounded-lg border-2 border-primary bg-primary/10 p-2 text-sm transition-all",
                             useDefaultNames
-                              ? "border-green-500 bg-green-50 text-foreground"
-                              : "border-muted text-muted-foreground hover:border-primary/30"
+                              ? "text-primary shadow-md"
+                              : "text-primary hover:bg-primary/15"
                           )}
                           onClick={() => {
                             setUseDefaultNames(true);
@@ -1485,21 +1486,21 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                             handleSavePartnerNames();
                           }}
                         >
-                          <input type="radio" name="nameChoice" checked={useDefaultNames} readOnly className="accent-green-500" />
+                          <input type="radio" name="nameChoice" checked={useDefaultNames} readOnly className="accent-primary" />
                           Leave Partner 1 and Partner 2 names as Bride and Groom
                         </label>
                         <label
                           className={cn(
-                            "flex items-center gap-2 cursor-pointer rounded-lg border p-2 text-sm transition-all",
+                            "flex items-center gap-2 cursor-pointer rounded-lg border-2 border-primary bg-primary/10 p-2 text-sm transition-all",
                             !useDefaultNames
-                              ? "border-green-500 bg-green-50 text-foreground"
-                              : "border-muted text-muted-foreground hover:border-primary/30"
+                              ? "text-primary shadow-md"
+                              : "text-primary hover:bg-primary/15"
                           )}
                           onClick={() => {
                             setUseDefaultNames(false);
                           }}
                         >
-                          <input type="radio" name="nameChoice" checked={!useDefaultNames} readOnly className="accent-green-500" />
+                          <input type="radio" name="nameChoice" checked={!useDefaultNames} readOnly className="accent-primary" />
                           Add new names for Partner 1 and Partner 2
                         </label>
                       </div>
