@@ -86,6 +86,7 @@ interface AddGuestModalProps {
     relation_display: string;
   } | null;
   isEdit?: boolean;
+  relationsHidden?: boolean;
 }
 
 export const AddGuestModal: React.FC<AddGuestModalProps> = ({
@@ -95,6 +96,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
   eventId,
   editGuest,
   isEdit = false,
+  relationsHidden: relationsHiddenProp,
 }) => {
   const { toast } = useToast();
   const { tables } = useTables(eventId);
@@ -415,11 +417,11 @@ const otherGuests = allGuests
           return;
         }
       }
-      // Get current event's relation mode (type assertion needed as types haven't been regenerated yet)
-      const relationMode = (selectedEvent as any)?.relation_mode || 'two';
+      // Determine if relations are hidden (prefer prop, fall back to DB)
+      const isRelationHidden = relationsHiddenProp ?? ((selectedEvent as any)?.relation_mode === 'off');
       
-      // Validate required relation if setting is enabled AND relation mode is not 'off'
-      if (relationMode !== 'off' && relationSettings.relation_required) {
+      // Validate required relation if setting is enabled AND relations are not hidden
+      if (!isRelationHidden && relationSettings.relation_required) {
         if (!data.relation_partner || !data.relation_role) {
           form.setError('relation_partner', {
             type: 'manual',
@@ -1301,8 +1303,8 @@ const otherGuests = allGuests
               )}
             />
 
-            {/* Relation Field - Only show if relation mode is not 'off' */}
-            {(selectedEvent as any)?.relation_mode !== 'off' && (
+            {/* Relation Field - Only show if relations are not hidden */}
+            {!(relationsHiddenProp ?? ((selectedEvent as any)?.relation_mode === 'off')) && (
               <div data-field="relation">
                 <FormField
                   control={form.control}

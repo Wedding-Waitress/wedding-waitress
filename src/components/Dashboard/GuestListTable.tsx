@@ -2001,6 +2001,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
         onGuestAdded={handleGuestSuccess}
         editGuest={editingGuest}
         isEdit={!!editingGuest}
+        relationsHidden={relationsHidden}
       />
         <GuestDeleteConfirmationModal
           isOpen={showDeleteModal}
