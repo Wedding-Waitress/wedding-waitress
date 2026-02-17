@@ -1,55 +1,23 @@
 
 
-## Fix: Decouple Event Type (Box 2) from Hide Relations Toggle (Box 3)
+## Hide "Relation" Field in Add Guest Modal When Relations Are Hidden
 
-### Problem
+### What Changes
 
-Both boxes share a single `relationMode` state (`'two'`, `'single'`, or `'off'`). When you click "Wedding Or Engagement" in box 2, it sets `relationMode` to `'two'`, which overrides the `'off'` state from box 3 -- making the hidden partner fields reappear.
+When the user toggles "Hide what the guest relation is to you" (turning it red), the Relation field in the "Add New Guest" modal should immediately disappear -- no delay, no stale data.
 
-### Solution
+### Why It Might Not Be Working Now
 
-Introduce a separate `eventType` state to track which event type is selected (box 2), independent from whether relations are hidden (box 3). The `relationMode` saved to the database will be derived from both:
-- If relations are hidden: save `'off'`
-- If relations are visible: save the `eventType` value (`'two'` or `'single'`)
+The modal currently checks `selectedEvent.relation_mode` from the events cache, which updates via a realtime subscription. There can be a brief delay between toggling and the cache refreshing, causing the Relation field to still appear momentarily.
 
-### Changes (all in `src/components/Dashboard/GuestListTable.tsx`)
+### Fix (2 files)
 
-**1. Add new state variable**
+**1. `src/components/Dashboard/GuestListTable.tsx`**
+- Pass the local `relationsHidden` state as a new prop to `AddGuestModal`
 
-Add `eventType` state (default `'two'`) alongside the existing `relationMode`:
-```
-const [eventType, setEventType] = useState<'two' | 'single'>('two');
-const [relationsHidden, setRelationsHidden] = useState(false);
-```
+**2. `src/components/Dashboard/AddGuestModal.tsx`**
+- Add an optional `relationsHidden` prop to the component interface
+- Change the condition on the Relation field from `(selectedEvent as any)?.relation_mode !== 'off'` to use the new prop (falling back to the existing DB check if the prop is not provided)
+- Also update the relation validation logic (around line 422) to skip validation when `relationsHidden` is true
 
-**2. Update initialization (useEffect around line 531)**
-
-When loading from DB:
-- If `relation_mode` is `'off'`: set `relationsHidden = true`, keep `eventType` as whatever it was (or default `'two'`)
-- If `relation_mode` is `'two'` or `'single'`: set `relationsHidden = false`, set `eventType` to that value
-
-**3. Update box 2 button clicks (lines 1417, 1430)**
-
-Change from `handleRelationModeChange('two')` / `handleRelationModeChange('single')` to a new handler that:
-- Sets `eventType` locally
-- Only updates `relation_mode` in DB if relations are NOT hidden (i.e., saves `'two'` or `'single'`)
-- If relations ARE hidden, just update `eventType` locally (no DB change -- it stays `'off'`)
-
-**4. Update box 2 button styling (lines 1420, 1433)**
-
-Change `relationMode === 'two'` to `eventType === 'two'` (and same for `'single'`) so the green highlight reflects the event type regardless of whether relations are hidden.
-
-**5. Update box 3 toggle (line 1456-1457)**
-
-Change the switch to use `relationsHidden` instead of `relationMode === 'off'`. When toggled:
-- ON (hide): save `'off'` to DB
-- OFF (show): save the current `eventType` value to DB
-
-**6. Update conditional rendering (line 1464)**
-
-Change `relationMode !== 'off'` to `!relationsHidden`.
-
-**7. Update partner name validation (line 1208)**
-
-Use `relationsHidden` and `eventType` instead of `relationMode` for checking which names are required.
-
+This ensures the Relation field hides instantly based on the parent's local state, with no dependency on realtime refresh timing.
