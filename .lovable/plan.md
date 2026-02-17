@@ -1,34 +1,24 @@
 
 
-## Three Changes to Guest List Controls
+## Fix Page Glitch When Clicking Event Type / Partner Name Options
 
-### 1. Rename "Guests" pill to "Total Guests"
+### Root Cause
 
-**File: `src/components/Dashboard/GuestListTable.tsx` (line 1586)**
+The `handleRelationModeChange` function performs a **double database update**: first a direct `supabase.update()` call (line 352), then `updateEvent()` (line 363) which triggers another update and a full events refetch. This causes the component to re-render mid-operation, producing the visible glitch.
 
-Change the text from `{guestCount} Guest{guestCount !== 1 ? 's' : ''}` to `{guestCount} Total Guest{guestCount !== 1 ? 's' : ''}` (capital T, capital G).
+Similarly, the partner name radio label's `onClick` handler (line 1480) calls `handleSavePartnerNames()` which triggers yet another async DB call alongside multiple synchronous state changes, causing cascading re-renders.
 
----
+### Fix
 
-### 2. Type of Event buttons: selected = green, unselected = purple
+**File: `src/components/Dashboard/GuestListTable.tsx`**
 
-**File: `src/components/Dashboard/GuestListTable.tsx` (lines 1420-1445)**
+1. **`handleRelationModeChange` (lines 342-378)**: Remove the redundant direct `supabase.update()` call. Keep only the `updateEvent()` call which already handles the DB update and state sync. Wrap the entire body in a `try/catch` for error handling.
 
-Currently both "Wedding Or Engagement" and "Birthday, Single Person Event Or Corporate Party" buttons always use purple (`border-primary`, `bg-primary/10`, `text-primary`).
+2. **Partner name radio `onClick` (lines 1480-1487)**: Wrap the handler logic in a `try/catch` to prevent unhandled async errors from crashing the page. Also avoid calling `handleSavePartnerNames()` directly from the click -- instead, just set local state and let the save happen explicitly (or debounce it).
 
-Change so that:
-- **Selected** button: green border (`border-green-500`), green text (`text-green-500`), light green background (`bg-green-50`)
-- **Unselected** button: stays purple as it currently is
+### Technical Details
 
----
-
-### 3. Partner name radio labels: selected = green, unselected = purple, text bold
-
-**File: `src/components/Dashboard/GuestListTable.tsx` (lines 1473-1505)**
-
-Currently both radio labels always use purple styling. Change so that:
-- **Selected** label: green border (`border-green-500`), green text (`text-green-500`), light green background (`bg-green-50`), bold text (`font-bold`), green radio accent (`accent-green-500`)
-- **Unselected** label: stays purple, bold text (`font-bold`), purple radio accent (`accent-primary`)
-
-This applies to both "Leave Partner 1 and Partner 2 names as Bride and Groom" and "Add new names for Partner 1 and Partner 2" options -- whichever is active gets green styling.
+- In `handleRelationModeChange`: remove lines 352-357 (the direct supabase call) and keep only `updateEvent(selectedEventId, { relation_mode: newMode })` inside the try block
+- In the first radio label onClick (line 1480-1487): wrap in try/catch and avoid the immediate `handleSavePartnerNames()` call which races with state updates -- the default names "Bride"/"Groom" are already set via `setPartner1Name`/`setPartner2Name`, so the save can happen after state settles
+- Add `isLoading` guards to prevent double-clicks during async operations
 
