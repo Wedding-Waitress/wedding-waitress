@@ -1,28 +1,37 @@
 
-## Fix: Stale Table Guest Counts in Add Guest Modal
+
+## Fix: Duplicate Table Names in Add Guest Modal Dropdown
 
 ### Problem
 
-The "Add Guest" modal has its own `useTables(eventId)` hook instance that only fetches table data on mount and when `eventId` changes. When you add guests and reopen the modal, it still shows the old guest counts (e.g., "1/10" instead of "2/10" for table 8).
+In the "Select Table" dropdown inside the Add Guest modal, each table entry is shown twice separated by a hyphen. For example:
+- "One, Groom's Parents - One, Groom's Parents"
+- "2 Brides Parents - 2 Brides Parents"
 
-### Solution
+### Cause
 
-Extract `fetchTables` from the modal's `useTables` hook and trigger a refetch every time the modal opens.
+Line 991 of `AddGuestModal.tsx` currently renders:
 
-### Changes (1 file)
-
-**`src/components/Dashboard/AddGuestModal.tsx`**
-
-1. Destructure `fetchTables` from the `useTables` hook (line 102):
-   - Change `const { tables } = useTables(eventId);` to `const { tables, fetchTables } = useTables(eventId);`
-
-2. Add a `useEffect` that calls `fetchTables()` when the modal opens:
-```typescript
-useEffect(() => {
-  if (isOpen && eventId) {
-    fetchTables();
-  }
-}, [isOpen, eventId]);
+```
+{table.table_no ? `Table ${table.table_no}` : table.name} - {table.name}
 ```
 
-This ensures the table dropdown always shows accurate guest counts every time the modal is opened, regardless of how many guests were added since the last fetch.
+This always appends `- {table.name}` after the initial display, causing duplication.
+
+### Fix (1 file, 1 line)
+
+**`src/components/Dashboard/AddGuestModal.tsx` (line 991)**
+
+Change the display logic to show each table only once:
+- If the table has a number AND a name: show `Table {number} - {name}`
+- If the table has only a number: show `Table {number}`
+- If the table has only a name: show the name
+
+```tsx
+// Before
+{table.table_no ? `Table ${table.table_no}` : table.name} - {table.name}
+
+// After
+{table.table_no ? `Table ${table.table_no}${table.name ? ` - ${table.name}` : ''}` : table.name}
+```
+
