@@ -1461,6 +1461,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                         Hide what the guest relation is to you
                       </Label>
                     </div>
+                    {relationMode !== 'off' && (
                     <div className="flex flex-col gap-3">
                       {/* Toggle: Use default names or custom names */}
                       <div className="flex flex-col gap-2">
@@ -1555,6 +1556,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                         </>
                       )}
                     </div>
+                    )}
                   </div>
                 )}
               </div>
