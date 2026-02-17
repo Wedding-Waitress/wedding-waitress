@@ -1,18 +1,26 @@
 
-
-## Balance the Three Boxes with Equal Spacing
+## Fix Three-Box Layout with CSS Grid
 
 ### What Changes
 
-The three boxes (Choose Event, Type of Event, Guest Relations) will have equal width and balanced spacing, with the right-side gap matching the left-side gap.
+The three onboarding boxes (Choose Event, Type of Event, Guest Relations) will be made equal width with symmetric left/right gaps inside the Guest List container.
 
 ### Technical Details
 
 **File**: `src/components/Dashboard/GuestListTable.tsx` (line 1377)
 
-**Current**: The container has `pr-1` which adds a tiny right padding, but this doesn't match the natural left margin provided by the parent card's padding.
+**Current**:
+```
+<div className="flex flex-col md:flex-row gap-4 pr-1">
+```
 
-**Fix**: Remove `pr-1` from the flex container. The parent card component already applies equal `p-4 md:p-6` padding on all sides, so removing the extra `pr-1` will let the three `flex-1` boxes sit evenly within the card, with matching gaps on both left and right edges.
+**New**:
+```
+<div className="flex flex-col md:grid md:grid-cols-3 gap-4">
+```
 
-That single class removal is the only change needed -- the three boxes already use `flex-1` for equal widths and `gap-4` for spacing between them.
+Two changes:
+1. Replace `md:flex-row` with `md:grid md:grid-cols-3` -- uses `grid-template-columns: repeat(3, minmax(0, 1fr))` to guarantee exactly equal-width columns
+2. Remove `pr-1` -- the parent Card already has symmetric padding (`p-4 md:p-6`), so the extra right padding was causing the third box to sit too close to the right edge
 
+No other files or elements are changed.
