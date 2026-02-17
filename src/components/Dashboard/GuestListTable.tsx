@@ -1424,11 +1424,11 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                         className={cn(
                           "h-8 text-sm justify-start transition-all",
                           relationMode === 'two'
-                            ? "bg-green-500 text-white shadow-md hover:bg-green-600"
-                            : "bg-white border border-primary/30 text-foreground hover:bg-primary/5"
+                            ? "border-2 border-primary bg-primary/10 text-primary shadow-md hover:bg-primary/15"
+                            : "border-2 border-primary bg-primary/10 text-primary hover:bg-primary/15"
                         )}
                       >
-                        💍 Wedding - Engagement
+                        💍 Wedding Or Engagement
                       </Button>
                       <Button
                         type="button"
@@ -1437,11 +1437,11 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                         className={cn(
                           "h-8 text-sm justify-start transition-all",
                           relationMode === 'single'
-                            ? "bg-green-500 text-white shadow-md hover:bg-green-600"
-                            : "bg-white border border-primary/30 text-foreground hover:bg-primary/5"
+                            ? "border-2 border-primary bg-primary/10 text-primary shadow-md hover:bg-primary/15"
+                            : "border-2 border-primary bg-primary/10 text-primary hover:bg-primary/15"
                         )}
                       >
-                        🎂 Birthday - single person
+                        🎂 Birthday, Single Person Event Or Corporate Party
                       </Button>
                     </div>
                   </div>
