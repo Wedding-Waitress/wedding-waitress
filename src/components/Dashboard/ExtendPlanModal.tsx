@@ -33,11 +33,23 @@ export const ExtendPlanModal: React.FC<ExtendPlanModalProps> = ({
 
     setLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke('create-extension-checkout', {
-        body: { price_id: selected.price_id, extension_months: selected.months },
-      });
+      const body = { price_id: selected.price_id, extension_months: selected.months };
 
-      if (error) throw error;
+      const invokeAttempt = async () => {
+        const { data, error } = await supabase.functions.invoke('create-extension-checkout', { body });
+        if (error) throw new Error(error.message);
+        if (data?.error) throw new Error(data.error);
+        return data;
+      };
+
+      let data;
+      try {
+        data = await invokeAttempt();
+      } catch {
+        await new Promise(r => setTimeout(r, 2000));
+        data = await invokeAttempt();
+      }
+
       if (data?.url) {
         window.open(data.url, '_blank');
       }
