@@ -1,26 +1,30 @@
 
-
-## Move Search Box Next to "Guests" Pill
+## Move Description Text Inline with "Guest List" Heading
 
 ### What Changes
 
-The "Search guests..." input field will be moved from its current position (below the Choose Event selector) to sit directly to the left of the "0 Guests" pill in the stats/controls row.
-
-### Current Layout
-- Row 1: Choose Event + Type of Event + Guest Relations (all side by side)
-- Row 2: Search guests box (standalone below Choose Event)
-- Row 3: [Individuals, Couples, Families] on left | [0 Guests, Sort By, Import/Export, Add Guest] on right
-
-### New Layout
-- Row 1: Choose Event + Type of Event + Guest Relations (unchanged)
-- Row 2: [Individuals, Couples, Families] on left | [**Search guests**, 0 Guests, Sort By, Import/Export, Add Guest] on right
+The description text "Manage your event guests, track RSVPs, assign tables, and organize seating arrangements" will move from its own line below the heading to sit on the same line, to the right of "Guest List" with a small gap.
 
 ### Technical Details
 
-**File**: `src/components/Dashboard/GuestListTable.tsx`
+**File**: `src/components/Dashboard/GuestListTable.tsx` (lines 1367-1372)
 
-1. **Remove** the search field block at lines 1554-1563 (the standalone row below Choose Event)
-2. **Insert** the search field inside the right-side controls div (line 1583), just before the "0 Guests" pill -- so it appears to the left of it
+**Current structure**:
+```
+<h1>Guest List</h1>
+<p>Manage your event guests...</p>
+```
 
-No other changes to styling, functionality, or content.
+**New structure**:
+```
+<div class="flex items-baseline gap-3 mb-4">
+  <h1>Guest List</h1>
+  <p>Manage your event guests...</p>
+</div>
+```
 
+- Wrap both elements in a flex container with `items-baseline` so text aligns on the same baseline
+- Add `gap-3` for spacing between heading and description
+- Move `mb-4` from the `<p>` to the wrapper div
+- Remove `mb-2` from the `<h1>`
+- Keep `hidden sm:block` on the description so it still hides on small screens
