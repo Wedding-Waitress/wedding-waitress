@@ -1,18 +1,26 @@
 
 
-## Revert Sender Address to Sandbox
+## Switch Sender to Verified Domain
 
-**File:** `supabase/functions/send-auth-email/index.ts`
+### Step 1: Verify your domain in Resend (you do this)
 
-One-line change: revert the `from` field back to `onboarding@resend.dev` so emails flow again while Resend's dashboard is down.
+1. Go to [Resend Dashboard → Domains](https://resend.com/domains)
+2. Click **Add Domain** and enter `weddingwaitress.com`
+3. Resend will give you DNS records (MX, TXT/SPF, DKIM) to add at your domain registrar
+4. Add those DNS records and wait for Resend to show the domain as **Verified**
+5. Let me know once it says "Verified"
 
-```
-from: "Wedding Waitress <noreply@weddingwaitress.com>"
-```
-back to:
+### Step 2: Update the Edge Function (I do this)
+
+Once your domain is verified, I will change one line in `supabase/functions/send-auth-email/index.ts`:
+
 ```
 from: "Wedding Waitress <onboarding@resend.dev>"
 ```
+to:
+```
+from: "Wedding Waitress <noreply@weddingwaitress.com>"
+```
 
-Once Resend's dashboard recovers and you verify your domain, we can switch it back to `noreply@weddingwaitress.com`. Remember to check your **spam/junk folder** for the code after this change.
+Then redeploy the edge function. After that, all authentication emails will come from your professional address and should land directly in inboxes rather than spam.
 
