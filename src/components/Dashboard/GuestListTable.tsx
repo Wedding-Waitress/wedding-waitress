@@ -1421,12 +1421,12 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                         type="button"
                         size="sm"
                         onClick={() => handleRelationModeChange('two')}
-                        className={cn(
-                          "h-8 text-sm justify-start transition-all",
-                          relationMode === 'two'
-                            ? "border-2 border-primary bg-primary/10 text-primary shadow-md hover:bg-primary/15"
-                            : "border-2 border-primary bg-primary/10 text-primary hover:bg-primary/15"
-                        )}
+                         className={cn(
+                           "h-8 text-sm justify-start transition-all",
+                           relationMode === 'two'
+                             ? "border-2 border-green-500 bg-green-50 text-green-500 shadow-md hover:bg-green-100"
+                             : "border-2 border-primary bg-primary/10 text-primary hover:bg-primary/15"
+                         )}
                       >
                         💍 Wedding Or Engagement
                       </Button>
@@ -1434,12 +1434,12 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                         type="button"
                         size="sm"
                         onClick={() => handleRelationModeChange('single')}
-                        className={cn(
-                          "h-8 text-sm justify-start transition-all",
-                          relationMode === 'single'
-                            ? "border-2 border-primary bg-primary/10 text-primary shadow-md hover:bg-primary/15"
-                            : "border-2 border-primary bg-primary/10 text-primary hover:bg-primary/15"
-                        )}
+                         className={cn(
+                           "h-8 text-sm justify-start transition-all",
+                           relationMode === 'single'
+                             ? "border-2 border-green-500 bg-green-50 text-green-500 shadow-md hover:bg-green-100"
+                             : "border-2 border-primary bg-primary/10 text-primary hover:bg-primary/15"
+                         )}
                       >
                         🎂 Birthday, Single Person Event Or Corporate Party
                       </Button>
@@ -1472,10 +1472,10 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                       <div className="flex flex-col gap-2">
                         <label
                           className={cn(
-                            "flex items-center gap-2 cursor-pointer rounded-lg border-2 border-primary bg-primary/10 p-2 text-sm transition-all",
+                            "flex items-center gap-2 cursor-pointer rounded-lg border-2 p-2 text-sm font-bold transition-all",
                             useDefaultNames
-                              ? "text-primary shadow-md"
-                              : "text-primary hover:bg-primary/15"
+                              ? "border-green-500 bg-green-50 text-green-500 shadow-md"
+                              : "border-primary bg-primary/10 text-primary hover:bg-primary/15"
                           )}
                           onClick={() => {
                             setUseDefaultNames(true);
@@ -1486,21 +1486,21 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                             handleSavePartnerNames();
                           }}
                         >
-                          <input type="radio" name="nameChoice" checked={useDefaultNames} readOnly className="accent-primary" />
+                          <input type="radio" name="nameChoice" checked={useDefaultNames} readOnly className={useDefaultNames ? "accent-green-500" : "accent-primary"} />
                           Leave Partner 1 and Partner 2 names as Bride and Groom
                         </label>
                         <label
                           className={cn(
-                            "flex items-center gap-2 cursor-pointer rounded-lg border-2 border-primary bg-primary/10 p-2 text-sm transition-all",
+                            "flex items-center gap-2 cursor-pointer rounded-lg border-2 p-2 text-sm font-bold transition-all",
                             !useDefaultNames
-                              ? "text-primary shadow-md"
-                              : "text-primary hover:bg-primary/15"
+                              ? "border-green-500 bg-green-50 text-green-500 shadow-md"
+                              : "border-primary bg-primary/10 text-primary hover:bg-primary/15"
                           )}
                           onClick={() => {
                             setUseDefaultNames(false);
                           }}
                         >
-                          <input type="radio" name="nameChoice" checked={!useDefaultNames} readOnly className="accent-primary" />
+                          <input type="radio" name="nameChoice" checked={!useDefaultNames} readOnly className={!useDefaultNames ? "accent-green-500" : "accent-primary"} />
                           Add new names for Partner 1 and Partner 2
                         </label>
                       </div>
@@ -1583,7 +1583,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
               </div>
               <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-xs font-medium ring-offset-background h-7 px-3 bg-white border border-primary text-foreground">
                 <Users className="w-4 h-4" />
-                {guestCount} Guest{guestCount !== 1 ? 's' : ''}
+                {guestCount} Total Guest{guestCount !== 1 ? 's' : ''}
               </div>
             </div>
 
