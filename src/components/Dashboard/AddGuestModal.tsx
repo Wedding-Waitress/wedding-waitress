@@ -988,7 +988,7 @@ const otherGuests = allGuests
                       <SelectContent>
                         {tables.map((table) => (
                           <SelectItem key={table.id} value={table.id}>
-                            {table.table_no ? `Table ${table.table_no}${table.name ? ` - ${table.name}` : ''}` : table.name}
+                            {table.table_no ? `Table ${table.table_no}${table.name && table.name !== String(table.table_no) ? ` - ${table.name}` : ''}` : table.name}
                             <Badge variant="secondary" className="ml-2">
                               {table.guest_count}/{table.limit_seats}
                             </Badge>
