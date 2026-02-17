@@ -1,26 +1,20 @@
 
+## Reduce Green Circle Badges to Half Size
 
-## Switch Sender to Verified Domain
+The three green onboarding step badges ("1st", "2nd", "3rd") in the Guest List page will be reduced to half their current size.
 
-### Step 1: Verify your domain in Resend (you do this)
+### What Changes
 
-1. Go to [Resend Dashboard → Domains](https://resend.com/domains)
-2. Click **Add Domain** and enter `weddingwaitress.com`
-3. Resend will give you DNS records (MX, TXT/SPF, DKIM) to add at your domain registrar
-4. Add those DNS records and wait for Resend to show the domain as **Verified**
-5. Let me know once it says "Verified"
+Three lines in `src/components/Dashboard/GuestListTable.tsx`:
 
-### Step 2: Update the Edge Function (I do this)
+- **Line 1378** (1st badge): `w-16 h-16 text-2xl` changes to `w-8 h-8 text-xs`
+- **Line 1421** (2nd badge): `w-16 h-16 text-2xl` changes to `w-8 h-8 text-xs`
+- **Line 1465** (3rd badge): `w-16 h-16 text-2xl` changes to `w-8 h-8 text-xs`
 
-Once your domain is verified, I will change one line in `supabase/functions/send-auth-email/index.ts`:
+### Technical Details
 
-```
-from: "Wedding Waitress <onboarding@resend.dev>"
-```
-to:
-```
-from: "Wedding Waitress <noreply@weddingwaitress.com>"
-```
+All three badges share the same class pattern. The size classes change from:
+- Width/height: `w-16 h-16` (64px) to `w-8 h-8` (32px)
+- Font size: `text-2xl` (24px) to `text-xs` (12px)
 
-Then redeploy the edge function. After that, all authentication emails will come from your professional address and should land directly in inboxes rather than spam.
-
+No other elements or styles are affected.
