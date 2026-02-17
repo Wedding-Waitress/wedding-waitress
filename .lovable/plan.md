@@ -1,30 +1,18 @@
 
 
-## Fix: Table Number Repeated in Add Guest Dropdown
+## Style Updates to Guest Delete Confirmation Modal
 
-### Problem
+### Changes (1 file: `src/components/Dashboard/GuestDeleteConfirmationModal.tsx`)
 
-Tables with just a number (e.g., table 3) are displaying as "Table 3 - 3" because the `name` field stores the number as text (e.g., `"3"`). The current logic appends ` - {name}` whenever `name` exists, causing the number to appear twice.
+1. **Title "You are deleting this guest"** -- change text color to Wedding Waitress purple (`text-primary`) and capitalize first letter (already capitalized, so just the color change).
 
-### Fix (1 file, 1 line)
+2. **"Guest:" line with the guest name** -- change the text color to purple (`text-primary`).
 
-**`src/components/Dashboard/AddGuestModal.tsx` (line 991)**
+3. **"Delete Guest" button** -- change from purple (`variant="default"`) to red (`variant="destructive"` or `bg-red-500`), matching the app's destructive action pattern.
 
-Add a check: only append the name after the hyphen if it is different from the table number.
+### Technical Details
 
-```tsx
-// Before
-{table.table_no ? `Table ${table.table_no}${table.name ? ` - ${table.name}` : ''}` : table.name}
-
-// After
-{table.table_no
-  ? `Table ${table.table_no}${table.name && table.name !== String(table.table_no) ? ` - ${table.name}` : ''}`
-  : table.name}
-```
-
-### Result
-
-- Table with number 3 and name "3" shows: **Table 3**
-- Table with number 1 and name "Groom's Parents" shows: **Table 1 - Groom's Parents**
-- Table with no number and name "Bridal Table" shows: **Bridal Table**
+- Title: Add `className="text-primary"` to `DialogTitle`
+- Guest line: Change `text-foreground` to `text-primary` on the guest name span, and wrap the "Guest:" label in a purple-colored span
+- Delete button: Change to `className="rounded-full bg-red-500 hover:bg-red-600 text-white"`
 
