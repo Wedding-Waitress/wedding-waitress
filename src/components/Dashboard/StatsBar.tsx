@@ -53,7 +53,7 @@ export const StatsBar: React.FC<StatsBarProps> = ({
       label: "Guest Limit",
       value: stats.eventGuestLimit,
       icon: <Zap className="w-6 h-6" />,
-      color: "text-destructive"
+      color: "text-primary"
     },
     {
       label: "Tables Created",
@@ -65,49 +65,49 @@ export const StatsBar: React.FC<StatsBarProps> = ({
       label: "Seats Created",
       value: stats.seatsCreated,
       icon: <Users className="w-6 h-6" />,
-      color: "text-blue-600"
+      color: "text-primary"
     },
     {
       label: "Seats Filled",
       value: stats.seatsFilled,
       icon: <UserCheck className="w-6 h-6" />,
-      color: "text-green-500"
+      color: "text-primary"
     },
     {
       label: "Seats Remaining",
       value: stats.seatsRemaining,
       icon: <Clock className="w-6 h-6" />,
-      color: "text-orange-500"
+      color: "text-primary"
     },
     {
       label: "Full Tables",
       value: stats.tablesAtCapacity,
       icon: <Target className="w-6 h-6" />,
-      color: "text-green-500"
+      color: "text-primary"
     },
     {
       label: "Sent Invites",
       value: stats.sentInvites,
       icon: <Mail className="w-6 h-6" />,
-      color: "text-blue-600"
+      color: "text-primary"
     },
     {
       label: "Unsent Invites",
       value: stats.unsentInvites,
       icon: <Clock className="w-6 h-6" />,
-      color: "text-muted-foreground"
+      color: "text-primary"
     },
     {
       label: "Replied Invites",
       value: stats.respondedInvites,
       icon: <CheckCircle2 className="w-6 h-6" />,
-      color: "text-pink-500"
+      color: "text-primary"
     },
     {
       label: "Unreplied Invites",
       value: stats.unrespondedInvites,
       icon: <AlertCircle className="w-6 h-6" />,
-      color: "text-amber-600"
+      color: "text-primary"
     }
   ];
 
@@ -125,7 +125,7 @@ export const StatsBar: React.FC<StatsBarProps> = ({
                   </div>
                 </div>
                 <div className="min-w-0 w-full">
-                  <p className="text-[10px] text-muted-foreground leading-tight">
+                  <p className="text-[10px] text-primary font-bold leading-tight">
                     {item.label}
                   </p>
                   <p className={`text-lg font-bold ${item.color}`}>
@@ -153,7 +153,7 @@ export const StatsBar: React.FC<StatsBarProps> = ({
                 </div>
               </div>
               <div className="min-w-0 w-full">
-                <p className="text-xs text-muted-foreground truncate">
+                <p className="text-xs text-primary font-bold truncate">
                   {item.label}
                 </p>
                 <p className={`text-lg font-bold ${item.color}`}>
