@@ -1,29 +1,22 @@
 
-## Resize Category Buttons to Match Sort By / Import Export
+
+## Rearrange Guest List Controls Layout
 
 ### What Changes
 
-**File: `src/components/Dashboard/GuestListTable.tsx`**
+**File: `src/components/Dashboard/GuestListTable.tsx` (lines 1563-1575)**
 
-Four buttons need their height and font size updated to match the Sort By and Import/Export CSV buttons (h-7 / text-xs):
+Merge all items onto a single row with this order:
 
-1. **Individuals** (pink) -- line 1566
-2. **Couples** (orange) -- line 1569
-3. **Families** (blue) -- line 1572
-4. **Guests** (white with purple border) -- line 1588
+**Left side:** Search guests input, Individuals pill, Couples pill, Families pill, Guests pill
 
-### Current vs New
+**Right side:** Sort By, Import/Export CSV, Add Guest (unchanged)
 
-| Property | Current | New |
-|----------|---------|-----|
-| Height | `h-8 sm:h-9` | `h-7` |
-| Font size | `text-xs sm:text-sm` | `text-xs` |
+### Technical Detail
 
-### What Stays the Same
+- Remove the separate left-side container that currently holds Individuals/Couples/Families (lines 1564-1575)
+- Move those three pills into the right-side container (line 1578), placing them after Search and before the Guests pill
+- The outer flex container with `justify-between` keeps the left/right split
+- Left group: Search input, then the three category pills, then Guests count
+- Right group: Sort By, Import/Export, Add Guest (no changes needed)
 
-- Pink background on Individuals
-- Orange background on Couples
-- Blue background on Families
-- White background with purple border on Guests
-- All text content and icons unchanged
-- No other buttons or elements affected
