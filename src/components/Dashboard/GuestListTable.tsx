@@ -1500,7 +1500,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                       {totalGuestCount === 0 && (
                         <span className="bg-green-500 text-white font-normal text-xs w-8 h-8 rounded-full inline-flex items-center justify-center shrink-0">3rd</span>
                       )}
-                      <span className="text-sm font-semibold text-primary">Add what relation each guest is to both of you:</span>
+                      <span className="text-sm font-semibold text-primary">Add what relationship each guest is to you. This will help your staff know who is who at your venue.</span>
                     </div>
                     <div className="flex items-center gap-2 mb-3">
                       <Switch
