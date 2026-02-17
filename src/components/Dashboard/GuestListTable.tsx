@@ -1461,7 +1461,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                         id="hide-relations"
                         checked={relationMode === 'off'}
                         onCheckedChange={(checked) => handleRelationModeChange(checked ? 'off' : 'two')}
-                        className="border-2 border-primary"
+                        className="data-[state=checked]:bg-destructive data-[state=unchecked]:bg-green-500"
                       />
                       <Label htmlFor="hide-relations" className="text-sm text-primary">
                         Hide what the guest relation is to you
