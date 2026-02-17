@@ -1363,7 +1363,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
           {/* Page Title with Couple Names Section */}
           <div className="flex flex-col xl:flex-row xl:items-start xl:justify-between gap-4 sm:gap-6 mb-4 sm:mb-6">
             {/* Left: Title, Description, Event selector and Search */}
-            <div className="flex-shrink-0">
+            <div className="w-full">
               <div className="flex items-baseline gap-3 mb-4">
                 <h1 className="text-xl sm:text-2xl font-medium text-primary whitespace-nowrap">
                   Guest List
@@ -1374,7 +1374,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
               </div>
               
               {/* Event selector + Type of Event + Guest Relations - all on same row */}
-              <div className="flex flex-col md:flex-row gap-4 pr-1">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="border-2 border-[#7248E6] rounded-lg p-4 flex-1">
                   <div className="flex items-center gap-2 mb-3">
                     {totalGuestCount === 0 && (
