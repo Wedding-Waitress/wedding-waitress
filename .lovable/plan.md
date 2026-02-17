@@ -1,37 +1,30 @@
 
 
-## Fix: Duplicate Table Names in Add Guest Modal Dropdown
+## Fix: Table Number Repeated in Add Guest Dropdown
 
 ### Problem
 
-In the "Select Table" dropdown inside the Add Guest modal, each table entry is shown twice separated by a hyphen. For example:
-- "One, Groom's Parents - One, Groom's Parents"
-- "2 Brides Parents - 2 Brides Parents"
-
-### Cause
-
-Line 991 of `AddGuestModal.tsx` currently renders:
-
-```
-{table.table_no ? `Table ${table.table_no}` : table.name} - {table.name}
-```
-
-This always appends `- {table.name}` after the initial display, causing duplication.
+Tables with just a number (e.g., table 3) are displaying as "Table 3 - 3" because the `name` field stores the number as text (e.g., `"3"`). The current logic appends ` - {name}` whenever `name` exists, causing the number to appear twice.
 
 ### Fix (1 file, 1 line)
 
 **`src/components/Dashboard/AddGuestModal.tsx` (line 991)**
 
-Change the display logic to show each table only once:
-- If the table has a number AND a name: show `Table {number} - {name}`
-- If the table has only a number: show `Table {number}`
-- If the table has only a name: show the name
+Add a check: only append the name after the hyphen if it is different from the table number.
 
 ```tsx
 // Before
-{table.table_no ? `Table ${table.table_no}` : table.name} - {table.name}
+{table.table_no ? `Table ${table.table_no}${table.name ? ` - ${table.name}` : ''}` : table.name}
 
 // After
-{table.table_no ? `Table ${table.table_no}${table.name ? ` - ${table.name}` : ''}` : table.name}
+{table.table_no
+  ? `Table ${table.table_no}${table.name && table.name !== String(table.table_no) ? ` - ${table.name}` : ''}`
+  : table.name}
 ```
+
+### Result
+
+- Table with number 3 and name "3" shows: **Table 3**
+- Table with number 1 and name "Groom's Parents" shows: **Table 1 - Groom's Parents**
+- Table with no number and name "Bridal Table" shows: **Bridal Table**
 
