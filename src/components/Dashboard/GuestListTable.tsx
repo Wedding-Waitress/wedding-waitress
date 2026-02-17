@@ -1563,13 +1563,13 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 flex-wrap mb-4 sm:mb-6 mt-4">
             {/* LEFT SIDE: Individuals, Couples, Families - Horizontal scroll on mobile */}
             <div className="flex items-center gap-2 overflow-x-auto pb-1 -mx-1 px-1">
-              <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-xs sm:text-sm font-medium h-8 sm:h-9 px-3 bg-pink-500 text-white flex-shrink-0">
+              <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-xs font-medium h-7 px-3 bg-pink-500 text-white flex-shrink-0">
                 {individualCount} Individual{individualCount !== 1 ? 's' : ''}
               </div>
-              <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-xs sm:text-sm font-medium h-8 sm:h-9 px-3 bg-orange-500 text-white flex-shrink-0">
+              <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-xs font-medium h-7 px-3 bg-orange-500 text-white flex-shrink-0">
                 {coupleCount} Couple{coupleCount !== 1 ? 's' : ''}
               </div>
-              <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-xs sm:text-sm font-medium h-8 sm:h-9 px-3 bg-blue-600 text-white flex-shrink-0">
+              <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-xs font-medium h-7 px-3 bg-blue-600 text-white flex-shrink-0">
                 {familyCount} Famil{familyCount !== 1 ? 'ies' : 'y'}
               </div>
             </div>
@@ -1585,7 +1585,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                   className="pl-10 w-[180px] sm:w-[200px] border-2 border-primary h-8 sm:h-9 rounded-full text-xs sm:text-sm"
                 />
               </div>
-              <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-xs sm:text-sm font-medium ring-offset-background h-8 sm:h-9 px-3 bg-white border border-primary text-foreground">
+              <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-xs font-medium ring-offset-background h-7 px-3 bg-white border border-primary text-foreground">
                 <Users className="w-4 h-4" />
                 {guestCount} Guest{guestCount !== 1 ? 's' : ''}
               </div>
