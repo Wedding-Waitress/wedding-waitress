@@ -99,8 +99,14 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
   relationsHidden: relationsHiddenProp,
 }) => {
   const { toast } = useToast();
-  const { tables } = useTables(eventId);
+  const { tables, fetchTables } = useTables(eventId);
   const { events } = useEvents();
+
+  useEffect(() => {
+    if (isOpen && eventId) {
+      fetchTables();
+    }
+  }, [isOpen, eventId]);
   const selectedEvent = events.find(e => e.id === eventId);
   
   const [relationSelectorOpen, setRelationSelectorOpen] = useState(false);
