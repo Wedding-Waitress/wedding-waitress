@@ -1551,16 +1551,6 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                 )}
               </div>
 
-              {/* Search field - below Choose Event */}
-              <div className="relative mt-2">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                <Input
-                  placeholder="Search guests..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 w-full sm:w-[300px] border-2 border-primary h-11 sm:h-10"
-                />
-              </div>
             </div>
           </div>
 
@@ -1581,6 +1571,15 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
 
             {/* RIGHT SIDE: Guests count, Sort By, Import/Export, Add Guest - wrap on mobile */}
             <div className="flex items-center gap-2 flex-wrap">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                <Input
+                  placeholder="Search guests..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10 w-[180px] sm:w-[200px] border-2 border-primary h-8 sm:h-9 rounded-full text-xs sm:text-sm"
+                />
+              </div>
               <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-xs sm:text-sm font-medium ring-offset-background h-8 sm:h-9 px-3 bg-white border border-primary text-foreground">
                 <Users className="w-4 h-4" />
                 {guestCount} Guest{guestCount !== 1 ? 's' : ''}
