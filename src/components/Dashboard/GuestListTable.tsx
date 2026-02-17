@@ -1374,16 +1374,18 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
               </div>
               
               {/* Event selector + Type of Event + Guest Relations - all on same row */}
-              <div className="flex flex-col md:flex-row gap-4">
-                <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-                  {totalGuestCount === 0 && (
-                    <span className="bg-green-500 text-white font-normal text-xs w-8 h-8 rounded-full inline-flex items-center justify-center">1st</span>
-                  )}
-                  <Label htmlFor="event-select" className="whitespace-nowrap text-sm font-medium">
-                    Choose Event:
-                  </Label>
+              <div className="flex flex-col md:flex-row gap-4 pr-1">
+                <div className="border-2 border-[#7248E6] rounded-lg p-4 flex-1">
+                  <div className="flex items-center gap-2 mb-3">
+                    {totalGuestCount === 0 && (
+                      <span className="bg-green-500 text-white font-normal text-xs w-8 h-8 rounded-full inline-flex items-center justify-center shrink-0">1st</span>
+                    )}
+                    <Label htmlFor="event-select" className="whitespace-nowrap text-sm font-semibold text-primary">
+                      Choose Event:
+                    </Label>
+                  </div>
                   <Select value={selectedEventId || "no-event"} onValueChange={handleEventSelect}>
-                    <SelectTrigger className="w-full sm:w-[300px] border-2 border-primary [&>span]:font-bold [&>span]:text-primary h-11 sm:h-10">
+                    <SelectTrigger className="w-full border-2 border-primary [&>span]:font-bold [&>span]:text-primary h-11 sm:h-10">
                       <SelectValue placeholder="Select an event..." />
                     </SelectTrigger>
                     <SelectContent>
