@@ -62,10 +62,10 @@ export const GuestDeleteConfirmationModal: React.FC<GuestDeleteConfirmationModal
         <DialogHeader>
           <div className="flex items-center space-x-2">
             <AlertTriangle className="h-5 w-5 text-destructive" />
-            <DialogTitle>You are deleting this guest</DialogTitle>
+            <DialogTitle className="text-primary">You are deleting this guest</DialogTitle>
           </div>
           <DialogDescription className="pt-2">
-            Guest: <span className="font-medium text-foreground">"{guestName}"</span>
+            <span className="text-primary">Guest: <span className="font-medium">"{guestName}"</span></span>
             <br />
             <br />
             Once it's gone you can't bring it back.
@@ -97,7 +97,7 @@ export const GuestDeleteConfirmationModal: React.FC<GuestDeleteConfirmationModal
             Cancel
           </Button>
           <Button
-            variant="default"
+            variant="destructive"
             size="xs"
             className="rounded-full"
             onClick={handleConfirm}
