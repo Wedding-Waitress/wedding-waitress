@@ -348,18 +348,6 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
     setTimeout(() => setShowRelationSaved(false), 2000);
 
     try {
-      // Update database in background
-      const { error } = await supabase
-        .from('events')
-        .update({ relation_mode: newMode })
-        .eq('id', selectedEventId);
-
-      if (error) throw error;
-
-      toast({
-        description: "Relation mode updated successfully.",
-      });
-
       await updateEvent(selectedEventId, { relation_mode: newMode } as any);
     } catch (error) {
       console.error('Error updating relation mode:', error);
@@ -1477,13 +1465,19 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                               ? "border-green-500 bg-green-50 text-green-500 shadow-md"
                               : "border-primary bg-primary/10 text-primary hover:bg-primary/15"
                           )}
-                          onClick={() => {
-                            setUseDefaultNames(true);
-                            setPartner1Name('Bride');
-                            setPartner2Name('Groom');
-                            setPartnerNamesSaved(true);
-                            setShowNamesValidation(false);
-                            handleSavePartnerNames();
+                          onClick={async () => {
+                            try {
+                              setUseDefaultNames(true);
+                              setPartner1Name('Bride');
+                              setPartner2Name('Groom');
+                              setPartnerNamesSaved(true);
+                              setShowNamesValidation(false);
+                              if (selectedEventId) {
+                                await updateEvent(selectedEventId, { partner1_name: 'Bride', partner2_name: 'Groom' } as any);
+                              }
+                            } catch (err) {
+                              console.error('Error saving default partner names:', err);
+                            }
                           }}
                         >
                           <input type="radio" name="nameChoice" checked={useDefaultNames} readOnly className={useDefaultNames ? "accent-green-500" : "accent-primary"} />
