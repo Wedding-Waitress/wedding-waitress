@@ -1,56 +1,43 @@
 
 
-## Fix: Drop Indicator Should Appear Above or Below Guest Based on Pointer Position
+## Fix: Drop Indicator Always Showing Below Instead of Dynamically
 
 ### Problem
 
-Currently, when dragging a guest over another guest, the purple drop indicator line always appears in the same position regardless of where your pointer is on that guest. The indicator should show **above** the guest when you're hovering over their top half (meaning "insert before this guest") and **below** when hovering over their bottom half (meaning "insert after this guest").
+The current code calculates the pointer's Y position as `activatorEvent.clientY + delta.y`, where `activatorEvent` is the original mousedown event. Combined with `over.rect` (which is a snapshot rect from dnd-kit's measurement system), the coordinate spaces don't always align. This causes the midpoint comparison to almost always resolve to "below", so the purple line never appears above a guest.
 
 ### Solution
 
-Track the pointer's vertical position relative to each guest element. If the pointer is in the top half of the guest, show the indicator above; if in the bottom half, show it below. The insertion logic in `handleDragEnd` will also be updated to match, so the guest always lands exactly where the indicator shows.
+Track the **real-time pointer position** via a `pointermove` event listener on the document, stored in a ref. In `handleDragOver`, use `document.getElementById(over.id)?.getBoundingClientRect()` for a live DOM measurement of the hovered guest. Compare the live pointer Y against the live element midpoint.
 
-### Changes (3 files)
+### Changes (1 file)
 
-**1. `src/components/Dashboard/Tables/SortableTablesGrid.tsx`**
+**`src/components/Dashboard/Tables/SortableTablesGrid.tsx`**
 
-- Add a new state: `overGuestPosition` ("above" or "below")
-- In `handleDragOver`, calculate whether the pointer is in the top or bottom half of the hovered guest element using the `event` collision rect data
-- Pass `overGuestPosition` through the drag state context
-- Update `handleDragEnd` insertion logic: if position is "below", insert AFTER the target guest; if "above", insert BEFORE
-
-**2. `src/components/Dashboard/Tables/SortableGuestItem.tsx`**
-
-- Accept `overGuestPosition` ("above" | "below") instead of relying on `showIndicatorAfter`
-- Show the purple indicator line at `-top` when position is "above", at `-bottom` when position is "below"
-
-**3. `src/components/Dashboard/Tables/TableGuestList.tsx`**
-
-- Read `overGuestPosition` from drag state context
-- Pass it to each `SortableGuestItem` when that guest is the one being hovered over
+1. Add a `pointerPositionRef` (`useRef<{x: number, y: number}>`) to track real-time pointer coordinates
+2. Add a `useEffect` that attaches a `pointermove` listener to `document` during active drags (when `activeGuest` is set), updating the ref on every move, and cleans up when drag ends
+3. Replace the midpoint calculation in `handleDragOver` (lines 243-257): instead of using `activatorEvent.clientY + delta.y` and `over.rect`, use `pointerPositionRef.current.y` and `document.getElementById(String(over.id))?.getBoundingClientRect()` for accurate live coordinates
+4. No changes to `handleDragEnd` -- the insertion logic already correctly reads `overGuestPosition`
 
 ### Technical Detail
 
-In `handleDragOver`, determine pointer position relative to the hovered guest:
-
 ```text
-1. Get the over element's bounding rect from the droppable container
-2. Calculate the vertical midpoint of the element
-3. Compare the pointer Y position to the midpoint
-4. If pointer Y < midpoint -> position = "above" (insert before)
-5. If pointer Y >= midpoint -> position = "below" (insert after)
-```
+Current (broken):
+  pointerY = activatorEvent.clientY + delta.y   <-- stale coordinate space
+  midpoint = over.rect.top + over.rect.height/2  <-- snapshot rect
+  Result: comparison unreliable, almost always "below"
 
-In `handleDragEnd`, adjust insertion index:
-
-```text
-- If overGuestPosition is "above": insertAtIndex = overIndex (before the target)
-- If overGuestPosition is "below": insertAtIndex = overIndex + 1 (after the target)
-- Remove the special "last guest" logic since position now handles all cases
+Fixed:
+  pointerY = pointerPositionRef.current.y         <-- live pointer from pointermove
+  rect = document.getElementById(over.id).getBoundingClientRect()  <-- live DOM rect
+  midpoint = rect.top + rect.height / 2
+  Result: accurate comparison, indicator shows above or below correctly
 ```
 
 ### Result
 
-- The purple indicator line will appear exactly where the guest will be placed -- above or below the hovered guest
-- Dragging to the top half of a guest inserts before them; bottom half inserts after them
-- This works consistently for all guests (first, middle, last) on all tables
+- The purple indicator line will appear above a guest when the pointer is in their top half
+- The purple indicator line will appear below when the pointer is in their bottom half
+- The guest will drop exactly where the line shows
+- Works for both mouse and touch interactions
+
