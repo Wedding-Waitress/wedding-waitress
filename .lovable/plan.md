@@ -1,27 +1,32 @@
 
 
-## Polish: Party Member Rows in Add Guest Modal
+## Fix: Drag Behavior and Spacing on Tables Page
 
-### Changes (all in one file)
+### Problem 1: Too much gap between drop indicator and guests
+The guest list uses `space-y-2` (8px gap) between items. During a drag, this creates visible separation between the purple indicator line and surrounding items.
 
-**File: `src/components/Dashboard/AddGuestModal.tsx`**
+**Fix:** Reduce the gap from `space-y-2` to `space-y-1` (4px) in `TableGuestList.tsx`.
 
-**1. Reduce row height and spacing**
+### Problem 2: Dragged guest should move with the cursor, not leave a ghost behind
+Currently, when you drag a guest:
+- The original stays in place at 30% opacity (ghost)
+- A separate overlay copy floats with your cursor
 
-- Line 1364: Change `space-y-2` to `space-y-1` (less gap between rows)
-- Line 1366: The row already uses `py-1 px-2` which is compact. We'll keep `py-0.5` to make it slightly shorter while still readable.
+You want: the dragged item itself disappears from the list and moves with your cursor -- no ghost left behind.
 
-**2. Make member names purple**
+**Fix in `SortableGuestItem.tsx`:**
+- When `isDragging` is true, hide the item completely (`opacity: 0, height: 0, margin: 0, overflow: hidden`) instead of showing it at 30% opacity. This collapses the gap and removes the ghost.
 
-- Line 1368: Change `text-sm` to `text-sm text-primary` so names display in the brand purple color.
+### Files to change
 
-### Summary of style changes
+**1. `src/components/Dashboard/Tables/SortableGuestItem.tsx`**
+- Change the dragging style from `opacity: 0.3` to fully hidden: `opacity: 0, height: 0, overflow: 'hidden', padding: 0, margin: 0, border: 'none'`
 
-| Property | Before | After |
-|---|---|---|
-| Gap between rows | `space-y-2` (8px) | `space-y-1` (4px) |
-| Row vertical padding | `py-1` (4px each side) | `py-0.5` (2px each side) |
-| Name text color | default (black) | `text-primary` (brand purple) |
+**2. `src/components/Dashboard/Tables/TableGuestList.tsx`**
+- Change `space-y-2` to `space-y-1` for tighter spacing between guest rows
 
-No logic changes -- purely visual adjustments to the party member list inside the Add Guest modal.
-
+### Result
+- The dragged guest vanishes from its original spot (no ghost)
+- The overlay copy follows your cursor showing exactly where it will land
+- The purple indicator line sits right next to the neighboring guests with minimal gap
+- Drop behavior and seat numbering remain unchanged
