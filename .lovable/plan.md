@@ -1,25 +1,28 @@
 
-## Align Green Circle Numbers and Clean Up Box 4
 
-### Changes Summary
+## Fix QR Code and Open Live View Links
 
-1. **Align green circles 3 and 4** with circles 1 and 2 -- move them to the top of their boxes using `items-start` alignment on the circle row
-2. **Center the Add Guest button** in box 4 (both horizontally and vertically)
-3. **Remove the duplicate Add Guest button** next to Import/Export CSV (lines 1730-1755)
-4. **Change box 4 background to white** -- remove `bg-primary/10` class
+### The Problem
 
-### Technical Details
+The QR code and "Open Live View" button both generate URLs using `weddingwaitress.com` -- but that domain does not exist (DNS error). Your app is actually published at `wedding-waitress.lovable.app`.
 
-**File: `src/components/Dashboard/GuestListTable.tsx`**
+### The Fix
 
-**Change 1 -- Box 4 styling (lines 1590-1604)**
-- Remove `bg-primary/10` from box 4's class to make background white
-- Change `items-start` to `items-center` and add `justify-center flex-1` so the Add Guest button is centered in the box
-- Restructure so the green circle + text stays at the top and the button centers in the remaining space
+**File: `.env`** -- Update one line:
 
-**Change 2 -- Remove duplicate Add Guest button (lines 1730-1755)**
-- Delete the entire Add Guest / Add First Guest button block that sits next to Import/Export CSV
-- Keep Sort By and Import/Export CSV buttons intact
+Change `VITE_PUBLIC_BASE_URL` from `https://weddingwaitress.com` to `https://wedding-waitress.lovable.app`
 
-**Change 3 -- Align green circles (lines 1407-1408, 1433-1434, 1477-1478, 1591-1592)**
-- The green circles in boxes 3 and 4 appear lower because the text next to them wraps. Adding `items-start` to the flex row ensures circles align to the top consistently. Boxes 1 and 2 already have short labels so they appear aligned. The fix is to ensure all four circle rows use `items-start` so multi-line text doesn't push the circle down.
+This single change fixes:
+- QR codes will scan and open correctly
+- "Open Live View" button will work
+- "Copy Link" will copy the correct URL
+- All guest lookup links across the app
+
+### Why This Happened
+
+The `.env` file was configured with a custom domain (`weddingwaitress.com`) that hasn't been set up with DNS. Until that custom domain is configured and pointing to your app, the published Lovable URL must be used instead.
+
+### After the Fix
+
+Once you purchase and configure the `weddingwaitress.com` domain to point to your Lovable app, you can change it back. But for now, using the working Lovable URL will make everything function correctly.
+
