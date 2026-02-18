@@ -1,4 +1,4 @@
-import React, { useState, useCallback, createContext, useContext, useRef } from 'react';
+import React, { useState, useCallback, createContext, useContext, useRef, useEffect } from 'react';
 import {
   DndContext,
   DragOverlay,
@@ -78,7 +78,18 @@ export const SortableTablesGrid: React.FC<SortableTablesGridProps> = ({
   const processingRef = useRef(false);
   const lastOverGuestRef = useRef<string | null>(null);
   const stickyTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const pointerPositionRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
   const { toast } = useToast();
+
+  // Track real-time pointer position during active drags
+  useEffect(() => {
+    if (!activeGuest) return;
+    const handler = (e: PointerEvent) => {
+      pointerPositionRef.current = { x: e.clientX, y: e.clientY };
+    };
+    document.addEventListener('pointermove', handler);
+    return () => document.removeEventListener('pointermove', handler);
+  }, [activeGuest]);
 
   // Accessibility announcements for screen readers
   const announcements: Announcements = {
@@ -239,19 +250,13 @@ export const SortableTablesGrid: React.FC<SortableTablesGridProps> = ({
       setOverGuestId(overGuest.id);
       lastOverGuestRef.current = overGuest.id;
       
-      // Calculate pointer position relative to the hovered guest's vertical midpoint
-      const overRect = over.rect;
-      if (overRect && activatorEvent instanceof MouseEvent) {
-        const pointerY = (activatorEvent as MouseEvent).clientY + delta.y;
-        const midpoint = overRect.top + overRect.height / 2;
+      // Calculate pointer position relative to the hovered guest's live DOM rect
+      const el = document.getElementById(String(over.id));
+      const rect = el?.getBoundingClientRect();
+      if (rect) {
+        const pointerY = pointerPositionRef.current.y;
+        const midpoint = rect.top + rect.height / 2;
         setOverGuestPosition(pointerY < midpoint ? 'above' : 'below');
-      } else if (overRect && activatorEvent instanceof TouchEvent) {
-        const touch = (activatorEvent as TouchEvent).touches[0];
-        if (touch) {
-          const pointerY = touch.clientY + delta.y;
-          const midpoint = overRect.top + overRect.height / 2;
-          setOverGuestPosition(pointerY < midpoint ? 'above' : 'below');
-        }
       } else {
         setOverGuestPosition('below');
       }
