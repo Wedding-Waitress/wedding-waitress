@@ -39,7 +39,7 @@ export const GroupTypeDialog: React.FC<GroupTypeDialogProps> = ({
         <div className="flex flex-col gap-3 pt-2">
           <Button
             variant="outline"
-            className={`h-auto py-4 px-4 flex items-center gap-3 justify-start border-2 ${canBeCouple ? 'border-orange-300 hover:bg-orange-50' : 'opacity-50 cursor-not-allowed'}`}
+            className={`h-auto py-4 px-4 flex items-center gap-3 justify-start border-2 ${canBeCouple ? 'border-orange-500 hover:bg-orange-50' : 'opacity-50 cursor-not-allowed'}`}
             disabled={!canBeCouple}
             onClick={() => onConfirm('couple')}
           >
@@ -52,7 +52,7 @@ export const GroupTypeDialog: React.FC<GroupTypeDialogProps> = ({
 
           <Button
             variant="outline"
-            className="h-auto py-4 px-4 flex items-center gap-3 justify-start border-2 border-blue-300 hover:bg-blue-50"
+            className="h-auto py-4 px-4 flex items-center gap-3 justify-start border-2 border-blue-600 hover:bg-blue-50"
             onClick={() => onConfirm('family')}
           >
             <Users className="h-5 w-5 text-blue-500 shrink-0" />
