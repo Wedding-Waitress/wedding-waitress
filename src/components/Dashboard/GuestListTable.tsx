@@ -91,6 +91,8 @@ import { RsvpActivationModal } from './RsvpActivationModal';
 import { useRsvpInvites } from '@/hooks/useRsvpInvites';
 import { useRsvpPurchase } from '@/hooks/useRsvpPurchase';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { AlertTriangle } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { 
   validateRelationFields, 
@@ -214,6 +216,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
   const [showBulkTableModal, setShowBulkTableModal] = useState(false);
   const [showBulkRsvpModal, setShowBulkRsvpModal] = useState(false);
   const [showBulkDeleteModal, setShowBulkDeleteModal] = useState(false);
+  const [bulkDeleteConfirmText, setBulkDeleteConfirmText] = useState('');
   const [showSendModal, setShowSendModal] = useState(false);
   const [showActivationModal, setShowActivationModal] = useState(false);
   const [sendChannel, setSendChannel] = useState<'email' | 'sms'>('email');
@@ -2066,22 +2069,56 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
         />
 
         {/* Bulk Delete Confirmation */}
-        <AlertDialog open={showBulkDeleteModal} onOpenChange={setShowBulkDeleteModal}>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Delete {selectedGuestIds.size} Guests?</AlertDialogTitle>
-              <AlertDialogDescription>
-                This action cannot be undone. This will permanently delete the selected guests.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={handleBulkDelete} className="bg-destructive hover:bg-destructive/90">
-                Delete
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+        <Dialog open={showBulkDeleteModal} onOpenChange={(open) => { if (!open) { setBulkDeleteConfirmText(''); } setShowBulkDeleteModal(open); }}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <div className="flex items-center space-x-2">
+                <AlertTriangle className="h-5 w-5 text-destructive" />
+                <DialogTitle className="text-primary">
+                  {selectedGuestIds.size === 1 ? 'You are deleting this guest' : `You are deleting ${selectedGuestIds.size} guests`}
+                </DialogTitle>
+              </div>
+              <DialogDescription className="pt-2">
+                <span className="text-primary">
+                  {selectedGuestIds.size === 1 ? '1 guest selected' : `${selectedGuestIds.size} guests selected`}
+                </span>
+                <br /><br />
+                Once it's gone you can't bring it back.
+                <br /><br />
+                Type <span className="font-mono font-bold text-destructive">DELETE</span> to confirm deletion.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-2">
+              <Label htmlFor="bulk-confirm-delete">Confirmation</Label>
+              <Input
+                id="bulk-confirm-delete"
+                value={bulkDeleteConfirmText}
+                onChange={(e) => setBulkDeleteConfirmText(e.target.value)}
+                placeholder="Type DELETE to confirm"
+                className="font-mono"
+              />
+            </div>
+            <DialogFooter className="flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2">
+              <Button
+                variant="default"
+                size="xs"
+                className="rounded-full"
+                onClick={() => { setBulkDeleteConfirmText(''); setShowBulkDeleteModal(false); }}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="destructive"
+                size="xs"
+                className="rounded-full"
+                onClick={() => { handleBulkDelete(); setBulkDeleteConfirmText(''); }}
+                disabled={bulkDeleteConfirmText !== 'DELETE'}
+              >
+                Delete Guest
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
         {/* Send RSVP Confirm Modal */}
         <SendRsvpConfirmModal
