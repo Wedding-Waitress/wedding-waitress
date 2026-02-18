@@ -1474,8 +1474,8 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                 {/* Box 2: Guest Relations */}
                 {selectedEventId && (
                   <div className="border-2 border-[#7248E6] rounded-lg p-4 flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <span className="bg-green-500 text-white font-bold text-sm w-8 h-8 rounded-full inline-flex items-center justify-center shrink-0">3</span>
+                    <div className="flex items-start gap-3 mb-2">
+                     <span className="bg-green-500 text-white font-bold text-sm w-8 h-8 rounded-full inline-flex items-center justify-center shrink-0 mt-0">3</span>
                       <span className="text-sm font-semibold text-primary">Add what relationship each guest is to you. This will help your staff know who is who at your venue.</span>
                     </div>
                     <div className="flex items-center justify-center gap-3 mb-3">
@@ -1587,20 +1587,22 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                   </div>
                 )}
                 {/* Box 4: Add Guest */}
-                <div className="border-2 border-primary rounded-lg p-4 flex flex-col items-start gap-3 bg-primary/10">
-                  <div className="flex items-center gap-2">
+                <div className="border-2 border-primary rounded-lg p-4 flex flex-col h-full">
+                  <div className="flex items-start gap-2">
                     <span className="bg-green-500 text-white font-bold text-sm w-8 h-8 rounded-full inline-flex items-center justify-center shrink-0">4</span>
                     <span className="text-sm font-semibold text-primary">Let the fun begin! Now start adding your guest list here.</span>
                   </div>
-                  <Button
-                    variant="default"
-                    size="sm"
-                    onClick={handleAddGuest}
-                    className="bg-green-500 hover:bg-green-600 text-white rounded-full flex items-center gap-2"
-                  >
-                    <Users className="w-4 h-4" />
-                    Add Guest
-                  </Button>
+                  <div className="flex-1 flex items-center justify-center mt-3">
+                    <Button
+                      variant="default"
+                      size="sm"
+                      onClick={handleAddGuest}
+                      className="bg-green-500 hover:bg-green-600 text-white rounded-full flex items-center gap-2"
+                    >
+                      <Users className="w-4 h-4" />
+                      Add Guest
+                    </Button>
+                  </div>
                 </div>
               </div>
 
@@ -1727,32 +1729,6 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                 </div>
               </TooltipProvider>
 
-              {/* Add Guest Button */}
-              {totalGuestCount === 0 ? (
-                <Button 
-                  variant="default"
-                  size="sm"
-                  onClick={handleAddGuest}
-                  className={`${
-                    partnerNamesSaved || firstGuestAdded || totalGuestCount > 0
-                      ? 'bg-green-500 hover:bg-green-600 text-white'
-                      : 'bg-red-500 hover:bg-red-600 text-white'
-                  } rounded-full flex items-center gap-2`}
-                >
-                  <Users className="w-4 h-4" />
-                  Add First Guest
-                </Button>
-              ) : (
-                <Button 
-                  variant="default" 
-                  size="sm"
-                  onClick={handleAddGuest}
-                  className="bg-green-500 hover:bg-green-600 text-white rounded-full flex items-center gap-2"
-                >
-                  <Users className="w-4 h-4" />
-                  Add Guest
-                </Button>
-              )}
             </div>
           </div>
         </div>
