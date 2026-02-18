@@ -1,65 +1,46 @@
 
 
-## Replace Sort By Options in Guest List
+## Updated Sort By Rules for Guest List
 
-### What changes
+### Summary
 
-Remove all 7 current sort options and replace with 6 new simplified options. The first three sort all guests alphabetically by the chosen field (A-Z). The last three reorder groups so that the selected group type (Individuals, Couples, or Families) appears first, with everything else following alphabetically.
+Update the sorting behavior for all 6 Sort By options with specific rules for each.
 
-### New Sort Options (top to bottom)
+### Sorting Rules
 
-| Label | Behavior |
+**First Name, Last Name, Table** -- These three options will "flatten" the guest list, breaking apart couples and families so every guest appears as an individual row sorted purely by the chosen field (A-Z).
+
+**Table** has a special sub-rule: tables with text names (e.g., "Bridal Table", "Bride's Family") appear first alphabetically, followed by numbered tables (Table 1, 2, 3...) in numeric order.
+
+**Individuals, Couples, Families** -- These three options keep guests grouped. The selected type appears at the top, followed by the other two types in the specified order. Within each type section, groups are sorted alphabetically by the primary last name (surname) of the group. For couples/families, this is the last name of the first member; for individuals, it is their own last name.
+
+| Option | Order |
 |---|---|
-| First Name | Sort all guests by first name A-Z |
-| Last Name | Sort all guests by last name A-Z |
-| Table | Sort all guests by table name A-Z |
-| Individuals | Show individual guests first, then couples, then families |
-| Couples | Show couples first, then individuals, then families |
-| Families | Show families first, then couples, then individuals |
+| Individuals | Individuals, then Couples, then Families |
+| Couples | Couples, then Families, then Individuals |
+| Families | Families, then Couples, then Individuals |
 
-### File: `src/components/Dashboard/GuestListTable.tsx`
+### Technical Details
 
-**1. Replace the `SortOption` type (lines 104-108)**
+**File: `src/components/Dashboard/GuestListTable.tsx`**
 
-```
-type SortOption =
-  | 'first_name' | 'last_name' | 'table_name'
-  | 'individuals_first' | 'couples_first' | 'families_first';
-```
+**1. Flatten groups for First Name / Last Name / Table sorts (lines 665-696)**
 
-**2. Replace the `SORT_OPTIONS` array (lines 110-118)**
+When `sortBy` is `first_name`, `last_name`, or `table_name`, skip the family grouping logic entirely. Instead, treat every guest as an individual group of one. This breaks apart couples and families so they appear as separate rows sorted purely by the chosen field.
 
-```
-const SORT_OPTIONS = [
-  { value: 'first_name', label: 'First Name' },
-  { value: 'last_name', label: 'Last Name' },
-  { value: 'table_name', label: 'Table' },
-  { value: 'individuals_first', label: 'Individuals' },
-  { value: 'couples_first', label: 'Couples' },
-  { value: 'families_first', label: 'Families' },
-] as const;
-```
+**2. Update Table sort comparator (lines 642-645)**
 
-**3. Update default sort state (line 177)**
+Improve the table name sorting to put text-named tables before numbered tables:
+- Extract any trailing number from the table name
+- If both tables are purely numeric (e.g., "Table 1" vs "Table 5"), sort numerically
+- If one is named and one is numbered, the named one comes first
+- If both are named, sort alphabetically
 
-Change default from `'first_name_asc'` to `'first_name'`.
+**3. Update group-type ordering to sort by last name within each type (lines 698-708)**
 
-**4. Update sorting logic in `groupedGuests` memo (lines 639-663)**
+After sorting groups by type priority, add a secondary sort within each type by the last name of the first member (or the group's primary surname). This ensures that when "Families" is selected, all family groups appear sorted alphabetically by surname, then all couple groups sorted by surname, then all individuals sorted by surname.
 
-- `first_name`: sort by first name A-Z
-- `last_name`: sort by last name A-Z
-- `table_name`: sort by table name A-Z
-- `individuals_first`, `couples_first`, `families_first`: sort by first name A-Z (the group ordering is applied after grouping)
+**4. Mirror changes in `sortedForExport` memo (lines 757-773)**
 
-**5. Add group-type ordering (after line 706)**
-
-For `individuals_first`, `couples_first`, and `families_first`, sort the `groups` array so the selected type appears first. For example, `families_first` orders: families, then couples, then individuals.
-
-**6. Update `sortedForExport` memo (lines 755-775)**
-
-Mirror the same sorting logic changes (remove old cases, add new ones).
-
-**7. Update `handleSortChange` and localStorage fallback**
-
-Ensure saved sort preferences using old keys (e.g., `first_name_asc`) gracefully fall back to `first_name`.
+Apply the same table-sort logic improvement to the export sorting function.
 
