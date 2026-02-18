@@ -1402,7 +1402,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
               </div>
               
               {/* Event selector + Type of Event + Guest Relations - all on same row */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-[1fr_1fr_1fr_auto] gap-4 items-start">
                 <div className="border-2 border-[#7248E6] rounded-lg p-4 flex-1">
                   <div className="flex items-center gap-2 mb-3">
                     <span className="bg-green-500 text-white font-bold text-sm w-8 h-8 rounded-full inline-flex items-center justify-center shrink-0">1</span>
@@ -1586,11 +1586,8 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                     )}
                   </div>
                 )}
-              </div>
-
-              {/* Box 4: Add Guest */}
-              <div className="flex justify-end mt-4">
-                <div className="border-2 border-primary rounded-lg p-4 inline-flex flex-col items-start gap-3 bg-primary/10">
+                {/* Box 4: Add Guest */}
+                <div className="border-2 border-primary rounded-lg p-4 flex flex-col items-start gap-3 bg-primary/10">
                   <div className="flex items-center gap-2">
                     <span className="bg-green-500 text-white font-bold text-sm w-8 h-8 rounded-full inline-flex items-center justify-center shrink-0">4</span>
                     <span className="text-sm font-semibold text-primary">Let the fun begin! Now start adding your guest list here.</span>
