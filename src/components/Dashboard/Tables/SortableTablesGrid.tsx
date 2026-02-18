@@ -128,28 +128,48 @@ export const SortableTablesGrid: React.FC<SortableTablesGridProps> = ({
     })
   );
 
-  // Custom collision detection - prioritize guest collisions for stable targeting
+  // Table-aware collision detection: first find which table the pointer is over,
+  // then find the closest guest within ONLY that table for positional insertion.
   const collisionDetection: CollisionDetection = useCallback((args) => {
-    // First, check for closest center collisions
-    const closestCenterCollisions = closestCenter(args);
-    
-    // Filter to only guest collisions (prioritize guests over tables)
-    const guestCollisions = closestCenterCollisions.filter(collision => {
-      const container = args.droppableContainers.find(c => c.id === collision.id);
-      return container?.data?.current?.type === 'guest';
-    });
-    
-    // Prioritize guest collisions if any exist
-    if (guestCollisions.length > 0) {
-      return guestCollisions;
-    }
-    
-    // Fall back to pointer detection for tables
+    // Step 1: Find which containers the pointer is within
     const pointerCollisions = pointerWithin(args);
-    if (pointerCollisions.length > 0) {
-      return pointerCollisions;
+
+    // Step 2: Identify the table/unassigned container under the pointer
+    const tableCollision = pointerCollisions.find(c => {
+      const container = args.droppableContainers.find(dc => dc.id === c.id);
+      const type = container?.data?.current?.type;
+      return type === 'table' || type === 'unassigned';
+    });
+
+    if (tableCollision) {
+      const tableContainer = args.droppableContainers.find(
+        dc => dc.id === tableCollision.id
+      );
+      const tableData = tableContainer?.data?.current;
+
+      if (tableData?.type === 'table') {
+        const tableId = tableData.tableId;
+
+        // Step 3: Among closestCenter results, keep only guests on THIS table
+        const allClosest = closestCenter(args);
+        const guestsOnThisTable = allClosest.filter(c => {
+          const dc = args.droppableContainers.find(d => d.id === c.id);
+          return (
+            dc?.data?.current?.type === 'guest' &&
+            dc?.data?.current?.guest?.table_id === tableId
+          );
+        });
+
+        if (guestsOnThisTable.length > 0) {
+          return guestsOnThisTable;
+        }
+      }
+
+      // No matching guests -- return the table/unassigned container
+      return [tableCollision];
     }
-    
+
+    // Fallback
     return rectIntersection(args);
   }, []);
 
