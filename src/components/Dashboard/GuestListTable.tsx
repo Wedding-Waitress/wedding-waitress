@@ -1588,6 +1588,25 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                 )}
               </div>
 
+              {/* Box 4: Add Guest */}
+              <div className="flex justify-end mt-4">
+                <div className="border-2 border-primary rounded-lg p-4 inline-flex flex-col items-start gap-3 bg-primary/10">
+                  <div className="flex items-center gap-2">
+                    <span className="bg-green-500 text-white font-bold text-sm w-8 h-8 rounded-full inline-flex items-center justify-center shrink-0">4</span>
+                    <span className="text-sm font-semibold text-primary">Let the fun begin! Now start adding your guest list here.</span>
+                  </div>
+                  <Button
+                    variant="default"
+                    size="sm"
+                    onClick={handleAddGuest}
+                    className="bg-green-500 hover:bg-green-600 text-white rounded-full flex items-center gap-2"
+                  >
+                    <Users className="w-4 h-4" />
+                    Add Guest
+                  </Button>
+                </div>
+              </div>
+
             </div>
           </div>
 
@@ -1737,7 +1756,6 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                   Add Guest
                 </Button>
               )}
-              <span className="bg-green-500 text-white font-bold text-sm w-8 h-8 rounded-full inline-flex items-center justify-center shrink-0">4</span>
             </div>
           </div>
         </div>
