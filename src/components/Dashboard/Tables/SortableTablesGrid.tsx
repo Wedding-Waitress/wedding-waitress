@@ -165,7 +165,18 @@ export const SortableTablesGrid: React.FC<SortableTablesGridProps> = ({
         const tableId = tableData.tableId;
 
         // Step 3: Among closestCenter results, keep only guests on THIS table
-        const allClosest = closestCenter(args);
+        const pointerY = pointerPositionRef.current.y;
+        const pointerX = pointerPositionRef.current.x;
+        const pointerRect = {
+          ...args.collisionRect,
+          top: pointerY,
+          bottom: pointerY + 1,
+          left: pointerX,
+          right: pointerX + 1,
+          width: 1,
+          height: 1,
+        };
+        const allClosest = closestCenter({ ...args, collisionRect: pointerRect });
         const guestsOnThisTable = allClosest.filter(c => {
           const dc = args.droppableContainers.find(d => d.id === c.id);
           return (
