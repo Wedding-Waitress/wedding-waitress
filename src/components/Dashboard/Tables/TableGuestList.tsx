@@ -2,6 +2,7 @@ import React from 'react';
 import { useDroppable } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { SortableGuestItem } from './SortableGuestItem';
+import { TopDropZone } from './TopDropZone';
 import { useDragState } from './SortableTablesGrid';
 import { Guest } from '@/hooks/useGuests';
 
@@ -34,8 +35,10 @@ export const TableGuestList: React.FC<TableGuestListProps> = ({
   const { activeGuestId, overGuestId, overGuestPosition } = useDragState();
 
   const showDropIndicator = isOver || isDroppableOver;
+  const topDropId = `top-drop-${tableId}`;
   const guestIds = guests.map(g => g.id);
-  const isDragging = activeGuestId !== null;
+  // Include the top drop zone as the first sortable item
+  const sortableIds = guests.length > 0 && activeGuestId ? [topDropId, ...guestIds] : guestIds;
 
   return (
     <div 
@@ -44,10 +47,14 @@ export const TableGuestList: React.FC<TableGuestListProps> = ({
       role="list"
       aria-label={`Guests at this table`}
     >
-      <SortableContext items={guestIds} strategy={verticalListSortingStrategy}>
+      <SortableContext items={sortableIds} strategy={verticalListSortingStrategy}>
         <div className="space-y-2">
+          {/* Top drop zone - only rendered when guests exist and drag is active */}
+          {guests.length > 0 && activeGuestId && (
+            <TopDropZone tableId={tableId} />
+          )}
           {guests.length > 0 ? (
-            guests.map((guest, index) => (
+            guests.map((guest) => (
               <SortableGuestItem 
                 key={guest.id} 
                 guest={guest} 

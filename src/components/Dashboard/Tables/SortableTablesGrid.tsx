@@ -153,7 +153,7 @@ export const SortableTablesGrid: React.FC<SortableTablesGridProps> = ({
     const tableCollision = pointerCollisions.find(c => {
       const container = args.droppableContainers.find(dc => dc.id === c.id);
       const type = container?.data?.current?.type;
-      return type === 'table' || type === 'unassigned';
+      return type === 'table' || type === 'unassigned' || type === 'top-drop-zone';
     });
 
     if (tableCollision) {
@@ -161,6 +161,11 @@ export const SortableTablesGrid: React.FC<SortableTablesGridProps> = ({
         dc => dc.id === tableCollision.id
       );
       const tableData = tableContainer?.data?.current;
+
+      // If we hit the top drop zone directly, return it as the collision target
+      if (tableData?.type === 'top-drop-zone') {
+        return [tableCollision];
+      }
 
       if (tableData?.type === 'table') {
         const tableId = tableData.tableId;
@@ -181,8 +186,11 @@ export const SortableTablesGrid: React.FC<SortableTablesGridProps> = ({
         const guestsOnThisTable = allClosest.filter(c => {
           if (c.id === args.active.id) return false;
           const dc = args.droppableContainers.find(d => d.id === c.id);
+          const dcType = dc?.data?.current?.type;
+          // Include top-drop-zone for this table as a valid collision target
+          if (dcType === 'top-drop-zone' && dc?.data?.current?.tableId === tableId) return true;
           return (
-            dc?.data?.current?.type === 'guest' &&
+            dcType === 'guest' &&
             dc?.data?.current?.guest?.table_id === tableId
           );
         });
@@ -244,6 +252,16 @@ export const SortableTablesGrid: React.FC<SortableTablesGridProps> = ({
     
     setIsOverUnassigned(false);
     
+    // Check if over the top drop zone
+    if (overData?.type === 'top-drop-zone') {
+      setOverTableId(overData.tableId);
+      setOverGuestId(null);
+      setOverGuestPosition(null);
+      overGuestPositionRef.current = null;
+      lastOverGuestRef.current = null;
+      return;
+    }
+
     // Check if over a table droppable
     if (overData?.type === 'table') {
       setOverTableId(overData.tableId);
@@ -335,6 +353,10 @@ export const SortableTablesGrid: React.FC<SortableTablesGridProps> = ({
     if (overData?.type === 'unassigned') {
       destTableId = null;
       insertAtIndex = undefined;
+    } else if (overData?.type === 'top-drop-zone') {
+      // Dropped on explicit top drop zone — always index 0
+      destTableId = overData.tableId;
+      insertAtIndex = 0;
     } else if (overData?.type === 'table') {
       // Dropped directly on a table container
       destTableId = overData.tableId;
@@ -410,7 +432,15 @@ export const SortableTablesGrid: React.FC<SortableTablesGridProps> = ({
         // Calculate target index based on where we're dropping
         let targetIndex: number;
         
-        if (overData?.type === 'guest') {
+        if (overData?.type === 'top-drop-zone') {
+          // Explicit top drop zone — move to index 0
+          const rawTarget = 0;
+          if (oldIndex < rawTarget) {
+            targetIndex = rawTarget - 1;
+          } else {
+            targetIndex = rawTarget;
+          }
+        } else if (overData?.type === 'guest') {
           const overGuest = overData.guest as Guest;
           const overIndex = tableGuests.findIndex(g => g.id === overGuest.id);
           
