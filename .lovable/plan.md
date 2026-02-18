@@ -1,40 +1,29 @@
 
-## Fix: Cannot Drag Guest to Top Position Within Same Table
+
+## Fix: overGuestPositionRef Cleared Before Being Read
 
 ### Problem
 
-When you drag a guest (e.g., Dylan at seat 2) upward to place above the first guest (Ken at seat 1), nothing happens -- Dylan stays at seat 2. This also affects dragging from lower positions to the very top of any table.
-
-### Root Cause
-
-The collision detection does **not exclude the dragged guest** from its results. When you drag Dylan upward, `closestCenter` often returns **Dylan's own droppable element** (still in the DOM at his original position) as the "closest" target. In `handleDragEnd`, this means `over.id === active.id`, so the code computes `overIndex === oldIndex`, sees no change, and exits early -- the guest never moves.
+Every previous fix has been undermined by one line: at the very start of `handleDragEnd` (line 301), `overGuestPositionRef.current` is reset to `null` **before** the code reads it at lines 365 and 403. So the position is always `null`, never `'above'` or `'below'`, and the guest never lands at the top.
 
 ### Solution
 
-Add one line to the collision detection filter (line 181) to exclude the active/dragged guest from the results. This ensures the system always finds the **nearest other guest** as the drop target.
+Save the ref value into a local variable at the top of `handleDragEnd`, **before** clearing it.
 
 ### Changes (1 file)
 
-**`src/components/Dashboard/Tables/SortableTablesGrid.tsx`**
+**`src/components/Dashboard/Tables/SortableTablesGrid.tsx`** -- `handleDragEnd` function
 
-In the `collisionDetection` callback, at line 181 where `guestsOnThisTable` is filtered, add a check to skip the active guest:
-
+1. At line 293 (right after destructuring `active` and `over`), add:
 ```
-const guestsOnThisTable = allClosest.filter(c => {
-  if (c.id === args.active.id) return false;  // <-- NEW: exclude dragged guest
-  const dc = args.droppableContainers.find(d => d.id === c.id);
-  return (
-    dc?.data?.current?.type === 'guest' &&
-    dc?.data?.current?.guest?.table_id === tableId
-  );
-});
+const savedPosition = overGuestPositionRef.current;
 ```
 
-### Why This Works
+2. Line 301 stays as-is (clearing the ref is fine after we saved).
 
-- Currently: dragging Dylan above Ken → `closestCenter` returns Dylan himself → `over === active` → no reorder
-- After fix: dragging Dylan above Ken → Dylan filtered out → `closestCenter` returns Ken → position calculated as "above" → `arrayMove(1, 0)` → Dylan moves to seat 1
+3. Replace `overGuestPositionRef.current` with `savedPosition` on:
+   - Line 365: `if (savedPosition === 'above')`
+   - Line 403: `if (savedPosition === 'above')`
 
-### No Other Changes Needed
+That is the entire fix -- three lines changed.
 
-The existing `handleDragOver` midpoint logic and `handleDragEnd` reorder logic are correct. The only issue is that the wrong guest (the dragged guest itself) is being selected as the collision target.
