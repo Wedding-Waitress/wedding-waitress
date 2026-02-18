@@ -673,6 +673,7 @@ const otherGuests = allGuests
               description: "That seat was just taken. Please choose another.",
               variant: "destructive",
             });
+            form.setError('seat_no', { type: 'manual', message: 'Seat unavailable. Please choose another.' });
             setLoading(false);
             return;
           }
@@ -742,6 +743,7 @@ const otherGuests = allGuests
               description: "That seat was just taken. Please choose another.",
               variant: "destructive",
             });
+            form.setError('seat_no', { type: 'manual', message: 'Seat unavailable. Please choose another.' });
             setLoading(false);
             return;
           }
@@ -1121,12 +1123,12 @@ const otherGuests = allGuests
                   <FormItem>
                     <FormLabel>Seat Number *</FormLabel>
                     <Select
-                      onValueChange={(value) => field.onChange(!value || value === "none" ? undefined : Number(value))}
+                      onValueChange={(value) => { field.onChange(!value || value === "none" ? undefined : Number(value)); form.clearErrors('seat_no'); }}
                       value={field.value?.toString() || "none"}
                       disabled={!form.watch('table_id')}
                     >
                       <FormControl>
-                        <SelectTrigger className="w-full border-2 border-primary hover:border-primary focus:border-primary focus:border-[3px] focus:ring-0 focus:outline-none rounded-full h-9">
+                        <SelectTrigger className={`w-full border-2 ${form.formState.errors.seat_no ? 'border-destructive hover:border-destructive focus:border-destructive' : 'border-primary hover:border-primary focus:border-primary'} focus:border-[3px] focus:ring-0 focus:outline-none rounded-full h-9`}>
                           <SelectValue placeholder="Select seat" />
                         </SelectTrigger>
                       </FormControl>
