@@ -1484,16 +1484,15 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                       )}
                       <span className="text-sm font-semibold text-primary">Add what relationship each guest is to you. This will help your staff know who is who at your venue.</span>
                     </div>
-                    <div className="flex items-center gap-2 mb-3">
+                    <div className="flex items-center justify-center gap-3 mb-3">
+                      <span className="text-sm font-bold text-black">Activate</span>
                       <Switch
                         id="hide-relations"
                         checked={relationsHidden}
                         onCheckedChange={(checked) => handleHideRelationsToggle(checked)}
                         className="data-[state=checked]:bg-destructive data-[state=unchecked]:bg-green-500"
                       />
-                      <Label htmlFor="hide-relations" className="text-sm text-primary">
-                        Hide what the guest relation is to you
-                      </Label>
+                      <span className="text-sm font-bold text-black">Deactivate</span>
                     </div>
                     {!relationsHidden && (
                     <div className="flex flex-col gap-3">
