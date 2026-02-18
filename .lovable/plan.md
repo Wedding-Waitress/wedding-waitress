@@ -1,41 +1,48 @@
 
 
-## Fix: Allow Dropping at Index 0 (Seat 1) in Table Guest Lists
+## Fix: Seat 1 Drop Not Working — Broken DOM Element Lookup
 
-### The Problem
+### Why It Keeps Failing
 
-When dragging a guest to the top of a table's guest list (above the first guest), the collision detection returns the **table container** instead of the first guest. Both the cross-table move and same-table reorder code paths treat a table-container drop as "insert at end," so the guest always ends up at the last position -- never at Seat 1.
+Every previous attempt modified the drop handler logic, but the real bug is one level earlier: the system **cannot find the guest element in the DOM**.
 
-### Root Cause
+In `handleDragOver`, this line runs every time you hover over a guest:
 
-Two code paths in `SortableTablesGrid.tsx` assume table-container drops mean "append to end":
+```ts
+const el = document.getElementById(String(over.id));
+```
 
-1. **Cross-table move (line 338-343):** `insertAtIndex = destTableGuests.length` -- always end
-2. **Same-table reorder (line 416-418):** `targetIndex = tableGuests.length - 1` -- always end
+But the guest component (`SortableGuestItem.tsx`) never puts an `id` attribute on its outer `<div>`. So `el` is always `null`, and the code defaults the hover position to `'below'` instead of calculating it from the pointer.
 
-### The Fix
+This means hovering above the first guest registers as "below the first guest," producing index 1 (Seat 2) instead of index 0 (Seat 1).
 
-**File: `src/components/Dashboard/Tables/SortableTablesGrid.tsx`**
+### The One-Line Fix
 
-When a drop lands on a **table container** (not a specific guest), check the pointer's Y position against the first guest in that table:
+**File: `src/components/Dashboard/Tables/SortableGuestItem.tsx` (line 72)**
 
-- If the pointer is **above** the first guest's midpoint, insert at index 0 (Seat 1)
-- Otherwise, insert at the end (current behavior)
+Add `id={guest.id}` to the outer `<div>`:
 
-This applies to both locations:
+```tsx
+// Before
+<div ref={setNodeRef} style={style} className="relative group" ...>
 
-**1. Cross-table move (lines 338-343):**
+// After
+<div ref={setNodeRef} id={guest.id} style={style} className="relative group" ...>
+```
 
-After getting `destTableGuests`, sort them by seat number, find the first guest's DOM element, compare `pointerPositionRef.current.y` against its midpoint. If above, set `insertAtIndex = 0`; otherwise keep `insertAtIndex = destTableGuests.length`.
+That is the entire fix. No changes to `SortableTablesGrid.tsx` needed -- the drop handler logic already correctly handles index 0 when `savedPosition` is `'above'`.
 
-**2. Same-table reorder (lines 416-418):**
+### Why This Works
 
-Same logic: check if pointer is above the first guest in the sorted table list. If so, `targetIndex = 0` (adjusted for arrayMove); otherwise `targetIndex = tableGuests.length - 1`.
+1. `document.getElementById(guest.id)` now finds the element
+2. `getBoundingClientRect()` returns real coordinates
+3. Pointer Y vs midpoint correctly determines `'above'` or `'below'`
+4. When above the first guest: `savedPosition = 'above'`, `overIndex = 0`, so `insertAtIndex = 0` (Seat 1)
 
 ### What Does Not Change
 
-- Collision detection algorithm stays the same
-- Guest-to-guest drop logic (above/below indicators) stays the same
-- Unassigned panel behavior stays the same
-- All other drag-and-drop functionality stays the same
+- No changes to collision detection
+- No changes to the drop handler
+- No changes to any other drag-and-drop behavior
+- All existing seat 2-through-N ordering continues to work
 
