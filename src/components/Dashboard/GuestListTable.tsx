@@ -101,20 +101,17 @@ import {
   ImportError 
 } from '@/lib/relationValidation';
 
-type SortOption = 
-  | 'first_name_asc' | 'first_name_desc'
-  | 'last_name_asc' | 'last_name_desc' 
-  | 'table_name_asc' | 'table_name_desc'
-  | 'family_group_asc';
+type SortOption =
+  | 'first_name' | 'last_name' | 'table_name'
+  | 'individuals_first' | 'couples_first' | 'families_first';
 
 const SORT_OPTIONS = [
-  { value: 'first_name_asc', label: 'First Name (A–Z)' },
-  { value: 'first_name_desc', label: 'First Name (Z–A)' },
-  { value: 'last_name_asc', label: 'Last Name (A–Z)' },
-  { value: 'last_name_desc', label: 'Last Name (Z–A)' },
-  { value: 'table_name_asc', label: 'Table (A→Z)' },
-  { value: 'table_name_desc', label: 'Table (Z→A)' },
-  { value: 'family_group_asc', label: 'Family/Group (A–Z)' },
+  { value: 'first_name', label: 'First Name' },
+  { value: 'last_name', label: 'Last Name' },
+  { value: 'table_name', label: 'Table' },
+  { value: 'individuals_first', label: 'Individuals' },
+  { value: 'couples_first', label: 'Couples' },
+  { value: 'families_first', label: 'Families' },
 ] as const;
 
 // Template headers (no who_is_display as it's computed)
@@ -174,7 +171,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
   const [guestToDelete, setGuestToDelete] = useState<any>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [sortBy, setSortBy] = useState<SortOption>('first_name_asc');
+  const [sortBy, setSortBy] = useState<SortOption>('first_name');
   const [showNamesValidation, setShowNamesValidation] = useState(false);
   const [relationSettings, setRelationSettings] = useState<RelationSettings>({
     relation_required: true,
@@ -466,6 +463,8 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
         const savedSort = localStorage.getItem(`guestSort_${savedEventId}`);
         if (savedSort && SORT_OPTIONS.some(opt => opt.value === savedSort)) {
           setSortBy(savedSort as SortOption);
+        } else {
+          setSortBy('first_name');
         }
       }
     }
@@ -544,7 +543,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
     if (savedSort && SORT_OPTIONS.some(opt => opt.value === savedSort)) {
       setSortBy(savedSort as SortOption);
     } else {
-      setSortBy('first_name_asc');
+      setSortBy('first_name');
     }
 
     
@@ -638,26 +637,17 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
     // First, sort all guests using the selected sortBy option
     const allSortedGuests = [...guests].sort((a, b) => {
       switch (sortBy) {
-        case 'first_name_asc':
-          return (a.first_name || '').localeCompare(b.first_name || '');
-        case 'first_name_desc':
-          return (b.first_name || '').localeCompare(a.first_name || '');
-        case 'last_name_asc':
+        case 'last_name':
           return (a.last_name || '').localeCompare(b.last_name || '');
-        case 'last_name_desc':
-          return (b.last_name || '').localeCompare(a.last_name || '');
-        case 'table_name_asc': {
+        case 'table_name': {
           const tA = getTableName(a) || 'zzz';
           const tB = getTableName(b) || 'zzz';
           return tA.localeCompare(tB);
         }
-        case 'table_name_desc': {
-          const tA = getTableName(a) || '';
-          const tB = getTableName(b) || '';
-          return tB.localeCompare(tA);
-        }
-        case 'family_group_asc':
-          return (a.family_group || '').localeCompare(b.family_group || '');
+        case 'first_name':
+        case 'individuals_first':
+        case 'couples_first':
+        case 'families_first':
         default:
           return (a.first_name || '').localeCompare(b.first_name || '');
       }
@@ -704,6 +694,18 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
         members: [guest] 
       });
     });
+
+    // Apply group-type ordering for individuals/couples/families sort options
+    if (sortBy === 'individuals_first') {
+      const order = { individual: 0, couple: 1, family: 2 };
+      groups.sort((a, b) => (order[a.type] ?? 9) - (order[b.type] ?? 9));
+    } else if (sortBy === 'couples_first') {
+      const order = { couple: 0, individual: 1, family: 2 };
+      groups.sort((a, b) => (order[a.type] ?? 9) - (order[b.type] ?? 9));
+    } else if (sortBy === 'families_first') {
+      const order = { family: 0, couple: 1, individual: 2 };
+      groups.sort((a, b) => (order[a.type] ?? 9) - (order[b.type] ?? 9));
+    }
 
     return groups;
   }, [guests, searchTerm, sortBy, tables, selectedEvent]);
@@ -754,26 +756,19 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
     
     const sorted = [...filtered].sort((a, b) => {
       switch (sortBy) {
-        case 'first_name_asc':
-          return (a.first_name || '').localeCompare(b.first_name || '');
-        case 'first_name_desc':
-          return (b.first_name || '').localeCompare(a.first_name || '');
-        case 'last_name_asc':
+        case 'last_name':
           return (a.last_name || '').localeCompare(b.last_name || '');
-        case 'last_name_desc':
-          return (b.last_name || '').localeCompare(a.last_name || '');
-        case 'table_name_asc':
+        case 'table_name': {
           const tableA = getTableName(a) || 'zzz';
           const tableB = getTableName(b) || 'zzz';
           return tableA.localeCompare(tableB);
-        case 'table_name_desc':
-          const tableA2 = getTableName(a) || '';
-          const tableB2 = getTableName(b) || '';
-          return tableB2.localeCompare(tableA2);
-        case 'family_group_asc':
-          return (a.family_group || '').localeCompare(b.family_group || '');
+        }
+        case 'first_name':
+        case 'individuals_first':
+        case 'couples_first':
+        case 'families_first':
         default:
-          return 0;
+          return (a.first_name || '').localeCompare(b.first_name || '');
       }
     });
     
