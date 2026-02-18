@@ -1,52 +1,24 @@
 
 
-## Add Fourth Onboarding Box and Reorganize Layout
+## Move Box 4 Inline with Boxes 1, 2, 3
 
 ### What Changes
 
-1. The current 3-column grid of onboarding boxes will remain as 3 equal-width, equal-height boxes (1, 2, 3).
-2. A **fourth box** will be added to the right, on a new row or as a smaller box beside the grid, containing:
-   - The green circle with **"4"** (moved from its current position next to the Add Guest button)
-   - A heading: **"Let the fun begin! Now start adding your guest list here."**
-   - A green "Add Guest" button below the heading
-3. The green "4" circle currently next to the Add Guest button in the control bar will be **removed** from there (since it moves into Box 4).
-4. The Add Guest button in the control bar will remain as-is (without the "4" circle).
+Box 4 ("Let the fun begin!") will move from its current position below the 3-column grid to sit on the **same row** as boxes 1, 2, and 3, to the right of box 3. The grid will change from 3 columns to a layout where the first three boxes share equal width and the fourth box takes only the space it needs.
 
 ### Technical Details
 
 **File: `src/components/Dashboard/GuestListTable.tsx`**
 
-**Step 1 -- Add Box 4 after the 3-column grid (after line 1428 area, after the closing `</div>` of the grid)**
+**Step 1 -- Change the grid layout (line 1405)**
+- Update from `grid grid-cols-1 md:grid-cols-3 gap-4` to `grid grid-cols-1 md:grid-cols-[1fr_1fr_1fr_auto] gap-4 items-start`
+- This gives boxes 1-3 equal width (`1fr` each) and box 4 only takes the space it needs (`auto`)
 
-Add a new flex row below the grid containing a smaller fourth box:
+**Step 2 -- Move Box 4 inside the grid (lines 1591-1608)**
+- Remove the wrapper `<div className="flex justify-end mt-4">` around Box 4
+- Move the Box 4 content (the inner div with border, heading, and button) into the grid, right after Box 3 (before the grid's closing `</div>` on line 1589)
+- Keep the same styling on the box itself: `border-2 border-primary rounded-lg p-4 flex flex-col items-start gap-3 bg-primary/10`
 
-```tsx
-<div className="flex justify-end mt-4">
-  <div className="border-2 border-[#7248E6] rounded-lg p-4 inline-flex flex-col items-start gap-3">
-    <div className="flex items-center gap-2">
-      <span className="bg-green-500 text-white font-bold text-sm w-8 h-8 rounded-full inline-flex items-center justify-center shrink-0">4</span>
-      <span className="text-sm font-semibold text-primary">Let the fun begin! Now start adding your guest list here.</span>
-    </div>
-    <Button
-      variant="default"
-      size="sm"
-      onClick={handleAddGuest}
-      className="bg-green-500 hover:bg-green-600 text-white rounded-full flex items-center gap-2"
-    >
-      <Users className="w-4 h-4" />
-      Add Guest
-    </Button>
-  </div>
-</div>
-```
-
-This box will be right-aligned and only as large as its content (heading + button), making it visually smaller than boxes 1-3.
-
-**Step 2 -- Remove the "4" circle from the control bar (line 1740)**
-
-Delete the `<span>` with the green "4" circle that currently sits next to the Add Guest button in the search/filter bar.
-
-**Step 3 -- Ensure boxes 1, 2, 3 are equal width and height**
-
-The existing `grid grid-cols-1 md:grid-cols-3 gap-4` already makes them equal width. To ensure equal height, the grid items already stretch by default (CSS Grid behavior). No changes needed here.
+**Step 3 -- Delete the now-empty Box 4 section (lines 1591-1608)**
+- Remove the old standalone Box 4 block that is no longer needed
 
