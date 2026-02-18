@@ -1,52 +1,42 @@
 
 
-## Add Retry Logic to Checkout Edge Function Calls
+## Fix: Guests Not Appearing on Tables Page After Adding on Guest List Page
 
 ### Problem
 
-The first click on "Pay Now" sometimes fails silently due to edge function cold starts or transient network issues. The Stripe checkout URL never opens, and the user has to click again.
+When guests are added via the Guest List page and assigned to a table, they do not appear on the Tables page. This happens because:
 
-### Solution
+1. Both pages use separate instances of `useRealtimeGuests` subscribing to the same Supabase Realtime channel
+2. When switching from Guest List to Tables tab, the `eventId` hasn't changed, so the hook does not re-fetch
+3. Realtime events can be missed when two channel instances with the same name compete
 
-Add an automatic retry mechanism to the two frontend components that call checkout edge functions. If the first attempt fails, wait 2 seconds and retry once automatically (matching the existing OTP retry pattern in the app).
+### Fix (1 file)
 
-### Changes
+**`src/pages/Dashboard.tsx`** -- line ~607
 
-**1. `src/components/Dashboard/RsvpActivationModal.tsx`**
+When the user navigates to the `table-list` tab, also trigger a guest refetch alongside the existing event refetch. The `refetchGuests` function is already returned by `useRealtimeGuests` but is not currently destructured in Dashboard.tsx.
 
-Wrap the `supabase.functions.invoke('create-checkout', ...)` call in a retry helper: if the first attempt throws an error or returns a function-level error, wait 2 seconds and try once more before showing the error toast to the user.
+### Technical Steps
 
-**2. `src/components/Dashboard/ExtendPlanModal.tsx`**
+1. Destructure `refetchGuests` from `useRealtimeGuests` (line ~110-115):
+   ```tsx
+   const {
+     guests,
+     loading: guestsLoading,
+     moveGuest,
+     reorderGuestsWithSeats,
+     refetchGuests   // <-- add this
+   } = useRealtimeGuests(selectedEventId);
+   ```
 
-Apply the same retry logic to the `supabase.functions.invoke('create-extension-checkout', ...)` call.
-
-### Technical Detail
-
-A small inline helper will be used in each component:
-
-```tsx
-const invokeWithRetry = async (fnName: string, body: object) => {
-  const attempt = async () => {
-    const { data, error } = await supabase.functions.invoke(fnName, { body });
-    if (error) throw new Error(error.message);
-    if (data?.error) throw new Error(data.error);
-    return data;
-  };
-
-  try {
-    return await attempt();
-  } catch (firstError) {
-    // Wait 2s then retry once (handles cold starts)
-    await new Promise(r => setTimeout(r, 2000));
-    return await attempt();
-  }
-};
-```
-
-Both components will use this pattern instead of a single call. No changes to the edge functions themselves are needed.
+2. Call `refetchGuests()` in `handleTabChange` when switching to `table-list` (line ~607):
+   ```tsx
+   if (tabId === 'table-list') {
+     refetchEvents();
+     refetchGuests();  // <-- add this
+   }
+   ```
 
 ### Result
 
-- First click will automatically retry after a 2-second pause if the initial call fails
-- User only sees an error toast if both attempts fail
-- No impact on the happy path (fast successful calls are unaffected)
+Switching to the Tables tab will always show the latest guest assignments, even if realtime events were missed while on another tab.
