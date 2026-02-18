@@ -43,8 +43,9 @@ export const SortableGuestItem: React.FC<SortableGuestItemProps> = ({
   const style = {
     transform: CSS.Transform.toString(transform),
     transition: isDragging ? transition : undefined,
-    opacity: isDragging ? 0.3 : 1,
-    zIndex: isDragging ? 1000 : 'auto',
+    ...(isDragging
+      ? { opacity: 0, height: 0, overflow: 'hidden' as const, padding: 0, margin: 0, border: 'none' }
+      : { opacity: 1, zIndex: 'auto' as const }),
   };
 
   const handleCheckboxClick = (e: React.MouseEvent) => {

@@ -48,7 +48,7 @@ export const TableGuestList: React.FC<TableGuestListProps> = ({
       aria-label={`Guests at this table`}
     >
       <SortableContext items={sortableIds} strategy={verticalListSortingStrategy}>
-        <div className="space-y-2">
+        <div className="space-y-1">
           {/* Top drop zone - only rendered when guests exist and drag is active */}
           {guests.length > 0 && activeGuestId && (
             <TopDropZone tableId={tableId} />
