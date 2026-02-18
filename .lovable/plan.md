@@ -1,32 +1,42 @@
 
 
-## Fix: Drag Behavior and Spacing on Tables Page
+## Compact Add Guest Modal Fields
 
-### Problem 1: Too much gap between drop indicator and guests
-The guest list uses `space-y-2` (8px gap) between items. During a drag, this creates visible separation between the purple indicator line and surrounding items.
+### What changes
 
-**Fix:** Reduce the gap from `space-y-2` to `space-y-1` (4px) in `TableGuestList.tsx`.
+All form field heights in the Add Guest modal will be reduced to match the Import/Export CSV button height (`h-9`, 36px), and vertical spacing between sections will be tightened.
 
-### Problem 2: Dragged guest should move with the cursor, not leave a ghost behind
-Currently, when you drag a guest:
-- The original stays in place at 30% opacity (ghost)
-- A separate overlay copy floats with your cursor
+### Changes (single file: `src/components/Dashboard/AddGuestModal.tsx`)
 
-You want: the dragged item itself disappears from the list and moves with your cursor -- no ghost left behind.
+**1. Reduce all input/select field heights**
 
-**Fix in `SortableGuestItem.tsx`:**
-- When `isDragging` is true, hide the item completely (`opacity: 0, height: 0, margin: 0, overflow: hidden`) instead of showing it at 30% opacity. This collapses the gap and removes the ghost.
+Every `Input` and `SelectTrigger` in the modal currently uses `h-11 sm:h-10`. These will all change to `h-9` to match the CSV button height. Affected fields:
+- First Name, Last Name (lines 1014, 1032)
+- Mobile, Email (lines 1053, 1071)
+- Table, Seat Number (lines 1097, 1129)
+- RSVP Status, Dietary Requirements (lines 1222, 1248)
 
-### Files to change
+**2. Reduce the guest type selector height**
 
-**1. `src/components/Dashboard/Tables/SortableGuestItem.tsx`**
-- Change the dragging style from `opacity: 0.3` to fully hidden: `opacity: 0, height: 0, overflow: 'hidden', padding: 0, margin: 0, border: 'none'`
+The Individual/Couple/Family tab buttons use `py-2 px-6`. These will change to `py-1.5 px-6` for a slightly shorter pill, and the bottom padding of the container changes from `pb-4` to `pb-2`.
 
-**2. `src/components/Dashboard/Tables/TableGuestList.tsx`**
-- Change `space-y-2` to `space-y-1` for tighter spacing between guest rows
+**3. Tighten vertical spacing**
 
-### Result
-- The dragged guest vanishes from its original spot (no ghost)
-- The overlay copy follows your cursor showing exactly where it will land
-- The purple indicator line sits right next to the neighboring guests with minimal gap
-- Drop behavior and seat numbering remain unchanged
+| Location | Before | After |
+|---|---|---|
+| Form sections (`form` class) | `space-y-6` | `space-y-3` |
+| Grid gaps | `gap-4` | `gap-3` |
+| Outer scroll container | `space-y-4 sm:space-y-6` | `space-y-3 sm:space-y-4` |
+| Guest type container padding | `pt-2 pb-4` | `pt-1 pb-2` |
+
+### Summary
+
+| Property | Before | After |
+|---|---|---|
+| Field height (desktop) | 40px (`h-10`) | 36px (`h-9`) |
+| Field height (mobile) | 44px (`h-11`) | 36px (`h-9`) |
+| Tab button padding | `py-2` | `py-1.5` |
+| Form section gap | 24px | 12px |
+| Grid gap | 16px | 12px |
+
+No logic, validation, or security changes -- purely visual compaction.
