@@ -1361,11 +1361,11 @@ const otherGuests = allGuests
 
                 {/* Display Added Members */}
                 {partyMembers.length > 0 && (
-                  <div className="space-y-2">
+                  <div className="space-y-1">
                     {partyMembers.map((member, index) => (
-                      <div key={index} className="flex items-center justify-between bg-white py-1 px-2 rounded-lg border border-gray-200">
+                      <div key={index} className="flex items-center justify-between bg-white py-0.5 px-2 rounded-lg border border-gray-200">
                         <div className="flex-1">
-                          <p className="font-medium text-sm">{member.first_name} {member.last_name}</p>
+                          <p className="font-medium text-sm text-primary">{member.first_name} {member.last_name}</p>
                           {(member.mobile || member.email) && (
                             <p className="text-xs text-muted-foreground">
                               {member.mobile && member.mobile}
