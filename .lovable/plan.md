@@ -1,42 +1,32 @@
 
 
-## Replace Toggle Label with "Activate / Deactivate" Layout
+## Restore and Update Step Number Circles
 
 ### What Changes
 
-In the Guest List onboarding Box 3 (Guest Relations), the current toggle row showing the green/red switch and the text "Hide what the guest relation is to you" will be replaced with:
+The green step circles (1, 2, 3) in the onboarding boxes currently only show when `totalGuestCount === 0`. They will be changed to **always show**, and the text will change from "1st/2nd/3rd" to just "1/2/3". A 4th green circle with "4" will be added to the right of the "Add Guest" button.
 
-- The toggle centered on its line
-- The word **Activate** in bold black text to the left of the toggle
-- The word **Deactivate** in bold black text to the right of the toggle
-- The "Hide what the guest relation is to you" label is removed entirely
-
-The toggle behavior stays exactly the same: green (left) = relations active, red (right) = relations deactivated.
-
-### Technical Details
+### Details
 
 **File: `src/components/Dashboard/GuestListTable.tsx`**
 
-**Lines 1487-1497** -- Replace the toggle row:
+**Box 1 - Choose Event (line 1408-1410)**
+- Remove the `totalGuestCount === 0 &&` condition so the circle always renders
+- Change the text from `1st` to `1`
+- Increase font size from `text-xs` to `text-sm font-bold` for better visibility inside the circle
 
-Current:
-```tsx
-<div className="flex items-center gap-2 mb-3">
-  <Switch ... />
-  <Label ...>Hide what the guest relation is to you</Label>
-</div>
-```
+**Box 2 - Type of Event (line 1436-1438)**
+- Remove the `totalGuestCount === 0 &&` condition
+- Change text from `2nd` to `2`
+- Same font styling update
 
-Replace with:
-```tsx
-<div className="flex items-center justify-center gap-3 mb-3">
-  <span className="text-sm font-bold text-black">Activate</span>
-  <Switch ... />
-  <span className="text-sm font-bold text-black">Deactivate</span>
-</div>
-```
+**Box 3 - Guest Relations (line 1482-1484)**
+- Remove the `totalGuestCount === 0 &&` condition
+- Change text from `3rd` to `3`
+- Same font styling update
 
-- Remove the `Label` import usage for this specific instance
-- Change `flex items-center gap-2` to `flex items-center justify-center gap-3` to center the group
-- Keep the Switch component and its props (`id`, `checked`, `onCheckedChange`, `className`) exactly as they are
+**Add Guest Button (lines 1721-1745)**
+- Add a green circle with "4" to the right of the Add Guest button (after the button, inside the flex container)
+- Same circle styling: `bg-green-500 text-white font-bold text-sm w-8 h-8 rounded-full inline-flex items-center justify-center shrink-0`
 
+All four circles will use the same consistent green (`bg-green-500`) and size (`w-8 h-8`).
