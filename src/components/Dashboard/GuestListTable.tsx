@@ -56,7 +56,12 @@ import {
   FileText,
   Search,
   Mail,
-  Phone
+  Phone,
+  UserRound,
+  Hash,
+  User,
+  Heart,
+  ListOrdered
 } from "lucide-react";
 import {
   Tooltip,
@@ -103,15 +108,17 @@ import {
 
 type SortOption =
   | 'first_name' | 'last_name' | 'table_name'
-  | 'individuals_first' | 'couples_first' | 'families_first';
+  | 'individuals_first' | 'couples_first' | 'families_first'
+  | 'default';
 
 const SORT_OPTIONS = [
-  { value: 'first_name', label: 'First Name' },
-  { value: 'last_name', label: 'Last Name' },
-  { value: 'table_name', label: 'Table No.' },
-  { value: 'individuals_first', label: 'Individuals' },
-  { value: 'couples_first', label: 'Couples' },
-  { value: 'families_first', label: 'Families' },
+  { value: 'first_name', label: 'First Name', icon: UserRound },
+  { value: 'last_name', label: 'Last Name', icon: UserRound },
+  { value: 'table_name', label: 'Table No.', icon: Hash },
+  { value: 'individuals_first', label: 'Individuals', icon: User },
+  { value: 'couples_first', label: 'Couples', icon: Heart },
+  { value: 'families_first', label: 'Families', icon: Users },
+  { value: 'default', label: 'Default', icon: ListOrdered },
 ] as const;
 
 // Template headers (no who_is_display as it's computed)
@@ -171,7 +178,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
   const [guestToDelete, setGuestToDelete] = useState<any>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [sortBy, setSortBy] = useState<SortOption>('first_name');
+  const [sortBy, setSortBy] = useState<SortOption>('default');
   const [showNamesValidation, setShowNamesValidation] = useState(false);
   const [relationSettings, setRelationSettings] = useState<RelationSettings>({
     relation_required: true,
@@ -655,6 +662,11 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
           const tB = getTableName(b) || 'zzz';
           return smartTableCompare(tA, tB);
         }
+        case 'default': {
+          const dateA = new Date(a.created_at || 0).getTime();
+          const dateB = new Date(b.created_at || 0).getTime();
+          return dateA - dateB;
+        }
         case 'first_name':
         case 'individuals_first':
         case 'couples_first':
@@ -708,21 +720,23 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
         groups.push({ type: 'individual', groupName: null, members: [guest] });
       });
 
-      // Apply group-type ordering with secondary surname sort
-      const getOrderMap = () => {
-        if (sortBy === 'individuals_first') return { individual: 0, couple: 1, family: 2 };
-        if (sortBy === 'couples_first') return { couple: 0, family: 1, individual: 2 };
-        if (sortBy === 'families_first') return { family: 0, couple: 1, individual: 2 };
-        return { individual: 0, couple: 1, family: 2 };
-      };
-      const order = getOrderMap();
-      groups.sort((a, b) => {
-        const typeOrder = (order[a.type] ?? 9) - (order[b.type] ?? 9);
-        if (typeOrder !== 0) return typeOrder;
-        const surnameA = (a.members[0]?.last_name || '').toLowerCase();
-        const surnameB = (b.members[0]?.last_name || '').toLowerCase();
-        return surnameA.localeCompare(surnameB);
-      });
+      // Apply group-type ordering with secondary surname sort (skip for default sort)
+      if (sortBy !== 'default') {
+        const getOrderMap = () => {
+          if (sortBy === 'individuals_first') return { individual: 0, couple: 1, family: 2 };
+          if (sortBy === 'couples_first') return { couple: 0, family: 1, individual: 2 };
+          if (sortBy === 'families_first') return { family: 0, couple: 1, individual: 2 };
+          return { individual: 0, couple: 1, family: 2 };
+        };
+        const order = getOrderMap();
+        groups.sort((a, b) => {
+          const typeOrder = (order[a.type] ?? 9) - (order[b.type] ?? 9);
+          if (typeOrder !== 0) return typeOrder;
+          const surnameA = (a.members[0]?.last_name || '').toLowerCase();
+          const surnameB = (b.members[0]?.last_name || '').toLowerCase();
+          return surnameA.localeCompare(surnameB);
+        });
+      }
     }
 
     return groups;
@@ -1634,13 +1648,14 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                               <ChevronDown className="w-4 h-4" />
                             </Button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="w-56">
+                          <DropdownMenuContent align="end" className="w-40">
                             {SORT_OPTIONS.map((option) => (
                               <DropdownMenuItem
                                 key={option.value}
                                 onClick={() => handleSortChange(option.value)}
-                                className={sortBy === option.value ? "bg-accent" : ""}
+                                className={`justify-center gap-2 ${sortBy === option.value ? "bg-accent" : ""}`}
                               >
+                                <option.icon className="h-4 w-4" />
                                 {option.label}
                               </DropdownMenuItem>
                             ))}
