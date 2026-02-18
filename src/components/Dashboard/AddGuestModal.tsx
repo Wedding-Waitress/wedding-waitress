@@ -60,6 +60,7 @@ import { normalizeRsvp } from "@/lib/rsvp";
 import { useEvents } from "@/hooks/useEvents";
 import { RelationSelector } from "./RelationSelector";
 import { FamilyGroupCombobox } from "./FamilyGroupCombobox";
+import { GroupTypeDialog } from "./GroupTypeDialog";
 
 type AddGuestFormData = SecureGuestData;
 
@@ -124,6 +125,11 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
   // Swap seat functionality
   const [swapWithGuestId, setSwapWithGuestId] = useState<string | null>(null);
   const [sameTableGuests, setSameTableGuests] = useState<{id: string, name: string, seat_no: number}[]>([]);
+  
+  // Group type dialog state for edit mode
+  const [showGroupTypeDialog, setShowGroupTypeDialog] = useState(false);
+  const [pendingEditSaveData, setPendingEditSaveData] = useState<any>(null);
+  const [pendingMemberNames, setPendingMemberNames] = useState<string[]>([]);
 
   // Guest type selection state
   const [guestType, setGuestType] = useState<'individual' | 'couple' | 'family'>('individual');
@@ -241,7 +247,97 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
     setMemberForm({ first_name: '', last_name: '', mobile: '', email: '', dietary: 'None' });
     setSwapWithGuestId(null);
     setSameTableGuests([]);
+    setShowGroupTypeDialog(false);
+    setPendingEditSaveData(null);
     onClose();
+  };
+
+  // Handle group type selection from edit mode
+  const handleGroupTypeConfirm = async (groupType: 'couple' | 'family') => {
+    if (!pendingEditSaveData) return;
+    const { data, editGuestId } = pendingEditSaveData;
+    
+    setShowGroupTypeDialog(false);
+    setLoading(true);
+
+    try {
+      // Generate family group name
+      let familyGroupName = '';
+      
+      // Fetch pending member names
+      const { data: memberGuests } = await supabase
+        .from('guests')
+        .select('id, first_name, last_name')
+        .in('id', pendingFamilyMembers);
+
+      if (groupType === 'couple' && memberGuests && memberGuests.length === 1) {
+        const member = memberGuests[0];
+        if (data.last_name === member.last_name) {
+          familyGroupName = `${data.last_name} Couple`;
+        } else {
+          familyGroupName = `${data.last_name} & ${member.last_name}`;
+        }
+      } else {
+        familyGroupName = `${data.last_name} Family`;
+      }
+
+      // Update current guest's family_group
+      await supabase
+        .from('guests')
+        .update({ family_group: familyGroupName })
+        .eq('id', editGuestId);
+
+      // Update all pending members' family_group
+      for (const memberId of pendingFamilyMembers) {
+        await supabase
+          .from('guests')
+          .update({ family_group: familyGroupName })
+          .eq('id', memberId);
+      }
+
+      // Upsert family_groups record
+      const { data: familyGroup, error: fgError } = await supabase
+        .from('family_groups')
+        .upsert(
+          { event_id: eventId, name: familyGroupName },
+          { onConflict: 'event_id,name' }
+        )
+        .select('id')
+        .single();
+
+      if (!fgError && familyGroup) {
+        // Insert memberships
+        const membershipInserts = [
+          { group_id: familyGroup.id, guest_id: editGuestId },
+          ...pendingFamilyMembers.map(id => ({ group_id: familyGroup.id, guest_id: id }))
+        ];
+
+        await supabase
+          .from('family_group_members')
+          .upsert(membershipInserts, { onConflict: 'group_id,guest_id' });
+      }
+
+      toast({
+        title: groupType === 'couple' ? "Couple Created" : "Family Created",
+        description: `${data.first_name} ${data.last_name} and ${pendingFamilyMembers.length} member(s) have been grouped as a ${groupType}.`,
+      });
+
+      setPendingFamilyMembers([]);
+      setPendingEditSaveData(null);
+      onGuestAdded();
+      handleClose();
+    } catch (error) {
+      console.error('Error creating family group from edit:', error);
+      toast({
+        title: "Error",
+        description: "Guest updated but there was an issue creating the group.",
+        variant: "destructive",
+      });
+      onGuestAdded();
+      handleClose();
+    } finally {
+      setLoading(false);
+    }
   };
 
   const addPartyMember = () => {
@@ -587,6 +683,22 @@ const otherGuests = allGuests
             variant: "destructive",
           });
         } else {
+          // If there are pending family members, show the group type dialog
+          if (pendingFamilyMembers.length > 0) {
+            // Fetch member names for dialog display
+            const { data: memberGuests } = await supabase
+              .from('guests')
+              .select('first_name, last_name')
+              .in('id', pendingFamilyMembers);
+            setPendingMemberNames(
+              (memberGuests || []).map(g => `${g.first_name} ${g.last_name || ''}`.trim())
+            );
+            setPendingEditSaveData({ data, editGuestId: editGuest.id });
+            setShowGroupTypeDialog(true);
+            setLoading(false);
+            return;
+          }
+          
           toast({
             title: "Guest Updated",
             description: `${data.first_name} ${data.last_name} has been updated successfully.`,
@@ -823,6 +935,7 @@ const otherGuests = allGuests
   };
 
   return (
+    <>
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col px-4 sm:px-10" fullScreenOnMobile>
         <DialogHeader>
@@ -1406,5 +1519,29 @@ const otherGuests = allGuests
         </DialogFooter>
       </DialogContent>
     </Dialog>
+
+      <GroupTypeDialog
+        isOpen={showGroupTypeDialog}
+        onClose={() => {
+          setShowGroupTypeDialog(false);
+          setPendingEditSaveData(null);
+          // Still complete the edit without grouping
+          if (pendingEditSaveData) {
+            toast({
+              title: "Guest Updated",
+              description: `Guest has been updated (no group created).`,
+            });
+            onGuestAdded();
+            handleClose();
+          }
+        }}
+        onConfirm={handleGroupTypeConfirm}
+        guestNames={[
+          pendingEditSaveData ? `${pendingEditSaveData.data.first_name} ${pendingEditSaveData.data.last_name}` : '',
+          ...pendingMemberNames
+        ].filter(Boolean)}
+        totalMembers={1 + pendingFamilyMembers.length}
+      />
+    </>
   );
 };

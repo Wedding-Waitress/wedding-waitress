@@ -439,13 +439,13 @@ export const FamilyGroupCombobox: React.FC<FamilyGroupComboboxProps> = ({
 
       {/* Selected Members Chips */}
       {pendingFamilyMembers.length > 0 && (
-        <div className="flex flex-wrap gap-2 p-2 bg-muted/50 rounded-md">
-          <div className="flex items-center gap-1 text-xs text-muted-foreground">
-            <Users className="h-3 w-3" />
+        <div className="flex flex-wrap gap-2 p-2 bg-primary/5 rounded-md border border-primary/20">
+          <div className="flex items-center gap-1 text-sm text-primary font-medium">
+            <Users className="h-3.5 w-3.5" />
             Family Members:
           </div>
           {pendingFamilyMembers.map((guest) => (
-            <Badge key={guest.id} variant="secondary" className="text-xs">
+            <Badge key={guest.id} variant="secondary" className="text-sm bg-primary/10 text-primary border border-primary/30">
               {guest.first_name} {guest.last_name}
               <button
                 type="button"
