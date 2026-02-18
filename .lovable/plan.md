@@ -1,18 +1,41 @@
 
 
-## Update GroupTypeDialog Border Colors to Match Category Tablets
+## Fix: Family Groups With 2 Members Incorrectly Shown as Couples
 
-### Change
+### The Problem
 
-In `src/components/Dashboard/GroupTypeDialog.tsx`, update the border colors on both buttons to use the stronger orange and blue that match the Couples and Families tablet buttons in the stats bar.
+When you select "Family" in the group type dialog, the system correctly names the group (e.g., "Sallistonton Family"), but the guest list table ignores the name and decides couple vs family based solely on member count. Any group with exactly 2 members is displayed as a "Couple" with an orange header, regardless of the user's choice.
 
-**Couple button (line 44-45):**
-- Change `border-orange-300 hover:bg-orange-50` to `border-orange-500 hover:bg-orange-50`
-- This matches the `bg-orange-500` used for the Couples tablet
+### Root Cause
 
-**Family button (line 56-57):**
-- Change `border-blue-300 hover:bg-blue-50` to `border-blue-600 hover:bg-blue-50`
-- This matches the `bg-blue-600` used for the Families tablet
+Two places in `GuestListTable.tsx` determine group type by member count only:
 
-Two class changes in one file. Nothing else is modified.
+1. **Line 728** (group rendering): `const type = members.length === 2 ? 'couple' : 'family'`
+2. **Lines 1340-1347** (stats badges): `if (members.length === 2) stats.couple++`
 
+### The Fix
+
+**File: `src/components/Dashboard/GuestListTable.tsx`**
+
+Instead of using member count, infer the group type from the `family_group` name that was set during the user's selection:
+
+- Names ending with "Family" (e.g., "Sallistonton Family") are treated as **Family** groups (blue header)
+- Names containing "&" or ending with "Couple" (e.g., "Smith & Benjamin") are treated as **Couple** groups (orange header)
+- Fallback: if name doesn't match either pattern, use the current member-count logic
+
+This applies to both locations:
+
+1. **Line 728** -- Update the grouping logic to check the group name pattern first
+2. **Lines 1340-1347** -- Update the stats counting to use the same name-based logic
+
+A small helper function will be added to determine the type from the group name:
+
+```
+const inferGroupType = (groupName: string, memberCount: number) => {
+  if (groupName.endsWith(' Family')) return 'family';
+  if (groupName.includes(' & ') || groupName.endsWith(' Couple')) return 'couple';
+  return memberCount >= 3 ? 'family' : 'couple';
+};
+```
+
+No other files need to change. The naming in `AddGuestModal.tsx` already correctly uses "Family" suffix for family groups and "&" for couples.
