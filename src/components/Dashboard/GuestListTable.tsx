@@ -105,10 +105,7 @@ type SortOption =
   | 'first_name_asc' | 'first_name_desc'
   | 'last_name_asc' | 'last_name_desc' 
   | 'table_name_asc' | 'table_name_desc'
-  
-  | 'rsvp_attending_first' | 'rsvp_not_attending_first'
-  | 'relation_asc' | 'relation_desc'
-  | 'family_group_asc' | 'family_group_desc';
+  | 'family_group_asc';
 
 const SORT_OPTIONS = [
   { value: 'first_name_asc', label: 'First Name (A–Z)' },
@@ -117,13 +114,7 @@ const SORT_OPTIONS = [
   { value: 'last_name_desc', label: 'Last Name (Z–A)' },
   { value: 'table_name_asc', label: 'Table (A→Z)' },
   { value: 'table_name_desc', label: 'Table (Z→A)' },
-  
-  { value: 'rsvp_attending_first', label: 'RSVP (Attending → Pending → Not Attending)' },
-  { value: 'rsvp_not_attending_first', label: 'RSVP (Not Attending → Pending → Attending)' },
-  { value: 'relation_asc', label: 'Relation (A–Z)' },
-  { value: 'relation_desc', label: 'Relation (Z–A)' },
   { value: 'family_group_asc', label: 'Family/Group (A–Z)' },
-  { value: 'family_group_desc', label: 'Family/Group (Z–A)' },
 ] as const;
 
 // Template headers (no who_is_display as it's computed)
@@ -665,38 +656,8 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
           const tB = getTableName(b) || '';
           return tB.localeCompare(tA);
         }
-        case 'rsvp_attending_first': {
-          const oA = a.rsvp === 'Attending' ? 0 : a.rsvp === 'Pending' ? 1 : 2;
-          const oB = b.rsvp === 'Attending' ? 0 : b.rsvp === 'Pending' ? 1 : 2;
-          return oA - oB;
-        }
-        case 'rsvp_not_attending_first': {
-          const oA = a.rsvp === 'Not Attending' ? 0 : a.rsvp === 'Pending' ? 1 : 2;
-          const oB = b.rsvp === 'Not Attending' ? 0 : b.rsvp === 'Pending' ? 1 : 2;
-          return oA - oB;
-        }
-        case 'relation_asc': {
-          const pA = a.relation_partner === 'partner_one' ? selectedEvent?.partner1_name : selectedEvent?.partner2_name;
-          const pB = b.relation_partner === 'partner_one' ? selectedEvent?.partner1_name : selectedEvent?.partner2_name;
-          const rA = RELATION_ROLE_LABELS[a.relation_role] || '';
-          const rB = RELATION_ROLE_LABELS[b.relation_role] || '';
-          const pc = (pA || 'zzz').localeCompare(pB || 'zzz');
-          if (pc !== 0) return pc;
-          return rA.localeCompare(rB);
-        }
-        case 'relation_desc': {
-          const pA = a.relation_partner === 'partner_one' ? selectedEvent?.partner1_name : selectedEvent?.partner2_name;
-          const pB = b.relation_partner === 'partner_one' ? selectedEvent?.partner1_name : selectedEvent?.partner2_name;
-          const rA = RELATION_ROLE_LABELS[a.relation_role] || '';
-          const rB = RELATION_ROLE_LABELS[b.relation_role] || '';
-          const pc = (pB || '').localeCompare(pA || '');
-          if (pc !== 0) return pc;
-          return rB.localeCompare(rA);
-        }
         case 'family_group_asc':
           return (a.family_group || '').localeCompare(b.family_group || '');
-        case 'family_group_desc':
-          return (b.family_group || '').localeCompare(a.family_group || '');
         default:
           return (a.first_name || '').localeCompare(b.first_name || '');
       }
@@ -809,42 +770,8 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
           const tableA2 = getTableName(a) || '';
           const tableB2 = getTableName(b) || '';
           return tableB2.localeCompare(tableA2);
-        case 'rsvp_attending_first':
-          const orderA = a.rsvp === 'Attending' ? 0 : a.rsvp === 'Pending' ? 1 : 2;
-          const orderB = b.rsvp === 'Attending' ? 0 : b.rsvp === 'Pending' ? 1 : 2;
-          return orderA - orderB;
-        case 'rsvp_not_attending_first':
-          const orderA2 = a.rsvp === 'Not Attending' ? 0 : a.rsvp === 'Pending' ? 1 : 2;
-          const orderB2 = b.rsvp === 'Not Attending' ? 0 : b.rsvp === 'Pending' ? 1 : 2;
-          return orderA2 - orderB2;
-        case 'relation_asc':
-          const partnerNameA = a.relation_partner === 'partner_one' ? selectedEvent?.partner1_name : selectedEvent?.partner2_name;
-          const partnerNameB = b.relation_partner === 'partner_one' ? selectedEvent?.partner1_name : selectedEvent?.partner2_name;
-          const roleA = RELATION_ROLE_LABELS[a.relation_role] || '';
-          const roleB = RELATION_ROLE_LABELS[b.relation_role] || '';
-          
-          // Primary sort: partner name
-          const partnerCompare = (partnerNameA || 'zzz').localeCompare(partnerNameB || 'zzz');
-          if (partnerCompare !== 0) return partnerCompare;
-          
-          // Secondary sort: role
-          return roleA.localeCompare(roleB);
-        case 'relation_desc':
-          const partnerNameA3 = a.relation_partner === 'partner_one' ? selectedEvent?.partner1_name : selectedEvent?.partner2_name;
-          const partnerNameB3 = b.relation_partner === 'partner_one' ? selectedEvent?.partner1_name : selectedEvent?.partner2_name;
-          const roleA3 = RELATION_ROLE_LABELS[a.relation_role] || '';
-          const roleB3 = RELATION_ROLE_LABELS[b.relation_role] || '';
-          
-          // Primary sort: partner name (desc)
-          const partnerCompare3 = (partnerNameB3 || '').localeCompare(partnerNameA3 || '');
-          if (partnerCompare3 !== 0) return partnerCompare3;
-          
-          // Secondary sort: role (desc)
-          return roleB3.localeCompare(roleA3);
         case 'family_group_asc':
           return (a.family_group || '').localeCompare(b.family_group || '');
-        case 'family_group_desc':
-          return (b.family_group || '').localeCompare(a.family_group || '');
         default:
           return 0;
       }
