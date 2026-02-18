@@ -723,9 +723,15 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
       }
     });
 
+    const inferGroupType = (name: string, count: number): 'couple' | 'family' => {
+      if (name.endsWith(' Family')) return 'family';
+      if (name.includes(' & ') || name.endsWith(' Couple')) return 'couple';
+      return count >= 3 ? 'family' : 'couple';
+    };
+
     // Add families and couples
     familyMap.forEach((members, groupName) => {
-      const type = members.length === 2 ? 'couple' : 'family';
+      const type = inferGroupType(groupName, members.length);
       groups.push({ type, groupName, members });
     });
 
@@ -1336,14 +1342,22 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
       }
     });
 
-    // Count couple groups (2 members) and family groups (3+ members)
-    familyGroups.forEach((members) => {
+    // Count couple groups and family groups using name-based inference
+    familyGroups.forEach((members, groupName) => {
       if (members.length === 1) {
         stats.individual++;
-      } else if (members.length === 2) {
-        stats.couple++;
-      } else if (members.length >= 3) {
-        stats.family++;
+      } else {
+        const isFamilyName = groupName.endsWith(' Family');
+        const isCoupleName = groupName.includes(' & ') || groupName.endsWith(' Couple');
+        if (isFamilyName) {
+          stats.family++;
+        } else if (isCoupleName) {
+          stats.couple++;
+        } else if (members.length >= 3) {
+          stats.family++;
+        } else {
+          stats.couple++;
+        }
       }
     });
 
