@@ -1,96 +1,56 @@
 
 
-## Fix: Guests Moving to Wrong Table During Drag-and-Drop
+## Fix: Drop Indicator Should Appear Above or Below Guest Based on Pointer Position
 
 ### Problem
 
-The collision detection algorithm in `SortableTablesGrid.tsx` uses `closestCenter` across **all guests globally**. When you drag a guest toward table 10, the algorithm finds the nearest guest by geometric center point -- which might be a guest on table 5. Since `handleDragEnd` uses `overData.guest.table_id` as the destination, the guest lands on the wrong table.
-
-### Root Cause
-
-In the custom `collisionDetection` function (line 132-154):
-
-```text
-1. closestCenter runs against ALL droppable items
-2. Guest collisions are prioritized over table collisions
-3. The "closest guest" could be on any table, not just the one under the pointer
-4. Result: guest goes to whatever table has the nearest guest center, not where you dropped
-```
+Currently, when dragging a guest over another guest, the purple drop indicator line always appears in the same position regardless of where your pointer is on that guest. The indicator should show **above** the guest when you're hovering over their top half (meaning "insert before this guest") and **below** when hovering over their bottom half (meaning "insert after this guest").
 
 ### Solution
 
-Redesign the collision detection to be **table-aware**:
+Track the pointer's vertical position relative to each guest element. If the pointer is in the top half of the guest, show the indicator above; if in the bottom half, show it below. The insertion logic in `handleDragEnd` will also be updated to match, so the guest always lands exactly where the indicator shows.
 
-1. First, use `pointerWithin` to determine which **table container** the pointer is currently over
-2. Then, among only the guests **within that table**, find the closest guest using `closestCenter`
-3. If no guests are in that table (empty table), return the table container itself as the collision target
+### Changes (3 files)
 
-This ensures the destination is always the table the user is pointing at.
+**1. `src/components/Dashboard/Tables/SortableTablesGrid.tsx`**
 
-### Changes (1 file)
+- Add a new state: `overGuestPosition` ("above" or "below")
+- In `handleDragOver`, calculate whether the pointer is in the top or bottom half of the hovered guest element using the `event` collision rect data
+- Pass `overGuestPosition` through the drag state context
+- Update `handleDragEnd` insertion logic: if position is "below", insert AFTER the target guest; if "above", insert BEFORE
 
-**`src/components/Dashboard/Tables/SortableTablesGrid.tsx`** -- Replace the `collisionDetection` function (lines 132-154)
+**2. `src/components/Dashboard/Tables/SortableGuestItem.tsx`**
 
-New logic:
+- Accept `overGuestPosition` ("above" | "below") instead of relying on `showIndicatorAfter`
+- Show the purple indicator line at `-top` when position is "above", at `-bottom` when position is "below"
 
-```text
-Step 1: pointerWithin -> find all containers the pointer is inside
-Step 2: Identify which table or unassigned zone the pointer is over
-Step 3: Filter closestCenter results to only guests belonging to that table
-Step 4: Return the filtered guest collision, or the table container if no guests match
-```
+**3. `src/components/Dashboard/Tables/TableGuestList.tsx`**
+
+- Read `overGuestPosition` from drag state context
+- Pass it to each `SortableGuestItem` when that guest is the one being hovered over
 
 ### Technical Detail
 
-```tsx
-const collisionDetection: CollisionDetection = useCallback((args) => {
-  // Step 1: Find which containers the pointer is within
-  const pointerCollisions = pointerWithin(args);
+In `handleDragOver`, determine pointer position relative to the hovered guest:
 
-  // Step 2: Identify the table/unassigned container under the pointer
-  const tableCollision = pointerCollisions.find(c => {
-    const container = args.droppableContainers.find(dc => dc.id === c.id);
-    const type = container?.data?.current?.type;
-    return type === 'table' || type === 'unassigned';
-  });
+```text
+1. Get the over element's bounding rect from the droppable container
+2. Calculate the vertical midpoint of the element
+3. Compare the pointer Y position to the midpoint
+4. If pointer Y < midpoint -> position = "above" (insert before)
+5. If pointer Y >= midpoint -> position = "below" (insert after)
+```
 
-  if (tableCollision) {
-    const tableContainer = args.droppableContainers.find(
-      dc => dc.id === tableCollision.id
-    );
-    const tableData = tableContainer?.data?.current;
+In `handleDragEnd`, adjust insertion index:
 
-    if (tableData?.type === 'table') {
-      const tableId = tableData.tableId;
-
-      // Step 3: Among closestCenter results, keep only guests on THIS table
-      const allClosest = closestCenter(args);
-      const guestsOnThisTable = allClosest.filter(c => {
-        const dc = args.droppableContainers.find(d => d.id === c.id);
-        return (
-          dc?.data?.current?.type === 'guest' &&
-          dc?.data?.current?.guest?.table_id === tableId
-        );
-      });
-
-      if (guestsOnThisTable.length > 0) {
-        return guestsOnThisTable;
-      }
-    }
-
-    // No matching guests -- return the table/unassigned container
-    return [tableCollision];
-  }
-
-  // Fallback
-  return rectIntersection(args);
-}, []);
+```text
+- If overGuestPosition is "above": insertAtIndex = overIndex (before the target)
+- If overGuestPosition is "below": insertAtIndex = overIndex + 1 (after the target)
+- Remove the special "last guest" logic since position now handles all cases
 ```
 
 ### Result
 
-- Dragging a guest to table 10 will always drop them on table 10, regardless of which other tables have guests nearby
-- Within a table, positional insertion still works correctly (closest guest detection scoped to that table)
-- Empty tables accept drops properly
-- Unassigned zone still works
-
+- The purple indicator line will appear exactly where the guest will be placed -- above or below the hovered guest
+- Dragging to the top half of a guest inserts before them; bottom half inserts after them
+- This works consistently for all guests (first, middle, last) on all tables
