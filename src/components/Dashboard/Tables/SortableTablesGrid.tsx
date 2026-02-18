@@ -338,9 +338,24 @@ export const SortableTablesGrid: React.FC<SortableTablesGridProps> = ({
     } else if (overData?.type === 'table') {
       // Dropped directly on a table container
       destTableId = overData.tableId;
-      // Insert at end - exclude dragged guest for consistent counting
-      const destTableGuests = guests.filter(g => g.table_id === destTableId && g.id !== draggedGuest.id);
-      insertAtIndex = destTableGuests.length;
+      // Exclude dragged guest for consistent counting
+      const destTableGuests = guests
+        .filter(g => g.table_id === destTableId && g.id !== draggedGuest.id)
+        .sort((a, b) => (a.seat_no || 0) - (b.seat_no || 0));
+      // Check if pointer is above the first guest → insert at index 0
+      if (destTableGuests.length > 0) {
+        const firstGuestEl = document.querySelector(`[data-id="${destTableGuests[0].id}"]`) 
+          || document.getElementById(destTableGuests[0].id);
+        if (firstGuestEl) {
+          const rect = firstGuestEl.getBoundingClientRect();
+          const midpoint = rect.top + rect.height / 2;
+          insertAtIndex = pointerPositionRef.current.y < midpoint ? 0 : destTableGuests.length;
+        } else {
+          insertAtIndex = destTableGuests.length;
+        }
+      } else {
+        insertAtIndex = 0;
+      }
     } else if (overData?.type === 'guest') {
       // Dropped on another guest - insert at that position
       const overGuest = overData.guest as Guest;
@@ -414,8 +429,21 @@ export const SortableTablesGrid: React.FC<SortableTablesGridProps> = ({
             targetIndex = rawTarget;
           }
         } else {
-          // Dropped on table container - place at end
-          targetIndex = tableGuests.length - 1;
+          // Dropped on table container - check if above the first guest
+          if (tableGuests.length > 0) {
+            const firstGuestEl = document.querySelector(`[data-id="${tableGuests[0].id}"]`)
+              || document.getElementById(tableGuests[0].id);
+            if (firstGuestEl) {
+              const rect = firstGuestEl.getBoundingClientRect();
+              const midpoint = rect.top + rect.height / 2;
+              const rawTarget = pointerPositionRef.current.y < midpoint ? 0 : tableGuests.length;
+              targetIndex = oldIndex < rawTarget ? rawTarget - 1 : rawTarget;
+            } else {
+              targetIndex = tableGuests.length - 1;
+            }
+          } else {
+            targetIndex = 0;
+          }
         }
         
         if (oldIndex === targetIndex) return; // No change
