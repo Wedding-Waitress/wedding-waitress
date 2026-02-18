@@ -1653,7 +1653,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                               <DropdownMenuItem
                                 key={option.value}
                                 onClick={() => handleSortChange(option.value)}
-                                className={`justify-center gap-2 ${sortBy === option.value ? "bg-accent" : ""}`}
+                                className={`gap-2 ${sortBy === option.value ? "bg-accent" : ""} ${option.value === 'individuals_first' ? 'text-pink-500' : option.value === 'couples_first' ? 'text-orange-500' : option.value === 'families_first' ? 'text-blue-600' : option.value === 'default' ? 'text-red-500' : ''}`}
                               >
                                 <option.icon className="h-4 w-4" />
                                 {option.label}
