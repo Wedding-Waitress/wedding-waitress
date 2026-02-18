@@ -74,6 +74,7 @@ export const SortableTablesGrid: React.FC<SortableTablesGridProps> = ({
   const [overGuestId, setOverGuestId] = useState<string | null>(null);
   const [isOverUnassigned, setIsOverUnassigned] = useState(false);
   const [overGuestPosition, setOverGuestPosition] = useState<'above' | 'below' | null>(null);
+  const overGuestPositionRef = useRef<'above' | 'below' | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const processingRef = useRef(false);
   const lastOverGuestRef = useRef<string | null>(null);
@@ -222,6 +223,7 @@ export const SortableTablesGrid: React.FC<SortableTablesGridProps> = ({
       setOverGuestId(null);
       setIsOverUnassigned(false);
       setOverGuestPosition(null);
+      overGuestPositionRef.current = null;
       lastOverGuestRef.current = null;
       return;
     }
@@ -234,6 +236,7 @@ export const SortableTablesGrid: React.FC<SortableTablesGridProps> = ({
       setOverGuestId(null);
       setIsOverUnassigned(true);
       setOverGuestPosition(null);
+      overGuestPositionRef.current = null;
       lastOverGuestRef.current = null;
       return;
     }
@@ -244,11 +247,13 @@ export const SortableTablesGrid: React.FC<SortableTablesGridProps> = ({
     if (overData?.type === 'table') {
       setOverTableId(overData.tableId);
       setOverGuestPosition(null);
+      overGuestPositionRef.current = null;
       
       if (lastOverGuestRef.current !== null) {
         stickyTimeoutRef.current = setTimeout(() => {
           setOverGuestId(null);
           setOverGuestPosition(null);
+          overGuestPositionRef.current = null;
           lastOverGuestRef.current = null;
         }, 80);
       } else {
@@ -267,14 +272,18 @@ export const SortableTablesGrid: React.FC<SortableTablesGridProps> = ({
       if (rect) {
         const pointerY = pointerPositionRef.current.y;
         const midpoint = rect.top + rect.height / 2;
-        setOverGuestPosition(pointerY < midpoint ? 'above' : 'below');
+        const pos = pointerY < midpoint ? 'above' : 'below';
+        setOverGuestPosition(pos);
+        overGuestPositionRef.current = pos;
       } else {
         setOverGuestPosition('below');
+        overGuestPositionRef.current = 'below';
       }
     } else {
       setOverTableId(null);
       setOverGuestId(null);
       setOverGuestPosition(null);
+      overGuestPositionRef.current = null;
       lastOverGuestRef.current = null;
     }
   }, []);
@@ -288,6 +297,7 @@ export const SortableTablesGrid: React.FC<SortableTablesGridProps> = ({
     setOverGuestId(null);
     setIsOverUnassigned(false);
     setOverGuestPosition(null);
+    overGuestPositionRef.current = null;
 
     if (!over || !active) return;
 
@@ -351,7 +361,7 @@ export const SortableTablesGrid: React.FC<SortableTablesGridProps> = ({
       
       if (overIndex >= 0) {
         // Use pointer position to determine above/below insertion
-        if (overGuestPosition === 'above') {
+        if (overGuestPositionRef.current === 'above') {
           insertAtIndex = overIndex;
         } else {
           insertAtIndex = overIndex + 1;
@@ -389,7 +399,7 @@ export const SortableTablesGrid: React.FC<SortableTablesGridProps> = ({
           
           // Use pointer position to determine target
           let rawTarget: number;
-          if (overGuestPosition === 'above') {
+          if (overGuestPositionRef.current === 'above') {
             rawTarget = overIndex;
           } else {
             rawTarget = overIndex + 1;
