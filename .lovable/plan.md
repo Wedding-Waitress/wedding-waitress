@@ -1,26 +1,42 @@
 
-## Sort By Dropdown Styling Updates
 
-### Summary
+## Replace Toggle Label with "Activate / Deactivate" Layout
 
-Three visual adjustments to the Sort By dropdown in the Guest List:
+### What Changes
 
-1. **Left-align** all items (remove centering) with proper left padding
-2. **Color-code** Individuals (pink), Couples (orange), Families (blue), and Default (red) text and icons
-3. Keep First Name, Last Name, and Table No. in the default text color
+In the Guest List onboarding Box 3 (Guest Relations), the current toggle row showing the green/red switch and the text "Hide what the guest relation is to you" will be replaced with:
+
+- The toggle centered on its line
+- The word **Activate** in bold black text to the left of the toggle
+- The word **Deactivate** in bold black text to the right of the toggle
+- The "Hide what the guest relation is to you" label is removed entirely
+
+The toggle behavior stays exactly the same: green (left) = relations active, red (right) = relations deactivated.
 
 ### Technical Details
 
 **File: `src/components/Dashboard/GuestListTable.tsx`**
 
-**Lines 1651-1661** -- Update the dropdown rendering:
+**Lines 1487-1497** -- Replace the toggle row:
 
-- Remove `justify-center` from `DropdownMenuItem` className (revert to default left-aligned layout)
-- Add color classes per option value:
-  - `individuals_first`: `text-pink-500` (matches the Individuals pill `bg-pink-500`)
-  - `couples_first`: `text-orange-500` (matches the Couples pill `bg-orange-500`)
-  - `families_first`: `text-blue-600` (matches the Families group header `bg-blue-600`)
-  - `default`: `text-red-500` (the red used throughout Wedding Waitress)
-  - All others (`first_name`, `last_name`, `table_name`): no color override (default text color)
+Current:
+```tsx
+<div className="flex items-center gap-2 mb-3">
+  <Switch ... />
+  <Label ...>Hide what the guest relation is to you</Label>
+</div>
+```
 
-The color will be applied to both the icon and the label by setting the text color on the `DropdownMenuItem` itself, since the icon inherits `currentColor`.
+Replace with:
+```tsx
+<div className="flex items-center justify-center gap-3 mb-3">
+  <span className="text-sm font-bold text-black">Activate</span>
+  <Switch ... />
+  <span className="text-sm font-bold text-black">Deactivate</span>
+</div>
+```
+
+- Remove the `Label` import usage for this specific instance
+- Change `flex items-center gap-2` to `flex items-center justify-center gap-3` to center the group
+- Keep the Switch component and its props (`id`, `checked`, `onCheckedChange`, `className`) exactly as they are
+
