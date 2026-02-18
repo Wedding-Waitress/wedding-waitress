@@ -1,30 +1,18 @@
 
 
-## Add DELETE Confirmation to Bulk Delete Dialog
+## Update GroupTypeDialog Border Colors to Match Category Tablets
 
-### What Changes
+### Change
 
-The bulk delete dialog (triggered via the purple selection bar at the bottom) currently allows immediate deletion without typing "DELETE". This update adds the same confirmation pattern used in the individual guest delete modal.
+In `src/components/Dashboard/GroupTypeDialog.tsx`, update the border colors on both buttons to use the stronger orange and blue that match the Couples and Families tablet buttons in the stats bar.
 
-### Single File Change
+**Couple button (line 44-45):**
+- Change `border-orange-300 hover:bg-orange-50` to `border-orange-500 hover:bg-orange-50`
+- This matches the `bg-orange-500` used for the Couples tablet
 
-**`src/components/Dashboard/GuestListTable.tsx`** (lines 2068-2084)
+**Family button (line 56-57):**
+- Change `border-blue-300 hover:bg-blue-50` to `border-blue-600 hover:bg-blue-50`
+- This matches the `bg-blue-600` used for the Families tablet
 
-Replace the simple `AlertDialog` with a proper confirmation dialog that includes:
-
-- Title: "You are deleting this guest" (1 guest) or "You are deleting X guests" (multiple) with a warning icon
-- Description: Lists the count, states "Once it's gone you can't bring it back"
-- "Type DELETE to confirm deletion" instruction with DELETE in red bold
-- A confirmation text input (placeholder: "Type DELETE to confirm")
-- Delete button only becomes clickable when user types "DELETE" in capitals
-- Cancel and Delete buttons styled to match the existing individual delete modal (rounded-full, destructive variant)
-
-### Technical Details
-
-- Replace the `AlertDialog` component with a `Dialog` component (matching `GuestDeleteConfirmationModal` pattern)
-- Add local state for the confirmation text input (e.g., `bulkDeleteConfirmText`)
-- Reset the confirm text when the dialog opens/closes
-- Disable the Delete button until `bulkDeleteConfirmText === 'DELETE'`
-- Keep the existing `handleBulkDelete` function call on confirm
-- Style to match the existing `GuestDeleteConfirmationModal`: purple title, red DELETE text, rounded-full buttons
+Two class changes in one file. Nothing else is modified.
 
