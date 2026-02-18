@@ -1,49 +1,26 @@
 
+## Sort By Dropdown Styling Updates
 
-## Three Changes to the Sort By Dropdown
+### Summary
 
-### 1. Add "Default" option at the bottom
+Three visual adjustments to the Sort By dropdown in the Guest List:
 
-Add a 7th sort option called "Default" below "Families". When selected, it shows guests in the order they were originally added (by `created_at` timestamp or database insertion order). This preserves groups (couples and families stay together) and simply orders everything chronologically.
-
-### 2. Add icons to each option
-
-Each dropdown item will have a small icon on the left side of the label:
-
-| Option | Icon |
-|---|---|
-| First Name | `UserRound` |
-| Last Name | `UserRound` |
-| Table No. | `Hash` |
-| Individuals | `User` |
-| Couples | `Heart` |
-| Families | `Users` |
-| Default | `ListOrdered` |
-
-### 3. Shrink dropdown width and center text
-
-- Reduce the dropdown width from `w-56` to `w-40` (approximately 30% narrower)
-- Center-align all dropdown items using `justify-center`
+1. **Left-align** all items (remove centering) with proper left padding
+2. **Color-code** Individuals (pink), Couples (orange), Families (blue), and Default (red) text and icons
+3. Keep First Name, Last Name, and Table No. in the default text color
 
 ### Technical Details
 
 **File: `src/components/Dashboard/GuestListTable.tsx`**
 
-**a) Update type and options (lines 104-115)**
+**Lines 1651-1661** -- Update the dropdown rendering:
 
-Add `'default'` to `SortOption` type. Add a 7th entry to `SORT_OPTIONS` with value `default` and label `Default`. Add an `icon` field to each option referencing a Lucide icon component.
+- Remove `justify-center` from `DropdownMenuItem` className (revert to default left-aligned layout)
+- Add color classes per option value:
+  - `individuals_first`: `text-pink-500` (matches the Individuals pill `bg-pink-500`)
+  - `couples_first`: `text-orange-500` (matches the Couples pill `bg-orange-500`)
+  - `families_first`: `text-blue-600` (matches the Families group header `bg-blue-600`)
+  - `default`: `text-red-500` (the red used throughout Wedding Waitress)
+  - All others (`first_name`, `last_name`, `table_name`): no color override (default text color)
 
-**b) Update sorting logic (lines 649-726)**
-
-For `default` sort: group guests normally (keep couples/families together) but sort by `created_at` ascending (or by original array order if `created_at` is the same). No flattening and no group-type reordering -- just chronological insertion order.
-
-**c) Update dropdown rendering (lines 1637-1646)**
-
-- Change `className="w-56"` to `className="w-40"` on `DropdownMenuContent`
-- Render the icon from each option to the left of the label
-- Center the content using flex and justify-center
-
-**d) Update default state (line 174)**
-
-Change initial `sortBy` from `'first_name'` to `'default'` so new users see the default order first.
-
+The color will be applied to both the icon and the label by setting the text color on the `DropdownMenuItem` itself, since the icon inherits `currentColor`.
