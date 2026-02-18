@@ -1,35 +1,49 @@
 
 
-## Fix Table Sort Option
+## Three Changes to the Sort By Dropdown
 
-### Changes
+### 1. Add "Default" option at the bottom
 
-**1. Rename "Table" to "Table No." in the Sort By dropdown**
+Add a 7th sort option called "Default" below "Families". When selected, it shows guests in the order they were originally added (by `created_at` timestamp or database insertion order). This preserves groups (couples and families stay together) and simply orders everything chronologically.
 
-In `src/components/Dashboard/GuestListTable.tsx`, update the `SORT_OPTIONS` array entry from:
-```
-{ value: 'table_name', label: 'Table' }
-```
-to:
-```
-{ value: 'table_name', label: 'Table No.' }
-```
+### 2. Add icons to each option
 
-**2. Verify table sorting logic**
+Each dropdown item will have a small icon on the left side of the label:
 
-The current sorting logic for the Table option already:
-- Places named tables (text names like "Bridal Table", "Bride's Parents 2", "Groom's Parents 1") first, sorted alphabetically
-- Places numbered tables (Table 1, Table 2, etc.) after, sorted numerically
-- Guests with no table assigned sort to the bottom
+| Option | Icon |
+|---|---|
+| First Name | `UserRound` |
+| Last Name | `UserRound` |
+| Table No. | `Hash` |
+| Individuals | `User` |
+| Couples | `Heart` |
+| Families | `Users` |
+| Default | `ListOrdered` |
 
-The `getTableName` function correctly looks up the table name from the `tables` array using each guest's `table_id`. If only "Groom's Parents 1" guests appeared when you clicked Table, it is likely because only that named table currently has guests assigned to it. "Bridal Table" and "Bride's Parents 2" may exist as tables but have no guests assigned yet. The sort only displays guests that exist in the guest list -- it cannot show empty tables.
+### 3. Shrink dropdown width and center text
 
-After renaming, please re-test by assigning at least one guest to each named table, then clicking "Table No." to confirm all named-table guests appear at the top in alphabetical order.
+- Reduce the dropdown width from `w-56` to `w-40` (approximately 30% narrower)
+- Center-align all dropdown items using `justify-center`
 
-### Technical detail
+### Technical Details
 
 **File: `src/components/Dashboard/GuestListTable.tsx`**
 
-- Line ~111: Change `label: 'Table'` to `label: 'Table No.'`
+**a) Update type and options (lines 104-115)**
 
-Single-line change only.
+Add `'default'` to `SortOption` type. Add a 7th entry to `SORT_OPTIONS` with value `default` and label `Default`. Add an `icon` field to each option referencing a Lucide icon component.
+
+**b) Update sorting logic (lines 649-726)**
+
+For `default` sort: group guests normally (keep couples/families together) but sort by `created_at` ascending (or by original array order if `created_at` is the same). No flattening and no group-type reordering -- just chronological insertion order.
+
+**c) Update dropdown rendering (lines 1637-1646)**
+
+- Change `className="w-56"` to `className="w-40"` on `DropdownMenuContent`
+- Render the icon from each option to the left of the label
+- Center the content using flex and justify-center
+
+**d) Update default state (line 174)**
+
+Change initial `sortBy` from `'first_name'` to `'default'` so new users see the default order first.
+
