@@ -1,52 +1,43 @@
 
 
-## Fix: Collision Detection Uses Dragged Item's Rect Instead of Pointer Position
-
-### Problem
-
-When you drag the last guest (e.g., Jessica Masry at seat 7) to the very top of a table, the system picks the **wrong guest** as the drop target. This happens because `closestCenter()` in the collision detection measures distance from the **dragged item's rectangle center** -- not your actual pointer. Since the dragged item's rect stays near where Jessica was (at the bottom), `closestCenter` finds a guest 2-3 rows down from the top, not the first guest. The indicator shows there, and the drop lands there.
+## Fix: Guest Always Drops Second From Top (Stale Closure Bug)
 
 ### Root Cause
 
-In `collisionDetection` (line 168), `closestCenter(args)` uses `args.collisionRect` which is the bounding box of the dragged element. This box follows the drag but its center can lag behind or differ from where the pointer actually is, especially when the drag overlay is large or offset.
+The `overGuestPosition` state variable (which tracks whether the indicator is "above" or "below") is used inside `handleDragEnd` to decide where to insert the guest. However, `handleDragEnd` is wrapped in `useCallback` and `overGuestPosition` is **not listed in its dependency array**. This means the function captures a stale (old) value of `overGuestPosition` -- it never sees the latest "above" value, so it always defaults to "below" and inserts one position too low.
 
 ### Solution
 
-Override the `collisionRect` in the args passed to `closestCenter` with a tiny 1x1 rect centered exactly on the real-time pointer position. This way `closestCenter` will find the guest closest to where your mouse actually is, not where the dragged item's box happens to be.
+Store `overGuestPosition` in a **ref** (`overGuestPositionRef`) in addition to state. The ref always holds the current value and doesn't suffer from stale closures. `handleDragEnd` will read from the ref instead of the state variable.
 
 ### Changes (1 file)
 
 **`src/components/Dashboard/Tables/SortableTablesGrid.tsx`**
 
-In the `collisionDetection` callback (around line 168), replace:
+1. Add `overGuestPositionRef = useRef<'above' | 'below' | null>(null)` alongside the existing state
+2. Whenever `setOverGuestPosition(value)` is called, also set `overGuestPositionRef.current = value` (in `handleDragOver` and the reset in `handleDragEnd`)
+3. In `handleDragEnd`, replace all reads of `overGuestPosition` with `overGuestPositionRef.current` (lines 354 and 392)
 
+### Why This Works
+
+- A ref is not bound by closure rules -- reading `.current` always gives the latest value
+- No need to add `overGuestPosition` to the dependency array (which would cause unnecessary re-creation of the callback on every pointer move)
+- The state variable is still used for rendering the indicator in the UI; only the drop logic switches to the ref
+
+### Technical Detail
+
+```text
+Before (broken):
+  handleDragEnd reads overGuestPosition from closure
+  -> closure captured value from last useCallback creation
+  -> dependency array doesn't include overGuestPosition
+  -> value is stale (null or "below")
+  -> guest always inserts at overIndex + 1 (second position)
+
+After (fixed):
+  handleDragEnd reads overGuestPositionRef.current
+  -> ref always has the latest value set by handleDragOver
+  -> correctly reads "above" when pointer is in top half
+  -> guest inserts at overIndex (first position)
 ```
-const allClosest = closestCenter(args);
-```
-
-With logic that creates a pointer-based collision rect:
-
-```
-const pointerY = pointerPositionRef.current.y;
-const pointerX = pointerPositionRef.current.x;
-const pointerRect = {
-  ...args.collisionRect,
-  top: pointerY,
-  bottom: pointerY + 1,
-  left: pointerX,
-  right: pointerX + 1,
-  width: 1,
-  height: 1,
-};
-const allClosest = closestCenter({ ...args, collisionRect: pointerRect });
-```
-
-This ensures the collision detection always picks the guest nearest to the actual pointer, not the dragged item's bounding box. No other changes needed -- the existing `handleDragOver` and `handleDragEnd` logic already correctly handle above/below positioning and insertion.
-
-### Result
-
-- Dragging the last guest to the very top will correctly identify the first guest as the target
-- The purple indicator will show above the first guest
-- The guest will drop into position 1
-- Works for all tables, all positions, and all future implementations
 
