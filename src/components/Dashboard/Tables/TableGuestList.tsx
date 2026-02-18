@@ -31,7 +31,7 @@ export const TableGuestList: React.FC<TableGuestListProps> = ({
   });
 
   // Get drag state from context
-  const { activeGuestId, overGuestId } = useDragState();
+  const { activeGuestId, overGuestId, overGuestPosition } = useDragState();
 
   const showDropIndicator = isOver || isDroppableOver;
   const guestIds = guests.map(g => g.id);
@@ -52,8 +52,7 @@ export const TableGuestList: React.FC<TableGuestListProps> = ({
                 key={guest.id} 
                 guest={guest} 
                 isBeingDraggedOver={overGuestId === guest.id && activeGuestId !== guest.id}
-                isLastInList={index === guests.length - 1}
-                showIndicatorAfter={index === guests.length - 1 && overGuestId === guest.id && activeGuestId !== guest.id}
+                indicatorPosition={overGuestId === guest.id && activeGuestId !== guest.id ? overGuestPosition : null}
                 isSelected={selectedGuestIds.has(guest.id)}
                 onSelect={onSelectGuest}
                 showCheckbox={showCheckboxes}

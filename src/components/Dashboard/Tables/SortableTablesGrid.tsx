@@ -29,6 +29,7 @@ interface DragStateContextType {
   overGuestId: string | null;
   overTableId: string | null;
   isOverUnassigned: boolean;
+  overGuestPosition: 'above' | 'below' | null;
 }
 
 const DragStateContext = createContext<DragStateContextType>({
@@ -36,6 +37,7 @@ const DragStateContext = createContext<DragStateContextType>({
   overGuestId: null,
   overTableId: null,
   isOverUnassigned: false,
+  overGuestPosition: null,
 });
 
 export const useDragState = () => useContext(DragStateContext);
@@ -71,6 +73,7 @@ export const SortableTablesGrid: React.FC<SortableTablesGridProps> = ({
   const [overTableId, setOverTableId] = useState<string | null>(null);
   const [overGuestId, setOverGuestId] = useState<string | null>(null);
   const [isOverUnassigned, setIsOverUnassigned] = useState(false);
+  const [overGuestPosition, setOverGuestPosition] = useState<'above' | 'below' | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const processingRef = useRef(false);
   const lastOverGuestRef = useRef<string | null>(null);
@@ -184,7 +187,7 @@ export const SortableTablesGrid: React.FC<SortableTablesGridProps> = ({
   }, []);
 
   const handleDragOver = useCallback((event: DragOverEvent) => {
-    const { over } = event;
+    const { over, activatorEvent, delta } = event;
     
     // Clear any pending sticky timeout
     if (stickyTimeoutRef.current) {
@@ -196,6 +199,7 @@ export const SortableTablesGrid: React.FC<SortableTablesGridProps> = ({
       setOverTableId(null);
       setOverGuestId(null);
       setIsOverUnassigned(false);
+      setOverGuestPosition(null);
       lastOverGuestRef.current = null;
       return;
     }
@@ -207,6 +211,7 @@ export const SortableTablesGrid: React.FC<SortableTablesGridProps> = ({
       setOverTableId(null);
       setOverGuestId(null);
       setIsOverUnassigned(true);
+      setOverGuestPosition(null);
       lastOverGuestRef.current = null;
       return;
     }
@@ -216,13 +221,12 @@ export const SortableTablesGrid: React.FC<SortableTablesGridProps> = ({
     // Check if over a table droppable
     if (overData?.type === 'table') {
       setOverTableId(overData.tableId);
+      setOverGuestPosition(null);
       
-      // Add "stickiness" - don't immediately clear overGuestId if we just came from a guest
-      // This prevents jitter when near the boundary
       if (lastOverGuestRef.current !== null) {
-        // Give a brief delay before clearing, to stabilize the indicator
         stickyTimeoutRef.current = setTimeout(() => {
           setOverGuestId(null);
+          setOverGuestPosition(null);
           lastOverGuestRef.current = null;
         }, 80);
       } else {
@@ -234,9 +238,27 @@ export const SortableTablesGrid: React.FC<SortableTablesGridProps> = ({
       setOverTableId(overGuest.table_id);
       setOverGuestId(overGuest.id);
       lastOverGuestRef.current = overGuest.id;
+      
+      // Calculate pointer position relative to the hovered guest's vertical midpoint
+      const overRect = over.rect;
+      if (overRect && activatorEvent instanceof MouseEvent) {
+        const pointerY = (activatorEvent as MouseEvent).clientY + delta.y;
+        const midpoint = overRect.top + overRect.height / 2;
+        setOverGuestPosition(pointerY < midpoint ? 'above' : 'below');
+      } else if (overRect && activatorEvent instanceof TouchEvent) {
+        const touch = (activatorEvent as TouchEvent).touches[0];
+        if (touch) {
+          const pointerY = touch.clientY + delta.y;
+          const midpoint = overRect.top + overRect.height / 2;
+          setOverGuestPosition(pointerY < midpoint ? 'above' : 'below');
+        }
+      } else {
+        setOverGuestPosition('below');
+      }
     } else {
       setOverTableId(null);
       setOverGuestId(null);
+      setOverGuestPosition(null);
       lastOverGuestRef.current = null;
     }
   }, []);
@@ -249,6 +271,7 @@ export const SortableTablesGrid: React.FC<SortableTablesGridProps> = ({
     setOverTableId(null);
     setOverGuestId(null);
     setIsOverUnassigned(false);
+    setOverGuestPosition(null);
 
     if (!over || !active) return;
 
@@ -310,17 +333,15 @@ export const SortableTablesGrid: React.FC<SortableTablesGridProps> = ({
       // Find the index of the guest we're dropping on (in the filtered list)
       const overIndex = destTableGuests.findIndex(g => g.id === overGuest.id);
       
-      // If dropping on the LAST guest in the filtered list, place AFTER them
-      const isLastGuest = overIndex === destTableGuests.length - 1;
-      
-      if (isLastGuest) {
-        // Place after the last guest (at the end)
-        insertAtIndex = destTableGuests.length;
-      } else if (overIndex >= 0) {
-        // Place before the target guest
-        insertAtIndex = overIndex;
+      if (overIndex >= 0) {
+        // Use pointer position to determine above/below insertion
+        if (overGuestPosition === 'above') {
+          insertAtIndex = overIndex;
+        } else {
+          insertAtIndex = overIndex + 1;
+        }
       } else {
-        // Fallback: if overGuest not found (it's the dragged guest), place at end
+        // Fallback: if overGuest not found, place at end
         insertAtIndex = destTableGuests.length;
       }
     }
@@ -349,20 +370,20 @@ export const SortableTablesGrid: React.FC<SortableTablesGridProps> = ({
         if (overData?.type === 'guest') {
           const overGuest = overData.guest as Guest;
           const overIndex = tableGuests.findIndex(g => g.id === overGuest.id);
-          const isLastGuest = overIndex === tableGuests.length - 1;
           
-          if (isLastGuest) {
-            // Dropping on last guest - place at end (indicator shows AFTER)
-            targetIndex = tableGuests.length - 1;
+          // Use pointer position to determine target
+          let rawTarget: number;
+          if (overGuestPosition === 'above') {
+            rawTarget = overIndex;
           } else {
-            // Dropping on a non-last guest - indicator shows BEFORE them
-            // If dragging from BEFORE the target, subtract 1 because 
-            // arrayMove removes source first, shifting target down
-            if (oldIndex < overIndex) {
-              targetIndex = overIndex - 1;
-            } else {
-              targetIndex = overIndex;
-            }
+            rawTarget = overIndex + 1;
+          }
+          
+          // arrayMove removes source first, so adjust if dragging from before target
+          if (oldIndex < rawTarget) {
+            targetIndex = rawTarget - 1;
+          } else {
+            targetIndex = rawTarget;
           }
         } else {
           // Dropped on table container - place at end
@@ -400,6 +421,7 @@ export const SortableTablesGrid: React.FC<SortableTablesGridProps> = ({
     overGuestId,
     overTableId,
     isOverUnassigned,
+    overGuestPosition,
   };
 
   // Compute predicted seat for overlay
