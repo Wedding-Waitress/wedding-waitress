@@ -1,41 +1,41 @@
 
 
-## Fix: Family Groups With 2 Members Incorrectly Shown as Couples
+## Fix: Allow Dropping at Index 0 (Seat 1) in Table Guest Lists
 
 ### The Problem
 
-When you select "Family" in the group type dialog, the system correctly names the group (e.g., "Sallistonton Family"), but the guest list table ignores the name and decides couple vs family based solely on member count. Any group with exactly 2 members is displayed as a "Couple" with an orange header, regardless of the user's choice.
+When dragging a guest to the top of a table's guest list (above the first guest), the collision detection returns the **table container** instead of the first guest. Both the cross-table move and same-table reorder code paths treat a table-container drop as "insert at end," so the guest always ends up at the last position -- never at Seat 1.
 
 ### Root Cause
 
-Two places in `GuestListTable.tsx` determine group type by member count only:
+Two code paths in `SortableTablesGrid.tsx` assume table-container drops mean "append to end":
 
-1. **Line 728** (group rendering): `const type = members.length === 2 ? 'couple' : 'family'`
-2. **Lines 1340-1347** (stats badges): `if (members.length === 2) stats.couple++`
+1. **Cross-table move (line 338-343):** `insertAtIndex = destTableGuests.length` -- always end
+2. **Same-table reorder (line 416-418):** `targetIndex = tableGuests.length - 1` -- always end
 
 ### The Fix
 
-**File: `src/components/Dashboard/GuestListTable.tsx`**
+**File: `src/components/Dashboard/Tables/SortableTablesGrid.tsx`**
 
-Instead of using member count, infer the group type from the `family_group` name that was set during the user's selection:
+When a drop lands on a **table container** (not a specific guest), check the pointer's Y position against the first guest in that table:
 
-- Names ending with "Family" (e.g., "Sallistonton Family") are treated as **Family** groups (blue header)
-- Names containing "&" or ending with "Couple" (e.g., "Smith & Benjamin") are treated as **Couple** groups (orange header)
-- Fallback: if name doesn't match either pattern, use the current member-count logic
+- If the pointer is **above** the first guest's midpoint, insert at index 0 (Seat 1)
+- Otherwise, insert at the end (current behavior)
 
 This applies to both locations:
 
-1. **Line 728** -- Update the grouping logic to check the group name pattern first
-2. **Lines 1340-1347** -- Update the stats counting to use the same name-based logic
+**1. Cross-table move (lines 338-343):**
 
-A small helper function will be added to determine the type from the group name:
+After getting `destTableGuests`, sort them by seat number, find the first guest's DOM element, compare `pointerPositionRef.current.y` against its midpoint. If above, set `insertAtIndex = 0`; otherwise keep `insertAtIndex = destTableGuests.length`.
 
-```
-const inferGroupType = (groupName: string, memberCount: number) => {
-  if (groupName.endsWith(' Family')) return 'family';
-  if (groupName.includes(' & ') || groupName.endsWith(' Couple')) return 'couple';
-  return memberCount >= 3 ? 'family' : 'couple';
-};
-```
+**2. Same-table reorder (lines 416-418):**
 
-No other files need to change. The naming in `AddGuestModal.tsx` already correctly uses "Family" suffix for family groups and "&" for couples.
+Same logic: check if pointer is above the first guest in the sorted table list. If so, `targetIndex = 0` (adjusted for arrayMove); otherwise `targetIndex = tableGuests.length - 1`.
+
+### What Does Not Change
+
+- Collision detection algorithm stays the same
+- Guest-to-guest drop logic (above/below indicators) stays the same
+- Unassigned panel behavior stays the same
+- All other drag-and-drop functionality stays the same
+
