@@ -108,7 +108,7 @@ type SortOption =
 const SORT_OPTIONS = [
   { value: 'first_name', label: 'First Name' },
   { value: 'last_name', label: 'Last Name' },
-  { value: 'table_name', label: 'Table' },
+  { value: 'table_name', label: 'Table No.' },
   { value: 'individuals_first', label: 'Individuals' },
   { value: 'couples_first', label: 'Couples' },
   { value: 'families_first', label: 'Families' },
