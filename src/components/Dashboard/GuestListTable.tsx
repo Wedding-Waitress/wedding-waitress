@@ -635,6 +635,17 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
     const individuals: any[] = [];
 
     // First, sort all guests using the selected sortBy option
+    const smartTableCompare = (nameA: string, nameB: string) => {
+      const numA = nameA.match(/^(?:table\s+)?(\d+)$/i);
+      const numB = nameB.match(/^(?:table\s+)?(\d+)$/i);
+      const isNumA = !!numA;
+      const isNumB = !!numB;
+      if (isNumA && isNumB) return parseInt(numA![1]) - parseInt(numB![1]);
+      if (isNumA && !isNumB) return 1; // numbered after named
+      if (!isNumA && isNumB) return -1; // named before numbered
+      return nameA.localeCompare(nameB);
+    };
+
     const allSortedGuests = [...guests].sort((a, b) => {
       switch (sortBy) {
         case 'last_name':
@@ -642,7 +653,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
         case 'table_name': {
           const tA = getTableName(a) || 'zzz';
           const tB = getTableName(b) || 'zzz';
-          return tA.localeCompare(tB);
+          return smartTableCompare(tA, tB);
         }
         case 'first_name':
         case 'individuals_first':
@@ -662,49 +673,56 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
         )
       : allSortedGuests;
 
-    // Group by family_group
-    filtered.forEach(guest => {
-      if (guest.family_group && guest.family_group.trim()) {
-        if (!familyMap.has(guest.family_group)) {
-          familyMap.set(guest.family_group, []);
-        }
-        familyMap.get(guest.family_group)!.push(guest);
-      } else {
-        individuals.push(guest);
-      }
-    });
+    // For first_name, last_name, table_name: flatten all guests into individual rows
+    const shouldFlatten = sortBy === 'first_name' || sortBy === 'last_name' || sortBy === 'table_name';
 
-    const inferGroupType = (name: string, count: number): 'couple' | 'family' => {
-      if (name.endsWith(' Family')) return 'family';
-      if (name.includes(' & ') || name.endsWith(' Couple')) return 'couple';
-      return count >= 3 ? 'family' : 'couple';
-    };
-
-    // Add families and couples
-    familyMap.forEach((members, groupName) => {
-      const type = inferGroupType(groupName, members.length);
-      groups.push({ type, groupName, members });
-    });
-
-    // Add individuals
-    individuals.forEach(guest => {
-      groups.push({ 
-        type: 'individual', 
-        groupName: null, 
-        members: [guest] 
+    if (shouldFlatten) {
+      filtered.forEach(guest => {
+        groups.push({ type: 'individual', groupName: null, members: [guest] });
       });
-    });
+    } else {
+      // Group by family_group for individuals/couples/families sorts
+      filtered.forEach(guest => {
+        if (guest.family_group && guest.family_group.trim()) {
+          if (!familyMap.has(guest.family_group)) {
+            familyMap.set(guest.family_group, []);
+          }
+          familyMap.get(guest.family_group)!.push(guest);
+        } else {
+          individuals.push(guest);
+        }
+      });
 
-    // Apply group-type ordering for individuals/couples/families sort options
-    if (sortBy === 'individuals_first') {
-      const order = { individual: 0, couple: 1, family: 2 };
-      groups.sort((a, b) => (order[a.type] ?? 9) - (order[b.type] ?? 9));
-    } else if (sortBy === 'couples_first') {
-      const order = { couple: 0, individual: 1, family: 2 };
-      groups.sort((a, b) => (order[a.type] ?? 9) - (order[b.type] ?? 9));
-    } else if (sortBy === 'families_first') {
-      const order = { family: 0, couple: 1, individual: 2 };
-      groups.sort((a, b) => (order[a.type] ?? 9) - (order[b.type] ?? 9));
+      const inferGroupType = (name: string, count: number): 'couple' | 'family' => {
+        if (name.endsWith(' Family')) return 'family';
+        if (name.includes(' & ') || name.endsWith(' Couple')) return 'couple';
+        return count >= 3 ? 'family' : 'couple';
+      };
+
+      familyMap.forEach((members, groupName) => {
+        const type = inferGroupType(groupName, members.length);
+        groups.push({ type, groupName, members });
+      });
+
+      individuals.forEach(guest => {
+        groups.push({ type: 'individual', groupName: null, members: [guest] });
+      });
+
+      // Apply group-type ordering with secondary surname sort
+      const getOrderMap = () => {
+        if (sortBy === 'individuals_first') return { individual: 0, couple: 1, family: 2 };
+        if (sortBy === 'couples_first') return { couple: 0, family: 1, individual: 2 };
+        if (sortBy === 'families_first') return { family: 0, couple: 1, individual: 2 };
+        return { individual: 0, couple: 1, family: 2 };
+      };
+      const order = getOrderMap();
+      groups.sort((a, b) => {
+        const typeOrder = (order[a.type] ?? 9) - (order[b.type] ?? 9);
+        if (typeOrder !== 0) return typeOrder;
+        const surnameA = (a.members[0]?.last_name || '').toLowerCase();
+        const surnameB = (b.members[0]?.last_name || '').toLowerCase();
+        return surnameA.localeCompare(surnameB);
+      });
     }
 
     return groups;
@@ -754,6 +772,17 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
       return firstNameMatch || lastNameMatch;
     });
     
+    const smartTableCompareExport = (nameA: string, nameB: string) => {
+      const numA = nameA.match(/^(?:table\s+)?(\d+)$/i);
+      const numB = nameB.match(/^(?:table\s+)?(\d+)$/i);
+      const isNumA = !!numA;
+      const isNumB = !!numB;
+      if (isNumA && isNumB) return parseInt(numA![1]) - parseInt(numB![1]);
+      if (isNumA && !isNumB) return 1;
+      if (!isNumA && isNumB) return -1;
+      return nameA.localeCompare(nameB);
+    };
+
     const sorted = [...filtered].sort((a, b) => {
       switch (sortBy) {
         case 'last_name':
@@ -761,7 +790,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
         case 'table_name': {
           const tableA = getTableName(a) || 'zzz';
           const tableB = getTableName(b) || 'zzz';
-          return tableA.localeCompare(tableB);
+          return smartTableCompareExport(tableA, tableB);
         }
         case 'first_name':
         case 'individuals_first':
