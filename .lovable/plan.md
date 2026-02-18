@@ -1,43 +1,40 @@
 
+## Fix: Cannot Drag Guest to Top Position Within Same Table
 
-## Fix: Guest Always Drops Second From Top (Stale Closure Bug)
+### Problem
+
+When you drag a guest (e.g., Dylan at seat 2) upward to place above the first guest (Ken at seat 1), nothing happens -- Dylan stays at seat 2. This also affects dragging from lower positions to the very top of any table.
 
 ### Root Cause
 
-The `overGuestPosition` state variable (which tracks whether the indicator is "above" or "below") is used inside `handleDragEnd` to decide where to insert the guest. However, `handleDragEnd` is wrapped in `useCallback` and `overGuestPosition` is **not listed in its dependency array**. This means the function captures a stale (old) value of `overGuestPosition` -- it never sees the latest "above" value, so it always defaults to "below" and inserts one position too low.
+The collision detection does **not exclude the dragged guest** from its results. When you drag Dylan upward, `closestCenter` often returns **Dylan's own droppable element** (still in the DOM at his original position) as the "closest" target. In `handleDragEnd`, this means `over.id === active.id`, so the code computes `overIndex === oldIndex`, sees no change, and exits early -- the guest never moves.
 
 ### Solution
 
-Store `overGuestPosition` in a **ref** (`overGuestPositionRef`) in addition to state. The ref always holds the current value and doesn't suffer from stale closures. `handleDragEnd` will read from the ref instead of the state variable.
+Add one line to the collision detection filter (line 181) to exclude the active/dragged guest from the results. This ensures the system always finds the **nearest other guest** as the drop target.
 
 ### Changes (1 file)
 
 **`src/components/Dashboard/Tables/SortableTablesGrid.tsx`**
 
-1. Add `overGuestPositionRef = useRef<'above' | 'below' | null>(null)` alongside the existing state
-2. Whenever `setOverGuestPosition(value)` is called, also set `overGuestPositionRef.current = value` (in `handleDragOver` and the reset in `handleDragEnd`)
-3. In `handleDragEnd`, replace all reads of `overGuestPosition` with `overGuestPositionRef.current` (lines 354 and 392)
+In the `collisionDetection` callback, at line 181 where `guestsOnThisTable` is filtered, add a check to skip the active guest:
+
+```
+const guestsOnThisTable = allClosest.filter(c => {
+  if (c.id === args.active.id) return false;  // <-- NEW: exclude dragged guest
+  const dc = args.droppableContainers.find(d => d.id === c.id);
+  return (
+    dc?.data?.current?.type === 'guest' &&
+    dc?.data?.current?.guest?.table_id === tableId
+  );
+});
+```
 
 ### Why This Works
 
-- A ref is not bound by closure rules -- reading `.current` always gives the latest value
-- No need to add `overGuestPosition` to the dependency array (which would cause unnecessary re-creation of the callback on every pointer move)
-- The state variable is still used for rendering the indicator in the UI; only the drop logic switches to the ref
+- Currently: dragging Dylan above Ken → `closestCenter` returns Dylan himself → `over === active` → no reorder
+- After fix: dragging Dylan above Ken → Dylan filtered out → `closestCenter` returns Ken → position calculated as "above" → `arrayMove(1, 0)` → Dylan moves to seat 1
 
-### Technical Detail
+### No Other Changes Needed
 
-```text
-Before (broken):
-  handleDragEnd reads overGuestPosition from closure
-  -> closure captured value from last useCallback creation
-  -> dependency array doesn't include overGuestPosition
-  -> value is stale (null or "below")
-  -> guest always inserts at overIndex + 1 (second position)
-
-After (fixed):
-  handleDragEnd reads overGuestPositionRef.current
-  -> ref always has the latest value set by handleDragOver
-  -> correctly reads "above" when pointer is in top half
-  -> guest inserts at overIndex (first position)
-```
-
+The existing `handleDragOver` midpoint logic and `handleDragEnd` reorder logic are correct. The only issue is that the wrong guest (the dragged guest itself) is being selected as the collision target.
