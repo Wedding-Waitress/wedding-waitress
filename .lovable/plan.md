@@ -1,48 +1,27 @@
 
 
-## Fix: Seat 1 Drop Not Working — Broken DOM Element Lookup
+## Polish: Party Member Rows in Add Guest Modal
 
-### Why It Keeps Failing
+### Changes (all in one file)
 
-Every previous attempt modified the drop handler logic, but the real bug is one level earlier: the system **cannot find the guest element in the DOM**.
+**File: `src/components/Dashboard/AddGuestModal.tsx`**
 
-In `handleDragOver`, this line runs every time you hover over a guest:
+**1. Reduce row height and spacing**
 
-```ts
-const el = document.getElementById(String(over.id));
-```
+- Line 1364: Change `space-y-2` to `space-y-1` (less gap between rows)
+- Line 1366: The row already uses `py-1 px-2` which is compact. We'll keep `py-0.5` to make it slightly shorter while still readable.
 
-But the guest component (`SortableGuestItem.tsx`) never puts an `id` attribute on its outer `<div>`. So `el` is always `null`, and the code defaults the hover position to `'below'` instead of calculating it from the pointer.
+**2. Make member names purple**
 
-This means hovering above the first guest registers as "below the first guest," producing index 1 (Seat 2) instead of index 0 (Seat 1).
+- Line 1368: Change `text-sm` to `text-sm text-primary` so names display in the brand purple color.
 
-### The One-Line Fix
+### Summary of style changes
 
-**File: `src/components/Dashboard/Tables/SortableGuestItem.tsx` (line 72)**
+| Property | Before | After |
+|---|---|---|
+| Gap between rows | `space-y-2` (8px) | `space-y-1` (4px) |
+| Row vertical padding | `py-1` (4px each side) | `py-0.5` (2px each side) |
+| Name text color | default (black) | `text-primary` (brand purple) |
 
-Add `id={guest.id}` to the outer `<div>`:
-
-```tsx
-// Before
-<div ref={setNodeRef} style={style} className="relative group" ...>
-
-// After
-<div ref={setNodeRef} id={guest.id} style={style} className="relative group" ...>
-```
-
-That is the entire fix. No changes to `SortableTablesGrid.tsx` needed -- the drop handler logic already correctly handles index 0 when `savedPosition` is `'above'`.
-
-### Why This Works
-
-1. `document.getElementById(guest.id)` now finds the element
-2. `getBoundingClientRect()` returns real coordinates
-3. Pointer Y vs midpoint correctly determines `'above'` or `'below'`
-4. When above the first guest: `savedPosition = 'above'`, `overIndex = 0`, so `insertAtIndex = 0` (Seat 1)
-
-### What Does Not Change
-
-- No changes to collision detection
-- No changes to the drop handler
-- No changes to any other drag-and-drop behavior
-- All existing seat 2-through-N ordering continues to work
+No logic changes -- purely visual adjustments to the party member list inside the Add Guest modal.
 
