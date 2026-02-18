@@ -111,7 +111,8 @@ export const Dashboard = () => {
     guests,
     loading: guestsLoading,
     moveGuest,
-    reorderGuestsWithSeats
+    reorderGuestsWithSeats,
+    refetchGuests
   } = useRealtimeGuests(selectedEventId);
 
   // Undo stack for guest moves
@@ -606,6 +607,7 @@ export const Dashboard = () => {
     // Explicitly refetch events when navigating to the Tables page
     if (tabId === 'table-list') {
       refetchEvents();
+      refetchGuests();
     }
   };
 
