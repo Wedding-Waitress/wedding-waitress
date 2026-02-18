@@ -1518,7 +1518,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                           }}
                         >
                           <input type="radio" name="nameChoice" checked={useDefaultNames} readOnly className={useDefaultNames ? "accent-green-500" : "accent-primary"} />
-                          Leave Partner 1 and Partner 2 names as Bride and Groom
+                          Leave Partner 1 & Partner 2 Names as Bride/Groom
                         </label>
                         <label
                           className={cn(
@@ -1532,7 +1532,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                           }}
                         >
                           <input type="radio" name="nameChoice" checked={!useDefaultNames} readOnly className={!useDefaultNames ? "accent-green-500" : "accent-primary"} />
-                          Add new names for Partner 1 and Partner 2
+                          Add New Names for Partner 1 & Partner 2
                         </label>
                       </div>
 
