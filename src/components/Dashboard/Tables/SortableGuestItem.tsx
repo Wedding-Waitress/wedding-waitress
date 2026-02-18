@@ -71,6 +71,7 @@ export const SortableGuestItem: React.FC<SortableGuestItemProps> = ({
   return (
     <div 
       ref={setNodeRef} 
+      id={guest.id}
       style={style} 
       className="relative group"
       role="listitem"
