@@ -1,44 +1,34 @@
 
+## Red Error Highlight on Seat Number When Unavailable
 
-## Compact Add Guest Modal Fields (Re-implementation)
+### What this does
 
-### What changes
-
-All form field heights in the Add Guest modal will be reduced to match the Import/Export CSV button height (h-9, 36px), and vertical spacing between sections will be tightened to bring fields closer together.
+When a seat conflict occurs (the "Seat Unavailable" toast), the Seat Number field will also turn red -- both the label text and the field border -- matching the existing behavior of the Relation field. The red styling clears as soon as the user selects a new seat.
 
 ### Changes (single file: `src/components/Dashboard/AddGuestModal.tsx`)
 
-**1. Reduce all input/select field heights**
+**1. Set form error on seat conflict (2 locations)**
 
-Every `Input` and `SelectTrigger` in the modal currently uses `h-11 sm:h-10`. These will all change to `h-9`. Affected fields:
-- First Name, Last Name (lines 1014, 1032)
-- Mobile, Email (lines 1053, 1071)
-- Table SelectTrigger (line 1097)
-- Seat Number SelectTrigger (line 1129)
-- RSVP Status SelectTrigger (line 1222)
-- Dietary Requirements SelectTrigger (line 1248)
+At both conflict handlers (lines ~670-677 for edit, ~739-746 for create), after showing the toast, also call:
+```
+form.setError('seat_no', { type: 'manual', message: 'Seat unavailable. Please choose another.' });
+```
 
-**2. Reduce the guest type selector height**
+**2. Add red border styling to the SelectTrigger when there's an error**
 
-The Individual/Couple/Family tab buttons currently use `py-2 px-6` (lines 962, 979, 991). These will change to `py-1.5 px-6` for a slightly shorter pill.
+The Seat Number `SelectTrigger` (line 1129) currently always uses `border-primary` (purple). We'll make it conditional: if there's a `seat_no` error on the form, use `border-destructive` (red) instead.
 
-**3. Tighten vertical spacing**
+The `FormLabel` already turns red automatically via the existing `FormMessage` / `FormLabel` components from shadcn (they read the form error state), and the `FormMessage` below the field will display the error text.
 
-| Location | Line | Before | After |
-|---|---|---|---|
-| Outer scroll container | 947 | `space-y-4 sm:space-y-6` | `space-y-3 sm:space-y-4` |
-| Form element | 949 | `space-y-6` | `space-y-3` |
-| Guest type container | 953 | `pt-2 pb-4` | `pt-1 pb-2` |
-| Grid gaps (4 locations) | 1004, 1043, 1082, 1210 | `gap-4` | `gap-3` |
+**3. Clear the error when user selects a new seat**
+
+In the `onValueChange` handler (line 1124), after setting the value, also call `form.clearErrors('seat_no')` so the red clears immediately upon selection.
 
 ### Summary
 
-| Property | Before | After |
+| What | Before | After |
 |---|---|---|
-| Field height | `h-11 sm:h-10` (40-44px) | `h-9` (36px) |
-| Tab button padding | `py-2` | `py-1.5` |
-| Form section gap | 24px (`space-y-6`) | 12px (`space-y-3`) |
-| Grid gap | 16px (`gap-4`) | 12px (`gap-3`) |
-
-No logic, validation, or security changes -- purely visual compaction.
-
+| Seat conflict toast | Shows red toast only | Shows red toast AND marks field red |
+| Seat Number label | Always default color | Turns red on conflict (via FormLabel) |
+| Seat Number border | Always purple | Turns red on conflict, back to purple on new selection |
+| Error message below field | None | "Seat unavailable. Please choose another." |
