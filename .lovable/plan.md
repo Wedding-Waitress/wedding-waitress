@@ -1,28 +1,45 @@
 
 
-## Fix QR Code and Open Live View Links
+## Fix "Bride & Groom" Display and Domain URL
 
-### The Problem
+### Issue 1: "Bride & Groom" Text
 
-The QR code and "Open Live View" button both generate URLs using `weddingwaitress.com` -- but that domain does not exist (DNS error). Your app is actually published at `wedding-waitress.lovable.app`.
+The guest lookup page (line 490-493 of `GuestLookup.tsx`) currently prioritises showing `partner1_name & partner2_name` over the event name. Your event has the default placeholder values "Bride" and "Groom" in those fields, so it displays "Bride & Groom" instead of "Jason & Linda's Wedding".
 
-### The Fix
+**Fix:** Update the logic so it only uses partner names when they are meaningful (not the default "Bride"/"Groom" placeholders). Otherwise, fall back to the event name.
 
-**File: `.env`** -- Update one line:
+**File: `src/pages/GuestLookup.tsx` (lines 490-493)**
 
-Change `VITE_PUBLIC_BASE_URL` from `https://weddingwaitress.com` to `https://wedding-waitress.lovable.app`
+Change from:
+```tsx
+{event.partner1_name && event.partner2_name 
+  ? `${event.partner1_name} & ${event.partner2_name}`
+  : event.name
+}
+```
 
-This single change fixes:
-- QR codes will scan and open correctly
-- "Open Live View" button will work
-- "Copy Link" will copy the correct URL
-- All guest lookup links across the app
+To:
+```tsx
+{event.partner1_name && event.partner2_name 
+  && event.partner1_name !== 'Bride' && event.partner2_name !== 'Groom'
+  ? `${event.partner1_name} & ${event.partner2_name}`
+  : event.name
+}
+```
 
-### Why This Happened
+This way, if the partner names are still the defaults, it shows the event name instead.
 
-The `.env` file was configured with a custom domain (`weddingwaitress.com`) that hasn't been set up with DNS. Until that custom domain is configured and pointing to your app, the published Lovable URL must be used instead.
+**Alternative (simpler):** You could also just update the event itself via the Edit Event modal and change "Bride" to "Jason" and "Groom" to "Linda". That would fix it without any code change. However, the code fix above protects all users from this issue.
 
-### After the Fix
+### Issue 2: Domain URL (weddingwaitress.com)
 
-Once you purchase and configure the `weddingwaitress.com` domain to point to your Lovable app, you can change it back. But for now, using the working Lovable URL will make everything function correctly.
+This is **not a code change** -- it requires connecting your custom domain to the Lovable project:
+
+1. Go to **Project Settings** (click project name, top-left) then **Domains**
+2. Add `weddingwaitress.com` as a custom domain
+3. Update your domain's DNS records as instructed (typically a CNAME pointing to Lovable)
+4. Once DNS propagates, the URL bar will show `weddingwaitress.com/s/jason-lindas-wedidng`
+5. After the domain is live, we change `VITE_PUBLIC_BASE_URL` back to `https://weddingwaitress.com`
+
+A paid Lovable plan is required for custom domains. Until the domain is configured, the URL will continue to show `wedding-waitress.lovable.app`.
 
