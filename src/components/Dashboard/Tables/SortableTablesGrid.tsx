@@ -291,6 +291,7 @@ export const SortableTablesGrid: React.FC<SortableTablesGridProps> = ({
 
   const handleDragEnd = useCallback(async (event: DragEndEvent) => {
     const { active, over } = event;
+    const savedPosition = overGuestPositionRef.current;
     
     setActiveGuest(null);
     setActiveTableId(null);
@@ -362,7 +363,7 @@ export const SortableTablesGrid: React.FC<SortableTablesGridProps> = ({
       
       if (overIndex >= 0) {
         // Use pointer position to determine above/below insertion
-        if (overGuestPositionRef.current === 'above') {
+        if (savedPosition === 'above') {
           insertAtIndex = overIndex;
         } else {
           insertAtIndex = overIndex + 1;
@@ -400,7 +401,7 @@ export const SortableTablesGrid: React.FC<SortableTablesGridProps> = ({
           
           // Use pointer position to determine target
           let rawTarget: number;
-          if (overGuestPositionRef.current === 'above') {
+          if (savedPosition === 'above') {
             rawTarget = overIndex;
           } else {
             rawTarget = overIndex + 1;
