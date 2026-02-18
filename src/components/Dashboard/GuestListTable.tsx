@@ -1405,9 +1405,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="border-2 border-[#7248E6] rounded-lg p-4 flex-1">
                   <div className="flex items-center gap-2 mb-3">
-                    {totalGuestCount === 0 && (
-                      <span className="bg-green-500 text-white font-normal text-xs w-8 h-8 rounded-full inline-flex items-center justify-center shrink-0">1st</span>
-                    )}
+                    <span className="bg-green-500 text-white font-bold text-sm w-8 h-8 rounded-full inline-flex items-center justify-center shrink-0">1</span>
                     <Label htmlFor="event-select" className="whitespace-nowrap text-sm font-semibold text-primary">
                       Choose Event:
                     </Label>
@@ -1433,9 +1431,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                 {selectedEventId && (
                   <div className="border-2 border-[#7248E6] rounded-lg p-4 flex-1">
                     <div className="flex items-center gap-3 mb-3">
-                      {totalGuestCount === 0 && (
-                        <span className="bg-green-500 text-white font-normal text-xs w-8 h-8 rounded-full inline-flex items-center justify-center shrink-0">2nd</span>
-                      )}
+                      <span className="bg-green-500 text-white font-bold text-sm w-8 h-8 rounded-full inline-flex items-center justify-center shrink-0">2</span>
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className="text-sm font-semibold text-primary">Type of Event:</span>
                         <span className="text-xs text-muted-foreground">(Two people or single person event)</span>
@@ -1479,9 +1475,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                 {selectedEventId && (
                   <div className="border-2 border-[#7248E6] rounded-lg p-4 flex-1">
                     <div className="flex items-center gap-3 mb-2">
-                      {totalGuestCount === 0 && (
-                        <span className="bg-green-500 text-white font-normal text-xs w-8 h-8 rounded-full inline-flex items-center justify-center shrink-0">3rd</span>
-                      )}
+                      <span className="bg-green-500 text-white font-bold text-sm w-8 h-8 rounded-full inline-flex items-center justify-center shrink-0">3</span>
                       <span className="text-sm font-semibold text-primary">Add what relationship each guest is to you. This will help your staff know who is who at your venue.</span>
                     </div>
                     <div className="flex items-center justify-center gap-3 mb-3">
@@ -1743,6 +1737,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                   Add Guest
                 </Button>
               )}
+              <span className="bg-green-500 text-white font-bold text-sm w-8 h-8 rounded-full inline-flex items-center justify-center shrink-0">4</span>
             </div>
           </div>
         </div>
