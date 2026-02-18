@@ -22,7 +22,7 @@ export const UnassignedGuestsPanel: React.FC<UnassignedGuestsPanelProps> = ({ gu
     }
   });
 
-  const { activeGuestId, overGuestId } = useDragState();
+  const { activeGuestId, overGuestId, overGuestPosition } = useDragState();
   const guestIds = unassignedGuests.map(g => g.id);
   const isDragging = activeGuestId !== null;
 
@@ -63,8 +63,7 @@ export const UnassignedGuestsPanel: React.FC<UnassignedGuestsPanelProps> = ({ gu
                     key={guest.id} 
                     guest={guest}
                     isBeingDraggedOver={overGuestId === guest.id && activeGuestId !== guest.id}
-                    isLastInList={index === sortedGuests.length - 1}
-                    showIndicatorAfter={index === sortedGuests.length - 1 && overGuestId === guest.id && activeGuestId !== guest.id}
+                    indicatorPosition={overGuestId === guest.id && activeGuestId !== guest.id ? overGuestPosition : null}
                   />
                 ))
               ) : (
