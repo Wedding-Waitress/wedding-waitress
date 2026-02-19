@@ -1,27 +1,29 @@
 
 
-# Fix Enter Key in Event Column
+# Match DJ-MC Questionnaire Row Styling to Running Sheet
 
-## The Problem
+## Summary
 
-The Event column uses a round-trip conversion: textarea text goes through `parseEventText()` (which structures it into a rich object), then back through `buildEventDisplay()` (which reconstructs display text). On line 46, `parseEventText` calls `.trim()` which strips trailing newlines -- so when you press Enter, the new line is immediately removed on re-render.
+Three visual changes to the DJ-MC Questionnaire rows to match the Running Sheet's look and feel:
 
-Time and Who columns store their values as plain strings with no parsing, so Enter works fine for them.
+1. **Always-visible drag handles** -- The six-dot grip icon will always be shown, not just on hover.
+2. **Purple hover background** -- Hovering over a row will show the same dark purple background (`bg-purple-200`) as the Running Sheet.
+3. **Gray background on fields** -- All value/text display areas will have a subtle gray background (matching the Running Sheet's input styling) for better visibility.
 
-## The Fix
+## Technical Details
 
-**File:** `src/components/Dashboard/RunningSheet/RunningSheetRow.tsx`
+### File: `src/components/Dashboard/DJMCQuestionnaire/DJMCSectionRow.tsx`
 
-**Line 46** -- remove `.trim()` from the mainLines join:
+**1. Drag handle always visible**
+- Line 156 (do_not_play layout): Remove `opacity-0 group-hover:opacity-100 transition-opacity` from the drag handle wrapper.
+- Line 241 (standard layout): Same removal.
 
-Change:
-```
-const result: any = { text: mainLines.join('\n').trim() };
-```
-To:
-```
-const result: any = { text: mainLines.join('\n') };
-```
+**2. Purple hover on rows**
+- Line 150 (do_not_play layout): Change `hover:bg-muted/50` to `hover:bg-purple-200`.
+- Line 235 (standard layout): Change `hover:bg-muted/50` to `hover:bg-purple-200`.
 
-This single change preserves the newlines the user types, allowing Enter to create new lines in the Event column just like Time and Who.
+**3. Gray background on display fields**
+- Update all non-editing display `<div>` elements (the "click to add" text areas) to use `bg-muted` (gray) background instead of transparent, matching the Running Sheet's `bg-background border border-input` textarea styling. This affects approximately 10-12 display divs across the various section type layouts (speeches, introductions, ceremony, traditional, cocktail, etc.).
+
+No other files need to change.
 
