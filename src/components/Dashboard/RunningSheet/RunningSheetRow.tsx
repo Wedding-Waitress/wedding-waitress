@@ -1,7 +1,7 @@
 import React, { useCallback, useRef, useEffect } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { GripVertical, Copy, Trash } from 'lucide-react';
+import { GripVertical, Copy, Trash, Eraser } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { RunningSheetItem } from '@/types/runningSheet';
 
@@ -10,6 +10,7 @@ interface RunningSheetRowProps {
   onUpdate: (itemId: string, updates: Partial<RunningSheetItem>) => void;
   onDuplicate: (item: RunningSheetItem) => void;
   onDelete: (itemId: string) => void;
+  onClearText?: (itemId: string) => void;
   disabled?: boolean;
 }
 
@@ -59,7 +60,7 @@ function useAutoResize(ref: React.RefObject<HTMLTextAreaElement>, value: string)
   }, [ref, value]);
 }
 
-export function RunningSheetRow({ item, onUpdate, onDuplicate, onDelete, disabled = false }: RunningSheetRowProps) {
+export function RunningSheetRow({ item, onUpdate, onDuplicate, onDelete, onClearText, disabled = false }: RunningSheetRowProps) {
   const {
     attributes,
     listeners,
@@ -154,6 +155,9 @@ export function RunningSheetRow({ item, onUpdate, onDuplicate, onDelete, disable
         <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity shrink-0 mt-1">
           <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => onDuplicate(item)} title="Duplicate">
             <Copy className="h-3.5 w-3.5" />
+          </Button>
+          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => onClearText?.(item.id)} title="Clear Text">
+            <Eraser className="h-3.5 w-3.5" />
           </Button>
           <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => onDelete(item.id)} title="Delete">
             <Trash className="h-3.5 w-3.5" />
