@@ -128,7 +128,7 @@ export const RelationAssignmentDialog: React.FC<RelationAssignmentDialogProps> =
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => { if (!open) resetAndClose(); }}>
-      <DialogContent className="sm:max-w-md rounded-2xl border-2 border-primary/30">
+      <DialogContent className="sm:max-w-md rounded-2xl border-2 border-primary/30 top-[8%] translate-y-0">
         <DialogHeader className="space-y-3">
           <div className="flex items-center justify-between">
             <DialogTitle className="text-lg font-semibold text-primary flex items-center gap-2">
