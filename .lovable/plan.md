@@ -1,12 +1,16 @@
 
-
-# Change Running Sheet Row Hover to Purple
+# Change Running Sheet Row Hover to Dark Purple
 
 ## What Changes
 
-One tiny CSS change in `src/components/Dashboard/RunningSheet/RunningSheetRow.tsx`, line 105.
+One CSS change in `src/components/Dashboard/RunningSheet/RunningSheetRow.tsx`, line 105.
 
-Replace `hover:bg-muted/30` with `hover:bg-purple-100` to give rows a Wedding Waitress purple highlight on hover -- consistent with the guest list table hover styling already used elsewhere in the app.
+Replace `hover:bg-purple-100` with `hover:bg-purple-200` -- this gives a noticeably darker purple hover that better matches the Wedding Waitress brand purple from the logo, while still keeping the row text readable.
 
-No other files are changed.
+If that's still too light, we can go darker to `hover:bg-purple-300` or even use a custom color like `hover:bg-[#7c3aed]/20` to match the exact logo purple.
 
+## Technical Detail
+
+- **File:** `src/components/Dashboard/RunningSheet/RunningSheetRow.tsx`
+- **Line 105:** Change `hover:bg-purple-100` to `hover:bg-purple-200`
+- No other files changed
