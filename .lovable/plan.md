@@ -1,18 +1,27 @@
 
-# Enable Multi-line Entry (Enter Key) in All Three Running Sheet Columns
 
-## What's Happening Now
-- **EVENT** and **WHO** columns already use `<textarea>`, so Enter should already work there and auto-resize handles growing.
-- **TIME** column uses a single-line `<input>`, which does not allow Enter/new lines.
+# Fix Enter Key in Event Column
 
-## Changes
+## The Problem
 
-### File: `src/components/Dashboard/RunningSheet/RunningSheetRow.tsx`
+The Event column uses a round-trip conversion: textarea text goes through `parseEventText()` (which structures it into a rich object), then back through `buildEventDisplay()` (which reconstructs display text). On line 46, `parseEventText` calls `.trim()` which strips trailing newlines -- so when you press Enter, the new line is immediately removed on re-render.
 
-1. **Convert TIME from `<input>` to `<textarea>`** (lines 118-124) -- replace the `<input>` with a `<textarea>` matching the same styling, with `rows={1}` and auto-resize, so pressing Enter creates a new line within the same cell.
+Time and Who columns store their values as plain strings with no parsing, so Enter works fine for them.
 
-2. **Add a ref and auto-resize for TIME** -- add a `timeRef` (like `eventRef` and `whoRef`) and hook it into the existing `useAutoResize` helper so the TIME cell grows when the user adds lines.
+## The Fix
 
-3. **Update the TIME change handler** -- change `handleTimeChange` from `ChangeEvent<HTMLInputElement>` to `ChangeEvent<HTMLTextAreaElement>` to match the new element type.
+**File:** `src/components/Dashboard/RunningSheet/RunningSheetRow.tsx`
 
-No other files are changed. All three columns will support pressing Enter to add new lines within the same row.
+**Line 46** -- remove `.trim()` from the mainLines join:
+
+Change:
+```
+const result: any = { text: mainLines.join('\n').trim() };
+```
+To:
+```
+const result: any = { text: mainLines.join('\n') };
+```
+
+This single change preserves the newlines the user types, allowing Enter to create new lines in the Event column just like Time and Who.
+
