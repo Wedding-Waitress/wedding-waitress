@@ -28,7 +28,7 @@ export const GuestBulkActionsBar = ({
 
   return (
     <div 
-      className="fixed bottom-16 left-1/2 transform -translate-x-1/2 z-50 
+      className="fixed bottom-28 left-1/2 transform -translate-x-1/2 z-50 
                  bg-gradient-to-r from-purple-500 to-purple-600 
                  text-white rounded-lg shadow-2xl px-4 py-3 
                  flex items-center gap-2 animate-in slide-in-from-bottom-5 
