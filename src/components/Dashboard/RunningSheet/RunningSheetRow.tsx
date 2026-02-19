@@ -1,3 +1,14 @@
+/**
+ * PRODUCTION-READY -- LOCKED FOR PRODUCTION
+ *
+ * This Running Sheet feature is COMPLETE and APPROVED for production use.
+ *
+ * CRITICAL RULES:
+ * - DO NOT modify without explicit owner approval
+ * - Changes could break running sheet data, sharing, or PDF export
+ *
+ * Last locked: 2026-02-19
+ */
 import React, { useCallback, useRef, useEffect, useState } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
