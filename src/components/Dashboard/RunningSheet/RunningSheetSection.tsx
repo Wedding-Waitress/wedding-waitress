@@ -39,7 +39,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { ChevronDown, ChevronRight, Plus, MoreVertical, RotateCcw, MessageSquare, Trash, Download } from 'lucide-react';
+import { ChevronDown, ChevronRight, Plus, MoreVertical, RotateCcw, MessageSquare, Trash, Download, Eraser } from 'lucide-react';
 import { RunningSheetItem } from '@/types/runningSheet';
 import { RunningSheetRow } from './RunningSheetRow';
 
@@ -79,6 +79,7 @@ export function RunningSheetSection({
   const [localLabel, setLocalLabel] = useState(label);
   const [showNotes, setShowNotes] = useState(!!notes);
   const [showResetDialog, setShowResetDialog] = useState(false);
+  const [showClearDialog, setShowClearDialog] = useState(false);
   const labelInputRef = useRef<HTMLInputElement>(null);
 
   const sensors = useSensors(
@@ -160,6 +161,10 @@ export function RunningSheetSection({
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => setShowClearDialog(true)}>
+                      <Eraser className="h-4 w-4 mr-2" />
+                      Clear All Fields
+                    </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => setShowResetDialog(true)}>
                       <RotateCcw className="h-4 w-4 mr-2" />
                       Reset to Default
@@ -211,6 +216,7 @@ export function RunningSheetSection({
                       onUpdate={onUpdateItem}
                       onDuplicate={onDuplicateItem}
                       onDelete={onDeleteItem}
+                      onClearText={(itemId) => onUpdateItem(itemId, { time_text: '', description_rich: { text: '' }, responsible: '' })}
                       disabled={disabled}
                     />
                   ))}
@@ -230,6 +236,27 @@ export function RunningSheetSection({
           </CollapsibleContent>
         </Collapsible>
       </Card>
+
+      {/* Clear All Fields Dialog */}
+      <AlertDialog open={showClearDialog} onOpenChange={setShowClearDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Clear All Fields?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will erase the text in every row but keep the rows. This cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={() => {
+              items.forEach(item => onUpdateItem(item.id, { time_text: '', description_rich: { text: '' }, responsible: '' }));
+              setShowClearDialog(false);
+            }}>
+              Clear All
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Reset Dialog */}
       <AlertDialog open={showResetDialog} onOpenChange={setShowResetDialog}>
