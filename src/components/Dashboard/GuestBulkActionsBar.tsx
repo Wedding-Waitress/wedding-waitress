@@ -1,13 +1,11 @@
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import { MapPin, CheckCircle2, Trash2, X, Mail, Phone } from "lucide-react";
+import { CheckCircle2, Trash2, X, Mail, Phone } from "lucide-react";
 
 interface GuestBulkActionsBarProps {
   selectedCount: number;
   totalCount: number;
   onSelectAll: () => void;
   onDeselectAll: () => void;
-  onAssignTable: () => void;
   onUpdateRsvp: () => void;
   onDelete: () => void;
   onCancel: () => void;
@@ -20,7 +18,6 @@ export const GuestBulkActionsBar = ({
   totalCount,
   onSelectAll,
   onDeselectAll,
-  onAssignTable,
   onUpdateRsvp,
   onDelete,
   onCancel,
@@ -31,50 +28,33 @@ export const GuestBulkActionsBar = ({
 
   return (
     <div 
-      className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50 
+      className="fixed bottom-16 left-1/2 transform -translate-x-1/2 z-50 
                  bg-gradient-to-r from-purple-500 to-purple-600 
-                 text-white rounded-lg shadow-2xl px-6 py-4 
-                 flex items-center gap-4 animate-in slide-in-from-bottom-5 
-                 max-w-[90vw] flex-wrap"
+                 text-white rounded-lg shadow-2xl px-4 py-3 
+                 flex items-center gap-2 animate-in slide-in-from-bottom-5 
+                 max-w-[90vw]"
     >
-      {/* Selection info */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1">
         <span className="font-semibold text-lg">{selectedCount}</span>
-        <span className="text-white/90">selected</span>
+        <span className="text-white/90 text-sm">selected</span>
       </div>
 
-      <Separator orientation="vertical" className="h-8 bg-white/20" />
-
-      {/* Select All / Deselect All */}
       <Button 
         variant="ghost" 
         size="sm"
         onClick={allSelected ? onDeselectAll : onSelectAll}
-        className="text-white hover:bg-white/20"
+        className="text-white hover:bg-white/20 text-sm"
       >
         {allSelected ? 'Deselect All' : 'Select All'}
       </Button>
 
-      <Separator orientation="vertical" className="h-8 bg-white/20" />
-
-      {/* Bulk Actions */}
-      <Button 
-        variant="ghost" 
-        size="sm" 
-        onClick={onAssignTable}
-        className="text-white hover:bg-white/20"
-      >
-        <MapPin className="w-4 h-4 mr-2" />
-        Assign Table
-      </Button>
-      
       <Button 
         variant="ghost" 
         size="sm" 
         onClick={onUpdateRsvp}
-        className="text-white hover:bg-white/20"
+        className="text-white hover:bg-white/20 text-sm"
       >
-        <CheckCircle2 className="w-4 h-4 mr-2" />
+        <CheckCircle2 className="w-4 h-4 mr-1" />
         Update RSVP
       </Button>
       
@@ -82,23 +62,20 @@ export const GuestBulkActionsBar = ({
         variant="ghost" 
         size="sm" 
         onClick={onDelete}
-        className="text-white hover:bg-white/20 hover:bg-red-500/20"
+        className="text-white hover:bg-white/20 hover:bg-red-500/20 text-sm"
       >
-        <Trash2 className="w-4 h-4 mr-2" />
+        <Trash2 className="w-4 h-4 mr-1" />
         Delete
       </Button>
 
-      <Separator orientation="vertical" className="h-8 bg-white/20" />
-
-      {/* Send Email/SMS Actions */}
       {onSendEmail && (
         <Button 
           variant="ghost" 
           size="sm" 
           onClick={onSendEmail}
-          className="text-white hover:bg-blue-500/30"
+          className="text-white hover:bg-blue-500/30 text-sm"
         >
-          <Mail className="w-4 h-4 mr-2" />
+          <Mail className="w-4 h-4 mr-1" />
           Send Email
         </Button>
       )}
@@ -108,23 +85,20 @@ export const GuestBulkActionsBar = ({
           variant="ghost" 
           size="sm" 
           onClick={onSendSms}
-          className="text-white hover:bg-green-500/30"
+          className="text-white hover:bg-green-500/30 text-sm"
         >
-          <Phone className="w-4 h-4 mr-2" />
+          <Phone className="w-4 h-4 mr-1" />
           Send SMS
         </Button>
       )}
 
-      <Separator orientation="vertical" className="h-8 bg-white/20" />
-
-      {/* Cancel */}
       <Button 
         variant="ghost" 
         size="sm" 
         onClick={onCancel}
-        className="text-white hover:bg-white/20"
+        className="text-white hover:bg-white/20 text-sm"
       >
-        <X className="w-4 h-4 mr-2" />
+        <X className="w-4 h-4 mr-1" />
         Cancel
       </Button>
     </div>
