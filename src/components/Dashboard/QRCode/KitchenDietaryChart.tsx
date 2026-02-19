@@ -1,6 +1,17 @@
 /**
- * ⚠️ PRODUCTION-READY - DO NOT MODIFY WITHOUT APPROVAL
- * Last verified working: 2025-10-04
+ * PRODUCTION-READY -- LOCKED FOR PRODUCTION
+ *
+ * The QR Code Seating Chart feature is COMPLETE and APPROVED for production use.
+ *
+ * CRITICAL RULES:
+ * - DO NOT modify without explicit owner approval
+ * - Changes could break QR code generation and customisation
+ * - Changes could break the guest lookup link system
+ * - Changes could break real-time event syncing
+ *
+ * Last locked: 2026-02-19
+ *
+ * ⚠️ Previously locked: 2025-10-04
  * Contains: Kitchen dietary requirements chart with PDF export and print functionality
  * Status: Fully tested and production-ready
  * Features: Dietary requirements display, PDF export with custom spacing, print view, Wedding Waitress branding
