@@ -102,7 +102,7 @@ export function RunningSheetRow({ item, onUpdate, onDuplicate, onDelete, disable
     <div
       ref={setNodeRef}
       style={style}
-      className="flex items-start gap-2 px-2 py-1.5 group hover:bg-purple-100 rounded transition-colors"
+      className="flex items-start gap-2 px-2 py-1.5 group hover:bg-purple-200 rounded transition-colors"
     >
       {/* Drag handle */}
       <button
