@@ -390,10 +390,6 @@ export const Dashboard = () => {
             <CardDescription className="mb-6">
               Welcome to your wedding planning dashboard. Get an overview of your event progress.
             </CardDescription>
-            <Button variant="default" size="xs" className="rounded-full flex items-center gap-2">
-              <Plus className="w-4 h-4" />
-              View Analytics
-            </Button>
           </Card>;
       case 'my-events':
         return <MyEventsPage />;
