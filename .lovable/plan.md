@@ -1,34 +1,35 @@
 
 
-# Rearrange Guest Lookup Search Card Header
+# Auto-Switch Guest Lookup Header Text on Event Day
 
-Based on the screenshot and your instructions, here are the three changes to `src/pages/GuestLookup.tsx`:
+On the day of the wedding, the search card header will automatically change so guests are not confused by "Update & Confirm Your Details" messaging. No manual toggle needed -- it syncs with the event date.
 
-## 1. Rewrite the card header text
+## What Changes
 
-**Current (lines 602-610):**
-- Line 1 (bold title): "Update & Confirm Your Details"
-- Line 2 (subtitle): "Type your full name & update your info"
-- Line 3 (hint): "Type at least 2 letters of your name to search"
+**Before event day (as it is now):**
+- Line 1: "Type Your Full Name Here"
+- Line 2: "Update & Confirm Your Details"
 
-**New layout:**
-- Line 1 (bold title): "Type Your Full Name Here"
-- Line 2 (bold title, same size): "Update & Confirm Your Details"
-- Remove the subtitle and the "2 letters" hint entirely from the header
+**On the event day (automatic):**
+- Line 1: "Type Your Full Name"
+- Line 2: "To Find Your Table & Seat"
 
-## 2. Move "Last updated" line down
+Same black color, same font, same size -- only the wording changes.
 
-Move the "Last updated / Refresh" block (lines 664-675) from its current position to directly above the "Having trouble finding your name?" footer (line 678).
+## How It Works
 
-## 3. No other changes
+The page already has the event date available (`event.date`). A simple date comparison checks if today matches the event date. If it does, the "day-of" wording is shown instead. This happens automatically with no host action required.
 
-The person icon was already removed in the previous edit. The search input and results remain unchanged.
+The event timezone field (`event.event_timezone`) will be used if available, so the switchover happens at the correct local time for the venue.
 
-### Technical Detail
+## Technical Detail
 
 **File:** `src/pages/GuestLookup.tsx`
 
-- **Lines 602-610**: Replace the `CardTitle`, `CardDescription`, and hint `<p>` with two `CardTitle` lines -- "Type Your Full Name Here" and "Update & Confirm Your Details". Remove the `CardDescription` and hint text.
-- **Lines 662-675**: Remove the `Separator` and "Last updated" block from their current position.
-- **Lines 677-681**: Insert the "Last updated" block just before the "Having trouble finding your name?" section.
+- Add a computed boolean (`isEventDay`) that compares today's date against `event.date`, respecting the event timezone if set.
+- At **lines 602-607**, update the two `CardTitle` elements to use conditional text based on `isEventDay`:
+  - If `isEventDay` is true: "Type Your Full Name" and "To Find Your Table & Seat"
+  - If `isEventDay` is false: keep current text ("Type Your Full Name Here" / "Update & Confirm Your Details" or "Find Your Seat")
+
+One small variable addition and two string conditionals -- no layout or styling changes.
 
