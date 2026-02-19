@@ -76,15 +76,17 @@ export function RunningSheetRow({ item, onUpdate, onDuplicate, onDelete, disable
   };
 
   const eventText = buildEventDisplay(item.description_rich);
+  const timeRef = useRef<HTMLTextAreaElement>(null);
   const eventRef = useRef<HTMLTextAreaElement>(null);
   const whoRef = useRef<HTMLTextAreaElement>(null);
 
+  useAutoResize(timeRef, item.time_text);
   useAutoResize(eventRef, eventText);
   useAutoResize(whoRef, item.responsible || '');
 
   const isHeader = item.is_section_header;
 
-  const handleTimeChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleTimeChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
     onUpdate(item.id, { time_text: e.target.value });
   }, [item.id, onUpdate]);
 
@@ -115,11 +117,13 @@ export function RunningSheetRow({ item, onUpdate, onDuplicate, onDelete, disable
       </button>
 
       {/* TIME */}
-      <input
+      <textarea
+        ref={timeRef}
         value={item.time_text}
         onChange={handleTimeChange}
         placeholder="Time"
-        className={`basis-1/5 min-w-0 h-8 text-sm bg-background border border-input rounded-md px-3 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${headerClasses}`}
+        className={`basis-1/5 min-w-0 text-sm bg-background border border-input rounded-md px-3 py-1.5 resize-none overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${headerClasses}`}
+        rows={1}
         disabled={disabled}
       />
 
