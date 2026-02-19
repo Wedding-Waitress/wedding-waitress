@@ -59,7 +59,7 @@ import { cn } from "@/lib/utils";
 import { normalizeRsvp } from "@/lib/rsvp";
 import { useEvents } from "@/hooks/useEvents";
 import { RelationSelector } from "./RelationSelector";
-import { FamilyGroupCombobox } from "./FamilyGroupCombobox";
+
 import { GroupTypeDialog } from "./GroupTypeDialog";
 import { RelationAssignmentDialog, RelationAssignment, PersonToAssign } from "./RelationAssignmentDialog";
 
@@ -1119,25 +1119,23 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
 
             {/* RSVP Invite Status Badge - Show when editing */}
             {isEdit && editGuest && (
-              <div className="space-y-1">
+              <div className="flex items-center gap-2">
                 <Label className="text-sm font-medium">RSVP Invite Status</Label>
-                <div>
-                  {(() => {
-                    const status = (editGuest as any).rsvp_invite_status || 'not_sent';
-                    const statusConfig: Record<string, { label: string; className: string }> = {
-                      'not_sent': { label: 'Not Sent', className: 'bg-gray-400 text-white' },
-                      'email_sent': { label: 'Email Sent', className: 'bg-blue-500 text-white' },
-                      'sms_sent': { label: 'SMS Sent', className: 'bg-green-500 text-white' },
-                      'both_sent': { label: 'Both Sent', className: 'bg-purple-500 text-white' },
-                    };
-                    const config = statusConfig[status] || statusConfig['not_sent'];
-                    return (
-                      <Badge className={`text-xs ${config.className}`}>
-                        {config.label}
-                      </Badge>
-                    );
-                  })()}
-                </div>
+                {(() => {
+                  const status = (editGuest as any).rsvp_invite_status || 'not_sent';
+                  const statusConfig: Record<string, { label: string; className: string }> = {
+                    'not_sent': { label: 'Not Sent', className: 'bg-gray-400 text-white' },
+                    'email_sent': { label: 'Email Sent', className: 'bg-blue-500 text-white' },
+                    'sms_sent': { label: 'SMS Sent', className: 'bg-green-500 text-white' },
+                    'both_sent': { label: 'Both Sent', className: 'bg-purple-500 text-white' },
+                  };
+                  const config = statusConfig[status] || statusConfig['not_sent'];
+                  return (
+                    <Badge className={`text-xs ${config.className}`}>
+                      {config.label}
+                    </Badge>
+                  );
+                })()}
               </div>
             )}
 
@@ -1334,30 +1332,6 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
               </div>
             )}
 
-            {/* Family Group - only shown in Edit mode */}
-            {isEdit && (
-              <FormField
-                control={form.control}
-                name="family_group"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Family Group</FormLabel>
-                    <FormControl>
-                      <FamilyGroupCombobox
-                        eventId={eventId}
-                        value={field.value || ""}
-                        onChange={(familyName: string, memberIds: string[]) => {
-                          field.onChange(familyName);
-                          setPendingFamilyMembers(memberIds);
-                        }}
-                        currentGuestId={editGuest?.id}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            )}
 
             {/* Relation - show current value with change button for edit mode */}
             {!(relationsHiddenProp ?? ((selectedEvent as any)?.relation_mode === 'off')) && isEdit && (
