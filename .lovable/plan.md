@@ -1,41 +1,39 @@
 
-# Add Clear Text + Confirmation Dialogs to DJ MC Questionnaire Rows
+# Add "Clear Section" to DJ-MC Questionnaire Dropdown + Update Dialog Messages
 
-## Summary
+## What Changes
 
-Copy the three-icon action pattern from the Running Sheet (Duplicate, Clear Text, Delete) into the DJ MC Questionnaire rows. Currently the questionnaire only has Duplicate and Delete with no confirmation warnings. After this change:
+In the three-dot dropdown menu on each DJ-MC Questionnaire section, the menu will become:
 
-- **Duplicate** stays as-is (non-destructive, no warning needed)
-- **Clear Text** (new) -- Eraser icon between Duplicate and Delete, with a confirmation dialog: "This will clear all text on this row. Once cleared, it cannot be retrieved."
-- **Delete** -- Now shows a confirmation dialog: "This will delete this row. Once deleted, it cannot be retrieved." with Cancel and Delete buttons.
+1. **Duplicate Section** -- stays as-is (non-destructive)
+2. **Clear Section** (NEW) -- clears all text fields on every row in the section but keeps the rows intact. Shows a confirmation warning.
+3. **Reset to Default** -- already has a dialog, but will update the message to match the consistent style.
+4. **Delete Section** -- already has a dialog, but will update the message to match the consistent style.
+
+All three destructive actions show a confirmation pop-up with Cancel and an action button.
 
 ## Technical Details
 
-### File: `src/components/Dashboard/DJMCQuestionnaire/DJMCSectionRow.tsx`
-
-**Imports:**
-- Add `Eraser` to the lucide-react import (alongside `GripVertical`, `Trash2`, `Copy`)
-- Add `AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle` from `@/components/ui/alert-dialog`
-
-**Props:**
-- Add `onClearText?: () => void` to the `DJMCSectionRowProps` interface
-
-**State:**
-- Add `showClearDialog` and `showDeleteDialog` boolean states (both default `false`)
-
-**Clear Text logic:**
-- `onClearText` will call `onUpdate` with all text fields reset: `{ label_text: '', value_text: '', song_title_artist: '', notes: '', duration: '', music_url: '' }`
-
-**Action buttons (two locations -- do_not_play layout at ~line 206 and standard layout at ~line 594):**
-- Change width from `w-16` to `w-auto` to fit 3 icons
-- Add Eraser button between Duplicate and Delete (with `title="Clear Text"`)
-- Change Delete `onClick` from direct `onDelete()` to `setShowDeleteDialog(true)`
-- Change Clear Text `onClick` to `setShowClearDialog(true)`
-
-**Dialogs (added at end of each layout's JSX, before closing `</div>`):**
-- Clear Text dialog: Title "Clear Text?", description about clearing, Cancel + "Clear Text" buttons
-- Delete dialog: Title "Delete Row?", description about deletion, Cancel + Delete (destructive styled) buttons
-
 ### File: `src/components/Dashboard/DJMCQuestionnaire/DJMCQuestionnaireSection.tsx`
 
-- Pass `onClearText` to each `DJMCSectionRow` that calls `onUpdateItem(item.id, { label_text: '', value_text: '', song_title_artist: '', notes: '', duration: '', music_url: '' })`
+**State:**
+- Add `showClearSectionDialog` boolean state (default `false`).
+
+**Imports:**
+- Add `Eraser` to the lucide-react import.
+
+**Dropdown menu (lines 271-287):**
+- Add a new `DropdownMenuItem` for "Clear Section" with Eraser icon, between "Duplicate Section" and "Reset to Default".
+- onClick sets `showClearSectionDialog(true)`.
+
+**Clear Section logic:**
+- On confirm, iterate through all `section.items` and call `onUpdateItem(item.id, { value_text: null, song_title_artist: null, music_url: null, duration: null, pronunciation_audio_url: null })` for each item.
+
+**New AlertDialog (after existing dialogs, before `</>`):**
+- Title: "Clear Section?"
+- Description: "This will clear all text in every row of this section. The rows will remain but all content will be erased. Once cleared, it cannot be retrieved."
+- Buttons: Cancel and "Clear Section"
+
+**Update existing dialog messages:**
+- Reset dialog description: keep as-is (already good).
+- Delete dialog description: update to "This will delete this entire section and all its rows. Once deleted, it cannot be retrieved." with Cancel and Delete buttons.
