@@ -1,16 +1,18 @@
 
-# Change Running Sheet Row Hover to Dark Purple
+# Enable Multi-line Entry (Enter Key) in All Three Running Sheet Columns
 
-## What Changes
+## What's Happening Now
+- **EVENT** and **WHO** columns already use `<textarea>`, so Enter should already work there and auto-resize handles growing.
+- **TIME** column uses a single-line `<input>`, which does not allow Enter/new lines.
 
-One CSS change in `src/components/Dashboard/RunningSheet/RunningSheetRow.tsx`, line 105.
+## Changes
 
-Replace `hover:bg-purple-100` with `hover:bg-purple-200` -- this gives a noticeably darker purple hover that better matches the Wedding Waitress brand purple from the logo, while still keeping the row text readable.
+### File: `src/components/Dashboard/RunningSheet/RunningSheetRow.tsx`
 
-If that's still too light, we can go darker to `hover:bg-purple-300` or even use a custom color like `hover:bg-[#7c3aed]/20` to match the exact logo purple.
+1. **Convert TIME from `<input>` to `<textarea>`** (lines 118-124) -- replace the `<input>` with a `<textarea>` matching the same styling, with `rows={1}` and auto-resize, so pressing Enter creates a new line within the same cell.
 
-## Technical Detail
+2. **Add a ref and auto-resize for TIME** -- add a `timeRef` (like `eventRef` and `whoRef`) and hook it into the existing `useAutoResize` helper so the TIME cell grows when the user adds lines.
 
-- **File:** `src/components/Dashboard/RunningSheet/RunningSheetRow.tsx`
-- **Line 105:** Change `hover:bg-purple-100` to `hover:bg-purple-200`
-- No other files changed
+3. **Update the TIME change handler** -- change `handleTimeChange` from `ChangeEvent<HTMLInputElement>` to `ChangeEvent<HTMLTextAreaElement>` to match the new element type.
+
+No other files are changed. All three columns will support pressing Enter to add new lines within the same row.
