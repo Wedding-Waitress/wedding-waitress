@@ -1,31 +1,30 @@
 
-
-# Add "Delete All Rows" to Running Sheet Dropdown
+# Add "PM" to Default Running Sheet Template Times
 
 ## What Changes
 
-In the three-dot dropdown menu on the Running Sheet section header, a third option will be added:
-
-1. **Clear All Fields** -- stays as-is
-2. **Reset to Default** -- stays as-is
-3. **Delete All Rows** (NEW) -- red trash icon and red text. Deletes every row in the section, leaving it empty so you can start fresh and manually add rows.
-
-Clicking "Delete All Rows" shows a confirmation pop-up before taking action.
+Update every `time_text` value in the default template rows to append "PM", matching the format the user wants (e.g., `3.00PM`, `3.30PM`, `4.00PM`).
 
 ## Technical Details
 
-### File: `src/components/Dashboard/RunningSheet/RunningSheetSection.tsx`
+### File: `src/hooks/useRunningSheet.ts` (lines 15-27)
 
-**State:**
-- Add `showDeleteAllDialog` boolean state (default `false`).
+Update the `time_text` field on all 13 default rows:
 
-**Dropdown menu (after "Reset to Default", around line 171):**
-- Add a new `DropdownMenuItem` for "Delete All Rows" with a `Trash` icon (already imported), styled in red using `className="text-destructive"`.
+| Before | After |
+|--------|-------|
+| `3.00` | `3.00PM` |
+| `3.30` | `3.30PM` |
+| `4.00` | `4.00PM` |
+| `4.30` | `4.30PM` |
+| `6.00` | `6.00PM` |
+| `6.30` | `6.30PM` |
+| `7.00` | `7.00PM` |
+| `7.30` | `7.30PM` |
+| `8.00` | `8.00PM` |
+| `8.30` | `8.30PM` |
+| `9.00` | `9.00PM` |
+| `10.30` | `10.30PM` |
+| `11.00` | `11.00PM` |
 
-**Delete All Rows logic:**
-- On confirm, iterate through all `items` and call `onDeleteItem(item.id)` for each.
-
-**New AlertDialog (after existing dialogs):**
-- Title: "Delete All Rows?"
-- Description: "This will delete all the rows. Start fresh and manually add rows as you desire. Once deleted, they cannot be retrieved."
-- Buttons: Cancel and "Delete" (destructive styled)
+This only affects newly created running sheets (when "Reset to Default" is used or a new sheet is initialized). Existing sheets already saved in the database will not be changed.
