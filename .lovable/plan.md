@@ -1,48 +1,39 @@
 
+# Lock Running Sheet for Production
 
-# Lock DJ-MC Questionnaire for Production
+Add "PRODUCTION-READY -- LOCKED FOR PRODUCTION" warning headers to all 8 Running Sheet files, matching the same pattern used for the DJ-MC Questionnaire.
 
-Add "PRODUCTION-READY -- LOCKED FOR PRODUCTION" warning headers to all 14 DJ-MC Questionnaire files, matching the same pattern used for the Guest List and Tables pages.
+## Files to Protect (8 total)
 
-## Files to Protect (14 total)
-
-### Components (8 files)
-- `DJMCQuestionnairePage.tsx` -- Main page component
-- `DJMCQuestionnaireSection.tsx` -- Section accordion with items
-- `DJMCSectionRow.tsx` -- Individual row editing
-- `DJMCShareModal.tsx` -- Share token modal
-- `DJMCMusicUrlField.tsx` -- Music URL input with platform detection
-- `DJMCProgressIndicator.tsx` -- Progress bar component
-- `DJMCPronunciationRecorder.tsx` -- Audio pronunciation recorder
-- `index.ts` -- Barrel export
+### Components (5 files)
+- `src/components/Dashboard/RunningSheet/RunningSheetPage.tsx` -- Main page component
+- `src/components/Dashboard/RunningSheet/RunningSheetSection.tsx` -- Section with drag-and-drop rows
+- `src/components/Dashboard/RunningSheet/RunningSheetRow.tsx` -- Individual row editing
+- `src/components/Dashboard/RunningSheet/RunningSheetShareModal.tsx` -- Share token modal
+- `src/components/Dashboard/RunningSheet/index.ts` -- Barrel export
 
 ### Hook
-- `useDJMCQuestionnaire.ts` -- All CRUD operations, sharing, reordering
+- `src/hooks/useRunningSheet.ts` -- All CRUD operations, sharing, reordering
 
-### Libraries
-- `djMCQuestionnaireTemplates.ts` -- Default section templates
-- `djMCQuestionnairePdfExporter.ts` -- PDF export logic
-- `djMCInsertFormatter.ts` -- Formatter for Running Sheet insertion
+### Library
+- `src/lib/runningSheetPdfExporter.ts` -- PDF export logic
 
 ### Types
-- `djMCQuestionnaire.ts` -- TypeScript interfaces
-
-### Public Page
-- `DJMCPublicView.tsx` -- Read-only shared view for DJs/MCs
+- `src/types/runningSheet.ts` -- TypeScript interfaces
 
 ## What Gets Added
 
-Each file will receive a comment block at the very top:
+Each file receives a comment block at the very top (no functional code changes):
 
 ```
 /**
  * PRODUCTION-READY -- LOCKED FOR PRODUCTION
  *
- * This DJ-MC Questionnaire feature is COMPLETE and APPROVED for production use.
+ * This Running Sheet feature is COMPLETE and APPROVED for production use.
  *
  * CRITICAL RULES:
  * - DO NOT modify without explicit owner approval
- * - Changes could break questionnaire data, sharing, or PDF export
+ * - Changes could break running sheet data, sharing, or PDF export
  *
  * Last locked: 2026-02-19
  */
