@@ -1993,7 +1993,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
             totalCount={sortedGuests.length}
             onSelectAll={handleSelectAll}
             onDeselectAll={handleDeselectAll}
-            onAssignTable={() => setShowBulkTableModal(true)}
+            
             onUpdateRsvp={() => setShowBulkRsvpModal(true)}
             onDelete={() => setShowBulkDeleteModal(true)}
             onCancel={handleDeselectAll}
