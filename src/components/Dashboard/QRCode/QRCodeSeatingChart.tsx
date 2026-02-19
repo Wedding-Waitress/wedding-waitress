@@ -1,3 +1,16 @@
+/**
+ * PRODUCTION-READY -- LOCKED FOR PRODUCTION
+ *
+ * The QR Code Seating Chart feature is COMPLETE and APPROVED for production use.
+ *
+ * CRITICAL RULES:
+ * - DO NOT modify without explicit owner approval
+ * - Changes could break QR code generation and customisation
+ * - Changes could break the guest lookup link system
+ * - Changes could break real-time event syncing
+ *
+ * Last locked: 2026-02-19
+ */
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
