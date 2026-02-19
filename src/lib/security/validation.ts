@@ -66,12 +66,14 @@ export const secureGuestSchema = z.object({
     .optional(),
   
   relation_partner: z.string()
-    .min(1, "Please choose one partner and one role")
-    .max(50, "Partner selection invalid"),
+    .max(50, "Partner selection invalid")
+    .optional()
+    .or(z.literal('')),
   
   relation_role: z.string()
-    .min(1, "Please choose one partner and one role")
-    .max(50, "Role selection invalid"),
+    .max(50, "Role selection invalid")
+    .optional()
+    .or(z.literal('')),
 });
 
 // Enhanced table validation schema
