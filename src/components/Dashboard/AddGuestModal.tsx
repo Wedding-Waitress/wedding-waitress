@@ -146,6 +146,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
     seat_no?: number;
   }>>([]);
   const [showAddMemberForm, setShowAddMemberForm] = useState(false);
+  const [manualInviteStatus, setManualInviteStatus] = useState((editGuest as any)?.rsvp_invite_status || 'not_sent');
   const [memberForm, setMemberForm] = useState({
     first_name: '',
     last_name: '',
@@ -239,6 +240,9 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
         });
       }
     }
+    if (isEdit && editGuest) {
+      setManualInviteStatus((editGuest as any).rsvp_invite_status || 'not_sent');
+    }
   }, [isOpen, isEdit, editGuest, form]);
 
   const handleClose = () => {
@@ -249,6 +253,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
     setShowAddMemberForm(false);
     setMemberForm({ first_name: '', last_name: '', mobile: '', email: '', dietary: 'None' });
     setShowGroupTypeDialog(false);
+    setManualInviteStatus('not_sent');
     setPendingEditSaveData(null);
     setShowRelationAssignment(false);
     setPendingFormData(null);
@@ -587,6 +592,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
         relation_partner: data.relation_partner,
         relation_role: data.relation_role,
         relation_display: relationDisplay,
+        ...(isEdit ? { rsvp_invite_status: manualInviteStatus } : {}),
       };
 
       if (isEdit && editGuest) {
@@ -1117,25 +1123,21 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
             </div>
 
 
-            {/* RSVP Invite Status Badge - Show when editing */}
+            {/* RSVP Invite Status Dropdown - Show when editing */}
             {isEdit && editGuest && (
               <div className="flex items-center gap-2">
                 <Label className="text-sm font-medium">RSVP Invite Status</Label>
-                {(() => {
-                  const status = (editGuest as any).rsvp_invite_status || 'not_sent';
-                  const statusConfig: Record<string, { label: string; className: string }> = {
-                    'not_sent': { label: 'Not Sent', className: 'bg-gray-400 text-white' },
-                    'email_sent': { label: 'Email Sent', className: 'bg-blue-500 text-white' },
-                    'sms_sent': { label: 'SMS Sent', className: 'bg-green-500 text-white' },
-                    'both_sent': { label: 'Both Sent', className: 'bg-purple-500 text-white' },
-                  };
-                  const config = statusConfig[status] || statusConfig['not_sent'];
-                  return (
-                    <Badge className={`text-xs ${config.className}`}>
-                      {config.label}
-                    </Badge>
-                  );
-                })()}
+                <Select value={manualInviteStatus} onValueChange={setManualInviteStatus}>
+                  <SelectTrigger className="w-[140px] h-8 text-xs">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="not_sent">Not Sent</SelectItem>
+                    <SelectItem value="email_sent">Email Sent</SelectItem>
+                    <SelectItem value="sms_sent">SMS Sent</SelectItem>
+                    <SelectItem value="both_sent">Both Sent</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             )}
 
