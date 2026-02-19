@@ -1,20 +1,23 @@
 
-# Fix Group Header Hover and Darken Guest Row Hover
+# Bulk Actions Bar: Remove "Assign Table", Single Line, Move Higher
 
-## Two Changes
+## Changes
 
-### 1. Prevent color change on Family (blue) and Couple (orange) group headers
-The `TableRow` base component applies `hover:bg-muted/50` to all rows, which washes out the blue/orange headers on hover. Fix by adding `hover:bg-blue-600` and `hover:bg-orange-500` to the group header rows so they stay their original color.
+### 1. Remove "Assign Table" button
+Delete the "Assign Table" button and its separator (lines 60-69). Also remove `onAssignTable` from the props interface and destructuring, and the `MapPin` icon import.
 
-### 2. Make guest row hover purple shade darker
-Currently `hover:bg-purple-50` -- change to `hover:bg-purple-100` for a noticeably darker but still subtle purple highlight.
+### 2. Fit everything on one line
+Currently `flex-wrap` causes wrapping to a second line. Remove `flex-wrap` and reduce padding/gaps so all remaining items (Selected, Select All, Update RSVP, Delete, Send Email, Send SMS, Cancel) fit on one row. Also remove the separators between groups to save space, and reduce button text size slightly.
+
+### 3. Move the bar higher on screen
+Change `bottom-6` to `bottom-16` to move the purple bar up from the bottom of the screen.
 
 ## Technical Details
 
-**File: `src/components/Dashboard/GuestListTable.tsx`**
+**File: `src/components/Dashboard/GuestBulkActionsBar.tsx`**
 
-- Line 1779: Change the group header TableRow from `bg-blue-600` / `bg-orange-500` to include matching hover classes:
-  - Family: `"bg-blue-600 hover:bg-blue-600"`
-  - Couple: `"bg-orange-500 hover:bg-orange-500"`
-
-- Line 1802: Change guest row hover from `hover:bg-purple-50` to `hover:bg-purple-100` (and dark mode from `hover:bg-purple-950/20` to `hover:bg-purple-950/30`)
+- Remove `MapPin` from imports (line 3)
+- Remove `onAssignTable` from interface (line 10) and destructuring (line 25)
+- Delete the "Assign Table" button block (lines 61-69)
+- Change container class: `bottom-6` to `bottom-16`, remove `flex-wrap`, reduce `gap-4` to `gap-2`, reduce `px-6 py-4` to `px-4 py-3`
+- Remove extra separators to save horizontal space (keep only key dividers)
