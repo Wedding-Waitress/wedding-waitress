@@ -6,7 +6,6 @@ import { BrowserRouter, Routes, Route, Navigate, useNavigate } from "react-route
 import { ThemeProvider } from "next-themes";
 import { AppErrorBoundary } from "@/components/core/AppErrorBoundary";
 import { useToast } from "@/hooks/use-toast";
-import { flags } from "@/lib/featureFlags";
 import { Landing } from "./pages/Landing";
 import { Dashboard } from "./pages/Dashboard";
 import { Admin } from "./pages/Admin";
@@ -17,38 +16,11 @@ import { ResetPassword } from "./pages/ResetPassword";
 import { PrivacyPolicy } from "./pages/PrivacyPolicy";
 import { TermsOfService } from "./pages/TermsOfService";
 import { Contact } from "./pages/Contact";
-import RunningSheet from "./pages/RunningSheet";
 import { DJMCPublicView } from "./pages/DJMCPublicView";
 import { PaymentSuccess } from "./pages/PaymentSuccess";
-
 const queryClient = new QueryClient();
 
-// Feature Guard Component
-const FeatureGuard = ({ 
-  featureEnabled, 
-  featureName, 
-  children 
-}: { 
-  featureEnabled: boolean; 
-  featureName: string; 
-  children: React.ReactNode;
-}) => {
-  const navigate = useNavigate();
-  const { toast } = useToast();
-
-  useEffect(() => {
-    if (!featureEnabled) {
-      toast({
-        title: "Coming Soon",
-        description: `${featureName} is temporarily unavailable. Check back soon!`,
-        variant: "default",
-      });
-      navigate('/dashboard', { replace: true });
-    }
-  }, [featureEnabled, featureName, navigate, toast]);
-
-  return featureEnabled ? <>{children}</> : null;
-};
+// (FeatureGuard removed — no longer needed)
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -65,14 +37,7 @@ const App = () => (
           <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route 
-            path="/running-sheet" 
-            element={
-              <FeatureGuard featureEnabled={flags.runningSheet} featureName="Running Sheet">
-                <RunningSheet />
-              </FeatureGuard>
-            } 
-          />
+          {/* Running Sheet is now a dashboard tab, no standalone route */}
           <Route path="/admin" element={<Admin />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />

@@ -34,7 +34,7 @@ import { KioskSetup } from '@/components/Dashboard/Kiosk/KioskSetup';
 import { FloorPlanPage } from '@/components/Dashboard/FloorPlan';
 import { RunningSheetPage } from '@/components/Dashboard/RunningSheet';
 import { DJMCQuestionnairePage } from '@/components/Dashboard/DJMCQuestionnaire';
-import { flags } from '@/lib/featureFlags';
+// Feature flags removed — Running Sheet always enabled
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import type { Session } from '@supabase/supabase-js';
@@ -567,16 +567,7 @@ export const Dashboard = () => {
       case 'floor-plan':
         return <FloorPlanPage selectedEventId={globalSelectedEventId} onEventSelect={handleGlobalEventSelect} />;
       case 'running-sheet':
-        return flags.runningSheet ? (
-          <RunningSheetPage />
-        ) : (
-          <Card className="p-8 text-center">
-            <CardTitle className="mb-2">Feature Temporarily Disabled</CardTitle>
-            <CardDescription>
-              Running Sheet is coming soon. Check back later!
-            </CardDescription>
-          </Card>
-        );
+        return <RunningSheetPage selectedEventId={globalSelectedEventId} onEventSelect={handleGlobalEventSelect} />;
       case 'dj-mc-questionnaire':
         return <DJMCQuestionnairePage selectedEventId={globalSelectedEventId} onEventSelect={handleGlobalEventSelect} />;
       default:
