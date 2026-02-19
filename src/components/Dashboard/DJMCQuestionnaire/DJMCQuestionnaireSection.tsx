@@ -39,7 +39,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { ChevronDown, ChevronRight, Plus, MoreVertical, RotateCcw, MessageSquare, Copy, Trash, Download } from 'lucide-react';
+import { ChevronDown, ChevronRight, Plus, MoreVertical, RotateCcw, MessageSquare, Copy, Trash, Download, Eraser } from 'lucide-react';
 import { DJMCSection, DJMCItem } from '@/types/djMCQuestionnaire';
 import { DJMCSectionRow } from './DJMCSectionRow';
 import { Badge } from '@/components/ui/badge';
@@ -80,6 +80,7 @@ export function DJMCQuestionnaireSection({
   const [showNotes, setShowNotes] = useState(!!section.notes);
   const [showResetDialog, setShowResetDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showClearSectionDialog, setShowClearSectionDialog] = useState(false);
   const labelInputRef = useRef<HTMLInputElement>(null);
 
   const sensors = useSensors(
@@ -272,6 +273,10 @@ export function DJMCQuestionnaireSection({
                     <DropdownMenuItem onClick={onDuplicateSection}>
                       <Copy className="h-4 w-4 mr-2" />
                       Duplicate Section
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setShowClearSectionDialog(true)}>
+                      <Eraser className="h-4 w-4 mr-2" />
+                      Clear Section
                     </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => setShowResetDialog(true)}>
                     <RotateCcw className="h-4 w-4 mr-2" />
@@ -499,8 +504,7 @@ export function DJMCQuestionnaireSection({
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Section?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently delete "{section.section_label}" and all its rows.
-              This action cannot be undone.
+              This will delete this entire section and all its rows. Once deleted, it cannot be retrieved.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -513,6 +517,32 @@ export function DJMCQuestionnaireSection({
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Clear Section confirmation dialog */}
+      <AlertDialog open={showClearSectionDialog} onOpenChange={setShowClearSectionDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Clear Section?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will clear all text in every row of this section. The rows will remain but all content will be erased. Once cleared, it cannot be retrieved.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                section.items.forEach(item => {
+                  onUpdateItem(item.id, { value_text: null, song_title_artist: null, music_url: null, duration: null, pronunciation_audio_url: null });
+                });
+                setShowClearSectionDialog(false);
+              }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Clear Section
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
