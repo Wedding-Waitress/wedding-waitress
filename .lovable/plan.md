@@ -1,56 +1,28 @@
 
 
-# Lock the Guest List Page for Production
+# Rearrange Guest Lookup Search Section
 
-Add production-lock warning headers to all Guest List page component and hook files that are not yet protected. This is the same pattern used on the Tables page, Full Seating Chart, Place Cards, and other locked features.
+Three layout changes to the public guest lookup page (the QR code destination):
 
-## Already Locked (no changes needed)
-- GuestListTable.tsx
-- AddGuestModal.tsx
-- GuestDeleteConfirmationModal.tsx
-- useRealtimeGuests.ts
+## Changes
 
-## Files to Lock (16 files)
+### 1. Move "Type at least 2 letters..." hint up
+Currently this text appears below the search box with a person icon. It will be moved directly under the subtitle "Type your full name & update your info", so guests see the instruction before they start typing.
 
-### Component files (15)
-1. **GuestBulkActionsBar.tsx** -- Bulk selection action bar (select all, delete, RSVP, email, SMS)
-2. **GuestMobileCard.tsx** -- Mobile-friendly guest card layout
-3. **BulkRsvpUpdateModal.tsx** -- Bulk RSVP status update modal
-4. **BulkTableAssignmentModal.tsx** -- Bulk table assignment modal
-5. **StatsBar.tsx** -- Guest/table statistics bar
-6. **FamilyGroupCombobox.tsx** -- Family group selector
-7. **RelationSelector.tsx** -- Relation assignment selector
-8. **RelationBadge.tsx** -- Relation display badge
-9. **RelationAssignmentDialog.tsx** -- Relation assignment dialog
-10. **RelationSettingsModal.tsx** -- Relation settings configuration
-11. **CustomRoleManager.tsx** -- Custom role management
-12. **GroupTypeDialog.tsx** -- Group type selection dialog
-13. **ImportErrorModal.tsx** -- Import error display modal
-14. **SendRsvpConfirmModal.tsx** -- RSVP send confirmation modal
-15. **RsvpActivationModal.tsx** -- RSVP activation modal
+### 2. Move "Last updated" line above "Having trouble finding your name?"
+The timestamp and Refresh button currently sit in the card header area. It will be relocated just above the "Having trouble finding your name?" footer section, keeping it visible but out of the primary flow.
 
-### Hook files (1)
-16. **src/hooks/useGuests.ts** -- Core guest CRUD operations hook
+### 3. Remove the person icon
+The large human silhouette icon between the search box and the hint text will be removed.
 
-## What Gets Added
+---
 
-Each file receives this header block at the very top (before any existing code):
+## Technical Details
 
-```text
-/**
- * PRODUCTION-READY -- LOCKED FOR PRODUCTION
- *
- * The Guest List page feature is COMPLETE and APPROVED for production use.
- *
- * CRITICAL RULES:
- * - DO NOT modify without explicit owner approval
- * - Changes could break guest list management
- * - Changes could break bulk actions and RSVP workflows
- * - Changes could break real-time synchronisation
- *
- * Last locked: 2026-02-19
- */
-```
+**File: `src/pages/GuestLookup.tsx`**
 
-No functional code changes -- only protective comment headers are added.
+- **Lines 606-607**: Add the "Type at least 2 letters" hint text as a static line right after the CardDescription subtitle.
+- **Lines 608-618**: Remove the "Last updated" block from the card header.
+- **Lines 635-641**: Remove the entire conditional block (icon + hint text) that currently shows when search term is under 2 characters.
+- **Lines 678-684**: Insert the "Last updated" line (timestamp + Refresh button) just above the "Having trouble finding your name?" section.
 
