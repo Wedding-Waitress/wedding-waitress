@@ -1776,7 +1776,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                   <React.Fragment key={`group-${groupIndex}-${group.groupName || 'individual'}`}>
                     {/* Group Header (for couples and families) */}
                     {group.type !== 'individual' && (
-                      <TableRow className={group.type === 'family' ? "bg-blue-600" : "bg-orange-500"}>
+                      <TableRow className={group.type === 'family' ? "bg-blue-600 hover:bg-blue-600" : "bg-orange-500 hover:bg-orange-500"}>
                         <TableCell colSpan={14} className="py-2 px-4">
                           <div className="flex items-center gap-2">
                             <Users className="w-4 h-4 text-white" />
@@ -1799,7 +1799,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                           key={guest.id}
                           className={cn(
                             "border-card-border",
-                            "hover:bg-purple-50 dark:hover:bg-purple-950/20",
+                            "hover:bg-purple-100 dark:hover:bg-purple-950/30",
                             group.type !== 'individual' && "border-l-4 border-l-purple-200",
                             group.type !== 'individual' && isLastMember && "border-b-2 border-b-[#7248e6]"
                           )}
