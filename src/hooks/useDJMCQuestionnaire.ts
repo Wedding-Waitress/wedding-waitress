@@ -1,3 +1,14 @@
+/**
+ * PRODUCTION-READY -- LOCKED FOR PRODUCTION
+ *
+ * This DJ-MC Questionnaire feature is COMPLETE and APPROVED for production use.
+ *
+ * CRITICAL RULES:
+ * - DO NOT modify without explicit owner approval
+ * - Changes could break questionnaire data, sharing, or PDF export
+ *
+ * Last locked: 2026-02-19
+ */
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
