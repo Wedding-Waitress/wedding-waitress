@@ -1,32 +1,28 @@
 
 
-# Add "Clear All Fields" and Per-Row "Clear Text" to Running Sheet
+# Add Confirmation Warnings for Clear Text and Delete Row Actions
 
-## Changes
+## What Changes
 
-### 1. "Clear All Fields" in the dropdown menu (three dots)
+Two simple confirmation pop-up dialogs will be added to each Running Sheet row:
 
-Add a new menu item **above** "Reset to Default" in the three-dot dropdown. It will have a small eraser/X icon and the label "Clear All Fields". When clicked, it will clear the `time_text`, `description_rich`, and `responsible` fields on every row -- but keep the rows themselves intact (unlike "Reset to Default" which replaces rows with the template).
+1. **Clear Text** -- When clicked, a warning pop-up appears saying: *"This will clear all text on this row. Once cleared, it cannot be retrieved."* with **Cancel** and **Clear Text** buttons.
 
-A confirmation dialog will appear: "Clear All Fields? This will erase the text in every row but keep the rows. This cannot be undone."
+2. **Delete** -- When clicked, a warning pop-up appears saying: *"This will delete this row. Once deleted, it cannot be retrieved."* with **Cancel** and **Delete** buttons.
 
-### 2. Per-row "Clear Text" icon button
+No typing "DELETE" required -- just simple Cancel / action buttons.
 
-Between the Duplicate and Delete icons on each row, add a new icon button (using the `Eraser` icon from lucide-react). On hover it shows the tooltip "Clear Text". Clicking it clears that single row's `time_text` to `""`, `description_rich` to `{ text: "" }`, and `responsible` to `""`.
+Duplicate stays as-is (no warning needed since it's non-destructive).
 
 ## Technical Details
 
-### File: `src/components/Dashboard/RunningSheet/RunningSheetSection.tsx`
-
-- Import `Eraser` from lucide-react.
-- Add a `clearAllFields` callback that calls `onUpdateItem` for every item, setting `time_text: ""`, `description_rich: { text: "" }`, `responsible: ""`.
-- Add a new `DropdownMenuItem` with the Eraser icon and "Clear All Fields" label above the existing "Reset to Default" item (line 163).
-- Add a confirmation `AlertDialog` for "Clear All Fields" (similar to the existing Reset to Default dialog).
-- Pass a new `onClearText` prop down to `RunningSheetRow`.
-
 ### File: `src/components/Dashboard/RunningSheet/RunningSheetRow.tsx`
 
-- Import `Eraser` from lucide-react.
-- Accept a new `onClearText` prop (`(itemId: string) => void`).
-- Add a new `Button` between Duplicate and Delete (line 155-156) with the Eraser icon, `title="Clear Text"`, that calls `onClearText(item.id)`.
+- Import `AlertDialog` components from `@/components/ui/alert-dialog`.
+- Add two pieces of state: `showClearDialog` and `showDeleteDialog` (both `boolean`, default `false`).
+- Change the Clear Text button's `onClick` to `setShowClearDialog(true)` instead of calling `onClearText` directly.
+- Change the Delete button's `onClick` to `setShowDeleteDialog(true)` instead of calling `onDelete` directly.
+- Add two `AlertDialog` components at the bottom of the row JSX:
+  - **Clear Text dialog**: Title "Clear Text?", description "This will clear all text on this row. Once cleared, it cannot be retrieved.", Cancel button, and "Clear Text" action button.
+  - **Delete dialog**: Title "Delete Row?", description "This will delete this row. Once deleted, it cannot be retrieved.", Cancel button, and "Delete" action button (styled destructive).
 
