@@ -1,28 +1,34 @@
 
 
-# Rearrange Guest Lookup Search Section
+# Rearrange Guest Lookup Search Card Header
 
-Three layout changes to the public guest lookup page (the QR code destination):
+Based on the screenshot and your instructions, here are the three changes to `src/pages/GuestLookup.tsx`:
 
-## Changes
+## 1. Rewrite the card header text
 
-### 1. Move "Type at least 2 letters..." hint up
-Currently this text appears below the search box with a person icon. It will be moved directly under the subtitle "Type your full name & update your info", so guests see the instruction before they start typing.
+**Current (lines 602-610):**
+- Line 1 (bold title): "Update & Confirm Your Details"
+- Line 2 (subtitle): "Type your full name & update your info"
+- Line 3 (hint): "Type at least 2 letters of your name to search"
 
-### 2. Move "Last updated" line above "Having trouble finding your name?"
-The timestamp and Refresh button currently sit in the card header area. It will be relocated just above the "Having trouble finding your name?" footer section, keeping it visible but out of the primary flow.
+**New layout:**
+- Line 1 (bold title): "Type Your Full Name Here"
+- Line 2 (bold title, same size): "Update & Confirm Your Details"
+- Remove the subtitle and the "2 letters" hint entirely from the header
 
-### 3. Remove the person icon
-The large human silhouette icon between the search box and the hint text will be removed.
+## 2. Move "Last updated" line down
 
----
+Move the "Last updated / Refresh" block (lines 664-675) from its current position to directly above the "Having trouble finding your name?" footer (line 678).
 
-## Technical Details
+## 3. No other changes
 
-**File: `src/pages/GuestLookup.tsx`**
+The person icon was already removed in the previous edit. The search input and results remain unchanged.
 
-- **Lines 606-607**: Add the "Type at least 2 letters" hint text as a static line right after the CardDescription subtitle.
-- **Lines 608-618**: Remove the "Last updated" block from the card header.
-- **Lines 635-641**: Remove the entire conditional block (icon + hint text) that currently shows when search term is under 2 characters.
-- **Lines 678-684**: Insert the "Last updated" line (timestamp + Refresh button) just above the "Having trouble finding your name?" section.
+### Technical Detail
+
+**File:** `src/pages/GuestLookup.tsx`
+
+- **Lines 602-610**: Replace the `CardTitle`, `CardDescription`, and hint `<p>` with two `CardTitle` lines -- "Type Your Full Name Here" and "Update & Confirm Your Details". Remove the `CardDescription` and hint text.
+- **Lines 662-675**: Remove the `Separator` and "Last updated" block from their current position.
+- **Lines 677-681**: Insert the "Last updated" block just before the "Having trouble finding your name?" section.
 
