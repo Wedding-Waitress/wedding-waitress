@@ -1,66 +1,38 @@
 
 
-# Rebuild Running Sheet -- Fresh Start
+# Update Running Sheet Default Rows to Match Your Template
 
-## Overview
+## What Changes
 
-Delete all old Running Sheet files and rebuild from scratch, mirroring the DJ-MC Questionnaire's exact layout and patterns. Three columns: **Time**, **Event**, **Who**.
+Only **one file** is modified: `src/hooks/useRunningSheet.ts` -- specifically the `DEFAULT_ROWS` array (lines 14-25).
 
-## What Gets Deleted
+The current 10 generic rows will be replaced with your exact wedding running sheet template from the screenshot.
 
-- All files in `src/components/Dashboard/RunningSheet/` (8 files)
-- `src/pages/RunningSheet.tsx` (standalone page)
-- `src/lib/runningSheetDocxExporter.ts`
-- Old `src/hooks/useRunningSheet.ts` (rewritten)
-- `/running-sheet` route from `App.tsx`
-- Feature flag removed
+## New Default Rows (from your screenshot)
 
-## What Gets Built
+| # | TIME | EVENT | WHO |
+|---|------|-------|-----|
+| 1 | 3.00 | Guests Arrive | |
+| 2 | **3.30** | **Ceremony** | Celebrant |
+| 3 | 4.00 | Group & Family Photos | Photographer |
+| 4 | 4.30 | Pre-Dinner Drinks & Canapes | Venue |
+| 5 | **6.00** | **Reception doors open & Guests Seated** | Venue |
+| 6 | 6.30 | Bridal Party Introduction | DJ / Band & MC, Photographer & Video |
+| 7 | **7.00** | **Entree Served** | Venue |
+| 8 | 7.30 | Cake Cutting & Toasting for Photos, Bridal Dance, Bridal Party Dance with Wedding Couple, Dance Floor Open for All Guests | DJ / Band & MC, Photographer & Video |
+| 9 | **8.00** | **Main Meals Served** | Venue |
+| 10 | 8.30 | Speeches | MC, Photographer & Video |
+| 11 | 9.00 | Games then Dance Bracket (The Shoe Game, The Photo Dash, Dance Floor opened) | DJ / Band & MC, Photographer & Video |
+| 12 | 10.30 | Flower Toss, Garter Toss, Farewell Circle or Arch! | DJ / Band & MC, Photographer & Video |
+| 13 | **11.00** | **Conclusion** | |
 
-### New Files (7)
-1. **`RunningSheetPage.tsx`** -- Main page (mirrors DJMCQuestionnairePage)
-2. **`RunningSheetSection.tsx`** -- Section card with header, notes, three-dot menu, rows
-3. **`RunningSheetRow.tsx`** -- Draggable row with time/event/who fields
-4. **`RunningSheetShareModal.tsx`** -- Token-based sharing modal
-5. **`index.ts`** -- Barrel export
-6. **`useRunningSheet.ts`** -- Rewritten hook
-7. **`runningSheetPdfExporter.ts`** -- jsPDF A4 portrait exporter
+That is **13 rows** replacing the current 10.
 
-### Modified Files
-- **AppSidebar.tsx** -- Add Running Sheet above DJ-MC Questionnaire
-- **Dashboard.tsx** -- Wire up the new component
-- **featureFlags.ts** -- Remove the flag
-- **App.tsx** -- Remove standalone route
+## Technical Detail
 
-### Database
-- Create `running_sheet_share_tokens` table
-- Create `generate_running_sheet_share_token` and `get_running_sheet_by_token` RPC functions
-- Reuse existing `running_sheets` and `running_sheet_items` tables
-
-### Default Rows (10 example rows)
-
-| TIME | EVENT | WHO |
-|------|-------|-----|
-| 3:30 | Ceremony | Celebrant |
-| 4:00 | Group and Family Photos | Photographer |
-| 4:15 | Pre-Dinner Drinks and Canapes | |
-| 5:45 | Guests Seated | |
-| 6:00 | Bridal Party Entrance | |
-| 6:15 | Entree | |
-| 7:00 | Main Meals | |
-| 7:45 | Speeches | MC |
-| 8:30 | Dessert | |
-| 10:30 | Flower Toss and Farewell Circle | MC |
-
-### Features
-- Drag-to-reorder rows
-- Add, duplicate, delete rows
-- Section notes, three-dot menu (Duplicate/Reset/Delete), download section PDF
-- Event selector dropdown, Share button, Export Controls
-- Event details bar (ceremony/reception info)
-- PDF export with Wedding Waitress branding
-- Token-based public read-only sharing
-
-## Sidebar Placement
-Running Sheet sits above DJ-MC Questionnaire with a ClipboardList icon.
+- File: `src/hooks/useRunningSheet.ts`, lines 14-25
+- Replace the `DEFAULT_ROWS` array with the 13 rows above
+- Bold/header rows (3.30 Ceremony, 6.00 Reception, 7.00 Entree, 8.00 Main Meals, 11.00 Conclusion) will use `is_section_header: true` so they can be styled with bold text
+- Multi-line event descriptions (rows 6, 8, 10, 11, 12) will include bullet points in the `description_rich.text` field
+- No other files are changed
 
