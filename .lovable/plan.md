@@ -1,34 +1,51 @@
 
 
-# Lock the Tables Page for Production
+# Lock the Guest List Page for Production
 
-Add production-lock warning headers to all Tables page component files. This is the same protection pattern already used on the Full Seating Chart, Place Cards, and Delete Confirmation Modal -- a prominent comment block at the top of each file warning that the feature is locked and must not be modified without explicit owner approval.
+Add production-lock warning headers to all Guest List page component and hook files that are not yet protected. This is the same pattern used on the Tables page, Full Seating Chart, Place Cards, and other locked features.
 
-## Files to Lock (8 files total)
+## Already Locked (no changes needed)
+- GuestListTable.tsx
+- AddGuestModal.tsx
+- GuestDeleteConfirmationModal.tsx
+- useRealtimeGuests.ts
 
-1. **src/components/Dashboard/Tables/SortableTablesGrid.tsx** -- Core drag-and-drop grid logic
-2. **src/components/Dashboard/Tables/SortableGuestItem.tsx** -- Individual draggable guest items
-3. **src/components/Dashboard/Tables/TableGuestList.tsx** -- Guest list within each table card
-4. **src/components/Dashboard/Tables/TopDropZone.tsx** -- Drop zone for Seat 1 positioning
-5. **src/components/Dashboard/Tables/UnassignedGuestsPanel.tsx** -- Unassigned guests sidebar
-6. **src/components/Dashboard/Tables/BulkMoveBar.tsx** -- Bulk move action bar
-7. **src/components/Dashboard/Tables/index.ts** -- Barrel exports
-8. **src/components/Dashboard/TableCard.tsx** -- Individual table card component
+## Files to Lock (16 files)
+
+### Component files (15)
+1. **GuestBulkActionsBar.tsx** -- Bulk selection action bar (select all, delete, RSVP, email, SMS)
+2. **GuestMobileCard.tsx** -- Mobile-friendly guest card layout
+3. **BulkRsvpUpdateModal.tsx** -- Bulk RSVP status update modal
+4. **BulkTableAssignmentModal.tsx** -- Bulk table assignment modal
+5. **StatsBar.tsx** -- Guest/table statistics bar
+6. **FamilyGroupCombobox.tsx** -- Family group selector
+7. **RelationSelector.tsx** -- Relation assignment selector
+8. **RelationBadge.tsx** -- Relation display badge
+9. **RelationAssignmentDialog.tsx** -- Relation assignment dialog
+10. **RelationSettingsModal.tsx** -- Relation settings configuration
+11. **CustomRoleManager.tsx** -- Custom role management
+12. **GroupTypeDialog.tsx** -- Group type selection dialog
+13. **ImportErrorModal.tsx** -- Import error display modal
+14. **SendRsvpConfirmModal.tsx** -- RSVP send confirmation modal
+15. **RsvpActivationModal.tsx** -- RSVP activation modal
+
+### Hook files (1)
+16. **src/hooks/useGuests.ts** -- Core guest CRUD operations hook
 
 ## What Gets Added
 
 Each file receives this header block at the very top (before any existing code):
 
-```
+```text
 /**
  * PRODUCTION-READY -- LOCKED FOR PRODUCTION
  *
- * The Tables page feature is COMPLETE and APPROVED for production use.
+ * The Guest List page feature is COMPLETE and APPROVED for production use.
  *
  * CRITICAL RULES:
  * - DO NOT modify without explicit owner approval
- * - Changes could break drag-and-drop guest assignment
- * - Changes could break table capacity validation
+ * - Changes could break guest list management
+ * - Changes could break bulk actions and RSVP workflows
  * - Changes could break real-time synchronisation
  *
  * Last locked: 2026-02-19
@@ -36,3 +53,4 @@ Each file receives this header block at the very top (before any existing code):
 ```
 
 No functional code changes -- only protective comment headers are added.
+
