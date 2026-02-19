@@ -1430,28 +1430,30 @@ const otherGuests = allGuests
               </div>
             )}
 
-            {/* Family Group */}
-            <FormField
-              control={form.control}
-              name="family_group"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Family Group</FormLabel>
-                  <FormControl>
-                    <FamilyGroupCombobox
-                      eventId={eventId}
-                      value={field.value || ""}
-                      onChange={(familyName: string, memberIds: string[]) => {
-                        field.onChange(familyName);
-                        setPendingFamilyMembers(memberIds);
-                      }}
-                      currentGuestId={editGuest?.id}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            {/* Family Group - only shown in Edit mode */}
+            {isEdit && (
+              <FormField
+                control={form.control}
+                name="family_group"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Family Group</FormLabel>
+                    <FormControl>
+                      <FamilyGroupCombobox
+                        eventId={eventId}
+                        value={field.value || ""}
+                        onChange={(familyName: string, memberIds: string[]) => {
+                          field.onChange(familyName);
+                          setPendingFamilyMembers(memberIds);
+                        }}
+                        currentGuestId={editGuest?.id}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
 
             {/* Relation - show current value with change button for edit mode */}
             {!(relationsHiddenProp ?? ((selectedEvent as any)?.relation_mode === 'off')) && isEdit && (
