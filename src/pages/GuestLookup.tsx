@@ -61,6 +61,7 @@ interface Event {
   rsvp_deadline?: string | null;
   start_time?: string | null;
   finish_time?: string | null;
+  event_timezone?: string | null;
 }
 
 export const GuestLookup: React.FC = () => {
@@ -94,6 +95,14 @@ export const GuestLookup: React.FC = () => {
     const now = new Date();
     return now <= deadline;
   }, [event?.rsvp_deadline]);
+
+  // Auto-detect event day to switch header wording
+  const isEventDay = useMemo(() => {
+    if (!event?.date) return false;
+    const tz = event.event_timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: tz }); // YYYY-MM-DD
+    return todayStr === event.date;
+  }, [event?.date, event?.event_timezone]);
 
   // Check for tab parameter in URL - default to search
   useEffect(() => {
@@ -164,6 +173,14 @@ export const GuestLookup: React.FC = () => {
 
         // Extract event data from first row
         const firstRow = publicData[0];
+
+        // Fetch event timezone (not returned by RPC)
+        const { data: tzData } = await supabase
+          .from('events')
+          .select('event_timezone')
+          .eq('id', firstRow.event_id)
+          .maybeSingle();
+
             const eventData = {
               id: firstRow.event_id,
               name: firstRow.event_name,
@@ -173,6 +190,7 @@ export const GuestLookup: React.FC = () => {
               partner2_name: firstRow.partner2_name,
               start_time: firstRow.event_start_time,
               finish_time: firstRow.event_finish_time,
+              event_timezone: tzData?.event_timezone ?? null,
             };
         setEvent(eventData);
 
@@ -600,10 +618,10 @@ export const GuestLookup: React.FC = () => {
               <Card className="ww-box card-elevated">
                 <CardHeader className="text-center">
                   <CardTitle className="flex items-center justify-center font-bold whitespace-nowrap text-lg md:text-xl">
-                    Type Your Full Name Here
+                    {isEventDay ? "Type Your Full Name" : "Type Your Full Name Here"}
                   </CardTitle>
                   <CardTitle className="flex items-center justify-center font-bold whitespace-nowrap text-lg md:text-xl">
-                    {isEditable ? "Update & Confirm Your Details" : "Find Your Seat"}
+                    {isEventDay ? "To Find Your Table & Seat" : (isEditable ? "Update & Confirm Your Details" : "Find Your Seat")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6">
