@@ -1,32 +1,16 @@
 
-# Remove "Family Group" from Add New Guest Form
+# Update Wording in Relation Assignment Popup
 
-## What Changes
+## Changes
 
-The "Family Group" input field will be hidden when adding a new guest (Individual, Couple, or Family). It will remain visible in the Edit Guest popup, so hosts can manage family grouping after the initial creation.
+Two simple text updates across all guest types (Individual, Couple, Family) since they all share the same components:
 
-## Why This Makes Sense
+### 1. RelationAssignmentDialog.tsx (line 148)
+- **Before:** "Select relation for"
+- **After:** "What relationship is this guest to the couple?"
 
-- When adding a Couple or Family, the system already auto-generates the family group name (e.g. "Smith & Jones" or "Smith Family")
-- For Individual guests, a family group at creation time is rarely needed
-- Keeping it in Edit Guest gives full control later without cluttering the initial form
+### 2. RelationSelector.tsx (line 204)
+- **Before:** "Select partner & role"
+- **After:** "Select partner and relationship"
 
-## Technical Detail
-
-**File: `src/components/Dashboard/AddGuestModal.tsx`** (lines 1433-1454)
-
-Wrap the Family Group field block with an `isEdit` condition so it only renders during editing:
-
-```
-// Before (always shown)
-{/* Family Group */}
-<FormField ... name="family_group" ... />
-
-// After (edit mode only)
-{isEdit && (
-  {/* Family Group */}
-  <FormField ... name="family_group" ... />
-)}
-```
-
-Single condition added around an existing block -- no other files or logic affected. The auto-generation of family group names for couples/families continues to work as before.
+Both components are shared across all three Add Guest tabs, so a single change in each file covers Individual, Couple, and Family flows.
