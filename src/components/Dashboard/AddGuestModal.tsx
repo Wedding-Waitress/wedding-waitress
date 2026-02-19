@@ -50,7 +50,7 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
-import { X, AlertCircle, Users, Utensils, Calendar, MapPin, Plus, RefreshCw } from 'lucide-react';
+import { X, AlertCircle, Users, Utensils, Calendar, MapPin, Plus } from 'lucide-react';
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useTables } from "@/hooks/useTables";
@@ -123,9 +123,6 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
     custom_roles: [] as string[]
   });
   
-  // Swap seat functionality
-  const [swapWithGuestId, setSwapWithGuestId] = useState<string | null>(null);
-  const [sameTableGuests, setSameTableGuests] = useState<{id: string, name: string, seat_no: number}[]>([]);
   
   // Group type dialog state for edit mode
   const [showGroupTypeDialog, setShowGroupTypeDialog] = useState(false);
@@ -251,8 +248,6 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
     setPartyMembers([]);
     setShowAddMemberForm(false);
     setMemberForm({ first_name: '', last_name: '', mobile: '', email: '', dietary: 'None' });
-    setSwapWithGuestId(null);
-    setSameTableGuests([]);
     setShowGroupTypeDialog(false);
     setPendingEditSaveData(null);
     setShowRelationAssignment(false);
@@ -383,7 +378,6 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
   const fetchTakenSeats = useCallback(async (tableId: string) => {
     if (!tableId || tableId === "none") {
       setTakenSeats(prev => ({ ...prev, [tableId]: [] }));
-      setSameTableGuests([]);
       return;
     }
 
@@ -403,19 +397,6 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
         guestId: guest.id
       }));
 
-      // For swap dropdown: show all other guests on the same table (exclude current guest)
-      if (isEdit && editGuest) {
-const otherGuests = allGuests
-                .filter(g => g.guestId !== editGuest.id)
-                .map(g => ({
-                  id: g.guestId,
-                  name: g.guestName,
-                  seat_no: g.seatNo
-                }))
-                .sort((a, b) => (a.seat_no || 0) - (b.seat_no || 0));
-              setSameTableGuests(otherGuests);
-      }
-
       const taken = allGuests
         .filter(guest => 
           // Exclude current guest when editing
@@ -426,7 +407,6 @@ const otherGuests = allGuests
     } catch (error) {
       console.error('Error fetching taken seats:', error);
       setTakenSeats(prev => ({ ...prev, [tableId]: [] }));
-      setSameTableGuests([]);
     }
   }, [eventId, isEdit, editGuest]);
 
@@ -610,54 +590,6 @@ const otherGuests = allGuests
       };
 
       if (isEdit && editGuest) {
-        // Handle seat swap if selected - use 3-step process to avoid unique constraint violation
-        if (swapWithGuestId && editGuest.seat_no) {
-          const swapGuest = sameTableGuests.find(g => g.id === swapWithGuestId);
-          if (swapGuest) {
-            const originalSeatNo = editGuest.seat_no;
-            const targetSeatNo = swapGuest.seat_no;
-            
-            // Step 1: Set current guest's seat to NULL temporarily
-            const { error: nullError } = await supabase
-              .from('guests')
-              .update({ seat_no: null })
-              .eq('id', editGuest.id);
-            
-            if (nullError) {
-              console.error('Error clearing seat:', nullError);
-              toast({
-                title: "Swap Failed",
-                description: "Failed to swap seats. Please try again.",
-                variant: "destructive",
-              });
-              setLoading(false);
-              return;
-            }
-            
-            // Step 2: Update the other guest to take current guest's original seat
-            const { error: swapError } = await supabase
-              .from('guests')
-              .update({ seat_no: originalSeatNo })
-              .eq('id', swapWithGuestId);
-            
-            if (swapError) {
-              console.error('Error swapping seat:', swapError);
-              // Rollback: restore original guest's seat
-              await supabase.from('guests').update({ seat_no: originalSeatNo }).eq('id', editGuest.id);
-              toast({
-                title: "Swap Failed",
-                description: "Failed to swap seats. Please try again.",
-                variant: "destructive",
-              });
-              setLoading(false);
-              return;
-            }
-            
-            // Step 3: Update current guest to take the other guest's seat (done in main update below)
-            finalGuestData.seat_no = targetSeatNo;
-          }
-        }
-
         // Update existing guest
         const { error } = await supabase
           .from('guests')
@@ -1184,34 +1116,6 @@ const otherGuests = allGuests
               />
             </div>
 
-            {/* Swap Seat With - Only shown when editing a seated guest */}
-            {isEdit && editGuest?.seat_no && sameTableGuests.length > 0 && (
-              <div className="space-y-2">
-                <Label className="flex items-center gap-2 text-sm font-medium">
-                  <RefreshCw className="w-4 h-4" />
-                  Swap Seat With
-                </Label>
-                <Select 
-                  value={swapWithGuestId || "none"} 
-                  onValueChange={(value) => setSwapWithGuestId(value === "none" ? null : value)}
-                >
-                  <SelectTrigger className="w-full border-2 border-[#7248e6] hover:border-[#7248e6] focus:border-[#7248e6] focus:border-[3px] focus:ring-0 focus:outline-none rounded-full">
-                    <SelectValue placeholder="Select guest to swap seats with..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">Don't swap</SelectItem>
-                    {sameTableGuests.map(guest => (
-                      <SelectItem key={guest.id} value={guest.id}>
-                        {guest.name} — Seat {guest.seat_no}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <p className="text-xs text-muted-foreground">
-                  Select a guest to swap seats with. Both guests' seat numbers will be exchanged.
-                </p>
-              </div>
-            )}
 
             {/* RSVP Invite Status Badge - Show when editing */}
             {isEdit && editGuest && (
