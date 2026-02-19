@@ -3,7 +3,11 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { GripVertical, Trash2, Copy } from 'lucide-react';
+import { GripVertical, Trash2, Copy, Eraser } from 'lucide-react';
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { DJMCItem, SectionType } from '@/types/djMCQuestionnaire';
 import { DJMCMusicUrlField } from './DJMCMusicUrlField';
 import { DJMCPronunciationRecorder } from './DJMCPronunciationRecorder';
@@ -14,6 +18,7 @@ interface DJMCSectionRowProps {
   onUpdate: (updates: Partial<DJMCItem>) => void;
   onDelete: () => void;
   onDuplicate: () => void;
+  onClearText?: () => void;
   disabled?: boolean;
 }
 
@@ -23,9 +28,12 @@ export function DJMCSectionRow({
   onUpdate,
   onDelete,
   onDuplicate,
+  onClearText,
   disabled = false,
 }: DJMCSectionRowProps) {
   const [editingLabel, setEditingLabel] = useState(false);
+  const [showClearDialog, setShowClearDialog] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [editingValue, setEditingValue] = useState(false);
   const [editingSongTitleArtist, setEditingSongTitleArtist] = useState(false);
   const [localLabel, setLocalLabel] = useState(item.row_label);
@@ -203,26 +211,43 @@ export function DJMCSectionRow({
         </div>
 
         {/* Action buttons */}
-        <div className="flex items-center gap-1 w-16 justify-end opacity-0 group-hover:opacity-100 transition-opacity">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-7 w-7"
-            onClick={onDuplicate}
-            title="Duplicate row"
-          >
+        <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onDuplicate} title="Duplicate">
             <Copy className="h-3.5 w-3.5" />
           </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-7 w-7 text-destructive hover:text-destructive"
-            onClick={onDelete}
-            title="Delete row"
-          >
+          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setShowClearDialog(true)} title="Clear Text">
+            <Eraser className="h-3.5 w-3.5" />
+          </Button>
+          <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive" onClick={() => setShowDeleteDialog(true)} title="Delete">
             <Trash2 className="h-3.5 w-3.5" />
           </Button>
         </div>
+
+        <AlertDialog open={showClearDialog} onOpenChange={setShowClearDialog}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Clear Text?</AlertDialogTitle>
+              <AlertDialogDescription>This will clear all text on this row. Once cleared, it cannot be retrieved.</AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={() => onClearText?.()}>Clear Text</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
+        <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete Row?</AlertDialogTitle>
+              <AlertDialogDescription>This will delete this row. Once deleted, it cannot be retrieved.</AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction className="bg-destructive text-destructive-foreground hover:bg-destructive/90" onClick={onDelete}>Delete</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     );
   }
@@ -592,26 +617,43 @@ export function DJMCSectionRow({
       )}
 
       {/* Action buttons */}
-      <div className="flex items-center gap-1 w-16 justify-end opacity-0 group-hover:opacity-100 transition-opacity">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-7 w-7"
-          onClick={onDuplicate}
-          title="Duplicate row"
-        >
+      <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onDuplicate} title="Duplicate">
           <Copy className="h-3.5 w-3.5" />
         </Button>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-7 w-7 text-destructive hover:text-destructive"
-          onClick={onDelete}
-          title="Delete row"
-        >
+        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setShowClearDialog(true)} title="Clear Text">
+          <Eraser className="h-3.5 w-3.5" />
+        </Button>
+        <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive" onClick={() => setShowDeleteDialog(true)} title="Delete">
           <Trash2 className="h-3.5 w-3.5" />
         </Button>
       </div>
+
+      <AlertDialog open={showClearDialog} onOpenChange={setShowClearDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Clear Text?</AlertDialogTitle>
+            <AlertDialogDescription>This will clear all text on this row. Once cleared, it cannot be retrieved.</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={() => onClearText?.()}>Clear Text</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Row?</AlertDialogTitle>
+            <AlertDialogDescription>This will delete this row. Once deleted, it cannot be retrieved.</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction className="bg-destructive text-destructive-foreground hover:bg-destructive/90" onClick={onDelete}>Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

@@ -445,6 +445,7 @@ export function DJMCQuestionnaireSection({
                       onUpdate={(updates) => onUpdateItem(item.id, updates)}
                       onDelete={() => onDeleteItem(item.id)}
                       onDuplicate={() => onDuplicateItem(item)}
+                      onClearText={() => onUpdateItem(item.id, { value_text: null, song_title_artist: null, music_url: null, duration: null, pronunciation_audio_url: null })}
                       disabled={disabled}
                     />
                   ))}
