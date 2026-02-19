@@ -1,34 +1,24 @@
 
+# Fix: Move Assign Relation Popup Higher on Screen
 
-# Fix: Relation Assignment Popup Not Appearing
-
-## What's Wrong
-
-The "Add Guest" button does nothing because **form validation silently blocks submission**. Here's why:
-
-The form validation rules (in `validation.ts`) require both `relation_partner` and `relation_role` to be non-empty strings. Since the relation field was removed from the form, these fields are always empty when you click "Add Guest" -- so validation fails and the form never submits. The popup code exists and is correct, but it never gets a chance to run.
+## The Problem
+The Assign Relation dialog sits at the default center of the screen (50% from top). When the dropdown opens, it extends below the visible area, cutting off the role options and the "Add New Custom Relation" input.
 
 ## The Fix
+Override the default vertical positioning on the `DialogContent` so the dialog sits near the top of the screen instead of dead center. This gives plenty of room below for the dropdown to expand.
 
-Make the relation fields optional in the validation rules so the form can submit without them. The relation assignment popup will then appear as intended.
+## Technical Detail
 
----
+**File: `src/components/Dashboard/RelationAssignmentDialog.tsx`** (line 131)
 
-## Technical Details
+Change the `DialogContent` className to add `top-[8%] translate-y-0` which overrides the default `top-[50%] translate-y-[-50%]` centering, pushing the dialog up near the red line you indicated in your screenshot.
 
-### File: `src/lib/security/validation.ts` (lines 68-74)
-
-**Current** (blocks submission when empty):
 ```
-relation_partner: z.string().min(1, "...").max(50, "...")
-relation_role: z.string().min(1, "...").max(50, "...")
-```
+// Before
+<DialogContent className="sm:max-w-md rounded-2xl border-2 border-primary/30">
 
-**Fixed** (allows empty, popup handles the rest):
-```
-relation_partner: z.string().max(50, "...").optional().or(z.literal(''))
-relation_role: z.string().max(50, "...").optional().or(z.literal(''))
+// After
+<DialogContent className="sm:max-w-md rounded-2xl border-2 border-primary/30 top-[8%] translate-y-0">
 ```
 
-This is a two-line change. Everything else -- the popup component, the submission logic, the per-member assignments -- is already wired up correctly and will work once validation stops blocking.
-
+This is a single-line change -- no other files affected.
