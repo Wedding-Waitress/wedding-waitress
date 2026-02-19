@@ -146,7 +146,7 @@ export function RunningSheetRow({ item, onUpdate, onDuplicate, onDelete, onClear
         value={eventText}
         onChange={handleEventChange}
         placeholder="Event"
-        className={`flex-1 min-w-0 text-sm bg-background border border-input rounded-md px-3 py-1.5 resize-none overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${headerClasses}`}
+        className="flex-1 min-w-0 text-sm bg-background border border-input rounded-md px-3 py-1.5 resize-none overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         rows={1}
         disabled={disabled}
       />
@@ -169,7 +169,7 @@ export function RunningSheetRow({ item, onUpdate, onDuplicate, onDelete, onClear
           {hasDJMCData && onInsertFromDJMC && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-7 w-7" title="Insert from DJ-MC">
+                <Button variant="ghost" size="icon" className="h-7 w-7" title="Insert from questionnaire">
                   <ListPlus className="h-3.5 w-3.5 text-primary" />
                 </Button>
               </DropdownMenuTrigger>
