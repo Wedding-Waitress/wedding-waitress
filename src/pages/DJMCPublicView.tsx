@@ -1,3 +1,14 @@
+/**
+ * PRODUCTION-READY -- LOCKED FOR PRODUCTION
+ *
+ * This DJ-MC Questionnaire feature is COMPLETE and APPROVED for production use.
+ *
+ * CRITICAL RULES:
+ * - DO NOT modify without explicit owner approval
+ * - Changes could break questionnaire data, sharing, or PDF export
+ *
+ * Last locked: 2026-02-19
+ */
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Music, ExternalLink, Calendar, MapPin, Clock, AlertCircle, Printer, ChevronDown, ChevronUp } from 'lucide-react';
