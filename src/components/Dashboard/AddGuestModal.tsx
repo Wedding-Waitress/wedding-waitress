@@ -61,6 +61,7 @@ import { useEvents } from "@/hooks/useEvents";
 import { RelationSelector } from "./RelationSelector";
 import { FamilyGroupCombobox } from "./FamilyGroupCombobox";
 import { GroupTypeDialog } from "./GroupTypeDialog";
+import { RelationAssignmentDialog, RelationAssignment, PersonToAssign } from "./RelationAssignmentDialog";
 
 type AddGuestFormData = SecureGuestData;
 
@@ -130,6 +131,11 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
   const [showGroupTypeDialog, setShowGroupTypeDialog] = useState(false);
   const [pendingEditSaveData, setPendingEditSaveData] = useState<any>(null);
   const [pendingMemberNames, setPendingMemberNames] = useState<string[]>([]);
+
+  // Relation assignment dialog state
+  const [showRelationAssignment, setShowRelationAssignment] = useState(false);
+  const [pendingFormData, setPendingFormData] = useState<AddGuestFormData | null>(null);
+  const [peopleToAssign, setPeopleToAssign] = useState<PersonToAssign[]>([]);
 
   // Guest type selection state
   const [guestType, setGuestType] = useState<'individual' | 'couple' | 'family'>('individual');
@@ -249,6 +255,9 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
     setSameTableGuests([]);
     setShowGroupTypeDialog(false);
     setPendingEditSaveData(null);
+    setShowRelationAssignment(false);
+    setPendingFormData(null);
+    setPeopleToAssign([]);
     onClose();
   };
 
@@ -522,27 +531,24 @@ const otherGuests = allGuests
       // Determine if relations are hidden (prefer prop, fall back to DB)
       const isRelationHidden = relationsHiddenProp ?? ((selectedEvent as any)?.relation_mode === 'off');
       
-      // Validate required relation if setting is enabled AND relations are not hidden
-      if (!isRelationHidden && relationSettings.relation_required) {
-        if (!data.relation_partner || !data.relation_role) {
-          form.setError('relation_partner', {
-            type: 'manual',
-            message: 'Partner and role are required'
-          });
-          form.setError('relation_role', {
-            type: 'manual',
-            message: 'Partner and role are required'
-          });
-
-          // Scroll to the field
-          const relationField = document.querySelector('[data-field="relation"]');
-          if (relationField) {
-            relationField.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          }
-
-          setLoading(false);
-          return;
-        }
+      // If relations are NOT hidden and we haven't been through the relation assignment dialog yet,
+      // open it instead of saving directly
+      if (!isRelationHidden && !data.relation_partner && !data.relation_role) {
+        // Build the list of people needing relations
+        const people: PersonToAssign[] = [];
+        const mainName = `${data.first_name} ${data.last_name}`.trim();
+        people.push({ name: mainName, index: -1 });
+        
+        partyMembers.forEach((member, i) => {
+          const memberName = `${member.first_name} ${member.last_name}`.trim();
+          people.push({ name: memberName, index: i });
+        });
+        
+        setPeopleToAssign(people);
+        setPendingFormData(data);
+        setShowRelationAssignment(true);
+        setLoading(false);
+        return;
       }
 
       // Validate table and seat
@@ -796,7 +802,7 @@ const otherGuests = allGuests
           let nextSeatStart = (finalGuestData.seat_no || 0) + 1;
           let unseatedMembers: string[] = [];
 
-          const memberInserts = partyMembers.map(member => {
+          const memberInserts = partyMembers.map((member, memberIndex) => {
             let memberSeatNo: number | null = null;
             let memberTableId = finalGuestData.table_id || null;
             let memberTableNo = finalGuestData.table_no || null;
@@ -818,6 +824,9 @@ const otherGuests = allGuests
               memberAssigned = true;
             }
 
+            // Use per-member relation if available (from memberRelations state)
+            const memberRelation = (member as any)._relation as { partner: string; role: string; display: string } | undefined;
+
             return {
               event_id: eventId,
               user_id: authData.user?.id!,
@@ -832,9 +841,9 @@ const otherGuests = allGuests
               assigned: memberAssigned,
               family_group: autoFamilyGroup,
               rsvp: 'Pending',
-              relation_partner: finalGuestData.relation_partner || '',
-              relation_role: finalGuestData.relation_role || '',
-              relation_display: finalGuestData.relation_display || ''
+              relation_partner: memberRelation?.partner || finalGuestData.relation_partner || '',
+              relation_role: memberRelation?.role || finalGuestData.relation_role || '',
+              relation_display: memberRelation?.display || finalGuestData.relation_display || ''
             };
           });
 
@@ -1424,53 +1433,41 @@ const otherGuests = allGuests
               )}
             />
 
-            {/* Relation Field - Only show if relations are not hidden */}
-            {!(relationsHiddenProp ?? ((selectedEvent as any)?.relation_mode === 'off')) && (
-              <div data-field="relation">
-                <FormField
-                  control={form.control}
-                  name="relation_partner"
-                  render={() => (
-                    <FormItem>
-                      <FormLabel>
-                        Relation
-                        {relationSettings.relation_required && <span className="text-red-500 ml-1">*</span>}
-                      </FormLabel>
-                      <FormControl>
-                        <div>
-                          <RelationSelector
-                            value={{
-                              partner: form.watch('relation_partner') as RelationPartner,
-                              role: form.watch('relation_role') as RelationRole,
-                            }}
-                            onChange={handleRelationChange}
-                            partner1Name={selectedEvent?.partner1_name}
-                            partner2Name={(selectedEvent as any)?.relation_mode === 'two' ? selectedEvent?.partner2_name : undefined}
-                            customRoles={relationSettings.custom_roles}
-                            allowCustomRoles={relationSettings.relation_allow_custom_role}
-                            isSinglePerson={(selectedEvent as any)?.relation_mode === 'single'}
-                            isOpen={relationSelectorOpen}
-                            onToggle={() => setRelationSelectorOpen(!relationSelectorOpen)}
-                            error={form.formState.errors.relation_partner?.message || form.formState.errors.relation_role?.message}
-                            eventId={eventId}
-                            onCustomRoleAdded={(updatedRoles) => {
-                              setRelationSettings(prev => ({
-                                ...prev,
-                                custom_roles: updatedRoles
-                              }));
-                            }}
-                          />
-                        </div>
-                      </FormControl>
-                      {(form.formState.errors.relation_partner || form.formState.errors.relation_role) && (
-                        <p className="text-sm text-red-500 mt-1 flex items-center gap-1">
-                          <AlertCircle className="w-4 h-4" />
-                          {form.formState.errors.relation_partner?.message || form.formState.errors.relation_role?.message}
-                        </p>
-                      )}
-                    </FormItem>
-                  )}
-                />
+            {/* Relation - show current value with change button for edit mode */}
+            {!(relationsHiddenProp ?? ((selectedEvent as any)?.relation_mode === 'off')) && isEdit && (
+              <div className="space-y-1">
+                <Label>
+                  Relation
+                  {relationSettings.relation_required && <span className="text-red-500 ml-1">*</span>}
+                </Label>
+                <div className="flex items-center gap-2">
+                  <div className="flex-1 px-3 py-2 text-sm rounded-full border-2 border-primary/30 bg-muted/30">
+                    {form.watch('relation_partner') && form.watch('relation_role')
+                      ? computeRelationDisplay(
+                          form.watch('relation_partner') as RelationPartner,
+                          form.watch('relation_role') as RelationRole,
+                          selectedEvent?.partner1_name,
+                          selectedEvent?.partner2_name,
+                          relationSettings.custom_roles
+                        )
+                      : <span className="text-muted-foreground">No relation set</span>
+                    }
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="rounded-full border-primary text-primary hover:bg-primary/10"
+                    onClick={() => {
+                      const name = `${form.getValues('first_name')} ${form.getValues('last_name')}`.trim();
+                      setPeopleToAssign([{ name, index: -1 }]);
+                      setPendingFormData(form.getValues());
+                      setShowRelationAssignment(true);
+                    }}
+                  >
+                    Change
+                  </Button>
+                </div>
               </div>
             )}
 
@@ -1543,6 +1540,85 @@ const otherGuests = allGuests
           ...pendingMemberNames
         ].filter(Boolean)}
         totalMembers={1 + pendingFamilyMembers.length}
+      />
+
+      {/* Relation Assignment Step-by-Step Dialog */}
+      <RelationAssignmentDialog
+        isOpen={showRelationAssignment}
+        onClose={() => {
+          setShowRelationAssignment(false);
+          setPendingFormData(null);
+          setPeopleToAssign([]);
+        }}
+        onComplete={(assignments) => {
+          // Apply main guest relation
+          const mainAssignment = assignments[0];
+          if (mainAssignment) {
+            form.setValue('relation_partner', mainAssignment.partner);
+            form.setValue('relation_role', mainAssignment.role);
+          }
+          
+          // For edit mode, just update form values — don't re-submit
+          if (isEdit) {
+            setShowRelationAssignment(false);
+            setPeopleToAssign([]);
+            setPendingFormData(null);
+            return;
+          }
+          
+          // Apply per-member relations for new guests
+          if (assignments.length > 1) {
+            setPartyMembers(prev => prev.map((member, i) => {
+              const memberAssignment = assignments[i + 1];
+              if (memberAssignment && memberAssignment.partner && memberAssignment.role) {
+                const memberDisplay = computeRelationDisplay(
+                  memberAssignment.partner as RelationPartner,
+                  memberAssignment.role as RelationRole,
+                  selectedEvent?.partner1_name,
+                  selectedEvent?.partner2_name,
+                  relationSettings.custom_roles
+                );
+                return {
+                  ...member,
+                  _relation: {
+                    partner: memberAssignment.partner,
+                    role: memberAssignment.role,
+                    display: memberDisplay,
+                  }
+                } as any;
+              }
+              return member;
+            }));
+          }
+          
+          setShowRelationAssignment(false);
+          setPeopleToAssign([]);
+          
+          // Re-trigger submit with relation data now set
+          const updatedData = {
+            ...pendingFormData!,
+            relation_partner: mainAssignment?.partner || '',
+            relation_role: mainAssignment?.role || '',
+          };
+          setPendingFormData(null);
+          
+          // Call onSubmit directly with the updated data
+          onSubmit(updatedData);
+        }}
+        people={peopleToAssign}
+        partner1Name={selectedEvent?.partner1_name}
+        partner2Name={(selectedEvent as any)?.relation_mode === 'two' ? selectedEvent?.partner2_name : undefined}
+        customRoles={relationSettings.custom_roles}
+        allowCustomRoles={relationSettings.relation_allow_custom_role}
+        isSinglePerson={(selectedEvent as any)?.relation_mode === 'single'}
+        eventId={eventId}
+        relationRequired={relationSettings.relation_required}
+        onCustomRoleAdded={(updatedRoles) => {
+          setRelationSettings(prev => ({
+            ...prev,
+            custom_roles: updatedRoles
+          }));
+        }}
       />
     </>
   );
