@@ -210,12 +210,7 @@ export function RunningSheetSection({
               <div className="flex items-center gap-2 px-2 py-2 border-b border-border text-xs font-medium text-muted-foreground uppercase tracking-wide">
                 <div className="w-6 shrink-0" />
                 <div className="basis-1/5 min-w-0">Time</div>
-                <div className="flex-1 min-w-0 flex items-center justify-between">
-                  <span>Event</span>
-                  {hasDJMCData && (
-                    <span className="text-primary text-[10px] font-semibold normal-case tracking-normal">Insert ↓</span>
-                  )}
-                </div>
+                <div className="flex-1 min-w-0">Event</div>
                 <div className="basis-1/5 min-w-0">Who</div>
                 <div className="w-16 shrink-0" />
               </div>
