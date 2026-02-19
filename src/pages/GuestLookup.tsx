@@ -600,14 +600,11 @@ export const GuestLookup: React.FC = () => {
               <Card className="ww-box card-elevated">
                 <CardHeader className="text-center">
                   <CardTitle className="flex items-center justify-center font-bold whitespace-nowrap text-lg md:text-xl">
-                    {isEditable ? "Update & Confirm Your Details" : "Type Your Full Name & Find Your Seat"}
+                    Type Your Full Name Here
                   </CardTitle>
-                  <CardDescription>
-                    {isEditable ? "Type your full name & update your info" : "Start typing your name to find your table assignment"}
-                  </CardDescription>
-                  <p className="text-muted-foreground text-sm md:text-base mt-1">
-                    Type at least 2 letters of your name to search
-                  </p>
+                  <CardTitle className="flex items-center justify-center font-bold whitespace-nowrap text-lg md:text-xl">
+                    {isEditable ? "Update & Confirm Your Details" : "Find Your Seat"}
+                  </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   {/* Search Input */}
@@ -659,9 +656,7 @@ export const GuestLookup: React.FC = () => {
                     </div>
                   )}
 
-                  <Separator />
-
-                  {/* Last Updated */}
+                  {/* Last Updated + Footer */}
                   <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
                     <span>Last updated: {lastUpdated.toLocaleTimeString()}</span>
                     <Button
@@ -674,7 +669,6 @@ export const GuestLookup: React.FC = () => {
                     </Button>
                   </div>
 
-                  {/* Footer */}
                   <div className="text-center text-sm text-muted-foreground space-y-1">
                     <p className="font-medium">Having trouble finding your name?</p>
                     <p>Please contact event organiser for assistance</p>
