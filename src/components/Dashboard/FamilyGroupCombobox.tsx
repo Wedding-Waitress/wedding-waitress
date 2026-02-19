@@ -1,3 +1,16 @@
+/**
+ * PRODUCTION-READY -- LOCKED FOR PRODUCTION
+ *
+ * The Guest List page feature is COMPLETE and APPROVED for production use.
+ *
+ * CRITICAL RULES:
+ * - DO NOT modify without explicit owner approval
+ * - Changes could break guest list management
+ * - Changes could break bulk actions and RSVP workflows
+ * - Changes could break real-time synchronisation
+ *
+ * Last locked: 2026-02-19
+ */
 import React, { useState, useEffect, useRef } from 'react';
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
