@@ -201,7 +201,7 @@ export const RelationSelector: React.FC<RelationSelectorProps> = ({
         )}
       >
         {displayText || (
-          <span className="text-muted-foreground">Select partner & role</span>
+          <span className="text-muted-foreground">Select partner and relationship</span>
         )}
       </div>
 

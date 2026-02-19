@@ -145,7 +145,7 @@ export const RelationAssignmentDialog: React.FC<RelationAssignmentDialogProps> =
         <div className="py-4 space-y-4">
           {/* Current person name */}
           <div className="text-center">
-            <p className="text-sm text-muted-foreground mb-1">Select relation for</p>
+            <p className="text-sm text-muted-foreground mb-1">What relationship is this guest to the couple?</p>
             <p className="text-xl font-bold text-foreground">{currentPerson?.name}</p>
           </div>
 
