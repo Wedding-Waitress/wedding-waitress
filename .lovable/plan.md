@@ -1,35 +1,39 @@
 
+# Lock QR Code Seating Chart Page for Production
 
-# Auto-Switch Guest Lookup Header Text on Event Day
+Add production-lock warning headers to all QR Code Seating Chart files, matching the same pattern used on the Tables page, Individual Table Charts, and other locked features.
 
-On the day of the wedding, the search card header will automatically change so guests are not confused by "Update & Confirm Your Details" messaging. No manual toggle needed -- it syncs with the event date.
+## Files to Lock (7 files)
 
-## What Changes
+**Components (6 files):**
+1. `src/components/Dashboard/QRCode/QRCodeSeatingChart.tsx`
+2. `src/components/Dashboard/QRCode/QRCodeMainCard.tsx`
+3. `src/components/Dashboard/QRCode/QRCodeFeatureGrid.tsx`
+4. `src/components/Dashboard/QRCode/AdvancedQRCustomizer.tsx`
+5. `src/components/Dashboard/QRCode/DietaryChartCustomizer.tsx`
+6. `src/components/Dashboard/QRCode/KitchenDietaryChart.tsx`
 
-**Before event day (as it is now):**
-- Line 1: "Type Your Full Name Here"
-- Line 2: "Update & Confirm Your Details"
+**Hook (1 file):**
+7. `src/hooks/useQRCodeSettings.ts`
 
-**On the event day (automatic):**
-- Line 1: "Type Your Full Name"
-- Line 2: "To Find Your Table & Seat"
+## What Gets Added
 
-Same black color, same font, same size -- only the wording changes.
+Each file will receive a comment block at the top (matching the existing locked-file pattern):
 
-## How It Works
+```
+/**
+ * PRODUCTION-READY -- LOCKED FOR PRODUCTION
+ *
+ * The QR Code Seating Chart feature is COMPLETE and APPROVED for production use.
+ *
+ * CRITICAL RULES:
+ * - DO NOT modify without explicit owner approval
+ * - Changes could break QR code generation and customisation
+ * - Changes could break the guest lookup link system
+ * - Changes could break real-time event syncing
+ *
+ * Last locked: 2026-02-19
+ */
+```
 
-The page already has the event date available (`event.date`). A simple date comparison checks if today matches the event date. If it does, the "day-of" wording is shown instead. This happens automatically with no host action required.
-
-The event timezone field (`event.event_timezone`) will be used if available, so the switchover happens at the correct local time for the venue.
-
-## Technical Detail
-
-**File:** `src/pages/GuestLookup.tsx`
-
-- Add a computed boolean (`isEventDay`) that compares today's date against `event.date`, respecting the event timezone if set.
-- At **lines 602-607**, update the two `CardTitle` elements to use conditional text based on `isEventDay`:
-  - If `isEventDay` is true: "Type Your Full Name" and "To Find Your Table & Seat"
-  - If `isEventDay` is false: keep current text ("Type Your Full Name Here" / "Update & Confirm Your Details" or "Find Your Seat")
-
-One small variable addition and two string conditionals -- no layout or styling changes.
-
+No functional or visual changes -- only protective comment headers added.
