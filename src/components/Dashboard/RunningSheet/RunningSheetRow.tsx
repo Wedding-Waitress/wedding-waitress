@@ -1,9 +1,13 @@
-import React, { useCallback, useRef, useEffect } from 'react';
+import React, { useCallback, useRef, useEffect, useState } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { GripVertical, Copy, Trash, Eraser } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { RunningSheetItem } from '@/types/runningSheet';
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 interface RunningSheetRowProps {
   item: RunningSheetItem;
@@ -86,6 +90,8 @@ export function RunningSheetRow({ item, onUpdate, onDuplicate, onDelete, onClear
   useAutoResize(whoRef, item.responsible || '');
 
   const isHeader = item.is_section_header;
+  const [showClearDialog, setShowClearDialog] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   const handleTimeChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
     onUpdate(item.id, { time_text: e.target.value });
@@ -156,14 +162,44 @@ export function RunningSheetRow({ item, onUpdate, onDuplicate, onDelete, onClear
           <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => onDuplicate(item)} title="Duplicate">
             <Copy className="h-3.5 w-3.5" />
           </Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => onClearText?.(item.id)} title="Clear Text">
+          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setShowClearDialog(true)} title="Clear Text">
             <Eraser className="h-3.5 w-3.5" />
           </Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => onDelete(item.id)} title="Delete">
+          <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => setShowDeleteDialog(true)} title="Delete">
             <Trash className="h-3.5 w-3.5" />
           </Button>
         </div>
       )}
+
+      <AlertDialog open={showClearDialog} onOpenChange={setShowClearDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Clear Text?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will clear all text on this row. Once cleared, it cannot be retrieved.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={() => onClearText?.(item.id)}>Clear Text</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Row?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will delete this row. Once deleted, it cannot be retrieved.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction className="bg-destructive text-destructive-foreground hover:bg-destructive/90" onClick={() => onDelete(item.id)}>Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
