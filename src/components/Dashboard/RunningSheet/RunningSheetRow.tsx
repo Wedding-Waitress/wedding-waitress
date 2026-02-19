@@ -43,7 +43,7 @@ function parseEventText(text: string): any {
     }
   }
 
-  const result: any = { text: mainLines.join('\n').trim() };
+  const result: any = { text: mainLines.join('\n') };
   if (bullets.length > 0) result.bullets = bullets;
   if (subText) result.subText = subText;
   return result;
