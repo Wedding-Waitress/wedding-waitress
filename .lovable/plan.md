@@ -1,29 +1,32 @@
 
 
-# Match DJ-MC Questionnaire Row Styling to Running Sheet
+# Add "Clear All Fields" and Per-Row "Clear Text" to Running Sheet
 
-## Summary
+## Changes
 
-Three visual changes to the DJ-MC Questionnaire rows to match the Running Sheet's look and feel:
+### 1. "Clear All Fields" in the dropdown menu (three dots)
 
-1. **Always-visible drag handles** -- The six-dot grip icon will always be shown, not just on hover.
-2. **Purple hover background** -- Hovering over a row will show the same dark purple background (`bg-purple-200`) as the Running Sheet.
-3. **Gray background on fields** -- All value/text display areas will have a subtle gray background (matching the Running Sheet's input styling) for better visibility.
+Add a new menu item **above** "Reset to Default" in the three-dot dropdown. It will have a small eraser/X icon and the label "Clear All Fields". When clicked, it will clear the `time_text`, `description_rich`, and `responsible` fields on every row -- but keep the rows themselves intact (unlike "Reset to Default" which replaces rows with the template).
+
+A confirmation dialog will appear: "Clear All Fields? This will erase the text in every row but keep the rows. This cannot be undone."
+
+### 2. Per-row "Clear Text" icon button
+
+Between the Duplicate and Delete icons on each row, add a new icon button (using the `Eraser` icon from lucide-react). On hover it shows the tooltip "Clear Text". Clicking it clears that single row's `time_text` to `""`, `description_rich` to `{ text: "" }`, and `responsible` to `""`.
 
 ## Technical Details
 
-### File: `src/components/Dashboard/DJMCQuestionnaire/DJMCSectionRow.tsx`
+### File: `src/components/Dashboard/RunningSheet/RunningSheetSection.tsx`
 
-**1. Drag handle always visible**
-- Line 156 (do_not_play layout): Remove `opacity-0 group-hover:opacity-100 transition-opacity` from the drag handle wrapper.
-- Line 241 (standard layout): Same removal.
+- Import `Eraser` from lucide-react.
+- Add a `clearAllFields` callback that calls `onUpdateItem` for every item, setting `time_text: ""`, `description_rich: { text: "" }`, `responsible: ""`.
+- Add a new `DropdownMenuItem` with the Eraser icon and "Clear All Fields" label above the existing "Reset to Default" item (line 163).
+- Add a confirmation `AlertDialog` for "Clear All Fields" (similar to the existing Reset to Default dialog).
+- Pass a new `onClearText` prop down to `RunningSheetRow`.
 
-**2. Purple hover on rows**
-- Line 150 (do_not_play layout): Change `hover:bg-muted/50` to `hover:bg-purple-200`.
-- Line 235 (standard layout): Change `hover:bg-muted/50` to `hover:bg-purple-200`.
+### File: `src/components/Dashboard/RunningSheet/RunningSheetRow.tsx`
 
-**3. Gray background on display fields**
-- Update all non-editing display `<div>` elements (the "click to add" text areas) to use `bg-muted` (gray) background instead of transparent, matching the Running Sheet's `bg-background border border-input` textarea styling. This affects approximately 10-12 display divs across the various section type layouts (speeches, introductions, ceremony, traditional, cocktail, etc.).
-
-No other files need to change.
+- Import `Eraser` from lucide-react.
+- Accept a new `onClearText` prop (`(itemId: string) => void`).
+- Add a new `Button` between Duplicate and Delete (line 155-156) with the Eraser icon, `title="Clear Text"`, that calls `onClearText(item.id)`.
 
