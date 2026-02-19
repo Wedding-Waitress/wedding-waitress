@@ -1,427 +1,266 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { RunningSheet, RunningSheetItem, RunningSheetWithUpdater } from '@/types/runningSheet';
+import { RunningSheetItem, RunningSheetShareToken } from '@/types/runningSheet';
 import debounce from 'lodash-es/debounce';
 
-export const useRunningSheet = (eventId: string | null) => {
-  const [sheet, setSheet] = useState<RunningSheetWithUpdater | null>(null);
-  const [items, setItems] = useState<RunningSheetItem[]>([]);
+interface RunningSheetData {
+  id: string;
+  event_id: string;
+  user_id: string;
+  items: RunningSheetItem[];
+}
+
+const DEFAULT_ROWS: Omit<RunningSheetItem, 'id' | 'sheet_id' | 'created_at' | 'updated_at'>[] = [
+  { order_index: 0, time_text: '3:30', description_rich: { text: 'Ceremony' }, responsible: 'Celebrant', is_section_header: false },
+  { order_index: 1, time_text: '4:00', description_rich: { text: 'Group and Family Photos' }, responsible: 'Photographer', is_section_header: false },
+  { order_index: 2, time_text: '4:15', description_rich: { text: 'Pre-Dinner Drinks and Canapes' }, responsible: '', is_section_header: false },
+  { order_index: 3, time_text: '5:45', description_rich: { text: 'Guests Seated' }, responsible: '', is_section_header: false },
+  { order_index: 4, time_text: '6:00', description_rich: { text: 'Bridal Party Entrance' }, responsible: '', is_section_header: false },
+  { order_index: 5, time_text: '6:15', description_rich: { text: 'Entree' }, responsible: '', is_section_header: false },
+  { order_index: 6, time_text: '7:00', description_rich: { text: 'Main Meals' }, responsible: '', is_section_header: false },
+  { order_index: 7, time_text: '7:45', description_rich: { text: 'Speeches' }, responsible: 'MC', is_section_header: false },
+  { order_index: 8, time_text: '8:30', description_rich: { text: 'Dessert' }, responsible: '', is_section_header: false },
+  { order_index: 9, time_text: '10:30', description_rich: { text: 'Flower Toss and Farewell Circle' }, responsible: 'MC', is_section_header: false },
+];
+
+export function useRunningSheet(eventId: string | null) {
+  const [sheet, setSheet] = useState<RunningSheetData | null>(null);
   const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [sectionLabel, setSectionLabel] = useState('Running Sheet');
+  const [sectionNotes, setSectionNotes] = useState<string | null>(null);
+  const [shareTokens, setShareTokens] = useState<RunningSheetShareToken[]>([]);
   const { toast } = useToast();
 
-  // Fetch or create sheet for event
-  const fetchSheet = async () => {
-    if (!eventId) return;
-
+  const fetchSheet = useCallback(async () => {
+    if (!eventId) { setSheet(null); return; }
     setLoading(true);
     try {
-      // Try to fetch existing sheet
-      const { data: existingSheet, error: fetchError } = await supabase
+      const { data: existing, error: fetchErr } = await supabase
         .from('running_sheets')
         .select('*')
         .eq('event_id', eventId)
         .maybeSingle();
+      if (fetchErr) throw fetchErr;
 
-      if (fetchError) throw fetchError;
-
-      if (existingSheet) {
-        // Fetch updater name
-        if (existingSheet.updated_by) {
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('first_name, last_name')
-            .eq('id', existingSheet.updated_by)
-            .single();
-
-          setSheet({
-            ...existingSheet,
-            updated_by_name: profile ? `${profile.first_name} ${profile.last_name}` : 'Unknown',
-          });
-        } else {
-          setSheet(existingSheet);
-        }
-
-        // Fetch items
-        const { data: itemsData, error: itemsError } = await supabase
-          .from('running_sheet_items')
-          .select('*')
-          .eq('sheet_id', existingSheet.id)
-          .order('order_index');
-
-        if (itemsError) throw itemsError;
-        setItems(itemsData || []);
+      let sheetId: string;
+      if (existing) {
+        sheetId = existing.id;
       } else {
-        // Create new sheet with 10 blank rows
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) throw new Error('Not authenticated');
-
-        const { data: newSheet, error: createError } = await supabase
+        const { data: newSheet, error: createErr } = await supabase
           .from('running_sheets')
-          .insert({
-            event_id: eventId,
-            user_id: user.id,
-            show_responsible: true,
-            updated_by: user.id,
-          })
+          .insert({ event_id: eventId, user_id: user.id, show_responsible: true })
           .select()
           .single();
+        if (createErr) throw createErr;
+        sheetId = newSheet.id;
 
-        if (createError) throw createError;
-
-        // Create 10 blank rows
-        const blankItems = Array.from({ length: 10 }, (_, i) => ({
-          sheet_id: newSheet.id,
-          order_index: (i + 1) * 10,
-          time_text: '',
-          description_rich: {},
-          responsible: '',
-          is_section_header: false,
-        }));
-
-        const { data: newItems, error: itemsError } = await supabase
-          .from('running_sheet_items')
-          .insert(blankItems)
-          .select();
-
-        if (itemsError) throw itemsError;
-
-        // Get updater name
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('first_name, last_name')
-          .eq('id', user.id)
-          .single();
-
-        setSheet({
-          ...newSheet,
-          updated_by_name: profile ? `${profile.first_name} ${profile.last_name}` : 'Unknown',
-        });
-        setItems(newItems || []);
+        // Create default rows
+        const rowsToInsert = DEFAULT_ROWS.map(r => ({ ...r, sheet_id: sheetId }));
+        await supabase.from('running_sheet_items').insert(rowsToInsert);
       }
+
+      // Fetch items
+      const { data: items, error: itemsErr } = await supabase
+        .from('running_sheet_items')
+        .select('*')
+        .eq('sheet_id', sheetId)
+        .order('order_index');
+      if (itemsErr) throw itemsErr;
+
+      const { data: sheetData } = await supabase
+        .from('running_sheets')
+        .select('*')
+        .eq('id', sheetId)
+        .single();
+
+      setSheet({ id: sheetId, event_id: eventId, user_id: sheetData?.user_id || '', items: items || [] });
+
+      // Fetch share tokens
+      const { data: tokens } = await supabase
+        .from('running_sheet_share_tokens')
+        .select('*')
+        .eq('sheet_id', sheetId)
+        .order('created_at', { ascending: false });
+      setShareTokens((tokens as RunningSheetShareToken[]) || []);
     } catch (error) {
-      console.error('Error fetching/creating sheet:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to load running sheet',
-        variant: 'destructive',
-      });
+      console.error('Error fetching running sheet:', error);
+      toast({ title: 'Error', description: 'Failed to load running sheet', variant: 'destructive' });
     } finally {
       setLoading(false);
     }
-  };
+  }, [eventId, toast]);
 
-  useEffect(() => {
-    fetchSheet();
-  }, [eventId]);
+  useEffect(() => { fetchSheet(); }, [fetchSheet]);
 
-  // Create new item
-  const createItem = async (itemData: Partial<RunningSheetItem>): Promise<string | null> => {
-    if (!sheet) return null;
+  // Debounced item save
+  const debouncedItemSave = useRef(
+    debounce(async (itemId: string, updates: Partial<RunningSheetItem>) => {
+      setSaving(true);
+      try {
+        const { error } = await supabase.from('running_sheet_items').update(updates).eq('id', itemId);
+        if (error) throw error;
+      } catch (error) {
+        console.error('Error saving item:', error);
+      } finally {
+        setSaving(false);
+      }
+    }, 600)
+  ).current;
 
+  const updateItem = useCallback((itemId: string, updates: Partial<RunningSheetItem>) => {
+    setSheet(prev => {
+      if (!prev) return prev;
+      return { ...prev, items: prev.items.map(i => i.id === itemId ? { ...i, ...updates } : i) };
+    });
+    debouncedItemSave(itemId, updates);
+  }, [debouncedItemSave]);
+
+  const addItem = useCallback(async () => {
+    if (!sheet) return;
+    const newOrderIndex = sheet.items.length;
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Not authenticated');
+      const { data: newItem, error } = await supabase
+        .from('running_sheet_items')
+        .insert({ sheet_id: sheet.id, order_index: newOrderIndex, time_text: '', description_rich: { text: '' }, responsible: '', is_section_header: false })
+        .select()
+        .single();
+      if (error) throw error;
+      setSheet(prev => prev ? { ...prev, items: [...prev.items, newItem as RunningSheetItem] } : prev);
+    } catch (error) {
+      console.error('Error adding item:', error);
+      toast({ title: 'Error', description: 'Failed to add row', variant: 'destructive' });
+    }
+  }, [sheet, toast]);
 
-      const maxOrderIndex = items.length > 0 
-        ? Math.max(...items.map(i => i.order_index))
-        : 0;
+  const deleteItem = useCallback(async (itemId: string) => {
+    try {
+      const { error } = await supabase.from('running_sheet_items').delete().eq('id', itemId);
+      if (error) throw error;
+      setSheet(prev => prev ? { ...prev, items: prev.items.filter(i => i.id !== itemId) } : prev);
+    } catch (error) {
+      console.error('Error deleting item:', error);
+      toast({ title: 'Error', description: 'Failed to delete row', variant: 'destructive' });
+    }
+  }, [toast]);
 
+  const duplicateItem = useCallback(async (item: RunningSheetItem) => {
+    if (!sheet) return;
+    try {
       const { data: newItem, error } = await supabase
         .from('running_sheet_items')
         .insert({
           sheet_id: sheet.id,
-          order_index: itemData.order_index !== undefined ? itemData.order_index : maxOrderIndex + 10,
-          time_text: itemData.time_text || '',
-          description_rich: itemData.description_rich || {},
-          responsible: itemData.responsible || '',
-          is_section_header: itemData.is_section_header || false,
+          order_index: item.order_index + 1,
+          time_text: item.time_text,
+          description_rich: item.description_rich,
+          responsible: item.responsible,
+          is_section_header: false,
         })
         .select()
         .single();
-
       if (error) throw error;
 
-      setItems(prevItems => [...prevItems, newItem]);
-
-      // Update sheet metadata
-      await updateSheetMetadata(user.id);
-
-      toast({
-        title: '✓ Saved',
-        duration: 1500,
-      });
-
-      return newItem.id;
-    } catch (error) {
-      console.error('Error creating item:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to create item',
-        variant: 'destructive',
-      });
-      return null;
-    }
-  };
-
-  // Update item - Optimistic with silent auto-save
-  const updateItem = async (id: string, data: Partial<RunningSheetItem>) => {
-    // Get snapshot of current item for rollback
-    const prevItem = items.find(i => i.id === id);
-    
-    // Optimistic UI update
-    setItems(prevItems => prevItems.map(item => 
-      item.id === id ? { ...item, ...data } : item
-    ));
-
-    try {
-      const { error } = await supabase
-        .from('running_sheet_items')
-        .update(data)
-        .eq('id', id);
-
-      if (error) throw error;
-
-      // Update metadata in background with debounce
-      debouncedUpdateMetadata();
-    } catch (error) {
-      // Rollback on error
-      if (prevItem) {
-        setItems(prevItems => prevItems.map(item => 
-          item.id === id ? prevItem : item
-        ));
-      }
-      
-      console.error('Error updating item:', error);
-      toast({
-        title: 'Save Failed',
-        description: 'Changes could not be saved. Please try again.',
-        variant: 'destructive',
-      });
-    }
-  };
-
-  // Delete item
-  const deleteItem = async (id: string) => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Not authenticated');
-
-      const { error } = await supabase
-        .from('running_sheet_items')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
-
-      // Update local state with reindexing
-      setItems(prevItems => {
-        const filtered = prevItems.filter(item => item.id !== id);
-        return filtered.map((item, index) => ({
-          ...item,
-          order_index: (index + 1) * 10
-        }));
-      });
-
-      // Update sheet metadata
-      await updateSheetMetadata(user.id);
-
-      toast({
-        title: '✓ Deleted',
-        duration: 1500,
+      setSheet(prev => {
+        if (!prev) return prev;
+        const idx = prev.items.findIndex(i => i.id === item.id);
+        const newItems = [...prev.items];
+        newItems.splice(idx + 1, 0, newItem as RunningSheetItem);
+        return { ...prev, items: newItems };
       });
     } catch (error) {
-      console.error('Error deleting item:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to delete item',
-        variant: 'destructive',
-      });
+      console.error('Error duplicating item:', error);
+      toast({ title: 'Error', description: 'Failed to duplicate row', variant: 'destructive' });
     }
-  };
+  }, [sheet, toast]);
 
-  // Reorder items
-  const reorderItems = async (newOrder: RunningSheetItem[]) => {
+  const reorderItems = useCallback(async (items: RunningSheetItem[]) => {
+    setSheet(prev => prev ? { ...prev, items } : prev);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Not authenticated');
-
-      // Update order_index for all items
-      const updates = newOrder.map((item, index) => ({
-        id: item.id,
-        order_index: (index + 1) * 10,
-      }));
-
-      for (const update of updates) {
-        await supabase
-          .from('running_sheet_items')
-          .update({ order_index: update.order_index })
-          .eq('id', update.id);
-      }
-
-      setItems(newOrder);
-
-      // Update sheet metadata
-      await updateSheetMetadata(user.id);
-
-      toast({
-        title: '✓ Reordered',
-        duration: 1500,
-      });
+      await Promise.all(items.map((item, index) =>
+        supabase.from('running_sheet_items').update({ order_index: index }).eq('id', item.id)
+      ));
     } catch (error) {
       console.error('Error reordering items:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to reorder items',
-        variant: 'destructive',
-      });
     }
-  };
+  }, []);
 
-  // Update sheet metadata
-  const updateSheetMetadata = async (userId: string) => {
+  const resetToDefault = useCallback(async () => {
     if (!sheet) return;
-
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('first_name, last_name')
-      .eq('id', userId)
-      .single();
-
-    await supabase
-      .from('running_sheets')
-      .update({
-        updated_by: userId,
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', sheet.id);
-
-    setSheet({
-      ...sheet,
-      updated_by: userId,
-      updated_at: new Date().toISOString(),
-      updated_by_name: profile ? `${profile.first_name} ${profile.last_name}` : 'Unknown',
-    });
-  };
-
-  // Update sheet settings
-  const updateSheet = async (data: Partial<RunningSheet>) => {
-    if (!sheet) return;
-
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Not authenticated');
-
-      const { error } = await supabase
-        .from('running_sheets')
-        .update({
-          ...data,
-          updated_by: user.id,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', sheet.id);
-
+      await supabase.from('running_sheet_items').delete().eq('sheet_id', sheet.id);
+      const rowsToInsert = DEFAULT_ROWS.map(r => ({ ...r, sheet_id: sheet.id }));
+      const { data: newItems, error } = await supabase.from('running_sheet_items').insert(rowsToInsert).select();
       if (error) throw error;
-
-      // Fetch updated profile name
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('first_name, last_name')
-        .eq('id', user.id)
-        .single();
-
-      setSheet({
-        ...sheet,
-        ...data,
-        updated_by: user.id,
-        updated_at: new Date().toISOString(),
-        updated_by_name: profile ? `${profile.first_name} ${profile.last_name}` : 'Unknown',
-      });
-
-      toast({
-        title: '✓ Updated',
-        duration: 1500,
-      });
+      setSheet(prev => prev ? { ...prev, items: newItems as RunningSheetItem[] } : prev);
+      setSectionLabel('Running Sheet');
+      setSectionNotes(null);
+      toast({ title: 'Reset Complete', description: 'Section has been reset to defaults' });
     } catch (error) {
-      console.error('Error updating sheet:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to update settings',
-        variant: 'destructive',
-      });
+      console.error('Error resetting:', error);
+      toast({ title: 'Error', description: 'Failed to reset section', variant: 'destructive' });
     }
-  };
+  }, [sheet, toast]);
 
-  // Debounced metadata updater
-  const debouncedUpdateMetadata = useMemo(
-    () => debounce(async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user || !sheet) return;
-      await updateSheetMetadata(user.id);
-    }, 5000),
-    [sheet?.id]
-  );
+  const generateShareToken = useCallback(async (
+    permission: 'view_only' | 'can_edit',
+    recipientName?: string,
+    validityDays?: number
+  ): Promise<string | null> => {
+    if (!sheet) return null;
+    try {
+      const { data, error } = await supabase.rpc('generate_running_sheet_share_token', {
+        _sheet_id: sheet.id,
+        _permission: permission,
+        _recipient_name: recipientName || null,
+        _validity_days: validityDays || 90,
+      });
+      if (error) throw error;
+      // Refresh tokens
+      const { data: tokens } = await supabase
+        .from('running_sheet_share_tokens')
+        .select('*')
+        .eq('sheet_id', sheet.id)
+        .order('created_at', { ascending: false });
+      setShareTokens((tokens as RunningSheetShareToken[]) || []);
+      return data as string;
+    } catch (error) {
+      console.error('Error generating share token:', error);
+      toast({ title: 'Error', description: 'Failed to generate share link', variant: 'destructive' });
+      return null;
+    }
+  }, [sheet, toast]);
 
-  // Debounced save
-  const debouncedSave = useMemo(
-    () =>
-      debounce((id: string, data: Partial<RunningSheetItem>) => {
-        updateItem(id, data);
-      }, 600), // Changed to 600ms for better UX
-    []
-  );
-
-  // Duplicate item (insert directly below)
-  const duplicateItem = async (itemId: string) => {
-    const item = items.find(i => i.id === itemId);
-    if (!item || item.is_section_header) return; // Prevent copying headers
-    
-    const currentIndex = items.findIndex(i => i.id === itemId);
-    const nextItem = items[currentIndex + 1];
-    const newOrderIndex = nextItem 
-      ? (item.order_index + nextItem.order_index) / 2 
-      : item.order_index + 10;
-    
-    await createItem({
-      time_text: item.time_text,
-      description_rich: item.description_rich,
-      responsible: item.responsible,
-      is_section_header: false, // Never duplicate as header
-      order_index: newOrderIndex,
-    });
-    
-    toast({
-      title: '✓ Duplicated',
-      duration: 1500,
-    });
-  };
-
-  // Insert section header above current row
-  const insertSectionHeaderAbove = async (currentOrderIndex: number) => {
-    await createItem({
-      time_text: '',
-      description_rich: { text: 'Section Header – Click to Rename', formatting: {} },
-      responsible: '',
-      is_section_header: true,
-      order_index: currentOrderIndex - 0.5,
-    });
-    
-    // Refresh to re-number all items
-    await fetchSheet();
-  };
+  const deleteShareToken = useCallback(async (tokenId: string) => {
+    try {
+      await supabase.from('running_sheet_share_tokens').delete().eq('id', tokenId);
+      setShareTokens(prev => prev.filter(t => t.id !== tokenId));
+      toast({ title: 'Deleted', description: 'Share link removed' });
+    } catch (error) {
+      console.error('Error deleting share token:', error);
+      toast({ title: 'Error', description: 'Failed to delete share link', variant: 'destructive' });
+    }
+  }, [toast]);
 
   return {
     sheet,
-    items,
     loading,
-    createItem,
+    saving,
+    sectionLabel,
+    setSectionLabel,
+    sectionNotes,
+    setSectionNotes,
+    shareTokens,
     updateItem,
+    addItem,
     deleteItem,
     duplicateItem,
-    insertSectionHeaderAbove,
     reorderItems,
-    updateSheet,
-    debouncedSave,
-    refetch: fetchSheet,
+    resetToDefault,
+    generateShareToken,
+    deleteShareToken,
   };
-};
+}

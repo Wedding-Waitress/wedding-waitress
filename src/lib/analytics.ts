@@ -1,7 +1,7 @@
 // Analytics utility for Who Is functionality
 // Ensures no PII is included beyond IDs and enums
 
-import { flags } from './featureFlags';
+// Feature flags removed
 
 export interface AnalyticsEvent {
   name: string;
@@ -9,9 +9,7 @@ export interface AnalyticsEvent {
 }
 
 // Guard function to prevent analytics for disabled features
-const shouldTrack = (eventName: string): boolean => {
-  // Block analytics for disabled features
-  if (eventName.toLowerCase().includes('running_sheet') && !flags.runningSheet) return false;
+const shouldTrack = (_eventName: string): boolean => {
   return true;
 };
 

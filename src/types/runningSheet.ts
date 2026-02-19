@@ -1,38 +1,22 @@
-export interface RunningSheet {
-  id: string;
-  event_id: string;
-  user_id: string;
-  venue_logo_url: string | null;
-  show_responsible: boolean;
-  updated_by: string | null;
-  updated_at: string;
-  created_at: string;
-  
-  // Formatting settings (stored as strings in DB but typed here for convenience)
-  all_font?: string;
-  all_text_size?: string;
-  all_bold?: boolean;
-  all_italic?: boolean;
-  all_text_color?: string;
-  header_font?: string;
-  header_size?: string;
-  header_bold?: boolean;
-  header_italic?: boolean;
-  header_color?: string;
-}
-
 export interface RunningSheetItem {
   id: string;
   sheet_id: string;
   order_index: number;
   time_text: string;
-  description_rich: any; // JSON/rich text object
+  description_rich: any;
   responsible: string | null;
   is_section_header: boolean;
   created_at: string;
   updated_at: string;
 }
 
-export interface RunningSheetWithUpdater extends RunningSheet {
-  updated_by_name?: string;
+export interface RunningSheetShareToken {
+  id: string;
+  sheet_id: string;
+  token: string;
+  permission: string;
+  recipient_name: string | null;
+  expires_at: string | null;
+  last_accessed_at: string | null;
+  created_at: string;
 }

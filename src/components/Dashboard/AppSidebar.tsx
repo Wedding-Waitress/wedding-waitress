@@ -18,7 +18,7 @@ import {
 import { useIsAdmin } from '@/hooks/useIsAdmin';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { flags } from '@/lib/featureFlags';
+// Feature flags removed
 import {
   Sidebar,
   SidebarContent,
@@ -51,8 +51,8 @@ interface AppSidebarProps {
     { id: "dietary-chart", label: "Dietary Requirements", icon: ChefHat },
     { id: "full-seating-chart", label: "Full Seating Chart", icon: FileText },
     { id: "kiosk-live-view", label: "Kiosk Live View", icon: Monitor },
+    { id: "running-sheet", label: "Running Sheet", icon: ClipboardList },
     { id: "dj-mc-questionnaire", label: "DJ-MC Questionnaire", icon: Music },
-    ...(flags.runningSheet ? [{ id: "running-sheet", label: "Running Sheet", icon: ClipboardList }] : []),
   ];
   
   const menuItems = allMenuItems;

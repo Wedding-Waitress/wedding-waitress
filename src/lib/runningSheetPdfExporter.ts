@@ -1,263 +1,230 @@
 import jsPDF from 'jspdf';
-import { format } from 'date-fns';
-import { RunningSheet, RunningSheetItem } from '@/types/runningSheet';
+import { RunningSheetItem } from '@/types/runningSheet';
 
-const PURPLE_ACCENT = '#6D28D9';
-const RED_EMPHASIS = '#D92D20';
+interface Event {
+  id: string;
+  name: string;
+  date: string | null;
+  venue: string | null;
+  ceremony_date?: string | null;
+  ceremony_venue?: string | null;
+  start_time?: string | null;
+  finish_time?: string | null;
+  ceremony_start_time?: string | null;
+  ceremony_finish_time?: string | null;
+}
 
-export const exportRunningSheetToPdf = async (
-  event: any,
-  sheet: RunningSheet,
-  items: RunningSheetItem[]
-) => {
-  const pdf = new jsPDF({
-    orientation: 'portrait',
-    unit: 'mm',
-    format: 'a4',
+const PURPLE = { r: 109, g: 40, b: 217 };
+
+const formatDateWithOrdinal = (dateString: string | null | undefined): string => {
+  if (!dateString) return 'TBD';
+  const date = new Date(dateString + 'T00:00:00');
+  const day = date.getDate();
+  const ordinal = (n: number) => {
+    const s = ['th', 'st', 'nd', 'rd'];
+    const v = n % 100;
+    return n + (s[(v - 20) % 10] || s[v] || s[0]);
+  };
+  const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  const dayName = date.toLocaleDateString('en-US', { weekday: 'long' });
+  return `${dayName} ${ordinal(day)}, ${monthNames[date.getMonth()]} ${date.getFullYear()}`;
+};
+
+const formatTimeDisplay = (time: string | null | undefined): string => {
+  if (!time) return 'TBD';
+  const [hours, minutes] = time.split(':');
+  const hour = parseInt(hours);
+  const ampm = hour >= 12 ? 'PM' : 'AM';
+  const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
+  return `${displayHour}:${minutes} ${ampm}`;
+};
+
+const formatGeneratedTimestamp = (): string => {
+  const now = new Date();
+  return `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+};
+
+const loadLogoAsBase64 = async (): Promise<string | null> => {
+  try {
+    const response = await fetch('/jpeg-2.jpg');
+    const blob = await response.blob();
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  } catch {
+    return null;
+  }
+};
+
+const getEventText = (item: RunningSheetItem): string => {
+  if (typeof item.description_rich === 'object' && item.description_rich?.text !== undefined) return item.description_rich.text;
+  if (typeof item.description_rich === 'string') return item.description_rich;
+  return '';
+};
+
+const truncateText = (pdf: jsPDF, text: string, maxWidth: number): string => {
+  if (!text) return '';
+  let truncated = text;
+  while (pdf.getTextWidth(truncated) > maxWidth && truncated.length > 3) {
+    truncated = truncated.slice(0, -4) + '...';
+  }
+  return truncated;
+};
+
+const drawRunningSheetTable = (
+  pdf: jsPDF,
+  items: RunningSheetItem[],
+  startY: number,
+  pageWidth: number,
+  margin: number,
+  contentWidth: number,
+  sectionLabel: string,
+  sectionNotes: string | null
+): number => {
+  const rowHeight = 7;
+  const headerHeight = 8;
+  let yPos = startY;
+
+  // Section title
+  pdf.setFont('helvetica', 'bold');
+  pdf.setFontSize(14);
+  pdf.setTextColor(PURPLE.r, PURPLE.g, PURPLE.b);
+  pdf.text(sectionLabel, margin, yPos);
+  yPos += 5;
+
+  if (sectionNotes) {
+    pdf.setFont('helvetica', 'italic');
+    pdf.setFontSize(9);
+    pdf.setTextColor(100, 100, 100);
+    const noteLines = pdf.splitTextToSize(`Notes: ${sectionNotes}`, contentWidth);
+    pdf.text(noteLines, margin, yPos);
+    yPos += noteLines.length * 4 + 2;
+  }
+
+  // Column widths: Time 20%, Event 50%, Who 30%
+  const colWidths = [0.2, 0.5, 0.3];
+  const colHeaders = ['TIME', 'EVENT', 'WHO'];
+
+  // Header row
+  pdf.setFillColor(245, 245, 245);
+  pdf.rect(margin, yPos, contentWidth, headerHeight, 'F');
+  pdf.setFont('helvetica', 'bold');
+  pdf.setFontSize(8);
+  pdf.setTextColor(80, 80, 80);
+
+  let xPos = margin + 2;
+  colHeaders.forEach((header, idx) => {
+    pdf.text(header, xPos, yPos + 5);
+    xPos += contentWidth * colWidths[idx];
+  });
+  yPos += headerHeight;
+
+  pdf.setDrawColor(200, 200, 200);
+  pdf.setLineWidth(0.3);
+  pdf.line(margin, yPos, margin + contentWidth, yPos);
+
+  // Data rows
+  pdf.setFont('helvetica', 'normal');
+  pdf.setFontSize(9);
+  pdf.setTextColor(0, 0, 0);
+
+  items.forEach((item, idx) => {
+    if (idx % 2 === 0) {
+      pdf.setFillColor(252, 252, 252);
+      pdf.rect(margin, yPos, contentWidth, rowHeight, 'F');
+    }
+
+    const values = [item.time_text || '', getEventText(item), item.responsible || ''];
+    xPos = margin + 2;
+    values.forEach((value, colIdx) => {
+      const colWidth = contentWidth * colWidths[colIdx];
+      const truncatedValue = truncateText(pdf, value, colWidth - 4);
+      pdf.text(truncatedValue, xPos, yPos + 5);
+      xPos += colWidth;
+    });
+
+    yPos += rowHeight;
+    pdf.setDrawColor(230, 230, 230);
+    pdf.setLineWidth(0.1);
+    pdf.line(margin, yPos, margin + contentWidth, yPos);
   });
 
+  return yPos + 8;
+};
+
+export const exportRunningSheetPDF = async (
+  items: RunningSheetItem[],
+  event: Event,
+  sectionLabel: string = 'Running Sheet',
+  sectionNotes: string | null = null
+): Promise<void> => {
+  const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
   const pageWidth = 210;
   const pageHeight = 297;
-  const marginLeft = 8;
-  const marginRight = 8;
-  const marginTop = 12;
-  const marginBottom = 12;
-  const contentWidth = pageWidth - marginLeft - marginRight;
+  const margin = 15;
+  const contentWidth = pageWidth - (2 * margin);
+  const logoBase64 = await loadLogoAsBase64();
 
-  let currentPage = 1;
-  let y = marginTop;
+  let yPos = margin;
 
-  // Apply user settings
-  const fontSizeMap = { small: 9, medium: 10.5, large: 12 }; // Convert pt to PDF points
-  const textFontSize = fontSizeMap[sheet.all_text_size || 'medium'];
-  const headerFontSize = fontSizeMap[sheet.header_size || 'large'];
-  const textFont = sheet.all_font || 'helvetica';
-  const headerFont = sheet.header_font || 'helvetica';
-  const textColor = sheet.all_text_color || '#000000';
-  const headerColorHex = sheet.header_color || '#6D28D9';
+  // Header
+  pdf.setFont('helvetica', 'bold');
+  pdf.setFontSize(18);
+  pdf.setTextColor(PURPLE.r, PURPLE.g, PURPLE.b);
+  pdf.text(event.name, pageWidth / 2, yPos, { align: 'center' });
+  yPos += 7;
 
-  // Load Wedding Waitress logo
-  const logoImg = await loadLogo();
+  pdf.setFontSize(14);
+  pdf.setTextColor(0, 0, 0);
+  pdf.text('Running Sheet', pageWidth / 2, yPos, { align: 'center' });
+  yPos += 6;
 
-  const addHeader = (pageNum: number) => {
-    y = marginTop;
+  pdf.setFont('helvetica', 'normal');
+  pdf.setFontSize(10);
+  pdf.setTextColor(80, 80, 80);
+  const receptionDate = formatDateWithOrdinal(event.date);
+  const receptionVenue = event.venue || 'Venue TBD';
+  const receptionTime = `${formatTimeDisplay(event.start_time)} - ${formatTimeDisplay(event.finish_time)}`;
+  pdf.text(`Reception: ${receptionDate}`, pageWidth / 2, yPos, { align: 'center' });
+  yPos += 4;
+  pdf.text(`${receptionVenue} | ${receptionTime}`, pageWidth / 2, yPos, { align: 'center' });
+  yPos += 4;
 
-    // Line 1: Event Name (center, bold, purple)
-    pdf.setFontSize(16);
-    pdf.setFont('helvetica', 'bold');
-    pdf.setTextColor(PURPLE_ACCENT);
-    const eventName = event.name || 'Event';
-    pdf.text(eventName, pageWidth / 2, y, { align: 'center' });
-    y += 8;
+  if (event.ceremony_date) {
+    const ceremonyDate = formatDateWithOrdinal(event.ceremony_date);
+    const ceremonyVenue = event.ceremony_venue || 'Venue TBD';
+    const ceremonyTime = `${formatTimeDisplay(event.ceremony_start_time)} - ${formatTimeDisplay(event.ceremony_finish_time)}`;
+    pdf.text(`Ceremony: ${ceremonyDate}`, pageWidth / 2, yPos, { align: 'center' });
+    yPos += 4;
+    pdf.text(`${ceremonyVenue} | ${ceremonyTime}`, pageWidth / 2, yPos, { align: 'center' });
+    yPos += 4;
+  }
 
-    // Line 2: Running Sheet - Date
-    pdf.setFontSize(12);
-    pdf.setFont('helvetica', 'normal');
-    pdf.setTextColor('#000000');
-    const eventDate = event.date ? format(new Date(event.date), 'EEEE do MMMM yyyy') : '';
-    pdf.text(`Running Sheet – ${eventDate}`, pageWidth / 2, y, { align: 'center' });
-    y += 6;
+  yPos += 2;
+  pdf.setDrawColor(PURPLE.r, PURPLE.g, PURPLE.b);
+  pdf.setLineWidth(0.5);
+  pdf.line(margin, yPos, pageWidth - margin, yPos);
+  yPos += 10;
 
-    // Line 3: Venue, Total Items, Page X of Y, Generated
-    pdf.setFontSize(9);
-    const venueName = event.venue || 'Venue';
-    const totalItems = items.length;
-    const totalPages = Math.ceil(items.length / 15); // Estimate
-    const generatedDate = format(new Date(), 'dd/MM/yy');
-    const generatedTime = format(new Date(), 'h:mm a');
-    const line3 = `${venueName} – Total Items: ${totalItems} – Page ${pageNum} of ${totalPages} – Generated on: ${generatedDate} – Time: ${generatedTime}`;
-    pdf.text(line3, pageWidth / 2, y, { align: 'center' });
-    y += 6;
+  yPos = drawRunningSheetTable(pdf, items, yPos, pageWidth, margin, contentWidth, sectionLabel, sectionNotes);
 
-    // Divider line
-    pdf.setDrawColor('#CCCCCC');
-    pdf.line(marginLeft, y, pageWidth - marginRight, y);
-    y += 8;
-  };
+  // Footer logo
+  if (logoBase64) {
+    try {
+      pdf.addImage(logoBase64, 'JPEG', (pageWidth - 35) / 2, pageHeight - margin - 10, 35, 10);
+    } catch {}
+  }
 
-  const addFooter = () => {
-    // Wedding Waitress logo at bottom center
-    if (logoImg) {
-      const logoWidth = 40;
-      const logoHeight = 12;
-      const logoX = (pageWidth - logoWidth) / 2;
-      const logoY = pageHeight - marginBottom - logoHeight - 5;
-      pdf.addImage(logoImg, 'PNG', logoX, logoY, logoWidth, logoHeight);
-    }
-  };
+  pdf.setFont('helvetica', 'normal');
+  pdf.setFontSize(7);
+  pdf.setTextColor(150, 150, 150);
+  pdf.text(`Generated: ${formatGeneratedTimestamp()}`, pageWidth - margin, pageHeight - 5, { align: 'right' });
 
-  // Add first page header
-  addHeader(currentPage);
-
-  // Column widths (percentage-based)
-  const timeWidth = contentWidth * 0.15; // 15%
-  const descWidth = contentWidth * 0.55; // 55%
-  const respWidth = contentWidth * 0.20; // 20%
-
-  // Add items with section header tracking
-  let currentGroup = false;
-  let currentSectionHeader: RunningSheetItem | null = null;
-  
-  items.forEach((item, index) => {
-    // Check if we need a new page
-    const itemHeight = item.is_section_header ? 12 : 20;
-    if (y + itemHeight > pageHeight - marginBottom - 20) {
-      addFooter();
-      pdf.addPage();
-      currentPage++;
-      addHeader(currentPage);
-      
-      // Repeat section header on new page if we're in a group
-      if (currentSectionHeader && !item.is_section_header) {
-        // Draw repeated section header
-        pdf.setDrawColor(headerColorHex);
-        pdf.setLineWidth(0.75);
-        pdf.line(marginLeft, y - 4, marginLeft, y + 6);
-        
-        pdf.setFillColor('#F4F4F5');
-        pdf.rect(marginLeft, y - 4, contentWidth, 10, 'F');
-        
-        pdf.setDrawColor('#EAEAEA');
-        pdf.setLineWidth(0.15);
-        pdf.rect(marginLeft, y - 4, contentWidth, 10);
-        
-        pdf.setFontSize(headerFontSize);
-        const headerFontStyle = (sheet.header_bold !== false ? 'bold' : '') + (sheet.header_italic ? 'italic' : 'normal');
-        pdf.setFont(headerFont.toLowerCase().replace(/\s+/g, ''), headerFontStyle || 'bold');
-        pdf.setTextColor(headerColorHex);
-        const headerText = typeof currentSectionHeader.description_rich === 'object' && currentSectionHeader.description_rich.text
-          ? currentSectionHeader.description_rich.text
-          : currentSectionHeader.description_rich || '';
-        pdf.text(headerText, marginLeft + 2, y + 2);
-        y += 12;
-      }
-    }
-
-    if (item.is_section_header) {
-      // Section header
-      currentGroup = true;
-      currentSectionHeader = item; // Track current section header for page breaks
-      
-      // Purple left bar (2px)
-      pdf.setDrawColor(headerColorHex);
-      pdf.setLineWidth(0.75);
-      pdf.line(marginLeft, y - 4, marginLeft, y + 6);
-      
-      // Background
-      pdf.setFillColor('#F4F4F5');
-      pdf.rect(marginLeft, y - 4, contentWidth, 10, 'F');
-      
-      // Border
-      pdf.setDrawColor('#EAEAEA');
-      pdf.setLineWidth(0.15);
-      pdf.rect(marginLeft, y - 4, contentWidth, 10);
-      
-      pdf.setFontSize(headerFontSize);
-      const headerFontStyle = (sheet.header_bold !== false ? 'bold' : '') + (sheet.header_italic ? 'italic' : 'normal');
-      pdf.setFont(headerFont.toLowerCase().replace(/\s+/g, ''), headerFontStyle || 'bold');
-      pdf.setTextColor(headerColorHex);
-      const text = typeof item.description_rich === 'object' && item.description_rich.text
-        ? item.description_rich.text
-        : item.description_rich || '';
-      pdf.text(text, marginLeft + 2, y + 2);
-      y += 12;
-    } else {
-      // Regular row
-      const rowBg = currentGroup ? '#FBFAFF' : (index % 2 === 0 ? '#FFFFFF' : '#FCFCFD');
-      
-      if (rowBg === '#FBFAFF') {
-        pdf.setFillColor(251, 250, 255);
-        pdf.rect(marginLeft, y - 4, contentWidth, itemHeight, 'F');
-      } else if (rowBg === '#FCFCFD') {
-        pdf.setFillColor(252, 252, 253);
-        pdf.rect(marginLeft, y - 4, contentWidth, itemHeight, 'F');
-      }
-
-      pdf.setFontSize(textFontSize);
-      const baseFontStyle = (sheet.all_bold ? 'bold' : '') + (sheet.all_italic ? 'italic' : 'normal');
-      pdf.setFont(textFont.toLowerCase().replace(/\s+/g, ''), baseFontStyle || 'normal');
-
-      // Apply indent if in group
-      const indentOffset = currentGroup ? 3.5 : 0;
-
-      // Time
-      pdf.setTextColor(textColor);
-      pdf.text(item.time_text || '', marginLeft + indentOffset, y);
-
-      // Description
-      const descX = marginLeft + timeWidth + 2 + indentOffset;
-      const descText = typeof item.description_rich === 'object' && item.description_rich.text
-        ? item.description_rich.text
-        : item.description_rich || '';
-      
-      // Check formatting
-      const formatting = typeof item.description_rich === 'object' && item.description_rich.formatting
-        ? item.description_rich.formatting
-        : {};
-
-      const descFontStyle = ((formatting.bold || sheet.all_bold) ? 'bold' : '') + 
-                           ((formatting.italic || sheet.all_italic) ? 'italic' : 'normal');
-      pdf.setFont(textFont.toLowerCase().replace(/\s+/g, ''), descFontStyle || 'normal');
-      if (formatting.red) {
-        pdf.setTextColor(RED_EMPHASIS);
-      } else {
-        pdf.setTextColor(textColor);
-      }
-
-      const descLines = pdf.splitTextToSize(descText, descWidth);
-      pdf.text(descLines, descX, y);
-
-      // Reset formatting
-      pdf.setFont(textFont.toLowerCase().replace(/\s+/g, ''), baseFontStyle || 'normal');
-      pdf.setTextColor(textColor);
-
-      // Responsible
-      if (sheet.show_responsible) {
-        const respX = marginLeft + timeWidth + descWidth + 4 + indentOffset;
-        pdf.text(item.responsible || '', respX, y);
-      }
-      
-      // Borders
-      pdf.setDrawColor('#EAEAEA');
-      pdf.setLineWidth(0.15);
-      pdf.rect(marginLeft, y - 4, contentWidth, itemHeight);
-
-      y += Math.max(descLines.length * 5, 10);
-    }
-    
-    // Check if next row is a header (end group)
-    const nextItem = items[index + 1];
-    if (nextItem && nextItem.is_section_header) {
-      currentGroup = false;
-      currentSectionHeader = null;
-    }
-  });
-
-  // Add footer to last page
-  addFooter();
-
-  // Save PDF
-  const fileName = `${event.name}-Running-Sheet-${format(new Date(), 'yyyyMMdd')}.pdf`;
-  pdf.save(fileName);
+  const eventName = event.name.replace(/[^a-zA-Z0-9]/g, '_');
+  pdf.save(`${eventName}-Running-Sheet-${new Date().toISOString().split('T')[0]}.pdf`);
 };
 
-const loadLogo = async (): Promise<string | null> => {
-  return new Promise((resolve) => {
-    const img = new Image();
-    img.crossOrigin = 'anonymous';
-    img.onload = () => {
-      const canvas = document.createElement('canvas');
-      canvas.width = img.width;
-      canvas.height = img.height;
-      const ctx = canvas.getContext('2d');
-      if (ctx) {
-        ctx.drawImage(img, 0, 0);
-        resolve(canvas.toDataURL('image/png'));
-      } else {
-        resolve(null);
-      }
-    };
-    img.onerror = () => resolve(null);
-    img.src = '/wedding-waitress-pdf-footer-logo.png';
-  });
-};
+export const exportRunningSheetSectionPDF = exportRunningSheetPDF;

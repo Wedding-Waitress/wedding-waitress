@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Settings, AlertTriangle, Download } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { flags } from '@/lib/featureFlags';
+// Feature flags removed
 
 export const AdminSystemSettings = () => {
   const [settings, setSettings] = useState({
@@ -17,7 +17,7 @@ export const AdminSystemSettings = () => {
   });
   
   const [featureFlags, setFeatureFlags] = useState({
-    runningSheet: flags.runningSheet as boolean,
+    runningSheet: true,
   });
   
   const { toast } = useToast();

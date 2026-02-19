@@ -1843,6 +1843,47 @@ export type Database = {
           },
         ]
       }
+      running_sheet_share_tokens: {
+        Row: {
+          created_at: string
+          expires_at: string | null
+          id: string
+          last_accessed_at: string | null
+          permission: string
+          recipient_name: string | null
+          sheet_id: string
+          token: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          last_accessed_at?: string | null
+          permission?: string
+          recipient_name?: string | null
+          sheet_id: string
+          token: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          last_accessed_at?: string | null
+          permission?: string
+          recipient_name?: string | null
+          sheet_id?: string
+          token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "running_sheet_share_tokens_sheet_id_fkey"
+            columns: ["sheet_id"]
+            isOneToOne: false
+            referencedRelation: "running_sheets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       running_sheets: {
         Row: {
           all_bold: boolean | null
@@ -2176,6 +2217,15 @@ export type Database = {
         }
         Returns: string
       }
+      generate_running_sheet_share_token: {
+        Args: {
+          _permission?: string
+          _recipient_name?: string
+          _sheet_id: string
+          _validity_days?: number
+        }
+        Returns: string
+      }
       generate_short_slug: { Args: never; Returns: string }
       generate_slug: { Args: { input_text: string }; Returns: string }
       get_dj_mc_questionnaire_by_token: {
@@ -2289,6 +2339,18 @@ export type Database = {
           table_name: string
           table_no: number
           table_notes: string
+        }[]
+      }
+      get_running_sheet_by_token: {
+        Args: { share_token: string }
+        Returns: {
+          event_date: string
+          event_id: string
+          event_name: string
+          event_venue: string
+          items: Json
+          permission: string
+          sheet_id: string
         }[]
       }
       get_user_plan: {
