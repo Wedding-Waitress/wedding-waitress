@@ -1,17 +1,29 @@
 
-# Remove "Swap Seat With" from Edit Guest Modal
+# Edit Guest Modal: Move RSVP Invite Status Badge and Remove Family Group
 
-## What's Changing
+## Changes
 
-Remove the entire "Swap Seat With" dropdown section from the Edit Guest popup. Users can still swap seats via drag-and-drop on the Tables page.
+### 1. Move "Not Sent" badge inline with "RSVP Invite Status" label
+Currently the badge sits below the label on its own line. It will be moved to sit on the same line, to the right of the "RSVP Invite Status" text.
 
-## Technical Changes
+**Before:**
+```
+RSVP Invite Status
+[Not Sent]
+```
+
+**After:**
+```
+RSVP Invite Status    [Not Sent]
+```
+
+### 2. Remove Family Group field from Edit mode
+The Family Group combobox (lines 1337-1360) will be deleted entirely from the Edit Guest form. Users who want to create couples or families can do so from scratch, which is simpler.
+
+## Technical Details
 
 **File: `src/components/Dashboard/AddGuestModal.tsx`**
 
-1. **Remove the UI block** (lines 1187-1214) -- the "Swap Seat With" label, dropdown, and helper text
-2. **Remove the swap logic in the save handler** (around lines 612-660) -- the 3-step seat swap database operations
-3. **Remove state variables** (lines 127-128) -- `swapWithGuestId` and `sameTableGuests`
-4. **Remove the `useEffect`** that populates `sameTableGuests` when editing a seated guest
-5. **Remove the reset calls** for `swapWithGuestId` and `setSameTableGuests` in the form reset function
-6. **Remove the `RefreshCw` icon import** if no longer used elsewhere
+1. **RSVP Invite Status section (lines 1120-1142):** Change from a vertical `space-y-1` layout to a horizontal `flex items-center gap-2` layout, placing the label and badge on the same row.
+
+2. **Family Group section (lines 1337-1360):** Delete the entire `{isEdit && (...)}` block containing the `FamilyGroupCombobox`. Also clean up any related save-handler logic for `family_group` if it becomes unreachable, and remove the `FamilyGroupCombobox` import if no longer used elsewhere.
