@@ -1,39 +1,20 @@
 
-# Lock QR Code Seating Chart Page for Production
+# Remove "View Analytics" Button from Dashboard
 
-Add production-lock warning headers to all QR Code Seating Chart files, matching the same pattern used on the Tables page, Individual Table Charts, and other locked features.
+A simple cleanup: remove the purple "View Analytics" button from the empty Dashboard tab while keeping the icon, title, and description text.
 
-## Files to Lock (7 files)
+## What Changes
 
-**Components (6 files):**
-1. `src/components/Dashboard/QRCode/QRCodeSeatingChart.tsx`
-2. `src/components/Dashboard/QRCode/QRCodeMainCard.tsx`
-3. `src/components/Dashboard/QRCode/QRCodeFeatureGrid.tsx`
-4. `src/components/Dashboard/QRCode/AdvancedQRCustomizer.tsx`
-5. `src/components/Dashboard/QRCode/DietaryChartCustomizer.tsx`
-6. `src/components/Dashboard/QRCode/KitchenDietaryChart.tsx`
+The Dashboard tab currently shows:
+- A trending-up icon
+- "Dashboard Overview" title
+- Welcome description text
+- **"View Analytics" button (to be removed)**
 
-**Hook (1 file):**
-7. `src/hooks/useQRCodeSettings.ts`
+After this change, only the icon, title, and description will remain -- a clean placeholder until you decide to build it out later.
 
-## What Gets Added
+## Technical Detail
 
-Each file will receive a comment block at the top (matching the existing locked-file pattern):
+**File:** `src/pages/Dashboard.tsx`
 
-```
-/**
- * PRODUCTION-READY -- LOCKED FOR PRODUCTION
- *
- * The QR Code Seating Chart feature is COMPLETE and APPROVED for production use.
- *
- * CRITICAL RULES:
- * - DO NOT modify without explicit owner approval
- * - Changes could break QR code generation and customisation
- * - Changes could break the guest lookup link system
- * - Changes could break real-time event syncing
- *
- * Last locked: 2026-02-19
- */
-```
-
-No functional or visual changes -- only protective comment headers added.
+- **Lines 393-396**: Delete the `<Button>` element containing the Plus icon and "View Analytics" text. No other changes needed.
