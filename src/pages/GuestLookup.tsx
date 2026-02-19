@@ -605,17 +605,9 @@ export const GuestLookup: React.FC = () => {
                   <CardDescription>
                     {isEditable ? "Type your full name & update your info" : "Start typing your name to find your table assignment"}
                   </CardDescription>
-                  <div className="flex items-center justify-center gap-2 mt-2 text-xs text-muted-foreground">
-                    <span>Last updated: {lastUpdated.toLocaleTimeString()}</span>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={refreshGuestData}
-                      className="h-6 px-2 text-xs"
-                    >
-                      Refresh
-                    </Button>
-                  </div>
+                  <p className="text-muted-foreground text-sm md:text-base mt-1">
+                    Type at least 2 letters of your name to search
+                  </p>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   {/* Search Input */}
@@ -632,14 +624,6 @@ export const GuestLookup: React.FC = () => {
                   </div>
 
                   {/* Search Instructions */}
-                  {searchTerm.length < 2 && (
-                    <div className="text-center py-6">
-                      <User className="w-10 h-10 md:w-12 md:h-12 mx-auto text-muted-foreground mb-3" />
-                      <p className="text-muted-foreground text-sm md:text-base">
-                        Type at least 2 letters of your name to search
-                      </p>
-                    </div>
-                  )}
 
                   {/* Loading State */}
                   {searching && (
@@ -676,6 +660,19 @@ export const GuestLookup: React.FC = () => {
                   )}
 
                   <Separator />
+
+                  {/* Last Updated */}
+                  <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
+                    <span>Last updated: {lastUpdated.toLocaleTimeString()}</span>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={refreshGuestData}
+                      className="h-6 px-2 text-xs"
+                    >
+                      Refresh
+                    </Button>
+                  </div>
 
                   {/* Footer */}
                   <div className="text-center text-sm text-muted-foreground space-y-1">
