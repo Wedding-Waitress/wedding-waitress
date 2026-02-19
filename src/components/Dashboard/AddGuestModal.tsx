@@ -714,11 +714,14 @@ const otherGuests = allGuests
           handleClose();
         }
       } else {
+        // Use resolved party members from relation dialog if available (avoids React state race condition)
+        const resolvedMembers = (data as any)._resolvedPartyMembers || partyMembers;
+        
         // Auto-generate family group name for couples and families
         let autoFamilyGroup = '';
-        if (guestType === 'couple' && partyMembers.length === 1) {
-          autoFamilyGroup = `${data.last_name} & ${partyMembers[0].last_name}`;
-        } else if (guestType === 'family' && partyMembers.length >= 1) {
+        if (guestType === 'couple' && resolvedMembers.length === 1) {
+          autoFamilyGroup = `${data.last_name} & ${resolvedMembers[0].last_name}`;
+        } else if (guestType === 'family' && resolvedMembers.length >= 1) {
           autoFamilyGroup = `${data.last_name} Family`;
         }
 
@@ -753,6 +756,16 @@ const otherGuests = allGuests
             setLoading(false);
             return;
           }
+
+          if (guestError.code === '23505' && guestError.message?.includes('uniq_guest_name_per_event')) {
+            toast({
+              title: "Duplicate Guest",
+              description: `A guest named "${data.first_name} ${data.last_name}" already exists in this event.`,
+              variant: "destructive",
+            });
+            setLoading(false);
+            return;
+          }
           
           toast({
             title: "Error",
@@ -764,7 +777,7 @@ const otherGuests = allGuests
         }
 
         // Save party members if any
-        if (partyMembers.length > 0 && autoFamilyGroup) {
+        if (resolvedMembers.length > 0 && autoFamilyGroup) {
           const { data: authData } = await supabase.auth.getUser();
 
           // Fetch taken seats for the selected table to avoid collisions
@@ -802,7 +815,7 @@ const otherGuests = allGuests
           let nextSeatStart = (finalGuestData.seat_no || 0) + 1;
           let unseatedMembers: string[] = [];
 
-          const memberInserts = partyMembers.map((member, memberIndex) => {
+          const memberInserts = resolvedMembers.map((member, memberIndex) => {
             let memberSeatNo: number | null = null;
             let memberTableId = finalGuestData.table_id || null;
             let memberTableNo = finalGuestData.table_no || null;
@@ -853,6 +866,13 @@ const otherGuests = allGuests
 
           if (membersError) {
             console.error('Error adding party members:', membersError);
+            if (membersError.code === '23505' && membersError.message?.includes('uniq_guest_name_per_event')) {
+              toast({
+                title: "Duplicate Party Member",
+                description: "One or more party members already exist in this event's guest list.",
+                variant: "destructive",
+              });
+            }
           }
 
           // Warn if some members couldn't get a seat
@@ -902,8 +922,8 @@ const otherGuests = allGuests
               throw membershipError;
             }
 
-            if (pendingFamilyMembers.length > 0 || partyMembers.length > 0) {
-              const totalMembers = pendingFamilyMembers.length + partyMembers.length;
+            if (pendingFamilyMembers.length > 0 || resolvedMembers.length > 0) {
+              const totalMembers = pendingFamilyMembers.length + resolvedMembers.length;
               toast({
                 title: guestType === 'couple' ? 'Couple added' : 'Family added',
                 description: `${data.first_name} ${data.last_name} and ${totalMembers} member(s) have been grouped together.`,
@@ -1566,9 +1586,10 @@ const otherGuests = allGuests
             return;
           }
           
-          // Apply per-member relations for new guests
+          // Apply per-member relations for new guests — compute locally to avoid race condition
+          let updatedMembers = [...partyMembers];
           if (assignments.length > 1) {
-            setPartyMembers(prev => prev.map((member, i) => {
+            updatedMembers = partyMembers.map((member, i) => {
               const memberAssignment = assignments[i + 1];
               if (memberAssignment && memberAssignment.partner && memberAssignment.role) {
                 const memberDisplay = computeRelationDisplay(
@@ -1588,17 +1609,19 @@ const otherGuests = allGuests
                 } as any;
               }
               return member;
-            }));
+            });
+            setPartyMembers(updatedMembers);
           }
           
           setShowRelationAssignment(false);
           setPeopleToAssign([]);
           
-          // Re-trigger submit with relation data now set
+          // Re-trigger submit with relation data now set, using local updatedMembers
           const updatedData = {
             ...pendingFormData!,
             relation_partner: mainAssignment?.partner || '',
             relation_role: mainAssignment?.role || '',
+            _resolvedPartyMembers: updatedMembers,
           };
           setPendingFormData(null);
           
