@@ -1,29 +1,20 @@
 
-# Edit Guest Modal: Move RSVP Invite Status Badge and Remove Family Group
+# Fix Group Header Hover and Darken Guest Row Hover
 
-## Changes
+## Two Changes
 
-### 1. Move "Not Sent" badge inline with "RSVP Invite Status" label
-Currently the badge sits below the label on its own line. It will be moved to sit on the same line, to the right of the "RSVP Invite Status" text.
+### 1. Prevent color change on Family (blue) and Couple (orange) group headers
+The `TableRow` base component applies `hover:bg-muted/50` to all rows, which washes out the blue/orange headers on hover. Fix by adding `hover:bg-blue-600` and `hover:bg-orange-500` to the group header rows so they stay their original color.
 
-**Before:**
-```
-RSVP Invite Status
-[Not Sent]
-```
-
-**After:**
-```
-RSVP Invite Status    [Not Sent]
-```
-
-### 2. Remove Family Group field from Edit mode
-The Family Group combobox (lines 1337-1360) will be deleted entirely from the Edit Guest form. Users who want to create couples or families can do so from scratch, which is simpler.
+### 2. Make guest row hover purple shade darker
+Currently `hover:bg-purple-50` -- change to `hover:bg-purple-100` for a noticeably darker but still subtle purple highlight.
 
 ## Technical Details
 
-**File: `src/components/Dashboard/AddGuestModal.tsx`**
+**File: `src/components/Dashboard/GuestListTable.tsx`**
 
-1. **RSVP Invite Status section (lines 1120-1142):** Change from a vertical `space-y-1` layout to a horizontal `flex items-center gap-2` layout, placing the label and badge on the same row.
+- Line 1779: Change the group header TableRow from `bg-blue-600` / `bg-orange-500` to include matching hover classes:
+  - Family: `"bg-blue-600 hover:bg-blue-600"`
+  - Couple: `"bg-orange-500 hover:bg-orange-500"`
 
-2. **Family Group section (lines 1337-1360):** Delete the entire `{isEdit && (...)}` block containing the `FamilyGroupCombobox`. Also clean up any related save-handler logic for `family_group` if it becomes unreachable, and remove the `FamilyGroupCombobox` import if no longer used elsewhere.
+- Line 1802: Change guest row hover from `hover:bg-purple-50` to `hover:bg-purple-100` (and dark mode from `hover:bg-purple-950/20` to `hover:bg-purple-950/30`)
