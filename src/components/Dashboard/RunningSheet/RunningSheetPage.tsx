@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { ClipboardList, Loader2, FileText, Share2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { exportRunningSheetPDF, exportRunningSheetSectionPDF } from '@/lib/runningSheetPdfExporter';
@@ -9,6 +9,8 @@ import { RunningSheetSection } from './RunningSheetSection';
 import { RunningSheetShareModal } from './RunningSheetShareModal';
 import { useRunningSheet } from '@/hooks/useRunningSheet';
 import { useEvents } from '@/hooks/useEvents';
+import { useDJMCQuestionnaire } from '@/hooks/useDJMCQuestionnaire';
+import { formatDJMCInsert } from '@/lib/djMCInsertFormatter';
 
 interface RunningSheetPageProps {
   selectedEventId: string | null;
@@ -63,6 +65,36 @@ export function RunningSheetPage({ selectedEventId, onEventSelect }: RunningShee
     generateShareToken,
     deleteShareToken,
   } = useRunningSheet(selectedEventId);
+
+  const { questionnaire } = useDJMCQuestionnaire(selectedEventId);
+  const hasDJMCData = !!(questionnaire && questionnaire.sections.length > 0);
+
+  const handleInsertFromDJMC = useCallback((itemId: string, type: 'ceremony' | 'introductions' | 'speeches', includeSongs: boolean) => {
+    if (!questionnaire) {
+      toast({ title: 'No DJ-MC data found', description: 'Please fill in the DJ-MC Questionnaire first.', variant: 'destructive' });
+      return;
+    }
+
+    const formatted = formatDJMCInsert(questionnaire.sections, type, includeSongs);
+    if (!formatted) {
+      toast({ title: 'No data found', description: `No ${type} data found in the DJ-MC Questionnaire.`, variant: 'destructive' });
+      return;
+    }
+
+    const currentItem = sheet?.items.find(i => i.id === itemId);
+    if (!currentItem) return;
+
+    const existingText = typeof currentItem.description_rich === 'string'
+      ? currentItem.description_rich
+      : currentItem.description_rich?.text || '';
+
+    const newText = existingText.trim()
+      ? `${existingText.trim()}\n${formatted}`
+      : formatted;
+
+    updateItem(itemId, { description_rich: { text: newText } });
+    toast({ title: 'Inserted', description: `${type.charAt(0).toUpperCase() + type.slice(1)} data inserted from DJ-MC Questionnaire.` });
+  }, [questionnaire, sheet, updateItem, toast]);
 
   const selectedEvent = events.find(e => e.id === selectedEventId);
 
@@ -211,6 +243,8 @@ export function RunningSheetPage({ selectedEventId, onEventSelect }: RunningShee
             onReorderItems={reorderItems}
             onResetToDefault={resetToDefault}
             onDownloadSectionPDF={handleDownloadSectionPDF}
+            onInsertFromDJMC={handleInsertFromDJMC}
+            hasDJMCData={hasDJMCData}
           />
         </div>
       ) : null}

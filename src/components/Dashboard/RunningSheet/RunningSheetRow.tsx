@@ -1,13 +1,17 @@
 import React, { useCallback, useRef, useEffect, useState } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { GripVertical, Copy, Trash, Eraser } from 'lucide-react';
+import { GripVertical, Copy, Trash, Eraser, ListPlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { RunningSheetItem } from '@/types/runningSheet';
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
+  DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuSubContent,
+} from '@/components/ui/dropdown-menu';
 
 interface RunningSheetRowProps {
   item: RunningSheetItem;
@@ -15,7 +19,9 @@ interface RunningSheetRowProps {
   onDuplicate: (item: RunningSheetItem) => void;
   onDelete: (itemId: string) => void;
   onClearText?: (itemId: string) => void;
+  onInsertFromDJMC?: (itemId: string, type: 'ceremony' | 'introductions' | 'speeches', includeSongs: boolean) => void;
   disabled?: boolean;
+  hasDJMCData?: boolean;
 }
 
 /** Build display text from description_rich (text + bullets + subText) */
@@ -64,7 +70,7 @@ function useAutoResize(ref: React.RefObject<HTMLTextAreaElement>, value: string)
   }, [ref, value]);
 }
 
-export function RunningSheetRow({ item, onUpdate, onDuplicate, onDelete, onClearText, disabled = false }: RunningSheetRowProps) {
+export function RunningSheetRow({ item, onUpdate, onDuplicate, onDelete, onClearText, onInsertFromDJMC, disabled = false, hasDJMCData = false }: RunningSheetRowProps) {
   const {
     attributes,
     listeners,
@@ -159,6 +165,44 @@ export function RunningSheetRow({ item, onUpdate, onDuplicate, onDelete, onClear
       {/* Row actions */}
       {!disabled && (
         <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity shrink-0 mt-1">
+          {/* Insert from DJ-MC */}
+          {hasDJMCData && onInsertFromDJMC && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-7 w-7" title="Insert from DJ-MC">
+                  <ListPlus className="h-3.5 w-3.5 text-primary" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuSub>
+                  <DropdownMenuSubTrigger>Ceremony</DropdownMenuSubTrigger>
+                  <DropdownMenuSubContent>
+                    <DropdownMenuItem onClick={() => onInsertFromDJMC(item.id, 'ceremony', true)}>
+                      Names & Songs
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => onInsertFromDJMC(item.id, 'ceremony', false)}>
+                      Names Only
+                    </DropdownMenuItem>
+                  </DropdownMenuSubContent>
+                </DropdownMenuSub>
+                <DropdownMenuSub>
+                  <DropdownMenuSubTrigger>Bridal Party Introductions</DropdownMenuSubTrigger>
+                  <DropdownMenuSubContent>
+                    <DropdownMenuItem onClick={() => onInsertFromDJMC(item.id, 'introductions', true)}>
+                      Names & Songs
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => onInsertFromDJMC(item.id, 'introductions', false)}>
+                      Names Only
+                    </DropdownMenuItem>
+                  </DropdownMenuSubContent>
+                </DropdownMenuSub>
+                <DropdownMenuItem onClick={() => onInsertFromDJMC(item.id, 'speeches', false)}>
+                  Speeches (Names)
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+
           <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => onDuplicate(item)} title="Duplicate">
             <Copy className="h-3.5 w-3.5" />
           </Button>
