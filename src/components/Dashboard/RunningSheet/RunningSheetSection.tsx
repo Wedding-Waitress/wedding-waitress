@@ -80,6 +80,7 @@ export function RunningSheetSection({
   const [showNotes, setShowNotes] = useState(!!notes);
   const [showResetDialog, setShowResetDialog] = useState(false);
   const [showClearDialog, setShowClearDialog] = useState(false);
+  const [showDeleteAllDialog, setShowDeleteAllDialog] = useState(false);
   const labelInputRef = useRef<HTMLInputElement>(null);
 
   const sensors = useSensors(
@@ -168,6 +169,10 @@ export function RunningSheetSection({
                     <DropdownMenuItem onClick={() => setShowResetDialog(true)}>
                       <RotateCcw className="h-4 w-4 mr-2" />
                       Reset to Default
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setShowDeleteAllDialog(true)} className="text-destructive">
+                      <Trash className="h-4 w-4 mr-2" />
+                      Delete All Rows
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -271,6 +276,29 @@ export function RunningSheetSection({
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={() => { onResetToDefault(); setShowResetDialog(false); }}>
               Reset
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+      {/* Delete All Rows Dialog */}
+      <AlertDialog open={showDeleteAllDialog} onOpenChange={setShowDeleteAllDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete All Rows?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will delete all the rows. Start fresh and manually add rows as you desire. Once deleted, they cannot be retrieved.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={() => {
+                items.forEach(item => onDeleteItem(item.id));
+                setShowDeleteAllDialog(false);
+              }}
+            >
+              Delete
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
