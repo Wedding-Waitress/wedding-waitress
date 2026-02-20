@@ -247,8 +247,9 @@ export const Dashboard = () => {
       return normalized === "Attending" || normalized === "Not Attending";
     }).length;
     const unrespondedInvites = guests.filter(g => {
+      const wasSent = ['email_sent', 'sms_sent', 'both_sent'].includes(g.rsvp_invite_status || 'not_sent');
       const normalized = normalizeRsvp(g.rsvp);
-      return normalized === "Pending";
+      return wasSent && normalized === "Pending";
     }).length;
     
     return {
