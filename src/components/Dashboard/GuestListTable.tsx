@@ -1745,9 +1745,9 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                 </TableHead>
                 <TableHead className="w-28">First Name</TableHead>
                 <TableHead className="w-28">Last Name</TableHead>
-                <TableHead className="w-24 pl-16">Mobile</TableHead>
-                <TableHead className="w-36 pl-16">Email</TableHead>
-                <TableHead className="w-24">RSVP Invite</TableHead>
+                <TableHead className="w-24">Mobile</TableHead>
+                <TableHead className="w-36">Email</TableHead>
+                <TableHead className="w-32 text-center">RSVP Invite</TableHead>
                 <TableHead className="w-24">RSVP Status</TableHead>
                 <TableHead className="w-20">Table No</TableHead>
                 <TableHead className="w-20">Seat No.</TableHead>
@@ -1817,24 +1817,26 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                             {guest.first_name}
                           </TableCell>
                           <TableCell className="py-1 font-medium w-28">{guest.last_name}</TableCell>
-                          <TableCell className="py-1 w-24 pl-16">{renderPill(!!guest.mobile && guest.mobile.trim() !== '')}</TableCell>
-                          <TableCell className="py-1 w-36 pl-16">{renderPill(!!guest.email && guest.email.trim() !== '')}</TableCell>
-                          <TableCell className="py-1 w-24">
-                            {(() => {
-                              const status = guest.rsvp_invite_status || 'not_sent';
-                              const statusConfig: Record<string, { label: string; className: string }> = {
-                                'not_sent': { label: 'Not Sent', className: 'bg-gray-400 text-white' },
-                                'email_sent': { label: 'Email Sent', className: 'bg-blue-500 text-white' },
-                                'sms_sent': { label: 'SMS Sent', className: 'bg-green-500 text-white' },
-                                'both_sent': { label: 'Both Sent', className: 'bg-purple-500 text-white' },
-                              };
-                              const config = statusConfig[status] || statusConfig['not_sent'];
-                              return (
-                                <Badge className={`text-xs ${config.className}`}>
-                                  {config.label}
-                                </Badge>
-                              );
-                            })()}
+                          <TableCell className="py-1 w-24">{renderPill(!!guest.mobile && guest.mobile.trim() !== '')}</TableCell>
+                          <TableCell className="py-1 w-36">{renderPill(!!guest.email && guest.email.trim() !== '')}</TableCell>
+                          <TableCell className="py-1 w-32">
+                            <div className="flex items-center justify-center">
+                              {(() => {
+                                const status = guest.rsvp_invite_status || 'not_sent';
+                                const statusConfig: Record<string, { label: string; className: string }> = {
+                                  'not_sent': { label: 'Not Sent', className: 'bg-gray-400 text-white' },
+                                  'email_sent': { label: 'Email Sent', className: 'bg-purple-500 text-white' },
+                                  'sms_sent': { label: 'SMS Sent', className: 'bg-purple-500 text-white' },
+                                  'both_sent': { label: 'Both Sent', className: 'bg-purple-500 text-white' },
+                                };
+                                const config = statusConfig[status] || statusConfig['not_sent'];
+                                return (
+                                  <Badge className={`text-xs whitespace-nowrap ${config.className}`}>
+                                    {config.label}
+                                  </Badge>
+                                );
+                              })()}
+                            </div>
                           </TableCell>
                           <TableCell className="py-1 w-24">
                             <Badge 

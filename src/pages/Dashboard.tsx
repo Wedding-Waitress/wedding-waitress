@@ -236,8 +236,12 @@ export const Dashboard = () => {
     const tablesAtCapacity = tables.filter(table => table.guest_count >= table.limit_seats).length;
     
     // RSVP statistics
-    const sentInvites = guests.length; // All guests are considered "sent invites"
-    const unsentInvites = Math.max(0, eventGuestLimit - guests.length); // Available slots
+    const sentInvites = guests.filter(g =>
+      ['email_sent', 'sms_sent', 'both_sent'].includes(g.rsvp_invite_status || 'not_sent')
+    ).length;
+    const unsentInvites = guests.filter(g =>
+      (g.rsvp_invite_status || 'not_sent') === 'not_sent'
+    ).length;
     const respondedInvites = guests.filter(g => {
       const normalized = normalizeRsvp(g.rsvp);
       return normalized === "Attending" || normalized === "Not Attending";
