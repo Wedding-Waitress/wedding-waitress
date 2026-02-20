@@ -1,63 +1,33 @@
 
-# Fix Stats Bar — Unreplied Invites Logic
+# Change "Activate" and "Deactivate" Text Colours
 
-## The Problem
+## What Needs Changing
 
-There are currently two misleading stats:
+In `src/components/Dashboard/GuestListTable.tsx` at lines 1482 and 1489, both labels currently use `text-black`. The request is:
 
-**1. Unsent Invites = 51**
-This is technically correct — 51 guests haven't been sent an invite. This number is fine as-is. It simply means "guests who are yet to receive an invitation."
+- **"Activate"** → permanently **green** text (`text-green-500`)
+- **"Deactivate"** → permanently **red** text (`text-red-500`, matching the red toggle background)
 
-**2. Unreplied Invites = 51 (the real bug)**
-Currently it counts ALL guests whose RSVP status is "Pending" — including the 51 guests who were never even sent an invite. That makes no sense. A guest can't "reply" if they never got an invite.
+## Current Code (lines 1481–1490)
 
-The correct definition of **Unreplied Invites** is:
-> Guests who **were sent** an invite (email_sent, sms_sent, or both_sent) but whose RSVP is still "Pending"
-
-With your data: 4 were sent invites, and all 4 replied → Unreplied Invites should be **0**, not 51.
-
----
-
-## The Fix
-
-### File: `src/pages/Dashboard.tsx` (lines 249–253)
-
-**Current logic:**
-```ts
-const unrespondedInvites = guests.filter(g => {
-  const normalized = normalizeRsvp(g.rsvp);
-  return normalized === "Pending";
-}).length;
+```tsx
+<div className="flex items-center justify-center gap-3 mb-3">
+  <span className="text-sm font-bold text-black">Activate</span>
+  <Switch ... />
+  <span className="text-sm font-bold text-black">Deactivate</span>
+</div>
 ```
 
-**Fixed logic:**
-```ts
-const unrespondedInvites = guests.filter(g => {
-  const wasSent = ['email_sent', 'sms_sent', 'both_sent'].includes(g.rsvp_invite_status || 'not_sent');
-  const normalized = normalizeRsvp(g.rsvp);
-  return wasSent && normalized === "Pending";
-}).length;
+## Updated Code
+
+```tsx
+<div className="flex items-center justify-center gap-3 mb-3">
+  <span className="text-sm font-bold text-green-500">Activate</span>
+  <Switch ... />
+  <span className="text-sm font-bold text-red-500">Deactivate</span>
+</div>
 ```
-
-This means **Unreplied Invites** will only count guests who:
-1. Were sent an invite (email, SMS, or both), AND
-2. Have not yet replied (still "Pending")
-
----
-
-## Summary of All 4 Stats After Fix
-
-| Stat | Meaning | Your data |
-|---|---|---|
-| Sent Invites | Guests who received at least one invite | 4 |
-| Unsent Invites | Guests who haven't been sent an invite yet | 51 |
-| Replied Invites | Guests who received an invite AND responded (Accept or Decline) | 4 |
-| Unreplied Invites | Guests who received an invite BUT haven't responded yet | 0 |
-
----
 
 ## Only 1 File Changed
 
-- `src/pages/Dashboard.tsx` — one line change to `unrespondedInvites` filter logic
-
-No visual changes — numbers will simply now be accurate.
+- `src/components/Dashboard/GuestListTable.tsx` — two word colour changes only. No logic, no layout, no other changes.
