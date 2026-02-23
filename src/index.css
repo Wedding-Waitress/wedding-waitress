@@ -198,7 +198,7 @@
 
   /* Mobile-First Touch Targets */
   .touch-target {
-    @apply min-h-[44px] min-w-[44px];
+    @apply min-h-[48px] min-w-[48px];
   }
 
   /* Mobile Typography Scale */
@@ -648,4 +648,20 @@
 
 .mobile-container {
   @apply px-4 sm:px-6 lg:px-8;
+}
+
+/* Global mobile tap target and font-size enforcement */
+@media (max-width: 639px) {
+  body {
+    font-size: 16px;
+  }
+
+  button,
+  a,
+  [role="button"],
+  select,
+  input,
+  textarea {
+    min-height: 48px;
+  }
 }

@@ -29,7 +29,7 @@ export const NavigationTabs: React.FC<NavigationTabsProps> = ({
 
   return (
     <div className="mb-6">
-      <div className="flex space-x-2 overflow-x-auto pb-2 custom-scrollbar">
+      <div className="flex gap-3 sm:gap-2 overflow-x-auto pb-2 custom-scrollbar">
         {tabs.map((tab) => (
           <Button
             key={tab.id}
@@ -37,7 +37,7 @@ export const NavigationTabs: React.FC<NavigationTabsProps> = ({
             size="sm"
             onClick={() => onTabChange(tab.id)}
             className={`
-              flex-shrink-0 whitespace-nowrap transition-all duration-300
+              flex-shrink-0 whitespace-nowrap transition-all duration-300 text-base sm:text-sm
               ${activeTab === tab.id 
                 ? 'shadow-purple-glow transform scale-105' 
                 : 'hover:shadow-elevated hover:scale-102'

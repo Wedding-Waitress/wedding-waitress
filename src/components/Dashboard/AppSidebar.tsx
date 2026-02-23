@@ -98,7 +98,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
       <SidebarContent className="pt-2">
         <SidebarGroup>
           <SidebarGroupContent>
-            <SidebarMenu>
+            <SidebarMenu className="gap-1">
               {menuItems.map((item) => {
                 const Icon = item.icon;
                 const isActive = activeTab === item.id;
