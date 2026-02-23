@@ -27,7 +27,7 @@ export const DashboardHeader: React.FC = () => {
         {isMobile && (
           <div className="flex items-center gap-2 flex-1">
             <Sparkles className="w-5 h-5 flex-shrink-0 text-primary" />
-            <span className="text-sm font-medium text-primary truncate">
+            <span className="text-base font-medium text-primary truncate">
               Hey {getDisplayName()}!
             </span>
           </div>
@@ -48,7 +48,7 @@ export const DashboardHeader: React.FC = () => {
         {isMobile && (
           <button
             onClick={toggleSidebar}
-            className="h-11 w-11 rounded-xl shadow-lg flex flex-col items-center justify-center gap-1.5 p-2 transition-all hover:shadow-xl active:scale-95 touch-target bg-primary"
+            className="h-12 w-12 rounded-xl shadow-lg flex flex-col items-center justify-center gap-1.5 p-2 transition-all hover:shadow-xl active:scale-95 touch-target bg-primary"
             aria-label="Toggle menu"
           >
             <div className="w-6 h-0.5 bg-white rounded-sm" />
