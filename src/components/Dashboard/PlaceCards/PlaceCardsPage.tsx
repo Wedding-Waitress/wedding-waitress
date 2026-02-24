@@ -311,12 +311,10 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
           {/* SEPARATOR */}
           <div className="border-b border-border" />
 
-          {/* CHOOSE EVENT & TABLE DROPDOWNS + EXPORT CONTROLS */}
-          <div className="flex items-center justify-between gap-4 flex-nowrap pt-2">
-            {/* Left side: Dropdowns */}
-            <div className="flex items-center gap-8 flex-wrap">
-              {/* Choose Event */}
-              <div className="flex items-center gap-4">
+          {/* CHOOSE EVENT & TABLE DROPDOWNS */}
+          <div className="flex items-center gap-8 flex-nowrap pt-2">
+            {/* Choose Event */}
+            <div className="flex items-center gap-4">
               <label className="text-sm font-medium text-foreground whitespace-nowrap">
                 Choose Event:
               </label>
@@ -359,7 +357,6 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
                   </SelectTrigger>
                   <SelectContent className="bg-popover border-border z-50">
                     {[...tables].sort((a, b) => (a.table_no || 0) - (b.table_no || 0)).map((table) => {
-                      // Display table name, or "Table {number}" if name is just a number
                       const displayName = table.table_no && table.name === String(table.table_no)
                         ? `Table ${table.table_no}`
                         : table.name || `Table ${table.table_no}`;
@@ -374,11 +371,12 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
                 </Select>
               </div>
             )}
-            </div>
+          </div>
 
-            {/* Right side: Export Controls */}
-            {selectedEvent && assignedGuests.length > 0 && !guestsLoading && !settingsLoading && (
-              <div className="border border-primary rounded-xl p-3 flex items-center gap-4">
+          {/* Export Controls - own row, right-aligned */}
+          {selectedEvent && assignedGuests.length > 0 && !guestsLoading && !settingsLoading && (
+            <div className="mt-4 flex justify-end">
+              <div className="border border-primary rounded-xl p-3 flex items-center gap-4 whitespace-nowrap">
                 <div className="text-sm">
                   <span className="font-medium">Export Controls</span>
                   <span className="text-muted-foreground ml-2">Download your place cards as PDF.</span>
@@ -387,23 +385,23 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
                   <button 
                     onClick={handleDownloadPdfPage}
                     disabled={isProcessing}
-                    className="inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none"
+                    className="inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none whitespace-nowrap"
                   >
                     <FileText className="w-3 h-3" />
-                    Download single page PDF
+                    Download Single Page PDF
                   </button>
                   <button 
                     onClick={handleDownloadPdfAll}
                     disabled={isProcessing}
-                    className="inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none"
+                    className="inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none whitespace-nowrap"
                   >
                     <FileText className="w-3 h-3" />
-                    Download all pages PDF
+                    Download All Pages PDF
                   </button>
                 </div>
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </CardContent>
       </Card>
 
