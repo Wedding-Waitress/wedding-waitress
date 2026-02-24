@@ -1,39 +1,27 @@
 
 
-# Reorganize Individual Table Seating Chart Header
+# Move Export Controls to Right Side of Dropdowns Row (Place Cards)
 
 ## What's Changing
 
-The header card will be restructured into a cleaner vertical flow:
-
-1. **Title + Description** at the top (unchanged)
-2. **Choose Event + Table dropdowns** moved up directly below the description (instead of being separated in CardContent with extra padding)
-3. **Export Controls** moved to the bottom of the card, styled as a purple-bordered box with text on the left and both download buttons on the right (same line)
+The Export Controls box on the Place Cards page will be repositioned to sit on the **same line** as the "Choose Event" and "Table" dropdowns, aligned to the right. Currently it wraps below due to `flex-wrap`.
 
 ## Visual Result
 
 ```text
-+---------------------------------------------------------------+
-| Individual Table Seating Chart                                 |
-| Generate detailed seating charts for individual tables         |
-|                                                                |
-| Choose Event: [dropdown]    Table: [dropdown]                  |
-|                                                                |
-| +-----------------------------------------------------------+ |
-| | Export Controls  Download & share your  | [PDF] [All PDF]  | |
-| | individual table charts with your venue.|                  | |
-| +-----------------------------------------------------------+ |
-+---------------------------------------------------------------+
+| Choose Event: [dropdown]   Table: [dropdown]   | Export Controls ... [PDF] [All PDF] |
 ```
 
 ## Technical Details
 
-### File: `src/components/Dashboard/IndividualTableChart/IndividualTableSeatingChartPage.tsx`
+### File: `src/components/Dashboard/PlaceCards/PlaceCardsPage.tsx` (lines 315-406)
 
-**Lines 266-370** -- Restructure the Card interior:
+The container at line 315 already uses `flex items-center justify-between gap-4 flex-wrap`. The fix is:
 
-1. Remove the `flex-wrap justify-between` wrapper (lines 268-306) that currently places the title and Export Controls side-by-side
-2. Place title + description at the top, left-aligned
-3. Move the event/table selection row (currently in CardContent with `pt-8`) directly below the description with reduced spacing
-4. Add Export Controls box at the bottom as a `border border-primary rounded-xl` container using `flex items-center justify-between` layout -- text on left, both green buttons on the right
-5. Update Export Controls text to single-line format: bold "Export Controls" followed by "Download & share your individual table charts with your venue."
+1. Remove `flex-wrap` from the outer container (line 315) so it stays on one row
+2. Add `flex-nowrap` to ensure everything stays on one line
+3. Adjust the dropdowns wrapper to use `flex-shrink-0` so they don't collapse
+4. Allow the Export Controls box to shrink slightly on smaller screens with responsive wrapping only at mobile breakpoints (`sm:flex-nowrap`)
+
+This keeps the Export Controls anchored to the right on desktop/tablet while allowing graceful stacking on mobile.
+
