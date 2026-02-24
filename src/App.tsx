@@ -17,6 +17,7 @@ import { PrivacyPolicy } from "./pages/PrivacyPolicy";
 import { TermsOfService } from "./pages/TermsOfService";
 import { Contact } from "./pages/Contact";
 import { DJMCPublicView } from "./pages/DJMCPublicView";
+import { RunningSheetPublicView } from "./pages/RunningSheetPublicView";
 import { PaymentSuccess } from "./pages/PaymentSuccess";
 const queryClient = new QueryClient();
 
@@ -50,6 +51,8 @@ const App = () => (
           {/* DJ-MC Questionnaire public view */}
           <Route path="/dj-mc/:token" element={<DJMCPublicView />} />
           <Route path="/djmc/:token" element={<DJMCPublicView />} />
+          {/* Running Sheet public view */}
+          <Route path="/running-sheet/:token" element={<RunningSheetPublicView />} />
            {/* Payment success */}
           <Route path="/payment-success" element={<PaymentSuccess />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

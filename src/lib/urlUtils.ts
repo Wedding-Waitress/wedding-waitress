@@ -42,3 +42,11 @@ export function buildDJQuestionnaireUrl(shareToken: string): string {
   const baseUrl = getPublicBaseUrl();
   return `${baseUrl}/dj-questionnaire/${shareToken}`;
 }
+
+/**
+ * Builds a running sheet public view URL for the given share token
+ */
+export function buildRunningSheetUrl(shareToken: string): string {
+  const baseUrl = getPublicBaseUrl();
+  return `${baseUrl}/running-sheet/${encodeURIComponent(shareToken)}`;
+}
