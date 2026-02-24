@@ -25,6 +25,7 @@ import { Copy, Check, Trash2, ExternalLink, Users } from 'lucide-react';
 import { RunningSheetShareToken } from '@/types/runningSheet';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
+import { buildRunningSheetUrl } from '@/lib/urlUtils';
 
 interface RunningSheetShareModalProps {
   open: boolean;
@@ -51,7 +52,7 @@ export function RunningSheetShareModal({
     const token = await onGenerateToken('view_only', recipientName || undefined, 90);
     setGenerating(false);
     if (token) {
-      const url = `${window.location.origin}/running-sheet/${encodeURIComponent(token)}`;
+      const url = buildRunningSheetUrl(token);
       await navigator.clipboard.writeText(url);
       toast({ title: 'Share Link Created', description: 'Link copied to clipboard' });
       setRecipientName('');
@@ -59,7 +60,7 @@ export function RunningSheetShareModal({
   }, [recipientName, onGenerateToken, toast]);
 
   const copyLink = useCallback(async (token: string) => {
-    const url = `${window.location.origin}/running-sheet/${encodeURIComponent(token)}`;
+    const url = buildRunningSheetUrl(token);
     await navigator.clipboard.writeText(url);
     setCopiedId(token);
     setTimeout(() => setCopiedId(null), 2000);
@@ -127,7 +128,7 @@ export function RunningSheetShareModal({
                         {copiedId === token.token ? <Check className="h-4 w-4 text-green-600" /> : <Copy className="h-4 w-4" />}
                       </Button>
                       <Button variant="ghost" size="icon" className="h-8 w-8" title="Open Link" asChild>
-                        <a href={`/running-sheet/${encodeURIComponent(token.token)}`} target="_blank" rel="noopener noreferrer">
+                        <a href={buildRunningSheetUrl(token.token)} target="_blank" rel="noopener noreferrer">
                           <ExternalLink className="h-4 w-4" />
                         </a>
                       </Button>
