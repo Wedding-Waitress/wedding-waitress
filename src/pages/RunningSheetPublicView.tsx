@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Calendar, MapPin, AlertCircle, Printer, FileText } from 'lucide-react';
+import { Calendar, MapPin, AlertCircle, Download, Loader2, FileText } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { exportRunningSheetPDF } from '@/lib/runningSheetPdfExporter';
 
 interface RunningSheetData {
   sheet_id: string;
@@ -62,6 +63,7 @@ export function RunningSheetPublicView() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [data, setData] = useState<RunningSheetData | null>(null);
+  const [downloadingPDF, setDownloadingPDF] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -150,15 +152,35 @@ export function RunningSheetPublicView() {
                 <FileText className="h-6 w-6 text-primary" />
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">You have been invited to view or print the running sheet of</p>
+                <p className="text-sm text-muted-foreground">You have been invited to view and download the running sheet of</p>
                 <h1 className="text-xl font-bold">{data.event_name}</h1>
               </div>
             </div>
             <div className="flex items-center gap-2 print:hidden">
               <Badge variant="secondary">View Only</Badge>
-              <Button variant="outline" size="sm" onClick={() => window.print()}>
-                <Printer className="h-4 w-4 mr-2" />
-                Print
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={downloadingPDF}
+                onClick={async () => {
+                  setDownloadingPDF(true);
+                  try {
+                    const eventObj = {
+                      id: data.event_id,
+                      name: data.event_name,
+                      date: data.event_date,
+                      venue: data.event_venue,
+                    };
+                    await exportRunningSheetPDF(data.items as any, eventObj, 'Running Sheet', null);
+                  } catch (err) {
+                    console.error('PDF export error:', err);
+                  } finally {
+                    setDownloadingPDF(false);
+                  }
+                }}
+              >
+                {downloadingPDF ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Download className="h-4 w-4 mr-2" />}
+                {downloadingPDF ? 'Generating...' : 'Download PDF'}
               </Button>
             </div>
           </div>
