@@ -1,109 +1,129 @@
 
 
-# Mobile Experience Review and Improvements
+# Comprehensive Mobile-Friendly Fix Across All Pages
 
-## Current State Assessment
+## Problem Summary
 
-The codebase already has a solid mobile foundation:
-- `useIsMobile()` hook (768px breakpoint)
-- CSS utility classes for safe-area insets, touch targets, mobile scrolling
-- `mobile-contain` class on the dashboard root to prevent horizontal overflow
-- Hamburger menu button already at 44x44px (`h-11 w-11`)
-- `overflow-x-hidden` on main content area
-
-However, there are specific gaps that need addressing across four areas.
+After reviewing every page and component, I found **hardcoded widths**, **non-wrapping flex rows**, and **overflow-causing layouts** that break on mobile screens. The issues fall into clear categories.
 
 ---
 
-## Changes Required
+## Category 1: Hardcoded `w-[300px]` on SelectTriggers (13 files, ~20 instances)
 
-### 1. Increase Tap Targets to Minimum 48x48px
+Many event/table selector dropdowns use `w-[300px]` without a responsive prefix, causing them to overflow on screens narrower than 300px + padding.
 
-**Files affected:**
+**Fix:** Change all `w-[300px]` to `w-full sm:w-[300px]` (some already have this -- those are fine).
 
-**`src/components/ui/button.tsx`** (base shadcn button)
-- `sm` size is `h-9` (36px) -- too small on mobile
-- `default` size is `h-10` (40px) -- below 48px threshold
-- Add a responsive mobile override: on screens below `sm` (640px), enforce `min-h-[48px]` on default and sm sizes
-
-**`src/components/ui/enhanced-button.tsx`** (enhanced button)
-- Same issue: `sm` = `h-9`, `default` = `h-10`
-- Apply same fix
-
-**`src/components/Dashboard/DashboardHeader.tsx`**
-- Hamburger button is `h-11 w-11` (44px) -- increase to `h-12 w-12` (48px)
-
-**`src/index.css`**
-- Update `.touch-target` from `min-h-[44px] min-w-[44px]` to `min-h-[48px] min-w-[48px]`
-- Update `.touch-target-lg` (already 48px -- fine)
-- Add a global mobile rule: on small screens, all `button`, `a`, `[role="button"]`, `select`, `input` elements get `min-height: 48px`
-
-### 2. Add Spacing Between Interactive Elements
-
-**`src/components/Dashboard/NavigationTabs.tsx`**
-- Current: `space-x-2` (8px gap) between tab buttons
-- Change to `gap-3` (12px) on mobile for easier tapping
-
-**`src/components/Dashboard/AppSidebar.tsx`**
-- Sidebar menu items use `py-3` on desktop and `py-4` on mobile (already decent)
-- Add `gap-1` between menu items for extra breathing room on mobile
-
-**`src/components/Dashboard/StatsBar.tsx`** (LOCKED -- minimal change)
-- Mobile horizontal scroll items use `gap-4` and `min-w-[72px]` -- already reasonable
-- No changes needed here (respecting locked status)
-
-**`src/index.css`**
-- Add a global mobile spacing rule for common interactive containers
-
-### 3. Ensure Text is Minimum 16px on Mobile
-
-**`src/index.css`**
-- Add a mobile base font-size rule: `@media (max-width: 639px) { body { font-size: 16px; } }`
-- This also prevents iOS Safari zoom-on-focus for inputs (inputs below 16px trigger auto-zoom)
-
-**`src/components/Dashboard/DashboardHeader.tsx`**
-- Mobile greeting text is `text-sm` (14px) -- change to `text-base` (16px)
-
-**`src/components/Dashboard/AppSidebar.tsx`**
-- Menu item text is `text-base` (16px) -- already fine
-- "Start Here" badge is `text-xs` (12px) -- this is a badge/label so acceptable
-
-**`src/components/Dashboard/NavigationTabs.tsx`**
-- Tab button text inherits from button `text-sm` (14px) -- add `text-base` on mobile via responsive class
-
-### 4. Fix Horizontal Scroll on Small Screens
-
-**`src/pages/Dashboard.tsx`**
-- Main content already has `overflow-x-hidden` and `mobile-contain` -- good
-- Table list section has `w-[300px]` hardcoded on SelectTrigger -- change to `w-full sm:w-[300px]` to prevent overflow on narrow screens
-
-**`src/components/Dashboard/GuestListTable.tsx`**
-- The guest table uses `table-fixed w-full` inside `overflow-x-auto` -- this is correct (allows horizontal scroll for the data table which is expected)
-- Various button groups in the header area may overflow -- wrap them in `flex-wrap` containers
-
-**`src/index.css`**
-- The `.mobile-contain` class already handles `max-width: 100vw; overflow-x: hidden` -- confirm it's applied correctly
+### Files to update:
+| File | Lines |
+|------|-------|
+| `src/components/Dashboard/StandardEventSelector.tsx` | line 31 |
+| `src/components/Dashboard/PlaceCards/PlaceCardsPage.tsx` | lines 324, 357 |
+| `src/components/Dashboard/QRCode/KitchenDietaryChart.tsx` | line 448 |
+| `src/components/Dashboard/TableChart/TableSeatingChartPage.tsx` | line 186 |
+| `src/components/Dashboard/GuestListTable.tsx` | line 1360 |
+| `src/components/Dashboard/Signage/SignagePage.tsx` | line 168 |
+| `src/components/Dashboard/Kiosk/KioskSetup.tsx` | line 145 |
+| `src/components/Dashboard/IndividualTableChart/IndividualTableSeatingChartPage.tsx` | lines 329, 361 |
+| `src/components/Dashboard/FullSeatingChart/FullSeatingChartPage.tsx` | (search for w-[300px]) |
 
 ---
 
-## Summary of File Changes
+## Category 2: Non-wrapping flex rows that overflow on mobile
 
-| File | Changes |
-|------|---------|
-| `src/index.css` | Update touch-target to 48px, add global mobile min-height for interactive elements, set mobile body font-size to 16px |
-| `src/components/ui/button.tsx` | Add responsive mobile min-height to button variants |
-| `src/components/ui/enhanced-button.tsx` | Add responsive mobile min-height to button variants |
-| `src/components/Dashboard/DashboardHeader.tsx` | Increase hamburger to 48px, bump mobile text to 16px |
-| `src/components/Dashboard/NavigationTabs.tsx` | Increase button gap, add mobile text-base |
-| `src/components/Dashboard/AppSidebar.tsx` | Add gap between sidebar menu items on mobile |
-| `src/pages/Dashboard.tsx` | Fix hardcoded `w-[300px]` on SelectTrigger to be responsive |
+### KioskSetup.tsx (line 140)
+- `flex items-center space-x-4` for event selector label + dropdown -- does not wrap on mobile
+- **Fix:** Change to `flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4` and remove `space-x-4`
+
+### IndividualTableSeatingChartPage.tsx (line 313)
+- `flex items-center gap-8 flex-wrap` -- gap-8 is too large on mobile
+- **Fix:** Change to `flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-8 flex-wrap`
+
+### IndividualTableSeatingChartPage.tsx (lines 315, 352)
+- `flex items-center gap-4` for label + select rows
+- **Fix:** Change to `flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 w-full`
+
+### GuestListTable.tsx (line 1622)
+- Search input has `w-[180px] sm:w-[200px]` -- acceptable but the parent row with category pills can overflow
+- **Fix:** Ensure parent flex container at line 1615 uses `flex-wrap` (it already does, so this is OK)
+
+### Dashboard.tsx Table Setup section (lines 471, 409)
+- `flex items-center justify-between gap-3` -- on mobile the "Choose Event" label + dropdown + button all fight for space
+- **Fix:** Change to `flex flex-col sm:flex-row sm:items-center justify-between gap-3`
+
+---
+
+## Category 3: Landing Page mobile issues
+
+### Landing.tsx (line 153)
+- `h1` uses `text-5xl` on all screens -- too large on mobile
+- **Fix:** Change to `text-3xl sm:text-4xl lg:text-5xl xl:text-6xl`
+
+### Landing.tsx (line 336)
+- Heading `text-4xl` without responsive prefix
+- **Fix:** Change to `text-2xl sm:text-3xl md:text-4xl`
+
+### Landing.tsx (line 396-402)
+- Footer CTA section uses `text-4xl` and `text-xl` without responsive prefixes, and `size="xl"` button
+- **Fix:** Add responsive text sizing
+
+### Landing.tsx (line 149)
+- Badge with `px-4 md:px-8 lg:px-16` -- the large padding causes overflow on narrow screens, but px-4 on mobile is fine
+
+---
+
+## Category 4: Dashboard Table Setup page overflow
+
+### Dashboard.tsx (lines 449-467)
+- Table Setup description list uses `MapPin w-16 h-16` icon which takes too much horizontal space on mobile
+- **Fix:** Make icon `w-10 h-10 sm:w-16 sm:h-16`
+
+### Dashboard.tsx Table Setup description (lines 454-466)
+- The `flex items-start gap-3` row with the large icon + description text can overflow
+- Already uses `flex-1` for text which is correct
+
+---
+
+## Category 5: Countdown circles overflow
+
+### CountdownBar.tsx (line 153)
+- Countdown circles are `w-24 h-24 md:w-32 md:h-32` -- on very narrow screens 4 circles at 96px + gaps may overflow
+- **Fix:** Change to `w-20 h-20 sm:w-24 sm:h-24 md:w-32 md:h-32` and reduce gap from `gap-6` to `gap-3 sm:gap-6`
+
+---
+
+## Category 6: Header mobile button position
+
+### Header.tsx (line 93)
+- Mobile menu button uses `absolute -right-2` -- negative positioning can cause horizontal overflow
+- **Fix:** Change to `absolute right-0`
+
+---
+
+## Summary of All Files to Edit
+
+| # | File | Type of Fix |
+|---|------|-------------|
+| 1 | `src/components/Dashboard/StandardEventSelector.tsx` | `w-[300px]` to responsive |
+| 2 | `src/components/Dashboard/PlaceCards/PlaceCardsPage.tsx` | `w-[300px]` to responsive (2 places) |
+| 3 | `src/components/Dashboard/QRCode/KitchenDietaryChart.tsx` | `w-[300px]` to responsive |
+| 4 | `src/components/Dashboard/TableChart/TableSeatingChartPage.tsx` | `w-[300px]` to responsive |
+| 5 | `src/components/Dashboard/GuestListTable.tsx` | `w-[300px]` to responsive |
+| 6 | `src/components/Dashboard/Signage/SignagePage.tsx` | `w-[300px]` to responsive |
+| 7 | `src/components/Dashboard/Kiosk/KioskSetup.tsx` | `w-[300px]` to responsive + flex-wrap fix |
+| 8 | `src/components/Dashboard/IndividualTableChart/IndividualTableSeatingChartPage.tsx` | `w-[300px]` to responsive (2) + flex-wrap |
+| 9 | `src/pages/Landing.tsx` | Responsive text sizes, heading overflow |
+| 10 | `src/pages/Dashboard.tsx` | Flex-wrap on table setup event selector rows |
+| 11 | `src/components/Dashboard/CountdownBar.tsx` | Smaller circles on mobile |
+| 12 | `src/components/Layout/Header.tsx` | Fix `-right-2` to `right-0` |
+| 13 | `src/components/Dashboard/FullSeatingChart/FullSeatingChartPage.tsx` | `w-[300px]` to responsive (if present) |
 
 ---
 
 ## Technical Notes
 
-- All changes are purely CSS/styling -- no logic or data changes
-- Locked files (StatsBar, GuestListTable core logic) are not modified -- only minimal styling tweaks where necessary
-- The GuestListTable data table intentionally scrolls horizontally on mobile (this is the standard pattern for wide data tables) -- this is NOT a bug
-- iOS Safari auto-zoom is prevented by ensuring input font-size is at least 16px
+- All changes are CSS/Tailwind class-only -- no logic changes
+- Locked files (GuestListTable, EventsTable, TableCard, PlaceCards export logic) -- only CSS class changes to fix mobile overflow, no functional changes
+- The guest list data table intentionally scrolls horizontally -- this is correct UX for wide tables
+- These fixes target the root causes of "off the page" elements: hardcoded widths and non-wrapping flex containers
 
