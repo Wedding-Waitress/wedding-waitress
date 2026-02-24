@@ -1,40 +1,58 @@
 
-# Change All Dashboard Page Headers to Black
+
+# Update Share Link URLs to Include Event Name
 
 ## What's Changing
 
-All main page header titles across the dashboard will be changed from purple (`text-[#7248e6]` or `text-primary`) to black (`text-foreground`), matching the Running Sheet page style. The font size and weight will be standardized to `text-2xl font-medium` across all pages.
+The share links for **Running Sheet** and **DJ-MC Questionnaire** will change from long token-only URLs to human-readable URLs that include the page name and event name.
 
-## Pages Affected
+**Before:**
+- `weddingwaitress.com/running-sheet/aBcDeFgH1234...`
+- `lovableproject.com/dj-mc/xYzAbCdE5678...`
 
-| Page | File | Current Color |
-|------|------|--------------|
-| Kiosk Live View | KioskSetup.tsx | Purple |
-| Full Seating Chart | FullSeatingChartPage.tsx | Purple |
-| Kitchen Dietary Requirements | KitchenDietaryChart.tsx | Purple |
-| Floor Plan | FloorPlanPage.tsx | Purple |
-| Individual Table Seating Chart | IndividualTableSeatingChartPage.tsx | Purple |
-| Table Name Place Cards | PlaceCardsPage.tsx | Purple |
-| QR Code Seating Chart | QRCodeSeatingChart.tsx | Purple |
-| Guest List | GuestListTable.tsx | Purple |
-| Table Setup | Dashboard.tsx | Purple |
-| My Events | EventsTable.tsx | Purple |
+**After:**
+- `weddingwaitress.com/running-sheet/jason-lindas-wedding/aBcDeFgH1234...`
+- `weddingwaitress.com/dj-mc/jason-lindas-wedding/xYzAbCdE5678...`
+
+The event slug (e.g. "jason-lindas-wedding") appears in the URL so recipients can see which event it belongs to. The token remains in the URL for security/access control, but now follows the event name. All links will use the production domain (weddingwaitress.com).
 
 ## Technical Details
 
-For each file, replace `text-[#7248e6]` or `text-primary` on the main page header with `text-foreground`. Ensure all use `text-2xl font-medium` for consistent sizing.
+### 1. Add new routes in `src/App.tsx`
 
-### Specific changes per file:
+Add routes with the pattern `/:pageName/:eventSlug/:token` alongside the existing token-only routes (for backward compatibility with old links):
 
-1. **KioskSetup.tsx** (line 119): `text-[#7248e6]` -> `text-foreground`
-2. **FullSeatingChartPage.tsx** (line 205): `text-[#7248e6]` -> `text-foreground`
-3. **KitchenDietaryChart.tsx** (line 437): `text-[#7248e6]` -> `text-foreground`
-4. **FloorPlanPage.tsx** (line 88): `text-[#7248e6]` -> `text-foreground`, standardize to `text-2xl font-medium`
-5. **IndividualTableSeatingChartPage.tsx** (line 270): `text-[#7248e6]` -> `text-foreground`
-6. **PlaceCardsPage.tsx** (line 259): `text-primary` -> `text-foreground`
-7. **QRCodeSeatingChart.tsx** (line 95): `text-[#7248e6]` -> `text-foreground`
-8. **GuestListTable.tsx** (line 1396): `text-primary` -> `text-foreground`, standardize to `text-2xl font-medium`
-9. **Dashboard.tsx** (line 454): `text-[#7248e6]` -> `text-foreground` (Table Setup header)
-10. **EventsTable.tsx** (line 233): `text-[#7248e6]` -> `text-foreground` (My Events header)
+- `/running-sheet/:eventSlug/:token` (new)
+- `/running-sheet/:token` (keep for old links)
+- `/dj-mc/:eventSlug/:token` (new)
+- `/dj-mc/:token` (keep for old links)
+- `/djmc/:eventSlug/:token` (new)
+- `/djmc/:token` (keep for old links)
 
-Only the main page title heading in each file is changed. No other elements (sub-headers, icons, descriptions, settings panels) are modified.
+### 2. Update URL builder functions in `src/lib/urlUtils.ts`
+
+- `buildRunningSheetUrl(token, eventSlug)` -- produces `weddingwaitress.com/running-sheet/event-slug/token`
+- Add `buildDJQuestionnaireUrl(token, eventSlug)` -- produces `weddingwaitress.com/dj-mc/event-slug/token`
+
+### 3. Pass event slug to share modals
+
+- **RunningSheetPage.tsx**: Pass `selectedEvent?.slug` as a new `eventSlug` prop to `RunningSheetShareModal`
+- **DJMCQuestionnairePage.tsx**: Pass `selectedEvent?.slug` as a new `eventSlug` prop to `DJMCShareModal`
+
+### 4. Update `RunningSheetShareModal.tsx`
+
+- Accept new `eventSlug` prop
+- Use `buildRunningSheetUrl(token, eventSlug)` for all link generation (generate, copy, open)
+
+### 5. Update `DJMCShareModal.tsx`
+
+- Accept new `eventSlug` prop
+- Replace `window.location.origin` with `getPublicBaseUrl()` (weddingwaitress.com)
+- Use `buildDJQuestionnaireUrl(token, eventSlug)` for all link generation (generate, copy, open)
+
+### 6. Update public view pages to read token from new routes
+
+- **RunningSheetPublicView.tsx**: Read `token` param (works from either route pattern since the last segment is always the token)
+- **DJMCPublicView.tsx**: Same approach
+
+The old token-only routes remain functional so previously shared links continue to work.
