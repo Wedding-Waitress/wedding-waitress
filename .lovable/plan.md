@@ -1,12 +1,15 @@
 
+I will update the "Share with..." button in the Running Sheet dashboard to use a green border and text color, matching the "Download Entire Running Sheet PDF" button as requested. This will ensure visual consistency within the Export Controls section.
 
-# Running Sheet — Two Small UI Tweaks
+### Proposed Changes
 
-## Changes
+#### Dashboard Components
 
 **File:** `src/components/Dashboard/RunningSheet/RunningSheetPage.tsx`
-- Change the "Share with..." button border color from red (`border-red-500`, `text-red-600`, `hover:bg-red-50`) to dark purple (`border-primary`, `text-primary`, `hover:bg-primary/10`)
+- Update the styling for the "Share with..." button:
+    - Change the border color from `border-primary` (purple) to `border-green-500`.
+    - Change the text color from `text-primary` to `text-green-600`.
+    - Change the hover background from `hover:bg-primary/10` to `hover:bg-green-50`.
 
-**File:** `src/components/Dashboard/RunningSheet/RunningSheetSection.tsx` (line 195)
-- Change the tooltip text from `"Download Section PDF"` to `"Download PDF"`
+This change will make both action buttons in the Export Controls section identical in style, using the established "success" green theme for the final output actions.
 
