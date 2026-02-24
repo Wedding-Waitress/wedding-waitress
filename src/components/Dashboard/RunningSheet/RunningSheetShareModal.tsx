@@ -123,15 +123,15 @@ export function RunningSheetShareModal({
                       </div>
                     </div>
                     <div className="flex items-center gap-1">
-                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => copyLink(token.token)}>
+                      <Button variant="ghost" size="icon" className="h-8 w-8" title="Copy Link" onClick={() => copyLink(token.token)}>
                         {copiedId === token.token ? <Check className="h-4 w-4 text-green-600" /> : <Copy className="h-4 w-4" />}
                       </Button>
-                      <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
+                      <Button variant="ghost" size="icon" className="h-8 w-8" title="Open Link" asChild>
                         <a href={`/running-sheet/${encodeURIComponent(token.token)}`} target="_blank" rel="noopener noreferrer">
                           <ExternalLink className="h-4 w-4" />
                         </a>
                       </Button>
-                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onDeleteToken(token.id)}>
+                      <Button variant="ghost" size="icon" className="h-8 w-8" title="Delete Link" onClick={() => onDeleteToken(token.id)}>
                         <Trash2 className="h-4 w-4 text-destructive" />
                       </Button>
                     </div>
