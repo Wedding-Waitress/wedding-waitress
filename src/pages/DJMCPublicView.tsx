@@ -11,7 +11,7 @@
  */
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Music, ExternalLink, Calendar, MapPin, Clock, AlertCircle, Printer, ChevronDown, ChevronUp } from 'lucide-react';
+import { Music, ExternalLink, Calendar, MapPin, Clock, AlertCircle, Download, ChevronDown, ChevronUp } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -304,13 +304,16 @@ export function DJMCPublicView() {
             </div>
             
             <div className="flex items-center gap-2 print:hidden">
-              <Badge variant={data.permission === 'can_edit' ? 'default' : 'secondary'}>
-                {data.permission === 'can_edit' ? 'Can Edit' : 'View Only'}
-              </Badge>
-              <Button variant="outline" size="sm" onClick={handlePrint}>
-                <Printer className="h-4 w-4 mr-2" />
-                Print
-              </Button>
+              <span className="inline-flex items-center h-7 px-2.5 text-xs font-medium rounded-full border-2 border-red-500 text-red-600 bg-transparent">
+                View Only
+              </span>
+              <button
+                onClick={handlePrint}
+                className="inline-flex items-center gap-1.5 h-7 px-2.5 text-xs font-medium rounded-full border-2 border-green-500 text-green-600 bg-transparent hover:bg-green-50 transition-colors"
+              >
+                <Download className="w-3 h-3" />
+                Download PDF
+              </button>
             </div>
           </div>
         </div>
@@ -357,16 +360,16 @@ export function DJMCPublicView() {
       {/* Footer */}
       <footer className="border-t border-border mt-12 print:border-0">
         <div className="max-w-4xl mx-auto px-4 py-6 text-center">
-          <div className="flex items-center justify-center gap-2 mb-2">
+          <a href="https://www.weddingwaitress.com" target="_blank" rel="noopener noreferrer" className="inline-block mb-2">
             <img 
-              src="/wedding-waitress-logo.png" 
+              src="/wedding-waitress-share-logo.png" 
               alt="Wedding Waitress" 
-              className="h-8 w-auto"
+              className="h-10 mx-auto"
             />
-          </div>
-          <p className="text-xs text-muted-foreground">
+          </a>
+          <a href="https://www.weddingwaitress.com" target="_blank" rel="noopener noreferrer" className="block text-xs text-muted-foreground hover:text-foreground transition-colors">
             Powered by Wedding Waitress
-          </p>
+          </a>
         </div>
       </footer>
     </div>
