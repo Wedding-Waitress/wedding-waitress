@@ -193,6 +193,17 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
         <CardHeader className="space-y-4">
           {/* Event Selector */}
           <div className="flex items-center justify-between">
+            {/* Header Icon & Info */}
+            <div className="flex items-center gap-4">
+              <FileText className="w-12 h-12 text-primary" />
+              <div>
+                <CardTitle className="text-left text-2xl font-medium text-[#7248e6]">Full Seating Chart</CardTitle>
+                <CardDescription className="text-left">
+                  Complete guest list with check-off boxes
+                </CardDescription>
+              </div>
+            </div>
+
             <div className="flex items-center space-x-4">
               <label className="text-sm font-medium text-foreground whitespace-nowrap">
                 Choose Event:
@@ -218,17 +229,6 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
                   )}
                 </SelectContent>
               </Select>
-            </div>
-
-            {/* Header Icon & Info */}
-            <div className="flex items-center gap-4">
-              <FileText className="w-12 h-12 text-primary" />
-              <div>
-                <CardTitle className="text-right text-2xl font-medium text-[#7248e6]">Full Seating Chart</CardTitle>
-                <CardDescription className="text-right">
-                  Complete guest list with check-off boxes
-                </CardDescription>
-              </div>
             </div>
           </div>
 
