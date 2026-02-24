@@ -1,33 +1,18 @@
 
 
-# Simplified Share for Full Seating Chart
+# Fix Missing Logo on Seating Chart Public View
 
-## What's changing
-The shared public view page will only offer a single "Download PDF" button that downloads all pages. There will be no "single page vs all pages" choice for recipients.
+## Problem
+The footer on the shared seating chart page (`/seating-chart/:token`) references `/ww-logo.png`, which does not exist. The correct logo file is `/wedding-waitress-logo.png` (used by other public views like the DJ/MC page).
 
-## Technical Details
+## Fix
+Update the footer in `src/pages/SeatingChartPublicView.tsx` (lines 154-165):
 
-Everything from the previously approved plan stays the same except:
+- Change the `img src` from `/ww-logo.png` to `/wedding-waitress-logo.png`
+- Make both the logo image and the "Powered by Wedding Waitress" text link to `https://www.weddingwaitress.com` (the logo link is already there, just needs the correct image path)
 
-**Public View Page (`SeatingChartPublicView.tsx`)**
-- Only one green tablet-style button: "Download PDF"
-- This button calls `exportFullSeatingChartToPdf` with the full guest list (all pages)
-- No single-page option presented to recipients
+This matches the pattern used in `DJMCPublicView.tsx`.
 
-**Dashboard Export Controls (`FullSeatingChartPage.tsx`)**
-- The "Share with..." button in Export Controls opens the share modal (no sub-menu, no choice between single/all)
-- The shared link always gives recipients the full seating chart
-
-Everything else remains identical: database table, token generation, share modal with Create/Manage tabs, RLS policies, URL utility, and route registration.
-
-## Files to Create
-- `src/hooks/useSeatingChartShare.ts`
-- `src/components/Dashboard/FullSeatingChart/SeatingChartShareModal.tsx`
-- `src/pages/SeatingChartPublicView.tsx`
-
-## Files to Modify
-- `src/components/Dashboard/FullSeatingChart/FullSeatingChartPage.tsx` -- add share button + modal
-- `src/lib/urlUtils.ts` -- add `buildSeatingChartUrl`
-- `src/App.tsx` -- add public route
-- Database: new table, token functions, RLS policies
+## File to Modify
+- `src/pages/SeatingChartPublicView.tsx` -- fix logo `src` path in the footer section
 
