@@ -90,7 +90,7 @@ export const Header: React.FC<HeaderProps> = ({
               />
             </Link>
                   
-            <div className="absolute -right-2">
+            <div className="absolute right-0">
               <DropdownMenu onOpenChange={setMobileMenuOpen}>
                 <DropdownMenuTrigger asChild>
                   <Button 

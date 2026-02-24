@@ -178,12 +178,12 @@ export const TableSeatingChartPage: React.FC<TableSeatingChartPageProps> = ({
         <CardHeader className="space-y-4">
           {/* Event Selector and Header Icon */}
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <label className="text-sm font-medium text-foreground">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+              <label className="text-sm font-medium text-foreground whitespace-nowrap">
                 Choose Event:
               </label>
               <Select value={selectedEventId || "no-event"} onValueChange={handleEventSelect}>
-                <SelectTrigger className="w-[300px]">
+                <SelectTrigger className="w-full sm:w-[300px]">
                   <SelectValue placeholder={eventsLoading ? "Loading events..." : "Select an event..."} />
                 </SelectTrigger>
                 <SelectContent>

@@ -198,7 +198,7 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
                 Choose Event:
               </label>
               <Select value={selectedEventId || "no-event"} onValueChange={handleEventSelect}>
-                <SelectTrigger className="w-[300px] border-primary focus:ring-primary font-bold text-[#7248e6]">
+                <SelectTrigger className="w-full sm:w-[300px] border-primary focus:ring-primary font-bold text-[#7248e6]">
                   <SelectValue placeholder="Choose Event" />
                 </SelectTrigger>
                 <SelectContent className="bg-popover border-border z-50">

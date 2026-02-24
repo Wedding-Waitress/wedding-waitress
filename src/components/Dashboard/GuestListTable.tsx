@@ -1357,7 +1357,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
           {/* Event dropdown */}
           <div className="flex justify-center">
             <Select onValueChange={handleEventSelect} value="no-event">
-              <SelectTrigger className="w-[300px]">
+              <SelectTrigger className="w-full sm:w-[300px]">
                 <SelectValue placeholder="Select an event..." />
               </SelectTrigger>
               <SelectContent>
