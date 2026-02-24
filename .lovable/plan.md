@@ -1,68 +1,39 @@
 
 
-# Fix Running Sheet PDF from Share Link — Missing Time/Ceremony Data
+# Running Sheet Public View — Button Styling and Footer Updates
 
-## Problem
-The PDF downloaded from the shared link shows "TBD -- TBD" for times because the database function `get_running_sheet_by_token` only returns `event_name`, `event_date`, and `event_venue`. It does not return `start_time`, `finish_time`, `ceremony_date`, `ceremony_venue`, `ceremony_start_time`, or `ceremony_finish_time` -- all of which the PDF exporter needs to build the correct header.
+## Changes
 
-## Solution
+### 1. Upload the new Wedding Waitress logo
+Copy the uploaded logo (`png-2.png`) to the public folder as a new file (e.g., `public/wedding-waitress-share-logo.png`) for use in the footer.
 
-### 1. Update the database function
-**Migration:** Create a new migration to update `get_running_sheet_by_token` so it also returns the six missing fields from the events table:
-- `start_time`
-- `finish_time`
-- `ceremony_date`
-- `ceremony_venue`
-- `ceremony_start_time`
-- `ceremony_finish_time`
+### 2. Update the footer
+- Replace the current logo image (`/wedding-waitress-logo.png`) with the newly uploaded full Wedding Waitress logo
+- Wrap both the logo image and "Powered by Wedding Waitress" text in a clickable link (`<a>`) that points to `https://www.weddingwaitress.com` and opens in a new tab
 
-### 2. Update the Supabase types
-**File:** `src/integrations/supabase/types.ts`
+### 3. Style the "View Only" and "Download PDF" buttons
+- Replace the `<Badge>` for "View Only" with a styled button/element that has a thick red border (e.g., `border-2 border-red-500`) and matching font size to "Download PDF"
+- Add a thick green border to the "Download PDF" button (e.g., `border-2 border-green-500`)
+- Both should appear as tablet-style bordered buttons at the same text size
 
-Add the six new return fields to the `get_running_sheet_by_token` type definition so TypeScript knows about them.
-
-### 3. Update the public view page
-**File:** `src/pages/RunningSheetPublicView.tsx`
-
-- Add the six new fields to the `RunningSheetData` interface
-- Pass them through when constructing the event object for `exportRunningSheetPDF`
-- Also display the correct ceremony/reception info in the page header banner (replacing the current date/venue display with the same detailed lines the PDF shows)
-
-### 4. Update header text
-**File:** `src/pages/RunningSheetPublicView.tsx`
-
-Change "You have been invited to view or print the running sheet of" to "You have been invited to view and download the running sheet of" (this was requested previously but the current file still has the old wording based on the code shown).
-
-## Summary of Changes
+## File Changed
 
 | File | Change |
 |------|--------|
-| New SQL migration | Update `get_running_sheet_by_token` to return 6 additional event time fields |
-| `src/integrations/supabase/types.ts` | Add 6 fields to the RPC return type |
-| `src/pages/RunningSheetPublicView.tsx` | Pass all event fields to PDF exporter; update header wording |
+| `public/wedding-waitress-share-logo.png` | New file — uploaded logo |
+| `src/pages/RunningSheetPublicView.tsx` | Footer logo + link, button border styling |
 
 ## Technical Details
 
-The updated RPC function will change its `RETURNS TABLE` to include:
-
-```text
-start_time time,
-finish_time time,
-ceremony_date date,
-ceremony_venue text,
-ceremony_start_time time,
-ceremony_finish_time time
+**Footer** (lines 287-301):
+```
+<a href="https://www.weddingwaitress.com" target="_blank" rel="noopener noreferrer">
+  <img src="/wedding-waitress-share-logo.png" alt="Wedding Waitress" className="h-10 w-auto" />
+  <p>Powered by Wedding Waitress</p>
+</a>
 ```
 
-And the SELECT will add:
+**Buttons** (lines 171-203):
+- "View Only": Change from `<Badge variant="secondary">` to a `<span>` or `<div>` with classes `inline-flex items-center px-4 py-2 text-sm font-medium border-2 border-red-500 rounded-full text-red-500`
+- "Download PDF": Add `border-2 border-green-500` classes, ensure same `text-sm` font size
 
-```text
-e.start_time,
-e.finish_time,
-e.ceremony_date,
-e.ceremony_venue,
-e.ceremony_start_time,
-e.ceremony_finish_time
-```
-
-The event object passed to `exportRunningSheetPDF` will then include all required fields, producing a PDF identical to the dashboard's "Download Entire Running Sheet PDF" output.
