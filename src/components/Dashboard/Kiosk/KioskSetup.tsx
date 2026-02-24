@@ -192,15 +192,13 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
             <div className="p-4 bg-muted rounded-lg">
               <div className="flex items-center justify-between">
                 <code className="text-sm break-all flex-1 mr-4">{kioskUrl}</code>
-                <Button
-                  variant="outline"
-                  size="sm"
+                <button
                   onClick={handleCopyUrl}
-                  className="flex-shrink-0"
+                  className="inline-flex items-center justify-center gap-2 h-14 px-5 text-base font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors flex-shrink-0"
                 >
-                  <Copy className="w-4 h-4 mr-2" />
+                  <Copy className="w-5 h-5" />
                   Copy
-                </Button>
+                </button>
               </div>
             </div>
 
@@ -208,26 +206,26 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <button 
                 onClick={handleOpenKiosk}
-                className="inline-flex items-center justify-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors"
+                className="inline-flex items-center justify-center gap-2 h-14 px-5 text-base font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors"
               >
-                <ExternalLink className="w-3 h-3" />
+                <ExternalLink className="w-6 h-6" />
                 Open Kiosk
               </button>
               
               <button 
                 onClick={handleFullscreen}
-                className="inline-flex items-center justify-center gap-2 h-7 px-2.5 text-xs font-medium rounded-full bg-green-500 text-white hover:bg-green-600 transition-colors"
+                className="inline-flex items-center justify-center gap-2 h-14 px-5 text-base font-medium rounded-full bg-green-500 text-white hover:bg-green-600 transition-colors"
               >
-                <Maximize className="w-3 h-3" />
+                <Maximize className="w-6 h-6" />
                 Launch Fullscreen
               </button>
               
               <button 
                 onClick={generateQRCode}
                 disabled={isGeneratingQR}
-                className="inline-flex items-center justify-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none"
+                className="inline-flex items-center justify-center gap-2 h-14 px-5 text-base font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none"
               >
-                <QrCode className="w-3 h-3" />
+                <QrCode className="w-6 h-6" />
                 {isGeneratingQR ? 'Generating...' : 'Generate QR'}
               </button>
             </div>
