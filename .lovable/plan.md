@@ -1,16 +1,23 @@
 
-# Update Kiosk Live View Setup Header Text
+
+# Swap Header Layout in Full Seating Chart
 
 ## What's changing
-The header title in the Kiosk Live View Setup page will be updated to more accurately describe its use cases.
+In the top header box of the Full Seating Chart page, the positions of two elements will be swapped:
+- The **icon + "Full Seating Chart" title** (with "Complete guest list with check-off boxes" subtitle) moves to the **left side**
+- The **"Choose Event" label + dropdown** moves to the **right side**
 
 ## Technical Details
-The modification will be made in `src/components/Dashboard/Kiosk/KioskSetup.tsx`.
 
-### Change:
-- **Location**: `CardTitle` within the first `Card` component (the header section).
-- **Current Text**: `Kiosk Live View Setup - This is for corporate events and corporate seminars`
-- **New Text**: `Kiosk Live View Setup - This is for check-ins at corporate events, workshops, and seminars`
+**File:** `src/components/Dashboard/FullSeatingChart/FullSeatingChartPage.tsx` (lines 195-233)
+
+The inner content of the `flex items-center justify-between` div will be reordered:
+
+1. **Left side** (currently right): The icon + title block with `FileText` icon, "Full Seating Chart" heading, and "Complete guest list with check-off boxes" description -- text alignment changed from `text-right` to `text-left`.
+
+2. **Right side** (currently left): The "Choose Event" label and `Select` dropdown.
+
+No functional changes -- just reordering the two flex children and adjusting text alignment.
 
 ## Files to be modified
-- `src/components/Dashboard/Kiosk/KioskSetup.tsx`
+- `src/components/Dashboard/FullSeatingChart/FullSeatingChartPage.tsx`
