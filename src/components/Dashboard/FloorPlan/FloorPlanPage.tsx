@@ -102,16 +102,14 @@ export const FloorPlanPage = ({
                   Download your floor plan for venue staff.
                 </p>
                 <div className="flex items-center gap-2 flex-wrap">
-                  <Button 
-                    variant="default"
-                    size="sm"
+                  <button 
                     onClick={handleDownloadPdf}
                     disabled={isExporting}
-                    className="rounded-full flex items-center gap-2 touch-target"
+                    className="inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none"
                   >
-                    <FileText className="w-4 h-4" />
+                    <FileText className="w-3 h-3" />
                     {isExporting ? 'Exporting...' : 'Download PDF'}
-                  </Button>
+                  </button>
                 </div>
               </div>
             )}

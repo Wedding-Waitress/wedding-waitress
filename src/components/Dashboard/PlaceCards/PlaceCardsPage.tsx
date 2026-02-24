@@ -384,26 +384,22 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
                   <span className="text-muted-foreground ml-2">Download your place cards as PDF.</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Button 
-                    variant="default"
-                    size="xs"
+                  <button 
                     onClick={handleDownloadPdfPage}
                     disabled={isProcessing}
-                    className="rounded-full flex items-center gap-2"
+                    className="inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none"
                   >
-                    <FileText className="w-4 h-4" />
+                    <FileText className="w-3 h-3" />
                     Download single page PDF
-                  </Button>
-                  <Button 
-                    variant="default"
-                    size="xs"
+                  </button>
+                  <button 
                     onClick={handleDownloadPdfAll}
                     disabled={isProcessing}
-                    className="rounded-full flex items-center gap-2"
+                    className="inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none"
                   >
-                    <FileText className="w-4 h-4" />
+                    <FileText className="w-3 h-3" />
                     Download all pages PDF
-                  </Button>
+                  </button>
                 </div>
               </div>
             )}

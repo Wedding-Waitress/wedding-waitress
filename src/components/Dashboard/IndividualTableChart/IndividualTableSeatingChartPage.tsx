@@ -284,26 +284,22 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
                   For best results, save the PDF to a file and print directly.
                 </p>
                 <div className="flex items-center gap-2 flex-wrap">
-                  <Button 
-                    variant="default"
-                    size="xs"
+                  <button 
                     onClick={handleDownloadPdf}
                     disabled={isExporting || isExportingAll}
-                    className="rounded-full flex items-center gap-2"
+                    className="inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none"
                   >
-                    <FileText className="w-4 h-4" />
+                    <FileText className="w-3 h-3" />
                     Download single page PDF
-                  </Button>
-                  <Button 
-                    variant="default"
-                    size="xs"
+                  </button>
+                  <button 
                     onClick={handleDownloadAllPdf}
                     disabled={isExporting || isExportingAll}
-                    className="rounded-full flex items-center gap-2"
+                    className="inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none"
                   >
-                    <FileText className="w-4 h-4" />
+                    <FileText className="w-3 h-3" />
                     {isExportingAll ? `Exporting ${tables.length} tables...` : 'Download all pages PDF'}
-                  </Button>
+                  </button>
                 </div>
               </div>
             )}

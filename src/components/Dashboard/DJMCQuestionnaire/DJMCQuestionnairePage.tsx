@@ -182,20 +182,18 @@ export function DJMCQuestionnairePage({ selectedEventId, onEventSelect }: DJMCQu
                     <span className="font-medium">Export Controls</span>
                     <span className="text-muted-foreground ml-2">Download your questionnaire and share it with your DJ-MC or wedding venue.</span>
                   </div>
-                  <Button 
-                    variant="default"
-                    size="sm"
+                  <button
                     onClick={handleDownloadEntirePDF}
                     disabled={downloadingPDF}
-                    className="rounded-full flex items-center gap-2"
+                    className="inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none"
                   >
                     {downloadingPDF ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <Loader2 className="w-3 h-3 animate-spin" />
                     ) : (
-                      <FileText className="w-4 h-4" />
+                      <FileText className="w-3 h-3" />
                     )}
                     Download entire questionnaire PDF
-                  </Button>
+                  </button>
                 </div>
               </div>
             )}
