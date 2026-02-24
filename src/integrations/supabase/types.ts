@@ -2344,13 +2344,19 @@ export type Database = {
       get_running_sheet_by_token: {
         Args: { share_token: string }
         Returns: {
+          ceremony_date: string
+          ceremony_finish_time: string
+          ceremony_start_time: string
+          ceremony_venue: string
           event_date: string
           event_id: string
           event_name: string
           event_venue: string
+          finish_time: string
           items: Json
           permission: string
           sheet_id: string
+          start_time: string
         }[]
       }
       get_user_plan: {

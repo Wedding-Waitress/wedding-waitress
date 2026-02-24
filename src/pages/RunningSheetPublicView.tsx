@@ -13,6 +13,12 @@ interface RunningSheetData {
   event_name: string;
   event_date: string | null;
   event_venue: string | null;
+  start_time: string | null;
+  finish_time: string | null;
+  ceremony_date: string | null;
+  ceremony_venue: string | null;
+  ceremony_start_time: string | null;
+  ceremony_finish_time: string | null;
   permission: string;
   items: RunningSheetItem[];
 }
@@ -98,6 +104,12 @@ export function RunningSheetPublicView() {
           event_name: row.event_name,
           event_date: row.event_date,
           event_venue: row.event_venue,
+          start_time: row.start_time,
+          finish_time: row.finish_time,
+          ceremony_date: row.ceremony_date,
+          ceremony_venue: row.ceremony_venue,
+          ceremony_start_time: row.ceremony_start_time,
+          ceremony_finish_time: row.ceremony_finish_time,
           permission: row.permission,
           items: parsedItems,
         });
@@ -170,6 +182,12 @@ export function RunningSheetPublicView() {
                       name: data.event_name,
                       date: data.event_date,
                       venue: data.event_venue,
+                      start_time: data.start_time,
+                      finish_time: data.finish_time,
+                      ceremony_date: data.ceremony_date,
+                      ceremony_venue: data.ceremony_venue,
+                      ceremony_start_time: data.ceremony_start_time,
+                      ceremony_finish_time: data.ceremony_finish_time,
                     };
                     await exportRunningSheetPDF(data.items as any, eventObj, 'Running Sheet', null);
                   } catch (err) {
