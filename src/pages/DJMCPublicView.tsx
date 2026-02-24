@@ -193,7 +193,10 @@ function PublicSectionDisplay({ section }: { section: DJMCSection }) {
 }
 
 export function DJMCPublicView() {
-  const { token } = useParams<{ token: string }>();
+  const params = useParams<{ token: string; eventSlug?: string }>();
+  // When using /dj-mc/:eventSlug/:token, token is in the second param.
+  // When using /dj-mc/:token (old links), token is in the first param.
+  const token = params.token || params.eventSlug;
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [data, setData] = useState<PublicQuestionnaireData | null>(null);

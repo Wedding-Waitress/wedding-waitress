@@ -38,16 +38,22 @@ export function buildKioskUrl(eventSlug: string): string {
 /**
  * Builds a DJ questionnaire public view URL for the given share token
  */
-export function buildDJQuestionnaireUrl(shareToken: string): string {
+export function buildDJQuestionnaireUrl(shareToken: string, eventSlug?: string): string {
   const baseUrl = getPublicBaseUrl();
-  return `${baseUrl}/dj-questionnaire/${shareToken}`;
+  if (eventSlug) {
+    return `${baseUrl}/dj-mc/${encodeURIComponent(eventSlug)}/${encodeURIComponent(shareToken)}`;
+  }
+  return `${baseUrl}/dj-mc/${encodeURIComponent(shareToken)}`;
 }
 
 /**
  * Builds a running sheet public view URL for the given share token
  */
-export function buildRunningSheetUrl(shareToken: string): string {
+export function buildRunningSheetUrl(shareToken: string, eventSlug?: string): string {
   const baseUrl = getPublicBaseUrl();
+  if (eventSlug) {
+    return `${baseUrl}/running-sheet/${encodeURIComponent(eventSlug)}/${encodeURIComponent(shareToken)}`;
+  }
   return `${baseUrl}/running-sheet/${encodeURIComponent(shareToken)}`;
 }
 

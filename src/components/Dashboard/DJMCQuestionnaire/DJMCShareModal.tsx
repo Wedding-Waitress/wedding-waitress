@@ -33,6 +33,7 @@ import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@/comp
 import { DJMCShareToken } from '@/types/djMCQuestionnaire';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
+import { buildDJQuestionnaireUrl } from '@/lib/urlUtils';
 
 interface DJMCShareModalProps {
   open: boolean;
@@ -44,6 +45,7 @@ interface DJMCShareModalProps {
     validityDays?: number
   ) => Promise<string | null>;
   onDeleteToken: (tokenId: string) => void;
+  eventSlug?: string;
 }
 
 export function DJMCShareModal({
@@ -52,6 +54,7 @@ export function DJMCShareModal({
   shareTokens,
   onGenerateToken,
   onDeleteToken,
+  eventSlug,
 }: DJMCShareModalProps) {
   const [permission, setPermission] = useState<'view_only' | 'can_edit'>('view_only');
   const [recipientName, setRecipientName] = useState('');
@@ -65,7 +68,7 @@ export function DJMCShareModal({
     setGenerating(false);
 
     if (token) {
-      const url = `${window.location.origin}/dj-mc/${encodeURIComponent(token)}`;
+      const url = buildDJQuestionnaireUrl(token, eventSlug);
       await navigator.clipboard.writeText(url);
       toast({
         title: 'Share Link Created',
@@ -76,7 +79,7 @@ export function DJMCShareModal({
   }, [permission, recipientName, onGenerateToken, toast]);
 
   const copyLink = useCallback(async (token: string) => {
-    const url = `${window.location.origin}/dj-mc/${encodeURIComponent(token)}`;
+    const url = buildDJQuestionnaireUrl(token, eventSlug);
     await navigator.clipboard.writeText(url);
     setCopiedId(token);
     setTimeout(() => setCopiedId(null), 2000);
@@ -221,7 +224,7 @@ export function DJMCShareModal({
                               asChild
                             >
                               <a
-                                href={`/dj-mc/${encodeURIComponent(token.token)}`}
+                                href={buildDJQuestionnaireUrl(token.token, eventSlug)}
                                 target="_blank"
                                 rel="noopener noreferrer"
                               >
