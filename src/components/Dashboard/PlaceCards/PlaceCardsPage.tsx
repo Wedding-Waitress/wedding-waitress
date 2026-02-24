@@ -312,7 +312,7 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
           <div className="border-b border-border" />
 
           {/* CHOOSE EVENT & TABLE DROPDOWNS + EXPORT CONTROLS */}
-          <div className="flex items-center justify-between gap-4 flex-wrap sm:flex-nowrap pt-2">
+          <div className="flex items-center justify-between gap-4 flex-wrap pt-2">
             {/* Left side: Dropdowns */}
             <div className="flex items-center gap-8 flex-wrap">
               {/* Choose Event */}
