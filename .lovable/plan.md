@@ -1,56 +1,60 @@
 
-# Fix Running Sheet Share Links
 
-## Problem
-When clicking "Open Link" in the Share Running Sheet modal, two things go wrong:
-1. The URL points to the Lovable domain instead of weddingwaitress.com
-2. There is no public view page for shared running sheets, so it hits a 404
+# Fix Running Sheet Public View
 
-## Solution
+## Issues to Fix
 
-### 1. Create a Public Running Sheet View Page
-**New file:** `src/pages/RunningSheetPublicView.tsx`
+### 1. Event column is empty (Critical)
+The `extractPlainText` function assumes TipTap JSON format (looking for `.content` arrays), but the actual data format is `{ text: "...", bullets: [...], subText: "..." }`. This mismatch means no text is ever extracted. The fix is to replace `extractPlainText` with the same `buildEventDisplay` logic used in the dashboard's `RunningSheetRow.tsx`.
 
-Create a read-only public page (similar to the DJ-MC public view) that:
-- Reads the share token from the URL parameter
-- Calls the existing `get_running_sheet_by_token` RPC function (already exists in the database)
-- Displays the event name, date, venue at the top
-- Renders the running sheet items in a clean table format (Time, Event, Who columns)
-- Highlights section header rows in bold red (matching the dashboard and PDF styling)
-- Shows loading, error, and expired/invalid link states
-- Includes the Wedding Waitress logo and branding
-- Has a print button for convenience
-- Fully responsive for mobile
+### 2. Update header text
+Currently shows:
+- **"Jason and Linda's Wedding"** (bold)
+- "Running Sheet" (small text below)
 
-### 2. Add Route to App.tsx
-**File:** `src/App.tsx`
+Change to:
+- "You have been invited to view or print the running sheet of" (smaller introductory text)
+- **"Jason and Linda's Wedding"** (bold event name below)
 
-Add a new route: `/running-sheet/:token` pointing to `RunningSheetPublicView`
-
-### 3. Fix Share URLs to Use Production Domain
-**File:** `src/components/Dashboard/RunningSheet/RunningSheetShareModal.tsx`
-
-Replace all instances of `window.location.origin` with `getPublicBaseUrl()` from `src/lib/urlUtils.ts`, and use the new `buildRunningSheetUrl()` helper. This ensures share links always point to weddingwaitress.com, not the Lovable preview domain.
-
-### 4. Add URL Builder Helper
-**File:** `src/lib/urlUtils.ts`
-
-Add a `buildRunningSheetUrl(token)` function following the same pattern as `buildDJQuestionnaireUrl()`.
+### 3. URL format
+The URL currently uses the raw share token (a long random string). Unfortunately, the token is the security mechanism -- it cannot be replaced with the event name as that would break the secure token-based access system. The token must stay in the URL for security. This cannot be changed without compromising the sharing security model.
 
 ---
 
-## Summary of Changes
+## File Changed
 
-| File | Change |
-|------|--------|
-| `src/pages/RunningSheetPublicView.tsx` | New file -- public read-only view for shared running sheets |
-| `src/App.tsx` | Add `/running-sheet/:token` route |
-| `src/components/Dashboard/RunningSheet/RunningSheetShareModal.tsx` | Use `buildRunningSheetUrl()` instead of `window.location.origin` |
-| `src/lib/urlUtils.ts` | Add `buildRunningSheetUrl()` helper |
+**`src/pages/RunningSheetPublicView.tsx`**
 
-## Technical Notes
+| Change | Detail |
+|--------|--------|
+| Fix `extractPlainText` | Replace with `buildEventDisplay` that handles `{ text, bullets, subText }` format |
+| Update header | Change from "Event Name / Running Sheet" to "You have been invited to view or print the running sheet of / Event Name" |
 
-- The `get_running_sheet_by_token` RPC function already exists in the database and returns: event_name, event_date, event_venue, items (JSON), permission, sheet_id
-- The public view page follows the exact same pattern as `DJMCPublicView.tsx` for consistency
-- No database or schema changes needed
-- The `VITE_PUBLIC_BASE_URL` is already set to `https://weddingwaitress.com` so all share links will correctly use the production domain
+### Technical Details
+
+Replace the `extractPlainText` function (lines 47-61) with:
+
+```typescript
+function buildEventDisplay(rich: any): string {
+  if (!rich || typeof rich === 'string') return rich || '';
+  const parts: string[] = [];
+  if (rich.text) parts.push(rich.text);
+  if (Array.isArray(rich.bullets)) {
+    rich.bullets.forEach((b: string) => parts.push('- ' + b));
+  }
+  if (rich.subText) parts.push(rich.subText);
+  return parts.join('\n');
+}
+```
+
+Update the header section (lines 151-158) from:
+```
+<h1>Event Name</h1>
+<p>Running Sheet</p>
+```
+To:
+```
+<p>You have been invited to view or print the running sheet of</p>
+<h1>Event Name</h1>
+```
+
