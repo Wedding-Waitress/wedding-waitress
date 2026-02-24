@@ -166,21 +166,27 @@ export function RunningSheetPage({ selectedEventId, onEventSelect }: RunningShee
             </div>
 
             {selectedEventId && sheet && (
-              <div className="flex items-center gap-3 flex-wrap">
-                <Button variant="outline" size="sm" onClick={() => setShowShareModal(true)} className="rounded-full flex items-center gap-2">
-                  <Share2 className="h-4 w-4" />
-                  Share with...
-                </Button>
-
-                <div className="border border-primary rounded-xl p-3 flex items-center gap-4">
-                  <div className="text-sm">
-                    <span className="font-medium">Export Controls</span>
-                    <span className="text-muted-foreground ml-2">Download your running sheet and share it with your DJ-MC or wedding venue.</span>
-                  </div>
-                  <Button variant="default" size="sm" onClick={handleDownloadEntirePDF} disabled={downloadingPDF} className="rounded-full flex items-center gap-2">
+              <div className="border border-primary rounded-xl p-3 flex flex-col gap-3">
+                <div className="text-sm">
+                  <span className="font-medium">Export Controls</span>
+                  <span className="text-muted-foreground ml-2">Download your running sheet and share it with your DJ-MC or any of your vendors.</span>
+                </div>
+                <div className="flex items-center gap-3 flex-wrap">
+                  <button
+                    onClick={() => setShowShareModal(true)}
+                    className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium border-2 border-red-500 rounded-full text-red-600 bg-background hover:bg-red-50 transition-colors"
+                  >
+                    <Share2 className="h-4 w-4" />
+                    Share with...
+                  </button>
+                  <button
+                    onClick={handleDownloadEntirePDF}
+                    disabled={downloadingPDF}
+                    className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50"
+                  >
                     {downloadingPDF ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />}
                     Download entire running sheet PDF
-                  </Button>
+                  </button>
                 </div>
               </div>
             )}
