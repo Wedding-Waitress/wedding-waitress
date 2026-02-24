@@ -164,24 +164,19 @@ export function DJMCQuestionnairePage({ selectedEventId, onEventSelect }: DJMCQu
             </div>
 
             {selectedEventId && questionnaire && (
-              <div className="flex items-center gap-3 flex-wrap">
-                {/* Share Button */}
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setShowShareModal(true)}
-                  className="rounded-full flex items-center gap-2"
-                >
-                  <Share2 className="h-4 w-4" />
-                  Share with DJ/MC
-                </Button>
-
-                {/* Export Controls Tablet */}
-                <div className="border border-primary rounded-xl p-3 flex items-center gap-4">
-                  <div className="text-sm">
-                    <span className="font-medium">Export Controls</span>
-                    <span className="text-muted-foreground ml-2">Download your questionnaire and share it with your DJ-MC or wedding venue.</span>
-                  </div>
+              <div className="border border-primary rounded-xl p-3 flex flex-col gap-3">
+                <div className="text-sm">
+                  <span className="font-medium">Export Controls</span>
+                  <span className="text-muted-foreground ml-2">Download your questionnaire and share it with your DJ-MC or wedding venue.</span>
+                </div>
+                <div className="flex items-center gap-3 flex-wrap">
+                  <button
+                    onClick={() => setShowShareModal(true)}
+                    className="inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors"
+                  >
+                    <Share2 className="w-3 h-3" />
+                    Share with DJ/MC
+                  </button>
                   <button
                     onClick={handleDownloadEntirePDF}
                     disabled={downloadingPDF}
