@@ -1,23 +1,30 @@
 
 
-# Swap Header Layout in Full Seating Chart
+# Add Export Controls Box to Full Seating Chart
 
 ## What's changing
-In the top header box of the Full Seating Chart page, the positions of two elements will be swapped:
-- The **icon + "Full Seating Chart" title** (with "Complete guest list with check-off boxes" subtitle) moves to the **left side**
-- The **"Choose Event" label + dropdown** moves to the **right side**
+The two green PDF download buttons ("Download single page PDF" and "Download all pages PDF") will be wrapped in a purple-bordered "Export Controls" box, matching the exact styling used on the Running Sheet page. The buttons will be moved from their current inline position into this new container.
 
 ## Technical Details
 
-**File:** `src/components/Dashboard/FullSeatingChart/FullSeatingChartPage.tsx` (lines 195-233)
+**File:** `src/components/Dashboard/FullSeatingChart/FullSeatingChartPage.tsx`
 
-The inner content of the `flex items-center justify-between` div will be reordered:
+### Current layout (lines 257-277)
+The two download buttons sit directly inside the second row of the header card, aligned right.
 
-1. **Left side** (currently right): The icon + title block with `FileText` icon, "Full Seating Chart" heading, and "Complete guest list with check-off boxes" description -- text alignment changed from `text-right` to `text-left`.
+### New layout
+Replace the current button container with the Running Sheet-style Export Controls box:
 
-2. **Right side** (currently left): The "Choose Event" label and `Select` dropdown.
+```
+border border-primary rounded-xl p-3 flex flex-col gap-3
+```
 
-No functional changes -- just reordering the two flex children and adjusting text alignment.
+Structure:
+1. **Top line**: Bold "Export Controls" label followed by muted description text: "Download the Full Seating Chart or share with your vendors."
+2. **Second row**: The two existing green tablet-style download buttons side by side (unchanged styling).
+
+This matches the exact pattern from `RunningSheetPage.tsx` (lines 169-191).
 
 ## Files to be modified
 - `src/components/Dashboard/FullSeatingChart/FullSeatingChartPage.tsx`
+
