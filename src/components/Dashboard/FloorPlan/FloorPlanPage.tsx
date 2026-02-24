@@ -83,40 +83,18 @@ export const FloorPlanPage = ({
       {/* Header Card */}
       <Card className="ww-box">
         <CardContent className="pt-4 sm:pt-6 space-y-4">
-          <div className="flex flex-col sm:flex-row sm:flex-wrap items-start justify-between gap-4">
-            {/* Left: Title and Description */}
-            <div className="flex-1 min-w-0">
-              <h1 className="text-xl sm:text-2xl font-medium text-[#7248e6] mb-2">
-                Floor Plan
-              </h1>
-              <p className="text-sm sm:text-base text-muted-foreground">
-                Design and visualize your ceremony or reception seating layout
-              </p>
-            </div>
-            
-            {/* Right: Export Controls Box */}
-            {isDataReady && floorPlanType === 'ceremony' && (
-              <div className="w-full sm:w-auto border border-primary rounded-xl p-3 sm:p-4 space-y-2 sm:space-y-3">
-                <h3 className="text-sm font-medium">Export Controls</h3>
-                <p className="text-muted-foreground text-xs sm:text-sm">
-                  Download your floor plan for venue staff.
-                </p>
-                <div className="flex items-center gap-2 flex-wrap">
-                  <button 
-                    onClick={handleDownloadPdf}
-                    disabled={isExporting}
-                    className="inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none"
-                  >
-                    <FileText className="w-3 h-3" />
-                    {isExporting ? 'Exporting...' : 'Download PDF'}
-                  </button>
-                </div>
-              </div>
-            )}
+          {/* Title and Description */}
+          <div>
+            <h1 className="text-xl sm:text-2xl font-medium text-[#7248e6] mb-2">
+              Floor Plan
+            </h1>
+            <p className="text-sm sm:text-base text-muted-foreground">
+              Design and visualize your ceremony or reception seating layout
+            </p>
           </div>
 
           {/* Event and Type Selection */}
-          <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-8 pt-4">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-8">
             {/* Choose Event Section */}
             <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
               <label className="text-sm font-medium text-foreground whitespace-nowrap">
@@ -181,7 +159,7 @@ export const FloorPlanPage = ({
               </Select>
             </div>
 
-            {/* Total Attending Ceremony - shown when ceremony floor plan is loaded */}
+            {/* Total Attending Ceremony */}
             {floorPlan && floorPlanType === 'ceremony' && (
               <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 sm:ml-4 mt-2 sm:mt-0">
                 <span className="text-sm font-medium text-primary">
@@ -195,6 +173,26 @@ export const FloorPlanPage = ({
               </div>
             )}
           </div>
+
+          {/* Export Controls */}
+          {isDataReady && floorPlanType === 'ceremony' && (
+            <div className="border border-primary rounded-xl p-3 sm:p-4 space-y-3">
+              <p className="text-sm">
+                <span className="font-bold">Export Controls</span>
+                {' '}Download your floor plan for venue staff.
+              </p>
+              <div className="flex items-center gap-2 flex-wrap">
+                <button 
+                  onClick={handleDownloadPdf}
+                  disabled={isExporting}
+                  className="inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none"
+                >
+                  <FileText className="w-3 h-3" />
+                  {isExporting ? 'Exporting...' : 'Download PDF'}
+                </button>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
 
