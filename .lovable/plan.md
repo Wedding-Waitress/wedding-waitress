@@ -1,29 +1,20 @@
 
-# DJ-MC Questionnaire: Tooltips, Public View Buttons, and Footer Branding
 
-## 3 Changes
+# Match DJ-MC Public View Buttons to Running Sheet Size
 
-### 1. Add Tooltips to Share Modal Buttons
-**File**: `src/components/Dashboard/DJMCQuestionnaire/DJMCShareModal.tsx`
+## What's changing
+The "View Only" and "Download PDF" buttons on the DJ-MC questionnaire public view are too small compared to the Running Sheet public view. They need to use the same sizing and styling.
 
-Wrap the three action buttons (Copy, Open Link, Delete) in the Manage tab with `Tooltip` components:
-- Copy button: "Copy Link"
-- External link button: "Open Link"  
-- Trash button: "Delete Link"
+## File to modify
+**`src/pages/DJMCPublicView.tsx`** (lines 307-314)
 
-Import `Tooltip, TooltipTrigger, TooltipContent, TooltipProvider` from the UI library.
+### Current (too small)
+- `h-7 px-2.5 text-xs` with `w-3 h-3` icon
 
-### 2. Redesign Public View Header Buttons
-**File**: `src/pages/DJMCPublicView.tsx`
+### Target (matching Running Sheet)
+- `px-4 py-2 text-sm` with `h-4 w-4` icon
 
-Replace the current "View Only" badge and "Print" button (lines 306-314) with tablet-style buttons matching the Running Sheet public view:
-- **View Only**: Red text, thick red border (`border-2 border-red-500 text-red-600`), rounded-full, no background
-- **Download PDF**: Green text, thick green border (`border-2 border-green-500 text-green-600`), rounded-full, with a download icon. This will trigger `window.print()` (same as current Print button behavior)
+Specifically:
+1. **View Only span** (line 307): Change from `h-7 px-2.5 text-xs` to `px-4 py-2 text-sm` and change `text-red-600` to `text-red-500` to match Running Sheet exactly
+2. **Download PDF button** (lines 310-314): Change from `h-7 px-2.5 text-xs` to `px-4 py-2 text-sm`, and change the Download icon from `w-3 h-3` to `h-4 w-4 mr-2`
 
-### 3. Fix Footer Branding
-**File**: `src/pages/DJMCPublicView.tsx`
-
-Update the footer (lines 357-371) to match the standardized public-view footer:
-- Use the correct logo: `/wedding-waitress-share-logo.png` at `h-10` height
-- Make both the logo and "Powered by Wedding Waitress" text clickable links to `https://www.weddingwaitress.com`
-- Open link in a new tab
