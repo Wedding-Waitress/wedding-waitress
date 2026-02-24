@@ -256,7 +256,7 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
         <CardContent className="space-y-4 pt-6">
           {/* Title & Subtitle - Full Width */}
           <div className="text-left">
-            <h1 className="text-2xl font-medium text-primary">Table Name Place Cards</h1>
+            <h1 className="text-2xl font-medium text-foreground">Table Name Place Cards</h1>
             <p className="text-sm text-muted-foreground mt-1">
               Create professional foldable place cards for your guests
             </p>

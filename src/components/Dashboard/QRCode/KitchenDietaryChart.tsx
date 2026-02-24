@@ -434,7 +434,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                   <ChefHat className="w-5 h-5 text-primary" />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-medium text-[#7248e6]">Kitchen Dietary Requirements</h2>
+                  <h2 className="text-2xl font-medium text-foreground">Kitchen Dietary Requirements</h2>
                   <p className="text-muted-foreground text-sm">
                     Staff reference sheet for guests with dietary requirements and allergies
                   </p>
