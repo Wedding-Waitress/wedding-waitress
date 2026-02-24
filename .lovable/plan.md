@@ -1,23 +1,26 @@
 
-The goal is to center the Wedding Waitress logo at the bottom of the Running Sheet PDF. Currently, the logo appears left-aligned in the generated PDF. I will update the HTML template used for PDF generation to ensure the logo is explicitly centered using robust CSS properties that work well with the `html2canvas` rendering engine.
 
-### Implementation Steps:
+# Add Hover Tooltips to Share Modal Action Icons
 
-1.  **Update PDF HTML Template**:
-    *   Modify `src/lib/runningSheetPdfExporter.ts`.
-    *   Update the `logoHtml` string construction.
-    *   Change the logo container to ensure it takes the full width and centers its content.
-    *   Apply `display: block` and `margin: 0 auto` to the logo image itself, as this is the most reliable method for centering elements in `html2canvas`.
-    *   Ensure the "Generated" timestamp remains correctly aligned to the right without affecting the logo's centering.
+## Problem
+In the "Share Running Sheet" modal's Manage tab, the three action icons (Copy Link, Open Link, Delete) have no hover text, so users don't know what each button does.
 
-2.  **Verify Footer Layout**:
-    *   Ensure the `flex: 1` spacer correctly pushes the logo and timestamp to the bottom of the page.
-    *   Confirm the padding and box-sizing of the main container allow the footer to span the full width of the printable area.
+## Solution
+Add `title` attributes to each of the three icon buttons in `RunningSheetShareModal.tsx`:
 
-### Technical Details:
+- **Copy icon** (first): `"Copy Link"`
+- **External Link icon** (middle): `"Open Link"`
+- **Trash icon** (last): `"Delete Link"`
 
-*   **File to modify**: `src/lib/runningSheetPdfExporter.ts`
-*   **CSS changes**:
-    *   Parent `div` of the logo: `width: 100%; text-align: center; margin-top: 20px;`
-    *   Logo `img`: `display: block; margin: 0 auto; height: 28px; object-fit: contain;`
-*   This approach is consistent with the methodology used in other successful PDF exporters in the application and fixes the left-alignment issue shown in the user's screenshot.
+## File Changed
+
+| File | Change |
+|------|--------|
+| `src/components/Dashboard/RunningSheet/RunningSheetShareModal.tsx` | Add `title` prop to each of the 3 action buttons in the Manage tab |
+
+## Technical Details
+
+- Uses the native HTML `title` attribute for hover text, consistent with other action buttons in the app (e.g., Running Sheet row actions)
+- No new dependencies or component changes needed
+- The file is locked for production but the owner is explicitly requesting this change
+
