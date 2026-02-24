@@ -1,32 +1,16 @@
 
+The "Export Controls" section of the DJ-MC Questionnaire page will be updated to match the exact wording used in the Running Sheet's export controls section. This ensures consistency across the different dashboard modules.
 
-# Match DJ-MC Questionnaire Export Controls to Running Sheet Layout
+### Changes to be made:
 
-## What's changing
+#### `src/components/Dashboard/DJMCQuestionnaire/DJMCQuestionnairePage.tsx`
 
-The DJ-MC Questionnaire's export controls area will be restructured to be identical to the Running Sheet's layout. Currently, the "Share with DJ/MC" button sits outside the export controls box, and the layout is a single horizontal row. It needs to become a two-row layout inside the purple-bordered box, matching the Running Sheet exactly.
+- Update the description text inside the Export Controls box.
+- **Current text**: "Download your questionnaire and share it with your DJ-MC or wedding venue."
+- **New text**: "Download your running sheet and share it with your DJ-MC or any of your vendors."
 
-## Visual Layout (Target - matches Running Sheet)
+This change will make the instruction text identical to the Running Sheet's export controls, as requested.
 
-```text
-+-----------------------------------------------------------------------+
-| Export Controls  Download your questionnaire and share it with your    |
-|                  DJ-MC or wedding venue.                               |
-|                                                                       |
-|  [Share with DJ/MC]    [Download entire questionnaire PDF]            |
-+-----------------------------------------------------------------------+
-```
-
-## Technical Details
-
-**File:** `src/components/Dashboard/DJMCQuestionnaire/DJMCQuestionnairePage.tsx` (lines 166-198)
-
-Changes:
-1. Remove the standalone "Share with DJ/MC" `Button` component (lines 168-177) that sits outside the export controls box.
-2. Restructure the export controls `div` to use `flex flex-col gap-3` (two rows) instead of `flex items-center gap-4` (single row).
-3. Move the "Share with DJ/MC" button inside the export controls box, on the second row, as a green-bordered tablet button (same style as Running Sheet's "Share with...").
-4. Place "Download entire questionnaire PDF" next to it on the same second row.
-5. Update the "Share with DJ/MC" button styling from `Button variant="outline"` to the green-bordered style: `h-7 px-2.5 text-xs border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50`.
-6. Reduce the Share2 icon to `h-3 w-3`.
-
-The result will be structurally identical to the Running Sheet's export controls block (lines 169-191 of RunningSheetPage.tsx).
+### Technical Details:
+- The change is a simple string replacement in the component's render method.
+- No functional changes or styling changes are required as the layout was already standardized in previous updates.
