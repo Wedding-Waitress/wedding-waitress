@@ -12,7 +12,7 @@
 import React, { useCallback, useRef, useEffect, useState } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { GripVertical, Copy, Trash, Eraser, ListPlus } from 'lucide-react';
+import { GripVertical, Copy, Trash, Eraser, ListPlus, Highlighter } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { RunningSheetItem } from '@/types/runningSheet';
 import {
@@ -147,6 +147,7 @@ export function RunningSheetRow({ item, onUpdate, onDuplicate, onDelete, onClear
         onChange={handleTimeChange}
         placeholder="Time"
         className={`basis-1/5 min-w-0 text-sm bg-background border border-input rounded-md px-3 py-1.5 resize-none overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${headerClasses}`}
+
         rows={1}
         disabled={disabled}
       />
@@ -157,7 +158,7 @@ export function RunningSheetRow({ item, onUpdate, onDuplicate, onDelete, onClear
         value={eventText}
         onChange={handleEventChange}
         placeholder="Event"
-        className="flex-1 min-w-0 text-sm bg-background border border-input rounded-md px-3 py-1.5 resize-none overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className={`flex-1 min-w-0 text-sm bg-background border border-input rounded-md px-3 py-1.5 resize-none overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${headerClasses}`}
         rows={1}
         disabled={disabled}
       />
@@ -168,7 +169,7 @@ export function RunningSheetRow({ item, onUpdate, onDuplicate, onDelete, onClear
         value={item.responsible || ''}
         onChange={handleWhoChange}
         placeholder="Who"
-        className="basis-1/5 min-w-0 text-sm bg-background border border-input rounded-md px-3 py-1.5 resize-none overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className={`basis-1/5 min-w-0 text-sm bg-background border border-input rounded-md px-3 py-1.5 resize-none overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${headerClasses}`}
         rows={1}
         disabled={disabled}
       />
@@ -176,6 +177,16 @@ export function RunningSheetRow({ item, onUpdate, onDuplicate, onDelete, onClear
       {/* Row actions */}
       {!disabled && (
         <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity shrink-0 mt-1">
+          {/* Highlight Row toggle */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className={`h-7 w-7 ${isHeader ? 'text-destructive' : ''}`}
+            onClick={() => onUpdate(item.id, { is_section_header: !item.is_section_header })}
+            title="Highlight Row"
+          >
+            <Highlighter className="h-3.5 w-3.5" />
+          </Button>
           {/* Insert from DJ-MC */}
           {hasDJMCData && onInsertFromDJMC && (
             <DropdownMenu>

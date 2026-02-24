@@ -90,45 +90,40 @@ const generateRunningSheetHTML = (
   const receptionVenue = event.venue || 'Venue TBD';
   const receptionTime = `${formatTimeDisplay(event.start_time)} – ${formatTimeDisplay(event.finish_time)}`;
 
-  let ceremonyBlock = '';
+  // Build compact 2-line event details (Ceremony first, then Reception)
+  const detailLines: string[] = [];
   if (event.ceremony_date) {
     const ceremonyDate = formatDateWithOrdinal(event.ceremony_date);
     const ceremonyVenue = event.ceremony_venue || 'Venue TBD';
     const ceremonyTime = `${formatTimeDisplay(event.ceremony_start_time)} – ${formatTimeDisplay(event.ceremony_finish_time)}`;
-    ceremonyBlock = `
-      <div style="color:#555;font-size:12px;margin-top:2px;">Ceremony: ${escapeHtml(ceremonyDate)}</div>
-      <div style="color:#555;font-size:12px;">${escapeHtml(ceremonyVenue)} | ${ceremonyTime}</div>
-    `;
+    detailLines.push(`Ceremony: ${escapeHtml(ceremonyDate)} | ${escapeHtml(ceremonyVenue)} | ${ceremonyTime}`);
   }
+  detailLines.push(`Reception: ${escapeHtml(receptionDate)} | ${escapeHtml(receptionVenue)} | ${receptionTime}`);
+
+  const detailsHtml = detailLines.map(line => `<div style="color:#555;font-size:12px;margin-top:2px;">${line}</div>`).join('');
 
   let notesBlock = '';
   if (sectionNotes) {
     notesBlock = `<div style="font-style:italic;color:#777;font-size:11px;margin-bottom:6px;">Notes: ${escapeHtml(sectionNotes)}</div>`;
   }
 
-  // Build table rows
+  // Build table rows — section headers get bold red on ALL columns
   const rows = items.map((item, idx) => {
     const bgColor = idx % 2 === 0 ? '#fafafa' : '#ffffff';
-    if (item.is_section_header) {
-      return `
-        <tr style="background:${bgColor};">
-          <td style="padding:6px 8px;border-bottom:1px solid #e5e5e5;font-weight:bold;color:#dc2626;font-size:11px;white-space:pre-wrap;vertical-align:top;width:18%;">${textToHtmlLines(item.time_text || '')}</td>
-          <td style="padding:6px 8px;border-bottom:1px solid #e5e5e5;font-size:11px;white-space:pre-wrap;vertical-align:top;width:52%;">${textToHtmlLines(getEventText(item))}</td>
-          <td style="padding:6px 8px;border-bottom:1px solid #e5e5e5;font-size:11px;white-space:pre-wrap;vertical-align:top;width:30%;">${textToHtmlLines(item.responsible || '')}</td>
-        </tr>
-      `;
-    }
+    const cellStyle = item.is_section_header
+      ? 'font-weight:bold;color:#dc2626;'
+      : '';
     return `
       <tr style="background:${bgColor};">
-        <td style="padding:6px 8px;border-bottom:1px solid #e5e5e5;font-size:11px;white-space:pre-wrap;vertical-align:top;width:18%;">${textToHtmlLines(item.time_text || '')}</td>
-        <td style="padding:6px 8px;border-bottom:1px solid #e5e5e5;font-size:11px;white-space:pre-wrap;vertical-align:top;width:52%;">${textToHtmlLines(getEventText(item))}</td>
-        <td style="padding:6px 8px;border-bottom:1px solid #e5e5e5;font-size:11px;white-space:pre-wrap;vertical-align:top;width:30%;">${textToHtmlLines(item.responsible || '')}</td>
+        <td style="padding:6px 8px;border-bottom:1px solid #e5e5e5;font-size:11px;white-space:pre-wrap;vertical-align:top;width:18%;${cellStyle}">${textToHtmlLines(item.time_text || '')}</td>
+        <td style="padding:6px 8px;border-bottom:1px solid #e5e5e5;font-size:11px;white-space:pre-wrap;vertical-align:top;width:52%;${cellStyle}">${textToHtmlLines(getEventText(item))}</td>
+        <td style="padding:6px 8px;border-bottom:1px solid #e5e5e5;font-size:11px;white-space:pre-wrap;vertical-align:top;width:30%;${cellStyle}">${textToHtmlLines(item.responsible || '')}</td>
       </tr>
     `;
   }).join('');
 
   const logoHtml = logoDataUrl
-    ? `<div style="text-align:center;margin-top:20px;"><img src="${logoDataUrl}" style="height:28px;object-fit:contain;" /></div>`
+    ? `<div style="width:100%;text-align:center;margin-top:20px;"><img src="${logoDataUrl}" style="height:28px;object-fit:contain;" /></div>`
     : '';
 
   return `
@@ -138,11 +133,9 @@ const generateRunningSheetHTML = (
         <div style="font-size:22px;font-weight:bold;color:#6d28d9;">${escapeHtml(event.name)}</div>
         <div style="font-size:16px;color:#222;margin-top:4px;">Running Sheet</div>
       </div>
-      <!-- Event details -->
+      <!-- Event details (2 lines max) -->
       <div style="text-align:center;margin-bottom:6px;">
-        <div style="color:#555;font-size:12px;">Reception: ${escapeHtml(receptionDate)}</div>
-        <div style="color:#555;font-size:12px;">${escapeHtml(receptionVenue)} | ${receptionTime}</div>
-        ${ceremonyBlock}
+        ${detailsHtml}
       </div>
       <!-- Purple divider -->
       <div style="border-top:2px solid #6d28d9;margin:8px 0 14px 0;"></div>
