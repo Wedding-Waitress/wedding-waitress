@@ -192,7 +192,7 @@ export function RunningSheetSection({
                   </DropdownMenuContent>
                 </DropdownMenu>
 
-                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onDownloadSectionPDF?.()} title="Download Section PDF">
+                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onDownloadSectionPDF?.()} title="Download PDF">
                   <Download className="h-4 w-4 text-muted-foreground" />
                 </Button>
               </div>
