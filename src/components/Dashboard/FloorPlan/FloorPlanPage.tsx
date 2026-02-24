@@ -176,21 +176,19 @@ export const FloorPlanPage = ({
 
           {/* Export Controls */}
           {isDataReady && floorPlanType === 'ceremony' && (
-            <div className="border border-primary rounded-xl p-3 sm:p-4 space-y-3">
+            <div className="border border-primary rounded-xl p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <p className="text-sm">
                 <span className="font-bold">Export Controls</span>
                 {' '}Download your floor plan for venue staff.
               </p>
-              <div className="flex items-center gap-2 flex-wrap">
-                <button 
-                  onClick={handleDownloadPdf}
-                  disabled={isExporting}
-                  className="inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none"
-                >
-                  <FileText className="w-3 h-3" />
-                  {isExporting ? 'Exporting...' : 'Download PDF'}
-                </button>
-              </div>
+              <button 
+                onClick={handleDownloadPdf}
+                disabled={isExporting}
+                className="inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none shrink-0"
+              >
+                <FileText className="w-3 h-3" />
+                {isExporting ? 'Exporting...' : 'Download PDF'}
+              </button>
             </div>
           )}
         </CardContent>
