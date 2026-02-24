@@ -304,14 +304,14 @@ export function DJMCPublicView() {
             </div>
             
             <div className="flex items-center gap-2 print:hidden">
-              <span className="inline-flex items-center h-7 px-2.5 text-xs font-medium rounded-full border-2 border-red-500 text-red-600 bg-transparent">
+              <span className="inline-flex items-center px-4 py-2 text-sm font-medium rounded-full border-2 border-red-500 text-red-500 bg-transparent">
                 View Only
               </span>
               <button
                 onClick={handlePrint}
-                className="inline-flex items-center gap-1.5 h-7 px-2.5 text-xs font-medium rounded-full border-2 border-green-500 text-green-600 bg-transparent hover:bg-green-50 transition-colors"
+                className="inline-flex items-center px-4 py-2 text-sm font-medium rounded-full border-2 border-green-500 text-green-600 bg-transparent hover:bg-green-50 transition-colors"
               >
-                <Download className="w-3 h-3" />
+                <Download className="h-4 w-4 mr-2" />
                 Download PDF
               </button>
             </div>
