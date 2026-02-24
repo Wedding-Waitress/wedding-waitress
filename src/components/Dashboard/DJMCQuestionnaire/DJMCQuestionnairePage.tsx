@@ -292,6 +292,7 @@ export function DJMCQuestionnairePage({ selectedEventId, onEventSelect }: DJMCQu
         shareTokens={shareTokens}
         onGenerateToken={generateShareToken}
         onDeleteToken={deleteShareToken}
+        eventSlug={selectedEvent?.slug ?? undefined}
       />
     </div>
   );

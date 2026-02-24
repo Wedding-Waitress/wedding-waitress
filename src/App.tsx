@@ -50,9 +50,12 @@ const App = () => (
           {/* Kiosk mode */}
           <Route path="/kiosk/:eventSlug" element={<KioskView />} />
           {/* DJ-MC Questionnaire public view */}
+          <Route path="/dj-mc/:eventSlug/:token" element={<DJMCPublicView />} />
           <Route path="/dj-mc/:token" element={<DJMCPublicView />} />
+          <Route path="/djmc/:eventSlug/:token" element={<DJMCPublicView />} />
           <Route path="/djmc/:token" element={<DJMCPublicView />} />
           {/* Running Sheet public view */}
+          <Route path="/running-sheet/:eventSlug/:token" element={<RunningSheetPublicView />} />
           <Route path="/running-sheet/:token" element={<RunningSheetPublicView />} />
           {/* Seating chart public view */}
           <Route path="/seating-chart/:token" element={<SeatingChartPublicView />} />

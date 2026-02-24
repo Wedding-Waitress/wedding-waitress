@@ -65,7 +65,10 @@ const buildEventDisplay = (rich: any): string => {
 };
 
 export function RunningSheetPublicView() {
-  const { token } = useParams<{ token: string }>();
+  const params = useParams<{ token: string; eventSlug?: string }>();
+  // When using /running-sheet/:eventSlug/:token, React Router puts eventSlug in first param and token in second.
+  // When using /running-sheet/:token (old links), token is in the first param.
+  const token = params.token || params.eventSlug;
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [data, setData] = useState<RunningSheetData | null>(null);
