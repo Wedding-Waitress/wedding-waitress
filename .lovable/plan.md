@@ -1,32 +1,43 @@
 
 
-# Add Export Controls Box to Dietary Requirements Page
+# Reorganize Floor Plan Header Layout
 
 ## What's Changing
-The two green PDF download buttons ("Download single page PDF" and "Download all pages PDF") on the Dietary Requirements page will be wrapped in a styled "Export Controls" container, matching the design used in the Running Sheet and DJ-MC Questionnaire pages.
+The Floor Plan header card will be reorganized into a cleaner vertical flow:
+
+1. **Line 1**: Title "Floor Plan" (left)
+2. **Line 2**: Description text
+3. **Line 3**: Choose Event dropdown + Floor Plan Type dropdown + Total Attending (moved up, directly below description)
+4. **Line 4**: Export Controls box at the bottom of the card, with "Export Controls" label and description text on one line, and the green Download PDF button below
 
 ## Visual Result
-- A purple-bordered rounded box will appear in the top-right area of the header card
-- Bold "Export Controls" label followed by the instruction text: *"Download & share your dietary requirement guests with your venue / Kitchen."*
-- The two existing green buttons will sit inside this box, unchanged in function
+```text
++---------------------------------------------------------------+
+| Floor Plan                                                     |
+| Design and visualize your ceremony or reception seating layout |
+|                                                                |
+| Choose Event: [dropdown]  Floor Plan Type: [dropdown]          |
+|   Total Attending: 89 (Bride & Groom + Celebrant + ...)       |
+|                                                                |
+| +-----------------------------------------------------------+ |
+| | Export Controls  Download your floor plan for venue staff.  | |
+| | [Download PDF]                                              | |
+| +-----------------------------------------------------------+ |
++---------------------------------------------------------------+
+```
 
 ## Technical Details
 
-### File: `src/components/Dashboard/QRCode/KitchenDietaryChart.tsx`
-**Lines ~491-509** (the action buttons area)
+### File: `src/components/Dashboard/FloorPlan/FloorPlanPage.tsx`
 
-Replace the current button container with a purple-bordered Export Controls box:
+**Lines 85-198** -- Restructure the CardContent interior:
 
-```tsx
-<div className="border border-primary rounded-xl p-4 space-y-3">
-  <p className="text-sm">
-    <span className="font-bold">Export Controls</span>
-    {' '}Download & share your dietary requirement guests with your venue / Kitchen.
-  </p>
-  <div className="flex items-center gap-2 flex-wrap">
-    {/* existing two green buttons unchanged */}
-  </div>
-</div>
-```
+1. Remove the `flex-row justify-between` wrapper that currently puts the title and Export Controls side-by-side
+2. Place title + description at the top (no change to content)
+3. Move the event/type selection row directly below the description (remove the `pt-4` extra padding)
+4. Move the Export Controls box to the bottom of the card content
+5. Change Export Controls to single-line format: bold "Export Controls" followed by description text on same line (matching Dietary Requirements pattern)
+6. Remove the separate `<h3>` and `<p>` tags, replace with single `<p>` containing bold span + text
 
-This matches the exact pattern used in the Running Sheet and DJ-MC Questionnaire export controls sections.
+The Export Controls box keeps its purple border styling (`border border-primary rounded-xl`) and the green Download PDF button remains unchanged.
+
