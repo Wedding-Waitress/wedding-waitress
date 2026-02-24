@@ -167,7 +167,7 @@ export function DJMCQuestionnairePage({ selectedEventId, onEventSelect }: DJMCQu
               <div className="border border-primary rounded-xl p-3 flex flex-col gap-3">
                 <div className="text-sm">
                   <span className="font-medium">Export Controls</span>
-                  <span className="text-muted-foreground ml-2">Download your questionnaire and share it with your DJ-MC or wedding venue.</span>
+                  <span className="text-muted-foreground ml-2">Download your running sheet and share it with your DJ-MC or any of your vendors.</span>
                 </div>
                 <div className="flex items-center gap-3 flex-wrap">
                   <button
