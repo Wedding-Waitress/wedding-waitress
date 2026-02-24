@@ -1648,16 +1648,14 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                       <div>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button 
-                              variant="default" 
-                              size="xs"
-                              className="rounded-full flex items-center gap-2"
+                            <button 
+                              className="inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none"
                               disabled={!selectedEventId}
                             >
-                              <ArrowUpDown className="w-4 h-4" />
+                              <ArrowUpDown className="w-3 h-3" />
                               Sort By
-                              <ChevronDown className="w-4 h-4" />
-                            </Button>
+                              <ChevronDown className="w-3 h-3" />
+                            </button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end" className="w-40">
                             {SORT_OPTIONS.map((option) => (
@@ -1689,16 +1687,14 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                       <div>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button 
-                              variant="default" 
-                              size="xs"
-                              className="rounded-full flex items-center gap-2"
+                            <button 
+                              className="inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none"
                               disabled={!selectedEventId}
                             >
-                              <FileText className="w-4 h-4" />
+                              <FileText className="w-3 h-3" />
                               Import / Export CSV
-                              <ChevronDown className="w-4 h-4" />
-                            </Button>
+                              <ChevronDown className="w-3 h-3" />
+                            </button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end" className="w-48">
                             <DropdownMenuItem onClick={downloadTemplate}>
