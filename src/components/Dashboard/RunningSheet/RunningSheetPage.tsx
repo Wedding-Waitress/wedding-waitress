@@ -174,7 +174,7 @@ export function RunningSheetPage({ selectedEventId, onEventSelect }: RunningShee
                 <div className="flex items-center gap-3 flex-wrap">
                   <button
                     onClick={() => setShowShareModal(true)}
-                    className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium border-2 border-primary rounded-full text-primary bg-background hover:bg-primary/10 transition-colors"
+                    className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors"
                   >
                     <Share2 className="h-4 w-4" />
                     Share with...
