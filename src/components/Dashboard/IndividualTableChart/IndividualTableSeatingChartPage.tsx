@@ -265,47 +265,17 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
       {/* Event and Table Selection */}
       <Card className="ww-box">
         <CardHeader className="space-y-4">
-          <div className="flex flex-wrap items-start justify-between gap-4">
-            {/* Left: Title and Description */}
-            <div>
-              <h1 className="text-2xl font-medium text-[#7248e6] mb-2">
-                Individual Table Seating Chart
-              </h1>
-              <p className="text-muted-foreground">
-                Generate detailed seating charts for individual tables
-              </p>
-            </div>
-            
-            {/* Right: Export Controls Box */}
-            {isDataReady && (
-              <div className="border border-primary rounded-xl p-4 space-y-3">
-                <h3 className="text-sm font-medium">Export Controls</h3>
-                <p className="text-muted-foreground text-sm">
-                  For best results, save the PDF to a file and print directly.
-                </p>
-                <div className="flex items-center gap-2 flex-wrap">
-                  <button 
-                    onClick={handleDownloadPdf}
-                    disabled={isExporting || isExportingAll}
-                    className="inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none"
-                  >
-                    <FileText className="w-3 h-3" />
-                    Download single page PDF
-                  </button>
-                  <button 
-                    onClick={handleDownloadAllPdf}
-                    disabled={isExporting || isExportingAll}
-                    className="inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none"
-                  >
-                    <FileText className="w-3 h-3" />
-                    {isExportingAll ? `Exporting ${tables.length} tables...` : 'Download all pages PDF'}
-                  </button>
-                </div>
-              </div>
-            )}
+          {/* Title and Description */}
+          <div>
+            <h1 className="text-2xl font-medium text-[#7248e6] mb-2">
+              Individual Table Seating Chart
+            </h1>
+            <p className="text-muted-foreground">
+              Generate detailed seating charts for individual tables
+            </p>
           </div>
-        </CardHeader>
-        <CardContent className="space-y-4 pt-8">
+
+          {/* Choose Event + Table dropdowns */}
           <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-8 flex-wrap">
             {/* Choose Event Section */}
             <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 w-full sm:w-auto">
@@ -367,7 +337,35 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
               </Select>
             </div>
           </div>
-        </CardContent>
+
+          {/* Export Controls */}
+          {isDataReady && (
+            <div className="border border-primary rounded-xl p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <p className="text-sm">
+                <span className="font-bold">Export Controls</span>
+                {' '}Download & share your individual table charts with your venue.
+              </p>
+              <div className="flex items-center gap-2 flex-shrink-0 flex-wrap">
+                <button 
+                  onClick={handleDownloadPdf}
+                  disabled={isExporting || isExportingAll}
+                  className="inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none"
+                >
+                  <FileText className="w-3 h-3" />
+                  Download single page PDF
+                </button>
+                <button 
+                  onClick={handleDownloadAllPdf}
+                  disabled={isExporting || isExportingAll}
+                  className="inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none"
+                >
+                  <FileText className="w-3 h-3" />
+                  {isExportingAll ? `Exporting ${tables.length} tables...` : 'Download all pages PDF'}
+                </button>
+              </div>
+            </div>
+          )}
+        </CardHeader>
       </Card>
 
       {/* Main Content */}
