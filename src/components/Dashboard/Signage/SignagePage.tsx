@@ -160,12 +160,12 @@ export const SignagePage: React.FC<SignagePageProps> = ({
         <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-6">
           <div className="space-y-4 flex-1">
             {/* Event selector */}
-            <div className="flex items-center space-x-4">
-              <label className="text-sm font-medium text-foreground">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+              <label className="text-sm font-medium text-foreground whitespace-nowrap">
                 Choose Event:
               </label>
               <Select value={selectedEventId || "no-event"} onValueChange={handleEventSelect}>
-                <SelectTrigger className="w-[300px]">
+                <SelectTrigger className="w-full sm:w-[300px]">
                   <SelectValue placeholder={eventsLoading ? "Loading events..." : "Select an event..."} />
                 </SelectTrigger>
                 <SelectContent>

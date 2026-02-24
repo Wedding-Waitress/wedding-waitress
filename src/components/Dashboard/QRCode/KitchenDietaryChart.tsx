@@ -445,7 +445,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
               <div className="flex items-center gap-3">
                 <span className="text-sm font-medium whitespace-nowrap">Choose Event:</span>
                 <Select value={eventId || "no-event"} onValueChange={handleEventSelect}>
-                  <SelectTrigger className="w-[300px] border-primary focus:ring-primary font-bold text-[#7248e6]">
+                  <SelectTrigger className="w-full sm:w-[300px] border-primary focus:ring-primary font-bold text-[#7248e6]">
                     <SelectValue placeholder="Choose Event" />
                   </SelectTrigger>
                   <SelectContent className="bg-popover border-border z-50">

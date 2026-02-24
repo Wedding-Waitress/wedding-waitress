@@ -310,9 +310,9 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
           </div>
         </CardHeader>
         <CardContent className="space-y-4 pt-8">
-          <div className="flex items-center gap-8 flex-wrap">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-8 flex-wrap">
             {/* Choose Event Section */}
-            <div className="flex items-center gap-4">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 w-full sm:w-auto">
               <label className="text-sm font-medium text-foreground whitespace-nowrap">
                 Choose Event:
               </label>
@@ -326,7 +326,7 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
                 }}
                 disabled={eventsLoading}
               >
-                <SelectTrigger className="w-[300px] border-primary focus:ring-primary font-bold text-[#7248e6]">
+                <SelectTrigger className="w-full sm:w-[300px] border-primary focus:ring-primary font-bold text-[#7248e6]">
                   <SelectValue placeholder="Choose Event" />
                 </SelectTrigger>
                 <SelectContent className="bg-popover border-border z-50">
@@ -349,7 +349,7 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
             </div>
 
             {/* Table Section */}
-            <div className="flex items-center gap-4">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 w-full sm:w-auto">
               <label className="text-sm font-medium text-foreground whitespace-nowrap">
                 Table:
               </label>
@@ -358,7 +358,7 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
                 onValueChange={setSelectedTableId}
                 disabled={!selectedEventId || tablesLoading}
               >
-                <SelectTrigger className="w-[300px] border-primary focus:ring-primary">
+                <SelectTrigger className="w-full sm:w-[300px] border-primary focus:ring-primary">
                   <SelectValue placeholder="Select a table" />
                 </SelectTrigger>
                 <SelectContent className="bg-popover border-border z-50">

@@ -150,7 +150,7 @@ export const CountdownBar: React.FC<CountdownBarProps> = ({
     value: number;
     label: string;
   }) => <div className="flex flex-col items-center">
-      <div className="relative w-24 h-24 md:w-32 md:h-32 mb-2">
+      <div className="relative w-20 h-20 sm:w-24 sm:h-24 md:w-32 md:h-32 mb-2">
         <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary to-primary-hover shadow-lg border-2 border-white/20"></div>
         <div className="absolute inset-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/30"></div>
         <div className="absolute inset-0 flex items-center justify-center">
@@ -173,12 +173,12 @@ export const CountdownBar: React.FC<CountdownBarProps> = ({
 
         {/* Countdown Circles */}
         <div className={`transition-opacity duration-300 ease-in-out ${isAnimating ? 'opacity-0' : 'opacity-100'}`}>
-          {displayEvent ? <div className="flex justify-center items-center gap-6 md:gap-12 flex-wrap">
+          {displayEvent ? <div className="flex justify-center items-center gap-3 sm:gap-6 md:gap-12 flex-wrap">
               <CountdownCircle value={countdownValues.months} label="Months" />
               <CountdownCircle value={countdownValues.weeks} label="Weeks" />
               <CountdownCircle value={countdownValues.hours} label="Hours" />
               <CountdownCircle value={countdownValues.seconds} label="Seconds" />
-            </div> : <div className="flex justify-center items-center gap-6 md:gap-12 flex-wrap">
+            </div> : <div className="flex justify-center items-center gap-3 sm:gap-6 md:gap-12 flex-wrap">
               <CountdownCircle value={0} label="Months" />
               <CountdownCircle value={0} label="Weeks" />
               <CountdownCircle value={0} label="Hours" />

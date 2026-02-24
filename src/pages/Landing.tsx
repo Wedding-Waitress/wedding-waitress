@@ -150,7 +150,7 @@ export const Landing = () => {
                   <Sparkles className="w-4 h-4 mr-2" />
                   Elegant Event Management
                 </div>
-                <h1 className="text-5xl lg:text-6xl font-bold leading-tight">
+                <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight">
                   Your Dream Wedding,
                   <span className="gradient-text block">
                     Perfectly Orchestrated
@@ -333,7 +333,7 @@ It handles every detail of your event's seating chart, RSVP & more so you can fo
 
           {/* Additional Heading */}
           <div className="text-center my-16">
-            <h2 className="text-4xl font-bold mb-4">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4">
               Choose A Product or <span className="gradient-text">Create The Magic</span> & Choose Them All
             </h2>
           </div>
@@ -393,10 +393,10 @@ It handles every detail of your event's seating chart, RSVP & more so you can fo
           <div className="absolute inset-0 bg-gradient-hero opacity-5 pointer-events-none"></div>
           <div className="w-full px-4 text-center relative z-10">
             <div className="max-w-4xl mx-auto space-y-8">
-              <h2 className="text-4xl font-bold">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold">
                 Ready to Plan Smarter & Stress-Free?
               </h2>
-              <p className="text-xl text-muted-foreground">
+              <p className="text-base sm:text-lg md:text-xl text-muted-foreground">
                 Join thousands of couples, planners, and venues already simplifying their seating charts and RSVPs.
               </p>
               <Button variant="hero" size="xl" className="btn-glow">

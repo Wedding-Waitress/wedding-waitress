@@ -406,8 +406,8 @@ export const Dashboard = () => {
             <Card className="ww-box">
               <CardHeader className="flex flex-col gap-4 pb-6">
                 {/* Event Selector */}
-                <div className="flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-3">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                     <label className="text-sm font-medium text-foreground whitespace-nowrap">
                       Choose Event:
                     </label>
@@ -449,7 +449,7 @@ export const Dashboard = () => {
                 <div className="flex items-start gap-3">
                   {/* Left: Icon + Title + Description */}
                   <div className="flex items-start gap-3 flex-1">
-                    <MapPin className="w-16 h-16 text-primary flex-shrink-0" />
+                    <MapPin className="w-10 h-10 sm:w-16 sm:h-16 text-primary flex-shrink-0" />
                     <div className="flex flex-col">
                       <CardTitle className="mb-2 text-left text-2xl font-medium text-[#7248e6]">Table Setup</CardTitle>
                       <div className="text-left text-sm text-muted-foreground">
@@ -468,7 +468,7 @@ export const Dashboard = () => {
                 </div>
                 
                 {/* Bottom row - Choose Event dropdown and Create Tables button */}
-                <div className="flex items-center justify-between gap-3 pt-2">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
                   <div className="flex items-center gap-3">
                     <label className="text-sm font-medium text-foreground whitespace-nowrap">
                       Choose Event:
