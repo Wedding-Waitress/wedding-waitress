@@ -1,43 +1,13 @@
 
 
-# Reorganize Floor Plan Header Layout
+# Move Download PDF Button to Right Side of Export Controls
 
-## What's Changing
-The Floor Plan header card will be reorganized into a cleaner vertical flow:
+## Change
+In the Export Controls box on the Floor Plan page, move the green "Download PDF" button to the right-hand side of the same line as the text, instead of below it.
 
-1. **Line 1**: Title "Floor Plan" (left)
-2. **Line 2**: Description text
-3. **Line 3**: Choose Event dropdown + Floor Plan Type dropdown + Total Attending (moved up, directly below description)
-4. **Line 4**: Export Controls box at the bottom of the card, with "Export Controls" label and description text on one line, and the green Download PDF button below
+## Technical Detail
 
-## Visual Result
-```text
-+---------------------------------------------------------------+
-| Floor Plan                                                     |
-| Design and visualize your ceremony or reception seating layout |
-|                                                                |
-| Choose Event: [dropdown]  Floor Plan Type: [dropdown]          |
-|   Total Attending: 89 (Bride & Groom + Celebrant + ...)       |
-|                                                                |
-| +-----------------------------------------------------------+ |
-| | Export Controls  Download your floor plan for venue staff.  | |
-| | [Download PDF]                                              | |
-| +-----------------------------------------------------------+ |
-+---------------------------------------------------------------+
-```
+### File: `src/components/Dashboard/FloorPlan/FloorPlanPage.tsx` (~lines 176-193)
 
-## Technical Details
-
-### File: `src/components/Dashboard/FloorPlan/FloorPlanPage.tsx`
-
-**Lines 85-198** -- Restructure the CardContent interior:
-
-1. Remove the `flex-row justify-between` wrapper that currently puts the title and Export Controls side-by-side
-2. Place title + description at the top (no change to content)
-3. Move the event/type selection row directly below the description (remove the `pt-4` extra padding)
-4. Move the Export Controls box to the bottom of the card content
-5. Change Export Controls to single-line format: bold "Export Controls" followed by description text on same line (matching Dietary Requirements pattern)
-6. Remove the separate `<h3>` and `<p>` tags, replace with single `<p>` containing bold span + text
-
-The Export Controls box keeps its purple border styling (`border border-primary rounded-xl`) and the green Download PDF button remains unchanged.
+Change the Export Controls inner layout from a vertical `space-y-3` stack to a horizontal `flex justify-between items-center` row, placing the text on the left and the Download PDF button on the right, all on one line.
 
