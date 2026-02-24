@@ -1,22 +1,40 @@
 
-# Fix Place Cards Header Layout
+# Change All Dashboard Page Headers to Black
 
-## Changes
+## What's Changing
 
-### 1. Move Table dropdown next to Choose Event (same row)
-Currently the Table dropdown sits below Choose Event due to `flex-wrap`. Change the dropdowns wrapper to `flex-nowrap` so both dropdowns appear side by side on the same line.
+All main page header titles across the dashboard will be changed from purple (`text-[#7248e6]` or `text-primary`) to black (`text-foreground`), matching the Running Sheet page style. The font size and weight will be standardized to `text-2xl font-medium` across all pages.
 
-### 2. Move Export Controls to its own row below, right-aligned
-Separate the Export Controls from the dropdowns row. Add an empty line gap, then render the Export Controls on its own row, right-aligned. Make the Export Controls box wider so all text and button labels display on single lines without wrapping.
+## Pages Affected
+
+| Page | File | Current Color |
+|------|------|--------------|
+| Kiosk Live View | KioskSetup.tsx | Purple |
+| Full Seating Chart | FullSeatingChartPage.tsx | Purple |
+| Kitchen Dietary Requirements | KitchenDietaryChart.tsx | Purple |
+| Floor Plan | FloorPlanPage.tsx | Purple |
+| Individual Table Seating Chart | IndividualTableSeatingChartPage.tsx | Purple |
+| Table Name Place Cards | PlaceCardsPage.tsx | Purple |
+| QR Code Seating Chart | QRCodeSeatingChart.tsx | Purple |
+| Guest List | GuestListTable.tsx | Purple |
+| Table Setup | Dashboard.tsx | Purple |
+| My Events | EventsTable.tsx | Purple |
 
 ## Technical Details
 
-### File: `src/components/Dashboard/PlaceCards/PlaceCardsPage.tsx` (lines 314-406)
+For each file, replace `text-[#7248e6]` or `text-primary` on the main page header with `text-foreground`. Ensure all use `text-2xl font-medium` for consistent sizing.
 
-1. **Line 315**: Break the single outer `flex` container into two separate rows
-2. **Line 317**: Change dropdowns wrapper from `flex-wrap` to `flex-nowrap` so Choose Event and Table sit side by side
-3. **Lines 379-406**: Move the Export Controls block outside the dropdowns row into its own container below, with:
-   - A spacer/gap above it (empty line effect via `mt-4`)
-   - `flex justify-end` to push it right
-   - `whitespace-nowrap` on button text and description to prevent wrapping
-   - Remove width constraints so the box can expand to fit content on one line
+### Specific changes per file:
+
+1. **KioskSetup.tsx** (line 119): `text-[#7248e6]` -> `text-foreground`
+2. **FullSeatingChartPage.tsx** (line 205): `text-[#7248e6]` -> `text-foreground`
+3. **KitchenDietaryChart.tsx** (line 437): `text-[#7248e6]` -> `text-foreground`
+4. **FloorPlanPage.tsx** (line 88): `text-[#7248e6]` -> `text-foreground`, standardize to `text-2xl font-medium`
+5. **IndividualTableSeatingChartPage.tsx** (line 270): `text-[#7248e6]` -> `text-foreground`
+6. **PlaceCardsPage.tsx** (line 259): `text-primary` -> `text-foreground`
+7. **QRCodeSeatingChart.tsx** (line 95): `text-[#7248e6]` -> `text-foreground`
+8. **GuestListTable.tsx** (line 1396): `text-primary` -> `text-foreground`, standardize to `text-2xl font-medium`
+9. **Dashboard.tsx** (line 454): `text-[#7248e6]` -> `text-foreground` (Table Setup header)
+10. **EventsTable.tsx** (line 233): `text-[#7248e6]` -> `text-foreground` (My Events header)
+
+Only the main page title heading in each file is changed. No other elements (sub-headers, icons, descriptions, settings panels) are modified.
