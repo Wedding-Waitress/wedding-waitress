@@ -123,7 +123,7 @@ const generateRunningSheetHTML = (
   }).join('');
 
   const logoHtml = logoDataUrl
-    ? `<div style="width:100%;text-align:center;margin-top:20px;"><img src="${logoDataUrl}" style="height:28px;object-fit:contain;" /></div>`
+    ? `<div style="width:100%;text-align:center;margin-top:20px;"><img src="${logoDataUrl}" style="display:block;margin:0 auto;height:28px;object-fit:contain;" /></div>`
     : '';
 
   return `
