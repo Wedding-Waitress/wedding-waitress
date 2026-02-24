@@ -85,7 +85,7 @@ export const FloorPlanPage = ({
         <CardContent className="pt-4 sm:pt-6 space-y-4">
           {/* Title and Description */}
           <div>
-            <h1 className="text-xl sm:text-2xl font-medium text-[#7248e6] mb-2">
+            <h1 className="text-2xl font-medium text-foreground mb-2">
               Floor Plan
             </h1>
             <p className="text-sm sm:text-base text-muted-foreground">

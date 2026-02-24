@@ -1393,7 +1393,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
             {/* Left: Title, Description, Event selector and Search */}
             <div className="w-full">
               <div className="flex items-baseline gap-3 mb-4">
-                <h1 className="text-xl sm:text-2xl font-medium text-primary whitespace-nowrap">
+                <h1 className="text-2xl font-medium text-foreground whitespace-nowrap">
                   Guest List
                 </h1>
                 <p className="text-sm text-muted-foreground hidden sm:block">

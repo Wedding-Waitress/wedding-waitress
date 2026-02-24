@@ -451,7 +451,7 @@ export const Dashboard = () => {
                   <div className="flex items-start gap-3 flex-1">
                     <MapPin className="w-10 h-10 sm:w-16 sm:h-16 text-primary flex-shrink-0" />
                     <div className="flex flex-col">
-                      <CardTitle className="mb-2 text-left text-2xl font-medium text-[#7248e6]">Table Setup</CardTitle>
+                      <CardTitle className="mb-2 text-left text-2xl font-medium text-foreground">Table Setup</CardTitle>
                       <div className="text-left text-sm text-muted-foreground">
                         <ul className="list-disc pl-5 space-y-1">
                           <li className="text-red-600 font-bold">Important – Please Read:</li>
