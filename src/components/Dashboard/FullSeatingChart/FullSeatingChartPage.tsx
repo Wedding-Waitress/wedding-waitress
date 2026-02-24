@@ -34,20 +34,20 @@
  * ============================================================================
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/enhanced-button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { FileText, Users, Layout, Calendar, Share2 } from 'lucide-react';
+import { FileText, Users, Layout, Calendar } from 'lucide-react';
 import { useEvents } from '@/hooks/useEvents';
 import { useRealtimeGuests } from '@/hooks/useRealtimeGuests';
 import { useFullSeatingChartSettings } from '@/hooks/useFullSeatingChartSettings';
-import { useSeatingChartShare } from '@/hooks/useSeatingChartShare';
+
 import { useToast } from '@/hooks/use-toast';
 import { FullSeatingChartPreview } from './FullSeatingChartPreview';
 import { FullSeatingChartCustomizer } from './FullSeatingChartCustomizer';
-import { SeatingChartShareModal } from './SeatingChartShareModal';
+
 import { exportFullSeatingChartToPdf } from '@/lib/fullSeatingChartPdfExporter';
 
 interface FullSeatingChartPageProps {
@@ -60,16 +60,13 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
   onEventSelect
 }) => {
   const [isExporting, setIsExporting] = useState(false);
-  const [shareModalOpen, setShareModalOpen] = useState(false);
+  
   const { events, loading: eventsLoading } = useEvents();
   const { guests, loading: guestsLoading } = useRealtimeGuests(selectedEventId);
   const { settings, loading: settingsLoading, updateSettings } = useFullSeatingChartSettings(selectedEventId);
-  const { shareTokens, fetchShareTokens, generateShareToken, deleteShareToken } = useSeatingChartShare(selectedEventId);
+  
   const { toast } = useToast();
 
-  useEffect(() => {
-    if (selectedEventId) fetchShareTokens();
-  }, [selectedEventId, fetchShareTokens]);
 
   const selectedEvent = selectedEventId ? events.find(e => e.id === selectedEventId) : null;
 
@@ -268,17 +265,10 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
                   <div className="flex items-center">
                     <span className="font-bold text-sm">Export Controls</span>
                     <span className="text-muted-foreground ml-2 text-sm">
-                      Download the Full Seating Chart or share with your vendors.
+                      Download the Full Seating Chart and share it with your vendors.
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <button
-                      className="inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none"
-                      onClick={() => setShareModalOpen(true)}
-                    >
-                      <Share2 className="w-3 h-3" />
-                      Share with...
-                    </button>
                     <button
                       className="inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none"
                       onClick={handleDownloadPdf}
@@ -350,14 +340,6 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
         </Card>
       )}
 
-      {/* Share Modal */}
-      <SeatingChartShareModal
-        open={shareModalOpen}
-        onOpenChange={setShareModalOpen}
-        shareTokens={shareTokens}
-        onGenerateToken={generateShareToken}
-        onDeleteToken={deleteShareToken}
-      />
     </div>
   );
 };
