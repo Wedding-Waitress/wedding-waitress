@@ -490,26 +490,22 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
 
                 {/* Right Side: Action Buttons */}
                 <div className="flex items-center gap-2 flex-shrink-0">
-                  <Button 
-                    variant="default" 
-                    size="xs" 
-                    className="rounded-full"
+                  <button 
+                    className="inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none"
                     onClick={handleDownloadPdf}
                     disabled={isExporting || paginatedGuests.length === 0}
                   >
-                    <FileText className="w-4 h-4" />
+                    <FileText className="w-3 h-3" />
                     Download single page PDF
-                  </Button>
-                  <Button 
-                    variant="default" 
-                    size="xs" 
-                    className="rounded-full"
+                  </button>
+                  <button 
+                    className="inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none"
                     onClick={handleDownloadPdfAll}
                     disabled={isExporting || dietaryGuests.length === 0}
                   >
-                    <FileText className="w-4 h-4" />
+                    <FileText className="w-3 h-3" />
                     Download all pages PDF
-                  </Button>
+                  </button>
                 </div>
               </div>
                 </>

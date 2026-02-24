@@ -206,33 +206,30 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
 
             {/* Action Buttons */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Button 
-                variant="outline" 
+              <button 
                 onClick={handleOpenKiosk}
-                className="flex items-center justify-center gap-2 bg-white border-primary"
+                className="inline-flex items-center justify-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors"
               >
-                <ExternalLink className="w-4 h-4" />
+                <ExternalLink className="w-3 h-3" />
                 Open Kiosk
-              </Button>
+              </button>
               
-              <Button 
-                variant="default" 
+              <button 
                 onClick={handleFullscreen}
-                className="flex items-center justify-center gap-2"
+                className="inline-flex items-center justify-center gap-2 h-7 px-2.5 text-xs font-medium rounded-full bg-green-500 text-white hover:bg-green-600 transition-colors"
               >
-                <Maximize className="w-4 h-4" />
+                <Maximize className="w-3 h-3" />
                 Launch Fullscreen
-              </Button>
+              </button>
               
-              <Button 
-                variant="outline" 
+              <button 
                 onClick={generateQRCode}
                 disabled={isGeneratingQR}
-                className="flex items-center justify-center gap-2 bg-white border-primary"
+                className="inline-flex items-center justify-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none"
               >
-                <QrCode className="w-4 h-4" />
+                <QrCode className="w-3 h-3" />
                 {isGeneratingQR ? 'Generating...' : 'Generate QR'}
-              </Button>
+              </button>
             </div>
 
             {/* QR Code Display */}
