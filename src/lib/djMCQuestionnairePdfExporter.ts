@@ -68,7 +68,7 @@ const formatGeneratedTimestamp = (): string => {
 // Load logo image as base64
 const loadLogoAsBase64 = async (): Promise<string | null> => {
   try {
-    const response = await fetch('/jpeg-2.jpg');
+    const response = await fetch('/wedding-waitress-share-logo.png');
     const blob = await response.blob();
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -351,7 +351,7 @@ export const exportSectionPDF = async (
     const logoY = pageHeight - margin - logoHeight;
     
     try {
-      pdf.addImage(logoBase64, 'JPEG', logoX, logoY, logoWidth, logoHeight);
+      pdf.addImage(logoBase64, 'PNG', logoX, logoY, logoWidth, logoHeight);
     } catch (error) {
       console.error('Failed to add logo to PDF:', error);
     }
@@ -475,7 +475,7 @@ export const exportEntireQuestionnairePDF = async (
     const logoY = pageHeight - margin - logoHeight;
     
     try {
-      pdf.addImage(logoBase64, 'JPEG', logoX, logoY, logoWidth, logoHeight);
+      pdf.addImage(logoBase64, 'PNG', logoX, logoY, logoWidth, logoHeight);
     } catch (error) {
       console.error('Failed to add logo to PDF:', error);
     }
