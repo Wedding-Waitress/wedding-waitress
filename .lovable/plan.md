@@ -1,62 +1,68 @@
 
 
-# Fix Running Sheet PDF Export
+# Fix Running Sheet PDF Export and Add Section Header Toggle
 
-## Problem
+## Three Changes Required
 
-The current Running Sheet PDF uses raw jsPDF text drawing which causes:
-- **Text overlapping/bleeding** between rows (clearly visible in the screenshot)
-- **No multi-page support** -- long running sheets get cut off
-- **Section headers not visually distinct** (bold red styling missing)
-- **Multi-line Event text not rendered properly** -- newlines cause text to overlap
+### 1. PDF Header: Consolidate to 2 Lines (Ceremony First, Then Reception)
 
-The other exporters (Individual Table Charts, Dietary Requirements, Full Seating Chart) all work correctly because they use the **html2canvas** approach: generate clean HTML, render it offscreen, then capture as an image into the PDF.
+**File:** `src/lib/runningSheetPdfExporter.ts`
 
-## Solution
+Currently the PDF header shows 4 separate lines:
+- Reception: Sunday 20th, December 2026
+- Sheldon Receptions | 6:00 PM - 11:00 PM
+- Ceremony: Sunday 20th, December 2026
+- Sheldon Receptions | 3:30 PM - 5:55 PM
 
-Rewrite `src/lib/runningSheetPdfExporter.ts` to use the same proven html2canvas methodology used by all other working PDF exporters in the app.
+Change to 2 lines, with Ceremony always listed first:
+- Ceremony: Sunday 20th, December 2026 | Sheldon Receptions | 3:30 PM - 5:55 PM
+- Reception: Sunday 20th, December 2026 | Sheldon Receptions | 6:00 PM - 11:00 PM
 
-### How it will work:
+If there is no ceremony data, only show the Reception line.
 
-1. **Generate clean HTML** for the running sheet (header with event name, dates, venues + table with Time/Event/Who columns)
-2. **Render offscreen** in an A4-sized container (794x1123px)
-3. **Capture with html2canvas** at scale 3 for crisp text
-4. **Add to jsPDF** as a full-page image
-5. **Multi-page support**: if content exceeds one page, split across multiple pages automatically
+### 2. PDF Logo: Center at Bottom of Page
 
-### HTML Template will include:
-- Purple event name header (matching current style)
-- "Running Sheet" subtitle
-- Reception and Ceremony date/venue/time details
-- Purple divider line
-- Section label in purple
-- Section notes in italic grey (if present)
-- Clean table with TIME / EVENT / WHO columns
-- Section header rows styled in **bold red** (matching dashboard)
-- Multi-line text in Event column properly rendered with line breaks
-- Wedding Waitress logo at bottom
-- "Generated" timestamp
+**File:** `src/lib/runningSheetPdfExporter.ts`
 
-### Key differences from current approach:
-| Current (broken) | New (html2canvas) |
-|---|---|
-| Raw jsPDF text positioning | HTML rendered to canvas |
-| Text overlaps on multi-line content | Proper HTML line wrapping |
-| No pagination | Auto-pagination for long sheets |
-| Section headers not styled | Bold red section headers |
-| Single font rendering | Full CSS text rendering |
+The logo container div already has `text-align:center` but because it sits inside a flex column, it needs `width:100%` and `align-self:center` to properly center. Add explicit `width:100%` to the logo wrapper div so the centered text-align takes effect across the full page width.
 
-## Files Changed
+### 3. PDF + Dashboard: Make Entire Section Header Row Red (All 3 Columns)
 
-| File | Change |
-|------|--------|
-| `src/lib/runningSheetPdfExporter.ts` | Rewrite to use html2canvas approach matching other exporters |
+**File:** `src/lib/runningSheetPdfExporter.ts`
+
+Currently only the Time column gets `font-weight:bold;color:#dc2626` for section headers. Change the PDF export so all three columns (Time, Event, Who) render in bold red when `is_section_header` is true.
+
+Important: Only the base text of the Event column (e.g., "Ceremony", "Reception doors open") should be red. Any text inserted from the DJ-MC Questionnaire (which gets appended below) remains black. Since the questionnaire text is appended as additional lines, the simplest approach is to make the entire row red in the PDF -- the questionnaire inserts create separate content that naturally follows after the section header text.
+
+**File:** `src/components/Dashboard/RunningSheet/RunningSheetRow.tsx`
+
+Currently `headerClasses` (bold red) is only applied to the Time textarea. Apply it to all three textareas (Time, Event, Who) so the dashboard preview matches the PDF output.
+
+### 4. Dashboard UI: Add "Highlight Row" Toggle Button
+
+**File:** `src/components/Dashboard/RunningSheet/RunningSheetRow.tsx`
+
+Add a new action button to the left of the existing "Insert from Questionnaire" button. This button will toggle `is_section_header` on/off for that row.
+
+- Button name: "Highlight Row" (tooltip)
+- Icon: `Highlighter` from lucide-react (a highlighter pen icon)
+- When active (row is a section header): icon shows in red to indicate it's toggled on
+- When clicked: calls `onUpdate(item.id, { is_section_header: !item.is_section_header })` to toggle the flag
+- Position: first button in the row actions group, before "Insert from Questionnaire"
+
+---
+
+## Summary of File Changes
+
+| File | Changes |
+|------|---------|
+| `src/lib/runningSheetPdfExporter.ts` | Consolidate header to 2 lines (ceremony first), center logo with full width, make all 3 columns red for section headers |
+| `src/components/Dashboard/RunningSheet/RunningSheetRow.tsx` | Apply red styling to all 3 columns for section headers, add "Highlight Row" toggle button |
 
 ## Technical Notes
 
-- The file is marked "LOCKED FOR PRODUCTION" but the user (the owner) is explicitly requesting this fix, so this constitutes owner approval
-- Only the PDF export engine changes -- no changes to the running sheet UI, data model, sharing, or any other functionality
-- The exported function signatures (`exportRunningSheetPDF`, `exportRunningSheetSectionPDF`) remain identical so no caller changes needed
-- Uses the same `html2canvas` + `jsPDF` pipeline proven across all other chart exporters
-- Logo loaded from `@/assets/wedding-waitress-new-logo.png` (same as individual table chart engine)
+- The `is_section_header` field already exists in the database and types -- no schema changes needed
+- The `onUpdate` callback already handles partial updates including `is_section_header` -- no hook changes needed
+- Questionnaire-inserted text: when a user inserts from the questionnaire, it appends to the Event field. The `is_section_header` flag is independent of the text content, so toggling highlight on/off works regardless of what text is in the row
+- No changes to data model, sharing, or any other functionality
 
