@@ -1955,6 +1955,50 @@ export type Database = {
           },
         ]
       }
+      seating_chart_share_tokens: {
+        Row: {
+          created_at: string
+          event_id: string
+          expires_at: string | null
+          id: string
+          last_accessed_at: string | null
+          permission: string
+          recipient_name: string | null
+          token: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          expires_at?: string | null
+          id?: string
+          last_accessed_at?: string | null
+          permission?: string
+          recipient_name?: string | null
+          token: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          expires_at?: string | null
+          id?: string
+          last_accessed_at?: string | null
+          permission?: string
+          recipient_name?: string | null
+          token?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seating_chart_share_tokens_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       subscription_plans: {
         Row: {
           can_send_email: boolean
@@ -2226,6 +2270,15 @@ export type Database = {
         }
         Returns: string
       }
+      generate_seating_chart_share_token: {
+        Args: {
+          _event_id: string
+          _permission?: string
+          _recipient_name?: string
+          _validity_days?: number
+        }
+        Returns: string
+      }
       generate_short_slug: { Args: never; Returns: string }
       generate_slug: { Args: { input_text: string }; Returns: string }
       get_dj_mc_questionnaire_by_token: {
@@ -2357,6 +2410,17 @@ export type Database = {
           permission: string
           sheet_id: string
           start_time: string
+        }[]
+      }
+      get_seating_chart_by_token: {
+        Args: { share_token: string }
+        Returns: {
+          event_date: string
+          event_id: string
+          event_name: string
+          event_venue: string
+          guests: Json
+          permission: string
         }[]
       }
       get_user_plan: {

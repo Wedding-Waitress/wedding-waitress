@@ -50,3 +50,11 @@ export function buildRunningSheetUrl(shareToken: string): string {
   const baseUrl = getPublicBaseUrl();
   return `${baseUrl}/running-sheet/${encodeURIComponent(shareToken)}`;
 }
+
+/**
+ * Builds a seating chart public view URL for the given share token
+ */
+export function buildSeatingChartUrl(shareToken: string): string {
+  const baseUrl = getPublicBaseUrl();
+  return `${baseUrl}/seating-chart/${encodeURIComponent(shareToken)}`;
+}

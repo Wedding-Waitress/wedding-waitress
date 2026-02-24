@@ -18,6 +18,7 @@ import { TermsOfService } from "./pages/TermsOfService";
 import { Contact } from "./pages/Contact";
 import { DJMCPublicView } from "./pages/DJMCPublicView";
 import { RunningSheetPublicView } from "./pages/RunningSheetPublicView";
+import { SeatingChartPublicView } from "./pages/SeatingChartPublicView";
 import { PaymentSuccess } from "./pages/PaymentSuccess";
 const queryClient = new QueryClient();
 
@@ -53,6 +54,8 @@ const App = () => (
           <Route path="/djmc/:token" element={<DJMCPublicView />} />
           {/* Running Sheet public view */}
           <Route path="/running-sheet/:token" element={<RunningSheetPublicView />} />
+          {/* Seating chart public view */}
+          <Route path="/seating-chart/:token" element={<SeatingChartPublicView />} />
            {/* Payment success */}
           <Route path="/payment-success" element={<PaymentSuccess />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
