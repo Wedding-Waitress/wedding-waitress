@@ -169,10 +169,11 @@ export function RunningSheetPublicView() {
               </div>
             </div>
             <div className="flex items-center gap-2 print:hidden">
-              <Badge variant="secondary">View Only</Badge>
-              <Button
-                variant="outline"
-                size="sm"
+              <span className="inline-flex items-center px-4 py-2 text-sm font-medium border-2 border-red-500 rounded-full text-red-500">
+                View Only
+              </span>
+              <button
+                className="inline-flex items-center px-4 py-2 text-sm font-medium border-2 border-green-500 rounded-full text-green-600 bg-transparent hover:bg-green-50 transition-colors disabled:opacity-50"
                 disabled={downloadingPDF}
                 onClick={async () => {
                   setDownloadingPDF(true);
@@ -199,7 +200,7 @@ export function RunningSheetPublicView() {
               >
                 {downloadingPDF ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Download className="h-4 w-4 mr-2" />}
                 {downloadingPDF ? 'Generating...' : 'Download PDF'}
-              </Button>
+              </button>
             </div>
           </div>
         </div>
@@ -287,16 +288,16 @@ export function RunningSheetPublicView() {
       {/* Footer */}
       <footer className="border-t border-border mt-12 print:border-0">
         <div className="max-w-4xl mx-auto px-4 py-6 text-center">
-          <div className="flex items-center justify-center gap-2 mb-2">
+          <a href="https://www.weddingwaitress.com" target="_blank" rel="noopener noreferrer" className="inline-flex flex-col items-center gap-2 hover:opacity-80 transition-opacity">
             <img
-              src="/wedding-waitress-logo.png"
+              src="/wedding-waitress-share-logo.png"
               alt="Wedding Waitress"
-              className="h-8 w-auto"
+              className="h-10 w-auto"
             />
-          </div>
-          <p className="text-xs text-muted-foreground">
-            Powered by Wedding Waitress
-          </p>
+            <p className="text-xs text-muted-foreground">
+              Powered by Wedding Waitress
+            </p>
+          </a>
         </div>
       </footer>
     </div>
