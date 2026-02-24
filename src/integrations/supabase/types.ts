@@ -2284,13 +2284,19 @@ export type Database = {
       get_dj_mc_questionnaire_by_token: {
         Args: { share_token: string }
         Returns: {
+          ceremony_date: string
+          ceremony_finish_time: string
+          ceremony_start_time: string
+          ceremony_venue: string
           event_date: string
           event_id: string
           event_name: string
           event_venue: string
+          finish_time: string
           permission: string
           questionnaire_id: string
           sections: Json
+          start_time: string
         }[]
       }
       get_events_with_guest_count: {
