@@ -10,15 +10,14 @@
  * Last locked: 2026-02-19
  */
 import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { Music, ExternalLink, Calendar, MapPin, Clock, AlertCircle, Download, ChevronDown, ChevronUp } from 'lucide-react';
+import { useParams } from 'react-router-dom';
+import { Music, ExternalLink, Calendar, MapPin, Clock, AlertCircle, Download, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { DJMCSection, SectionType } from '@/types/djMCQuestionnaire';
-import { Json } from '@/integrations/supabase/types';
+import { DJMCSection } from '@/types/djMCQuestionnaire';
+import { exportEntireQuestionnairePDF } from '@/lib/djMCQuestionnairePdfExporter';
 
 interface PublicQuestionnaireData {
   questionnaire_id: string;
@@ -26,6 +25,12 @@ interface PublicQuestionnaireData {
   event_name: string;
   event_date: string | null;
   event_venue: string | null;
+  start_time: string | null;
+  finish_time: string | null;
+  ceremony_date: string | null;
+  ceremony_venue: string | null;
+  ceremony_start_time: string | null;
+  ceremony_finish_time: string | null;
   permission: 'view_only' | 'can_edit';
   sections: DJMCSection[];
 }
@@ -61,12 +66,6 @@ const isValidUrl = (str: string | null | undefined): boolean => {
   } catch {
     return false;
   }
-};
-
-// Extract video ID from YouTube URL
-const getYouTubeVideoId = (url: string): string | null => {
-  const match = url.match(/(?:youtube\.com\/(?:[^/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?/\s]{11})/);
-  return match ? match[1] : null;
 };
 
 // Music Link Button Component
@@ -198,6 +197,7 @@ export function DJMCPublicView() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [data, setData] = useState<PublicQuestionnaireData | null>(null);
+  const [downloadingPDF, setDownloadingPDF] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -237,6 +237,12 @@ export function DJMCPublicView() {
           event_name: row.event_name,
           event_date: row.event_date,
           event_venue: row.event_venue,
+          start_time: (row as any).start_time || null,
+          finish_time: (row as any).finish_time || null,
+          ceremony_date: (row as any).ceremony_date || null,
+          ceremony_venue: (row as any).ceremony_venue || null,
+          ceremony_start_time: (row as any).ceremony_start_time || null,
+          ceremony_finish_time: (row as any).ceremony_finish_time || null,
           permission: row.permission as 'view_only' | 'can_edit',
           sections: parsedSections,
         });
@@ -251,8 +257,32 @@ export function DJMCPublicView() {
     fetchData();
   }, [token]);
 
-  const handlePrint = () => {
-    window.print();
+  const handleDownloadPDF = async () => {
+    if (!data) return;
+    setDownloadingPDF(true);
+    try {
+      const eventData = {
+        id: data.event_id,
+        name: data.event_name,
+        date: data.event_date,
+        venue: data.event_venue,
+        start_time: data.start_time,
+        finish_time: data.finish_time,
+        ceremony_date: data.ceremony_date,
+        ceremony_venue: data.ceremony_venue,
+        ceremony_start_time: data.ceremony_start_time,
+        ceremony_finish_time: data.ceremony_finish_time,
+      };
+      const questionnaireData = {
+        id: data.questionnaire_id,
+        sections: data.sections,
+      };
+      await exportEntireQuestionnairePDF(questionnaireData as any, eventData);
+    } catch (err) {
+      console.error('PDF generation failed:', err);
+    } finally {
+      setDownloadingPDF(false);
+    }
   };
 
   if (loading) {
@@ -308,11 +338,16 @@ export function DJMCPublicView() {
                 View Only
               </span>
               <button
-                onClick={handlePrint}
-                className="inline-flex items-center px-4 py-2 text-sm font-medium rounded-full border-2 border-green-500 text-green-600 bg-transparent hover:bg-green-50 transition-colors"
+                onClick={handleDownloadPDF}
+                disabled={downloadingPDF}
+                className="inline-flex items-center px-4 py-2 text-sm font-medium rounded-full border-2 border-green-500 text-green-600 bg-transparent hover:bg-green-50 transition-colors disabled:opacity-50"
               >
-                <Download className="h-4 w-4 mr-2" />
-                Download PDF
+                {downloadingPDF ? (
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <Download className="h-4 w-4 mr-2" />
+                )}
+                {downloadingPDF ? 'Generating...' : 'Download PDF'}
               </button>
             </div>
           </div>
