@@ -44,20 +44,17 @@ const formatFullDate = (dateStr: string | null | undefined): string => {
   return `${dayOfWeek}, ${day}${getOrdinalSuffix(day)} ${month} ${year}`;
 };
 
-/** Extract plain text from description_rich (TipTap JSON or plain string) */
-const extractPlainText = (rich: any): string => {
+/** Build display text from description_rich ({ text, bullets, subText } format) */
+const buildEventDisplay = (rich: any): string => {
   if (!rich) return '';
   if (typeof rich === 'string') return rich;
-  if (rich.content && Array.isArray(rich.content)) {
-    return rich.content
-      .map((node: any) => {
-        if (node.type === 'text') return node.text || '';
-        if (node.content) return extractPlainText(node);
-        return '';
-      })
-      .join('');
+  const parts: string[] = [];
+  if (rich.text) parts.push(rich.text);
+  if (Array.isArray(rich.bullets)) {
+    rich.bullets.forEach((b: string) => parts.push('• ' + b));
   }
-  return '';
+  if (rich.subText) parts.push(rich.subText);
+  return parts.join('\n');
 };
 
 export function RunningSheetPublicView() {
@@ -153,8 +150,8 @@ export function RunningSheetPublicView() {
                 <FileText className="h-6 w-6 text-primary" />
               </div>
               <div>
+                <p className="text-sm text-muted-foreground">You have been invited to view or print the running sheet of</p>
                 <h1 className="text-xl font-bold">{data.event_name}</h1>
-                <p className="text-sm text-muted-foreground">Running Sheet</p>
               </div>
             </div>
             <div className="flex items-center gap-2 print:hidden">
@@ -203,7 +200,7 @@ export function RunningSheetPublicView() {
                 </thead>
                 <tbody>
                   {data.items.map((item, idx) => {
-                    const description = extractPlainText(item.description_rich);
+                    const description = buildEventDisplay(item.description_rich);
                     const isSectionHeader = item.is_section_header;
 
                     return (
