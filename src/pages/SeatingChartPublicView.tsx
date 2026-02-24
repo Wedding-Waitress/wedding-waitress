@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { exportFullSeatingChartToPdf } from '@/lib/fullSeatingChartPdfExporter';
@@ -23,6 +23,42 @@ interface SharedData {
   permission: string;
   guests: SharedGuest[];
 }
+
+const getOrdinalSuffix = (day: number) => {
+  if (day > 3 && day < 21) return 'th';
+  switch (day % 10) {
+    case 1: return 'st';
+    case 2: return 'nd';
+    case 3: return 'rd';
+    default: return 'th';
+  }
+};
+
+const formatDateWithOrdinal = (dateString: string) => {
+  if (!dateString) return '';
+  try {
+    const date = new Date(dateString);
+    const day = date.getDate();
+    const ordinal = getOrdinalSuffix(day);
+    const weekday = date.toLocaleDateString('en-US', { weekday: 'long' });
+    const month = date.toLocaleDateString('en-US', { month: 'long' });
+    const year = date.getFullYear();
+    return `${weekday} ${day}${ordinal}, ${month} ${year}`;
+  } catch {
+    return dateString;
+  }
+};
+
+const formatGeneratedTimestamp = () => {
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('en-GB');
+  const timeStr = now.toLocaleTimeString('en-US', {
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+  });
+  return `${dateStr} Time: ${timeStr}`;
+};
 
 export function SeatingChartPublicView() {
   const { token } = useParams<{ token: string }>();
@@ -57,6 +93,20 @@ export function SeatingChartPublicView() {
       setLoading(false);
     })();
   }, [token]);
+
+  // Pagination: match the PDF exporter (10 per column, 20 per page)
+  const pages = useMemo(() => {
+    if (!data) return [];
+    const GUESTS_PER_COLUMN = 10;
+    const GUESTS_PER_PAGE = GUESTS_PER_COLUMN * 2;
+    const result: { guests: SharedGuest[]; col1Count: number; startIndex: number; endIndex: number }[] = [];
+    for (let i = 0; i < data.guests.length; i += GUESTS_PER_PAGE) {
+      const pageGuests = data.guests.slice(i, i + GUESTS_PER_PAGE);
+      const col1Count = Math.min(GUESTS_PER_COLUMN, pageGuests.length);
+      result.push({ guests: pageGuests, col1Count, startIndex: i, endIndex: i + pageGuests.length });
+    }
+    return result;
+  }, [data]);
 
   const handleDownloadPdf = async () => {
     if (!data) return;
@@ -99,6 +149,8 @@ export function SeatingChartPublicView() {
     );
   }
 
+  const totalPages = pages.length || 1;
+
   return (
     <div className="min-h-screen bg-muted/30 flex flex-col">
       {/* Header */}
@@ -127,28 +179,85 @@ export function SeatingChartPublicView() {
         </div>
       </div>
 
-      {/* Guest Table */}
-      <div className="flex-1 p-6 max-w-4xl mx-auto w-full">
-        <div className="bg-background rounded-xl border shadow-sm overflow-hidden">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b bg-muted/50">
-                <th className="text-left p-3 font-medium">Guest Name</th>
-                <th className="text-center p-3 font-medium">Table</th>
-                <th className="text-center p-3 font-medium">Seat</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.guests.map((guest) => (
-                <tr key={guest.id} className="border-b last:border-0 hover:bg-muted/20">
-                  <td className="p-3">{guest.first_name} {guest.last_name || ''}</td>
-                  <td className="p-3 text-center">{guest.table_no ?? '—'}</td>
-                  <td className="p-3 text-center">{guest.seat_no ?? '—'}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+      {/* A4 Pages */}
+      <div className="flex-1 p-6 space-y-8">
+        {pages.map((pageInfo, pageIndex) => {
+          const col1 = pageInfo.guests.slice(0, pageInfo.col1Count);
+          const col2 = pageInfo.guests.slice(pageInfo.col1Count);
+          const leftStart = pageInfo.startIndex + 1;
+          const leftEnd = pageInfo.startIndex + pageInfo.col1Count;
+          const rightStart = pageInfo.startIndex + pageInfo.col1Count + 1;
+          const rightEnd = pageInfo.endIndex;
+
+          return (
+            <div key={pageIndex} className="flex justify-center">
+              <div
+                className="bg-white border border-gray-300 shadow-lg"
+                style={{ width: '210mm', minHeight: '297mm', maxWidth: '100%' }}
+              >
+                <div style={{ padding: '12mm' }} className="flex flex-col" >
+                  {/* Page Header */}
+                  <div className="text-center mb-3">
+                    <h2 className="text-lg font-bold mb-0.5" style={{ color: '#7C3AED' }}>
+                      {data.event_name}
+                    </h2>
+                    <p className="text-sm font-bold text-black mb-0.5">
+                      Full Seating Chart - {data.event_date && formatDateWithOrdinal(data.event_date)}
+                    </p>
+                    <p className="text-xs text-black pb-2 mb-2 border-b border-black">
+                      {data.event_venue} - Total Guests: {data.guests.length} - Page {pageIndex + 1} of {totalPages} - Generated on: {formatGeneratedTimestamp()}
+                    </p>
+                  </div>
+
+                  {/* Two-column guest list */}
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', columnGap: '12mm' }}>
+                    {/* Left Column */}
+                    <div>
+                      {col1.length > 0 && (
+                        <>
+                          <h3 className="font-bold text-xs text-black uppercase tracking-wide mb-2">
+                            GUESTS {leftStart}-{leftEnd}
+                          </h3>
+                          <div className="space-y-1">
+                            {col1.map((guest) => (
+                              <GuestRow key={guest.id} guest={guest} />
+                            ))}
+                          </div>
+                        </>
+                      )}
+                    </div>
+
+                    {/* Right Column */}
+                    <div>
+                      {col2.length > 0 && (
+                        <>
+                          <h3 className="font-bold text-xs text-black uppercase tracking-wide mb-2">
+                            GUESTS {rightStart}-{rightEnd}
+                          </h3>
+                          <div className="space-y-1">
+                            {col2.map((guest) => (
+                              <GuestRow key={guest.id} guest={guest} />
+                            ))}
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Page Footer Logo */}
+                  <div className="flex justify-center mt-auto pt-6">
+                    <img
+                      src="/wedding-waitress-share-logo.png"
+                      alt="Wedding Waitress"
+                      style={{ height: '10.5mm', width: 'auto' }}
+                      className="object-contain"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        })}
       </div>
 
       {/* Footer */}
@@ -163,6 +272,24 @@ export function SeatingChartPublicView() {
           </a>
         </p>
       </footer>
+    </div>
+  );
+}
+
+/** Read-only guest row matching PDF layout: checkbox ☐ + bold name + table badge */
+function GuestRow({ guest }: { guest: SharedGuest }) {
+  return (
+    <div className="flex items-center gap-1.5 py-0.5 px-0.5">
+      <span className="text-sm font-mono flex-shrink-0" style={{ color: '#7C3AED' }}>☐</span>
+      <span className="text-sm font-bold text-black flex-1 min-w-0 truncate">
+        {guest.first_name}
+      </span>
+      <span
+        className="text-xs font-bold px-1.5 py-0.5 rounded flex-shrink-0 whitespace-nowrap"
+        style={{ backgroundColor: '#f3f4f6', color: '#000' }}
+      >
+        {guest.table_no ? `Table ${guest.table_no}` : 'Unassigned'}
+      </span>
     </div>
   );
 }
