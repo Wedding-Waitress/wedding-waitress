@@ -1,22 +1,33 @@
 
+# Merge Feature Buttons and Tabs into One Unified Container
 
-# Fix Text Styling on QR Code Seating Chart Page
+## Problem
+Currently, the four feature buttons (View RSVP Invite, View Video, Floor Plan, View Menu) are in one white rounded container, and the two tabs (Update Your Details, Table View) are in a separate white container below, creating a visible gap/separation between them. The user wants all six items in one seamless white background area.
 
-## Changes
+## Solution
+Merge the two containers into a single white background container so all buttons appear unified, then reduce the gap between this combined section and the search card below.
 
-### 1. Update photo tip text (`QRCodeMainCard.tsx`, line 1452)
-Change "horizontal" to "horizontal - landscape" in the tip text.
-- From: `📸 For best results, use a horizontal (6×4) photo.`
-- To: `📸 For best results, use a horizontal - landscape (6×4) photo.`
+## Technical Details
 
-### 2. Change "QR Code Generator" heading to black (line 493)
-- From: `text-2xl font-medium text-[#7248e6]`
-- To: `text-2xl font-medium text-foreground`
+**File:** `src/pages/GuestLookup.tsx`
 
-### 3. Change "Guest Live View Configuration" heading to black and match font size (line 740)
-- From: `text-xl font-medium text-[#7248e6]`
-- To: `text-2xl font-medium text-foreground`
+### Change 1: Remove the separate wrappers and combine into one container (lines 600-672)
+
+- Remove the closing tags of the feature buttons container (lines 641-643)
+- Remove the opening wrapper of the main content / tabs section (lines 646-650)
+- Instead, place the feature buttons grid and the tabs list inside one shared white container with consistent padding
+- The combined structure will be:
+  ```
+  <div className="w-full px-4 pt-4 pb-1">
+    <div className="max-w-4xl mx-auto">
+      <div className="bg-white p-2.5 rounded-xl border-2 border-gray-200 shadow-sm space-y-3">
+        <!-- grid of 4 feature buttons -->
+        <!-- grid of 2 tab triggers (Update Your Details / Table View) -->
+      </div>
+    </div>
+  </div>
+  ```
+- Move the `TabsContent` and remaining search card outside this combined container, with a small gap (`pt-3`) above it
 
 ### Files Modified
-1. `src/components/Dashboard/QRCode/QRCodeMainCard.tsx` -- 3 line changes
-
+1. `src/pages/GuestLookup.tsx` -- restructure the feature buttons + tabs into one unified container
