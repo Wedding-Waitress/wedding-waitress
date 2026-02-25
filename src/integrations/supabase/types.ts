@@ -2341,6 +2341,29 @@ export type Database = {
         }[]
       }
       get_notification_settings: { Args: { _user_id: string }; Returns: Json }
+      get_public_ceremony_floor_plan: {
+        Args: { event_slug: string }
+        Returns: {
+          altar_label: string
+          assigned_rows: number
+          bridal_party_count_left: number
+          bridal_party_count_right: number
+          bridal_party_left: Json
+          bridal_party_right: Json
+          bridal_party_roles_left: Json
+          bridal_party_roles_right: Json
+          chairs_per_row: number
+          couple_side_arrangement: string
+          left_side_label: string
+          person_left_name: string
+          person_right_name: string
+          right_side_label: string
+          seat_assignments: Json
+          show_row_numbers: boolean
+          show_seat_numbers: boolean
+          total_rows: number
+        }[]
+      }
       get_public_event_with_data_secure: {
         Args: { access_token?: string; event_slug: string }
         Returns: {
