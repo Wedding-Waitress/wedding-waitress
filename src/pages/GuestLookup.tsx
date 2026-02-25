@@ -31,6 +31,7 @@ import { formatDisplayTime } from '@/lib/utils';
 import { TableVisualization } from '@/components/GuestLookup/TableVisualization';
 import { GuestProfileModal } from '@/components/GuestLookup/GuestProfileModal';
 import { GuestUpdateModal } from '@/components/GuestLookup/GuestUpdateModal';
+import { ReadOnlyCeremonyFloorPlan } from '@/components/GuestView/ReadOnlyCeremonyFloorPlan';
 
 interface Guest {
   id: string;
@@ -64,6 +65,49 @@ interface Event {
   event_timezone?: string | null;
 }
 
+// Helper component to fetch and render existing ceremony floor plan
+const ExistingFloorPlanView: React.FC<{
+  eventSlug: string | undefined;
+  ceremonyFloorPlan: any;
+  setCeremonyFloorPlan: (v: any) => void;
+  loading: boolean;
+  setLoading: (v: boolean) => void;
+  fetched: boolean;
+  setFetched: (v: boolean) => void;
+}> = ({ eventSlug, ceremonyFloorPlan, setCeremonyFloorPlan, loading, setLoading, fetched, setFetched }) => {
+  React.useEffect(() => {
+    if (fetched || !eventSlug) return;
+    setLoading(true);
+    setFetched(true);
+    supabase.rpc('get_public_ceremony_floor_plan', { event_slug: eventSlug })
+      .then(({ data, error }) => {
+        if (!error && data && data.length > 0) {
+          setCeremonyFloorPlan(data[0]);
+        }
+        setLoading(false);
+      });
+  }, [eventSlug, fetched]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="animate-spin w-8 h-8 border-2 border-white border-t-transparent rounded-full" />
+      </div>
+    );
+  }
+
+  if (!ceremonyFloorPlan) {
+    return (
+      <div className="text-center py-8">
+        <MapPin className="w-16 h-16 mx-auto text-white/70 mb-4" />
+        <p className="text-white/70 text-lg">No floor plan configured yet.</p>
+      </div>
+    );
+  }
+
+  return <ReadOnlyCeremonyFloorPlan data={ceremonyFloorPlan} />;
+};
+
 export const GuestLookup: React.FC = () => {
   const { eventSlug } = useParams<{ eventSlug: string }>();
   const [searchTerm, setSearchTerm] = useState('');
@@ -82,6 +126,9 @@ export const GuestLookup: React.FC = () => {
   const [showWelcomeVideoModal, setShowWelcomeVideoModal] = useState(false);
   const [showFloorPlanModal, setShowFloorPlanModal] = useState(false);
   const [showMenuModal, setShowMenuModal] = useState(false);
+  const [ceremonyFloorPlan, setCeremonyFloorPlan] = useState<any>(null);
+  const [ceremonyFloorPlanLoading, setCeremonyFloorPlanLoading] = useState(false);
+  const [ceremonyFloorPlanFetched, setCeremonyFloorPlanFetched] = useState(false);
   const { toast } = useToast();
   
   // Compute is_editable based on rsvp_deadline (inclusive through end-of-day)
@@ -916,15 +963,15 @@ export const GuestLookup: React.FC = () => {
                 className="max-w-full h-auto mx-auto rounded-lg shadow-lg"
               />
             ) : moduleSettings?.floor_plan_config?.source === 'existing' ? (
-              <div className="text-center py-8">
-                <MapPin className="w-16 h-16 mx-auto text-white/70 mb-4" />
-                <p className="text-white/90 text-lg font-medium">
-                  Venue Floor Plan
-                </p>
-                <p className="text-white/70 text-sm mt-2">
-                  The venue floor plan will be available soon.
-                </p>
-              </div>
+              <ExistingFloorPlanView
+                eventSlug={eventSlug}
+                ceremonyFloorPlan={ceremonyFloorPlan}
+                setCeremonyFloorPlan={setCeremonyFloorPlan}
+                loading={ceremonyFloorPlanLoading}
+                setLoading={setCeremonyFloorPlanLoading}
+                fetched={ceremonyFloorPlanFetched}
+                setFetched={setCeremonyFloorPlanFetched}
+              />
             ) : (
               <div className="text-center py-12">
                 <MapPin className="w-16 h-16 mx-auto text-white/50 mb-4" />
