@@ -757,7 +757,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs text-muted-foreground whitespace-nowrap">
+                    <span className={`text-xs whitespace-nowrap ${visibilitySettings?.show_rsvp_invite ? "text-green-600" : "text-red-500"}`}>
                       {visibilitySettings?.show_rsvp_invite ? "Displayed on app" : "Not displayed on app"}
                     </span>
                     <Switch
@@ -972,7 +972,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs text-muted-foreground whitespace-nowrap">
+                    <span className={`text-xs whitespace-nowrap ${visibilitySettings?.show_welcome_video ? "text-green-600" : "text-red-500"}`}>
                       {visibilitySettings?.show_welcome_video ? "Displayed on app" : "Not displayed on app"}
                     </span>
                     <Switch
@@ -1109,7 +1109,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs text-muted-foreground whitespace-nowrap">
+                    <span className={`text-xs whitespace-nowrap ${visibilitySettings?.show_floor_plan ? "text-green-600" : "text-red-500"}`}>
                       {visibilitySettings?.show_floor_plan ? "Displayed on app" : "Not displayed on app"}
                     </span>
                     <Switch
@@ -1325,7 +1325,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs text-muted-foreground whitespace-nowrap">
+                    <span className={`text-xs whitespace-nowrap ${visibilitySettings?.show_menu ? "text-green-600" : "text-red-500"}`}>
                       {visibilitySettings?.show_menu ? "Displayed on app" : "Not displayed on app"}
                     </span>
                     <Switch
