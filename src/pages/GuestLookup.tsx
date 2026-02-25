@@ -879,7 +879,7 @@ export const GuestLookup: React.FC = () => {
 
       {/* RSVP Invite Modal */}
       <Dialog open={showRsvpInviteModal} onOpenChange={setShowRsvpInviteModal}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-primary [&>button]:text-white [&>button:hover]:text-white/80">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-primary [&>button]:rounded-full [&>button]:border-2 [&>button]:border-white [&>button]:w-10 [&>button]:h-10 [&>button]:flex [&>button]:items-center [&>button]:justify-center [&>button]:opacity-100 [&>button]:text-white [&>button:hover]:text-white/80 [&>button:hover]:border-white/80 [&>button>svg]:w-6 [&>button>svg]:h-6">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-2xl font-inter text-white">
               <Mail className="w-6 h-6 text-white" />
@@ -919,7 +919,7 @@ export const GuestLookup: React.FC = () => {
 
       {/* Welcome Video Modal */}
       <Dialog open={showWelcomeVideoModal} onOpenChange={setShowWelcomeVideoModal}>
-        <DialogContent className="max-w-3xl bg-primary [&>button]:text-white [&>button:hover]:text-white/80">
+        <DialogContent className="max-w-3xl bg-primary [&>button]:rounded-full [&>button]:border-2 [&>button]:border-white [&>button]:w-10 [&>button]:h-10 [&>button]:flex [&>button]:items-center [&>button]:justify-center [&>button]:opacity-100 [&>button]:text-white [&>button:hover]:text-white/80 [&>button:hover]:border-white/80 [&>button>svg]:w-6 [&>button>svg]:h-6">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-2xl font-inter text-white">
               <Video className="w-6 h-6 text-white" />
@@ -958,7 +958,7 @@ export const GuestLookup: React.FC = () => {
 
       {/* Floor Plan Modal */}
       <Dialog open={showFloorPlanModal} onOpenChange={setShowFloorPlanModal}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-primary [&>button]:text-white [&>button:hover]:text-white/80">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-primary [&>button]:rounded-full [&>button]:border-2 [&>button]:border-white [&>button]:w-10 [&>button]:h-10 [&>button]:flex [&>button]:items-center [&>button]:justify-center [&>button]:opacity-100 [&>button]:text-white [&>button:hover]:text-white/80 [&>button:hover]:border-white/80 [&>button>svg]:w-6 [&>button>svg]:h-6">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-2xl font-inter text-white">
               <MapPin className="w-6 h-6 text-white" />
@@ -996,7 +996,7 @@ export const GuestLookup: React.FC = () => {
 
       {/* Menu Modal */}
       <Dialog open={showMenuModal} onOpenChange={setShowMenuModal}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-primary [&>button]:text-white [&>button:hover]:text-white/80">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-primary [&>button]:rounded-full [&>button]:border-2 [&>button]:border-white [&>button]:w-10 [&>button]:h-10 [&>button]:flex [&>button]:items-center [&>button]:justify-center [&>button]:opacity-100 [&>button]:text-white [&>button:hover]:text-white/80 [&>button:hover]:border-white/80 [&>button>svg]:w-6 [&>button>svg]:h-6">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-2xl font-inter text-white">
               <UtensilsCrossed className="w-6 h-6 text-white" />
