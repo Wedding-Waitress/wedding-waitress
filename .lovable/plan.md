@@ -1,25 +1,42 @@
 
-# Fix Button Styling in Guest Live View
+# Add Status Labels Next to Toggle Switches
 
-## Changes
+## What Changes
+Add a small text label next to each toggle switch in the Guest Live View Configuration section. When the toggle is OFF (red), it shows "Not displayed on app." When ON (green), it shows "Displayed on app."
 
-### File: `src/pages/GuestLookup.tsx`
+## Technical Details
 
-### 1. Add purple border to Table View tab (and Update Your Details tab when inactive)
-Currently the two TabsTrigger buttons have `border-transparent` when inactive, making them appear borderless. Change to `border-primary` so they match the four feature buttons above.
+**File:** `src/components/Dashboard/QRCode/QRCodeMainCard.tsx`
 
-- **Lines 648, 662**: Change `border-transparent` to `border-primary` in the inactive state styling for both TabsTriggers.
+For each of the four modules (RSVP Invite, Welcome Video, Floor Plan, Menu), add a status label between the switch and the module info. The label will be placed to the left of the Switch, inside the `flex items-center justify-between` row.
 
-### 2. Reduce height of all buttons by decreasing vertical padding
-All six feature/tab buttons currently use `py-2.5`. Reduce to `py-1.5` for a thinner/shorter appearance.
+### Changes to 4 locations:
 
-- **Lines 610, 619, 628, 637**: Change `py-2.5` to `py-1.5` on the four feature buttons.
-- **Lines 648, 662**: Change `py-2.5` to `py-1.5` on the two TabsTrigger buttons.
+**1. RSVP Invite (line 758-763):** Replace the closing `</div>` + `<Switch>` block with a right-side group containing the status text + switch.
 
-### 3. Reduce Share button height slightly
-The Share button (line 762) already uses `py-1.5` so it should be fine, but will verify consistency.
+**2. Welcome Video (line 968-973):** Same pattern.
 
-### Summary of styling after changes
-All buttons will have:
-- `py-1.5 px-3 rounded-full border-2 border-primary` (thinner height, purple border)
-- Active tab state keeps green border override via `data-[state=active]:border-green-500`
+**3. Floor Plan (line 1100-1105):** Same pattern.
+
+**4. Menu (line 1311-1316):** Same pattern.
+
+Each location changes from:
+```
+</div>
+<Switch ... />
+```
+To:
+```
+</div>
+<div className="flex items-center gap-2">
+  <span className="text-xs text-muted-foreground whitespace-nowrap">
+    {setting ? "Displayed on app" : "Not displayed on app"}
+  </span>
+  <Switch ... />
+</div>
+```
+
+Where `setting` is the corresponding visibility boolean (`show_rsvp_invite`, `show_welcome_video`, `show_floor_plan`, `show_menu`).
+
+### Files Modified
+1. `src/components/Dashboard/QRCode/QRCodeMainCard.tsx` -- 4 locations updated
