@@ -1449,6 +1449,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                   <div>
                     <h4 className="text-sm font-semibold">Add Your Photo or Logo</h4>
                     <p className="text-xs text-muted-foreground">Upload an image to replace the purple gradient behind your event header in the guest view</p>
+                    <p className="text-sm font-semibold text-purple-600 mt-1">📸 For best results, use a horizontal (6×4) photo.</p>
                   </div>
                 </div>
 
