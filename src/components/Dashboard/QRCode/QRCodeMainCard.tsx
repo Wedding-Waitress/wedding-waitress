@@ -490,7 +490,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
   };
   return <Card className="ww-box h-full">
       <CardHeader className="pb-2">
-        <CardTitle className="flex items-center gap-2 text-2xl font-medium text-[#7248e6]">
+        <CardTitle className="flex items-center gap-2 text-2xl font-medium text-foreground">
           <QrCodeIcon className="h-5 w-5 text-purple-600" />
           QR Code Generator
         </CardTitle>
@@ -737,7 +737,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
         {/* Bottom Row: Guest Live View Configuration (Horizontal 2-column) */}
         <Card className="ww-box w-full">
           <CardHeader className="pb-3">
-            <CardTitle className="text-xl font-medium text-[#7248e6]">Guest Live View Configuration</CardTitle>
+            <CardTitle className="text-2xl font-medium text-foreground">Guest Live View Configuration</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-sm text-muted-foreground">
@@ -1449,7 +1449,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                   <div>
                     <h4 className="text-sm font-semibold">Add Your Photo or Logo</h4>
                     <p className="text-xs text-muted-foreground">Upload an image to replace the purple gradient behind your event header in the guest view</p>
-                    <p className="text-sm font-semibold text-purple-600 mt-1">📸 For best results, use a horizontal (6×4) photo.</p>
+                    <p className="text-sm font-semibold text-purple-600 mt-1">📸 For best results, use a horizontal - landscape (6×4) photo.</p>
                   </div>
                 </div>
 
