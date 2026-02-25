@@ -756,11 +756,16 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                       <p className="text-xs text-muted-foreground">Let guests view your digital invitation and RSVP</p>
                     </div>
                   </div>
-                  <Switch
-                    checked={visibilitySettings?.show_rsvp_invite || false}
-                    onCheckedChange={(checked) => updateVisibility('show_rsvp_invite', checked)}
-                    className="data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-red-600"
-                  />
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-muted-foreground whitespace-nowrap">
+                      {visibilitySettings?.show_rsvp_invite ? "Displayed on app" : "Not displayed on app"}
+                    </span>
+                    <Switch
+                      checked={visibilitySettings?.show_rsvp_invite || false}
+                      onCheckedChange={(checked) => updateVisibility('show_rsvp_invite', checked)}
+                      className="data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-red-600"
+                    />
+                  </div>
                 </div>
 
                 {visibilitySettings?.show_rsvp_invite && (
@@ -966,11 +971,16 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                       <p className="text-xs text-muted-foreground">Add a personal video message for your guests</p>
                     </div>
                   </div>
-                  <Switch
-                    checked={visibilitySettings?.show_welcome_video || false}
-                    onCheckedChange={(checked) => updateVisibility('show_welcome_video', checked)}
-                    className="data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-red-600"
-                  />
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-muted-foreground whitespace-nowrap">
+                      {visibilitySettings?.show_welcome_video ? "Displayed on app" : "Not displayed on app"}
+                    </span>
+                    <Switch
+                      checked={visibilitySettings?.show_welcome_video || false}
+                      onCheckedChange={(checked) => updateVisibility('show_welcome_video', checked)}
+                      className="data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-red-600"
+                    />
+                  </div>
                 </div>
 
                 {visibilitySettings?.show_welcome_video && (
@@ -1098,11 +1108,16 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                       <p className="text-xs text-muted-foreground">Show your venue floor plan to guests</p>
                     </div>
                   </div>
-                  <Switch
-                    checked={visibilitySettings?.show_floor_plan || false}
-                    onCheckedChange={(checked) => updateVisibility('show_floor_plan', checked)}
-                    className="data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-red-600"
-                  />
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-muted-foreground whitespace-nowrap">
+                      {visibilitySettings?.show_floor_plan ? "Displayed on app" : "Not displayed on app"}
+                    </span>
+                    <Switch
+                      checked={visibilitySettings?.show_floor_plan || false}
+                      onCheckedChange={(checked) => updateVisibility('show_floor_plan', checked)}
+                      className="data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-red-600"
+                    />
+                  </div>
                 </div>
 
                 {visibilitySettings?.show_floor_plan && (
@@ -1309,11 +1324,16 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                       <p className="text-xs text-muted-foreground">Upload your wedding menu for guests to view</p>
                     </div>
                   </div>
-                  <Switch
-                    checked={visibilitySettings?.show_menu || false}
-                    onCheckedChange={(checked) => updateVisibility('show_menu', checked)}
-                    className="data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-red-600"
-                  />
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-muted-foreground whitespace-nowrap">
+                      {visibilitySettings?.show_menu ? "Displayed on app" : "Not displayed on app"}
+                    </span>
+                    <Switch
+                      checked={visibilitySettings?.show_menu || false}
+                      onCheckedChange={(checked) => updateVisibility('show_menu', checked)}
+                      className="data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-red-600"
+                    />
+                  </div>
                 </div>
 
                 {visibilitySettings?.show_menu && (
