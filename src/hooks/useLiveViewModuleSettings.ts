@@ -14,6 +14,7 @@ export interface LiveViewModuleSettings {
   welcome_video_config: Record<string, any>;
   floor_plan_config: Record<string, any>;
   menu_config: Record<string, any>;
+  hero_image_config: Record<string, any>;
   updated_at?: string;
 }
 
@@ -53,6 +54,7 @@ export const useLiveViewModuleSettings = (eventId: string | undefined) => {
             welcome_video_config: data.welcome_video_config as Record<string, any>,
             floor_plan_config: data.floor_plan_config as Record<string, any> || {},
             menu_config: data.menu_config as Record<string, any> || {},
+            hero_image_config: (data as any).hero_image_config as Record<string, any> || {},
           });
         } else {
           // Upsert default settings if none exist
@@ -66,7 +68,8 @@ export const useLiveViewModuleSettings = (eventId: string | undefined) => {
             invite_video_config: {},
             welcome_video_config: {},
             floor_plan_config: {},
-            menu_config: {}
+            menu_config: {},
+            hero_image_config: {}
           };
 
           const { data: newData, error: upsertError } = await supabase
@@ -87,6 +90,7 @@ export const useLiveViewModuleSettings = (eventId: string | undefined) => {
             welcome_video_config: newData.welcome_video_config as Record<string, any>,
             floor_plan_config: newData.floor_plan_config as Record<string, any> || {},
             menu_config: newData.menu_config as Record<string, any> || {},
+            hero_image_config: (newData as any).hero_image_config as Record<string, any> || {},
           });
         }
       } catch (error) {
@@ -153,6 +157,7 @@ export const useLiveViewModuleSettings = (eventId: string | undefined) => {
           welcome_video_config: data.welcome_video_config as Record<string, any>,
           floor_plan_config: data.floor_plan_config as Record<string, any> || {},
           menu_config: data.menu_config as Record<string, any> || {},
+          hero_image_config: (data as any).hero_image_config as Record<string, any> || {},
         });
       }
     }
