@@ -1,46 +1,41 @@
 
+# Fix Close Button Styling on Guest Live View Modals
 
-# Add "Photo or Logo" Hero Background to Guest Live View
+## Problem
+The close buttons (X) on the four Guest Live View modals (RSVP Invite, Welcome Video, Floor Plan, Wedding Menu) have inconsistent styling -- some show a small X in a square outline, others look different. They need to be unified as a **white circle with a larger X centered inside**.
 
-## What You'll Get
-
-A new configuration module called **"Add Your Photo or Logo"** in the Guest Live View Configuration section (QR Code Seating Chart page). When you upload an image, it will appear as the background behind the "You're invited to Jason & Linda's Wedding" header area in the guest's Live View. If no image is uploaded, the existing purple gradient remains.
-
-## How It Works
-
-- In the dashboard, a new module card appears in the Guest Live View Configuration grid (alongside RSVP Invite, Welcome Video, Floor Plan, and Menu)
-- Upload a JPG or PNG image (e.g., a couple's photo, event logo, or venue shot)
-- The uploaded image replaces the purple gradient background on the guest-facing hero section
-- The image is displayed with a dark overlay so the white text remains readable
-- If no image is uploaded or the module is toggled off, the original purple gradient stays
+## Solution
+Update the `[&>button]` CSS selector on all four `DialogContent` components in `GuestLookup.tsx` to style the built-in Radix close button as a round circle with a prominent white X.
 
 ## Technical Details
 
-### 1. Database Migration
-- Add `hero_image_config` JSONB column to `live_view_module_settings` table (nullable, default null)
-- Update the `get_public_event_with_data_secure` RPC function to also return `hero_image_config` from the module settings
+**File:** `src/pages/GuestLookup.tsx`
 
-### 2. Update TypeScript Types (`src/integrations/supabase/types.ts`)
-- Add `hero_image_config` to the `live_view_module_settings` Row, Insert, and Update types
+For all four modals (lines 882, 922, 961, 999), update the `DialogContent` className to add these styles targeting the close button:
 
-### 3. Update Hook (`src/hooks/useLiveViewModuleSettings.ts`)
-- Add `hero_image_config` field to the `LiveViewModuleSettings` interface and all fetch/upsert/revert logic
+```
+[&>button]:rounded-full
+[&>button]:border-2
+[&>button]:border-white
+[&>button]:w-10
+[&>button]:h-10
+[&>button]:flex
+[&>button]:items-center
+[&>button]:justify-center
+[&>button]:opacity-100
+[&>button]:text-white
+[&>button:hover]:text-white/80
+[&>button:hover]:border-white/80
+```
 
-### 4. Add Module Card in Dashboard (`src/components/Dashboard/QRCode/QRCodeMainCard.tsx`)
-- Add a 5th module card titled "Add Your Photo or Logo" with an Image icon
-- No toggle switch needed -- the presence of an uploaded image activates it
-- Settings accordion allows uploading/replacing/removing an image (JPG/PNG)
-- Upload goes to `live-view-uploads` storage bucket under `{userId}/{eventId}/hero_image/` path
-- Stores `{ file_url, file_name, file_type, uploaded_at }` in `hero_image_config`
+And increase the X icon size inside the button:
 
-### 5. Update Guest View (`src/pages/GuestLookup.tsx`)
-- Extract `hero_image_config` from `moduleSettings` (already returned via RPC)
-- If `hero_image_config?.file_url` exists, apply it as a background image on the hero `div` with `background-size: cover`, `background-position: center`, and a semi-transparent dark overlay for text readability
-- If no image, keep the existing `bg-gradient-hero` class
+```
+[&>button>svg]:w-6
+[&>button>svg]:h-6
+```
 
-### Files to Create/Modify
-1. **New migration** -- add `hero_image_config` column + update RPC
-2. **Modified**: `src/integrations/supabase/types.ts` -- add new column type
-3. **Modified**: `src/hooks/useLiveViewModuleSettings.ts` -- add field
-4. **Modified**: `src/components/Dashboard/QRCode/QRCodeMainCard.tsx` -- add module card
-5. **Modified**: `src/pages/GuestLookup.tsx` -- render hero background image
+This gives each modal's close button a consistent look: a 40px white-bordered circle containing a large centered X icon, all in white.
+
+### Files Modified
+1. `src/pages/GuestLookup.tsx` -- update className on 4 DialogContent elements (lines 882, 922, 961, 999)
