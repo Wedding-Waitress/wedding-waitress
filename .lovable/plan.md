@@ -1,41 +1,23 @@
 
-# Fix Close Button Styling on Guest Live View Modals
 
-## Problem
-The close buttons (X) on the four Guest Live View modals (RSVP Invite, Welcome Video, Floor Plan, Wedding Menu) have inconsistent styling -- some show a small X in a square outline, others look different. They need to be unified as a **white circle with a larger X centered inside**.
+# Increase Hero Header Height and Add Photo Tip
 
-## Solution
-Update the `[&>button]` CSS selector on all four `DialogContent` components in `GuestLookup.tsx` to style the built-in Radix close button as a round circle with a prominent white X.
+## Changes
 
-## Technical Details
+### 1. Increase hero header height in Guest Live View
+The hero section currently has minimal padding (`pt-3 pb-3`), making the background image appear cropped. Increase the vertical padding so more of the uploaded photo is visible.
 
-**File:** `src/pages/GuestLookup.tsx`
+**File:** `src/pages/GuestLookup.tsx` (line 557)
+- Change `pt-3 pb-3 md:pt-4 md:pb-4` to `pt-8 pb-8 md:pt-12 md:pb-12` -- this roughly doubles the header height, showing significantly more of the background photo while keeping text centered.
 
-For all four modals (lines 882, 922, 961, 999), update the `DialogContent` className to add these styles targeting the close button:
+### 2. Add "For best results" tip in the dashboard module card
+A horizontal photo is 6x4 (6 inches wide, 4 inches tall -- landscape orientation). Add a visible tip next to the "Add Your Photo or Logo" title.
 
-```
-[&>button]:rounded-full
-[&>button]:border-2
-[&>button]:border-white
-[&>button]:w-10
-[&>button]:h-10
-[&>button]:flex
-[&>button]:items-center
-[&>button]:justify-center
-[&>button]:opacity-100
-[&>button]:text-white
-[&>button:hover]:text-white/80
-[&>button:hover]:border-white/80
-```
-
-And increase the X icon size inside the button:
-
-```
-[&>button>svg]:w-6
-[&>button>svg]:h-6
-```
-
-This gives each modal's close button a consistent look: a 40px white-bordered circle containing a large centered X icon, all in white.
+**File:** `src/components/Dashboard/QRCode/QRCodeMainCard.tsx` (lines 1448-1452)
+- After the subtitle text, add a prominent tip in purple/bold text: **"For best results, use a horizontal (6x4) photo."**
+- Use a larger, more visible style (e.g., `text-sm font-semibold text-purple-600`) so it stands out to the user.
 
 ### Files Modified
-1. `src/pages/GuestLookup.tsx` -- update className on 4 DialogContent elements (lines 882, 922, 961, 999)
+1. `src/pages/GuestLookup.tsx` -- increase hero section padding
+2. `src/components/Dashboard/QRCode/QRCodeMainCard.tsx` -- add photo orientation tip
+
