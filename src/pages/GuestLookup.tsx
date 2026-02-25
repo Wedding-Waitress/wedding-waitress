@@ -283,6 +283,7 @@ export const GuestLookup: React.FC = () => {
             welcome_video_config: firstRow.welcome_video_config || null,
             floor_plan_config: firstRow.floor_plan_config || null,
             menu_config: firstRow.menu_config || null,
+            hero_image_config: firstRow.hero_image_config || null,
           });
         }
       } catch (error) {
@@ -540,10 +541,19 @@ export const GuestLookup: React.FC = () => {
     );
   }
 
+  const heroImageUrl = moduleSettings?.hero_image_config?.file_url;
+
   return (
     <div className="min-h-screen bg-gradient-subtle font-inter">
       {/* Hero Section */}
-      <div className="bg-gradient-hero text-white">
+      <div 
+        className={!heroImageUrl ? "bg-gradient-hero text-white" : "text-white"}
+        style={heroImageUrl ? {
+          backgroundImage: `linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)), url(${heroImageUrl})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        } : undefined}
+      >
         <div className="w-full px-4 pt-3 pb-3 md:pt-4 md:pb-4">
           <div className="text-center">
             {/* "You're invited to" text above event name */}

@@ -1441,6 +1441,152 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                   </Accordion>
                 )}
               </div>
+
+              {/* Hero Image / Logo Module */}
+              <div className="space-y-3 p-4 rounded-lg border-2 border-border bg-muted/20 lg:col-span-2">
+                <div className="flex items-center gap-3">
+                  <ImageIcon className="h-5 w-5 text-purple-600" />
+                  <div>
+                    <h4 className="text-sm font-semibold">Add Your Photo or Logo</h4>
+                    <p className="text-xs text-muted-foreground">Upload an image to replace the purple gradient behind your event header in the guest view</p>
+                  </div>
+                </div>
+
+                <Accordion type="single" collapsible className="w-full">
+                  <AccordionItem value="hero-image-config" className="border-0">
+                    <AccordionTrigger className="text-sm py-2 hover:no-underline">
+                      <span className="text-purple-600">Configure Hero Background</span>
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      <div className="space-y-3 pt-2">
+                        <div className="p-3 bg-purple-50/50 rounded-md space-y-2">
+                          <h5 className="text-xs font-semibold">Upload Your Photo or Logo</h5>
+                          <p className="text-xs text-muted-foreground">
+                            Upload a JPG or PNG image. It will appear as the background behind "You're invited to..." in the guest view. A dark overlay is applied automatically for text readability.
+                          </p>
+                        </div>
+
+                        {moduleSettings?.hero_image_config?.file_url ? (
+                          <div className="space-y-3">
+                            <div className="relative rounded-md overflow-hidden border">
+                              <img 
+                                src={moduleSettings.hero_image_config.file_url} 
+                                alt="Hero background preview" 
+                                className="w-full h-32 object-cover"
+                              />
+                              <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                                <span className="text-white font-bold text-sm">Preview with overlay</span>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2 p-3 bg-background rounded-md border">
+                              <div className="flex-1 min-w-0">
+                                <p className="text-xs font-medium truncate">
+                                  {moduleSettings.hero_image_config.file_name}
+                                </p>
+                                <p className="text-xs text-muted-foreground">
+                                  Uploaded {new Date(moduleSettings.hero_image_config.uploaded_at).toLocaleDateString()}
+                                </p>
+                              </div>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => {
+                                  const input = document.createElement('input');
+                                  input.type = 'file';
+                                  input.accept = '.jpg,.jpeg,.png';
+                                  input.onchange = async (e) => {
+                                    const file = (e.target as HTMLInputElement).files?.[0];
+                                    if (file && eventId) {
+                                      try {
+                                        const { data: { user } } = await supabase.auth.getUser();
+                                        if (!user) throw new Error('Not authenticated');
+                                        const fileExt = file.name.split('.').pop();
+                                        const fileName = `${Date.now()}.${fileExt}`;
+                                        const filePath = `${user.id}/${eventId}/hero_image/${fileName}`;
+                                        const { error: uploadError } = await supabase.storage.from('live-view-uploads').upload(filePath, file);
+                                        if (uploadError) throw uploadError;
+                                        const { data: { publicUrl } } = supabase.storage.from('live-view-uploads').getPublicUrl(filePath);
+                                        await updateModuleConfig('hero_image_config', {
+                                          file_url: publicUrl,
+                                          file_name: file.name,
+                                          file_type: file.type,
+                                          uploaded_at: new Date().toISOString()
+                                        });
+                                        toast({ title: 'Hero image replaced successfully' });
+                                      } catch (error: any) {
+                                        toast({ title: 'Upload failed', description: error.message, variant: 'destructive' });
+                                      }
+                                    }
+                                  };
+                                  input.click();
+                                }}
+                              >
+                                Replace
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                onClick={async () => {
+                                  if (eventId && moduleSettings?.hero_image_config?.file_url) {
+                                    try {
+                                      const path = moduleSettings.hero_image_config.file_url.split('/live-view-uploads/')[1];
+                                      if (path) await supabase.storage.from('live-view-uploads').remove([path]);
+                                      await updateModuleConfig('hero_image_config', {});
+                                      toast({ title: 'Hero image removed' });
+                                    } catch (error: any) {
+                                      toast({ title: 'Remove failed', description: error.message, variant: 'destructive' });
+                                    }
+                                  }
+                                }}
+                              >
+                                Remove
+                              </Button>
+                            </div>
+                          </div>
+                        ) : (
+                          <div
+                            className="border-2 border-dashed rounded-md p-4 text-center cursor-pointer hover:bg-muted/50 transition-colors"
+                            onClick={() => {
+                              const input = document.createElement('input');
+                              input.type = 'file';
+                              input.accept = '.jpg,.jpeg,.png';
+                              input.onchange = async (e) => {
+                                const file = (e.target as HTMLInputElement).files?.[0];
+                                if (file && eventId) {
+                                  try {
+                                    const { data: { user } } = await supabase.auth.getUser();
+                                    if (!user) throw new Error('Not authenticated');
+                                    const fileExt = file.name.split('.').pop();
+                                    const fileName = `${Date.now()}.${fileExt}`;
+                                    const filePath = `${user.id}/${eventId}/hero_image/${fileName}`;
+                                    const { error: uploadError } = await supabase.storage.from('live-view-uploads').upload(filePath, file);
+                                    if (uploadError) throw uploadError;
+                                    const { data: { publicUrl } } = supabase.storage.from('live-view-uploads').getPublicUrl(filePath);
+                                    await updateModuleConfig('hero_image_config', {
+                                      file_url: publicUrl,
+                                      file_name: file.name,
+                                      file_type: file.type,
+                                      uploaded_at: new Date().toISOString()
+                                    });
+                                    toast({ title: 'Hero image uploaded successfully' });
+                                  } catch (error: any) {
+                                    toast({ title: 'Upload failed', description: error.message, variant: 'destructive' });
+                                  }
+                                }
+                              };
+                              input.click();
+                            }}
+                          >
+                            <Upload className="h-6 w-6 mx-auto mb-2 text-muted-foreground" />
+                            <p className="text-xs font-medium">Upload Photo or Logo</p>
+                            <p className="text-xs text-muted-foreground">JPG or PNG</p>
+                          </div>
+                        )}
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
+              </div>
             </div>
           </CardContent>
         </Card>

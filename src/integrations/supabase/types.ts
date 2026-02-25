@@ -1184,6 +1184,7 @@ export type Database = {
           ceremony_config: Json | null
           event_id: string
           floor_plan_config: Json | null
+          hero_image_config: Json | null
           id: string
           invite_video_config: Json | null
           menu_config: Json | null
@@ -1198,6 +1199,7 @@ export type Database = {
           ceremony_config?: Json | null
           event_id: string
           floor_plan_config?: Json | null
+          hero_image_config?: Json | null
           id?: string
           invite_video_config?: Json | null
           menu_config?: Json | null
@@ -1212,6 +1214,7 @@ export type Database = {
           ceremony_config?: Json | null
           event_id?: string
           floor_plan_config?: Json | null
+          hero_image_config?: Json | null
           id?: string
           invite_video_config?: Json | null
           menu_config?: Json | null
@@ -2382,6 +2385,7 @@ export type Database = {
           guest_seat_no: number
           guest_table_id: string
           guest_table_no: number
+          hero_image_config: Json
           menu_config: Json
           partner1_name: string
           partner2_name: string
