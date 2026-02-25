@@ -597,81 +597,78 @@ export const GuestLookup: React.FC = () => {
         </div>
       </div>
 
-      {/* Feature Buttons Section */}
-      {(liveViewSettings?.show_rsvp_invite || liveViewSettings?.show_welcome_video || liveViewSettings?.show_floor_plan || liveViewSettings?.show_menu) && (
-        <div className="w-full px-4 pt-4 pb-1">
-          <div className="max-w-4xl mx-auto">
-            <div className="grid w-full grid-cols-2 gap-3 bg-white p-2.5 rounded-xl border-2 border-gray-200 shadow-sm">
-              {liveViewSettings?.show_rsvp_invite && (
-                <button
-                  onClick={() => setShowRsvpInviteModal(true)}
-                  className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-full border-2 border-primary bg-primary/10 text-primary font-semibold transition-all duration-200"
-                >
-                  <Mail className="w-4 h-4" />
-                  <span className="text-sm font-medium">View RSVP Invite</span>
-                </button>
-              )}
-              {liveViewSettings?.show_welcome_video && (
-                <button
-                  onClick={() => setShowWelcomeVideoModal(true)}
-                  className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-full border-2 border-primary bg-primary/10 text-primary font-semibold transition-all duration-200"
-                >
-                  <Video className="w-4 h-4" />
-                  <span className="text-sm font-medium">View Video</span>
-                </button>
-              )}
-              {liveViewSettings?.show_floor_plan && (
-                <button
-                  onClick={() => setShowFloorPlanModal(true)}
-                  className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-full border-2 border-primary bg-primary/10 text-primary font-semibold transition-all duration-200"
-                >
-                  <MapPin className="w-4 h-4" />
-                  <span className="text-sm font-medium">Floor Plan</span>
-                </button>
-              )}
-              {liveViewSettings?.show_menu && (
-                <button
-                  onClick={() => setShowMenuModal(true)}
-                  className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-full border-2 border-primary bg-primary/10 text-primary font-semibold transition-all duration-200"
-                >
-                  <UtensilsCrossed className="w-4 h-4" />
-                  <span className="text-sm font-medium">View Menu</span>
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Main Content */}
-      <div className="w-full px-4 pt-2 pb-6 md:pb-8">
+      {/* Combined Feature Buttons + Tabs Section */}
+      <div className="w-full px-4 pt-4 pb-1">
         <div className="max-w-4xl mx-auto">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full h-auto mb-6 grid-cols-2 bg-white p-2.5 rounded-xl border-2 border-gray-200 shadow-sm">
-              <TabsTrigger
-                value="search" 
-                className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-full border-2 border-transparent bg-white text-gray-600 data-[state=active]:border-green-500 data-[state=active]:bg-green-50 data-[state=active]:text-green-700 data-[state=active]:font-semibold data-[state=active]:shadow-md transition-all duration-200"
-              >
-                <Search className="w-4 h-4" />
-                {isEditable ? (
-                  <span>Update Your Details</span>
-                ) : (
-                  <>
-                    <span className="hidden sm:inline">Find Your Table</span>
-                    <span className="sm:hidden">Search</span>
-                  </>
-                )}
-              </TabsTrigger>
-              <TabsTrigger 
-                value="visualization" 
-                className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-full border-2 border-transparent bg-white text-gray-600 data-[state=active]:border-green-500 data-[state=active]:bg-green-50 data-[state=active]:text-green-700 data-[state=active]:font-semibold data-[state=active]:shadow-md transition-all duration-200"
-              >
-                <Eye className="w-4 h-4" />
-                <span>Table View</span>
-              </TabsTrigger>
-            </TabsList>
+            <div className="bg-white p-2.5 rounded-xl border-2 border-gray-200 shadow-sm space-y-3">
+              {(liveViewSettings?.show_rsvp_invite || liveViewSettings?.show_welcome_video || liveViewSettings?.show_floor_plan || liveViewSettings?.show_menu) && (
+                <div className="grid w-full grid-cols-2 gap-3">
+                  {liveViewSettings?.show_rsvp_invite && (
+                    <button
+                      onClick={() => setShowRsvpInviteModal(true)}
+                      className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-full border-2 border-primary bg-primary/10 text-primary font-semibold transition-all duration-200"
+                    >
+                      <Mail className="w-4 h-4" />
+                      <span className="text-sm font-medium">View RSVP Invite</span>
+                    </button>
+                  )}
+                  {liveViewSettings?.show_welcome_video && (
+                    <button
+                      onClick={() => setShowWelcomeVideoModal(true)}
+                      className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-full border-2 border-primary bg-primary/10 text-primary font-semibold transition-all duration-200"
+                    >
+                      <Video className="w-4 h-4" />
+                      <span className="text-sm font-medium">View Video</span>
+                    </button>
+                  )}
+                  {liveViewSettings?.show_floor_plan && (
+                    <button
+                      onClick={() => setShowFloorPlanModal(true)}
+                      className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-full border-2 border-primary bg-primary/10 text-primary font-semibold transition-all duration-200"
+                    >
+                      <MapPin className="w-4 h-4" />
+                      <span className="text-sm font-medium">Floor Plan</span>
+                    </button>
+                  )}
+                  {liveViewSettings?.show_menu && (
+                    <button
+                      onClick={() => setShowMenuModal(true)}
+                      className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-full border-2 border-primary bg-primary/10 text-primary font-semibold transition-all duration-200"
+                    >
+                      <UtensilsCrossed className="w-4 h-4" />
+                      <span className="text-sm font-medium">View Menu</span>
+                    </button>
+                  )}
+                </div>
+              )}
+              <TabsList className="grid w-full h-auto grid-cols-2 p-0 bg-transparent border-0 shadow-none gap-3">
+                <TabsTrigger
+                  value="search" 
+                  className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-full border-2 border-transparent bg-white text-gray-600 data-[state=active]:border-green-500 data-[state=active]:bg-green-50 data-[state=active]:text-green-700 data-[state=active]:font-semibold data-[state=active]:shadow-md transition-all duration-200"
+                >
+                  <Search className="w-4 h-4" />
+                  {isEditable ? (
+                    <span>Update Your Details</span>
+                  ) : (
+                    <>
+                      <span className="hidden sm:inline">Find Your Table</span>
+                      <span className="sm:hidden">Search</span>
+                    </>
+                  )}
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="visualization" 
+                  className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-full border-2 border-transparent bg-white text-gray-600 data-[state=active]:border-green-500 data-[state=active]:bg-green-50 data-[state=active]:text-green-700 data-[state=active]:font-semibold data-[state=active]:shadow-md transition-all duration-200"
+                >
+                  <Eye className="w-4 h-4" />
+                  <span>Table View</span>
+                </TabsTrigger>
+              </TabsList>
+            </div>
 
-            <TabsContent value="search">
+            <div className="pt-3">
+            <TabsContent value="search" className="mt-0">
               <Card className="ww-box card-elevated">
                 <CardHeader className="text-center">
                   <CardTitle className="flex items-center justify-center font-bold whitespace-nowrap text-lg md:text-xl">
@@ -846,6 +843,7 @@ export const GuestLookup: React.FC = () => {
                 )}
               </div>
             </TabsContent>
+            </div>
           </Tabs>
         </div>
       </div>
