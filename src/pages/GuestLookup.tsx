@@ -885,12 +885,17 @@ export const GuestLookup: React.FC = () => {
 
       {/* Public Add Guest Modal */}
       {event?.id && (
-        <PublicAddGuestModal
+      <PublicAddGuestModal
           open={showAddGuestModal}
           onOpenChange={(open) => { setShowAddGuestModal(open); if (!open) setAddGuestForId(null); }}
           eventId={event.id}
           onGuestAdded={refreshGuestData}
           addedByGuestId={addGuestForId || undefined}
+          addedByGuestName={(() => {
+            if (!addGuestForId) return undefined;
+            const g = guests.find(g => g.id === addGuestForId);
+            return g ? `${g.first_name} ${g.last_name || ''}`.trim() : undefined;
+          })()}
         />
       )}
 
