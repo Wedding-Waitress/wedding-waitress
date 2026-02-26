@@ -1,6 +1,7 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef, useCallback, useState } from 'react';
 import type { TextZone } from '@/hooks/useInvitationTemplates';
 import { loadGoogleFont } from '@/lib/googleFonts';
+import type { QrConfig } from '@/lib/invitationQR';
 
 interface Props {
   backgroundUrl: string;
@@ -15,6 +16,9 @@ interface Props {
     time?: string;
   };
   className?: string;
+  qrConfig?: QrConfig;
+  qrDataUrl?: string;
+  onQrConfigChange?: (config: QrConfig) => void;
 }
 
 export const InvitationPreview: React.FC<Props> = ({
@@ -25,8 +29,13 @@ export const InvitationPreview: React.FC<Props> = ({
   customStyles,
   eventData = {},
   className = '',
+  qrConfig,
+  qrDataUrl,
+  onQrConfigChange,
 }) => {
   const isPortrait = orientation === 'portrait';
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [dragging, setDragging] = useState(false);
 
   // Load all fonts used across text zones
   useEffect(() => {
@@ -65,10 +74,34 @@ export const InvitationPreview: React.FC<Props> = ({
     };
   };
 
+  const handlePointerDown = useCallback((e: React.PointerEvent) => {
+    if (!qrConfig?.enabled || !onQrConfigChange) return;
+    e.preventDefault();
+    e.stopPropagation();
+    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+    setDragging(true);
+  }, [qrConfig, onQrConfigChange]);
+
+  const handlePointerMove = useCallback((e: React.PointerEvent) => {
+    if (!dragging || !containerRef.current || !qrConfig || !onQrConfigChange) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    const halfSize = qrConfig.size_percent / 2;
+    const x = Math.min(Math.max(((e.clientX - rect.left) / rect.width) * 100, halfSize), 100 - halfSize);
+    const y = Math.min(Math.max(((e.clientY - rect.top) / rect.height) * 100, halfSize), 100 - halfSize);
+    onQrConfigChange({ ...qrConfig, x_percent: Math.round(x * 10) / 10, y_percent: Math.round(y * 10) / 10 });
+  }, [dragging, qrConfig, onQrConfigChange]);
+
+  const handlePointerUp = useCallback(() => {
+    setDragging(false);
+  }, []);
+
   return (
     <div
+      ref={containerRef}
       className={`relative overflow-hidden rounded-xl shadow-lg border ${className}`}
       style={{ aspectRatio: isPortrait ? '148/210' : '210/148' }}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerUp}
     >
       <img
         src={backgroundUrl}
@@ -89,6 +122,24 @@ export const InvitationPreview: React.FC<Props> = ({
           {getZoneText(zone)}
         </div>
       ))}
+
+      {/* Draggable QR Code Overlay */}
+      {qrConfig?.enabled && qrDataUrl && (
+        <img
+          src={qrDataUrl}
+          alt="Event QR code"
+          className={`absolute cursor-grab select-none border-2 rounded ${
+            dragging ? 'border-primary cursor-grabbing' : 'border-transparent hover:border-dashed hover:border-primary/50'
+          }`}
+          style={{
+            left: `${qrConfig.x_percent - qrConfig.size_percent / 2}%`,
+            top: `${qrConfig.y_percent - qrConfig.size_percent / 2}%`,
+            width: `${qrConfig.size_percent}%`,
+          }}
+          onPointerDown={handlePointerDown}
+          draggable={false}
+        />
+      )}
     </div>
   );
 };

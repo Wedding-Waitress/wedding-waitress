@@ -1,17 +1,19 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
+import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
-import { ArrowLeft, Save, Type } from 'lucide-react';
+import { ArrowLeft, Save, Type, QrCode, RotateCcw } from 'lucide-react';
 import type { InvitationTemplate, TextZone } from '@/hooks/useInvitationTemplates';
 import { InvitationPreview } from './InvitationPreview';
 import { InvitationExporter } from './InvitationExporter';
 import { GoogleFontPicker } from './GoogleFontPicker';
 import { loadGoogleFont } from '@/lib/googleFonts';
+import { generateInvitationQR, DEFAULT_QR_CONFIG, type QrConfig } from '@/lib/invitationQR';
 
 interface Props {
   template: InvitationTemplate;
@@ -22,9 +24,11 @@ interface Props {
     time?: string;
   };
   eventId: string | null;
+  eventSlug?: string;
   initialCustomText?: Record<string, string>;
   initialCustomStyles?: Record<string, any>;
-  onSave: (customText: Record<string, string>, customStyles: Record<string, any>) => void;
+  initialQrConfig?: QrConfig;
+  onSave: (customText: Record<string, string>, customStyles: Record<string, any>, qrConfig?: QrConfig) => void;
   onBack: () => void;
 }
 
@@ -33,14 +37,25 @@ export const InvitationCustomizer: React.FC<Props> = ({
   template,
   eventData,
   eventId,
+  eventSlug,
   initialCustomText = {},
   initialCustomStyles = {},
+  initialQrConfig,
   onSave,
   onBack,
 }) => {
   const [customText, setCustomText] = useState<Record<string, string>>(initialCustomText);
   const [customStyles, setCustomStyles] = useState<Record<string, any>>(initialCustomStyles);
   const [activeZoneId, setActiveZoneId] = useState<string | null>(template.text_zones[0]?.id || null);
+  const [qrConfig, setQrConfig] = useState<QrConfig>(initialQrConfig || DEFAULT_QR_CONFIG);
+  const [qrDataUrl, setQrDataUrl] = useState<string>('');
+
+  // Generate QR data URL when slug is available
+  useEffect(() => {
+    if (eventSlug) {
+      generateInvitationQR(eventSlug).then(setQrDataUrl).catch(console.error);
+    }
+  }, [eventSlug]);
 
   const activeZone = template.text_zones.find(z => z.id === activeZoneId);
 
@@ -79,7 +94,7 @@ export const InvitationCustomizer: React.FC<Props> = ({
             <p className="text-sm text-muted-foreground">Edit text and styling for your invitation</p>
           </div>
         </div>
-        <Button onClick={() => onSave(customText, customStyles)} className="gap-2">
+        <Button onClick={() => onSave(customText, customStyles, qrConfig)} className="gap-2">
           <Save className="w-4 h-4" /> Save Design
         </Button>
       </div>
@@ -95,6 +110,9 @@ export const InvitationCustomizer: React.FC<Props> = ({
             customStyles={customStyles}
             eventData={eventData}
             className="max-w-md w-full"
+            qrConfig={qrConfig}
+            qrDataUrl={qrDataUrl}
+            onQrConfigChange={setQrConfig}
           />
         </div>
 
@@ -227,6 +245,47 @@ export const InvitationCustomizer: React.FC<Props> = ({
             </Card>
           )}
 
+          {/* QR Code Controls */}
+          {eventSlug && (
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <QrCode className="w-4 h-4" /> QR Code
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3 pb-4">
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs">Show QR on invitation</Label>
+                  <Switch
+                    checked={qrConfig.enabled}
+                    onCheckedChange={enabled => setQrConfig(prev => ({ ...prev, enabled }))}
+                  />
+                </div>
+                {qrConfig.enabled && (
+                  <>
+                    <div>
+                      <Label className="text-xs">Size ({qrConfig.size_percent}%)</Label>
+                      <Slider
+                        value={[qrConfig.size_percent]}
+                        min={8} max={35} step={1}
+                        onValueChange={([v]) => setQrConfig(prev => ({ ...prev, size_percent: v }))}
+                      />
+                    </div>
+                    <p className="text-xs text-muted-foreground">Drag the QR code on the preview to reposition it.</p>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full gap-2"
+                      onClick={() => setQrConfig(prev => ({ ...prev, x_percent: 85, y_percent: 85 }))}
+                    >
+                      <RotateCcw className="w-3 h-3" /> Reset Position
+                    </Button>
+                  </>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
           {/* Export Panel */}
           <InvitationExporter
             template={template}
@@ -234,6 +293,8 @@ export const InvitationCustomizer: React.FC<Props> = ({
             customStyles={customStyles}
             eventData={eventData as Record<string, string>}
             eventId={eventId}
+            qrConfig={qrConfig}
+            qrDataUrl={qrDataUrl}
           />
         </div>
       </div>

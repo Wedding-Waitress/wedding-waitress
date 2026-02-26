@@ -9,6 +9,7 @@ import { useUserPlan } from '@/hooks/useUserPlan';
 import { useGuests } from '@/hooks/useGuests';
 import { exportInvitationPNG, exportInvitationPDF, exportInvitation2Up, exportBulkPDF } from '@/lib/invitationExporter';
 import type { InvitationTemplate, TextZone } from '@/hooks/useInvitationTemplates';
+import type { QrConfig } from '@/lib/invitationQR';
 
 interface Props {
   template: InvitationTemplate;
@@ -16,6 +17,8 @@ interface Props {
   customStyles: Record<string, any>;
   eventData: Record<string, string>;
   eventId: string | null;
+  qrConfig?: QrConfig;
+  qrDataUrl?: string;
 }
 
 const FREE_EXPORT_LIMIT = 3;
@@ -26,6 +29,8 @@ export const InvitationExporter: React.FC<Props> = ({
   customStyles,
   eventData,
   eventId,
+  qrConfig,
+  qrDataUrl,
 }) => {
   const { toast } = useToast();
   const { plan, isStarterPlan } = useUserPlan();
@@ -45,6 +50,8 @@ export const InvitationExporter: React.FC<Props> = ({
     customText,
     customStyles,
     eventData,
+    qrConfig,
+    qrDataUrl,
   };
 
   const checkLimit = (): boolean => {
