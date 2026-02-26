@@ -1,16 +1,16 @@
 
-# Add RSVP Icon, Align Row, Restyle Edit Button, and Match Font Sizes
 
-## Changes (all in `src/components/GuestLookup/EnhancedGuestCard.tsx`)
+# Make Edit Button a True Circle with Matching Font
 
-### 1. Add purple RSVP icon and match row layout
-Wrap the RSVP section in the same layout as Table/Seat/Dietary rows: `flex items-start gap-3 p-2 bg-background-subtle rounded-lg` with a `ClipboardCheck` icon (purple, `w-5 h-5 text-primary`) on the left. Import `ClipboardCheck` from lucide-react.
+## What Changes
+Make the Edit button on the guest card a proper visible circle (like the close button on the Wedding Menu modal) and increase the "Edit" text size to match the row labels (Table, Seat, Dietary).
 
-### 2. Make "RSVP Status" text consistent with other row labels
-Change `text-sm font-medium` on the "RSVP Status:" label to `font-semibold text-foreground` -- matching "Table 7", "Seat 5", and "Dietary Requirements" labels above.
+## Technical Details
 
-### 3. Replace Edit icon with text "Edit" in purple circle
-Replace the `Edit3` icon button with a round purple button displaying the word "Edit" in white text. Remove the tooltip wrapper since the label is now explicit. Style: `w-10 h-10 rounded-full bg-primary text-white text-xs font-semibold`.
+**File:** `src/components/GuestLookup/EnhancedGuestCard.tsx` (line 182)
 
-### 4. Clean up imports
-Add `ClipboardCheck` to lucide-react imports. Remove `Edit3` since it will no longer be used.
+- Increase button size from `w-10 h-10` to `w-14 h-14` so it forms a clearly visible circle with room for the text
+- Change text from `text-xs` to `text-sm font-semibold` to match the row label font size
+- Keep `rounded-full` and `p-0` to ensure perfect circle shape
+- Add `aspect-square` for extra safety on circle rendering
+
