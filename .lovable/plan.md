@@ -1,26 +1,22 @@
 
-# Fix Public Add Guest Modal Spacing & Close Button
+# Fix Public Add Guest Modal - 3 Issues
 
 ## Changes (all in `src/components/GuestLookup/PublicAddGuestModal.tsx`)
 
-### 1. Close Button -- Purple Circle with White X
-Override the default DialogContent close button by adding a custom close button inside the modal. This will be a purple-filled circle with a purple border, containing a larger white X icon. The default close button from DialogContent will be hidden using CSS.
+### 1. Subtitle text overlap with close button
+Move the subtitle line ("Choose if they are an individual...") to align left with form fields by adding `pr-12` (right padding) so it doesn't collide with the close button circle. Also ensure the close button is properly circular by adding explicit `aspect-square` and increasing size slightly.
 
-- Add a custom `DialogPrimitive.Close` button positioned at top-right
-- Style: `w-9 h-9 rounded-full bg-primary border-2 border-primary` with a white X icon (`w-5 h-5 text-white`)
-- Hide the default close button via a `[&>button:last-child]:hidden` class on DialogContent (or use the existing close button override pattern)
+### 2. Guest Type Selector requires selection (mark as required)
+Add a red asterisk (*) next to a label above the Individual/Couple/Family selector, similar to how "First Name *" is displayed. Add a new Label line above the selector: "Guest Type *".
 
-### 2. Subtitle Text -- Move Down Below Close Button
-Add top margin/padding to the subtitle paragraph (`mt-2` or `pt-1`) so the text "Choose if they are an individual, your partner, or a family member." sits below the close button and doesn't overlap.
+### 3. Footer buttons - make inline and scrollable (not fixed)
+Remove the `DialogFooter` wrapper (which pins buttons to the bottom on mobile) and replace it with a simple inline `div` inside the scrollable content area, placed after the Notes field. Use `flex` with Cancel on the left and Add Guest on the right, both on the same row. Make them wider pill buttons (not tiny `size="xs"`).
 
-### 3. Horizontal Padding -- Add Side Gaps to All Fields
-Increase the horizontal padding on the scrollable content area from the current minimal padding to `px-4 sm:px-6` so all fields (guest type selector, inputs, dropdowns, notes, and footer buttons) have visible gaps from the edges. The DialogContent already has `px-4 sm:px-10` but the inner content needs its own padding to create visible breathing room on mobile.
+## Technical Details
 
-- Add `px-3 sm:px-2` to the inner `div` wrapping all form fields (line 178)
-- This ensures the guest type selector, all input rows, notes, and buttons are indented from both edges
-
-## Technical Summary
-- **File**: `src/components/GuestLookup/PublicAddGuestModal.tsx`
-- Add custom purple circle close button with white X
-- Add `mt-2` to subtitle text
-- Add horizontal padding (`px-3`) to the scrollable form content area
+- **Line 169**: Keep `DialogContent` as-is
+- **Line 171**: Update close button classes to ensure perfect circle: add `aspect-square` 
+- **Line 180**: Add `pr-12` to the subtitle `<p>` tag so text wraps before reaching the close button
+- **Lines 187-229**: Add a `Label` with "Guest Type *" above the selector div
+- **Lines 440-449**: After the Notes `div`, add a new `div` with `flex gap-3 pt-3` containing Cancel (left) and Add Guest (right) buttons side by side
+- **Lines 452-473**: Remove the `DialogFooter` block entirely since buttons are now inside the scrollable area
