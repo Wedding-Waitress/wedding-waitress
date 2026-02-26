@@ -1,41 +1,22 @@
 
 
-# Fix Additional Guests Display & Center Action Buttons
+# Restyle Edit Button & Slim Down Share Button
 
-## Problem
-1. The "Additional Guests" row only renders when count > 0 -- it should always be visible
-2. The Accept/Decline/Add Guest buttons are nested inside the RSVP section (which has an icon offset on the left), so they appear left-shifted rather than truly centered in the card
+## Changes
 
-## Changes (single file: `src/components/GuestLookup/EnhancedGuestCard.tsx`)
+### 1. Edit Button -- Change from circle to pill/tablet shape with icon (`EnhancedGuestCard.tsx`)
 
-### 1. Always show "Additional Guests" row
-Remove the conditional `{(additionalGuestCount ?? 0) > 0 && (...)}` wrapper. The row will always render between Dietary Requirements and RSVP Status, showing either "{count} added" or "None added".
+**Current** (line 186-192): A large 56x56px purple circle with just "Edit" text.
 
-### 2. Move buttons outside the RSVP section
-Currently the three buttons are inside the RSVP `<div>` that has the ClipboardCheck icon taking up left space. Move them out to be a standalone `<div className="flex gap-2 justify-center pt-1">` directly inside the card's main flex column. This makes them truly centered within the full card width.
+**New**: A rounded-full pill button matching the Share button style, with a `Pencil` icon on the left and "Edit" text. Use `rounded-full px-5 py-1.5 h-auto text-sm font-semibold` (same as Share button).
 
-### Before (structure)
-```text
-[ClipboardCheck icon] [RSVP Status + Badge]
-                      [Accept] [Decline] [Add Guest]  <-- offset by icon
-```
+- Import `Pencil` from `lucide-react`
+- Replace the circle button with: `<Button onClick={...} className="ml-2 rounded-full px-5 py-1.5 h-auto bg-primary text-white hover:bg-primary/90 text-sm font-semibold"><Pencil className="w-4 h-4 mr-1.5" />Edit</Button>`
 
-### After (structure)
-```text
-[UserPlus icon] [Additional Guests: X added]
-[ClipboardCheck icon] [RSVP Status: Accept]
-        [Accept] [Decline] [Add Guest]   <-- centered in full card
-```
+### 2. Share Button -- Reduce height (`GuestLookup.tsx`, line 770)
 
-### Specific code changes (lines 236-310)
+The Share button already uses `py-1.5` which should be compact. Looking at the screenshot, it appears taller than expected. Will ensure it uses `py-1` instead of `py-1.5` for a slimmer profile.
 
-Replace the Additional Guests conditional block and the RSVP section with:
-
-- **Additional Guests** (always visible, no conditional):
-  - Same styling as other stat rows
-  - Shows "None added" when count is 0, "{count} added" otherwise
-
-- **RSVP Section**: Keep the icon + status badge row, but remove the buttons from inside it
-
-- **Action Buttons**: New standalone div after RSVP section with `flex gap-2 justify-center pt-1` -- contains Accept, Decline, and Add Guest buttons (same styling, just relocated)
-
+### Files
+- `src/components/GuestLookup/EnhancedGuestCard.tsx` -- Edit button restyled
+- `src/pages/GuestLookup.tsx` -- Share button height reduced
