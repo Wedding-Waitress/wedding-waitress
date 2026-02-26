@@ -1,49 +1,26 @@
 
-# Redesign Public Add Guest Modal to Match Dashboard Style
+# Fix Public Add Guest Modal Spacing & Close Button
 
-## Overview
-Rebuild the `PublicAddGuestModal` to visually and functionally match the dashboard's "Add New Guest" modal, with the exact fields, styling, and layout the user described.
+## Changes (all in `src/components/GuestLookup/PublicAddGuestModal.tsx`)
 
-## Visual & Field Layout (Top to Bottom)
+### 1. Close Button -- Purple Circle with White X
+Override the default DialogContent close button by adding a custom close button inside the modal. This will be a purple-filled circle with a purple border, containing a larger white X icon. The default close button from DialogContent will be hidden using CSS.
 
-1. **Title**: "Add Extra Guest" (styled like dashboard's purple "Add New Guest" title)
-2. **Subtitle**: "Choose if they are an individual, your partner, or a family member."
-3. **Guest Type Selector**: Identical pill selector from dashboard -- purple border container with pink (Individual), orange (Couple), blue (Family) active states
-4. **Fields (Individual mode)**:
-   - Row 1: First Name / Last Name (purple-bordered rounded-full inputs)
-   - Row 2: Mobile / Email (purple-bordered rounded-full inputs)
-   - Row 3: RSVP Status dropdown (Pending default, Accept, Decline) / Dietary Requirements dropdown (None, Kids Meal, Pescatarian, Vegetarian, Vegan, Seafood Free, Gluten Free, Dairy Free, Nut Free, Halal, Kosher, Vendor Meal)
-   - Row 4: Notes textarea ("Add any additional notes about this guest...")
-5. **Footer Buttons**: Red "Cancel" pill, Green "Add Guest" pill (matching dashboard button style)
+- Add a custom `DialogPrimitive.Close` button positioned at top-right
+- Style: `w-9 h-9 rounded-full bg-primary border-2 border-primary` with a white X icon (`w-5 h-5 text-white`)
+- Hide the default close button via a `[&>button:last-child]:hidden` class on DialogContent (or use the existing close button override pattern)
 
-For Couple and Family modes, the same party-member add flow (simplified -- inline fields per member) will be retained.
+### 2. Subtitle Text -- Move Down Below Close Button
+Add top margin/padding to the subtitle paragraph (`mt-2` or `pt-1`) so the text "Choose if they are an individual, your partner, or a family member." sits below the close button and doesn't overlap.
 
-## Technical Details
+### 3. Horizontal Padding -- Add Side Gaps to All Fields
+Increase the horizontal padding on the scrollable content area from the current minimal padding to `px-4 sm:px-6` so all fields (guest type selector, inputs, dropdowns, notes, and footer buttons) have visible gaps from the edges. The DialogContent already has `px-4 sm:px-10` but the inner content needs its own padding to create visible breathing room on mobile.
 
-### File Modified
-- `src/components/GuestLookup/PublicAddGuestModal.tsx` -- Complete rewrite of UI and form fields
+- Add `px-3 sm:px-2` to the inner `div` wrapping all form fields (line 178)
+- This ensures the guest type selector, all input rows, notes, and buttons are indented from both edges
 
-### Key Changes
-- Add `email`, `notes`, `rsvp`, and `dietary` fields to `GuestEntry` interface
-- Replace free-text dietary input with Select dropdown matching dashboard options
-- Add RSVP Status Select dropdown (Pending/Accept/Decline)
-- Add Notes textarea
-- Copy the exact guest type selector styling from `AddGuestModal.tsx` (lines 922-969) -- purple border container, pink/orange/blue active pill colors
-- Copy the exact input styling: `rounded-full border-2 border-primary` with focus states
-- Copy the exact Select styling: `rounded-full border-2 border-primary h-9`
-- Copy the exact Notes textarea styling: `rounded-3xl border-2 border-[#7248e6]`
-- Copy the exact footer buttons: red Cancel pill, green Add Guest pill
-- Update `handleSave` to pass `email`, `notes`, `rsvp`, and `dietary` values to the `add_guest_public` RPC
-- RSVP defaults to "Pending" (user specified this) instead of current hardcoded "Attending"
-- Modal title changes from "Add New Guest" to "Add Extra Guest"
-- Subtitle changes to match user's exact wording
-
-### Data Flow
-- The `add_guest_public` RPC already accepts `_rsvp`, `_dietary`, `_email` parameters, so no backend changes needed
-- Notes field: the RPC doesn't currently accept notes, so notes will be stored client-side only (or we skip it if the RPC doesn't support it). Will check and handle gracefully.
-
-### What Stays the Same
-- The Couple/Family multi-person flow logic
-- The `add_guest_public` RPC call for security
-- The `addedByGuestId` linking
-- Real-time sync on guest addition
+## Technical Summary
+- **File**: `src/components/GuestLookup/PublicAddGuestModal.tsx`
+- Add custom purple circle close button with white X
+- Add `mt-2` to subtitle text
+- Add horizontal padding (`px-3`) to the scrollable form content area
