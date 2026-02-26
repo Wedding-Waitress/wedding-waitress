@@ -168,7 +168,7 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col px-4 sm:px-10 [&>button:last-child]:hidden" fullScreenOnMobile>
         {/* Custom purple circle close button */}
-        <DialogPrimitive.Close className="absolute right-4 top-4 z-10 w-9 h-9 rounded-full bg-primary border-2 border-primary flex items-center justify-center hover:opacity-90 transition-opacity">
+        <DialogPrimitive.Close className="absolute right-4 top-4 z-10 w-9 h-9 aspect-square rounded-full bg-primary border-2 border-primary flex items-center justify-center hover:opacity-90 transition-opacity">
           <X className="w-5 h-5 text-white" />
           <span className="sr-only">Close</span>
         </DialogPrimitive.Close>
@@ -177,7 +177,7 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
           <DialogTitle className="text-xl sm:text-2xl font-medium text-primary">
             Add Extra Guest
           </DialogTitle>
-          <p className="text-sm text-muted-foreground mt-3">
+          <p className="text-sm text-muted-foreground mt-3 pr-12">
             Choose if they are an individual, your partner, or a family member.
           </p>
         </DialogHeader>
@@ -185,6 +185,7 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
         <div className="space-y-3 sm:space-y-4 py-4 overflow-y-auto flex-1 mobile-scroll-container px-3 sm:px-2">
           {/* Guest Type Selector */}
           <div className="pt-1 pb-2">
+            <Label className="text-sm font-medium mb-1.5 block">Guest Type <span className="text-destructive">*</span></Label>
             <div className="flex items-center justify-center gap-0 bg-[#7248e6]/10 border-2 border-[#7248e6] rounded-full p-1 w-full">
               <button
                 type="button"
@@ -447,30 +448,29 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
               className="rounded-3xl border-2 border-[#7248e6] focus-visible:border-[#7248e6] focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none resize-none"
             />
           </div>
-        </div>
 
-        <DialogFooter>
-          <Button
-            type="button"
-            variant="destructive"
-            size="xs"
-            className="rounded-full bg-red-600 hover:bg-red-700 text-white"
-            onClick={() => { resetForm(); onOpenChange(false); }}
-            disabled={saving}
-          >
-            Cancel
-          </Button>
-          <Button
-            type="button"
-            variant="default"
-            size="xs"
-            className="rounded-full bg-green-500 hover:bg-green-600 text-white"
-            disabled={saving}
-            onClick={handleSave}
-          >
-            {saving ? 'Adding...' : 'Add Guest'}
-          </Button>
-        </DialogFooter>
+          {/* Action Buttons - inline, scrollable with content */}
+          <div className="flex gap-3 pt-3">
+            <Button
+              type="button"
+              variant="destructive"
+              className="flex-1 rounded-full bg-red-600 hover:bg-red-700 text-white"
+              onClick={() => { resetForm(); onOpenChange(false); }}
+              disabled={saving}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              variant="default"
+              className="flex-1 rounded-full bg-green-500 hover:bg-green-600 text-white"
+              disabled={saving}
+              onClick={handleSave}
+            >
+              {saving ? 'Adding...' : 'Add Guest'}
+            </Button>
+          </div>
+        </div>
       </DialogContent>
     </Dialog>
   );
