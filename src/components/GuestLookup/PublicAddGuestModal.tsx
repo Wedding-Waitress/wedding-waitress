@@ -246,7 +246,7 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 text-sm font-medium text-green-500 border border-green-500 rounded-full px-3 py-1">
                   <Users className="w-4 h-4" />
-                  <span>Family Members ({
+                  <span>Members ({
                     guestType === 'couple' && addedByGuestName ? 1 + partyMembers.length :
                     guestType === 'family' && addedByGuestName ? 1 + partyMembers.length :
                     partyMembers.length
