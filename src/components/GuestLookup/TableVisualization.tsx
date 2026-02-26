@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Users, MapPin, Utensils } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { normalizeRsvp } from '@/lib/rsvp';
 
 interface TableGuest {
   id: string;
@@ -173,10 +174,10 @@ export const TableVisualization: React.FC<TableVisualizationProps> = ({
                 key={seat.position}
                 className={`absolute w-10 h-10 md:w-16 md:h-16 rounded-full border-2 flex items-center justify-center text-xs font-medium transition-all ${
                   seat.guest 
-                    ? seat.guest.rsvp === 'Confirmed'
-                      ? 'bg-success/10 border-success text-success-foreground'
-                      : seat.guest.rsvp === 'Declined'
-                      ? 'bg-destructive/10 border-destructive text-destructive-foreground'
+                    ? normalizeRsvp(seat.guest.rsvp) === 'Attending'
+                      ? 'bg-green-500/10 border-green-500 text-green-700'
+                      : normalizeRsvp(seat.guest.rsvp) === 'Not Attending'
+                      ? 'bg-red-500/10 border-red-500 text-red-700'
                       : 'bg-warning/10 border-warning text-warning-foreground'
                     : 'bg-muted border-muted-foreground/30 text-muted-foreground'
                 }`}
@@ -213,8 +214,8 @@ export const TableVisualization: React.FC<TableVisualizationProps> = ({
                 >
                   <div className="flex items-center gap-3">
                     <div className={`w-3 h-3 rounded-full ${
-                      guest.rsvp === 'Confirmed' ? 'bg-success' :
-                      guest.rsvp === 'Declined' ? 'bg-destructive' : 'bg-warning'
+                      normalizeRsvp(guest.rsvp) === 'Attending' ? 'bg-green-500' :
+                      normalizeRsvp(guest.rsvp) === 'Not Attending' ? 'bg-red-500' : 'bg-warning'
                     }`} />
                     <div>
                       <div className="text-sm font-medium">
@@ -235,10 +236,10 @@ export const TableVisualization: React.FC<TableVisualizationProps> = ({
                       </Badge>
                     )}
                     <div className={`text-xs mt-1 ${
-                      guest.rsvp === 'Confirmed' ? 'text-success' :
-                      guest.rsvp === 'Declined' ? 'text-destructive' : 'text-warning'
+                      normalizeRsvp(guest.rsvp) === 'Attending' ? 'text-green-500' :
+                      normalizeRsvp(guest.rsvp) === 'Not Attending' ? 'text-red-500' : 'text-warning'
                     }`}>
-                      {guest.rsvp || 'Pending'}
+                      {normalizeRsvp(guest.rsvp)}
                     </div>
                   </div>
                 </div>
