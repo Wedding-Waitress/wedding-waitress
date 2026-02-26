@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Plus, X, UserPlus, Users } from 'lucide-react';
+import * as DialogPrimitive from '@radix-ui/react-dialog';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
@@ -165,17 +166,23 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col px-4 sm:px-10" fullScreenOnMobile>
+      <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col px-4 sm:px-10 [&>button:last-child]:hidden" fullScreenOnMobile>
+        {/* Custom purple circle close button */}
+        <DialogPrimitive.Close className="absolute right-4 top-4 z-10 w-9 h-9 rounded-full bg-primary border-2 border-primary flex items-center justify-center hover:opacity-90 transition-opacity">
+          <X className="w-5 h-5 text-white" />
+          <span className="sr-only">Close</span>
+        </DialogPrimitive.Close>
+
         <DialogHeader>
           <DialogTitle className="text-xl sm:text-2xl font-medium text-primary">
             Add Extra Guest
           </DialogTitle>
-          <p className="text-sm text-muted-foreground mt-1">
+          <p className="text-sm text-muted-foreground mt-3">
             Choose if they are an individual, your partner, or a family member.
           </p>
         </DialogHeader>
 
-        <div className="space-y-3 sm:space-y-4 py-4 overflow-y-auto flex-1 mobile-scroll-container">
+        <div className="space-y-3 sm:space-y-4 py-4 overflow-y-auto flex-1 mobile-scroll-container px-3 sm:px-2">
           {/* Guest Type Selector */}
           <div className="pt-1 pb-2">
             <div className="flex items-center justify-center gap-0 bg-[#7248e6]/10 border-2 border-[#7248e6] rounded-full p-1 w-full">
