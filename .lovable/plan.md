@@ -1,31 +1,21 @@
 
-# Fix RSVP Color Coding in Table View
-
-## Problem
-The Table View in the Guest Live View uses incorrect RSVP value checks. It compares against `'Confirmed'` and `'Declined'`, but the actual values are `'Attending'` and `'Not Attending'`. This causes all guests to display with the orange/pending color regardless of their actual RSVP status.
+# Compact Guest Card Layout and Edit Button Styling
 
 ## Changes
 
-### File: `src/components/GuestLookup/TableVisualization.tsx`
+### File: `src/components/GuestLookup/EnhancedGuestCard.tsx`
 
-**1. Import `normalizeRsvp`** (line 6)
-Add: `import { normalizeRsvp } from '@/lib/rsvp';`
+**1. Reduce spacing between sections**
+- Change the main container from `space-y-4` (16px gaps) to `space-y-2.5` (10px gaps) on line 140
+- Change the inner padding of the Table, Seat, and Dietary rows from `p-4` to `p-3` (lines 190, 209, 220)
 
-**2. Fix seat circle colors** (lines 174-181)
-Replace the hardcoded string checks (`'Confirmed'`, `'Declined'`) with `normalizeRsvp()` calls. Use green for Attending, red for Not Attending, orange for Pending:
+**2. Restyle the Edit button as a purple circle with tooltip**
+- Replace the ghost button with a round purple circle (`w-9 h-9 rounded-full bg-primary text-white hover:bg-primary/90`)
+- Increase the Edit3 icon size from `w-4 h-4` to `w-5 h-5`
+- Wrap the button in a `Tooltip` component (from `@/components/ui/tooltip`) with "Edit" as the tooltip text
+- Import `Tooltip`, `TooltipContent`, `TooltipTrigger`, and `TooltipProvider` from the UI tooltip component
 
-- Attending: `bg-green-500/10 border-green-500 text-green-700`
-- Not Attending: `bg-red-500/10 border-red-500 text-red-700`
-- Pending: `bg-warning/10 border-warning text-warning-foreground` (unchanged orange)
-
-**3. Fix guest list dot colors** (lines 215-218)
-Replace `'Confirmed'`/`'Declined'` checks with `normalizeRsvp()`:
-- Attending: `bg-green-500`
-- Not Attending: `bg-red-500`
-- Pending: `bg-warning`
-
-**4. Fix RSVP text colors** (lines 237-241)
-Replace string checks with `normalizeRsvp()` and display the normalized status:
-- Attending: `text-green-500` showing "Attending"
-- Not Attending: `text-red-500` showing "Not Attending"
-- Pending: `text-warning` showing "Pending"
+### Summary of visual outcome
+- All rows (name, table, seat, dietary, RSVP, buttons) will be closer together with tighter vertical spacing
+- The edit icon becomes a visible purple circle button in the top-right corner
+- Hovering over the purple edit circle shows an "Edit" tooltip
