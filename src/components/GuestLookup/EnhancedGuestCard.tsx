@@ -10,7 +10,8 @@ import {
   Users,
   Utensils,
   Phone,
-  Mail 
+  Mail,
+  Plus
 } from 'lucide-react';
 
 import { supabase } from '@/integrations/supabase/client';
@@ -37,6 +38,7 @@ interface EnhancedGuestCardProps {
   guest: Guest;
   onUpdate: () => void;
   onEdit?: (guest: Guest) => void;
+  onAddGuest?: () => void;
   isEditable?: boolean;
   rsvpDeadline?: string | null;
 }
@@ -45,6 +47,7 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
   guest,
   onUpdate,
   onEdit,
+  onAddGuest,
   isEditable = true,
   rsvpDeadline
 }) => {
@@ -274,6 +277,16 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
                   )}
                   Decline
                 </Button>
+                {onAddGuest && (
+                  <Button
+                    size="sm"
+                    onClick={onAddGuest}
+                    className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90"
+                  >
+                    <Plus className="w-4 h-4 mr-1" />
+                    Add Guest
+                  </Button>
+                )}
               </div>
             )}
           </div>

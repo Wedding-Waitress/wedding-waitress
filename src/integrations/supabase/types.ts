@@ -2218,6 +2218,18 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      add_guest_public: {
+        Args: {
+          _dietary?: string
+          _email?: string
+          _event_id: string
+          _first_name: string
+          _last_name: string
+          _mobile?: string
+          _rsvp?: string
+        }
+        Returns: string
+      }
       can_access_event: {
         Args: { _event_id: string; _user_id: string }
         Returns: boolean
