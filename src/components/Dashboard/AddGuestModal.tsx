@@ -920,6 +920,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
             {/* Guest Type Selector - Only show for new guests */}
             {!isEdit && (
               <div className="pt-1 pb-2">
+                <Label className="text-sm font-medium mb-2 block">Guest Category</Label>
                 <div className="flex items-center justify-center gap-0 bg-[#7248e6]/10 border-2 border-[#7248e6] rounded-full p-1 w-full">
                   <button
                     type="button"
@@ -1211,7 +1212,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2 text-sm font-medium text-green-500 border border-green-500 rounded-full px-3 py-1">
                     <Users className="w-4 h-4" />
-                    <span>Party Members ({partyMembers.length})</span>
+                    <span>Members ({partyMembers.length})</span>
                   </div>
                   <Button
                     type="button"
@@ -1222,7 +1223,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                     className="rounded-full bg-green-500 hover:bg-green-600 text-white border-0"
                   >
                     <Plus className="w-4 h-4 mr-1" />
-                    Add a member to this party
+                    {guestType === 'couple' ? 'Add your partner to make you a couple' : 'Add another member to this family'}
                   </Button>
                 </div>
 
