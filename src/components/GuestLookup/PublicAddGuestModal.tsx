@@ -55,6 +55,7 @@ interface PublicAddGuestModalProps {
   eventId: string;
   onGuestAdded: () => void;
   addedByGuestId?: string;
+  addedByGuestName?: string;
 }
 
 const inputClasses = "rounded-full border-2 border-primary focus-visible:border-primary focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none h-9";
@@ -66,6 +67,7 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
   eventId,
   onGuestAdded,
   addedByGuestId,
+  addedByGuestName,
 }) => {
   const [guestType, setGuestType] = useState<GuestType>('individual');
   const [guest, setGuest] = useState<GuestEntry>(emptyGuest());
@@ -103,11 +105,16 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
       return;
     }
 
-    if (guestType === 'couple' && partyMembers.length === 0) {
-      toast({ title: 'Add one more person to create a couple', variant: 'destructive' });
-      return;
+    // For couple: referring guest already exists, so no extra member needed
+    if (guestType === 'couple' && !addedByGuestName) {
+      // Only validate if there's no referring guest (shouldn't happen in live view, but fallback)
+      if (partyMembers.length === 0) {
+        toast({ title: 'Add one more person to create a couple', variant: 'destructive' });
+        return;
+      }
     }
-    if (guestType === 'family' && partyMembers.length < 2) {
+    // For family: referring guest counts as one member, so only need 0 additional from form
+    if (guestType === 'family' && !addedByGuestName && partyMembers.length < 2) {
       toast({ title: 'Add at least two more people to create a family', variant: 'destructive' });
       return;
     }
@@ -319,24 +326,57 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 text-sm font-medium text-green-500 border border-green-500 rounded-full px-3 py-1">
                   <Users className="w-4 h-4" />
-                  <span>Party Members ({partyMembers.length})</span>
+                  <span>Party Members ({
+                    guestType === 'couple' && addedByGuestName ? 2 :
+                    guestType === 'family' && addedByGuestName ? 1 + partyMembers.length :
+                    partyMembers.length
+                  })</span>
                 </div>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setShowAddMemberForm(true)}
-                  disabled={guestType === 'couple' && partyMembers.length >= 1}
-                  className="rounded-full bg-green-500 hover:bg-green-600 text-white border-0"
-                >
-                  <Plus className="w-4 h-4 mr-1" />
-                  Add a member to this party
-                </Button>
+                {/* Hide add button for couple when referring guest exists (already 2 people) */}
+                {!(guestType === 'couple' && addedByGuestName) && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowAddMemberForm(true)}
+                    disabled={guestType === 'couple' && partyMembers.length >= 1}
+                    className="rounded-full bg-green-500 hover:bg-green-600 text-white border-0"
+                  >
+                    <Plus className="w-4 h-4 mr-1" />
+                    Add a member to this party
+                  </Button>
+                )}
               </div>
+
+              {/* Auto-populated referring guest (read-only) */}
+              {addedByGuestName && (
+                <div className="space-y-1">
+                  {/* Referring guest - always shown */}
+                  <div className="flex items-center justify-between bg-purple-50 py-1.5 px-3 rounded-lg border border-primary/20">
+                    <div className="flex-1">
+                      <p className="font-medium text-sm text-primary">{addedByGuestName}</p>
+                      <p className="text-xs text-muted-foreground">Referring guest</p>
+                    </div>
+                  </div>
+                  {/* For couple: also show the new guest being added (live from form) */}
+                  {guestType === 'couple' && (
+                    <div className="flex items-center justify-between bg-purple-50 py-1.5 px-3 rounded-lg border border-primary/20">
+                      <div className="flex-1">
+                        <p className="font-medium text-sm text-primary">
+                          {guest.first_name.trim() || guest.last_name.trim()
+                            ? `${guest.first_name} ${guest.last_name}`.trim()
+                            : 'New guest (fill form above)'}
+                        </p>
+                        <p className="text-xs text-muted-foreground">New guest</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Add Member Form */}
               {showAddMemberForm && (
-                <div className="bg-purple-50 p-4 rounded-lg space-y-3 border border-[#7248e6]/20">
+                <div className="bg-purple-50 p-4 rounded-lg space-y-3 border border-primary/20">
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <Label className="text-xs">First Name *</Label>
@@ -344,7 +384,7 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
                         value={memberForm.first_name}
                         onChange={e => setMemberForm(prev => ({ ...prev, first_name: e.target.value }))}
                         placeholder="First name"
-                        className="rounded-full border-[#7248e6] text-sm"
+                        className="rounded-full border-primary text-sm"
                       />
                     </div>
                     <div>
@@ -353,7 +393,7 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
                         value={memberForm.last_name}
                         onChange={e => setMemberForm(prev => ({ ...prev, last_name: e.target.value }))}
                         placeholder="Last name"
-                        className="rounded-full border-[#7248e6] text-sm"
+                        className="rounded-full border-primary text-sm"
                       />
                     </div>
                   </div>
@@ -364,7 +404,7 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
                         value={memberForm.mobile}
                         onChange={e => setMemberForm(prev => ({ ...prev, mobile: e.target.value }))}
                         placeholder="Mobile (optional)"
-                        className="rounded-full border-[#7248e6] text-sm"
+                        className="rounded-full border-primary text-sm"
                       />
                     </div>
                     <div>
@@ -373,7 +413,7 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
                         value={memberForm.email}
                         onChange={e => setMemberForm(prev => ({ ...prev, email: e.target.value }))}
                         placeholder="Email (optional)"
-                        className="rounded-full border-[#7248e6] text-sm"
+                        className="rounded-full border-primary text-sm"
                       />
                     </div>
                   </div>
@@ -391,7 +431,7 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
                       type="button"
                       size="sm"
                       onClick={addPartyMember}
-                      className="rounded-full bg-[#7248e6] hover:bg-[#7248e6]/90"
+                      className="rounded-full bg-primary hover:bg-primary/90"
                     >
                       Add Member
                     </Button>
@@ -399,11 +439,11 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
                 </div>
               )}
 
-              {/* Display Added Members */}
+              {/* Display manually added Members */}
               {partyMembers.length > 0 && (
                 <div className="space-y-1">
                   {partyMembers.map((member, index) => (
-                    <div key={index} className="flex items-center justify-between bg-white py-0.5 px-2 rounded-lg border border-gray-200">
+                    <div key={index} className="flex items-center justify-between bg-white py-0.5 px-2 rounded-lg border border-border">
                       <div className="flex-1">
                         <p className="font-medium text-sm text-primary">{member.first_name} {member.last_name}</p>
                         {(member.mobile || member.email) && (
@@ -419,19 +459,20 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
                         size="sm"
                         onClick={() => removeMember(index)}
                       >
-                        <X className="w-4 h-4 text-red-500" />
+                        <X className="w-4 h-4 text-destructive" />
                       </Button>
                     </div>
                   ))}
                 </div>
               )}
 
-              {guestType === 'couple' && partyMembers.length === 0 && (
+              {/* Helper text only when no referring guest */}
+              {!addedByGuestName && guestType === 'couple' && partyMembers.length === 0 && (
                 <p className="text-xs text-muted-foreground text-center py-2">
                   Add one more person to create a couple
                 </p>
               )}
-              {guestType === 'family' && partyMembers.length < 2 && (
+              {!addedByGuestName && guestType === 'family' && partyMembers.length < 2 && (
                 <p className="text-xs text-muted-foreground text-center py-2">
                   Add two or more people to create a family
                 </p>
