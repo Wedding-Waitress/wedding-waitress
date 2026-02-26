@@ -1,13 +1,17 @@
 
-
-# Change "Family Members" Label to "Members"
+# Two Changes to "Update Your Information" Modal
 
 ## Summary
-Rename the label from "Family Members (X)" to just "Members (X)" so it works generically for both Couple and Family guest types.
+Two styling updates to the `GuestUpdateModal.tsx` component:
 
-## Change (single file)
+## Changes
 
-**File:** `src/components/GuestLookup/PublicAddGuestModal.tsx`
+### 1. Make the title "Update Your Information" purple
+**Line 196:** Add `className="text-primary"` to the `DialogTitle` so the header text renders in the app's purple color.
 
-**Line 249:** Change `Family Members` to `Members` — the count logic and everything else stays exactly the same.
+### 2. Make the Cancel button red with white text
+**Lines 324-330:** Change the Cancel button from `variant="outline"` to a red background with white text (`bg-red-500 hover:bg-red-600 text-white`), matching the same font size as the "Save Changes" button beside it. The button keeps its rounded-full (tablet) shape.
 
+**File:** `src/components/GuestLookup/GuestUpdateModal.tsx`
+
+No other changes.
