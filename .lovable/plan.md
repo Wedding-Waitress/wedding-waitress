@@ -1,21 +1,17 @@
 
 
-# Change RSVP Display Labels: "Accept" to "Attending", "Decline" to "Not Attending"
+# Update "Add New Guest" Modal Labels
 
-## Summary
-Update the centralized `getRsvpDisplayLabel` function so the RSVP status badges across the entire app display "Attending" and "Not Attending" instead of "Accept" and "Decline".
+## Changes (single file: `src/components/Dashboard/AddGuestModal.tsx`)
 
-## Change (single file: `src/lib/rsvp.ts`)
+### 1. Add "Guest Category" label above the Individual/Couple/Family selector
+Add a small label "Guest Category" just above the toggle buttons (around line 922), so users know what the selector is for.
 
-In the `getRsvpDisplayLabel` function (lines 33-43):
-- Change the return value for `"Attending"` from `"Accept"` to `"Attending"`
-- Change the return value for `"Not Attending"` from `"Decline"` to `"Not Attending"`
+### 2. Rename "Party Members (X)" to "Members (X)"
+On line 1214, change `Party Members ({partyMembers.length})` to `Members ({partyMembers.length})`. The icon stays.
 
-This single change will update the labels consistently across:
-- The Guest List table
-- Guest mobile cards
-- Kiosk guest cards
-- The Guest Lookup / Live View cards
-
-No other files need modification.
+### 3. Change the green button text based on guest type
+On line 1225, instead of always showing "Add a member to this party", make it conditional:
+- **Couple**: "Add your partner to make you a couple"
+- **Family**: "Add another member to this family"
 
