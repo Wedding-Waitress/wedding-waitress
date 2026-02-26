@@ -1,20 +1,13 @@
 
 
-# Update Labels in Add Extra Guest Modal (Family Mode)
+# Change "Family Members" Label to "Members"
 
 ## Summary
-Two text label changes and a minor spacing fix in the Family section of the Add Extra Guest modal.
+Rename the label from "Family Members (X)" to just "Members (X)" so it works generically for both Couple and Family guest types.
 
-## Changes (single file: `src/components/GuestLookup/PublicAddGuestModal.tsx`)
+## Change (single file)
 
-### 1. Rename "Party Members" to "Family Members"
-On line 249, change the label text from `Party Members` to `Family Members` (the count logic stays the same).
+**File:** `src/components/GuestLookup/PublicAddGuestModal.tsx`
 
-### 2. Rename button text
-On line 278, change `"Add another member to this party"` to `"Add another member to this family"`.
-
-### 3. Adjust Plus icon spacing
-On line 277, change `mr-1` to `mr-0.5` on the Plus icon so it sits closer to the word "Add" while still having a small gap.
-
-No other files or logic affected.
+**Line 249:** Change `Family Members` to `Members` — the count logic and everything else stays exactly the same.
 
