@@ -6,13 +6,13 @@ import {
   CheckCircle2, 
   Clock, 
   X, 
-  Edit3, 
+  ClipboardCheck,
   Users,
   Utensils,
   Phone,
   Mail 
 } from 'lucide-react';
-import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
+
 import { supabase } from '@/integrations/supabase/client';
 import { normalizeRsvp, getRsvpDisplayLabel, type RsvpStatus } from '@/lib/rsvp';
 import { useToast } from '@/hooks/use-toast';
@@ -176,20 +176,13 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
             </div>
             
             {onEdit && isEditable && (
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      size="icon"
-                      onClick={() => onEdit(guest)}
-                      className="ml-2 w-9 h-9 rounded-full bg-primary text-white hover:bg-primary/90"
-                    >
-                      <Edit3 className="w-5 h-5" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>Edit</TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+              <Button
+                size="icon"
+                onClick={() => onEdit(guest)}
+                className="ml-2 w-10 h-10 rounded-full bg-primary text-white hover:bg-primary/90 text-xs font-semibold p-0"
+              >
+                Edit
+              </Button>
             )}
           </div>
 
@@ -234,9 +227,11 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
           )}
 
           {/* RSVP Section */}
-          <div className="space-y-2">
+          <div className="flex items-start gap-3 p-2 bg-background-subtle rounded-lg">
+            <ClipboardCheck className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+            <div className="flex-1 space-y-2">
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium">RSVP Status:</span>
+              <span className="font-semibold text-foreground">RSVP Status:</span>
               <Badge 
                 variant="outline" 
                 className={`text-base font-bold px-3 py-1 rounded-full border-2 ${
@@ -281,6 +276,7 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
                 </Button>
               </div>
             )}
+          </div>
           </div>
 
           {/* RSVP Deadline */}
