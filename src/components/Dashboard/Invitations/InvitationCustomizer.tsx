@@ -9,6 +9,7 @@ import { Separator } from '@/components/ui/separator';
 import { ArrowLeft, Save, Type } from 'lucide-react';
 import type { InvitationTemplate, TextZone } from '@/hooks/useInvitationTemplates';
 import { InvitationPreview } from './InvitationPreview';
+import { InvitationExporter } from './InvitationExporter';
 
 interface Props {
   template: InvitationTemplate;
@@ -18,6 +19,7 @@ interface Props {
     venue?: string;
     time?: string;
   };
+  eventId: string | null;
   initialCustomText?: Record<string, string>;
   initialCustomStyles?: Record<string, any>;
   onSave: (customText: Record<string, string>, customStyles: Record<string, any>) => void;
@@ -33,6 +35,7 @@ const FONT_OPTIONS = [
 export const InvitationCustomizer: React.FC<Props> = ({
   template,
   eventData,
+  eventId,
   initialCustomText = {},
   initialCustomStyles = {},
   onSave,
@@ -233,6 +236,15 @@ export const InvitationCustomizer: React.FC<Props> = ({
               </CardContent>
             </Card>
           )}
+
+          {/* Export Panel */}
+          <InvitationExporter
+            template={template}
+            customText={customText}
+            customStyles={customStyles}
+            eventData={eventData as Record<string, string>}
+            eventId={eventId}
+          />
         </div>
       </div>
     </div>

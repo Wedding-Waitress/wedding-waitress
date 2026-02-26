@@ -58,6 +58,7 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
         <InvitationCustomizer
           template={selectedTemplate}
           eventData={eventData}
+          eventId={selectedEventId}
           initialCustomText={design?.template_id === selectedTemplate.id ? design.custom_text : {}}
           initialCustomStyles={design?.template_id === selectedTemplate.id ? design.custom_styles : {}}
           onSave={handleSaveDesign}
