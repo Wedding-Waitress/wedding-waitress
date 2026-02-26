@@ -6,6 +6,7 @@ import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import type { TextZone } from '@/hooks/useInvitationTemplates';
 import { waitForFonts } from '@/lib/googleFonts';
+import type { QrConfig } from '@/lib/invitationQR';
 
 // A5 in mm
 const A5_W_MM = 148;
@@ -25,6 +26,8 @@ interface ExportOptions {
   customText: Record<string, string>;
   customStyles: Record<string, any>;
   eventData: Record<string, string>;
+  qrConfig?: QrConfig;
+  qrDataUrl?: string;
 }
 
 interface BulkGuest {
@@ -35,7 +38,7 @@ interface BulkGuest {
 
 /** Build offscreen invitation HTML and capture at 300 DPI */
 function buildInvitationElement(opts: ExportOptions, guestName?: string): HTMLDivElement {
-  const { backgroundUrl, orientation, widthMm, heightMm, textZones, customText, customStyles, eventData } = opts;
+  const { backgroundUrl, orientation, widthMm, heightMm, textZones, customText, customStyles, eventData, qrConfig, qrDataUrl } = opts;
   const isPortrait = orientation === 'portrait';
   const wPx = (widthMm / 25.4) * 300; // 300 DPI pixels
   const hPx = (heightMm / 25.4) * 300;
@@ -87,6 +90,19 @@ function buildInvitationElement(opts: ExportOptions, guestName?: string): HTMLDi
     `;
     container.appendChild(el);
   });
+
+  // QR Code overlay
+  if (qrConfig?.enabled && qrDataUrl) {
+    const qrImg = document.createElement('img');
+    qrImg.src = qrDataUrl;
+    qrImg.style.cssText = `
+      position: absolute;
+      left: ${qrConfig.x_percent - qrConfig.size_percent / 2}%;
+      top: ${qrConfig.y_percent - qrConfig.size_percent / 2}%;
+      width: ${qrConfig.size_percent}%;
+    `;
+    container.appendChild(qrImg);
+  }
 
   return container;
 }

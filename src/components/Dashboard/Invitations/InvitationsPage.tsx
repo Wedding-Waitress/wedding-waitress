@@ -42,12 +42,13 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
     setSelectedTemplate(template);
   };
 
-  const handleSaveDesign = async (customText: Record<string, string>, customStyles: Record<string, any>) => {
+  const handleSaveDesign = async (customText: Record<string, string>, customStyles: Record<string, any>, qrConfig?: any) => {
     if (!selectedTemplate) return;
     await saveDesign({
       template_id: selectedTemplate.id,
       custom_text: customText,
       custom_styles: customStyles,
+      qr_position: qrConfig || null,
     });
   };
 
@@ -59,8 +60,10 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
           template={selectedTemplate}
           eventData={eventData}
           eventId={selectedEventId}
+          eventSlug={selectedEvent?.slug || undefined}
           initialCustomText={design?.template_id === selectedTemplate.id ? design.custom_text : {}}
           initialCustomStyles={design?.template_id === selectedTemplate.id ? design.custom_styles : {}}
+          initialQrConfig={design?.template_id === selectedTemplate.id && design.qr_position ? design.qr_position as any : undefined}
           onSave={handleSaveDesign}
           onBack={() => setSelectedTemplate(null)}
         />
