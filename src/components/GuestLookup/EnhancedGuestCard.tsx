@@ -137,8 +137,8 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
 
   return (
     <Card className="card-elevated border-primary/20 bg-gradient-card">
-      <CardContent className="p-6">
-        <div className="flex flex-col space-y-2.5">
+      <CardContent className="p-4">
+        <div className="flex flex-col space-y-1.5">
           {/* Guest Info */}
           <div className="flex items-start justify-between">
             <div className="flex-1">
@@ -194,7 +194,7 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
           </div>
 
           {/* Table Assignment */}
-          <div className="flex items-start gap-3 p-3 bg-background-subtle rounded-lg">
+          <div className="flex items-start gap-3 p-2 bg-background-subtle rounded-lg">
             <Users className="w-5 h-5 text-primary mt-0.5" />
             <div className="flex-1">
               {guest.table_no ? (
@@ -213,7 +213,7 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
 
           {/* Seat Assignment */}
           {guest.seat_no && (
-            <div className="flex items-start gap-3 p-3 bg-background-subtle rounded-lg">
+            <div className="flex items-start gap-3 p-2 bg-background-subtle rounded-lg">
               <Users className="w-5 h-5 text-primary mt-0.5" />
               <div className="flex-1">
                 <div className="font-semibold text-foreground">Seat {guest.seat_no}</div>
@@ -224,7 +224,7 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
 
           {/* Dietary Info */}
           {guest.dietary && guest.dietary !== 'NA' && (
-            <div className="flex items-start gap-3 p-3 bg-accent/50 rounded-lg">
+            <div className="flex items-start gap-3 p-2 bg-accent/50 rounded-lg">
               <Utensils className="w-5 h-5 text-accent-foreground mt-0.5" />
               <div className="flex-1">
                 <div className="font-semibold text-foreground">Dietary Requirements</div>
@@ -234,7 +234,7 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
           )}
 
           {/* RSVP Section */}
-          <div className="space-y-3">
+          <div className="space-y-2">
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium">RSVP Status:</span>
               <Badge 
