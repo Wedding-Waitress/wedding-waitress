@@ -1,8 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Calendar, Mail } from 'lucide-react';
 import { useEvents } from '@/hooks/useEvents';
+import { useInvitationTemplates, type InvitationTemplate } from '@/hooks/useInvitationTemplates';
+import { useInvitationDesign } from '@/hooks/useInvitationDesign';
+import { TemplateGallery } from './TemplateGallery';
+import { InvitationCustomizer } from './InvitationCustomizer';
+import { formatDisplayDate, formatDisplayTime } from '@/lib/utils';
 
 interface InvitationsPageProps {
   selectedEventId: string | null;
@@ -14,6 +19,53 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
   onEventSelect,
 }) => {
   const { events, loading: eventsLoading } = useEvents();
+  const { templates, loading: templatesLoading } = useInvitationTemplates();
+  const { design, saveDesign } = useInvitationDesign(selectedEventId);
+  const [selectedTemplate, setSelectedTemplate] = useState<InvitationTemplate | null>(null);
+
+  const selectedEvent = useMemo(() => events.find(e => e.id === selectedEventId), [events, selectedEventId]);
+
+  const eventData = useMemo(() => {
+    if (!selectedEvent) return {};
+    const p1 = selectedEvent.partner1_name || '';
+    const p2 = selectedEvent.partner2_name || '';
+    const coupleNames = p1 && p2 ? `${p1} & ${p2}` : p1 || p2 || selectedEvent.name;
+    return {
+      couple_names: coupleNames,
+      date: selectedEvent.date ? formatDisplayDate(selectedEvent.date) : '',
+      venue: selectedEvent.venue || '',
+      time: selectedEvent.start_time ? formatDisplayTime(selectedEvent.start_time) : '',
+    };
+  }, [selectedEvent]);
+
+  const handleSelectTemplate = (template: InvitationTemplate) => {
+    setSelectedTemplate(template);
+  };
+
+  const handleSaveDesign = async (customText: Record<string, string>, customStyles: Record<string, any>) => {
+    if (!selectedTemplate) return;
+    await saveDesign({
+      template_id: selectedTemplate.id,
+      custom_text: customText,
+      custom_styles: customStyles,
+    });
+  };
+
+  // If customizing, show the customizer full-width
+  if (selectedTemplate && selectedEventId) {
+    return (
+      <div className="space-y-4">
+        <InvitationCustomizer
+          template={selectedTemplate}
+          eventData={eventData}
+          initialCustomText={design?.template_id === selectedTemplate.id ? design.custom_text : {}}
+          initialCustomStyles={design?.template_id === selectedTemplate.id ? design.custom_styles : {}}
+          onSave={handleSaveDesign}
+          onBack={() => setSelectedTemplate(null)}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -68,13 +120,11 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
               </p>
             </div>
           ) : (
-            <div className="text-center py-12">
-              <Mail className="w-16 h-16 mx-auto text-primary mb-4" />
-              <h3 className="text-lg font-semibold text-foreground mb-2">Coming Soon</h3>
-              <p className="text-muted-foreground max-w-md mx-auto">
-                The template gallery and invitation customiser are being built. You'll soon be able to browse beautiful designs, add your event details, and export print-ready invitations.
-              </p>
-            </div>
+            <TemplateGallery
+              templates={templates}
+              loading={templatesLoading}
+              onSelect={handleSelectTemplate}
+            />
           )}
         </CardContent>
       </Card>
