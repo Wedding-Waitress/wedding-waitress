@@ -176,14 +176,14 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col px-4 sm:px-10 [&>button:last-child]:hidden" fullScreenOnMobile>
+      <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col px-4 sm:px-10 [&>button:last-child]:hidden max-sm:pb-0" fullScreenOnMobile>
         {/* Custom purple circle close button */}
-        <DialogPrimitive.Close className="absolute right-4 top-4 z-10 w-9 h-9 aspect-square rounded-full bg-white border-2 border-primary flex items-center justify-center hover:opacity-90 transition-opacity">
+        <DialogPrimitive.Close className="absolute right-4 max-sm:top-8 top-4 z-10 w-9 h-9 aspect-square rounded-full bg-white border-2 border-primary flex items-center justify-center hover:opacity-90 transition-opacity">
           <X className="w-5 h-5 text-primary" />
           <span className="sr-only">Close</span>
         </DialogPrimitive.Close>
 
-        <DialogHeader className="pt-4">
+        <DialogHeader className="pt-8 sm:pt-4">
           <DialogTitle className="text-xl sm:text-2xl font-medium text-primary">
             Add Extra Guest
           </DialogTitle>
