@@ -1,21 +1,11 @@
 
+# Change "Individual" to "Single" in Guest List Table Rows
 
-# Rename "Individual" to "Single" in Guest Category Labels
+## Problem
+The guest type badges in the Family/Group column of the guest list table still display "Individual" instead of "Single". The stats badge at the top was already updated, but the per-row badges were missed.
 
-## Summary
-Change the display label "Individual" to "Single" in three locations across the app, as shown in the screenshots.
+## Change
 
-## Changes
+**File:** `src/components/Dashboard/GuestListTable.tsx`
 
-### 1. Guest List stats badge (`src/components/Dashboard/GuestListTable.tsx`)
-- **Line 1626**: Change `{individualCount} Individual{individualCount !== 1 ? 's' : ''}` to `{individualCount} Single{individualCount !== 1 ? 's' : ''}`
-
-### 2. Add New Guest modal (`src/components/Dashboard/AddGuestModal.tsx`)
-- **Line 938**: Change the button text from `Individual` to `Single`
-
-### 3. Add Extra Guest modal (Live View) (`src/components/GuestLookup/PublicAddGuestModal.tsx`)
-- **Line 192**: Change the description text from `Individual` to `Single`
-- **Line 211**: Change the button text from `Individual` to `Single`
-
-All internal logic values (`'individual'`) remain unchanged -- only the user-facing display labels are updated.
-
+Update the `getGuestTypeLabel` helper function (lines 759-773) to return `'Single'` instead of `'Individual'` in both the main return and the fallback return. This single change will fix all row-level badges throughout the table since they all derive their label from this function.
