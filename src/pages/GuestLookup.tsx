@@ -131,6 +131,7 @@ export const GuestLookup: React.FC = () => {
   const [ceremonyFloorPlanLoading, setCeremonyFloorPlanLoading] = useState(false);
   const [ceremonyFloorPlanFetched, setCeremonyFloorPlanFetched] = useState(false);
   const [showAddGuestModal, setShowAddGuestModal] = useState(false);
+  const [addGuestForId, setAddGuestForId] = useState<string | null>(null);
   const { toast } = useToast();
   
   // Compute is_editable based on rsvp_deadline (inclusive through end-of-day)
@@ -414,6 +415,7 @@ export const GuestLookup: React.FC = () => {
                     email: newRecord.email,
                     notes: newRecord.notes,
                     family_group: newRecord.family_group,
+                    added_by_guest_id: newRecord.added_by_guest_id,
                     table_name: null // Will be updated if needed
                   };
                   return [...currentGuests, transformedGuest];
@@ -715,8 +717,9 @@ export const GuestLookup: React.FC = () => {
                             onUpdate={refreshGuestData}
                             isEditable={isEditable}
                             onEdit={handleEditGuest}
-                            onAddGuest={() => setShowAddGuestModal(true)}
+                            onAddGuest={() => { setAddGuestForId(guest.id); setShowAddGuestModal(true); }}
                             rsvpDeadline={event?.rsvp_deadline}
+                            additionalGuestCount={guests.filter(g => (g as any).added_by_guest_id === guest.id).length}
                           />
                         ))
                       ) : (
@@ -882,9 +885,10 @@ export const GuestLookup: React.FC = () => {
       {event?.id && (
         <PublicAddGuestModal
           open={showAddGuestModal}
-          onOpenChange={setShowAddGuestModal}
+          onOpenChange={(open) => { setShowAddGuestModal(open); if (!open) setAddGuestForId(null); }}
           eventId={event.id}
           onGuestAdded={refreshGuestData}
+          addedByGuestId={addGuestForId || undefined}
         />
       )}
 

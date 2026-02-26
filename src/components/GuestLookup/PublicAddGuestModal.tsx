@@ -28,6 +28,7 @@ interface PublicAddGuestModalProps {
   onOpenChange: (open: boolean) => void;
   eventId: string;
   onGuestAdded: () => void;
+  addedByGuestId?: string;
 }
 
 export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
@@ -35,6 +36,7 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
   onOpenChange,
   eventId,
   onGuestAdded,
+  addedByGuestId,
 }) => {
   const [guestType, setGuestType] = useState<GuestType>('individual');
   const [guest1, setGuest1] = useState<GuestEntry>(emptyGuest());
@@ -98,7 +100,8 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
           _dietary: g.dietary.trim() || 'NA',
           _mobile: g.mobile.trim() || null,
           _email: null,
-        });
+          _added_by_guest_id: addedByGuestId || null,
+        } as any);
 
         if (error) throw error;
         if (!data) throw new Error('Failed to add guest — event may not allow public additions');
