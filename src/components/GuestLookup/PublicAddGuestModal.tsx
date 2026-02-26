@@ -173,12 +173,13 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
           <span className="sr-only">Close</span>
         </DialogPrimitive.Close>
 
-        <DialogHeader>
+        <DialogHeader className="pt-4">
           <DialogTitle className="text-xl sm:text-2xl font-medium text-primary">
             Add Extra Guest
           </DialogTitle>
           <p className="text-sm text-muted-foreground mt-3 pr-12">
-            Choose if they are an individual, your partner, or a family member.
+            Choose if the extra guest is an<br />
+            <span className="text-pink-500 font-medium">Individual</span>, your partner (<span className="text-orange-500 font-medium">Couple</span>) or <span className="text-blue-600 font-medium">Family</span>.
           </p>
         </DialogHeader>
 
