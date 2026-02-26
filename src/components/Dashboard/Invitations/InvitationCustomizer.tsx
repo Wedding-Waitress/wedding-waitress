@@ -10,6 +10,8 @@ import { ArrowLeft, Save, Type } from 'lucide-react';
 import type { InvitationTemplate, TextZone } from '@/hooks/useInvitationTemplates';
 import { InvitationPreview } from './InvitationPreview';
 import { InvitationExporter } from './InvitationExporter';
+import { GoogleFontPicker } from './GoogleFontPicker';
+import { loadGoogleFont } from '@/lib/googleFonts';
 
 interface Props {
   template: InvitationTemplate;
@@ -26,11 +28,6 @@ interface Props {
   onBack: () => void;
 }
 
-const FONT_OPTIONS = [
-  'Playfair Display', 'Great Vibes', 'Cormorant Garamond', 'Lora', 'Libre Baskerville',
-  'Dancing Script', 'Montserrat', 'Raleway', 'Inter', 'Georgia', 'Times New Roman',
-  'Alex Brush', 'Cinzel', 'Italiana', 'Josefin Sans',
-];
 
 export const InvitationCustomizer: React.FC<Props> = ({
   template,
@@ -155,17 +152,10 @@ export const InvitationCustomizer: React.FC<Props> = ({
               <CardContent className="space-y-3 pb-4">
                 <div>
                   <Label className="text-xs">Font Family</Label>
-                  <Select
+                  <GoogleFontPicker
                     value={getStyleValue(activeZone.id, 'font_family', activeZone.font_family)}
                     onValueChange={v => updateStyle(activeZone.id, 'font_family', v)}
-                  >
-                    <SelectTrigger className="h-8 text-sm"><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      {FONT_OPTIONS.map(f => (
-                        <SelectItem key={f} value={f} style={{ fontFamily: f }}>{f}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  />
                 </div>
 
                 <div>
