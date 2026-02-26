@@ -12,6 +12,7 @@ import {
   Phone,
   Mail 
 } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
 import { supabase } from '@/integrations/supabase/client';
 import { normalizeRsvp, getRsvpDisplayLabel, type RsvpStatus } from '@/lib/rsvp';
 import { useToast } from '@/hooks/use-toast';
@@ -137,7 +138,7 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
   return (
     <Card className="card-elevated border-primary/20 bg-gradient-card">
       <CardContent className="p-6">
-        <div className="flex flex-col space-y-4">
+        <div className="flex flex-col space-y-2.5">
           {/* Guest Info */}
           <div className="flex items-start justify-between">
             <div className="flex-1">
@@ -175,19 +176,25 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
             </div>
             
             {onEdit && isEditable && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => onEdit(guest)}
-                className="ml-2"
-              >
-                <Edit3 className="w-4 h-4" />
-              </Button>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      size="icon"
+                      onClick={() => onEdit(guest)}
+                      className="ml-2 w-9 h-9 rounded-full bg-primary text-white hover:bg-primary/90"
+                    >
+                      <Edit3 className="w-5 h-5" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Edit</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             )}
           </div>
 
           {/* Table Assignment */}
-          <div className="flex items-start gap-3 p-4 bg-background-subtle rounded-lg">
+          <div className="flex items-start gap-3 p-3 bg-background-subtle rounded-lg">
             <Users className="w-5 h-5 text-primary mt-0.5" />
             <div className="flex-1">
               {guest.table_no ? (
@@ -206,7 +213,7 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
 
           {/* Seat Assignment */}
           {guest.seat_no && (
-            <div className="flex items-start gap-3 p-4 bg-background-subtle rounded-lg">
+            <div className="flex items-start gap-3 p-3 bg-background-subtle rounded-lg">
               <Users className="w-5 h-5 text-primary mt-0.5" />
               <div className="flex-1">
                 <div className="font-semibold text-foreground">Seat {guest.seat_no}</div>
@@ -217,7 +224,7 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
 
           {/* Dietary Info */}
           {guest.dietary && guest.dietary !== 'NA' && (
-            <div className="flex items-start gap-3 p-4 bg-accent/50 rounded-lg">
+            <div className="flex items-start gap-3 p-3 bg-accent/50 rounded-lg">
               <Utensils className="w-5 h-5 text-accent-foreground mt-0.5" />
               <div className="flex-1">
                 <div className="font-semibold text-foreground">Dietary Requirements</div>
