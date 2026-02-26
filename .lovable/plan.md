@@ -1,45 +1,39 @@
 
 
-# Fix Close Button, Required Fields & RSVP Colors
+# Auto-populate Party Members for Couple & Family in Public Add Guest Modal
 
-## Changes (all in `src/components/GuestLookup/PublicAddGuestModal.tsx`)
+## What changes
 
-### 1. Close Button -- White background with thick purple border and purple X
-Replace the current purple-filled close button with:
-- White background (`bg-white`)
-- Thick purple border (`border-2 border-primary`)
-- Purple X icon (`text-primary`)
-- Keep circular shape (`rounded-full aspect-square`)
+When a guest clicks "Add Guest" from the Live View:
 
-### 2. Add required asterisks to Last Name, Mobile, Email, and RSVP Status
-Add red asterisk `*` to labels for:
-- Last Name (line 245)
-- Mobile (line 258)
-- Email (line 267)
-- RSVP Status (line 280)
+### Couple selected
+- The "Party Members" section automatically shows **2 members**: the referring guest (who clicked Add Guest) and the new guest being added (from the form fields).
+- The **"+ Add a member to this party"** button is **hidden** since a couple is exactly 2 people.
+- The "Add one more person to create a couple" helper text is **removed**.
+- The party member count updates dynamically as the form is filled.
 
-Update validation in `handleSave` (line 100-104) to also check `last_name`, `mobile`, `email` are filled, and show appropriate error messages.
+### Family selected
+- The "Party Members" section automatically shows **1 member**: the referring guest.
+- The **"+ Add a member to this party"** button remains visible so they can add more family members.
+- The "Add two or more people to create a family" helper text is removed (replaced by the auto-populated referring guest).
 
-### 3. Color-code RSVP dropdown items
-Style the three RSVP `SelectItem` entries with semantic colors:
-- **Pending** -- orange text (`text-orange-500`, matching the Couple pill color `#FF5F1F`)
-- **Accept** -- green text (`text-green-600`)
-- **Decline** -- red text (`text-red-600`)
-
-Also color the `SelectValue` display text based on the current selection by conditionally applying a color class to the `SelectTrigger`.
+### Individual selected
+- No changes -- same behavior as today.
 
 ## Technical Details
 
-**Line 171**: Change close button classes from `bg-primary border-2 border-primary` to `bg-white border-2 border-primary`, and X icon from `text-white` to `text-primary`.
+### 1. Pass referring guest's name to the modal
+- Add `addedByGuestName` prop to `PublicAddGuestModalProps` (first name + last name).
+- In `GuestLookup.tsx`, find the guest object by `addGuestForId` and pass their name to the modal.
 
-**Lines 245, 258, 267, 280**: Add ` *` with `<span className="text-destructive">*</span>` to each label.
+### 2. Display referring guest in party members (read-only)
+- For **Couple**: Show a read-only list with the referring guest's name and the current form's first/last name (updated live). Hide the "+ Add a member" button entirely. Remove the couple validation that requires `partyMembers.length > 0` since the couple is implicit (referring guest + form guest).
+- For **Family**: Show the referring guest as the first read-only entry in the members list. Keep the "+ Add a member" button visible. Adjust validation: family no longer needs 2 additional members since the referring guest counts as one.
 
-**Lines 100-104**: Expand validation to check `last_name.trim()`, `mobile.trim()`, `email.trim()` are non-empty and show toast if missing.
+### 3. Update save logic
+- For **Couple**: Only save the form guest (the referring guest already exists in the DB). No extra party members needed.
+- For **Family**: Save the form guest + any additional party members added via the form. The referring guest already exists.
 
-**Lines 282-289**: Add color classes to SelectTrigger based on current value, and to each SelectItem:
-- `<SelectItem value="Pending" className="text-[#FF5F1F]">Pending</SelectItem>`
-- `<SelectItem value="Attending" className="text-green-600">Accept</SelectItem>`
-- `<SelectItem value="Not Attending" className="text-red-600">Decline</SelectItem>`
-
-Apply conditional color to the trigger text so the selected value shows in its corresponding color.
-
+### Files to modify
+- `src/components/GuestLookup/PublicAddGuestModal.tsx` -- Add prop, update party members display logic, update validation
+- `src/pages/GuestLookup.tsx` -- Pass referring guest's name to the modal
