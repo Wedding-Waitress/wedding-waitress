@@ -3,11 +3,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
-import { Download, FileImage, FileText, Layers, Users, Lock, Sparkles } from 'lucide-react';
+import { Download, FileImage, FileText, Layers, Users, Lock, Sparkles, Send } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useUserPlan } from '@/hooks/useUserPlan';
 import { useGuests } from '@/hooks/useGuests';
 import { exportInvitationPNG, exportInvitationPDF, exportInvitation2Up, exportBulkPDF } from '@/lib/invitationExporter';
+import { InvitationSendModal } from './InvitationSendModal';
 import type { InvitationTemplate, TextZone } from '@/hooks/useInvitationTemplates';
 import type { QrConfig } from '@/lib/invitationQR';
 
@@ -40,6 +41,7 @@ export const InvitationExporter: React.FC<Props> = ({
   const [bulkProgress, setBulkProgress] = useState({ current: 0, total: 0 });
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [exportCount, setExportCount] = useState(0);
+  const [showSendModal, setShowSendModal] = useState(false);
 
   const exportOpts = {
     backgroundUrl: template.background_url,
@@ -178,6 +180,23 @@ export const InvitationExporter: React.FC<Props> = ({
             </Button>
           )}
 
+          {/* Divider */}
+          <div className="border-t my-2" />
+
+          {/* Send to Guests */}
+          <Button
+            variant="outline"
+            className="w-full justify-start gap-3 border-primary/30"
+            disabled={exporting || !eventId}
+            onClick={() => setShowSendModal(true)}
+          >
+            <Send className="w-4 h-4 text-primary" />
+            <div className="text-left">
+              <p className="text-sm font-medium">Send to Guests</p>
+              <p className="text-xs text-muted-foreground">Email invitation image or SMS RSVP link</p>
+            </div>
+          </Button>
+
           {exporting && (
             <div className="space-y-1 pt-2">
               <p className="text-xs text-muted-foreground">
@@ -197,6 +216,22 @@ export const InvitationExporter: React.FC<Props> = ({
           )}
         </CardContent>
       </Card>
+
+      {/* Send Modal */}
+      {eventId && (
+        <InvitationSendModal
+          open={showSendModal}
+          onOpenChange={setShowSendModal}
+          guests={guests}
+          eventId={eventId}
+          template={template}
+          customText={customText}
+          customStyles={customStyles}
+          eventData={eventData}
+          qrConfig={qrConfig}
+          qrDataUrl={qrDataUrl}
+        />
+      )}
 
       {/* Upgrade Modal */}
       <Dialog open={showUpgradeModal} onOpenChange={setShowUpgradeModal}>

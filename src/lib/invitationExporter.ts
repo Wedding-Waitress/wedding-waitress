@@ -37,7 +37,7 @@ interface BulkGuest {
 }
 
 /** Build offscreen invitation HTML and capture at 300 DPI */
-function buildInvitationElement(opts: ExportOptions, guestName?: string): HTMLDivElement {
+export function buildInvitationElement(opts: ExportOptions, guestName?: string): HTMLDivElement {
   const { backgroundUrl, orientation, widthMm, heightMm, textZones, customText, customStyles, eventData, qrConfig, qrDataUrl } = opts;
   const isPortrait = orientation === 'portrait';
   const wPx = (widthMm / 25.4) * 300; // 300 DPI pixels
@@ -107,7 +107,7 @@ function buildInvitationElement(opts: ExportOptions, guestName?: string): HTMLDi
   return container;
 }
 
-async function captureElement(el: HTMLDivElement): Promise<HTMLCanvasElement> {
+export async function captureElement(el: HTMLDivElement): Promise<HTMLCanvasElement> {
   document.body.appendChild(el);
   // Wait for images to load
   const imgs = el.querySelectorAll('img');
