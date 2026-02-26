@@ -98,8 +98,8 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
   };
 
   const handleSave = async () => {
-    if (!guest.first_name.trim()) {
-      toast({ title: 'First name is required', variant: 'destructive' });
+    if (!guest.first_name.trim() || !guest.last_name.trim() || !guest.mobile.trim() || !guest.email.trim()) {
+      toast({ title: 'Please fill in all required fields (First Name, Last Name, Mobile, Email)', variant: 'destructive' });
       return;
     }
 
@@ -168,8 +168,8 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col px-4 sm:px-10 [&>button:last-child]:hidden" fullScreenOnMobile>
         {/* Custom purple circle close button */}
-        <DialogPrimitive.Close className="absolute right-4 top-4 z-10 w-9 h-9 aspect-square rounded-full bg-primary border-2 border-primary flex items-center justify-center hover:opacity-90 transition-opacity">
-          <X className="w-5 h-5 text-white" />
+        <DialogPrimitive.Close className="absolute right-4 top-4 z-10 w-9 h-9 aspect-square rounded-full bg-white border-2 border-primary flex items-center justify-center hover:opacity-90 transition-opacity">
+          <X className="w-5 h-5 text-primary" />
           <span className="sr-only">Close</span>
         </DialogPrimitive.Close>
 
@@ -242,7 +242,7 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
               />
             </div>
             <div>
-              <Label className="text-sm font-medium">Last Name</Label>
+              <Label className="text-sm font-medium">Last Name <span className="text-destructive">*</span></Label>
               <Input
                 value={guest.last_name}
                 onChange={e => setGuest(prev => ({ ...prev, last_name: e.target.value }))}
@@ -255,7 +255,7 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
           {/* Mobile / Email */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <Label className="text-sm font-medium">Mobile</Label>
+              <Label className="text-sm font-medium">Mobile <span className="text-destructive">*</span></Label>
               <Input
                 value={guest.mobile}
                 onChange={e => setGuest(prev => ({ ...prev, mobile: e.target.value }))}
@@ -264,7 +264,7 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
               />
             </div>
             <div>
-              <Label className="text-sm font-medium">Email</Label>
+              <Label className="text-sm font-medium">Email <span className="text-destructive">*</span></Label>
               <Input
                 value={guest.email}
                 onChange={e => setGuest(prev => ({ ...prev, email: e.target.value }))}
@@ -277,15 +277,15 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
           {/* RSVP Status / Dietary Requirements */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <Label className="text-sm font-medium">RSVP Status</Label>
+              <Label className="text-sm font-medium">RSVP Status <span className="text-destructive">*</span></Label>
               <Select value={guest.rsvp} onValueChange={val => setGuest(prev => ({ ...prev, rsvp: val }))}>
-                <SelectTrigger className={selectTriggerClasses}>
+                <SelectTrigger className={cn(selectTriggerClasses, guest.rsvp === 'Pending' && 'text-[#FF5F1F]', guest.rsvp === 'Attending' && 'text-green-600', guest.rsvp === 'Not Attending' && 'text-red-600')}>
                   <SelectValue placeholder="Select RSVP status" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Pending">Pending</SelectItem>
-                  <SelectItem value="Attending">Accept</SelectItem>
-                  <SelectItem value="Not Attending">Decline</SelectItem>
+                  <SelectItem value="Pending" className="text-[#FF5F1F]">Pending</SelectItem>
+                  <SelectItem value="Attending" className="text-green-600">Accept</SelectItem>
+                  <SelectItem value="Not Attending" className="text-red-600">Decline</SelectItem>
                 </SelectContent>
               </Select>
             </div>
