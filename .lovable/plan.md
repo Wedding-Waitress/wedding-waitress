@@ -1,22 +1,36 @@
 
-# Fix Public Add Guest Modal - 3 Issues
 
-## Changes (all in `src/components/GuestLookup/PublicAddGuestModal.tsx`)
+# Update Modal Header Text & Spacing
 
-### 1. Subtitle text overlap with close button
-Move the subtitle line ("Choose if they are an individual...") to align left with form fields by adding `pr-12` (right padding) so it doesn't collide with the close button circle. Also ensure the close button is properly circular by adding explicit `aspect-square` and increasing size slightly.
+## Changes (in `src/components/GuestLookup/PublicAddGuestModal.tsx`)
 
-### 2. Guest Type Selector requires selection (mark as required)
-Add a red asterisk (*) next to a label above the Individual/Couple/Family selector, similar to how "First Name *" is displayed. Add a new Label line above the selector: "Guest Type *".
+### 1. Add top gap above "Add Extra Guest"
+Add `pt-4` (or `mt-4`) to the `DialogHeader` so there's a visible empty gap between the top of the modal and the title.
 
-### 3. Footer buttons - make inline and scrollable (not fixed)
-Remove the `DialogFooter` wrapper (which pins buttons to the bottom on mobile) and replace it with a simple inline `div` inside the scrollable content area, placed after the Notes field. Use `flex` with Cancel on the left and Add Guest on the right, both on the same row. Make them wider pill buttons (not tiny `size="xs"`).
+### 2. Replace subtitle with color-coded two-line text
+Replace the current single-line subtitle with two lines:
+- Line 1: "Choose if the extra guest is an"
+- Line 2: **Individual**, your partner (**Couple**) or **Family**
+
+Where:
+- "Individual" is styled in **pink** (matching the pink pill color, e.g. `text-pink-500`)
+- "Couple" is styled in **orange** (`text-orange-500`)
+- "Family" is styled in **blue** (`text-blue-600`)
+
+The rest of the text remains the default muted-foreground color.
 
 ## Technical Details
 
-- **Line 169**: Keep `DialogContent` as-is
-- **Line 171**: Update close button classes to ensure perfect circle: add `aspect-square` 
-- **Line 180**: Add `pr-12` to the subtitle `<p>` tag so text wraps before reaching the close button
-- **Lines 187-229**: Add a `Label` with "Guest Type *" above the selector div
-- **Lines 440-449**: After the Notes `div`, add a new `div` with `flex gap-3 pt-3` containing Cancel (left) and Add Guest (right) buttons side by side
-- **Lines 452-473**: Remove the `DialogFooter` block entirely since buttons are now inside the scrollable area
+**Line 176-183** -- Update `DialogHeader`:
+```tsx
+<DialogHeader className="pt-4">
+  <DialogTitle className="text-xl sm:text-2xl font-medium text-primary">
+    Add Extra Guest
+  </DialogTitle>
+  <p className="text-sm text-muted-foreground mt-3 pr-12">
+    Choose if the extra guest is an<br />
+    <span className="text-pink-500 font-medium">Individual</span>, your partner (<span className="text-orange-500 font-medium">Couple</span>) or <span className="text-blue-600 font-medium">Family</span>.
+  </p>
+</DialogHeader>
+```
+
