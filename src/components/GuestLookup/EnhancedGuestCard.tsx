@@ -6,12 +6,13 @@ import {
   CheckCircle2, 
   Clock, 
   X, 
+  XCircle,
+  PlusCircle,
   ClipboardCheck,
   Users,
   Utensils,
   Phone,
-  Mail,
-  Plus
+  Mail
 } from 'lucide-react';
 
 import { supabase } from '@/integrations/supabase/client';
@@ -250,12 +251,12 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
             </div>
             
             {isEditable && (
-              <div className="flex gap-2">
+              <div className="flex gap-2 justify-center">
                 <Button
                   size="sm"
                   onClick={() => updateRsvp('Attending')}
                   disabled={updatingRsvp}
-                  className="flex-1 bg-success text-success-foreground hover:bg-success/90"
+                  className="bg-success text-success-foreground hover:bg-success/90 text-sm font-medium"
                 >
                   {updatingRsvp ? (
                     <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
@@ -268,12 +269,12 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
                   size="sm"
                   onClick={() => updateRsvp('Not Attending')}
                   disabled={updatingRsvp}
-                  className="flex-1 bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90 text-sm font-medium"
                 >
                   {updatingRsvp ? (
                     <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
                   ) : (
-                    <X className="w-4 h-4 mr-2" />
+                    <XCircle className="w-4 h-4 mr-2" />
                   )}
                   Decline
                 </Button>
@@ -281,9 +282,9 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
                   <Button
                     size="sm"
                     onClick={onAddGuest}
-                    className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90"
+                    className="bg-primary text-primary-foreground hover:bg-primary/90 text-sm font-medium"
                   >
-                    <Plus className="w-4 h-4 mr-1" />
+                    <PlusCircle className="w-4 h-4 mr-1" />
                     Add Guest
                   </Button>
                 )}
