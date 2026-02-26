@@ -269,6 +269,7 @@ export const GuestLookup: React.FC = () => {
             created_at: '',
             display_order: null,
             family_group: null,
+            added_by_guest_id: (row as any).guest_added_by_guest_id || null,
           }));
 
         setGuests(transformedGuests);
@@ -366,6 +367,7 @@ export const GuestLookup: React.FC = () => {
             created_at: '',
             display_order: null,
             family_group: null,
+            added_by_guest_id: (row as any).guest_added_by_guest_id || null,
           }));
 
         setGuests(transformedGuests);

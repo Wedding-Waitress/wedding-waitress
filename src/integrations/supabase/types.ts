@@ -2228,32 +2228,19 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      add_guest_public:
-        | {
-            Args: {
-              _dietary?: string
-              _email?: string
-              _event_id: string
-              _first_name: string
-              _last_name: string
-              _mobile?: string
-              _rsvp?: string
-            }
-            Returns: string
-          }
-        | {
-            Args: {
-              _added_by_guest_id?: string
-              _dietary?: string
-              _email?: string
-              _event_id: string
-              _first_name: string
-              _last_name: string
-              _mobile?: string
-              _rsvp?: string
-            }
-            Returns: string
-          }
+      add_guest_public: {
+        Args: {
+          _added_by_guest_id?: string
+          _dietary?: string
+          _email?: string
+          _event_id: string
+          _first_name: string
+          _last_name: string
+          _mobile?: string
+          _rsvp?: string
+        }
+        Returns: string
+      }
       can_access_event: {
         Args: { _event_id: string; _user_id: string }
         Returns: boolean
@@ -2413,6 +2400,7 @@ export type Database = {
           event_start_time: string
           event_venue: string
           floor_plan_config: Json
+          guest_added_by_guest_id: string
           guest_dietary: string
           guest_first_name: string
           guest_id: string
