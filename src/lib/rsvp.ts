@@ -34,9 +34,9 @@ export function getRsvpDisplayLabel(rsvp: string): string {
   const normalized = normalizeRsvp(rsvp);
   switch (normalized) {
     case "Attending":
-      return "Accept";
+      return "Attending";
     case "Not Attending":
-      return "Decline";
+      return "Not Attending";
     case "Pending":
       return "Pending";
     default:
