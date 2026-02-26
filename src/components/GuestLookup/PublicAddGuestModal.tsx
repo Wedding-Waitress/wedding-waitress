@@ -237,89 +237,6 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
             </div>
           </div>
 
-          {/* First Name / Last Name */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <Label className="text-sm font-medium">First Name *</Label>
-              <Input
-                value={guest.first_name}
-                onChange={e => setGuest(prev => ({ ...prev, first_name: e.target.value }))}
-                placeholder="Enter first name"
-                className={inputClasses}
-              />
-            </div>
-            <div>
-              <Label className="text-sm font-medium">Last Name <span className="text-destructive">*</span></Label>
-              <Input
-                value={guest.last_name}
-                onChange={e => setGuest(prev => ({ ...prev, last_name: e.target.value }))}
-                placeholder="Enter last name"
-                className={inputClasses}
-              />
-            </div>
-          </div>
-
-          {/* Mobile / Email */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <Label className="text-sm font-medium">Mobile <span className="text-destructive">*</span></Label>
-              <Input
-                value={guest.mobile}
-                onChange={e => setGuest(prev => ({ ...prev, mobile: e.target.value }))}
-                placeholder="Enter mobile number"
-                className={inputClasses}
-              />
-            </div>
-            <div>
-              <Label className="text-sm font-medium">Email <span className="text-destructive">*</span></Label>
-              <Input
-                value={guest.email}
-                onChange={e => setGuest(prev => ({ ...prev, email: e.target.value }))}
-                placeholder="Enter email address"
-                className={inputClasses}
-              />
-            </div>
-          </div>
-
-          {/* RSVP Status / Dietary Requirements */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <Label className="text-sm font-medium">RSVP Status <span className="text-destructive">*</span></Label>
-              <Select value={guest.rsvp} onValueChange={val => setGuest(prev => ({ ...prev, rsvp: val }))}>
-                <SelectTrigger className={cn(selectTriggerClasses, guest.rsvp === 'Pending' && 'text-[#FF5F1F]', guest.rsvp === 'Attending' && 'text-green-600', guest.rsvp === 'Not Attending' && 'text-red-600')}>
-                  <SelectValue placeholder="Select RSVP status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Pending" className="text-[#FF5F1F]">Pending</SelectItem>
-                  <SelectItem value="Attending" className="text-green-600">Accept</SelectItem>
-                  <SelectItem value="Not Attending" className="text-red-600">Decline</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label className="text-sm font-medium">Dietary Requirements</Label>
-              <Select value={guest.dietary} onValueChange={val => setGuest(prev => ({ ...prev, dietary: val }))}>
-                <SelectTrigger className={selectTriggerClasses}>
-                  <SelectValue placeholder="Select dietary requirements" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="None">None</SelectItem>
-                  <SelectItem value="Kids Meal">Kids Meal</SelectItem>
-                  <SelectItem value="Pescatarian">Pescatarian</SelectItem>
-                  <SelectItem value="Vegetarian">Vegetarian</SelectItem>
-                  <SelectItem value="Vegan">Vegan</SelectItem>
-                  <SelectItem value="Seafood Free">Seafood Free</SelectItem>
-                  <SelectItem value="Gluten Free">Gluten Free</SelectItem>
-                  <SelectItem value="Dairy Free">Dairy Free</SelectItem>
-                  <SelectItem value="Nut Free">Nut Free</SelectItem>
-                  <SelectItem value="Halal">Halal</SelectItem>
-                  <SelectItem value="Kosher">Kosher</SelectItem>
-                  <SelectItem value="Vendor Meal">Vendor Meal</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
           {/* Party Members Section - Couple/Family */}
           {(guestType === 'couple' || guestType === 'family') && (
             <div className="space-y-3 border-t border-gray-200 pt-4">
@@ -343,7 +260,7 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
                     className="rounded-full bg-green-500 hover:bg-green-600 text-white border-0"
                   >
                     <Plus className="w-4 h-4 mr-1" />
-                    Add a member to this party
+                    Add another member to this party
                   </Button>
                 )}
               </div>
@@ -365,7 +282,7 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
                         <p className="font-medium text-sm text-primary">
                           {guest.first_name.trim() || guest.last_name.trim()
                             ? `${guest.first_name} ${guest.last_name}`.trim()
-                            : 'New guest (fill form above)'}
+                            : 'New guest (fill form below)'}
                         </p>
                         <p className="text-xs text-muted-foreground">New guest</p>
                       </div>
@@ -479,6 +396,91 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
               )}
             </div>
           )}
+
+          {/* First Name / Last Name */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <Label className="text-sm font-medium">First Name *</Label>
+              <Input
+                value={guest.first_name}
+                onChange={e => setGuest(prev => ({ ...prev, first_name: e.target.value }))}
+                placeholder="Enter first name"
+                className={inputClasses}
+              />
+            </div>
+            <div>
+              <Label className="text-sm font-medium">Last Name <span className="text-destructive">*</span></Label>
+              <Input
+                value={guest.last_name}
+                onChange={e => setGuest(prev => ({ ...prev, last_name: e.target.value }))}
+                placeholder="Enter last name"
+                className={inputClasses}
+              />
+            </div>
+          </div>
+
+          {/* Mobile / Email */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <Label className="text-sm font-medium">Mobile <span className="text-destructive">*</span></Label>
+              <Input
+                value={guest.mobile}
+                onChange={e => setGuest(prev => ({ ...prev, mobile: e.target.value }))}
+                placeholder="Enter mobile number"
+                className={inputClasses}
+              />
+            </div>
+            <div>
+              <Label className="text-sm font-medium">Email <span className="text-destructive">*</span></Label>
+              <Input
+                value={guest.email}
+                onChange={e => setGuest(prev => ({ ...prev, email: e.target.value }))}
+                placeholder="Enter email address"
+                className={inputClasses}
+              />
+            </div>
+          </div>
+
+          {/* RSVP Status / Dietary Requirements */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <Label className="text-sm font-medium">RSVP Status <span className="text-destructive">*</span></Label>
+              <Select value={guest.rsvp} onValueChange={val => setGuest(prev => ({ ...prev, rsvp: val }))}>
+                <SelectTrigger className={cn(selectTriggerClasses, guest.rsvp === 'Pending' && 'text-[#FF5F1F]', guest.rsvp === 'Attending' && 'text-green-600', guest.rsvp === 'Not Attending' && 'text-red-600')}>
+                  <SelectValue placeholder="Select RSVP status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Pending" className="text-[#FF5F1F]">Pending</SelectItem>
+                  <SelectItem value="Attending" className="text-green-600">Accept</SelectItem>
+                  <SelectItem value="Not Attending" className="text-red-600">Decline</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label className="text-sm font-medium">Dietary Requirements</Label>
+              <Select value={guest.dietary} onValueChange={val => setGuest(prev => ({ ...prev, dietary: val }))}>
+                <SelectTrigger className={selectTriggerClasses}>
+                  <SelectValue placeholder="Select dietary requirements" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="None">None</SelectItem>
+                  <SelectItem value="Kids Meal">Kids Meal</SelectItem>
+                  <SelectItem value="Pescatarian">Pescatarian</SelectItem>
+                  <SelectItem value="Vegetarian">Vegetarian</SelectItem>
+                  <SelectItem value="Vegan">Vegan</SelectItem>
+                  <SelectItem value="Seafood Free">Seafood Free</SelectItem>
+                  <SelectItem value="Gluten Free">Gluten Free</SelectItem>
+                  <SelectItem value="Dairy Free">Dairy Free</SelectItem>
+                  <SelectItem value="Nut Free">Nut Free</SelectItem>
+                  <SelectItem value="Halal">Halal</SelectItem>
+                  <SelectItem value="Kosher">Kosher</SelectItem>
+                  <SelectItem value="Vendor Meal">Vendor Meal</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+
 
           {/* Notes */}
           <div>
