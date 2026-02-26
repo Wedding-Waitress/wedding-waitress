@@ -183,7 +183,7 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
           <span className="sr-only">Close</span>
         </DialogPrimitive.Close>
 
-        <DialogHeader className="pt-4 bg-purple-50 -mx-4 sm:-mx-10 px-4 sm:px-10 pb-3 rounded-t-lg">
+        <DialogHeader className="pt-4">
           <DialogTitle className="text-xl sm:text-2xl font-medium text-primary">
             Add Extra Guest
           </DialogTitle>
