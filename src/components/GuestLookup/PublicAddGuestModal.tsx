@@ -189,7 +189,7 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
           </DialogTitle>
           <p className="text-sm text-muted-foreground mt-3 pr-12">
             Choose if the extra guest is an<br />
-            <span className="text-pink-500 font-medium">Individual</span>, your partner (<span className="text-orange-500 font-medium">Couple</span>) or <span className="text-blue-600 font-medium">Family</span>.
+            <span className="text-pink-500 font-medium">Single</span>, your partner (<span className="text-orange-500 font-medium">Couple</span>) or <span className="text-blue-600 font-medium">Family</span>.
           </p>
         </DialogHeader>
 
@@ -208,7 +208,7 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
                     : "text-gray-600 hover:text-gray-900"
                 )}
               >
-                Individual
+                Single
               </button>
               <button
                 type="button"

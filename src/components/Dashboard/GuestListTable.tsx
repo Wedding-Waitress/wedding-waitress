@@ -1623,7 +1623,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                 />
               </div>
               <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-xs font-medium h-7 px-3 bg-pink-500 text-white flex-shrink-0">
-                {individualCount} Individual{individualCount !== 1 ? 's' : ''}
+                {individualCount} Single{individualCount !== 1 ? 's' : ''}
               </div>
               <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-xs font-medium h-7 px-3 bg-orange-500 text-white flex-shrink-0">
                 {coupleCount} Couple{coupleCount !== 1 ? 's' : ''}
