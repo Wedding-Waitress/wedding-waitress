@@ -5,6 +5,7 @@
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import type { TextZone } from '@/hooks/useInvitationTemplates';
+import { waitForFonts } from '@/lib/googleFonts';
 
 // A5 in mm
 const A5_W_MM = 148;
@@ -97,8 +98,10 @@ async function captureElement(el: HTMLDivElement): Promise<HTMLCanvasElement> {
   await Promise.all(Array.from(imgs).map(img =>
     img.complete ? Promise.resolve() : new Promise<void>(res => { img.onload = () => res(); img.onerror = () => res(); })
   ));
-  // Small delay for fonts
-  await new Promise(r => setTimeout(r, 200));
+  // Wait for Google Fonts to finish loading
+  const usedFonts = Array.from(el.querySelectorAll('div')).map(d => d.style.fontFamily?.split(',')[0]?.trim()).filter(Boolean);
+  if (usedFonts.length > 0) await waitForFonts(usedFonts);
+  await new Promise(r => setTimeout(r, 300));
   const canvas = await html2canvas(el, {
     scale: 1, // already at 300 DPI size
     useCORS: true,

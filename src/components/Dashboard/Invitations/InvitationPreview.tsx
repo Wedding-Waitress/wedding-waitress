@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import type { TextZone } from '@/hooks/useInvitationTemplates';
+import { loadGoogleFont } from '@/lib/googleFonts';
 
 interface Props {
   backgroundUrl: string;
@@ -26,6 +27,15 @@ export const InvitationPreview: React.FC<Props> = ({
   className = '',
 }) => {
   const isPortrait = orientation === 'portrait';
+
+  // Load all fonts used across text zones
+  useEffect(() => {
+    textZones.forEach(zone => {
+      const overrides = customStyles[zone.id] || {};
+      const font = overrides.font_family || zone.font_family;
+      if (font) loadGoogleFont(font);
+    });
+  }, [textZones, customStyles]);
 
   const getZoneText = (zone: TextZone): string => {
     // Check custom text first
