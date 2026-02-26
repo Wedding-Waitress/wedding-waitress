@@ -1,26 +1,51 @@
 import React, { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Plus, X, UserPlus } from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Plus, X, UserPlus, Users } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
 
 type GuestType = 'individual' | 'couple' | 'family';
 
 interface GuestEntry {
   first_name: string;
   last_name: string;
-  dietary: string;
   mobile: string;
+  email: string;
+  rsvp: string;
+  dietary: string;
+  notes: string;
 }
 
 const emptyGuest = (): GuestEntry => ({
   first_name: '',
   last_name: '',
-  dietary: '',
   mobile: '',
+  email: '',
+  rsvp: 'Pending',
+  dietary: 'None',
+  notes: '',
+});
+
+interface PartyMember {
+  first_name: string;
+  last_name: string;
+  mobile: string;
+  email: string;
+  dietary: string;
+}
+
+const emptyMember = (): PartyMember => ({
+  first_name: '',
+  last_name: '',
+  mobile: '',
+  email: '',
+  dietary: 'None',
 });
 
 interface PublicAddGuestModalProps {
@@ -31,6 +56,9 @@ interface PublicAddGuestModalProps {
   addedByGuestId?: string;
 }
 
+const inputClasses = "rounded-full border-2 border-primary focus-visible:border-primary focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none h-9";
+const selectTriggerClasses = "w-full border-2 border-primary hover:border-primary focus:border-primary focus:border-[3px] focus:ring-0 focus:outline-none rounded-full h-9";
+
 export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
   open,
   onOpenChange,
@@ -39,77 +67,86 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
   addedByGuestId,
 }) => {
   const [guestType, setGuestType] = useState<GuestType>('individual');
-  const [guest1, setGuest1] = useState<GuestEntry>(emptyGuest());
-  const [guest2, setGuest2] = useState<GuestEntry>(emptyGuest());
-  const [familyMembers, setFamilyMembers] = useState<GuestEntry[]>([emptyGuest()]);
+  const [guest, setGuest] = useState<GuestEntry>(emptyGuest());
+  const [partyMembers, setPartyMembers] = useState<PartyMember[]>([]);
+  const [showAddMemberForm, setShowAddMemberForm] = useState(false);
+  const [memberForm, setMemberForm] = useState<PartyMember>(emptyMember());
   const [saving, setSaving] = useState(false);
   const { toast } = useToast();
 
   const resetForm = () => {
     setGuestType('individual');
-    setGuest1(emptyGuest());
-    setGuest2(emptyGuest());
-    setFamilyMembers([emptyGuest()]);
+    setGuest(emptyGuest());
+    setPartyMembers([]);
+    setShowAddMemberForm(false);
+    setMemberForm(emptyMember());
   };
 
-  const addFamilyMember = () => {
-    setFamilyMembers(prev => [...prev, emptyGuest()]);
+  const addPartyMember = () => {
+    if (!memberForm.first_name.trim() || !memberForm.last_name.trim()) {
+      toast({ title: 'First and last name are required', variant: 'destructive' });
+      return;
+    }
+    setPartyMembers(prev => [...prev, { ...memberForm }]);
+    setMemberForm(emptyMember());
+    setShowAddMemberForm(false);
   };
 
-  const removeFamilyMember = (index: number) => {
-    if (familyMembers.length <= 1) return;
-    setFamilyMembers(prev => prev.filter((_, i) => i !== index));
-  };
-
-  const updateFamilyMember = (index: number, field: keyof GuestEntry, value: string) => {
-    setFamilyMembers(prev => prev.map((m, i) => i === index ? { ...m, [field]: value } : m));
+  const removeMember = (index: number) => {
+    setPartyMembers(prev => prev.filter((_, i) => i !== index));
   };
 
   const handleSave = async () => {
-    const guestsToAdd: GuestEntry[] = [];
+    if (!guest.first_name.trim()) {
+      toast({ title: 'First name is required', variant: 'destructive' });
+      return;
+    }
 
-    if (guestType === 'individual') {
-      if (!guest1.first_name.trim()) {
-        toast({ title: 'First name is required', variant: 'destructive' });
-        return;
-      }
-      guestsToAdd.push(guest1);
-    } else if (guestType === 'couple') {
-      if (!guest1.first_name.trim() || !guest2.first_name.trim()) {
-        toast({ title: 'Both first names are required', variant: 'destructive' });
-        return;
-      }
-      guestsToAdd.push(guest1, guest2);
-    } else {
-      const valid = familyMembers.filter(m => m.first_name.trim());
-      if (valid.length === 0) {
-        toast({ title: 'At least one family member name is required', variant: 'destructive' });
-        return;
-      }
-      guestsToAdd.push(...valid);
+    if (guestType === 'couple' && partyMembers.length === 0) {
+      toast({ title: 'Add one more person to create a couple', variant: 'destructive' });
+      return;
+    }
+    if (guestType === 'family' && partyMembers.length < 2) {
+      toast({ title: 'Add at least two more people to create a family', variant: 'destructive' });
+      return;
     }
 
     setSaving(true);
     try {
-      for (const g of guestsToAdd) {
-        const { data, error } = await supabase.rpc('add_guest_public', {
+      // Add main guest
+      const { data, error } = await supabase.rpc('add_guest_public', {
+        _event_id: eventId,
+        _first_name: guest.first_name.trim(),
+        _last_name: guest.last_name.trim() || '',
+        _rsvp: guest.rsvp,
+        _dietary: guest.dietary === 'None' ? 'NA' : guest.dietary,
+        _mobile: guest.mobile.trim() || null,
+        _email: guest.email.trim() || null,
+        _added_by_guest_id: addedByGuestId || null,
+      } as any);
+
+      if (error) throw error;
+      if (!data) throw new Error('Failed to add guest — event may not allow public additions');
+
+      // Add party members
+      for (const m of partyMembers) {
+        const { error: memberError } = await supabase.rpc('add_guest_public', {
           _event_id: eventId,
-          _first_name: g.first_name.trim(),
-          _last_name: g.last_name.trim() || '',
-          _rsvp: 'Attending',
-          _dietary: g.dietary.trim() || 'NA',
-          _mobile: g.mobile.trim() || null,
-          _email: null,
+          _first_name: m.first_name.trim(),
+          _last_name: m.last_name.trim() || '',
+          _rsvp: 'Pending',
+          _dietary: m.dietary === 'None' ? 'NA' : m.dietary,
+          _mobile: m.mobile.trim() || null,
+          _email: m.email.trim() || null,
           _added_by_guest_id: addedByGuestId || null,
         } as any);
-
-        if (error) throw error;
-        if (!data) throw new Error('Failed to add guest — event may not allow public additions');
+        if (memberError) throw memberError;
       }
 
+      const total = 1 + partyMembers.length;
       toast({
         title: 'Guest(s) Added',
-        description: `${guestsToAdd.length} guest(s) added successfully`,
+        description: `${total} guest${total > 1 ? 's' : ''} added successfully`,
       });
       resetForm();
       onOpenChange(false);
@@ -126,186 +163,307 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
     }
   };
 
-  const typeOptions: { value: GuestType; label: string }[] = [
-    { value: 'individual', label: 'Individual' },
-    { value: 'couple', label: 'Couple' },
-    { value: 'family', label: 'Family' },
-  ];
-
-  const renderGuestFields = (guest: GuestEntry, setGuest: (g: GuestEntry) => void, label?: string) => (
-    <div className="space-y-3">
-      {label && <p className="text-sm font-semibold text-foreground">{label}</p>}
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <Label className="text-xs">First Name *</Label>
-          <Input
-            value={guest.first_name}
-            onChange={e => setGuest({ ...guest, first_name: e.target.value })}
-            placeholder="First name"
-            className="h-9"
-          />
-        </div>
-        <div>
-          <Label className="text-xs">Last Name</Label>
-          <Input
-            value={guest.last_name}
-            onChange={e => setGuest({ ...guest, last_name: e.target.value })}
-            placeholder="Last name"
-            className="h-9"
-          />
-        </div>
-      </div>
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <Label className="text-xs">Dietary Requirements</Label>
-          <Input
-            value={guest.dietary}
-            onChange={e => setGuest({ ...guest, dietary: e.target.value })}
-            placeholder="e.g. Vegetarian"
-            className="h-9"
-          />
-        </div>
-        <div>
-          <Label className="text-xs">Mobile (optional)</Label>
-          <Input
-            value={guest.mobile}
-            onChange={e => setGuest({ ...guest, mobile: e.target.value })}
-            placeholder="Mobile number"
-            className="h-9"
-          />
-        </div>
-      </div>
-    </div>
-  );
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col px-4 sm:px-10" fullScreenOnMobile>
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-xl">
-            <UserPlus className="w-5 h-5 text-primary" />
-            Add New Guest
+          <DialogTitle className="text-xl sm:text-2xl font-medium text-primary">
+            Add Extra Guest
           </DialogTitle>
           <p className="text-sm text-muted-foreground mt-1">
-            Add an extra individual, your partner <span className="font-semibold">(couple)</span>, or a family member.
+            Choose if they are an individual, your partner, or a family member.
           </p>
         </DialogHeader>
 
-        {/* Guest Type Selector */}
-        <div className="flex gap-2 mt-2">
-          {typeOptions.map(opt => (
-            <Button
-              key={opt.value}
-              variant={guestType === opt.value ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setGuestType(opt.value)}
-              className={`flex-1 rounded-full ${
-                guestType === opt.value
-                  ? 'bg-primary text-primary-foreground'
-                  : 'border-primary text-primary hover:bg-primary/10'
-              }`}
-            >
-              {opt.label}
-            </Button>
-          ))}
-        </div>
+        <div className="space-y-3 sm:space-y-4 py-4 overflow-y-auto flex-1 mobile-scroll-container">
+          {/* Guest Type Selector */}
+          <div className="pt-1 pb-2">
+            <div className="flex items-center justify-center gap-0 bg-[#7248e6]/10 border-2 border-[#7248e6] rounded-full p-1 w-full">
+              <button
+                type="button"
+                onClick={() => { setGuestType('individual'); setPartyMembers([]); }}
+                className={cn(
+                  "flex-1 py-1.5 px-6 rounded-full text-sm font-medium transition-all duration-200",
+                  guestType === 'individual'
+                    ? "bg-[#ff1493] text-white shadow-sm"
+                    : "text-gray-600 hover:text-gray-900"
+                )}
+              >
+                Individual
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setGuestType('couple');
+                  if (partyMembers.length > 1) setPartyMembers([partyMembers[0]]);
+                }}
+                className={cn(
+                  "flex-1 py-1.5 px-6 rounded-full text-sm font-medium transition-all duration-200",
+                  guestType === 'couple'
+                    ? "bg-[#FF5F1F] text-white shadow-sm"
+                    : "text-gray-600 hover:text-gray-900"
+                )}
+              >
+                Couple
+              </button>
+              <button
+                type="button"
+                onClick={() => setGuestType('family')}
+                className={cn(
+                  "flex-1 py-1.5 px-6 rounded-full text-sm font-medium transition-all duration-200",
+                  guestType === 'family'
+                    ? "bg-[#0000FF] text-white shadow-sm"
+                    : "text-gray-600 hover:text-gray-900"
+                )}
+              >
+                Family
+              </button>
+            </div>
+          </div>
 
-        {/* Form Fields */}
-        <div className="space-y-4 mt-4">
-          {guestType === 'individual' && renderGuestFields(guest1, setGuest1)}
+          {/* First Name / Last Name */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <Label className="text-sm font-medium">First Name *</Label>
+              <Input
+                value={guest.first_name}
+                onChange={e => setGuest(prev => ({ ...prev, first_name: e.target.value }))}
+                placeholder="Enter first name"
+                className={inputClasses}
+              />
+            </div>
+            <div>
+              <Label className="text-sm font-medium">Last Name</Label>
+              <Input
+                value={guest.last_name}
+                onChange={e => setGuest(prev => ({ ...prev, last_name: e.target.value }))}
+                placeholder="Enter last name"
+                className={inputClasses}
+              />
+            </div>
+          </div>
 
-          {guestType === 'couple' && (
-            <>
-              {renderGuestFields(guest1, setGuest1, 'Person 1')}
-              <div className="border-t border-border" />
-              {renderGuestFields(guest2, setGuest2, 'Person 2')}
-            </>
-          )}
+          {/* Mobile / Email */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <Label className="text-sm font-medium">Mobile</Label>
+              <Input
+                value={guest.mobile}
+                onChange={e => setGuest(prev => ({ ...prev, mobile: e.target.value }))}
+                placeholder="Enter mobile number"
+                className={inputClasses}
+              />
+            </div>
+            <div>
+              <Label className="text-sm font-medium">Email</Label>
+              <Input
+                value={guest.email}
+                onChange={e => setGuest(prev => ({ ...prev, email: e.target.value }))}
+                placeholder="Enter email address"
+                className={inputClasses}
+              />
+            </div>
+          </div>
 
-          {guestType === 'family' && (
-            <div className="space-y-3">
-              {familyMembers.map((member, index) => (
-                <div key={index} className="relative border border-border rounded-lg p-3">
-                  <div className="flex items-center justify-between mb-2">
-                    <p className="text-sm font-semibold text-primary">
-                      Member {index + 1}
-                    </p>
-                    {familyMembers.length > 1 && (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-6 w-6 text-destructive hover:text-destructive/80"
-                        onClick={() => removeFamilyMember(index)}
-                      >
-                        <X className="w-4 h-4" />
-                      </Button>
-                    )}
+          {/* RSVP Status / Dietary Requirements */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <Label className="text-sm font-medium">RSVP Status</Label>
+              <Select value={guest.rsvp} onValueChange={val => setGuest(prev => ({ ...prev, rsvp: val }))}>
+                <SelectTrigger className={selectTriggerClasses}>
+                  <SelectValue placeholder="Select RSVP status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Pending">Pending</SelectItem>
+                  <SelectItem value="Attending">Accept</SelectItem>
+                  <SelectItem value="Not Attending">Decline</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label className="text-sm font-medium">Dietary Requirements</Label>
+              <Select value={guest.dietary} onValueChange={val => setGuest(prev => ({ ...prev, dietary: val }))}>
+                <SelectTrigger className={selectTriggerClasses}>
+                  <SelectValue placeholder="Select dietary requirements" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="None">None</SelectItem>
+                  <SelectItem value="Kids Meal">Kids Meal</SelectItem>
+                  <SelectItem value="Pescatarian">Pescatarian</SelectItem>
+                  <SelectItem value="Vegetarian">Vegetarian</SelectItem>
+                  <SelectItem value="Vegan">Vegan</SelectItem>
+                  <SelectItem value="Seafood Free">Seafood Free</SelectItem>
+                  <SelectItem value="Gluten Free">Gluten Free</SelectItem>
+                  <SelectItem value="Dairy Free">Dairy Free</SelectItem>
+                  <SelectItem value="Nut Free">Nut Free</SelectItem>
+                  <SelectItem value="Halal">Halal</SelectItem>
+                  <SelectItem value="Kosher">Kosher</SelectItem>
+                  <SelectItem value="Vendor Meal">Vendor Meal</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          {/* Party Members Section - Couple/Family */}
+          {(guestType === 'couple' || guestType === 'family') && (
+            <div className="space-y-3 border-t border-gray-200 pt-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 text-sm font-medium text-green-500 border border-green-500 rounded-full px-3 py-1">
+                  <Users className="w-4 h-4" />
+                  <span>Party Members ({partyMembers.length})</span>
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowAddMemberForm(true)}
+                  disabled={guestType === 'couple' && partyMembers.length >= 1}
+                  className="rounded-full bg-green-500 hover:bg-green-600 text-white border-0"
+                >
+                  <Plus className="w-4 h-4 mr-1" />
+                  Add a member to this party
+                </Button>
+              </div>
+
+              {/* Add Member Form */}
+              {showAddMemberForm && (
+                <div className="bg-purple-50 p-4 rounded-lg space-y-3 border border-[#7248e6]/20">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <Label className="text-xs">First Name *</Label>
+                      <Input
+                        value={memberForm.first_name}
+                        onChange={e => setMemberForm(prev => ({ ...prev, first_name: e.target.value }))}
+                        placeholder="First name"
+                        className="rounded-full border-[#7248e6] text-sm"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-xs">Last Name *</Label>
+                      <Input
+                        value={memberForm.last_name}
+                        onChange={e => setMemberForm(prev => ({ ...prev, last_name: e.target.value }))}
+                        placeholder="Last name"
+                        className="rounded-full border-[#7248e6] text-sm"
+                      />
+                    </div>
                   </div>
-                  <div className="grid grid-cols-2 gap-2">
-                    <Input
-                      value={member.first_name}
-                      onChange={e => updateFamilyMember(index, 'first_name', e.target.value)}
-                      placeholder="First name *"
-                      className="h-9"
-                    />
-                    <Input
-                      value={member.last_name}
-                      onChange={e => updateFamilyMember(index, 'last_name', e.target.value)}
-                      placeholder="Last name"
-                      className="h-9"
-                    />
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <Label className="text-xs">Mobile</Label>
+                      <Input
+                        value={memberForm.mobile}
+                        onChange={e => setMemberForm(prev => ({ ...prev, mobile: e.target.value }))}
+                        placeholder="Mobile (optional)"
+                        className="rounded-full border-[#7248e6] text-sm"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-xs">Email</Label>
+                      <Input
+                        value={memberForm.email}
+                        onChange={e => setMemberForm(prev => ({ ...prev, email: e.target.value }))}
+                        placeholder="Email (optional)"
+                        className="rounded-full border-[#7248e6] text-sm"
+                      />
+                    </div>
                   </div>
-                  <div className="grid grid-cols-2 gap-2 mt-2">
-                    <Input
-                      value={member.dietary}
-                      onChange={e => updateFamilyMember(index, 'dietary', e.target.value)}
-                      placeholder="Dietary"
-                      className="h-9"
-                    />
-                    <Input
-                      value={member.mobile}
-                      onChange={e => updateFamilyMember(index, 'mobile', e.target.value)}
-                      placeholder="Mobile"
-                      className="h-9"
-                    />
+                  <div className="flex gap-2 justify-end">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => { setShowAddMemberForm(false); setMemberForm(emptyMember()); }}
+                      className="rounded-full"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      type="button"
+                      size="sm"
+                      onClick={addPartyMember}
+                      className="rounded-full bg-[#7248e6] hover:bg-[#7248e6]/90"
+                    >
+                      Add Member
+                    </Button>
                   </div>
                 </div>
-              ))}
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={addFamilyMember}
-                className="w-full border-dashed border-primary text-primary hover:bg-primary/10"
-              >
-                <Plus className="w-4 h-4 mr-1" /> Add Another Family Member
-              </Button>
+              )}
+
+              {/* Display Added Members */}
+              {partyMembers.length > 0 && (
+                <div className="space-y-1">
+                  {partyMembers.map((member, index) => (
+                    <div key={index} className="flex items-center justify-between bg-white py-0.5 px-2 rounded-lg border border-gray-200">
+                      <div className="flex-1">
+                        <p className="font-medium text-sm text-primary">{member.first_name} {member.last_name}</p>
+                        {(member.mobile || member.email) && (
+                          <p className="text-xs text-muted-foreground">
+                            {member.mobile && member.mobile}
+                            {member.email && ` • ${member.email}`}
+                          </p>
+                        )}
+                      </div>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeMember(index)}
+                      >
+                        <X className="w-4 h-4 text-red-500" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {guestType === 'couple' && partyMembers.length === 0 && (
+                <p className="text-xs text-muted-foreground text-center py-2">
+                  Add one more person to create a couple
+                </p>
+              )}
+              {guestType === 'family' && partyMembers.length < 2 && (
+                <p className="text-xs text-muted-foreground text-center py-2">
+                  Add two or more people to create a family
+                </p>
+              )}
             </div>
           )}
+
+          {/* Notes */}
+          <div>
+            <Label className="text-sm font-medium">Notes</Label>
+            <Textarea
+              value={guest.notes}
+              onChange={e => setGuest(prev => ({ ...prev, notes: e.target.value }))}
+              placeholder="Add any additional notes about this guest..."
+              className="rounded-3xl border-2 border-[#7248e6] focus-visible:border-[#7248e6] focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none resize-none"
+            />
+          </div>
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex gap-3 mt-4">
+        <DialogFooter>
           <Button
-            variant="outline"
+            type="button"
+            variant="destructive"
+            size="xs"
+            className="rounded-full bg-red-600 hover:bg-red-700 text-white"
             onClick={() => { resetForm(); onOpenChange(false); }}
-            className="flex-1 border-destructive text-destructive hover:bg-destructive/10"
             disabled={saving}
           >
             Cancel
           </Button>
           <Button
-            onClick={handleSave}
+            type="button"
+            variant="default"
+            size="xs"
+            className="rounded-full bg-green-500 hover:bg-green-600 text-white"
             disabled={saving}
-            className="flex-1 bg-success text-success-foreground hover:bg-success/90"
+            onClick={handleSave}
           >
-            {saving ? (
-              <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
-            ) : (
-              <Plus className="w-4 h-4 mr-1" />
-            )}
-            Save Guest{guestType !== 'individual' ? 's' : ''}
+            {saving ? 'Adding...' : 'Add Guest'}
           </Button>
-        </div>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
