@@ -234,80 +234,79 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
           )}
 
           {/* Additional Guests */}
-          {(additionalGuestCount ?? 0) > 0 && (
-            <div className="flex items-start gap-3 p-2 bg-background-subtle rounded-lg">
-              <UserPlus className="w-5 h-5 text-primary mt-0.5" />
-              <div className="flex-1">
-                <div className="font-semibold text-foreground">Additional Guests</div>
-                <div className="text-sm text-muted-foreground">
-                  {additionalGuestCount} added
-                </div>
+          <div className="flex items-start gap-3 p-2 bg-background-subtle rounded-lg">
+            <UserPlus className="w-5 h-5 text-primary mt-0.5" />
+            <div className="flex-1">
+              <div className="font-semibold text-foreground">Additional Guests</div>
+              <div className="text-sm text-muted-foreground">
+                {(additionalGuestCount ?? 0) > 0 ? `${additionalGuestCount} added` : 'None added'}
               </div>
             </div>
-          )}
+          </div>
 
           {/* RSVP Section */}
           <div className="flex items-start gap-3 p-2 bg-background-subtle rounded-lg">
             <ClipboardCheck className="w-5 h-5 text-primary shrink-0 mt-0.5" />
-            <div className="flex-1 space-y-2">
-            <div className="flex items-center gap-2">
-              <span className="font-semibold text-foreground">RSVP Status:</span>
-              <Badge 
-                variant="outline" 
-                className={`text-base font-bold px-3 py-1 rounded-full border-2 ${
-                  localRsvp === "Attending" 
-                    ? "bg-green-100 text-green-700 border-green-500" 
-                    : localRsvp === "Not Attending"
-                    ? "bg-red-100 text-red-700 border-red-500"
-                    : "bg-yellow-100 text-yellow-700 border-yellow-500"
-                }`}
-              >
-                {getRsvpDisplayLabel(localRsvp)}
-              </Badge>
-            </div>
-            
-            {isEditable && (
-              <div className="flex gap-2 justify-center">
-                <Button
-                  size="sm"
-                  onClick={() => updateRsvp('Attending')}
-                  disabled={updatingRsvp}
-                  className="bg-success text-success-foreground hover:bg-success/90 text-sm font-medium"
+            <div className="flex-1">
+              <div className="flex items-center gap-2">
+                <span className="font-semibold text-foreground">RSVP Status:</span>
+                <Badge 
+                  variant="outline" 
+                  className={`text-base font-bold px-3 py-1 rounded-full border-2 ${
+                    localRsvp === "Attending" 
+                      ? "bg-green-100 text-green-700 border-green-500" 
+                      : localRsvp === "Not Attending"
+                      ? "bg-red-100 text-red-700 border-red-500"
+                      : "bg-yellow-100 text-yellow-700 border-yellow-500"
+                  }`}
                 >
-                  {updatingRsvp ? (
-                    <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
-                  ) : (
-                    <CheckCircle2 className="w-4 h-4 mr-2" />
-                  )}
-                  Accept
-                </Button>
-                <Button
-                  size="sm"
-                  onClick={() => updateRsvp('Not Attending')}
-                  disabled={updatingRsvp}
-                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90 text-sm font-medium"
-                >
-                  {updatingRsvp ? (
-                    <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
-                  ) : (
-                    <XCircle className="w-4 h-4 mr-2" />
-                  )}
-                  Decline
-                </Button>
-                {onAddGuest && (
-                  <Button
-                    size="sm"
-                    onClick={onAddGuest}
-                    className="bg-primary text-primary-foreground hover:bg-primary/90 text-sm font-medium"
-                  >
-                    <PlusCircle className="w-4 h-4 mr-1" />
-                    Add Guest
-                  </Button>
-                )}
+                  {getRsvpDisplayLabel(localRsvp)}
+                </Badge>
               </div>
-            )}
+            </div>
           </div>
-          </div>
+
+          {/* Action Buttons - centered in full card width */}
+          {isEditable && (
+            <div className="flex gap-2 justify-center pt-1">
+              <Button
+                size="sm"
+                onClick={() => updateRsvp('Attending')}
+                disabled={updatingRsvp}
+                className="bg-success text-success-foreground hover:bg-success/90 text-sm font-medium"
+              >
+                {updatingRsvp ? (
+                  <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
+                ) : (
+                  <CheckCircle2 className="w-4 h-4 mr-2" />
+                )}
+                Accept
+              </Button>
+              <Button
+                size="sm"
+                onClick={() => updateRsvp('Not Attending')}
+                disabled={updatingRsvp}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90 text-sm font-medium"
+              >
+                {updatingRsvp ? (
+                  <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
+                ) : (
+                  <XCircle className="w-4 h-4 mr-2" />
+                )}
+                Decline
+              </Button>
+              {onAddGuest && (
+                <Button
+                  size="sm"
+                  onClick={onAddGuest}
+                  className="bg-primary text-primary-foreground hover:bg-primary/90 text-sm font-medium"
+                >
+                  <PlusCircle className="w-4 h-4 mr-1" />
+                  Add Guest
+                </Button>
+              )}
+            </div>
+          )}
 
           {/* RSVP Deadline */}
           {rsvpDeadline && (
