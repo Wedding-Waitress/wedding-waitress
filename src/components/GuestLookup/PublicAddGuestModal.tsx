@@ -246,7 +246,7 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 text-sm font-medium text-green-500 border border-green-500 rounded-full px-3 py-1">
                   <Users className="w-4 h-4" />
-                  <span>Party Members ({
+                  <span>Family Members ({
                     guestType === 'couple' && addedByGuestName ? 1 + partyMembers.length :
                     guestType === 'family' && addedByGuestName ? 1 + partyMembers.length :
                     partyMembers.length
@@ -274,8 +274,8 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
                     onClick={() => setShowAddMemberForm(true)}
                     className="rounded-full bg-green-500 hover:bg-green-600 text-white border-0"
                   >
-                    <Plus className="w-4 h-4 mr-1" />
-                    Add another member to this party
+                    <Plus className="w-4 h-4 mr-0.5" />
+                    Add another member to this family
                   </Button>
                 )}
               </div>
