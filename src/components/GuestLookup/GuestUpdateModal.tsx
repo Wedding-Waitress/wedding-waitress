@@ -193,7 +193,7 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Update Your Information</DialogTitle>
+          <DialogTitle className="text-primary">Update Your Information</DialogTitle>
           <DialogDescription className="text-sm">
             {helperText || "Please update-edit your details and save. It will automatically be sent to the event organiser."}
           </DialogDescription>
@@ -322,9 +322,10 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
 
         <DialogFooter>
           <Button
-            variant="outline"
+            variant="destructive"
             onClick={() => onOpenChange(false)}
             disabled={saving}
+            className="bg-red-500 hover:bg-red-600 text-white"
           >
             Cancel
           </Button>
