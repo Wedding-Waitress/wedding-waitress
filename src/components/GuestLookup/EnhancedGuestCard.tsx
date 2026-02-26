@@ -186,7 +186,7 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
             {onEdit && isEditable && (
               <Button
                 onClick={() => onEdit(guest)}
-                className="ml-2 rounded-full px-5 py-1.5 h-auto bg-primary text-white hover:bg-primary/90 text-sm font-semibold"
+                className="ml-2 rounded-full px-5 py-0.5 h-auto bg-primary text-white hover:bg-primary/90 text-sm font-semibold"
               >
                 <Pencil className="w-4 h-4 mr-1.5" />
                 Edit
