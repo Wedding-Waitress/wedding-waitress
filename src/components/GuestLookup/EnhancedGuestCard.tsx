@@ -10,6 +10,7 @@ import {
   PlusCircle,
   ClipboardCheck,
   Users,
+  UserPlus,
   Utensils,
   Phone,
   Mail
@@ -42,6 +43,7 @@ interface EnhancedGuestCardProps {
   onAddGuest?: () => void;
   isEditable?: boolean;
   rsvpDeadline?: string | null;
+  additionalGuestCount?: number;
 }
 
 export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
@@ -50,7 +52,8 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
   onEdit,
   onAddGuest,
   isEditable = true,
-  rsvpDeadline
+  rsvpDeadline,
+  additionalGuestCount
 }) => {
   const [updatingRsvp, setUpdatingRsvp] = useState(false);
   const { toast } = useToast();
@@ -226,6 +229,19 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
               <div className="flex-1">
                 <div className="font-semibold text-foreground">Dietary Requirements</div>
                 <div className="text-sm text-muted-foreground">{guest.dietary}</div>
+              </div>
+            </div>
+          )}
+
+          {/* Additional Guests */}
+          {(additionalGuestCount ?? 0) > 0 && (
+            <div className="flex items-start gap-3 p-2 bg-background-subtle rounded-lg">
+              <UserPlus className="w-5 h-5 text-primary mt-0.5" />
+              <div className="flex-1">
+                <div className="font-semibold text-foreground">Additional Guests</div>
+                <div className="text-sm text-muted-foreground">
+                  {additionalGuestCount} added
+                </div>
               </div>
             </div>
           )}
