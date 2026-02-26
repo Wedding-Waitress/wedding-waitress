@@ -32,6 +32,7 @@ import { TableVisualization } from '@/components/GuestLookup/TableVisualization'
 import { GuestProfileModal } from '@/components/GuestLookup/GuestProfileModal';
 import { GuestUpdateModal } from '@/components/GuestLookup/GuestUpdateModal';
 import { ReadOnlyCeremonyFloorPlan } from '@/components/GuestView/ReadOnlyCeremonyFloorPlan';
+import { PublicAddGuestModal } from '@/components/GuestLookup/PublicAddGuestModal';
 
 interface Guest {
   id: string;
@@ -129,6 +130,7 @@ export const GuestLookup: React.FC = () => {
   const [ceremonyFloorPlan, setCeremonyFloorPlan] = useState<any>(null);
   const [ceremonyFloorPlanLoading, setCeremonyFloorPlanLoading] = useState(false);
   const [ceremonyFloorPlanFetched, setCeremonyFloorPlanFetched] = useState(false);
+  const [showAddGuestModal, setShowAddGuestModal] = useState(false);
   const { toast } = useToast();
   
   // Compute is_editable based on rsvp_deadline (inclusive through end-of-day)
@@ -713,6 +715,7 @@ export const GuestLookup: React.FC = () => {
                             onUpdate={refreshGuestData}
                             isEditable={isEditable}
                             onEdit={handleEditGuest}
+                            onAddGuest={() => setShowAddGuestModal(true)}
                             rsvpDeadline={event?.rsvp_deadline}
                           />
                         ))
@@ -874,6 +877,16 @@ export const GuestLookup: React.FC = () => {
         showMessageField={moduleSettings?.update_details_config?.show_message_field ?? true}
         isEditable={isEditable}
       />
+
+      {/* Public Add Guest Modal */}
+      {event?.id && (
+        <PublicAddGuestModal
+          open={showAddGuestModal}
+          onOpenChange={setShowAddGuestModal}
+          eventId={event.id}
+          onGuestAdded={refreshGuestData}
+        />
+      )}
 
       {/* RSVP Invite Modal */}
       <Dialog open={showRsvpInviteModal} onOpenChange={setShowRsvpInviteModal}>
