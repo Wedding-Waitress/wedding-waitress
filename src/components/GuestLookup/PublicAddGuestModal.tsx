@@ -196,7 +196,7 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
         <div className="space-y-3 sm:space-y-4 py-4 overflow-y-auto flex-1 mobile-scroll-container px-3 sm:px-2">
           {/* Guest Type Selector */}
           <div className="pt-1 pb-2">
-            <Label className="text-sm font-medium mb-1.5 block">Guest Type <span className="text-destructive">*</span></Label>
+            <Label className="text-sm font-medium mb-1.5 block">Guest Category <span className="text-destructive">*</span></Label>
             <div className="flex items-center justify-center gap-0 bg-[#7248e6]/10 border-2 border-[#7248e6] rounded-full p-1 w-full">
               <button
                 type="button"
