@@ -1189,6 +1189,111 @@ export type Database = {
           },
         ]
       }
+      invitation_designs: {
+        Row: {
+          created_at: string
+          custom_styles: Json
+          custom_text: Json
+          event_id: string
+          id: string
+          include_guest_name: boolean
+          include_qr_code: boolean
+          qr_position: Json | null
+          template_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          custom_styles?: Json
+          custom_text?: Json
+          event_id: string
+          id?: string
+          include_guest_name?: boolean
+          include_qr_code?: boolean
+          qr_position?: Json | null
+          template_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          custom_styles?: Json
+          custom_text?: Json
+          event_id?: string
+          id?: string
+          include_guest_name?: boolean
+          include_qr_code?: boolean
+          qr_position?: Json | null
+          template_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invitation_designs_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invitation_designs_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "invitation_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      invitation_templates: {
+        Row: {
+          background_url: string
+          category: string
+          created_at: string
+          default_styles: Json
+          height_mm: number
+          id: string
+          is_active: boolean
+          name: string
+          orientation: string
+          sort_order: number
+          text_zones: Json
+          thumbnail_url: string | null
+          width_mm: number
+        }
+        Insert: {
+          background_url: string
+          category?: string
+          created_at?: string
+          default_styles?: Json
+          height_mm?: number
+          id?: string
+          is_active?: boolean
+          name: string
+          orientation?: string
+          sort_order?: number
+          text_zones?: Json
+          thumbnail_url?: string | null
+          width_mm?: number
+        }
+        Update: {
+          background_url?: string
+          category?: string
+          created_at?: string
+          default_styles?: Json
+          height_mm?: number
+          id?: string
+          is_active?: boolean
+          name?: string
+          orientation?: string
+          sort_order?: number
+          text_zones?: Json
+          thumbnail_url?: string | null
+          width_mm?: number
+        }
+        Relationships: []
+      }
       live_view_module_settings: {
         Row: {
           ceremony_config: Json | null

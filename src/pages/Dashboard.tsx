@@ -34,6 +34,7 @@ import { KioskSetup } from '@/components/Dashboard/Kiosk/KioskSetup';
 import { FloorPlanPage } from '@/components/Dashboard/FloorPlan';
 import { RunningSheetPage } from '@/components/Dashboard/RunningSheet';
 import { DJMCQuestionnairePage } from '@/components/Dashboard/DJMCQuestionnaire';
+import { InvitationsPage } from '@/components/Dashboard/Invitations/InvitationsPage';
 // Feature flags removed — Running Sheet always enabled
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
@@ -575,6 +576,8 @@ export const Dashboard = () => {
         return <RunningSheetPage selectedEventId={globalSelectedEventId} onEventSelect={handleGlobalEventSelect} />;
       case 'dj-mc-questionnaire':
         return <DJMCQuestionnairePage selectedEventId={globalSelectedEventId} onEventSelect={handleGlobalEventSelect} />;
+      case 'invitations':
+        return <InvitationsPage selectedEventId={globalSelectedEventId} onEventSelect={handleGlobalEventSelect} />;
       default:
         return <Card className="p-8 text-center">
             <TrendingUp className="w-16 h-16 mx-auto text-primary mb-4" />
@@ -649,7 +652,7 @@ export const Dashboard = () => {
         <main className="flex-1 w-full px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 min-w-0 overflow-x-hidden">
           <div className="w-full max-w-none">
             {/* Stats Bar excluded from: My Events, QR Code, Dashboard, Vendor Team, Planner, Wishing Well, RSVP, Floor Plan, Kiosk Live View, Printables, Place Cards, Dietary Requirements, Full Seating Chart, DJ & MC Questionnaire, Running Sheet, AI Features */}
-            {activeTab !== 'my-events' && activeTab !== 'qr-code' && activeTab !== 'dashboard' && activeTab !== 'vendor-team' && activeTab !== 'planner' && activeTab !== 'wishing-well' && activeTab !== 'rsvp-invite' && activeTab !== 'floor-plan' && activeTab !== 'kiosk-live-view' && activeTab !== 'printables' && activeTab !== 'individual-table-chart' && activeTab !== 'place-cards' && activeTab !== 'dietary-chart' && activeTab !== 'full-seating-chart' && activeTab !== 'dj-mc-questionnaire' && activeTab !== 'running-sheet' && <div className="print:hidden">
+            {activeTab !== 'my-events' && activeTab !== 'qr-code' && activeTab !== 'dashboard' && activeTab !== 'vendor-team' && activeTab !== 'planner' && activeTab !== 'wishing-well' && activeTab !== 'rsvp-invite' && activeTab !== 'floor-plan' && activeTab !== 'kiosk-live-view' && activeTab !== 'printables' && activeTab !== 'individual-table-chart' && activeTab !== 'place-cards' && activeTab !== 'dietary-chart' && activeTab !== 'full-seating-chart' && activeTab !== 'dj-mc-questionnaire' && activeTab !== 'running-sheet' && activeTab !== 'invitations' && <div className="print:hidden">
               <StatsBar stats={statsData} />
             </div>}
             

@@ -13,7 +13,8 @@ import {
   LogOut,
   Shield,
   ClipboardList,
-  Music
+  Music,
+  Mail
 } from 'lucide-react';
 import { useIsAdmin } from '@/hooks/useIsAdmin';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -45,6 +46,7 @@ interface AppSidebarProps {
     { id: "table-list", label: "Tables", icon: MapPin },
     { id: "guest-list", label: "Guest List", icon: Users },
     { id: "qr-code", label: "QR Code Seating Chart", icon: QrCode },
+    { id: "invitations", label: "Invitations", icon: Mail },
     { id: "place-cards", label: "Place Cards", icon: CreditCard },
     { id: "individual-table-chart", label: "Individual Table Charts", icon: Users },
     { id: "floor-plan", label: "Floor Plan", icon: LayoutGrid },
