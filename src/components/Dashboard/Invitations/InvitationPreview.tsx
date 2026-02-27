@@ -36,6 +36,25 @@ export const InvitationPreview: React.FC<Props> = ({
   const isPortrait = orientation === 'portrait';
   const containerRef = useRef<HTMLDivElement>(null);
   const [dragging, setDragging] = useState(false);
+  const [containerWidth, setContainerWidth] = useState(600);
+
+  // Track container width for proportional font scaling
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(([entry]) => {
+      if (entry.contentBoxSize) {
+        const w = Array.isArray(entry.contentBoxSize) ? entry.contentBoxSize[0].inlineSize : (entry.contentBoxSize as any).inlineSize;
+        if (w > 0) setContainerWidth(w);
+      } else if (entry.contentRect.width > 0) {
+        setContainerWidth(entry.contentRect.width);
+      }
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  const scale = containerWidth / 600;
 
   // Load all fonts used across text zones
   useEffect(() => {
@@ -72,11 +91,11 @@ export const InvitationPreview: React.FC<Props> = ({
     const textCase = overrides.text_case || zone.text_case || 'default';
     return {
       fontFamily: overrides.font_family || zone.font_family,
-      fontSize: `${overrides.font_size || zone.font_size}px`,
+      fontSize: `${(overrides.font_size || zone.font_size) * scale}px`,
       fontWeight: overrides.font_weight || zone.font_weight,
       color: overrides.font_color || zone.font_color,
       textAlign: (overrides.text_align || zone.text_align) as any,
-      letterSpacing: `${overrides.letter_spacing ?? zone.letter_spacing}px`,
+      letterSpacing: `${(overrides.letter_spacing ?? zone.letter_spacing) * scale}px`,
       lineHeight: 1.3,
       textTransform: textCase === 'upper' ? 'uppercase' as const : textCase === 'lower' ? 'lowercase' as const : undefined,
     };
