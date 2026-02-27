@@ -1,80 +1,48 @@
 
 
-# Consolidate Invitation Text Zones: Combined Ceremony and Reception
+# Fix Event Edit Not Syncing Changes Across All Fields
 
-## Overview
-Reduce the default invitation template from 12 text zones to 6, combining ceremony and reception details into single auto-filled zones with a specific two-line format.
+## Problem
+When editing an event via the Edit button in My Events, changes to the ceremony name (e.g., fixing a typo from "Weddng" to "Wedding") do not propagate to:
+1. The **reception name** (stays as old value)
+2. The **countdown event name** (uses `event.name` which maps from the top-level field)
+3. The **My Events header** and **event table row** (both use `event.name`)
 
-## New Zone Layout (6 zones)
-1. **Welcome Message** (custom) -- keep as-is
-2. **Couple Names** (auto: couple_names) -- keep as-is
-3. **Ceremony** (auto: ceremony) -- NEW combined zone
-4. **Reception** (auto: reception) -- NEW combined zone
-5. **RSVP Details** (auto: rsvp_deadline) -- keep as-is
-6. **Notes** (custom) -- keep as-is
+**Root cause:** The Edit Modal (`EventEditModal.tsx`) lacks the auto-sync logic that the Create Modal has. In the Create Modal, changing the ceremony name auto-updates the reception name and top-level event name. The Edit Modal does NOT have this -- each field is independent.
 
-**Removed:** Ceremony Date, Ceremony Time, Ceremony Venue (3 separate zones), Reception Date, Reception Time, Reception Venue (3 separate zones), Dress Code, Guest Name.
+Additionally, `event_display_name` is never saved during edits, even though it's loaded into the form.
 
-## Auto-Fill Format
+## Solution
 
-**Ceremony zone** will render as:
-```
-Ceremony - Date: 20/12/2026 - Time: 3:30 PM -- 5:55 PM
-Location: Sheldon Receptions - 608-614 Somerville Road, Sunshine West Vic 3020
-```
+### 1. Add auto-sync to EventEditModal (matching EventCreateModal pattern)
 
-**Reception zone** will render as:
-```
-Reception - Date: 20/12/2026 - Time: 6:00 PM -- 11:00 PM
-Location: Sheldon Receptions - 608-614 Somerville Road, Sunshine West Vic 3020
-```
+Add the same `useEffect` sync logic from the Create Modal into the Edit Modal:
+- When ceremony name changes, auto-update `event_name` (top-level) and reception `name` -- unless the user has manually overridden them
+- When ceremony date, venue, address, phone, contact, guest limit, or RSVP deadline change, sync to corresponding reception fields -- unless overridden
+- Track which reception fields the user has manually edited using a `receptionOverrides` ref (same pattern as Create Modal)
+- Exclude start_time and finish_time from sync (per existing requirement)
 
-The venue name and venue address are combined on the Location line, separated by " - ".
+### 2. Save event_display_name on edit
 
-## Technical Changes
+Add `event_display_name: formData.event_name` to the save payload in `handleSave`, alongside the existing `name: formData.event_name` line.
 
-### 1. Expand auto_field type (`src/hooks/useInvitationTemplates.ts`)
-Add two new auto_field values: `'ceremony'` and `'reception'` to the union type.
+### Files Modified
+1. **`src/components/Dashboard/EventEditModal.tsx`**
+   - Add `receptionOverrides` ref to track manual field edits
+   - Add `markReceptionOverride` helper function
+   - Add `useEffect` for ceremony-to-reception auto-sync (same logic as Create Modal)
+   - Update reception field `onChange` handlers to call `markReceptionOverride` before setting values
+   - Add `event_display_name: formData.event_name` to the save payload
 
-### 2. Expand eventData mapping (`src/components/Dashboard/Invitations/InvitationsPage.tsx`)
-Add these new fields from the selected event:
-- `ceremony_finish_time` -- from `selectedEvent.ceremony_finish_time`
-- `reception_finish_time` -- from `selectedEvent.finish_time`
-- `ceremony_venue_address` -- from `selectedEvent.ceremony_venue_address`
-- `venue_address` -- from `selectedEvent.venue_address`
-- `ceremony` -- pre-formatted combined string using the exact two-line format
-- `reception` -- pre-formatted combined string using the exact two-line format
+### Technical Detail
+The sync map mirrors the Create Modal exactly:
+- `ceremony_name` syncs to `name` (reception name) and `event_name` (top-level)
+- `ceremony_date` syncs to `date`
+- `ceremony_venue` syncs to `venue`
+- `ceremony_venue_address` syncs to `venue_address`
+- `ceremony_venue_phone` syncs to `venue_phone`
+- `ceremony_venue_contact` syncs to `venue_contact`
+- `ceremony_guest_limit` syncs to `guest_limit`
+- `ceremony_rsvp_deadline` syncs to `rsvp_deadline`
 
-The formatting logic will build the string like:
-```typescript
-const ceremony = [
-  `Ceremony - Date: ${formatDisplayDate(event.ceremony_date)} - Time: ${formatDisplayTime(event.ceremony_start_time)} — ${formatDisplayTime(event.ceremony_finish_time)}`,
-  `Location: ${[event.ceremony_venue, event.ceremony_venue_address].filter(Boolean).join(' - ')}`
-].join('\n');
-```
-
-### 3. Update default zones (`src/components/Admin/AdminInvitationTemplates.tsx`)
-Replace the 12-zone invitation layout with the new 6-zone layout:
-- Welcome (y: 10%), Couple Names (y: 20%), Ceremony (y: 35%, auto_field: 'ceremony'), Reception (y: 50%, auto_field: 'reception'), RSVP (y: 65%), Notes (y: 78%)
-- Ceremony and Reception zones get `max_lines: 3` to accommodate two lines of text
-
-### 4. Add auto_field options in admin editor (`src/components/Admin/TemplateTextZoneEditor.tsx`)
-Add `'ceremony'` and `'reception'` to the AUTO_FIELDS dropdown so admins can assign them.
-
-### 5. Preview rendering (`src/components/Dashboard/Invitations/InvitationPreview.tsx`)
-No structural changes needed -- the preview already resolves `eventData[zone.auto_field]` for any auto field. The new `ceremony` and `reception` keys will be resolved automatically. The `whitespace-pre-wrap` CSS class already handles the newline character in the combined string.
-
-### 6. Customizer (`src/components/Dashboard/Invitations/InvitationCustomizer.tsx`)
-No structural changes needed -- the auto zone input already shows the auto-filled value as a placeholder and allows overrides.
-
-## Files Modified
-1. `src/hooks/useInvitationTemplates.ts` -- add `'ceremony'` and `'reception'` to auto_field union
-2. `src/components/Dashboard/Invitations/InvitationsPage.tsx` -- build combined ceremony/reception strings in eventData
-3. `src/components/Admin/AdminInvitationTemplates.tsx` -- replace 12-zone default with 6-zone default
-4. `src/components/Admin/TemplateTextZoneEditor.tsx` -- add new AUTO_FIELDS entries
-
-## Important Notes
-- Existing templates already saved in the database will NOT be affected -- they keep their current zones. Only newly created templates will use the 6-zone default.
-- The user can still override the auto-filled text by typing in the customizer input field.
-- The combined format uses a newline character so it displays on two lines in the preview (supported by `whitespace-pre-wrap`).
-
+This ensures that when a user fixes a typo in the ceremony name and saves, ALL display areas update consistently.
