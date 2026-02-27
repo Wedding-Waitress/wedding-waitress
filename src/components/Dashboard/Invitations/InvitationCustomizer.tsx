@@ -154,9 +154,12 @@ export const InvitationCustomizer: React.FC<Props> = ({
                 </div>
               ))}
               {template.text_zones.length === 0 && (
-                <p className="text-sm text-muted-foreground text-center py-4">
-                  No text zones configured for this template.
-                </p>
+                <div className="rounded-lg border border-primary/20 bg-primary/5 p-4 text-center space-y-2">
+                  <p className="text-sm font-medium text-foreground">No text zones configured</p>
+                  <p className="text-xs text-muted-foreground">
+                    This template doesn't have any text fields yet. An admin needs to open the <strong>Text Zones</strong> editor for this template in the Admin panel to add editable areas like Couple Names, Date, Venue, etc.
+                  </p>
+                </div>
               )}
             </CardContent>
           </Card>
