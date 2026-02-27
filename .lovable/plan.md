@@ -1,17 +1,24 @@
 
 
-# Add Drag-to-Reorder for Text Zones in Admin Editor
+# Make Invitation Preview Larger with Zoom Control
 
 ## What's changing
-In the Admin Text Zones editor, the zone list on the right side will become drag-and-drop sortable. You'll be able to grab any zone by its handle icon and drag it up or down to reorder it. Additionally, each zone will have small up/down arrow buttons for quick single-step moves.
+
+Two improvements to the Text Zones editor preview:
+
+### 1. Larger default preview size
+The preview container currently uses `maxHeight: '70vh'` which constrains it to be small. This will be increased to `maxHeight: '85vh'` so the invitation fills more of the available space by default.
+
+### 2. Zoom slider control
+A zoom slider (50% to 150%) will be added above the preview panel. This lets you scale the invitation preview purely visually -- making it larger to see fine details or smaller to see the full layout. The default will be 100%.
 
 ## File changed
 
 **`src/components/Admin/TemplateTextZoneEditor.tsx`**
 
 ### Changes:
-1. **Add up/down arrow buttons** next to each zone in the list (beside the delete button). Clicking the up arrow moves the zone one position higher; clicking the down arrow moves it one position lower. The up arrow is hidden on the first item, and the down arrow is hidden on the last.
-2. **Add two helper functions**: `moveZoneUp(id)` and `moveZoneDown(id)` that swap the zone with its neighbour in the `zones` array.
-3. The existing `Move` icon (grip handle) remains as a visual indicator that zones are reorderable.
+1. Add a `zoom` state variable (default: 100).
+2. Add a zoom slider bar with a label (e.g., "Zoom: 100%") positioned above the preview, inside the preview Card. Include `ZoomIn` and `ZoomOut` icons and a "Reset" button.
+3. Apply the zoom as a CSS `transform: scale()` on the preview container, with `transform-origin: top center` so it scales from the top. Wrap it in an overflow container so it remains scrollable if zoomed in beyond the card area.
+4. Increase the default `maxHeight` from `70vh` to `85vh`.
 
-This keeps the implementation simple and dependency-free (no drag-and-drop library needed for a short list), while giving full reordering control.
