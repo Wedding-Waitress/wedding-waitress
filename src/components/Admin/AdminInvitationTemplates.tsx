@@ -49,20 +49,14 @@ const getDefaultTextZones = (cardType: CardType): TextZone[] => {
     ];
   }
 
-  // Default: invitation (12-zone layout, all centered at x_percent: 50)
+  // Default: invitation (6-zone layout, all centered at x_percent: 50)
   return [
     base('welcome', 'Welcome Message', 'custom', { default_text: 'Join us to celebrate the marriage of', y_percent: 10, font_family: 'Montserrat', font_size: 12 }),
-    base('couple_names', 'Couple Names', 'auto', { auto_field: 'couple_names', y_percent: 17, font_family: 'Great Vibes', font_size: 28 }),
-    base('ceremony_date', 'Ceremony Date', 'auto', { auto_field: 'ceremony_date', y_percent: 24, font_family: 'Playfair Display', font_size: 16, letter_spacing: 1 }),
-    base('ceremony_time', 'Ceremony Time', 'auto', { auto_field: 'ceremony_time', y_percent: 30, font_family: 'Playfair Display', font_size: 14 }),
-    base('ceremony_venue', 'Ceremony Venue', 'auto', { auto_field: 'ceremony_venue', y_percent: 36, font_family: 'Playfair Display', font_size: 14 }),
-    base('reception_date', 'Reception Date', 'auto', { auto_field: 'reception_date', y_percent: 43, font_family: 'Playfair Display', font_size: 14 }),
-    base('reception_time', 'Reception Time', 'auto', { auto_field: 'reception_time', y_percent: 49, font_family: 'Playfair Display', font_size: 14 }),
-    base('reception_venue', 'Reception Venue', 'auto', { auto_field: 'reception_venue', y_percent: 55, font_family: 'Playfair Display', font_size: 14 }),
-    base('dress_code', 'Dress Code', 'custom', { default_text: 'Cocktail Attire', y_percent: 62, font_family: 'Montserrat', font_size: 12 }),
-    base('rsvp', 'RSVP Details', 'auto', { auto_field: 'rsvp_deadline', default_text: 'RSVP by ...', y_percent: 69, font_family: 'Montserrat', font_size: 12 }),
-    base('guest_name', 'Guest Name', 'guest_name', { default_text: 'Guest Name', y_percent: 76, font_family: 'Great Vibes', font_size: 16 }),
-    base('notes', 'Notes', 'custom', { default_text: '', y_percent: 83, font_family: 'Montserrat', font_size: 11 }),
+    base('couple_names', 'Couple Names', 'auto', { auto_field: 'couple_names', y_percent: 20, font_family: 'Great Vibes', font_size: 28 }),
+    base('ceremony', 'Ceremony', 'auto', { auto_field: 'ceremony', y_percent: 35, font_family: 'Playfair Display', font_size: 12, max_lines: 3 }),
+    base('reception', 'Reception', 'auto', { auto_field: 'reception', y_percent: 50, font_family: 'Playfair Display', font_size: 12, max_lines: 3 }),
+    base('rsvp', 'RSVP Details', 'auto', { auto_field: 'rsvp_deadline', default_text: 'RSVP by ...', y_percent: 65, font_family: 'Montserrat', font_size: 12 }),
+    base('notes', 'Notes', 'custom', { default_text: '', y_percent: 78, font_family: 'Montserrat', font_size: 11 }),
   ];
 };
 const CARD_TYPES: { value: CardType; label: string }[] = [

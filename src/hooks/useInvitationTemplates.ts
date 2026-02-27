@@ -6,7 +6,7 @@ export interface TextZone {
   id: string;
   label: string;
   type: 'auto' | 'custom' | 'guest_name';
-  auto_field?: 'couple_names' | 'date' | 'venue' | 'time' | 'ceremony_date' | 'ceremony_time' | 'ceremony_venue' | 'reception_date' | 'reception_time' | 'reception_venue' | 'rsvp_deadline' | null;
+  auto_field?: 'couple_names' | 'date' | 'venue' | 'time' | 'ceremony_date' | 'ceremony_time' | 'ceremony_venue' | 'reception_date' | 'reception_time' | 'reception_venue' | 'rsvp_deadline' | 'ceremony' | 'reception' | null;
   x_percent: number;
   y_percent: number;
   width_percent: number;

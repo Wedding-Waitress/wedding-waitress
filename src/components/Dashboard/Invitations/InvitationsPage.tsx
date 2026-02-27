@@ -54,18 +54,55 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
     const p1 = selectedEvent.partner1_name || '';
     const p2 = selectedEvent.partner2_name || '';
     const coupleNames = p1 && p2 ? `${p1} & ${p2}` : p1 || p2 || selectedEvent.name;
+
+    // Build combined ceremony string (two lines)
+    const ceremonyDateStr = selectedEvent.ceremony_date ? formatDisplayDate(selectedEvent.ceremony_date) : '';
+    const ceremonyStartStr = selectedEvent.ceremony_start_time ? formatDisplayTime(selectedEvent.ceremony_start_time) : '';
+    const ceremonyFinishStr = selectedEvent.ceremony_finish_time ? formatDisplayTime(selectedEvent.ceremony_finish_time) : '';
+    const ceremonyTimeRange = ceremonyStartStr && ceremonyFinishStr ? `${ceremonyStartStr} — ${ceremonyFinishStr}` : ceremonyStartStr;
+    const ceremonyVenueName = selectedEvent.ceremony_venue || '';
+    const ceremonyVenueAddr = selectedEvent.ceremony_venue_address || '';
+    const ceremonyLocation = [ceremonyVenueName, ceremonyVenueAddr].filter(Boolean).join(' - ');
+    const ceremonyLine1 = [
+      ceremonyDateStr ? `Date: ${ceremonyDateStr}` : '',
+      ceremonyTimeRange ? `Time: ${ceremonyTimeRange}` : '',
+    ].filter(Boolean).join(' - ');
+    const ceremonyCombined = [
+      ceremonyLine1 ? `Ceremony - ${ceremonyLine1}` : 'Ceremony',
+      ceremonyLocation ? `Location: ${ceremonyLocation}` : '',
+    ].filter(Boolean).join('\n');
+
+    // Build combined reception string (two lines)
+    const receptionDateStr = selectedEvent.date ? formatDisplayDate(selectedEvent.date) : '';
+    const receptionStartStr = selectedEvent.start_time ? formatDisplayTime(selectedEvent.start_time) : '';
+    const receptionFinishStr = selectedEvent.finish_time ? formatDisplayTime(selectedEvent.finish_time) : '';
+    const receptionTimeRange = receptionStartStr && receptionFinishStr ? `${receptionStartStr} — ${receptionFinishStr}` : receptionStartStr;
+    const receptionVenueName = selectedEvent.venue || '';
+    const receptionVenueAddr = selectedEvent.venue_address || '';
+    const receptionLocation = [receptionVenueName, receptionVenueAddr].filter(Boolean).join(' - ');
+    const receptionLine1 = [
+      receptionDateStr ? `Date: ${receptionDateStr}` : '',
+      receptionTimeRange ? `Time: ${receptionTimeRange}` : '',
+    ].filter(Boolean).join(' - ');
+    const receptionCombined = [
+      receptionLine1 ? `Reception - ${receptionLine1}` : 'Reception',
+      receptionLocation ? `Location: ${receptionLocation}` : '',
+    ].filter(Boolean).join('\n');
+
     return {
       couple_names: coupleNames,
       date: selectedEvent.date ? formatDisplayDate(selectedEvent.date) : '',
       venue: selectedEvent.venue || '',
       time: selectedEvent.start_time ? formatDisplayTime(selectedEvent.start_time) : '',
-      ceremony_date: selectedEvent.ceremony_date ? formatDisplayDate(selectedEvent.ceremony_date) : '',
-      ceremony_time: selectedEvent.ceremony_start_time ? formatDisplayTime(selectedEvent.ceremony_start_time) : '',
-      ceremony_venue: selectedEvent.ceremony_venue || '',
-      reception_date: selectedEvent.date ? formatDisplayDate(selectedEvent.date) : '',
-      reception_time: selectedEvent.start_time ? formatDisplayTime(selectedEvent.start_time) : '',
-      reception_venue: selectedEvent.venue || '',
+      ceremony_date: ceremonyDateStr,
+      ceremony_time: ceremonyStartStr,
+      ceremony_venue: ceremonyVenueName,
+      reception_date: receptionDateStr,
+      reception_time: receptionStartStr,
+      reception_venue: receptionVenueName,
       rsvp_deadline: selectedEvent.rsvp_deadline ? formatDisplayDate(selectedEvent.rsvp_deadline) : '',
+      ceremony: ceremonyCombined,
+      reception: receptionCombined,
     };
   }, [selectedEvent]);
 
