@@ -129,13 +129,13 @@ export const EventNameCombobox: React.FC<EventNameComboboxProps> = ({
               <div className="flex justify-end gap-2">
                 <Button
                   type="button"
-                  variant="ghost"
+                  variant="destructive"
                   size="sm"
                   onClick={() => {
                     setShowCustomInput(false);
                     setCustomName('');
                   }}
-                  className="h-7 text-xs"
+                  className="h-7 text-xs bg-red-500 hover:bg-red-600 text-white"
                 >
                   Cancel
                 </Button>
