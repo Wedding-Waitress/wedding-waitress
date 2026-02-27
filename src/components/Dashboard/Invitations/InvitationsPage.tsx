@@ -59,6 +59,13 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
       date: selectedEvent.date ? formatDisplayDate(selectedEvent.date) : '',
       venue: selectedEvent.venue || '',
       time: selectedEvent.start_time ? formatDisplayTime(selectedEvent.start_time) : '',
+      ceremony_date: selectedEvent.ceremony_date ? formatDisplayDate(selectedEvent.ceremony_date) : '',
+      ceremony_time: selectedEvent.ceremony_start_time ? formatDisplayTime(selectedEvent.ceremony_start_time) : '',
+      ceremony_venue: selectedEvent.ceremony_venue || '',
+      reception_date: selectedEvent.date ? formatDisplayDate(selectedEvent.date) : '',
+      reception_time: selectedEvent.start_time ? formatDisplayTime(selectedEvent.start_time) : '',
+      reception_venue: selectedEvent.venue || '',
+      rsvp_deadline: selectedEvent.rsvp_deadline ? formatDisplayDate(selectedEvent.rsvp_deadline) : '',
     };
   }, [selectedEvent]);
 

@@ -18,12 +18,7 @@ import { generateInvitationQR, DEFAULT_QR_CONFIG, type QrConfig } from '@/lib/in
 
 interface Props {
   template: InvitationTemplate;
-  eventData: {
-    couple_names?: string;
-    date?: string;
-    venue?: string;
-    time?: string;
-  };
+  eventData: Record<string, string>;
   eventId: string | null;
   eventSlug?: string;
   initialCustomText?: Record<string, string>;
@@ -74,7 +69,15 @@ export const InvitationCustomizer: React.FC<Props> = ({
   const getDisplayText = (zone: TextZone): string => {
     if (customText[zone.id]) return customText[zone.id];
     if (zone.type === 'auto' && zone.auto_field && eventData[zone.auto_field]) {
-      return eventData[zone.auto_field]!;
+      return eventData[zone.auto_field];
+    }
+    if (zone.type === 'guest_name') return 'Guest Name';
+    return zone.default_text;
+  };
+
+  const getAutoValue = (zone: TextZone): string => {
+    if (zone.type === 'auto' && zone.auto_field && eventData[zone.auto_field]) {
+      return eventData[zone.auto_field];
     }
     return zone.default_text;
   };
@@ -142,7 +145,18 @@ export const InvitationCustomizer: React.FC<Props> = ({
                     <span className="text-xs text-muted-foreground capitalize">{zone.type}</span>
                   </div>
                   {zone.type === 'auto' ? (
-                    <p className="text-xs text-muted-foreground">Auto-filled from event: {zone.auto_field}</p>
+                    <div className="relative mt-1">
+                      <Input
+                        value={customText[zone.id] || ''}
+                        onChange={e => updateText(zone.id, e.target.value)}
+                        className="h-7 text-xs pr-14"
+                        placeholder={getAutoValue(zone)}
+                        onClick={e => e.stopPropagation()}
+                      />
+                      <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] font-medium text-primary bg-primary/10 px-1.5 py-0.5 rounded">
+                        Auto
+                      </span>
+                    </div>
                   ) : (
                     <Input
                       value={getDisplayText(zone)}
@@ -184,7 +198,7 @@ export const InvitationCustomizer: React.FC<Props> = ({
                   <Label className="text-xs">Font Size ({getStyleValue(activeZone.id, 'font_size', activeZone.font_size)}px)</Label>
                   <Slider
                     value={[getStyleValue(activeZone.id, 'font_size', activeZone.font_size)]}
-                    min={8} max={72} step={1}
+                    min={8} max={150} step={1}
                     onValueChange={([v]) => updateStyle(activeZone.id, 'font_size', v)}
                   />
                 </div>
