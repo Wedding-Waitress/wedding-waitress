@@ -1,61 +1,44 @@
 
-# Add Text Case Control to Invitation Text Zones
 
-## Overview
-Add a "Text Case" segmented toggle control to both the Admin template editor and the User customizer panel. The setting transforms displayed text without modifying stored values.
+# Fix Font Size Sync Between Admin and User Invitation Previews
 
-## Changes Required
+## Problem
 
-### 1. Update TextZone type (`src/hooks/useInvitationTemplates.ts`)
-Add `text_case` property to the `TextZone` interface:
-```
-text_case: 'default' | 'upper' | 'lower' | 'title'
-```
-Default value: `'default'`
+The admin text zone editor renders font sizes at `font_size * 0.5` (half scale), while the user-facing `InvitationPreview` renders them at full pixel size (`font_size` px). This means a font set to 94px in the admin panel looks correct there, but appears roughly double the intended visual size in the user customizer.
 
-### 2. Create a helper function for text case transformation
-Add a utility function `applyTextCase(text: string, textCase: string)` that can be shared across preview and export. This will handle:
-- `'default'` -- return as-is
-- `'upper'` -- apply via CSS `textTransform: 'uppercase'`
-- `'lower'` -- apply via CSS `textTransform: 'lowercase'`
-- `'title'` -- transform in JS: capitalize first letter of each word, lowercase the rest
+Additionally, since the user preview container varies in width depending on screen size (constrained to `max-w-md`), absolute pixel font sizes produce inconsistent results across devices.
 
-For upper/lower, CSS `textTransform` will be used at render time. For title case, the text itself will be transformed in code since CSS `text-transform: capitalize` doesn't lowercase the remaining letters.
+## Solution
 
-### 3. Update Admin Template Editor (`src/components/Admin/TemplateTextZoneEditor.tsx`)
-- Add a "Text Case" row after the Letter Spacing control using the existing `ToggleGroup` / `ToggleGroupItem` components
-- Four pill-style options on one line: Default | UPPER | lower | Title
-- Saves to `text_case` on the zone config
+Make `InvitationPreview.tsx` scale font sizes (and letter spacing) proportionally to the container's rendered width, using a `ResizeObserver`. This ensures text appears at the same relative size regardless of container dimensions.
 
-### 4. Update User Customizer (`src/components/Dashboard/Invitations/InvitationCustomizer.tsx`)
-- Add the same "Text Case" toggle group in the "Style" card for the active zone
-- Uses `customStyles[zoneId].text_case` to override the template default
-- Place it after the Letter Spacing slider
+### Reference Width
 
-### 5. Update Invitation Preview (`src/components/Dashboard/Invitations/InvitationPreview.tsx`)
-- In `getZoneStyle()`: add `textTransform` for `'upper'` and `'lower'` cases
-- In `getZoneText()`: apply title case transformation when `text_case === 'title'`
-- Read `text_case` from `customStyles` override first, then fall back to zone default
+Define a reference width of **600px** (approximately the width at which the admin editor renders its preview content before the CSS `transform` zoom is applied). At this width, fonts render at the `* 0.5` scale the admin uses, so:
 
-### 6. Update default zones (`src/components/Admin/AdminInvitationTemplates.tsx`)
-- Add `text_case: 'default'` to the `base()` helper so all new zones include it
+- Scale factor = `containerWidth / 600`
+- Effective font size = `zone.font_size * scale`
+- Effective letter spacing = `zone.letter_spacing * scale`
 
-### 7. Update Exporter
-- The `InvitationExporter` renders the same `InvitationPreview` component, so it will automatically inherit the text case transformation with no additional changes.
+This produces visually identical output in both the admin and user views.
 
-## UI Layout
-The Text Case control will be a single-row segmented toggle group:
+### File Changes
 
-```text
-Text Case
-[ Default | UPPER | lower | Title ]
-```
+**`src/components/Dashboard/Invitations/InvitationPreview.tsx`**
 
-Using the existing `ToggleGroup` component with `type="single"` and compact sizing to fit on one line.
+1. Add a `useState` for `containerWidth` (default 600)
+2. Add a `useEffect` with `ResizeObserver` on `containerRef` to track the container's actual width
+3. Compute `scale = containerWidth / 600` 
+4. In `getZoneStyle()`, multiply `font_size` and `letter_spacing` by `scale` before converting to px
+5. This affects both the live preview AND exports (since the exporter renders `InvitationPreview` at a known size, the scaling will adapt automatically)
 
-## Files Modified
-1. `src/hooks/useInvitationTemplates.ts` -- add `text_case` to TextZone interface
-2. `src/components/Admin/AdminInvitationTemplates.tsx` -- add `text_case: 'default'` to base helper
-3. `src/components/Admin/TemplateTextZoneEditor.tsx` -- add Text Case toggle group
-4. `src/components/Dashboard/Invitations/InvitationCustomizer.tsx` -- add Text Case toggle group
-5. `src/components/Dashboard/Invitations/InvitationPreview.tsx` -- apply text case in style and text output
+### Why This Works
+
+- Admin sets 94px at 0.5x scale in their preview -- it looks like ~47px visually
+- User preview at 400px wide: scale = 400/600 = 0.67, so 94px renders as ~63px in a smaller container -- visually proportional
+- Exporter renders at a large fixed size, so fonts scale up correctly for high-res output
+- No changes needed to stored data or admin editor
+
+### Files Modified
+
+1. `src/components/Dashboard/Invitations/InvitationPreview.tsx` -- add ResizeObserver-based font scaling
