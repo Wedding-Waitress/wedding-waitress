@@ -1,18 +1,48 @@
 
 
-# Center Default Text Zones on Invitation Preview
+# Fix Text Zone Centering and Implement 12-Zone Layout
 
 ## Problem
-All text zones default to `x_percent: 10`, but the rendering formula calculates position as `left = x_percent - (width_percent / 2)`. With x=10 and width=80, this places text at -30% (off the left edge), causing zones to appear stuck on the left side of the invitation.
+
+Two issues need fixing:
+
+1. **Text zones appear off-screen on existing templates**: The `x_percent` default was changed to 50 in the `base()` helper, but this only affects **newly created** templates. The template you're editing was created before the fix, so its zones are saved in the database with `x_percent: 10`. With the rendering formula `left = x_percent - width/2 = 10 - 40 = -30%`, text boxes render mostly off the left edge of the invitation.
+
+2. **The 12-zone layout was not yet applied**: The default invitation zones (lines 52-60) still show the old 7-zone list instead of the approved 12-zone structure.
 
 ## Solution
-Change the default `x_percent` in the `base()` helper function from `10` to `50`. This centers the text box horizontally: `left = 50 - 40 = 10%`, making it span from 10% to 90% -- perfectly centered.
 
-## File to edit
+### 1. Update default invitation zones to the approved 12-zone layout
 
-**`src/components/Admin/AdminInvitationTemplates.tsx`** (line 23)
+**File: `src/components/Admin/AdminInvitationTemplates.tsx`** (lines 52-60)
 
-Change `x_percent: opts.x_percent ?? 10` to `x_percent: opts.x_percent ?? 50`
+Replace the 7-zone array with the 12 zones, all using `x_percent: 50` (centered), evenly spaced vertically:
 
-This single-line change affects all newly created templates. Existing templates are not impacted since their zone data is already saved in the database.
+| # | ID | Label | Type | Auto Field | y_percent |
+|---|----|-------|------|-----------|-----------|
+| 1 | welcome | Welcome Message | custom | -- | 10 |
+| 2 | couple_names | Couple Names | auto | couple_names | 17 |
+| 3 | ceremony_date | Ceremony Date | auto | date | 24 |
+| 4 | ceremony_time | Ceremony Time | auto | time | 30 |
+| 5 | ceremony_venue | Ceremony Venue | auto | venue | 36 |
+| 6 | reception_date | Reception Date | custom | -- | 43 |
+| 7 | reception_time | Reception Time | custom | -- | 49 |
+| 8 | reception_venue | Reception Venue | custom | -- | 55 |
+| 9 | dress_code | Dress Code | custom | -- | 62 |
+| 10 | rsvp | RSVP Details | custom | -- | 69 |
+| 11 | guest_name | Guest Name | guest_name | -- | 76 |
+| 12 | notes | Notes | custom | -- | 83 |
 
+All zones will use `x_percent: 50` and `width_percent: 80`, which renders as `left: 10%` to `right: 90%` -- perfectly centered.
+
+### 2. Existing templates
+
+For existing templates already saved in the database, the admin will need to either:
+- Delete and recreate the template (which will pick up the new defaults), or
+- Manually adjust each zone's X position to 50% using the editor sliders.
+
+No database migration is needed since this is admin-managed content.
+
+## Files changed
+
+- **`src/components/Admin/AdminInvitationTemplates.tsx`** -- Replace invitation default zones array (lines 52-60) with the 12-zone layout.
