@@ -1,16 +1,18 @@
 
-# Edit Event Modal Header Tweaks
+
+# Create Event Modal - Event Name Field Updates
 
 ## Changes
 
-### 1. Shorten the event name input field width
-**File:** `src/components/Dashboard/EventEditModal.tsx` (line 300)
+### 1. Reduce event name field width by 25%
+**File:** `src/components/Dashboard/EventCreateModal.tsx` (line 257)
 
-Change the wrapper `<div className="flex-1">` to `<div className="flex-1 max-w-[75%]">` so the input field is 75% of its current width, pulling the right edge inward by 25%.
+Change `<div className="flex-1">` to `<div className="flex-1 max-w-[75%]">` -- matching the Edit Event modal.
 
-### 2. Make the close (X) button smaller with a bolder, larger X icon
-**File:** `src/components/ui/dialog.tsx` (line 81)
+### 2. Change event name border from purple to green when empty
+**File:** `src/components/Dashboard/EventCreateModal.tsx` (line 262)
 
-- Reduce circle size from `w-8 h-8` to `w-7 h-7`
-- Increase the X icon from `h-4 w-4` to `h-4.5 w-4.5` (using arbitrary value `h-[18px] w-[18px]`)
-- Add `stroke-[3]` to the X icon to make it bolder/thicker
+Override the event name input's border to always use green instead of purple. Add explicit green border classes to the input so it matches the Edit Event field style:
+
+Change the className to always apply `border-green-500 focus-visible:border-green-500` regardless of whether the field is empty or filled, specifically for the event name input only (other fields throughout the form keep their purple-when-empty / green-when-filled behavior).
+
