@@ -13,6 +13,52 @@ import { useToast } from '@/hooks/use-toast';
 import { TemplateTextZoneEditor } from './TemplateTextZoneEditor';
 
 const CATEGORIES = ['General', 'Floral', 'Modern', 'Classic', 'Rustic', 'Elegant', 'Minimalist', 'Islamic', 'Indian', 'Bohemian'];
+
+const getDefaultTextZones = (cardType: CardType): TextZone[] => {
+  const base = (id: string, label: string, type: TextZone['type'], opts: Partial<TextZone>): TextZone => ({
+    id,
+    label,
+    type,
+    default_text: opts.default_text || '',
+    x_percent: opts.x_percent ?? 10,
+    y_percent: opts.y_percent ?? 50,
+    width_percent: opts.width_percent ?? 80,
+    font_family: opts.font_family || 'Montserrat',
+    font_size: opts.font_size ?? 14,
+    font_color: opts.font_color || '#333333',
+    font_weight: opts.font_weight || 'normal',
+    text_align: opts.text_align || 'center',
+    letter_spacing: opts.letter_spacing ?? 0,
+    max_lines: opts.max_lines ?? 2,
+  });
+
+  if (cardType === 'save_the_date') {
+    return [
+      base('couple_names', 'Couple Names', 'auto', { auto_field: 'couple_names', y_percent: 25, font_family: 'Great Vibes', font_size: 28 }),
+      base('date', 'Date', 'auto', { auto_field: 'date', y_percent: 45, font_family: 'Playfair Display', font_size: 16, letter_spacing: 1 }),
+      base('venue', 'Venue', 'auto', { auto_field: 'venue', y_percent: 58, font_family: 'Playfair Display', font_size: 14 }),
+    ];
+  }
+
+  if (cardType === 'thank_you') {
+    return [
+      base('couple_names', 'Couple Names', 'auto', { auto_field: 'couple_names', y_percent: 22, font_family: 'Great Vibes', font_size: 28 }),
+      base('message', 'Thank You Message', 'custom', { default_text: 'Thank you for sharing our special day', y_percent: 48, font_family: 'Montserrat', font_size: 14 }),
+      base('guest_name', 'Guest Name', 'guest_name', { default_text: 'Guest Name', y_percent: 72, font_family: 'Great Vibes', font_size: 16 }),
+    ];
+  }
+
+  // Default: invitation
+  return [
+    base('couple_names', 'Couple Names', 'auto', { auto_field: 'couple_names', y_percent: 18, font_family: 'Great Vibes', font_size: 28 }),
+    base('date', 'Date', 'auto', { auto_field: 'date', y_percent: 32, font_family: 'Playfair Display', font_size: 16, letter_spacing: 1 }),
+    base('time', 'Time', 'auto', { auto_field: 'time', y_percent: 40, font_family: 'Playfair Display', font_size: 14 }),
+    base('venue', 'Venue', 'auto', { auto_field: 'venue', y_percent: 48, font_family: 'Playfair Display', font_size: 14 }),
+    base('dress_code', 'Dress Code', 'custom', { default_text: 'Cocktail Attire', y_percent: 58, font_family: 'Montserrat', font_size: 12 }),
+    base('rsvp', 'RSVP Details', 'custom', { default_text: 'RSVP by ...', y_percent: 68, font_family: 'Montserrat', font_size: 12 }),
+    base('guest_name', 'Guest Name', 'guest_name', { default_text: 'Guest Name', y_percent: 78, font_family: 'Great Vibes', font_size: 16 }),
+  ];
+};
 const CARD_TYPES: { value: CardType; label: string }[] = [
   { value: 'save_the_date', label: 'Save The Date' },
   { value: 'invitation', label: 'Invitation' },
@@ -111,7 +157,7 @@ export const AdminInvitationTemplates: React.FC = () => {
         ? { width_mm: 148, height_mm: 210 }
         : { width_mm: 210, height_mm: 148 };
 
-      const templateData = {
+      const templateData: any = {
         name: formName.trim(),
         category: formCategory,
         card_type: formCardType,
@@ -119,6 +165,11 @@ export const AdminInvitationTemplates: React.FC = () => {
         background_url: backgroundUrl,
         ...dims,
       };
+
+      // Auto-generate default text zones for new templates
+      if (!editingTemplate) {
+        templateData.text_zones = getDefaultTextZones(formCardType);
+      }
 
       if (editingTemplate) {
         await updateTemplate(editingTemplate.id, templateData);
