@@ -1,0 +1,11 @@
+UPDATE invitation_templates
+SET text_zones = '[
+  {"id":"couple_names","label":"Couple Names","type":"auto","default_text":"","x_percent":10,"y_percent":18,"width_percent":80,"font_family":"Great Vibes","font_size":28,"font_color":"#333333","font_weight":"normal","text_align":"center","letter_spacing":0,"max_lines":2,"auto_field":"couple_names"},
+  {"id":"date","label":"Date","type":"auto","default_text":"","x_percent":10,"y_percent":32,"width_percent":80,"font_family":"Playfair Display","font_size":16,"font_color":"#333333","font_weight":"normal","text_align":"center","letter_spacing":1,"max_lines":2,"auto_field":"date"},
+  {"id":"time","label":"Time","type":"auto","default_text":"","x_percent":10,"y_percent":40,"width_percent":80,"font_family":"Playfair Display","font_size":14,"font_color":"#333333","font_weight":"normal","text_align":"center","letter_spacing":0,"max_lines":2,"auto_field":"time"},
+  {"id":"venue","label":"Venue","type":"auto","default_text":"","x_percent":10,"y_percent":48,"width_percent":80,"font_family":"Playfair Display","font_size":14,"font_color":"#333333","font_weight":"normal","text_align":"center","letter_spacing":0,"max_lines":2,"auto_field":"venue"},
+  {"id":"dress_code","label":"Dress Code","type":"custom","default_text":"Cocktail Attire","x_percent":10,"y_percent":58,"width_percent":80,"font_family":"Montserrat","font_size":12,"font_color":"#333333","font_weight":"normal","text_align":"center","letter_spacing":0,"max_lines":2},
+  {"id":"rsvp","label":"RSVP Details","type":"custom","default_text":"RSVP by ...","x_percent":10,"y_percent":68,"width_percent":80,"font_family":"Montserrat","font_size":12,"font_color":"#333333","font_weight":"normal","text_align":"center","letter_spacing":0,"max_lines":2},
+  {"id":"guest_name","label":"Guest Name","type":"guest_name","default_text":"Guest Name","x_percent":10,"y_percent":78,"width_percent":80,"font_family":"Great Vibes","font_size":16,"font_color":"#333333","font_weight":"normal","text_align":"center","letter_spacing":0,"max_lines":2}
+]'::jsonb
+WHERE id = '46206d01-0a8f-4efe-aba5-6e7acc4a3511' AND text_zones = '[]'::jsonb
