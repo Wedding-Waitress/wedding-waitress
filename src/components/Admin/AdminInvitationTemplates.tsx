@@ -30,6 +30,7 @@ const getDefaultTextZones = (cardType: CardType): TextZone[] => {
     text_align: opts.text_align || 'center',
     letter_spacing: opts.letter_spacing ?? 0,
     max_lines: opts.max_lines ?? 2,
+    text_case: 'default',
   });
 
   if (cardType === 'save_the_date') {

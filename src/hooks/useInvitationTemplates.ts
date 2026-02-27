@@ -18,6 +18,7 @@ export interface TextZone {
   font_color: string;
   text_align: string;
   letter_spacing: number;
+  text_case: 'default' | 'upper' | 'lower' | 'title';
 }
 
 export type CardType = 'invitation' | 'save_the_date' | 'thank_you';

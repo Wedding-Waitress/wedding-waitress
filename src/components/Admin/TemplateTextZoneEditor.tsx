@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { ArrowLeft, Plus, Trash2, Move, ChevronUp, ChevronDown, ZoomIn, ZoomOut } from 'lucide-react';
 import type { InvitationTemplate, TextZone } from '@/hooks/useInvitationTemplates';
 
@@ -43,6 +44,7 @@ const createDefaultZone = (index: number): TextZone => ({
   font_color: '#333333',
   text_align: 'center',
   letter_spacing: 0,
+  text_case: 'default',
 });
 
 export const TemplateTextZoneEditor: React.FC<Props> = ({ template, onSave, onCancel }) => {
@@ -345,6 +347,21 @@ export const TemplateTextZoneEditor: React.FC<Props> = ({ template, onSave, onCa
                     <Label className="text-xs">Letter Spacing ({selectedZone.letter_spacing}px)</Label>
                     <Slider value={[selectedZone.letter_spacing]} min={-2} max={10} step={0.5} onValueChange={([v]) => updateZone(selectedZone.id, { letter_spacing: v })} />
                   </div>
+                </div>
+
+                <div>
+                  <Label className="text-xs mb-1 block">Text Case</Label>
+                  <ToggleGroup
+                    type="single"
+                    value={selectedZone.text_case || 'default'}
+                    onValueChange={(v) => { if (v) updateZone(selectedZone.id, { text_case: v as any }); }}
+                    className="justify-start"
+                  >
+                    <ToggleGroupItem value="default" className="h-7 px-2.5 text-xs">Default</ToggleGroupItem>
+                    <ToggleGroupItem value="upper" className="h-7 px-2.5 text-xs uppercase">Upper</ToggleGroupItem>
+                    <ToggleGroupItem value="lower" className="h-7 px-2.5 text-xs lowercase">lower</ToggleGroupItem>
+                    <ToggleGroupItem value="title" className="h-7 px-2.5 text-xs capitalize">Title</ToggleGroupItem>
+                  </ToggleGroup>
                 </div>
               </CardContent>
             </Card>
