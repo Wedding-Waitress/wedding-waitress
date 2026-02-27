@@ -1,0 +1,1 @@
+ALTER TABLE public.invitation_templates ADD COLUMN IF NOT EXISTS card_type text NOT NULL DEFAULT 'invitation';
