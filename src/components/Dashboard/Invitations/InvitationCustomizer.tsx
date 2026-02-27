@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { Separator } from '@/components/ui/separator';
 import { ArrowLeft, Save, Type, QrCode, RotateCcw } from 'lucide-react';
 import type { InvitationTemplate, TextZone } from '@/hooks/useInvitationTemplates';
@@ -243,6 +244,21 @@ export const InvitationCustomizer: React.FC<Props> = ({
                     min={-2} max={10} step={0.5}
                     onValueChange={([v]) => updateStyle(activeZone.id, 'letter_spacing', v)}
                   />
+                </div>
+
+                <div>
+                  <Label className="text-xs mb-1 block">Text Case</Label>
+                  <ToggleGroup
+                    type="single"
+                    value={getStyleValue(activeZone.id, 'text_case', activeZone.text_case || 'default')}
+                    onValueChange={(v) => { if (v) updateStyle(activeZone.id, 'text_case', v); }}
+                    className="justify-start"
+                  >
+                    <ToggleGroupItem value="default" className="h-7 px-2.5 text-xs">Default</ToggleGroupItem>
+                    <ToggleGroupItem value="upper" className="h-7 px-2.5 text-xs uppercase">Upper</ToggleGroupItem>
+                    <ToggleGroupItem value="lower" className="h-7 px-2.5 text-xs lowercase">lower</ToggleGroupItem>
+                    <ToggleGroupItem value="title" className="h-7 px-2.5 text-xs capitalize">Title</ToggleGroupItem>
+                  </ToggleGroup>
                 </div>
               </CardContent>
             </Card>

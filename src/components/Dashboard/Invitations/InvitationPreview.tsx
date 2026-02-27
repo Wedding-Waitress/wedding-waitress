@@ -46,23 +46,30 @@ export const InvitationPreview: React.FC<Props> = ({
     });
   }, [textZones, customStyles]);
 
-  const getZoneText = (zone: TextZone): string => {
-    // Check custom text first
-    if (customText[zone.id]) return customText[zone.id];
+  const applyTitleCase = (text: string): string =>
+    text.replace(/\S+/g, w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase());
 
-    // Auto-fill from event data
-    if (zone.type === 'auto' && zone.auto_field) {
-      const val = eventData[zone.auto_field];
-      if (val) return val;
+  const getZoneText = (zone: TextZone): string => {
+    let text = '';
+    if (customText[zone.id]) {
+      text = customText[zone.id];
+    } else if (zone.type === 'auto' && zone.auto_field) {
+      text = eventData[zone.auto_field] || zone.default_text;
+    } else if (zone.type === 'guest_name') {
+      text = 'Guest Name';
+    } else {
+      text = zone.default_text;
     }
 
-    if (zone.type === 'guest_name') return 'Guest Name';
-
-    return zone.default_text;
+    const overrides = customStyles[zone.id] || {};
+    const textCase = overrides.text_case || zone.text_case || 'default';
+    if (textCase === 'title') return applyTitleCase(text);
+    return text;
   };
 
   const getZoneStyle = (zone: TextZone) => {
     const overrides = customStyles[zone.id] || {};
+    const textCase = overrides.text_case || zone.text_case || 'default';
     return {
       fontFamily: overrides.font_family || zone.font_family,
       fontSize: `${overrides.font_size || zone.font_size}px`,
@@ -71,6 +78,7 @@ export const InvitationPreview: React.FC<Props> = ({
       textAlign: (overrides.text_align || zone.text_align) as any,
       letterSpacing: `${overrides.letter_spacing ?? zone.letter_spacing}px`,
       lineHeight: 1.3,
+      textTransform: textCase === 'upper' ? 'uppercase' as const : textCase === 'lower' ? 'lowercase' as const : undefined,
     };
   };
 
