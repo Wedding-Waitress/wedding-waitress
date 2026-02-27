@@ -9,12 +9,7 @@ interface Props {
   textZones: TextZone[];
   customText: Record<string, string>;
   customStyles: Record<string, any>;
-  eventData?: {
-    couple_names?: string;
-    date?: string;
-    venue?: string;
-    time?: string;
-  };
+  eventData?: Record<string, string>;
   className?: string;
   qrConfig?: QrConfig;
   qrDataUrl?: string;

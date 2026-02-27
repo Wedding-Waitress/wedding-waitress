@@ -26,6 +26,13 @@ const AUTO_FIELDS = [
   { value: 'date', label: 'Event Date' },
   { value: 'venue', label: 'Venue' },
   { value: 'time', label: 'Event Time' },
+  { value: 'ceremony_date', label: 'Ceremony Date' },
+  { value: 'ceremony_time', label: 'Ceremony Time' },
+  { value: 'ceremony_venue', label: 'Ceremony Venue' },
+  { value: 'reception_date', label: 'Reception Date' },
+  { value: 'reception_time', label: 'Reception Time' },
+  { value: 'reception_venue', label: 'Reception Venue' },
+  { value: 'rsvp_deadline', label: 'RSVP Deadline' },
 ];
 
 const createDefaultZone = (index: number): TextZone => ({
