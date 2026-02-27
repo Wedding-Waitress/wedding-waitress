@@ -1,18 +1,19 @@
 
 
-# Create Event Modal - Event Name Field Updates
+# Add FORCE ROW LEVEL SECURITY to Two Tables
+
+## Overview
+Apply `ALTER TABLE ... FORCE ROW LEVEL SECURITY` to `notification_settings` and `guest_access_tokens`. This ensures RLS policies are enforced even for table owners (superusers), adding an extra layer of protection.
 
 ## Changes
 
-### 1. Reduce event name field width by 25%
-**File:** `src/components/Dashboard/EventCreateModal.tsx` (line 257)
+### 1. Database migration
+Run a single SQL migration:
 
-Change `<div className="flex-1">` to `<div className="flex-1 max-w-[75%]">` -- matching the Edit Event modal.
+```sql
+ALTER TABLE public.notification_settings FORCE ROW LEVEL SECURITY;
+ALTER TABLE public.guest_access_tokens FORCE ROW LEVEL SECURITY;
+```
 
-### 2. Change event name border from purple to green when empty
-**File:** `src/components/Dashboard/EventCreateModal.tsx` (line 262)
-
-Override the event name input's border to always use green instead of purple. Add explicit green border classes to the input so it matches the Edit Event field style:
-
-Change the className to always apply `border-green-500 focus-visible:border-green-500` regardless of whether the field is empty or filled, specifically for the event name input only (other fields throughout the form keep their purple-when-empty / green-when-filled behavior).
+No code changes are needed -- this is a database-only hardening step. Existing RLS policies remain unchanged and will continue to work as before.
 
