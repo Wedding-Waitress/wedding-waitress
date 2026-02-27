@@ -49,7 +49,7 @@ export const TemplateTextZoneEditor: React.FC<Props> = ({ template, onSave, onCa
   const [zones, setZones] = useState<TextZone[]>(template.text_zones || []);
   const [selectedZoneId, setSelectedZoneId] = useState<string | null>(zones[0]?.id || null);
   const [isDragging, setIsDragging] = useState(false);
-  const [zoom, setZoom] = useState(100);
+  const [zoom, setZoom] = useState(50);
 
   const selectedZone = zones.find(z => z.id === selectedZoneId) || null;
 
@@ -125,16 +125,16 @@ export const TemplateTextZoneEditor: React.FC<Props> = ({ template, onSave, onCa
               <ZoomOut className="w-4 h-4 text-muted-foreground flex-shrink-0" />
               <Slider
                 value={[zoom]}
-                min={50}
-                max={150}
+                min={0}
+                max={100}
                 step={5}
                 onValueChange={([v]) => setZoom(v)}
                 className="flex-1"
               />
               <ZoomIn className="w-4 h-4 text-muted-foreground flex-shrink-0" />
               <span className="text-xs text-muted-foreground w-10 text-right">{zoom}%</span>
-              {zoom !== 100 && (
-                <Button variant="ghost" size="sm" className="h-6 text-xs px-2" onClick={() => setZoom(100)}>
+              {zoom !== 50 && (
+                <Button variant="ghost" size="sm" className="h-6 text-xs px-2" onClick={() => setZoom(50)}>
                   Reset
                 </Button>
               )}
@@ -145,7 +145,7 @@ export const TemplateTextZoneEditor: React.FC<Props> = ({ template, onSave, onCa
                 className="relative mx-auto border rounded-lg overflow-hidden cursor-crosshair bg-muted"
                 style={{
                   aspectRatio: `${isPortrait ? 148 : 210} / ${isPortrait ? 210 : 148}`,
-                  transform: `scale(${zoom / 100})`,
+                  transform: `scale(${0.3 + (zoom / 100) * 0.7})`,
                   transformOrigin: 'top center',
                 }}
                 onClick={handlePreviewClick}
