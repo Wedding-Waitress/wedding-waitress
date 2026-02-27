@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
-import { ArrowLeft, Plus, Trash2, Move, ChevronUp, ChevronDown } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Move, ChevronUp, ChevronDown, ZoomIn, ZoomOut } from 'lucide-react';
 import type { InvitationTemplate, TextZone } from '@/hooks/useInvitationTemplates';
 
 interface Props {
@@ -49,6 +49,7 @@ export const TemplateTextZoneEditor: React.FC<Props> = ({ template, onSave, onCa
   const [zones, setZones] = useState<TextZone[]>(template.text_zones || []);
   const [selectedZoneId, setSelectedZoneId] = useState<string | null>(zones[0]?.id || null);
   const [isDragging, setIsDragging] = useState(false);
+  const [zoom, setZoom] = useState(100);
 
   const selectedZone = zones.find(z => z.id === selectedZoneId) || null;
 
@@ -118,46 +119,71 @@ export const TemplateTextZoneEditor: React.FC<Props> = ({ template, onSave, onCa
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-6">
         {/* Preview Panel */}
         <Card>
-          <CardContent className="p-4">
-            <div
-              className="relative mx-auto border rounded-lg overflow-hidden cursor-crosshair bg-muted"
-              style={{ aspectRatio: `${isPortrait ? 148 : 210} / ${isPortrait ? 210 : 148}`, maxHeight: '70vh' }}
-              onClick={handlePreviewClick}
-            >
-              <img
-                src={template.background_url}
-                alt={template.name}
-                className="absolute inset-0 w-full h-full object-cover"
+          <CardContent className="p-4 space-y-3">
+            {/* Zoom controls */}
+            <div className="flex items-center gap-3">
+              <ZoomOut className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+              <Slider
+                value={[zoom]}
+                min={50}
+                max={150}
+                step={5}
+                onValueChange={([v]) => setZoom(v)}
+                className="flex-1"
               />
-              {/* Render text zones */}
-              {zones.map(zone => {
-                const isSelected = zone.id === selectedZoneId;
-                return (
-                  <div
-                    key={zone.id}
-                    className={`absolute cursor-pointer transition-all ${isSelected ? 'ring-2 ring-primary ring-offset-1' : 'hover:ring-1 hover:ring-primary/50'}`}
-                    style={{
-                      left: `${zone.x_percent - zone.width_percent / 2}%`,
-                      top: `${zone.y_percent - 3}%`,
-                      width: `${zone.width_percent}%`,
-                      textAlign: zone.text_align as any,
-                      fontFamily: zone.font_family,
-                      fontSize: `${zone.font_size * 0.5}px`,
-                      fontWeight: zone.font_weight,
-                      color: zone.font_color,
-                      letterSpacing: `${zone.letter_spacing}px`,
-                      padding: '2px 4px',
-                      backgroundColor: isSelected ? 'rgba(114, 72, 230, 0.1)' : 'transparent',
-                    }}
-                    onClick={(e) => { e.stopPropagation(); setSelectedZoneId(zone.id); }}
-                  >
-                    <span className="text-xs bg-primary text-primary-foreground px-1 rounded absolute -top-4 left-0 whitespace-nowrap">
-                      {zone.label}
-                    </span>
-                    {zone.default_text}
-                  </div>
-                );
-              })}
+              <ZoomIn className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+              <span className="text-xs text-muted-foreground w-10 text-right">{zoom}%</span>
+              {zoom !== 100 && (
+                <Button variant="ghost" size="sm" className="h-6 text-xs px-2" onClick={() => setZoom(100)}>
+                  Reset
+                </Button>
+              )}
+            </div>
+
+            <div className="overflow-auto" style={{ maxHeight: '85vh' }}>
+              <div
+                className="relative mx-auto border rounded-lg overflow-hidden cursor-crosshair bg-muted"
+                style={{
+                  aspectRatio: `${isPortrait ? 148 : 210} / ${isPortrait ? 210 : 148}`,
+                  transform: `scale(${zoom / 100})`,
+                  transformOrigin: 'top center',
+                }}
+                onClick={handlePreviewClick}
+              >
+                <img
+                  src={template.background_url}
+                  alt={template.name}
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
+                {zones.map(zone => {
+                  const isSelected = zone.id === selectedZoneId;
+                  return (
+                    <div
+                      key={zone.id}
+                      className={`absolute cursor-pointer transition-all ${isSelected ? 'ring-2 ring-primary ring-offset-1' : 'hover:ring-1 hover:ring-primary/50'}`}
+                      style={{
+                        left: `${zone.x_percent - zone.width_percent / 2}%`,
+                        top: `${zone.y_percent - 3}%`,
+                        width: `${zone.width_percent}%`,
+                        textAlign: zone.text_align as any,
+                        fontFamily: zone.font_family,
+                        fontSize: `${zone.font_size * 0.5}px`,
+                        fontWeight: zone.font_weight,
+                        color: zone.font_color,
+                        letterSpacing: `${zone.letter_spacing}px`,
+                        padding: '2px 4px',
+                        backgroundColor: isSelected ? 'rgba(114, 72, 230, 0.1)' : 'transparent',
+                      }}
+                      onClick={(e) => { e.stopPropagation(); setSelectedZoneId(zone.id); }}
+                    >
+                      <span className="text-xs bg-primary text-primary-foreground px-1 rounded absolute -top-4 left-0 whitespace-nowrap">
+                        {zone.label}
+                      </span>
+                      {zone.default_text}
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </CardContent>
         </Card>
