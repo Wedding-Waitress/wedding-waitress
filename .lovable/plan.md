@@ -1,93 +1,79 @@
 
+# Save The Date and Thank You Cards -- Sub-Tabs in Invitations
 
-# Email & SMS Sending for Designed Invitations
+## Overview
+Add two new card types (Save The Date, Thank You) as sub-tabs within the existing Invitations page. All three card types share the same template engine, customizer, export, and send pipeline -- only the template category filter and default text zones differ.
 
-## What We're Building
-Add a "Send Invitation" feature to the Invitations customizer that lets couples send their beautifully designed invitation image directly to guests via email (with the invitation embedded inline) or SMS (with an RSVP link). This leverages the existing `send-rsvp-email` and `send-rsvp-sms` Edge Functions but enhances the email to include the designed invitation as an inline image.
+## Architecture Decision
+**Sub-tabs within Invitations** (not separate pages) because:
+- All three use identical infrastructure (template gallery, customizer, preview, exporter, send modal)
+- Reduces sidebar clutter
+- Templates are differentiated by a `category` field already in the database
+- Zero code duplication
 
-## How It Works for You
-1. After customising your invitation, a new "Send to Guests" button appears in the Export & Share panel
-2. Opens a modal showing your guest list with checkboxes to select recipients
-3. Choose Email or SMS as the delivery channel
-4. Email sends your designed invitation image embedded in a branded email template with an RSVP button
-5. SMS sends a text message with the RSVP link (image can't be embedded in SMS)
-6. Delivery status is tracked per guest (sent/failed/skipped)
-7. Free plan: limited to 3 sends; paid plans: unlimited
+## What Changes
 
-## Technical Plan
+### 1. Update Invitation Templates Category Support
+- The `invitation_templates` table already has a `category` field
+- Add new category values: `save_the_date`, `thank_you` (existing templates use categories like `classic`, `modern`, etc.)
+- Add a new column `card_type` to `invitation_templates` with values: `invitation` (default), `save_the_date`, `thank_you`
+- This separates the card type from the visual style category (a Save The Date can be "modern" or "floral" style)
 
-### 1. New Component: `InvitationSendModal.tsx`
-**New file:** `src/components/Dashboard/Invitations/InvitationSendModal.tsx`
+### 2. Update `InvitationsPage.tsx` -- Add Sub-Tab Navigation
+- Add a tab bar at the top with three tabs: "Save The Date", "Invitation", "Thank You"
+- Each tab filters the template gallery by `card_type`
+- Update the page title/description dynamically based on active tab
+- Pass `cardType` to the template gallery for filtering
 
-- Modal with guest list (fetched via existing `useGuests` hook)
-- Select all / individual checkboxes
-- Filter: show only guests with email (for email) or mobile (for SMS)
-- Channel toggle: Email / SMS
-- Shows delivery status badges per guest (from `rsvp_invite_status`)
-- "Send" button with confirmation count
-- Progress indicator during sending
-- Uses existing `useRsvpInvites` hook for SMS sends
-- For email sends with invitation image, calls a new Edge Function
+### 3. Update `TemplateGallery.tsx` -- Filter by Card Type
+- Accept a `cardType` prop
+- Filter templates by `card_type` field
+- Show appropriate empty state message per tab (e.g., "No Save The Date templates yet")
 
-### 2. New Edge Function: `send-invitation-email`
-**New file:** `supabase/functions/send-invitation-email/index.ts`
+### 4. Update `useInvitationTemplates.ts` -- Support Card Type Filtering
+- Add optional `cardType` parameter to the hook
+- Filter query by `card_type` when provided
 
-- Accepts: `event_id`, `guest_ids`, `invitation_image_base64`
-- Sends via Resend API (same as existing `send-rsvp-email`)
-- Email HTML template includes:
-  - The designed invitation as an inline base64 image (embedded, not attached)
-  - An RSVP button linking to `/s/{event-slug}`
-  - Wedding Waitress branding footer
-- Updates `guests.rsvp_invite_status` and logs to `rsvp_invite_logs` (same as existing)
-- Auth: validates JWT, verifies event ownership (same pattern as existing Edge Functions)
+### 5. Update Admin Template Uploader
+- Add a "Card Type" selector (Save The Date / Invitation / Thank You) to the admin template creation form
+- This lets the admin assign templates to the correct tab when uploading
 
-### 3. New Hook: `useInvitationSend.ts`
-**New file:** `src/hooks/useInvitationSend.ts`
+### 6. Default Text Zones per Card Type
+When creating templates in admin, the suggested text zones differ:
+- **Save The Date**: `couple_names`, `date`, `venue` (minimal -- 3 zones)
+- **Invitation**: `couple_names`, `date`, `venue`, `time`, `dress_code`, `rsvp_details`, `guest_name` (detailed -- 7 zones)
+- **Thank You**: `couple_names`, `message`, `guest_name` (simple -- 3 zones)
 
-- `sendInvitationEmail(eventId, guestIds, imageBase64)` -- calls the new Edge Function
-- `sendInvitationSms(eventId, guestIds)` -- delegates to existing `send-rsvp-sms` Edge Function
-- Returns `{ sending, sendInvitationEmail, sendInvitationSms }`
+These are just guidance for the admin when creating templates. The customizer handles any number of zones dynamically.
 
-### 4. Generate Invitation Image for Sending
-- Before sending, use the existing `buildInvitationElement` + `captureElement` from `invitationExporter.ts` to render the invitation as a PNG
-- Convert canvas to base64 and pass to the Edge Function
-- Export these two functions from `invitationExporter.ts` so the send modal can use them
-- For personalised sends (templates with guest_name zone): render per-guest with their name
-
-### 5. Update `InvitationExporter.tsx`
-- Add a "Send to Guests" button below the existing export buttons (with a Mail/Send icon)
-- Opens the `InvitationSendModal`
-- Pass through all template/customisation data needed to render the invitation image
-
-### 6. Plan Gating
-- Free (Starter) plan: limited to 3 sends total (same pattern as export limit)
-- Paid plans: unlimited sends
-- Uses existing `useUserPlan` hook
-
-### Files Changed
+## Files Changed
 
 | File | Change |
 |------|--------|
-| `src/components/Dashboard/Invitations/InvitationSendModal.tsx` | New -- guest selection + send modal |
-| `src/hooks/useInvitationSend.ts` | New -- hook for sending invitation emails/SMS |
-| `supabase/functions/send-invitation-email/index.ts` | New -- Edge Function to send invitation image via Resend |
-| `src/lib/invitationExporter.ts` | Export `buildInvitationElement` and `captureElement` for reuse |
-| `src/components/Dashboard/Invitations/InvitationExporter.tsx` | Add "Send to Guests" button + modal integration |
+| Database migration | Add `card_type` column to `invitation_templates` (default: `invitation`) |
+| `src/hooks/useInvitationTemplates.ts` | Add `cardType` filter parameter |
+| `src/components/Dashboard/Invitations/InvitationsPage.tsx` | Add sub-tab navigation bar, pass `cardType` to gallery |
+| `src/components/Dashboard/Invitations/TemplateGallery.tsx` | Accept and apply `cardType` filter |
+| Admin template form (in Admin panel) | Add Card Type selector dropdown |
 
-### Email Template Design
-The invitation email will follow the existing Wedding Waitress email style:
-- Purple gradient header: "You're Invited!"
-- Guest's name greeting
-- The designed invitation image (full width, inline)
-- RSVP button (purple gradient pill)
-- Wedding Waitress footer branding
-- "Do not reply" notice
+## UI Layout
 
-### Edge Function Pattern
-Follows the exact same authentication and logging pattern as the existing `send-rsvp-email`:
-- JWT verification via `supabase.auth.getClaims()`
-- Event ownership check
-- Per-guest send loop with error handling
-- Status updates to `guests.rsvp_invite_status`
-- Logging to `rsvp_invite_logs` table
+```text
++--------------------------------------------------+
+|  Invitations & Cards                              |
+|  Choose an event: [dropdown]                      |
+|                                                   |
+|  [ Save The Date ]  [ Invitation ]  [ Thank You ] |
+|  ──────────────────────────────────────────────── |
+|                                                   |
+|  Template Gallery (filtered by active tab)         |
+|  [card] [card] [card] [card]                      |
++--------------------------------------------------+
+```
 
+## No Changes Needed
+- `InvitationCustomizer.tsx` -- already handles any number of text zones dynamically
+- `InvitationPreview.tsx` -- renders whatever zones the template defines
+- `InvitationExporter.tsx` -- exports whatever is on the preview
+- `InvitationSendModal.tsx` -- sends whatever is rendered
+- `invitationQR.ts` -- QR code works identically for all card types
