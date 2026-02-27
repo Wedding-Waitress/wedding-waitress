@@ -1,31 +1,18 @@
 
-# Update Default Invitation Text Zones
 
-## What's changing
+# Center Default Text Zones on Invitation Preview
 
-The default text zones generated when creating a new **Invitation** template will be updated to match a new structure with 10 zones (up from 7), reordered and relabeled as follows:
+## Problem
+All text zones default to `x_percent: 10`, but the rendering formula calculates position as `left = x_percent - (width_percent / 2)`. With x=10 and width=80, this places text at -30% (off the left edge), causing zones to appear stuck on the left side of the invitation.
 
-| # | Label | Type | Default Text | Auto Field |
-|---|-------|------|-------------|------------|
-| 1 | Welcome Message | custom | "Join us to celebrate the wedding of..." | -- |
-| 2 | Couple Names | auto | -- | couple_names |
-| 3 | Ceremony Date | auto | -- | date |
-| 4 | Ceremony Time | auto | -- | time |
-| 5 | Ceremony Venue | auto | -- | venue |
-| 6 | Reception Date | custom | "Reception Date" | -- |
-| 7 | Reception Time | custom | "Reception Time" | -- |
-| 8 | Reception Venue | custom | "Reception Venue" | -- |
-| 9 | Dress Code | custom | "Cocktail Attire" | -- |
-| 10 | RSVP Details | custom | "RSVP by ..." | -- |
-| 11 | Guest Name | guest_name | "Guest Name" | -- |
-| 12 | Notes | custom | "" | -- |
+## Solution
+Change the default `x_percent` in the `base()` helper function from `10` to `50`. This centers the text box horizontally: `left = 50 - 40 = 10%`, making it span from 10% to 90% -- perfectly centered.
 
-Note: Ceremony fields (Date, Time, Venue) use auto-fill from event data. Reception fields are custom text since the event data model has separate ceremony/reception fields that aren't currently wired as auto-fill options -- users can manually enter reception details, or admins can adjust these in the editor. The Y positions will be spaced evenly to distribute across the invitation.
+## File to edit
 
-## File changed
+**`src/components/Admin/AdminInvitationTemplates.tsx`** (line 23)
 
-**`src/components/Admin/AdminInvitationTemplates.tsx`**
+Change `x_percent: opts.x_percent ?? 10` to `x_percent: opts.x_percent ?? 50`
 
-Replace the invitation default zones array (lines 52-60) with the new 12-zone list, each with appropriate y_percent spacing (~6-7% apart), font families, and sizes matching the existing design language.
+This single-line change affects all newly created templates. Existing templates are not impacted since their zone data is already saved in the database.
 
-This only affects **newly created** invitation templates. Existing templates are unchanged.
