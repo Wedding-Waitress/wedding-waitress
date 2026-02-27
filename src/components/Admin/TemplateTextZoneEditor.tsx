@@ -298,7 +298,7 @@ export const TemplateTextZoneEditor: React.FC<Props> = ({ template, onSave, onCa
                 <div className="grid grid-cols-3 gap-2">
                   <div>
                     <Label className="text-xs">Size ({selectedZone.font_size}px)</Label>
-                    <Slider value={[selectedZone.font_size]} min={8} max={72} step={1} onValueChange={([v]) => updateZone(selectedZone.id, { font_size: v })} />
+                    <Slider value={[selectedZone.font_size]} min={8} max={150} step={1} onValueChange={([v]) => updateZone(selectedZone.id, { font_size: v })} />
                   </div>
                   <div>
                     <Label className="text-xs">Weight</Label>
