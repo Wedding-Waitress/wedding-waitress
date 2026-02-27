@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
-import { ArrowLeft, Plus, Trash2, Move } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Move, ChevronUp, ChevronDown } from 'lucide-react';
 import type { InvitationTemplate, TextZone } from '@/hooks/useInvitationTemplates';
 
 interface Props {
@@ -65,6 +65,26 @@ export const TemplateTextZoneEditor: React.FC<Props> = ({ template, onSave, onCa
 
   const updateZone = (id: string, updates: Partial<TextZone>) => {
     setZones(zones.map(z => z.id === id ? { ...z, ...updates } : z));
+  };
+
+  const moveZoneUp = (id: string) => {
+    setZones(prev => {
+      const idx = prev.findIndex(z => z.id === id);
+      if (idx <= 0) return prev;
+      const next = [...prev];
+      [next[idx - 1], next[idx]] = [next[idx], next[idx - 1]];
+      return next;
+    });
+  };
+
+  const moveZoneDown = (id: string) => {
+    setZones(prev => {
+      const idx = prev.findIndex(z => z.id === id);
+      if (idx < 0 || idx >= prev.length - 1) return prev;
+      const next = [...prev];
+      [next[idx], next[idx + 1]] = [next[idx + 1], next[idx]];
+      return next;
+    });
   };
 
   // Calculate aspect ratio for preview
@@ -156,15 +176,21 @@ export const TemplateTextZoneEditor: React.FC<Props> = ({ template, onSave, onCa
             </CardHeader>
             <CardContent className="pb-3">
               <div className="space-y-1 max-h-40 overflow-y-auto">
-                {zones.map(zone => (
+                {zones.map((zone, idx) => (
                   <div
                     key={zone.id}
-                    className={`flex items-center gap-2 px-2 py-1.5 rounded cursor-pointer text-sm ${zone.id === selectedZoneId ? 'bg-primary/10 text-primary font-medium' : 'hover:bg-muted'}`}
+                    className={`flex items-center gap-1 px-2 py-1.5 rounded cursor-pointer text-sm ${zone.id === selectedZoneId ? 'bg-primary/10 text-primary font-medium' : 'hover:bg-muted'}`}
                     onClick={() => setSelectedZoneId(zone.id)}
                   >
-                    <Move className="w-3 h-3 flex-shrink-0" />
+                    <Move className="w-3 h-3 flex-shrink-0 text-muted-foreground" />
                     <span className="flex-1 truncate">{zone.label}</span>
                     <span className="text-xs text-muted-foreground">{zone.type}</span>
+                    <Button variant="ghost" size="sm" className={`h-5 w-5 p-0 ${idx === 0 ? 'invisible' : ''}`} onClick={(e) => { e.stopPropagation(); moveZoneUp(zone.id); }}>
+                      <ChevronUp className="w-3 h-3" />
+                    </Button>
+                    <Button variant="ghost" size="sm" className={`h-5 w-5 p-0 ${idx === zones.length - 1 ? 'invisible' : ''}`} onClick={(e) => { e.stopPropagation(); moveZoneDown(zone.id); }}>
+                      <ChevronDown className="w-3 h-3" />
+                    </Button>
                     <Button variant="ghost" size="sm" className="h-5 w-5 p-0 text-destructive" onClick={(e) => { e.stopPropagation(); removeZone(zone.id); }}>
                       <Trash2 className="w-3 h-3" />
                     </Button>
