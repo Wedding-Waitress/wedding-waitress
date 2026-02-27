@@ -1,58 +1,80 @@
 
 
-# Fix Auto-Fill and Visibility for Invitation Text Zones
+# Consolidate Invitation Text Zones: Combined Ceremony and Reception
 
-## Problems Identified
+## Overview
+Reduce the default invitation template from 12 text zones to 6, combining ceremony and reception details into single auto-filled zones with a specific two-line format.
 
-1. Auto-filled zones (Couple Names, Ceremony Date/Time/Venue) show "Auto-filled from event" label but have no input, so users cannot see or override the value
-2. The `eventData` only maps 4 fields (couple_names, date, venue, time) but doesn't include ceremony-specific or reception-specific event data
-3. Reception Date/Time/Venue zones are set as "custom" type -- they don't pull from event data at all
-4. The auto_field type only supports 4 values, missing ceremony and reception variants plus RSVP
+## New Zone Layout (6 zones)
+1. **Welcome Message** (custom) -- keep as-is
+2. **Couple Names** (auto: couple_names) -- keep as-is
+3. **Ceremony** (auto: ceremony) -- NEW combined zone
+4. **Reception** (auto: reception) -- NEW combined zone
+5. **RSVP Details** (auto: rsvp_deadline) -- keep as-is
+6. **Notes** (custom) -- keep as-is
 
-## Plan
+**Removed:** Ceremony Date, Ceremony Time, Ceremony Venue (3 separate zones), Reception Date, Reception Time, Reception Venue (3 separate zones), Dress Code, Guest Name.
 
-### 1. Expand auto_field options (`src/hooks/useInvitationTemplates.ts`)
-Add new auto_field values to the TextZone interface:
-- `ceremony_date`, `ceremony_time`, `ceremony_venue`
-- `reception_date`, `reception_time`, `reception_venue`
-- `rsvp_deadline`
+## Auto-Fill Format
 
-### 2. Add matching AUTO_FIELDS in admin editor (`src/components/Admin/TemplateTextZoneEditor.tsx`)
-Add the new auto field options so admins can assign them to zones.
+**Ceremony zone** will render as:
+```
+Ceremony - Date: 20/12/2026 - Time: 3:30 PM -- 5:55 PM
+Location: Sheldon Receptions - 608-614 Somerville Road, Sunshine West Vic 3020
+```
 
-### 3. Expand eventData in InvitationsPage (`src/components/Dashboard/Invitations/InvitationsPage.tsx`)
-Pull ceremony and reception fields from the selected event:
-- `ceremony_date` from `selectedEvent.ceremony_date`
-- `ceremony_time` from `selectedEvent.ceremony_start_time`
-- `ceremony_venue` from `selectedEvent.ceremony_venue`
-- `reception_date` from `selectedEvent.date`
-- `reception_time` from `selectedEvent.start_time`
-- `reception_venue` from `selectedEvent.venue`
-- `rsvp_deadline` from `selectedEvent.rsvp_deadline`
+**Reception zone** will render as:
+```
+Reception - Date: 20/12/2026 - Time: 6:00 PM -- 11:00 PM
+Location: Sheldon Receptions - 608-614 Somerville Road, Sunshine West Vic 3020
+```
 
-Keep existing `date`, `venue`, `time` as-is for backward compatibility.
+The venue name and venue address are combined on the Location line, separated by " - ".
 
-### 4. Update InvitationPreview eventData interface (`src/components/Dashboard/Invitations/InvitationPreview.tsx`)
-Widen the eventData type to accept any string key so all new auto fields resolve correctly.
+## Technical Changes
 
-### 5. Make auto zones editable in the Customizer (`src/components/Dashboard/Invitations/InvitationCustomizer.tsx`)
-Replace the static "Auto-filled from event" text with an Input field that:
-- Shows the auto-filled value as a placeholder
-- Lets the user type a custom override
-- When cleared, reverts to the auto-filled value
-- Shows a small "Auto" badge so users know the source
+### 1. Expand auto_field type (`src/hooks/useInvitationTemplates.ts`)
+Add two new auto_field values: `'ceremony'` and `'reception'` to the union type.
 
-### 6. Update default zone templates (`src/components/Admin/AdminInvitationTemplates.tsx`)
-Change Reception Date/Time/Venue from `custom` to `auto` type with the new auto_field values (`reception_date`, `reception_time`, `reception_venue`). Similarly update Ceremony zones to use the specific ceremony auto fields instead of generic `date`/`time`/`venue`.
+### 2. Expand eventData mapping (`src/components/Dashboard/Invitations/InvitationsPage.tsx`)
+Add these new fields from the selected event:
+- `ceremony_finish_time` -- from `selectedEvent.ceremony_finish_time`
+- `reception_finish_time` -- from `selectedEvent.finish_time`
+- `ceremony_venue_address` -- from `selectedEvent.ceremony_venue_address`
+- `venue_address` -- from `selectedEvent.venue_address`
+- `ceremony` -- pre-formatted combined string using the exact two-line format
+- `reception` -- pre-formatted combined string using the exact two-line format
 
-### 7. Update font size slider max
-Change the user-facing font size slider max from 72 to 150 (matching the admin editor).
+The formatting logic will build the string like:
+```typescript
+const ceremony = [
+  `Ceremony - Date: ${formatDisplayDate(event.ceremony_date)} - Time: ${formatDisplayTime(event.ceremony_start_time)} — ${formatDisplayTime(event.ceremony_finish_time)}`,
+  `Location: ${[event.ceremony_venue, event.ceremony_venue_address].filter(Boolean).join(' - ')}`
+].join('\n');
+```
+
+### 3. Update default zones (`src/components/Admin/AdminInvitationTemplates.tsx`)
+Replace the 12-zone invitation layout with the new 6-zone layout:
+- Welcome (y: 10%), Couple Names (y: 20%), Ceremony (y: 35%, auto_field: 'ceremony'), Reception (y: 50%, auto_field: 'reception'), RSVP (y: 65%), Notes (y: 78%)
+- Ceremony and Reception zones get `max_lines: 3` to accommodate two lines of text
+
+### 4. Add auto_field options in admin editor (`src/components/Admin/TemplateTextZoneEditor.tsx`)
+Add `'ceremony'` and `'reception'` to the AUTO_FIELDS dropdown so admins can assign them.
+
+### 5. Preview rendering (`src/components/Dashboard/Invitations/InvitationPreview.tsx`)
+No structural changes needed -- the preview already resolves `eventData[zone.auto_field]` for any auto field. The new `ceremony` and `reception` keys will be resolved automatically. The `whitespace-pre-wrap` CSS class already handles the newline character in the combined string.
+
+### 6. Customizer (`src/components/Dashboard/Invitations/InvitationCustomizer.tsx`)
+No structural changes needed -- the auto zone input already shows the auto-filled value as a placeholder and allows overrides.
 
 ## Files Modified
-1. `src/hooks/useInvitationTemplates.ts` -- expand auto_field type
-2. `src/components/Admin/TemplateTextZoneEditor.tsx` -- add new AUTO_FIELDS entries
-3. `src/components/Dashboard/Invitations/InvitationsPage.tsx` -- expand eventData
-4. `src/components/Dashboard/Invitations/InvitationPreview.tsx` -- widen eventData type
-5. `src/components/Dashboard/Invitations/InvitationCustomizer.tsx` -- make auto zones editable, update slider max
-6. `src/components/Admin/AdminInvitationTemplates.tsx` -- update default zone auto_field values
+1. `src/hooks/useInvitationTemplates.ts` -- add `'ceremony'` and `'reception'` to auto_field union
+2. `src/components/Dashboard/Invitations/InvitationsPage.tsx` -- build combined ceremony/reception strings in eventData
+3. `src/components/Admin/AdminInvitationTemplates.tsx` -- replace 12-zone default with 6-zone default
+4. `src/components/Admin/TemplateTextZoneEditor.tsx` -- add new AUTO_FIELDS entries
+
+## Important Notes
+- Existing templates already saved in the database will NOT be affected -- they keep their current zones. Only newly created templates will use the 6-zone default.
+- The user can still override the auto-filled text by typing in the customizer input field.
+- The combined format uses a newline character so it displays on two lines in the preview (supported by `whitespace-pre-wrap`).
 
