@@ -1,16 +1,26 @@
 
-# Update Edit Event Modal Button Styles
 
-## Change
-Update the Cancel and Save Changes buttons in the Edit Event modal footer to match the app-wide form action button standard:
+# Style Updates for Edit Event Modal
 
-- **Cancel**: Red background (`bg-red-500`) with white text (`text-white`)
-- **Save Changes**: Green background (`bg-green-500`) with white text (`text-white`)
+## 3 Changes
 
-## File Modified
-**`src/components/Dashboard/EventEditModal.tsx`** (lines 595-609)
+### 1. EventNameCombobox Cancel button -- red background, white text
+**File:** `src/components/Dashboard/EventNameCombobox.tsx` (line 130-141)
 
-- Cancel button: change `variant="outline"` to `variant="destructive"` and add `className="rounded-full bg-red-500 hover:bg-red-600 text-white"`
-- Save Changes button: change `variant="gradient"` to `variant="default"` and add `className="rounded-full bg-green-500 hover:bg-green-600 text-white"`
+Change the Cancel button from `variant="ghost"` to `variant="destructive"` with `bg-red-500 hover:bg-red-600 text-white` classes. This affects both the Ceremony Name and Reception Name dropdowns since they share the same component.
 
-This matches the existing pattern used in the Event Create Modal and other form actions throughout the app.
+### 2. Dialog close button (X) -- centered purple circle
+**File:** `src/components/ui/dialog.tsx` (line 81-85)
+
+Replace the default close button styling with a circular design:
+- Add `rounded-full border-2 border-primary` for the purple circle border
+- Add `flex items-center justify-center w-8 h-8` for centering and sizing
+- Change the X icon color to `text-primary` (purple)
+- Keep `opacity-100` instead of `opacity-70` so it's clearly visible
+
+This matches the existing Guest Live View modal close button standard (from memory: circular, thick purple border, purple X, centered).
+
+### Files Modified
+1. `src/components/Dashboard/EventNameCombobox.tsx` -- Cancel button styling
+2. `src/components/ui/dialog.tsx` -- Close (X) button styling
+
