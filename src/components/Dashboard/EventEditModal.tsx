@@ -101,6 +101,47 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
   });
 
   const [isSaving, setIsSaving] = useState(false);
+  const [receptionOverrides, setReceptionOverrides] = useState<Set<string>>(new Set());
+
+  const markReceptionOverride = (field: string) => {
+    setReceptionOverrides(prev => new Set(prev).add(field));
+  };
+
+  // Auto-sync ceremony fields to reception fields (matching Create Modal pattern)
+  useEffect(() => {
+    if (!formData.reception_enabled || !formData.ceremony_enabled) return;
+
+    setFormData(prev => {
+      const updates: Partial<typeof prev> = {};
+      const syncMap: Record<string, string> = {
+        ceremony_name: 'name',
+        ceremony_date: 'date',
+        ceremony_rsvp_deadline: 'rsvp_deadline',
+        ceremony_guest_limit: 'guest_limit',
+        ceremony_venue: 'venue',
+        ceremony_venue_address: 'venue_address',
+        ceremony_venue_phone: 'venue_phone',
+        ceremony_venue_contact: 'venue_contact',
+      };
+      for (const [srcKey, destKey] of Object.entries(syncMap)) {
+        if (!receptionOverrides.has(destKey)) {
+          (updates as any)[destKey] = (prev as any)[srcKey];
+        }
+      }
+      // Also sync event_name from ceremony_name unless overridden
+      if (!receptionOverrides.has('event_name')) {
+        updates.event_name = prev.ceremony_name;
+      }
+      return { ...prev, ...updates };
+    });
+  }, [
+    formData.ceremony_enabled, formData.reception_enabled,
+    formData.ceremony_name, formData.ceremony_date,
+    formData.ceremony_venue, formData.ceremony_venue_address,
+    formData.ceremony_venue_phone, formData.ceremony_venue_contact,
+    formData.ceremony_guest_limit, formData.ceremony_rsvp_deadline,
+    receptionOverrides
+  ]);
 
   // Helper to get dynamic border class based on field value
   const getInputClass = useCallback((hasValue: boolean) => {
@@ -113,6 +154,7 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
   // Populate form when event changes
   useEffect(() => {
     if (event) {
+      setReceptionOverrides(new Set());
       setFormData({
         // Top-level event name
         event_name: (event as any).event_display_name || event.name || '',
@@ -213,6 +255,7 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
         // Reception fields
         reception_enabled: formData.reception_enabled,
         name: formData.event_name, // Use top-level event name as main name
+        event_display_name: formData.event_name,
         event_type: formData.event_type,
         date: formData.reception_enabled && formData.date 
           ? format(formData.date, 'yyyy-MM-dd') 
@@ -257,7 +300,7 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
           <div className="flex-1">
             <Input
               value={formData.event_name}
-              onChange={(e) => setFormData(prev => ({ ...prev, event_name: e.target.value }))}
+              onChange={(e) => { markReceptionOverride('event_name'); setFormData(prev => ({ ...prev, event_name: e.target.value })); }}
               placeholder="Add the name of your event - e.g., Jason & Linda's Wedding"
               className={`${getInputClass(!!formData.event_name.trim())} h-11 sm:h-9`}
             />
@@ -451,7 +494,7 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
                     <EventNameCombobox
                       mainEventName={formData.event_name}
                       value={formData.name}
-                      onChange={(name) => setFormData(prev => ({ ...prev, name }))}
+                      onChange={(name) => { markReceptionOverride('name'); setFormData(prev => ({ ...prev, name })); }}
                       placeholder="e.g., Bride & Groom's Name"
                     />
                   </div>
@@ -459,7 +502,7 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
                     <Label className="text-xs">Event Date *</Label>
                     <EventDatePicker
                       value={formData.date}
-                      onChange={(date) => setFormData(prev => ({ ...prev, date }))}
+                      onChange={(date) => { markReceptionOverride('date'); setFormData(prev => ({ ...prev, date })); }}
                       placeholder="Select date"
                       filled={!!formData.date}
                     />
@@ -468,7 +511,7 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
                     <Label className="text-xs">RSVP Deadline *</Label>
                     <EventDatePicker
                       value={formData.rsvp_deadline}
-                      onChange={(date) => setFormData(prev => ({ ...prev, rsvp_deadline: date }))}
+                      onChange={(date) => { markReceptionOverride('rsvp_deadline'); setFormData(prev => ({ ...prev, rsvp_deadline: date })); }}
                       placeholder="Select deadline"
                       filled={!!formData.rsvp_deadline}
                     />
@@ -483,7 +526,7 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
                       type="number"
                       min="0"
                       value={formData.guest_limit}
-                      onChange={(e) => handleGuestLimitChange(e.target.value, 'guest_limit')}
+                      onChange={(e) => { markReceptionOverride('guest_limit'); handleGuestLimitChange(e.target.value, 'guest_limit'); }}
                       placeholder="10"
                       className={getInputClass(formData.guest_limit !== '')}
                     />
@@ -492,7 +535,7 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
                     <Label className="text-xs">Location/Venue *</Label>
                     <Input
                       value={formData.venue}
-                      onChange={(e) => setFormData(prev => ({ ...prev, venue: e.target.value }))}
+                      onChange={(e) => { markReceptionOverride('venue'); setFormData(prev => ({ ...prev, venue: e.target.value })); }}
                       placeholder="e.g., Reception Venue"
                       className={getInputClass(!!formData.venue.trim())}
                     />
@@ -503,14 +546,17 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
                       address={formData.venue_address}
                       phone={formData.venue_phone}
                       contact={formData.venue_contact}
-                      onSave={({ address, phone, contact }) =>
+                      onSave={({ address, phone, contact }) => {
+                        markReceptionOverride('venue_address');
+                        markReceptionOverride('venue_phone');
+                        markReceptionOverride('venue_contact');
                         setFormData((prev) => ({
                           ...prev,
                           venue_address: address,
                           venue_phone: phone,
                           venue_contact: contact,
-                        }))
-                      }
+                        }));
+                      }}
                     />
                   </div>
                 </div>
