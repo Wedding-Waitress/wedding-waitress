@@ -1,44 +1,58 @@
 
 
-# Fix Font Size Sync Between Admin and User Invitation Previews
+# Fix Auto-Fill and Visibility for Invitation Text Zones
 
-## Problem
+## Problems Identified
 
-The admin text zone editor renders font sizes at `font_size * 0.5` (half scale), while the user-facing `InvitationPreview` renders them at full pixel size (`font_size` px). This means a font set to 94px in the admin panel looks correct there, but appears roughly double the intended visual size in the user customizer.
+1. Auto-filled zones (Couple Names, Ceremony Date/Time/Venue) show "Auto-filled from event" label but have no input, so users cannot see or override the value
+2. The `eventData` only maps 4 fields (couple_names, date, venue, time) but doesn't include ceremony-specific or reception-specific event data
+3. Reception Date/Time/Venue zones are set as "custom" type -- they don't pull from event data at all
+4. The auto_field type only supports 4 values, missing ceremony and reception variants plus RSVP
 
-Additionally, since the user preview container varies in width depending on screen size (constrained to `max-w-md`), absolute pixel font sizes produce inconsistent results across devices.
+## Plan
 
-## Solution
+### 1. Expand auto_field options (`src/hooks/useInvitationTemplates.ts`)
+Add new auto_field values to the TextZone interface:
+- `ceremony_date`, `ceremony_time`, `ceremony_venue`
+- `reception_date`, `reception_time`, `reception_venue`
+- `rsvp_deadline`
 
-Make `InvitationPreview.tsx` scale font sizes (and letter spacing) proportionally to the container's rendered width, using a `ResizeObserver`. This ensures text appears at the same relative size regardless of container dimensions.
+### 2. Add matching AUTO_FIELDS in admin editor (`src/components/Admin/TemplateTextZoneEditor.tsx`)
+Add the new auto field options so admins can assign them to zones.
 
-### Reference Width
+### 3. Expand eventData in InvitationsPage (`src/components/Dashboard/Invitations/InvitationsPage.tsx`)
+Pull ceremony and reception fields from the selected event:
+- `ceremony_date` from `selectedEvent.ceremony_date`
+- `ceremony_time` from `selectedEvent.ceremony_start_time`
+- `ceremony_venue` from `selectedEvent.ceremony_venue`
+- `reception_date` from `selectedEvent.date`
+- `reception_time` from `selectedEvent.start_time`
+- `reception_venue` from `selectedEvent.venue`
+- `rsvp_deadline` from `selectedEvent.rsvp_deadline`
 
-Define a reference width of **600px** (approximately the width at which the admin editor renders its preview content before the CSS `transform` zoom is applied). At this width, fonts render at the `* 0.5` scale the admin uses, so:
+Keep existing `date`, `venue`, `time` as-is for backward compatibility.
 
-- Scale factor = `containerWidth / 600`
-- Effective font size = `zone.font_size * scale`
-- Effective letter spacing = `zone.letter_spacing * scale`
+### 4. Update InvitationPreview eventData interface (`src/components/Dashboard/Invitations/InvitationPreview.tsx`)
+Widen the eventData type to accept any string key so all new auto fields resolve correctly.
 
-This produces visually identical output in both the admin and user views.
+### 5. Make auto zones editable in the Customizer (`src/components/Dashboard/Invitations/InvitationCustomizer.tsx`)
+Replace the static "Auto-filled from event" text with an Input field that:
+- Shows the auto-filled value as a placeholder
+- Lets the user type a custom override
+- When cleared, reverts to the auto-filled value
+- Shows a small "Auto" badge so users know the source
 
-### File Changes
+### 6. Update default zone templates (`src/components/Admin/AdminInvitationTemplates.tsx`)
+Change Reception Date/Time/Venue from `custom` to `auto` type with the new auto_field values (`reception_date`, `reception_time`, `reception_venue`). Similarly update Ceremony zones to use the specific ceremony auto fields instead of generic `date`/`time`/`venue`.
 
-**`src/components/Dashboard/Invitations/InvitationPreview.tsx`**
+### 7. Update font size slider max
+Change the user-facing font size slider max from 72 to 150 (matching the admin editor).
 
-1. Add a `useState` for `containerWidth` (default 600)
-2. Add a `useEffect` with `ResizeObserver` on `containerRef` to track the container's actual width
-3. Compute `scale = containerWidth / 600` 
-4. In `getZoneStyle()`, multiply `font_size` and `letter_spacing` by `scale` before converting to px
-5. This affects both the live preview AND exports (since the exporter renders `InvitationPreview` at a known size, the scaling will adapt automatically)
+## Files Modified
+1. `src/hooks/useInvitationTemplates.ts` -- expand auto_field type
+2. `src/components/Admin/TemplateTextZoneEditor.tsx` -- add new AUTO_FIELDS entries
+3. `src/components/Dashboard/Invitations/InvitationsPage.tsx` -- expand eventData
+4. `src/components/Dashboard/Invitations/InvitationPreview.tsx` -- widen eventData type
+5. `src/components/Dashboard/Invitations/InvitationCustomizer.tsx` -- make auto zones editable, update slider max
+6. `src/components/Admin/AdminInvitationTemplates.tsx` -- update default zone auto_field values
 
-### Why This Works
-
-- Admin sets 94px at 0.5x scale in their preview -- it looks like ~47px visually
-- User preview at 400px wide: scale = 400/600 = 0.67, so 94px renders as ~63px in a smaller container -- visually proportional
-- Exporter renders at a large fixed size, so fonts scale up correctly for high-res output
-- No changes needed to stored data or admin editor
-
-### Files Modified
-
-1. `src/components/Dashboard/Invitations/InvitationPreview.tsx` -- add ResizeObserver-based font scaling
