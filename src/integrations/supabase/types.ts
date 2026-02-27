@@ -1249,6 +1249,7 @@ export type Database = {
       invitation_templates: {
         Row: {
           background_url: string
+          card_type: string
           category: string
           created_at: string
           default_styles: Json
@@ -1264,6 +1265,7 @@ export type Database = {
         }
         Insert: {
           background_url: string
+          card_type?: string
           category?: string
           created_at?: string
           default_styles?: Json
@@ -1279,6 +1281,7 @@ export type Database = {
         }
         Update: {
           background_url?: string
+          card_type?: string
           category?: string
           created_at?: string
           default_styles?: Json

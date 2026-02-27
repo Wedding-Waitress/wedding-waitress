@@ -1,9 +1,10 @@
 import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Calendar, Mail } from 'lucide-react';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Calendar, Mail, Heart, Gift } from 'lucide-react';
 import { useEvents } from '@/hooks/useEvents';
-import { useInvitationTemplates, type InvitationTemplate } from '@/hooks/useInvitationTemplates';
+import { useInvitationTemplates, type InvitationTemplate, type CardType } from '@/hooks/useInvitationTemplates';
 import { useInvitationDesign } from '@/hooks/useInvitationDesign';
 import { TemplateGallery } from './TemplateGallery';
 import { InvitationCustomizer } from './InvitationCustomizer';
@@ -14,16 +15,39 @@ interface InvitationsPageProps {
   onEventSelect: (eventId: string) => void;
 }
 
+const TAB_CONFIG: Record<CardType, { label: string; icon: React.ReactNode; title: string; description: string }> = {
+  save_the_date: {
+    label: 'Save The Date',
+    icon: <Heart className="w-4 h-4" />,
+    title: 'Save The Date Cards',
+    description: 'Send beautiful Save The Date cards to your guests months before the wedding.',
+  },
+  invitation: {
+    label: 'Invitation',
+    icon: <Mail className="w-4 h-4" />,
+    title: 'Invitations',
+    description: 'Choose a template, customise your text, and export beautiful invitations for your guests.',
+  },
+  thank_you: {
+    label: 'Thank You',
+    icon: <Gift className="w-4 h-4" />,
+    title: 'Thank You Cards',
+    description: 'Send heartfelt Thank You cards to your guests after the wedding.',
+  },
+};
+
 export const InvitationsPage: React.FC<InvitationsPageProps> = ({
   selectedEventId,
   onEventSelect,
 }) => {
   const { events, loading: eventsLoading } = useEvents();
-  const { templates, loading: templatesLoading } = useInvitationTemplates();
+  const [activeCardType, setActiveCardType] = useState<CardType>('invitation');
+  const { templates, loading: templatesLoading } = useInvitationTemplates(activeCardType);
   const { design, saveDesign } = useInvitationDesign(selectedEventId);
   const [selectedTemplate, setSelectedTemplate] = useState<InvitationTemplate | null>(null);
 
   const selectedEvent = useMemo(() => events.find(e => e.id === selectedEventId), [events, selectedEventId]);
+  const tabConfig = TAB_CONFIG[activeCardType];
 
   const eventData = useMemo(() => {
     if (!selectedEvent) return {};
@@ -79,9 +103,9 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
             <div className="flex items-start gap-3 flex-1">
               <Mail className="w-10 h-10 sm:w-16 sm:h-16 text-primary flex-shrink-0" />
               <div className="flex flex-col">
-                <CardTitle className="text-xl sm:text-2xl">Invitations</CardTitle>
+                <CardTitle className="text-xl sm:text-2xl">Invitations & Cards</CardTitle>
                 <CardDescription className="mt-1">
-                  Choose a template, customise your text, and export beautiful invitations for your guests.
+                  {tabConfig.description}
                 </CardDescription>
               </div>
             </div>
@@ -115,21 +139,41 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
         </CardHeader>
 
         <CardContent>
-          {!selectedEventId ? (
-            <div className="text-center py-12">
-              <Mail className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
-              <h3 className="text-lg font-semibold text-foreground mb-2">Select an Event</h3>
-              <p className="text-muted-foreground">
-                Choose an event above to start designing your invitations.
-              </p>
-            </div>
-          ) : (
-            <TemplateGallery
-              templates={templates}
-              loading={templatesLoading}
-              onSelect={handleSelectTemplate}
-            />
-          )}
+          {/* Sub-tab navigation */}
+          <Tabs value={activeCardType} onValueChange={(v) => { setActiveCardType(v as CardType); setSelectedTemplate(null); }}>
+            <TabsList className="mb-6">
+              <TabsTrigger value="save_the_date" className="gap-1.5">
+                <Heart className="w-3.5 h-3.5" /> Save The Date
+              </TabsTrigger>
+              <TabsTrigger value="invitation" className="gap-1.5">
+                <Mail className="w-3.5 h-3.5" /> Invitation
+              </TabsTrigger>
+              <TabsTrigger value="thank_you" className="gap-1.5">
+                <Gift className="w-3.5 h-3.5" /> Thank You
+              </TabsTrigger>
+            </TabsList>
+
+            {(['save_the_date', 'invitation', 'thank_you'] as CardType[]).map(ct => (
+              <TabsContent key={ct} value={ct}>
+                {!selectedEventId ? (
+                  <div className="text-center py-12">
+                    <Mail className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
+                    <h3 className="text-lg font-semibold text-foreground mb-2">Select an Event</h3>
+                    <p className="text-muted-foreground">
+                      Choose an event above to start designing your {TAB_CONFIG[ct].label.toLowerCase()} cards.
+                    </p>
+                  </div>
+                ) : (
+                  <TemplateGallery
+                    templates={templates}
+                    loading={templatesLoading}
+                    cardType={ct}
+                    onSelect={handleSelectTemplate}
+                  />
+                )}
+              </TabsContent>
+            ))}
+          </Tabs>
         </CardContent>
       </Card>
     </div>

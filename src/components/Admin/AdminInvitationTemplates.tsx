@@ -7,12 +7,17 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Plus, Trash2, Edit, Eye, Upload, GripVertical } from 'lucide-react';
-import { useInvitationTemplates, type InvitationTemplate, type TextZone } from '@/hooks/useInvitationTemplates';
+import { useInvitationTemplates, type InvitationTemplate, type TextZone, type CardType } from '@/hooks/useInvitationTemplates';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { TemplateTextZoneEditor } from './TemplateTextZoneEditor';
 
 const CATEGORIES = ['General', 'Floral', 'Modern', 'Classic', 'Rustic', 'Elegant', 'Minimalist', 'Islamic', 'Indian', 'Bohemian'];
+const CARD_TYPES: { value: CardType; label: string }[] = [
+  { value: 'save_the_date', label: 'Save The Date' },
+  { value: 'invitation', label: 'Invitation' },
+  { value: 'thank_you', label: 'Thank You' },
+];
 
 export const AdminInvitationTemplates: React.FC = () => {
   const { templates, loading, createTemplate, updateTemplate, deleteTemplate } = useInvitationTemplates();
@@ -26,6 +31,7 @@ export const AdminInvitationTemplates: React.FC = () => {
   // Form state
   const [formName, setFormName] = useState('');
   const [formCategory, setFormCategory] = useState('General');
+  const [formCardType, setFormCardType] = useState<CardType>('invitation');
   const [formOrientation, setFormOrientation] = useState('portrait');
   const [formFile, setFormFile] = useState<File | null>(null);
   const [formPreviewUrl, setFormPreviewUrl] = useState('');
@@ -33,6 +39,7 @@ export const AdminInvitationTemplates: React.FC = () => {
   const resetForm = () => {
     setFormName('');
     setFormCategory('General');
+    setFormCardType('invitation');
     setFormOrientation('portrait');
     setFormFile(null);
     setFormPreviewUrl('');
@@ -47,6 +54,7 @@ export const AdminInvitationTemplates: React.FC = () => {
   const openEdit = (template: InvitationTemplate) => {
     setFormName(template.name);
     setFormCategory(template.category);
+    setFormCardType((template as any).card_type || 'invitation');
     setFormOrientation(template.orientation);
     setFormPreviewUrl(template.background_url);
     setEditingTemplate(template);
@@ -101,6 +109,7 @@ export const AdminInvitationTemplates: React.FC = () => {
       const templateData = {
         name: formName.trim(),
         category: formCategory,
+        card_type: formCardType,
         orientation: formOrientation,
         background_url: backgroundUrl,
         ...dims,
@@ -193,7 +202,7 @@ export const AdminInvitationTemplates: React.FC = () => {
                 </div>
                 <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/70 to-transparent p-3">
                   <p className="text-white font-medium text-sm">{template.name}</p>
-                  <p className="text-white/70 text-xs">{template.category} · {template.text_zones.length} zones</p>
+                  <p className="text-white/70 text-xs">{(template as any).card_type === 'save_the_date' ? 'Save The Date' : (template as any).card_type === 'thank_you' ? 'Thank You' : 'Invitation'} · {template.category} · {template.text_zones.length} zones</p>
                 </div>
               </div>
               <CardContent className="p-3 flex gap-2">
@@ -229,6 +238,15 @@ export const AdminInvitationTemplates: React.FC = () => {
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   {CATEGORIES.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Card Type</Label>
+              <Select value={formCardType} onValueChange={(v) => setFormCardType(v as CardType)}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {CARD_TYPES.map(ct => <SelectItem key={ct.value} value={ct.value}>{ct.label}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>

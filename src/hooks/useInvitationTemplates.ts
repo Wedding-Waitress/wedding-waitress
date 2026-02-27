@@ -20,9 +20,12 @@ export interface TextZone {
   letter_spacing: number;
 }
 
+export type CardType = 'invitation' | 'save_the_date' | 'thank_you';
+
 export interface InvitationTemplate {
   id: string;
   name: string;
+  card_type: CardType;
   category: string;
   orientation: string;
   width_mm: number;
@@ -36,7 +39,7 @@ export interface InvitationTemplate {
   created_at: string;
 }
 
-export const useInvitationTemplates = () => {
+export const useInvitationTemplates = (cardType?: CardType) => {
   const [templates, setTemplates] = useState<InvitationTemplate[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
@@ -44,11 +47,16 @@ export const useInvitationTemplates = () => {
   const fetchTemplates = useCallback(async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
+      let query = supabase
         .from('invitation_templates' as any)
         .select('*')
         .order('sort_order', { ascending: true });
 
+      if (cardType) {
+        query = query.eq('card_type', cardType);
+      }
+
+      const { data, error } = await query;
       if (error) throw error;
       setTemplates((data as any[] || []).map(t => ({
         ...t,
@@ -61,7 +69,7 @@ export const useInvitationTemplates = () => {
     } finally {
       setLoading(false);
     }
-  }, [toast]);
+  }, [toast, cardType]);
 
   useEffect(() => {
     fetchTemplates();

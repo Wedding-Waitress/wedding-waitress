@@ -1,15 +1,16 @@
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import type { InvitationTemplate } from '@/hooks/useInvitationTemplates';
+import type { InvitationTemplate, CardType } from '@/hooks/useInvitationTemplates';
 
 interface Props {
   templates: InvitationTemplate[];
   loading: boolean;
+  cardType?: CardType;
   onSelect: (template: InvitationTemplate) => void;
 }
 
-export const TemplateGallery: React.FC<Props> = ({ templates, loading, onSelect }) => {
+export const TemplateGallery: React.FC<Props> = ({ templates, loading, cardType, onSelect }) => {
   if (loading) {
     return (
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -21,9 +22,15 @@ export const TemplateGallery: React.FC<Props> = ({ templates, loading, onSelect 
   }
 
   if (templates.length === 0) {
+    const labels: Record<string, string> = {
+      save_the_date: 'Save The Date',
+      invitation: 'Invitation',
+      thank_you: 'Thank You',
+    };
+    const label = cardType ? labels[cardType] || cardType : 'template';
     return (
       <div className="text-center py-12 text-muted-foreground">
-        <p className="text-lg font-medium">No templates available yet</p>
+        <p className="text-lg font-medium">No {label} templates available yet</p>
         <p className="text-sm mt-1">Templates will be uploaded by the admin soon.</p>
       </div>
     );
