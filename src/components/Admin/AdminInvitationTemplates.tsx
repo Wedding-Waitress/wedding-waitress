@@ -20,7 +20,7 @@ const getDefaultTextZones = (cardType: CardType): TextZone[] => {
     label,
     type,
     default_text: opts.default_text || '',
-    x_percent: opts.x_percent ?? 10,
+    x_percent: opts.x_percent ?? 50,
     y_percent: opts.y_percent ?? 50,
     width_percent: opts.width_percent ?? 80,
     font_family: opts.font_family || 'Montserrat',
