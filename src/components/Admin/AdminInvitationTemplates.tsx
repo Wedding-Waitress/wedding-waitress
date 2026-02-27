@@ -70,8 +70,13 @@ export const AdminInvitationTemplates: React.FC = () => {
   };
 
   const uploadFile = async (file: File): Promise<string | null> => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      toast({ title: 'Error', description: 'You must be logged in to upload', variant: 'destructive' });
+      return null;
+    }
     const ext = file.name.split('.').pop();
-    const path = `templates/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+    const path = `${user.id}/templates/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
     const { error } = await supabase.storage.from('invitations').upload(path, file);
     if (error) {
       toast({ title: 'Upload Error', description: error.message, variant: 'destructive' });
