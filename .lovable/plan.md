@@ -1,29 +1,70 @@
 
 
-# Add 6 New Place Card Gallery Designs (Batch 6)
+# Image Gallery Modal UI Fixes
 
-## Overview
-Add the sixth batch of 6 place card designs to the gallery. Note: 6 images were uploaded (designs 51-55 plus design-3).
+## Changes Overview
 
-## Image Assignments
+Five fixes to the Place Card Image Gallery modal in `PlaceCardGalleryModal.tsx` and one in `dialog.tsx`.
 
-| # | Upload File | New Name | Category | File Name |
-|---|------------|----------|----------|-----------|
-| 51 | Untitled_design_51.png | Gold Line Art Floral Corner | Gold | Gold_Line_Art_Floral_Corner.png |
-| 52 | Untitled_design_52.png | Gold White Balloon Celebration | Gold | Gold_White_Balloon_Celebration.png |
-| 53 | Untitled_design_53.png | Gold Blush Balloon Butterfly | Gold | Gold_Blush_Balloon_Butterfly.png |
-| 54 | Untitled_design_54.png | Autumn Iris Watercolor Corner | Orange | Autumn_Iris_Watercolor_Corner.png |
-| 55 | Untitled_design_55.png | Sunset Lavender Mountain Leaf | Orange | Sunset_Lavender_Mountain_Leaf.png |
-| 56 | Untitled_design-3.png | Eucalyptus Jasmine Corner | Green | Eucalyptus_Jasmine_Corner.png |
+---
 
-## Implementation Steps
+## 1. Cancel Button Overlapped by Images
 
-1. **Copy all 6 uploaded images** to `public/gallery-images/` with their new descriptive file names.
+**Problem:** The ScrollArea height of 550px pushes content below the viewport, hiding the Cancel button behind images.
 
-2. **Insert 6 records** into `place_card_gallery_images` table with `sort_order` values 63-68 (continuing from Batch 5 which ended at 62).
+**Fix:** Reduce ScrollArea height from `h-[550px]` to `h-[420px]` (approximately 3 rows of images). The modal dimensions stay the same -- just fewer rows visible with scrolling still available.
 
-## Technical Details
-- Images stored as static assets in `public/gallery-images/`
-- Database records inserted via Supabase insert tool
-- No code changes needed -- the existing `usePlaceCardGallery` hook automatically picks up new entries
+**File:** `src/components/Dashboard/PlaceCards/PlaceCardGalleryModal.tsx` (line 120)
+
+---
+
+## 2. Cancel Button Styling
+
+**Problem:** Cancel button is a plain outline button, needs to be red with white text and narrower height.
+
+**Fix:** Change the Cancel button from `variant="outline"` to custom red styling: `bg-red-500 hover:bg-red-600 text-white` with a narrower height `h-8` and appropriate padding.
+
+**File:** `src/components/Dashboard/PlaceCards/PlaceCardGalleryModal.tsx` (lines 163-166)
+
+---
+
+## 3. Search Bar Overlapping the Exit (X) Button
+
+**Problem:** The search input stretches full width and overlaps with the close (X) button in the top-right corner.
+
+**Fix:** Add right padding/margin to the search input container so it only spans ~75% of the width, leaving space for the X button. Change the search `div` from full width to `w-[75%]`.
+
+**File:** `src/components/Dashboard/PlaceCards/PlaceCardGalleryModal.tsx` (line 83)
+
+---
+
+## 4. Close (X) Button Tooltip -- Show "Exit" on Hover
+
+**Problem:** The X button has no visible tooltip; user wants "Exit" to appear on hover.
+
+**Fix:** Add a `title="Exit"` attribute to the `DialogPrimitive.Close` button in the dialog component. Since this is a global component, I'll instead add the tooltip directly in the gallery modal by wrapping or adding a custom close button with a title. To keep it scoped, I'll add a CSS title tooltip via the dialog's close button. The cleanest approach: add `title="Exit"` to the close button in `dialog.tsx`.
+
+**File:** `src/components/ui/dialog.tsx` (line 81)
+
+---
+
+## 5. Total Card Count Next to "Image Gallery" Heading
+
+**Problem:** No indication of how many images are in the gallery.
+
+**Fix:** Add a count badge next to the "Image Gallery" title showing the total number of images (e.g., "Image Gallery (68)"). This will use `images.length` from the hook, displayed as a subtle count in the heading.
+
+**File:** `src/components/Dashboard/PlaceCards/PlaceCardGalleryModal.tsx` (lines 48-51)
+
+---
+
+## Technical Summary
+
+| File | Lines | Change |
+|------|-------|--------|
+| `PlaceCardGalleryModal.tsx` | 120 | ScrollArea height `h-[550px]` to `h-[420px]` |
+| `PlaceCardGalleryModal.tsx` | 163-166 | Cancel button: red bg, white text, `h-8` |
+| `PlaceCardGalleryModal.tsx` | 83 | Search input width reduced to `w-[75%]` |
+| `PlaceCardGalleryModal.tsx` | 48-51 | Add `({images.length})` to title |
+| `dialog.tsx` | 81 | Add `title="Exit"` to close button |
 
