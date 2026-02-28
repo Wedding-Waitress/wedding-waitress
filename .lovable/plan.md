@@ -1,21 +1,17 @@
 
-
-# Refine Dialog Close Button: Even Smaller Circle, Thicker Border, Larger Cross
+# Widen the Custom Name Place Cards Panel
 
 ## What's Changing
-The round purple close button circle will be reduced further, the border made thicker, and the X cross made larger:
-
-- Circle: from 20px (w-5 h-5) down to **16px (w-4 h-4)**
-- Border: from `border-2` to **`border-[3px]`** (thicker purple outline)
-- X icon: from 16px (h-4 w-4) up to **18px (h-[18px] w-[18px])**
+The "Custom Name Place Cards" customizer panel on the left side of the Place Cards page will be made wider to give its content more breathing room, matching approximately where the red line is drawn in your screenshot.
 
 ## Technical Detail
 
-**File:** `src/components/ui/dialog.tsx` (line 81)
+**File:** `src/components/Dashboard/PlaceCards/PlaceCardsPage.tsx` (lines 432-443)
 
-- Change container from `w-5 h-5` to `w-4 h-4`
-- Change `border-2` to `border-[3px]`
-- Change X icon from `h-4 w-4` to `h-[18px] w-[18px]`
+- Change the grid from `grid-cols-1 lg:grid-cols-4` to `grid-cols-1 lg:grid-cols-5`
+- Change the customizer column span from `lg:col-span-1` to `lg:col-span-2`
+- The preview panel stays at `lg:col-span-3`
 
-Single line change in the global dialog component -- applies to every pop-up across the app.
+This gives the customizer 40% of the width (2 of 5 columns) instead of 25% (1 of 4 columns), providing significantly more room for the design controls, radio buttons, and background options.
 
+Nothing else is changed.
