@@ -1,19 +1,21 @@
 
 
-# Fix Dialog Close Button: Smaller Circle, Larger Cross
+# Refine Dialog Close Button: Even Smaller Circle, Thicker Border, Larger Cross
 
 ## What's Changing
-The previous edit made the X icon smaller and the circle smaller -- but you only wanted the **circle border reduced**, not the X. This fix will:
+The round purple close button circle will be reduced further, the border made thicker, and the X cross made larger:
 
-- Make the round button circle **smaller** (from 24px down to 20px)
-- Make the X cross inside **larger** (back up from 14px to 16px)
+- Circle: from 20px (w-5 h-5) down to **16px (w-4 h-4)**
+- Border: from `border-2` to **`border-[3px]`** (thicker purple outline)
+- X icon: from 16px (h-4 w-4) up to **18px (h-[18px] w-[18px])**
 
 ## Technical Detail
 
-**File:** `src/components/ui/dialog.tsx`
+**File:** `src/components/ui/dialog.tsx` (line 81)
 
-- Change container from `w-6 h-6` (24px) to `w-5 h-5` (20px) -- smaller circle
-- Change X icon from `h-3.5 w-3.5` (14px) to `h-4 w-4` (16px) -- larger cross
+- Change container from `w-5 h-5` to `w-4 h-4`
+- Change `border-2` to `border-[3px]`
+- Change X icon from `h-4 w-4` to `h-[18px] w-[18px]`
 
-This is the global dialog component used by every pop-up across all pages.
+Single line change in the global dialog component -- applies to every pop-up across the app.
 
