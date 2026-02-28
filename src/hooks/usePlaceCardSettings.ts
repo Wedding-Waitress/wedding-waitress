@@ -41,6 +41,12 @@ export interface PlaceCardSettings {
   name_spacing: number;
   background_behind_names?: boolean;
   background_behind_table_seats?: boolean;
+  guest_name_offset_x?: number;
+  guest_name_offset_y?: number;
+  table_offset_x?: number;
+  table_offset_y?: number;
+  seat_offset_x?: number;
+  seat_offset_y?: number;
   created_at?: string;
   updated_at?: string;
 }

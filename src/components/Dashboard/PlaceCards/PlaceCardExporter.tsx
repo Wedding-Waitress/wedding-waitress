@@ -49,6 +49,12 @@ export const PlaceCardExporter: React.FC<PlaceCardExporterProps> = ({
     background_image_type: 'none' as const,
     mass_message: '',
     individual_messages: {},
+    guest_name_offset_x: 0,
+    guest_name_offset_y: 0,
+    table_offset_x: 0,
+    table_offset_y: 0,
+    seat_offset_x: 0,
+    seat_offset_y: 0,
   };
 
   const generatePlaceCardData = (): PlaceCardData[] => {
@@ -118,11 +124,11 @@ export const PlaceCardExporter: React.FC<PlaceCardExporterProps> = ({
           : ''
         }
         
-        <div style="font-size: 18px; font-weight: bold; margin-bottom: 4mm; line-height: 1.2;">
+        <div style="font-size: 18px; font-weight: bold; margin-bottom: 4mm; line-height: 1.2; transform: translate(${currentSettings.guest_name_offset_x ?? 0}mm, ${currentSettings.guest_name_offset_y ?? 0}mm);">
           ${safeName}
         </div>
         
-        <div style="font-size: 12px; margin-bottom: 6mm; opacity: 0.8;">
+        <div style="font-size: 12px; margin-bottom: 6mm; opacity: 0.8; transform: translate(${currentSettings.table_offset_x ?? 0}mm, ${currentSettings.table_offset_y ?? 0}mm);">
           ${safeTableInfo}
         </div>
         
