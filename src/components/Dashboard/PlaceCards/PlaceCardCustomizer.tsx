@@ -230,6 +230,19 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
     setLocalMassMessage(settings?.mass_message || '');
   }, [settings?.mass_message]);
 
+  // Local state for position sliders (deferred save on release)
+  const [localGuestNameOffsetX, setLocalGuestNameOffsetX] = useState(0);
+  const [localGuestNameOffsetY, setLocalGuestNameOffsetY] = useState(0);
+  const [localTableOffsetX, setLocalTableOffsetX] = useState(0);
+  const [localTableOffsetY, setLocalTableOffsetY] = useState(0);
+
+  useEffect(() => {
+    setLocalGuestNameOffsetX(Number(settings?.guest_name_offset_x ?? 0));
+    setLocalGuestNameOffsetY(Number(settings?.guest_name_offset_y ?? 0));
+    setLocalTableOffsetX(Number(settings?.table_offset_x ?? 0));
+    setLocalTableOffsetY(Number(settings?.table_offset_y ?? 0));
+  }, [settings?.guest_name_offset_x, settings?.guest_name_offset_y, settings?.table_offset_x, settings?.table_offset_y]);
+
   const currentSettings = settings || {
     event_id: '',
     user_id: '',
@@ -577,89 +590,62 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <Label className="text-xs">Horizontal</Label>
-                    <span className="text-xs text-muted-foreground">{currentSettings.guest_name_offset_x ?? 0}mm</span>
+                    <span className="text-xs text-muted-foreground">{localGuestNameOffsetX}mm</span>
                   </div>
                   <Slider
-                    value={[Number(currentSettings.guest_name_offset_x ?? 0)]}
+                    value={[localGuestNameOffsetX]}
                     min={-15}
                     max={15}
                     step={0.5}
-                    onValueChange={([v]) => handleSettingChange('guest_name_offset_x' as keyof PlaceCardSettings, v)}
+                    onValueChange={([v]) => setLocalGuestNameOffsetX(v)}
+                    onValueCommit={([v]) => onSettingsChange({ guest_name_offset_x: v })}
                   />
                 </div>
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <Label className="text-xs">Vertical</Label>
-                    <span className="text-xs text-muted-foreground">{currentSettings.guest_name_offset_y ?? 0}mm</span>
+                    <span className="text-xs text-muted-foreground">{localGuestNameOffsetY}mm</span>
                   </div>
                   <Slider
-                    value={[Number(currentSettings.guest_name_offset_y ?? 0)]}
+                    value={[localGuestNameOffsetY]}
                     min={-15}
                     max={15}
                     step={0.5}
-                    onValueChange={([v]) => handleSettingChange('guest_name_offset_y' as keyof PlaceCardSettings, v)}
+                    onValueChange={([v]) => setLocalGuestNameOffsetY(v)}
+                    onValueCommit={([v]) => onSettingsChange({ guest_name_offset_y: v })}
                   />
                 </div>
               </div>
 
-              {/* Table Number Position */}
+              {/* Table & Seat Number Position */}
               <div className="space-y-3 p-3 border rounded-lg bg-muted/30">
-                <Label className="text-sm font-semibold">Table Number Position</Label>
+                <Label className="text-sm font-semibold">Table & Seat Number Position</Label>
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <Label className="text-xs">Horizontal</Label>
-                    <span className="text-xs text-muted-foreground">{currentSettings.table_offset_x ?? 0}mm</span>
+                    <span className="text-xs text-muted-foreground">{localTableOffsetX}mm</span>
                   </div>
                   <Slider
-                    value={[Number(currentSettings.table_offset_x ?? 0)]}
+                    value={[localTableOffsetX]}
                     min={-15}
                     max={15}
                     step={0.5}
-                    onValueChange={([v]) => handleSettingChange('table_offset_x' as keyof PlaceCardSettings, v)}
+                    onValueChange={([v]) => setLocalTableOffsetX(v)}
+                    onValueCommit={([v]) => onSettingsChange({ table_offset_x: v })}
                   />
                 </div>
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <Label className="text-xs">Vertical</Label>
-                    <span className="text-xs text-muted-foreground">{currentSettings.table_offset_y ?? 0}mm</span>
+                    <span className="text-xs text-muted-foreground">{localTableOffsetY}mm</span>
                   </div>
                   <Slider
-                    value={[Number(currentSettings.table_offset_y ?? 0)]}
+                    value={[localTableOffsetY]}
                     min={-15}
                     max={15}
                     step={0.5}
-                    onValueChange={([v]) => handleSettingChange('table_offset_y' as keyof PlaceCardSettings, v)}
-                  />
-                </div>
-              </div>
-
-              {/* Seat Number Position */}
-              <div className="space-y-3 p-3 border rounded-lg bg-muted/30">
-                <Label className="text-sm font-semibold">Seat Number Position</Label>
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Label className="text-xs">Horizontal</Label>
-                    <span className="text-xs text-muted-foreground">{currentSettings.seat_offset_x ?? 0}mm</span>
-                  </div>
-                  <Slider
-                    value={[Number(currentSettings.seat_offset_x ?? 0)]}
-                    min={-15}
-                    max={15}
-                    step={0.5}
-                    onValueChange={([v]) => handleSettingChange('seat_offset_x' as keyof PlaceCardSettings, v)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Label className="text-xs">Vertical</Label>
-                    <span className="text-xs text-muted-foreground">{currentSettings.seat_offset_y ?? 0}mm</span>
-                  </div>
-                  <Slider
-                    value={[Number(currentSettings.seat_offset_y ?? 0)]}
-                    min={-15}
-                    max={15}
-                    step={0.5}
-                    onValueChange={([v]) => handleSettingChange('seat_offset_y' as keyof PlaceCardSettings, v)}
+                    onValueChange={([v]) => setLocalTableOffsetY(v)}
+                    onValueCommit={([v]) => onSettingsChange({ table_offset_y: v })}
                   />
                 </div>
               </div>
@@ -667,6 +653,10 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
               <div className="pt-4 border-t">
                 <Button 
                   onClick={async () => {
+                    setLocalGuestNameOffsetX(0);
+                    setLocalGuestNameOffsetY(0);
+                    setLocalTableOffsetX(0);
+                    setLocalTableOffsetY(0);
                     await onSettingsChange({
                       guest_name_offset_x: 0,
                       guest_name_offset_y: 0,
