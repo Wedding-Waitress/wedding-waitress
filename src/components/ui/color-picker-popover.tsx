@@ -11,6 +11,8 @@ interface ColorPickerPopoverProps {
 }
 
 const STANDARD_COLORS = [
+  // Wedding Colors (White, Gold, Light Gold, Silver, Champagne)
+  ['#FFFFFF', '#D4AF37', '#FFD700', '#C0C0C0', '#F7E7CE'],
   // Black to Gray shades (5 shades)
   ['#000000', '#404040', '#808080', '#B0B0B0', '#D0D0D0'],
   // Red shades (5 shades)
