@@ -42,12 +42,12 @@ export const PlaceCardGalleryModal: React.FC<PlaceCardGalleryModalProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={(val) => { if (!val) setPreviewImage(null); onOpenChange(val); }}>
-      <DialogContent className="max-w-6xl max-h-[90vh] flex flex-col bg-white [&~[data-radix-scroll-area-viewport]]:!border-0" style={{ zIndex: 110 }} overlayClassName="z-[105] bg-black/95">
+      <DialogContent className="max-w-6xl max-h-[95vh] flex flex-col bg-white [&~[data-radix-scroll-area-viewport]]:!border-0" style={{ zIndex: 110 }} overlayClassName="z-[105] bg-black/95">
 
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <ImageIcon className="h-5 w-5 text-primary" />
-            Image Gallery ({images.length})
+            Image Gallery ({images.length} Cards)
           </DialogTitle>
         </DialogHeader>
 
@@ -92,7 +92,7 @@ export const PlaceCardGalleryModal: React.FC<PlaceCardGalleryModalProps> = ({
 
             {/* Category Tabs */}
             <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="flex-1 flex flex-col min-h-0">
-              <TabsList className="w-full justify-start overflow-x-auto flex-shrink-0">
+              <TabsList className="w-full justify-start overflow-x-auto flex-shrink-0 py-2">
                 <TabsTrigger value="all">All</TabsTrigger>
                 {categories.map(category => (
                   <TabsTrigger key={category} value={category}>
@@ -117,7 +117,7 @@ export const PlaceCardGalleryModal: React.FC<PlaceCardGalleryModalProps> = ({
                     <p className="text-sm">Gallery images will be added by the admin</p>
                   </div>
                 ) : (
-                  <ScrollArea className="h-[420px] [&>[data-radix-scroll-area-scrollbar]]:!bg-transparent [&>[data-radix-scroll-area-scrollbar]]:!border-0 [&>div]:!border-0">
+                  <ScrollArea className="h-[480px] [&>[data-radix-scroll-area-scrollbar]]:!bg-transparent [&>[data-radix-scroll-area-scrollbar]]:!border-0 [&>div]:!border-0">
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 pr-2">
                       {filteredImages.map(image => (
                         <div
