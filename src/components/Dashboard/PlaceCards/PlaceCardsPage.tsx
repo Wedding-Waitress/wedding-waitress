@@ -312,74 +312,75 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
           <div className="border-b border-border" />
 
           {/* CHOOSE EVENT & TABLE DROPDOWNS */}
-          <div className="flex items-center gap-8 flex-nowrap pt-2">
-            {/* Choose Event */}
-            <div className="flex items-center gap-4">
-              <label className="text-sm font-medium text-foreground whitespace-nowrap">
-                Choose Event:
-              </label>
-              <Select value={selectedEventId || "no-event"} onValueChange={handleEventChange}>
-                <SelectTrigger className="w-full sm:w-[300px] border-primary focus:ring-primary font-bold text-primary">
-                  <SelectValue placeholder="Choose Event" />
-                </SelectTrigger>
-                <SelectContent className="bg-popover border-border z-50">
-                  {events.length > 0 ? (
-                    events.map((event) => (
-                      <SelectItem key={event.id} value={event.id}>
-                        <div className="flex items-center space-x-2">
-                          <Calendar className="w-4 h-4" />
-                          <span>{event.name}</span>
-                        </div>
-                      </SelectItem>
-                    ))
-                  ) : (
-                    <SelectItem value="no-events" disabled>
-                      {eventsLoading ? "Loading events..." : "No events found"}
-                    </SelectItem>
-                  )}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Table Selection (only when event is selected) */}
-            {selectedEventId && (
+          <div className="flex items-center justify-between gap-8 flex-nowrap pt-2">
+            {/* Left side: Choose Event & Table dropdowns */}
+            <div className="flex items-center gap-8 flex-nowrap">
+              {/* Choose Event */}
               <div className="flex items-center gap-4">
                 <label className="text-sm font-medium text-foreground whitespace-nowrap">
-                  Table:
+                  Choose Event:
                 </label>
-                <Select 
-                  value={selectedTableId || ''} 
-                  onValueChange={setSelectedTableId}
-                  disabled={!selectedEventId || tablesLoading}
-                >
-                  <SelectTrigger className="w-full sm:w-[300px] border-primary focus:ring-primary">
-                    <SelectValue placeholder="Select a table" />
+                <Select value={selectedEventId || "no-event"} onValueChange={handleEventChange}>
+                  <SelectTrigger className="w-full sm:w-[300px] border-primary focus:ring-primary font-bold text-primary">
+                    <SelectValue placeholder="Choose Event" />
                   </SelectTrigger>
                   <SelectContent className="bg-popover border-border z-50">
-                    {[...tables].sort((a, b) => (a.table_no || 0) - (b.table_no || 0)).map((table) => {
-                      const displayName = table.table_no && table.name === String(table.table_no)
-                        ? `Table ${table.table_no}`
-                        : table.name || `Table ${table.table_no}`;
-                      
-                      return (
-                        <SelectItem key={table.id} value={table.id}>
-                          {displayName} ({table.guest_count} of {table.limit_seats} guests)
+                    {events.length > 0 ? (
+                      events.map((event) => (
+                        <SelectItem key={event.id} value={event.id}>
+                          <div className="flex items-center space-x-2">
+                            <Calendar className="w-4 h-4" />
+                            <span>{event.name}</span>
+                          </div>
                         </SelectItem>
-                      );
-                    })}
+                      ))
+                    ) : (
+                      <SelectItem value="no-events" disabled>
+                        {eventsLoading ? "Loading events..." : "No events found"}
+                      </SelectItem>
+                    )}
                   </SelectContent>
                 </Select>
               </div>
-            )}
-          </div>
 
-          {/* Export Controls - own row, right-aligned */}
-          {selectedEvent && assignedGuests.length > 0 && !guestsLoading && !settingsLoading && (
-            <div className="mt-4 flex justify-end">
-              <div className="border border-primary rounded-xl p-3 flex items-center gap-4 whitespace-nowrap">
+              {/* Table Selection (only when event is selected) */}
+              {selectedEventId && (
+                <div className="flex items-center gap-4">
+                  <label className="text-sm font-medium text-foreground whitespace-nowrap">
+                    Table:
+                  </label>
+                  <Select 
+                    value={selectedTableId || ''} 
+                    onValueChange={setSelectedTableId}
+                    disabled={!selectedEventId || tablesLoading}
+                  >
+                    <SelectTrigger className="w-full sm:w-[300px] border-primary focus:ring-primary">
+                      <SelectValue placeholder="Select a table" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-popover border-border z-50">
+                      {[...tables].sort((a, b) => (a.table_no || 0) - (b.table_no || 0)).map((table) => {
+                        const displayName = table.table_no && table.name === String(table.table_no)
+                          ? `Table ${table.table_no}`
+                          : table.name || `Table ${table.table_no}`;
+                        
+                        return (
+                          <SelectItem key={table.id} value={table.id}>
+                            {displayName} ({table.guest_count} of {table.limit_seats} guests)
+                          </SelectItem>
+                        );
+                      })}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+            </div>
+
+            {/* Right side: Export Controls */}
+            {selectedEvent && assignedGuests.length > 0 && !guestsLoading && !settingsLoading && (
+              <div className="border border-primary rounded-xl p-3 flex flex-col gap-2 whitespace-nowrap">
                 <div className="text-sm">
                   <span className="font-medium">Export Controls</span>
-                  <span className="text-muted-foreground ml-2">Download your place cards as PDF.</span>
+                  <span className="text-muted-foreground ml-2">Download your place cards as PDF ready for printing.</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <button 
@@ -400,8 +401,8 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
                   </button>
                 </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </CardContent>
       </Card>
 
