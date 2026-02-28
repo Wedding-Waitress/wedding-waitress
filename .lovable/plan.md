@@ -1,60 +1,41 @@
 
 
-# Upload First 10 Invitation Gallery Designs
+# Upload 10 New Invitation Gallery Designs (Batch 2)
 
 ## Design Inventory
 
-| # | Proposed Name | Category | Source File |
-|---|--------------|----------|-------------|
-| 1 | Blush Peonies Bismillah | Islamic | Brown_Flowers_1.png |
-| 2 | Navy & Gold Rings | Wedding | Celebrations_...145837.png |
-| 3 | Black & Gold Monstera | Tropical | Celebrations_...145857.png |
-| 4 | Gold Birthday Bash | Birthday | Celebrations_...145925.png |
-| 5 | Rose Gold Glitter | Glamour | Celebrations_...145940.png |
-| 6 | Burgundy Lanterns | Islamic | Celebrations_...150143.png |
-| 7 | Golden Bow Classic | Wedding | Celebrations_...150209.png |
-| 8 | Blush Watercolor Roses | Floral | Celebrations_...150256.png |
-| 9 | Pink Magnolia | Floral | Celebrations_...150315.png |
-| 10 | Golden Balloons Bokeh | Celebrations | Celebrations_1.png |
+| # | Source File | Proposed Name | Category | Filename |
+|---|------------|---------------|----------|----------|
+| 1 | Celebrations_2.png | Black & Gold Stars | Celebrations | black-gold-stars.png |
+| 2 | Celebrations_3.png | Golden Hearts Night | Celebrations | golden-hearts-night.png |
+| 3 | Celebrations_4.png | Gold Confetti Elegance | Celebrations | gold-confetti-elegance.png |
+| 4 | Celebrations_5.png | Sage Bear Baby Shower | Baby Shower | sage-bear-baby-shower.png |
+| 5 | Celebrations_6.png | Sage Woodland Nursery | Baby Shower | sage-woodland-nursery.png |
+| 6 | Celebrations_7.png | Teddy Bears & Balloons | Baby Shower | teddy-bears-balloons.png |
+| 7 | Celebrations_8.png | Pastel Bears Border | Baby Shower | pastel-bears-border.png |
+| 8 | Celebrations_9.png | Blue Ribbon Stripes | Baby Shower | blue-ribbon-stripes.png |
+| 9 | Celebrations_10.png | Blue Bow Parchment | Baby Shower | blue-bow-parchment.png |
+| 10 | Celebrations_11.png | Blue Floral Teddy | Baby Shower | blue-floral-teddy.png |
 
-## Categories Created (5 total so far)
+## New Category Added
 
-- **Islamic** (2 designs)
-- **Wedding** (2 designs)
-- **Floral** (2 designs)
-- **Tropical** (1 design)
-- **Birthday** (1 design)
-- **Glamour** (1 design)
-- **Celebrations** (1 design)
+- **Baby Shower** (6 designs) -- brand new category
+- **Celebrations** (3 more designs added to existing category)
 
-## Implementation Steps
+## Running Gallery Total After This Batch
+
+20 designs across 9 categories: Islamic (2), Wedding (2), Floral (2), Tropical (1), Birthday (1), Glamour (1), Celebrations (4), Baby Shower (6).
+
+## Steps
 
 ### 1. Copy images to project
+Copy all 10 uploaded images into `public/invitation-gallery/` with clean filenames.
 
-Copy all 10 uploaded images into `public/invitation-gallery/` with clean, URL-friendly filenames (e.g., `blush-peonies-bismillah.png`).
+### 2. Insert database records
+Insert 10 rows into `invitation_gallery_images` with correct names, categories, and sort orders (continuing sort_order within each category from existing records).
 
-### 2. Create/update edge function for invitation gallery upload
-
-Adapt the existing `fix-gallery-upload` edge function pattern to upload images to a Supabase Storage bucket for invitation gallery images. The function will:
-- Accept base64-encoded image data
-- Upload to the `invitation-gallery` storage bucket
-- Return the public URL
-
-### 3. Insert records into `invitation_gallery_images` table
-
-For each of the 10 designs, insert a row with:
-- `name`: The design name from the table above
-- `category`: The category from the table above
-- `image_url`: The public storage URL after upload
-- `sort_order`: Sequential within each category
-
-### 4. Verify gallery loads in the Invitations page
-
-Ensure the `useInvitationGallery` hook fetches and displays the new images correctly, grouped by category.
-
-## Files Created/Modified
-
-1. `public/invitation-gallery/*.png` -- 10 image files copied from uploads
-2. `supabase/functions/upload-invitation-gallery/index.ts` -- New edge function for uploading to storage bucket
-3. Supabase `invitation_gallery_images` table -- 10 new rows inserted via the edge function
+### Technical Details
+- Files: `public/invitation-gallery/*.png` (10 new files)
+- Database: 10 new rows in `invitation_gallery_images` table via data insert tool
+- The `useInvitationGallery` hook will automatically pick up the new records
 
