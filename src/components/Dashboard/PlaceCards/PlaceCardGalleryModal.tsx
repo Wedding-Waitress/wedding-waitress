@@ -92,7 +92,7 @@ export const PlaceCardGalleryModal: React.FC<PlaceCardGalleryModalProps> = ({
 
             {/* Category Tabs */}
             <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="flex-1 flex flex-col min-h-0">
-              <TabsList className="w-full justify-start overflow-x-auto flex-shrink-0 py-2">
+              <TabsList className="w-full justify-start overflow-x-auto flex-shrink-0 py-4">
                 <TabsTrigger value="all">All</TabsTrigger>
                 {categories.map(category => (
                   <TabsTrigger key={category} value={category}>
@@ -117,7 +117,7 @@ export const PlaceCardGalleryModal: React.FC<PlaceCardGalleryModalProps> = ({
                     <p className="text-sm">Gallery images will be added by the admin</p>
                   </div>
                 ) : (
-                  <ScrollArea className="h-[480px] [&>[data-radix-scroll-area-scrollbar]]:!bg-transparent [&>[data-radix-scroll-area-scrollbar]]:!border-0 [&>div]:!border-0">
+                  <ScrollArea className="h-[500px] [&>[data-radix-scroll-area-scrollbar]]:!bg-transparent [&>[data-radix-scroll-area-scrollbar]]:!border-0 [&>div]:!border-0">
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 pr-2">
                       {filteredImages.map(image => (
                         <div
