@@ -1,62 +1,60 @@
 
 
-# Card Size Rules by Card Type
+# Upload First 10 Invitation Gallery Designs
 
-## Summary
+## Design Inventory
 
-Enforce card size rules based on the card type selected. Invitations are always A4. Save the Date offers A4 or A5. Thank You offers A4, A5, or A6. The size is chosen at artwork creation and cannot be changed afterwards.
+| # | Proposed Name | Category | Source File |
+|---|--------------|----------|-------------|
+| 1 | Blush Peonies Bismillah | Islamic | Brown_Flowers_1.png |
+| 2 | Navy & Gold Rings | Wedding | Celebrations_...145837.png |
+| 3 | Black & Gold Monstera | Tropical | Celebrations_...145857.png |
+| 4 | Gold Birthday Bash | Birthday | Celebrations_...145925.png |
+| 5 | Rose Gold Glitter | Glamour | Celebrations_...145940.png |
+| 6 | Burgundy Lanterns | Islamic | Celebrations_...150143.png |
+| 7 | Golden Bow Classic | Wedding | Celebrations_...150209.png |
+| 8 | Blush Watercolor Roses | Floral | Celebrations_...150256.png |
+| 9 | Pink Magnolia | Floral | Celebrations_...150315.png |
+| 10 | Golden Balloons Bokeh | Celebrations | Celebrations_1.png |
 
-## Rules
+## Categories Created (5 total so far)
 
-| Card Type     | Allowed Sizes | Default |
-|---------------|---------------|---------|
-| Invitation    | A4 only       | A4      |
-| Save the Date | A4, A5        | A5      |
-| Thank You     | A4, A5, A6    | A6      |
+- **Islamic** (2 designs)
+- **Wedding** (2 designs)
+- **Floral** (2 designs)
+- **Tropical** (1 design)
+- **Birthday** (1 design)
+- **Glamour** (1 design)
+- **Celebrations** (1 design)
 
-Once an artwork is created with a size, that size is locked -- the user cannot change it. The PDF export engine will use the artwork's stored `card_size` to determine output dimensions at 300 DPI.
+## Implementation Steps
 
-## A6 Dimensions
+### 1. Copy images to project
 
-A6 = 105mm x 148mm (half of A5). At 300 DPI this is approximately 1240 x 1748 pixels. This fits a standard C6 envelope (114mm x 162mm), the most common Australian greeting card envelope.
+Copy all 10 uploaded images into `public/invitation-gallery/` with clean, URL-friendly filenames (e.g., `blush-peonies-bismillah.png`).
 
-## Changes Required
+### 2. Create/update edge function for invitation gallery upload
 
-### 1. Artwork Creation Dialog (InvitationsPage.tsx)
+Adapt the existing `fix-gallery-upload` edge function pattern to upload images to a Supabase Storage bucket for invitation gallery images. The function will:
+- Accept base64-encoded image data
+- Upload to the `invitation-gallery` storage bucket
+- Return the public URL
 
-Replace the simple "New [type]" button click with a small dialog/popover:
-- For **Invitation**: no size choice shown, auto-creates at A4
-- For **Save the Date**: show A4/A5 radio buttons, then a name field, then "Create"
-- For **Thank You**: show A4/A5/A6 radio buttons, then a name field, then "Create"
+### 3. Insert records into `invitation_gallery_images` table
 
-The `createArtwork` function will be updated to accept `cardSize` as a parameter.
+For each of the 10 designs, insert a row with:
+- `name`: The design name from the table above
+- `category`: The category from the table above
+- `image_url`: The public storage URL after upload
+- `sort_order`: Sequential within each category
 
-### 2. Hook Update (useInvitationCardSettings.ts)
+### 4. Verify gallery loads in the Invitations page
 
-- Update `createArtwork(cardType, name)` signature to `createArtwork(cardType, name, cardSize)`
-- Pass `card_size` in the insert payload
-- For Invitation type, always force `card_size: 'A4'`
+Ensure the `useInvitationGallery` hook fetches and displays the new images correctly, grouped by category.
 
-### 3. Remove Card Size from Customizer (InvitationCardCustomizer.tsx)
+## Files Created/Modified
 
-- Remove or hide the card size dropdown from the customizer panel (size is set at creation and locked)
-- Display the current size as a read-only badge/label so the user knows what size their artwork is
-
-### 4. Preview Update (InvitationCardPreview.tsx)
-
-- Add A6 dimensions to the preview size mapping (105mm x 148mm)
-- Ensure the preview correctly renders all three sizes
-
-### 5. Export Engine (invitationExporter.ts)
-
-- Add A6 format support: 105mm x 148mm, ~1240 x 1748 pixels at 300 DPI
-- The exporter already reads `widthMm` and `heightMm` from settings, so this mostly requires ensuring A6 values are passed correctly
-
-## Files to Modify
-
-1. `src/components/Dashboard/Invitations/InvitationsPage.tsx` -- Add creation dialog with size selection per card type
-2. `src/hooks/useInvitationCardSettings.ts` -- Add `cardSize` parameter to `createArtwork`
-3. `src/components/Dashboard/Invitations/InvitationCardCustomizer.tsx` -- Lock card size display (read-only badge)
-4. `src/components/Dashboard/Invitations/InvitationCardPreview.tsx` -- Add A6 dimensions
-5. `src/lib/invitationExporter.ts` -- Add A6 constants
+1. `public/invitation-gallery/*.png` -- 10 image files copied from uploads
+2. `supabase/functions/upload-invitation-gallery/index.ts` -- New edge function for uploading to storage bucket
+3. Supabase `invitation_gallery_images` table -- 10 new rows inserted via the edge function
 
