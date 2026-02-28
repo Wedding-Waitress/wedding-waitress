@@ -1,37 +1,33 @@
 
 
-# Add 10 New Place Card Gallery Designs (Batch 2 of 6)
+# Add 10 New Place Card Gallery Designs (Batch 3 of 6)
 
 ## Overview
-Add the second batch of 10 place card designs to the gallery with descriptive names and category assignments based on visual inspection.
+Add the third batch of 10 place card designs to the gallery with descriptive names and category assignments.
 
 ## Image Assignments
 
 | # | Upload File | New Name | Category | File Name |
 |---|------------|----------|----------|-----------|
-| 11 | Untitled_design_11.png | Vintage Rose Garden Border | Flowers | Vintage_Rose_Garden_Border.png |
-| 12 | Untitled_design_12.png | Pink Roses Gold Frame | Pink | Pink_Roses_Gold_Frame.png |
-| 13 | Untitled_design_13.png | Gold Line Art Botanicals | Gold | Gold_Line_Art_Botanicals.png |
-| 14 | Untitled_design_14.png | Gold Lace Ornate Border | Gold | Gold_Lace_Ornate_Border.png |
-| 15 | Untitled_design_15.png | Gold Silk Ribbon Waves | Gold | Gold_Silk_Ribbon_Waves.png |
-| 16 | Untitled_design_16.png | Mocha Floral Corners | Brown | Mocha_Floral_Corners.png |
-| 17 | Untitled_design_17.png | Peach Watercolor Blooms | Orange | Peach_Watercolor_Blooms.png |
-| 18 | Untitled_design_18.png | Pink Rose Garden Frame | Pink | Pink_Rose_Garden_Frame.png |
-| 19 | Untitled_design_19.png | Deep Rose Floral Border | Pink | Deep_Rose_Floral_Border.png |
-| 20 | Untitled_design_20.png | Blush Rose Eucalyptus Frame | Pink | Blush_Rose_Eucalyptus_Frame.png |
-
-## Notes on Categories
-- **Gold** is a new category (3 images feature gold as the dominant design element -- line art, lace border, and silk ribbons)
-- If Gold doesn't exist yet, it will be created automatically when the database records are inserted
+| 21 | Untitled_design_21.png | Pink Peony Rose Frame | Pink | Pink_Peony_Rose_Frame.png |
+| 22 | Untitled_design_22.png | Cherry Blossom Branch | Pink | Cherry_Blossom_Branch.png |
+| 23 | Untitled_design_23.png | Blue Cornflower Watercolor | Blue | Blue_Cornflower_Watercolor.png |
+| 24 | Untitled_design_24.png | Blue Floral Corner Bouquet | Blue | Blue_Floral_Corner_Bouquet.png |
+| 25 | Untitled_design_25.png | Dusty Blue Rose Gold Leaf | Blue | Dusty_Blue_Rose_Gold_Leaf.png |
+| 26 | Untitled_design_26.png | Eucalyptus Watercolor Wash | Green | Eucalyptus_Watercolor_Wash.png |
+| 27 | Untitled_design_27.png | Gold Leaf Botanical Sprigs | Green | Gold_Leaf_Botanical_Sprigs.png |
+| 28 | Untitled_design_28.png | Blue Watercolor Floral Corner | Blue | Blue_Watercolor_Floral_Corner.png |
+| 29 | Untitled_design_29.png | Soft Blue Floral Wreath | Blue | Soft_Blue_Floral_Wreath.png |
+| 30 | Untitled_design_30.png | White Blossom Garland | Flowers | White_Blossom_Garland.png |
 
 ## Implementation Steps
 
 1. **Copy all 10 uploaded images** to `public/gallery-images/` with their new descriptive file names.
 
-2. **Insert 10 records** into `place_card_gallery_images` with sort_order values 23-32 (continuing from Batch 1 which ended at 22).
+2. **Insert 10 records** into `place_card_gallery_images` with sort_order values 33-42 (continuing from Batch 2 which ended at 32).
 
 ## Technical Details
 - Images stored as static assets in `public/gallery-images/`
-- Database records inserted via Supabase with fields: `name`, `category`, `image_url`, `sort_order`
+- Database records inserted via Supabase insert tool with fields: `name`, `category`, `image_url`, `sort_order`
 - No code changes needed -- the existing `usePlaceCardGallery` hook automatically picks up new entries
 
