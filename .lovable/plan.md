@@ -1,77 +1,62 @@
 
 
-# Multi-Artwork Saved Designs for Invitations
+# Card Size Rules by Card Type
 
-## Overview
+## Summary
 
-Expand the `invitation_card_settings` table and UI to support multiple saved artworks per event. Each artwork has a `card_type` (invitation, save_the_date, thank_you) and a user-given name. Users can create, switch between, and manage multiple designs per event.
+Enforce card size rules based on the card type selected. Invitations are always A4. Save the Date offers A4 or A5. Thank You offers A4, A5, or A6. The size is chosen at artwork creation and cannot be changed afterwards.
 
-## Database Changes
+## Rules
 
-Add two new columns to `invitation_card_settings`:
+| Card Type     | Allowed Sizes | Default |
+|---------------|---------------|---------|
+| Invitation    | A4 only       | A4      |
+| Save the Date | A4, A5        | A5      |
+| Thank You     | A4, A5, A6    | A6      |
 
-```sql
-ALTER TABLE invitation_card_settings
-  ADD COLUMN card_type text NOT NULL DEFAULT 'invitation',
-  ADD COLUMN name text NOT NULL DEFAULT 'Untitled';
-```
+Once an artwork is created with a size, that size is locked -- the user cannot change it. The PDF export engine will use the artwork's stored `card_size` to determine output dimensions at 300 DPI.
 
-- `card_type`: one of `'invitation'`, `'save_the_date'`, `'thank_you'` -- this is the functional type, NOT a category
-- `name`: user-editable label (e.g. "Main Wedding Invitation", "George's Save the Date")
+## A6 Dimensions
 
-Drop the current implicit one-per-event constraint so multiple rows per event are allowed (already the case -- no unique constraint on event_id exists).
+A6 = 105mm x 148mm (half of A5). At 300 DPI this is approximately 1240 x 1748 pixels. This fits a standard C6 envelope (114mm x 162mm), the most common Australian greeting card envelope.
 
-## Hook Changes (`useInvitationCardSettings.ts`)
+## Changes Required
 
-- Change from fetching `.maybeSingle()` to fetching all rows for the event (`.select('*').eq('event_id', eventId)`)
-- Maintain a list of all saved artworks: `artworks: InvitationCardSettings[]`
-- Add `activeArtworkId` state to track which design is currently being edited
-- Expose `activeArtwork` (the currently selected one) plus CRUD methods:
-  - `createArtwork(cardType, name)` -- inserts a new row
-  - `deleteArtwork(id)` -- removes a saved design
-  - `duplicateArtwork(id)` -- clones an existing design
-  - `renameArtwork(id, name)` -- updates the name
-  - `setActiveArtwork(id)` -- switches the editor to a different saved design
-  - `updateSettings(partial)` -- updates the active artwork (existing behavior)
+### 1. Artwork Creation Dialog (InvitationsPage.tsx)
 
-## Interface Changes (`InvitationCardSettings`)
+Replace the simple "New [type]" button click with a small dialog/popover:
+- For **Invitation**: no size choice shown, auto-creates at A4
+- For **Save the Date**: show A4/A5 radio buttons, then a name field, then "Create"
+- For **Thank You**: show A4/A5/A6 radio buttons, then a name field, then "Create"
 
-Add to the TypeScript interface:
-```typescript
-card_type: 'invitation' | 'save_the_date' | 'thank_you';
-name: string;
-```
+The `createArtwork` function will be updated to accept `cardSize` as a parameter.
 
-## UI Changes
+### 2. Hook Update (useInvitationCardSettings.ts)
 
-### InvitationsPage.tsx
+- Update `createArtwork(cardType, name)` signature to `createArtwork(cardType, name, cardSize)`
+- Pass `card_size` in the insert payload
+- For Invitation type, always force `card_size: 'A4'`
 
-Add a "Saved Artworks" management bar between the header card and the customizer/preview grid:
+### 3. Remove Card Size from Customizer (InvitationCardCustomizer.tsx)
 
-- **Card Type Tabs**: Three toggle buttons -- "Invitation", "Save the Date", "Thank You" -- to filter displayed artworks
-- **Artwork List**: Horizontal scrollable row of artwork cards (thumbnail + name), click to select
-- **New Artwork Button**: "+ New [Invitation/Save the Date/Thank You]" creates a blank design of that type
-- **Actions per artwork**: Rename, Duplicate, Delete (via small dropdown or icon buttons)
+- Remove or hide the card size dropdown from the customizer panel (size is set at creation and locked)
+- Display the current size as a read-only badge/label so the user knows what size their artwork is
 
-The customizer and preview then work on the currently active/selected artwork exactly as they do now.
+### 4. Preview Update (InvitationCardPreview.tsx)
 
-### InvitationCardCustomizer.tsx
+- Add A6 dimensions to the preview size mapping (105mm x 148mm)
+- Ensure the preview correctly renders all three sizes
 
-- Show the artwork name as an editable field at the top of the customizer
-- Show the card type as a read-only badge
+### 5. Export Engine (invitationExporter.ts)
 
-## Files Modified
+- Add A6 format support: 105mm x 148mm, ~1240 x 1748 pixels at 300 DPI
+- The exporter already reads `widthMm` and `heightMm` from settings, so this mostly requires ensuring A6 values are passed correctly
 
-1. **Migration SQL** -- Add `card_type` and `name` columns
-2. **`src/hooks/useInvitationCardSettings.ts`** -- Rewrite to support multiple artworks per event
-3. **`src/components/Dashboard/Invitations/InvitationsPage.tsx`** -- Add artwork management bar with card type tabs and artwork selector
-4. **`src/components/Dashboard/Invitations/InvitationCardCustomizer.tsx`** -- Add artwork name field and card type badge at top
+## Files to Modify
 
-## Data Flow
-
-1. User selects event -> hook fetches all artworks for that event
-2. User picks a card type tab (Invitation / Save the Date / Thank You) -> filters visible artworks
-3. User clicks an artwork card or creates new -> sets active artwork
-4. Customizer and preview bind to the active artwork
-5. All changes auto-save to that specific artwork row via `updateSettings()`
+1. `src/components/Dashboard/Invitations/InvitationsPage.tsx` -- Add creation dialog with size selection per card type
+2. `src/hooks/useInvitationCardSettings.ts` -- Add `cardSize` parameter to `createArtwork`
+3. `src/components/Dashboard/Invitations/InvitationCardCustomizer.tsx` -- Lock card size display (read-only badge)
+4. `src/components/Dashboard/Invitations/InvitationCardPreview.tsx` -- Add A6 dimensions
+5. `src/lib/invitationExporter.ts` -- Add A6 constants
 
