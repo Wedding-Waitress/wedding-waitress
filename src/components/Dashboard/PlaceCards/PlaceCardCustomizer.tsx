@@ -25,6 +25,7 @@ import { PlaceCardSettings } from '@/hooks/usePlaceCardSettings';
 import { Guest } from '@/hooks/useGuests';
 import { Palette, Type, Image, MessageSquare, Sparkles, Grid3X3, Trash2, Upload, Images } from 'lucide-react';
 import { PlaceCardGalleryModal } from './PlaceCardGalleryModal';
+import { PlaceCardFontPicker } from './PlaceCardFontPicker';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { PLACE_CARD_TEMPLATES, TEMPLATE_CATEGORIES, getTemplatesByCategory, getTemplateById } from '@/lib/PlaceCardTemplates';
@@ -40,175 +41,7 @@ interface ExtendedPlaceCardSettings extends PlaceCardSettings {
   template_id?: string;
 }
 
-const FONT_OPTIONS = [
-// System Fonts - Arial Family
-{
-  value: 'Arial',
-  label: 'Arial'
-}, {
-  value: 'Arial Black',
-  label: 'Arial Black'
-}, {
-  value: 'Arial Narrow',
-  label: 'Arial Narrow'
-},
-// Custom Premium Fonts
-{
-  value: 'Beauty Mountains',
-  label: 'Beauty Mountains 💎'
-}, {
-  value: 'Valentine Baby',
-  label: 'Valentine Baby 💎'
-}, {
-  value: 'Amsterdam',
-  label: 'Amsterdam 💎'
-}, {
-  value: 'Back to Black Demo',
-  label: 'Back to Black Demo 💎'
-}, {
-  value: 'Flagfies',
-  label: 'Flagfies 💎'
-}, {
-  value: 'Sphere Memory',
-  label: 'Sphere Memory 💎'
-}, {
-  value: 'ET Emilia Grace Demo',
-  label: 'ET Emilia Grace Demo 💎'
-}, {
-  value: 'Grained',
-  label: 'Grained 💎'
-},
-// Elegant Script & Calligraphy (Wedding Focused)
-{
-  value: 'Allura',
-  label: 'Allura ✨'
-}, {
-  value: 'Alex Brush',
-  label: 'Alex Brush ✨'
-}, {
-  value: 'Tangerine',
-  label: 'Tangerine ✨'
-}, {
-  value: 'Pinyon Script',
-  label: 'Pinyon Script ✨'
-}, {
-  value: 'Satisfy',
-  label: 'Satisfy ✨'
-}, {
-  value: 'Parisienne',
-  label: 'Parisienne ✨'
-}, {
-  value: 'Marck Script',
-  label: 'Marck Script ✨'
-}, {
-  value: 'Cookie',
-  label: 'Cookie ✨'
-}, {
-  value: 'Sacramento',
-  label: 'Sacramento ✨'
-}, {
-  value: 'Kaushan Script',
-  label: 'Kaushan Script ✨'
-}, {
-  value: 'Courgette',
-  label: 'Courgette ✨'
-}, {
-  value: 'Yellowtail',
-  label: 'Yellowtail ✨'
-}, {
-  value: 'Dancing Script',
-  label: 'Dancing Script ✨'
-}, {
-  value: 'Great Vibes',
-  label: 'Great Vibes ✨'
-}, {
-  value: 'Amatic SC',
-  label: 'Amatic SC ✨'
-},
-// Classic Serif Fonts
-{
-  value: 'Playfair Display',
-  label: 'Playfair Display'
-}, {
-  value: 'Cormorant',
-  label: 'Cormorant'
-}, {
-  value: 'Crimson Text',
-  label: 'Crimson Text'
-}, {
-  value: 'Lora',
-  label: 'Lora'
-}, {
-  value: 'Merriweather',
-  label: 'Merriweather'
-}, {
-  value: 'EB Garamond',
-  label: 'EB Garamond'
-}, {
-  value: 'Libre Baskerville',
-  label: 'Libre Baskerville'
-}, {
-  value: 'Vollkorn',
-  label: 'Vollkorn'
-},
-// Modern Sans-Serif Fonts
-{
-  value: 'Raleway',
-  label: 'Raleway'
-}, {
-  value: 'Josefin Sans',
-  label: 'Josefin Sans'
-}, {
-  value: 'Quicksand',
-  label: 'Quicksand'
-}, {
-  value: 'Nunito',
-  label: 'Nunito'
-}, {
-  value: 'Work Sans',
-  label: 'Work Sans'
-}, {
-  value: 'DM Sans',
-  label: 'DM Sans'
-}, {
-  value: 'Outfit',
-  label: 'Outfit'
-}, {
-  value: 'Montserrat',
-  label: 'Montserrat'
-}, {
-  value: 'Poppins',
-  label: 'Poppins'
-}, {
-  value: 'Inter',
-  label: 'Inter'
-}, {
-  value: 'Roboto',
-  label: 'Roboto'
-}, {
-  value: 'Open Sans',
-  label: 'Open Sans'
-}, {
-  value: 'Lato',
-  label: 'Lato'
-},
-// Display & Decorative Fonts
-{
-  value: 'Cinzel',
-  label: 'Cinzel ◆'
-}, {
-  value: 'Abril Fatface',
-  label: 'Abril Fatface ◆'
-}, {
-  value: 'Bebas Neue',
-  label: 'Bebas Neue ◆'
-}, {
-  value: 'Righteous',
-  label: 'Righteous ◆'
-}, {
-  value: 'Pacifico',
-  label: 'Pacifico ◆'
-}].sort((a, b) => a.label.localeCompare(b.label, 'en', { sensitivity: 'base' }));
+// FONT_OPTIONS removed — replaced by PlaceCardFontPicker with 1,500+ Google Fonts
 
 export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
   settings,
@@ -449,18 +282,10 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                   <Type className="h-4 w-4" />
                   Guest Name Font
                 </Label>
-                <Select value={currentSettings.guest_font_family} onValueChange={value => handleSettingChange('guest_font_family', value)}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {FONT_OPTIONS.map(font => <SelectItem key={font.value} value={font.value}>
-                        <span style={{
-                      fontFamily: font.value
-                    }}>{font.label}</span>
-                      </SelectItem>)}
-                  </SelectContent>
-                </Select>
+                <PlaceCardFontPicker
+                  value={currentSettings.guest_font_family || 'Inter'}
+                  onValueChange={value => handleSettingChange('guest_font_family', value)}
+                />
               </div>
 
               <div>
@@ -468,18 +293,10 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                   <Type className="h-4 w-4" />
                   Table, Seat & Message Font
                 </Label>
-                <Select value={currentSettings.info_font_family} onValueChange={value => handleSettingChange('info_font_family', value)}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {FONT_OPTIONS.map(font => <SelectItem key={font.value} value={font.value}>
-                        <span style={{
-                      fontFamily: font.value
-                    }}>{font.label}</span>
-                      </SelectItem>)}
-                  </SelectContent>
-                </Select>
+                <PlaceCardFontPicker
+                  value={currentSettings.info_font_family || 'Inter'}
+                  onValueChange={value => handleSettingChange('info_font_family', value)}
+                />
               </div>
 
               <div className="space-y-3 p-3 border rounded-lg bg-muted/30">
