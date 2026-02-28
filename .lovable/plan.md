@@ -1,26 +1,27 @@
 
 
-# Fix Category Tabs Bar Height
+# Image Gallery Updates
 
-## Problem
-The grey background behind the category tabs is still too narrow despite adding `py-4`. The base `TabsList` component has a fixed `h-10` height that constrains it. The up/down scroll arrows on the right are unnecessary.
+## 3 Changes
 
-## Fix
-One change in `PlaceCardGalleryModal.tsx`, line 95:
+### 1. Move Islamic images to "Gold" category and delete the Islamic category
+The two Islamic images appear to be gold-themed lantern/ornamental designs, so "Gold" is the most suitable category. This requires two SQL UPDATE statements on the `place_card_gallery_images` table to change their category from "Islamic" to "Gold". Since categories are derived dynamically from the data, removing all "Islamic" entries automatically removes the category.
 
-- Add `h-auto` to the `TabsList` className to override the default `h-10` height, allowing `py-4` to take effect and double the visible grey background
-- Add `flex-wrap` so all categories wrap naturally instead of needing scroll arrows
-- Remove `overflow-x-auto` since wrapping eliminates the need for horizontal scrolling
+**Action:** Run SQL via Supabase to update records where `category = 'Islamic'` to `category = 'Gold'`.
 
-**Current (line 95):**
-```
-<TabsList className="w-full justify-start overflow-x-auto flex-shrink-0 py-4">
-```
+### 2. Delete "Autumn Spice White Timber" image
+Remove this image from the `place_card_gallery_images` table and optionally from storage.
 
-**New:**
-```
-<TabsList className="w-full justify-start flex-wrap flex-shrink-0 h-auto py-4">
-```
+**Action:** Run SQL via Supabase to delete the record where `name = 'Autumn Spice White Timber'`.
 
-This makes the grey bar tall enough to fully contain the purple active pills, and categories wrap to multiple lines if needed -- no scroll arrows required.
+### 3. Restyle "Use This Image" button -- center it and make it green
+Currently the button is right-aligned with a purple gradient. Change the preview header layout so the button is centered, and use a green background (`bg-green-500 hover:bg-green-600 text-white`) consistent with the app's primary action button standard.
+
+**File:** `PlaceCardGalleryModal.tsx`, lines 57-69
+
+**Current layout:** flex row with Back button (left), title (center/flex-1), Use This Image (right)
+
+**New layout:** Two rows:
+- Row 1: Back button (left) + title (center)
+- Row 2: "Use This Image" button centered with green styling
 
