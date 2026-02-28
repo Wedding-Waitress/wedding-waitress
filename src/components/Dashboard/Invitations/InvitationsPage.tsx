@@ -1,53 +1,26 @@
 import React, { useState, useMemo } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { Calendar, Mail, Heart, Gift } from 'lucide-react';
 import { useEvents } from '@/hooks/useEvents';
-import { useInvitationTemplates, type InvitationTemplate, type CardType } from '@/hooks/useInvitationTemplates';
-import { useInvitationDesign } from '@/hooks/useInvitationDesign';
-import { TemplateGallery } from './TemplateGallery';
-import { InvitationCustomizer } from './InvitationCustomizer';
+import { useInvitationCardSettings } from '@/hooks/useInvitationCardSettings';
+import { InvitationCardCustomizer } from './InvitationCardCustomizer';
+import { InvitationCardPreview } from './InvitationCardPreview';
 import { formatDisplayDate, formatDisplayTime } from '@/lib/utils';
+import { Loader2, FileText, Calendar, Mail } from 'lucide-react';
 
 interface InvitationsPageProps {
   selectedEventId: string | null;
   onEventSelect: (eventId: string) => void;
 }
 
-const TAB_CONFIG: Record<CardType, { label: string; icon: React.ReactNode; title: string; description: string }> = {
-  save_the_date: {
-    label: 'Save The Date',
-    icon: <Heart className="w-4 h-4" />,
-    title: 'Save The Date Cards',
-    description: 'Send beautiful Save The Date cards to your guests months before the wedding.',
-  },
-  invitation: {
-    label: 'Invitation',
-    icon: <Mail className="w-4 h-4" />,
-    title: 'Invitations',
-    description: 'Choose a template, customise your text, and export beautiful invitations for your guests.',
-  },
-  thank_you: {
-    label: 'Thank You',
-    icon: <Gift className="w-4 h-4" />,
-    title: 'Thank You Cards',
-    description: 'Send heartfelt Thank You cards to your guests after the wedding.',
-  },
-};
-
 export const InvitationsPage: React.FC<InvitationsPageProps> = ({
   selectedEventId,
   onEventSelect,
 }) => {
   const { events, loading: eventsLoading } = useEvents();
-  const [activeCardType, setActiveCardType] = useState<CardType>('invitation');
-  const { templates, loading: templatesLoading } = useInvitationTemplates(activeCardType);
-  const { design, saveDesign } = useInvitationDesign(selectedEventId);
-  const [selectedTemplate, setSelectedTemplate] = useState<InvitationTemplate | null>(null);
+  const { settings, loading: settingsLoading, updateSettings } = useInvitationCardSettings(selectedEventId);
 
   const selectedEvent = useMemo(() => events.find(e => e.id === selectedEventId), [events, selectedEventId]);
-  const tabConfig = TAB_CONFIG[activeCardType];
 
   const eventData = useMemo(() => {
     if (!selectedEvent) return {};
@@ -55,171 +28,161 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
     const p2 = selectedEvent.partner2_name || '';
     const coupleNames = p1 && p2 ? `${p1} & ${p2}` : p1 || p2 || selectedEvent.name;
 
-    // Build combined ceremony string (two lines)
-    const ceremonyDateStr = selectedEvent.ceremony_date ? formatDisplayDate(selectedEvent.ceremony_date) : '';
-    const ceremonyStartStr = selectedEvent.ceremony_start_time ? formatDisplayTime(selectedEvent.ceremony_start_time) : '';
-    const ceremonyFinishStr = selectedEvent.ceremony_finish_time ? formatDisplayTime(selectedEvent.ceremony_finish_time) : '';
-    const ceremonyTimeRange = ceremonyStartStr && ceremonyFinishStr ? `${ceremonyStartStr} — ${ceremonyFinishStr}` : ceremonyStartStr;
-    const ceremonyVenueName = selectedEvent.ceremony_venue || '';
-    const ceremonyVenueAddr = selectedEvent.ceremony_venue_address || '';
-    const ceremonyLocation = [ceremonyVenueName, ceremonyVenueAddr].filter(Boolean).join(' - ');
-    const ceremonyLine1 = [
-      ceremonyDateStr ? `Date: ${ceremonyDateStr}` : '',
-      ceremonyTimeRange ? `Time: ${ceremonyTimeRange}` : '',
-    ].filter(Boolean).join(' - ');
-    const ceremonyCombined = [
-      ceremonyLine1 ? `Ceremony - ${ceremonyLine1}` : 'Ceremony',
-      ceremonyLocation ? `Location: ${ceremonyLocation}` : '',
-    ].filter(Boolean).join('\n');
-
-    // Build combined reception string (two lines)
-    const receptionDateStr = selectedEvent.date ? formatDisplayDate(selectedEvent.date) : '';
-    const receptionStartStr = selectedEvent.start_time ? formatDisplayTime(selectedEvent.start_time) : '';
-    const receptionFinishStr = selectedEvent.finish_time ? formatDisplayTime(selectedEvent.finish_time) : '';
-    const receptionTimeRange = receptionStartStr && receptionFinishStr ? `${receptionStartStr} — ${receptionFinishStr}` : receptionStartStr;
-    const receptionVenueName = selectedEvent.venue || '';
-    const receptionVenueAddr = selectedEvent.venue_address || '';
-    const receptionLocation = [receptionVenueName, receptionVenueAddr].filter(Boolean).join(' - ');
-    const receptionLine1 = [
-      receptionDateStr ? `Date: ${receptionDateStr}` : '',
-      receptionTimeRange ? `Time: ${receptionTimeRange}` : '',
-    ].filter(Boolean).join(' - ');
-    const receptionCombined = [
-      receptionLine1 ? `Reception - ${receptionLine1}` : 'Reception',
-      receptionLocation ? `Location: ${receptionLocation}` : '',
-    ].filter(Boolean).join('\n');
-
     return {
       couple_names: coupleNames,
       date: selectedEvent.date ? formatDisplayDate(selectedEvent.date) : '',
       venue: selectedEvent.venue || '',
       time: selectedEvent.start_time ? formatDisplayTime(selectedEvent.start_time) : '',
-      ceremony_date: ceremonyDateStr,
-      ceremony_time: ceremonyStartStr,
-      ceremony_venue: ceremonyVenueName,
-      reception_date: receptionDateStr,
-      reception_time: receptionStartStr,
-      reception_venue: receptionVenueName,
       rsvp_deadline: selectedEvent.rsvp_deadline ? formatDisplayDate(selectedEvent.rsvp_deadline) : '',
-      ceremony: ceremonyCombined,
-      reception: receptionCombined,
     };
   }, [selectedEvent]);
 
-  const handleSelectTemplate = (template: InvitationTemplate) => {
-    setSelectedTemplate(template);
+  const handleEventChange = (eventId: string) => {
+    if (eventId === "no-event") return;
+    onEventSelect(eventId);
   };
 
-  const handleSaveDesign = async (customText: Record<string, string>, customStyles: Record<string, any>, qrConfig?: any) => {
-    if (!selectedTemplate) return;
-    await saveDesign({
-      template_id: selectedTemplate.id,
-      custom_text: customText,
-      custom_styles: customStyles,
-      qr_position: qrConfig || null,
-    });
-  };
-
-  // If customizing, show the customizer full-width
-  if (selectedTemplate && selectedEventId) {
+  if (eventsLoading) {
     return (
-      <div className="space-y-4">
-        <InvitationCustomizer
-          template={selectedTemplate}
-          eventData={eventData}
-          eventId={selectedEventId}
-          eventSlug={selectedEvent?.slug || undefined}
-          initialCustomText={design?.template_id === selectedTemplate.id ? design.custom_text : {}}
-          initialCustomStyles={design?.template_id === selectedTemplate.id ? design.custom_styles : {}}
-          initialQrConfig={design?.template_id === selectedTemplate.id && design.qr_position ? design.qr_position as any : undefined}
-          onSave={handleSaveDesign}
-          onBack={() => setSelectedTemplate(null)}
-        />
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <span className="ml-2 text-muted-foreground">Loading events...</span>
       </div>
+    );
+  }
+
+  if (!events.length) {
+    return (
+      <Card className="ww-box">
+        <CardContent className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <Mail className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-muted-foreground">No Events Found</h3>
+            <p className="text-sm text-muted-foreground">Create an event first to design invitations.</p>
+          </div>
+        </CardContent>
+      </Card>
     );
   }
 
   return (
     <div className="space-y-6">
+      {/* Combined Header Box */}
       <Card className="ww-box">
-        <CardHeader className="flex flex-col gap-4 pb-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div className="flex items-start gap-3 flex-1">
-              <Mail className="w-10 h-10 sm:w-16 sm:h-16 text-primary flex-shrink-0" />
-              <div className="flex flex-col">
-                <CardTitle className="text-xl sm:text-2xl">Invitations & Cards</CardTitle>
-                <CardDescription className="mt-1">
-                  {tabConfig.description}
-                </CardDescription>
+        <CardContent className="space-y-4 pt-6">
+          {/* Title & Subtitle */}
+          <div className="text-left">
+            <h1 className="text-2xl font-medium text-foreground">Invitations and Cards</h1>
+            <p className="text-sm text-muted-foreground mt-1">
+              Create professional A4-A5 invitations, save the date, and thank you cards for you to send to your guest digitally and download to print
+            </p>
+          </div>
+
+          {/* Stats Box */}
+          {selectedEvent && (
+            <div className="flex flex-wrap items-start justify-between gap-4">
+              <div className="flex-1 border border-primary rounded-xl p-4 text-sm space-y-2">
+                <p className="font-medium text-green-600">
+                  Manage your A4-A5 invitations and cards
+                </p>
+                <div className="text-muted-foreground space-y-1 mt-3">
+                  <p>• All exports are 300 DPI for professional quality</p>
+                  <p>• PDF exports maintain exact A4/A5 dimensions</p>
+                  <p>• Image exports are 2480×3508 pixels (A4 @ 300 DPI)</p>
+                  <p>• Send digitally or download to print at home or your local printer</p>
+                  <p>• Background images must be smaller than 5MB</p>
+                </div>
               </div>
             </div>
+          )}
+
+          {/* Separator */}
+          <div className="border-b border-border" />
+
+          {/* Choose Event & Export Controls */}
+          <div className="flex items-center justify-between gap-8 flex-nowrap pt-2">
+            {/* Left side: Choose Event */}
+            <div className="flex items-center gap-4">
+              <label className="text-sm font-medium text-foreground whitespace-nowrap">
+                Choose Event:
+              </label>
+              <Select value={selectedEventId || "no-event"} onValueChange={handleEventChange}>
+                <SelectTrigger className="w-full sm:w-[300px] border-primary focus:ring-primary font-bold text-primary">
+                  <SelectValue placeholder="Choose Event" />
+                </SelectTrigger>
+                <SelectContent className="bg-popover border-border z-50">
+                  {events.length > 0 ? (
+                    events.map((event) => (
+                      <SelectItem key={event.id} value={event.id}>
+                        <div className="flex items-center space-x-2">
+                          <Calendar className="w-4 h-4" />
+                          <span>{event.name}</span>
+                        </div>
+                      </SelectItem>
+                    ))
+                  ) : (
+                    <SelectItem value="no-events" disabled>
+                      {eventsLoading ? "Loading events..." : "No events found"}
+                    </SelectItem>
+                  )}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Right side: Export Controls */}
+            {selectedEvent && (
+              <div className="border border-primary rounded-xl p-3 flex flex-col gap-2 whitespace-nowrap">
+                <div className="text-sm">
+                  <span className="font-medium">Export Controls</span>
+                  <span className="text-muted-foreground ml-2">Download your invitations as PDF ready for printing.</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    disabled
+                    className="inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none whitespace-nowrap"
+                  >
+                    <FileText className="w-3 h-3" />
+                    Download PDF
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
-
-          {/* Event Selector */}
-          <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-            <label className="text-sm font-medium text-foreground whitespace-nowrap">
-              Choose Event:
-            </label>
-            <Select value={selectedEventId || "no-event"} onValueChange={onEventSelect}>
-              <SelectTrigger className="w-full sm:w-[300px] border-primary focus:ring-primary [&>span]:font-bold [&>span]:text-[#7248E6]">
-                <SelectValue placeholder="Choose Event" />
-              </SelectTrigger>
-              <SelectContent className="bg-popover border-border z-50">
-                {events.length > 0 ? events.map(event => (
-                  <SelectItem key={event.id} value={event.id}>
-                    <div className="flex items-center space-x-2">
-                      <Calendar className="w-4 h-4" />
-                      <span>{event.name}</span>
-                    </div>
-                  </SelectItem>
-                )) : (
-                  <SelectItem value="no-events" disabled>
-                    {eventsLoading ? "Loading events..." : "No events found"}
-                  </SelectItem>
-                )}
-              </SelectContent>
-            </Select>
-          </div>
-        </CardHeader>
-
-        <CardContent>
-          {/* Sub-tab navigation */}
-          <Tabs value={activeCardType} onValueChange={(v) => { setActiveCardType(v as CardType); setSelectedTemplate(null); }}>
-            <TabsList className="mb-6">
-              <TabsTrigger value="save_the_date" className="gap-1.5">
-                <Heart className="w-3.5 h-3.5" /> Save The Date
-              </TabsTrigger>
-              <TabsTrigger value="invitation" className="gap-1.5">
-                <Mail className="w-3.5 h-3.5" /> Invitation
-              </TabsTrigger>
-              <TabsTrigger value="thank_you" className="gap-1.5">
-                <Gift className="w-3.5 h-3.5" /> Thank You
-              </TabsTrigger>
-            </TabsList>
-
-            {(['save_the_date', 'invitation', 'thank_you'] as CardType[]).map(ct => (
-              <TabsContent key={ct} value={ct}>
-                {!selectedEventId ? (
-                  <div className="text-center py-12">
-                    <Mail className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
-                    <h3 className="text-lg font-semibold text-foreground mb-2">Select an Event</h3>
-                    <p className="text-muted-foreground">
-                      Choose an event above to start designing your {TAB_CONFIG[ct].label.toLowerCase()} cards.
-                    </p>
-                  </div>
-                ) : (
-                  <TemplateGallery
-                    templates={templates}
-                    loading={templatesLoading}
-                    cardType={ct}
-                    onSelect={handleSelectTemplate}
-                  />
-                )}
-              </TabsContent>
-            ))}
-          </Tabs>
         </CardContent>
       </Card>
+
+      {/* Placeholder when no event selected */}
+      {!selectedEventId && (
+        <Card className="ww-box p-12 text-center">
+          <Mail className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
+          <CardTitle className="text-xl mb-2 text-muted-foreground">Select an Event</CardTitle>
+          <CardDescription className="text-base">
+            Choose an event above to start designing your invitations
+          </CardDescription>
+        </Card>
+      )}
+
+      {/* Bottom Section - Grid Layout */}
+      {selectedEventId && selectedEvent && !settingsLoading && (
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+          {/* Left Panel - Customizer */}
+          <div className="lg:col-span-2">
+            <InvitationCardCustomizer
+              settings={settings}
+              onSettingsChange={updateSettings}
+              eventData={eventData}
+            />
+          </div>
+
+          {/* Right Panel - Preview */}
+          <div className="lg:col-span-3">
+            <InvitationCardPreview
+              settings={settings}
+              eventData={eventData}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };
