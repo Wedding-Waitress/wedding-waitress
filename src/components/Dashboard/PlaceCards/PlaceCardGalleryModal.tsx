@@ -92,7 +92,7 @@ export const PlaceCardGalleryModal: React.FC<PlaceCardGalleryModalProps> = ({
 
             {/* Category Tabs */}
             <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="flex-1 flex flex-col min-h-0">
-              <TabsList className="w-full justify-start overflow-x-auto flex-shrink-0 py-4">
+              <TabsList className="w-full justify-start flex-wrap flex-shrink-0 h-auto py-4">
                 <TabsTrigger value="all">All</TabsTrigger>
                 {categories.map(category => (
                   <TabsTrigger key={category} value={category}>
