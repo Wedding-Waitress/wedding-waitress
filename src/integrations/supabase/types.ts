@@ -1189,6 +1189,68 @@ export type Database = {
           },
         ]
       }
+      invitation_card_settings: {
+        Row: {
+          background_color: string
+          background_image_opacity: number | null
+          background_image_type: string
+          background_image_url: string | null
+          background_image_x_position: number | null
+          background_image_y_position: number | null
+          card_size: string
+          created_at: string
+          event_id: string
+          font_color: string
+          id: string
+          orientation: string
+          text_zones: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          background_color?: string
+          background_image_opacity?: number | null
+          background_image_type?: string
+          background_image_url?: string | null
+          background_image_x_position?: number | null
+          background_image_y_position?: number | null
+          card_size?: string
+          created_at?: string
+          event_id: string
+          font_color?: string
+          id?: string
+          orientation?: string
+          text_zones?: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          background_color?: string
+          background_image_opacity?: number | null
+          background_image_type?: string
+          background_image_url?: string | null
+          background_image_x_position?: number | null
+          background_image_y_position?: number | null
+          card_size?: string
+          created_at?: string
+          event_id?: string
+          font_color?: string
+          id?: string
+          orientation?: string
+          text_zones?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invitation_card_settings_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       invitation_designs: {
         Row: {
           created_at: string
@@ -1245,6 +1307,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      invitation_gallery_images: {
+        Row: {
+          category: string
+          created_at: string
+          id: string
+          image_url: string
+          name: string
+          sort_order: number
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          id?: string
+          image_url: string
+          name: string
+          sort_order?: number
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          id?: string
+          image_url?: string
+          name?: string
+          sort_order?: number
+        }
+        Relationships: []
       }
       invitation_templates: {
         Row: {
