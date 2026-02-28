@@ -190,13 +190,13 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
 
                 <div>
                   <Label className="mb-2 block">Card Size</Label>
-                  <Select value={currentSettings.card_size} onValueChange={(v) => handleSettingChange('card_size', v)}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="A4">A4 (210 × 297mm)</SelectItem>
-                      <SelectItem value="A5">A5 (148 × 210mm)</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium">
+                    {currentSettings.card_size === 'A4' && 'A4 (210 × 297mm)'}
+                    {currentSettings.card_size === 'A5' && 'A5 (148 × 210mm)'}
+                    {currentSettings.card_size === 'A6' && 'A6 (105 × 148mm)'}
+                    {!['A4', 'A5', 'A6'].includes(currentSettings.card_size) && currentSettings.card_size}
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">Size is locked at creation and cannot be changed.</p>
                 </div>
 
                 <div>

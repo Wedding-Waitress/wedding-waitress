@@ -8,7 +8,9 @@ import type { TextZone } from '@/hooks/useInvitationTemplates';
 import { waitForFonts } from '@/lib/googleFonts';
 import type { QrConfig } from '@/lib/invitationQR';
 
-// A5 in mm
+// Card sizes in mm
+const A6_W_MM = 105;
+const A6_H_MM = 148;
 const A5_W_MM = 148;
 const A5_H_MM = 210;
 const A4_W_MM = 210;
