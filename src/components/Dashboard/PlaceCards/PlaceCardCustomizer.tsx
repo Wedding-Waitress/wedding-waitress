@@ -422,8 +422,9 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="design" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="design">Design</TabsTrigger>
+            <TabsTrigger value="position">Position</TabsTrigger>
             <TabsTrigger value="background">Background</TabsTrigger>
             <TabsTrigger value="messages">Messages</TabsTrigger>
           </TabsList>
@@ -555,6 +556,130 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
               <div className="pt-4 border-t">
                 <Button 
                   onClick={handleResetDesignDefaults} 
+                  variant="destructive" 
+                  className="w-full rounded-full"
+                >
+                  Reset to Default
+                </Button>
+              </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="position" className="space-y-4">
+            <div className="space-y-4">
+              <p className="text-sm text-muted-foreground">
+                Adjust the position of text elements. Changes apply to all cards.
+              </p>
+
+              {/* Guest Name Position */}
+              <div className="space-y-3 p-3 border rounded-lg bg-muted/30">
+                <Label className="text-sm font-semibold">Guest Name Position</Label>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-xs">Horizontal</Label>
+                    <span className="text-xs text-muted-foreground">{currentSettings.guest_name_offset_x ?? 0}mm</span>
+                  </div>
+                  <Slider
+                    value={[Number(currentSettings.guest_name_offset_x ?? 0)]}
+                    min={-15}
+                    max={15}
+                    step={0.5}
+                    onValueChange={([v]) => handleSettingChange('guest_name_offset_x' as keyof PlaceCardSettings, v)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-xs">Vertical</Label>
+                    <span className="text-xs text-muted-foreground">{currentSettings.guest_name_offset_y ?? 0}mm</span>
+                  </div>
+                  <Slider
+                    value={[Number(currentSettings.guest_name_offset_y ?? 0)]}
+                    min={-15}
+                    max={15}
+                    step={0.5}
+                    onValueChange={([v]) => handleSettingChange('guest_name_offset_y' as keyof PlaceCardSettings, v)}
+                  />
+                </div>
+              </div>
+
+              {/* Table Number Position */}
+              <div className="space-y-3 p-3 border rounded-lg bg-muted/30">
+                <Label className="text-sm font-semibold">Table Number Position</Label>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-xs">Horizontal</Label>
+                    <span className="text-xs text-muted-foreground">{currentSettings.table_offset_x ?? 0}mm</span>
+                  </div>
+                  <Slider
+                    value={[Number(currentSettings.table_offset_x ?? 0)]}
+                    min={-15}
+                    max={15}
+                    step={0.5}
+                    onValueChange={([v]) => handleSettingChange('table_offset_x' as keyof PlaceCardSettings, v)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-xs">Vertical</Label>
+                    <span className="text-xs text-muted-foreground">{currentSettings.table_offset_y ?? 0}mm</span>
+                  </div>
+                  <Slider
+                    value={[Number(currentSettings.table_offset_y ?? 0)]}
+                    min={-15}
+                    max={15}
+                    step={0.5}
+                    onValueChange={([v]) => handleSettingChange('table_offset_y' as keyof PlaceCardSettings, v)}
+                  />
+                </div>
+              </div>
+
+              {/* Seat Number Position */}
+              <div className="space-y-3 p-3 border rounded-lg bg-muted/30">
+                <Label className="text-sm font-semibold">Seat Number Position</Label>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-xs">Horizontal</Label>
+                    <span className="text-xs text-muted-foreground">{currentSettings.seat_offset_x ?? 0}mm</span>
+                  </div>
+                  <Slider
+                    value={[Number(currentSettings.seat_offset_x ?? 0)]}
+                    min={-15}
+                    max={15}
+                    step={0.5}
+                    onValueChange={([v]) => handleSettingChange('seat_offset_x' as keyof PlaceCardSettings, v)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-xs">Vertical</Label>
+                    <span className="text-xs text-muted-foreground">{currentSettings.seat_offset_y ?? 0}mm</span>
+                  </div>
+                  <Slider
+                    value={[Number(currentSettings.seat_offset_y ?? 0)]}
+                    min={-15}
+                    max={15}
+                    step={0.5}
+                    onValueChange={([v]) => handleSettingChange('seat_offset_y' as keyof PlaceCardSettings, v)}
+                  />
+                </div>
+              </div>
+
+              <div className="pt-4 border-t">
+                <Button 
+                  onClick={async () => {
+                    await onSettingsChange({
+                      guest_name_offset_x: 0,
+                      guest_name_offset_y: 0,
+                      table_offset_x: 0,
+                      table_offset_y: 0,
+                      seat_offset_x: 0,
+                      seat_offset_y: 0,
+                    });
+                    toast({
+                      title: "Position Reset",
+                      description: "All text positions have been reset to default"
+                    });
+                  }} 
                   variant="destructive" 
                   className="w-full rounded-full"
                 >
