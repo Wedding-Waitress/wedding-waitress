@@ -608,7 +608,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                   </div>
                   <Slider
                     value={[localGuestNameOffsetY]}
-                    min={-12}
+                    min={-9}
                     max={25}
                     step={0.5}
                     onValueChange={([v]) => setLocalGuestNameOffsetY(v)}
