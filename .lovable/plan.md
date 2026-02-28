@@ -1,70 +1,32 @@
 
 
-# Image Gallery Modal UI Fixes
+# Image Gallery Modal UI Tweaks
 
-## Changes Overview
+## 4 Changes
 
-Five fixes to the Place Card Image Gallery modal in `PlaceCardGalleryModal.tsx` and one in `dialog.tsx`.
+### 1. Title: Show count with "Cards" label
+Change `Image Gallery (162)` to `Image Gallery (162 Cards)` so users understand what the number represents.
 
----
+**File:** `PlaceCardGalleryModal.tsx`, line 50
 
-## 1. Cancel Button Overlapped by Images
+### 2. Category tabs: Increase height/padding
+The `TabsList` grey background is too narrow, clipping the purple active indicator. Add more vertical padding (`py-2`) to the `TabsList` so the purple pill has room.
 
-**Problem:** The ScrollArea height of 550px pushes content below the viewport, hiding the Cancel button behind images.
+**File:** `PlaceCardGalleryModal.tsx`, line 95
 
-**Fix:** Reduce ScrollArea height from `h-[550px]` to `h-[420px]` (approximately 3 rows of images). The modal dimensions stay the same -- just fewer rows visible with scrolling still available.
+### 3. Show full 3 rows of cards
+The third row is cut off at the bottom. Two changes needed:
+- Increase the modal's max height from `max-h-[90vh]` to `max-h-[95vh]` to give more vertical space
+- Increase ScrollArea height from `h-[420px]` to `h-[480px]` so 3 full rows of cards are visible without overlapping the Cancel button
 
-**File:** `src/components/Dashboard/PlaceCards/PlaceCardGalleryModal.tsx` (line 120)
+**File:** `PlaceCardGalleryModal.tsx`, lines 45 and 120
 
----
+### Technical Summary
 
-## 2. Cancel Button Styling
-
-**Problem:** Cancel button is a plain outline button, needs to be red with white text and narrower height.
-
-**Fix:** Change the Cancel button from `variant="outline"` to custom red styling: `bg-red-500 hover:bg-red-600 text-white` with a narrower height `h-8` and appropriate padding.
-
-**File:** `src/components/Dashboard/PlaceCards/PlaceCardGalleryModal.tsx` (lines 163-166)
-
----
-
-## 3. Search Bar Overlapping the Exit (X) Button
-
-**Problem:** The search input stretches full width and overlaps with the close (X) button in the top-right corner.
-
-**Fix:** Add right padding/margin to the search input container so it only spans ~75% of the width, leaving space for the X button. Change the search `div` from full width to `w-[75%]`.
-
-**File:** `src/components/Dashboard/PlaceCards/PlaceCardGalleryModal.tsx` (line 83)
-
----
-
-## 4. Close (X) Button Tooltip -- Show "Exit" on Hover
-
-**Problem:** The X button has no visible tooltip; user wants "Exit" to appear on hover.
-
-**Fix:** Add a `title="Exit"` attribute to the `DialogPrimitive.Close` button in the dialog component. Since this is a global component, I'll instead add the tooltip directly in the gallery modal by wrapping or adding a custom close button with a title. To keep it scoped, I'll add a CSS title tooltip via the dialog's close button. The cleanest approach: add `title="Exit"` to the close button in `dialog.tsx`.
-
-**File:** `src/components/ui/dialog.tsx` (line 81)
-
----
-
-## 5. Total Card Count Next to "Image Gallery" Heading
-
-**Problem:** No indication of how many images are in the gallery.
-
-**Fix:** Add a count badge next to the "Image Gallery" title showing the total number of images (e.g., "Image Gallery (68)"). This will use `images.length` from the hook, displayed as a subtle count in the heading.
-
-**File:** `src/components/Dashboard/PlaceCards/PlaceCardGalleryModal.tsx` (lines 48-51)
-
----
-
-## Technical Summary
-
-| File | Lines | Change |
-|------|-------|--------|
-| `PlaceCardGalleryModal.tsx` | 120 | ScrollArea height `h-[550px]` to `h-[420px]` |
-| `PlaceCardGalleryModal.tsx` | 163-166 | Cancel button: red bg, white text, `h-8` |
-| `PlaceCardGalleryModal.tsx` | 83 | Search input width reduced to `w-[75%]` |
-| `PlaceCardGalleryModal.tsx` | 48-51 | Add `({images.length})` to title |
-| `dialog.tsx` | 81 | Add `title="Exit"` to close button |
+| Line | Current | New |
+|------|---------|-----|
+| 50 | `Image Gallery ({images.length})` | `Image Gallery ({images.length} Cards)` |
+| 95 | `TabsList className="w-full justify-start overflow-x-auto flex-shrink-0"` | Add `py-2` |
+| 45 | `max-h-[90vh]` | `max-h-[95vh]` |
+| 120 | `h-[420px]` | `h-[480px]` |
 
