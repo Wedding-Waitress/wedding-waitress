@@ -54,7 +54,7 @@ export const PlaceCardGalleryModal: React.FC<PlaceCardGalleryModalProps> = ({
         {previewImage ? (
           /* Preview View */
           <div className="flex-1 flex flex-col min-h-0">
-            <div className="flex items-center gap-3 mb-4">
+            <div className="flex items-center gap-3 mb-2">
               <Button variant="outline" size="sm" onClick={() => setPreviewImage(null)}>
                 <ArrowLeft className="h-4 w-4 mr-1" />
                 Back to Gallery
@@ -63,7 +63,9 @@ export const PlaceCardGalleryModal: React.FC<PlaceCardGalleryModalProps> = ({
                 <h3 className="font-semibold text-foreground truncate">{previewImage.name}</h3>
                 <p className="text-xs text-muted-foreground">{previewImage.category}</p>
               </div>
-              <Button variant="gradient" onClick={() => handleSelectImage(previewImage)}>
+            </div>
+            <div className="flex justify-center mb-4">
+              <Button className="bg-green-500 hover:bg-green-600 text-white" onClick={() => handleSelectImage(previewImage)}>
                 <Check className="h-4 w-4 mr-1" />
                 Use This Image
               </Button>
