@@ -47,7 +47,7 @@ export const PlaceCardGalleryModal: React.FC<PlaceCardGalleryModalProps> = ({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <ImageIcon className="h-5 w-5 text-primary" />
-            Image Gallery
+            Image Gallery ({images.length})
           </DialogTitle>
         </DialogHeader>
 
@@ -80,7 +80,7 @@ export const PlaceCardGalleryModal: React.FC<PlaceCardGalleryModalProps> = ({
           /* Gallery Grid View */
           <>
             {/* Search */}
-            <div className="relative">
+            <div className="relative w-[75%]">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Search images..."
@@ -117,7 +117,7 @@ export const PlaceCardGalleryModal: React.FC<PlaceCardGalleryModalProps> = ({
                     <p className="text-sm">Gallery images will be added by the admin</p>
                   </div>
                 ) : (
-                  <ScrollArea className="h-[550px] [&>[data-radix-scroll-area-scrollbar]]:!bg-transparent [&>[data-radix-scroll-area-scrollbar]]:!border-0 [&>div]:!border-0">
+                  <ScrollArea className="h-[420px] [&>[data-radix-scroll-area-scrollbar]]:!bg-transparent [&>[data-radix-scroll-area-scrollbar]]:!border-0 [&>div]:!border-0">
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 pr-2">
                       {filteredImages.map(image => (
                         <div
@@ -161,7 +161,7 @@ export const PlaceCardGalleryModal: React.FC<PlaceCardGalleryModalProps> = ({
             </Tabs>
 
             <div className="flex justify-end pt-4 border-t-0">
-              <Button variant="outline" onClick={() => onOpenChange(false)}>
+              <Button className="bg-red-500 hover:bg-red-600 text-white h-8 px-4" onClick={() => onOpenChange(false)}>
                 Cancel
               </Button>
             </div>
