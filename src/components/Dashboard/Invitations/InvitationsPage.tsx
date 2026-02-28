@@ -10,6 +10,8 @@ import { Loader2, FileText, Calendar, Mail, Plus, Copy, Trash2, Pencil } from 'l
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/enhanced-button';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -21,6 +23,14 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 interface InvitationsPageProps {
   selectedEventId: string | null;
@@ -52,6 +62,9 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
   } = useInvitationCardSettings(selectedEventId);
 
   const [activeCardType, setActiveCardType] = useState<CardType>('invitation');
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [newArtworkName, setNewArtworkName] = useState('');
+  const [newArtworkSize, setNewArtworkSize] = useState('A4');
   const [renamingId, setRenamingId] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState('');
 
@@ -77,13 +90,39 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
     [artworks, activeCardType]
   );
 
+  const ALLOWED_SIZES: Record<CardType, string[]> = {
+    invitation: ['A4'],
+    save_the_date: ['A4', 'A5'],
+    thank_you: ['A4', 'A5', 'A6'],
+  };
+
+  const DEFAULT_SIZE: Record<CardType, string> = {
+    invitation: 'A4',
+    save_the_date: 'A5',
+    thank_you: 'A6',
+  };
+
+  const handleOpenCreateDialog = () => {
+    const sizes = ALLOWED_SIZES[activeCardType];
+    if (sizes.length === 1) {
+      // Auto-create for invitation (A4 only)
+      createArtwork(activeCardType, `New ${CARD_TYPE_LABELS[activeCardType]}`, sizes[0]);
+      return;
+    }
+    setNewArtworkName(`New ${CARD_TYPE_LABELS[activeCardType]}`);
+    setNewArtworkSize(DEFAULT_SIZE[activeCardType]);
+    setCreateDialogOpen(true);
+  };
+
+  const handleConfirmCreate = async () => {
+    const name = newArtworkName.trim() || `New ${CARD_TYPE_LABELS[activeCardType]}`;
+    await createArtwork(activeCardType, name, newArtworkSize);
+    setCreateDialogOpen(false);
+  };
+
   const handleEventChange = (eventId: string) => {
     if (eventId === "no-event") return;
     onEventSelect(eventId);
-  };
-
-  const handleCreateArtwork = async () => {
-    await createArtwork(activeCardType, `New ${CARD_TYPE_LABELS[activeCardType]}`);
   };
 
   const handleStartRename = (id: string, currentName: string) => {
@@ -129,7 +168,7 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
           <div className="text-left">
             <h1 className="text-2xl font-medium text-foreground">Invitations and Cards</h1>
             <p className="text-sm text-muted-foreground mt-1">
-              Create professional A4-A5 invitations, save the date, and thank you cards for you to send to your guest digitally and download to print
+              Create professional invitations (A4), save the dates (A4/A5), and thank you cards (A4/A5/A6) to send digitally or download to print
             </p>
           </div>
 
@@ -301,7 +340,7 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
 
               {/* New Artwork Button */}
               <button
-                onClick={handleCreateArtwork}
+                onClick={handleOpenCreateDialog}
                 className="flex-shrink-0 w-48 h-[140px] rounded-xl border-2 border-dashed border-primary/40 hover:border-primary hover:bg-primary/5 transition-all flex flex-col items-center justify-center gap-2 cursor-pointer"
               >
                 <Plus className="h-6 w-6 text-primary" />
@@ -317,6 +356,45 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
           </CardContent>
         </Card>
       )}
+
+      {/* Creation Dialog */}
+      <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>New {CARD_TYPE_LABELS[activeCardType]}</DialogTitle>
+            <DialogDescription>Choose a size and name for your new design.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div>
+              <Label className="mb-2 block">Card Size</Label>
+              <RadioGroup value={newArtworkSize} onValueChange={setNewArtworkSize}>
+                {ALLOWED_SIZES[activeCardType].map(size => (
+                  <div key={size} className="flex items-center space-x-2">
+                    <RadioGroupItem value={size} id={`size-${size}`} />
+                    <Label htmlFor={`size-${size}`} className="cursor-pointer">
+                      {size === 'A4' && 'A4 (210 × 297mm)'}
+                      {size === 'A5' && 'A5 (148 × 210mm)'}
+                      {size === 'A6' && 'A6 (105 × 148mm) — fits C6 envelope'}
+                    </Label>
+                  </div>
+                ))}
+              </RadioGroup>
+            </div>
+            <div>
+              <Label className="mb-2 block">Design Name</Label>
+              <Input
+                value={newArtworkName}
+                onChange={e => setNewArtworkName(e.target.value)}
+                placeholder="e.g. Main Save the Date"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCreateDialogOpen(false)}>Cancel</Button>
+            <Button onClick={handleConfirmCreate}>Create</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Bottom Section - Grid Layout */}
       {selectedEventId && selectedEvent && !settingsLoading && activeArtwork && (

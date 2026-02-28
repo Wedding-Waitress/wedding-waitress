@@ -131,8 +131,15 @@ export const useInvitationCardSettings = (eventId: string | null) => {
     }
   };
 
-  const createArtwork = async (cardType: CardType, name: string) => {
+  const createArtwork = async (cardType: CardType, name: string, cardSize?: string) => {
     if (!eventId) return null;
+
+    // Enforce size rules per card type
+    let resolvedSize = cardSize || 'A4';
+    if (cardType === 'invitation') resolvedSize = 'A4';
+    else if (cardType === 'save_the_date' && !['A4', 'A5'].includes(resolvedSize)) resolvedSize = 'A5';
+    else if (cardType === 'thank_you' && !['A4', 'A5', 'A6'].includes(resolvedSize)) resolvedSize = 'A6';
+
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return null;
@@ -144,6 +151,7 @@ export const useInvitationCardSettings = (eventId: string | null) => {
           user_id: user.id,
           card_type: cardType,
           name,
+          card_size: resolvedSize,
         })
         .select()
         .single();

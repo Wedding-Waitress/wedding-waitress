@@ -32,12 +32,17 @@ export const InvitationCardPreview: React.FC<InvitationCardPreviewProps> = ({
     orientation: 'portrait',
   };
 
-  const isA4 = currentSettings.card_size === 'A4';
   const isLandscape = currentSettings.orientation === 'landscape';
 
-  // Preview dimensions (scaled to fit screen)
-  const previewWidth = isLandscape ? '297mm' : (isA4 ? '210mm' : '148mm');
-  const previewHeight = isLandscape ? (isA4 ? '210mm' : '148mm') : (isA4 ? '297mm' : '210mm');
+  // Dimensions map in mm
+  const SIZE_MAP: Record<string, { w: number; h: number }> = {
+    A4: { w: 210, h: 297 },
+    A5: { w: 148, h: 210 },
+    A6: { w: 105, h: 148 },
+  };
+  const dims = SIZE_MAP[currentSettings.card_size] || SIZE_MAP.A5;
+  const previewWidth = isLandscape ? `${dims.h}mm` : `${dims.w}mm`;
+  const previewHeight = isLandscape ? `${dims.w}mm` : `${dims.h}mm`;
 
   const textZones = currentSettings.text_zones || [];
 
