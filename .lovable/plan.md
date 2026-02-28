@@ -1,34 +1,27 @@
 
 
-# Reduce Name Background Padding and Add Gold/Silver/White Font Presets
+# Move Export Controls to Same Row as Dropdowns
 
 ## What's Changing
 
-Two small adjustments to the Place Cards feature:
+The Export Controls section currently sits on its own row below the Choose Event and Table dropdowns. It will be moved up to sit on the **same line** as the dropdowns, pushed to the far right. The layout inside the Export Controls box will change to a **two-line stack**:
 
-1. **Smaller white background pill behind names** -- reduce the vertical padding so the white tablet behind guest names is less tall/chunky
-2. **Add White, Gold, and Silver to the font color picker's standard colors** -- so you can easily pick these colors when using dark background images without needing to manually type hex codes
+- **Line 1:** "Export Controls" title followed by "Download your place cards as PDF ready for printing."
+- **Line 2:** The two buttons side by side
 
-## Technical Details
+## Technical Detail
 
-### 1. Reduce name background padding (`PlaceCardPreview.tsx`, line 262)
+**File:** `src/components/Dashboard/PlaceCards/PlaceCardsPage.tsx`
 
-Change the padding on the white pill behind names from `0.5mm 3mm` to `0.2mm 3mm` (reduce vertical padding by more than half while keeping horizontal padding the same). This makes the white background tablet tighter around the name text.
+1. **Remove** the separate Export Controls `div` block (lines 376-404) that currently renders below the dropdowns.
 
-### 2. Add White, Gold, and Silver preset colors (`color-picker-popover.tsx`)
+2. **Merge** the Export Controls into the existing dropdowns row (line 315). The dropdowns row changes from a simple flex to a `flex justify-between` layout:
+   - Left side: Choose Event + Table dropdowns (unchanged)
+   - Right side: Export Controls box with stacked layout (title/description on top, buttons below)
 
-Add a new "Wedding Colors" row at the top of the Standard Colors grid containing:
-- **White**: `#FFFFFF`
-- **Gold**: `#D4AF37` (classic gold)
-- **Light Gold**: `#FFD700`
-- **Silver**: `#C0C0C0`
-- **Champagne**: `#F7E7CE`
+3. The Export Controls inner layout changes from a single-row `flex items-center` to a vertical stack:
+   - Top: text with "Export Controls" and description "Download your place cards as PDF ready for printing."
+   - Bottom: the two green-bordered download buttons
 
-This gives quick one-click access to these popular wedding font colors, especially useful on dark backgrounds.
-
-**Files modified:**
-- `src/components/Dashboard/PlaceCards/PlaceCardPreview.tsx` -- reduce vertical padding
-- `src/components/ui/color-picker-popover.tsx` -- add wedding color presets row
-
-Nothing else changes.
+Nothing else changes -- no styling, no functionality, no other files.
 
