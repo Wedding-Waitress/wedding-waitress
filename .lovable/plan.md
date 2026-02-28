@@ -1,15 +1,16 @@
 
 
-# Reduce Guest Name Vertical Top Range
+# Increase Table & Seat Number Horizontal Offset Range
 
 ## What's Changing
-The Guest Name vertical slider currently allows going up to **-12mm**, which still causes the name to overlap the top edge. The minimum will be reduced to **-9mm** so the name stays close to -- but not touching -- the top edge.
+The Table & Seat Number horizontal position slider currently ranges from **-15mm to +15mm**, which doesn't allow the text to reach close to the card edges. The range will be increased to **-25mm to +25mm** (matching the Guest Name horizontal range).
 
 ## Technical Detail
 
 **File:** `src/components/Dashboard/PlaceCards/PlaceCardCustomizer.tsx`
 
-- Change the `min` prop on the Guest Name vertical slider from `-12` to `-9` (line 611)
+- Change the `min` prop on the Table & Seat Number horizontal slider from `-15` to `-25`
+- Change the `max` prop from `15` to `25`
 
-Single one-line change.
+Single two-line change.
 
