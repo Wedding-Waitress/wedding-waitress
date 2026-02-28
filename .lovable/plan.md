@@ -1,16 +1,14 @@
 
-
-# Increase Table & Seat Number Horizontal Offset Range
+# Reduce Dialog Close Button Size Globally
 
 ## What's Changing
-The Table & Seat Number horizontal position slider currently ranges from **-15mm to +15mm**, which doesn't allow the text to reach close to the card edges. The range will be increased to **-25mm to +25mm** (matching the Guest Name horizontal range).
+The circular purple-bordered close (X) button on all dialog/modal pop-ups is slightly too large. It will be reduced from **28px (w-7 h-7)** to **24px (w-6 h-6)**, with the X icon scaled down proportionally from **18px to 14px**.
 
 ## Technical Detail
 
-**File:** `src/components/Dashboard/PlaceCards/PlaceCardCustomizer.tsx`
+**File:** `src/components/ui/dialog.tsx` (the global dialog component used by all pop-ups)
 
-- Change the `min` prop on the Table & Seat Number horizontal slider from `-15` to `-25`
-- Change the `max` prop from `15` to `25`
+- Change close button container from `w-7 h-7` to `w-6 h-6`
+- Change X icon from `h-[18px] w-[18px]` to `h-3.5 w-3.5` (14px)
 
-Single two-line change.
-
+This affects every dialog/modal across the entire app since they all use this shared component.
