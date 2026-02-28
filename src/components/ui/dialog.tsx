@@ -78,9 +78,9 @@ const DialogContent = React.forwardRef<
       {...props}
     >
       {children}
-      <DialogPrimitive.Close className="absolute right-4 top-4 flex items-center justify-center w-7 h-7 rounded-full border-2 border-primary opacity-100 ring-offset-background transition-opacity hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none touch-target">
+      <DialogPrimitive.Close title="Exit" className="absolute right-4 top-4 flex items-center justify-center w-7 h-7 rounded-full border-2 border-primary opacity-100 ring-offset-background transition-opacity hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none touch-target">
         <X className="h-[18px] w-[18px] text-primary stroke-[3]" />
-        <span className="sr-only">Close</span>
+        <span className="sr-only">Exit</span>
       </DialogPrimitive.Close>
     </DialogPrimitive.Content>
   </DialogPortal>
