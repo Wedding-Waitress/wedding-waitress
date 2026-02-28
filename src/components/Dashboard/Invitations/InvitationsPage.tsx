@@ -2,23 +2,58 @@ import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useEvents } from '@/hooks/useEvents';
-import { useInvitationCardSettings } from '@/hooks/useInvitationCardSettings';
+import { useInvitationCardSettings, CardType } from '@/hooks/useInvitationCardSettings';
 import { InvitationCardCustomizer } from './InvitationCardCustomizer';
 import { InvitationCardPreview } from './InvitationCardPreview';
 import { formatDisplayDate, formatDisplayTime } from '@/lib/utils';
-import { Loader2, FileText, Calendar, Mail } from 'lucide-react';
+import { Loader2, FileText, Calendar, Mail, Plus, Copy, Trash2, Pencil } from 'lucide-react';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/enhanced-button';
+import { Input } from '@/components/ui/input';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 
 interface InvitationsPageProps {
   selectedEventId: string | null;
   onEventSelect: (eventId: string) => void;
 }
 
+const CARD_TYPE_LABELS: Record<CardType, string> = {
+  invitation: 'Invitation',
+  save_the_date: 'Save the Date',
+  thank_you: 'Thank You',
+};
+
 export const InvitationsPage: React.FC<InvitationsPageProps> = ({
   selectedEventId,
   onEventSelect,
 }) => {
   const { events, loading: eventsLoading } = useEvents();
-  const { settings, loading: settingsLoading, updateSettings } = useInvitationCardSettings(selectedEventId);
+  const {
+    artworks,
+    activeArtwork,
+    activeArtworkId,
+    setActiveArtwork,
+    createArtwork,
+    deleteArtwork,
+    duplicateArtwork,
+    renameArtwork,
+    loading: settingsLoading,
+    updateSettings,
+  } = useInvitationCardSettings(selectedEventId);
+
+  const [activeCardType, setActiveCardType] = useState<CardType>('invitation');
+  const [renamingId, setRenamingId] = useState<string | null>(null);
+  const [renameValue, setRenameValue] = useState('');
 
   const selectedEvent = useMemo(() => events.find(e => e.id === selectedEventId), [events, selectedEventId]);
 
@@ -37,9 +72,30 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
     };
   }, [selectedEvent]);
 
+  const filteredArtworks = useMemo(
+    () => artworks.filter(a => a.card_type === activeCardType),
+    [artworks, activeCardType]
+  );
+
   const handleEventChange = (eventId: string) => {
     if (eventId === "no-event") return;
     onEventSelect(eventId);
+  };
+
+  const handleCreateArtwork = async () => {
+    await createArtwork(activeCardType, `New ${CARD_TYPE_LABELS[activeCardType]}`);
+  };
+
+  const handleStartRename = (id: string, currentName: string) => {
+    setRenamingId(id);
+    setRenameValue(currentName);
+  };
+
+  const handleFinishRename = async () => {
+    if (renamingId && renameValue.trim()) {
+      await renameArtwork(renamingId, renameValue.trim());
+    }
+    setRenamingId(null);
   };
 
   if (eventsLoading) {
@@ -70,7 +126,6 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
       {/* Combined Header Box */}
       <Card className="ww-box">
         <CardContent className="space-y-4 pt-6">
-          {/* Title & Subtitle */}
           <div className="text-left">
             <h1 className="text-2xl font-medium text-foreground">Invitations and Cards</h1>
             <p className="text-sm text-muted-foreground mt-1">
@@ -78,7 +133,6 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
             </p>
           </div>
 
-          {/* Stats Box */}
           {selectedEvent && (
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div className="flex-1 border border-primary rounded-xl p-4 text-sm space-y-2">
@@ -96,12 +150,9 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
             </div>
           )}
 
-          {/* Separator */}
           <div className="border-b border-border" />
 
-          {/* Choose Event & Export Controls */}
           <div className="flex items-center justify-between gap-8 flex-nowrap pt-2">
-            {/* Left side: Choose Event */}
             <div className="flex items-center gap-4">
               <label className="text-sm font-medium text-foreground whitespace-nowrap">
                 Choose Event:
@@ -129,7 +180,6 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
               </Select>
             </div>
 
-            {/* Right side: Export Controls */}
             {selectedEvent && (
               <div className="border border-primary rounded-xl p-3 flex flex-col gap-2 whitespace-nowrap">
                 <div className="text-sm">
@@ -151,7 +201,6 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
         </CardContent>
       </Card>
 
-      {/* Placeholder when no event selected */}
       {!selectedEventId && (
         <Card className="ww-box p-12 text-center">
           <Mail className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
@@ -162,22 +211,126 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
         </Card>
       )}
 
-      {/* Bottom Section - Grid Layout */}
+      {/* Artwork Management Bar */}
       {selectedEventId && selectedEvent && !settingsLoading && (
+        <Card className="ww-box">
+          <CardContent className="pt-6 space-y-4">
+            {/* Card Type Tabs */}
+            <Tabs value={activeCardType} onValueChange={(v) => setActiveCardType(v as CardType)}>
+              <TabsList className="grid w-full grid-cols-3">
+                <TabsTrigger value="invitation">Invitation</TabsTrigger>
+                <TabsTrigger value="save_the_date">Save the Date</TabsTrigger>
+                <TabsTrigger value="thank_you">Thank You</TabsTrigger>
+              </TabsList>
+            </Tabs>
+
+            {/* Artwork List */}
+            <div className="flex items-center gap-3 overflow-x-auto pb-2">
+              {filteredArtworks.map(artwork => (
+                <div
+                  key={artwork.id}
+                  onClick={() => setActiveArtwork(artwork.id!)}
+                  className={`flex-shrink-0 w-48 p-3 rounded-xl border-2 cursor-pointer transition-all ${
+                    activeArtworkId === artwork.id
+                      ? 'border-primary bg-primary/5 shadow-sm'
+                      : 'border-border hover:border-primary/40'
+                  }`}
+                >
+                  {/* Thumbnail */}
+                  <div className="h-20 rounded-lg bg-muted mb-2 overflow-hidden flex items-center justify-center">
+                    {artwork.background_image_url ? (
+                      <img src={artwork.background_image_url} alt={artwork.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full" style={{ backgroundColor: artwork.background_color }} />
+                    )}
+                  </div>
+
+                  {/* Name */}
+                  {renamingId === artwork.id ? (
+                    <Input
+                      value={renameValue}
+                      onChange={e => setRenameValue(e.target.value)}
+                      onBlur={handleFinishRename}
+                      onKeyDown={e => e.key === 'Enter' && handleFinishRename()}
+                      className="h-7 text-xs"
+                      autoFocus
+                      onClick={e => e.stopPropagation()}
+                    />
+                  ) : (
+                    <p className="text-xs font-medium truncate">{artwork.name}</p>
+                  )}
+
+                  {/* Actions */}
+                  <div className="flex items-center gap-1 mt-1" onClick={e => e.stopPropagation()}>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="h-6 w-6 p-0"
+                      onClick={() => handleStartRename(artwork.id!, artwork.name)}
+                    >
+                      <Pencil className="h-3 w-3" />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="h-6 w-6 p-0"
+                      onClick={() => duplicateArtwork(artwork.id!)}
+                    >
+                      <Copy className="h-3 w-3" />
+                    </Button>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button size="sm" variant="ghost" className="h-6 w-6 p-0">
+                          <Trash2 className="h-3 w-3 text-destructive" />
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Delete "{artwork.name}"?</AlertDialogTitle>
+                          <AlertDialogDescription>This action cannot be undone.</AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction onClick={() => deleteArtwork(artwork.id!)}>Delete</AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </div>
+                </div>
+              ))}
+
+              {/* New Artwork Button */}
+              <button
+                onClick={handleCreateArtwork}
+                className="flex-shrink-0 w-48 h-[140px] rounded-xl border-2 border-dashed border-primary/40 hover:border-primary hover:bg-primary/5 transition-all flex flex-col items-center justify-center gap-2 cursor-pointer"
+              >
+                <Plus className="h-6 w-6 text-primary" />
+                <span className="text-xs font-medium text-primary">New {CARD_TYPE_LABELS[activeCardType]}</span>
+              </button>
+            </div>
+
+            {filteredArtworks.length === 0 && (
+              <p className="text-sm text-muted-foreground text-center py-2">
+                No {CARD_TYPE_LABELS[activeCardType].toLowerCase()} designs yet. Click the button above to create one.
+              </p>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Bottom Section - Grid Layout */}
+      {selectedEventId && selectedEvent && !settingsLoading && activeArtwork && (
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-          {/* Left Panel - Customizer */}
           <div className="lg:col-span-2">
             <InvitationCardCustomizer
-              settings={settings}
+              settings={activeArtwork}
               onSettingsChange={updateSettings}
               eventData={eventData}
             />
           </div>
-
-          {/* Right Panel - Preview */}
           <div className="lg:col-span-3">
             <InvitationCardPreview
-              settings={settings}
+              settings={activeArtwork}
               eventData={eventData}
             />
           </div>

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -20,6 +20,8 @@ export interface TextZone {
   width_percent: number;
 }
 
+export type CardType = 'invitation' | 'save_the_date' | 'thank_you';
+
 export interface InvitationCardSettings {
   id?: string;
   event_id: string;
@@ -34,18 +36,35 @@ export interface InvitationCardSettings {
   font_color: string;
   card_size: string;
   orientation: string;
+  card_type: CardType;
+  name: string;
   created_at?: string;
   updated_at?: string;
 }
 
+const parseRow = (d: any): InvitationCardSettings => ({
+  ...d,
+  background_image_type: d.background_image_type as 'none' | 'full',
+  text_zones: (d.text_zones || []) as TextZone[],
+  card_type: (d.card_type || 'invitation') as CardType,
+  name: d.name || 'Untitled',
+});
+
 export const useInvitationCardSettings = (eventId: string | null) => {
-  const [settings, setSettings] = useState<InvitationCardSettings | null>(null);
+  const [artworks, setArtworks] = useState<InvitationCardSettings[]>([]);
+  const [activeArtworkId, setActiveArtworkId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
+  const activeArtwork = useMemo(
+    () => artworks.find(a => a.id === activeArtworkId) || null,
+    [artworks, activeArtworkId]
+  );
+
   const fetchSettings = useCallback(async () => {
     if (!eventId) {
-      setSettings(null);
+      setArtworks([]);
+      setActiveArtworkId(null);
       return;
     }
 
@@ -55,22 +74,22 @@ export const useInvitationCardSettings = (eventId: string | null) => {
         .from('invitation_card_settings' as any)
         .select('*')
         .eq('event_id', eventId)
-        .maybeSingle();
+        .order('created_at', { ascending: true });
 
       if (error) {
         console.error('Error fetching invitation card settings:', error);
         return;
       }
 
-      if (data) {
-        const d = data as any;
-        setSettings({
-          ...d,
-          background_image_type: d.background_image_type as 'none' | 'full',
-          text_zones: (d.text_zones || []) as TextZone[],
-        });
+      const parsed = (data || []).map((d: any) => parseRow(d));
+      setArtworks(parsed);
+
+      // Keep active if still valid, otherwise select first
+      if (parsed.length > 0) {
+        const stillExists = parsed.some(a => a.id === activeArtworkId);
+        if (!stillExists) setActiveArtworkId(parsed[0].id!);
       } else {
-        setSettings(null);
+        setActiveArtworkId(null);
       }
     } catch (error) {
       console.error('Error fetching invitation card settings:', error);
@@ -80,7 +99,7 @@ export const useInvitationCardSettings = (eventId: string | null) => {
   }, [eventId]);
 
   const updateSettings = async (newSettings: Partial<InvitationCardSettings>) => {
-    if (!eventId) return false;
+    if (!eventId || !activeArtworkId) return false;
 
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -89,27 +108,12 @@ export const useInvitationCardSettings = (eventId: string | null) => {
         return false;
       }
 
-      const settingsData = {
-        event_id: eventId,
-        user_id: user.id,
-        ...newSettings,
-      };
-
-      let result;
-      if (settings?.id) {
-        result = await supabase
-          .from('invitation_card_settings' as any)
-          .update(settingsData)
-          .eq('id', settings.id)
-          .select()
-          .single();
-      } else {
-        result = await supabase
-          .from('invitation_card_settings' as any)
-          .insert(settingsData)
-          .select()
-          .single();
-      }
+      const result = await supabase
+        .from('invitation_card_settings' as any)
+        .update(newSettings)
+        .eq('id', activeArtworkId)
+        .select()
+        .single();
 
       if (result.error) {
         console.error('Error updating invitation card settings:', result.error);
@@ -117,12 +121,8 @@ export const useInvitationCardSettings = (eventId: string | null) => {
         return false;
       }
 
-      const d = result.data as any;
-      setSettings({
-        ...d,
-        background_image_type: d.background_image_type as 'none' | 'full',
-        text_zones: (d.text_zones || []) as TextZone[],
-      });
+      const updated = parseRow(result.data);
+      setArtworks(prev => prev.map(a => a.id === activeArtworkId ? updated : a));
       return true;
     } catch (error) {
       console.error('Error updating invitation card settings:', error);
@@ -131,9 +131,139 @@ export const useInvitationCardSettings = (eventId: string | null) => {
     }
   };
 
+  const createArtwork = async (cardType: CardType, name: string) => {
+    if (!eventId) return null;
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return null;
+
+      const result = await supabase
+        .from('invitation_card_settings' as any)
+        .insert({
+          event_id: eventId,
+          user_id: user.id,
+          card_type: cardType,
+          name,
+        })
+        .select()
+        .single();
+
+      if (result.error) {
+        toast({ title: "Error", description: "Failed to create artwork", variant: "destructive" });
+        return null;
+      }
+
+      const created = parseRow(result.data);
+      setArtworks(prev => [...prev, created]);
+      setActiveArtworkId(created.id!);
+      toast({ title: "Created", description: `"${name}" created successfully` });
+      return created;
+    } catch (error) {
+      console.error('Error creating artwork:', error);
+      return null;
+    }
+  };
+
+  const deleteArtwork = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('invitation_card_settings' as any)
+        .delete()
+        .eq('id', id);
+
+      if (error) {
+        toast({ title: "Error", description: "Failed to delete artwork", variant: "destructive" });
+        return false;
+      }
+
+      setArtworks(prev => {
+        const remaining = prev.filter(a => a.id !== id);
+        if (activeArtworkId === id) {
+          setActiveArtworkId(remaining[0]?.id || null);
+        }
+        return remaining;
+      });
+      toast({ title: "Deleted", description: "Artwork deleted" });
+      return true;
+    } catch (error) {
+      console.error('Error deleting artwork:', error);
+      return false;
+    }
+  };
+
+  const duplicateArtwork = async (id: string) => {
+    const source = artworks.find(a => a.id === id);
+    if (!source || !eventId) return null;
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return null;
+
+      const { id: _id, created_at, updated_at, ...rest } = source;
+      const result = await supabase
+        .from('invitation_card_settings' as any)
+        .insert({
+          ...rest,
+          event_id: eventId,
+          user_id: user.id,
+          name: `${source.name} (Copy)`,
+        })
+        .select()
+        .single();
+
+      if (result.error) {
+        toast({ title: "Error", description: "Failed to duplicate artwork", variant: "destructive" });
+        return null;
+      }
+
+      const created = parseRow(result.data);
+      setArtworks(prev => [...prev, created]);
+      setActiveArtworkId(created.id!);
+      toast({ title: "Duplicated", description: `"${created.name}" created` });
+      return created;
+    } catch (error) {
+      console.error('Error duplicating artwork:', error);
+      return null;
+    }
+  };
+
+  const renameArtwork = async (id: string, newName: string) => {
+    try {
+      const { error } = await supabase
+        .from('invitation_card_settings' as any)
+        .update({ name: newName })
+        .eq('id', id);
+
+      if (error) {
+        toast({ title: "Error", description: "Failed to rename", variant: "destructive" });
+        return false;
+      }
+
+      setArtworks(prev => prev.map(a => a.id === id ? { ...a, name: newName } : a));
+      return true;
+    } catch (error) {
+      return false;
+    }
+  };
+
   useEffect(() => {
     fetchSettings();
   }, [fetchSettings]);
 
-  return { settings, loading, updateSettings, refetchSettings: fetchSettings };
+  return {
+    // Legacy compat
+    settings: activeArtwork,
+    // Multi-artwork API
+    artworks,
+    activeArtwork,
+    activeArtworkId,
+    setActiveArtwork: setActiveArtworkId,
+    createArtwork,
+    deleteArtwork,
+    duplicateArtwork,
+    renameArtwork,
+    loading,
+    updateSettings,
+    refetchSettings: fetchSettings,
+  };
 };

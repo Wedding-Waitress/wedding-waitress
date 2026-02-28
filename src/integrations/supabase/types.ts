@@ -1198,10 +1198,12 @@ export type Database = {
           background_image_x_position: number | null
           background_image_y_position: number | null
           card_size: string
+          card_type: string
           created_at: string
           event_id: string
           font_color: string
           id: string
+          name: string
           orientation: string
           text_zones: Json
           updated_at: string
@@ -1215,10 +1217,12 @@ export type Database = {
           background_image_x_position?: number | null
           background_image_y_position?: number | null
           card_size?: string
+          card_type?: string
           created_at?: string
           event_id: string
           font_color?: string
           id?: string
+          name?: string
           orientation?: string
           text_zones?: Json
           updated_at?: string
@@ -1232,10 +1236,12 @@ export type Database = {
           background_image_x_position?: number | null
           background_image_y_position?: number | null
           card_size?: string
+          card_type?: string
           created_at?: string
           event_id?: string
           font_color?: string
           id?: string
+          name?: string
           orientation?: string
           text_zones?: Json
           updated_at?: string

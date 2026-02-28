@@ -72,6 +72,8 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
     font_color: '#000000',
     card_size: 'A5',
     orientation: 'portrait',
+    card_type: 'invitation',
+    name: 'Untitled',
   };
 
   const textZones = currentSettings.text_zones || [];
