@@ -47,7 +47,7 @@ export const PlaceCardGalleryModal: React.FC<PlaceCardGalleryModalProps> = ({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <ImageIcon className="h-5 w-5 text-primary" />
-            Image Gallery ({images.length} Cards)
+            Place Cards Image Gallery
           </DialogTitle>
         </DialogHeader>
 
