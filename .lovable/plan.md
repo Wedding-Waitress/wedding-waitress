@@ -1,34 +1,30 @@
 
 
-# Place Cards Gallery - Batch 13 Upload (10 Images)
+# Place Cards Gallery - Batch 14 Upload (10 Images)
 
 ## Image Analysis and Categorization
 
 | # | File | Proposed Name | Category | Reason |
 |---|------|--------------|----------|--------|
-| 1 | Avery_Davis_8 | Gold Mandala Corner Black | Black | Solid black background with ornate gold mandala/henna design in bottom-left corner |
-| 2 | Avery_Davis_9 | Plain Blush Peach Solid | Pink | Simple solid blush/peach tone, clean and minimal |
-| 3 | Avery_Davis_10 | Gold Lotus Corners White Diagonal | Gold | White background with gold lotus/floral motifs in opposite corners and subtle diagonal lines |
-| 4 | Avery_Davis_11 | Blue Watercolor Marble Waves | Blue | Blue watercolor/marble wave pattern on left side fading to white |
-| 5 | Avery_Davis_12 | Soft Sky Blue Gradient | Blue | Gentle light blue gradient at top and bottom edges with white center |
-| 6 | Avery_Davis_13 | Deep Navy Blue Gradient | Blue | Rich deep blue gradient with darker navy corners, moody and elegant |
-| 7 | Avery_Davis_14 | Yellow Organic Blobs Corners White | Yellow | White background with playful yellow/amber organic blob shapes in opposite corners |
-| 8 | Avery_Davis_15 | Dark Charcoal Texture White Lotus | Grey | Dark charcoal textured surface with a white lotus icon in the bottom-left corner |
-| 9 | Avery_Davis_16 | Olive Sage Wavy Lines Corners | Green | Olive/sage green background with beige wavy line accents in opposite corners |
-| 10 | Avery_Davis_17 | Red Coral Rounded Frame Floral | Red | Red/coral background with white rounded rectangle border and subtle floral shadows |
+| 1 | Avery_Davis_18 | Gold Line Art Peonies Corners White | Gold | White textured background with gold line-art peony flowers in opposite corners |
+| 2 | Avery_Davis_19 | Gold Leaf Branches Corners Cream | Gold | Cream/ivory background with gold silhouette leaf branches in opposite corners |
+| 3 | Avery_Davis_20 | Purple Marble Swirl Galaxy Photo | Purple | Rich purple and magenta marble/galaxy swirl with glitter texture |
+| 4 | Avery_Davis_21 | Gold Gradient Wave Black Lotus | Gold | Gold gradient background with subtle wave and black lotus icon at bottom center |
+| 5 | Avery_Davis_22 | Retro Daisy Border Lavender | Purple | Lavender/lilac background with retro-style daisy flowers (green, pink, khaki) bordering edges |
+| 6 | Avery_Davis_23 | Bright Green Watercolor Texture | Green | Vibrant green watercolor/abstract texture covering full background |
+| 7 | Avery_Davis_24 | Soft Periwinkle Abstract Rain | Blue | Soft periwinkle/lavender blue abstract pattern with rain-like brushstrokes |
+| 8 | Avery_Davis_25 | Mint Green Watercolor Wash White | Green | Delicate mint/seafoam green watercolor wash on white background |
+| 9 | Avery_Davis_26 | Blue Sky Cartoon Clouds | Blue | Bold blue sky background with white cartoon-style cloud bubbles at bottom |
+| 10 | Avery_Davis_27 | Gold Line Art Cosmos Corners White | Gold | White textured background with gold line-art cosmos/wildflowers in opposite corners with gold dust |
 
 ## Category Distribution
 
 | Category | New Images | New sort_order values |
 |----------|-----------|----------------------|
-| Black | 1 | 70 |
-| Pink | 1 | 68 |
-| Gold | 1 | 75 |
-| Blue | 3 | 76, 77, 78 |
-| Yellow | 1 | 66 |
-| Grey | 1 | 55 |
-| Green | 1 | 84 |
-| Red | 1 | 8 |
+| Gold | 4 | 76, 77, 78, 79 |
+| Purple | 2 | 69, 70 |
+| Green | 2 | 85, 86 |
+| Blue | 2 | 79, 80 |
 
 All 10 images fit into existing categories -- no new categories needed.
 
@@ -37,5 +33,5 @@ All 10 images fit into existing categories -- no new categories needed.
 1. Copy all 10 images from user-uploads to `public/gallery-images/` with category-prefixed filenames
 2. Insert 10 rows into `place_card_gallery_images` table via the data insert tool
 3. Use sequential sort_order values starting after the current max in each category
-4. Updated total: 281 --> 291 Total Designs
+4. Updated total: 291 --> 301 Total Designs
 
