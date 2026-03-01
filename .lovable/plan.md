@@ -1,25 +1,26 @@
 
 
-# Add 10 New Invitation Designs to Invitation Image Gallery (Batch 5)
+# Add 10 New Invitation Designs to Invitation Image Gallery (Batch 6)
 
 ## Images to Add
 
 | # | Source File | Gallery Name | Category | Filename | Sort Order |
 |---|-----------|-------------|----------|----------|------------|
-| 1 | rsvp_...042556.png | Floral Blush Rose Cotton Wood Frame | Floral | floral-blush-rose-cotton-wood-frame.png | 41 |
-| 2 | rsvp_...042639.png | Glamour Pink Marble Rose Gold Corner | Glamour | glamour-pink-marble-rose-gold-corner.png | 2 |
-| 3 | rsvp_...042700.png | Floral Eucalyptus Gold Frame Diagonal | Floral | floral-eucalyptus-gold-frame-diagonal.png | 42 |
-| 4 | rsvp_...042719.png | Floral Tropical Hydrangea Orchid Gold Frame | Floral | floral-tropical-hydrangea-orchid-gold-frame.png | 43 |
-| 5 | rsvp_...042734.png | Floral Dark Vine White Blossom Border | Floral | floral-dark-vine-white-blossom-border.png | 44 |
-| 6 | rsvp_...042755.png | Floral Terracotta Orchid Sketch Header | Floral | floral-terracotta-orchid-sketch-header.png | 45 |
-| 7 | rsvp_...042806.png | Glamour Black Gold Floral Corner Ornate | Glamour | glamour-black-gold-floral-corner-ornate.png | 3 |
-| 8 | rsvp_...042828.png | Floral Pastel Rose Arch Gold Confetti | Floral | floral-pastel-rose-arch-gold-confetti.png | 46 |
-| 9 | rsvp_...042850.png | Floral Sunflower Daisy Watercolor Corner | Floral | floral-sunflower-daisy-watercolor-corner.png | 47 |
-| 10 | rsvp_...042918.png | Floral Pink Peony Fern Gold Double Frame | Floral | floral-pink-peony-fern-gold-double-frame.png | 48 |
+| 1 | rsvp_...042933.png | Floral Eucalyptus Watercolor Splash Corner | Floral | floral-eucalyptus-watercolor-splash-corner.png | 49 |
+| 2 | rsvp_...042948.png | Glamour Gold Stamp Floral Scallop Frame | Glamour | glamour-gold-stamp-floral-scallop-frame.png | 4 |
+| 3 | rsvp_...043032.png | Floral Blush Peony Rose Beige Corner | Floral | floral-blush-peony-rose-beige-corner.png | 50 |
+| 4 | rsvp_...043100.png | Floral Pink Rose Oval Arch Watercolor | Floral | floral-pink-rose-oval-arch-watercolor.png | 51 |
+| 5 | rsvp_...043117.png | Floral Botanical Line Art Sketch Border | Floral | floral-botanical-line-art-sketch-border.png | 52 |
+| 6 | rsvp_...043203.png | Floral Red Tulip Watercolor Diagonal | Floral | floral-red-tulip-watercolor-diagonal.png | 53 |
+| 7 | rsvp_...043254.png | Islamic Nikah Gold Geometric Calligraphy | Islamic | islamic-nikah-gold-geometric-calligraphy.png | 3 |
+| 8 | rsvp_...043305.png | Islamic Gold Star Pattern Fade Border | Islamic | islamic-gold-star-pattern-fade-border.png | 4 |
+| 9 | rsvp_...043327.png | Floral Rose Orchid Fern Eucalyptus Frame | Floral | floral-rose-orchid-fern-eucalyptus-frame.png | 54 |
+| 10 | rsvp_...043344.png | Floral Sunflower Eucalyptus Watercolor Wash | Floral | floral-sunflower-eucalyptus-watercolor-wash.png | 55 |
 
 ## Category Breakdown
-- **Floral**: 8 new designs (sort_order 41-48, continuing from existing 40)
-- **Glamour**: 2 new designs (sort_order 2-3, continuing from existing 1)
+- **Floral**: 7 new designs (sort_order 49-55, continuing from existing 48)
+- **Glamour**: 1 new design (sort_order 4, continuing from existing 3)
+- **Islamic**: 2 new designs (sort_order 3-4, continuing from existing 2)
 
 ## Steps
 
@@ -29,7 +30,7 @@ Copy all 10 uploaded images into `public/invitation-gallery/` with descriptive f
 ### 2. Insert 10 database records
 Insert into `invitation_gallery_images` table with appropriate categories and sort_orders.
 
-This will bring the Invitation Image Gallery from **140 to 150 designs**.
+This will bring the Invitation Image Gallery from **150 to 160 designs**.
 
 ### Technical Details
 - Destination: `public/invitation-gallery/`
