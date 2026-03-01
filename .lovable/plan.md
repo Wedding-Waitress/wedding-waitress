@@ -1,26 +1,25 @@
 
 
-# Add 10 New Invitation Designs to Invitation Image Gallery (Batch 6)
+# Add 10 New Invitation Designs to Invitation Image Gallery (Batch 7)
 
 ## Images to Add
 
 | # | Source File | Gallery Name | Category | Filename | Sort Order |
 |---|-----------|-------------|----------|----------|------------|
-| 1 | rsvp_...042933.png | Floral Eucalyptus Watercolor Splash Corner | Floral | floral-eucalyptus-watercolor-splash-corner.png | 49 |
-| 2 | rsvp_...042948.png | Glamour Gold Stamp Floral Scallop Frame | Glamour | glamour-gold-stamp-floral-scallop-frame.png | 4 |
-| 3 | rsvp_...043032.png | Floral Blush Peony Rose Beige Corner | Floral | floral-blush-peony-rose-beige-corner.png | 50 |
-| 4 | rsvp_...043100.png | Floral Pink Rose Oval Arch Watercolor | Floral | floral-pink-rose-oval-arch-watercolor.png | 51 |
-| 5 | rsvp_...043117.png | Floral Botanical Line Art Sketch Border | Floral | floral-botanical-line-art-sketch-border.png | 52 |
-| 6 | rsvp_...043203.png | Floral Red Tulip Watercolor Diagonal | Floral | floral-red-tulip-watercolor-diagonal.png | 53 |
-| 7 | rsvp_...043254.png | Islamic Nikah Gold Geometric Calligraphy | Islamic | islamic-nikah-gold-geometric-calligraphy.png | 3 |
-| 8 | rsvp_...043305.png | Islamic Gold Star Pattern Fade Border | Islamic | islamic-gold-star-pattern-fade-border.png | 4 |
-| 9 | rsvp_...043327.png | Floral Rose Orchid Fern Eucalyptus Frame | Floral | floral-rose-orchid-fern-eucalyptus-frame.png | 54 |
-| 10 | rsvp_...043344.png | Floral Sunflower Eucalyptus Watercolor Wash | Floral | floral-sunflower-eucalyptus-watercolor-wash.png | 55 |
+| 1 | rsvp_...043426.png | Floral Dark Green Eucalyptus Leaf Frame | Floral | floral-dark-green-eucalyptus-leaf-frame.png | 56 |
+| 2 | rsvp_...043449.png | Floral Pink Blossom Soft Gradient Border | Floral | floral-pink-blossom-soft-gradient-border.png | 57 |
+| 3 | rsvp_...043508.png | Floral Watercolor Rose Minimal Corner | Floral | floral-watercolor-rose-minimal-corner.png | 58 |
+| 4 | rsvp_...043532.png | Wedding Couple Autumn Cotton Floral | Wedding | wedding-couple-autumn-cotton-floral.png | 5 |
+| 5 | rsvp_...043542.png | Floral Autumn Cotton Poppy Four Corner | Floral | floral-autumn-cotton-poppy-four-corner.png | 59 |
+| 6 | rsvp_...043632.png | Floral Pink Bud Teal Watercolor Frame | Floral | floral-pink-bud-teal-watercolor-frame.png | 60 |
+| 7 | rsvp_...043712.png | Floral Boho Arch Hydrangea Rose Bouquet | Floral | floral-boho-arch-hydrangea-rose-bouquet.png | 61 |
+| 8 | rsvp_...043739.png | Floral Pink Bud Teal Watercolor Frame Alt | Floral | floral-pink-bud-teal-watercolor-frame-alt.png | 62 |
+| 9 | rsvp_...043757.png | Floral Beige Muted Dahlia Corner | Floral | floral-beige-muted-dahlia-corner.png | 63 |
+| 10 | rsvp_...043821.png | Floral White Lily Full Border Frame | Floral | floral-white-lily-full-border-frame.png | 64 |
 
 ## Category Breakdown
-- **Floral**: 7 new designs (sort_order 49-55, continuing from existing 48)
-- **Glamour**: 1 new design (sort_order 4, continuing from existing 3)
-- **Islamic**: 2 new designs (sort_order 3-4, continuing from existing 2)
+- **Floral**: 9 new designs (sort_order 56-64, continuing from existing 55)
+- **Wedding**: 1 new design (sort_order 5, continuing from existing 4)
 
 ## Steps
 
@@ -30,7 +29,7 @@ Copy all 10 uploaded images into `public/invitation-gallery/` with descriptive f
 ### 2. Insert 10 database records
 Insert into `invitation_gallery_images` table with appropriate categories and sort_orders.
 
-This will bring the Invitation Image Gallery from **150 to 160 designs**.
+This will bring the Invitation Image Gallery from **160 to 170 designs**.
 
 ### Technical Details
 - Destination: `public/invitation-gallery/`
