@@ -1,41 +1,43 @@
 
 
-# Place Cards Gallery - Batch 18 Upload (10 Images)
+# Place Cards Gallery - Batch 19 Upload (10 Images)
 
 ## Image Analysis and Categorization
 
 | # | File | Proposed Name | Category | Reason |
 |---|------|--------------|----------|--------|
-| 1 | Avery_Davis_61 | Purple Peony Watercolor Top Gold Accents | Purple | Pink watercolor wash with purple/lilac peonies across the top edge, gold line accents |
-| 2 | Avery_Davis_62 | Purple Pink Peony Watercolor Corners Gold | Purple | Pink watercolor wash with purple and pink peonies in bottom-left and top-right corners, gold accents |
-| 3 | Avery_Davis_63 | Navy Blue Line Art Floral Rectangle Frame | Blue | White/cream background with navy blue line-art botanical flowers and a rectangular inner border |
-| 4 | Avery_Davis_64 | Sage Green Watercolor Foliage Gold Swirl Corners | Green | Light cream background with watercolor green foliage and white flowers in opposite corners, copper/gold swirl accents |
-| 5 | Avery_Davis_65 | Watercolor Wildflower Corners Peach Yellow | Floral | White background with delicate scattered watercolor wildflowers (peach, yellow, blue) in top-left and bottom-right corners |
-| 6 | Avery_Davis_66 | Greyscale Bride Groom Illustration Left | Grey | White background with a monochrome greyscale illustration of a bride and groom on the left side |
-| 7 | Avery_Davis_67 | Sepia Macro Flower Petals Soft Focus | White | Soft sepia/cream-toned macro photograph of flower petals with blurred bokeh effect |
-| 8 | Avery_Davis_68 | Watercolor Eucalyptus Frame Top Bottom | Green | White background with lush watercolor eucalyptus leaves framing the top-left and bottom-right |
-| 9 | Avery_Davis_69 | Yellow Watercolor Vertical Stripes | Yellow | White background with hand-painted yellow watercolor vertical stripes (NEW category) |
-| 10 | Avery_Davis_70 | Pink Stripe Border Scallop Frame Cream | Pink | Cream/beige background with pink vertical stripe border forming a scalloped oval frame |
+| 1 | Avery_Davis_71 | Pink Cream Vertical Stripes Pattern | Pink | Soft pink and cream alternating vertical stripes on beige background |
+| 2 | Avery_Davis_72 | Blue Floral Line Art Cloud Frame | Blue | Large blue cloud/blob shape centered over white background with blue line-art floral border |
+| 3 | Avery_Davis_73 | Blue Line Art Botanical Full Pattern | Blue | Full-coverage blue line-art botanical floral pattern on white background |
+| 4 | Avery_Davis_74 | Orange Amber Horizontal Blinds Texture | Orange | Rich orange/amber toned horizontal slat/blinds texture |
+| 5 | Avery_Davis_75 | Christmas Red Candy Cane Ornament Border | Christmas | Red background with pine branches, candy canes, ornaments, and snowflakes border (NEW category) |
+| 6 | Avery_Davis_76 | Christmas Red Lanterns Pine Border | Christmas | Red background with Chinese lanterns, bonsai tree, pine branches, and candy cane border |
+| 7 | Avery_Davis_77 | Black Gold Glitter Sparkle Corners | Black | Black background with gold glitter sparkle accents in opposite corners (NEW category) |
+| 8 | Avery_Davis_78 | White Gold Glitter Sparkle Corners | Gold | White background with gold glitter sparkle accents in opposite corners |
+| 9 | Avery_Davis_79 | Retro Sunburst Teal Orange Flowers | Floral | Retro/vintage sunburst rays with teal and orange stylised flowers and checkered corners |
+| 10 | Avery_Davis_80 | Teal Cream Sunburst Rays Pattern | Blue | Clean teal and cream alternating sunburst/starburst rays pattern |
+
+## New Categories
+
+- **Christmas** -- For festive Christmas-themed designs with red, green, ornaments, candy canes
+- **Black** -- For designs with predominantly black/dark backgrounds
 
 ## Category Distribution
 
 | Category | New Images | Notes |
 |----------|-----------|-------|
-| Purple | 2 | Continuing after current max sort_order |
-| Blue | 1 | Continuing after sort_order 84 |
-| Green | 2 | Continuing after sort_order 91 |
-| Floral | 1 | Continuing after sort_order 5 |
-| Grey | 1 | Continuing after sort_order 58 |
-| White | 1 | Continuing after current max |
-| Yellow | 1 | NEW category, starting at sort_order 1 |
-| Pink | 1 | Continuing after sort_order 74 |
-
-"Yellow" is a new category for designs with a predominantly yellow color theme.
+| Pink | 1 | Continuing after sort_order 75 |
+| Blue | 3 | Continuing after sort_order 85 |
+| Orange | 1 | Continuing after sort_order 72 |
+| Christmas | 2 | NEW category, starting at sort_order 1 |
+| Black | 1 | NEW category, starting at sort_order 1 |
+| Gold | 1 | Continuing after sort_order 83 |
+| Floral | 1 | Continuing after sort_order 6 |
 
 ## Technical Steps
 
 1. Copy all 10 images from user-uploads to `public/gallery-images/` with category-prefixed filenames
-2. Query current max sort_order values for Purple, Blue, Green, Floral, Grey, White, Pink categories
+2. Query current max sort_order values for existing categories
 3. Insert 10 rows into `place_card_gallery_images` table using the data insert tool
-4. Updated total: 331 --> 341 Total Designs
+4. Updated total: 341 --> 351 Total Designs
 
