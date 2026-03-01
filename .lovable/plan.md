@@ -1,25 +1,25 @@
 
 
-# Add 10 New Invitation Designs to Invitation Image Gallery (Batch 12)
+# Add 10 New Invitation Designs to Invitation Image Gallery (Batch 13)
 
 ## Images to Add
 
 | # | Source File | Gallery Name | Category | Filename | Sort Order |
 |---|-----------|-------------|----------|----------|------------|
-| 1 | rsvp_...25.png | Eucalyptus Gold Spatter Watercolor Corner | Floral | floral-eucalyptus-gold-spatter-watercolor-corner.png | 75 |
-| 2 | rsvp_...26.png | Vintage Hydrangea Lily Botanical Textured | Floral | floral-vintage-hydrangea-lily-botanical-textured.png | 76 |
-| 3 | rsvp_...27.png | Rustic Wood Lace Border Cream Panel | Wedding | wedding-rustic-wood-lace-border-cream-panel.png | 9 |
-| 4 | rsvp_...29.png | Autumn Rose Pinecone Berry Cloud Frame | Floral | floral-autumn-rose-pinecone-berry-cloud-frame.png | 77 |
-| 5 | rsvp_...32.png | Gold Botanical Line Art Border Frame | Wedding | wedding-gold-botanical-line-art-border-frame.png | 10 |
-| 6 | rsvp_...34.png | Sunflower Watercolor Border Garden | Floral | floral-sunflower-watercolor-border-garden.png | 78 |
-| 7 | rsvp_...36.png | Sage Green Leaf Sparkle Rectangle Frame | Floral | floral-sage-green-leaf-sparkle-rectangle-frame.png | 79 |
-| 8 | rsvp_...38.png | Rustic Stone Leaf Gold Ornament Corner | Wedding | wedding-rustic-stone-leaf-gold-ornament-corner.png | 11 |
-| 9 | rsvp_...40.png | Grey Lily Line Art Geometric Frame | Floral | floral-grey-lily-line-art-geometric-frame.png | 80 |
-| 10 | rsvp_...42.png | White Peony Rose Gold Branch Marble | Floral | floral-white-peony-rose-gold-branch-marble.png | 81 |
+| 1 | rsvp_...44-2.png | Taupe Line Art Floral Corner Sketch | Floral | floral-taupe-line-art-floral-corner-sketch.png | 82 |
+| 2 | rsvp_...46-2.png | Peach Watercolor Greenery Border Frame | Floral | floral-peach-watercolor-greenery-border-frame.png | 83 |
+| 3 | rsvp_...48-2.png | Botanical Circle Wreath Line Drawing | Floral | floral-botanical-circle-wreath-line-drawing.png | 84 |
+| 4 | rsvp_...50-2.png | Olive Branch Watercolor Circle Frame | Floral | floral-olive-branch-watercolor-circle-frame.png | 85 |
+| 5 | rsvp_...51-2.png | Olive Leaf Watercolor Diagonal Corner | Floral | floral-olive-leaf-watercolor-diagonal-corner.png | 86 |
+| 6 | rsvp_...53-2.png | Boho Anthurium Dahlia Palm Fan Corner | Floral | floral-boho-anthurium-dahlia-palm-fan-corner.png | 87 |
+| 7 | rsvp_...55-2.png | Burnt Orange Watercolor Leaf Rectangle | Floral | floral-burnt-orange-watercolor-leaf-rectangle.png | 88 |
+| 8 | rsvp_...57-2.png | Gold Floral Line Art Watercolor Wash | Glamour | glamour-gold-floral-line-art-watercolor-wash.png | 2 |
+| 9 | rsvp_...59-2.png | Pastel Wildflower Watercolor Garden Full | Floral | floral-pastel-wildflower-watercolor-garden-full.png | 89 |
+| 10 | rsvp_...60-2.png | Pastel Wildflower Watercolor Garden Sparse | Floral | floral-pastel-wildflower-watercolor-garden-sparse.png | 90 |
 
 ## Category Breakdown
-- **Floral**: 7 new designs (sort_order 75-81, continuing from existing 74)
-- **Wedding**: 3 new designs (sort_order 9-11, continuing from existing 8)
+- **Floral**: 9 new designs (sort_order 82-90, continuing from existing 81)
+- **Glamour**: 1 new design (sort_order 2, continuing from existing 1)
 
 ## Steps
 
@@ -29,7 +29,7 @@ Copy all 10 uploaded images into `public/invitation-gallery/` with descriptive f
 ### 2. Insert 10 database records
 Insert into `invitation_gallery_images` table with appropriate categories and sort_orders.
 
-This will bring the Invitation Image Gallery from **210 to 220 designs**.
+This will bring the Invitation Image Gallery from **220 to 230 designs**.
 
 ### Technical Details
 - Destination: `public/invitation-gallery/`
