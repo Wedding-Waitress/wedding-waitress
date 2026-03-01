@@ -1,33 +1,35 @@
 
 
-# Fix Place Card Gallery and Rename Gallery Titles
+# Add 10 New Cultural Designs to Invitation Image Gallery
 
-## Problem
-The last batch of 10 Cultural designs (Chinese-themed) were incorrectly added to the Place Card gallery (`place_card_gallery_images`). They should only exist in the Invitation gallery (which they already do). Additionally, both gallery modal titles need renaming.
+## Images to Add
+
+| # | Source File | Gallery Name | Filename |
+|---|-----------|-------------|----------|
+| 1 | Celebrations_62.png | Chinese Red Lantern Mandala Frame | chinese-red-lantern-mandala-frame.png |
+| 2 | Celebrations_63.png | Chinese Lantern Fan Festival | chinese-lantern-fan-festival.png |
+| 3 | Celebrations_64.png | Chinese Dragon Coin Frame | chinese-dragon-coin-frame.png |
+| 4 | Celebrations_65.png | Chinese Swallow Lantern Ginkgo | chinese-swallow-lantern-ginkgo.png |
+| 5 | Celebrations_66.png | Chinese Blue Cloud Scroll Frame | chinese-blue-cloud-scroll-frame.png |
+| 6 | Celebrations_67.png | Chinese Lion Dance Temple Gate | chinese-lion-dance-temple-gate.png |
+| 7 | Celebrations_68.png | Chinese Cherry Blossom Lanterns | chinese-cherry-blossom-lanterns-watercolor.png |
+| 8 | Celebrations_69.png | Chinese Red Fireworks Fan | chinese-red-fireworks-fan.png |
+| 9 | Celebrations_70.png | Chinese Red Gold Lantern Lotus | chinese-red-gold-lantern-lotus.png |
+| 10 | Celebrations_71.png | Chinese Red Gold Lantern Lotus Alt | chinese-red-gold-lantern-lotus-alt.png |
 
 ## Steps
 
-### 1. Remove 10 Cultural designs from Place Card gallery
-Delete the 10 recently-added Cultural records from `place_card_gallery_images` using a data operation (not a migration). This will bring the Place Card gallery back to **162 designs**.
+### 1. Copy 10 images to invitation gallery folder
+Copy all 10 uploaded images into `public/invitation-gallery/` with clean descriptive filenames.
 
-```sql
-DELETE FROM place_card_gallery_images 
-WHERE category = 'Cultural';
-```
+### 2. Insert 10 database records
+Insert into `invitation_gallery_images` table with category "Cultural" and sort_order 13-22 (continuing from the existing 12 Cultural designs).
 
-### 2. Rename Invitation Gallery modal title
-In `src/components/Dashboard/Invitations/InvitationGalleryModal.tsx`, change the DialogTitle from:
-- "Image Gallery ({count} Invitations)" 
-to:
-- "Invitation Image Gallery"
+This will bring the Invitation Image Gallery from **70 to 80 designs**, and the Cultural category from 12 to 22 designs.
 
-### 3. Rename Place Card Gallery modal title
-In `src/components/Dashboard/PlaceCards/PlaceCardGalleryModal.tsx`, change the DialogTitle from:
-- "Image Gallery ({count} Cards)"
-to:
-- "Place Cards Image Gallery"
+### Technical Details
+- Destination: `public/invitation-gallery/` (invitation gallery folder)
+- Table: `invitation_gallery_images` (NOT `place_card_gallery_images`)
+- Category: Cultural
+- No code changes needed
 
-## Summary
-- 10 Cultural records removed from Place Card gallery (back to 162)
-- No changes to Invitation gallery data (Cultural designs remain with 70 total)
-- Two file edits for title renaming
