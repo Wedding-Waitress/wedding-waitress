@@ -1,26 +1,25 @@
 
 
-# Add 10 New Invitation Designs to Invitation Image Gallery (Batch 11)
+# Add 10 New Invitation Designs to Invitation Image Gallery (Batch 12)
 
 ## Images to Add
 
 | # | Source File | Gallery Name | Category | Filename | Sort Order |
 |---|-----------|-------------|----------|----------|------------|
-| 1 | rsvp_...045612.png | Boho Pampas Orchid Beige Arch Frame | Floral | floral-boho-pampas-orchid-beige-arch-frame.png | 70 |
-| 2 | rsvp_...2.png | Winter Botanical Berry Rose Bee Wreath | Floral | floral-winter-botanical-berry-rose-bee-wreath.png | 71 |
-| 3 | rsvp_...5.png | Gold Leaf Blush Watercolor Minimal | Wedding | wedding-gold-leaf-blush-watercolor-minimal.png | 5 |
-| 4 | rsvp_...8.png | Gold Leaf Outline Dots White Minimal | Wedding | wedding-gold-leaf-outline-dots-white-minimal.png | 6 |
-| 5 | rsvp_...11.png | White Jasmine Daisy Gold Rose Outline | Floral | floral-white-jasmine-daisy-gold-rose-outline.png | 72 |
-| 6 | rsvp_...14.png | Wooden Arch Drape Roses Watercolor | Wedding | wedding-wooden-arch-drape-roses-watercolor.png | 7 |
-| 7 | rsvp_...16.png | Autumn Arch Terracotta Rose Dahlia Pampas | Floral | floral-autumn-arch-terracotta-rose-dahlia-pampas.png | 73 |
-| 8 | rsvp_...18.png | Rustic Wood Lace Burlap Twine | Wedding | wedding-rustic-wood-lace-burlap-twine.png | 8 |
-| 9 | rsvp_...20.png | Terracotta Arch Boho Dried Floral | Floral | floral-terracotta-arch-boho-dried-floral.png | 74 |
-| 10 | rsvp_...23.png | Blue Watercolor Beach Sand Wash | Tropical | tropical-blue-watercolor-beach-sand-wash.png | 5 |
+| 1 | rsvp_...25.png | Eucalyptus Gold Spatter Watercolor Corner | Floral | floral-eucalyptus-gold-spatter-watercolor-corner.png | 75 |
+| 2 | rsvp_...26.png | Vintage Hydrangea Lily Botanical Textured | Floral | floral-vintage-hydrangea-lily-botanical-textured.png | 76 |
+| 3 | rsvp_...27.png | Rustic Wood Lace Border Cream Panel | Wedding | wedding-rustic-wood-lace-border-cream-panel.png | 9 |
+| 4 | rsvp_...29.png | Autumn Rose Pinecone Berry Cloud Frame | Floral | floral-autumn-rose-pinecone-berry-cloud-frame.png | 77 |
+| 5 | rsvp_...32.png | Gold Botanical Line Art Border Frame | Wedding | wedding-gold-botanical-line-art-border-frame.png | 10 |
+| 6 | rsvp_...34.png | Sunflower Watercolor Border Garden | Floral | floral-sunflower-watercolor-border-garden.png | 78 |
+| 7 | rsvp_...36.png | Sage Green Leaf Sparkle Rectangle Frame | Floral | floral-sage-green-leaf-sparkle-rectangle-frame.png | 79 |
+| 8 | rsvp_...38.png | Rustic Stone Leaf Gold Ornament Corner | Wedding | wedding-rustic-stone-leaf-gold-ornament-corner.png | 11 |
+| 9 | rsvp_...40.png | Grey Lily Line Art Geometric Frame | Floral | floral-grey-lily-line-art-geometric-frame.png | 80 |
+| 10 | rsvp_...42.png | White Peony Rose Gold Branch Marble | Floral | floral-white-peony-rose-gold-branch-marble.png | 81 |
 
 ## Category Breakdown
-- **Floral**: 5 new designs (sort_order 70-74, continuing from existing 69)
-- **Wedding**: 4 new designs (sort_order 5-8, continuing from existing 4)
-- **Tropical**: 1 new design (sort_order 5, continuing from existing 4)
+- **Floral**: 7 new designs (sort_order 75-81, continuing from existing 74)
+- **Wedding**: 3 new designs (sort_order 9-11, continuing from existing 8)
 
 ## Steps
 
@@ -30,7 +29,7 @@ Copy all 10 uploaded images into `public/invitation-gallery/` with descriptive f
 ### 2. Insert 10 database records
 Insert into `invitation_gallery_images` table with appropriate categories and sort_orders.
 
-This will bring the Invitation Image Gallery from **200 to 210 designs**.
+This will bring the Invitation Image Gallery from **210 to 220 designs**.
 
 ### Technical Details
 - Destination: `public/invitation-gallery/`
