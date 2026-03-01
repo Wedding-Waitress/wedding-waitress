@@ -1,24 +1,25 @@
 
 
-# Add 10 New Invitation Designs to Invitation Image Gallery (Batch 9)
+# Add 10 New Invitation Designs to Invitation Image Gallery (Batch 10)
 
 ## Images to Add
 
 | # | Source File | Gallery Name | Category | Filename | Sort Order |
 |---|-----------|-------------|----------|----------|------------|
-| 1 | rsvp_...044502.png | Islamic Pink Arch Couple Blessings Floral | Islamic | islamic-pink-arch-couple-blessings-floral.png | 11 |
-| 2 | rsvp_...044510.png | Islamic Pink Arch Hijab Floral Wreath | Islamic | islamic-pink-arch-hijab-floral-wreath.png | 12 |
-| 3 | rsvp_...044522.png | Islamic Pink Arch Pillar Plain Blessings | Islamic | islamic-pink-arch-pillar-plain-blessings.png | 13 |
-| 4 | rsvp_...044607.png | Islamic Dark Green Gold Nikah Geometric | Islamic | islamic-dark-green-gold-nikah-geometric.png | 14 |
-| 5 | rsvp_...044648.png | Islamic Pink Daisy Floral Blessings Frame | Islamic | islamic-pink-daisy-floral-blessings-frame.png | 15 |
-| 6 | rsvp_...044713.png | Islamic Brown Gold Floral Nikah Corner | Islamic | islamic-brown-gold-floral-nikah-corner.png | 16 |
-| 7 | rsvp_...044724.png | Islamic Brown Gold Floral Corner Plain | Islamic | islamic-brown-gold-floral-corner-plain.png | 17 |
-| 8 | rsvp_...044827.png | Islamic White Rose Lantern Watercolor | Islamic | islamic-white-rose-lantern-watercolor.png | 18 |
-| 9 | rsvp_...044853.png | Islamic Pink Moroccan Tile Arch Barakah | Islamic | islamic-pink-moroccan-tile-arch-barakah.png | 19 |
-| 10 | rsvp_...044922.png | Islamic Blue Watercolor Arch Floral Gold | Islamic | islamic-blue-watercolor-arch-floral-gold.png | 20 |
+| 1 | rsvp_...044954.png | Islamic Teal Gold Arch Lantern Rose Bismillah | Islamic | islamic-teal-gold-arch-lantern-rose-bismillah.png | 21 |
+| 2 | rsvp_...045022.png | Islamic Cream Floral Gold Calligraphy Frame | Islamic | islamic-cream-floral-gold-calligraphy-frame.png | 22 |
+| 3 | rsvp_...045111.png | Islamic Purple Gold Mandala Lantern Stars | Islamic | islamic-purple-gold-mandala-lantern-stars.png | 23 |
+| 4 | rsvp_...045147.png | Islamic Pink Cherry Blossom Gold Frame | Islamic | islamic-pink-cherry-blossom-gold-frame.png | 24 |
+| 5 | rsvp_...045226.png | Islamic Maroon Gold Mandala Lantern Geometric | Islamic | islamic-maroon-gold-mandala-lantern-geometric.png | 25 |
+| 6 | rsvp_...045258.png | Islamic Blue Ink Gold Geometric Arch Floral | Islamic | islamic-blue-ink-gold-geometric-arch-floral.png | 26 |
+| 7 | rsvp_...045346.png | Islamic Gold Leaf Glitter Marble Minimal | Islamic | islamic-gold-leaf-glitter-marble-minimal.png | 27 |
+| 8 | rsvp_...045429.png | Islamic Maroon Scallop Arch Lantern Peony | Islamic | islamic-maroon-scallop-arch-lantern-peony.png | 28 |
+| 9 | rsvp_...045454.png | Islamic Black Gold Ornate Corner Frame | Islamic | islamic-black-gold-ornate-corner-frame.png | 29 |
+| 10 | rsvp_...045516.png | Floral Purple Watercolor Anemone Border | Floral | floral-purple-watercolor-anemone-border.png | 69 |
 
 ## Category Breakdown
-- **Islamic**: 10 new designs (sort_order 11-20, continuing from existing 10)
+- **Islamic**: 9 new designs (sort_order 21-29, continuing from existing 20)
+- **Floral**: 1 new design (sort_order 69, continuing from existing 68)
 
 ## Steps
 
@@ -28,7 +29,7 @@ Copy all 10 uploaded images into `public/invitation-gallery/` with descriptive f
 ### 2. Insert 10 database records
 Insert into `invitation_gallery_images` table with appropriate categories and sort_orders.
 
-This will bring the Invitation Image Gallery from **180 to 190 designs**.
+This will bring the Invitation Image Gallery from **190 to 200 designs**.
 
 ### Technical Details
 - Destination: `public/invitation-gallery/`
