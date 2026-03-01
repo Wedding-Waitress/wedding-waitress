@@ -1,44 +1,41 @@
 
 
-# Place Cards Gallery - Batch 4 Upload (10 Images)
+# Place Cards Gallery - Batch 5 Upload (10 Images)
 
 ## Image Analysis and Categorization
 
 | # | File | Proposed Name | Category | Reason |
 |---|------|--------------|----------|--------|
-| 1 | 184250 | Warm Wildflower Sprigs | Floral | Warm peach/beige watercolor background with delicate pink wildflower sprigs on left and right |
-| 2 | 184308 | Gold Paisley Ornate Border | Gold | Cream background with subtle paisley pattern and ornate gold filigree border |
-| 3 | 184320 | Gold Filigree Border Plain | Gold | Clean cream/white background with ornate gold filigree border (no paisley fill) |
-| 4 | 184332 | Gold Filigree Border White | Gold | Pure white background with the same ornate gold filigree border |
-| 5 | 184409 | Ginkgo Leaf Line Art | Grey | Soft grey/beige background with elegant ginkgo leaf line drawings scattered around edges |
-| 6 | 184420 | Boho Monstera Corners | Beige | White textured background with boho-style tan/pink monstera leaf shapes in opposite corners |
-| 7 | 184434 | Green Watercolor Leaf Sprigs | Green | Soft green watercolor wash background with small dark green leaf sprigs in corners |
-| 8 | 184444 | Black Gold Lotus Footer | Black | Black background with gold lotus/paisley ornamental pattern along the bottom edge |
-| 9 | 184453 | Red Orange Gold Lotus Footer | Red | Red-to-orange gradient background with gold lotus/paisley ornamental pattern along the bottom |
-| 10 | 184456 | White Gold Lotus Footer | Gold | White background with gold lotus/paisley ornamental pattern along the bottom edge |
+| 1 | 184522 | Gold Gradient Lotus Footer | Gold | Black-to-gold diagonal gradient with gold lotus/paisley ornamental pattern along the bottom |
+| 2 | 184553 | Pink Rose Corner Frame | Pink | Soft blush pink background framed by lush watercolor pink roses and green foliage in all four corners |
+| 3 | 184611 | Lilac Blossom Gold Glitter | Purple | Soft lavender/purple background with lilac flower branches in opposite corners and gold glitter accents |
+| 4 | 184629 | Pastel Wildflower Sides | Floral | Light pink/cream background with colorful watercolor wildflowers (pink, purple, yellow) on left and right sides, faded floral center |
+| 5 | 184645 | Autumn Floral Corners White | Brown | White background with rustic autumn watercolor florals (brown, orange, burgundy) in opposite corners |
+| 6 | 184720 | Autumn Floral Corners Blue | Blue | Mint-to-blue gradient background with the same autumn watercolor floral corners |
+| 7 | 184731 | Olive Art Deco Geometric | Green | Olive/sage green background with geometric art deco corner ornaments and cream outer border |
+| 8 | 184747 | Pink Babys Breath Ribbon | Pink | Solid pink background with white baby's breath bouquet and pink satin ribbon in the top-right area |
+| 9 | 184821 | Red Rose Dark Background | Black | Dark/black background with a single dramatic red rose, moody photographic style |
+| 10 | 184833 | Cherry Blossom Branch White | Pink | White/light grey background with pink cherry blossom branches cascading from the top-left corner |
 
-## New Categories
-
-- **Floral** -- needed for the warm wildflower design (image 1). It has a distinctly floral theme that doesn't fit a single color category.
-- **Beige** -- needed for the boho monstera design (image 6). Warm neutral tones that don't fit existing color categories.
+All 10 images fit into existing categories -- no new categories needed.
 
 ## Category Distribution
 
-| Category | New Images | Notes |
-|----------|-----------|-------|
-| Floral (NEW) | 1 | Warm wildflower sprigs |
-| Beige (NEW) | 1 | Boho monstera corners |
-| Gold | 3 | Three gold filigree/border variations |
-| Grey | 1 | Ginkgo leaf line art |
-| Green | 1 | Watercolor leaf sprigs |
-| Black | 1 | Black gold lotus footer |
-| Red | 1 | Red orange gold lotus footer |
+| Category | New Images | New sort_order values |
+|----------|-----------|----------------------|
+| Gold | 1 | 70 |
+| Pink | 3 | 50, 51, 52 |
+| Purple | 1 | 7 |
+| Floral | 1 | 2 |
+| Brown | 1 | 49 |
+| Blue | 1 | 68 |
+| Green | 1 | 79 |
+| Black | 1 | 61 |
 
 ## Technical Steps
 
 1. Copy all 10 images from user-uploads to `public/gallery-images/` with category-prefixed filenames
-2. Query the database for current max sort_order values in Gold, Grey, Green, Black, Red categories
-3. Use sort_order = 1 for the two new categories (Floral, Beige)
-4. Insert 10 rows into `place_card_gallery_images` table
-5. Updated total: 191 --> 201 Total Designs
+2. Insert 10 rows into `place_card_gallery_images` table with the names, categories, and storage URLs shown above
+3. Use sequential sort_order values starting after the current max in each category
+4. Updated total: 201 --> 211 Total Designs
 
