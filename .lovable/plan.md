@@ -1,43 +1,37 @@
 
 
-# Place Cards Gallery - Batch 2 Upload (10 Images)
+# Place Cards Gallery - Batch 3 Upload (10 Images)
 
 ## Image Analysis and Categorization
 
 | # | File | Proposed Name | Category | Reason |
 |---|------|--------------|----------|--------|
-| 1 | 183428 | Blue Hibiscus Silhouette | Blue | Blue background with lighter blue hibiscus flowers |
-| 2 | 183510 | Teal Lily Line Art | Green | Teal background with white lily bouquet sketch |
-| 3 | 183520 | Purple Lily Line Art | Purple | Vivid purple background with white lily bouquet sketch |
-| 4 | 183525 | Lavender Lily Line Art | Pink | Soft lavender-pink background with white lily bouquet sketch |
-| 5 | 183531 | Coral Lily Line Art | Red | Coral-red background with white lily bouquet sketch (new category needed) |
-| 6 | 183546 | Lime Gradient Lily Line Art | Green | Green-to-yellow gradient with white lily bouquet sketch |
-| 7 | 183600 | Sunset Gradient Lily Line Art | Purple | Purple-to-orange gradient with white lily bouquet sketch |
-| 8 | 183634 | Watercolor Rose Corners | Pink | White background with pink watercolor roses in opposite corners |
-| 9 | 183708 | Teddy Bear Polka Dot | Baby | Cute teddy bear on blue polka dot background (new category needed) |
-| 10 | 183717 | Blue Polka Dot Dashed Frame | Blue | Light blue polka dot border with dashed inner frame |
+| 1 | 183732 | Navy Polka Dot Dashed Frame | Blue | Mint-blue background with navy polka dots and dashed inner border |
+| 2 | 183748 | Teal Polka Dot Bottom | Green | Solid teal background with white polka dot rows at bottom |
+| 3 | 183835 | Aqua Wave Corners | Blue | Light aqua gradient with abstract wave shapes in corners |
+| 4 | 183906 | Silver Mandala Corners | Grey | White background with grey/silver mandala motifs in opposite corners |
+| 5 | 184032 | Navy Gold Ornate Border | Blue | Deep navy blue background with ornate gold floral border |
+| 6 | 184100 | Black Gold Abstract Swirls | Black | Black background with gold brushstroke swirl on the left |
+| 7 | 184111 | Aqua Watercolor Wash | Blue | Soft cyan/aqua watercolor texture on white |
+| 8 | 184206 | Succulent Greenery Frame | Green | White background framed by lush watercolor succulents and eucalyptus |
+| 9 | 184218 | Eucalyptus Corner Sprigs | Green | White background with watercolor eucalyptus in top-left and bottom-right |
+| 10 | 184230 | Eucalyptus Left Arrangement | Green | White background with green eucalyptus bouquet on left side and horizontal line |
 
-## New Categories
-
-- **Red** -- needed for the coral lily line art design (image 5). Distinct from Pink and Orange.
-- **Baby** -- needed for the teddy bear design (image 9). A clearly baby/kids-themed design that does not fit any existing color category.
+All 10 images fit into existing categories -- no new categories needed.
 
 ## Category Distribution
 
-| Category | New Images | Notes |
-|----------|-----------|-------|
-| Blue | 2 | Hibiscus silhouette + polka dot frame |
-| Green | 2 | Teal lily + lime gradient lily |
-| Purple | 2 | Purple lily + sunset gradient lily |
-| Pink | 2 | Lavender lily + watercolor rose corners |
-| Red (NEW) | 1 | Coral lily line art |
-| Baby (NEW) | 1 | Teddy bear polka dot |
+| Category | New Images | New sort_order values |
+|----------|-----------|----------------------|
+| Blue | 4 | 64, 65, 66, 67 |
+| Green | 4 | 74, 75, 76, 77 |
+| Grey | 1 | 51 |
+| Black | 1 | 59 |
 
 ## Technical Steps
 
 1. Copy all 10 images from user-uploads to `public/gallery-images/` with category-prefixed filenames
-2. Query the database for current max sort_order values in Blue, Green, Purple, Pink categories
-3. Use sort_order = 1 for the two new categories (Red, Baby)
-4. Insert 10 rows into `place_card_gallery_images` table via the data insert tool
-5. Updated total: 171 --> 181 Total Designs
+2. Insert 10 rows into `place_card_gallery_images` table with the names, categories, and storage URLs shown above
+3. Use sequential sort_order values starting after the current max in each category
+4. Updated total: 181 --> 191 Total Designs
 
