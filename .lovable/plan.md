@@ -1,26 +1,27 @@
 
 
-# Add 10 New Invitation Designs to Invitation Image Gallery (Batch 16)
+# Add 10 New Invitation Designs to Invitation Image Gallery (Batch 17)
 
 ## Images to Add
 
 | # | Source File | Gallery Name | Category | Filename | Sort Order |
 |---|-----------|-------------|----------|----------|------------|
-| 1 | rsvp_...95.png | Gold Line Art Peony Corner Satin White | Glamour | glamour-gold-line-art-peony-corner-satin-white.png | 5 |
-| 2 | rsvp_...96.png | Pink Anemone Gold Geometric Double Frame | Floral | floral-pink-anemone-gold-geometric-double-frame.png | 107 |
-| 3 | rsvp_...97.png | Orange Citrus Blossom Rectangle Frame | Tropical | tropical-orange-citrus-blossom-rectangle-frame.png | 5 |
-| 4 | rsvp_...98.png | Boho Rose Pampas Fairy Lights Kraft | Floral | floral-boho-rose-pampas-fairy-lights-kraft.png | 108 |
-| 5 | rsvp_...99.png | Purple Watercolor Rose Eucalyptus Rectangle | Floral | floral-purple-watercolor-rose-eucalyptus-rectangle.png | 109 |
-| 6 | rsvp_...100.png | Blue Watercolor Rose Gold Circle Frame | Floral | floral-blue-watercolor-rose-gold-circle-frame.png | 110 |
-| 7 | rsvp_...png (no number) | Eucalyptus Watercolor Diagonal Corner Clean | Floral | floral-eucalyptus-watercolor-diagonal-corner-clean.png | 111 |
-| 8 | Untitled_design_1-2.png | Purple Watercolor Floral Circle Wreath | Floral | floral-purple-watercolor-floral-circle-wreath.png | 112 |
-| 9 | Untitled_design_2-2.png | Purple Watercolor Floral Top Bottom Border | Floral | floral-purple-watercolor-floral-top-bottom-border.png | 113 |
-| 10 | Untitled_design_3-2.png | Boho Palm Orchid Gold Glitter Splatter Frame | Floral | floral-boho-palm-orchid-gold-glitter-splatter-frame.png | 114 |
+| 1 | Untitled_design_4-2.png | Dark Burgundy Rose Gold Dust Corner Frame | Glamour | glamour-dark-burgundy-rose-gold-dust-corner-frame.png | 6 |
+| 2 | Untitled_design_5-2.png | Islamic Bismillah Pastel Botanical Corner Frame | Islamic | islamic-bismillah-pastel-botanical-corner-frame.png | 3 |
+| 3 | Untitled_design_6-2.png | Green Leaf Gold Rectangle Frame Cream | Floral | floral-green-leaf-gold-rectangle-frame-cream.png | 115 |
+| 4 | Untitled_design_7-2.png | Autumn Rose Watercolor Warm Corner Frame | Floral | floral-autumn-rose-watercolor-warm-corner-frame.png | 116 |
+| 5 | Untitled_design_8-2.png | Dark Burgundy Peony Gold Double Frame | Glamour | glamour-dark-burgundy-peony-gold-double-frame.png | 7 |
+| 6 | Untitled_design_9-2.png | Burgundy Peony Confetti Side Border Frame | Floral | floral-burgundy-peony-confetti-side-border-frame.png | 117 |
+| 7 | Untitled_design_10-2.png | Maroon White Rose Gold Geometric Frame | Glamour | glamour-maroon-white-rose-gold-geometric-frame.png | 8 |
+| 8 | Untitled_design_11-2.png | Pink Rose Watercolor Arch Frame | Floral | floral-pink-rose-watercolor-arch-frame.png | 118 |
+| 9 | Untitled_design_12-2.png | Christmas Santa Hat Holly Berry | Celebrations | celebrations-christmas-santa-hat-holly-berry.png | 5 |
+| 10 | Untitled_design_13-2.png | Christmas Candy Cane Pine Lights Frame | Celebrations | celebrations-christmas-candy-cane-pine-lights-frame.png | 6 |
 
 ## Category Breakdown
-- **Floral**: 8 new designs (sort_order 107-114, continuing from existing 106)
-- **Glamour**: 1 new design (sort_order 5, continuing from existing 4)
-- **Tropical**: 1 new design (sort_order 5, continuing from existing 4)
+- **Floral**: 4 new designs (sort_order 115-118)
+- **Glamour**: 3 new designs (sort_order 6-8)
+- **Celebrations**: 2 new designs (sort_order 5-6)
+- **Islamic**: 1 new design (sort_order 3)
 
 ## Steps
 
@@ -30,7 +31,7 @@ Copy all 10 uploaded images into `public/invitation-gallery/` with descriptive f
 ### 2. Insert 10 database records
 Insert into `invitation_gallery_images` table with appropriate categories and sort_orders.
 
-This will bring the Invitation Image Gallery from **250 to 260 designs**.
+This will bring the Invitation Image Gallery from **260 to 270 designs**.
 
 ### Technical Details
 - Destination: `public/invitation-gallery/`
