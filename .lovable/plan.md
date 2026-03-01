@@ -1,27 +1,25 @@
 
 
-# Add 10 New Invitation Designs to Invitation Image Gallery (Batch 17)
+# Add 10 New Invitation Designs to Invitation Image Gallery (Batch 18)
 
 ## Images to Add
 
 | # | Source File | Gallery Name | Category | Filename | Sort Order |
 |---|-----------|-------------|----------|----------|------------|
-| 1 | Untitled_design_4-2.png | Dark Burgundy Rose Gold Dust Corner Frame | Glamour | glamour-dark-burgundy-rose-gold-dust-corner-frame.png | 6 |
-| 2 | Untitled_design_5-2.png | Islamic Bismillah Pastel Botanical Corner Frame | Islamic | islamic-bismillah-pastel-botanical-corner-frame.png | 3 |
-| 3 | Untitled_design_6-2.png | Green Leaf Gold Rectangle Frame Cream | Floral | floral-green-leaf-gold-rectangle-frame-cream.png | 115 |
-| 4 | Untitled_design_7-2.png | Autumn Rose Watercolor Warm Corner Frame | Floral | floral-autumn-rose-watercolor-warm-corner-frame.png | 116 |
-| 5 | Untitled_design_8-2.png | Dark Burgundy Peony Gold Double Frame | Glamour | glamour-dark-burgundy-peony-gold-double-frame.png | 7 |
-| 6 | Untitled_design_9-2.png | Burgundy Peony Confetti Side Border Frame | Floral | floral-burgundy-peony-confetti-side-border-frame.png | 117 |
-| 7 | Untitled_design_10-2.png | Maroon White Rose Gold Geometric Frame | Glamour | glamour-maroon-white-rose-gold-geometric-frame.png | 8 |
-| 8 | Untitled_design_11-2.png | Pink Rose Watercolor Arch Frame | Floral | floral-pink-rose-watercolor-arch-frame.png | 118 |
-| 9 | Untitled_design_12-2.png | Christmas Santa Hat Holly Berry | Celebrations | celebrations-christmas-santa-hat-holly-berry.png | 5 |
-| 10 | Untitled_design_13-2.png | Christmas Candy Cane Pine Lights Frame | Celebrations | celebrations-christmas-candy-cane-pine-lights-frame.png | 6 |
+| 1 | Untitled_design_14-2.png | Christmas Red Stars Gold Trees Sparkle Frame | Celebrations | celebrations-christmas-red-stars-gold-trees-sparkle-frame.png | 7 |
+| 2 | Untitled_design_15-2.png | Christmas Party Santa Reindeer Snowflake Red | Celebrations | celebrations-christmas-party-santa-reindeer-snowflake-red.png | 8 |
+| 3 | Untitled_design_16-2.png | Winter Blue Snowflake Pine Forest Scene | Celebrations | celebrations-winter-blue-snowflake-pine-forest-scene.png | 9 |
+| 4 | Untitled_design_17-2.png | Christmas Party Tree Gifts Cream Minimal | Celebrations | celebrations-christmas-party-tree-gifts-cream-minimal.png | 10 |
+| 5 | Untitled_design_18-2.png | Christmas Poinsettia Watercolor Ornament White | Celebrations | celebrations-christmas-poinsettia-watercolor-ornament-white.png | 11 |
+| 6 | Untitled_design_19-2.png | Christmas Gingerbread Cinnamon Pine Dotted | Celebrations | celebrations-christmas-gingerbread-cinnamon-pine-dotted.png | 12 |
+| 7 | Untitled_design_20-2.png | Christmas Candy Stripe Bow Ornament Frame | Celebrations | celebrations-christmas-candy-stripe-bow-ornament-frame.png | 13 |
+| 8 | Untitled_design_21-2.png | Dark Navy Silver Glitter Leaf Rectangle Frame | Glamour | glamour-dark-navy-silver-glitter-leaf-rectangle-frame.png | 9 |
+| 9 | Untitled_design_22-2.png | Christmas Blue Gold Deer Pine Watercolor | Celebrations | celebrations-christmas-blue-gold-deer-pine-watercolor.png | 14 |
+| 10 | Untitled_design_23-2.png | Black Gold Champagne Glasses Celebration | Celebrations | celebrations-black-gold-champagne-glasses-celebration.png | 15 |
 
 ## Category Breakdown
-- **Floral**: 4 new designs (sort_order 115-118)
-- **Glamour**: 3 new designs (sort_order 6-8)
-- **Celebrations**: 2 new designs (sort_order 5-6)
-- **Islamic**: 1 new design (sort_order 3)
+- **Celebrations**: 9 new designs (sort_order 7-15)
+- **Glamour**: 1 new design (sort_order 9)
 
 ## Steps
 
@@ -31,7 +29,7 @@ Copy all 10 uploaded images into `public/invitation-gallery/` with descriptive f
 ### 2. Insert 10 database records
 Insert into `invitation_gallery_images` table with appropriate categories and sort_orders.
 
-This will bring the Invitation Image Gallery from **260 to 270 designs**.
+This will bring the Invitation Image Gallery from **270 to 280 designs**.
 
 ### Technical Details
 - Destination: `public/invitation-gallery/`
