@@ -1,31 +1,29 @@
 
 
-# Upload 10 New Invitation Gallery Designs (Batch 6)
+# Upload 10 New Invitation Gallery Designs (Batch 7)
 
 ## Design Inventory
 
 | # | Source File | Proposed Name | Category | Filename |
 |---|------------|---------------|----------|----------|
-| 1 | Celebrations_42.png | Yellow Floral Wedding Gold Frame | Wedding | yellow-floral-wedding-gold-frame.png |
-| 2 | Celebrations_43.png | Yellow Floral Blank | Floral | yellow-floral-blank.png |
-| 3 | Celebrations_44.png | Burgundy Peony Wedding | Wedding | burgundy-peony-wedding.png |
-| 4 | Celebrations_45.png | Burgundy Peony Blank | Floral | burgundy-peony-blank.png |
-| 5 | Celebrations_46.png | Pink Rose Watercolor Frame | Floral | pink-rose-watercolor-frame.png |
-| 6 | Celebrations_47.png | Autumn Sunflower Wreath Frame | Floral | autumn-sunflower-wreath-frame.png |
-| 7 | Celebrations_48.png | Lavender Bouquet Arch | Floral | lavender-bouquet-arch.png |
-| 8 | Celebrations_49.png | Yellow Tulip Corner Frame | Floral | yellow-tulip-corner-frame.png |
-| 9 | Celebrations_50.png | Chinese Wedding Red | Cultural | chinese-wedding-red.png |
-| 10 | Celebrations_51.png | Chinese Wedding Red Blank | Cultural | chinese-wedding-red-blank.png |
+| 1 | Celebrations_52.png | Chinese Double Happiness Couple | Cultural | chinese-double-happiness-couple.png |
+| 2 | Celebrations_53.png | Chinese Red Gold Cherry Blossom | Cultural | chinese-red-gold-cherry-blossom.png |
+| 3 | Celebrations_54.png | Chinese Red Gold Cherry Blank | Cultural | chinese-red-gold-cherry-blank.png |
+| 4 | Celebrations_55.png | Chinese Lantern Horse Zodiac | Cultural | chinese-lantern-horse-zodiac.png |
+| 5 | Celebrations_56.png | Chinese Red Lantern Pattern | Cultural | chinese-red-lantern-pattern.png |
+| 6 | Celebrations_57.png | Chinese Red Gold Fireworks | Cultural | chinese-red-gold-fireworks.png |
+| 7 | Celebrations_58.png | Chinese Cherry Blossom Fans | Cultural | chinese-cherry-blossom-fans.png |
+| 8 | Celebrations_59.png | Chinese Lion Dance Firecrackers | Cultural | chinese-lion-dance-firecrackers.png |
+| 9 | Celebrations_60.png | Chinese Lantern Cloud Frame | Cultural | chinese-lantern-cloud-frame.png |
+| 10 | Celebrations_61.png | Chinese Gold Floral Frame | Cultural | chinese-gold-floral-frame.png |
 
 ## Category Updates
 
-- **Wedding**: 2 more designs (sort_order 3-4), bringing total to 4
-- **Floral**: 6 more designs (sort_order 7-12), bringing total to 12
-- **Cultural**: New category with 2 designs (sort_order 1-2)
+- **Cultural**: 10 more designs (sort_order 3-12), bringing total from 2 to 12
 
 ## Running Gallery Total After This Batch
 
-60 designs across 10 categories: Baby Shower (21), Floral (12), Religious (9), Celebrations (4), Tropical (4), Wedding (4), Cultural (2), Islamic (2), Birthday (1), Glamour (1).
+70 designs across 10 categories: Baby Shower (21), Cultural (12), Floral (12), Religious (9), Celebrations (4), Tropical (4), Wedding (4), Islamic (2), Birthday (1), Glamour (1).
 
 ## Steps
 
@@ -33,10 +31,7 @@
 Copy all 10 uploaded images into `public/invitation-gallery/` with clean filenames.
 
 ### 2. Insert database records
-Insert 10 rows into `invitation_gallery_images` table:
-- Wedding: sort_order 3-4 (existing has 1-2)
-- Floral: sort_order 7-12 (existing has 1-6)
-- Cultural: sort_order 1-2 (new category)
+Insert 10 rows into `invitation_gallery_images` table with Cultural category, sort_order 3-12.
 
 ### Technical Details
 - Files: `public/invitation-gallery/*.png` (10 new files)
