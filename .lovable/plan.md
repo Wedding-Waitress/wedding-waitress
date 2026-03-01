@@ -1,25 +1,26 @@
 
 
-# Add 10 New Invitation Designs to Invitation Image Gallery (Batch 15)
+# Add 10 New Invitation Designs to Invitation Image Gallery (Batch 16)
 
 ## Images to Add
 
 | # | Source File | Gallery Name | Category | Filename | Sort Order |
 |---|-----------|-------------|----------|----------|------------|
-| 1 | rsvp_...79.png | Emerald Green Gold Ornate Corner Frame | Glamour | glamour-emerald-green-gold-ornate-corner-frame.png | 3 |
-| 2 | rsvp_...81.png | Orange Peach Watercolor Rose Corner Frame | Floral | floral-orange-peach-watercolor-rose-corner-frame.png | 99 |
-| 3 | rsvp_...84.png | Dark Botanical Circle Gold Ornate Frame | Glamour | glamour-dark-botanical-circle-gold-ornate-frame.png | 4 |
-| 4 | rsvp_...85.png | Pink Watercolor Rose Blush Save The Date | Floral | floral-pink-watercolor-rose-blush-save-the-date.png | 100 |
-| 5 | rsvp_...86.png | Blush Pink Watercolor Rose Corner Minimal | Floral | floral-blush-pink-watercolor-rose-corner-minimal.png | 101 |
-| 6 | rsvp_...88.png | Blue Indigo Wildflower Berry Corner Bold | Floral | floral-blue-indigo-wildflower-berry-corner-bold.png | 102 |
-| 7 | rsvp_...89.png | Soft Green Leaf Watercolor Side Border | Floral | floral-soft-green-leaf-watercolor-side-border.png | 103 |
-| 8 | rsvp_...91.png | Dark Autumn Floral Bold Corner Frame | Floral | floral-dark-autumn-floral-bold-corner-frame.png | 104 |
-| 9 | rsvp_...92.png | Beige Rose Watercolor Rectangle Frame | Floral | floral-beige-rose-watercolor-rectangle-frame.png | 105 |
-| 10 | rsvp_...94.png | Gold Floral Birds Butterfly Border Frame | Floral | floral-gold-floral-birds-butterfly-border-frame.png | 106 |
+| 1 | rsvp_...95.png | Gold Line Art Peony Corner Satin White | Glamour | glamour-gold-line-art-peony-corner-satin-white.png | 5 |
+| 2 | rsvp_...96.png | Pink Anemone Gold Geometric Double Frame | Floral | floral-pink-anemone-gold-geometric-double-frame.png | 107 |
+| 3 | rsvp_...97.png | Orange Citrus Blossom Rectangle Frame | Tropical | tropical-orange-citrus-blossom-rectangle-frame.png | 5 |
+| 4 | rsvp_...98.png | Boho Rose Pampas Fairy Lights Kraft | Floral | floral-boho-rose-pampas-fairy-lights-kraft.png | 108 |
+| 5 | rsvp_...99.png | Purple Watercolor Rose Eucalyptus Rectangle | Floral | floral-purple-watercolor-rose-eucalyptus-rectangle.png | 109 |
+| 6 | rsvp_...100.png | Blue Watercolor Rose Gold Circle Frame | Floral | floral-blue-watercolor-rose-gold-circle-frame.png | 110 |
+| 7 | rsvp_...png (no number) | Eucalyptus Watercolor Diagonal Corner Clean | Floral | floral-eucalyptus-watercolor-diagonal-corner-clean.png | 111 |
+| 8 | Untitled_design_1-2.png | Purple Watercolor Floral Circle Wreath | Floral | floral-purple-watercolor-floral-circle-wreath.png | 112 |
+| 9 | Untitled_design_2-2.png | Purple Watercolor Floral Top Bottom Border | Floral | floral-purple-watercolor-floral-top-bottom-border.png | 113 |
+| 10 | Untitled_design_3-2.png | Boho Palm Orchid Gold Glitter Splatter Frame | Floral | floral-boho-palm-orchid-gold-glitter-splatter-frame.png | 114 |
 
 ## Category Breakdown
-- **Floral**: 8 new designs (sort_order 99-106, continuing from existing 98)
-- **Glamour**: 2 new designs (sort_order 3-4, continuing from existing 2)
+- **Floral**: 8 new designs (sort_order 107-114, continuing from existing 106)
+- **Glamour**: 1 new design (sort_order 5, continuing from existing 4)
+- **Tropical**: 1 new design (sort_order 5, continuing from existing 4)
 
 ## Steps
 
@@ -29,7 +30,7 @@ Copy all 10 uploaded images into `public/invitation-gallery/` with descriptive f
 ### 2. Insert 10 database records
 Insert into `invitation_gallery_images` table with appropriate categories and sort_orders.
 
-This will bring the Invitation Image Gallery from **240 to 250 designs**.
+This will bring the Invitation Image Gallery from **250 to 260 designs**.
 
 ### Technical Details
 - Destination: `public/invitation-gallery/`
