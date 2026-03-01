@@ -1,0 +1,1 @@
+DELETE FROM place_card_gallery_images WHERE category = 'Cultural';
