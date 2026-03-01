@@ -1,43 +1,41 @@
 
 
-# Place Cards Gallery - Batch 19 Upload (10 Images)
+# Place Cards Gallery - Batch 20 Upload (10 Images)
 
 ## Image Analysis and Categorization
 
 | # | File | Proposed Name | Category | Reason |
 |---|------|--------------|----------|--------|
-| 1 | Avery_Davis_71 | Pink Cream Vertical Stripes Pattern | Pink | Soft pink and cream alternating vertical stripes on beige background |
-| 2 | Avery_Davis_72 | Blue Floral Line Art Cloud Frame | Blue | Large blue cloud/blob shape centered over white background with blue line-art floral border |
-| 3 | Avery_Davis_73 | Blue Line Art Botanical Full Pattern | Blue | Full-coverage blue line-art botanical floral pattern on white background |
-| 4 | Avery_Davis_74 | Orange Amber Horizontal Blinds Texture | Orange | Rich orange/amber toned horizontal slat/blinds texture |
-| 5 | Avery_Davis_75 | Christmas Red Candy Cane Ornament Border | Christmas | Red background with pine branches, candy canes, ornaments, and snowflakes border (NEW category) |
-| 6 | Avery_Davis_76 | Christmas Red Lanterns Pine Border | Christmas | Red background with Chinese lanterns, bonsai tree, pine branches, and candy cane border |
-| 7 | Avery_Davis_77 | Black Gold Glitter Sparkle Corners | Black | Black background with gold glitter sparkle accents in opposite corners (NEW category) |
-| 8 | Avery_Davis_78 | White Gold Glitter Sparkle Corners | Gold | White background with gold glitter sparkle accents in opposite corners |
-| 9 | Avery_Davis_79 | Retro Sunburst Teal Orange Flowers | Floral | Retro/vintage sunburst rays with teal and orange stylised flowers and checkered corners |
-| 10 | Avery_Davis_80 | Teal Cream Sunburst Rays Pattern | Blue | Clean teal and cream alternating sunburst/starburst rays pattern |
-
-## New Categories
-
-- **Christmas** -- For festive Christmas-themed designs with red, green, ornaments, candy canes
-- **Black** -- For designs with predominantly black/dark backgrounds
+| 1 | Avery_Davis_81 | Retro Sunburst Teal Orange Floral Right | Floral | Cream background with retro teal/orange sunburst and decorative flowers on the right side |
+| 2 | Avery_Davis_82 | Cream Teal Sunburst Rays Minimal | Blue | Cream background with minimal teal sunburst rays on the right, clean and simple |
+| 3 | Avery_Davis_83 | Peach Coral Watercolor Full Wash | Orange | Full-coverage peach/coral watercolor wash texture |
+| 4 | Avery_Davis_84 | Black Gold Rose Line Art Rectangle Frame | Black | Black background with gold line-art roses in corners and gold rectangle inner frame |
+| 5 | Avery_Davis_85 | Green Pink Watercolor Rose Corners Frame | Green | Green watercolor background with pink roses in top-left and bottom-right corners, pink card frame |
+| 6 | Avery_Davis_86 | Navy Teal Geometric Diamond Pattern | Blue | Navy blue background with repeating teal and purple geometric diamond pattern |
+| 7 | Avery_Davis_87 | Purple Gold Mandala Half Left | Purple | Deep purple background with gold ornate mandala/lotus motif on the left side |
+| 8 | Avery_Davis_88 | Pink Maroon Mandala Three Corners | Pink | Soft pink background with dark maroon/burgundy mandala designs in three corners |
+| 9 | Avery_Davis_89 | Cream Teal Mandala Corners Watermark | Floral | Cream background with colourful teal/navy/orange mandala flowers in opposite corners, faint mandala watermark |
+| 10 | Avery_Davis_90 | Gold Buddha Mandala Watermark Cream | Gold | Cream background with gold Buddha figure at bottom centre and faint mandala watermark |
 
 ## Category Distribution
 
 | Category | New Images | Notes |
 |----------|-----------|-------|
-| Pink | 1 | Continuing after sort_order 75 |
-| Blue | 3 | Continuing after sort_order 85 |
-| Orange | 1 | Continuing after sort_order 72 |
-| Christmas | 2 | NEW category, starting at sort_order 1 |
-| Black | 1 | NEW category, starting at sort_order 1 |
-| Gold | 1 | Continuing after sort_order 83 |
-| Floral | 1 | Continuing after sort_order 6 |
+| Floral | 2 | Continuing after sort_order 7 |
+| Blue | 2 | Continuing after sort_order 88 |
+| Orange | 1 | Continuing after sort_order 73 |
+| Black | 1 | Continuing after sort_order 1 |
+| Green | 1 | Continuing after sort_order 93 |
+| Purple | 1 | Continuing after sort_order 74 |
+| Pink | 1 | Continuing after sort_order 76 |
+| Gold | 1 | Continuing after sort_order 84 |
+
+No new categories needed for this batch.
 
 ## Technical Steps
 
 1. Copy all 10 images from user-uploads to `public/gallery-images/` with category-prefixed filenames
-2. Query current max sort_order values for existing categories
-3. Insert 10 rows into `place_card_gallery_images` table using the data insert tool
-4. Updated total: 341 --> 351 Total Designs
+2. Query current max sort_order values for each category to confirm continuity
+3. Insert 10 rows into `place_card_gallery_images` table
+4. Updated total: 351 --> 361 Total Designs
 
