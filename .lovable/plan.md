@@ -6,20 +6,20 @@
 
 | # | Source File | Gallery Name | Category | Filename | Sort Order |
 |---|-----------|-------------|----------|----------|------------|
-| 1 | rsvp_...041548.png | Floral Blush Rose Shadow Corner | Floral | floral-blush-rose-shadow-corner.png | 23 |
-| 2 | rsvp_...041628.png | Wedding Doves Hearts Pink Blossom Arch | Wedding | wedding-doves-hearts-pink-blossom-arch.png | 6 |
-| 3 | rsvp_...041657.png | Floral Peach Daisy Watercolor Splash | Floral | floral-peach-daisy-watercolor-splash.png | 24 |
-| 4 | rsvp_...041737.png | Floral Orange Daisy Dual Corner | Floral | floral-orange-daisy-dual-corner.png | 25 |
-| 5 | rsvp_...041811.png | Floral Blue Watercolor Eucalyptus | Floral | floral-blue-watercolor-eucalyptus.png | 26 |
-| 6 | rsvp_...041949.png | Floral Pink Daisy Gold Confetti | Floral | floral-pink-daisy-gold-confetti.png | 27 |
-| 7 | rsvp_...042013.png | Floral Sage Green Leaf Frame | Floral | floral-sage-green-leaf-frame.png | 28 |
-| 8 | rsvp_...042046.png | Floral Botanical Ribbon Bouquet Minimal | Floral | floral-botanical-ribbon-bouquet-minimal.png | 29 |
-| 9 | rsvp_...042125.png | Floral Gold Leaf Textured Frame | Floral | floral-gold-leaf-textured-frame.png | 30 |
-| 10 | rsvp_...042145.png | Floral Marble Peach Rose Side Panel | Floral | floral-marble-peach-rose-side-panel.png | 31 |
+| 1 | rsvp_...042158.png | Floral Boho Orchid Trailing Greenery | Floral | floral-boho-orchid-trailing-greenery.png | 32 |
+| 2 | rsvp_...042220.png | Floral Poppy Cornflower Wildflower Frame | Floral | floral-poppy-cornflower-wildflower-frame.png | 33 |
+| 3 | rsvp_...042237.png | Floral Brown Kraft Peach Daisy Corner | Floral | floral-brown-kraft-peach-daisy-corner.png | 34 |
+| 4 | rsvp_...042331.png | Floral Rose Eucalyptus Pampas Wheat | Floral | floral-rose-eucalyptus-pampas-wheat.png | 35 |
+| 5 | rsvp_...042342.png | Floral Sage Gold Arch Leaf Frame | Floral | floral-sage-gold-arch-leaf-frame.png | 36 |
+| 6 | rsvp_...042400.png | Floral Burgundy Pink Rose Full Border | Floral | floral-burgundy-pink-rose-full-border.png | 37 |
+| 7 | rsvp_...042422.png | Wedding Boho Pampas Rose Geometric Frame | Wedding | wedding-boho-pampas-rose-geometric-frame.png | 7 |
+| 8 | rsvp_...042459.png | Floral Purple Lilac Rose Border Frame | Floral | floral-purple-lilac-rose-border-frame.png | 38 |
+| 9 | rsvp_...042510.png | Floral Purple Lilac Rose Top Bottom | Floral | floral-purple-lilac-rose-top-bottom.png | 39 |
+| 10 | rsvp_...042539.png | Floral Pink Rose Gold Leaf Top Header | Floral | floral-pink-rose-gold-leaf-top-header.png | 40 |
 
 ## Category Breakdown
-- **Floral**: 9 new designs (sort_order 23-31, continuing from existing 22)
-- **Wedding**: 1 new design (sort_order 6, continuing from existing 5)
+- **Floral**: 9 new designs (sort_order 32-40, continuing from existing 31)
+- **Wedding**: 1 new design (sort_order 7, continuing from existing 6)
 
 ## Steps
 
@@ -29,7 +29,7 @@ Copy all 10 uploaded images into `public/invitation-gallery/` with descriptive f
 ### 2. Insert 10 database records
 Insert into `invitation_gallery_images` table with appropriate categories and sort_orders.
 
-This will bring the Invitation Image Gallery from **120 to 130 designs**.
+This will bring the Invitation Image Gallery from **130 to 140 designs**.
 
 ### Technical Details
 - Destination: `public/invitation-gallery/`
