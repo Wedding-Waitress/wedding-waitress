@@ -45,9 +45,12 @@ export const PlaceCardGalleryModal: React.FC<PlaceCardGalleryModalProps> = ({
       <DialogContent className="max-w-6xl max-h-[95vh] flex flex-col bg-white [&~[data-radix-scroll-area-viewport]]:!border-0" style={{ zIndex: 110 }} overlayClassName="z-[105] bg-black/95">
 
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <ImageIcon className="h-5 w-5 text-primary" />
-            Place Cards Image Gallery
+          <DialogTitle className="flex items-center justify-between w-full">
+            <span className="flex items-center gap-2">
+              <ImageIcon className="h-5 w-5 text-primary" />
+              Place Cards Image Gallery
+            </span>
+            <span className="text-primary text-sm font-medium">{images.length} total designs</span>
           </DialogTitle>
         </DialogHeader>
 
