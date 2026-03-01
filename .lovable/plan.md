@@ -1,32 +1,27 @@
 
 
-# Add 4 New Invitation Designs to Invitation Image Gallery (Batch 22)
+# Add Total Design Count to Image Galleries
 
-## Images to Add
+## What Changes
 
-| # | Source File | Gallery Name | Category | Filename | Sort Order |
-|---|-----------|-------------|----------|----------|------------|
-| 1 | Untitled_design_54-2.png | Pink White Balloon Border Confetti Party | Birthday | birthday-pink-white-balloon-border-confetti-party.png | 9 |
-| 2 | Untitled_design_55-2.png | Gold Balloon Confetti Birthday Celebration | Birthday | birthday-gold-balloon-confetti-birthday-celebration.png | 10 |
-| 3 | Untitled_design_56.png | Gold Balloon Confetti Birthday Celebration Blank | Birthday | birthday-gold-balloon-confetti-birthday-celebration-blank.png | 11 |
-| 4 | Untitled_design-4.png | Boho Pampas Grass Orchid Daisy Arch Frame | Floral | floral-boho-pampas-grass-orchid-daisy-arch-frame.png | 126 |
+Add a purple "X total designs" counter to the right side of the header in both the Invitation Image Gallery and Place Cards Image Gallery modals.
 
-## Category Breakdown
-- **Birthday**: 3 new designs (sort_order 9-11)
-- **Floral**: 1 new design (sort_order 126)
+## Visual Result
 
-## Steps
+The `DialogTitle` row will show:
+- Left: icon + gallery name (as now)
+- Right: **"{count} total designs"** in purple text
 
-### 1. Copy 4 images to invitation gallery folder
-Copy all 4 uploaded images into `public/invitation-gallery/` with descriptive filenames.
+## Files to Modify
 
-### 2. Insert 4 database records
-Insert into `invitation_gallery_images` table with appropriate categories and sort_orders.
+### 1. `src/components/Dashboard/Invitations/InvitationGalleryModal.tsx`
+- Update the `DialogTitle` to use `justify-between` layout
+- Add `<span className="text-primary text-sm font-medium">{images.length} total designs</span>` on the right side
 
-This will bring the Invitation Image Gallery from **310 to 314 designs**.
+### 2. `src/components/Dashboard/PlaceCards/PlaceCardGalleryModal.tsx`
+- Same change: add purple total designs count to the right of the header
 
-### Technical Details
-- Destination: `public/invitation-gallery/`
-- Table: `invitation_gallery_images`
-- No code changes needed -- gallery is database-driven
-
+## Technical Details
+- Both components already have `images` array from their respective hooks (`useInvitationGallery` and `usePlaceCardGallery`)
+- `images.length` gives the total count
+- Uses `text-primary` class for the purple color (consistent with existing design system)
