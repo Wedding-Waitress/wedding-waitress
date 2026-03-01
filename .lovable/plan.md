@@ -1,36 +1,43 @@
 
 
-# Place Cards Gallery - Batch 1 Upload (10 Images)
+# Place Cards Gallery - Batch 2 Upload (10 Images)
 
-## Image Categorization and Naming
+## Image Analysis and Categorization
 
-| # | Image | Proposed Name | Category | Reason |
-|---|-------|--------------|----------|--------|
-| 1 | Green with gold ornate corner flourishes | Emerald Gold Ornate Corners | Green | Deep green background with gold decorative elements |
-| 2 | White with soft eucalyptus branch | Eucalyptus Branch White | Green | Green botanical eucalyptus on white |
-| 3 | Watercolor teal eucalyptus leaves | Watercolor Teal Eucalyptus | Green | Teal-green watercolor botanical style |
-| 4 | Peach background with thin black border | Peach Classic Border | Orange | Peach/salmon tone fits the Orange category |
-| 5 | White with rose-gold line-drawn flowers | Rose Gold Line Art Florals | Pink | Coral/rose-gold toned floral line art |
-| 6 | Pink lace borders top and bottom | Pink Lace Double Border | Pink | Delicate pink lace pattern |
-| 7 | Purple botanical leaves on white | Purple Botanical Leaves | Purple | Lilac and purple leaf sprigs |
-| 8 | Light pink with soft hibiscus flowers | Pink Hibiscus Soft | Pink | Pastel pink hibiscus silhouettes |
-| 9 | Bold fuchsia with hibiscus corners | Fuchsia Hibiscus Bold | Pink | Vibrant magenta/fuchsia hibiscus |
-| 10 | Turquoise/aqua with hibiscus corners | Aqua Hibiscus Tropical | Blue | Aqua/turquoise hibiscus design |
+| # | File | Proposed Name | Category | Reason |
+|---|------|--------------|----------|--------|
+| 1 | 183428 | Blue Hibiscus Silhouette | Blue | Blue background with lighter blue hibiscus flowers |
+| 2 | 183510 | Teal Lily Line Art | Green | Teal background with white lily bouquet sketch |
+| 3 | 183520 | Purple Lily Line Art | Purple | Vivid purple background with white lily bouquet sketch |
+| 4 | 183525 | Lavender Lily Line Art | Pink | Soft lavender-pink background with white lily bouquet sketch |
+| 5 | 183531 | Coral Lily Line Art | Red | Coral-red background with white lily bouquet sketch (new category needed) |
+| 6 | 183546 | Lime Gradient Lily Line Art | Green | Green-to-yellow gradient with white lily bouquet sketch |
+| 7 | 183600 | Sunset Gradient Lily Line Art | Purple | Purple-to-orange gradient with white lily bouquet sketch |
+| 8 | 183634 | Watercolor Rose Corners | Pink | White background with pink watercolor roses in opposite corners |
+| 9 | 183708 | Teddy Bear Polka Dot | Baby | Cute teddy bear on blue polka dot background (new category needed) |
+| 10 | 183717 | Blue Polka Dot Dashed Frame | Blue | Light blue polka dot border with dashed inner frame |
 
-All 10 images fit into existing categories -- no new categories needed.
+## New Categories
+
+- **Red** -- needed for the coral lily line art design (image 5). Distinct from Pink and Orange.
+- **Baby** -- needed for the teddy bear design (image 9). A clearly baby/kids-themed design that does not fit any existing color category.
+
+## Category Distribution
+
+| Category | New Images | Notes |
+|----------|-----------|-------|
+| Blue | 2 | Hibiscus silhouette + polka dot frame |
+| Green | 2 | Teal lily + lime gradient lily |
+| Purple | 2 | Purple lily + sunset gradient lily |
+| Pink | 2 | Lavender lily + watercolor rose corners |
+| Red (NEW) | 1 | Coral lily line art |
+| Baby (NEW) | 1 | Teddy bear polka dot |
 
 ## Technical Steps
 
-1. Upload all 10 images to the `place-card-gallery` Supabase storage bucket via the `fix-gallery-upload` edge function
-2. Insert 10 rows into the `place_card_gallery_images` table with the names, categories, and storage URLs shown above
-3. Use sequential sort_order values starting after the current max sort_order in each category
-
-## Updated Category Counts After Upload
-
-- Green: 19 --> 22 (+3)
-- Orange: 12 --> 13 (+1)
-- Pink: 23 --> 27 (+4)
-- Purple: 4 --> 5 (+1)
-- Blue: 22 --> 23 (+1)
-- **New total: 161 --> 171 Total Designs**
+1. Copy all 10 images from user-uploads to `public/gallery-images/` with category-prefixed filenames
+2. Query the database for current max sort_order values in Blue, Green, Purple, Pink categories
+3. Use sort_order = 1 for the two new categories (Red, Baby)
+4. Insert 10 rows into `place_card_gallery_images` table via the data insert tool
+5. Updated total: 171 --> 181 Total Designs
 
