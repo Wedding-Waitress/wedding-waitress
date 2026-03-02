@@ -1,31 +1,31 @@
 
 
-# Place Cards Gallery - Batch 32 Upload (10 Images)
+# Place Cards Gallery - Batch 33 Upload (10 Images)
 
 ## Image Analysis and Categorization
 
 | # | File | Proposed Name | Category | Sort | Reason |
 |---|------|--------------|----------|------|--------|
-| 1 | ...8-3 | Pink Rose Line Art Corner Frame | Pink | 102 | White background with pink line-art botanical doodles and watercolor roses in opposite corners |
-| 2 | ...9-3 | Pink Butterfly Watercolor Garden | Pink | 103 | Pink background with watercolor flowers along bottom edge, decorative butterfly top-left |
-| 3 | ...10-3 | Floral Pink Purple Watercolor Corner Green | Floral | 12 | White textured background with pink/purple watercolor flowers and green foliage cascading from top-left corner, green accent stripe |
-| 4 | ...11-3 | Floral Red Poppy Eucalyptus Corner | Floral | 13 | White textured background with red poppy flower and green eucalyptus leaves in top-left/left, red accent stripe |
-| 5 | ...12-3 | Brown Gold 3D Floral Frame | Brown | 61 | Rich chocolate brown gradient background with ornate 3D gold flowers in corners and thin gold rectangular border |
-| 6 | ...13-3 | Brown Gold Balloon Ornamental Divider | Brown | 62 | Dark brown background with gold metallic balloons on both sides, ornate gold divider lines top and bottom |
-| 7 | ...14-3 | Blue Silver Balloon Sparkle White | Blue | 104 | White/light blue background with teal blue and silver balloons on sides, sparkle/confetti effects |
-| 8 | ...15-3 | Blue White Balloon Confetti Cluster | Blue | 105 | Soft blue background with cluster of blue and white balloons on right side, confetti dots |
-| 9 | ...16-3 | Pink Tulip Gold Frame Watercolor | Pink | 104 | White background with gold double-line rectangular border, pink watercolor tulips in top-left and bottom-right corners |
-| 10 | ...17-3 | Red Tulip Gift Flatlay White | Red | 26 | White flatlay photo background with red tulips, gift box with red ribbon, gold stationery accents |
+| 1 | ...18-3 | Pink Watercolor Rose Butterfly Border | Pink | 105 | Soft pink watercolor roses in all four corners with butterfly accent, pink wash background |
+| 2 | ...19-3 | Purple Watercolor Eucalyptus Leaf Border | Purple | 80 | Soft purple/lavender watercolor eucalyptus leaves framing all four corners, white centre |
+| 3 | ...20-3 | Green Leaf Vine Border Frame | Green | 104 | Green leafy vine borders along top and bottom edges with yellow accents, cream background |
+| 4 | ...21-3 | White Rose Eucalyptus Top Border | White | 18 | White watercolor roses with green eucalyptus foliage cascading across top edge, light grey background |
+| 5 | ...22-3 | Floral Peach Poppy Green Frame Border | Floral | 14 | Peach/salmon watercolor poppies in all corners with olive green rounded rectangular frame, pink wash background |
+| 6 | ...23-3 | Pink Tulip Bouquet Watercolor Left | Pink | 106 | Large pink/red watercolor tulip bouquet on left side, soft pink wash background |
+| 7 | ...24-3 | Floral Pink Peony Gold Leaf Magnolia | Floral | 15 | Vibrant pink peonies, magnolias, blue flowers with gold line-art leaves across top and bottom, white background |
+| 8 | ...25-3 | Pink Watercolor Splash Heart Flower | Pink | 107 | Pink watercolor splash centre with pink flowers on sides, small hearts, cream background |
+| 9 | ...26-3 | Pink Heart Cascade White | Pink | 108 | Cascading translucent pink hearts from top, fading to white bottom |
+| 10 | ...27-3 | Pink Petal Bottom Border Beige Frame | Pink | 109 | Hot pink flower petals along bottom edge, beige/cream background with thin pink rectangular border |
 
 ## Category Distribution
 
 | Category | New Images | Sort Orders |
 |----------|-----------|-------------|
-| Pink | 3 | 102, 103, 104 |
-| Floral | 2 | 12, 13 |
-| Brown | 2 | 61, 62 |
-| Blue | 2 | 104, 105 |
-| Red | 1 | 26 |
+| Pink | 5 | 105, 106, 107, 108, 109 |
+| Floral | 2 | 14, 15 |
+| Purple | 1 | 80 |
+| Green | 1 | 104 |
+| White | 1 | 18 |
 
 No new categories needed -- all fit existing categories.
 
@@ -33,5 +33,5 @@ No new categories needed -- all fit existing categories.
 
 1. Copy all 10 images from user-uploads to `public/gallery-images/` with category-prefixed filenames
 2. Insert 10 rows into `place_card_gallery_images` table via the data insert tool
-3. Updated total: 471 --> 481 Total Designs
+3. Updated total: 481 --> 491 Total Designs
 
