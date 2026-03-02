@@ -1,40 +1,40 @@
 
 
-# Place Cards Gallery - Batch 41 Upload (10 Images)
+# Place Cards Gallery - Batch 42 Upload (10 Images)
 
 ## Image Analysis and Categorization
 
 | # | File | Proposed Name | Category | Reason |
 |---|------|--------------|----------|--------|
-| 1 | ...19-4 | Brown Watercolor Floral Bow Oval Frame | Brown | Warm beige/brown tones, watercolor autumn flowers in corners with brown ribbon bow, oval white centre |
-| 2 | ...18-4 | Green Tropical Monstera Line Art Frame | Green | Green monstera and palm leaves in diagonal corners with line-art florals on soft green watercolor wash |
-| 3 | ...17-4 | Yellow Pink Tulip Photo Left Border | Yellow | Yellow background with pink and yellow tulips arranged along left edge and top-right corner |
-| 4 | ...16-4 | Floral Pastel Watercolor Garden Full Border | Floral | Multi-coloured (pink, purple, yellow) watercolor wildflowers forming full top and bottom border on lavender wash |
-| 5 | ...15-4 | Floral Vibrant Mixed Bouquet Full Frame | Floral | Bold multi-coloured florals (pink, purple, yellow, green, red) forming dense full border on pale pink background |
-| 6 | ...14-4 | Blue Hydrangea Watercolor Diagonal Corner | Blue | Soft blue watercolor hydrangeas and daisies in diagonal corners on pale blue-white background |
-| 7 | ...13-4 | Purple Watercolor Floral Glitter Diagonal | Purple | Purple/lavender watercolor flowers with sparkle/glitter effect in diagonal corners on white |
-| 8 | ...12-4 | Pink Rose Watercolor Diagonal Frame | Pink | Dusty pink roses and foliage in top-left and bottom-right corners with thin border on pink background |
-| 9 | ...11-4 | Pink Butterfly Glitter Swirl Diagonal | Pink | Pink butterflies with glitter floral swirl ornaments in diagonal corners on pink watercolor wash |
-| 10 | ...10-4 | Pink Camellia Watercolor Three Corner | Pink | Soft peach/pink camellias with green leaves in three corners on warm pink watercolor background |
+| 1 | ...9-4 | Pink Watercolor Rose Gold Rectangle Frame | Pink | Blush pink background with pink/burgundy watercolor roses in all four corners, gold double-line rectangular frame |
+| 2 | ...8-4 | White Anemone Eucalyptus Diagonal Corner | White | White background with pale cream anemone flowers and muted sage eucalyptus in top-left and bottom-right corners |
+| 3 | ...7-4 | Green Eucalyptus Gold Foil Diagonal Corner | Green | White background with green eucalyptus leaves and gold foil leaf accents in diagonal corners, gold dot splatter |
+| 4 | ...6-4 | Green Sage Leaf Sparkle Border Frame | Green | Sage green border frame with green leaf sprigs in all four corners, delicate sparkle stars on white centre |
+| 5 | ...5-4 | Beige Boho Tropical Palm Leaf Banner | Beige | Warm beige/nude background with muted brown tropical palm and monstera leaves forming top and bottom banner strips |
+| 6 | ...4-4 | Blue Navy Ornate Frame Floral Corner | Blue | Navy blue ornate double-line frame with notched corners, blue and pink watercolor flowers with gold leaves in top-left and bottom-right |
+| 7 | ...3-4 | Black Wavy Border Bow Top Centre | Black | Cream background with black hand-drawn wavy border and decorative ribbon bow at top centre |
+| 8 | ...2-4 | Black Wavy Border Heart Hands Bottom | Black | Cream background with black hand-drawn wavy border and heart-shaped hands illustration at bottom centre |
+| 9 | ...1-4 | Pink Rose Autumn Leaf Inner Frame | Pink | Pink background with peach/pink watercolor roses in top-right and bottom-left corners, scattered autumn maple leaves, inner rectangle frame |
+| 10 | ...-5 | Floral Vintage Red Rose Forget Me Not Diagonal | Floral | Pale pink background with bold red/pink vintage roses and teal blue forget-me-not flowers in top-left and bottom-right corners |
 
 ## Category Distribution
 
 | Category | Count | Images |
 |----------|-------|--------|
-| Pink | 3 | #8, #9, #10 |
-| Floral | 2 | #4, #5 |
-| Brown | 1 | #1 |
-| Green | 1 | #2 |
-| Yellow | 1 | #3 |
+| Pink | 2 | #1, #9 |
+| Green | 2 | #3, #4 |
+| Black | 2 | #7, #8 |
+| White | 1 | #2 |
+| Beige | 1 | #5 |
 | Blue | 1 | #6 |
-| Purple | 1 | #7 |
+| Floral | 1 | #10 |
 
 No new categories needed -- all fit existing categories.
 
 ## Technical Steps
 
 1. Copy 10 images from user-uploads to `public/gallery-images/` with category-prefixed filenames
-2. Query current max sort_order for Brown, Green, Yellow, Floral, Blue, Purple, and Pink categories
-3. Insert 10 rows into `place_card_gallery_images` table via database migration
-4. Updated total: 561 --> 571 Total Designs
+2. Query current max sort_order for Pink, Green, Black, White, Beige, Blue, and Floral categories
+3. Insert 10 rows into `place_card_gallery_images` table via data insert (not migration)
+4. Updated total: 571 --> 581 Total Designs
 
