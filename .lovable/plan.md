@@ -1,40 +1,39 @@
 
 
-# Place Cards Gallery - Batch 27 Upload (10 Images)
+# Place Cards Gallery - Batch 28 Upload (10 Images)
 
 ## Image Analysis and Categorization
 
 | # | File | Proposed Name | Category | Reason |
 |---|------|--------------|----------|--------|
-| 1 | Untitled_design_...400 | Autumn Watercolor Floral Corner Frame | Brown | Warm earth-tone watercolor florals in opposite corners with rose-gold geometric line frame, white centre |
-| 2 | Untitled_design_...429 | Red Rose Lavender Watercolor Splash | Red | Red roses and lavender roses with pink watercolor splash border in all four corners, white centre |
-| 3 | Untitled_design_...452 | Pink Blossom Gold Rectangle Frame | Pink | Soft pink background with pink daisies and cherry blossoms in corners, gold rectangle frame, pink centre panel |
-| 4 | Untitled_design_...512 | Navy Blue Butterfly Floral Watercolor | Blue | Dusty blue watercolor background with navy blue flowers, butterflies, and grey mist in all four corners |
-| 5 | Untitled_design_...526 | Purple Orchid Watercolor Corner Frame | Purple | White background with detailed purple/lilac orchid blooms and green stems in opposite corners, lavender watercolor splashes |
-| 6 | Untitled_design_...544 | Green Eucalyptus Watercolor Minimal | Green | White background with soft green watercolor washes and eucalyptus leaf stems on both sides, grey organic shapes |
-| 7 | Untitled_design_...559 | Yellow Daisy Watercolor Band Frame | Yellow | Soft yellow/cream background with watercolor daisies in corners, white horizontal band centre for text |
-| 8 | Untitled_design_...609 | Pink Lotus Watercolor Band Frame | Pink | Light pink background with watercolor lotus flower top-left and pink leaf bottom-right, white horizontal band centre |
-| 9 | Untitled_design_...623 | Brown Burgundy Watercolor Floral Warm | Brown | Warm cream/beige background with burgundy and burnt orange watercolor florals in four corners |
-| 10 | Untitled_design_...639 | Pink Magnolia Gold Speckle Frame | Pink | Coral-pink watercolor background with translucent pink magnolia blooms and gold speckles, white rectangle centre |
+| 1 | ...234714 | Pink Roses Watercolor Marble Frame | Pink | Soft pink background with pink marble watercolor wash on left, pink rectangle frame, pink and white roses bottom-right corner |
+| 2 | ...234725 | Blue Navy Peony Floral Corner | Blue | White background with large navy blue and silver-blue peonies in bottom-right and top-left corners, grey leaves |
+| 3 | ...234735 | Blue Pink Floral Gold Leaf Corner | Blue | White background with dusty blue and blush pink watercolor florals in opposite corners, gold line-art leaves, berries |
+| 4 | ...234744 | Grey Cream Wildflower Watercolor Border | Grey | White background with soft grey watercolor washes and cream/ivory wildflowers and berries framing all edges |
+| 5 | ...234755 | Green Leaf Gold Speckle Bottom Border | Green | White background with watercolor green leaves along the bottom edge, gold foil speckle dots scattered above |
+| 6 | ...234835 | Green Eucalyptus Branch Left Side | Green | White background with detailed watercolor eucalyptus branches cascading down the left side, subtle green wash top-right |
+| 7 | ...234857 | Red Rose Full Border Frame | Red | White centre framed entirely by deep red roses and green leaves on all four sides |
+| 8 | ...234910 | Green Peony Heart Pink Floral | Green | Mint green background with pink peonies arranged in a heart shape around the centre, small pink heart icon |
+| 9 | ...235223 | Blue Ocean Sailboat Aerial Frame | Blue | Aerial turquoise ocean photo with white sailboat, white and dark hand-drawn rectangle frames overlaid |
+| 10 | ...235259 | Beige Beach Sunset Golden Sand | Beige | Golden-hour beach photograph with warm sand, gentle waves, soft pastel sky with sun glow |
 
 ## Category Distribution
 
 | Category | New Images | Sort Order |
 |----------|-----------|------------|
-| Brown | 2 | 2-3 (continuing from 1) |
-| Red | 1 | 23 (continuing from 22) |
-| Pink | 3 | 95-97 (continuing from 94) |
-| Blue | 1 | 94 (continuing from 93) |
-| Purple | 1 | next available |
-| Green | 1 | next available |
-| Yellow | 1 | next available |
+| Pink | 1 | 98 (continuing from 97) |
+| Blue | 3 | 95-97 (continuing from 94) |
+| Grey | 1 | next available |
+| Green | 2 | 98-99 (continuing from 97) |
+| Red | 1 | 24 (continuing from 23) |
+| Beige | 1 | 15 (continuing from 14) |
 
 No new categories needed -- all fit existing categories.
 
 ## Technical Steps
 
 1. Copy all 10 images from user-uploads to `public/gallery-images/` with category-prefixed filenames
-2. Query current max sort_order for Purple, Green, and Yellow categories
+2. Query current max sort_order for Grey category to determine correct value
 3. Insert 10 rows into `place_card_gallery_images` table via the data insert tool
-4. Updated total: 421 --> 431 Total Designs
+4. Updated total: 431 --> 441 Total Designs
 
