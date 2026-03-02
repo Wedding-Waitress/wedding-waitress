@@ -1,0 +1,11 @@
+INSERT INTO place_card_gallery_images (name, category, image_url, sort_order) VALUES
+('Christmas Santa Scroll Snowy Village', 'Christmas', '/gallery-images/Christmas_christmas-santa-scroll-snowy-village.png', 6),
+('Christmas Red Pine Baubles Lights', 'Christmas', '/gallery-images/Christmas_christmas-red-pine-baubles-lights.png', 7),
+('Merry Christmas Pine Ornaments White', 'Christmas', '/gallery-images/Christmas_merry-christmas-pine-ornaments-white.png', 8),
+('Christmas Baubles Pine Text White', 'Christmas', '/gallery-images/Christmas_christmas-baubles-pine-text-white.png', 9),
+('Christmas Baubles Pine Clean White', 'Christmas', '/gallery-images/Christmas_christmas-baubles-pine-clean-white.png', 10),
+('Merry Christmas Red Pine Corners', 'Christmas', '/gallery-images/Christmas_merry-christmas-red-pine-corners.png', 11),
+('Gold Floral Line Art Frame', 'Gold', '/gallery-images/Gold_gold-floral-line-art-frame.png', 89),
+('Pink Watercolor Red Roses Corner', 'Pink', '/gallery-images/Pink_pink-watercolor-red-roses-corner.png', 93),
+('Pink Roses Bottom Garden Frame', 'Pink', '/gallery-images/Pink_pink-roses-bottom-garden-frame.png', 94),
+('Beige Floral Polka Dot Frame', 'Beige', '/gallery-images/Beige_beige-floral-polka-dot-frame.png', 14);
