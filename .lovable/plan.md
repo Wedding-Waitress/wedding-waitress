@@ -1,40 +1,37 @@
 
 
-# Place Cards Gallery - Batch 37 Upload (10 Images)
+# Place Cards Gallery - Batch 38 Upload (10 Images)
 
 ## Image Analysis and Categorization
 
 | # | File | Proposed Name | Category | Sort | Reason |
 |---|------|--------------|----------|------|--------|
-| 1 | ...58 | Pink Peony Photo Top Band Sparkle | Pink | 116 | Pink peonies photographed along top edge on pink background with white sparkle accents |
-| 2 | ...59 | Floral Tulip Daisy Magnolia Corner Illustrated | Floral | 19 | Illustrated bouquet of multi-colored tulips, white magnolias, and daisies in bottom-left corner, white background |
-| 3 | ...60 | Pink Hibiscus Illustrated Four Corner Watercolor | Pink | 117 | Illustrated magenta hibiscus flowers with green leaves on orange branches in all four corners, pink watercolor splatter background |
-| 4 | ...61 | White Magnolia Daisy Mimosa Side Border | White | 20 | White magnolias, daisies, and yellow mimosa with dark green foliage forming mirrored side borders on white textured paper |
-| 5 | ...62 | Green Waxflower Leaf Diagonal Corner Marble | Green | 108 | Green narrow-leaf waxflower branches with small white daisy flowers in opposing diagonal corners on white marble background |
-| 6 | ...63 | Gold Rose Watercolor Line Art Corner Frame | Gold | (next) | Yellow/gold watercolor roses in bottom corners with gold line-art floral border in all corners on white marble background |
-| 7 | ...64 | Brown Autumn Watercolor Floral Border Cream | Brown | (next) | Warm brown/amber watercolor floral bouquets with dark sage leaves arranged around all edges on cream background |
-| 8 | ...65 | Beige Eucalyptus Watercolor Gold Frame | Beige | 20 | Muted sage/beige eucalyptus foliage framing all edges with gold rectangular inner frame on pale yellow watercolor background |
-| 9 | ...66 | Green Watercolor Leaf Soft Corner | Green | 109 | Soft sage green watercolor leaves scattered in all four corners on white-green watercolor wash background |
-| 10 | ...67 | Gold Balloon Confetti Circle Grey | Gold | (next) | Gold metallic and confetti-filled balloons flanking a white circle on grey background |
+| 1 | ...68 | Pink Illustrated Bouquet Hand Blob Frame | Pink | 118 | Illustrated hand holding pink anemone/rose bouquet with organic blob pink border, white centre |
+| 2 | ...69 | Pink Orchid Watercolor Diagonal Corner | Pink | 119 | Watercolor pink/coral orchid sprays in opposing diagonal corners on textured white paper with pink wash |
+| 3 | ...70 | Pink Magnolia Watercolor Full Background | Pink | 120 | Bold pink watercolor wash background with illustrated white magnolia and dogwood flowers scattered around edges |
+| 4 | ...71 | Blue Watercolor Floral Splatter Corner | Blue | (next) | Watercolor navy/blue flowers with gold stamens and blue leaves in opposing corners on pale blue wash with paint splatters |
+| 5 | ...72 | Blue Anemone Watercolor Three Corner Grey | Blue | (next) | Blue watercolor anemone bouquets with sage green leaves in top-left, top-right, and bottom-centre on light grey background |
+| 6 | ...73 | Pink Magnolia Photo Full Border White | Pink | 121 | Photo-realistic pink magnolia flowers forming a full border frame on all four sides, white centre |
+| 7 | ...74 | Christmas Gift Boxes Dark Wood Gold Frame | Christmas | (next) | Red and gold wrapped gift boxes on dark wood plank background with gold rectangular frame border |
+| 8 | ...75 | Pink Rose Photo Gold Frame Soft | Pink | 122 | Close-up pink roses photograph with gold double-line rectangular frame on soft pink/cream gradient |
+| 9 | ...76 | Blue Watercolor Floral Gold Frame Marble | Blue | (next) | Large blue/teal watercolor flowers with pink accents and gold leaf details at opposing corners with gold double-line frame on marble |
+| 10 | ...77 | White Satin Rose Rings Pearl | White | 21 | White/cream rose with pearl necklace and silver wedding rings on white satin fabric |
 
 ## Category Distribution
 
 | Category | New Images | Sort Orders |
 |----------|-----------|-------------|
-| Pink | 2 | 116, 117 |
-| Green | 2 | 108, 109 |
-| Gold | 2 | next available (need to query) |
-| White | 1 | 20 |
-| Floral | 1 | 19 |
-| Brown | 1 | next available (need to query) |
-| Beige | 1 | 20 |
+| Pink | 5 | 118, 119, 120, 121, 122 |
+| Blue | 3 | next available (need to query) |
+| White | 1 | 21 |
+| Christmas | 1 | next available (need to query) |
 
 No new categories needed -- all fit existing categories.
 
 ## Technical Steps
 
 1. Copy all 10 images from user-uploads to `public/gallery-images/` with category-prefixed filenames
-2. Query current max sort_order for Gold and Brown categories
+2. Query current max sort_order for Blue and Christmas categories
 3. Insert 10 rows into `place_card_gallery_images` table via the data insert tool
-4. Updated total: 521 --> 531 Total Designs
+4. Updated total: 531 --> 541 Total Designs
 
