@@ -1,40 +1,40 @@
 
 
-# Place Cards Gallery - Batch 40 Upload (10 Images)
+# Place Cards Gallery - Batch 41 Upload (10 Images)
 
 ## Image Analysis and Categorization
 
-| # | File | Proposed Name | Category | Sort | Reason |
-|---|------|--------------|----------|------|--------|
-| 1 | ...88 | Brown Autumn Floral Mr Mrs Banner | Brown | (next) | Watercolor autumn flowers (orange/brown) in corners with "Mr & Mrs" pennant banner, brown leaves at bottom |
-| 2 | ...89 | Floral Peach Poppy Watercolor Gold Frame | Floral | (next) | Watercolor peach/coral poppies with green leaves forming full border, gold rectangular frame in centre |
-| 3 | ...90 | Blue Eucalyptus Watercolor Gold Line Band | Blue | (next) | Teal/purple watercolor eucalyptus leaves in top and bottom bands with gold horizontal lines on pale grey |
-| 4 | ...91 | Green Eucalyptus Watercolor Top Left Corner | Green | (next) | Watercolor green eucalyptus branch cascading from top-left corner on white background |
-| 5 | ...92 | Green Eucalyptus Botanical Diagonal Frame | Green | (next) | Dark green eucalyptus and mixed botanical sprays in top-right and bottom-left corners with thin grey frame on beige |
-| 6 | ...93 | Christmas Pine Berry Watercolor Top Bottom | Christmas | (next) | Watercolor pine branches, red berries, and rosehips forming top and bottom borders on white |
-| 7 | ...94 | Yellow Sunflower Autumn Leaf Full Border | Yellow | (next) | Illustrated sunflowers and autumn leaves (orange/green) forming top and bottom arched border on warm yellow wash |
-| 8 | ...95 | Beige Dried Floral Watercolor Four Corner | Beige | (next) | Watercolor dried flowers and brown leaves in all four corners with dot accents on warm beige textured background |
-| 9 | ...96 | Brown Abstract Boho Floral Line Art | Brown | (next) | Brown abstract organic shapes with dark line-art florals and leaf motifs in four corners on pale pink/beige |
-| 10 | ...97 | Green Leaf Watercolor Wash Diagonal Frame | Green | (next) | Sage green watercolor wash background with watercolor leaf branches in top-right and bottom-left corners, thin dark frame |
+| # | File | Proposed Name | Category | Reason |
+|---|------|--------------|----------|--------|
+| 1 | ...19-4 | Brown Watercolor Floral Bow Oval Frame | Brown | Warm beige/brown tones, watercolor autumn flowers in corners with brown ribbon bow, oval white centre |
+| 2 | ...18-4 | Green Tropical Monstera Line Art Frame | Green | Green monstera and palm leaves in diagonal corners with line-art florals on soft green watercolor wash |
+| 3 | ...17-4 | Yellow Pink Tulip Photo Left Border | Yellow | Yellow background with pink and yellow tulips arranged along left edge and top-right corner |
+| 4 | ...16-4 | Floral Pastel Watercolor Garden Full Border | Floral | Multi-coloured (pink, purple, yellow) watercolor wildflowers forming full top and bottom border on lavender wash |
+| 5 | ...15-4 | Floral Vibrant Mixed Bouquet Full Frame | Floral | Bold multi-coloured florals (pink, purple, yellow, green, red) forming dense full border on pale pink background |
+| 6 | ...14-4 | Blue Hydrangea Watercolor Diagonal Corner | Blue | Soft blue watercolor hydrangeas and daisies in diagonal corners on pale blue-white background |
+| 7 | ...13-4 | Purple Watercolor Floral Glitter Diagonal | Purple | Purple/lavender watercolor flowers with sparkle/glitter effect in diagonal corners on white |
+| 8 | ...12-4 | Pink Rose Watercolor Diagonal Frame | Pink | Dusty pink roses and foliage in top-left and bottom-right corners with thin border on pink background |
+| 9 | ...11-4 | Pink Butterfly Glitter Swirl Diagonal | Pink | Pink butterflies with glitter floral swirl ornaments in diagonal corners on pink watercolor wash |
+| 10 | ...10-4 | Pink Camellia Watercolor Three Corner | Pink | Soft peach/pink camellias with green leaves in three corners on warm pink watercolor background |
 
 ## Category Distribution
 
-| Category | New Images | Sort Orders |
-|----------|-----------|-------------|
-| Green | 3 | next available (need to query) |
-| Brown | 2 | next available (need to query) |
-| Blue | 1 | next available (need to query) |
-| Floral | 1 | next available (need to query) |
-| Christmas | 1 | next available (need to query) |
-| Yellow | 1 | next available (need to query) |
-| Beige | 1 | next available (need to query) |
+| Category | Count | Images |
+|----------|-------|--------|
+| Pink | 3 | #8, #9, #10 |
+| Floral | 2 | #4, #5 |
+| Brown | 1 | #1 |
+| Green | 1 | #2 |
+| Yellow | 1 | #3 |
+| Blue | 1 | #6 |
+| Purple | 1 | #7 |
 
 No new categories needed -- all fit existing categories.
 
 ## Technical Steps
 
-1. Copy all 10 images from user-uploads to `public/gallery-images/` with category-prefixed filenames
-2. Query current max sort_order for Brown, Floral, Blue, Green, Christmas, Yellow, and Beige categories
-3. Insert 10 rows into `place_card_gallery_images` table via the data insert tool
-4. Updated total: 551 --> 561 Total Designs
+1. Copy 10 images from user-uploads to `public/gallery-images/` with category-prefixed filenames
+2. Query current max sort_order for Brown, Green, Yellow, Floral, Blue, Purple, and Pink categories
+3. Insert 10 rows into `place_card_gallery_images` table via database migration
+4. Updated total: 561 --> 571 Total Designs
 
