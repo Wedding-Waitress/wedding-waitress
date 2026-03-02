@@ -1,31 +1,34 @@
 
 
-# Place Cards Gallery - Batch 34 Upload (10 Images)
+# Place Cards Gallery - Batch 35 Upload (10 Images)
 
 ## Image Analysis and Categorization
 
 | # | File | Proposed Name | Category | Sort | Reason |
 |---|------|--------------|----------|------|--------|
-| 1 | ...28-3 | Pink Rose Watercolor Bottom Border Frame | Pink | 110 | Large pink watercolor roses along bottom edge with green foliage, thin pink rectangular frame, pink wash background |
-| 2 | ...29-3 | Pink Magnolia Branch Watercolor Left | Pink | 111 | Pink/purple magnolia flowers on branches along left side, soft pink watercolor wash background |
-| 3 | ...30-3 | Blue Gold Line Art Orchid Left | Blue | 106 | Deep royal blue textured background with elegant gold line-art orchid flowers on left side |
-| 4 | ...31-3 | Blue Ocean Sunset White Frame | Blue | 107 | Teal ocean waves photography with golden sunset horizon, white rectangular border frame |
-| 5 | ...32-3 | Brown Mountain Sunset Dramatic | Brown | 63 | Dramatic mountain peak photograph at sunset with fiery orange/brown clouds and dark shadows |
-| 6 | ...33-3 | Brown Golden Hour Botanical White Flower | Brown | 64 | Warm brown/amber bokeh photography of dried botanical with white line-art flower motif centre top |
-| 7 | ...34-3 | Beige Beach Sunrise Grey Frame | Beige | 17 | Soft pastel beach sunrise photograph with sand, gentle waves, grey rectangular border frame |
-| 8 | ...35-3 | Blue Tropical Island Palm Beach | Blue | 108 | Vibrant tropical beach photograph with turquoise water, white sand, palm tree, and small island |
-| 9 | ...36-3 | Blue Cherry Blossom Sky Petals | Blue | 109 | Bright blue sky with pink cherry blossom branches and falling petals from upper left |
-| 10 | ...37-3 | Orange Blossom Branch Gold Corner Frame | Orange | 77 | Warm orange gradient background with white cherry blossom branch on left, gold art-deco corner frames |
+| 1 | ...38-3 | Pink Cherry Blossom Close Up Full | Pink | 112 | Full-frame close-up photography of pink cherry blossoms with visible stamens |
+| 2 | ...39-3 | Blue Sky White Cherry Blossom Branch | Blue | 110 | White cherry blossom branches against clear blue sky, blossoms on right side |
+| 3 | ...40-3 | Yellow Pansy Flower Bokeh Garden | Yellow | 69 | Close-up yellow pansy flowers with soft green bokeh background, pink flower accent |
+| 4 | ...41-3 | Green Eucalyptus Watercolor Gold Splash Top | Green | 105 | Watercolor sage/green eucalyptus leaves cascading from top with gold splatter accents, cream background |
+| 5 | ...42-3 | Orange Autumn Pumpkin Acorn Leaf Border | Orange | 78 | Autumn harvest border with pumpkin, acorns, and orange leaves framing top and bottom, cream centre |
+| 6 | ...43-3 | Floral Tulip Row Woven Basket Texture | Floral | 16 | Yellow and red tulips along bottom edge on woven rattan texture background |
+| 7 | ...44-3 | Beige Vintage Parchment Gold Corner Frame | Beige | 18 | Aged parchment texture with ornate gold corner scroll frames and faded floral line art in corners |
+| 8 | ...45-3 | White Textured Muted Floral Corner Illustration | White | 19 | White textured brushstroke background with muted brown/beige hand-drawn floral illustrations in opposing corners |
+| 9 | ...46-3 | Floral Pastel Daisy Rose Olive Border Sparkle | Floral | 17 | Olive/sage border frame with pastel floral bouquets (daisies, roses) in corners, sparkle accents, white centre |
+| 10 | ...47-3 | Pink Camellia Watercolor Marble Frame | Pink | 113 | Pink watercolor marble wash with pink camellia flowers top-left and bottom-right, thin pink rectangular frame |
 
 ## Category Distribution
 
 | Category | New Images | Sort Orders |
 |----------|-----------|-------------|
-| Blue | 4 | 106, 107, 108, 109 |
-| Pink | 2 | 110, 111 |
-| Brown | 2 | 63, 64 |
-| Beige | 1 | 17 |
-| Orange | 1 | 77 |
+| Pink | 2 | 112, 113 |
+| Blue | 1 | 110 |
+| Yellow | 1 | 69 |
+| Green | 1 | 105 |
+| Orange | 1 | 78 |
+| Floral | 2 | 16, 17 |
+| Beige | 1 | 18 |
+| White | 1 | 19 |
 
 No new categories needed -- all fit existing categories.
 
@@ -33,5 +36,5 @@ No new categories needed -- all fit existing categories.
 
 1. Copy all 10 images from user-uploads to `public/gallery-images/` with category-prefixed filenames
 2. Insert 10 rows into `place_card_gallery_images` table via the data insert tool
-3. Updated total: 491 --> 501 Total Designs
+3. Updated total: 501 --> 511 Total Designs
 
