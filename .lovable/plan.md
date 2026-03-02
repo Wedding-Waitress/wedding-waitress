@@ -1,40 +1,37 @@
 
 
-# Place Cards Gallery - Batch 31 Upload (10 Images)
+# Place Cards Gallery - Batch 32 Upload (10 Images)
 
 ## Image Analysis and Categorization
 
-| # | File | Proposed Name | Category | Reason |
-|---|------|--------------|----------|--------|
-| 1 | ...000245 | Green Islamic Geometric Star Mandala | Green | Deep green background with gold geometric Islamic star pattern top and bottom borders, hanging star pendants, mandala accents |
-| 2 | ...000303 | Brown Maroon Mosque Lantern Calligraphy | Brown | Deep maroon/burgundy background with gold mosque silhouettes, Arabic calligraphy, gold scalloped arch frame, hanging lanterns |
-| 3 | ...000323 | Blue Navy Lantern Crescent Mosque Night | Blue | Deep navy blue with multiple hanging gold lanterns, crescent moon with mosque, gold geometric wave border bottom |
-| 4 | ...1-3 | Gold Wave Lotus Gradient | Gold | Warm gold gradient background with subtle wave swoosh, black lotus flower motif bottom-centre, minimal elegant |
-| 5 | ...2-3 | Gold Wave Gradient Minimal | Gold | Clean gold gradient with soft diagonal wave, no additional motifs, purely minimal |
-| 6 | ...3-3 | White Gold Ribbon Wave Frame | White | White/cream background with elegant gold ribbon waves top-right and bottom-left corners, sparkle accents |
-| 7 | ...4-3 | White Marble Gold Feather Corner | White | White marble texture background with gold decorative feathers/palm fronds in bottom-left corner |
-| 8 | ...5-3 | Beige Gold Line Art Floral | Beige | Light beige/cream background with delicate gold line-art flowers and leaves in bottom-left corner |
-| 9 | ...6-3 | White Textured Red Line Art Flower | Floral | White textured paper background with red/terracotta line-art floral illustration bottom-left, multi-color theme fits Floral |
-| 10 | ...7-3 | Pink Floral Rose Gold Border Frame | Pink | White background with pink watercolor roses in corners, pink line-art botanical pattern, gold rectangular border frame |
+| # | File | Proposed Name | Category | Sort | Reason |
+|---|------|--------------|----------|------|--------|
+| 1 | ...8-3 | Pink Rose Line Art Corner Frame | Pink | 102 | White background with pink line-art botanical doodles and watercolor roses in opposite corners |
+| 2 | ...9-3 | Pink Butterfly Watercolor Garden | Pink | 103 | Pink background with watercolor flowers along bottom edge, decorative butterfly top-left |
+| 3 | ...10-3 | Floral Pink Purple Watercolor Corner Green | Floral | 12 | White textured background with pink/purple watercolor flowers and green foliage cascading from top-left corner, green accent stripe |
+| 4 | ...11-3 | Floral Red Poppy Eucalyptus Corner | Floral | 13 | White textured background with red poppy flower and green eucalyptus leaves in top-left/left, red accent stripe |
+| 5 | ...12-3 | Brown Gold 3D Floral Frame | Brown | 61 | Rich chocolate brown gradient background with ornate 3D gold flowers in corners and thin gold rectangular border |
+| 6 | ...13-3 | Brown Gold Balloon Ornamental Divider | Brown | 62 | Dark brown background with gold metallic balloons on both sides, ornate gold divider lines top and bottom |
+| 7 | ...14-3 | Blue Silver Balloon Sparkle White | Blue | 104 | White/light blue background with teal blue and silver balloons on sides, sparkle/confetti effects |
+| 8 | ...15-3 | Blue White Balloon Confetti Cluster | Blue | 105 | Soft blue background with cluster of blue and white balloons on right side, confetti dots |
+| 9 | ...16-3 | Pink Tulip Gold Frame Watercolor | Pink | 104 | White background with gold double-line rectangular border, pink watercolor tulips in top-left and bottom-right corners |
+| 10 | ...17-3 | Red Tulip Gift Flatlay White | Red | 26 | White flatlay photo background with red tulips, gift box with red ribbon, gold stationery accents |
 
 ## Category Distribution
 
-| Category | New Images | Sort Order |
-|----------|-----------|------------|
-| Green | 1 | 103 (continuing from 102) |
-| Brown | 1 | 60 (continuing from 59) |
-| Blue | 1 | 103 (continuing from 102) |
-| Gold | 2 | 92-93 (continuing from 91) |
-| White | 2 | 16-17 (continuing from 15) |
-| Beige | 1 | next available |
-| Floral | 1 | next available |
-| Pink | 1 | next available |
+| Category | New Images | Sort Orders |
+|----------|-----------|-------------|
+| Pink | 3 | 102, 103, 104 |
+| Floral | 2 | 12, 13 |
+| Brown | 2 | 61, 62 |
+| Blue | 2 | 104, 105 |
+| Red | 1 | 26 |
 
-No new categories needed -- all fit existing colour/theme-based categories.
+No new categories needed -- all fit existing categories.
 
 ## Technical Steps
 
 1. Copy all 10 images from user-uploads to `public/gallery-images/` with category-prefixed filenames
 2. Insert 10 rows into `place_card_gallery_images` table via the data insert tool
-3. Updated total: 461 --> 471 Total Designs
+3. Updated total: 471 --> 481 Total Designs
 
