@@ -1,42 +1,37 @@
 
 
-# Place Cards Gallery - Batch 25 Upload (10 Images)
+# Place Cards Gallery - Batch 26 Upload (10 Images)
 
 ## Image Analysis and Categorization
 
 | # | File | Proposed Name | Category | Reason |
 |---|------|--------------|----------|--------|
-| 1 | Thank_You_31 | Dusty Blue Watercolor Floral Gold Leaf | Blue | Soft blue watercolor floral corners with gold leaf accents, thin blue border frame, white centre |
-| 2 | Thank_You_32 | Autumn Roses Earth Tone Frame | Brown (NEW) | Copper, cream, and taupe watercolor roses surrounding a mauve-brown centre panel on white background |
-| 3 | Thank_You_33 | Pink Stripe Scallop Cloud Frame | Pink | Pink vertical striped border with white scalloped cloud-shaped centre cutout |
-| 4 | Thank_You_34 | Pink Stripe Bow Ribbon Frame | Pink | Pink vertical striped border with rounded pink panel and decorative pink bow at top centre |
-| 5 | Thank_You_35 | Maroon Wildflower Gold Filigree Frame | Red | Dark maroon/burgundy background with gold filigree outlines, yellow wildflowers and green foliage in opposite corners, white tilted card centre |
-| 6 | Thank_You_36 | Christmas Tree Baubles Red Circle Green | Christmas (NEW) | Dark green background with decorated Christmas tree left side, large red circle frame right, hanging ornaments and gift boxes |
-| 7 | Thank_You_37 | Christmas Snowmen Gifts Red Festive | Christmas (NEW) | Rich red background bordered by pine garland, bells, baubles at top, snowmen and wrapped gifts at bottom, gold sparkle trees |
-| 8 | Thank_You_38 | Merry Christmas Santa Reindeer Panel | Christmas (NEW) | Split cream/maroon layout with "Merry Christmas" script text, Santa, penguin, reindeer and tree on right panel, holly accents |
-| 9 | Thank_You_39 | Christmas Santa Notepad Green Scene | Christmas (NEW) | Dark green textured background with cartoon Santa waving, 3D reindeer, Christmas tree, spiral notepad-style cream card |
-| 10 | Thank_You_40 | Merry Christmas Santa Scroll Village | Christmas (NEW) | Warm beige snowy scene with cartoon Santa holding scroll, "Merry Christmas" text, village silhouette, sleigh in sky |
-
-## New Categories
-
-Two new categories are introduced in this batch:
-
-- **Brown** -- for earth-tone, autumn, taupe, and warm neutral designs
-- **Christmas** -- for holiday/Christmas-themed designs with festive elements
+| 1 | Thank_You_41 | Christmas Santa Scroll Snowy Village | Christmas | Cartoon Santa with glasses holding scroll, beige snowy village background, reindeer sleigh in sky |
+| 2 | Thank_You_42 | Christmas Red Pine Baubles Lights | Christmas | Rich red background framed top and bottom by pine branches, gold/red ornament baubles, warm fairy lights |
+| 3 | Thank_You_43 | Merry Christmas Pine Ornaments White | Christmas | White wood-plank background, pine branches top and bottom, red felt ornaments (sleigh, stocking, mitten), "Merry Christmas" text |
+| 4 | Thank_You_44 | Christmas Baubles Pine Text White | Christmas | White background, pine garland with red/gold striped baubles and gold stars top, pine grass bottom, "Merry Christmas And Happy New Year" text |
+| 5 | Thank_You_45 | Christmas Baubles Pine Clean White | Christmas | Same design as #4 but without any text overlay, clean white centre for place card use |
+| 6 | Thank_You_46 | Merry Christmas Red Pine Corners | Christmas | Deep red gradient background, 3D pine branches in four corners with red berries, white "Merry Christmas And Happy New Year" text top |
+| 7 | Thank_You | Gold Floral Line Art Frame | Gold | White background with elegant gold line-art double border, gold flowers top-right corner, gold leaf branch bottom-left |
+| 8 | Untitled_design_...036 | Pink Watercolor Red Roses Corner | Pink | Soft pink watercolor textured background, watercolor red roses in bottom-left and top-right corners, rounded rectangle frame |
+| 9 | Untitled_design_...057 | Pink Roses Bottom Garden Frame | Pink | Light pink/cream watercolor background, lush pink roses and foliage along bottom edge, thin pink rectangle frame |
+| 10 | Untitled_design_...339 | Beige Floral Polka Dot Frame | Beige | Warm beige/taupe background, pink lilies and peony blooms in corners, pink and brown polka dot accents, brown double-line rectangle frame |
 
 ## Category Distribution
 
 | Category | New Images | Sort Order Start |
 |----------|-----------|-----------------|
-| Blue | 1 | 93 (continuing from 92) |
-| Brown | 1 | 1 (new category) |
-| Pink | 2 | 91-92 (continuing from 90) |
-| Red | 1 | 22 (continuing from 21) |
-| Christmas | 5 | 1-5 (new category) |
+| Christmas | 6 | 6-11 (continuing from 5) |
+| Gold | 1 | next available |
+| Pink | 2 | 93-94 (continuing from 92) |
+| Beige | 1 | next available |
+
+No new categories needed -- all fit existing categories.
 
 ## Technical Steps
 
 1. Copy all 10 images from user-uploads to `public/gallery-images/` with category-prefixed filenames
-2. Insert 10 rows into `place_card_gallery_images` table using the data insert tool with the sort orders above
-3. Updated total: 401 --> 411 Total Designs
+2. Query current max sort_order for Gold and Beige categories to determine correct values
+3. Insert 10 rows into `place_card_gallery_images` table via the data insert tool
+4. Updated total: 411 --> 421 Total Designs
 
