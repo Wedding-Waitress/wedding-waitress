@@ -1,39 +1,38 @@
 
 
-# Place Cards Gallery - Batch 29 Upload (10 Images)
+# Place Cards Gallery - Batch 30 Upload (10 Images)
 
 ## Image Analysis and Categorization
 
 | # | File | Proposed Name | Category | Reason |
 |---|------|--------------|----------|--------|
-| 1 | ...235402 | White Silk Curved Corner Frame | White | White silk fabric background with thin grey curved line accents in all four corners, subtle rectangle frame |
-| 2 | ...235426 | Gold Wedding Rings Sparkle Silk | Gold | Ivory silk background with silver wedding rings bottom-centre, gold four-point stars and sparkles scattered above, gold rectangle frame |
-| 3 | ...235534 | Grey Marble Silver Ribbon Bow | Grey | White marble texture background with a large silver satin ribbon bow centre-bottom |
-| 4 | ...235547 | Pink Carnation Row Frame | Pink | Solid pink textured background with a row of white-pink carnations along the bottom, thin pink rectangle frame |
-| 5 | ...235621 | Purple Peony Heart Floral | Purple | Lilac/purple background with a white heart-shaped card in the centre, surrounded by vibrant pink peonies and green leaves |
-| 6 | ...235646 | Pink Paper Hearts 3D Corner | Pink | White background with 3D paper-cut style pink hearts in all four corners, soft shadows |
-| 7 | ...235754 | Blue Mosque Dome Gold Stars | Blue | Deep teal-blue background with 3D paper-craft style mosque domes and minaret bottom-left, scattered gold and silver stars |
-| 8 | ...235806 | Purple Lantern Camel Desert Night | Purple | Rich purple background with hanging pink lanterns and crescent moons top, camel and palm tree silhouettes bottom |
-| 9 | ...235858 | Blue Teal Lantern Mandala Gold | Blue | Teal background with golden hanging lanterns and crescent moon right side, intricate mandala pattern, bokeh light effects |
-| 10 | ...235920 | Brown Islamic Arch Lantern Gold | Brown | Warm brown/mauve background with Islamic arch doorway left side containing Quran and crescent moon, golden lanterns hanging, geometric arabesque pattern right |
+| 1 | ...235938 | Gold Lantern Quran Arabesque Frame | Gold | Rich gold gradient background with geometric arabesque pattern borders top and bottom, hanging lanterns, Quran on stand with crescent moon, dominant gold tones |
+| 2 | ...235956 | Red Lantern Crescent Moon Stars | Red | Deep crimson red background with large gold lanterns on both sides, hanging lanterns and stars top, crescent moon centre, gold sand dunes bottom |
+| 3 | ...000010 | Brown Mosque Lantern Glow Night | Brown | Dark brown/maroon gradient with mosque silhouette centre-back, glowing gold lanterns bottom corners and hanging from top, warm amber tones |
+| 4 | ...000020 | Brown Islamic Arch Geometric Pattern | Brown | Brown background with large gold Islamic arch top-centre, intricate geometric star pattern, arabesque motifs in bottom corners |
+| 5 | ...000035 | Blue Islamic Cloud Arch Gold Lantern | Blue | Deep navy blue background with gold geometric pattern and cloud-shaped Islamic arch top, three hanging gold lanterns, gold mandala corners bottom |
+| 6 | ...000047 | White Islamic Frame Crescent Gold | White | White/cream background with gold Islamic scalloped frame corners on all four sides, small gold crescent and star centre-top, clean minimal design |
+| 7 | ...000118 | Green Teal Lantern Gold Frame Islamic | Green | Deep teal green background with gold wavy ornate frame, geometric Islamic pattern throughout, six hanging/standing gold lanterns at corners |
+| 8 | ...000159 | Blue Crescent Lantern Gold Border | Blue | Dark navy blue background with gold geometric star border top and bottom, large gold crescent moon with lanterns hanging right side, arabesque panel left |
+| 9 | ...000212 | Green Floral Arch Lantern Islamic | Green | Light green/cream background with gold Islamic pointed arch top-centre, green watercolor foliage and flowers across top, hanging green and gold lanterns |
+| 10 | ...000229 | Blue White Islamic Dome Lantern Star | Blue | Teal-to-navy gradient top with white geometric Islamic pattern, triple scalloped dome arch, white lower half with hanging gold lanterns and stars |
 
 ## Category Distribution
 
 | Category | New Images | Sort Order |
 |----------|-----------|------------|
-| White | 1 | 14 (continuing from 13) |
-| Gold | 1 | 90 (continuing from 89) |
-| Grey | 1 | 61 (continuing from 60) |
-| Pink | 2 | 99-100 (continuing from 98) |
-| Purple | 2 | 78-79 (continuing from 77) |
-| Blue | 2 | 98-99 (continuing from 97) |
-| Brown | 1 | 57 (continuing from 56) |
+| Gold | 1 | 91 (continuing from 90) |
+| Red | 1 | 25 (continuing from 24) |
+| Brown | 2 | 58-59 (continuing from 57) |
+| Blue | 3 | 100-102 (continuing from 99) |
+| White | 1 | 15 (continuing from 14) |
+| Green | 2 | 101-102 (continuing from 100) |
 
-No new categories needed -- all fit existing colour-based categories. Islamic-themed designs are placed by their dominant colour (Blue, Purple, Brown) as the Cultural category is exclusive to Invitations.
+No new categories needed -- all fit existing colour-based categories.
 
 ## Technical Steps
 
 1. Copy all 10 images from user-uploads to `public/gallery-images/` with category-prefixed filenames
 2. Insert 10 rows into `place_card_gallery_images` table via the data insert tool
-3. Updated total: 441 --> 451 Total Designs
+3. Updated total: 451 --> 461 Total Designs
 
