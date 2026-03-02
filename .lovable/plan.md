@@ -1,38 +1,40 @@
 
 
-# Place Cards Gallery - Batch 36 Upload (10 Images)
+# Place Cards Gallery - Batch 37 Upload (10 Images)
 
 ## Image Analysis and Categorization
 
 | # | File | Proposed Name | Category | Sort | Reason |
 |---|------|--------------|----------|------|--------|
-| 1 | ...48-3 | Pink Anemone Watercolor Corner Frame | Pink | 114 | Pink watercolor anemone flowers in opposing corners with pink rectangular frame border, soft pink wash background |
-| 2 | ...49-3 | Green Pink Blossom Vine Border Illustrated | Green | 106 | Illustrated pink blossoms with dark teal/green leaves and vines forming a full border frame, white centre, polka dot accents |
-| 3 | ...50-3 | Pink Wildflower Watercolor Top Bottom Band | Pink | 115 | Watercolor pink wildflowers and brown foliage forming dense horizontal bands along top and bottom edges, white centre |
-| 4 | ...51-3 | Yellow Daisy Photo Frame Sage Background | Yellow | 70 | Real white daisies with yellow centres arranged as a photo border on a sage/olive background |
-| 5 | ...52-3 | Beige Pressed Flower Vintage Corner | Beige | 19 | Pale beige/cream background with pressed dried flowers (marigolds) at bottom corners and illustrated columbine flowers at top corners |
-| 6 | ...53-3 | Yellow Wildflower Watercolor Border Cream | Yellow | 71 | Watercolor yellow wildflowers, mimosa, and blue forget-me-nots framing all edges on a cream background |
-| 7 | ...54-3 | Floral Watercolor Rose Mimosa Yellow Wash | Floral | 18 | Watercolor bouquets with orange roses, pink magnolias, yellow mimosa in opposing corners on pale yellow wash background |
-| 8 | ...55-3 | Green Vintage Rose Orange Botanical Frame | Green | 107 | Vintage botanical-style orange roses and mauve wild roses with green foliage framing all edges on a sage green background |
-| 9 | ...56-2 | Grey Tulip Photo Split Ornament | Grey | (next) | Split layout with dark grey panel (white corner frame + black vine ornament) and pink tulip close-up photograph on right |
-| 10 | ...57 | Grey White Rose Bouquet Split Calligraphy | Grey | (next) | Split layout with light grey panel (calligraphy ornament) and white rose/baby's breath bouquet photograph on right |
+| 1 | ...58 | Pink Peony Photo Top Band Sparkle | Pink | 116 | Pink peonies photographed along top edge on pink background with white sparkle accents |
+| 2 | ...59 | Floral Tulip Daisy Magnolia Corner Illustrated | Floral | 19 | Illustrated bouquet of multi-colored tulips, white magnolias, and daisies in bottom-left corner, white background |
+| 3 | ...60 | Pink Hibiscus Illustrated Four Corner Watercolor | Pink | 117 | Illustrated magenta hibiscus flowers with green leaves on orange branches in all four corners, pink watercolor splatter background |
+| 4 | ...61 | White Magnolia Daisy Mimosa Side Border | White | 20 | White magnolias, daisies, and yellow mimosa with dark green foliage forming mirrored side borders on white textured paper |
+| 5 | ...62 | Green Waxflower Leaf Diagonal Corner Marble | Green | 108 | Green narrow-leaf waxflower branches with small white daisy flowers in opposing diagonal corners on white marble background |
+| 6 | ...63 | Gold Rose Watercolor Line Art Corner Frame | Gold | (next) | Yellow/gold watercolor roses in bottom corners with gold line-art floral border in all corners on white marble background |
+| 7 | ...64 | Brown Autumn Watercolor Floral Border Cream | Brown | (next) | Warm brown/amber watercolor floral bouquets with dark sage leaves arranged around all edges on cream background |
+| 8 | ...65 | Beige Eucalyptus Watercolor Gold Frame | Beige | 20 | Muted sage/beige eucalyptus foliage framing all edges with gold rectangular inner frame on pale yellow watercolor background |
+| 9 | ...66 | Green Watercolor Leaf Soft Corner | Green | 109 | Soft sage green watercolor leaves scattered in all four corners on white-green watercolor wash background |
+| 10 | ...67 | Gold Balloon Confetti Circle Grey | Gold | (next) | Gold metallic and confetti-filled balloons flanking a white circle on grey background |
 
 ## Category Distribution
 
 | Category | New Images | Sort Orders |
 |----------|-----------|-------------|
-| Pink | 2 | 114, 115 |
-| Yellow | 2 | 70, 71 |
-| Green | 2 | 106, 107 |
-| Grey | 2 | next available (need to query) |
-| Beige | 1 | 19 |
-| Floral | 1 | 18 |
+| Pink | 2 | 116, 117 |
+| Green | 2 | 108, 109 |
+| Gold | 2 | next available (need to query) |
+| White | 1 | 20 |
+| Floral | 1 | 19 |
+| Brown | 1 | next available (need to query) |
+| Beige | 1 | 20 |
 
 No new categories needed -- all fit existing categories.
 
 ## Technical Steps
 
 1. Copy all 10 images from user-uploads to `public/gallery-images/` with category-prefixed filenames
-2. Insert 10 rows into `place_card_gallery_images` table via the data insert tool
-3. Updated total: 511 --> 521 Total Designs
+2. Query current max sort_order for Gold and Brown categories
+3. Insert 10 rows into `place_card_gallery_images` table via the data insert tool
+4. Updated total: 521 --> 531 Total Designs
 
