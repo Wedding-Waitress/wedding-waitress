@@ -1,25 +1,36 @@
 
 
-# Insert 9 Invitation Gallery Records into Database
+# Invitation Gallery - Batch 2 Upload (9 Images)
 
-## What's Already Done
-- All 9 images copied to `public/invitation-gallery/` (confirmed in last diff)
+## Duplicate Note
+Depositphotos_736876560_XL_1.jpg is a duplicate of Depositphotos_736876560_XL.jpg and will be skipped.
 
-## What's Left (1 step)
-Run a database migration to insert 9 rows into `invitation_gallery_images`:
+## Image Categorization
 
-```sql
-INSERT INTO invitation_gallery_images (name, category, image_url, sort_order) VALUES
-('Beige Vintage Ornate Floral Corner Frame', 'Wedding', '/invitation-gallery/Wedding_beige-vintage-ornate-floral-corner-frame.jpg', 12),
-('Beige Baroque Crest Ornate Border', 'Wedding', '/invitation-gallery/Wedding_beige-baroque-crest-ornate-border.jpg', 13),
-('Aged Parchment Burnt Edge Texture', 'Wedding', '/invitation-gallery/Wedding_aged-parchment-burnt-edge-texture.jpg', 14),
-('Beige Vintage Calligraphy Scroll Frame', 'Wedding', '/invitation-gallery/Wedding_beige-vintage-calligraphy-scroll-frame.jpg', 15),
-('Beige Vintage Swirl Frame Filigree Border', 'Wedding', '/invitation-gallery/Wedding_beige-vintage-swirl-frame-filigree-border.jpg', 16),
-('Beige Ornate Swirl Crown Border', 'Wedding', '/invitation-gallery/Wedding_beige-ornate-swirl-crown-border.jpg', 17),
-('Beige Art Nouveau Bold Diagonal Corner', 'Wedding', '/invitation-gallery/Wedding_beige-art-nouveau-bold-diagonal-corner.jpg', 18),
-('Beige Ornate Repeating Floral Border', 'Wedding', '/invitation-gallery/Wedding_beige-ornate-repeating-floral-border.jpg', 19),
-('Black Gold Balloons Confetti String Lights', 'Celebrations', '/invitation-gallery/Celebrations_black-gold-balloons-confetti-string-lights.jpg', 28);
-```
+| # | File | Proposed Name | Category | Sort Order |
+|---|------|--------------|----------|------------|
+| 1 | Depositphotos_721913224_XL.jpg | Burgundy Cream Rose Watercolor Corner | Floral | 127 |
+| 2 | Depositphotos_721933556_XL-2.jpg | Peach Rose Gold Leaf Full Border | Floral | 128 |
+| 3 | Depositphotos_733639244_XL.jpg | Dark Brown Gold Leaf Rose Frame | Glamour | 12 |
+| 4 | Depositphotos_733641932_XL.jpg | Peach Watercolor Purple Sunflower Gold Frame | Floral | 129 |
+| 5 | Depositphotos_733642090_XL.jpg | Cream Autumn Red Leaf Wreath Border | Floral | 130 |
+| 6 | Depositphotos_734200124_XL.jpg | White Pink Peony Orchid Bottom Spray | Floral | 131 |
+| 7 | Depositphotos_736864346_XL.jpg | Dusty Blue Pink Rose Watercolor Frame | Floral | 132 |
+| 8 | Depositphotos_736876560_XL.jpg | Navy Blue Pink Floral Gold Frame | Floral | 133 |
+| 9 | Depositphotos_738094204_XL.jpg | Slate Blue Watercolor Magnolia Frame | Floral | 134 |
 
-This will bring the total from 314 to **323 Total Designs**.
+## Category Distribution
+
+| Category | Count | Sort Orders |
+|----------|-------|-------------|
+| Floral | 8 | 127-134 |
+| Glamour | 1 | 12 |
+
+**Reasoning**: Most designs are watercolor floral compositions suited to the Floral category. The dark brown/gold leaf rose frame (#3) has a luxurious, glamorous feel with metallic gold foliage on a dark background, fitting the Glamour category.
+
+## Technical Steps
+
+1. Copy 9 images from user-uploads to `public/invitation-gallery/` with `Category_kebab-case-name.jpg` naming convention
+2. Insert 9 rows into `invitation_gallery_images` table via data insert
+3. Updated total: 323 --> **332 Total Designs**
 
