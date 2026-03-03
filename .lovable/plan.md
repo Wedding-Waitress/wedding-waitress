@@ -1,93 +1,37 @@
 
 
-# Dynamic QR Code System - Implementation Plan
+# Auto-Dynamic QR Codes for All Events
 
-## Overview
+## What Changes
 
-Convert the current static QR code system (hardcoded `/s/{slug}`) into a dynamic system where QR codes encode a permanent short URL (`/qr/{code}`) that can be reassigned to different events. Includes scan analytics for corporate/venue use.
+### 1. Auto-create a dynamic QR code when an event is created
+In `useEvents.ts` `createEvent()`, after the event is inserted and we have the new event ID, automatically:
+- Call `supabase.rpc('generate_dynamic_qr_code')` to get a short code
+- Insert a row into `dynamic_qr_codes` with `current_event_id` set to the new event, `destination_type: 'guest_lookup'`, and a default label (event name)
 
-## Phase 1: Database Tables & Functions (Migration)
+### 2. Make the QR code generator use the dynamic URL
+In `QRCodeMainCard.tsx`, instead of encoding `/s/{slug}` (static), look up the event's dynamic QR code from `dynamic_qr_codes` table and encode `/qr/{code}` instead. The user sees no difference -- same QR customization UI, same preview -- but the encoded URL is now dynamic.
 
-Create two new tables and supporting functions:
+- Add a query in the component (or a small hook) to fetch the `dynamic_qr_codes` row for the selected event
+- Replace `eventUrl` from `buildGuestLookupUrl(slug)` to `buildDynamicQRUrl(code)`
+- Fallback: if no dynamic code exists yet (legacy events), auto-create one on the fly
 
-**`dynamic_qr_codes`** table:
-- `id` (uuid PK), `user_id` (uuid FK auth.users, NOT NULL), `code` (text UNIQUE), `label` (text), `current_event_id` (uuid FK events, nullable), `destination_type` (text, default `guest_lookup`), `is_active` (boolean, default true), `created_at` (timestamptz)
+### 3. Remove the DynamicQRManager section from the QR Code page
+Remove the `<DynamicQRManager />` component from `QRCodeSeatingChart.tsx` (line 172). This hides the manual creation UI from regular users. The component files stay in the codebase for future vendor use.
 
-**`qr_scan_logs`** table:
-- `id` (uuid PK), `qr_code_id` (uuid FK dynamic_qr_codes), `event_id` (uuid nullable), `scanned_at` (timestamptz), `user_agent` (text), `ip_hash` (text), `referrer` (text nullable)
+### 4. Update link copy/live view to use the dynamic URL
+The "Copy Link" and "Live View" buttons in `QRCodeMainCard.tsx` and `QRCodeSeatingChart.tsx` currently use `buildGuestLookupUrl`. These should also use the dynamic URL so the copied link matches what the QR encodes.
 
-**Functions:**
-- `generate_dynamic_qr_code()` - generates unique 6-char alphanumeric codes
-- `resolve_dynamic_qr(text)` - SECURITY DEFINER function that resolves a code to its destination URL (returns event slug + destination type), used by the edge function
-
-**RLS:** Owner-only CRUD on `dynamic_qr_codes`; service_role INSERT on `qr_scan_logs`; owner SELECT on `qr_scan_logs`
-
-**Indexes:** On `code`, `user_id`, `qr_code_id`, `scanned_at`
-
-## Phase 2: Edge Function (`qr-redirect`)
-
-New edge function at `supabase/functions/qr-redirect/index.ts`:
-- Receives `code` parameter
-- Calls `resolve_dynamic_qr` RPC to get destination
-- Logs scan to `qr_scan_logs` (user_agent, hashed IP)
-- Returns 302 redirect to `/s/{slug}` or `/kiosk/{slug}`
-- If inactive/no event: returns branded HTML "no event" page
-- `verify_jwt = false` (public access)
-
-## Phase 3: Frontend Route (`/qr/:code`)
-
-Add `/qr/:code` route in `App.tsx` pointing to a new `QRRedirect.tsx` page:
-- Shows brief branded loading spinner
-- Calls the `qr-redirect` edge function
-- Redirects to the resolved URL
-- Shows error state if code is invalid/inactive
-
-## Phase 4: Dashboard UI - Dynamic QR Management
-
-**New files:**
-- `src/hooks/useDynamicQRCodes.ts` - CRUD hook for dynamic QR codes
-- `src/components/Dashboard/QRCode/DynamicQRManager.tsx` - management UI
-- `src/components/Dashboard/QRCode/QRAnalyticsDashboard.tsx` - scan analytics
-
-**DynamicQRManager** (rendered below the existing QR Code Generator on the QR Code Seating Chart page):
-- Create new dynamic QR codes with custom labels
-- Dropdown to assign/reassign to any of the user's events
-- Toggle destination type (Guest Lookup vs Kiosk)
-- Toggle active/inactive
-- Download the dynamic QR code image (uses existing `AdvancedQRGenerator` with `/qr/{code}` URL)
-- Copy permanent link button
-
-**QRAnalyticsDashboard** (within each dynamic QR card or expandable section):
-- Total scans, unique visitors (by ip_hash)
-- Scans over time (simple bar/line chart using Recharts, already installed)
-- Peak scan times
-
-**Integration with existing QR page:**
-- Add a new section/card below the existing QR Code Generator in `QRCodeSeatingChart.tsx` titled "Dynamic QR Codes"
-- This does NOT modify the locked QR generator logic -- it's a new card appended below
-
-## Phase 5: URL Utility
-
-Add `buildDynamicQRUrl(code: string)` to `src/lib/urlUtils.ts`
+## Files Modified
+- `src/hooks/useEvents.ts` -- add dynamic QR auto-creation after event insert
+- `src/components/Dashboard/QRCode/QRCodeMainCard.tsx` -- swap `eventUrl` to use dynamic QR code URL
+- `src/components/Dashboard/QRCode/QRCodeSeatingChart.tsx` -- remove `<DynamicQRManager />` and its import
+- `src/lib/invitationQR.ts` -- update to use dynamic URL if available
 
 ## What Does NOT Change
-- The locked `QRCodeMainCard.tsx` generator logic, customization, and export
-- Existing static QR URLs (`/s/{slug}`) continue working
-- Kiosk and Guest Lookup pages are unmodified
-- Sidebar remains unchanged (Dynamic QR is accessed within the existing QR Code tab)
-
-## File Summary
-
-| Action | File |
-|--------|------|
-| New migration | `dynamic_qr_codes`, `qr_scan_logs` tables + functions |
-| New edge function | `supabase/functions/qr-redirect/index.ts` |
-| New config | Add `[functions.qr-redirect]` to `supabase/config.toml` |
-| New page | `src/pages/QRRedirect.tsx` |
-| New hook | `src/hooks/useDynamicQRCodes.ts` |
-| New component | `src/components/Dashboard/QRCode/DynamicQRManager.tsx` |
-| New component | `src/components/Dashboard/QRCode/QRAnalyticsDashboard.tsx` |
-| Edit | `src/App.tsx` - add `/qr/:code` route |
-| Edit | `src/lib/urlUtils.ts` - add `buildDynamicQRUrl` |
-| Edit | `src/components/Dashboard/QRCode/QRCodeSeatingChart.tsx` - append Dynamic QR section below existing content (no changes to locked logic) |
+- The `dynamic_qr_codes` and `qr_scan_logs` tables, RLS, and edge function remain as-is
+- The `/qr/:code` route and `qr-redirect` edge function remain as-is
+- Static `/s/{slug}` routes continue to work (backward compatibility)
+- The QR code customization UI is untouched
+- `DynamicQRManager.tsx` and `QRAnalyticsDashboard.tsx` files are kept for future vendor features
 
