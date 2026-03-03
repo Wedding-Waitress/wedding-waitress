@@ -1,26 +1,19 @@
 
 
-## Add "Reset to Default" buttons to Text Zones and Messages tabs
+## Text Label Changes
 
-### Text Zones tab (line 387)
-Insert a "Reset to Default" button before the closing `</TabsContent>`. When clicked, it clears all text zones (`text_zones: []`) and shows a toast "Text Zones Reset".
+### 1. Sidebar — `src/components/Dashboard/AppSidebar.tsx`
+- **Line 49**: Change `"Invitations"` → `"Invitations & Cards"`
+- **Line 50**: Change `"Place Cards"` → `"Name Place Cards"`
 
-**File:** `src/components/Dashboard/Invitations/InvitationCardCustomizer.tsx`
-- Before line 387 (`</div>` + `</TabsContent>`), add:
-```
-<div className="pt-4 border-t">
-  <Button onClick={reset all text zones} variant="destructive" className="w-full rounded-full">
-    Reset to Default
-  </Button>
-</div>
-```
-- Reset action: `onSettingsChange({ text_zones: [] })` + toast "Text Zones Reset"
+### 2. Sidebar fallback — `src/components/Dashboard/DashboardSidebar.tsx`
+- **Line 30**: Change `"Place Cards"` → `"Name Place Cards"`
 
-### Messages tab (line 565)
-Insert a "Reset to Default" button after the notes container. When clicked, it clears `localNotes` to empty string and shows a toast "Messages Reset".
+### 3. Invitations page header — `src/components/Dashboard/Invitations/InvitationsPage.tsx`
+- **Line 169**: Change `"Invitations and Cards"` → `"Invitations, Save the Date & Thank You Cards"`
 
-**File:** same file
-- Before line 565 (`</div>` + `</TabsContent>`), add same styled button that resets the notes/caption field.
+### 4. Customizer header — `src/components/Dashboard/Invitations/InvitationCardCustomizer.tsx`
+- **Line 153**: Change `"Invitations and Cards"` → `"Invitations, Save the Date & Thank You Cards"`
 
-Two small insertions in one file, matching the existing pattern from the Design and Background tabs.
+Four simple text replacements across three files.
 
