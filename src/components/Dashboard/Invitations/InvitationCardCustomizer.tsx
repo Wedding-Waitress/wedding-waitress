@@ -150,7 +150,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
         <CardHeader>
           <CardTitle className="flex items-center gap-2 py-[10px] text-2xl font-medium text-primary">
             <Palette className="h-5 w-5 text-primary" />
-            Invitations and Cards
+            Invitations, Save the Date & Thank You Cards
           </CardTitle>
         </CardHeader>
         <CardContent>
