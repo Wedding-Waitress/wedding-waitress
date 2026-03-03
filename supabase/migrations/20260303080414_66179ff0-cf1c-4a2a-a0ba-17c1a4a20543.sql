@@ -1,0 +1,11 @@
+INSERT INTO invitation_gallery_images (name, category, image_url, sort_order) VALUES
+('Dark Gold Leaf Botanical Lines', 'Glamour', '/invitation-gallery/Glamour_dark-gold-leaf-botanical-lines.png', 27),
+('Teal Arch Eucalyptus Greenery Corner', 'Wedding', '/invitation-gallery/Wedding_teal-arch-eucalyptus-greenery-corner.png', 28),
+('Magenta Gold Lantern Floral Arch', 'Islamic', '/invitation-gallery/Islamic_magenta-gold-lantern-floral-arch.png', 30),
+('Gold Border Repeating Floral Vine', 'Cultural', '/invitation-gallery/Cultural_gold-border-repeating-floral-vine.png', 23),
+('Burgundy Gold Ornate Vine Panels', 'Glamour', '/invitation-gallery/Glamour_burgundy-gold-ornate-vine-panels.png', 28),
+('Deep Maroon Gold Scroll Corners', 'Glamour', '/invitation-gallery/Glamour_deep-maroon-gold-scroll-corners.png', 29),
+('Maroon Scalloped Arch Gold Mandala', 'Islamic', '/invitation-gallery/Islamic_maroon-scalloped-arch-gold-mandala.png', 31),
+('Purple Hanging Lanterns Gold Mandala', 'Islamic', '/invitation-gallery/Islamic_purple-hanging-lanterns-gold-mandala.png', 32),
+('Indian Couple Floral Arch Orchids', 'Cultural', '/invitation-gallery/Cultural_indian-couple-floral-arch-orchids.png', 24),
+('Cream Damask Gold Scroll Frame', 'Wedding', '/invitation-gallery/Wedding_cream-damask-gold-scroll-frame.png', 29);
