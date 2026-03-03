@@ -707,7 +707,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                         <img src={currentSettings.background_image_url} alt="Background preview" className="w-full h-auto object-contain rounded border max-h-32" />
                         <div className="flex items-center gap-2 text-sm text-muted-foreground">
                           <Image className="h-4 w-4" />
-                          <span>We recommend a horizontal photo or Logo</span>
+                          <span>We recommend using a horizontal (landscape orientation) photo or Logo for best result.</span>
                         </div>
                         {/* Red "Remove Image" button */}
                         <Button
