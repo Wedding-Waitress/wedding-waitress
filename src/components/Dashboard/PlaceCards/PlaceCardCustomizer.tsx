@@ -69,11 +69,25 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
   const [localTableOffsetX, setLocalTableOffsetX] = useState(0);
   const [localTableOffsetY, setLocalTableOffsetY] = useState(0);
 
+  // String states for manual input (allows free typing of "-", ".", etc.)
+  const [inputGuestX, setInputGuestX] = useState('0');
+  const [inputGuestY, setInputGuestY] = useState('0');
+  const [inputTableX, setInputTableX] = useState('0');
+  const [inputTableY, setInputTableY] = useState('0');
+
   useEffect(() => {
-    setLocalGuestNameOffsetX(Number(settings?.guest_name_offset_x ?? 0));
-    setLocalGuestNameOffsetY(Number(settings?.guest_name_offset_y ?? 0));
-    setLocalTableOffsetX(Number(settings?.table_offset_x ?? 0));
-    setLocalTableOffsetY(Number(settings?.table_offset_y ?? 0));
+    const gx = Number(settings?.guest_name_offset_x ?? 0);
+    const gy = Number(settings?.guest_name_offset_y ?? 0);
+    const tx = Number(settings?.table_offset_x ?? 0);
+    const ty = Number(settings?.table_offset_y ?? 0);
+    setLocalGuestNameOffsetX(gx);
+    setLocalGuestNameOffsetY(gy);
+    setLocalTableOffsetX(tx);
+    setLocalTableOffsetY(ty);
+    setInputGuestX(String(gx));
+    setInputGuestY(String(gy));
+    setInputTableX(String(tx));
+    setInputTableY(String(ty));
   }, [settings?.guest_name_offset_x, settings?.guest_name_offset_y, settings?.table_offset_x, settings?.table_offset_y]);
 
   const currentSettings = settings || {
@@ -410,22 +424,23 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                     <div className="flex items-center gap-1">
                       <Input
                         type="number"
-                        value={localGuestNameOffsetX}
+                        value={inputGuestX}
                         min={-25}
                         max={25}
                         step={0.5}
                         className="h-6 w-[70px] text-xs text-right px-1"
-                        onChange={(e) => {
-                          const v = Math.min(25, Math.max(-25, parseFloat(e.target.value) || 0));
+                        onChange={(e) => setInputGuestX(e.target.value)}
+                        onBlur={() => {
+                          const v = Math.min(25, Math.max(-25, parseFloat(inputGuestX) || 0));
                           setLocalGuestNameOffsetX(v);
-                        }}
-                        onBlur={(e) => {
-                          const v = Math.min(25, Math.max(-25, parseFloat(e.target.value) || 0));
+                          setInputGuestX(String(v));
                           onSettingsChange({ guest_name_offset_x: v });
                         }}
                         onKeyDown={(e) => {
                           if (e.key === 'Enter') {
-                            const v = Math.min(25, Math.max(-25, parseFloat((e.target as HTMLInputElement).value) || 0));
+                            const v = Math.min(25, Math.max(-25, parseFloat(inputGuestX) || 0));
+                            setLocalGuestNameOffsetX(v);
+                            setInputGuestX(String(v));
                             onSettingsChange({ guest_name_offset_x: v });
                           }
                         }}
@@ -438,7 +453,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                     min={-25}
                     max={25}
                     step={0.5}
-                    onValueChange={([v]) => setLocalGuestNameOffsetX(v)}
+                    onValueChange={([v]) => { setLocalGuestNameOffsetX(v); setInputGuestX(String(v)); }}
                     onValueCommit={([v]) => onSettingsChange({ guest_name_offset_x: v })}
                   />
                 </div>
@@ -448,22 +463,23 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                     <div className="flex items-center gap-1">
                       <Input
                         type="number"
-                        value={localGuestNameOffsetY}
+                        value={inputGuestY}
                         min={-9}
                         max={25}
                         step={0.5}
                         className="h-6 w-[70px] text-xs text-right px-1"
-                        onChange={(e) => {
-                          const v = Math.min(25, Math.max(-9, parseFloat(e.target.value) || 0));
+                        onChange={(e) => setInputGuestY(e.target.value)}
+                        onBlur={() => {
+                          const v = Math.min(25, Math.max(-9, parseFloat(inputGuestY) || 0));
                           setLocalGuestNameOffsetY(v);
-                        }}
-                        onBlur={(e) => {
-                          const v = Math.min(25, Math.max(-9, parseFloat(e.target.value) || 0));
+                          setInputGuestY(String(v));
                           onSettingsChange({ guest_name_offset_y: v });
                         }}
                         onKeyDown={(e) => {
                           if (e.key === 'Enter') {
-                            const v = Math.min(25, Math.max(-9, parseFloat((e.target as HTMLInputElement).value) || 0));
+                            const v = Math.min(25, Math.max(-9, parseFloat(inputGuestY) || 0));
+                            setLocalGuestNameOffsetY(v);
+                            setInputGuestY(String(v));
                             onSettingsChange({ guest_name_offset_y: v });
                           }
                         }}
@@ -476,7 +492,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                     min={-9}
                     max={25}
                     step={0.5}
-                    onValueChange={([v]) => setLocalGuestNameOffsetY(v)}
+                    onValueChange={([v]) => { setLocalGuestNameOffsetY(v); setInputGuestY(String(v)); }}
                     onValueCommit={([v]) => onSettingsChange({ guest_name_offset_y: v })}
                   />
                 </div>
@@ -491,22 +507,23 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                     <div className="flex items-center gap-1">
                       <Input
                         type="number"
-                        value={localTableOffsetX}
+                        value={inputTableX}
                         min={-25}
                         max={25}
                         step={0.5}
                         className="h-6 w-[70px] text-xs text-right px-1"
-                        onChange={(e) => {
-                          const v = Math.min(25, Math.max(-25, parseFloat(e.target.value) || 0));
+                        onChange={(e) => setInputTableX(e.target.value)}
+                        onBlur={() => {
+                          const v = Math.min(25, Math.max(-25, parseFloat(inputTableX) || 0));
                           setLocalTableOffsetX(v);
-                        }}
-                        onBlur={(e) => {
-                          const v = Math.min(25, Math.max(-25, parseFloat(e.target.value) || 0));
+                          setInputTableX(String(v));
                           onSettingsChange({ table_offset_x: v });
                         }}
                         onKeyDown={(e) => {
                           if (e.key === 'Enter') {
-                            const v = Math.min(25, Math.max(-25, parseFloat((e.target as HTMLInputElement).value) || 0));
+                            const v = Math.min(25, Math.max(-25, parseFloat(inputTableX) || 0));
+                            setLocalTableOffsetX(v);
+                            setInputTableX(String(v));
                             onSettingsChange({ table_offset_x: v });
                           }
                         }}
@@ -519,7 +536,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                     min={-25}
                     max={25}
                     step={0.5}
-                    onValueChange={([v]) => setLocalTableOffsetX(v)}
+                    onValueChange={([v]) => { setLocalTableOffsetX(v); setInputTableX(String(v)); }}
                     onValueCommit={([v]) => onSettingsChange({ table_offset_x: v })}
                   />
                 </div>
@@ -529,22 +546,23 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                     <div className="flex items-center gap-1">
                       <Input
                         type="number"
-                        value={localTableOffsetY}
+                        value={inputTableY}
                         min={-15}
                         max={15}
                         step={0.5}
                         className="h-6 w-[70px] text-xs text-right px-1"
-                        onChange={(e) => {
-                          const v = Math.min(15, Math.max(-15, parseFloat(e.target.value) || 0));
+                        onChange={(e) => setInputTableY(e.target.value)}
+                        onBlur={() => {
+                          const v = Math.min(15, Math.max(-15, parseFloat(inputTableY) || 0));
                           setLocalTableOffsetY(v);
-                        }}
-                        onBlur={(e) => {
-                          const v = Math.min(15, Math.max(-15, parseFloat(e.target.value) || 0));
+                          setInputTableY(String(v));
                           onSettingsChange({ table_offset_y: v });
                         }}
                         onKeyDown={(e) => {
                           if (e.key === 'Enter') {
-                            const v = Math.min(15, Math.max(-15, parseFloat((e.target as HTMLInputElement).value) || 0));
+                            const v = Math.min(15, Math.max(-15, parseFloat(inputTableY) || 0));
+                            setLocalTableOffsetY(v);
+                            setInputTableY(String(v));
                             onSettingsChange({ table_offset_y: v });
                           }
                         }}
@@ -557,7 +575,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                     min={-15}
                     max={15}
                     step={0.5}
-                    onValueChange={([v]) => setLocalTableOffsetY(v)}
+                    onValueChange={([v]) => { setLocalTableOffsetY(v); setInputTableY(String(v)); }}
                     onValueCommit={([v]) => onSettingsChange({ table_offset_y: v })}
                   />
                 </div>
