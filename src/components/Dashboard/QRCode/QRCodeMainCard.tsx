@@ -28,7 +28,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useLiveViewVisibility } from '@/hooks/useLiveViewVisibility';
 import { useLiveViewModuleSettings } from '@/hooks/useLiveViewModuleSettings';
 import { useWelcomeVideoUpload } from '@/hooks/useWelcomeVideoUpload';
-import { buildGuestLookupUrl } from '@/lib/urlUtils';
+import { useEventDynamicQR } from '@/hooks/useEventDynamicQR';
 import { supabase } from '@/integrations/supabase/client';
 import { AdvancedQRGenerator } from '@/lib/advancedQRGenerator';
 import type { QRCodeSettings } from '@/hooks/useQRCodeSettings';
@@ -91,7 +91,8 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
   const { uploadVideo, deleteVideo, uploadProgress, isUploading, isProcessing } = useWelcomeVideoUpload(eventId);
   const selectedEvent = events.find(event => event.id === eventId);
   const currentEvent = events.find(event => event.id === eventId);
-  const eventUrl = selectedEvent?.slug ? buildGuestLookupUrl(selectedEvent.slug) : `https://…/live-view/${eventId}`;
+  const { dynamicUrl } = useEventDynamicQR(eventId);
+  const eventUrl = dynamicUrl || `https://…/live-view/${eventId}`;
 
   // QR Settings State - Enhanced
   const [qrColors, setQrColors] = useState<QRColorsSettings>({ ...defaultColors });
@@ -446,14 +447,13 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
     return () => clearTimeout(saveTimer);
   }, [eventId, qrColors, qrShapes, qrLogo]);
   const handleLiveView = () => {
-    if (selectedEvent?.slug) {
-      const liveViewUrl = buildGuestLookupUrl(selectedEvent.slug);
-      window.open(liveViewUrl, '_blank');
+    if (eventUrl) {
+      window.open(eventUrl, '_blank');
     }
   };
   const handleCopyLink = async () => {
     try {
-      const guestLookupUrl = selectedEvent?.slug ? buildGuestLookupUrl(selectedEvent.slug) : eventUrl;
+      const guestLookupUrl = eventUrl;
       await navigator.clipboard.writeText(guestLookupUrl);
       toast({
         title: "Link copied!",
@@ -926,9 +926,8 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                               variant="outline"
                               className="flex-1"
                               onClick={() => {
-                                if (currentEvent?.slug) {
-                                  const url = buildGuestLookupUrl(currentEvent.slug) + '?tab=rsvp-invite';
-                                  window.open(url, '_blank');
+                                if (eventUrl) {
+                                  window.open(eventUrl + '?tab=rsvp-invite', '_blank');
                                 }
                               }}
                             >
@@ -940,9 +939,8 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                               variant="outline"
                               className="flex-1"
                               onClick={() => {
-                                if (currentEvent?.slug) {
-                                  const url = buildGuestLookupUrl(currentEvent.slug) + '?tab=rsvp-invite';
-                                  navigator.clipboard.writeText(url);
+                                if (eventUrl) {
+                                  navigator.clipboard.writeText(eventUrl + '?tab=rsvp-invite');
                                   toast({
                                     title: 'Link copied!',
                                     description: 'Share this link with your guests'

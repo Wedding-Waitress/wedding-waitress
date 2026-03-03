@@ -49,7 +49,7 @@ export const InvitationCustomizer: React.FC<Props> = ({
   // Generate QR data URL when slug is available
   useEffect(() => {
     if (eventSlug) {
-      generateInvitationQR(eventSlug).then(setQrDataUrl).catch(console.error);
+      generateInvitationQR(eventSlug, eventId || undefined).then(setQrDataUrl).catch(console.error);
     }
   }, [eventSlug]);
 
