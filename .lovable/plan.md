@@ -1,35 +1,24 @@
 
 
-# Invitation Gallery - Batch 5 Upload (10 Images)
+# Batch 5 - Insert Database Records
 
-## Image Categorization
+Quick single step: Insert the 10 records into `invitation_gallery_images` for the images already copied to `public/invitation-gallery/`.
 
-| # | File | Proposed Name | Category | Sort Order |
-|---|------|--------------|----------|------------|
-| 1 | You_Are_Invited_To_11.png | Cream Envelope Wax Seal Thistle | Wedding | 20 |
-| 2 | You_Are_Invited_To_10.png | Navy Blue Wave Dot Pattern | Glamour | 20 |
-| 3 | You_Are_Invited_To_9.png | Dark Navy Blue Wave Border | Glamour | 21 |
-| 4 | You_Are_Invited_To_8.png | Gold Brown Abstract Blob Frame | Glamour | 22 |
-| 5 | You_Are_Invited_To_7.png | White Marble Gold Wave Corner | Glamour | 23 |
-| 6 | You_Are_Invited_To_6.png | White Gold Glitter Double Frame | Glamour | 24 |
-| 7 | You_Are_Invited_To_5.png | Red Gold Balloon Gift Celebration | Celebrations | 30 |
-| 8 | You_Are_Invited_To_4.png | Red Curtain Red Carpet Stage | Celebrations | 31 |
-| 9 | You_Are_Invited_To_3.png | Red Velvet Curtain Stage | Celebrations | 32 |
-| 10 | You_Are_Invited_To_2.png | Red Gold Ribbon Confetti Opening | Celebrations | 33 |
+## SQL Migration
 
-## Category Distribution
+```sql
+INSERT INTO invitation_gallery_images (name, category, image_url, sort_order) VALUES
+('Cream Envelope Wax Seal Thistle', 'Wedding', '/invitation-gallery/Wedding_cream-envelope-wax-seal-thistle.png', 20),
+('Navy Blue Wave Dot Pattern', 'Glamour', '/invitation-gallery/Glamour_navy-blue-wave-dot-pattern.png', 20),
+('Dark Navy Blue Wave Border', 'Glamour', '/invitation-gallery/Glamour_dark-navy-blue-wave-border.png', 21),
+('Gold Brown Abstract Blob Frame', 'Glamour', '/invitation-gallery/Glamour_gold-brown-abstract-blob-frame.png', 22),
+('White Marble Gold Wave Corner', 'Glamour', '/invitation-gallery/Glamour_white-marble-gold-wave-corner.png', 23),
+('White Gold Glitter Double Frame', 'Glamour', '/invitation-gallery/Glamour_white-gold-glitter-double-frame.png', 24),
+('Red Gold Balloon Gift Celebration', 'Celebrations', '/invitation-gallery/Celebrations_red-gold-balloon-gift-celebration.png', 30),
+('Red Curtain Red Carpet Stage', 'Celebrations', '/invitation-gallery/Celebrations_red-curtain-red-carpet-stage.png', 31),
+('Red Velvet Curtain Stage', 'Celebrations', '/invitation-gallery/Celebrations_red-velvet-curtain-stage.png', 32),
+('Red Gold Ribbon Confetti Opening', 'Celebrations', '/invitation-gallery/Celebrations_red-gold-ribbon-confetti-opening.png', 33);
+```
 
-| Category | Count | Sort Orders |
-|----------|-------|-------------|
-| Glamour | 5 | 20-24 |
-| Celebrations | 4 | 30-33 |
-| Wedding | 1 | 20 |
-
-**Reasoning**: The cream envelope with wax seal thistle (#1) is a classic wedding stationery motif (Wedding). The navy blue wave/dot patterns (#2, #3), the gold/brown abstract blob (#4), the white marble with gold wave corners (#5), and the white gold glitter double frame (#6) are all abstract luxurious textures (Glamour). The red/gold balloon and gift design (#7), the red carpet stage (#8), the red velvet curtain (#9), and the red gold ribbon opening ceremony (#10) all have a festive event/party feel (Celebrations).
-
-## Technical Steps
-
-1. Copy 10 images from user-uploads to `public/invitation-gallery/` with standard naming convention (note: these are .png files)
-2. Insert 10 rows into `invitation_gallery_images` table
-3. Updated total: 352 --> **362 Total Designs**
+Result: 352 to **362 total designs**.
 
