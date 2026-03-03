@@ -64,3 +64,11 @@ export function buildSeatingChartUrl(shareToken: string): string {
   const baseUrl = getPublicBaseUrl();
   return `${baseUrl}/seating-chart/${encodeURIComponent(shareToken)}`;
 }
+
+/**
+ * Builds a dynamic QR code URL for the given short code
+ */
+export function buildDynamicQRUrl(code: string): string {
+  const baseUrl = getPublicBaseUrl();
+  return `${baseUrl}/qr/${encodeURIComponent(code)}`;
+}

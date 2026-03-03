@@ -19,6 +19,7 @@ import { Calendar, QrCode, Download, Settings, Eye, ExternalLink, Copy } from 'l
 import { useEvents } from '@/hooks/useEvents';
 import { useToast } from '@/hooks/use-toast';
 import { QRCodeMainCard } from './QRCodeMainCard';
+import { DynamicQRManager } from './DynamicQRManager';
 import { buildGuestLookupUrl } from '@/lib/urlUtils';
 import { format, parse } from 'date-fns';
 import { formatDisplayTime } from '@/lib/utils';
@@ -166,5 +167,8 @@ export const QRCodeSeatingChart: React.FC<QRCodeSeatingChartProps> = ({
             Choose an event above to start creating your QR Code Seating Chart
           </CardDescription>
         </Card>}
+
+      {/* Dynamic QR Codes Section */}
+      <DynamicQRManager />
     </div>;
 };
