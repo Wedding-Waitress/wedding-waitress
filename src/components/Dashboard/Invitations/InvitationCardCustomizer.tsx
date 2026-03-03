@@ -384,6 +384,19 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                     <p className="text-xs">Add preset or custom zones above</p>
                   </div>
                 )}
+
+                <div className="pt-4 border-t">
+                  <Button
+                    onClick={async () => {
+                      await onSettingsChange({ text_zones: [] });
+                      toast({ title: "Text Zones Reset", description: "All text zones have been removed" });
+                    }}
+                    variant="destructive"
+                    className="w-full rounded-full"
+                  >
+                    Reset to Default
+                  </Button>
+                </div>
               </div>
             </TabsContent>
 
@@ -561,6 +574,19 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                   <p className="text-xs text-muted-foreground">
                     This is for your reference only and won't appear on the invitation.
                   </p>
+                </div>
+
+                <div className="pt-4 border-t">
+                  <Button
+                    onClick={() => {
+                      setLocalNotes('');
+                      toast({ title: "Messages Reset", description: "Notes and captions have been cleared" });
+                    }}
+                    variant="destructive"
+                    className="w-full rounded-full"
+                  >
+                    Reset to Default
+                  </Button>
                 </div>
               </div>
             </TabsContent>
