@@ -27,7 +27,7 @@ const menuItems = [
   { id: "table-list", label: "Tables", icon: MapPin },
   { id: "guest-list", label: "Guest List", icon: Users },
   { id: "qr-code", label: "QR Code Seating Chart", icon: QrCode },
-  { id: "place-cards", label: "Place Cards", icon: CreditCard },
+  { id: "place-cards", label: "Name Place Cards", icon: CreditCard },
   { id: "individual-table-chart", label: "Individual Table Charts", icon: Users },
   { id: "dietary-chart", label: "Dietary Requirements", icon: ChefHat },
   { id: "signage", label: "Signage", icon: FileImage },
