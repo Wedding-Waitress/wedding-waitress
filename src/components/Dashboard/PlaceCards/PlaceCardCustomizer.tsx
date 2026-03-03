@@ -270,7 +270,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
         <Tabs defaultValue="design" className="space-y-4">
           <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="design">Design</TabsTrigger>
-            <TabsTrigger value="position">Position</TabsTrigger>
+            <TabsTrigger value="position">Text Position</TabsTrigger>
             <TabsTrigger value="background">Background</TabsTrigger>
             <TabsTrigger value="messages">Messages</TabsTrigger>
           </TabsList>
@@ -407,7 +407,31 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <Label className="text-xs">Horizontal</Label>
-                    <span className="text-xs text-muted-foreground">{localGuestNameOffsetX}mm</span>
+                    <div className="flex items-center gap-1">
+                      <Input
+                        type="number"
+                        value={localGuestNameOffsetX}
+                        min={-25}
+                        max={25}
+                        step={0.5}
+                        className="h-6 w-[70px] text-xs text-right px-1"
+                        onChange={(e) => {
+                          const v = Math.min(25, Math.max(-25, parseFloat(e.target.value) || 0));
+                          setLocalGuestNameOffsetX(v);
+                        }}
+                        onBlur={(e) => {
+                          const v = Math.min(25, Math.max(-25, parseFloat(e.target.value) || 0));
+                          onSettingsChange({ guest_name_offset_x: v });
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            const v = Math.min(25, Math.max(-25, parseFloat((e.target as HTMLInputElement).value) || 0));
+                            onSettingsChange({ guest_name_offset_x: v });
+                          }
+                        }}
+                      />
+                      <span className="text-xs text-muted-foreground">mm</span>
+                    </div>
                   </div>
                   <Slider
                     value={[localGuestNameOffsetX]}
@@ -421,7 +445,31 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <Label className="text-xs">Vertical</Label>
-                    <span className="text-xs text-muted-foreground">{localGuestNameOffsetY}mm</span>
+                    <div className="flex items-center gap-1">
+                      <Input
+                        type="number"
+                        value={localGuestNameOffsetY}
+                        min={-9}
+                        max={25}
+                        step={0.5}
+                        className="h-6 w-[70px] text-xs text-right px-1"
+                        onChange={(e) => {
+                          const v = Math.min(25, Math.max(-9, parseFloat(e.target.value) || 0));
+                          setLocalGuestNameOffsetY(v);
+                        }}
+                        onBlur={(e) => {
+                          const v = Math.min(25, Math.max(-9, parseFloat(e.target.value) || 0));
+                          onSettingsChange({ guest_name_offset_y: v });
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            const v = Math.min(25, Math.max(-9, parseFloat((e.target as HTMLInputElement).value) || 0));
+                            onSettingsChange({ guest_name_offset_y: v });
+                          }
+                        }}
+                      />
+                      <span className="text-xs text-muted-foreground">mm</span>
+                    </div>
                   </div>
                   <Slider
                     value={[localGuestNameOffsetY]}
@@ -440,7 +488,31 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <Label className="text-xs">Horizontal</Label>
-                    <span className="text-xs text-muted-foreground">{localTableOffsetX}mm</span>
+                    <div className="flex items-center gap-1">
+                      <Input
+                        type="number"
+                        value={localTableOffsetX}
+                        min={-25}
+                        max={25}
+                        step={0.5}
+                        className="h-6 w-[70px] text-xs text-right px-1"
+                        onChange={(e) => {
+                          const v = Math.min(25, Math.max(-25, parseFloat(e.target.value) || 0));
+                          setLocalTableOffsetX(v);
+                        }}
+                        onBlur={(e) => {
+                          const v = Math.min(25, Math.max(-25, parseFloat(e.target.value) || 0));
+                          onSettingsChange({ table_offset_x: v });
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            const v = Math.min(25, Math.max(-25, parseFloat((e.target as HTMLInputElement).value) || 0));
+                            onSettingsChange({ table_offset_x: v });
+                          }
+                        }}
+                      />
+                      <span className="text-xs text-muted-foreground">mm</span>
+                    </div>
                   </div>
                   <Slider
                     value={[localTableOffsetX]}
@@ -454,7 +526,31 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <Label className="text-xs">Vertical</Label>
-                    <span className="text-xs text-muted-foreground">{localTableOffsetY}mm</span>
+                    <div className="flex items-center gap-1">
+                      <Input
+                        type="number"
+                        value={localTableOffsetY}
+                        min={-15}
+                        max={15}
+                        step={0.5}
+                        className="h-6 w-[70px] text-xs text-right px-1"
+                        onChange={(e) => {
+                          const v = Math.min(15, Math.max(-15, parseFloat(e.target.value) || 0));
+                          setLocalTableOffsetY(v);
+                        }}
+                        onBlur={(e) => {
+                          const v = Math.min(15, Math.max(-15, parseFloat(e.target.value) || 0));
+                          onSettingsChange({ table_offset_y: v });
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            const v = Math.min(15, Math.max(-15, parseFloat((e.target as HTMLInputElement).value) || 0));
+                            onSettingsChange({ table_offset_y: v });
+                          }
+                        }}
+                      />
+                      <span className="text-xs text-muted-foreground">mm</span>
+                    </div>
                   </div>
                   <Slider
                     value={[localTableOffsetY]}
