@@ -20,6 +20,7 @@ import { DJMCPublicView } from "./pages/DJMCPublicView";
 import { RunningSheetPublicView } from "./pages/RunningSheetPublicView";
 import { SeatingChartPublicView } from "./pages/SeatingChartPublicView";
 import { PaymentSuccess } from "./pages/PaymentSuccess";
+import { QRRedirect } from "./pages/QRRedirect";
 const queryClient = new QueryClient();
 
 // (FeatureGuard removed — no longer needed)
@@ -59,6 +60,8 @@ const App = () => (
           <Route path="/running-sheet/:token" element={<RunningSheetPublicView />} />
           {/* Seating chart public view */}
           <Route path="/seating-chart/:token" element={<SeatingChartPublicView />} />
+          {/* Dynamic QR code redirect */}
+          <Route path="/qr/:code" element={<QRRedirect />} />
            {/* Payment success */}
           <Route path="/payment-success" element={<PaymentSuccess />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

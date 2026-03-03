@@ -457,6 +457,47 @@ export type Database = {
           },
         ]
       }
+      dynamic_qr_codes: {
+        Row: {
+          code: string
+          created_at: string
+          current_event_id: string | null
+          destination_type: string
+          id: string
+          is_active: boolean
+          label: string
+          user_id: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          current_event_id?: string | null
+          destination_type?: string
+          id?: string
+          is_active?: boolean
+          label?: string
+          user_id: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          current_event_id?: string | null
+          destination_type?: string
+          id?: string
+          is_active?: boolean
+          label?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dynamic_qr_codes_current_event_id_fkey"
+            columns: ["current_event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       event_collaborators: {
         Row: {
           created_at: string | null
@@ -1941,6 +1982,51 @@ export type Database = {
         }
         Relationships: []
       }
+      qr_scan_logs: {
+        Row: {
+          event_id: string | null
+          id: string
+          ip_hash: string | null
+          qr_code_id: string
+          referrer: string | null
+          scanned_at: string
+          user_agent: string | null
+        }
+        Insert: {
+          event_id?: string | null
+          id?: string
+          ip_hash?: string | null
+          qr_code_id: string
+          referrer?: string | null
+          scanned_at?: string
+          user_agent?: string | null
+        }
+        Update: {
+          event_id?: string | null
+          id?: string
+          ip_hash?: string | null
+          qr_code_id?: string
+          referrer?: string | null
+          scanned_at?: string
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "qr_scan_logs_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "qr_scan_logs_qr_code_id_fkey"
+            columns: ["qr_code_id"]
+            isOneToOne: false
+            referencedRelation: "dynamic_qr_codes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       rsvp_invite_logs: {
         Row: {
           channel: string
@@ -2496,6 +2582,7 @@ export type Database = {
         }
         Returns: string
       }
+      generate_dynamic_qr_code: { Args: never; Returns: string }
       generate_guest_access_token: {
         Args: { _event_id: string; _guest_id: string; _validity_days?: number }
         Returns: string
@@ -2721,6 +2808,15 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      resolve_dynamic_qr: {
+        Args: { _code: string }
+        Returns: {
+          destination_type: string
+          event_id: string
+          event_slug: string
+          qr_code_id: string
+        }[]
       }
       update_dj_mc_item_by_token: {
         Args: {
