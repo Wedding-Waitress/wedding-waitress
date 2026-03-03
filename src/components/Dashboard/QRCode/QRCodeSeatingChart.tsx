@@ -19,8 +19,7 @@ import { Calendar, QrCode, Download, Settings, Eye, ExternalLink, Copy } from 'l
 import { useEvents } from '@/hooks/useEvents';
 import { useToast } from '@/hooks/use-toast';
 import { QRCodeMainCard } from './QRCodeMainCard';
-import { DynamicQRManager } from './DynamicQRManager';
-import { buildGuestLookupUrl } from '@/lib/urlUtils';
+import { useEventDynamicQR } from '@/hooks/useEventDynamicQR';
 import { format, parse } from 'date-fns';
 import { formatDisplayTime } from '@/lib/utils';
 interface QRCodeSeatingChartProps {
@@ -39,19 +38,20 @@ export const QRCodeSeatingChart: React.FC<QRCodeSeatingChartProps> = ({
   } = useEvents();
   const { toast } = useToast();
   const selectedEvent = events.find(event => event.id === selectedEventId);
+  const { dynamicUrl } = useEventDynamicQR(selectedEventId || null);
   const handleEventSelect = (eventId: string) => {
     if (eventId === "no-event") return;
     onEventSelect?.(eventId);
   };
   const handleLiveView = () => {
-    if (selectedEvent?.slug) {
-      const url = buildGuestLookupUrl(selectedEvent.slug);
+    const url = dynamicUrl;
+    if (url) {
       window.open(url, '_blank');
     }
   };
   const handleDownloadLink = async () => {
-    if (selectedEvent?.slug) {
-      const url = buildGuestLookupUrl(selectedEvent.slug);
+    const url = dynamicUrl;
+    if (url) {
       try {
         await navigator.clipboard.writeText(url);
         toast({
@@ -168,7 +168,5 @@ export const QRCodeSeatingChart: React.FC<QRCodeSeatingChartProps> = ({
           </CardDescription>
         </Card>}
 
-      {/* Dynamic QR Codes Section */}
-      <DynamicQRManager />
     </div>;
 };

@@ -3,7 +3,8 @@
  * Produces a clean black-on-transparent PNG data URL.
  */
 import QRCode from 'qrcode';
-import { buildGuestLookupUrl } from '@/lib/urlUtils';
+import { buildDynamicQRUrl, buildGuestLookupUrl } from '@/lib/urlUtils';
+import { supabase } from '@/integrations/supabase/client';
 
 export interface QrConfig {
   enabled: boolean;
@@ -19,13 +20,31 @@ export const DEFAULT_QR_CONFIG: QrConfig = {
   size_percent: 15,
 };
 
-/** Generate a QR code data URL for an event's guest lookup page */
-export async function generateInvitationQR(eventSlug: string): Promise<string> {
-  const url = buildGuestLookupUrl(eventSlug);
+/** Generate a QR code data URL for an event's guest lookup page.
+ *  Uses the dynamic QR URL if a dynamic code exists for the event, otherwise falls back to static. */
+export async function generateInvitationQR(eventSlug: string, eventId?: string): Promise<string> {
+  let url = buildGuestLookupUrl(eventSlug);
+
+  // Try to resolve dynamic QR code for this event
+  if (eventId) {
+    try {
+      const { data } = await supabase
+        .from('dynamic_qr_codes')
+        .select('code')
+        .eq('current_event_id', eventId)
+        .eq('is_active', true)
+        .limit(1)
+        .maybeSingle();
+      if (data?.code) {
+        url = buildDynamicQRUrl(data.code);
+      }
+    } catch { /* fall back to static */ }
+  }
+
   return QRCode.toDataURL(url, {
     width: 512,
     margin: 1,
-    color: { dark: '#000000', light: '#00000000' }, // transparent background
+    color: { dark: '#000000', light: '#00000000' },
     errorCorrectionLevel: 'M',
   });
 }

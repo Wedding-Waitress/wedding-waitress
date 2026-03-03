@@ -188,6 +188,23 @@ export const useEvents = () => {
 
       if (error) throw error;
 
+      // Auto-create a dynamic QR code for this event
+      try {
+        const { data: code, error: codeErr } = await supabase.rpc('generate_dynamic_qr_code');
+        if (!codeErr && code) {
+          await supabase.from('dynamic_qr_codes').insert({
+            code,
+            user_id: user.user.id,
+            current_event_id: data.id,
+            destination_type: 'guest_lookup',
+            label: eventData.name || 'Event QR',
+            is_active: true,
+          });
+        }
+      } catch (qrErr) {
+        console.error('Auto-create dynamic QR failed (non-blocking):', qrErr);
+      }
+
       // Set the newly created event as active immediately
       setActiveEventId(data.id);
       await updateDisplayCountdownEvent(data.id);
