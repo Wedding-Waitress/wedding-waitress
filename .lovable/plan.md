@@ -1,13 +1,12 @@
 
 
-## Resize Dialog Close Button
+## Fix Dialog Close Button Size
 
-**File:** `src/components/ui/dialog.tsx`
+**File:** `src/components/ui/dialog.tsx` (line 81)
 
-**Change:** On the close button element (~line 79):
-- Reduce circle size from `w-4 h-4` to `w-2 h-2` (8px)
-- Double border thickness from `border-[3px]` to `border-[6px]`
-- Scale down the X icon proportionally from `h-[18px] w-[18px]` to `h-[9px] w-[9px]`
+**Changes:**
+1. Remove `touch-target` class from the close button — this is overriding the 8px size
+2. Increase X icon from `h-[9px] w-[9px]` to `h-[12px] w-[12px]`
 
-Single line edit in the shared Dialog component — applies globally to all popups.
+Single line edit, applies globally.
 
