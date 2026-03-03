@@ -70,7 +70,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
     background_image_opacity: 100,
     text_zones: [],
     font_color: '#000000',
-    card_size: 'A5',
+    card_size: 'A4',
     orientation: 'portrait',
     card_type: 'invitation',
     name: 'Untitled',
@@ -191,23 +191,9 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                 <div>
                   <Label className="mb-2 block">Card Size</Label>
                   <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium">
-                    {currentSettings.card_size === 'A4' && 'A4 (210 × 297mm)'}
-                    {currentSettings.card_size === 'A5' && 'A5 (148 × 210mm)'}
-                    {currentSettings.card_size === 'A6' && 'A6 (105 × 148mm)'}
-                    {!['A4', 'A5', 'A6'].includes(currentSettings.card_size) && currentSettings.card_size}
+                    A4 (210 × 297mm)
                   </div>
-                  <p className="text-xs text-muted-foreground mt-1">Size is locked at creation and cannot be changed.</p>
-                </div>
-
-                <div>
-                  <Label className="mb-2 block">Orientation</Label>
-                  <Select value={currentSettings.orientation} onValueChange={(v) => handleSettingChange('orientation', v)}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="portrait">Portrait</SelectItem>
-                      <SelectItem value="landscape">Landscape</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <p className="text-xs text-muted-foreground mt-1">Size is locked at creation and cannot be changed. If you want to print in A5, please get your printer or designer to change the size. Quality will remain the same.</p>
                 </div>
 
                 <div className="pt-4 border-t">
@@ -215,7 +201,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                     onClick={async () => {
                       await onSettingsChange({
                         font_color: '#000000',
-                        card_size: 'A5',
+                        card_size: 'A4',
                         orientation: 'portrait',
                       });
                       toast({ title: "Design Reset", description: "Design settings reset to defaults" });

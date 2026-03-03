@@ -28,7 +28,7 @@ export const InvitationCardPreview: React.FC<InvitationCardPreviewProps> = ({
     background_image_opacity: 100,
     text_zones: [] as TextZone[],
     font_color: '#000000',
-    card_size: 'A5',
+    card_size: 'A4',
     orientation: 'portrait',
   };
 
