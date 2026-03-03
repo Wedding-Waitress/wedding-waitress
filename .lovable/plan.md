@@ -1,31 +1,26 @@
 
 
-## Changes to Invitations Design Tab
+## Add "Reset to Default" buttons to Text Zones and Messages tabs
 
-### 1. Card Size — always show A4, update helper text
-
-**File:** `src/components/Dashboard/Invitations/InvitationCardCustomizer.tsx`
-
-- **Lines 192-200**: Replace the card size display to always show "A4 (210 × 297mm)" regardless of what's stored in settings. Update the helper text to: *"Size is locked at creation and cannot be changed. If you want to print in A5, please get your printer or designer to change the size. Quality will remain the same."*
-
-- **Line 73**: Change default `card_size` from `'A5'` to `'A4'`.
-
-- **Lines 217-218**: In the Reset to Default handler, change `card_size` from `'A5'` to `'A4'`.
-
-### 2. Remove Orientation selector
+### Text Zones tab (line 387)
+Insert a "Reset to Default" button before the closing `</TabsContent>`. When clicked, it clears all text zones (`text_zones: []`) and shows a toast "Text Zones Reset".
 
 **File:** `src/components/Dashboard/Invitations/InvitationCardCustomizer.tsx`
+- Before line 387 (`</div>` + `</TabsContent>`), add:
+```
+<div className="pt-4 border-t">
+  <Button onClick={reset all text zones} variant="destructive" className="w-full rounded-full">
+    Reset to Default
+  </Button>
+</div>
+```
+- Reset action: `onSettingsChange({ text_zones: [] })` + toast "Text Zones Reset"
 
-- **Lines 202-211**: Remove the entire Orientation `<div>` block (the label + Select dropdown). Orientation will always be portrait.
+### Messages tab (line 565)
+Insert a "Reset to Default" button after the notes container. When clicked, it clears `localNotes` to empty string and shows a toast "Messages Reset".
 
-### 3. Update default in preview
+**File:** same file
+- Before line 565 (`</div>` + `</TabsContent>`), add same styled button that resets the notes/caption field.
 
-**File:** `src/components/Dashboard/Invitations/InvitationCardPreview.tsx`
-
-- **Line 31**: Change default `card_size` from `'A5'` to `'A4'`.
-- **Line 32**: Keep orientation as `'portrait'` (already correct).
-
-### Summary
-
-Two focused edits across two files. The orientation dropdown is removed entirely from the Design tab, and the card size is hardcoded to A4 with updated guidance text.
+Two small insertions in one file, matching the existing pattern from the Design and Background tabs.
 
