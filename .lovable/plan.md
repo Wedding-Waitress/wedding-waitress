@@ -1,16 +1,18 @@
 
 
-## Plan: Move "Edit with Canva" inline with Choose File & Image Gallery
+## Plan: Restyle "Edit with Canva" button with Canva logo on its own row
 
 ### Changes
 
-#### `src/components/Dashboard/Invitations/InvitationCardCustomizer.tsx`
+#### 1. Copy Canva logo asset
+Copy `user-uploads://Screenshot_2026-03-05_161444-removebg-preview.png` to `src/assets/canva-logo.png`.
 
-1. **Remove** the separate Canva section (lines 461-473) — the `div.space-y-3.mt-3` containing the Canva button and helper text.
+#### 2. `src/components/Dashboard/Invitations/InvitationCardCustomizer.tsx`
 
-2. **Modify** the button row at lines 439-459: Change from a 2-button `flex gap-2` row to a 3-button row. Add "Edit with Canva" as a third button with the same `flex-1 rounded-full` styling, using `variant="gradient"` and an `ExternalLink` icon. It opens `https://www.canva.com` in a new tab.
-
-3. **Add helper text** immediately after the 3-button row (before the background image preview): A `<p>` with the text *"Want more design freedom? Click 'Edit with Canva' to customise your invitation using Canva. After downloading your design as PNG or PDF, return here and upload it to Wedding Waitress."*
+- **Move** the "Edit with Canva" button out of the 3-button row back to a 2-button row (Choose File + Image Gallery).
+- **Below** that row, add the "Edit with Canva" button on its own line, full width (`w-full`), with `variant="gradient"` and `rounded-full`.
+- **Replace** the `ExternalLink` icon with the imported Canva logo (`<img>` element, ~20px height, rounded-full).
+- **Keep** the helper text paragraph below the button.
 
 No other files need changes.
 
