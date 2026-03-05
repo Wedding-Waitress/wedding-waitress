@@ -458,6 +458,20 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                         </Button>
                       </div>
 
+                      <div className="space-y-3 mt-3">
+                        <Button
+                          onClick={() => window.open('https://www.canva.com', '_blank')}
+                          variant="gradient"
+                          className="w-full rounded-full flex items-center justify-center gap-2"
+                        >
+                          <ExternalLink className="h-4 w-4" />
+                          Edit with Canva
+                        </Button>
+                        <p className="text-xs text-muted-foreground text-center">
+                          Want more design freedom? Click 'Edit with Canva' to customise your invitation using Canva. After downloading your design as PNG or PDF, return here and upload it to Wedding Waitress.
+                        </p>
+                      </div>
+
                       {currentSettings.background_image_url && (
                         <div className="mt-2 space-y-2">
                           <img src={currentSettings.background_image_url} alt="Background preview" className="w-full h-auto object-contain rounded border max-h-32" />
@@ -533,20 +547,6 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                     value={currentSettings.background_color}
                     onChange={(color) => handleSettingChange('background_color', color)}
                   />
-                </div>
-
-                <div className="space-y-3 pt-4 border-t">
-                  <Button
-                    onClick={() => window.open('https://www.canva.com', '_blank')}
-                    variant="gradient"
-                    className="w-full rounded-full flex items-center justify-center gap-2"
-                  >
-                    <ExternalLink className="h-4 w-4" />
-                    Edit with Canva
-                  </Button>
-                  <p className="text-xs text-muted-foreground text-center">
-                    Want more design freedom? Click 'Edit with Canva' to customise your invitation using Canva. After downloading your design as PNG or PDF, return here and upload it to Wedding Waitress.
-                  </p>
                 </div>
 
                 <div className="pt-4 border-t">
