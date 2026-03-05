@@ -1,7 +1,5 @@
 import React from 'react';
 import { InvitationCardSettings, TextZone } from '@/hooks/useInvitationCardSettings';
-import { Button } from "@/components/ui/enhanced-button";
-import { ExternalLink } from 'lucide-react';
 
 interface InvitationCardPreviewProps {
   settings: InvitationCardSettings | null;
@@ -125,20 +123,6 @@ export const InvitationCardPreview: React.FC<InvitationCardPreviewProps> = ({
           </div>
         </div>
 
-        {/* Edit in Canva */}
-        <div className="flex flex-col items-center gap-2 mt-4">
-          <Button
-            onClick={() => window.open('https://www.canva.com', '_blank')}
-            variant="outline"
-            className="rounded-full flex items-center gap-2"
-          >
-            <ExternalLink className="h-4 w-4" />
-            Edit with Canva
-          </Button>
-          <p className="text-xs text-muted-foreground text-center max-w-md">
-            Want more design freedom? Click 'Edit with Canva' to customise your invitation using Canva. After downloading your design as PNG or PDF, return here and upload it to Wedding Waitress.
-          </p>
-        </div>
       </div>
     </div>
   );
