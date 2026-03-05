@@ -1,33 +1,21 @@
 
 
-## Plan: Replace Canva square logo + button with single clickable Canva banner image
+## Plan: Move Edit with Canva banner onto the same row as Choose File and Image Gallery
 
 ### Summary
-Replace the current side-by-side layout (square logo + "Edit with Canva" button) with a single clickable image of the new Canva banner logo. Clicking the image opens Canva in a new tab.
+Move the clickable Canva banner image from its own row below the buttons into the same flex row as Choose File and Image Gallery, so all three sit side by side on one line.
 
 ### File Changes
 
-#### 1. Copy uploaded Canva banner logo
-- Copy `user-uploads://edit_with_canva_high_quality_1.png` to `src/assets/canva-edit-banner.png`
+#### 1. `src/components/Dashboard/Invitations/InvitationCardCustomizer.tsx`
+- **Move lines 428-433** (the `<img>` tag) inside the `</div>` that closes at line 427, placing it after the Image Gallery button (before the closing `</div>`).
+- Remove `mt-2` from the image class since it will now be inline with the buttons.
+- The flex container already has `gap-2`, so the banner will sit naturally next to the buttons.
 
-#### 2. `src/components/Dashboard/Invitations/InvitationCardCustomizer.tsx`
-- **Import** `canvaEditBanner` from `@/assets/canva-edit-banner.png`
-- **Replace lines 429-440** (the flex container with square logo + button) with a single clickable image:
-  ```tsx
-  <img
-    src={canvaEditBanner}
-    alt="Edit with Canva"
-    className="mt-2 h-12 rounded-lg cursor-pointer hover:opacity-80 transition-opacity"
-    onClick={() => window.open('https://www.canva.com', '_blank')}
-  />
-  ```
-- Remove `canvaSquareLogo` import if no longer used elsewhere (keep `canvaLogo` if still referenced).
-
-#### 3. `src/components/Dashboard/PlaceCards/PlaceCardCustomizer.tsx`
-- **Import** `canvaEditBanner` from `@/assets/canva-edit-banner.png`
-- **Replace lines 707-718** with the same single clickable image as above.
-- Remove `canvaSquareLogo` import if no longer used.
+#### 2. `src/components/Dashboard/PlaceCards/PlaceCardCustomizer.tsx`
+- **Move lines 706-711** (the `<img>` tag) inside the `</div>` that closes at line 703, placing it after the Image Gallery button.
+- Same class adjustment: remove `mt-2`.
 
 ### Result
-Both pages will show the new Canva banner image (clickable, opens Canva) in place of the old square logo + button combo. No other changes.
+All three elements — Choose File (green), Image Gallery (purple), Edit with Canva (banner) — appear on a single row in both pages. No other changes.
 
