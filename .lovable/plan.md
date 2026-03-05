@@ -1,20 +1,19 @@
 
 
-## Plan: Move and restyle "Edit with Canva" button
+## Plan: Reposition "Edit with Canva" button
 
 ### Problem
-The "Edit with Canva" button is currently a small outline button below the preview card on the right side — it's nearly invisible. The user's mockup shows it should be a large, prominent purple button in the **left-side customizer panel** (Background tab), below the Choose File / Image Gallery buttons.
+The "Edit with Canva" button is currently at the bottom of the Background tab (near Reset to Default). The user wants it immediately after the "Choose File" and "Image Gallery" buttons, styled to match the mockup screenshot — a purple/gradient button with Canva branding and helper text directly below.
 
 ### Changes
 
-#### 1. Remove from Preview: `src/components/Dashboard/Invitations/InvitationCardPreview.tsx`
-- Remove lines 128-141 (the entire "Edit in Canva" section: button + helper text).
+#### `src/components/Dashboard/Invitations/InvitationCardCustomizer.tsx`
 
-#### 2. Add to Customizer: `src/components/Dashboard/Invitations/InvitationCardCustomizer.tsx`
-- In the **Background** tab, below the "Choose File" and "Image Gallery" buttons, add:
-  - A prominent purple/gradient "Edit with Canva" button (matching the app's brand style) with the ExternalLink icon.
-  - Below it, the helper text: *"Want more design freedom? Click 'Edit with Canva' to customise your invitation using Canva. After downloading your design as PNG or PDF, return here and upload it to Wedding Waitress."*
-- Button opens `https://www.canva.com` in a new tab.
+1. **Remove** the current Canva section at lines 538-550 (the `border-t` div containing the button and helper text).
 
-No other changes needed.
+2. **Insert** the same Canva button + helper text immediately after line 459 (after the closing `</div>` of the Choose File / Image Gallery button row), before the background image preview section. The new block will be:
+   - A container with the "Edit with Canva" gradient button (matching the app's purple gradient style, `variant="gradient"`, full-width, `rounded-full`).
+   - Helper text below: *"Want more design freedom? Click 'Edit with Canva' to customise your invitation using Canva. After downloading your design as PNG or PDF, return here and upload it to Wedding Waitress."*
+
+No other files need changes.
 
