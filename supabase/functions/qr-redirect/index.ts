@@ -97,7 +97,7 @@ h1{color:#7248e6;font-size:1.5rem}p{color:#666;line-height:1.6}</style></head>
     }
 
     // Use the app's public URL — hardcode fallback so QR redirects always work
-    const publicBaseUrl = Deno.env.get("PUBLIC_BASE_URL") || "https://wedding-waitress.lovable.app";
+    const publicBaseUrl = Deno.env.get("PUBLIC_BASE_URL") || "https://weddingwaitress.com";
 
     let redirectPath: string;
     if (destination_type === "kiosk") {
