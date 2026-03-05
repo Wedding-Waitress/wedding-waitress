@@ -78,10 +78,15 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
 
     return {
       couple_names: coupleNames,
+      event_name: selectedEvent.name || '',
       date: selectedEvent.date ? formatDisplayDate(selectedEvent.date) : '',
       venue: selectedEvent.venue || '',
       time: selectedEvent.start_time ? formatDisplayTime(selectedEvent.start_time) : '',
       rsvp_deadline: selectedEvent.rsvp_deadline ? formatDisplayDate(selectedEvent.rsvp_deadline) : '',
+      ceremony_enabled: selectedEvent.ceremony_enabled ? 'true' : 'false',
+      ceremony_venue: selectedEvent.ceremony_venue || '',
+      ceremony_time: selectedEvent.ceremony_start_time ? formatDisplayTime(selectedEvent.ceremony_start_time) : '',
+      reception_enabled: selectedEvent.reception_enabled ? 'true' : 'false',
     };
   }, [selectedEvent]);
 

@@ -24,11 +24,29 @@ interface InvitationCardCustomizerProps {
   eventData: Record<string, string>;
 }
 
-const PRESET_ZONES: { field: string; label: string; defaultText: string }[] = [
-  { field: 'couple_names', label: 'Couple Names', defaultText: '' },
+const PRESET_ZONES: { field: string; label: string; defaultText: string; getDisabled?: (eventData: Record<string, string>) => boolean; getText?: (eventData: Record<string, string>) => string }[] = [
+  { field: 'event_name', label: 'Event Name', defaultText: '' },
   { field: 'date', label: 'Event Date', defaultText: '' },
-  { field: 'venue', label: 'Event Location', defaultText: '' },
-  { field: 'time', label: 'Event Time', defaultText: '' },
+  {
+    field: 'ceremony_info',
+    label: 'Ceremony Info',
+    defaultText: '',
+    getDisabled: (ed) => ed.ceremony_enabled !== 'true',
+    getText: (ed) => `Ceremony\n${ed.ceremony_venue || ''}${ed.ceremony_venue && ed.ceremony_time ? ', ' : ''}${ed.ceremony_time || ''}`,
+  },
+  {
+    field: 'reception_info',
+    label: 'Reception Info',
+    defaultText: '',
+    getDisabled: (ed) => ed.reception_enabled !== 'true',
+    getText: (ed) => `Reception\n${ed.venue || ''}${ed.venue && ed.time ? ', ' : ''}${ed.time || ''}`,
+  },
+  {
+    field: 'dress_code',
+    label: 'Dress Code',
+    defaultText: 'Formal - Dress to Impress',
+    getText: () => 'Formal - Dress to Impress',
+  },
   { field: 'rsvp_deadline', label: 'RSVP Deadline', defaultText: '' },
 ];
 
@@ -87,15 +105,15 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
     await onSettingsChange({ text_zones: newZones });
   };
 
-  const addPresetZone = async (field: string, label: string) => {
-    const exists = textZones.some(z => z.type === 'preset' && z.preset_field === field);
+  const addPresetZone = async (preset: typeof PRESET_ZONES[number]) => {
+    const exists = textZones.some(z => z.type === 'preset' && z.preset_field === preset.field);
     if (exists) {
-      toast({ title: "Already Added", description: `${label} zone already exists` });
+      toast({ title: "Already Added", description: `${preset.label} zone already exists` });
       return;
     }
     const yOffset = 20 + textZones.length * 12;
-    const zone = createDefaultZone('preset', label, field, Math.min(yOffset, 85));
-    zone.text = eventData[field] || '';
+    const zone = createDefaultZone('preset', preset.label, preset.field, Math.min(yOffset, 85));
+    zone.text = preset.getText ? preset.getText(eventData) : (eventData[preset.field] || preset.defaultText || '');
     await updateZones([...textZones, zone]);
   };
 
@@ -227,19 +245,22 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                 <div className="space-y-2">
                   <Label className="text-sm font-semibold">Add Preset Zone</Label>
                   <div className="flex flex-wrap gap-2">
-                    {PRESET_ZONES.map(pz => (
-                      <Button
-                        key={pz.field}
-                        size="sm"
-                        variant="outline"
-                        onClick={() => addPresetZone(pz.field, pz.label)}
-                        className="text-xs"
-                        disabled={textZones.some(z => z.preset_field === pz.field)}
-                      >
-                        <Plus className="h-3 w-3 mr-1" />
-                        {pz.label}
-                      </Button>
-                    ))}
+                    {PRESET_ZONES.map(pz => {
+                      const isDisabled = textZones.some(z => z.preset_field === pz.field) || (pz.getDisabled ? pz.getDisabled(eventData) : false);
+                      return (
+                        <Button
+                          key={pz.field}
+                          size="sm"
+                          variant="outline"
+                          onClick={() => addPresetZone(pz)}
+                          className="text-xs"
+                          disabled={isDisabled}
+                        >
+                          <Plus className="h-3 w-3 mr-1" />
+                          {pz.label}
+                        </Button>
+                      );
+                    })}
                   </div>
                 </div>
 
