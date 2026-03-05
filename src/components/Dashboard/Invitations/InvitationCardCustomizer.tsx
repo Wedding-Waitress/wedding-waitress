@@ -10,7 +10,8 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
 import { InvitationCardSettings, TextZone } from '@/hooks/useInvitationCardSettings';
-import { Palette, Type, Image, MessageSquare, Layers, Upload, Images, Trash2, Plus, GripVertical, ExternalLink } from 'lucide-react';
+import { Palette, Type, Image, MessageSquare, Layers, Upload, Images, Trash2, Plus, GripVertical } from 'lucide-react';
+import canvaLogo from '@/assets/canva-logo.png';
 import { InvitationGalleryModal } from './InvitationGalleryModal';
 import { PlaceCardFontPicker } from '../PlaceCards/PlaceCardFontPicker';
 import { supabase } from '@/integrations/supabase/client';
@@ -456,17 +457,17 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                           <Images className="h-4 w-4" />
                           Image Gallery
                         </Button>
-                        <Button
-                          type="button"
-                          size="sm"
-                          variant="gradient"
-                          onClick={() => window.open('https://www.canva.com', '_blank')}
-                          className="flex-1 rounded-full flex items-center justify-center gap-2"
-                        >
-                          <ExternalLink className="h-4 w-4" />
-                          Edit with Canva
-                        </Button>
                       </div>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="gradient"
+                        onClick={() => window.open('https://www.canva.com', '_blank')}
+                        className="w-full rounded-full flex items-center justify-center gap-2 mt-2"
+                      >
+                        <img src={canvaLogo} alt="Canva" className="h-5 w-5 rounded-full object-contain" />
+                        Edit with Canva
+                      </Button>
                       <p className="text-xs text-muted-foreground mt-2">
                         Want more design freedom? Click 'Edit with Canva' to customise your invitation using Canva. After downloading your design as PNG or PDF, return here and upload it to Wedding Waitress.
                       </p>
