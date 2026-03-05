@@ -465,7 +465,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                         onClick={() => window.open('https://www.canva.com', '_blank')}
                         className="w-full rounded-full flex items-center justify-center gap-2 mt-2"
                       >
-                        <img src={canvaLogo} alt="Canva" className="h-5 w-5 rounded-full object-contain" />
+                        <img src={canvaLogo} alt="Canva" className="h-7 w-7 rounded-full object-contain" />
                         Edit with Canva
                       </Button>
                       <p className="text-xs text-muted-foreground mt-2">
