@@ -456,21 +456,20 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                           <Images className="h-4 w-4" />
                           Image Gallery
                         </Button>
-                      </div>
-
-                      <div className="space-y-3 mt-3">
                         <Button
-                          onClick={() => window.open('https://www.canva.com', '_blank')}
+                          type="button"
+                          size="sm"
                           variant="gradient"
-                          className="w-full rounded-full flex items-center justify-center gap-2"
+                          onClick={() => window.open('https://www.canva.com', '_blank')}
+                          className="flex-1 rounded-full flex items-center justify-center gap-2"
                         >
                           <ExternalLink className="h-4 w-4" />
                           Edit with Canva
                         </Button>
-                        <p className="text-xs text-muted-foreground text-center">
-                          Want more design freedom? Click 'Edit with Canva' to customise your invitation using Canva. After downloading your design as PNG or PDF, return here and upload it to Wedding Waitress.
-                        </p>
                       </div>
+                      <p className="text-xs text-muted-foreground mt-2">
+                        Want more design freedom? Click 'Edit with Canva' to customise your invitation using Canva. After downloading your design as PNG or PDF, return here and upload it to Wedding Waitress.
+                      </p>
 
                       {currentSettings.background_image_url && (
                         <div className="mt-2 space-y-2">
