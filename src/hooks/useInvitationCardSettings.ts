@@ -38,6 +38,7 @@ export interface InvitationCardSettings {
   orientation: string;
   card_type: CardType;
   name: string;
+  canva_template_url?: string | null;
   created_at?: string;
   updated_at?: string;
 }

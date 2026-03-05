@@ -1,5 +1,7 @@
 import React from 'react';
 import { InvitationCardSettings, TextZone } from '@/hooks/useInvitationCardSettings';
+import { Button } from "@/components/ui/enhanced-button";
+import { ExternalLink } from 'lucide-react';
 
 interface InvitationCardPreviewProps {
   settings: InvitationCardSettings | null;
@@ -122,6 +124,23 @@ export const InvitationCardPreview: React.FC<InvitationCardPreviewProps> = ({
             )}
           </div>
         </div>
+
+        {/* Edit in Canva */}
+        {settings?.canva_template_url && (
+          <div className="flex flex-col items-center gap-2 mt-4">
+            <Button
+              onClick={() => window.open(settings.canva_template_url!, '_blank')}
+              variant="outline"
+              className="rounded-full flex items-center gap-2"
+            >
+              <ExternalLink className="h-4 w-4" />
+              Edit in Canva
+            </Button>
+            <p className="text-xs text-muted-foreground text-center max-w-md">
+              Want more design freedom? Click 'Edit in Canva' to customise this invitation using Canva's full editor. After downloading your design as PNG or PDF, return here and upload your finished invitation.
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );
