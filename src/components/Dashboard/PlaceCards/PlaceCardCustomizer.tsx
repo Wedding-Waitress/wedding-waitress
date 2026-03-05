@@ -11,6 +11,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import canvaLogo from '@/assets/canva-logo.png';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/enhanced-button";
 import { Input } from "@/components/ui/input";
@@ -700,6 +701,20 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                         Image Gallery
                       </Button>
                     </div>
+                    
+                    {/* Edit with Canva button */}
+                    <Button
+                      type="button"
+                      variant="gradient"
+                      className="w-full mt-2 rounded-full flex items-center justify-center gap-2"
+                      onClick={() => window.open('https://www.canva.com', '_blank')}
+                    >
+                      <img src={canvaLogo} alt="Canva" className="h-7 w-7 rounded-full object-contain" />
+                      Edit with Canva
+                    </Button>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Want more design freedom? Click 'Edit with Canva' to customise your place card using Canva. After downloading your design as PNG or PDF, return here and upload it to Wedding Waitress.
+                    </p>
                     
                     {/* Image preview, recommendation text, and remove button */}
                     {currentSettings.background_image_url && (
