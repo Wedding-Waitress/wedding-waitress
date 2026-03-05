@@ -1,0 +1,1 @@
+ALTER TABLE public.invitation_card_settings ADD COLUMN canva_template_url text DEFAULT NULL;

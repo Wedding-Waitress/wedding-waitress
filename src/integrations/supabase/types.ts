@@ -1238,6 +1238,7 @@ export type Database = {
           background_image_url: string | null
           background_image_x_position: number | null
           background_image_y_position: number | null
+          canva_template_url: string | null
           card_size: string
           card_type: string
           created_at: string
@@ -1257,6 +1258,7 @@ export type Database = {
           background_image_url?: string | null
           background_image_x_position?: number | null
           background_image_y_position?: number | null
+          canva_template_url?: string | null
           card_size?: string
           card_type?: string
           created_at?: string
@@ -1276,6 +1278,7 @@ export type Database = {
           background_image_url?: string | null
           background_image_x_position?: number | null
           background_image_y_position?: number | null
+          canva_template_url?: string | null
           card_size?: string
           card_type?: string
           created_at?: string
