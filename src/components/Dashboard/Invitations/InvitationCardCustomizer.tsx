@@ -425,13 +425,6 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                           Image Gallery
                         </Button>
                       </div>
-                      <div className="mt-3">
-                        <Label className="mb-2 block">Card Size</Label>
-                        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium">
-                          A4 (210 × 297mm)
-                        </div>
-                        <p className="text-xs text-muted-foreground mt-1">Size is locked at creation and cannot be changed. If you want to print in A5, please get your printer or designer to change the size. Quality will remain the same.</p>
-                      </div>
                       <Button
                         type="button"
                         size="sm"
