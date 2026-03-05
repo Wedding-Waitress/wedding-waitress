@@ -1,29 +1,17 @@
 
 
-## Plan: Add "Edit in Canva" to Invitations Section
-
-### Overview
-Add an optional "Edit in Canva" button next to the invitation preview that opens a Canva template link in a new tab. Each artwork/design stores an optional `canva_template_url` field. The button only appears when a URL is set.
+## Plan: Simplify "Edit with Canva" button
 
 ### Changes
 
-#### 1. Database: Add column to `invitation_card_settings`
-- Add `canva_template_url` (text, nullable) column to the `invitation_card_settings` table via Supabase SQL.
+#### 1. `src/components/Dashboard/Invitations/InvitationCardCustomizer.tsx`
+- **Remove** lines 538-550 (the Canva Template URL input field and its label/helper text).
 
-#### 2. Hook: `src/hooks/useInvitationCardSettings.ts`
-- Add `canva_template_url` to the `InvitationCardSettings` interface (string | null).
-- Include it in default values and ensure it's read/written during CRUD operations.
+#### 2. `src/components/Dashboard/Invitations/InvitationCardPreview.tsx`
+- **Replace** lines 128-143: Remove the conditional on `canva_template_url`. Always show the "Edit with Canva" button.
+- Button opens `https://www.canva.com` in a new tab (no user-provided URL needed).
+- Update helper text to: *"Want more design freedom? Click 'Edit with Canva' to customise your invitation using Canva. After downloading your design as PNG or PDF, return here and upload it to Wedding Waitress."*
 
-#### 3. Preview: `src/components/Dashboard/Invitations/InvitationCardPreview.tsx`
-- Below (or above) the preview card, conditionally render an "Edit in Canva" button when `settings.canva_template_url` is set.
-- Button opens the URL in a new tab via `window.open(url, '_blank')`.
-- Below the button, show the helper text: *"Want more design freedom? Click 'Edit in Canva' to customise this invitation using Canva's full editor. After downloading your design as PNG or PDF, return here and upload your finished invitation."*
-
-#### 4. Customizer: `src/components/Dashboard/Invitations/InvitationCardCustomizer.tsx`
-- In the Design or Background tab, add a "Canva Template URL" input field where the user (admin/host) can paste a Canva template link.
-- On change, persist via `onSettingsChange({ canva_template_url: value })`.
-
-#### 5. No other changes
-- Existing editor, font settings, and preview system remain untouched.
-- No Canva API integration — just a link opener.
+#### 3. No database changes needed
+The `canva_template_url` column can remain — it's unused but harmless.
 
