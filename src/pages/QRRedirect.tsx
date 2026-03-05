@@ -12,38 +12,9 @@ export const QRRedirect = () => {
       return;
     }
 
-    const redirect = async () => {
-      try {
-        // Call edge function to resolve & log scan
-        const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID || 'xytxkidpourwdbzzwcdp';
-        const url = `https://${projectId}.supabase.co/functions/v1/qr-redirect?code=${encodeURIComponent(code)}`;
-        
-        const response = await fetch(url, { redirect: 'manual' });
-        
-        if (response.status === 302) {
-          const location = response.headers.get('Location');
-          if (location) {
-            window.location.href = location;
-            return;
-          }
-        }
-
-        // If not a redirect, the edge function returned HTML (no event page)
-        if (response.ok) {
-          const html = await response.text();
-          document.open();
-          document.write(html);
-          document.close();
-          return;
-        }
-
-        setError(true);
-      } catch {
-        setError(true);
-      }
-    };
-
-    redirect();
+    // Navigate directly to the edge function — the browser follows the 302 natively
+    const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID || 'xytxkidpourwdbzzwcdp';
+    window.location.href = `https://${projectId}.supabase.co/functions/v1/qr-redirect?code=${encodeURIComponent(code)}`;
   }, [code]);
 
   if (error) {
