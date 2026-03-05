@@ -535,20 +535,6 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                   />
                 </div>
 
-                <div className="space-y-2 pt-4 border-t">
-                  <Label className="flex items-center gap-2">
-                    Canva Template URL
-                  </Label>
-                  <Input
-                    value={currentSettings.canva_template_url || ''}
-                    onChange={(e) => handleSettingChange('canva_template_url', e.target.value || null)}
-                    placeholder="https://www.canva.com/design/..."
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    Paste a Canva template link here. An "Edit in Canva" button will appear next to the preview.
-                  </p>
-                </div>
-
                 <div className="pt-4 border-t">
                   <Button
                     onClick={async () => {
