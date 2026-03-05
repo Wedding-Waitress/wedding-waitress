@@ -173,66 +173,12 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="design" className="space-y-4">
-            <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="design">Design</TabsTrigger>
+          <Tabs defaultValue="text-zones" className="space-y-4">
+            <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="text-zones">Text Zones</TabsTrigger>
               <TabsTrigger value="background">Background</TabsTrigger>
               <TabsTrigger value="messages">Messages</TabsTrigger>
             </TabsList>
-
-            {/* DESIGN TAB */}
-            <TabsContent value="design" className="space-y-4">
-              <div className="space-y-4">
-                <div>
-                  <Label className="flex items-center gap-2 mb-2">
-                    <Type className="h-4 w-4" />
-                    Default Font
-                  </Label>
-                  <PlaceCardFontPicker
-                    value={currentSettings.font_color ? 'Inter' : 'Inter'}
-                    onValueChange={() => {}}
-                  />
-                  <p className="text-xs text-muted-foreground mt-1">Each text zone can override this font individually.</p>
-                </div>
-
-                <div>
-                  <Label className="flex items-center gap-2 mb-2">
-                    <Palette className="h-4 w-4" />
-                    Default Font Color
-                  </Label>
-                  <ColorPickerPopover
-                    value={currentSettings.font_color}
-                    onChange={(color) => handleSettingChange('font_color', color)}
-                  />
-                </div>
-
-                <div>
-                  <Label className="mb-2 block">Card Size</Label>
-                  <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium">
-                    A4 (210 × 297mm)
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-1">Size is locked at creation and cannot be changed. If you want to print in A5, please get your printer or designer to change the size. Quality will remain the same.</p>
-                </div>
-
-                <div className="pt-4 border-t">
-                  <Button
-                    onClick={async () => {
-                      await onSettingsChange({
-                        font_color: '#000000',
-                        card_size: 'A4',
-                        orientation: 'portrait',
-                      });
-                      toast({ title: "Design Reset", description: "Design settings reset to defaults" });
-                    }}
-                    variant="destructive"
-                    className="w-full rounded-full"
-                  >
-                    Reset to Default
-                  </Button>
-                </div>
-              </div>
-            </TabsContent>
 
             {/* TEXT ZONES TAB */}
             <TabsContent value="text-zones" className="space-y-4">
@@ -478,6 +424,13 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                           <Images className="h-4 w-4" />
                           Image Gallery
                         </Button>
+                      </div>
+                      <div className="mt-3">
+                        <Label className="mb-2 block">Card Size</Label>
+                        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium">
+                          A4 (210 × 297mm)
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-1">Size is locked at creation and cannot be changed. If you want to print in A5, please get your printer or designer to change the size. Quality will remain the same.</p>
                       </div>
                       <Button
                         type="button"
