@@ -700,15 +700,13 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                         <Images className="h-4 w-4" />
                         Image Gallery
                       </Button>
+                      <img
+                        src={canvaEditBanner}
+                        alt="Edit with Canva"
+                        className="h-12 rounded-lg cursor-pointer hover:opacity-80 transition-opacity"
+                        onClick={() => window.open('https://www.canva.com', '_blank')}
+                      />
                     </div>
-                    
-                    {/* Edit with Canva button */}
-                    <img
-                      src={canvaEditBanner}
-                      alt="Edit with Canva"
-                      className="mt-2 h-12 rounded-lg cursor-pointer hover:opacity-80 transition-opacity"
-                      onClick={() => window.open('https://www.canva.com', '_blank')}
-                    />
                     <p className="text-xs text-muted-foreground mt-1">
                       Want more design freedom? Click 'Edit with Canva' to customise your place card using Canva. After downloading your design as PNG or PDF, return here and upload it to Wedding Waitress.
                     </p>
