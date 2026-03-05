@@ -1,30 +1,33 @@
 
 
-## Plan: Replace Canva logo and restructure Edit with Canva layout
+## Plan: Replace Canva square logo + button with single clickable Canva banner image
 
 ### Summary
-Copy the uploaded square Canva logo into the project assets. In both Invitations and Place Cards pages, replace the current full-width button with a new layout: a large square Canva logo on the left, and a smaller "Edit with Canva" purple button on the right.
+Replace the current side-by-side layout (square logo + "Edit with Canva" button) with a single clickable image of the new Canva banner logo. Clicking the image opens Canva in a new tab.
 
 ### File Changes
 
-#### 1. Copy uploaded Canva logo
-- Copy `user-uploads://Screenshot_2026-03-05_193717-removebg-preview.png` to `src/assets/canva-square-logo.png`
+#### 1. Copy uploaded Canva banner logo
+- Copy `user-uploads://edit_with_canva_high_quality_1.png` to `src/assets/canva-edit-banner.png`
 
 #### 2. `src/components/Dashboard/Invitations/InvitationCardCustomizer.tsx`
-- **Import** `canvaSquareLogo` from `@/assets/canva-square-logo.png` (replace old canvaLogo import if only used here, or add alongside).
-- **Replace lines 428-437** (the full-width Button) with a flex row container:
-  - Left: `<img src={canvaSquareLogo} className="h-14 w-14 rounded-lg object-contain" />` (large square logo)
-  - Right: A smaller button (no `w-full`, just auto-width) with `size="sm" variant="gradient"` text "Edit with Canva" only (no logo inside the button)
+- **Import** `canvaEditBanner` from `@/assets/canva-edit-banner.png`
+- **Replace lines 429-440** (the flex container with square logo + button) with a single clickable image:
+  ```tsx
+  <img
+    src={canvaEditBanner}
+    alt="Edit with Canva"
+    className="mt-2 h-12 rounded-lg cursor-pointer hover:opacity-80 transition-opacity"
+    onClick={() => window.open('https://www.canva.com', '_blank')}
+  />
+  ```
+- Remove `canvaSquareLogo` import if no longer used elsewhere (keep `canvaLogo` if still referenced).
 
 #### 3. `src/components/Dashboard/PlaceCards/PlaceCardCustomizer.tsx`
-- **Import** `canvaSquareLogo` from `@/assets/canva-square-logo.png`.
-- **Replace lines 705-714** with the same flex row layout as above.
+- **Import** `canvaEditBanner` from `@/assets/canva-edit-banner.png`
+- **Replace lines 707-718** with the same single clickable image as above.
+- Remove `canvaSquareLogo` import if no longer used.
 
-### Layout Result
-```text
-[Square Canva Logo]  [Edit with Canva button]
- (large, ~56px)       (small purple gradient)
-```
-
-No other changes to any other files or sections.
+### Result
+Both pages will show the new Canva banner image (clickable, opens Canva) in place of the old square logo + button combo. No other changes.
 
