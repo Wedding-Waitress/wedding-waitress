@@ -1,16 +1,23 @@
 
 
-## Plan: Add "Edit with Canva" button to Place Cards Background section
+## Plan: Remove Design tab and move Card Size info to Background tab
 
 ### Summary
-Add the same "Edit with Canva" button and helper text from the Invitations page into the Place Cards customizer, positioned below the "Choose File" and "Image Gallery" buttons in the background image upload section.
+Remove the "Design" tab entirely from the Invitations customizer. Move the "Card Size" display block into the Background tab, inserting it between the "Choose File / Image Gallery" buttons row and the "Edit with Canva" button.
 
 ### File Changes
 
-#### `src/components/Dashboard/PlaceCards/PlaceCardCustomizer.tsx`
-- **Import** `canvaLogo` from `@/assets/canva-logo.png`.
-- **After line 702** (closing `</div>` of the Choose File + Image Gallery button row), insert:
-  - A full-width gradient "Edit with Canva" button (`w-full mt-2 rounded-full variant="gradient"`) with the Canva logo (`h-7 w-7 rounded-full object-contain`).
-  - A helper `<p>` with text: *"Want more design freedom? Click 'Edit with Canva' to customise your place card using Canva. After downloading your design as PNG or PDF, return here and upload it to Wedding Waitress."*
-- No other changes to any other file.
+#### `src/components/Dashboard/Invitations/InvitationCardCustomizer.tsx`
+
+1. **Remove the Design tab trigger** (line 178): Change `grid-cols-4` to `grid-cols-3` and delete the `<TabsTrigger value="design">Design</TabsTrigger>`.
+
+2. **Change default tab** (line 176): From `defaultValue="design"` to `defaultValue="text-zones"`.
+
+3. **Delete the entire Design TabsContent** (lines 184-235): Remove the whole `<TabsContent value="design">` block including Default Font, Default Font Color, Card Size, and Reset to Default button.
+
+4. **Insert Card Size block in Background tab** (after line 481, before line 482 — between the Choose File/Image Gallery buttons `</div>` and the Canva button): Add:
+   - `<div className="mt-3">` containing:
+     - `<Label className="mb-2 block">Card Size</Label>`
+     - The A4 pill badge: `<div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium">A4 (210 × 297mm)</div>`
+     - Helper text: `<p className="text-xs text-muted-foreground mt-1">Size is locked at creation and cannot be changed. If you want to print in A5, please get your printer or designer to change the size. Quality will remain the same.</p>`
 
