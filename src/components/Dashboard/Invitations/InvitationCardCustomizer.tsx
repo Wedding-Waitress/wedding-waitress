@@ -12,6 +12,7 @@ import { Slider } from "@/components/ui/slider";
 import { InvitationCardSettings, TextZone } from '@/hooks/useInvitationCardSettings';
 import { Palette, Type, Image, MessageSquare, Layers, Upload, Images, Trash2, Plus, GripVertical } from 'lucide-react';
 import canvaLogo from '@/assets/canva-logo.png';
+import canvaSquareLogo from '@/assets/canva-square-logo.png';
 import { InvitationGalleryModal } from './InvitationGalleryModal';
 import { PlaceCardFontPicker } from '../PlaceCards/PlaceCardFontPicker';
 import { supabase } from '@/integrations/supabase/client';
@@ -425,16 +426,18 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                           Image Gallery
                         </Button>
                       </div>
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="gradient"
-                        onClick={() => window.open('https://www.canva.com', '_blank')}
-                        className="w-full rounded-full flex items-center justify-center gap-2 mt-2"
-                      >
-                        <img src={canvaLogo} alt="Canva" className="h-7 w-7 rounded-full object-contain" />
-                        Edit with Canva
-                      </Button>
+                      <div className="flex items-center gap-3 mt-2">
+                        <img src={canvaSquareLogo} alt="Canva" className="h-14 w-14 rounded-lg object-contain" />
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="gradient"
+                          onClick={() => window.open('https://www.canva.com', '_blank')}
+                          className="rounded-full"
+                        >
+                          Edit with Canva
+                        </Button>
+                      </div>
                       <p className="text-xs text-muted-foreground mt-2">
                         Want more design freedom? Click 'Edit with Canva' to customise your invitation using Canva. After downloading your design as PNG or PDF, return here and upload it to Wedding Waitress.
                       </p>
