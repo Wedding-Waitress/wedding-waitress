@@ -87,6 +87,7 @@ import { formatDisplayDate } from '@/lib/utils';
 import { RELATION_ROLE_LABELS, computeRelationDisplay } from "@/lib/relationUtils";
 import { DeleteConfirmationModal } from './DeleteConfirmationModal';
 import { ImportErrorModal } from './ImportErrorModal';
+import { GuestLimitDialog } from './GuestLimitDialog';
 import { whoIsAnalytics } from '@/lib/analytics';
 import { GuestBulkActionsBar } from './GuestBulkActionsBar';
 import { BulkTableAssignmentModal } from './BulkTableAssignmentModal';
@@ -217,6 +218,11 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
   const [sendChannel, setSendChannel] = useState<'email' | 'sms'>('email');
   const { sendEmailInvites, sendSmsInvites, sending } = useRsvpInvites();
   const { hasPurchased: hasRsvpPurchase, loading: rsvpPurchaseLoading } = useRsvpPurchase(selectedEventId);
+  
+  // Guest limit dialog state
+  const [showGuestLimitDialog, setShowGuestLimitDialog] = useState(false);
+  const [guestLimitDialogVariant, setGuestLimitDialogVariant] = useState<'congratulations' | 'exceeded'>('exceeded');
+  const guestLimitCongratulationsShownRef = React.useRef(false);
   // Selection handlers
   const handleSelectGuest = (guestId: string, checked: boolean) => {
     setSelectedGuestIds(prev => {
