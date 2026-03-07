@@ -494,16 +494,33 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
 
   // Refresh both guests and tables to keep counts in sync
   const handleGuestSuccess = async () => {
+    const previousGuestCount = guests.length;
     await Promise.all([refetchGuests(), fetchTables()]);
     
     // Clear names validation if this was the first guest added
-    if (guests.length === 0 && showNamesValidation) {
+    if (previousGuestCount === 0 && showNamesValidation) {
       setShowNamesValidation(false);
     }
     
     // Set first guest added flag when first guest is successfully added
-    if (guests.length === 0) {
+    if (previousGuestCount === 0) {
       setFirstGuestAdded(true);
+    }
+
+    // Check if we just reached the guest limit (show congratulations once)
+    const eventGuestLimit = selectedEvent?.guest_limit || 0;
+    if (eventGuestLimit > 0 && !guestLimitCongratulationsShownRef.current) {
+      // We need to re-check after refetch. Use a small delay to let state update.
+      setTimeout(() => {
+        // Re-read from DOM won't work, so we check optimistically:
+        // previousGuestCount was below limit, and we just added at least 1
+        const newCount = previousGuestCount + 1; // minimum addition
+        if (newCount >= eventGuestLimit) {
+          guestLimitCongratulationsShownRef.current = true;
+          setGuestLimitDialogVariant('congratulations');
+          setShowGuestLimitDialog(true);
+        }
+      }, 500);
     }
   };
 
@@ -2130,6 +2147,14 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
               description: "Payment processing will be available once Stripe is connected. Contact support for assistance.",
             });
           }}
+        />
+
+        {/* Guest Limit Dialog */}
+        <GuestLimitDialog
+          isOpen={showGuestLimitDialog}
+          onClose={() => setShowGuestLimitDialog(false)}
+          variant={guestLimitDialogVariant}
+          guestLimit={selectedEvent?.guest_limit || 0}
         />
       </>
     );
