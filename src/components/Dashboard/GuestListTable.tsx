@@ -1270,6 +1270,13 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
       
       return;
     }
+    // Guest limit check - block if already at or over limit
+    const eventGuestLimit = selectedEvent?.guest_limit || 0;
+    if (eventGuestLimit > 0 && guestCount >= eventGuestLimit) {
+      setGuestLimitDialogVariant('exceeded');
+      setShowGuestLimitDialog(true);
+      return;
+    }
     
     // Normal flow - open the add guest modal (allowed after saving required names)
     setEditingGuest(null);
