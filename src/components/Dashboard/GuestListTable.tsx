@@ -588,6 +588,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
     setPartnerNamesSaved(false);
     setHasUnsavedChanges(false);
     setFirstGuestAdded(false);
+    guestLimitCongratulationsShownRef.current = false;
     
     // Reset search
     setSearchTerm('');
