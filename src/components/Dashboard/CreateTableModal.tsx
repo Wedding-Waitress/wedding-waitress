@@ -79,6 +79,7 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [validationState, setValidationState] = useState<'idle' | 'valid' | 'invalid' | 'duplicate'>('idle');
   const [showWarningDialog, setShowWarningDialog] = useState(false);
+  const [showSeatLimitDialog, setShowSeatLimitDialog] = useState(false);
   const { toast } = useToast();
 
   // Get min/max limits based on table type
