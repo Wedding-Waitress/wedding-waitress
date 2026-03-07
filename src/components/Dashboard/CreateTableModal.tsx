@@ -15,6 +15,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { GuestLimitDialog } from './GuestLimitDialog';
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { secureTableSchema, type SecureTableData } from "@/lib/security/validation";
@@ -79,6 +80,7 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [validationState, setValidationState] = useState<'idle' | 'valid' | 'invalid' | 'duplicate'>('idle');
   const [showWarningDialog, setShowWarningDialog] = useState(false);
+  const [showSeatLimitDialog, setShowSeatLimitDialog] = useState(false);
   const { toast } = useToast();
 
   // Get min/max limits based on table type
@@ -231,6 +233,19 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
     if (!validateForm()) {
       setShowWarningDialog(true);
       return;
+    }
+
+    // Check if adding this table's seats would exceed the guest limit
+    if (eventGuestLimit) {
+      const currentTotalSeats = existingTables
+        .filter(t => t.id !== editingTable?.id) // Exclude current table if editing
+        .reduce((sum, table) => sum + table.limit_seats, 0);
+      const newTotalSeats = currentTotalSeats + limitSeats;
+      
+      if (newTotalSeats > eventGuestLimit) {
+        setShowSeatLimitDialog(true);
+        return;
+      }
     }
 
     setIsSubmitting(true);
@@ -501,6 +516,14 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Seat Limit Exceeded Dialog */}
+      <GuestLimitDialog
+        isOpen={showSeatLimitDialog}
+        onClose={() => setShowSeatLimitDialog(false)}
+        variant="exceeded"
+        guestLimit={eventGuestLimit || 0}
+      />
     </Dialog>
   );
 };
