@@ -607,69 +607,65 @@ export const GuestLookup: React.FC = () => {
       <div className="w-full px-4 pt-4 pb-1">
         <div className="max-w-4xl mx-auto">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <div className="bg-white p-2.5 rounded-xl border-2 border-gray-200 shadow-sm space-y-3">
-              {(liveViewSettings?.show_rsvp_invite || liveViewSettings?.show_welcome_video || liveViewSettings?.show_floor_plan || liveViewSettings?.show_menu) && (
-                <div className="grid w-full grid-cols-2 gap-3">
-                  {liveViewSettings?.show_rsvp_invite && (
-                    <button
-                      onClick={() => setShowRsvpInviteModal(true)}
-                      className="flex items-center justify-center gap-2 py-1.5 px-3 rounded-full border-2 border-primary bg-primary/10 text-primary font-semibold transition-all duration-200"
-                    >
-                      <Mail className="w-4 h-4" />
-                      <span className="text-sm font-medium">View RSVP Invite</span>
-                    </button>
-                  )}
-                  {liveViewSettings?.show_welcome_video && (
-                    <button
-                      onClick={() => setShowWelcomeVideoModal(true)}
-                      className="flex items-center justify-center gap-2 py-1.5 px-3 rounded-full border-2 border-primary bg-primary/10 text-primary font-semibold transition-all duration-200"
-                    >
-                      <Video className="w-4 h-4" />
-                      <span className="text-sm font-medium">View Video</span>
-                    </button>
-                  )}
-                  {liveViewSettings?.show_floor_plan && (
-                    <button
-                      onClick={() => setShowFloorPlanModal(true)}
-                      className="flex items-center justify-center gap-2 py-1.5 px-3 rounded-full border-2 border-primary bg-primary/10 text-primary font-semibold transition-all duration-200"
-                    >
-                      <MapPin className="w-4 h-4" />
-                      <span className="text-sm font-medium">Floor Plan</span>
-                    </button>
-                  )}
-                  {liveViewSettings?.show_menu && (
-                    <button
-                      onClick={() => setShowMenuModal(true)}
-                      className="flex items-center justify-center gap-2 py-1.5 px-3 rounded-full border-2 border-primary bg-primary/10 text-primary font-semibold transition-all duration-200"
-                    >
-                      <UtensilsCrossed className="w-4 h-4" />
-                      <span className="text-sm font-medium">View Menu</span>
-                    </button>
-                  )}
-                </div>
-              )}
-              <TabsList className="grid w-full h-auto grid-cols-2 p-0 bg-transparent border-0 shadow-none gap-3">
+            <div className="bg-white p-2.5 rounded-xl border-2 border-gray-200 shadow-sm">
+              <TabsList className="grid w-full h-auto grid-cols-3 p-0 bg-transparent border-0 shadow-none gap-2">
+                {/* Row 1: Update Your Details, View RSVP Invite, View Video */}
                 <TabsTrigger
                   value="search" 
-                  className="flex items-center justify-center gap-2 py-1.5 px-3 rounded-full border-2 border-primary bg-white text-gray-600 data-[state=active]:border-green-500 data-[state=active]:bg-green-50 data-[state=active]:text-green-700 data-[state=active]:font-semibold data-[state=active]:shadow-md transition-all duration-200"
+                  className="flex items-center justify-center gap-1 py-1.5 px-1.5 rounded-full border-2 border-primary bg-white text-gray-600 data-[state=active]:border-green-500 data-[state=active]:bg-green-50 data-[state=active]:text-green-700 data-[state=active]:font-semibold data-[state=active]:shadow-md transition-all duration-200"
                 >
-                  <Search className="w-4 h-4" />
+                  <Search className="w-3.5 h-3.5 shrink-0" />
                   {isEditable ? (
-                    <span>Update Your Details</span>
+                    <span className="text-xs font-medium">Update Your Details</span>
                   ) : (
-                    <>
-                      <span className="hidden sm:inline">Find Your Table</span>
-                      <span className="sm:hidden">Search</span>
-                    </>
+                    <span className="text-xs font-medium">Find Your Table</span>
                   )}
                 </TabsTrigger>
+                {liveViewSettings?.show_rsvp_invite && (
+                  <button
+                    onClick={() => setShowRsvpInviteModal(true)}
+                    className="flex items-center justify-center gap-1 py-1.5 px-1.5 rounded-full border-2 border-primary bg-primary/10 text-primary font-semibold transition-all duration-200"
+                  >
+                    <Mail className="w-3.5 h-3.5 shrink-0" />
+                    <span className="text-xs font-medium">View RSVP Invite</span>
+                  </button>
+                )}
+                {liveViewSettings?.show_welcome_video && (
+                  <button
+                    onClick={() => setShowWelcomeVideoModal(true)}
+                    className="flex items-center justify-center gap-1 py-1.5 px-1.5 rounded-full border-2 border-primary bg-primary/10 text-primary font-semibold transition-all duration-200"
+                  >
+                    <Video className="w-3.5 h-3.5 shrink-0" />
+                    <span className="text-xs font-medium">View Video</span>
+                  </button>
+                )}
+
+                {/* Row 2: Table View, Floor Plan, View Menu */}
                 <TabsTrigger 
                   value="visualization" 
-                  className="flex items-center justify-center gap-2 py-1.5 px-3 rounded-full border-2 border-primary bg-white text-gray-600 data-[state=active]:border-green-500 data-[state=active]:bg-green-50 data-[state=active]:text-green-700 data-[state=active]:font-semibold data-[state=active]:shadow-md transition-all duration-200"
+                  className="flex items-center justify-center gap-1 py-1.5 px-1.5 rounded-full border-2 border-primary bg-white text-gray-600 data-[state=active]:border-green-500 data-[state=active]:bg-green-50 data-[state=active]:text-green-700 data-[state=active]:font-semibold data-[state=active]:shadow-md transition-all duration-200"
                 >
-                  <Eye className="w-4 h-4" />
-                  <span>Table View</span>
+                  <Eye className="w-3.5 h-3.5 shrink-0" />
+                  <span className="text-xs font-medium">Table View</span>
                 </TabsTrigger>
+                {liveViewSettings?.show_floor_plan && (
+                  <button
+                    onClick={() => setShowFloorPlanModal(true)}
+                    className="flex items-center justify-center gap-1 py-1.5 px-1.5 rounded-full border-2 border-primary bg-primary/10 text-primary font-semibold transition-all duration-200"
+                  >
+                    <MapPin className="w-3.5 h-3.5 shrink-0" />
+                    <span className="text-xs font-medium">Floor Plan</span>
+                  </button>
+                )}
+                {liveViewSettings?.show_menu && (
+                  <button
+                    onClick={() => setShowMenuModal(true)}
+                    className="flex items-center justify-center gap-1 py-1.5 px-1.5 rounded-full border-2 border-primary bg-primary/10 text-primary font-semibold transition-all duration-200"
+                  >
+                    <UtensilsCrossed className="w-3.5 h-3.5 shrink-0" />
+                    <span className="text-xs font-medium">View Menu</span>
+                  </button>
+                )}
               </TabsList>
             </div>
 
@@ -767,7 +763,7 @@ export const GuestLookup: React.FC = () => {
                           });
                         }
                       }}
-                      className="bg-primary hover:bg-primary/90 text-white shadow-lg shadow-black/30 rounded-full px-5 py-0.5 h-auto min-h-0 text-sm"
+                      className="bg-primary hover:bg-primary/90 text-white shadow-lg shadow-black/30 rounded-full px-4 py-1 h-7 min-h-0 text-xs"
                     >
                       <Share2 className="w-4 h-4 mr-1.5" />
                       Share
