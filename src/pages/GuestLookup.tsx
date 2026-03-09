@@ -636,7 +636,7 @@ export const GuestLookup: React.FC = () => {
                 {/* Row 2: Table View, Floor Plan, View Menu */}
                 <TabsTrigger 
                   value="visualization" 
-                  className="flex items-center justify-center py-2 px-2 rounded-full border border-primary bg-white text-gray-600 data-[state=active]:border-green-500 data-[state=active]:bg-green-50 data-[state=active]:text-green-700 data-[state=active]:font-semibold data-[state=active]:shadow-md transition-all duration-200 whitespace-nowrap"
+                  className="flex items-center justify-center py-2 px-2 rounded-full border border-primary bg-primary/10 text-primary data-[state=active]:border-green-500 data-[state=active]:bg-green-50 data-[state=active]:text-green-700 data-[state=active]:font-semibold data-[state=active]:shadow-md transition-all duration-200 whitespace-nowrap"
                 >
                   <span className="text-[11px] font-medium">Table View</span>
                 </TabsTrigger>
@@ -735,9 +735,9 @@ export const GuestLookup: React.FC = () => {
                     </Button>
                   </div>
 
-                  <div className="text-center text-sm text-muted-foreground space-y-1">
+                  <div className="text-center text-sm text-muted-foreground space-y-0 -mt-2">
                     <p className="font-medium">Having trouble finding your name?</p>
-                    <p>Please contact event organiser for assistance</p>
+                    <p>Contact your organizer for assistance</p>
                   </div>
 
                   {/* Share Button - moved from hero */}
