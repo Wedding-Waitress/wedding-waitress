@@ -646,7 +646,7 @@ export const GuestLookup: React.FC = () => {
                 {liveViewSettings?.show_floor_plan && (
                   <button
                     onClick={() => setShowFloorPlanModal(true)}
-                    className="flex flex-row items-center justify-center gap-2 py-2 px-1 rounded-xl border border-primary/40 bg-primary/10 text-primary transition-all duration-200"
+                    className="flex flex-row items-center justify-center gap-2 h-[72px] py-2 px-1 rounded-xl border border-primary/40 bg-primary/10 text-primary transition-all duration-200"
                   >
                     <MapPin className="w-5 h-5 shrink-0" />
                     <div className="flex flex-col items-center">
