@@ -94,6 +94,7 @@ export const useLiveViewModuleSettings = (eventId: string | undefined) => {
             floor_plan_config: newData.floor_plan_config as Record<string, any> || {},
             menu_config: newData.menu_config as Record<string, any> || {},
             hero_image_config: (newData as any).hero_image_config as Record<string, any> || {},
+            reception_floor_plan_config: (newData as any).reception_floor_plan_config as Record<string, any> || {},
           });
         }
       } catch (error) {
