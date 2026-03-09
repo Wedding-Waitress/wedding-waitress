@@ -653,7 +653,7 @@ export const GuestLookup: React.FC = () => {
                     onClick={() => setShowMenuModal(true)}
                     className="flex items-center justify-center py-2 px-2 rounded-full border border-primary bg-primary/10 text-primary font-semibold transition-all duration-200 whitespace-nowrap"
                   >
-                    <span className="text-[13px] font-medium">View Menu</span>
+                    <span className="text-[13px] font-bold leading-tight text-center">Menu</span>
                   </button>
                 )}
               </TabsList>
