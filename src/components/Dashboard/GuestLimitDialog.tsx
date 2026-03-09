@@ -95,25 +95,25 @@ export const GuestLimitDialog: React.FC<GuestLimitDialogProps> = ({
   // Exceeded variant
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md border-amber-300">
-        <div className="bg-amber-50 rounded-xl p-6 text-center space-y-4">
+      <DialogContent className="max-w-md border-red-300">
+        <div className="bg-red-50 rounded-xl p-6 text-center space-y-4">
           <div className="flex justify-center">
-            <div className="bg-amber-100 rounded-full p-4">
-              <AlertTriangle className="h-10 w-10 text-amber-600" />
+            <div className="bg-red-100 rounded-full p-4">
+              <AlertTriangle className="h-10 w-10 text-red-500" />
             </div>
           </div>
-          <h2 className="text-xl font-semibold text-amber-800">
+          <h2 className="text-xl font-semibold text-red-700">
             Guest Limit Reached
           </h2>
-          <p className="text-base text-amber-700">
+          <p className="text-base text-red-600">
             You have reached your guest limit of {guestLimit}.
           </p>
-          <p className="text-sm text-amber-600">
+          <p className="text-sm text-red-500">
             If you want to add more guests, please change your guest limit in <span className="font-semibold">My Events</span> first.
           </p>
         </div>
         <DialogFooter className="mt-4">
-          <Button onClick={onClose} className="w-full bg-amber-500 hover:bg-amber-600 text-white rounded-full">
+          <Button onClick={onClose} className="w-full bg-red-500 hover:bg-red-600 text-white rounded-full">
             Understood
           </Button>
         </DialogFooter>
