@@ -747,13 +747,13 @@ export const GuestLookup: React.FC = () => {
                     </Button>
                   </div>
 
-                  <div className="text-center text-sm text-muted-foreground space-y-0 -mt-4">
+                  <div className="text-center text-sm text-muted-foreground space-y-0">
                     <p className="font-medium">Having trouble finding your name?</p>
                     <p>Contact your organiser for assistance</p>
                   </div>
 
-                  {/* Share Button - moved from hero */}
-                  <div className="flex justify-center mt-4">
+                  {/* Share Button */}
+                  <div className="flex justify-center">
                     <Button 
                       variant="secondary" 
                       size="sm"
@@ -765,10 +765,10 @@ export const GuestLookup: React.FC = () => {
                           });
                         }
                       }}
-                      className="bg-primary hover:bg-primary/90 text-white shadow-lg shadow-black/30 rounded-full px-3 h-4 min-h-0 text-[10px]"
+                      className="bg-primary hover:bg-primary/90 text-white shadow-lg shadow-black/30 rounded-full px-4 py-1 h-auto text-sm"
                     >
                       <Share2 className="w-4 h-4 mr-1.5" />
-                      Share
+                      Share this invite
                     </Button>
                   </div>
 
