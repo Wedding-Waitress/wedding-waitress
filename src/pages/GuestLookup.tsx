@@ -566,7 +566,7 @@ export const GuestLookup: React.FC = () => {
           backgroundPosition: 'center',
         } : undefined}
       >
-        <div className="w-full px-4 pt-8 pb-8 md:pt-12 md:pb-12">
+        <div className="w-full px-4 pt-16 pb-16 md:pt-24 md:pb-24">
           <div className="text-center">
             {/* "You're invited to" text above event name */}
             <p className="text-white/90 text-lg md:text-xl font-medium mb-2">
