@@ -1,19 +1,21 @@
 
 
-## Plan: Increase Hero Image Height
+## Plan: Move Edit with Canva banner onto the same row as Choose File and Image Gallery
 
-### Change (in `src/pages/GuestLookup.tsx`)
+### Summary
+Move the clickable Canva banner image from its own row below the buttons into the same flex row as Choose File and Image Gallery, so all three sit side by side on one line.
 
-Line 569: Increase the vertical padding on the hero section to give more room for landscape (4x6) photos.
+### File Changes
 
-Change:
-```tsx
-<div className="w-full px-4 pt-8 pb-8 md:pt-12 md:pb-12">
-```
-To:
-```tsx
-<div className="w-full px-4 pt-16 pb-16 md:pt-24 md:pb-24">
-```
+#### 1. `src/components/Dashboard/Invitations/InvitationCardCustomizer.tsx`
+- **Move lines 428-433** (the `<img>` tag) inside the `</div>` that closes at line 427, placing it after the Image Gallery button (before the closing `</div>`).
+- Remove `mt-2` from the image class since it will now be inline with the buttons.
+- The flex container already has `gap-2`, so the banner will sit naturally next to the buttons.
 
-This roughly doubles the vertical padding, giving landscape photos much more visible area. The mobile view gets `pt-16 pb-16` (4rem each) and desktop gets `pt-24 pb-24` (6rem each), making the hero section tall enough to showcase a horizontal 4x6 photo properly.
+#### 2. `src/components/Dashboard/PlaceCards/PlaceCardCustomizer.tsx`
+- **Move lines 706-711** (the `<img>` tag) inside the `</div>` that closes at line 703, placing it after the Image Gallery button.
+- Same class adjustment: remove `mt-2`.
+
+### Result
+All three elements — Choose File (green), Image Gallery (purple), Edit with Canva (banner) — appear on a single row in both pages. No other changes.
 
