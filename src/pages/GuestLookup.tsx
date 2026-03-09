@@ -22,7 +22,8 @@ import {
   UtensilsCrossed,
   MailOpen,
   PlayCircle,
-  LayoutGrid
+  LayoutGrid,
+  Hourglass
 } from 'lucide-react';
 import weddingWaitressFooterLogo from '@/assets/wedding-waitress-footer-logo.png';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
