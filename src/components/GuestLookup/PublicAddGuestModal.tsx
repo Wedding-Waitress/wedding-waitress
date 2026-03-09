@@ -60,6 +60,9 @@ interface PublicAddGuestModalProps {
   onGuestAdded: () => void;
   addedByGuestId?: string;
   addedByGuestName?: string;
+  addedByGuestFamilyGroup?: string;
+  addedByGuestTableId?: string;
+  addedByGuestTableNo?: number;
 }
 
 const inputClasses = "rounded-full border-2 border-primary focus-visible:border-primary focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none h-9";
