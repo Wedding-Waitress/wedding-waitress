@@ -173,12 +173,12 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
         // Call public_manage_guest_group for each new guest
         if (addedByGuestId) {
           for (const newGuestId of newGuestIds) {
-            const { error: groupError } = await supabase.rpc('public_manage_guest_group', {
+            const { error: groupError } = await (supabase.rpc as any)('public_manage_guest_group', {
               _event_id: eventId,
               _new_guest_id: newGuestId,
               _referring_guest_id: addedByGuestId,
               _guest_type: guestType,
-            } as any);
+            });
             if (groupError) {
               console.error('Error managing guest group:', groupError);
             }
