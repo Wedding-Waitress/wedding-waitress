@@ -735,9 +735,9 @@ export const GuestLookup: React.FC = () => {
                     </Button>
                   </div>
 
-                  <div className="text-center text-sm text-muted-foreground space-y-0 -mt-2">
+                  <div className="text-center text-sm text-muted-foreground space-y-0 -mt-4">
                     <p className="font-medium">Having trouble finding your name?</p>
-                    <p>Contact your organizer for assistance</p>
+                    <p>Contact your organiser for assistance</p>
                   </div>
 
                   {/* Share Button - moved from hero */}
