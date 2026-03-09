@@ -648,8 +648,11 @@ export const GuestLookup: React.FC = () => {
                     onClick={() => setShowFloorPlanModal(true)}
                     className="flex flex-col items-center justify-center py-2 px-1 rounded-xl border border-primary/40 bg-primary/10 text-primary transition-all duration-200"
                   >
-                    <MapPin className="w-5 h-5 mb-1" />
-                    <span className="text-xs font-bold leading-tight text-center whitespace-nowrap">Ceremony Floor Plan</span>
+                    <div className="flex items-center gap-1">
+                      <MapPin className="w-5 h-5" />
+                      <span className="text-xs font-bold leading-tight">Ceremony</span>
+                    </div>
+                    <span className="text-xs font-bold leading-tight">Floor Plan</span>
                   </button>
                 )}
                 {liveViewSettings?.show_reception_floor_plan && (
@@ -657,8 +660,11 @@ export const GuestLookup: React.FC = () => {
                     onClick={() => setShowReceptionFloorPlanModal(true)}
                     className="flex flex-col items-center justify-center py-2 px-1 rounded-xl border border-primary/40 bg-primary/10 text-primary transition-all duration-200"
                   >
-                    <MapPin className="w-5 h-5 mb-1" />
-                    <span className="text-xs font-bold leading-tight text-center whitespace-nowrap">Reception Floor Plan</span>
+                    <div className="flex items-center gap-1">
+                      <MapPin className="w-5 h-5" />
+                      <span className="text-xs font-bold leading-tight">Reception</span>
+                    </div>
+                    <span className="text-xs font-bold leading-tight">Floor Plan</span>
                   </button>
                 )}
                 {liveViewSettings?.show_menu && (
