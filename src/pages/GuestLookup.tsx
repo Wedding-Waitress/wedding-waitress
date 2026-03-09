@@ -629,9 +629,9 @@ export const GuestLookup: React.FC = () => {
                 {liveViewSettings?.show_rsvp_invite && (
                   <button
                     onClick={() => setShowRsvpInviteModal(true)}
-                    className="flex items-center justify-center gap-0.5 py-1.5 px-1.5 rounded-full border-2 border-primary bg-primary/10 text-primary font-semibold transition-all duration-200"
+                    className="flex items-center justify-center gap-0 py-1.5 px-1.5 rounded-full border-2 border-primary bg-primary/10 text-primary font-semibold transition-all duration-200"
                   >
-                    <Mail className="w-3.5 h-3.5 shrink-0" />
+                    <Mail className="w-3.5 h-3.5 shrink-0 mr-1" />
                     <span className="text-xs font-medium">View RSVP Invite</span>
                   </button>
                 )}
