@@ -373,7 +373,7 @@ export const GuestLookup: React.FC = () => {
             relation_display: '',
             created_at: '',
             display_order: null,
-            family_group: null,
+            family_group: (row as any).guest_family_group || null,
             added_by_guest_id: (row as any).guest_added_by_guest_id || null,
           }));
 
