@@ -130,6 +130,7 @@ export const GuestLookup: React.FC = () => {
   const [showRsvpInviteModal, setShowRsvpInviteModal] = useState(false);
   const [showWelcomeVideoModal, setShowWelcomeVideoModal] = useState(false);
   const [showFloorPlanModal, setShowFloorPlanModal] = useState(false);
+  const [showReceptionFloorPlanModal, setShowReceptionFloorPlanModal] = useState(false);
   const [showMenuModal, setShowMenuModal] = useState(false);
   const [ceremonyFloorPlan, setCeremonyFloorPlan] = useState<any>(null);
   const [ceremonyFloorPlanLoading, setCeremonyFloorPlanLoading] = useState(false);
