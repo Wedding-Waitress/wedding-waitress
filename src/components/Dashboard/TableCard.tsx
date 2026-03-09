@@ -150,9 +150,11 @@ export const TableCard: React.FC<TableCardProps> = ({
     <>
       <Card 
         className={`ww-box transition-all duration-300 flex flex-col min-h-fit ${
-          isFull 
-            ? 'border-4 border-green-500' 
-            : 'border-2 border-primary'
+          table.guest_count > table.limit_seats
+            ? 'border-4 border-destructive'
+            : isFull 
+              ? 'border-4 border-green-500' 
+              : 'border-2 border-primary'
         } ${
           isOver ? 'border-4 border-blue-500 bg-blue-50 dark:bg-blue-950' : ''
         }`}
