@@ -682,21 +682,13 @@ export const GuestLookup: React.FC = () => {
             <div className="pt-3">
             <TabsContent value="search" className="mt-0">
               <Card className="ww-box card-elevated">
-                <CardHeader className="text-center">
-                  <CardTitle className="flex items-center justify-center font-bold whitespace-nowrap text-lg md:text-xl">
-                    {isEventDay ? "Type Your Full Name" : "Type Your Full Name Here"}
-                  </CardTitle>
-                  <CardTitle className="flex items-center justify-center font-bold whitespace-nowrap text-lg md:text-xl">
-                    {isEventDay ? "To Find Your Table & Seat" : (isEditable ? "Update & Confirm Your Details" : "Find Your Seat")}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-6">
+                <CardContent className="space-y-4 pt-6">
                   {/* Search Input */}
-                  <div className="relative mt-4">
+                  <div className="relative">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
                     <Input
                       type="text"
-                      placeholder={moduleSettings?.update_details_config?.search_placeholder || "Type your first or last name..."}
+                      placeholder={moduleSettings?.update_details_config?.search_placeholder || "Type your full name here..."}
                       value={searchTerm}
                       onChange={(e) => handleSearchChange(e.target.value)}
                       className="pl-10 text-base md:text-lg h-11 md:h-12 border-green-500 border-2 focus-visible:ring-green-500"
@@ -755,13 +747,13 @@ export const GuestLookup: React.FC = () => {
                     </Button>
                   </div>
 
-                  <div className="text-center text-sm text-muted-foreground space-y-0 -mt-4">
+                  <div className="text-center text-sm text-muted-foreground space-y-0">
                     <p className="font-medium">Having trouble finding your name?</p>
                     <p>Contact your organiser for assistance</p>
                   </div>
 
-                  {/* Share Button - moved from hero */}
-                  <div className="flex justify-center mt-4">
+                  {/* Share Button */}
+                  <div className="flex justify-center">
                     <Button 
                       variant="secondary" 
                       size="sm"
@@ -773,10 +765,10 @@ export const GuestLookup: React.FC = () => {
                           });
                         }
                       }}
-                      className="bg-primary hover:bg-primary/90 text-white shadow-lg shadow-black/30 rounded-full px-3 h-4 min-h-0 text-[10px]"
+                      className="bg-primary hover:bg-primary/90 text-white shadow-lg shadow-black/30 rounded-full px-4 py-1 h-auto text-sm"
                     >
                       <Share2 className="w-4 h-4 mr-1.5" />
-                      Share
+                      Share this invite
                     </Button>
                   </div>
 
