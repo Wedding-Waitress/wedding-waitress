@@ -511,7 +511,9 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
 
           {/* Col 2: Customization Panel */}
           <div className="bg-muted/30 rounded-lg border border-border p-3 space-y-3 overflow-y-auto min-h-[320px]">
-            <h3 className="text-base font-semibold text-foreground">Design Your QR Code</h3>
+            <div className="bg-primary text-primary-foreground text-center py-2 px-3 rounded-md -mx-3 -mt-3">
+              <h3 className="text-base font-semibold">Design Your QR Code</h3>
+            </div>
             {/* Accordions for Color, Shape, Logo */}
             <Accordion type="multiple" className="w-full space-y-2">
               {/* COLOR Section */}

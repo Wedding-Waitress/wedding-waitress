@@ -621,7 +621,7 @@ export const GuestLookup: React.FC = () => {
                     onClick={() => setShowRsvpInviteModal(true)}
                     className="flex items-center justify-center py-2 px-2 rounded-full border border-primary bg-primary/10 text-primary font-semibold transition-all duration-200 whitespace-nowrap"
                   >
-                    <span className="text-[13px] font-medium">View RSVP Invite</span>
+                    <span className="text-[13px] font-bold leading-tight text-center">RSVP<br/>Invite</span>
                   </button>
                 )}
                 {liveViewSettings?.show_welcome_video && (
@@ -629,7 +629,7 @@ export const GuestLookup: React.FC = () => {
                     onClick={() => setShowWelcomeVideoModal(true)}
                     className="flex items-center justify-center py-2 px-2 rounded-full border border-primary bg-primary/10 text-primary font-semibold transition-all duration-200 whitespace-nowrap"
                   >
-                    <span className="text-[13px] font-medium">View Video</span>
+                    <span className="text-[13px] font-bold leading-tight text-center">Video</span>
                   </button>
                 )}
 
@@ -638,14 +638,14 @@ export const GuestLookup: React.FC = () => {
                   value="visualization" 
                   className="flex items-center justify-center py-2 px-2 rounded-full border border-primary bg-primary/10 text-primary data-[state=active]:border-green-500 data-[state=active]:bg-green-50 data-[state=active]:text-green-700 data-[state=active]:font-semibold data-[state=active]:shadow-md transition-all duration-200 whitespace-nowrap"
                 >
-                  <span className="text-[13px] font-medium">Table View</span>
+                  <span className="text-[13px] font-bold leading-tight text-center">Table</span>
                 </TabsTrigger>
                 {liveViewSettings?.show_floor_plan && (
                   <button
                     onClick={() => setShowFloorPlanModal(true)}
                     className="flex items-center justify-center py-2 px-2 rounded-full border border-primary bg-primary/10 text-primary font-semibold transition-all duration-200 whitespace-nowrap"
                   >
-                    <span className="text-[13px] font-medium">Floor Plan</span>
+                    <span className="text-[13px] font-bold leading-tight text-center">Floor<br/>Plan</span>
                   </button>
                 )}
                 {liveViewSettings?.show_menu && (
@@ -653,7 +653,7 @@ export const GuestLookup: React.FC = () => {
                     onClick={() => setShowMenuModal(true)}
                     className="flex items-center justify-center py-2 px-2 rounded-full border border-primary bg-primary/10 text-primary font-semibold transition-all duration-200 whitespace-nowrap"
                   >
-                    <span className="text-[13px] font-medium">View Menu</span>
+                    <span className="text-[13px] font-bold leading-tight text-center">Menu</span>
                   </button>
                 )}
               </TabsList>
