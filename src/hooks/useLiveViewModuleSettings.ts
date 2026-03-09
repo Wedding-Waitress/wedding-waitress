@@ -15,6 +15,7 @@ export interface LiveViewModuleSettings {
   floor_plan_config: Record<string, any>;
   menu_config: Record<string, any>;
   hero_image_config: Record<string, any>;
+  reception_floor_plan_config: Record<string, any>;
   updated_at?: string;
 }
 
