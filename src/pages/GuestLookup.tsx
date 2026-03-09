@@ -836,9 +836,9 @@ export const GuestLookup: React.FC = () => {
                   <Card className="ww-box card-elevated">
                     <CardContent className="p-8 text-center">
                       <Eye className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-                      <CardTitle className="mb-2">Interactive Table View</CardTitle>
-                      <CardDescription>
-                        Search for your name first to see your table visualization
+                      <CardTitle className="mb-2">Table View</CardTitle>
+                      <CardDescription className="text-base">
+                        Search for your name first to see what table you are sitting on and who you are sitting with.
                       </CardDescription>
                     </CardContent>
                   </Card>
