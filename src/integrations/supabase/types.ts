@@ -2719,6 +2719,7 @@ export type Database = {
           floor_plan_config: Json
           guest_added_by_guest_id: string
           guest_dietary: string
+          guest_family_group: string
           guest_first_name: string
           guest_id: string
           guest_last_name: string
