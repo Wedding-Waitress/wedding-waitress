@@ -9,7 +9,6 @@ import {
   XCircle,
   PlusCircle,
   ClipboardCheck,
-  Pencil,
   Users,
   UserPlus,
   Utensils,
@@ -186,10 +185,9 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
             {onEdit && isEditable && (
               <Button
                 onClick={() => onEdit(guest)}
-                className="ml-2 rounded-full px-5 py-0.5 h-auto min-h-0 bg-primary text-white hover:bg-primary/90 text-sm font-semibold"
+                className="ml-2 rounded-full px-4 py-1.5 h-auto min-h-0 bg-green-500 text-white hover:bg-green-600 border-2 border-green-600 text-[13px] font-bold"
               >
-                <Pencil className="w-4 h-4 mr-1.5" />
-                Edit
+                Update Your Details
               </Button>
             )}
           </div>
