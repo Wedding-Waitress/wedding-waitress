@@ -619,7 +619,7 @@ export const GuestLookup: React.FC = () => {
                 {liveViewSettings?.show_rsvp_invite && (
                   <button
                     onClick={() => setShowRsvpInviteModal(true)}
-                    className="flex flex-col items-center justify-center py-2 px-1 rounded-xl border border-primary/40 bg-primary/10 text-primary transition-all duration-200"
+                    className="flex flex-col items-center justify-center h-[72px] py-2 px-1 rounded-xl border border-primary/40 bg-primary/10 text-primary transition-all duration-200"
                   >
                     <MailOpen className="w-5 h-5 mb-1" />
                     <span className="text-xs font-bold leading-tight text-center whitespace-nowrap">RSVP Invite</span>
@@ -628,7 +628,7 @@ export const GuestLookup: React.FC = () => {
                 {liveViewSettings?.show_welcome_video && (
                   <button
                     onClick={() => setShowWelcomeVideoModal(true)}
-                    className="flex flex-col items-center justify-center py-2 px-1 rounded-xl border border-primary/40 bg-primary/10 text-primary transition-all duration-200"
+                    className="flex flex-col items-center justify-center h-[72px] py-2 px-1 rounded-xl border border-primary/40 bg-primary/10 text-primary transition-all duration-200"
                   >
                     <PlayCircle className="w-5 h-5 mb-1" />
                     <span className="text-xs font-bold leading-tight text-center whitespace-nowrap">Welcome Video</span>
@@ -636,7 +636,7 @@ export const GuestLookup: React.FC = () => {
                 )}
                 <TabsTrigger 
                   value="visualization" 
-                  className="flex flex-col items-center justify-center py-2 px-1 rounded-xl border border-primary/40 bg-primary/10 text-primary data-[state=active]:border-green-400 data-[state=active]:bg-green-50 data-[state=active]:text-green-700 data-[state=active]:shadow-md transition-all duration-200"
+                  className="flex flex-col items-center justify-center h-[72px] py-2 px-1 rounded-xl border border-primary/40 bg-primary/10 text-primary data-[state=active]:border-green-400 data-[state=active]:bg-green-50 data-[state=active]:text-green-700 data-[state=active]:shadow-md transition-all duration-200"
                 >
                   <LayoutGrid className="w-5 h-5 mb-1" />
                   <span className="text-xs font-bold leading-tight text-center whitespace-nowrap">Table</span>
@@ -646,7 +646,7 @@ export const GuestLookup: React.FC = () => {
                 {liveViewSettings?.show_floor_plan && (
                   <button
                     onClick={() => setShowFloorPlanModal(true)}
-                    className="flex flex-row items-center justify-center gap-2 py-2 px-1 rounded-xl border border-primary/40 bg-primary/10 text-primary transition-all duration-200"
+                    className="flex flex-row items-center justify-center gap-2 h-[72px] py-2 px-1 rounded-xl border border-primary/40 bg-primary/10 text-primary transition-all duration-200"
                   >
                     <MapPin className="w-5 h-5 shrink-0" />
                     <div className="flex flex-col items-center">
@@ -658,7 +658,7 @@ export const GuestLookup: React.FC = () => {
                 {liveViewSettings?.show_reception_floor_plan && (
                   <button
                     onClick={() => setShowReceptionFloorPlanModal(true)}
-                    className="flex flex-row items-center justify-center gap-2 py-2 px-1 rounded-xl border border-primary/40 bg-primary/10 text-primary transition-all duration-200"
+                    className="flex flex-row items-center justify-center gap-2 h-[72px] py-2 px-1 rounded-xl border border-primary/40 bg-primary/10 text-primary transition-all duration-200"
                   >
                     <MapPin className="w-5 h-5 shrink-0" />
                     <div className="flex flex-col items-center">
@@ -670,7 +670,7 @@ export const GuestLookup: React.FC = () => {
                 {liveViewSettings?.show_menu && (
                   <button
                     onClick={() => setShowMenuModal(true)}
-                    className="flex flex-col items-center justify-center py-2 px-1 rounded-xl border border-primary/40 bg-primary/10 text-primary transition-all duration-200"
+                    className="flex flex-col items-center justify-center h-[72px] py-2 px-1 rounded-xl border border-primary/40 bg-primary/10 text-primary transition-all duration-200"
                   >
                     <UtensilsCrossed className="w-5 h-5 mb-1" />
                     <span className="text-xs font-bold leading-tight text-center whitespace-nowrap">Menu</span>
