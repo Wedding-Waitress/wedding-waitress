@@ -19,7 +19,11 @@ import {
   Share2,
   Mail,
   Video,
-  UtensilsCrossed
+  UtensilsCrossed,
+  ClipboardEdit,
+  MailOpen,
+  PlayCircle,
+  LayoutGrid
 } from 'lucide-react';
 import weddingWaitressFooterLogo from '@/assets/wedding-waitress-footer-logo.png';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
