@@ -54,6 +54,7 @@ export const useLiveViewVisibility = (eventId: string | null) => {
             show_welcome_video: false,
             show_floor_plan: false,
             show_menu: false,
+            show_reception_floor_plan: false,
           })
           .select()
           .single();
