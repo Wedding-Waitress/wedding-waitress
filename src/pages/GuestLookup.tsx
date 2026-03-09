@@ -616,14 +616,7 @@ export const GuestLookup: React.FC = () => {
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
              <div className="bg-white p-2.5 rounded-xl border-2 border-gray-200 shadow-sm">
               <TabsList className="grid w-full h-auto grid-cols-3 p-0 bg-transparent border-0 shadow-none gap-2">
-                {/* Row 1: Update Your Details, RSVP Invite, Video */}
-                <TabsTrigger
-                  value="search" 
-                  className="flex flex-col items-center justify-center py-2 px-1 rounded-xl border border-green-400 bg-green-50 text-green-700 data-[state=active]:border-green-400 data-[state=active]:bg-green-50 data-[state=active]:text-green-700 data-[state=active]:shadow-md transition-all duration-200"
-                >
-                  <ClipboardEdit className="w-5 h-5 mb-1" />
-                  <span className="text-xs font-bold leading-tight text-center whitespace-nowrap">{isEditable ? "Update Your Details" : "Find Your Table"}</span>
-                </TabsTrigger>
+                {/* Row 1: RSVP Invite, Welcome Video, Table */}
                 {liveViewSettings?.show_rsvp_invite && (
                   <button
                     onClick={() => setShowRsvpInviteModal(true)}
@@ -639,11 +632,9 @@ export const GuestLookup: React.FC = () => {
                     className="flex flex-col items-center justify-center py-2 px-1 rounded-xl border border-primary/40 bg-primary/10 text-primary transition-all duration-200"
                   >
                     <PlayCircle className="w-5 h-5 mb-1" />
-                    <span className="text-xs font-bold leading-tight text-center whitespace-nowrap">Video</span>
+                    <span className="text-xs font-bold leading-tight text-center whitespace-nowrap">Welcome Video</span>
                   </button>
                 )}
-
-                {/* Row 2: Table, Floor Plan, Menu */}
                 <TabsTrigger 
                   value="visualization" 
                   className="flex flex-col items-center justify-center py-2 px-1 rounded-xl border border-primary/40 bg-primary/10 text-primary data-[state=active]:border-green-400 data-[state=active]:bg-green-50 data-[state=active]:text-green-700 data-[state=active]:shadow-md transition-all duration-200"
@@ -651,13 +642,24 @@ export const GuestLookup: React.FC = () => {
                   <LayoutGrid className="w-5 h-5 mb-1" />
                   <span className="text-xs font-bold leading-tight text-center whitespace-nowrap">Table</span>
                 </TabsTrigger>
+
+                {/* Row 2: Ceremony Floor Plan, Reception Floor Plan, Menu */}
                 {liveViewSettings?.show_floor_plan && (
                   <button
                     onClick={() => setShowFloorPlanModal(true)}
                     className="flex flex-col items-center justify-center py-2 px-1 rounded-xl border border-primary/40 bg-primary/10 text-primary transition-all duration-200"
                   >
                     <MapPin className="w-5 h-5 mb-1" />
-                    <span className="text-xs font-bold leading-tight text-center whitespace-nowrap">Floor Plan</span>
+                    <span className="text-xs font-bold leading-tight text-center whitespace-nowrap">Ceremony Floor Plan</span>
+                  </button>
+                )}
+                {liveViewSettings?.show_reception_floor_plan && (
+                  <button
+                    onClick={() => setShowReceptionFloorPlanModal(true)}
+                    className="flex flex-col items-center justify-center py-2 px-1 rounded-xl border border-primary/40 bg-primary/10 text-primary transition-all duration-200"
+                  >
+                    <MapPin className="w-5 h-5 mb-1" />
+                    <span className="text-xs font-bold leading-tight text-center whitespace-nowrap">Reception Floor Plan</span>
                   </button>
                 )}
                 {liveViewSettings?.show_menu && (
