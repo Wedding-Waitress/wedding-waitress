@@ -837,9 +837,15 @@ export const GuestLookup: React.FC = () => {
                     <CardContent className="p-8 text-center">
                       <Eye className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
                       <CardTitle className="mb-2">Table View</CardTitle>
-                      <CardDescription className="text-base">
+                     <CardDescription className="text-base">
                         Search for your name first to see what table you are sitting on and who you are sitting with.
                       </CardDescription>
+                      <button
+                        onClick={() => setActiveTab('search')}
+                        className="mt-6 mx-auto px-6 py-3 rounded-full bg-primary text-primary-foreground font-semibold text-sm shadow-md hover:opacity-90 transition-all"
+                      >
+                        Go back to search my name
+                      </button>
                     </CardContent>
                   </Card>
                 )}
