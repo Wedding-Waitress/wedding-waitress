@@ -612,54 +612,48 @@ export const GuestLookup: React.FC = () => {
                 {/* Row 1: Update Your Details, View RSVP Invite, View Video */}
                 <TabsTrigger
                   value="search" 
-                  className="flex flex-col items-center justify-center gap-0.5 py-1.5 px-1 rounded-full border border-primary bg-white text-gray-600 data-[state=active]:border-green-500 data-[state=active]:bg-green-50 data-[state=active]:text-green-700 data-[state=active]:font-semibold data-[state=active]:shadow-md transition-all duration-200 whitespace-nowrap"
+                  className="flex items-center justify-center py-2 px-2 rounded-full border border-primary bg-white text-gray-600 data-[state=active]:border-green-500 data-[state=active]:bg-green-50 data-[state=active]:text-green-700 data-[state=active]:font-semibold data-[state=active]:shadow-md transition-all duration-200 whitespace-nowrap"
                 >
-                  <Search className="w-3.5 h-3.5 shrink-0" />
-                  <span className="text-xs font-medium leading-tight">{isEditable ? "Update Your Details" : "Find Your Table"}</span>
+                  <span className="text-[11px] font-medium leading-tight">{isEditable ? "Update Your Details" : "Find Your Table"}</span>
                 </TabsTrigger>
                 {liveViewSettings?.show_rsvp_invite && (
                   <button
                     onClick={() => setShowRsvpInviteModal(true)}
-                    className="flex flex-col items-center justify-center gap-0.5 py-1.5 px-1 rounded-full border border-primary bg-primary/10 text-primary font-semibold transition-all duration-200 whitespace-nowrap"
+                    className="flex items-center justify-center py-2 px-2 rounded-full border border-primary bg-primary/10 text-primary font-semibold transition-all duration-200 whitespace-nowrap"
                   >
-                    <Mail className="w-3.5 h-3.5 shrink-0" />
-                    <span className="text-xs font-medium">View RSVP Invite</span>
+                    <span className="text-[11px] font-medium">View RSVP Invite</span>
                   </button>
                 )}
                 {liveViewSettings?.show_welcome_video && (
                   <button
                     onClick={() => setShowWelcomeVideoModal(true)}
-                    className="flex flex-col items-center justify-center gap-0.5 py-1.5 px-1 rounded-full border border-primary bg-primary/10 text-primary font-semibold transition-all duration-200 whitespace-nowrap"
+                    className="flex items-center justify-center py-2 px-2 rounded-full border border-primary bg-primary/10 text-primary font-semibold transition-all duration-200 whitespace-nowrap"
                   >
-                    <Video className="w-3.5 h-3.5 shrink-0" />
-                    <span className="text-xs font-medium">View Video</span>
+                    <span className="text-[11px] font-medium">View Video</span>
                   </button>
                 )}
 
                 {/* Row 2: Table View, Floor Plan, View Menu */}
                 <TabsTrigger 
                   value="visualization" 
-                  className="flex flex-col items-center justify-center gap-0.5 py-1.5 px-1 rounded-full border border-primary bg-white text-gray-600 data-[state=active]:border-green-500 data-[state=active]:bg-green-50 data-[state=active]:text-green-700 data-[state=active]:font-semibold data-[state=active]:shadow-md transition-all duration-200 whitespace-nowrap"
+                  className="flex items-center justify-center py-2 px-2 rounded-full border border-primary bg-white text-gray-600 data-[state=active]:border-green-500 data-[state=active]:bg-green-50 data-[state=active]:text-green-700 data-[state=active]:font-semibold data-[state=active]:shadow-md transition-all duration-200 whitespace-nowrap"
                 >
-                  <Eye className="w-3.5 h-3.5 shrink-0" />
-                  <span className="text-xs font-medium">Table View</span>
+                  <span className="text-[11px] font-medium">Table View</span>
                 </TabsTrigger>
                 {liveViewSettings?.show_floor_plan && (
                   <button
                     onClick={() => setShowFloorPlanModal(true)}
-                    className="flex flex-col items-center justify-center gap-0.5 py-1.5 px-1 rounded-full border border-primary bg-primary/10 text-primary font-semibold transition-all duration-200 whitespace-nowrap"
+                    className="flex items-center justify-center py-2 px-2 rounded-full border border-primary bg-primary/10 text-primary font-semibold transition-all duration-200 whitespace-nowrap"
                   >
-                    <MapPin className="w-3.5 h-3.5 shrink-0" />
-                    <span className="text-xs font-medium">Floor Plan</span>
+                    <span className="text-[11px] font-medium">Floor Plan</span>
                   </button>
                 )}
                 {liveViewSettings?.show_menu && (
                   <button
                     onClick={() => setShowMenuModal(true)}
-                    className="flex flex-col items-center justify-center gap-0.5 py-1.5 px-1 rounded-full border border-primary bg-primary/10 text-primary font-semibold transition-all duration-200 whitespace-nowrap"
+                    className="flex items-center justify-center py-2 px-2 rounded-full border border-primary bg-primary/10 text-primary font-semibold transition-all duration-200 whitespace-nowrap"
                   >
-                    <UtensilsCrossed className="w-3.5 h-3.5 shrink-0" />
-                    <span className="text-xs font-medium">View Menu</span>
+                    <span className="text-[11px] font-medium">View Menu</span>
                   </button>
                 )}
               </TabsList>
