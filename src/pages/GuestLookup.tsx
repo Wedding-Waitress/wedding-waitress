@@ -763,7 +763,7 @@ export const GuestLookup: React.FC = () => {
                           });
                         }
                       }}
-                      className="bg-primary hover:bg-primary/90 text-white shadow-lg shadow-black/30 rounded-full px-5 py-0.5 h-auto min-h-0 text-sm"
+                      className="bg-primary hover:bg-primary/90 text-white shadow-lg shadow-black/30 rounded-full px-4 py-1 h-7 min-h-0 text-xs"
                     >
                       <Share2 className="w-4 h-4 mr-1.5" />
                       Share
