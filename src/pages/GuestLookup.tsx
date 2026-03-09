@@ -612,13 +612,18 @@ export const GuestLookup: React.FC = () => {
                 {/* Row 1: Update Your Details, View RSVP Invite, View Video */}
                 <TabsTrigger
                   value="search" 
-                  className="flex items-center justify-center gap-1 py-1.5 px-1.5 rounded-full border-2 border-primary bg-white text-gray-600 data-[state=active]:border-green-500 data-[state=active]:bg-green-50 data-[state=active]:text-green-700 data-[state=active]:font-semibold data-[state=active]:shadow-md transition-all duration-200"
+                  className="flex flex-col items-center justify-center gap-0 py-1.5 px-1.5 rounded-full border-2 border-primary bg-white text-gray-600 data-[state=active]:border-green-500 data-[state=active]:bg-green-50 data-[state=active]:text-green-700 data-[state=active]:font-semibold data-[state=active]:shadow-md transition-all duration-200"
                 >
-                  <Search className="w-3.5 h-3.5 shrink-0" />
                   {isEditable ? (
-                    <span className="text-xs font-medium">Update Your Details</span>
+                    <>
+                      <span className="flex items-center gap-1 text-xs font-medium leading-tight"><Search className="w-3.5 h-3.5 shrink-0" />Update</span>
+                      <span className="text-xs font-medium leading-tight">Your Details</span>
+                    </>
                   ) : (
-                    <span className="text-xs font-medium">Find Your Table</span>
+                    <>
+                      <span className="flex items-center gap-1 text-xs font-medium leading-tight"><Search className="w-3.5 h-3.5 shrink-0" />Find</span>
+                      <span className="text-xs font-medium leading-tight">Your Table</span>
+                    </>
                   )}
                 </TabsTrigger>
                 {liveViewSettings?.show_rsvp_invite && (
