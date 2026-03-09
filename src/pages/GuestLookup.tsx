@@ -22,7 +22,8 @@ import {
   UtensilsCrossed,
   MailOpen,
   PlayCircle,
-  LayoutGrid
+  LayoutGrid,
+  Hourglass
 } from 'lucide-react';
 import weddingWaitressFooterLogo from '@/assets/wedding-waitress-footer-logo.png';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -638,8 +639,9 @@ export const GuestLookup: React.FC = () => {
             if (hours > 0) parts.push(`${hours} ${hours === 1 ? 'Hour' : 'Hours'}`);
 
             return (
-              <p className="text-primary font-bold text-sm md:text-base mt-1">
-                {parts.join(', ')}
+              <p className="text-primary font-bold text-sm md:text-base mt-1 flex items-center justify-center gap-1.5">
+                <Hourglass className="h-4 w-4" />
+                {parts.join(', ')} To go
               </p>
             );
           })()}
