@@ -286,6 +286,7 @@ export const GuestLookup: React.FC = () => {
             show_welcome_video: firstRow.show_welcome_video || false,
             show_floor_plan: firstRow.show_floor_plan || false,
             show_menu: firstRow.show_menu || false,
+            show_reception_floor_plan: (firstRow as any).show_reception_floor_plan || false,
           });
           setModuleSettings({
             rsvp_invite_config: firstRow.rsvp_invite_config || null,
@@ -293,6 +294,7 @@ export const GuestLookup: React.FC = () => {
             floor_plan_config: firstRow.floor_plan_config || null,
             menu_config: firstRow.menu_config || null,
             hero_image_config: firstRow.hero_image_config || null,
+            reception_floor_plan_config: (firstRow as any).reception_floor_plan_config || null,
           });
         }
       } catch (error) {
