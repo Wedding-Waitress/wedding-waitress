@@ -581,31 +581,68 @@ export const GuestLookup: React.FC = () => {
                 }
               </h1>
             </div>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 text-white/90 text-sm md:text-base">
-              <div className="flex items-center">
-                <Calendar className="w-4 h-4 mr-2" />
-                <span>{new Date(event.date).toLocaleDateString('en-US', { 
-                  weekday: 'long', 
-                  year: 'numeric', 
-                  month: 'long', 
-                  day: 'numeric' 
-                })}</span>
-              </div>
-            {event.venue && (
-              <div className="flex items-center">
-                <MapPin className="w-4 h-4 mr-2" />
-                <span className="text-center">
-                  {event.venue}
-                  {(event.start_time || event.finish_time) && (
-                    <span> - {event.start_time && formatDisplayTime(event.start_time)}
-                    {event.start_time && event.finish_time && ' to '}
-                    {event.finish_time && formatDisplayTime(event.finish_time)}</span>
-                  )}
-                </span>
-              </div>
-            )}
-            </div>
           </div>
+        </div>
+      </div>
+
+      {/* Event Date, Venue & Countdown - between hero and buttons */}
+      <div className="w-full bg-primary/10 py-4 px-4">
+        <div className="max-w-4xl mx-auto text-center space-y-2">
+          <div className="flex items-center justify-center text-foreground text-sm md:text-base font-medium">
+            <Calendar className="w-4 h-4 mr-2 text-primary" />
+            <span>{new Date(event.date).toLocaleDateString('en-US', { 
+              weekday: 'long', 
+              year: 'numeric', 
+              month: 'long', 
+              day: 'numeric' 
+            })}</span>
+          </div>
+          {event.venue && (
+            <div className="flex items-center justify-center text-foreground text-sm md:text-base">
+              <MapPin className="w-4 h-4 mr-2 text-primary" />
+              <span>
+                {event.venue}
+                {(event.start_time || event.finish_time) && (
+                  <span> - {event.start_time && formatDisplayTime(event.start_time)}
+                  {event.start_time && event.finish_time && ' to '}
+                  {event.finish_time && formatDisplayTime(event.finish_time)}</span>
+                )}
+              </span>
+            </div>
+          )}
+          {/* Countdown */}
+          {(() => {
+            const eventDate = new Date(event.date);
+            if (event.start_time) {
+              const [h, m] = event.start_time.split(':').map(Number);
+              eventDate.setHours(h, m, 0, 0);
+            } else {
+              eventDate.setHours(0, 0, 0, 0);
+            }
+            const now = new Date();
+            const diff = eventDate.getTime() - now.getTime();
+            if (diff <= 0) return null;
+            
+            const totalHours = Math.floor(diff / (1000 * 60 * 60));
+            const days = Math.floor(totalHours / 24);
+            const hours = totalHours % 24;
+            const years = Math.floor(days / 365);
+            const remainingDaysAfterYears = days % 365;
+            const months = Math.floor(remainingDaysAfterYears / 30);
+            const remainingDays = remainingDaysAfterYears % 30;
+
+            const parts: string[] = [];
+            if (years > 0) parts.push(`${years} ${years === 1 ? 'Year' : 'Years'}`);
+            if (months > 0) parts.push(`${months} ${months === 1 ? 'Month' : 'Months'}`);
+            if (remainingDays > 0) parts.push(`${remainingDays} ${remainingDays === 1 ? 'Day' : 'Days'}`);
+            if (hours > 0) parts.push(`${hours} ${hours === 1 ? 'Hour' : 'Hours'}`);
+
+            return (
+              <p className="text-primary font-bold text-sm md:text-base mt-1">
+                {parts.join(', ')}
+              </p>
+            );
+          })()}
         </div>
       </div>
 
