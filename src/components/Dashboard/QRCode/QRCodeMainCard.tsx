@@ -1099,14 +1099,14 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                 )}
               </div>
 
-              {/* Floor Plan Module */}
+              {/* Ceremony Floor Plan Module */}
               <div className="space-y-3 p-4 rounded-lg border-2 border-border bg-muted/20">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <MapPin className="h-5 w-5 text-purple-600" />
                     <div>
-                      <h4 className="text-sm font-semibold">Floor Plan</h4>
-                      <p className="text-xs text-muted-foreground">Show your venue floor plan to guests</p>
+                      <h4 className="text-sm font-semibold">Ceremony Floor Plan</h4>
+                      <p className="text-xs text-muted-foreground">Show your ceremony floor plan to guests</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
@@ -1125,11 +1125,11 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                   <Accordion type="single" collapsible className="w-full">
                     <AccordionItem value="floorplan-config" className="border-0">
                       <AccordionTrigger className="text-sm py-2 hover:no-underline">
-                        <span className="text-purple-600">Configure Floor Plan Settings</span>
+                        <span className="text-purple-600">Configure Ceremony Floor Plan Settings</span>
                       </AccordionTrigger>
                       <AccordionContent>
                         <div className="space-y-3 pt-2">
-                          <p className="text-xs text-muted-foreground">Choose how to display your venue floor plan to guests. Select one option:</p>
+                          <p className="text-xs text-muted-foreground">Choose how to display your ceremony floor plan to guests. Select one option:</p>
                           
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             {/* Upload Image Option */}
@@ -1153,7 +1153,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                                 )}
                                 <div>
                                   <p className="text-sm font-semibold">Upload an Image</p>
-                                  <p className="text-xs text-muted-foreground mt-1">Upload a JPG or PNG of your venue layout</p>
+                                  <p className="text-xs text-muted-foreground mt-1">Upload a JPG or PNG of your ceremony layout</p>
                                 </div>
                               </div>
                             </button>
@@ -1179,7 +1179,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                                 )}
                                 <div>
                                   <p className="text-sm font-semibold">Use Existing Floor Plan</p>
-                                  <p className="text-xs text-muted-foreground mt-1">Display the ceremony/reception floor plan from your dashboard</p>
+                                  <p className="text-xs text-muted-foreground mt-1">Display the ceremony floor plan from your dashboard</p>
                                 </div>
                               </div>
                             </button>
@@ -1224,7 +1224,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                                               file_type: file.type,
                                               uploaded_at: new Date().toISOString()
                                             });
-                                            toast({ title: 'Floor plan replaced successfully' });
+                                            toast({ title: 'Ceremony floor plan replaced successfully' });
                                           } catch (error: any) {
                                             toast({ title: 'Upload failed', description: error.message, variant: 'destructive' });
                                           }
@@ -1244,7 +1244,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                                           const path = moduleSettings.floor_plan_config.file_url.split('/live-view-uploads/')[1];
                                           if (path) await supabase.storage.from('live-view-uploads').remove([path]);
                                           await updateModuleConfig('floor_plan_config', { source: 'upload' });
-                                          toast({ title: 'Floor plan removed' });
+                                          toast({ title: 'Ceremony floor plan removed' });
                                         } catch (error: any) {
                                           toast({ title: 'Remove failed', description: error.message, variant: 'destructive' });
                                         }
@@ -1280,7 +1280,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                                             file_type: file.type,
                                             uploaded_at: new Date().toISOString()
                                           });
-                                          toast({ title: 'Floor plan uploaded successfully' });
+                                          toast({ title: 'Ceremony floor plan uploaded successfully' });
                                         } catch (error: any) {
                                           toast({ title: 'Upload failed', description: error.message, variant: 'destructive' });
                                         }
@@ -1290,7 +1290,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                                   }}
                                 >
                                   <Upload className="h-6 w-6 mx-auto mb-2 text-muted-foreground" />
-                                  <p className="text-xs font-medium">Upload Floor Plan Image</p>
+                                  <p className="text-xs font-medium">Upload Ceremony Floor Plan Image</p>
                                   <p className="text-xs text-muted-foreground">JPG or PNG</p>
                                 </div>
                               )}
@@ -1303,8 +1303,229 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                               <div className="flex items-center gap-2">
                                 <CheckCircle2 className="h-4 w-4 text-green-600" />
                                 <p className="text-xs text-green-800 font-medium">
-                                  Your ceremony/reception floor plan from the Floor Plan page will be displayed to guests.
+                                  Your ceremony floor plan from the Floor Plan page will be displayed to guests.
                                 </p>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </AccordionContent>
+                    </AccordionItem>
+                  </Accordion>
+                )}
+              </div>
+
+              {/* Reception Floor Plan Module */}
+              <div className="space-y-3 p-4 rounded-lg border-2 border-border bg-muted/20">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <MapPin className="h-5 w-5 text-purple-600" />
+                    <div>
+                      <h4 className="text-sm font-semibold">Reception Floor Plan</h4>
+                      <p className="text-xs text-muted-foreground">Show your reception floor plan to guests</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className={`text-xs whitespace-nowrap ${visibilitySettings?.show_reception_floor_plan ? "text-green-600" : "text-red-500"}`}>
+                      {visibilitySettings?.show_reception_floor_plan ? "Displayed on app" : "Not displayed on app"}
+                    </span>
+                    <Switch
+                      checked={visibilitySettings?.show_reception_floor_plan || false}
+                      onCheckedChange={(checked) => updateVisibility('show_reception_floor_plan', checked)}
+                      className="data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-red-600"
+                    />
+                  </div>
+                </div>
+
+                {visibilitySettings?.show_reception_floor_plan && (
+                  <Accordion type="single" collapsible className="w-full">
+                    <AccordionItem value="reception-floorplan-config" className="border-0">
+                      <AccordionTrigger className="text-sm py-2 hover:no-underline">
+                        <span className="text-purple-600">Configure Reception Floor Plan Settings</span>
+                      </AccordionTrigger>
+                      <AccordionContent>
+                        <div className="space-y-3 pt-2">
+                          <p className="text-xs text-muted-foreground">Choose how to display your reception floor plan to guests. Select one option:</p>
+                          
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            {/* Upload Image Option */}
+                            <button
+                              type="button"
+                              onClick={() => {
+                                updateModuleConfig('reception_floor_plan_config', {
+                                  ...moduleSettings?.reception_floor_plan_config,
+                                  source: 'upload'
+                                });
+                              }}
+                              className={`p-4 rounded-lg border-2 text-left transition-all ${
+                                moduleSettings?.reception_floor_plan_config?.source === 'upload'
+                                  ? 'border-green-500 bg-green-50'
+                                  : 'border-border bg-background hover:border-muted-foreground/30'
+                              }`}
+                            >
+                              <div className="flex items-start gap-2">
+                                {moduleSettings?.reception_floor_plan_config?.source === 'upload' && (
+                                  <CheckCircle2 className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
+                                )}
+                                <div>
+                                  <p className="text-sm font-semibold">Upload an Image</p>
+                                  <p className="text-xs text-muted-foreground mt-1">Upload a JPG or PNG of your reception layout</p>
+                                </div>
+                              </div>
+                            </button>
+
+                            {/* Use Existing Floor Plan Option */}
+                            <button
+                              type="button"
+                              onClick={() => {
+                                updateModuleConfig('reception_floor_plan_config', {
+                                  ...moduleSettings?.reception_floor_plan_config,
+                                  source: 'existing'
+                                });
+                              }}
+                              className={`p-4 rounded-lg border-2 text-left transition-all ${
+                                moduleSettings?.reception_floor_plan_config?.source === 'existing'
+                                  ? 'border-amber-500 bg-amber-50'
+                                  : 'border-border bg-background hover:border-muted-foreground/30'
+                              }`}
+                            >
+                              <div className="flex items-start gap-2">
+                                {moduleSettings?.reception_floor_plan_config?.source === 'existing' && (
+                                  <CheckCircle2 className="h-4 w-4 text-amber-600 mt-0.5 flex-shrink-0" />
+                                )}
+                                <div>
+                                  <p className="text-sm font-semibold">Use Existing Floor Plan</p>
+                                  <p className="text-xs text-muted-foreground mt-1">Display the reception floor plan from your dashboard</p>
+                                </div>
+                              </div>
+                            </button>
+                          </div>
+
+                          {/* Upload area when 'upload' is selected */}
+                          {moduleSettings?.reception_floor_plan_config?.source === 'upload' && (
+                            <div className="mt-3">
+                              {moduleSettings?.reception_floor_plan_config?.file_url ? (
+                                <div className="flex items-center gap-2 p-3 bg-background rounded-md border">
+                                  <div className="flex-1 min-w-0">
+                                    <p className="text-xs font-medium truncate">
+                                      {moduleSettings.reception_floor_plan_config.file_name}
+                                    </p>
+                                    <p className="text-xs text-muted-foreground">
+                                      Uploaded {new Date(moduleSettings.reception_floor_plan_config.uploaded_at).toLocaleDateString()}
+                                    </p>
+                                  </div>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => {
+                                      const input = document.createElement('input');
+                                      input.type = 'file';
+                                      input.accept = '.jpg,.jpeg,.png';
+                                      input.onchange = async (e) => {
+                                        const file = (e.target as HTMLInputElement).files?.[0];
+                                        if (file && eventId) {
+                                          try {
+                                            const { data: { user } } = await supabase.auth.getUser();
+                                            if (!user) throw new Error('Not authenticated');
+                                            const fileExt = file.name.split('.').pop();
+                                            const fileName = `${Date.now()}.${fileExt}`;
+                                            const filePath = `${user.id}/${eventId}/reception_floor_plan/${fileName}`;
+                                            const { error: uploadError } = await supabase.storage.from('live-view-uploads').upload(filePath, file);
+                                            if (uploadError) throw uploadError;
+                                            const { data: { publicUrl } } = supabase.storage.from('live-view-uploads').getPublicUrl(filePath);
+                                            await updateModuleConfig('reception_floor_plan_config', {
+                                              source: 'upload',
+                                              file_url: publicUrl,
+                                              file_name: file.name,
+                                              file_type: file.type,
+                                              uploaded_at: new Date().toISOString()
+                                            });
+                                            toast({ title: 'Reception floor plan replaced successfully' });
+                                          } catch (error: any) {
+                                            toast({ title: 'Upload failed', description: error.message, variant: 'destructive' });
+                                          }
+                                        }
+                                      };
+                                      input.click();
+                                    }}
+                                  >
+                                    Replace
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="destructive"
+                                    onClick={async () => {
+                                      if (eventId && moduleSettings?.reception_floor_plan_config?.file_url) {
+                                        try {
+                                          const path = moduleSettings.reception_floor_plan_config.file_url.split('/live-view-uploads/')[1];
+                                          if (path) await supabase.storage.from('live-view-uploads').remove([path]);
+                                          await updateModuleConfig('reception_floor_plan_config', { source: 'upload' });
+                                          toast({ title: 'Reception floor plan removed' });
+                                        } catch (error: any) {
+                                          toast({ title: 'Remove failed', description: error.message, variant: 'destructive' });
+                                        }
+                                      }
+                                    }}
+                                  >
+                                    Remove
+                                  </Button>
+                                </div>
+                              ) : (
+                                <div
+                                  className="border-2 border-dashed rounded-md p-4 text-center cursor-pointer hover:bg-muted/50 transition-colors"
+                                  onClick={() => {
+                                    const input = document.createElement('input');
+                                    input.type = 'file';
+                                    input.accept = '.jpg,.jpeg,.png';
+                                    input.onchange = async (e) => {
+                                      const file = (e.target as HTMLInputElement).files?.[0];
+                                      if (file && eventId) {
+                                        try {
+                                          const { data: { user } } = await supabase.auth.getUser();
+                                          if (!user) throw new Error('Not authenticated');
+                                          const fileExt = file.name.split('.').pop();
+                                          const fileName = `${Date.now()}.${fileExt}`;
+                                          const filePath = `${user.id}/${eventId}/reception_floor_plan/${fileName}`;
+                                          const { error: uploadError } = await supabase.storage.from('live-view-uploads').upload(filePath, file);
+                                          if (uploadError) throw uploadError;
+                                          const { data: { publicUrl } } = supabase.storage.from('live-view-uploads').getPublicUrl(filePath);
+                                          await updateModuleConfig('reception_floor_plan_config', {
+                                            source: 'upload',
+                                            file_url: publicUrl,
+                                            file_name: file.name,
+                                            file_type: file.type,
+                                            uploaded_at: new Date().toISOString()
+                                          });
+                                          toast({ title: 'Reception floor plan uploaded successfully' });
+                                        } catch (error: any) {
+                                          toast({ title: 'Upload failed', description: error.message, variant: 'destructive' });
+                                        }
+                                      }
+                                    };
+                                    input.click();
+                                  }}
+                                >
+                                  <Upload className="h-6 w-6 mx-auto mb-2 text-muted-foreground" />
+                                  <p className="text-xs font-medium">Upload Reception Floor Plan Image</p>
+                                  <p className="text-xs text-muted-foreground">JPG or PNG</p>
+                                </div>
+                              )}
+                            </div>
+                          )}
+
+                          {/* Coming soon message when 'existing' is selected */}
+                          {moduleSettings?.reception_floor_plan_config?.source === 'existing' && (
+                            <div className="mt-3 p-3 bg-amber-50 rounded-md border border-amber-200">
+                              <div className="flex items-center gap-2">
+                                <CheckCircle2 className="h-4 w-4 text-amber-600" />
+                                <div>
+                                  <p className="text-xs text-amber-800 font-medium">
+                                    Using existing floor plan
+                                  </p>
+                                  <p className="text-xs text-amber-700 mt-0.5">
+                                    Coming soon — Reception floor plan configuration is not yet available.
+                                  </p>
+                                </div>
                               </div>
                             </div>
                           )}
