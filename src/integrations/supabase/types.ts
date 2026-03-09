@@ -1446,6 +1446,7 @@ export type Database = {
           invite_video_config: Json | null
           menu_config: Json | null
           reception_config: Json | null
+          reception_floor_plan_config: Json | null
           rsvp_invite_config: Json | null
           search_config: Json | null
           update_details_config: Json | null
@@ -1461,6 +1462,7 @@ export type Database = {
           invite_video_config?: Json | null
           menu_config?: Json | null
           reception_config?: Json | null
+          reception_floor_plan_config?: Json | null
           rsvp_invite_config?: Json | null
           search_config?: Json | null
           update_details_config?: Json | null
@@ -1476,6 +1478,7 @@ export type Database = {
           invite_video_config?: Json | null
           menu_config?: Json | null
           reception_config?: Json | null
+          reception_floor_plan_config?: Json | null
           rsvp_invite_config?: Json | null
           search_config?: Json | null
           update_details_config?: Json | null
@@ -1501,6 +1504,7 @@ export type Database = {
           show_invite_video: boolean
           show_menu: boolean
           show_reception: boolean
+          show_reception_floor_plan: boolean
           show_rsvp_invite: boolean
           show_search: boolean
           show_update_details: boolean
@@ -1515,6 +1519,7 @@ export type Database = {
           show_invite_video?: boolean
           show_menu?: boolean
           show_reception?: boolean
+          show_reception_floor_plan?: boolean
           show_rsvp_invite?: boolean
           show_search?: boolean
           show_update_details?: boolean
@@ -1529,6 +1534,7 @@ export type Database = {
           show_invite_video?: boolean
           show_menu?: boolean
           show_reception?: boolean
+          show_reception_floor_plan?: boolean
           show_rsvp_invite?: boolean
           show_search?: boolean
           show_update_details?: boolean
@@ -2724,9 +2730,11 @@ export type Database = {
           menu_config: Json
           partner1_name: string
           partner2_name: string
+          reception_floor_plan_config: Json
           rsvp_invite_config: Json
           show_floor_plan: boolean
           show_menu: boolean
+          show_reception_floor_plan: boolean
           show_rsvp_invite: boolean
           show_welcome_video: boolean
           welcome_video_config: Json

@@ -20,7 +20,6 @@ import {
   Mail,
   Video,
   UtensilsCrossed,
-  ClipboardEdit,
   MailOpen,
   PlayCircle,
   LayoutGrid
@@ -130,6 +129,7 @@ export const GuestLookup: React.FC = () => {
   const [showRsvpInviteModal, setShowRsvpInviteModal] = useState(false);
   const [showWelcomeVideoModal, setShowWelcomeVideoModal] = useState(false);
   const [showFloorPlanModal, setShowFloorPlanModal] = useState(false);
+  const [showReceptionFloorPlanModal, setShowReceptionFloorPlanModal] = useState(false);
   const [showMenuModal, setShowMenuModal] = useState(false);
   const [ceremonyFloorPlan, setCeremonyFloorPlan] = useState<any>(null);
   const [ceremonyFloorPlanLoading, setCeremonyFloorPlanLoading] = useState(false);
@@ -285,6 +285,7 @@ export const GuestLookup: React.FC = () => {
             show_welcome_video: firstRow.show_welcome_video || false,
             show_floor_plan: firstRow.show_floor_plan || false,
             show_menu: firstRow.show_menu || false,
+            show_reception_floor_plan: (firstRow as any).show_reception_floor_plan || false,
           });
           setModuleSettings({
             rsvp_invite_config: firstRow.rsvp_invite_config || null,
@@ -292,6 +293,7 @@ export const GuestLookup: React.FC = () => {
             floor_plan_config: firstRow.floor_plan_config || null,
             menu_config: firstRow.menu_config || null,
             hero_image_config: firstRow.hero_image_config || null,
+            reception_floor_plan_config: (firstRow as any).reception_floor_plan_config || null,
           });
         }
       } catch (error) {
@@ -613,14 +615,7 @@ export const GuestLookup: React.FC = () => {
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
              <div className="bg-white p-2.5 rounded-xl border-2 border-gray-200 shadow-sm">
               <TabsList className="grid w-full h-auto grid-cols-3 p-0 bg-transparent border-0 shadow-none gap-2">
-                {/* Row 1: Update Your Details, RSVP Invite, Video */}
-                <TabsTrigger
-                  value="search" 
-                  className="flex flex-col items-center justify-center py-2 px-1 rounded-xl border border-green-400 bg-green-50 text-green-700 data-[state=active]:border-green-400 data-[state=active]:bg-green-50 data-[state=active]:text-green-700 data-[state=active]:shadow-md transition-all duration-200"
-                >
-                  <ClipboardEdit className="w-5 h-5 mb-1" />
-                  <span className="text-xs font-bold leading-tight text-center whitespace-nowrap">{isEditable ? "Update Your Details" : "Find Your Table"}</span>
-                </TabsTrigger>
+                {/* Row 1: RSVP Invite, Welcome Video, Table */}
                 {liveViewSettings?.show_rsvp_invite && (
                   <button
                     onClick={() => setShowRsvpInviteModal(true)}
@@ -636,11 +631,9 @@ export const GuestLookup: React.FC = () => {
                     className="flex flex-col items-center justify-center py-2 px-1 rounded-xl border border-primary/40 bg-primary/10 text-primary transition-all duration-200"
                   >
                     <PlayCircle className="w-5 h-5 mb-1" />
-                    <span className="text-xs font-bold leading-tight text-center whitespace-nowrap">Video</span>
+                    <span className="text-xs font-bold leading-tight text-center whitespace-nowrap">Welcome Video</span>
                   </button>
                 )}
-
-                {/* Row 2: Table, Floor Plan, Menu */}
                 <TabsTrigger 
                   value="visualization" 
                   className="flex flex-col items-center justify-center py-2 px-1 rounded-xl border border-primary/40 bg-primary/10 text-primary data-[state=active]:border-green-400 data-[state=active]:bg-green-50 data-[state=active]:text-green-700 data-[state=active]:shadow-md transition-all duration-200"
@@ -648,13 +641,24 @@ export const GuestLookup: React.FC = () => {
                   <LayoutGrid className="w-5 h-5 mb-1" />
                   <span className="text-xs font-bold leading-tight text-center whitespace-nowrap">Table</span>
                 </TabsTrigger>
+
+                {/* Row 2: Ceremony Floor Plan, Reception Floor Plan, Menu */}
                 {liveViewSettings?.show_floor_plan && (
                   <button
                     onClick={() => setShowFloorPlanModal(true)}
                     className="flex flex-col items-center justify-center py-2 px-1 rounded-xl border border-primary/40 bg-primary/10 text-primary transition-all duration-200"
                   >
                     <MapPin className="w-5 h-5 mb-1" />
-                    <span className="text-xs font-bold leading-tight text-center whitespace-nowrap">Floor Plan</span>
+                    <span className="text-xs font-bold leading-tight text-center whitespace-nowrap">Ceremony Floor Plan</span>
+                  </button>
+                )}
+                {liveViewSettings?.show_reception_floor_plan && (
+                  <button
+                    onClick={() => setShowReceptionFloorPlanModal(true)}
+                    className="flex flex-col items-center justify-center py-2 px-1 rounded-xl border border-primary/40 bg-primary/10 text-primary transition-all duration-200"
+                  >
+                    <MapPin className="w-5 h-5 mb-1" />
+                    <span className="text-xs font-bold leading-tight text-center whitespace-nowrap">Reception Floor Plan</span>
                   </button>
                 )}
                 {liveViewSettings?.show_menu && (
@@ -974,20 +978,20 @@ export const GuestLookup: React.FC = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Floor Plan Modal */}
+      {/* Ceremony Floor Plan Modal */}
       <Dialog open={showFloorPlanModal} onOpenChange={setShowFloorPlanModal}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto overscroll-contain touch-pan-y bg-primary [&>button]:rounded-full [&>button]:border-2 [&>button]:border-white [&>button]:w-10 [&>button]:h-10 [&>button]:flex [&>button]:items-center [&>button]:justify-center [&>button]:opacity-100 [&>button]:text-white [&>button:hover]:text-white/80 [&>button:hover]:border-white/80 [&>button>svg]:w-6 [&>button>svg]:h-6" style={{ WebkitOverflowScrolling: 'touch' }}>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-2xl font-inter text-white">
               <MapPin className="w-6 h-6 text-white" />
-              Floor Plan
+              Ceremony Floor Plan
             </DialogTitle>
           </DialogHeader>
           <div className="mt-4">
             {moduleSettings?.floor_plan_config?.source === 'upload' && moduleSettings?.floor_plan_config?.file_url ? (
               <img 
                 src={moduleSettings.floor_plan_config.file_url} 
-                alt="Venue Floor Plan"
+                alt="Ceremony Floor Plan"
                 className="max-w-full h-auto mx-auto rounded-lg shadow-lg"
               />
             ) : moduleSettings?.floor_plan_config?.source === 'existing' ? (
@@ -1004,7 +1008,45 @@ export const GuestLookup: React.FC = () => {
               <div className="text-center py-12">
                 <MapPin className="w-16 h-16 mx-auto text-white/50 mb-4" />
                 <p className="text-white/70 text-lg">
-                  Floor plan will appear here soon.
+                  Ceremony floor plan will appear here soon.
+                </p>
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Reception Floor Plan Modal */}
+      <Dialog open={showReceptionFloorPlanModal} onOpenChange={setShowReceptionFloorPlanModal}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto overscroll-contain touch-pan-y bg-primary [&>button]:rounded-full [&>button]:border-2 [&>button]:border-white [&>button]:w-10 [&>button]:h-10 [&>button]:flex [&>button]:items-center [&>button]:justify-center [&>button]:opacity-100 [&>button]:text-white [&>button:hover]:text-white/80 [&>button:hover]:border-white/80 [&>button>svg]:w-6 [&>button>svg]:h-6" style={{ WebkitOverflowScrolling: 'touch' }}>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-2xl font-inter text-white">
+              <MapPin className="w-6 h-6 text-white" />
+              Reception Floor Plan
+            </DialogTitle>
+          </DialogHeader>
+          <div className="mt-4">
+            {moduleSettings?.reception_floor_plan_config?.source === 'upload' && moduleSettings?.reception_floor_plan_config?.file_url ? (
+              <img 
+                src={moduleSettings.reception_floor_plan_config.file_url} 
+                alt="Reception Floor Plan"
+                className="max-w-full h-auto mx-auto rounded-lg shadow-lg"
+              />
+            ) : moduleSettings?.reception_floor_plan_config?.source === 'existing' ? (
+              <div className="text-center py-12">
+                <MapPin className="w-16 h-16 mx-auto text-white/50 mb-4" />
+                <p className="text-white/70 text-lg">
+                  Coming soon
+                </p>
+                <p className="text-white/50 text-sm mt-2">
+                  Reception floor plan configuration is not yet available.
+                </p>
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <MapPin className="w-16 h-16 mx-auto text-white/50 mb-4" />
+                <p className="text-white/70 text-lg">
+                  Reception floor plan will appear here soon.
                 </p>
               </div>
             )}

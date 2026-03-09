@@ -15,6 +15,7 @@ export interface LiveViewModuleSettings {
   floor_plan_config: Record<string, any>;
   menu_config: Record<string, any>;
   hero_image_config: Record<string, any>;
+  reception_floor_plan_config: Record<string, any>;
   updated_at?: string;
 }
 
@@ -55,6 +56,7 @@ export const useLiveViewModuleSettings = (eventId: string | undefined) => {
             floor_plan_config: data.floor_plan_config as Record<string, any> || {},
             menu_config: data.menu_config as Record<string, any> || {},
             hero_image_config: (data as any).hero_image_config as Record<string, any> || {},
+            reception_floor_plan_config: (data as any).reception_floor_plan_config as Record<string, any> || {},
           });
         } else {
           // Upsert default settings if none exist
@@ -69,7 +71,8 @@ export const useLiveViewModuleSettings = (eventId: string | undefined) => {
             welcome_video_config: {},
             floor_plan_config: {},
             menu_config: {},
-            hero_image_config: {}
+            hero_image_config: {},
+            reception_floor_plan_config: {}
           };
 
           const { data: newData, error: upsertError } = await supabase
@@ -91,6 +94,7 @@ export const useLiveViewModuleSettings = (eventId: string | undefined) => {
             floor_plan_config: newData.floor_plan_config as Record<string, any> || {},
             menu_config: newData.menu_config as Record<string, any> || {},
             hero_image_config: (newData as any).hero_image_config as Record<string, any> || {},
+            reception_floor_plan_config: (newData as any).reception_floor_plan_config as Record<string, any> || {},
           });
         }
       } catch (error) {
@@ -158,6 +162,7 @@ export const useLiveViewModuleSettings = (eventId: string | undefined) => {
           floor_plan_config: data.floor_plan_config as Record<string, any> || {},
           menu_config: data.menu_config as Record<string, any> || {},
           hero_image_config: (data as any).hero_image_config as Record<string, any> || {},
+          reception_floor_plan_config: (data as any).reception_floor_plan_config as Record<string, any> || {},
         });
       }
     }
