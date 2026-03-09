@@ -20,7 +20,6 @@ import {
   Mail,
   Video,
   UtensilsCrossed,
-  ClipboardEdit,
   MailOpen,
   PlayCircle,
   LayoutGrid
