@@ -629,7 +629,7 @@ export const GuestLookup: React.FC = () => {
                     onClick={() => setShowWelcomeVideoModal(true)}
                     className="flex items-center justify-center py-2 px-2 rounded-full border border-primary bg-primary/10 text-primary font-semibold transition-all duration-200 whitespace-nowrap"
                   >
-                    <span className="text-[13px] font-medium">View Video</span>
+                    <span className="text-[13px] font-bold leading-tight text-center">Video</span>
                   </button>
                 )}
 
