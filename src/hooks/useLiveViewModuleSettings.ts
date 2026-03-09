@@ -56,6 +56,7 @@ export const useLiveViewModuleSettings = (eventId: string | undefined) => {
             floor_plan_config: data.floor_plan_config as Record<string, any> || {},
             menu_config: data.menu_config as Record<string, any> || {},
             hero_image_config: (data as any).hero_image_config as Record<string, any> || {},
+            reception_floor_plan_config: (data as any).reception_floor_plan_config as Record<string, any> || {},
           });
         } else {
           // Upsert default settings if none exist
