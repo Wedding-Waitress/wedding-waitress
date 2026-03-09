@@ -14,6 +14,7 @@ interface LiveViewVisibility {
   show_welcome_video: boolean;
   show_floor_plan: boolean;
   show_menu: boolean;
+  show_reception_floor_plan: boolean;
   updated_at: string;
 }
 
