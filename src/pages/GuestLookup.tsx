@@ -612,16 +612,16 @@ export const GuestLookup: React.FC = () => {
                 {/* Row 1: Update Your Details, View RSVP Invite, View Video */}
                 <TabsTrigger
                   value="search" 
-                  className="flex items-center justify-center py-2 px-2 rounded-full border border-primary bg-white text-gray-600 data-[state=active]:border-green-500 data-[state=active]:bg-green-50 data-[state=active]:text-green-700 data-[state=active]:font-semibold data-[state=active]:shadow-md transition-all duration-200 whitespace-nowrap"
+                  className="flex items-center justify-center py-2 px-2 rounded-full border-2 border-green-500 bg-green-50 text-green-700 data-[state=active]:border-green-500 data-[state=active]:bg-green-50 data-[state=active]:text-green-700 data-[state=active]:font-semibold data-[state=active]:shadow-md transition-all duration-200 whitespace-nowrap"
                 >
-                  <span className="text-[11px] font-medium leading-tight">{isEditable ? "Update Your Details" : "Find Your Table"}</span>
+                  <span className="text-[13px] font-medium leading-tight">{isEditable ? "Update Your Details" : "Find Your Table"}</span>
                 </TabsTrigger>
                 {liveViewSettings?.show_rsvp_invite && (
                   <button
                     onClick={() => setShowRsvpInviteModal(true)}
                     className="flex items-center justify-center py-2 px-2 rounded-full border border-primary bg-primary/10 text-primary font-semibold transition-all duration-200 whitespace-nowrap"
                   >
-                    <span className="text-[11px] font-medium">View RSVP Invite</span>
+                    <span className="text-[13px] font-medium">View RSVP Invite</span>
                   </button>
                 )}
                 {liveViewSettings?.show_welcome_video && (
@@ -629,7 +629,7 @@ export const GuestLookup: React.FC = () => {
                     onClick={() => setShowWelcomeVideoModal(true)}
                     className="flex items-center justify-center py-2 px-2 rounded-full border border-primary bg-primary/10 text-primary font-semibold transition-all duration-200 whitespace-nowrap"
                   >
-                    <span className="text-[11px] font-medium">View Video</span>
+                    <span className="text-[13px] font-medium">View Video</span>
                   </button>
                 )}
 
@@ -638,14 +638,14 @@ export const GuestLookup: React.FC = () => {
                   value="visualization" 
                   className="flex items-center justify-center py-2 px-2 rounded-full border border-primary bg-primary/10 text-primary data-[state=active]:border-green-500 data-[state=active]:bg-green-50 data-[state=active]:text-green-700 data-[state=active]:font-semibold data-[state=active]:shadow-md transition-all duration-200 whitespace-nowrap"
                 >
-                  <span className="text-[11px] font-medium">Table View</span>
+                  <span className="text-[13px] font-medium">Table View</span>
                 </TabsTrigger>
                 {liveViewSettings?.show_floor_plan && (
                   <button
                     onClick={() => setShowFloorPlanModal(true)}
                     className="flex items-center justify-center py-2 px-2 rounded-full border border-primary bg-primary/10 text-primary font-semibold transition-all duration-200 whitespace-nowrap"
                   >
-                    <span className="text-[11px] font-medium">Floor Plan</span>
+                    <span className="text-[13px] font-medium">Floor Plan</span>
                   </button>
                 )}
                 {liveViewSettings?.show_menu && (
@@ -653,7 +653,7 @@ export const GuestLookup: React.FC = () => {
                     onClick={() => setShowMenuModal(true)}
                     className="flex items-center justify-center py-2 px-2 rounded-full border border-primary bg-primary/10 text-primary font-semibold transition-all duration-200 whitespace-nowrap"
                   >
-                    <span className="text-[11px] font-medium">View Menu</span>
+                    <span className="text-[13px] font-medium">View Menu</span>
                   </button>
                 )}
               </TabsList>
@@ -735,9 +735,9 @@ export const GuestLookup: React.FC = () => {
                     </Button>
                   </div>
 
-                  <div className="text-center text-sm text-muted-foreground space-y-0 -mt-2">
+                  <div className="text-center text-sm text-muted-foreground space-y-0 -mt-4">
                     <p className="font-medium">Having trouble finding your name?</p>
-                    <p>Contact your organizer for assistance</p>
+                    <p>Contact your organiser for assistance</p>
                   </div>
 
                   {/* Share Button - moved from hero */}
