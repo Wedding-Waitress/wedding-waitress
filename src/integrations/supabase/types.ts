@@ -2821,6 +2821,15 @@ export type Database = {
         }
         Returns: boolean
       }
+      public_manage_guest_group: {
+        Args: {
+          _event_id: string
+          _guest_type: string
+          _new_guest_id: string
+          _referring_guest_id: string
+        }
+        Returns: undefined
+      }
       resolve_dynamic_qr: {
         Args: { _code: string }
         Returns: {
