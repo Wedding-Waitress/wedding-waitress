@@ -825,6 +825,16 @@ export const GuestLookup: React.FC = () => {
                   </>
                 )}
 
+                {/* Home button */}
+                <div className="flex justify-center mt-4">
+                  <button
+                    onClick={() => setActiveTab('search')}
+                    className="px-8 py-3 rounded-full bg-primary text-primary-foreground font-semibold text-sm shadow-md hover:opacity-90 transition-all"
+                  >
+                    Home
+                  </button>
+                </div>
+
                 {searchTerm.length < 2 && (
                   <Card className="ww-box card-elevated">
                     <CardContent className="p-8 text-center">
