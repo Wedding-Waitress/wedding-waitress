@@ -71,7 +71,8 @@ export const useLiveViewModuleSettings = (eventId: string | undefined) => {
             welcome_video_config: {},
             floor_plan_config: {},
             menu_config: {},
-            hero_image_config: {}
+            hero_image_config: {},
+            reception_floor_plan_config: {}
           };
 
           const { data: newData, error: upsertError } = await supabase
