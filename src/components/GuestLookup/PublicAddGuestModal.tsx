@@ -181,6 +181,7 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
             });
             if (groupError) {
               console.error('Error managing guest group:', groupError);
+              throw new Error(`Failed to assign guest to ${guestType} group: ${groupError.message}`);
             }
           }
         }
