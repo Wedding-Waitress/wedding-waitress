@@ -685,7 +685,7 @@ export const GuestLookup: React.FC = () => {
                       placeholder={moduleSettings?.update_details_config?.search_placeholder || "Type your first or last name..."}
                       value={searchTerm}
                       onChange={(e) => handleSearchChange(e.target.value)}
-                      className="pl-10 text-base md:text-lg h-11 md:h-12"
+                      className="pl-10 text-base md:text-lg h-11 md:h-12 border-green-500 border-2 focus-visible:ring-green-500"
                       autoFocus
                     />
                   </div>
