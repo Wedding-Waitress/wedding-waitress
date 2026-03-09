@@ -19,7 +19,11 @@ import {
   Share2,
   Mail,
   Video,
-  UtensilsCrossed
+  UtensilsCrossed,
+  ClipboardEdit,
+  MailOpen,
+  PlayCircle,
+  LayoutGrid
 } from 'lucide-react';
 import weddingWaitressFooterLogo from '@/assets/wedding-waitress-footer-logo.png';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -607,47 +611,59 @@ export const GuestLookup: React.FC = () => {
       <div className="w-full px-4 pt-4 pb-1">
         <div className="max-w-4xl mx-auto">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <div className="bg-white p-2.5 rounded-xl border-2 border-gray-200 shadow-sm">
+             <div className="bg-white p-2.5 rounded-xl border-2 border-gray-200 shadow-sm">
               <TabsList className="grid w-full h-auto grid-cols-3 p-0 bg-transparent border-0 shadow-none gap-2">
-                {/* Row 1: RSVP Invite, Video, Table */}
+                {/* Row 1: Update Your Details, RSVP Invite, Video */}
+                <TabsTrigger
+                  value="search" 
+                  className="flex flex-col items-center justify-center py-2 px-1 rounded-xl border border-green-400 bg-green-50 text-green-700 data-[state=active]:border-green-400 data-[state=active]:bg-green-50 data-[state=active]:text-green-700 data-[state=active]:shadow-md transition-all duration-200"
+                >
+                  <ClipboardEdit className="w-5 h-5 mb-1" />
+                  <span className="text-xs font-bold leading-tight text-center whitespace-nowrap">{isEditable ? "Update Your Details" : "Find Your Table"}</span>
+                </TabsTrigger>
                 {liveViewSettings?.show_rsvp_invite && (
                   <button
                     onClick={() => setShowRsvpInviteModal(true)}
-                    className="flex items-center justify-center py-2 px-2 rounded-full border border-primary bg-primary/10 text-primary font-semibold transition-all duration-200 whitespace-nowrap"
+                    className="flex flex-col items-center justify-center py-2 px-1 rounded-xl border border-primary/40 bg-primary/10 text-primary transition-all duration-200"
                   >
-                    <span className="text-[13px] font-bold leading-tight text-center">RSVP<br/>Invite</span>
+                    <MailOpen className="w-5 h-5 mb-1" />
+                    <span className="text-xs font-bold leading-tight text-center whitespace-nowrap">RSVP Invite</span>
                   </button>
                 )}
                 {liveViewSettings?.show_welcome_video && (
                   <button
                     onClick={() => setShowWelcomeVideoModal(true)}
-                    className="flex items-center justify-center py-2 px-2 rounded-full border border-primary bg-primary/10 text-primary font-semibold transition-all duration-200 whitespace-nowrap"
+                    className="flex flex-col items-center justify-center py-2 px-1 rounded-xl border border-primary/40 bg-primary/10 text-primary transition-all duration-200"
                   >
-                    <span className="text-[13px] font-bold leading-tight text-center">Video</span>
+                    <PlayCircle className="w-5 h-5 mb-1" />
+                    <span className="text-xs font-bold leading-tight text-center whitespace-nowrap">Video</span>
                   </button>
                 )}
+
+                {/* Row 2: Table, Floor Plan, Menu */}
                 <TabsTrigger 
                   value="visualization" 
-                  className="flex items-center justify-center py-2 px-2 rounded-full border border-primary bg-primary/10 text-primary data-[state=active]:border-green-500 data-[state=active]:bg-green-50 data-[state=active]:text-green-700 data-[state=active]:font-semibold data-[state=active]:shadow-md transition-all duration-200 whitespace-nowrap"
+                  className="flex flex-col items-center justify-center py-2 px-1 rounded-xl border border-primary/40 bg-primary/10 text-primary data-[state=active]:border-green-400 data-[state=active]:bg-green-50 data-[state=active]:text-green-700 data-[state=active]:shadow-md transition-all duration-200"
                 >
-                  <span className="text-[13px] font-bold leading-tight text-center">Table</span>
+                  <LayoutGrid className="w-5 h-5 mb-1" />
+                  <span className="text-xs font-bold leading-tight text-center whitespace-nowrap">Table</span>
                 </TabsTrigger>
-
-                {/* Row 2: Floor Plan, Menu (centered) */}
                 {liveViewSettings?.show_floor_plan && (
                   <button
                     onClick={() => setShowFloorPlanModal(true)}
-                    className="flex items-center justify-center py-2 px-2 rounded-full border border-primary bg-primary/10 text-primary font-semibold transition-all duration-200 whitespace-nowrap col-start-1"
+                    className="flex flex-col items-center justify-center py-2 px-1 rounded-xl border border-primary/40 bg-primary/10 text-primary transition-all duration-200"
                   >
-                    <span className="text-[13px] font-bold leading-tight text-center">Floor<br/>Plan</span>
+                    <MapPin className="w-5 h-5 mb-1" />
+                    <span className="text-xs font-bold leading-tight text-center whitespace-nowrap">Floor Plan</span>
                   </button>
                 )}
                 {liveViewSettings?.show_menu && (
                   <button
                     onClick={() => setShowMenuModal(true)}
-                    className="flex items-center justify-center py-2 px-2 rounded-full border border-primary bg-primary/10 text-primary font-semibold transition-all duration-200 whitespace-nowrap"
+                    className="flex flex-col items-center justify-center py-2 px-1 rounded-xl border border-primary/40 bg-primary/10 text-primary transition-all duration-200"
                   >
-                    <span className="text-[13px] font-bold leading-tight text-center">Menu</span>
+                    <UtensilsCrossed className="w-5 h-5 mb-1" />
+                    <span className="text-xs font-bold leading-tight text-center whitespace-nowrap">Menu</span>
                   </button>
                 )}
               </TabsList>
