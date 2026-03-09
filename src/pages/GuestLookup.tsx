@@ -682,17 +682,9 @@ export const GuestLookup: React.FC = () => {
             <div className="pt-3">
             <TabsContent value="search" className="mt-0">
               <Card className="ww-box card-elevated">
-                <CardHeader className="text-center">
-                  <CardTitle className="flex items-center justify-center font-bold whitespace-nowrap text-lg md:text-xl">
-                    {isEventDay ? "Type Your Full Name" : "Type Your Full Name Here"}
-                  </CardTitle>
-                  <CardTitle className="flex items-center justify-center font-bold whitespace-nowrap text-lg md:text-xl">
-                    {isEventDay ? "To Find Your Table & Seat" : (isEditable ? "Update & Confirm Your Details" : "Find Your Seat")}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-6">
+                <CardContent className="space-y-4 pt-6">
                   {/* Search Input */}
-                  <div className="relative mt-4">
+                  <div className="relative">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
                     <Input
                       type="text"
