@@ -683,6 +683,7 @@ export const GuestLookup: React.FC = () => {
             <TabsContent value="search" className="mt-0">
               <Card className="ww-box card-elevated">
                 <CardContent className="space-y-4 pt-6">
+                  <p className="text-center text-sm font-semibold text-primary">Update & Confirm Your Details</p>
                   {/* Search Input */}
                   <div className="relative">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
