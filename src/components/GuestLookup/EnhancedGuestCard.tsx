@@ -9,7 +9,6 @@ import {
   XCircle,
   PlusCircle,
   ClipboardCheck,
-  Pencil,
   Users,
   UserPlus,
   Utensils,
