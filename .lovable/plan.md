@@ -1,21 +1,24 @@
 
 
-## Plan: Move Edit with Canva banner onto the same row as Choose File and Image Gallery
+## Plan: Add "Home" button at bottom of Table visualization view
 
-### Summary
-Move the clickable Canva banner image from its own row below the buttons into the same flex row as Choose File and Image Gallery, so all three sit side by side on one line.
+### Change (in `src/pages/GuestLookup.tsx`)
 
-### File Changes
+Add a purple "Home" button at the bottom of the `visualization` TabsContent, after the table visualization grid and before the closing `</div>` of `space-y-6`. This button will appear when a guest has searched their name and is viewing their table assignment. Clicking it will reset the view back to the `search` tab.
 
-#### 1. `src/components/Dashboard/Invitations/InvitationCardCustomizer.tsx`
-- **Move lines 428-433** (the `<img>` tag) inside the `</div>` that closes at line 427, placing it after the Image Gallery button (before the closing `</div>`).
-- Remove `mt-2` from the image class since it will now be inline with the buttons.
-- The flex container already has `gap-2`, so the banner will sit naturally next to the buttons.
+Insert after line 825 (after the closing `</>` of the filtered guests block), before line 826:
 
-#### 2. `src/components/Dashboard/PlaceCards/PlaceCardCustomizer.tsx`
-- **Move lines 706-711** (the `<img>` tag) inside the `</div>` that closes at line 703, placing it after the Image Gallery button.
-- Same class adjustment: remove `mt-2`.
+```tsx
+{/* Home button */}
+<div className="flex justify-center mt-4">
+  <button
+    onClick={() => setActiveTab('search')}
+    className="px-8 py-3 rounded-full bg-primary text-white font-semibold text-sm shadow-md hover:opacity-90 transition-all"
+  >
+    Home
+  </button>
+</div>
+```
 
-### Result
-All three elements — Choose File (green), Image Gallery (purple), Edit with Canva (banner) — appear on a single row in both pages. No other changes.
+Single addition, no other changes.
 
