@@ -75,6 +75,9 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
   onGuestAdded,
   addedByGuestId,
   addedByGuestName,
+  addedByGuestFamilyGroup,
+  addedByGuestTableId,
+  addedByGuestTableNo,
 }) => {
   const [guestType, setGuestType] = useState<GuestType>('individual');
   const [guest, setGuest] = useState<GuestEntry>(emptyGuest());
