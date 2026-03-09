@@ -646,25 +646,25 @@ export const GuestLookup: React.FC = () => {
                 {liveViewSettings?.show_floor_plan && (
                   <button
                     onClick={() => setShowFloorPlanModal(true)}
-                    className="flex flex-col items-center justify-center py-2 px-1 rounded-xl border border-primary/40 bg-primary/10 text-primary transition-all duration-200"
+                    className="flex flex-row items-center justify-center gap-2 py-2 px-1 rounded-xl border border-primary/40 bg-primary/10 text-primary transition-all duration-200"
                   >
-                    <div className="flex items-center gap-1">
-                      <MapPin className="w-5 h-5" />
+                    <MapPin className="w-5 h-5 shrink-0" />
+                    <div className="flex flex-col items-center">
                       <span className="text-xs font-bold leading-tight">Ceremony</span>
+                      <span className="text-xs font-bold leading-tight">Floor Plan</span>
                     </div>
-                    <span className="text-xs font-bold leading-tight">Floor Plan</span>
                   </button>
                 )}
                 {liveViewSettings?.show_reception_floor_plan && (
                   <button
                     onClick={() => setShowReceptionFloorPlanModal(true)}
-                    className="flex flex-col items-center justify-center py-2 px-1 rounded-xl border border-primary/40 bg-primary/10 text-primary transition-all duration-200"
+                    className="flex flex-row items-center justify-center gap-2 py-2 px-1 rounded-xl border border-primary/40 bg-primary/10 text-primary transition-all duration-200"
                   >
-                    <div className="flex items-center gap-1">
-                      <MapPin className="w-5 h-5" />
+                    <MapPin className="w-5 h-5 shrink-0" />
+                    <div className="flex flex-col items-center">
                       <span className="text-xs font-bold leading-tight">Reception</span>
+                      <span className="text-xs font-bold leading-tight">Floor Plan</span>
                     </div>
-                    <span className="text-xs font-bold leading-tight">Floor Plan</span>
                   </button>
                 )}
                 {liveViewSettings?.show_menu && (
@@ -836,9 +836,9 @@ export const GuestLookup: React.FC = () => {
                   <Card className="ww-box card-elevated">
                     <CardContent className="p-8 text-center">
                       <Eye className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-                      <CardTitle className="mb-2">Interactive Table View</CardTitle>
-                      <CardDescription>
-                        Search for your name first to see your table visualization
+                      <CardTitle className="mb-2">Table View</CardTitle>
+                      <CardDescription className="text-base">
+                        Search for your name first to see what table you are sitting on and who you are sitting with.
                       </CardDescription>
                     </CardContent>
                   </Card>
