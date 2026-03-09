@@ -950,6 +950,21 @@ export const GuestLookup: React.FC = () => {
             const g = guests.find(g => g.id === addGuestForId);
             return g ? `${g.first_name} ${g.last_name || ''}`.trim() : undefined;
           })()}
+          addedByGuestFamilyGroup={(() => {
+            if (!addGuestForId) return undefined;
+            const g = guests.find(g => g.id === addGuestForId);
+            return g?.family_group || undefined;
+          })()}
+          addedByGuestTableId={(() => {
+            if (!addGuestForId) return undefined;
+            const g = guests.find(g => g.id === addGuestForId);
+            return g?.table_id || undefined;
+          })()}
+          addedByGuestTableNo={(() => {
+            if (!addGuestForId) return undefined;
+            const g = guests.find(g => g.id === addGuestForId);
+            return g?.table_no ?? undefined;
+          })()}
         />
       )}
 
