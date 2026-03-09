@@ -60,6 +60,9 @@ interface PublicAddGuestModalProps {
   onGuestAdded: () => void;
   addedByGuestId?: string;
   addedByGuestName?: string;
+  addedByGuestFamilyGroup?: string;
+  addedByGuestTableId?: string;
+  addedByGuestTableNo?: number;
 }
 
 const inputClasses = "rounded-full border-2 border-primary focus-visible:border-primary focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none h-9";
@@ -72,6 +75,9 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
   onGuestAdded,
   addedByGuestId,
   addedByGuestName,
+  addedByGuestFamilyGroup,
+  addedByGuestTableId,
+  addedByGuestTableNo,
 }) => {
   const [guestType, setGuestType] = useState<GuestType>('individual');
   const [guest, setGuest] = useState<GuestEntry>(emptyGuest());
@@ -127,6 +133,7 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
         if (error) throw error;
         if (!data) throw new Error('Failed to add guest — event may not allow public additions');
 
+        // For individual/single: no group management needed
         toast({ title: 'Guest Added', description: '1 guest added successfully' });
         resetForm();
         onOpenChange(false);
@@ -138,7 +145,7 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
         setSaving(false);
       }
     } else {
-      // Couple/Family: save each party member
+      // Couple/Family: save each party member then manage group
       if (partyMembers.length === 0) {
         toast({ title: guestType === 'couple' ? 'Please add your partner first' : 'Please add at least one member', variant: 'destructive' });
         return;
@@ -146,8 +153,10 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
 
       setSaving(true);
       try {
+        const newGuestIds: string[] = [];
+        
         for (const m of partyMembers) {
-          const { error: memberError } = await supabase.rpc('add_guest_public', {
+          const { data: newGuestId, error: memberError } = await supabase.rpc('add_guest_public', {
             _event_id: eventId,
             _first_name: m.first_name.trim(),
             _last_name: m.last_name.trim() || '',
@@ -158,6 +167,22 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
             _added_by_guest_id: addedByGuestId || null,
           } as any);
           if (memberError) throw memberError;
+          if (newGuestId) newGuestIds.push(newGuestId);
+        }
+
+        // Call public_manage_guest_group for each new guest
+        if (addedByGuestId) {
+          for (const newGuestId of newGuestIds) {
+            const { error: groupError } = await (supabase.rpc as any)('public_manage_guest_group', {
+              _event_id: eventId,
+              _new_guest_id: newGuestId,
+              _referring_guest_id: addedByGuestId,
+              _guest_type: guestType,
+            });
+            if (groupError) {
+              console.error('Error managing guest group:', groupError);
+            }
+          }
         }
 
         const total = partyMembers.length;

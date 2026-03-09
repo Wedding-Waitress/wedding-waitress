@@ -273,7 +273,7 @@ export const GuestLookup: React.FC = () => {
             relation_display: '',
             created_at: '',
             display_order: null,
-            family_group: null,
+            family_group: (row as any).guest_family_group || null,
             added_by_guest_id: (row as any).guest_added_by_guest_id || null,
           }));
 
@@ -373,7 +373,7 @@ export const GuestLookup: React.FC = () => {
             relation_display: '',
             created_at: '',
             display_order: null,
-            family_group: null,
+            family_group: (row as any).guest_family_group || null,
             added_by_guest_id: (row as any).guest_added_by_guest_id || null,
           }));
 
@@ -949,6 +949,21 @@ export const GuestLookup: React.FC = () => {
             if (!addGuestForId) return undefined;
             const g = guests.find(g => g.id === addGuestForId);
             return g ? `${g.first_name} ${g.last_name || ''}`.trim() : undefined;
+          })()}
+          addedByGuestFamilyGroup={(() => {
+            if (!addGuestForId) return undefined;
+            const g = guests.find(g => g.id === addGuestForId);
+            return g?.family_group || undefined;
+          })()}
+          addedByGuestTableId={(() => {
+            if (!addGuestForId) return undefined;
+            const g = guests.find(g => g.id === addGuestForId);
+            return g?.table_id || undefined;
+          })()}
+          addedByGuestTableNo={(() => {
+            if (!addGuestForId) return undefined;
+            const g = guests.find(g => g.id === addGuestForId);
+            return g?.table_no ?? undefined;
           })()}
         />
       )}
