@@ -120,16 +120,16 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                     onClick={() => onTabChange(item.id)}
                     isActive={isActive}
                     tooltip={item.label}
-                    className={`flex items-center gap-1 ${isGreenItem ? '!bg-purple-100 hover:!bg-purple-200' : ''} ${isMobile ? 'py-4' : 'py-3'}`}
+                    className={`flex items-center gap-1 ${isGreenItem ? '!bg-purple-100 border border-purple-300 rounded-md hover:!bg-purple-200' : ''} ${isMobile ? 'py-4' : 'py-3'}`}
                   >
                     <Icon className={isMobile ? "w-6 h-6" : "w-5 h-5"} />
                     <span className={`${isGreenItem ? 'text-black' : ''} ${isActive ? 'font-bold' : 'font-normal'} text-base`}>
                       {getMobileLabel(item.id, item.label)}
                     </span>
                     {item.id === 'my-events' && (
-                       <span className="bg-white text-black text-xs font-normal ml-auto px-2 py-0.5 rounded-full whitespace-nowrap">
+                       <span className="bg-green-500 text-white text-xs font-normal ml-auto px-2 py-0.5 rounded-full whitespace-nowrap">
                         Start Here
-                      </span>
+                       </span>
                     )}
                     {item.id === 'table-list' && (
                        <span className="text-black text-sm font-normal ml-auto">
