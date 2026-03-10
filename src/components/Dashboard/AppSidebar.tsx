@@ -142,7 +142,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                       </span>
                     )}
                     {badgeNumber && (
-                      <span className="flex items-center justify-center w-6 h-6 bg-green-500 rounded-full text-white text-sm font-bold ml-1">
+                      <span className="flex items-center justify-center w-6 h-6 bg-purple-100 rounded-full text-black text-sm font-normal ml-1">
                         {badgeNumber}
                       </span>
                     )}
