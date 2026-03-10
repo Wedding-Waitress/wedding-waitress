@@ -137,7 +137,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                       </span>
                     )}
                     {item.id === 'guest-list' && (
-                      <span className="text-white text-sm font-bold ml-auto">
+                       <span className="text-black text-sm font-normal ml-auto">
                         Add
                       </span>
                     )}
