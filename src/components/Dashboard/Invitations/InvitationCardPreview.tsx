@@ -77,14 +77,16 @@ export const InvitationCardPreview: React.FC<InvitationCardPreviewProps> = ({
     if (!zone || !onZoneUpdate) return;
     const updates: Partial<TextZone> = {};
     if (side === 'left' || side === 'right') {
-      const newWidth = Math.max(10, Math.min(100, zone.width_percent + (side === 'right' ? delta : -delta)));
+      // delta is positive = width increase for right, negative = width increase for left
+      const widthChange = side === 'right' ? delta : -delta;
+      const newWidth = Math.max(10, Math.min(100, zone.width_percent + widthChange));
       updates.width_percent = newWidth;
+      // Since positioning is center-based, shift x by half the width change
       if (side === 'left') {
-        updates.x_percent = Math.max(0, Math.min(100, zone.x_percent + delta / 2));
+        updates.x_percent = Math.max(0, Math.min(100, zone.x_percent - widthChange / 2));
+      } else {
+        updates.x_percent = Math.max(0, Math.min(100, zone.x_percent + widthChange / 2));
       }
-    } else {
-      // top/bottom: reposition vertically
-      updates.y_percent = Math.max(0, Math.min(100, zone.y_percent + delta));
     }
     onZoneUpdate(zoneId, updates);
   }, [textZones, onZoneUpdate]);
