@@ -1,5 +1,5 @@
 import React, { useRef, useCallback, useState, useLayoutEffect } from 'react';
-import { RotateCw } from 'lucide-react';
+import { RotateCcw } from 'lucide-react';
 
 interface InteractiveTextOverlayProps {
   children: React.ReactNode;
@@ -58,6 +58,7 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
   const [isDragging, setIsDragging] = useState(false);
   const accumRef = useRef({ x: 0, y: 0 });
   const resizeAccumRef = useRef({ dWidth: 0, dLeft: 0 });
+  const rotateAngleRef = useRef(0);
   const pendingClearRef = useRef(false);
   const initialStyleRef = useRef({ width: '', left: '' });
 
@@ -83,6 +84,7 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
     let lastY = e.clientY;
     accumRef.current = { x: 0, y: 0 };
     resizeAccumRef.current = { dWidth: 0, dLeft: 0 };
+    rotateAngleRef.current = rotation;
 
     // Capture initial computed styles for resize visual feedback
     if (elRef.current) {
@@ -142,14 +144,16 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
         return;
       }
 
-      if (mode === 'rotate' && onRotate && elRef.current) {
+      if (mode === 'rotate' && elRef.current) {
         const elRect = elRef.current.getBoundingClientRect();
         const cx = elRect.left + elRect.width / 2;
         const cy = elRect.top + elRect.height / 2;
         let angle = Math.atan2(ev.clientY - cy, ev.clientX - cx) * (180 / Math.PI) + 90;
         if (angle < 0) angle += 360;
         const snapped = Math.abs(angle % 45) < 3 ? Math.round(angle / 45) * 45 : Math.round(angle);
-        onRotate(snapped % 360);
+        rotateAngleRef.current = snapped % 360;
+        // Apply rotation visually without state update
+        elRef.current.style.transform = `rotate(${rotateAngleRef.current}deg)`;
       }
     };
 
@@ -194,6 +198,12 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
             onResize(0, 'bottom');
           }
         }
+      }
+
+      // Commit rotation on release
+      if (mode === 'rotate' && onRotate) {
+        pendingClearRef.current = true;
+        onRotate(rotateAngleRef.current);
       }
 
       document.removeEventListener('pointermove', onPointerMove);
@@ -281,22 +291,23 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
             </>
           )}
 
-          {/* Rotation handle — bottom-right offset */}
+          {/* Rotation handle — right side, vertically centered */}
           {showRotateHandle && onRotate && (
             <div
-              className="absolute bg-primary text-primary-foreground flex items-center justify-center shadow-md"
+              className="absolute flex items-center justify-center"
               style={{
-                width: 20,
-                height: 20,
-                right: -22,
-                bottom: -22,
-                borderRadius: '50%',
-                cursor: 'alias',
+                width: 24,
+                height: 24,
+                right: -28,
+                top: '50%',
+                transform: 'translateY(-50%)',
+                cursor: 'grab',
                 zIndex: 10,
+                color: 'hsl(var(--primary))',
               }}
               onPointerDown={(e) => startDrag(e, 'rotate')}
             >
-              <RotateCw className="h-3 w-3" />
+              <RotateCcw className="h-4 w-4" strokeWidth={2.5} />
             </div>
           )}
         </>
