@@ -12,6 +12,7 @@ interface InvitationCardPreviewProps {
   onZoneUpdate?: (zoneId: string, updates: Partial<TextZone>) => void;
   onZoneDelete?: (zoneId: string) => void;
   onZoneDuplicate?: (zoneId: string) => void;
+  onZoneReset?: (zoneId: string) => void;
 }
 
 const getTextTransform = (textCase: string): React.CSSProperties['textTransform'] => {
