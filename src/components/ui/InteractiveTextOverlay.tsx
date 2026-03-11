@@ -164,13 +164,15 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
         return;
       }
 
-      if (mode.startsWith('resize-')) {
-        const corner = mode.replace('resize-', '');
+      if (mode.startsWith('fontsize-')) {
+        const corner = mode.replace('fontsize-', '');
         const isLeft = corner === 'tl' || corner === 'bl';
-        const finalWidth = parseFloat(el.style.width) || initWidth;
-        const dWidthP = finalWidth - initWidth;
-        if (onCornerResize) {
-          onCornerResize(isLeft ? -dWidthP : dWidthP, 0, corner);
+        const rawDx = isLeft ? -(ev.clientX - startX) : (ev.clientX - startX);
+        const rawDy = corner === 'tl' || corner === 'tr' ? -(ev.clientY - startY) : (ev.clientY - startY);
+        const avgDelta = (rawDx + rawDy) / 2;
+        const fontDelta = Math.round(avgDelta * 0.15);
+        if (onFontSizeChange && fontDelta !== 0) {
+          onFontSizeChange(fontDelta);
         }
         return;
       }
