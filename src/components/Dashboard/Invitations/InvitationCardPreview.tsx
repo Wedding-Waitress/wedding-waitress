@@ -96,21 +96,12 @@ export const InvitationCardPreview: React.FC<InvitationCardPreviewProps> = ({
     if (!zone || !onZoneUpdate) return;
     const updates: Partial<TextZone> = {};
 
-    // Horizontal: tl/bl shrink width, tr/br grow width
+    // dxP is positive = width increase for right corners, width decrease for left corners
     const isLeft = corner === 'tl' || corner === 'bl';
-    const dw = isLeft ? -dxP : dxP;
-    updates.width_percent = Math.max(10, Math.min(100, zone.width_percent + dw));
-    if (isLeft) {
-      updates.x_percent = Math.max(0, Math.min(100, zone.x_percent + dxP / 2));
-    }
-
-    // Vertical: top corners move y, bottom corners also move y
-    const isTop = corner === 'tl' || corner === 'tr';
-    if (isTop) {
-      updates.y_percent = Math.max(0, Math.min(100, zone.y_percent + dyP));
-    } else {
-      // Bottom corners: don't move y (text zones auto-height)
-    }
+    const widthChange = isLeft ? -dxP : dxP;
+    updates.width_percent = Math.max(10, Math.min(100, zone.width_percent + widthChange));
+    // Shift center x by half the width change
+    updates.x_percent = Math.max(0, Math.min(100, zone.x_percent + widthChange / 2));
 
     onZoneUpdate(zoneId, updates);
   }, [textZones, onZoneUpdate]);
