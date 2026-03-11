@@ -24,6 +24,8 @@ interface InteractiveTextOverlayProps {
 
 const HANDLE = 8;
 const HALF = HANDLE / 2;
+const SNAP_THRESHOLD = 4;
+const ROTATE_SENSITIVITY = 1.5;
 
 export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
   children,
@@ -47,6 +49,8 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
 }) => {
   const elRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [isRotating, setIsRotating] = useState(false);
+  const [liveAngle, setLiveAngle] = useState<number | null>(null);
 
   const getBaseTransform = useCallback((): string => {
     const t = (style.transform as string) || '';
@@ -74,6 +78,11 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
     let accumX = 0;
     let accumY = 0;
     let currentAngle = rotation;
+
+    if (mode === 'rotate') {
+      setIsRotating(true);
+      setLiveAngle(rotation);
+    }
 
     const onPointerMove = (ev: PointerEvent) => {
       const dx = ev.clientX - startX;
@@ -114,21 +123,21 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
       }
 
       if (mode === 'rotate') {
-        const elRect = el.getBoundingClientRect();
-        const cx = elRect.left + elRect.width / 2;
-        const cy = elRect.top + elRect.height / 2;
-        let angle = Math.atan2(ev.clientY - cy, ev.clientX - cx) * (180 / Math.PI) + 90;
-        if (angle < 0) angle += 360;
-        currentAngle = Math.abs(angle % 45) < 3
-          ? Math.round(angle / 45) * 45
-          : Math.round(angle);
-        currentAngle = ((currentAngle % 360) + 360) % 360;
-        el.style.transform = `${baseTransform} rotate(${currentAngle}deg)`;
+        let raw = rotation + dx * ROTATE_SENSITIVITY;
+        raw = ((raw % 360) + 360) % 360;
+        if (raw > 180) raw -= 360;
+        if (Math.abs(raw) < SNAP_THRESHOLD) raw = 0;
+        currentAngle = Math.round(raw);
+        setLiveAngle(currentAngle);
+        const finalDeg = ((currentAngle % 360) + 360) % 360;
+        el.style.transform = `${baseTransform} rotate(${finalDeg}deg)`;
       }
     };
 
     const onPointerUp = () => {
       setIsDragging(false);
+      setIsRotating(false);
+      setLiveAngle(null);
       document.removeEventListener('pointermove', onPointerMove);
       document.removeEventListener('pointerup', onPointerUp);
 
@@ -137,13 +146,11 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
       if (mode === 'move' && onMove) {
         const dxP = (accumX / rect.width) * 100;
         const dyP = (accumY / rect.height) * 100;
-
         const newLeft = initLeft + dxP;
         const newTop = initTop + dyP;
         el.style.left = `${newLeft}%`;
         el.style.top = `${newTop}%`;
         el.style.transform = `${baseTransform} rotate(${rotation}deg)`;
-
         onMove(dxP, dyP);
         onDragEnd?.();
         return;
@@ -175,8 +182,9 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
       }
 
       if (mode === 'rotate' && onRotate) {
-        el.style.transform = `${baseTransform} rotate(${currentAngle}deg)`;
-        onRotate(currentAngle);
+        const finalDeg = ((currentAngle % 360) + 360) % 360;
+        el.style.transform = `${baseTransform} rotate(${finalDeg}deg)`;
+        onRotate(finalDeg);
       }
     };
 
@@ -186,6 +194,7 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
 
   const canResize = showResizeHandles && (onResize || onCornerResize);
   const hasToolbar = onCopy || onDuplicate || onDelete;
+  const displayAngle = liveAngle !== null ? liveAngle : (rotation > 180 ? rotation - 360 : rotation);
 
   return (
     <div
@@ -285,7 +294,7 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
           )}
 
           <div
-            className="absolute flex items-center gap-1 pointer-events-auto"
+            className="absolute flex flex-col items-center pointer-events-auto"
             style={{
               top: '100%',
               left: '50%',
@@ -294,23 +303,7 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
               zIndex: 30,
             }}
           >
-            <div
-              className="flex items-center justify-center rounded-full"
-              style={{
-                width: 24,
-                height: 24,
-                background: 'hsl(var(--background))',
-                border: '1px solid hsl(var(--border))',
-                boxShadow: '0 1px 4px rgba(0,0,0,0.1)',
-                cursor: 'move',
-                color: 'hsl(var(--muted-foreground))',
-              }}
-              onPointerDown={(e) => handlePointerDown(e, 'move')}
-            >
-              <Move className="h-3 w-3" />
-            </div>
-
-            {showRotateHandle && onRotate && (
+            <div className="flex items-center gap-1">
               <div
                 className="flex items-center justify-center rounded-full"
                 style={{
@@ -319,12 +312,44 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
                   background: 'hsl(var(--background))',
                   border: '1px solid hsl(var(--border))',
                   boxShadow: '0 1px 4px rgba(0,0,0,0.1)',
-                  cursor: 'grab',
+                  cursor: 'move',
                   color: 'hsl(var(--muted-foreground))',
                 }}
-                onPointerDown={(e) => handlePointerDown(e, 'rotate')}
+                onPointerDown={(e) => handlePointerDown(e, 'move')}
               >
-                <RotateCw className="h-3 w-3" />
+                <Move className="h-3 w-3" />
+              </div>
+
+              {showRotateHandle && onRotate && (
+                <div
+                  className="flex items-center justify-center rounded-full"
+                  style={{
+                    width: 24,
+                    height: 24,
+                    background: 'hsl(var(--background))',
+                    border: '1px solid hsl(var(--border))',
+                    boxShadow: '0 1px 4px rgba(0,0,0,0.1)',
+                    cursor: 'grab',
+                    color: 'hsl(var(--muted-foreground))',
+                  }}
+                  onPointerDown={(e) => handlePointerDown(e, 'rotate')}
+                >
+                  <RotateCw className="h-3 w-3" />
+                </div>
+              )}
+            </div>
+
+            {isRotating && liveAngle !== null && (
+              <div
+                className="mt-1 px-1.5 py-0.5 rounded text-[10px] font-medium tabular-nums"
+                style={{
+                  background: 'hsl(var(--primary))',
+                  color: 'hsl(var(--primary-foreground))',
+                  whiteSpace: 'nowrap',
+                  lineHeight: 1.2,
+                }}
+              >
+                {displayAngle}°
               </div>
             )}
           </div>
