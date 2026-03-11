@@ -78,13 +78,13 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
       lastY = ev.clientY;
 
       if (mode === 'move') {
-        // Accumulate pixel offset and apply via transform — no re-render
         accumRef.current.x += dx;
         accumRef.current.y += dy;
         if (elRef.current) {
           const rot = rotation ? `rotate(${rotation}deg)` : '';
           elRef.current.style.transform = `translate(${accumRef.current.x}px, ${accumRef.current.y}px) ${rot}`;
         }
+        onDragMove?.({ x: accumRef.current.x, y: accumRef.current.y });
         return;
       }
 
