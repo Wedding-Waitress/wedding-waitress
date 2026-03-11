@@ -52,6 +52,7 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
 }) => {
   const elRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const accumRef = useRef({ x: 0, y: 0 });
 
   const startDrag = useCallback((e: React.PointerEvent, mode: DragMode) => {
     e.stopPropagation();
@@ -61,6 +62,7 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
     setIsDragging(true);
     let lastX = e.clientX;
     let lastY = e.clientY;
+    accumRef.current = { x: 0, y: 0 };
 
     const onPointerMove = (ev: PointerEvent) => {
       const container = containerRef.current;
@@ -71,12 +73,21 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
       lastX = ev.clientX;
       lastY = ev.clientY;
 
+      if (mode === 'move') {
+        // Accumulate pixel offset and apply via transform — no re-render
+        accumRef.current.x += dx;
+        accumRef.current.y += dy;
+        if (elRef.current) {
+          const rot = rotation ? `rotate(${rotation}deg)` : '';
+          elRef.current.style.transform = `translate(${accumRef.current.x}px, ${accumRef.current.y}px) ${rot}`;
+        }
+        return;
+      }
+
       const dxP = (dx / rect.width) * 100;
       const dyP = (dy / rect.height) * 100;
 
-      if (mode === 'move' && onMove) {
-        onMove(dxP, dyP);
-      } else if (mode === 'resize-left' && onResize) {
+      if (mode === 'resize-left' && onResize) {
         onResize(dxP, 'left');
       } else if (mode === 'resize-right' && onResize) {
         onResize(dxP, 'right');
@@ -100,13 +111,28 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
 
     const onPointerUp = () => {
       setIsDragging(false);
+      // Commit move as single state update
+      if (mode === 'move' && onMove) {
+        const container = containerRef.current;
+        if (container) {
+          const rect = container.getBoundingClientRect();
+          const dxP = (accumRef.current.x / rect.width) * 100;
+          const dyP = (accumRef.current.y / rect.height) * 100;
+          onMove(dxP, dyP);
+        }
+        // Reset inline transform
+        if (elRef.current) {
+          elRef.current.style.transform = rotation ? `rotate(${rotation}deg)` : '';
+        }
+        accumRef.current = { x: 0, y: 0 };
+      }
       document.removeEventListener('pointermove', onPointerMove);
       document.removeEventListener('pointerup', onPointerUp);
     };
 
     document.addEventListener('pointermove', onPointerMove);
     document.addEventListener('pointerup', onPointerUp);
-  }, [containerRef, onMove, onResize, onCornerResize, onRotate]);
+  }, [containerRef, onMove, onResize, onCornerResize, onRotate, rotation]);
 
   const canResize = showResizeHandles && (onResize || onCornerResize);
 
