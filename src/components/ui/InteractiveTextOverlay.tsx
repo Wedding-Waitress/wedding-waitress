@@ -9,6 +9,8 @@ interface InteractiveTextOverlayProps {
   onResize?: (dWidthPercent: number, side: 'left' | 'right' | 'top' | 'bottom') => void;
   onCornerResize?: (dWidthPercent: number, dyPercent: number, corner: string) => void;
   onRotate?: (degrees: number) => void;
+  onDragMove?: (pixelOffset: { x: number; y: number }) => void;
+  onDragEnd?: () => void;
   containerRef: React.RefObject<HTMLElement>;
   showResizeHandles?: boolean;
   showRotateHandle?: boolean;
