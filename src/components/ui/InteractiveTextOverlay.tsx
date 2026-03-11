@@ -8,6 +8,7 @@ interface InteractiveTextOverlayProps {
   onMove?: (dxPercent: number, dyPercent: number) => void;
   onResize?: (dWidthPercent: number, side: 'left' | 'right' | 'top' | 'bottom') => void;
   onCornerResize?: (dWidthPercent: number, dyPercent: number, corner: string) => void;
+  onFontSizeChange?: (deltaPx: number) => void;
   onRotate?: (degrees: number) => void;
   onDragMove?: (pixelOffset: { x: number; y: number }) => void;
   onDragEnd?: () => void;
@@ -34,6 +35,7 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
   onMove,
   onResize,
   onCornerResize,
+  onFontSizeChange,
   onRotate,
   onDragMove,
   onDragEnd,
@@ -78,6 +80,7 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
     let accumX = 0;
     let accumY = 0;
     let currentAngle = rotation;
+    let lastFontDelta = 0;
 
     if (mode === 'rotate') {
       setIsRotating(true);
@@ -109,16 +112,13 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
         return;
       }
 
-      if (mode.startsWith('resize-')) {
-        const corner = mode.replace('resize-', '');
+      if (mode.startsWith('fontsize-')) {
+        const corner = mode.replace('fontsize-', '');
         const isLeft = corner === 'tl' || corner === 'bl';
-        const dPct = (dx / containerRect.width) * 100;
-        if (isLeft) {
-          el.style.left = `${initLeft + dPct}%`;
-          el.style.width = `${Math.max(5, initWidth - dPct)}%`;
-        } else {
-          el.style.width = `${Math.max(5, initWidth + dPct)}%`;
-        }
+        const rawDx = isLeft ? -dx : dx;
+        const rawDy = (corner === 'tl' || corner === 'tr') ? -dy : dy;
+        const avgDelta = (rawDx + rawDy) / 2;
+        lastFontDelta = Math.round(avgDelta * 0.15);
         return;
       }
 
@@ -170,13 +170,9 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
         return;
       }
 
-      if (mode.startsWith('resize-')) {
-        const corner = mode.replace('resize-', '');
-        const isLeft = corner === 'tl' || corner === 'bl';
-        const finalWidth = parseFloat(el.style.width) || initWidth;
-        const dWidthP = finalWidth - initWidth;
-        if (onCornerResize) {
-          onCornerResize(isLeft ? -dWidthP : dWidthP, 0, corner);
+      if (mode.startsWith('fontsize-')) {
+        if (onFontSizeChange && lastFontDelta !== 0) {
+          onFontSizeChange(lastFontDelta);
         }
         return;
       }
@@ -190,9 +186,9 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
 
     document.addEventListener('pointermove', onPointerMove);
     document.addEventListener('pointerup', onPointerUp);
-  }, [containerRef, onMove, onResize, onCornerResize, onRotate, onDragMove, onDragEnd, rotation, getBaseTransform]);
+  }, [containerRef, onMove, onResize, onCornerResize, onFontSizeChange, onRotate, onDragMove, onDragEnd, rotation, getBaseTransform]);
 
-  const canResize = showResizeHandles && (onResize || onCornerResize);
+  const canResize = showResizeHandles && (onResize || onCornerResize || onFontSizeChange);
   const hasToolbar = onCopy || onDuplicate || onDelete;
   const displayAngle = liveAngle !== null ? liveAngle : (rotation > 180 ? rotation - 360 : rotation);
 
@@ -268,11 +264,11 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
             <>
               <Handle
                 style={{ left: -HALF, top: -HALF, cursor: 'nwse-resize' }}
-                onPointerDown={(e) => handlePointerDown(e, 'resize-tl')}
+                onPointerDown={(e) => handlePointerDown(e, 'fontsize-tl')}
               />
               <Handle
                 style={{ right: -HALF, top: -HALF, cursor: 'nesw-resize' }}
-                onPointerDown={(e) => handlePointerDown(e, 'resize-tr')}
+                onPointerDown={(e) => handlePointerDown(e, 'fontsize-tr')}
               />
               <Handle
                 style={{ left: -HALF, top: '50%', transform: 'translateY(-50%)', cursor: 'ew-resize' }}
@@ -284,11 +280,11 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
               />
               <Handle
                 style={{ left: -HALF, bottom: -HALF, cursor: 'nesw-resize' }}
-                onPointerDown={(e) => handlePointerDown(e, 'resize-bl')}
+                onPointerDown={(e) => handlePointerDown(e, 'fontsize-bl')}
               />
               <Handle
                 style={{ right: -HALF, bottom: -HALF, cursor: 'nwse-resize' }}
-                onPointerDown={(e) => handlePointerDown(e, 'resize-br')}
+                onPointerDown={(e) => handlePointerDown(e, 'fontsize-br')}
               />
             </>
           )}

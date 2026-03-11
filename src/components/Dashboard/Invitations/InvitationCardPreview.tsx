@@ -104,6 +104,13 @@ export const InvitationCardPreview: React.FC<InvitationCardPreviewProps> = ({
     });
   }, [textZones, onZoneUpdate]);
 
+  const handleFontSizeChange = useCallback((zoneId: string, deltaPx: number) => {
+    const zone = textZones.find(z => z.id === zoneId);
+    if (!zone || !onZoneUpdate) return;
+    const newSize = Math.max(6, Math.min(200, zone.font_size + deltaPx));
+    onZoneUpdate(zoneId, { font_size: newSize });
+  }, [textZones, onZoneUpdate]);
+
   const handleRotate = useCallback((zoneId: string, degrees: number) => {
     if (!onZoneUpdate) return;
     onZoneUpdate(zoneId, { rotation: degrees });
@@ -207,6 +214,7 @@ export const InvitationCardPreview: React.FC<InvitationCardPreviewProps> = ({
                     onMove={(dx, dy) => handleMove(zone.id, dx, dy)}
                     onResize={(dw, side) => handleResize(zone.id, dw, side)}
                     onCornerResize={(dw, dy, corner) => handleCornerResize(zone.id, dw, dy, corner)}
+                    onFontSizeChange={(delta) => handleFontSizeChange(zone.id, delta)}
                     onRotate={(deg) => handleRotate(zone.id, deg)}
                     onDragMove={(offset) => handleDragMove(zone.id, offset)}
                     onDragEnd={handleDragEnd}
