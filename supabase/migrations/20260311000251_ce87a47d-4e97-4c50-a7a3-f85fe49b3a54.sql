@@ -1,0 +1,1 @@
+ALTER TABLE public.guests ADD COLUMN allow_plus_one boolean NOT NULL DEFAULT true;
