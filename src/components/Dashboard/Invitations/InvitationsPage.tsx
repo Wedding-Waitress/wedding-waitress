@@ -67,6 +67,7 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
   const [newArtworkSize, setNewArtworkSize] = useState('A4');
   const [renamingId, setRenamingId] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState('');
+  const [selectedZoneId, setSelectedZoneId] = useState<string | null>(null);
 
   const selectedEvent = useMemo(() => events.find(e => e.id === selectedEventId), [events, selectedEventId]);
 
