@@ -29,14 +29,6 @@ type DragMode =
 const HANDLE = 8;
 const HALF = HANDLE / 2;
 
-const baseHandle: React.CSSProperties = {
-  position: 'absolute',
-  width: HANDLE,
-  height: HANDLE,
-  borderRadius: 2,
-  zIndex: 10,
-};
-
 export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
   children,
   isSelected,
@@ -56,20 +48,31 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
 }) => {
   const elRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
-  const accumRef = useRef({ x: 0, y: 0 });
-  const resizeAccumRef = useRef({ dWidth: 0, dLeft: 0 });
-  const rotateAngleRef = useRef(0);
   const pendingClearRef = useRef(false);
-  const initialStyleRef = useRef({ width: '', left: '' });
 
-  // Clear the drag/resize visual overrides AFTER React re-renders with updated positions
+  // Store the base transform from props (e.g. translateY(-50%)) so we always preserve it
+  const baseTransformRef = useRef('');
+
+  // Extract base non-rotate transform parts from style.transform
+  const getBaseTransform = useCallback(() => {
+    const t = (style.transform as string) || '';
+    // Remove rotate(...) from the transform to get the base positioning transform
+    return t.replace(/rotate\([^)]*\)/g, '').trim();
+  }, [style.transform]);
+
+  const buildTransform = useCallback((extras: string = '') => {
+    const base = getBaseTransform();
+    const rot = `rotate(${rotation}deg)`;
+    return [base, rot, extras].filter(Boolean).join(' ');
+  }, [getBaseTransform, rotation]);
+
+  // After React re-renders with new props, clear any inline overrides
   useLayoutEffect(() => {
     if (pendingClearRef.current && elRef.current) {
-      elRef.current.style.transform = rotation ? `rotate(${rotation}deg)` : '';
+      // Remove all inline overrides — React props now have the correct values
+      elRef.current.style.transform = '';
       elRef.current.style.width = '';
       elRef.current.style.left = '';
-      accumRef.current = { x: 0, y: 0 };
-      resizeAccumRef.current = { dWidth: 0, dLeft: 0 };
       pendingClearRef.current = false;
     }
   });
@@ -77,142 +80,133 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
   const startDrag = useCallback((e: React.PointerEvent, mode: DragMode) => {
     e.stopPropagation();
     e.preventDefault();
-    if (!containerRef.current) return;
+    if (!containerRef.current || !elRef.current) return;
 
     setIsDragging(true);
     let lastX = e.clientX;
     let lastY = e.clientY;
-    accumRef.current = { x: 0, y: 0 };
-    resizeAccumRef.current = { dWidth: 0, dLeft: 0 };
-    rotateAngleRef.current = rotation;
 
-    // Capture initial computed styles for resize visual feedback
-    if (elRef.current) {
-      initialStyleRef.current = {
-        width: elRef.current.style.width || '',
-        left: elRef.current.style.left || '',
-      };
-    }
+    // Accumulators for pixel-level DOM manipulation
+    const moveAccum = { x: 0, y: 0 };
+    const resizeAccum = { dWidth: 0, dLeft: 0 };
+    let currentAngle = rotation;
 
-    const isResizeMode = mode?.startsWith('resize-') && mode !== 'rotate';
+    // Capture initial computed values for resize
+    const el = elRef.current;
+    const computedLeft = parseFloat(el.style.left || '') || el.offsetLeft;
+    const computedWidth = parseFloat(el.style.width || '') || el.offsetWidth;
+    const baseTransform = getBaseTransform();
+    const containerRect = containerRef.current.getBoundingClientRect();
+
+    // Is this a resize mode?
+    const isResize = mode?.startsWith('resize-') ?? false;
+    const isLeft = mode === 'resize-left' || mode === 'resize-tl' || mode === 'resize-bl';
+    const isRight = mode === 'resize-right' || mode === 'resize-tr' || mode === 'resize-br';
+    const isHorizontal = isLeft || isRight;
 
     const onPointerMove = (ev: PointerEvent) => {
-      const container = containerRef.current;
-      if (!container) return;
-      const rect = container.getBoundingClientRect();
       const dx = ev.clientX - lastX;
       const dy = ev.clientY - lastY;
       lastX = ev.clientX;
       lastY = ev.clientY;
 
       if (mode === 'move') {
-        accumRef.current.x += dx;
-        accumRef.current.y += dy;
-        if (elRef.current) {
-          const rot = rotation ? `rotate(${rotation}deg)` : '';
-          elRef.current.style.transform = `translate(${accumRef.current.x}px, ${accumRef.current.y}px) ${rot}`;
+        moveAccum.x += dx;
+        moveAccum.y += dy;
+        if (el) {
+          const rot = `rotate(${rotation}deg)`;
+          el.style.transform = `${baseTransform} ${rot} translate(${moveAccum.x}px, ${moveAccum.y}px)`;
         }
-        onDragMove?.({ x: accumRef.current.x, y: accumRef.current.y });
+        onDragMove?.({ x: moveAccum.x, y: moveAccum.y });
         return;
       }
 
-      if (isResizeMode && elRef.current) {
-        const isLeft = mode === 'resize-left' || mode === 'resize-tl' || mode === 'resize-bl';
-        const isHorizontal = mode !== 'resize-top' && mode !== 'resize-bottom';
-
+      if (isResize && el) {
         if (isHorizontal) {
           if (isLeft) {
-            resizeAccumRef.current.dWidth -= dx;
-            resizeAccumRef.current.dLeft += dx;
+            resizeAccum.dWidth -= dx;
+            resizeAccum.dLeft += dx;
           } else {
-            resizeAccumRef.current.dWidth += dx;
+            resizeAccum.dWidth += dx;
           }
         }
 
-        // Apply visual feedback directly to DOM
-        const currentWidth = parseFloat(initialStyleRef.current.width) || 0;
-        const currentLeft = parseFloat(initialStyleRef.current.left) || 0;
-        const containerWidth = rect.width;
+        // Apply visual change directly
+        const dWidthPx = resizeAccum.dWidth;
+        const dLeftPx = resizeAccum.dLeft;
 
-        const dWidthPercent = (resizeAccumRef.current.dWidth / containerWidth) * 100;
-        const dLeftPercent = (resizeAccumRef.current.dLeft / containerWidth) * 100;
+        // Use percentage-based values relative to container
+        const widthPct = ((el.offsetWidth - dWidthPx + dWidthPx) / containerRect.width) * 100;
+        // Simpler: just apply pixel offset to current computed values
+        const newWidthPct = computedWidth + (dWidthPx / containerRect.width) * 100;
+        el.style.width = `${Math.max(5, newWidthPct)}%`;
 
-        elRef.current.style.width = `${currentWidth + dWidthPercent}%`;
         if (isLeft) {
-          elRef.current.style.left = `${currentLeft + dLeftPercent}%`;
+          const newLeftPct = computedLeft + (dLeftPx / containerRect.width) * 100;
+          el.style.left = `${newLeftPct}%`;
         }
         return;
       }
 
-      if (mode === 'rotate' && elRef.current) {
-        const elRect = elRef.current.getBoundingClientRect();
+      if (mode === 'rotate' && el) {
+        const elRect = el.getBoundingClientRect();
         const cx = elRect.left + elRect.width / 2;
         const cy = elRect.top + elRect.height / 2;
         let angle = Math.atan2(ev.clientY - cy, ev.clientX - cx) * (180 / Math.PI) + 90;
         if (angle < 0) angle += 360;
-        const snapped = Math.abs(angle % 45) < 3 ? Math.round(angle / 45) * 45 : Math.round(angle);
-        rotateAngleRef.current = snapped % 360;
-        // Apply rotation visually without state update
-        elRef.current.style.transform = `rotate(${rotateAngleRef.current}deg)`;
+        // Snap to 45° increments when within 3°
+        currentAngle = Math.abs(angle % 45) < 3 ? Math.round(angle / 45) * 45 : Math.round(angle);
+        currentAngle = currentAngle % 360;
+        el.style.transform = `${baseTransform} rotate(${currentAngle}deg)`;
       }
     };
 
     const onPointerUp = () => {
       setIsDragging(false);
+      document.removeEventListener('pointermove', onPointerMove);
+      document.removeEventListener('pointerup', onPointerUp);
+
+      const container = containerRef.current;
+      if (!container) return;
+      const rect = container.getBoundingClientRect();
+
       if (mode === 'move' && onMove) {
-        const container = containerRef.current;
-        if (container) {
-          const rect = container.getBoundingClientRect();
-          const dxP = (accumRef.current.x / rect.width) * 100;
-          const dyP = (accumRef.current.y / rect.height) * 100;
-          pendingClearRef.current = true;
-          onMove(dxP, dyP);
-        }
-      }
-      if (mode === 'move') {
+        const dxP = (moveAccum.x / rect.width) * 100;
+        const dyP = (moveAccum.y / rect.height) * 100;
+        pendingClearRef.current = true;
+        onMove(dxP, dyP);
         onDragEnd?.();
+        return;
       }
 
-      // Commit resize on release
-      if (isResizeMode && containerRef.current) {
-        const rect = containerRef.current.getBoundingClientRect();
-        const dWidthP = (resizeAccumRef.current.dWidth / rect.width) * 100;
-        const dLeftP = (resizeAccumRef.current.dLeft / rect.width) * 100;
-        const isLeft = mode === 'resize-left' || mode === 'resize-tl' || mode === 'resize-bl';
+      if (isResize) {
+        const dWidthP = (resizeAccum.dWidth / rect.width) * 100;
         const isCorner = mode === 'resize-tl' || mode === 'resize-tr' || mode === 'resize-bl' || mode === 'resize-br';
 
         pendingClearRef.current = true;
 
         if (isCorner && onCornerResize) {
           const corner = mode!.replace('resize-', '');
-          const dyP = 0; // vertical not used for width-only resize
-          onCornerResize(isLeft ? -dWidthP : dWidthP, dyP, corner);
+          onCornerResize(isLeft ? -dWidthP : dWidthP, 0, corner);
         } else if (onResize) {
           if (mode === 'resize-left') {
             onResize(-dWidthP, 'left');
           } else if (mode === 'resize-right') {
             onResize(dWidthP, 'right');
-          } else if (mode === 'resize-top') {
-            onResize(0, 'top');
-          } else if (mode === 'resize-bottom') {
-            onResize(0, 'bottom');
           }
         }
+        return;
       }
 
-      // Commit rotation on release
       if (mode === 'rotate' && onRotate) {
         pendingClearRef.current = true;
-        onRotate(rotateAngleRef.current);
+        onRotate(currentAngle);
       }
-
-      document.removeEventListener('pointermove', onPointerMove);
-      document.removeEventListener('pointerup', onPointerUp);
     };
 
     document.addEventListener('pointermove', onPointerMove);
     document.addEventListener('pointerup', onPointerUp);
-  }, [containerRef, onMove, onResize, onCornerResize, onRotate, onDragMove, onDragEnd, rotation]);
+  }, [containerRef, onMove, onResize, onCornerResize, onRotate, onDragMove, onDragEnd, rotation, getBaseTransform]);
 
   const canResize = showResizeHandles && (onResize || onCornerResize);
 
@@ -232,7 +226,6 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
         startDrag(e, 'move');
       }}
     >
-      {/* Prevent text selection when selected */}
       <div style={{ pointerEvents: isSelected ? 'none' : 'auto', userSelect: 'none' }}>
         {children}
       </div>
@@ -245,45 +238,36 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
             style={{ border: '2px dashed hsl(var(--primary))', borderRadius: 2 }}
           />
 
-          {/* 8 resize handles */}
           {canResize && (
             <>
-              {/* Top-left */}
               <Handle
                 style={{ left: -HALF, top: -HALF, cursor: 'nwse-resize' }}
                 onPointerDown={(e) => startDrag(e, 'resize-tl')}
               />
-              {/* Top-center */}
               <Handle
                 style={{ left: '50%', top: -HALF, transform: 'translateX(-50%)', cursor: 'ns-resize' }}
                 onPointerDown={(e) => startDrag(e, 'resize-top')}
               />
-              {/* Top-right */}
               <Handle
                 style={{ right: -HALF, top: -HALF, cursor: 'nesw-resize' }}
                 onPointerDown={(e) => startDrag(e, 'resize-tr')}
               />
-              {/* Middle-left */}
               <Handle
                 style={{ left: -HALF, top: '50%', transform: 'translateY(-50%)', cursor: 'ew-resize' }}
                 onPointerDown={(e) => startDrag(e, 'resize-left')}
               />
-              {/* Middle-right */}
               <Handle
                 style={{ right: -HALF, top: '50%', transform: 'translateY(-50%)', cursor: 'ew-resize' }}
                 onPointerDown={(e) => startDrag(e, 'resize-right')}
               />
-              {/* Bottom-left */}
               <Handle
                 style={{ left: -HALF, bottom: -HALF, cursor: 'nesw-resize' }}
                 onPointerDown={(e) => startDrag(e, 'resize-bl')}
               />
-              {/* Bottom-center */}
               <Handle
                 style={{ left: '50%', bottom: -HALF, transform: 'translateX(-50%)', cursor: 'ns-resize' }}
                 onPointerDown={(e) => startDrag(e, 'resize-bottom')}
               />
-              {/* Bottom-right */}
               <Handle
                 style={{ right: -HALF, bottom: -HALF, cursor: 'nwse-resize' }}
                 onPointerDown={(e) => startDrag(e, 'resize-br')}
@@ -291,7 +275,6 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
             </>
           )}
 
-          {/* Rotation handle — right side, vertically centered */}
           {showRotateHandle && onRotate && (
             <div
               className="absolute flex items-center justify-center"
@@ -323,7 +306,14 @@ const Handle: React.FC<{
 }> = ({ style: extra, onPointerDown }) => (
   <div
     className="absolute bg-primary border-2 border-primary-foreground shadow-sm"
-    style={{ ...baseHandle, ...extra }}
+    style={{
+      position: 'absolute',
+      width: HANDLE,
+      height: HANDLE,
+      borderRadius: 2,
+      zIndex: 10,
+      ...extra,
+    }}
     onPointerDown={(e) => { e.stopPropagation(); e.preventDefault(); onPointerDown(e); }}
   />
 );
