@@ -84,6 +84,7 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
     let lastY = e.clientY;
     accumRef.current = { x: 0, y: 0 };
     resizeAccumRef.current = { dWidth: 0, dLeft: 0 };
+    rotateAngleRef.current = rotation;
 
     // Capture initial computed styles for resize visual feedback
     if (elRef.current) {
