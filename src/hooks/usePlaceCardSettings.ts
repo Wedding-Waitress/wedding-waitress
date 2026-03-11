@@ -47,6 +47,8 @@ export interface PlaceCardSettings {
   table_offset_y?: number;
   seat_offset_x?: number;
   seat_offset_y?: number;
+  guest_name_rotation?: number;
+  table_seat_rotation?: number;
   created_at?: string;
   updated_at?: string;
 }

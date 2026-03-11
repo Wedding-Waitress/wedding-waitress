@@ -18,6 +18,7 @@ export interface TextZone {
   x_percent: number;
   y_percent: number;
   width_percent: number;
+  rotation: number;
 }
 
 export type CardType = 'invitation' | 'save_the_date' | 'thank_you';
