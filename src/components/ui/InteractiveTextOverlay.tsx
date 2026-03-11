@@ -1,5 +1,5 @@
 import React, { useRef, useCallback, useState } from 'react';
-import { RotateCcw } from 'lucide-react';
+import { RotateCw, Move, Copy, CopyPlus, Trash2 } from 'lucide-react';
 
 interface InteractiveTextOverlayProps {
   children: React.ReactNode;
@@ -11,6 +11,9 @@ interface InteractiveTextOverlayProps {
   onRotate?: (degrees: number) => void;
   onDragMove?: (pixelOffset: { x: number; y: number }) => void;
   onDragEnd?: () => void;
+  onCopy?: () => void;
+  onDuplicate?: () => void;
+  onDelete?: () => void;
   containerRef: React.RefObject<HTMLElement>;
   showResizeHandles?: boolean;
   showRotateHandle?: boolean;
@@ -18,13 +21,6 @@ interface InteractiveTextOverlayProps {
   className?: string;
   style?: React.CSSProperties;
 }
-
-type DragMode =
-  | 'move'
-  | 'resize-left' | 'resize-right' | 'resize-top' | 'resize-bottom'
-  | 'resize-tl' | 'resize-tr' | 'resize-bl' | 'resize-br'
-  | 'rotate'
-  | null;
 
 const HANDLE = 8;
 const HALF = HANDLE / 2;
@@ -39,6 +35,9 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
   onRotate,
   onDragMove,
   onDragEnd,
+  onCopy,
+  onDuplicate,
+  onDelete,
   containerRef,
   showResizeHandles = true,
   showRotateHandle = true,
@@ -49,64 +48,67 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
   const elRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
 
-  const getBaseTransform = useCallback(() => {
+  const getBaseTransform = useCallback((): string => {
     const t = (style.transform as string) || '';
     return t.replace(/rotate\([^)]*\)/g, '').trim();
   }, [style.transform]);
 
-  const startDrag = useCallback((e: React.PointerEvent, mode: DragMode) => {
+  const handlePointerDown = useCallback((e: React.PointerEvent, mode: string) => {
     e.stopPropagation();
     e.preventDefault();
-    if (!containerRef.current || !elRef.current) return;
+    const el = elRef.current;
+    const container = containerRef.current;
+    if (!el || !container) return;
 
     setIsDragging(true);
-    let lastX = e.clientX;
-    let lastY = e.clientY;
 
-    const moveAccum = { x: 0, y: 0 };
-    const resizeAccum = { dWidth: 0, dLeft: 0 };
+    const startX = e.clientX;
+    const startY = e.clientY;
+    const containerRect = container.getBoundingClientRect();
+    const baseTransform = getBaseTransform();
+
+    const initLeft = parseFloat(el.style.left) || 0;
+    const initWidth = parseFloat(el.style.width) || 0;
+    const initTop = parseFloat(el.style.top) || 0;
+
+    let accumX = 0;
+    let accumY = 0;
     let currentAngle = rotation;
 
-    const el = elRef.current;
-    const baseTransform = getBaseTransform();
-    const containerRect = containerRef.current.getBoundingClientRect();
-
-    // Capture initial percentage values from inline styles
-    const computedLeft = parseFloat(el.style.left) || 0;
-    const computedWidth = parseFloat(el.style.width) || 0;
-
-    const isResize = mode?.startsWith('resize-') ?? false;
-    const isLeft = mode === 'resize-left' || mode === 'resize-tl' || mode === 'resize-bl';
-    const isRight = mode === 'resize-right' || mode === 'resize-tr' || mode === 'resize-br';
-    const isHorizontal = isLeft || isRight;
-
     const onPointerMove = (ev: PointerEvent) => {
-      const dx = ev.clientX - lastX;
-      const dy = ev.clientY - lastY;
-      lastX = ev.clientX;
-      lastY = ev.clientY;
+      const dx = ev.clientX - startX;
+      const dy = ev.clientY - startY;
 
       if (mode === 'move') {
-        moveAccum.x += dx;
-        moveAccum.y += dy;
-        const rot = `rotate(${rotation}deg)`;
-        el.style.transform = `${baseTransform} ${rot} translate(${moveAccum.x}px, ${moveAccum.y}px)`;
-        onDragMove?.({ x: moveAccum.x, y: moveAccum.y });
+        accumX = dx;
+        accumY = dy;
+        el.style.transform = `${baseTransform} rotate(${rotation}deg) translate(${dx}px, ${dy}px)`;
+        onDragMove?.({ x: dx, y: dy });
         return;
       }
 
-      if (isResize && isHorizontal) {
+      if (mode === 'resize-left') {
+        const dPct = (dx / containerRect.width) * 100;
+        el.style.left = `${initLeft + dPct}%`;
+        el.style.width = `${Math.max(5, initWidth - dPct)}%`;
+        return;
+      }
+
+      if (mode === 'resize-right') {
+        const dPct = (dx / containerRect.width) * 100;
+        el.style.width = `${Math.max(5, initWidth + dPct)}%`;
+        return;
+      }
+
+      if (mode.startsWith('resize-')) {
+        const corner = mode.replace('resize-', '');
+        const isLeft = corner === 'tl' || corner === 'bl';
+        const dPct = (dx / containerRect.width) * 100;
         if (isLeft) {
-          resizeAccum.dWidth -= dx;
-          resizeAccum.dLeft += dx;
+          el.style.left = `${initLeft + dPct}%`;
+          el.style.width = `${Math.max(5, initWidth - dPct)}%`;
         } else {
-          resizeAccum.dWidth += dx;
-        }
-        const newWidthPct = computedWidth + (resizeAccum.dWidth / containerRect.width) * 100;
-        el.style.width = `${Math.max(5, newWidthPct)}%`;
-        if (isLeft) {
-          const newLeftPct = computedLeft + (resizeAccum.dLeft / containerRect.width) * 100;
-          el.style.left = `${newLeftPct}%`;
+          el.style.width = `${Math.max(5, initWidth + dPct)}%`;
         }
         return;
       }
@@ -117,8 +119,10 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
         const cy = elRect.top + elRect.height / 2;
         let angle = Math.atan2(ev.clientY - cy, ev.clientX - cx) * (180 / Math.PI) + 90;
         if (angle < 0) angle += 360;
-        currentAngle = Math.abs(angle % 45) < 3 ? Math.round(angle / 45) * 45 : Math.round(angle);
-        currentAngle = currentAngle % 360;
+        currentAngle = Math.abs(angle % 45) < 3
+          ? Math.round(angle / 45) * 45
+          : Math.round(angle);
+        currentAngle = ((currentAngle % 360) + 360) % 360;
         el.style.transform = `${baseTransform} rotate(${currentAngle}deg)`;
       }
     };
@@ -128,36 +132,50 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
       document.removeEventListener('pointermove', onPointerMove);
       document.removeEventListener('pointerup', onPointerUp);
 
-      const container = containerRef.current;
-      if (!container) return;
-      const rect = container.getBoundingClientRect();
+      const rect = containerRect;
 
       if (mode === 'move' && onMove) {
-        const dxP = (moveAccum.x / rect.width) * 100;
-        const dyP = (moveAccum.y / rect.height) * 100;
+        const dxP = (accumX / rect.width) * 100;
+        const dyP = (accumY / rect.height) * 100;
+
+        const newLeft = initLeft + dxP;
+        const newTop = initTop + dyP;
+        el.style.left = `${newLeft}%`;
+        el.style.top = `${newTop}%`;
+        el.style.transform = `${baseTransform} rotate(${rotation}deg)`;
+
         onMove(dxP, dyP);
         onDragEnd?.();
         return;
       }
 
-      if (isResize) {
-        const dWidthP = (resizeAccum.dWidth / rect.width) * 100;
-        const isCorner = mode === 'resize-tl' || mode === 'resize-tr' || mode === 'resize-bl' || mode === 'resize-br';
+      if (mode === 'resize-left' && onResize) {
+        const finalWidth = parseFloat(el.style.width) || initWidth;
+        const dWidthP = finalWidth - initWidth;
+        onResize(-dWidthP, 'left');
+        return;
+      }
 
-        if (isCorner && onCornerResize) {
-          const corner = mode!.replace('resize-', '');
+      if (mode === 'resize-right' && onResize) {
+        const finalWidth = parseFloat(el.style.width) || initWidth;
+        const dWidthP = finalWidth - initWidth;
+        onResize(dWidthP, 'right');
+        return;
+      }
+
+      if (mode.startsWith('resize-')) {
+        const corner = mode.replace('resize-', '');
+        const isLeft = corner === 'tl' || corner === 'bl';
+        const finalWidth = parseFloat(el.style.width) || initWidth;
+        const dWidthP = finalWidth - initWidth;
+        if (onCornerResize) {
           onCornerResize(isLeft ? -dWidthP : dWidthP, 0, corner);
-        } else if (onResize) {
-          if (mode === 'resize-left') {
-            onResize(-dWidthP, 'left');
-          } else if (mode === 'resize-right') {
-            onResize(dWidthP, 'right');
-          }
         }
         return;
       }
 
       if (mode === 'rotate' && onRotate) {
+        el.style.transform = `${baseTransform} rotate(${currentAngle}deg)`;
         onRotate(currentAngle);
       }
     };
@@ -167,6 +185,7 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
   }, [containerRef, onMove, onResize, onCornerResize, onRotate, onDragMove, onDragEnd, rotation, getBaseTransform]);
 
   const canResize = showResizeHandles && (onResize || onCornerResize);
+  const hasToolbar = onCopy || onDuplicate || onDelete;
 
   return (
     <div
@@ -177,11 +196,12 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
         cursor: isSelected ? (isDragging ? 'grabbing' : 'move') : 'pointer',
         position: 'absolute',
         userSelect: 'none',
+        zIndex: isSelected ? 20 : 1,
       }}
       onClick={(e) => { e.stopPropagation(); onSelect(); }}
       onPointerDown={(e) => {
         if (!isSelected) { e.stopPropagation(); onSelect(); return; }
-        startDrag(e, 'move');
+        handlePointerDown(e, 'move');
       }}
     >
       <div style={{ pointerEvents: isSelected ? 'none' : 'auto', userSelect: 'none' }}>
@@ -192,76 +212,158 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
         <>
           <div
             className="absolute inset-0 pointer-events-none"
-            style={{ border: '2px dashed hsl(var(--primary))', borderRadius: 2 }}
+            style={{ border: '1.5px solid hsl(var(--primary))', borderRadius: 1 }}
           />
+
+          {hasToolbar && (
+            <div
+              className="absolute flex items-center gap-0.5 pointer-events-auto"
+              style={{
+                bottom: '100%',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                marginBottom: 6,
+                background: 'hsl(var(--background))',
+                border: '1px solid hsl(var(--border))',
+                borderRadius: 6,
+                padding: '2px 4px',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
+                zIndex: 30,
+              }}
+            >
+              {onCopy && (
+                <ToolbarButton
+                  icon={<Copy className="h-3.5 w-3.5" />}
+                  title="Copy"
+                  onClick={onCopy}
+                />
+              )}
+              {onDuplicate && (
+                <ToolbarButton
+                  icon={<CopyPlus className="h-3.5 w-3.5" />}
+                  title="Duplicate"
+                  onClick={onDuplicate}
+                />
+              )}
+              {onDelete && (
+                <ToolbarButton
+                  icon={<Trash2 className="h-3.5 w-3.5" />}
+                  title="Delete"
+                  onClick={onDelete}
+                />
+              )}
+            </div>
+          )}
 
           {canResize && (
             <>
               <Handle
                 style={{ left: -HALF, top: -HALF, cursor: 'nwse-resize' }}
-                onPointerDown={(e) => startDrag(e, 'resize-tl')}
+                onPointerDown={(e) => handlePointerDown(e, 'resize-tl')}
               />
               <Handle
                 style={{ left: '50%', top: -HALF, transform: 'translateX(-50%)', cursor: 'ns-resize' }}
-                onPointerDown={(e) => startDrag(e, 'resize-top')}
+                onPointerDown={(e) => handlePointerDown(e, 'resize-top')}
               />
               <Handle
                 style={{ right: -HALF, top: -HALF, cursor: 'nesw-resize' }}
-                onPointerDown={(e) => startDrag(e, 'resize-tr')}
+                onPointerDown={(e) => handlePointerDown(e, 'resize-tr')}
               />
               <Handle
                 style={{ left: -HALF, top: '50%', transform: 'translateY(-50%)', cursor: 'ew-resize' }}
-                onPointerDown={(e) => startDrag(e, 'resize-left')}
+                onPointerDown={(e) => handlePointerDown(e, 'resize-left')}
               />
               <Handle
                 style={{ right: -HALF, top: '50%', transform: 'translateY(-50%)', cursor: 'ew-resize' }}
-                onPointerDown={(e) => startDrag(e, 'resize-right')}
+                onPointerDown={(e) => handlePointerDown(e, 'resize-right')}
               />
               <Handle
                 style={{ left: -HALF, bottom: -HALF, cursor: 'nesw-resize' }}
-                onPointerDown={(e) => startDrag(e, 'resize-bl')}
+                onPointerDown={(e) => handlePointerDown(e, 'resize-bl')}
               />
               <Handle
                 style={{ left: '50%', bottom: -HALF, transform: 'translateX(-50%)', cursor: 'ns-resize' }}
-                onPointerDown={(e) => startDrag(e, 'resize-bottom')}
+                onPointerDown={(e) => handlePointerDown(e, 'resize-bottom')}
               />
               <Handle
                 style={{ right: -HALF, bottom: -HALF, cursor: 'nwse-resize' }}
-                onPointerDown={(e) => startDrag(e, 'resize-br')}
+                onPointerDown={(e) => handlePointerDown(e, 'resize-br')}
               />
             </>
           )}
 
-          {showRotateHandle && onRotate && (
+          <div
+            className="absolute flex items-center gap-1 pointer-events-auto"
+            style={{
+              top: '100%',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              marginTop: 6,
+              zIndex: 30,
+            }}
+          >
             <div
-              className="absolute flex items-center justify-center"
+              className="flex items-center justify-center rounded-full"
               style={{
                 width: 24,
                 height: 24,
-                right: -28,
-                top: '50%',
-                transform: 'translateY(-50%)',
-                cursor: 'grab',
-                zIndex: 10,
-                color: 'hsl(var(--primary))',
+                background: 'hsl(var(--background))',
+                border: '1px solid hsl(var(--border))',
+                boxShadow: '0 1px 4px rgba(0,0,0,0.1)',
+                cursor: 'move',
+                color: 'hsl(var(--muted-foreground))',
               }}
-              onPointerDown={(e) => startDrag(e, 'rotate')}
+              onPointerDown={(e) => handlePointerDown(e, 'move')}
             >
-              <RotateCcw className="h-4 w-4" strokeWidth={2.5} />
+              <Move className="h-3 w-3" />
             </div>
-          )}
+
+            {showRotateHandle && onRotate && (
+              <div
+                className="flex items-center justify-center rounded-full"
+                style={{
+                  width: 24,
+                  height: 24,
+                  background: 'hsl(var(--background))',
+                  border: '1px solid hsl(var(--border))',
+                  boxShadow: '0 1px 4px rgba(0,0,0,0.1)',
+                  cursor: 'grab',
+                  color: 'hsl(var(--muted-foreground))',
+                }}
+                onPointerDown={(e) => handlePointerDown(e, 'rotate')}
+              >
+                <RotateCw className="h-3 w-3" />
+              </div>
+            )}
+          </div>
         </>
       )}
     </div>
   );
 };
 
+const ToolbarButton: React.FC<{
+  icon: React.ReactNode;
+  title: string;
+  onClick: () => void;
+}> = ({ icon, title, onClick }) => (
+  <button
+    title={title}
+    className="flex items-center justify-center rounded p-1 hover:bg-accent text-muted-foreground hover:text-foreground transition-colors"
+    style={{ width: 26, height: 26 }}
+    onClick={(e) => { e.stopPropagation(); onClick(); }}
+    onPointerDown={(e) => e.stopPropagation()}
+  >
+    {icon}
+  </button>
+);
+
 const Handle: React.FC<{
   style: React.CSSProperties;
   onPointerDown: (e: React.PointerEvent) => void;
 }> = ({ style: extra, onPointerDown }) => (
   <div
-    className="absolute bg-primary border-2 border-primary-foreground shadow-sm"
+    className="absolute bg-primary border border-primary-foreground"
     style={{
       position: 'absolute',
       width: HANDLE,

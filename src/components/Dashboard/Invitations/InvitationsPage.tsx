@@ -424,6 +424,19 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
                 );
                 updateSettings({ text_zones: newZones });
               }}
+              onZoneDelete={(zoneId) => {
+                const newZones = (activeArtwork?.text_zones || []).filter(z => z.id !== zoneId);
+                updateSettings({ text_zones: newZones });
+                setSelectedZoneId(null);
+              }}
+              onZoneDuplicate={(zoneId) => {
+                const zones = activeArtwork?.text_zones || [];
+                const zone = zones.find(z => z.id === zoneId);
+                if (!zone) return;
+                const newZone = { ...zone, id: crypto.randomUUID(), x_percent: Math.min(100, zone.x_percent + 3), y_percent: Math.min(100, zone.y_percent + 3) };
+                updateSettings({ text_zones: [...zones, newZone] });
+                setSelectedZoneId(newZone.id);
+              }}
             />
           </div>
         </div>
