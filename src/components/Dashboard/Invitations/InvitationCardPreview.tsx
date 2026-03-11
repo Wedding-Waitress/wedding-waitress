@@ -156,11 +156,11 @@ export const InvitationCardPreview: React.FC<InvitationCardPreviewProps> = ({
   });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       <div className="print:hidden">
-        <div className="relative">
+        <div>
           {/* Scrollable canvas area */}
-          <div className="flex justify-center overflow-auto pb-16" style={{ maxHeight: '80vh' }}>
+          <div className="flex justify-center overflow-auto" style={{ maxHeight: '75vh' }}>
             <div
               style={{
                 transform: `scale(${zoom / 100})`,
