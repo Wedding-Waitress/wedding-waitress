@@ -128,14 +128,13 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
         const rawDy = (corner === 'tl' || corner === 'tr') ? -dy : dy;
         const avgDelta = (rawDx + rawDy) / 2;
         const newDelta = Math.round(avgDelta * 0.15);
-        lastFontDelta = newDelta;
-        // Apply font size visually via CSS transform scale for smooth live preview
-        const scaleFactor = 1 + (newDelta * 0.04);
-        const clampedScale = Math.max(0.3, Math.min(3, scaleFactor));
-        const childEl = el.querySelector('[data-text-content]') as HTMLElement;
-        if (childEl) {
-          childEl.style.transform = `scale(${clampedScale})`;
-          childEl.style.transformOrigin = 'top left';
+        if (newDelta !== lastFontDelta) {
+          const stepDelta = newDelta - lastFontDelta;
+          lastFontDelta = newDelta;
+          setLiveFontDelta(newDelta);
+          if (onFontSizeChange && stepDelta !== 0) {
+            onFontSizeChange(stepDelta);
+          }
         }
         return;
       }
