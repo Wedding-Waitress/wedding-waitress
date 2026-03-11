@@ -137,7 +137,7 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
 
     document.addEventListener('pointermove', onPointerMove);
     document.addEventListener('pointerup', onPointerUp);
-  }, [containerRef, onMove, onResize, onCornerResize, onRotate, rotation]);
+  }, [containerRef, onMove, onResize, onCornerResize, onRotate, onDragMove, onDragEnd, rotation]);
 
   const canResize = showResizeHandles && (onResize || onCornerResize);
 
