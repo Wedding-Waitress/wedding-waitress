@@ -13,6 +13,7 @@ interface InteractiveTextOverlayProps {
   onDragMove?: (pixelOffset: { x: number; y: number }) => void;
   onDragEnd?: () => void;
   onCopy?: () => void;
+  onReset?: () => void;
   onDuplicate?: () => void;
   onDelete?: () => void;
   containerRef: React.RefObject<HTMLElement>;
