@@ -1774,6 +1774,43 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                 <TableHead className="w-28">Last Name</TableHead>
                 <TableHead className="w-24">Mobile</TableHead>
                 <TableHead className="w-36">Email</TableHead>
+                <TableHead 
+                  className="w-24 text-center cursor-pointer hover:bg-primary/80 transition-colors select-none"
+                  onClick={async () => {
+                    if (!selectedEventId || sortedGuests.length === 0) return;
+                    const allOn = sortedGuests.every(g => g.allow_plus_one !== false);
+                    const newValue = !allOn;
+                    try {
+                      const { error } = await supabase
+                        .from('guests')
+                        .update({ allow_plus_one: newValue })
+                        .eq('event_id', selectedEventId);
+                      if (error) throw error;
+                      await refetchGuests();
+                      toast({
+                        title: "Success",
+                        description: `+ Guest ${newValue ? 'enabled' : 'disabled'} for all guests`,
+                      });
+                    } catch (err) {
+                      console.error('Error toggling all + Guest:', err);
+                      toast({ title: "Error", description: "Failed to update", variant: "destructive" });
+                    }
+                  }}
+                >
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span className="flex items-center justify-center gap-1">
+                          + Guest
+                          <Users className="w-3 h-3" />
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Click to toggle all guests. Controls whether guests can add extra people via Live View.</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </TableHead>
                 <TableHead className="w-32 text-center">RSVP Invite</TableHead>
                 <TableHead className="w-24">RSVP Status</TableHead>
                 <TableHead className="w-20">Table No</TableHead>
