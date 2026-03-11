@@ -82,6 +82,17 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
     let lastX = e.clientX;
     let lastY = e.clientY;
     accumRef.current = { x: 0, y: 0 };
+    resizeAccumRef.current = { dWidth: 0, dLeft: 0 };
+
+    // Capture initial computed styles for resize visual feedback
+    if (elRef.current) {
+      initialStyleRef.current = {
+        width: elRef.current.style.width || '',
+        left: elRef.current.style.left || '',
+      };
+    }
+
+    const isResizeMode = mode?.startsWith('resize-') && mode !== 'rotate';
 
     const onPointerMove = (ev: PointerEvent) => {
       const container = containerRef.current;
@@ -103,21 +114,35 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
         return;
       }
 
-      const dxP = (dx / rect.width) * 100;
-      const dyP = (dy / rect.height) * 100;
+      if (isResizeMode && elRef.current) {
+        const isLeft = mode === 'resize-left' || mode === 'resize-tl' || mode === 'resize-bl';
+        const isHorizontal = mode !== 'resize-top' && mode !== 'resize-bottom';
 
-      if (mode === 'resize-left' && onResize) {
-        onResize(dxP, 'left');
-      } else if (mode === 'resize-right' && onResize) {
-        onResize(dxP, 'right');
-      } else if (mode === 'resize-top' && onResize) {
-        onResize(dyP, 'top');
-      } else if (mode === 'resize-bottom' && onResize) {
-        onResize(dyP, 'bottom');
-      } else if (mode?.startsWith('resize-') && onCornerResize) {
-        const corner = mode.replace('resize-', '');
-        onCornerResize(dxP, dyP, corner);
-      } else if (mode === 'rotate' && onRotate && elRef.current) {
+        if (isHorizontal) {
+          if (isLeft) {
+            resizeAccumRef.current.dWidth -= dx;
+            resizeAccumRef.current.dLeft += dx;
+          } else {
+            resizeAccumRef.current.dWidth += dx;
+          }
+        }
+
+        // Apply visual feedback directly to DOM
+        const currentWidth = parseFloat(initialStyleRef.current.width) || 0;
+        const currentLeft = parseFloat(initialStyleRef.current.left) || 0;
+        const containerWidth = rect.width;
+
+        const dWidthPercent = (resizeAccumRef.current.dWidth / containerWidth) * 100;
+        const dLeftPercent = (resizeAccumRef.current.dLeft / containerWidth) * 100;
+
+        elRef.current.style.width = `${currentWidth + dWidthPercent}%`;
+        if (isLeft) {
+          elRef.current.style.left = `${currentLeft + dLeftPercent}%`;
+        }
+        return;
+      }
+
+      if (mode === 'rotate' && onRotate && elRef.current) {
         const elRect = elRef.current.getBoundingClientRect();
         const cx = elRect.left + elRect.width / 2;
         const cy = elRect.top + elRect.height / 2;
@@ -136,7 +161,6 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
           const rect = container.getBoundingClientRect();
           const dxP = (accumRef.current.x / rect.width) * 100;
           const dyP = (accumRef.current.y / rect.height) * 100;
-          // Keep the transform in place — mark for clearing after React re-renders
           pendingClearRef.current = true;
           onMove(dxP, dyP);
         }
@@ -144,6 +168,34 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
       if (mode === 'move') {
         onDragEnd?.();
       }
+
+      // Commit resize on release
+      if (isResizeMode && containerRef.current) {
+        const rect = containerRef.current.getBoundingClientRect();
+        const dWidthP = (resizeAccumRef.current.dWidth / rect.width) * 100;
+        const dLeftP = (resizeAccumRef.current.dLeft / rect.width) * 100;
+        const isLeft = mode === 'resize-left' || mode === 'resize-tl' || mode === 'resize-bl';
+        const isCorner = mode === 'resize-tl' || mode === 'resize-tr' || mode === 'resize-bl' || mode === 'resize-br';
+
+        pendingClearRef.current = true;
+
+        if (isCorner && onCornerResize) {
+          const corner = mode!.replace('resize-', '');
+          const dyP = 0; // vertical not used for width-only resize
+          onCornerResize(isLeft ? -dWidthP : dWidthP, dyP, corner);
+        } else if (onResize) {
+          if (mode === 'resize-left') {
+            onResize(-dWidthP, 'left');
+          } else if (mode === 'resize-right') {
+            onResize(dWidthP, 'right');
+          } else if (mode === 'resize-top') {
+            onResize(0, 'top');
+          } else if (mode === 'resize-bottom') {
+            onResize(0, 'bottom');
+          }
+        }
+      }
+
       document.removeEventListener('pointermove', onPointerMove);
       document.removeEventListener('pointerup', onPointerUp);
     };
