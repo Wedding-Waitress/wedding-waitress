@@ -155,6 +155,8 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
       setIsDragging(false);
       setIsRotating(false);
       setLiveAngle(null);
+      setIsCornerResizing(false);
+      setLiveFontDelta(0);
       document.removeEventListener('pointermove', onPointerMove);
       document.removeEventListener('pointerup', onPointerUp);
 
