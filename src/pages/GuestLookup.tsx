@@ -55,6 +55,7 @@ interface Guest {
   family_group?: string;
   table_name?: string;
   table_limit_seats?: number;
+  allow_plus_one?: boolean;
 }
 
 interface Event {
@@ -275,6 +276,7 @@ export const GuestLookup: React.FC = () => {
             display_order: null,
             family_group: (row as any).guest_family_group || null,
             added_by_guest_id: (row as any).guest_added_by_guest_id || null,
+            allow_plus_one: (row as any).guest_allow_plus_one ?? true,
           }));
 
         setGuests(transformedGuests);
@@ -375,6 +377,7 @@ export const GuestLookup: React.FC = () => {
             display_order: null,
             family_group: (row as any).guest_family_group || null,
             added_by_guest_id: (row as any).guest_added_by_guest_id || null,
+            allow_plus_one: (row as any).guest_allow_plus_one ?? true,
           }));
 
         setGuests(transformedGuests);
@@ -757,7 +760,7 @@ export const GuestLookup: React.FC = () => {
                             onUpdate={refreshGuestData}
                             isEditable={isEditable}
                             onEdit={handleEditGuest}
-                            onAddGuest={(guest as any).allow_plus_one !== false ? () => { setAddGuestForId(guest.id); setShowAddGuestModal(true); } : undefined}
+                            onAddGuest={guest.allow_plus_one !== false ? () => { setAddGuestForId(guest.id); setShowAddGuestModal(true); } : undefined}
                             rsvpDeadline={event?.rsvp_deadline}
                             additionalGuestCount={guests.filter(g => (g as any).added_by_guest_id === guest.id).length}
                           />

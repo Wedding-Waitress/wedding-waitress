@@ -1,24 +1,21 @@
 
 
-## Plan: Fix "+ Guest" Live View sync and rename button
+## Plan: Move Edit with Canva banner onto the same row as Choose File and Image Gallery
 
-### Problem
-The RPC function `get_public_event_with_data_secure` does not return the `allow_plus_one` column from the `guests` table. The Live View never receives this value, so `allow_plus_one` is always `undefined`, and the condition `!== false` always passes — showing the button regardless of the setting.
+### Summary
+Move the clickable Canva banner image from its own row below the buttons into the same flex row as Choose File and Image Gallery, so all three sit side by side on one line.
 
-### Changes
+### File Changes
 
-**1. Update RPC function `get_public_event_with_data_secure`** (SQL migration)
-- Add `g.allow_plus_one` to the SELECT list and RETURNS TABLE definition
-- This ensures the Live View receives the actual database value
+#### 1. `src/components/Dashboard/Invitations/InvitationCardCustomizer.tsx`
+- **Move lines 428-433** (the `<img>` tag) inside the `</div>` that closes at line 427, placing it after the Image Gallery button (before the closing `</div>`).
+- Remove `mt-2` from the image class since it will now be inline with the buttons.
+- The flex container already has `gap-2`, so the banner will sit naturally next to the buttons.
 
-**2. Rename button text in `EnhancedGuestCard.tsx`**
-- Change "Add Guest" → "Plus Guest" on the button label
+#### 2. `src/components/Dashboard/PlaceCards/PlaceCardCustomizer.tsx`
+- **Move lines 706-711** (the `<img>` tag) inside the `</div>` that closes at line 703, placing it after the Image Gallery button.
+- Same class adjustment: remove `mt-2`.
 
-**3. Update `GuestLookup.tsx`** 
-- Remove the `(guest as any)` cast — the field will now be part of the returned data, accessed as `guest.allow_plus_one`
-
-### Files
-- New migration SQL (alter RPC function to include `allow_plus_one`)
-- `src/components/GuestLookup/EnhancedGuestCard.tsx` — rename button
-- `src/pages/GuestLookup.tsx` — clean up type cast
+### Result
+All three elements — Choose File (green), Image Gallery (purple), Edit with Canva (banner) — appear on a single row in both pages. No other changes.
 

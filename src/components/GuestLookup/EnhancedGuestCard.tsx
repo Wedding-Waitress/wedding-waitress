@@ -301,7 +301,7 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
                   className="bg-primary text-primary-foreground hover:bg-primary/90 text-sm font-medium"
                 >
                   <PlusCircle className="w-4 h-4 mr-1" />
-                  Add Guest
+                  Plus Guest
                 </Button>
               )}
             </div>

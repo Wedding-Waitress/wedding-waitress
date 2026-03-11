@@ -2721,6 +2721,7 @@ export type Database = {
           event_venue: string
           floor_plan_config: Json
           guest_added_by_guest_id: string
+          guest_allow_plus_one: boolean
           guest_dietary: string
           guest_family_group: string
           guest_first_name: string
