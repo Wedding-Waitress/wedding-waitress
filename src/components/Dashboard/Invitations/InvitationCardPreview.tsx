@@ -1,6 +1,8 @@
 import React, { useRef, useCallback, useState } from 'react';
 import { InvitationCardSettings, TextZone } from '@/hooks/useInvitationCardSettings';
 import { InteractiveTextOverlay } from '@/components/ui/InteractiveTextOverlay';
+import { Minus, Plus } from 'lucide-react';
+import { Slider } from '@/components/ui/slider';
 
 interface InvitationCardPreviewProps {
   settings: InvitationCardSettings | null;
@@ -32,6 +34,11 @@ export const InvitationCardPreview: React.FC<InvitationCardPreviewProps> = ({
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [dragGuides, setDragGuides] = useState<{ showVertical: boolean; showHorizontal: boolean } | null>(null);
+  const [zoom, setZoom] = useState(100);
+
+  const handleZoomChange = useCallback((value: number) => {
+    setZoom(Math.max(25, Math.min(200, value)));
+  }, []);
 
   const currentSettings = settings || {
     background_color: '#ffffff',
@@ -151,108 +158,154 @@ export const InvitationCardPreview: React.FC<InvitationCardPreviewProps> = ({
   return (
     <div className="space-y-6">
       <div className="print:hidden">
-        <div className="flex justify-center">
-          <div
-            ref={containerRef}
-            style={{
-              width: previewWidth,
-              height: previewHeight,
-              backgroundColor: currentSettings.background_color,
-              maxWidth: '100%',
-            }}
-            className="bg-white shadow-lg overflow-visible relative"
-            onClick={() => onSelectZone?.(null)}
-          >
-            {currentSettings.background_image_url && currentSettings.background_image_type === 'full' && (
+        <div className="relative">
+          {/* Scrollable canvas area */}
+          <div className="flex justify-center overflow-auto pb-16" style={{ maxHeight: '80vh' }}>
+            <div
+              style={{
+                transform: `scale(${zoom / 100})`,
+                transformOrigin: 'top center',
+                transition: 'transform 0.15s ease-out',
+              }}
+            >
               <div
-                className="absolute inset-0 pointer-events-none"
+                ref={containerRef}
                 style={{
-                  backgroundImage: `url(${currentSettings.background_image_url})`,
-                  backgroundPosition: `${currentSettings.background_image_x_position || 50}% ${currentSettings.background_image_y_position || 50}%`,
-                  backgroundSize: 'cover',
-                  backgroundRepeat: 'no-repeat',
-                  opacity: (currentSettings.background_image_opacity || 100) / 100,
+                  width: previewWidth,
+                  height: previewHeight,
+                  backgroundColor: currentSettings.background_color,
                 }}
-              />
-            )}
+                className="bg-white shadow-lg overflow-visible relative"
+                onClick={() => onSelectZone?.(null)}
+              >
+                {currentSettings.background_image_url && currentSettings.background_image_type === 'full' && (
+                  <div
+                    className="absolute inset-0 pointer-events-none"
+                    style={{
+                      backgroundImage: `url(${currentSettings.background_image_url})`,
+                      backgroundPosition: `${currentSettings.background_image_x_position || 50}% ${currentSettings.background_image_y_position || 50}%`,
+                      backgroundSize: 'cover',
+                      backgroundRepeat: 'no-repeat',
+                      opacity: (currentSettings.background_image_opacity || 100) / 100,
+                    }}
+                  />
+                )}
 
-            {dragGuides?.showVertical && (
-              <div
-                className="absolute top-0 bottom-0 pointer-events-none"
-                style={{ left: '50%', width: 0, borderLeft: '1px dashed hsl(var(--primary) / 0.7)', zIndex: 50 }}
-              />
-            )}
-            {dragGuides?.showHorizontal && (
-              <div
-                className="absolute left-0 right-0 pointer-events-none"
-                style={{ top: '50%', height: 0, borderTop: '1px dashed hsl(var(--primary) / 0.7)', zIndex: 50 }}
-              />
-            )}
+                {dragGuides?.showVertical && (
+                  <div
+                    className="absolute top-0 bottom-0 pointer-events-none"
+                    style={{ left: '50%', width: 0, borderLeft: '1px dashed hsl(var(--primary) / 0.7)', zIndex: 50 }}
+                  />
+                )}
+                {dragGuides?.showHorizontal && (
+                  <div
+                    className="absolute left-0 right-0 pointer-events-none"
+                    style={{ top: '50%', height: 0, borderTop: '1px dashed hsl(var(--primary) / 0.7)', zIndex: 50 }}
+                  />
+                )}
 
-            {textZones.map((zone) => {
-              const text = getZoneText(zone);
-              if (!text) return null;
+                {textZones.map((zone) => {
+                  const text = getZoneText(zone);
+                  if (!text) return null;
 
-              const isSelected = selectedZoneId === zone.id;
-              const isInteractive = !!onZoneUpdate;
+                  const isSelected = selectedZoneId === zone.id;
+                  const isInteractive = !!onZoneUpdate;
 
-              const textStyle: React.CSSProperties = {
-                fontFamily: zone.font_family,
-                fontSize: `${zone.font_size}px`,
-                color: zone.font_color,
-                fontWeight: zone.font_weight === 'bold' ? '700' : '400',
-                fontStyle: zone.font_style === 'italic' ? 'italic' : 'normal',
-                textAlign: zone.text_align as any,
-                textTransform: getTextTransform(zone.text_case),
-                whiteSpace: 'pre-wrap',
-                lineHeight: 1.3,
-              };
+                  const textStyle: React.CSSProperties = {
+                    fontFamily: zone.font_family,
+                    fontSize: `${zone.font_size}px`,
+                    color: zone.font_color,
+                    fontWeight: zone.font_weight === 'bold' ? '700' : '400',
+                    fontStyle: zone.font_style === 'italic' ? 'italic' : 'normal',
+                    textAlign: zone.text_align as any,
+                    textTransform: getTextTransform(zone.text_case),
+                    whiteSpace: 'pre-wrap',
+                    lineHeight: 1.3,
+                  };
 
-              if (isInteractive) {
-                return (
-                  <InteractiveTextOverlay
-                    key={zone.id}
-                    isSelected={isSelected}
-                    onSelect={() => onSelectZone?.(zone.id)}
-                    onMove={(dx, dy) => handleMove(zone.id, dx, dy)}
-                    onResize={(dw, side) => handleResize(zone.id, dw, side)}
-                    onCornerResize={(dw, dy, corner) => handleCornerResize(zone.id, dw, dy, corner)}
-                    onFontSizeChange={(delta) => handleFontSizeChange(zone.id, delta)}
-                    onRotate={(deg) => handleRotate(zone.id, deg)}
-                    onDragMove={(offset) => handleDragMove(zone.id, offset)}
-                    onDragEnd={handleDragEnd}
-                    onDelete={onZoneDelete ? () => onZoneDelete(zone.id) : undefined}
-                    onDuplicate={onZoneDuplicate ? () => onZoneDuplicate(zone.id) : undefined}
-                    containerRef={containerRef as React.RefObject<HTMLElement>}
-                    showResizeHandles={true}
-                    showRotateHandle={true}
-                    rotation={zone.rotation || 0}
-                    style={computeZoneStyle(zone)}
-                  >
-                    <div style={textStyle}>{text}</div>
-                  </InteractiveTextOverlay>
-                );
-              }
+                  if (isInteractive) {
+                    return (
+                      <InteractiveTextOverlay
+                        key={zone.id}
+                        isSelected={isSelected}
+                        onSelect={() => onSelectZone?.(zone.id)}
+                        onMove={(dx, dy) => handleMove(zone.id, dx, dy)}
+                        onResize={(dw, side) => handleResize(zone.id, dw, side)}
+                        onCornerResize={(dw, dy, corner) => handleCornerResize(zone.id, dw, dy, corner)}
+                        onFontSizeChange={(delta) => handleFontSizeChange(zone.id, delta)}
+                        onRotate={(deg) => handleRotate(zone.id, deg)}
+                        onDragMove={(offset) => handleDragMove(zone.id, offset)}
+                        onDragEnd={handleDragEnd}
+                        onDelete={onZoneDelete ? () => onZoneDelete(zone.id) : undefined}
+                        onDuplicate={onZoneDuplicate ? () => onZoneDuplicate(zone.id) : undefined}
+                        containerRef={containerRef as React.RefObject<HTMLElement>}
+                        showResizeHandles={true}
+                        showRotateHandle={true}
+                        rotation={zone.rotation || 0}
+                        style={computeZoneStyle(zone)}
+                      >
+                        <div style={textStyle}>{text}</div>
+                      </InteractiveTextOverlay>
+                    );
+                  }
 
-              return (
-                <div
-                  key={zone.id}
-                  className="absolute pointer-events-none"
-                  style={{ ...computeZoneStyle(zone), ...textStyle }}
-                >
-                  {text}
-                </div>
-              );
-            })}
+                  return (
+                    <div
+                      key={zone.id}
+                      className="absolute pointer-events-none"
+                      style={{ ...computeZoneStyle(zone), ...textStyle }}
+                    >
+                      {text}
+                    </div>
+                  );
+                })}
 
-            {textZones.length === 0 && !currentSettings.background_image_url && (
-              <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
-                <div className="text-center">
-                  <p className="text-lg font-medium">Invitation Preview</p>
-                  <p className="text-sm">Add text zones and a background image to get started</p>
-                </div>
+                {textZones.length === 0 && !currentSettings.background_image_url && (
+                  <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
+                    <div className="text-center">
+                      <p className="text-lg font-medium">Invitation Preview</p>
+                      <p className="text-sm">Add text zones and a background image to get started</p>
+                    </div>
+                  </div>
+                )}
               </div>
-            )}
+            </div>
+          </div>
+
+          {/* Fixed zoom controls at bottom-right */}
+          <div
+            className="absolute bottom-2 right-2 z-50 flex items-center gap-2 rounded-lg border border-border bg-card/95 backdrop-blur-sm px-3 py-1.5 shadow-md"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground transition-colors disabled:opacity-40"
+              onClick={() => handleZoomChange(zoom - 10)}
+              disabled={zoom <= 25}
+              aria-label="Zoom out"
+            >
+              <Minus className="h-4 w-4" />
+            </button>
+            <Slider
+              value={[zoom]}
+              onValueChange={([v]) => handleZoomChange(v)}
+              min={25}
+              max={200}
+              step={5}
+              className="w-24"
+            />
+            <button
+              type="button"
+              className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground transition-colors disabled:opacity-40"
+              onClick={() => handleZoomChange(zoom + 10)}
+              disabled={zoom >= 200}
+              aria-label="Zoom in"
+            >
+              <Plus className="h-4 w-4" />
+            </button>
+            <span className="min-w-[3ch] text-xs font-medium text-muted-foreground text-right tabular-nums">
+              {zoom}%
+            </span>
           </div>
         </div>
       </div>
