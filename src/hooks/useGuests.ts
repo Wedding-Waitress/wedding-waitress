@@ -39,6 +39,7 @@ export interface Guest {
   family_group?: string | null;
   rsvp_invite_status?: string;
   rsvp_invite_sent_at?: string | null;
+  allow_plus_one?: boolean;
 }
 
 export const useGuests = (eventId: string | null) => {

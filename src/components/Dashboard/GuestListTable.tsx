@@ -1774,6 +1774,43 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                 <TableHead className="w-28">Last Name</TableHead>
                 <TableHead className="w-24">Mobile</TableHead>
                 <TableHead className="w-36">Email</TableHead>
+                <TableHead 
+                  className="w-24 text-center cursor-pointer hover:bg-primary/80 transition-colors select-none"
+                  onClick={async () => {
+                    if (!selectedEventId || sortedGuests.length === 0) return;
+                    const allOn = sortedGuests.every(g => g.allow_plus_one !== false);
+                    const newValue = !allOn;
+                    try {
+                      const { error } = await supabase
+                        .from('guests')
+                        .update({ allow_plus_one: newValue })
+                        .eq('event_id', selectedEventId);
+                      if (error) throw error;
+                      await refetchGuests();
+                      toast({
+                        title: "Success",
+                        description: `+ Guest ${newValue ? 'enabled' : 'disabled'} for all guests`,
+                      });
+                    } catch (err) {
+                      console.error('Error toggling all + Guest:', err);
+                      toast({ title: "Error", description: "Failed to update", variant: "destructive" });
+                    }
+                  }}
+                >
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span className="flex items-center justify-center gap-1">
+                          + Guest
+                          <Users className="w-3 h-3" />
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Click to toggle all guests. Controls whether guests can add extra people via Live View.</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </TableHead>
                 <TableHead className="w-32 text-center">RSVP Invite</TableHead>
                 <TableHead className="w-24">RSVP Status</TableHead>
                 <TableHead className="w-20">Table No</TableHead>
@@ -1788,13 +1825,13 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
             <TableBody>
               {guestsLoading ? (
                 <TableRow className="border-card-border">
-                  <TableCell colSpan={14} className="text-center py-8">
+                   <TableCell colSpan={15} className="text-center py-8">
                     Loading guests...
                   </TableCell>
                 </TableRow>
               ) : totalGuestCount === 0 ? (
                 <TableRow className="border-card-border">
-                  <TableCell colSpan={14} className="text-center py-8">
+                   <TableCell colSpan={15} className="text-center py-8">
                     {/* Empty - the "No Guests Yet" widget is now in the header */}
                   </TableCell>
                 </TableRow>
@@ -1804,7 +1841,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                     {/* Group Header (for couples and families) */}
                     {group.type !== 'individual' && (
                       <TableRow className={group.type === 'family' ? "bg-blue-600 hover:bg-blue-600" : "bg-orange-500 hover:bg-orange-500"}>
-                        <TableCell colSpan={14} className="py-2 px-4">
+                        <TableCell colSpan={15} className="py-2 px-4">
                           <div className="flex items-center gap-2">
                             <Users className="w-4 h-4 text-white" />
                             <span className="font-semibold text-sm text-white">
@@ -1846,6 +1883,26 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                           <TableCell className="py-1 font-medium w-28">{guest.last_name}</TableCell>
                           <TableCell className="py-1 w-24">{renderPill(!!guest.mobile && guest.mobile.trim() !== '')}</TableCell>
                           <TableCell className="py-1 w-36">{renderPill(!!guest.email && guest.email.trim() !== '')}</TableCell>
+                          <TableCell className="py-1 w-24">
+                            <Badge 
+                              className={`text-white cursor-pointer ${guest.allow_plus_one !== false ? 'bg-green-500 hover:bg-green-600' : 'bg-red-500 hover:bg-red-600'}`}
+                              onClick={async () => {
+                                const newValue = guest.allow_plus_one === false;
+                                try {
+                                  await supabase
+                                    .from('guests')
+                                    .update({ allow_plus_one: newValue })
+                                    .eq('id', guest.id);
+                                  await refetchGuests();
+                                } catch (err) {
+                                  console.error('Error toggling + Guest:', err);
+                                  toast({ title: "Error", description: "Failed to update", variant: "destructive" });
+                                }
+                              }}
+                            >
+                              {guest.allow_plus_one !== false ? "YES" : "NO"}
+                            </Badge>
+                          </TableCell>
                           <TableCell className="py-1 w-32">
                             <div className="flex items-center justify-center">
                               {(() => {

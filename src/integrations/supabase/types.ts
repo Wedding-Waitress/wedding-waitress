@@ -1124,6 +1124,7 @@ export type Database = {
       guests: {
         Row: {
           added_by_guest_id: string | null
+          allow_plus_one: boolean
           assigned: boolean | null
           created_at: string
           dietary: string | null
@@ -1152,6 +1153,7 @@ export type Database = {
         }
         Insert: {
           added_by_guest_id?: string | null
+          allow_plus_one?: boolean
           assigned?: boolean | null
           created_at?: string
           dietary?: string | null
@@ -1180,6 +1182,7 @@ export type Database = {
         }
         Update: {
           added_by_guest_id?: string | null
+          allow_plus_one?: boolean
           assigned?: boolean | null
           created_at?: string
           dietary?: string | null

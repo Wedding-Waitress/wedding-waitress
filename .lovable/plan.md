@@ -1,41 +1,21 @@
 
 
-## Plan: "+ Guest" Toggle Feature
+## Plan: Move Edit with Canva banner onto the same row as Choose File and Image Gallery
 
-### Overview
-Add a per-guest `allow_plus_one` boolean column and a new "+ Guest" column in the guest list table. The column header is clickable to toggle all guests on/off. The "Add Guest" button on the Live View guest card is conditionally shown based on this setting.
+### Summary
+Move the clickable Canva banner image from its own row below the buttons into the same flex row as Choose File and Image Gallery, so all three sit side by side on one line.
 
-### 1. Database Migration
-Add `allow_plus_one` column to the `guests` table:
-```sql
-ALTER TABLE public.guests ADD COLUMN allow_plus_one boolean NOT NULL DEFAULT true;
-```
-Default `true` so existing guests retain current behavior.
+### File Changes
 
-### 2. Update Guest Interface (`src/hooks/useGuests.ts`)
-Add `allow_plus_one?: boolean` to the `Guest` interface.
+#### 1. `src/components/Dashboard/Invitations/InvitationCardCustomizer.tsx`
+- **Move lines 428-433** (the `<img>` tag) inside the `</div>` that closes at line 427, placing it after the Image Gallery button (before the closing `</div>`).
+- Remove `mt-2` from the image class since it will now be inline with the buttons.
+- The flex container already has `gap-2`, so the banner will sit naturally next to the buttons.
 
-### 3. Guest List Table (`src/components/Dashboard/GuestListTable.tsx`)
+#### 2. `src/components/Dashboard/PlaceCards/PlaceCardCustomizer.tsx`
+- **Move lines 706-711** (the `<img>` tag) inside the `</div>` that closes at line 703, placing it after the Image Gallery button.
+- Same class adjustment: remove `mt-2`.
 
-**New column header** between Email and RSVP Invite:
-- Header shows "+ Guest" text with a clickable toggle icon
-- Clicking the header toggles ALL guests' `allow_plus_one` on/off via a batch update
-- Uses a YES/NO pill style matching Mobile/Email columns
-
-**New column cell** for each guest row:
-- Shows a clickable YES/NO pill (green YES / red NO)
-- Clicking toggles that individual guest's `allow_plus_one` value
-- Update `colSpan` values from 14 to 15
-
-### 4. Live View Guest Card (`src/components/GuestLookup/EnhancedGuestCard.tsx` + `src/pages/GuestLookup.tsx`)
-
-**Conditionally show "Add Guest" button:**
-- Pass `onAddGuest` prop only when the guest's `allow_plus_one` is `true`
-- Since the Live View fetches guests with `select('*')`, the new column will be available automatically
-
-### 5. Files Changed
-- **Migration**: Add `allow_plus_one` column to `guests`
-- `src/hooks/useGuests.ts`: Add field to interface
-- `src/components/Dashboard/GuestListTable.tsx`: Add column header (clickable toggle-all), add cell with per-guest toggle, update colSpan
-- `src/pages/GuestLookup.tsx`: Conditionally pass `onAddGuest` based on `allow_plus_one`
+### Result
+All three elements — Choose File (green), Image Gallery (purple), Edit with Canva (banner) — appear on a single row in both pages. No other changes.
 
