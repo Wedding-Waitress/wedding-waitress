@@ -1,4 +1,4 @@
-import React, { useRef, useCallback, useState } from 'react';
+import React, { useRef, useCallback, useState, useLayoutEffect } from 'react';
 import { RotateCw } from 'lucide-react';
 
 interface InteractiveTextOverlayProps {
