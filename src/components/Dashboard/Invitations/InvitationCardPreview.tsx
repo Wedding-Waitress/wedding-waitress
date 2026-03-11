@@ -157,6 +157,7 @@ export const InvitationCardPreview: React.FC<InvitationCardPreviewProps> = ({
                     onSelect={() => onSelectZone?.(zone.id)}
                     onMove={(dx, dy) => handleMove(zone.id, dx, dy)}
                     onResize={(dw, side) => handleResize(zone.id, dw, side)}
+                    onCornerResize={(dw, dy, corner) => handleCornerResize(zone.id, dw, dy, corner)}
                     onRotate={(deg) => handleRotate(zone.id, deg)}
                     containerRef={containerRef as React.RefObject<HTMLElement>}
                     showResizeHandles={true}
