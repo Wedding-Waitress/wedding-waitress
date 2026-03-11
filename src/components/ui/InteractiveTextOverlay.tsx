@@ -115,7 +115,6 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
 
     const onPointerUp = () => {
       setIsDragging(false);
-      // Commit move as single state update
       if (mode === 'move' && onMove) {
         const container = containerRef.current;
         if (container) {
@@ -124,11 +123,13 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
           const dyP = (accumRef.current.y / rect.height) * 100;
           onMove(dxP, dyP);
         }
-        // Reset inline transform
         if (elRef.current) {
           elRef.current.style.transform = rotation ? `rotate(${rotation}deg)` : '';
         }
         accumRef.current = { x: 0, y: 0 };
+      }
+      if (mode === 'move') {
+        onDragEnd?.();
       }
       document.removeEventListener('pointermove', onPointerMove);
       document.removeEventListener('pointerup', onPointerUp);
