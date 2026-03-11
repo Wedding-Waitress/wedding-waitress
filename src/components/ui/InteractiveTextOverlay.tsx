@@ -130,14 +130,13 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
         const rawDy = (corner === 'tl' || corner === 'tr') ? -dy : dy;
         const avgDelta = (rawDx + rawDy) / 2;
         const newDelta = Math.round(avgDelta * 0.15);
-        if (newDelta !== lastFontDelta) {
-          const stepDelta = newDelta - lastFontDelta;
-          lastFontDelta = newDelta;
-          setLiveFontDelta(newDelta);
-          if (onFontSizeChange && stepDelta !== 0) {
-            onFontSizeChange(stepDelta);
-          }
-        }
+        lastFontDelta = newDelta;
+        // Use CSS scale for smooth real-time preview (no React re-renders)
+        const scaleFactor = 1 + (newDelta * 0.04);
+        const clampedScale = Math.max(0.3, Math.min(3, scaleFactor));
+        el.style.transform = `${baseTransform} rotate(${rotation}deg) scale(${clampedScale})`;
+        el.style.transformOrigin = 'top left';
+        setLiveFontDelta(newDelta);
         return;
       }
 
@@ -192,7 +191,12 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
       }
 
       if (mode.startsWith('fontsize-')) {
-        // Already committed in real-time during drag
+        // Reset visual scale and commit the accumulated delta
+        el.style.transform = `${baseTransform} rotate(${rotation}deg)`;
+        el.style.transformOrigin = '';
+        if (onFontSizeChange && lastFontDelta !== 0) {
+          onFontSizeChange(lastFontDelta);
+        }
         return;
       }
 
@@ -385,7 +389,7 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
                   lineHeight: 1.2,
                 }}
               >
-                {Math.round(currentFontSize)}px
+                {Math.round(Math.max(6, Math.min(200, currentFontSize + liveFontDelta)))}px
               </div>
             )}
           </div>
