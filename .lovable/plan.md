@@ -1,21 +1,48 @@
 
 
-## Plan: Move Edit with Canva banner onto the same row as Choose File and Image Gallery
+## Plan: Canva/Photoshop-style Text Zone Editor
 
-### Summary
-Move the clickable Canva banner image from its own row below the buttons into the same flex row as Choose File and Image Gallery, so all three sit side by side on one line.
+### What Changes
 
-### File Changes
+Rewrite `InteractiveTextOverlay.tsx` to deliver a professional editing experience:
 
-#### 1. `src/components/Dashboard/Invitations/InvitationCardCustomizer.tsx`
-- **Move lines 428-433** (the `<img>` tag) inside the `</div>` that closes at line 427, placing it after the Image Gallery button (before the closing `</div>`).
-- Remove `mt-2` from the image class since it will now be inline with the buttons.
-- The flex container already has `gap-2`, so the banner will sit naturally next to the buttons.
+**1. 8 resize handles** — 4 corners + top-middle + bottom-middle + left-middle + right-middle. Currently missing top-middle and bottom-middle.
 
-#### 2. `src/components/Dashboard/PlaceCards/PlaceCardCustomizer.tsx`
-- **Move lines 706-711** (the `<img>` tag) inside the `</div>` that closes at line 703, placing it after the Image Gallery button.
-- Same class adjustment: remove `mt-2`.
+**2. Rotation handle moves to bottom-right** — Remove the top circle+stem. Add a small curved-arrow icon handle offset from the bottom-right corner. Rotation angle calculated from element center to pointer position.
 
-### Result
-All three elements — Choose File (green), Image Gallery (purple), Edit with Canva (banner) — appear on a single row in both pages. No other changes.
+**3. Clean cursor behavior**
+- Body: `move` cursor (not `grab` — feels more like Canva)
+- Corners: `nwse-resize` / `nesw-resize`
+- Side midpoints: `ew-resize`
+- Top/bottom midpoints: `ns-resize`
+- Rotation handle: custom rotate cursor (`alias`)
+
+**4. Prevent text editing interference** — Add `user-select: none` and `pointer-events: none` on the text content div when selected, so dragging never triggers text selection.
+
+**5. Top/bottom middle handles** — These adjust `y_percent` (vertical repositioning), matching how the corner vertical logic already works.
+
+### Files Changed
+
+| File | Change |
+|------|--------|
+| `src/components/ui/InteractiveTextOverlay.tsx` | Add top-middle + bottom-middle handles (8 total). Move rotation handle to bottom-right corner offset. Update cursors to `move`/resize/`alias`. Add `resize-top`/`resize-bottom` drag modes. |
+| `src/components/Dashboard/Invitations/InvitationCardPreview.tsx` | Add handler for top/bottom resize modes (adjusts `y_percent`). No other changes needed — existing move/resize/corner/rotate handlers stay. |
+
+### Handle Layout
+```text
+  ●────────●────────●
+  │                 │
+  ●                 ●
+  │                 │
+  ●────────●────────●
+                      ↻  (rotation handle, offset from bottom-right)
+```
+
+### Technical Details
+
+- New drag modes: `resize-top` and `resize-bottom` added to the union type
+- Rotation handle: positioned at `right: -20px, bottom: -20px` with a `RotateCw` icon, `cursor: alias`
+- The top stem + circle removed entirely
+- `onResize` callback extended: side parameter becomes `'left' | 'right' | 'top' | 'bottom'`
+- Top/bottom resize in preview: adjusts `y_percent` by `dyP`
 
