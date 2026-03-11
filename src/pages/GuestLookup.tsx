@@ -758,7 +758,7 @@ export const GuestLookup: React.FC = () => {
                             onUpdate={refreshGuestData}
                             isEditable={isEditable}
                             onEdit={handleEditGuest}
-                            onAddGuest={(guest as any).allow_plus_one !== false ? () => { setAddGuestForId(guest.id); setShowAddGuestModal(true); } : undefined}
+                            onAddGuest={guest.allow_plus_one !== false ? () => { setAddGuestForId(guest.id); setShowAddGuestModal(true); } : undefined}
                             rsvpDeadline={event?.rsvp_deadline}
                             additionalGuestCount={guests.filter(g => (g as any).added_by_guest_id === guest.id).length}
                           />
