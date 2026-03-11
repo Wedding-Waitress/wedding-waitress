@@ -123,7 +123,7 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
       }
 
       if (mode === 'rotate') {
-        let raw = rotation + dx * ROTATE_SENSITIVITY;
+        let raw = rotation - dx * ROTATE_SENSITIVITY;
         raw = ((raw % 360) + 360) % 360;
         if (raw > 180) raw -= 360;
         if (Math.abs(raw) < SNAP_THRESHOLD) raw = 0;
