@@ -224,7 +224,7 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
         handlePointerDown(e, 'move');
       }}
     >
-      <div style={{ pointerEvents: isSelected ? 'none' : 'auto', userSelect: 'none' }}>
+      <div data-text-content style={{ pointerEvents: isSelected ? 'none' : 'auto', userSelect: 'none', transition: 'none' }}>
         {children}
       </div>
 
