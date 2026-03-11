@@ -191,7 +191,12 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
       }
 
       if (mode.startsWith('fontsize-')) {
-        // Already committed in real-time during drag
+        // Reset visual scale and commit the accumulated delta
+        el.style.transform = `${baseTransform} rotate(${rotation}deg)`;
+        el.style.transformOrigin = '';
+        if (onFontSizeChange && lastFontDelta !== 0) {
+          onFontSizeChange(lastFontDelta);
+        }
         return;
       }
 
