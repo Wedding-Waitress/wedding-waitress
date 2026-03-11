@@ -41,6 +41,7 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
   onDragMove,
   onDragEnd,
   onCopy,
+  onReset,
   onDuplicate,
   onDelete,
   containerRef,
