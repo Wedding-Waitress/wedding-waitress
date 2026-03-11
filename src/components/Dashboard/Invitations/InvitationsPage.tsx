@@ -404,7 +404,7 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
 
       {/* Bottom Section - Grid Layout */}
       {selectedEventId && selectedEvent && !settingsLoading && activeArtwork && (
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-start">
           <div className="lg:col-span-2">
             <InvitationCardCustomizer
               settings={activeArtwork}
