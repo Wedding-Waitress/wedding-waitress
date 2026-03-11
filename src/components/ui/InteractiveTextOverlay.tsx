@@ -96,7 +96,7 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
 
     if (mode.startsWith('fontsize-')) {
       setIsCornerResizing(true);
-      setLiveFontDelta(0);
+      setLiveFontSize(currentFontSize ?? null);
     }
 
     const onPointerMove = (ev: PointerEvent) => {
