@@ -20,6 +20,7 @@ interface InteractiveTextOverlayProps {
   showResizeHandles?: boolean;
   showRotateHandle?: boolean;
   rotation?: number;
+  currentFontSize?: number;
   className?: string;
   style?: React.CSSProperties;
 }
@@ -48,6 +49,7 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
   showResizeHandles = true,
   showRotateHandle = true,
   rotation = 0,
+  currentFontSize,
   className = '',
   style = {},
 }) => {
@@ -55,6 +57,8 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
   const [isDragging, setIsDragging] = useState(false);
   const [isRotating, setIsRotating] = useState(false);
   const [liveAngle, setLiveAngle] = useState<number | null>(null);
+  const [isCornerResizing, setIsCornerResizing] = useState(false);
+  const [liveFontDelta, setLiveFontDelta] = useState<number>(0);
 
   const getBaseTransform = useCallback((): string => {
     const t = (style.transform as string) || '';
@@ -89,6 +93,11 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
       setLiveAngle(rotation);
     }
 
+    if (mode.startsWith('fontsize-')) {
+      setIsCornerResizing(true);
+      setLiveFontDelta(0);
+    }
+
     const onPointerMove = (ev: PointerEvent) => {
       const dx = ev.clientX - startX;
       const dy = ev.clientY - startY;
@@ -121,14 +130,13 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
         const rawDy = (corner === 'tl' || corner === 'tr') ? -dy : dy;
         const avgDelta = (rawDx + rawDy) / 2;
         const newDelta = Math.round(avgDelta * 0.15);
-        lastFontDelta = newDelta;
-        // Apply font size visually via CSS transform scale for smooth live preview
-        const scaleFactor = 1 + (newDelta * 0.04);
-        const clampedScale = Math.max(0.3, Math.min(3, scaleFactor));
-        const childEl = el.querySelector('[data-text-content]') as HTMLElement;
-        if (childEl) {
-          childEl.style.transform = `scale(${clampedScale})`;
-          childEl.style.transformOrigin = 'top left';
+        if (newDelta !== lastFontDelta) {
+          const stepDelta = newDelta - lastFontDelta;
+          lastFontDelta = newDelta;
+          setLiveFontDelta(newDelta);
+          if (onFontSizeChange && stepDelta !== 0) {
+            onFontSizeChange(stepDelta);
+          }
         }
         return;
       }
@@ -149,6 +157,8 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
       setIsDragging(false);
       setIsRotating(false);
       setLiveAngle(null);
+      setIsCornerResizing(false);
+      setLiveFontDelta(0);
       document.removeEventListener('pointermove', onPointerMove);
       document.removeEventListener('pointerup', onPointerUp);
 
@@ -182,15 +192,7 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
       }
 
       if (mode.startsWith('fontsize-')) {
-        // Reset visual scale and commit the accumulated delta
-        const childEl = el.querySelector('[data-text-content]') as HTMLElement;
-        if (childEl) {
-          childEl.style.transform = '';
-          childEl.style.transformOrigin = '';
-        }
-        if (onFontSizeChange && lastFontDelta !== 0) {
-          onFontSizeChange(lastFontDelta);
-        }
+        // Already committed in real-time during drag
         return;
       }
 
@@ -370,6 +372,20 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
                 }}
               >
                 {displayAngle}°
+              </div>
+            )}
+
+            {isCornerResizing && currentFontSize !== undefined && (
+              <div
+                className="mt-1 px-1.5 py-0.5 rounded text-[10px] font-medium tabular-nums"
+                style={{
+                  background: 'hsl(var(--primary))',
+                  color: 'hsl(var(--primary-foreground))',
+                  whiteSpace: 'nowrap',
+                  lineHeight: 1.2,
+                }}
+              >
+                {Math.round(currentFontSize)}px
               </div>
             )}
           </div>

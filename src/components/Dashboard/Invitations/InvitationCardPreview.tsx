@@ -244,6 +244,7 @@ export const InvitationCardPreview: React.FC<InvitationCardPreviewProps> = ({
                       showResizeHandles={true}
                       showRotateHandle={true}
                       rotation={zone.rotation || 0}
+                      currentFontSize={zone.font_size}
                       style={computeZoneStyle(zone)}
                     >
                       <div style={textStyle}>{text}</div>
