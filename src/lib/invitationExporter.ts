@@ -89,6 +89,8 @@ export function buildInvitationElement(opts: ExportOptions, guestName?: string):
       letter-spacing: ${(overrides.letter_spacing ?? zone.letter_spacing) * DPI_SCALE}px;
       line-height: 1.3;
       white-space: pre-wrap;
+      transform: rotate(${(zone as any).rotation || 0}deg);
+      transform-origin: center center;
     `;
     container.appendChild(el);
   });

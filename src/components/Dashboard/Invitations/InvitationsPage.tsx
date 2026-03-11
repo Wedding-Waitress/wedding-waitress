@@ -416,6 +416,14 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
             <InvitationCardPreview
               settings={activeArtwork}
               eventData={eventData}
+              selectedZoneId={selectedZoneId}
+              onSelectZone={setSelectedZoneId}
+              onZoneUpdate={(zoneId, updates) => {
+                const newZones = (activeArtwork?.text_zones || []).map(z =>
+                  z.id === zoneId ? { ...z, ...updates } : z
+                );
+                updateSettings({ text_zones: newZones });
+              }}
             />
           </div>
         </div>
