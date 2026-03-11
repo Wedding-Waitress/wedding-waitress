@@ -1,7 +1,6 @@
-import React, { useRef, useCallback, useState } from 'react';
+import React, { useRef, useCallback, useState, useMemo } from 'react';
 import { InvitationCardSettings, TextZone } from '@/hooks/useInvitationCardSettings';
 import { InteractiveTextOverlay } from '@/components/ui/InteractiveTextOverlay';
-import { RotateCw } from 'lucide-react';
 
 interface InvitationCardPreviewProps {
   settings: InvitationCardSettings | null;
@@ -28,7 +27,8 @@ export const InvitationCardPreview: React.FC<InvitationCardPreviewProps> = ({
   onZoneUpdate,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
-
+  const [dragGuides, setDragGuides] = useState<{ showVertical: boolean; showHorizontal: boolean } | null>(null);
+  const dragZoneIdRef = useRef<string | null>(null);
   const currentSettings = settings || {
     background_color: '#ffffff',
     background_image_url: null,
@@ -118,6 +118,29 @@ export const InvitationCardPreview: React.FC<InvitationCardPreviewProps> = ({
     onZoneUpdate(zoneId, { rotation: degrees });
   }, [onZoneUpdate]);
 
+  const SNAP_THRESHOLD = 1.5; // percent
+
+  const handleDragMove = useCallback((zoneId: string, pixelOffset: { x: number; y: number }) => {
+    const zone = textZones.find(z => z.id === zoneId);
+    const container = containerRef.current;
+    if (!zone || !container) return;
+    const rect = container.getBoundingClientRect();
+    const dxP = (pixelOffset.x / rect.width) * 100;
+    const dyP = (pixelOffset.y / rect.height) * 100;
+    const effectiveCenterX = zone.x_percent + dxP;
+    const effectiveCenterY = zone.y_percent + dyP;
+    setDragGuides({
+      showVertical: Math.abs(effectiveCenterX - 50) < SNAP_THRESHOLD,
+      showHorizontal: Math.abs(effectiveCenterY - 50) < SNAP_THRESHOLD,
+    });
+    dragZoneIdRef.current = zoneId;
+  }, [textZones]);
+
+  const handleDragEnd = useCallback(() => {
+    setDragGuides(null);
+    dragZoneIdRef.current = null;
+  }, []);
+
   return (
     <div className="space-y-6">
       <div className="print:hidden">
@@ -147,6 +170,30 @@ export const InvitationCardPreview: React.FC<InvitationCardPreviewProps> = ({
               />
             )}
 
+            {/* Alignment Guides */}
+            {dragGuides?.showVertical && (
+              <div
+                className="absolute top-0 bottom-0 pointer-events-none"
+                style={{
+                  left: '50%',
+                  width: 0,
+                  borderLeft: '1px dashed hsl(var(--primary) / 0.7)',
+                  zIndex: 50,
+                }}
+              />
+            )}
+            {dragGuides?.showHorizontal && (
+              <div
+                className="absolute left-0 right-0 pointer-events-none"
+                style={{
+                  top: '50%',
+                  height: 0,
+                  borderTop: '1px dashed hsl(var(--primary) / 0.7)',
+                  zIndex: 50,
+                }}
+              />
+            )}
+
             {/* Text Zones */}
             {textZones.map((zone) => {
               const text = getZoneText(zone);
@@ -165,6 +212,8 @@ export const InvitationCardPreview: React.FC<InvitationCardPreviewProps> = ({
                     onResize={(dw, side) => handleResize(zone.id, dw, side)}
                     onCornerResize={(dw, dy, corner) => handleCornerResize(zone.id, dw, dy, corner)}
                     onRotate={(deg) => handleRotate(zone.id, deg)}
+                    onDragMove={(offset) => handleDragMove(zone.id, offset)}
+                    onDragEnd={handleDragEnd}
                     containerRef={containerRef as React.RefObject<HTMLElement>}
                     showResizeHandles={true}
                     showRotateHandle={true}

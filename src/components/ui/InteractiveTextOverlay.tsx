@@ -9,6 +9,8 @@ interface InteractiveTextOverlayProps {
   onResize?: (dWidthPercent: number, side: 'left' | 'right' | 'top' | 'bottom') => void;
   onCornerResize?: (dWidthPercent: number, dyPercent: number, corner: string) => void;
   onRotate?: (degrees: number) => void;
+  onDragMove?: (pixelOffset: { x: number; y: number }) => void;
+  onDragEnd?: () => void;
   containerRef: React.RefObject<HTMLElement>;
   showResizeHandles?: boolean;
   showRotateHandle?: boolean;
@@ -43,6 +45,8 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
   onResize,
   onCornerResize,
   onRotate,
+  onDragMove,
+  onDragEnd,
   containerRef,
   showResizeHandles = true,
   showRotateHandle = true,
@@ -74,13 +78,13 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
       lastY = ev.clientY;
 
       if (mode === 'move') {
-        // Accumulate pixel offset and apply via transform — no re-render
         accumRef.current.x += dx;
         accumRef.current.y += dy;
         if (elRef.current) {
           const rot = rotation ? `rotate(${rotation}deg)` : '';
           elRef.current.style.transform = `translate(${accumRef.current.x}px, ${accumRef.current.y}px) ${rot}`;
         }
+        onDragMove?.({ x: accumRef.current.x, y: accumRef.current.y });
         return;
       }
 
@@ -111,7 +115,6 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
 
     const onPointerUp = () => {
       setIsDragging(false);
-      // Commit move as single state update
       if (mode === 'move' && onMove) {
         const container = containerRef.current;
         if (container) {
@@ -120,11 +123,13 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
           const dyP = (accumRef.current.y / rect.height) * 100;
           onMove(dxP, dyP);
         }
-        // Reset inline transform
         if (elRef.current) {
           elRef.current.style.transform = rotation ? `rotate(${rotation}deg)` : '';
         }
         accumRef.current = { x: 0, y: 0 };
+      }
+      if (mode === 'move') {
+        onDragEnd?.();
       }
       document.removeEventListener('pointermove', onPointerMove);
       document.removeEventListener('pointerup', onPointerUp);
@@ -132,7 +137,7 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
 
     document.addEventListener('pointermove', onPointerMove);
     document.addEventListener('pointerup', onPointerUp);
-  }, [containerRef, onMove, onResize, onCornerResize, onRotate, rotation]);
+  }, [containerRef, onMove, onResize, onCornerResize, onRotate, onDragMove, onDragEnd, rotation]);
 
   const canResize = showResizeHandles && (onResize || onCornerResize);
 
