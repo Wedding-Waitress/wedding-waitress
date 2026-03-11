@@ -80,6 +80,7 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
     let accumX = 0;
     let accumY = 0;
     let currentAngle = rotation;
+    let lastFontDelta = 0;
 
     if (mode === 'rotate') {
       setIsRotating(true);
