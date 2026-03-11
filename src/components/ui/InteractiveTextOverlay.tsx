@@ -55,6 +55,8 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
   const [isDragging, setIsDragging] = useState(false);
   const [isRotating, setIsRotating] = useState(false);
   const [liveAngle, setLiveAngle] = useState<number | null>(null);
+  const [isCornerResizing, setIsCornerResizing] = useState(false);
+  const [liveFontDelta, setLiveFontDelta] = useState<number>(0);
 
   const getBaseTransform = useCallback((): string => {
     const t = (style.transform as string) || '';
