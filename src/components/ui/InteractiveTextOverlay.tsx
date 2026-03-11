@@ -164,7 +164,8 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
       setIsRotating(false);
       setLiveAngle(null);
       setIsCornerResizing(false);
-      setLiveFontDelta(0);
+      setLiveFontSize(null);
+      cancelAnimationFrame(rafRef.current);
       document.removeEventListener('pointermove', onPointerMove);
       document.removeEventListener('pointerup', onPointerUp);
 
