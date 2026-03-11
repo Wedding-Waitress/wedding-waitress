@@ -49,6 +49,7 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
   showResizeHandles = true,
   showRotateHandle = true,
   rotation = 0,
+  currentFontSize,
   className = '',
   style = {},
 }) => {
