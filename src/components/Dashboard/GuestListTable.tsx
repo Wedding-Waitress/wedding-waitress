@@ -1825,7 +1825,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
             <TableBody>
               {guestsLoading ? (
                 <TableRow className="border-card-border">
-                  <TableCell colSpan={14} className="text-center py-8">
+                   <TableCell colSpan={15} className="text-center py-8">
                     Loading guests...
                   </TableCell>
                 </TableRow>
