@@ -55,6 +55,7 @@ interface Guest {
   family_group?: string;
   table_name?: string;
   table_limit_seats?: number;
+  allow_plus_one?: boolean;
 }
 
 interface Event {
