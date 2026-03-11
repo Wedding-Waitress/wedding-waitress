@@ -66,6 +66,7 @@ const createDefaultZone = (type: 'preset' | 'custom', label: string, presetField
   x_percent: 50,
   y_percent: yPercent,
   width_percent: 80,
+  rotation: 0,
 });
 
 export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> = ({
