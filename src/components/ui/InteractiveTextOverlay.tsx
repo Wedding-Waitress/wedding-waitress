@@ -35,6 +35,7 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
   onMove,
   onResize,
   onCornerResize,
+  onFontSizeChange,
   onRotate,
   onDragMove,
   onDragEnd,
