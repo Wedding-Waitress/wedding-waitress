@@ -144,14 +144,16 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
         return;
       }
 
-      if (mode === 'rotate' && onRotate && elRef.current) {
+      if (mode === 'rotate' && elRef.current) {
         const elRect = elRef.current.getBoundingClientRect();
         const cx = elRect.left + elRect.width / 2;
         const cy = elRect.top + elRect.height / 2;
         let angle = Math.atan2(ev.clientY - cy, ev.clientX - cx) * (180 / Math.PI) + 90;
         if (angle < 0) angle += 360;
         const snapped = Math.abs(angle % 45) < 3 ? Math.round(angle / 45) * 45 : Math.round(angle);
-        onRotate(snapped % 360);
+        rotateAngleRef.current = snapped % 360;
+        // Apply rotation visually without state update
+        elRef.current.style.transform = `rotate(${rotateAngleRef.current}deg)`;
       }
     };
 
