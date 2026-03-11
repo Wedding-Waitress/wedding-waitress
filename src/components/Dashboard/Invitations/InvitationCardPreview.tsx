@@ -272,7 +272,6 @@ export const InvitationCardPreview: React.FC<InvitationCardPreviewProps> = ({
             </div>
           </div>
 
-          </div>
 
           {/* Zoom controls centered below preview */}
           <div className="flex justify-center pt-3 pb-1">
