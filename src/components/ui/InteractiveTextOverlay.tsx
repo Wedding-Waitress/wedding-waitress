@@ -8,6 +8,7 @@ interface InteractiveTextOverlayProps {
   onMove?: (dxPercent: number, dyPercent: number) => void;
   onResize?: (dWidthPercent: number, side: 'left' | 'right' | 'top' | 'bottom') => void;
   onCornerResize?: (dWidthPercent: number, dyPercent: number, corner: string) => void;
+  onFontSizeChange?: (deltaPx: number) => void;
   onRotate?: (degrees: number) => void;
   onDragMove?: (pixelOffset: { x: number; y: number }) => void;
   onDragEnd?: () => void;
