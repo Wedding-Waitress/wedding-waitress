@@ -130,14 +130,20 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
         const rawDx = isLeft ? -dx : dx;
         const rawDy = (corner === 'tl' || corner === 'tr') ? -dy : dy;
         const avgDelta = (rawDx + rawDy) / 2;
-        const newDelta = Math.round(avgDelta * 0.15);
-        lastFontDelta = newDelta;
-        // Use CSS scale for smooth real-time preview (no React re-renders)
-        const scaleFactor = 1 + (newDelta * 0.04);
+        // Use continuous float delta for smooth scaling (no rounding)
+        const continuousDelta = avgDelta * 0.15;
+        lastFontDelta = continuousDelta;
+        const scaleFactor = 1 + (continuousDelta * 0.04);
         const clampedScale = Math.max(0.3, Math.min(3, scaleFactor));
-        el.style.transform = `${baseTransform} rotate(${rotation}deg) scale(${clampedScale})`;
-        el.style.transformOrigin = 'top left';
-        setLiveFontDelta(newDelta);
+        // Apply via rAF for buttery smooth updates
+        cancelAnimationFrame(rafRef.current);
+        rafRef.current = requestAnimationFrame(() => {
+          el.style.transform = `${baseTransform} rotate(${rotation}deg) scale(${clampedScale})`;
+          el.style.transformOrigin = 'top left';
+        });
+        // Update indicator sparingly (only on whole-number changes)
+        const estimatedSize = Math.round(Math.max(6, Math.min(200, (currentFontSize || 24) + continuousDelta)));
+        setLiveFontSize(estimatedSize);
         return;
       }
 
