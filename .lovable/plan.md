@@ -1,21 +1,43 @@
 
 
-## Plan: Move Edit with Canva banner onto the same row as Choose File and Image Gallery
+## Plan: Fix Interactive Drag/Resize/Rotate and Add 6-Point Handles
 
-### Summary
-Move the clickable Canva banner image from its own row below the buttons into the same flex row as Choose File and Image Gallery, so all three sit side by side on one line.
+### Root Cause
+The current `InteractiveTextOverlay` uses `setPointerCapture` on `e.target`, which can be a deeply nested child element. While pointer events should bubble, this approach is fragile and fails in practice. The fix is to use **document-level** `pointermove`/`pointerup` listeners when a drag starts, which is the reliable standard pattern.
 
-### File Changes
+### Changes
 
-#### 1. `src/components/Dashboard/Invitations/InvitationCardCustomizer.tsx`
-- **Move lines 428-433** (the `<img>` tag) inside the `</div>` that closes at line 427, placing it after the Image Gallery button (before the closing `</div>`).
-- Remove `mt-2` from the image class since it will now be inline with the buttons.
-- The flex container already has `gap-2`, so the banner will sit naturally next to the buttons.
+**1. Rewrite `InteractiveTextOverlay.tsx` pointer handling**
 
-#### 2. `src/components/Dashboard/PlaceCards/PlaceCardCustomizer.tsx`
-- **Move lines 706-711** (the `<img>` tag) inside the `</div>` that closes at line 703, placing it after the Image Gallery button.
-- Same class adjustment: remove `mt-2`.
+- On `pointerdown`, attach `document.addEventListener('pointermove', ...)` and `document.addEventListener('pointerup', ...)` instead of relying on React synthetic events and pointer capture on `e.target`
+- Clean up listeners on pointer up
+- This guarantees move/up events are received regardless of which child element was clicked
 
-### Result
-All three elements — Choose File (green), Image Gallery (purple), Edit with Canva (banner) — appear on a single row in both pages. No other changes.
+**2. Add 6 resize handles (instead of 2)**
+
+Current: left-middle, right-middle only.
+New layout with 6 handles:
+```text
+       ↻  (rotation)
+       |
+  ●────●────●   (top-left, top-center, top-right)
+  │          │
+  ●          ●   (middle-left, middle-right)  
+  │          │
+  ●────●────●   (bottom-left, bottom-center, bottom-right)
+```
+Actually per the user's screenshot (6 red arrows): **4 corners + 2 side midpoints** = 6 handles total, plus the rotation handle on top.
+
+- Corner handles: resize both width and height (diagonal cursors: `nwse-resize`, `nesw-resize`)
+- Side midpoint handles: resize width only (horizontal cursor: `ew-resize`)
+- All handles are small squares (10x10px) with primary color
+
+**3. Add vertical resize support**
+
+- Current `onResize` only handles width. Extend to support height changes from corner/top/bottom handles
+- Since invitation text zones don't have an explicit `height_percent`, corner drags will adjust `width_percent` and `y_percent` simultaneously (moving the zone vertically while resizing horizontally)
+- Top-center and bottom-center handles will move `y_percent` (repositioning vertically)
+
+### Files Changed
+- `src/components/ui/InteractiveTextOverlay.tsx` — rewrite pointer handling to use document listeners; add 6 handles with corner + edge resize modes
 
