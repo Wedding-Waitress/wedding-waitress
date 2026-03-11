@@ -83,6 +83,30 @@ export const InvitationCardPreview: React.FC<InvitationCardPreviewProps> = ({
     onZoneUpdate(zoneId, updates);
   }, [textZones, onZoneUpdate]);
 
+  const handleCornerResize = useCallback((zoneId: string, dxP: number, dyP: number, corner: string) => {
+    const zone = textZones.find(z => z.id === zoneId);
+    if (!zone || !onZoneUpdate) return;
+    const updates: Partial<TextZone> = {};
+
+    // Horizontal: tl/bl shrink width, tr/br grow width
+    const isLeft = corner === 'tl' || corner === 'bl';
+    const dw = isLeft ? -dxP : dxP;
+    updates.width_percent = Math.max(10, Math.min(100, zone.width_percent + dw));
+    if (isLeft) {
+      updates.x_percent = Math.max(0, Math.min(100, zone.x_percent + dxP / 2));
+    }
+
+    // Vertical: top corners move y, bottom corners also move y
+    const isTop = corner === 'tl' || corner === 'tr';
+    if (isTop) {
+      updates.y_percent = Math.max(0, Math.min(100, zone.y_percent + dyP));
+    } else {
+      // Bottom corners: don't move y (text zones auto-height)
+    }
+
+    onZoneUpdate(zoneId, updates);
+  }, [textZones, onZoneUpdate]);
+
   const handleRotate = useCallback((zoneId: string, degrees: number) => {
     if (!onZoneUpdate) return;
     onZoneUpdate(zoneId, { rotation: degrees });
@@ -133,6 +157,7 @@ export const InvitationCardPreview: React.FC<InvitationCardPreviewProps> = ({
                     onSelect={() => onSelectZone?.(zone.id)}
                     onMove={(dx, dy) => handleMove(zone.id, dx, dy)}
                     onResize={(dw, side) => handleResize(zone.id, dw, side)}
+                    onCornerResize={(dw, dy, corner) => handleCornerResize(zone.id, dw, dy, corner)}
                     onRotate={(deg) => handleRotate(zone.id, deg)}
                     containerRef={containerRef as React.RefObject<HTMLElement>}
                     showResizeHandles={true}
