@@ -58,7 +58,8 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
   const [isRotating, setIsRotating] = useState(false);
   const [liveAngle, setLiveAngle] = useState<number | null>(null);
   const [isCornerResizing, setIsCornerResizing] = useState(false);
-  const [liveFontDelta, setLiveFontDelta] = useState<number>(0);
+  const [liveFontSize, setLiveFontSize] = useState<number | null>(null);
+  const rafRef = useRef<number>(0);
 
   const getBaseTransform = useCallback((): string => {
     const t = (style.transform as string) || '';
@@ -95,7 +96,7 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
 
     if (mode.startsWith('fontsize-')) {
       setIsCornerResizing(true);
-      setLiveFontDelta(0);
+      setLiveFontSize(currentFontSize ?? null);
     }
 
     const onPointerMove = (ev: PointerEvent) => {
@@ -129,14 +130,20 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
         const rawDx = isLeft ? -dx : dx;
         const rawDy = (corner === 'tl' || corner === 'tr') ? -dy : dy;
         const avgDelta = (rawDx + rawDy) / 2;
-        const newDelta = Math.round(avgDelta * 0.15);
-        lastFontDelta = newDelta;
-        // Use CSS scale for smooth real-time preview (no React re-renders)
-        const scaleFactor = 1 + (newDelta * 0.04);
+        // Use continuous float delta for smooth scaling (no rounding)
+        const continuousDelta = avgDelta * 0.15;
+        lastFontDelta = continuousDelta;
+        const scaleFactor = 1 + (continuousDelta * 0.04);
         const clampedScale = Math.max(0.3, Math.min(3, scaleFactor));
-        el.style.transform = `${baseTransform} rotate(${rotation}deg) scale(${clampedScale})`;
-        el.style.transformOrigin = 'top left';
-        setLiveFontDelta(newDelta);
+        // Apply via rAF for buttery smooth updates
+        cancelAnimationFrame(rafRef.current);
+        rafRef.current = requestAnimationFrame(() => {
+          el.style.transform = `${baseTransform} rotate(${rotation}deg) scale(${clampedScale})`;
+          el.style.transformOrigin = 'top left';
+        });
+        // Update indicator sparingly (only on whole-number changes)
+        const estimatedSize = Math.round(Math.max(6, Math.min(200, (currentFontSize || 24) + continuousDelta)));
+        setLiveFontSize(estimatedSize);
         return;
       }
 
@@ -157,7 +164,8 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
       setIsRotating(false);
       setLiveAngle(null);
       setIsCornerResizing(false);
-      setLiveFontDelta(0);
+      setLiveFontSize(null);
+      cancelAnimationFrame(rafRef.current);
       document.removeEventListener('pointermove', onPointerMove);
       document.removeEventListener('pointerup', onPointerUp);
 
@@ -191,12 +199,18 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
       }
 
       if (mode.startsWith('fontsize-')) {
-        // Reset visual scale and commit the accumulated delta
-        el.style.transform = `${baseTransform} rotate(${rotation}deg)`;
-        el.style.transformOrigin = '';
-        if (onFontSizeChange && lastFontDelta !== 0) {
-          onFontSizeChange(lastFontDelta);
+        // Commit the rounded delta, then remove scale
+        const roundedDelta = Math.round(lastFontDelta);
+        if (onFontSizeChange && roundedDelta !== 0) {
+          onFontSizeChange(roundedDelta);
         }
+        // Defer scale removal to next frame so React render applies first
+        requestAnimationFrame(() => {
+          if (elRef.current) {
+            elRef.current.style.transform = '';
+            elRef.current.style.transformOrigin = '';
+          }
+        });
         return;
       }
 
@@ -389,7 +403,7 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
                   lineHeight: 1.2,
                 }}
               >
-                {Math.round(Math.max(6, Math.min(200, currentFontSize + liveFontDelta)))}px
+                {liveFontSize}px
               </div>
             )}
           </div>
