@@ -252,7 +252,8 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
               textDecoration: currentSettings.guest_name_underline ? 'underline' : 'none',
               fontSize: `${currentSettings.guest_name_font_size}pt`,
               marginBottom: currentSettings.background_image_type === 'decorative' ? '0mm' : `${currentSettings.name_spacing}mm`,
-              transform: `translate(${currentSettings.guest_name_offset_x ?? 0}mm, ${currentSettings.guest_name_offset_y ?? 0}mm)`,
+              transform: `translate(${currentSettings.guest_name_offset_x ?? 0}mm, ${currentSettings.guest_name_offset_y ?? 0}mm) rotate(${(currentSettings as any).guest_name_rotation ?? 0}deg)`,
+              transformOrigin: 'center center',
             }}
           >
             {currentSettings.background_behind_names ? (
