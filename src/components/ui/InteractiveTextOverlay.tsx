@@ -118,7 +118,14 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
         const rawDx = isLeft ? -dx : dx;
         const rawDy = (corner === 'tl' || corner === 'tr') ? -dy : dy;
         const avgDelta = (rawDx + rawDy) / 2;
-        lastFontDelta = Math.round(avgDelta * 0.15);
+        const newDelta = Math.round(avgDelta * 0.15);
+        if (newDelta !== lastFontDelta) {
+          const increment = newDelta - lastFontDelta;
+          lastFontDelta = newDelta;
+          if (increment !== 0) {
+            onFontSizeChange?.(increment);
+          }
+        }
         return;
       }
 
