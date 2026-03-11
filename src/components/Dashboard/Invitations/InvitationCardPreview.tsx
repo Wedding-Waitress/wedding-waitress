@@ -72,13 +72,19 @@ export const InvitationCardPreview: React.FC<InvitationCardPreviewProps> = ({
     });
   }, [textZones, onZoneUpdate]);
 
-  const handleResize = useCallback((zoneId: string, dWidthPercent: number, side: 'left' | 'right') => {
+  const handleResize = useCallback((zoneId: string, delta: number, side: 'left' | 'right' | 'top' | 'bottom') => {
     const zone = textZones.find(z => z.id === zoneId);
     if (!zone || !onZoneUpdate) return;
-    const newWidth = Math.max(10, Math.min(100, zone.width_percent + (side === 'right' ? dWidthPercent : -dWidthPercent)));
-    const updates: Partial<TextZone> = { width_percent: newWidth };
-    if (side === 'left') {
-      updates.x_percent = Math.max(0, Math.min(100, zone.x_percent + dWidthPercent / 2));
+    const updates: Partial<TextZone> = {};
+    if (side === 'left' || side === 'right') {
+      const newWidth = Math.max(10, Math.min(100, zone.width_percent + (side === 'right' ? delta : -delta)));
+      updates.width_percent = newWidth;
+      if (side === 'left') {
+        updates.x_percent = Math.max(0, Math.min(100, zone.x_percent + delta / 2));
+      }
+    } else {
+      // top/bottom: reposition vertically
+      updates.y_percent = Math.max(0, Math.min(100, zone.y_percent + delta));
     }
     onZoneUpdate(zoneId, updates);
   }, [textZones, onZoneUpdate]);
