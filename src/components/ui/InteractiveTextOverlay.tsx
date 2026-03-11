@@ -57,6 +57,16 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
   const elRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const accumRef = useRef({ x: 0, y: 0 });
+  const pendingClearRef = useRef(false);
+
+  // Clear the drag transform AFTER React has re-rendered with updated positions
+  useLayoutEffect(() => {
+    if (pendingClearRef.current && elRef.current) {
+      elRef.current.style.transform = rotation ? `rotate(${rotation}deg)` : '';
+      accumRef.current = { x: 0, y: 0 };
+      pendingClearRef.current = false;
+    }
+  });
 
   const startDrag = useCallback((e: React.PointerEvent, mode: DragMode) => {
     e.stopPropagation();
