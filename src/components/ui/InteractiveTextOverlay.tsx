@@ -200,6 +200,12 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
         }
       }
 
+      // Commit rotation on release
+      if (mode === 'rotate' && onRotate) {
+        pendingClearRef.current = true;
+        onRotate(rotateAngleRef.current);
+      }
+
       document.removeEventListener('pointermove', onPointerMove);
       document.removeEventListener('pointerup', onPointerUp);
     };
