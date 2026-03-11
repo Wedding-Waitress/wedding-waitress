@@ -429,6 +429,29 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
                 updateSettings({ text_zones: newZones });
                 setSelectedZoneId(null);
               }}
+              onZoneReset={(zoneId) => {
+                const zones = activeArtwork?.text_zones || [];
+                const zone = zones.find(z => z.id === zoneId);
+                if (!zone) return;
+                const newZones = zones.map(z =>
+                  z.id === zoneId ? {
+                    ...z,
+                    text: '',
+                    font_family: 'Inter',
+                    font_size: 24,
+                    font_color: '#000000',
+                    font_weight: 'normal' as const,
+                    font_style: 'normal' as const,
+                    text_align: 'center' as const,
+                    text_case: 'default',
+                    x_percent: 50,
+                    y_percent: 50,
+                    width_percent: 80,
+                    rotation: 0,
+                  } : z
+                );
+                updateSettings({ text_zones: newZones });
+              }}
               onZoneDuplicate={(zoneId) => {
                 const zones = activeArtwork?.text_zones || [];
                 const zone = zones.find(z => z.id === zoneId);

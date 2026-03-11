@@ -250,6 +250,7 @@ export const InvitationCardPreview: React.FC<InvitationCardPreviewProps> = ({
                         onDragEnd={handleDragEnd}
                         onDelete={onZoneDelete ? () => onZoneDelete(zone.id) : undefined}
                         onDuplicate={onZoneDuplicate ? () => onZoneDuplicate(zone.id) : undefined}
+                        onReset={onZoneReset ? () => onZoneReset(zone.id) : undefined}
                         containerRef={containerRef as React.RefObject<HTMLElement>}
                         showResizeHandles={true}
                         showRotateHandle={true}

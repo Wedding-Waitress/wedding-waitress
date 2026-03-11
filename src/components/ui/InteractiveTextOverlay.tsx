@@ -260,6 +260,13 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
                   onClick={onCopy}
                 />
               )}
+              {onReset && (
+                <ToolbarButton
+                  icon={<RotateCcw className="h-3.5 w-3.5" />}
+                  title="Reset"
+                  onClick={onReset}
+                />
+              )}
               {onDuplicate && (
                 <ToolbarButton
                   icon={<CopyPlus className="h-3.5 w-3.5" />}
