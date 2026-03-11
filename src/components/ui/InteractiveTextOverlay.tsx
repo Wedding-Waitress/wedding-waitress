@@ -91,6 +91,11 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
       setLiveAngle(rotation);
     }
 
+    if (mode.startsWith('fontsize-')) {
+      setIsCornerResizing(true);
+      setLiveFontDelta(0);
+    }
+
     const onPointerMove = (ev: PointerEvent) => {
       const dx = ev.clientX - startX;
       const dy = ev.clientY - startY;
