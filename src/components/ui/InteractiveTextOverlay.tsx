@@ -1,5 +1,5 @@
 import React, { useRef, useCallback, useState } from 'react';
-import { RotateCw, Move, Copy, CopyPlus, Trash2 } from 'lucide-react';
+import { RotateCw, Move, Copy, CopyPlus, Trash2, RotateCcw } from 'lucide-react';
 
 interface InteractiveTextOverlayProps {
   children: React.ReactNode;
