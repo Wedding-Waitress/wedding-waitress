@@ -374,6 +374,20 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
                 {displayAngle}°
               </div>
             )}
+
+            {isCornerResizing && currentFontSize !== undefined && (
+              <div
+                className="mt-1 px-1.5 py-0.5 rounded text-[10px] font-medium tabular-nums"
+                style={{
+                  background: 'hsl(var(--primary))',
+                  color: 'hsl(var(--primary-foreground))',
+                  whiteSpace: 'nowrap',
+                  lineHeight: 1.2,
+                }}
+              >
+                {Math.round(currentFontSize)}px
+              </div>
+            )}
           </div>
         </>
       )}
