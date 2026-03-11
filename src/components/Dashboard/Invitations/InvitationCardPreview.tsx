@@ -214,6 +214,7 @@ export const InvitationCardPreview: React.FC<InvitationCardPreviewProps> = ({
                     onMove={(dx, dy) => handleMove(zone.id, dx, dy)}
                     onResize={(dw, side) => handleResize(zone.id, dw, side)}
                     onCornerResize={(dw, dy, corner) => handleCornerResize(zone.id, dw, dy, corner)}
+                    onFontSizeChange={(delta) => handleFontSizeChange(zone.id, delta)}
                     onRotate={(deg) => handleRotate(zone.id, deg)}
                     onDragMove={(offset) => handleDragMove(zone.id, offset)}
                     onDragEnd={handleDragEnd}
