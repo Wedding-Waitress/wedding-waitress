@@ -283,7 +283,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
               }}
             >
               {/* Left - Table info stacked */}
-              <div style={{ textAlign: 'center', minWidth: '18mm', transform: `translate(${currentSettings.table_offset_x ?? 0}mm, ${currentSettings.table_offset_y ?? 0}mm)` }}>
+              <div style={{ textAlign: 'center', minWidth: '18mm', transform: `translate(${currentSettings.table_offset_x ?? 0}mm, ${currentSettings.table_offset_y ?? 0}mm) rotate(${(currentSettings as any).table_seat_rotation ?? 0}deg)`, transformOrigin: 'center center' }}>
                 <div
                   style={{
                     fontFamily: currentSettings.info_font_family,
