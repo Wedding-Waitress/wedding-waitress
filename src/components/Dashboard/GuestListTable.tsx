@@ -1883,6 +1883,26 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                           <TableCell className="py-1 font-medium w-28">{guest.last_name}</TableCell>
                           <TableCell className="py-1 w-24">{renderPill(!!guest.mobile && guest.mobile.trim() !== '')}</TableCell>
                           <TableCell className="py-1 w-36">{renderPill(!!guest.email && guest.email.trim() !== '')}</TableCell>
+                          <TableCell className="py-1 w-24">
+                            <Badge 
+                              className={`text-white cursor-pointer ${guest.allow_plus_one !== false ? 'bg-green-500 hover:bg-green-600' : 'bg-red-500 hover:bg-red-600'}`}
+                              onClick={async () => {
+                                const newValue = guest.allow_plus_one === false;
+                                try {
+                                  await supabase
+                                    .from('guests')
+                                    .update({ allow_plus_one: newValue })
+                                    .eq('id', guest.id);
+                                  await refetchGuests();
+                                } catch (err) {
+                                  console.error('Error toggling + Guest:', err);
+                                  toast({ title: "Error", description: "Failed to update", variant: "destructive" });
+                                }
+                              }}
+                            >
+                              {guest.allow_plus_one !== false ? "YES" : "NO"}
+                            </Badge>
+                          </TableCell>
                           <TableCell className="py-1 w-32">
                             <div className="flex items-center justify-center">
                               {(() => {
