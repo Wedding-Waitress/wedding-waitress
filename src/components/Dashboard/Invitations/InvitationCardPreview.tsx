@@ -32,6 +32,7 @@ export const InvitationCardPreview: React.FC<InvitationCardPreviewProps> = ({
   onZoneUpdate,
   onZoneDelete,
   onZoneDuplicate,
+  onZoneReset,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [dragGuides, setDragGuides] = useState<{ showVertical: boolean; showHorizontal: boolean } | null>(null);
