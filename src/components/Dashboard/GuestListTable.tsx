@@ -1831,7 +1831,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                 </TableRow>
               ) : totalGuestCount === 0 ? (
                 <TableRow className="border-card-border">
-                  <TableCell colSpan={14} className="text-center py-8">
+                   <TableCell colSpan={15} className="text-center py-8">
                     {/* Empty - the "No Guests Yet" widget is now in the header */}
                   </TableCell>
                 </TableRow>
