@@ -20,6 +20,7 @@ interface InteractiveTextOverlayProps {
   showResizeHandles?: boolean;
   showRotateHandle?: boolean;
   rotation?: number;
+  currentFontSize?: number;
   className?: string;
   style?: React.CSSProperties;
 }
