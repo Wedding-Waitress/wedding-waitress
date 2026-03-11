@@ -27,7 +27,8 @@ export const InvitationCardPreview: React.FC<InvitationCardPreviewProps> = ({
   onZoneUpdate,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
-
+  const [dragGuides, setDragGuides] = useState<{ showVertical: boolean; showHorizontal: boolean } | null>(null);
+  const dragZoneIdRef = useRef<string | null>(null);
   const currentSettings = settings || {
     background_color: '#ffffff',
     background_image_url: null,
