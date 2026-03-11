@@ -499,6 +499,31 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                 </div>
               </div>
 
+              {/* Guest Name Rotation */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs">Rotation</Label>
+                  <div className="flex items-center gap-1">
+                    <span className="text-xs text-muted-foreground">{settings?.guest_name_rotation ?? 0}°</span>
+                    {(settings?.guest_name_rotation ?? 0) !== 0 && (
+                      <button
+                        onClick={() => onSettingsChange({ guest_name_rotation: 0 })}
+                        className="text-primary hover:underline text-[10px]"
+                      >
+                        Reset
+                      </button>
+                    )}
+                  </div>
+                </div>
+                <Slider
+                  value={[Number(settings?.guest_name_rotation ?? 0)]}
+                  min={-180}
+                  max={180}
+                  step={1}
+                  onValueChange={([v]) => onSettingsChange({ guest_name_rotation: v })}
+                />
+              </div>
+
               {/* Table & Seat Number Position */}
               <div className="space-y-3 p-3 border rounded-lg bg-muted/30">
                 <Label className="text-sm font-semibold">Table & Seat Number Position</Label>
@@ -582,6 +607,31 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                 </div>
               </div>
 
+              {/* Table & Seat Rotation */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs">Rotation</Label>
+                  <div className="flex items-center gap-1">
+                    <span className="text-xs text-muted-foreground">{settings?.table_seat_rotation ?? 0}°</span>
+                    {(settings?.table_seat_rotation ?? 0) !== 0 && (
+                      <button
+                        onClick={() => onSettingsChange({ table_seat_rotation: 0 })}
+                        className="text-primary hover:underline text-[10px]"
+                      >
+                        Reset
+                      </button>
+                    )}
+                  </div>
+                </div>
+                <Slider
+                  value={[Number(settings?.table_seat_rotation ?? 0)]}
+                  min={-180}
+                  max={180}
+                  step={1}
+                  onValueChange={([v]) => onSettingsChange({ table_seat_rotation: v })}
+                />
+              </div>
+
               <div className="pt-4 border-t">
                 <Button 
                   onClick={async () => {
@@ -596,6 +646,8 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                       table_offset_y: 0,
                       seat_offset_x: 0,
                       seat_offset_y: 0,
+                      guest_name_rotation: 0,
+                      table_seat_rotation: 0,
                     });
                     toast({
                       title: "Position Reset",

@@ -67,6 +67,7 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
   const [newArtworkSize, setNewArtworkSize] = useState('A4');
   const [renamingId, setRenamingId] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState('');
+  const [selectedZoneId, setSelectedZoneId] = useState<string | null>(null);
 
   const selectedEvent = useMemo(() => events.find(e => e.id === selectedEventId), [events, selectedEventId]);
 
@@ -415,6 +416,14 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
             <InvitationCardPreview
               settings={activeArtwork}
               eventData={eventData}
+              selectedZoneId={selectedZoneId}
+              onSelectZone={setSelectedZoneId}
+              onZoneUpdate={(zoneId, updates) => {
+                const newZones = (activeArtwork?.text_zones || []).map(z =>
+                  z.id === zoneId ? { ...z, ...updates } : z
+                );
+                updateSettings({ text_zones: newZones });
+              }}
             />
           </div>
         </div>
