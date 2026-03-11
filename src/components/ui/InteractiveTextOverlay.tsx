@@ -180,6 +180,15 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
       }
 
       if (mode.startsWith('fontsize-')) {
+        // Reset visual scale and commit the accumulated delta
+        const childEl = el.querySelector('[data-text-content]') as HTMLElement;
+        if (childEl) {
+          childEl.style.transform = '';
+          childEl.style.transformOrigin = '';
+        }
+        if (onFontSizeChange && lastFontDelta !== 0) {
+          onFontSizeChange(lastFontDelta);
+        }
         return;
       }
 
