@@ -178,9 +178,6 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
       }
 
       if (mode.startsWith('fontsize-')) {
-        if (onFontSizeChange && lastFontDelta !== 0) {
-          onFontSizeChange(lastFontDelta);
-        }
         return;
       }
 
