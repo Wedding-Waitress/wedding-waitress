@@ -119,12 +119,14 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
         const rawDy = (corner === 'tl' || corner === 'tr') ? -dy : dy;
         const avgDelta = (rawDx + rawDy) / 2;
         const newDelta = Math.round(avgDelta * 0.15);
-        if (newDelta !== lastFontDelta) {
-          const increment = newDelta - lastFontDelta;
-          lastFontDelta = newDelta;
-          if (increment !== 0) {
-            onFontSizeChange?.(increment);
-          }
+        lastFontDelta = newDelta;
+        // Apply font size visually via CSS transform scale for smooth live preview
+        const scaleFactor = 1 + (newDelta * 0.04);
+        const clampedScale = Math.max(0.3, Math.min(3, scaleFactor));
+        const childEl = el.querySelector('[data-text-content]') as HTMLElement;
+        if (childEl) {
+          childEl.style.transform = `scale(${clampedScale})`;
+          childEl.style.transformOrigin = 'top left';
         }
         return;
       }
@@ -178,6 +180,15 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
       }
 
       if (mode.startsWith('fontsize-')) {
+        // Reset visual scale and commit the accumulated delta
+        const childEl = el.querySelector('[data-text-content]') as HTMLElement;
+        if (childEl) {
+          childEl.style.transform = '';
+          childEl.style.transformOrigin = '';
+        }
+        if (onFontSizeChange && lastFontDelta !== 0) {
+          onFontSizeChange(lastFontDelta);
+        }
         return;
       }
 
@@ -213,7 +224,7 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
         handlePointerDown(e, 'move');
       }}
     >
-      <div style={{ pointerEvents: isSelected ? 'none' : 'auto', userSelect: 'none' }}>
+      <div data-text-content style={{ pointerEvents: isSelected ? 'none' : 'auto', userSelect: 'none', transition: 'none' }}>
         {children}
       </div>
 
