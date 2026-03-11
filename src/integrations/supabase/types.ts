@@ -1713,6 +1713,7 @@ export type Database = {
           guest_name_italic: boolean | null
           guest_name_offset_x: number
           guest_name_offset_y: number
+          guest_name_rotation: number
           guest_name_underline: boolean | null
           id: string
           individual_messages: Json | null
@@ -1724,6 +1725,7 @@ export type Database = {
           seat_offset_y: number
           table_offset_x: number
           table_offset_y: number
+          table_seat_rotation: number
           updated_at: string
           user_id: string
         }
@@ -1749,6 +1751,7 @@ export type Database = {
           guest_name_italic?: boolean | null
           guest_name_offset_x?: number
           guest_name_offset_y?: number
+          guest_name_rotation?: number
           guest_name_underline?: boolean | null
           id?: string
           individual_messages?: Json | null
@@ -1760,6 +1763,7 @@ export type Database = {
           seat_offset_y?: number
           table_offset_x?: number
           table_offset_y?: number
+          table_seat_rotation?: number
           updated_at?: string
           user_id: string
         }
@@ -1785,6 +1789,7 @@ export type Database = {
           guest_name_italic?: boolean | null
           guest_name_offset_x?: number
           guest_name_offset_y?: number
+          guest_name_rotation?: number
           guest_name_underline?: boolean | null
           id?: string
           individual_messages?: Json | null
@@ -1796,6 +1801,7 @@ export type Database = {
           seat_offset_y?: number
           table_offset_x?: number
           table_offset_y?: number
+          table_seat_rotation?: number
           updated_at?: string
           user_id?: string
         }
