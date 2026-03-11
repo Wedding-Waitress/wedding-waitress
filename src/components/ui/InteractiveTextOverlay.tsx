@@ -58,6 +58,7 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
   const [isDragging, setIsDragging] = useState(false);
   const accumRef = useRef({ x: 0, y: 0 });
   const resizeAccumRef = useRef({ dWidth: 0, dLeft: 0 });
+  const rotateAngleRef = useRef(0);
   const pendingClearRef = useRef(false);
   const initialStyleRef = useRef({ width: '', left: '' });
 
