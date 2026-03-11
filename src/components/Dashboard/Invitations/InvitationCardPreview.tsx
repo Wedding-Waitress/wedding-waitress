@@ -272,40 +272,44 @@ export const InvitationCardPreview: React.FC<InvitationCardPreviewProps> = ({
             </div>
           </div>
 
-          {/* Fixed zoom controls at bottom-right */}
-          <div
-            className="absolute bottom-2 right-2 z-50 flex items-center gap-2 rounded-lg border border-border bg-card/95 backdrop-blur-sm px-3 py-1.5 shadow-md"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              type="button"
-              className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground transition-colors disabled:opacity-40"
-              onClick={() => handleZoomChange(zoom - 10)}
-              disabled={zoom <= 25}
-              aria-label="Zoom out"
+          </div>
+
+          {/* Zoom controls centered below preview */}
+          <div className="flex justify-center pt-3 pb-1">
+            <div
+              className="flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-1.5 shadow-sm"
+              onClick={(e) => e.stopPropagation()}
             >
-              <Minus className="h-4 w-4" />
-            </button>
-            <Slider
-              value={[zoom]}
-              onValueChange={([v]) => handleZoomChange(v)}
-              min={25}
-              max={200}
-              step={5}
-              className="w-24"
-            />
-            <button
-              type="button"
-              className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground transition-colors disabled:opacity-40"
-              onClick={() => handleZoomChange(zoom + 10)}
-              disabled={zoom >= 200}
-              aria-label="Zoom in"
-            >
-              <Plus className="h-4 w-4" />
-            </button>
-            <span className="min-w-[3ch] text-xs font-medium text-muted-foreground text-right tabular-nums">
-              {zoom}%
-            </span>
+              <button
+                type="button"
+                className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground transition-colors disabled:opacity-40"
+                onClick={() => handleZoomChange(zoom - 10)}
+                disabled={zoom <= 25}
+                aria-label="Zoom out"
+              >
+                <Minus className="h-4 w-4" />
+              </button>
+              <Slider
+                value={[zoom]}
+                onValueChange={([v]) => handleZoomChange(v)}
+                min={25}
+                max={200}
+                step={5}
+                className="w-24"
+              />
+              <button
+                type="button"
+                className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground transition-colors disabled:opacity-40"
+                onClick={() => handleZoomChange(zoom + 10)}
+                disabled={zoom >= 200}
+                aria-label="Zoom in"
+              >
+                <Plus className="h-4 w-4" />
+              </button>
+              <span className="min-w-[3ch] text-xs font-medium text-muted-foreground text-right tabular-nums">
+                {zoom}%
+              </span>
+            </div>
           </div>
         </div>
       </div>
