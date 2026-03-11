@@ -1,9 +1,14 @@
-import React from 'react';
+import React, { useRef, useCallback, useState } from 'react';
 import { InvitationCardSettings, TextZone } from '@/hooks/useInvitationCardSettings';
+import { InteractiveTextOverlay } from '@/components/ui/InteractiveTextOverlay';
+import { RotateCw } from 'lucide-react';
 
 interface InvitationCardPreviewProps {
   settings: InvitationCardSettings | null;
   eventData: Record<string, string>;
+  selectedZoneId?: string | null;
+  onSelectZone?: (id: string | null) => void;
+  onZoneUpdate?: (zoneId: string, updates: Partial<TextZone>) => void;
 }
 
 const getTextTransform = (textCase: string): React.CSSProperties['textTransform'] => {
@@ -18,7 +23,12 @@ const getTextTransform = (textCase: string): React.CSSProperties['textTransform'
 export const InvitationCardPreview: React.FC<InvitationCardPreviewProps> = ({
   settings,
   eventData,
+  selectedZoneId = null,
+  onSelectZone,
+  onZoneUpdate,
 }) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+
   const currentSettings = settings || {
     background_color: '#ffffff',
     background_image_url: null,
@@ -34,7 +44,6 @@ export const InvitationCardPreview: React.FC<InvitationCardPreviewProps> = ({
 
   const isLandscape = currentSettings.orientation === 'landscape';
 
-  // Dimensions map in mm
   const SIZE_MAP: Record<string, { w: number; h: number }> = {
     A4: { w: 210, h: 297 },
     A5: { w: 148, h: 210 },
@@ -54,18 +63,45 @@ export const InvitationCardPreview: React.FC<InvitationCardPreviewProps> = ({
     return '';
   };
 
+  const handleMove = useCallback((zoneId: string, dxPercent: number, dyPercent: number) => {
+    const zone = textZones.find(z => z.id === zoneId);
+    if (!zone || !onZoneUpdate) return;
+    onZoneUpdate(zoneId, {
+      x_percent: Math.max(0, Math.min(100, zone.x_percent + dxPercent)),
+      y_percent: Math.max(0, Math.min(100, zone.y_percent + dyPercent)),
+    });
+  }, [textZones, onZoneUpdate]);
+
+  const handleResize = useCallback((zoneId: string, dWidthPercent: number, side: 'left' | 'right') => {
+    const zone = textZones.find(z => z.id === zoneId);
+    if (!zone || !onZoneUpdate) return;
+    const newWidth = Math.max(10, Math.min(100, zone.width_percent + (side === 'right' ? dWidthPercent : -dWidthPercent)));
+    const updates: Partial<TextZone> = { width_percent: newWidth };
+    if (side === 'left') {
+      updates.x_percent = Math.max(0, Math.min(100, zone.x_percent + dWidthPercent / 2));
+    }
+    onZoneUpdate(zoneId, updates);
+  }, [textZones, onZoneUpdate]);
+
+  const handleRotate = useCallback((zoneId: string, degrees: number) => {
+    if (!onZoneUpdate) return;
+    onZoneUpdate(zoneId, { rotation: degrees });
+  }, [onZoneUpdate]);
+
   return (
     <div className="space-y-6">
       <div className="print:hidden">
         <div className="flex justify-center">
           <div
+            ref={containerRef}
             style={{
               width: previewWidth,
               height: previewHeight,
               backgroundColor: currentSettings.background_color,
               maxWidth: '100%',
             }}
-            className="bg-white shadow-lg overflow-hidden relative"
+            className="bg-white shadow-lg overflow-visible relative"
+            onClick={() => onSelectZone?.(null)}
           >
             {/* Background Image */}
             {currentSettings.background_image_url && currentSettings.background_image_type === 'full' && (
@@ -86,6 +122,49 @@ export const InvitationCardPreview: React.FC<InvitationCardPreviewProps> = ({
               const text = getZoneText(zone);
               if (!text) return null;
 
+              const isSelected = selectedZoneId === zone.id;
+              const isInteractive = !!onZoneUpdate;
+
+              if (isInteractive) {
+                return (
+                  <InteractiveTextOverlay
+                    key={zone.id}
+                    isSelected={isSelected}
+                    onSelect={() => onSelectZone?.(zone.id)}
+                    onMove={(dx, dy) => handleMove(zone.id, dx, dy)}
+                    onResize={(dw, side) => handleResize(zone.id, dw, side)}
+                    onRotate={(deg) => handleRotate(zone.id, deg)}
+                    containerRef={containerRef as React.RefObject<HTMLElement>}
+                    showResizeHandles={true}
+                    showRotateHandle={true}
+                    rotation={zone.rotation || 0}
+                    style={{
+                      left: `${zone.x_percent - zone.width_percent / 2}%`,
+                      top: `${zone.y_percent}%`,
+                      width: `${zone.width_percent}%`,
+                      transform: `translateY(-50%) rotate(${zone.rotation || 0}deg)`,
+                      transformOrigin: 'center center',
+                    }}
+                  >
+                    <div
+                      style={{
+                        fontFamily: zone.font_family,
+                        fontSize: `${zone.font_size}px`,
+                        color: zone.font_color,
+                        fontWeight: zone.font_weight === 'bold' ? '700' : '400',
+                        fontStyle: zone.font_style === 'italic' ? 'italic' : 'normal',
+                        textAlign: zone.text_align as any,
+                        textTransform: getTextTransform(zone.text_case),
+                        whiteSpace: 'pre-wrap',
+                        lineHeight: 1.3,
+                      }}
+                    >
+                      {text}
+                    </div>
+                  </InteractiveTextOverlay>
+                );
+              }
+
               return (
                 <div
                   key={zone.id}
@@ -94,7 +173,8 @@ export const InvitationCardPreview: React.FC<InvitationCardPreviewProps> = ({
                     left: `${zone.x_percent - zone.width_percent / 2}%`,
                     top: `${zone.y_percent}%`,
                     width: `${zone.width_percent}%`,
-                    transform: 'translateY(-50%)',
+                    transform: `translateY(-50%) rotate(${zone.rotation || 0}deg)`,
+                    transformOrigin: 'center center',
                     fontFamily: zone.font_family,
                     fontSize: `${zone.font_size}px`,
                     color: zone.font_color,
@@ -122,7 +202,6 @@ export const InvitationCardPreview: React.FC<InvitationCardPreviewProps> = ({
             )}
           </div>
         </div>
-
       </div>
     </div>
   );

@@ -302,45 +302,23 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                         </div>
                       </div>
 
-                      {/* Position sliders */}
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between">
-                          <Label className="text-xs">Horizontal Position</Label>
-                          <span className="text-xs text-muted-foreground">{zone.x_percent}%</span>
+                      {/* Read-only position indicators */}
+                      <div className="space-y-2 bg-muted/50 p-2 rounded-md">
+                        <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">Position & Size (drag on preview to adjust)</p>
+                        <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                          <span>X: {Math.round(zone.x_percent)}%</span>
+                          <span>Y: {Math.round(zone.y_percent)}%</span>
+                          <span>W: {Math.round(zone.width_percent)}%</span>
+                          <span>↻ {Math.round(zone.rotation || 0)}°</span>
+                          {(zone.rotation || 0) !== 0 && (
+                            <button
+                              onClick={() => updateZone(zone.id, { rotation: 0 })}
+                              className="text-primary hover:underline text-[10px]"
+                            >
+                              Reset
+                            </button>
+                          )}
                         </div>
-                        <Slider
-                          value={[zone.x_percent]}
-                          min={0}
-                          max={100}
-                          step={1}
-                          onValueChange={([v]) => updateZone(zone.id, { x_percent: v })}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between">
-                          <Label className="text-xs">Vertical Position</Label>
-                          <span className="text-xs text-muted-foreground">{zone.y_percent}%</span>
-                        </div>
-                        <Slider
-                          value={[zone.y_percent]}
-                          min={0}
-                          max={100}
-                          step={1}
-                          onValueChange={([v]) => updateZone(zone.id, { y_percent: v })}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between">
-                          <Label className="text-xs">Width</Label>
-                          <span className="text-xs text-muted-foreground">{zone.width_percent}%</span>
-                        </div>
-                        <Slider
-                          value={[zone.width_percent]}
-                          min={10}
-                          max={100}
-                          step={1}
-                          onValueChange={([v]) => updateZone(zone.id, { width_percent: v })}
-                        />
                       </div>
                     </div>
                   ))}
