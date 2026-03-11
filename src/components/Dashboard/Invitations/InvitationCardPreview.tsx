@@ -161,12 +161,11 @@ export const InvitationCardPreview: React.FC<InvitationCardPreviewProps> = ({
     <div className="space-y-2">
       <div className="print:hidden">
         <div>
-          {/* Scrollable canvas area - only scroll when zoom > 100% */}
+          {/* Canvas area - only scroll when zoom > 100% */}
           <div
             className="flex justify-center"
             style={{
-              maxHeight: '75vh',
-              overflow: zoom > 100 ? 'auto' : 'hidden',
+              ...(zoom > 100 ? { maxHeight: '80vh', overflow: 'auto' } : { overflow: 'visible' }),
             }}
           >
             <div
