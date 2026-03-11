@@ -1,7 +1,6 @@
-import React, { useRef, useCallback, useState } from 'react';
+import React, { useRef, useCallback, useState, useMemo } from 'react';
 import { InvitationCardSettings, TextZone } from '@/hooks/useInvitationCardSettings';
 import { InteractiveTextOverlay } from '@/components/ui/InteractiveTextOverlay';
-import { RotateCw } from 'lucide-react';
 
 interface InvitationCardPreviewProps {
   settings: InvitationCardSettings | null;
