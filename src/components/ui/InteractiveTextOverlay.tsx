@@ -1,4 +1,4 @@
-import React, { useRef, useCallback, useState, useLayoutEffect } from 'react';
+import React, { useRef, useCallback, useState } from 'react';
 import { RotateCcw } from 'lucide-react';
 
 interface InteractiveTextOverlayProps {
@@ -48,34 +48,11 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
 }) => {
   const elRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
-  const pendingClearRef = useRef(false);
 
-  // Store the base transform from props (e.g. translateY(-50%)) so we always preserve it
-  const baseTransformRef = useRef('');
-
-  // Extract base non-rotate transform parts from style.transform
   const getBaseTransform = useCallback(() => {
     const t = (style.transform as string) || '';
-    // Remove rotate(...) from the transform to get the base positioning transform
     return t.replace(/rotate\([^)]*\)/g, '').trim();
   }, [style.transform]);
-
-  const buildTransform = useCallback((extras: string = '') => {
-    const base = getBaseTransform();
-    const rot = `rotate(${rotation}deg)`;
-    return [base, rot, extras].filter(Boolean).join(' ');
-  }, [getBaseTransform, rotation]);
-
-  // After React re-renders with new props, clear any inline overrides
-  useLayoutEffect(() => {
-    if (pendingClearRef.current && elRef.current) {
-      // Remove all inline overrides — React props now have the correct values
-      elRef.current.style.transform = '';
-      elRef.current.style.width = '';
-      elRef.current.style.left = '';
-      pendingClearRef.current = false;
-    }
-  });
 
   const startDrag = useCallback((e: React.PointerEvent, mode: DragMode) => {
     e.stopPropagation();
@@ -86,19 +63,18 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
     let lastX = e.clientX;
     let lastY = e.clientY;
 
-    // Accumulators for pixel-level DOM manipulation
     const moveAccum = { x: 0, y: 0 };
     const resizeAccum = { dWidth: 0, dLeft: 0 };
     let currentAngle = rotation;
 
-    // Capture initial computed values for resize
     const el = elRef.current;
-    const computedLeft = parseFloat(el.style.left || '') || el.offsetLeft;
-    const computedWidth = parseFloat(el.style.width || '') || el.offsetWidth;
     const baseTransform = getBaseTransform();
     const containerRect = containerRef.current.getBoundingClientRect();
 
-    // Is this a resize mode?
+    // Capture initial percentage values from inline styles
+    const computedLeft = parseFloat(el.style.left) || 0;
+    const computedWidth = parseFloat(el.style.width) || 0;
+
     const isResize = mode?.startsWith('resize-') ?? false;
     const isLeft = mode === 'resize-left' || mode === 'resize-tl' || mode === 'resize-bl';
     const isRight = mode === 'resize-right' || mode === 'resize-tr' || mode === 'resize-br';
@@ -113,48 +89,34 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
       if (mode === 'move') {
         moveAccum.x += dx;
         moveAccum.y += dy;
-        if (el) {
-          const rot = `rotate(${rotation}deg)`;
-          el.style.transform = `${baseTransform} ${rot} translate(${moveAccum.x}px, ${moveAccum.y}px)`;
-        }
+        const rot = `rotate(${rotation}deg)`;
+        el.style.transform = `${baseTransform} ${rot} translate(${moveAccum.x}px, ${moveAccum.y}px)`;
         onDragMove?.({ x: moveAccum.x, y: moveAccum.y });
         return;
       }
 
-      if (isResize && el) {
-        if (isHorizontal) {
-          if (isLeft) {
-            resizeAccum.dWidth -= dx;
-            resizeAccum.dLeft += dx;
-          } else {
-            resizeAccum.dWidth += dx;
-          }
-        }
-
-        // Apply visual change directly
-        const dWidthPx = resizeAccum.dWidth;
-        const dLeftPx = resizeAccum.dLeft;
-
-        // Use percentage-based values relative to container
-        const widthPct = ((el.offsetWidth - dWidthPx + dWidthPx) / containerRect.width) * 100;
-        // Simpler: just apply pixel offset to current computed values
-        const newWidthPct = computedWidth + (dWidthPx / containerRect.width) * 100;
-        el.style.width = `${Math.max(5, newWidthPct)}%`;
-
+      if (isResize && isHorizontal) {
         if (isLeft) {
-          const newLeftPct = computedLeft + (dLeftPx / containerRect.width) * 100;
+          resizeAccum.dWidth -= dx;
+          resizeAccum.dLeft += dx;
+        } else {
+          resizeAccum.dWidth += dx;
+        }
+        const newWidthPct = computedWidth + (resizeAccum.dWidth / containerRect.width) * 100;
+        el.style.width = `${Math.max(5, newWidthPct)}%`;
+        if (isLeft) {
+          const newLeftPct = computedLeft + (resizeAccum.dLeft / containerRect.width) * 100;
           el.style.left = `${newLeftPct}%`;
         }
         return;
       }
 
-      if (mode === 'rotate' && el) {
+      if (mode === 'rotate') {
         const elRect = el.getBoundingClientRect();
         const cx = elRect.left + elRect.width / 2;
         const cy = elRect.top + elRect.height / 2;
         let angle = Math.atan2(ev.clientY - cy, ev.clientX - cx) * (180 / Math.PI) + 90;
         if (angle < 0) angle += 360;
-        // Snap to 45° increments when within 3°
         currentAngle = Math.abs(angle % 45) < 3 ? Math.round(angle / 45) * 45 : Math.round(angle);
         currentAngle = currentAngle % 360;
         el.style.transform = `${baseTransform} rotate(${currentAngle}deg)`;
@@ -173,7 +135,6 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
       if (mode === 'move' && onMove) {
         const dxP = (moveAccum.x / rect.width) * 100;
         const dyP = (moveAccum.y / rect.height) * 100;
-        pendingClearRef.current = true;
         onMove(dxP, dyP);
         onDragEnd?.();
         return;
@@ -182,8 +143,6 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
       if (isResize) {
         const dWidthP = (resizeAccum.dWidth / rect.width) * 100;
         const isCorner = mode === 'resize-tl' || mode === 'resize-tr' || mode === 'resize-bl' || mode === 'resize-br';
-
-        pendingClearRef.current = true;
 
         if (isCorner && onCornerResize) {
           const corner = mode!.replace('resize-', '');
@@ -199,7 +158,6 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
       }
 
       if (mode === 'rotate' && onRotate) {
-        pendingClearRef.current = true;
         onRotate(currentAngle);
       }
     };
@@ -232,7 +190,6 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
 
       {isSelected && (
         <>
-          {/* Selection border */}
           <div
             className="absolute inset-0 pointer-events-none"
             style={{ border: '2px dashed hsl(var(--primary))', borderRadius: 2 }}
@@ -299,7 +256,6 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
   );
 };
 
-/** Small square handle */
 const Handle: React.FC<{
   style: React.CSSProperties;
   onPointerDown: (e: React.PointerEvent) => void;
