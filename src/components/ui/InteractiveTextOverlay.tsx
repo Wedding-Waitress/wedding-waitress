@@ -262,10 +262,6 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
                 onPointerDown={(e) => handlePointerDown(e, 'resize-tl')}
               />
               <Handle
-                style={{ left: '50%', top: -HALF, transform: 'translateX(-50%)', cursor: 'ns-resize' }}
-                onPointerDown={(e) => handlePointerDown(e, 'resize-top')}
-              />
-              <Handle
                 style={{ right: -HALF, top: -HALF, cursor: 'nesw-resize' }}
                 onPointerDown={(e) => handlePointerDown(e, 'resize-tr')}
               />
@@ -280,10 +276,6 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
               <Handle
                 style={{ left: -HALF, bottom: -HALF, cursor: 'nesw-resize' }}
                 onPointerDown={(e) => handlePointerDown(e, 'resize-bl')}
-              />
-              <Handle
-                style={{ left: '50%', bottom: -HALF, transform: 'translateX(-50%)', cursor: 'ns-resize' }}
-                onPointerDown={(e) => handlePointerDown(e, 'resize-bottom')}
               />
               <Handle
                 style={{ right: -HALF, bottom: -HALF, cursor: 'nwse-resize' }}
