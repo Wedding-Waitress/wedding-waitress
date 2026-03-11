@@ -206,7 +206,7 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
   }, [containerRef, onMove, onResize, onCornerResize, onFontSizeChange, onRotate, onDragMove, onDragEnd, rotation, getBaseTransform]);
 
   const canResize = showResizeHandles && (onResize || onCornerResize || onFontSizeChange);
-  const hasToolbar = onCopy || onDuplicate || onDelete;
+  const hasToolbar = onCopy || onReset || onDuplicate || onDelete;
   const displayAngle = liveAngle !== null ? liveAngle : (rotation > 180 ? rotation - 360 : rotation);
 
   return (
