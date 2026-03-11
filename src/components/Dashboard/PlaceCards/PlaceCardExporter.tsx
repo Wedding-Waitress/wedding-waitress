@@ -124,11 +124,11 @@ export const PlaceCardExporter: React.FC<PlaceCardExporterProps> = ({
           : ''
         }
         
-        <div style="font-size: 18px; font-weight: bold; margin-bottom: 4mm; line-height: 1.2; transform: translate(${currentSettings.guest_name_offset_x ?? 0}mm, ${currentSettings.guest_name_offset_y ?? 0}mm);">
+        <div style="font-size: 18px; font-weight: bold; margin-bottom: 4mm; line-height: 1.2; transform: translate(${currentSettings.guest_name_offset_x ?? 0}mm, ${currentSettings.guest_name_offset_y ?? 0}mm) rotate(${(currentSettings as any).guest_name_rotation ?? 0}deg); transform-origin: center center;">
           ${safeName}
         </div>
         
-        <div style="font-size: 12px; margin-bottom: 6mm; opacity: 0.8; transform: translate(${currentSettings.table_offset_x ?? 0}mm, ${currentSettings.table_offset_y ?? 0}mm);">
+        <div style="font-size: 12px; margin-bottom: 6mm; opacity: 0.8; transform: translate(${currentSettings.table_offset_x ?? 0}mm, ${currentSettings.table_offset_y ?? 0}mm) rotate(${(currentSettings as any).table_seat_rotation ?? 0}deg); transform-origin: center center;">
           ${safeTableInfo}
         </div>
         

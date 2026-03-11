@@ -346,7 +346,8 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
               style={{
                 fontFamily: currentSettings.info_font_family,
                 fontSize: `${currentSettings.info_font_size}pt`,
-                transform: `translate(${currentSettings.table_offset_x ?? 0}mm, ${currentSettings.table_offset_y ?? 0}mm)`,
+                transform: `translate(${currentSettings.table_offset_x ?? 0}mm, ${currentSettings.table_offset_y ?? 0}mm) rotate(${(currentSettings as any).table_seat_rotation ?? 0}deg)`,
+                transformOrigin: 'center center',
               }}
             >
               {currentSettings.background_behind_table_seats ? (
