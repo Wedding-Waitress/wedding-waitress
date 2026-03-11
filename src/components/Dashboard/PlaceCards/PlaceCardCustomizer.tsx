@@ -646,6 +646,8 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                       table_offset_y: 0,
                       seat_offset_x: 0,
                       seat_offset_y: 0,
+                      guest_name_rotation: 0,
+                      table_seat_rotation: 0,
                     });
                     toast({
                       title: "Position Reset",
