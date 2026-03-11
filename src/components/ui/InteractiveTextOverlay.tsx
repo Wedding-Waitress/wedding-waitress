@@ -8,6 +8,7 @@ interface InteractiveTextOverlayProps {
   onMove?: (dxPercent: number, dyPercent: number) => void;
   onResize?: (dWidthPercent: number, side: 'left' | 'right' | 'top' | 'bottom') => void;
   onCornerResize?: (dWidthPercent: number, dyPercent: number, corner: string) => void;
+  onScaleResize?: (scaleFactor: number, axis: 'x' | 'y' | 'both') => void;
   onRotate?: (degrees: number) => void;
   onDragMove?: (pixelOffset: { x: number; y: number }) => void;
   onDragEnd?: () => void;
@@ -32,6 +33,7 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
   onMove,
   onResize,
   onCornerResize,
+  onScaleResize,
   onRotate,
   onDragMove,
   onDragEnd,
@@ -46,6 +48,7 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
   style = {},
 }) => {
   const elRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
 
   const getBaseTransform = useCallback((): string => {
@@ -58,6 +61,7 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
     e.preventDefault();
     const el = elRef.current;
     const container = containerRef.current;
+    const content = contentRef.current;
     if (!el || !container) return;
 
     setIsDragging(true);
@@ -66,6 +70,9 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
     const startY = e.clientY;
     const containerRect = container.getBoundingClientRect();
     const baseTransform = getBaseTransform();
+    const elRect = el.getBoundingClientRect();
+    const initElWidth = elRect.width;
+    const initElHeight = elRect.height;
 
     const initLeft = parseFloat(el.style.left) || 0;
     const initWidth = parseFloat(el.style.width) || 0;
@@ -74,6 +81,8 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
     let accumX = 0;
     let accumY = 0;
     let currentAngle = rotation;
+    let finalScale = 1;
+    let finalAxis: 'x' | 'y' | 'both' = 'both';
 
     const onPointerMove = (ev: PointerEvent) => {
       const dx = ev.clientX - startX;
@@ -87,36 +96,54 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
         return;
       }
 
-      if (mode === 'resize-left') {
-        const dPct = (dx / containerRect.width) * 100;
-        el.style.left = `${initLeft + dPct}%`;
-        el.style.width = `${Math.max(5, initWidth - dPct)}%`;
+      if (mode === 'resize-left' || mode === 'resize-right') {
+        const sign = mode === 'resize-right' ? 1 : -1;
+        const scale = Math.max(0.3, (initElWidth + sign * dx) / initElWidth);
+        finalScale = scale;
+        finalAxis = 'x';
+        if (content) {
+          content.style.transform = `scaleX(${scale})`;
+          content.style.transformOrigin = mode === 'resize-right' ? 'left center' : 'right center';
+        }
         return;
       }
 
-      if (mode === 'resize-right') {
-        const dPct = (dx / containerRect.width) * 100;
-        el.style.width = `${Math.max(5, initWidth + dPct)}%`;
+      if (mode === 'resize-top' || mode === 'resize-bottom') {
+        const sign = mode === 'resize-bottom' ? 1 : -1;
+        const scale = Math.max(0.3, (initElHeight + sign * dy) / initElHeight);
+        finalScale = scale;
+        finalAxis = 'y';
+        if (content) {
+          content.style.transform = `scaleY(${scale})`;
+          content.style.transformOrigin = mode === 'resize-bottom' ? 'center top' : 'center bottom';
+        }
         return;
       }
 
       if (mode.startsWith('resize-')) {
         const corner = mode.replace('resize-', '');
         const isLeft = corner === 'tl' || corner === 'bl';
-        const dPct = (dx / containerRect.width) * 100;
-        if (isLeft) {
-          el.style.left = `${initLeft + dPct}%`;
-          el.style.width = `${Math.max(5, initWidth - dPct)}%`;
-        } else {
-          el.style.width = `${Math.max(5, initWidth + dPct)}%`;
+        const isTop = corner === 'tl' || corner === 'tr';
+        const signX = isLeft ? -1 : 1;
+        const signY = isTop ? -1 : 1;
+        const scaleX = Math.max(0.3, (initElWidth + signX * dx) / initElWidth);
+        const scaleY = Math.max(0.3, (initElHeight + signY * dy) / initElHeight);
+        const uniformScale = Math.max(0.3, (scaleX + scaleY) / 2);
+        finalScale = uniformScale;
+        finalAxis = 'both';
+        if (content) {
+          content.style.transform = `scale(${uniformScale})`;
+          const oX = isLeft ? 'right' : 'left';
+          const oY = isTop ? 'bottom' : 'top';
+          content.style.transformOrigin = `${oX} ${oY}`;
         }
         return;
       }
 
       if (mode === 'rotate') {
-        const elRect = el.getBoundingClientRect();
-        const cx = elRect.left + elRect.width / 2;
-        const cy = elRect.top + elRect.height / 2;
+        const rect = el.getBoundingClientRect();
+        const cx = rect.left + rect.width / 2;
+        const cy = rect.top + rect.height / 2;
         let angle = Math.atan2(ev.clientY - cy, ev.clientX - cx) * (180 / Math.PI) + 90;
         if (angle < 0) angle += 360;
         currentAngle = Math.abs(angle % 45) < 3
@@ -132,44 +159,29 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
       document.removeEventListener('pointermove', onPointerMove);
       document.removeEventListener('pointerup', onPointerUp);
 
+      if (content) {
+        content.style.transform = '';
+        content.style.transformOrigin = '';
+      }
+
       const rect = containerRect;
 
       if (mode === 'move' && onMove) {
         const dxP = (accumX / rect.width) * 100;
         const dyP = (accumY / rect.height) * 100;
-
-        const newLeft = initLeft + dxP;
-        const newTop = initTop + dyP;
-        el.style.left = `${newLeft}%`;
-        el.style.top = `${newTop}%`;
+        el.style.left = `${initLeft + dxP}%`;
+        el.style.top = `${initTop + dyP}%`;
         el.style.transform = `${baseTransform} rotate(${rotation}deg)`;
-
         onMove(dxP, dyP);
         onDragEnd?.();
         return;
       }
 
-      if (mode === 'resize-left' && onResize) {
-        const finalWidth = parseFloat(el.style.width) || initWidth;
-        const dWidthP = finalWidth - initWidth;
-        onResize(-dWidthP, 'left');
-        return;
-      }
-
-      if (mode === 'resize-right' && onResize) {
-        const finalWidth = parseFloat(el.style.width) || initWidth;
-        const dWidthP = finalWidth - initWidth;
-        onResize(dWidthP, 'right');
-        return;
-      }
-
-      if (mode.startsWith('resize-')) {
-        const corner = mode.replace('resize-', '');
-        const isLeft = corner === 'tl' || corner === 'bl';
-        const finalWidth = parseFloat(el.style.width) || initWidth;
-        const dWidthP = finalWidth - initWidth;
-        if (onCornerResize) {
-          onCornerResize(isLeft ? -dWidthP : dWidthP, 0, corner);
+      if (mode === 'resize-left' || mode === 'resize-right' ||
+          mode === 'resize-top' || mode === 'resize-bottom' ||
+          mode.startsWith('resize-')) {
+        if (onScaleResize && finalScale !== 1) {
+          onScaleResize(finalScale, finalAxis);
         }
         return;
       }
@@ -182,9 +194,9 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
 
     document.addEventListener('pointermove', onPointerMove);
     document.addEventListener('pointerup', onPointerUp);
-  }, [containerRef, onMove, onResize, onCornerResize, onRotate, onDragMove, onDragEnd, rotation, getBaseTransform]);
+  }, [containerRef, onMove, onResize, onCornerResize, onScaleResize, onRotate, onDragMove, onDragEnd, rotation, getBaseTransform]);
 
-  const canResize = showResizeHandles && (onResize || onCornerResize);
+  const canResize = showResizeHandles && (onResize || onCornerResize || onScaleResize);
   const hasToolbar = onCopy || onDuplicate || onDelete;
 
   return (
@@ -204,7 +216,7 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
         handlePointerDown(e, 'move');
       }}
     >
-      <div style={{ pointerEvents: isSelected ? 'none' : 'auto', userSelect: 'none' }}>
+      <div ref={contentRef} style={{ pointerEvents: isSelected ? 'none' : 'auto', userSelect: 'none' }}>
         {children}
       </div>
 
