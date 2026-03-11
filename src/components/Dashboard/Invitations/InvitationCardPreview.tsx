@@ -189,8 +189,7 @@ export const InvitationCardPreview: React.FC<InvitationCardPreviewProps> = ({
                     isSelected={isSelected}
                     onSelect={() => onSelectZone?.(zone.id)}
                     onMove={(dx, dy) => handleMove(zone.id, dx, dy)}
-                    onResize={(dw, side) => handleResize(zone.id, dw, side)}
-                    onCornerResize={(dw, dy, corner) => handleCornerResize(zone.id, dw, dy, corner)}
+                    onScaleResize={(scale, axis) => handleScaleResize(zone.id, scale, axis)}
                     onRotate={(deg) => handleRotate(zone.id, deg)}
                     onDragMove={(offset) => handleDragMove(zone.id, offset)}
                     onDragEnd={handleDragEnd}
