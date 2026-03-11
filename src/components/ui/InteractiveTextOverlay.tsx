@@ -199,12 +199,18 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
       }
 
       if (mode.startsWith('fontsize-')) {
-        // Reset visual scale and commit the accumulated delta
-        el.style.transform = `${baseTransform} rotate(${rotation}deg)`;
-        el.style.transformOrigin = '';
-        if (onFontSizeChange && lastFontDelta !== 0) {
-          onFontSizeChange(lastFontDelta);
+        // Commit the rounded delta, then remove scale
+        const roundedDelta = Math.round(lastFontDelta);
+        if (onFontSizeChange && roundedDelta !== 0) {
+          onFontSizeChange(roundedDelta);
         }
+        // Defer scale removal to next frame so React render applies first
+        requestAnimationFrame(() => {
+          if (elRef.current) {
+            elRef.current.style.transform = '';
+            elRef.current.style.transformOrigin = '';
+          }
+        });
         return;
       }
 
