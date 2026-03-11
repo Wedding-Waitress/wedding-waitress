@@ -131,12 +131,10 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
           const rect = container.getBoundingClientRect();
           const dxP = (accumRef.current.x / rect.width) * 100;
           const dyP = (accumRef.current.y / rect.height) * 100;
+          // Keep the transform in place — mark for clearing after React re-renders
+          pendingClearRef.current = true;
           onMove(dxP, dyP);
         }
-        if (elRef.current) {
-          elRef.current.style.transform = rotation ? `rotate(${rotation}deg)` : '';
-        }
-        accumRef.current = { x: 0, y: 0 };
       }
       if (mode === 'move') {
         onDragEnd?.();
