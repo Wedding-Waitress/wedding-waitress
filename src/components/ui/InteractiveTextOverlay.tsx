@@ -389,7 +389,7 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
                   lineHeight: 1.2,
                 }}
               >
-                {Math.round(currentFontSize)}px
+                {Math.round(Math.max(6, Math.min(200, currentFontSize + liveFontDelta)))}px
               </div>
             )}
           </div>
