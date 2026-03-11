@@ -76,16 +76,32 @@ export const InvitationCardPreview: React.FC<InvitationCardPreviewProps> = ({
     });
   }, [textZones, onZoneUpdate]);
 
-  const handleScaleResize = useCallback((zoneId: string, scaleFactor: number, axis: 'x' | 'y' | 'both') => {
+  const handleResize = useCallback((zoneId: string, delta: number, side: 'left' | 'right' | 'top' | 'bottom') => {
     const zone = textZones.find(z => z.id === zoneId);
     if (!zone || !onZoneUpdate) return;
-    const newFontSize = Math.max(6, Math.min(200, Math.round(zone.font_size * scaleFactor)));
-    const updates: Partial<TextZone> = { font_size: newFontSize };
-    if (axis === 'x' || axis === 'both') {
-      const newWidth = Math.max(10, Math.min(100, zone.width_percent * scaleFactor));
+    const updates: Partial<TextZone> = {};
+    if (side === 'left' || side === 'right') {
+      const widthChange = side === 'right' ? delta : -delta;
+      const newWidth = Math.max(10, Math.min(100, zone.width_percent + widthChange));
       updates.width_percent = newWidth;
+      if (side === 'left') {
+        updates.x_percent = Math.max(0, Math.min(100, zone.x_percent - widthChange / 2));
+      } else {
+        updates.x_percent = Math.max(0, Math.min(100, zone.x_percent + widthChange / 2));
+      }
     }
     onZoneUpdate(zoneId, updates);
+  }, [textZones, onZoneUpdate]);
+
+  const handleCornerResize = useCallback((zoneId: string, dxP: number, _dyP: number, corner: string) => {
+    const zone = textZones.find(z => z.id === zoneId);
+    if (!zone || !onZoneUpdate) return;
+    const isLeft = corner === 'tl' || corner === 'bl';
+    const widthChange = isLeft ? -dxP : dxP;
+    onZoneUpdate(zoneId, {
+      width_percent: Math.max(10, Math.min(100, zone.width_percent + widthChange)),
+      x_percent: Math.max(0, Math.min(100, zone.x_percent + widthChange / 2)),
+    });
   }, [textZones, onZoneUpdate]);
 
   const handleRotate = useCallback((zoneId: string, degrees: number) => {
@@ -189,7 +205,8 @@ export const InvitationCardPreview: React.FC<InvitationCardPreviewProps> = ({
                     isSelected={isSelected}
                     onSelect={() => onSelectZone?.(zone.id)}
                     onMove={(dx, dy) => handleMove(zone.id, dx, dy)}
-                    onScaleResize={(scale, axis) => handleScaleResize(zone.id, scale, axis)}
+                    onResize={(dw, side) => handleResize(zone.id, dw, side)}
+                    onCornerResize={(dw, dy, corner) => handleCornerResize(zone.id, dw, dy, corner)}
                     onRotate={(deg) => handleRotate(zone.id, deg)}
                     onDragMove={(offset) => handleDragMove(zone.id, offset)}
                     onDragEnd={handleDragEnd}
