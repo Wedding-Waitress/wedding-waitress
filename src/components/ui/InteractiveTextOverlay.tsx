@@ -113,7 +113,12 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
       }
 
       if (mode.startsWith('fontsize-')) {
-        // Corner handles: visual feedback only during drag, no DOM width change
+        const corner = mode.replace('fontsize-', '');
+        const isLeft = corner === 'tl' || corner === 'bl';
+        const rawDx = isLeft ? -dx : dx;
+        const rawDy = (corner === 'tl' || corner === 'tr') ? -dy : dy;
+        const avgDelta = (rawDx + rawDy) / 2;
+        lastFontDelta = Math.round(avgDelta * 0.15);
         return;
       }
 
