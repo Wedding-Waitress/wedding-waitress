@@ -12,6 +12,7 @@ interface InvitationCardPreviewProps {
   onZoneUpdate?: (zoneId: string, updates: Partial<TextZone>) => void;
   onZoneDelete?: (zoneId: string) => void;
   onZoneDuplicate?: (zoneId: string) => void;
+  onZoneReset?: (zoneId: string) => void;
 }
 
 const getTextTransform = (textCase: string): React.CSSProperties['textTransform'] => {
@@ -31,6 +32,7 @@ export const InvitationCardPreview: React.FC<InvitationCardPreviewProps> = ({
   onZoneUpdate,
   onZoneDelete,
   onZoneDuplicate,
+  onZoneReset,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [dragGuides, setDragGuides] = useState<{ showVertical: boolean; showHorizontal: boolean } | null>(null);
@@ -248,6 +250,7 @@ export const InvitationCardPreview: React.FC<InvitationCardPreviewProps> = ({
                         onDragEnd={handleDragEnd}
                         onDelete={onZoneDelete ? () => onZoneDelete(zone.id) : undefined}
                         onDuplicate={onZoneDuplicate ? () => onZoneDuplicate(zone.id) : undefined}
+                        onReset={onZoneReset ? () => onZoneReset(zone.id) : undefined}
                         containerRef={containerRef as React.RefObject<HTMLElement>}
                         showResizeHandles={true}
                         showRotateHandle={true}

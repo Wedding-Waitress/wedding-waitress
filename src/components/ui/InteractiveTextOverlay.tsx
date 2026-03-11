@@ -1,5 +1,5 @@
 import React, { useRef, useCallback, useState } from 'react';
-import { RotateCw, Move, Copy, CopyPlus, Trash2 } from 'lucide-react';
+import { RotateCw, Move, Copy, CopyPlus, Trash2, RotateCcw } from 'lucide-react';
 
 interface InteractiveTextOverlayProps {
   children: React.ReactNode;
@@ -13,6 +13,7 @@ interface InteractiveTextOverlayProps {
   onDragMove?: (pixelOffset: { x: number; y: number }) => void;
   onDragEnd?: () => void;
   onCopy?: () => void;
+  onReset?: () => void;
   onDuplicate?: () => void;
   onDelete?: () => void;
   containerRef: React.RefObject<HTMLElement>;
@@ -40,6 +41,7 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
   onDragMove,
   onDragEnd,
   onCopy,
+  onReset,
   onDuplicate,
   onDelete,
   containerRef,
@@ -204,7 +206,7 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
   }, [containerRef, onMove, onResize, onCornerResize, onFontSizeChange, onRotate, onDragMove, onDragEnd, rotation, getBaseTransform]);
 
   const canResize = showResizeHandles && (onResize || onCornerResize || onFontSizeChange);
-  const hasToolbar = onCopy || onDuplicate || onDelete;
+  const hasToolbar = onCopy || onReset || onDuplicate || onDelete;
   const displayAngle = liveAngle !== null ? liveAngle : (rotation > 180 ? rotation - 360 : rotation);
 
   return (
@@ -256,6 +258,13 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
                   icon={<Copy className="h-3.5 w-3.5" />}
                   title="Copy"
                   onClick={onCopy}
+                />
+              )}
+              {onReset && (
+                <ToolbarButton
+                  icon={<RotateCcw className="h-3.5 w-3.5" />}
+                  title="Reset"
+                  onClick={onReset}
                 />
               )}
               {onDuplicate && (
