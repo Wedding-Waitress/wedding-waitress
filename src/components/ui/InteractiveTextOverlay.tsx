@@ -106,7 +106,7 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
       if (mode === 'move') {
         accumX = dx;
         accumY = dy;
-        el.style.transform = `${baseTransform} rotate(${rotation}deg) translate(${dx}px, ${dy}px)`;
+        el.style.transform = `${baseTransform} translate(${dx}px, ${dy}px) rotate(${rotation}deg)`;
         onDragMove?.({ x: dx, y: dy });
         return;
       }
