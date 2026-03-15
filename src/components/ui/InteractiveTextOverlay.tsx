@@ -83,6 +83,8 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
     const initLeft = parseFloat(el.style.left) || 0;
     const initWidth = parseFloat(el.style.width) || 0;
     const initTop = parseFloat(el.style.top) || 0;
+    const baseWidth = el.getBoundingClientRect().width;
+    const baseHeight = el.getBoundingClientRect().height;
 
     let accumX = 0;
     let accumY = 0;
