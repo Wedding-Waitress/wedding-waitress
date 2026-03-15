@@ -197,18 +197,16 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
       }
 
       if (mode.startsWith('fontsize-')) {
-        // Commit the rounded delta, then remove scale
         const roundedDelta = Math.round(lastFontDelta);
         if (onFontSizeChange && roundedDelta !== 0) {
           onFontSizeChange(roundedDelta);
         }
-        // Defer scale removal to next frame so React render applies first
-        requestAnimationFrame(() => {
-          if (elRef.current) {
-            elRef.current.style.transform = '';
-            elRef.current.style.transformOrigin = '';
-          }
-        });
+        // Clear inline overrides so React state takes over
+        el.style.width = '';
+        el.style.height = '';
+        el.style.fontSize = '';
+        el.style.transform = '';
+        el.style.transformOrigin = '';
         return;
       }
 
