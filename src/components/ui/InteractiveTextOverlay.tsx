@@ -83,6 +83,8 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
     const initLeft = parseFloat(el.style.left) || 0;
     const initWidth = parseFloat(el.style.width) || 0;
     const initTop = parseFloat(el.style.top) || 0;
+    const baseWidth = el.getBoundingClientRect().width;
+    const baseHeight = el.getBoundingClientRect().height;
 
     let accumX = 0;
     let accumY = 0;
@@ -127,23 +129,19 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
       if (mode.startsWith('fontsize-')) {
         const corner = mode.replace('fontsize-', '');
         const isLeft = corner === 'tl' || corner === 'bl';
+        const isTop = corner === 'tl' || corner === 'tr';
         const rawDx = isLeft ? -dx : dx;
-        const rawDy = (corner === 'tl' || corner === 'tr') ? -dy : dy;
-        const avgDelta = (rawDx + rawDy) / 2;
-        // Use continuous float delta for smooth scaling (no rounding)
-        const continuousDelta = avgDelta * 0.15;
-        lastFontDelta = continuousDelta;
-        const scaleFactor = 1 + (continuousDelta * 0.04);
-        const clampedScale = Math.max(0.3, Math.min(3, scaleFactor));
-        // Apply via rAF for buttery smooth updates
-        cancelAnimationFrame(rafRef.current);
-        rafRef.current = requestAnimationFrame(() => {
-          el.style.transform = `${baseTransform} rotate(${rotation}deg) scale(${clampedScale})`;
-          el.style.transformOrigin = 'top left';
-        });
-        // Update indicator sparingly (only on whole-number changes)
-        const estimatedSize = Math.round(Math.max(6, Math.min(200, (currentFontSize || 24) + continuousDelta)));
-        setLiveFontSize(estimatedSize);
+        const rawDy = isTop ? -dy : dy;
+
+        const newWidth = Math.max(50, baseWidth + (rawDx * 2));
+        const newHeight = Math.max(50, baseHeight + (rawDy * 2));
+        el.style.width = `${newWidth}px`;
+        el.style.height = `${newHeight}px`;
+        const newFontSize = Math.max(6, Math.min(200, (newWidth / baseWidth) * (currentFontSize || 24)));
+        el.style.fontSize = `${newFontSize}px`;
+
+        lastFontDelta = newFontSize - (currentFontSize || 24);
+        setLiveFontSize(Math.round(newFontSize));
         return;
       }
 
@@ -199,18 +197,16 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
       }
 
       if (mode.startsWith('fontsize-')) {
-        // Commit the rounded delta, then remove scale
         const roundedDelta = Math.round(lastFontDelta);
         if (onFontSizeChange && roundedDelta !== 0) {
           onFontSizeChange(roundedDelta);
         }
-        // Defer scale removal to next frame so React render applies first
-        requestAnimationFrame(() => {
-          if (elRef.current) {
-            elRef.current.style.transform = '';
-            elRef.current.style.transformOrigin = '';
-          }
-        });
+        // Clear inline overrides so React state takes over
+        el.style.width = '';
+        el.style.height = '';
+        el.style.fontSize = '';
+        el.style.transform = '';
+        el.style.transformOrigin = '';
         return;
       }
 

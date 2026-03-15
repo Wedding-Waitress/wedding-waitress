@@ -1,61 +1,21 @@
 
 
-## Fix: Smooth Corner Resize with Synchronized Box + Font Size
+## Plan: Move Edit with Canva banner onto the same row as Choose File and Image Gallery
 
-**Problem**: Corner resize currently uses CSS `scale()` as a visual preview, then commits on release — causing a visual "jump" and desync between the box border and text size.
+### Summary
+Move the clickable Canva banner image from its own row below the buttons into the same flex row as Choose File and Image Gallery, so all three sit side by side on one line.
 
-**Solution**: Replace the `scale()` approach with direct `width`/`height`/`fontSize` manipulation during the drag, so the box and text resize together in real-time.
+### File Changes
 
-### Changes in `src/components/ui/InteractiveTextOverlay.tsx`
+#### 1. `src/components/Dashboard/Invitations/InvitationCardCustomizer.tsx`
+- **Move lines 428-433** (the `<img>` tag) inside the `</div>` that closes at line 427, placing it after the Image Gallery button (before the closing `</div>`).
+- Remove `mt-2` from the image class since it will now be inline with the buttons.
+- The flex container already has `gap-2`, so the banner will sit naturally next to the buttons.
 
-**1. Capture `baseWidth` and `baseHeight` at drag start** (around line 84, after existing init vars):
-```ts
-const baseWidth = el.getBoundingClientRect().width;
-const baseHeight = el.getBoundingClientRect().height;
-```
+#### 2. `src/components/Dashboard/PlaceCards/PlaceCardCustomizer.tsx`
+- **Move lines 706-711** (the `<img>` tag) inside the `</div>` that closes at line 703, placing it after the Image Gallery button.
+- Same class adjustment: remove `mt-2`.
 
-**2. Replace the `fontsize-` block in `onPointerMove`** (lines 127–148):
-
-Remove the current `scale()` / rAF logic. Replace with:
-```ts
-if (mode.startsWith('fontsize-')) {
-  const corner = mode.replace('fontsize-', '');
-  const isLeft = corner === 'tl' || corner === 'bl';
-  const isTop = corner === 'tl' || corner === 'tr';
-  const rawDx = isLeft ? -dx : dx;
-  const rawDy = isTop ? -dy : dy;
-
-  const newWidth = Math.max(50, baseWidth + (rawDx * 2));
-  const newHeight = Math.max(50, baseHeight + (rawDy * 2));
-  el.style.width = `${newWidth}px`;
-  el.style.height = `${newHeight}px`;
-  const newFontSize = Math.max(6, Math.min(200, (newWidth / baseWidth) * (currentFontSize || 24)));
-  el.style.fontSize = `${newFontSize}px`;
-
-  lastFontDelta = newFontSize - (currentFontSize || 24);
-  setLiveFontSize(Math.round(newFontSize));
-  return;
-}
-```
-
-**3. Update the `fontsize-` block in `onPointerUp`** (lines 201–215):
-
-On release, commit the font size delta via `onFontSizeChange`, then clear inline `width`/`height`/`fontSize` styles so React takes back control:
-```ts
-if (mode.startsWith('fontsize-')) {
-  const roundedDelta = Math.round(lastFontDelta);
-  if (onFontSizeChange && roundedDelta !== 0) {
-    onFontSizeChange(roundedDelta);
-  }
-  // Clear inline overrides so React state takes over
-  el.style.width = '';
-  el.style.height = '';
-  el.style.fontSize = '';
-  el.style.transform = '';
-  el.style.transformOrigin = '';
-  return;
-}
-```
-
-This gives smooth, real-time box+text resizing during drag with no jump on release.
+### Result
+All three elements — Choose File (green), Image Gallery (purple), Edit with Canva (banner) — appear on a single row in both pages. No other changes.
 
