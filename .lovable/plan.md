@@ -1,22 +1,21 @@
 
 
-## Fix: Instant Canvas Updates with Debounced Persistence
+## Plan: Move Edit with Canva banner onto the same row as Choose File and Image Gallery
 
-**Problem**: The 300ms debounce delays the canvas update. But removing it entirely causes lag because `updateSettings` awaits a Supabase round-trip before updating local state.
+### Summary
+Move the clickable Canva banner image from its own row below the buttons into the same flex row as Choose File and Image Gallery, so all three sit side by side on one line.
 
-**Solution**: Move the debounce from the input to the persistence layer. The canvas updates instantly via optimistic local state; Supabase saves are batched with a 300ms debounce.
+### File Changes
 
-### Changes
+#### 1. `src/components/Dashboard/Invitations/InvitationCardCustomizer.tsx`
+- **Move lines 428-433** (the `<img>` tag) inside the `</div>` that closes at line 427, placing it after the Image Gallery button (before the closing `</div>`).
+- Remove `mt-2` from the image class since it will now be inline with the buttons.
+- The flex container already has `gap-2`, so the banner will sit naturally next to the buttons.
 
-**1. `src/hooks/useInvitationCardSettings.ts`** — Split `updateSettings` into optimistic + debounced save:
-- Add a `useRef` for the debounce timer
-- Immediately update `artworks` state (optimistic) so the canvas reflects changes instantly
-- Debounce the actual Supabase `.update()` call by 300ms
-- Cleanup timer on unmount
+#### 2. `src/components/Dashboard/PlaceCards/PlaceCardCustomizer.tsx`
+- **Move lines 706-711** (the `<img>` tag) inside the `</div>` that closes at line 703, placing it after the Image Gallery button.
+- Same class adjustment: remove `mt-2`.
 
-**2. `src/components/Dashboard/Invitations/InvitationCardCustomizer.tsx`** — Revert to plain `Input`:
-- Remove the `DebouncedTextInput` component entirely
-- Replace the `<DebouncedTextInput>` usage back to a standard `<Input>` with direct `onChange` calling `updateZone`
-
-**Result**: Every keystroke instantly updates local state → canvas re-renders immediately. Supabase save only fires 300ms after the user stops typing. No lag, no data loss.
+### Result
+All three elements — Choose File (green), Image Gallery (purple), Edit with Canva (banner) — appear on a single row in both pages. No other changes.
 

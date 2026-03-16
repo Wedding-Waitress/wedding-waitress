@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/enhanced-button";
 import { Input } from "@/components/ui/input";
@@ -18,28 +18,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { ColorPickerPopover } from '@/components/ui/color-picker-popover';
 
-const DebouncedTextInput: React.FC<{
-  value: string;
-  onChange: (value: string) => void;
-  placeholder?: string;
-  className?: string;
-}> = ({ value, onChange, placeholder, className }) => {
-  const [localValue, setLocalValue] = useState(value);
-  const timerRef = useRef<ReturnType<typeof setTimeout>>();
 
-  useEffect(() => { setLocalValue(value); }, [value]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const v = e.target.value;
-    setLocalValue(v);
-    clearTimeout(timerRef.current);
-    timerRef.current = setTimeout(() => onChange(v), 300);
-  };
-
-  useEffect(() => () => clearTimeout(timerRef.current), []);
-
-  return <Input value={localValue} onChange={handleChange} placeholder={placeholder} className={className} />;
-};
 
 interface InvitationCardCustomizerProps {
   settings: InvitationCardSettings | null;
@@ -262,9 +242,9 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
 
                       <div>
                         <Label className="text-xs">Text Content</Label>
-                        <DebouncedTextInput
+                        <Input
                           value={zone.text || (zone.type === 'preset' && zone.preset_field ? eventData[zone.preset_field] || '' : '')}
-                          onChange={(v) => updateZone(zone.id, { text: v })}
+                          onChange={(e) => updateZone(zone.id, { text: e.target.value })}
                           placeholder={zone.type === 'preset' && zone.preset_field ? eventData[zone.preset_field] || `Enter ${zone.label}...` : 'Enter text...'}
                           className="mt-1"
                         />
