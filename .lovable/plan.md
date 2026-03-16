@@ -1,24 +1,21 @@
 
 
-## Fix Preset Zone Default Positions
+## Plan: Move Edit with Canva banner onto the same row as Choose File and Image Gallery
 
-**File**: `src/components/Dashboard/Invitations/InvitationCardCustomizer.tsx` (lines 137-145)
+### Summary
+Move the clickable Canva banner image from its own row below the buttons into the same flex row as Choose File and Image Gallery, so all three sit side by side on one line.
 
-**Problem**: Current `event_date` is at 38%, but the screenshot shows it needs more visual whitespace below the large 56px "Event Name" font. The positions need to match the screenshot reference.
+### File Changes
 
-**Change**: Update `PRESET_Y_POSITIONS` to place Event Date at 42% (16% gap from Event Name to compensate for its large font size), then cascade remaining zones at consistent 10% intervals:
+#### 1. `src/components/Dashboard/Invitations/InvitationCardCustomizer.tsx`
+- **Move lines 428-433** (the `<img>` tag) inside the `</div>` that closes at line 427, placing it after the Image Gallery button (before the closing `</div>`).
+- Remove `mt-2` from the image class since it will now be inline with the buttons.
+- The flex container already has `gap-2`, so the banner will sit naturally next to the buttons.
 
-```ts
-const PRESET_Y_POSITIONS: Record<string, number> = {
-  you_are_invited: 14,   // unchanged
-  event_name: 26,        // 12% gap
-  event_date: 42,        // was 38 → 16% gap (accounts for large 56px font above)
-  ceremony_info: 52,     // was 48 → 10% gap
-  reception_info: 62,    // was 58 → 10% gap
-  dress_code: 72,        // was 68 → 10% gap
-  rsvp_deadline: 82,     // was 78 → 10% gap
-};
-```
+#### 2. `src/components/Dashboard/PlaceCards/PlaceCardCustomizer.tsx`
+- **Move lines 706-711** (the `<img>` tag) inside the `</div>` that closes at line 703, placing it after the Image Gallery button.
+- Same class adjustment: remove `mt-2`.
 
-**Summary**: Two "large" gaps at top (12% + 16%), then uniform 10% gaps for the bottom four zones — matching the screenshot exactly.
+### Result
+All three elements — Choose File (green), Image Gallery (purple), Edit with Canva (banner) — appear on a single row in both pages. No other changes.
 
