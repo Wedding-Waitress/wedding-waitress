@@ -288,7 +288,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                           size="sm"
                           variant="outline"
                           onClick={() => addPresetZone(pz)}
-                          className="text-xs"
+                          className="text-xs text-[#7248E6]"
                           disabled={isDisabled}
                         >
                           <Plus className="h-3 w-3 mr-1" />
