@@ -1,53 +1,21 @@
 
 
-## Remove Image Positioning, Rename Section
+## Plan: Move Edit with Canva banner onto the same row as Choose File and Image Gallery
 
-**Changes in `src/components/Dashboard/Invitations/InvitationCardCustomizer.tsx`:**
+### Summary
+Move the clickable Canva banner image from its own row below the buttons into the same flex row as Choose File and Image Gallery, so all three sit side by side on one line.
 
-1. **Lines 540-586**: Remove the "Image Positioning" heading, "Horizontal Position" field, and "Vertical Position" field. Keep only the "Image Opacity" field, but move it outside the conditional block (or keep it inside with a new heading).
+### File Changes
 
-Specifically:
-- Replace lines 540-586 with a block that only contains "Image Opacity" (still conditional on having a full background image).
-- Rename the heading from "Image Positioning" to "Invitation Customisation".
+#### 1. `src/components/Dashboard/Invitations/InvitationCardCustomizer.tsx`
+- **Move lines 428-433** (the `<img>` tag) inside the `</div>` that closes at line 427, placing it after the Image Gallery button (before the closing `</div>`).
+- Remove `mt-2` from the image class since it will now be inline with the buttons.
+- The flex container already has `gap-2`, so the banner will sit naturally next to the buttons.
 
-2. **Lines 588-594**: Keep "Card Background Color" as-is, but group it under the new "Invitation Customisation" heading along with Image Opacity.
+#### 2. `src/components/Dashboard/PlaceCards/PlaceCardCustomizer.tsx`
+- **Move lines 706-711** (the `<img>` tag) inside the `</div>` that closes at line 703, placing it after the Image Gallery button.
+- Same class adjustment: remove `mt-2`.
 
-**Result structure:**
-```
-Invitation Customisation (heading)
-├── Image Opacity (only when background image exists)
-└── Card Background Color
-```
-
-Lines 540-594 become:
-
-```tsx
-{currentSettings.background_image_type === 'full' && currentSettings.background_image_url && (
-  <div className="space-y-2 pt-4 border-t">
-    <Label>Image Opacity</Label>
-    <Select
-      value={String(currentSettings.background_image_opacity || 100)}
-      onValueChange={(value) => handleSettingChange('background_image_opacity', Number(value))}
-    >
-      <SelectTrigger><SelectValue /></SelectTrigger>
-      <SelectContent>
-        {[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100].map(val => (
-          <SelectItem key={val} value={String(val)}>{val}%</SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
-  </div>
-)}
-
-<div className="space-y-4 pt-4 border-t">
-  <h4 className="text-sm font-medium">Invitation Customisation</h4>
-  <div className="space-y-2">
-    <Label>Card Background Color</Label>
-    <ColorPickerPopover
-      value={currentSettings.background_color}
-      onChange={(color) => handleSettingChange('background_color', color)}
-    />
-  </div>
-</div>
-```
+### Result
+All three elements — Choose File (green), Image Gallery (purple), Edit with Canva (banner) — appear on a single row in both pages. No other changes.
 
