@@ -134,7 +134,7 @@ const createDefaultZone = (type: 'preset' | 'custom', label: string, presetField
   rotation: 0,
 });
 
-const PRESET_Y_POSITIONS: Record<string, number> = {
+export const PRESET_Y_POSITIONS: Record<string, number> = {
   you_are_invited: 14,
   event_name: 26,
   event_date: 42,
