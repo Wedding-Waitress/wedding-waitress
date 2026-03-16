@@ -27,30 +27,71 @@ interface InvitationCardCustomizerProps {
   eventData: Record<string, string>;
 }
 
+const formatOrdinalDate = (dateStr: string): string => {
+  if (!dateStr) return '';
+  const date = new Date(dateStr + 'T00:00:00');
+  const day = date.getDate();
+  const suffix = (day > 3 && day < 21) ? 'th' : (['th', 'st', 'nd', 'rd'][day % 10] || 'th');
+  const weekday = date.toLocaleDateString('en-US', { weekday: 'long' });
+  const month = date.toLocaleDateString('en-US', { month: 'long' });
+  const year = date.getFullYear();
+  return `${weekday}, the ${day}${suffix} of ${month} ${year}`;
+};
+
 const PRESET_ZONES: { field: string; label: string; defaultText: string; getDisabled?: (eventData: Record<string, string>) => boolean; getText?: (eventData: Record<string, string>) => string }[] = [
   { field: 'event_name', label: 'Event Name', defaultText: '' },
-  { field: 'date', label: 'Event Date', defaultText: '' },
+  {
+    field: 'date',
+    label: 'Event Date',
+    defaultText: '',
+    getText: (ed) => {
+      const formatted = formatOrdinalDate(ed.date_raw);
+      return formatted ? `Event Date - ${formatted}` : '';
+    },
+  },
   {
     field: 'ceremony_info',
     label: 'Ceremony Info',
     defaultText: '',
     getDisabled: (ed) => ed.ceremony_enabled !== 'true',
-    getText: (ed) => `Ceremony\n${ed.ceremony_venue || ''}${ed.ceremony_venue && ed.ceremony_time ? ', ' : ''}${ed.ceremony_time || ''}`,
+    getText: (ed) => {
+      const venue = ed.ceremony_venue || '';
+      const timeRange = ed.ceremony_time && ed.ceremony_finish_time
+        ? `${ed.ceremony_time} - ${ed.ceremony_finish_time}`
+        : ed.ceremony_time || '';
+      const details = venue && timeRange ? `${venue}, ${timeRange}` : venue || timeRange;
+      return `Ceremony\n${details}`;
+    },
   },
   {
     field: 'reception_info',
     label: 'Reception Info',
     defaultText: '',
     getDisabled: (ed) => ed.reception_enabled !== 'true',
-    getText: (ed) => `Reception\n${ed.venue || ''}${ed.venue && ed.time ? ', ' : ''}${ed.time || ''}`,
+    getText: (ed) => {
+      const venue = ed.venue || '';
+      const timeRange = ed.time && ed.finish_time
+        ? `${ed.time} - ${ed.finish_time}`
+        : ed.time || '';
+      const details = venue && timeRange ? `${venue}, ${timeRange}` : venue || timeRange;
+      return `Reception\n${details}`;
+    },
   },
   {
     field: 'dress_code',
     label: 'Dress Code',
-    defaultText: 'Formal - Dress to Impress',
-    getText: () => 'Formal - Dress to Impress',
+    defaultText: 'Dress Code - Formal / Dress to Impress',
+    getText: () => 'Dress Code - Formal / Dress to Impress',
   },
-  { field: 'rsvp_deadline', label: 'RSVP Deadline', defaultText: '' },
+  {
+    field: 'rsvp_deadline',
+    label: 'RSVP Deadline',
+    defaultText: '',
+    getText: (ed) => {
+      const formatted = formatOrdinalDate(ed.rsvp_deadline_raw);
+      return formatted ? `RSVP Deadline - ${formatted}` : '';
+    },
+  },
 ];
 
 const createDefaultZone = (type: 'preset' | 'custom', label: string, presetField?: string, yPercent: number = 50): TextZone => ({

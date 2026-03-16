@@ -81,12 +81,16 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
       couple_names: coupleNames,
       event_name: selectedEvent.name || '',
       date: selectedEvent.date ? formatDisplayDate(selectedEvent.date) : '',
+      date_raw: selectedEvent.date || '',
       venue: selectedEvent.venue || '',
       time: selectedEvent.start_time ? formatDisplayTime(selectedEvent.start_time) : '',
+      finish_time: selectedEvent.finish_time ? formatDisplayTime(selectedEvent.finish_time) : '',
       rsvp_deadline: selectedEvent.rsvp_deadline ? formatDisplayDate(selectedEvent.rsvp_deadline) : '',
+      rsvp_deadline_raw: selectedEvent.rsvp_deadline || '',
       ceremony_enabled: selectedEvent.ceremony_enabled ? 'true' : 'false',
       ceremony_venue: selectedEvent.ceremony_venue || '',
       ceremony_time: selectedEvent.ceremony_start_time ? formatDisplayTime(selectedEvent.ceremony_start_time) : '',
+      ceremony_finish_time: selectedEvent.ceremony_finish_time ? formatDisplayTime(selectedEvent.ceremony_finish_time) : '',
       reception_enabled: selectedEvent.reception_enabled ? 'true' : 'false',
     };
   }, [selectedEvent]);
