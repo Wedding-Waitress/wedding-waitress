@@ -21,6 +21,22 @@ export interface TextZone {
   rotation: number;
 }
 
+export interface QrConfig {
+  enabled: boolean;
+  x_percent: number;
+  y_percent: number;
+  size_percent: number;
+  event_id: string | null;
+}
+
+export const DEFAULT_QR_CONFIG: QrConfig = {
+  enabled: false,
+  x_percent: 50,
+  y_percent: 90,
+  size_percent: 15,
+  event_id: null,
+};
+
 export type CardType = 'invitation' | 'save_the_date' | 'thank_you';
 
 export interface InvitationCardSettings {
