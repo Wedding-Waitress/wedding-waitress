@@ -1,21 +1,52 @@
 
 
-## Plan: Move Edit with Canva banner onto the same row as Choose File and Image Gallery
+## Connect Preset Zones to Full Event Data
 
-### Summary
-Move the clickable Canva banner image from its own row below the buttons into the same flex row as Choose File and Image Gallery, so all three sit side by side on one line.
+**Problem**: Ceremony/Reception presets only show venue name and times, but miss the address. Dress Code is hardcoded. Event data has `venue_address` and `ceremony_venue_address` fields that aren't being passed through.
 
-### File Changes
+### Changes
 
-#### 1. `src/components/Dashboard/Invitations/InvitationCardCustomizer.tsx`
-- **Move lines 428-433** (the `<img>` tag) inside the `</div>` that closes at line 427, placing it after the Image Gallery button (before the closing `</div>`).
-- Remove `mt-2` from the image class since it will now be inline with the buttons.
-- The flex container already has `gap-2`, so the banner will sit naturally next to the buttons.
+**File 1: `src/components/Dashboard/Invitations/InvitationsPage.tsx`** (~line 80-95)
 
-#### 2. `src/components/Dashboard/PlaceCards/PlaceCardCustomizer.tsx`
-- **Move lines 706-711** (the `<img>` tag) inside the `</div>` that closes at line 703, placing it after the Image Gallery button.
-- Same class adjustment: remove `mt-2`.
+Add address fields to `eventData`:
+```ts
+venue_address: selectedEvent.venue_address || '',
+ceremony_venue_address: selectedEvent.ceremony_venue_address || '',
+```
 
-### Result
-All three elements — Choose File (green), Image Gallery (purple), Edit with Canva (banner) — appear on a single row in both pages. No other changes.
+**File 2: `src/components/Dashboard/Invitations/InvitationCardCustomizer.tsx`** (lines 52-78)
+
+Update `getText` for Ceremony Info and Reception Info to include address and use dash separator:
+
+- **Ceremony Info**: `Ceremony - [venue], [address], [startTime] — [endTime]`
+- **Reception Info**: `Reception - [venue], [address], [startTime] — [endTime]`
+
+Updated getText functions:
+```ts
+// Ceremony Info
+getText: (ed) => {
+  const venue = ed.ceremony_venue || '';
+  const address = ed.ceremony_venue_address || '';
+  const location = [venue, address].filter(Boolean).join(', ');
+  const timeRange = ed.ceremony_time && ed.ceremony_finish_time
+    ? `${ed.ceremony_time} — ${ed.ceremony_finish_time}`
+    : ed.ceremony_time || '';
+  const details = [location, timeRange].filter(Boolean).join(', ');
+  return `Ceremony - ${details}`;
+},
+
+// Reception Info
+getText: (ed) => {
+  const venue = ed.venue || '';
+  const address = ed.venue_address || '';
+  const location = [venue, address].filter(Boolean).join(', ');
+  const timeRange = ed.time && ed.finish_time
+    ? `${ed.time} — ${ed.finish_time}`
+    : ed.time || '';
+  const details = [location, timeRange].filter(Boolean).join(', ');
+  return `Reception - ${details}`;
+},
+```
+
+No other changes needed — Event Name, Event Date, and RSVP Deadline already pull from event data correctly. Dress Code stays hardcoded as there's no dress_code field on the event.
 
