@@ -49,7 +49,7 @@ const formatOrdinalDate = (dateStr: string): string => {
   return `${weekday}, the ${day}${suffix} of ${month} ${year}`;
 };
 
-const PRESET_ZONES: { field: string; label: string; defaultText: string; getDisabled?: (eventData: Record<string, string>) => boolean; getText?: (eventData: Record<string, string>) => string }[] = [
+export const PRESET_ZONES: { field: string; label: string; defaultText: string; getDisabled?: (eventData: Record<string, string>) => boolean; getText?: (eventData: Record<string, string>) => string }[] = [
   {
     field: 'you_are_invited',
     label: 'You Are Invited',
