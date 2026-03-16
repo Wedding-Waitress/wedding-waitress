@@ -18,28 +18,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { ColorPickerPopover } from '@/components/ui/color-picker-popover';
 
-const DebouncedTextInput: React.FC<{
-  value: string;
-  onChange: (value: string) => void;
-  placeholder?: string;
-  className?: string;
-}> = ({ value, onChange, placeholder, className }) => {
-  const [localValue, setLocalValue] = useState(value);
-  const timerRef = useRef<ReturnType<typeof setTimeout>>();
 
-  useEffect(() => { setLocalValue(value); }, [value]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const v = e.target.value;
-    setLocalValue(v);
-    clearTimeout(timerRef.current);
-    timerRef.current = setTimeout(() => onChange(v), 300);
-  };
-
-  useEffect(() => () => clearTimeout(timerRef.current), []);
-
-  return <Input value={localValue} onChange={handleChange} placeholder={placeholder} className={className} />;
-};
 
 interface InvitationCardCustomizerProps {
   settings: InvitationCardSettings | null;
