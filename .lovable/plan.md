@@ -1,21 +1,24 @@
 
+## Change Maximum Zoom to 110%
 
-## Plan: Move Edit with Canva banner onto the same row as Choose File and Image Gallery
+**Current State**: The zoom slider in the Invitations & Cards page currently has a range of 25% to 200%.
 
-### Summary
-Move the clickable Canva banner image from its own row below the buttons into the same flex row as Choose File and Image Gallery, so all three sit side by side on one line.
+**Required Change**: Update the maximum zoom value from 200% to 110% while keeping the minimum at 25%.
 
-### File Changes
+**File**: `src/components/Dashboard/Invitations/InvitationCardPreview.tsx`
 
-#### 1. `src/components/Dashboard/Invitations/InvitationCardCustomizer.tsx`
-- **Move lines 428-433** (the `<img>` tag) inside the `</div>` that closes at line 427, placing it after the Image Gallery button (before the closing `</div>`).
-- Remove `mt-2` from the image class since it will now be inline with the buttons.
-- The flex container already has `gap-2`, so the banner will sit naturally next to the buttons.
+**Changes Required**:
 
-#### 2. `src/components/Dashboard/PlaceCards/PlaceCardCustomizer.tsx`
-- **Move lines 706-711** (the `<img>` tag) inside the `</div>` that closes at line 703, placing it after the Image Gallery button.
-- Same class adjustment: remove `mt-2`.
+1. **Line 42** - Update the `Math.min()` value in `handleZoomChange`:
+   - Change from: `setZoom(Math.max(25, Math.min(200, value)));`
+   - Change to: `setZoom(Math.max(25, Math.min(110, value)));`
 
-### Result
-All three elements — Choose File (green), Image Gallery (purple), Edit with Canva (banner) — appear on a single row in both pages. No other changes.
+2. **Line 287** - Update the zoom in button disabled condition:
+   - Change from: `disabled={zoom >= 200}`
+   - Change to: `disabled={zoom >= 110}`
 
+3. **Line 296** - Update the Slider component's max prop:
+   - Change from: `max={200}`
+   - Change to: `max={110}`
+
+**Result**: The zoom control will now cap at 110%, preventing users from zooming beyond that level. The plus button will disable at 110%, and the slider track will end at 110%.
