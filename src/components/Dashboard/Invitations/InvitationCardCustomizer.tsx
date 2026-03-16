@@ -39,6 +39,12 @@ const formatOrdinalDate = (dateStr: string): string => {
 };
 
 const PRESET_ZONES: { field: string; label: string; defaultText: string; getDisabled?: (eventData: Record<string, string>) => boolean; getText?: (eventData: Record<string, string>) => string }[] = [
+  {
+    field: 'you_are_invited',
+    label: 'You Are Invited',
+    defaultText: 'You Are Invited',
+    getText: () => 'You Are Invited',
+  },
   { field: 'event_name', label: 'Event Name', defaultText: '' },
   {
     field: 'date',
@@ -163,6 +169,14 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
     const yOffset = 20 + textZones.length * 12;
     const zone = createDefaultZone('preset', preset.label, preset.field, Math.min(yOffset, 85));
     zone.text = preset.getText ? preset.getText(eventData) : (eventData[preset.field] || preset.defaultText || '');
+    
+    // Special styling for "You Are Invited" preset
+    if (preset.field === 'you_are_invited') {
+      zone.font_family = 'Great Vibes';
+      zone.font_color = '#0000FF';
+      zone.font_size = 36;
+    }
+    
     await updateZones([...textZones, zone]);
   };
 
