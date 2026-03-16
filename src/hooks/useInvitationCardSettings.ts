@@ -57,6 +57,10 @@ export const useInvitationCardSettings = (eventId: string | null) => {
   const [activeArtworkId, setActiveArtworkId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout>>();
+
+  // Cleanup debounce timer on unmount
+  useEffect(() => () => { clearTimeout(saveTimerRef.current); }, []);
 
   const activeArtwork = useMemo(
     () => artworks.find(a => a.id === activeArtworkId) || null,
