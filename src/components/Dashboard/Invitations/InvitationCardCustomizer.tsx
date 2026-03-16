@@ -56,11 +56,13 @@ const PRESET_ZONES: { field: string; label: string; defaultText: string; getDisa
     getDisabled: (ed) => ed.ceremony_enabled !== 'true',
     getText: (ed) => {
       const venue = ed.ceremony_venue || '';
+      const address = ed.ceremony_venue_address || '';
+      const location = [venue, address].filter(Boolean).join(', ');
       const timeRange = ed.ceremony_time && ed.ceremony_finish_time
-        ? `${ed.ceremony_time} - ${ed.ceremony_finish_time}`
+        ? `${ed.ceremony_time} — ${ed.ceremony_finish_time}`
         : ed.ceremony_time || '';
-      const details = venue && timeRange ? `${venue}, ${timeRange}` : venue || timeRange;
-      return `Ceremony\n${details}`;
+      const details = [location, timeRange].filter(Boolean).join(', ');
+      return `Ceremony - ${details}`;
     },
   },
   {
@@ -70,11 +72,13 @@ const PRESET_ZONES: { field: string; label: string; defaultText: string; getDisa
     getDisabled: (ed) => ed.reception_enabled !== 'true',
     getText: (ed) => {
       const venue = ed.venue || '';
+      const address = ed.venue_address || '';
+      const location = [venue, address].filter(Boolean).join(', ');
       const timeRange = ed.time && ed.finish_time
-        ? `${ed.time} - ${ed.finish_time}`
+        ? `${ed.time} — ${ed.finish_time}`
         : ed.time || '';
-      const details = venue && timeRange ? `${venue}, ${timeRange}` : venue || timeRange;
-      return `Reception\n${details}`;
+      const details = [location, timeRange].filter(Boolean).join(', ');
+      return `Reception - ${details}`;
     },
   },
   {
