@@ -1,18 +1,21 @@
 
 
-## Move Invitation Preview Up
+## Plan: Move Edit with Canva banner onto the same row as Choose File and Image Gallery
 
-**File**: `src/components/Dashboard/Invitations/InvitationsPage.tsx` (line 415)
+### Summary
+Move the clickable Canva banner image from its own row below the buttons into the same flex row as Choose File and Image Gallery, so all three sit side by side on one line.
 
-**Change**: Reduce the top padding on the preview column from `pt-24` (6rem / ~96px) to `pt-16` (4rem / ~64px), shifting the invitation canvas up by approximately two text lines.
+### File Changes
 
-```
-// Before
-<div className="lg:col-span-3 pt-24">
+#### 1. `src/components/Dashboard/Invitations/InvitationCardCustomizer.tsx`
+- **Move lines 428-433** (the `<img>` tag) inside the `</div>` that closes at line 427, placing it after the Image Gallery button (before the closing `</div>`).
+- Remove `mt-2` from the image class since it will now be inline with the buttons.
+- The flex container already has `gap-2`, so the banner will sit naturally next to the buttons.
 
-// After
-<div className="lg:col-span-3 pt-16">
-```
+#### 2. `src/components/Dashboard/PlaceCards/PlaceCardCustomizer.tsx`
+- **Move lines 706-711** (the `<img>` tag) inside the `</div>` that closes at line 703, placing it after the Image Gallery button.
+- Same class adjustment: remove `mt-2`.
 
-Single line change, no other files affected.
+### Result
+All three elements — Choose File (green), Image Gallery (purple), Edit with Canva (banner) — appear on a single row in both pages. No other changes.
 
