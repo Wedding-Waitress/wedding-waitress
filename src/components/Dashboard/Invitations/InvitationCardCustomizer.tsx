@@ -139,9 +139,9 @@ const PRESET_Y_POSITIONS: Record<string, number> = {
   event_name: 26,
   event_date: 38,
   ceremony_info: 48,
-  reception_info: 60,
-  dress_code: 70,
-  rsvp_deadline: 80,
+  reception_info: 58,
+  dress_code: 68,
+  rsvp_deadline: 78,
 };
 
 const PRESET_STYLES: Record<string, { font_family: string; font_size: number }> = {

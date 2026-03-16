@@ -1,33 +1,21 @@
 
 
-## Adjust Preset Zone Vertical Spacing
+## Plan: Move Edit with Canva banner onto the same row as Choose File and Image Gallery
 
-**File**: `src/components/Dashboard/Invitations/InvitationCardCustomizer.tsx` (lines 137-145)
+### Summary
+Move the clickable Canva banner image from its own row below the buttons into the same flex row as Choose File and Image Gallery, so all three sit side by side on one line.
 
-**Current gaps:**
-- you_are_invited (14) → event_name (26) = 12
-- event_name (26) → event_date (38) = 12
-- event_date (38) → ceremony_info (48) = 10
-- ceremony_info (48) → reception_info (60) = **12**
-- reception_info (60) → dress_code (70) = **10**
-- dress_code (70) → rsvp_deadline (80) = **10**
+### File Changes
 
-**User wants:**
-1. Equal spacing for the bottom four zones (RSVP ↔ Dress ↔ Reception ↔ Ceremony) — standardize to 10
-2. Same equal spacing (10) between Ceremony and Event Date — already 10, no change
-3. Larger spacing (12) between Event Date and Event Name — already 12, no change
+#### 1. `src/components/Dashboard/Invitations/InvitationCardCustomizer.tsx`
+- **Move lines 428-433** (the `<img>` tag) inside the `</div>` that closes at line 427, placing it after the Image Gallery button (before the closing `</div>`).
+- Remove `mt-2` from the image class since it will now be inline with the buttons.
+- The flex container already has `gap-2`, so the banner will sit naturally next to the buttons.
 
-**Only actual change:** `reception_info` from 60 → 58 (making ceremony→reception = 10 instead of 12), then shift dress_code and rsvp_deadline down accordingly.
+#### 2. `src/components/Dashboard/PlaceCards/PlaceCardCustomizer.tsx`
+- **Move lines 706-711** (the `<img>` tag) inside the `</div>` that closes at line 703, placing it after the Image Gallery button.
+- Same class adjustment: remove `mt-2`.
 
-```ts
-const PRESET_Y_POSITIONS: Record<string, number> = {
-  you_are_invited: 14,  // unchanged
-  event_name: 26,       // unchanged (12 gap — "larger")
-  event_date: 38,       // unchanged (12 gap — "larger")
-  ceremony_info: 48,    // unchanged (10 gap)
-  reception_info: 58,   // was 60 → 10 gap from ceremony
-  dress_code: 68,       // was 70 → 10 gap
-  rsvp_deadline: 78,    // was 80 → 10 gap
-};
-```
+### Result
+All three elements — Choose File (green), Image Gallery (purple), Edit with Canva (banner) — appear on a single row in both pages. No other changes.
 
