@@ -137,7 +137,7 @@ const createDefaultZone = (type: 'preset' | 'custom', label: string, presetField
 export const PRESET_Y_POSITIONS: Record<string, number> = {
   you_are_invited: 14,
   event_name: 26,
-  event_date: 42,
+  date: 42,
   ceremony_info: 52,
   reception_info: 62,
   dress_code: 72,
