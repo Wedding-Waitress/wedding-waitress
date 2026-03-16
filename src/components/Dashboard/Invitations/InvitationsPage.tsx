@@ -439,6 +439,11 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
               settings={activeArtwork}
               onSettingsChange={updateSettings}
               eventData={eventData}
+              events={events}
+              qrDataUrl={qrDataUrl}
+              onQrEventChange={(eventId) => {
+                // QR generation is handled by the useEffect above
+              }}
             />
           </div>
           <div className="lg:col-span-3 mt-12">
