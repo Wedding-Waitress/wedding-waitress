@@ -39,7 +39,7 @@ export const InvitationCardPreview: React.FC<InvitationCardPreviewProps> = ({
   const [zoom, setZoom] = useState(100);
 
   const handleZoomChange = useCallback((value: number) => {
-    setZoom(Math.max(25, Math.min(110, value)));
+    setZoom(Math.max(25, Math.min(100, value)));
   }, []);
 
   const currentSettings = settings || {
@@ -284,7 +284,7 @@ export const InvitationCardPreview: React.FC<InvitationCardPreviewProps> = ({
             type="button"
             className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground transition-colors disabled:opacity-40"
             onClick={() => handleZoomChange(zoom + 10)}
-            disabled={zoom >= 110}
+            disabled={zoom >= 100}
             aria-label="Zoom in"
           >
             <Plus className="h-4 w-4" />
@@ -293,7 +293,7 @@ export const InvitationCardPreview: React.FC<InvitationCardPreviewProps> = ({
             value={[zoom]}
             onValueChange={([v]) => handleZoomChange(v)}
             min={25}
-            max={110}
+            max={100}
             step={5}
             orientation="vertical"
             className="h-24"
