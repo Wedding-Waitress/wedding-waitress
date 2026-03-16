@@ -192,7 +192,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
   };
 
   const addCustomZone = async () => {
-    const yOffset = 20 + textZones.length * 12;
+    const yOffset = 8 + textZones.length * 12;
     const zone = createDefaultZone('custom', `Custom Text ${textZones.filter(z => z.type === 'custom').length + 1}`, undefined, Math.min(yOffset, 85));
     await updateZones([...textZones, zone]);
   };
