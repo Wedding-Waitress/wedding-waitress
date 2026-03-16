@@ -25,6 +25,9 @@ interface InvitationCardCustomizerProps {
   settings: InvitationCardSettings | null;
   onSettingsChange: (settings: Partial<InvitationCardSettings>) => Promise<boolean>;
   eventData: Record<string, string>;
+  events?: { id: string; name: string; slug?: string | null }[];
+  qrDataUrl?: string | null;
+  onQrEventChange?: (eventId: string | null) => void;
 }
 
 const formatOrdinalDate = (dateStr: string): string => {
