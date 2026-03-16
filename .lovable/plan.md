@@ -1,52 +1,21 @@
 
 
-## Fix: Debounce Text Content Input in Invitations Customizer
+## Plan: Move Edit with Canva banner onto the same row as Choose File and Image Gallery
 
-**Problem**: Every keystroke in the "Text Content" input calls `updateZone` → `onSettingsChange`, which re-renders the entire canvas preview.
+### Summary
+Move the clickable Canva banner image from its own row below the buttons into the same flex row as Choose File and Image Gallery, so all three sit side by side on one line.
 
-**Solution**: Extract the text input into a small `DebouncedTextInput` component with local state for instant typing feedback and a 300ms debounced callback for canvas updates.
+### File Changes
 
-### Changes in `src/components/Dashboard/Invitations/InvitationCardCustomizer.tsx`
+#### 1. `src/components/Dashboard/Invitations/InvitationCardCustomizer.tsx`
+- **Move lines 428-433** (the `<img>` tag) inside the `</div>` that closes at line 427, placing it after the Image Gallery button (before the closing `</div>`).
+- Remove `mt-2` from the image class since it will now be inline with the buttons.
+- The flex container already has `gap-2`, so the banner will sit naturally next to the buttons.
 
-**1. Add a `DebouncedTextInput` component** at the top of the file (after imports):
+#### 2. `src/components/Dashboard/PlaceCards/PlaceCardCustomizer.tsx`
+- **Move lines 706-711** (the `<img>` tag) inside the `</div>` that closes at line 703, placing it after the Image Gallery button.
+- Same class adjustment: remove `mt-2`.
 
-```tsx
-const DebouncedTextInput: React.FC<{
-  value: string;
-  onChange: (value: string) => void;
-  placeholder?: string;
-  className?: string;
-}> = ({ value, onChange, placeholder, className }) => {
-  const [localValue, setLocalValue] = useState(value);
-  const timerRef = useRef<ReturnType<typeof setTimeout>>();
-
-  useEffect(() => { setLocalValue(value); }, [value]);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const v = e.target.value;
-    setLocalValue(v);
-    clearTimeout(timerRef.current);
-    timerRef.current = setTimeout(() => onChange(v), 300);
-  };
-
-  useEffect(() => () => clearTimeout(timerRef.current), []);
-
-  return <Input value={localValue} onChange={handleChange} placeholder={placeholder} className={className} />;
-};
-```
-
-**2. Replace the Input** at line 242-247 with:
-
-```tsx
-<DebouncedTextInput
-  value={zone.text || (zone.type === 'preset' && zone.preset_field ? eventData[zone.preset_field] || '' : '')}
-  onChange={(v) => updateZone(zone.id, { text: v })}
-  placeholder={...}
-  className="mt-1"
-/>
-```
-
-**3. Add `useRef` to imports** if not already present (it's already imported via React).
-
-One file changed, no other functionality affected.
+### Result
+All three elements — Choose File (green), Image Gallery (purple), Edit with Canva (banner) — appear on a single row in both pages. No other changes.
 
