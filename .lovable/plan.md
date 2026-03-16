@@ -1,20 +1,21 @@
 
 
-## Add Purple Pill Border to Zone Headings
+## Plan: Move Edit with Canva banner onto the same row as Choose File and Image Gallery
 
-**What**: Add a rounded tablet/pill-shaped border around each zone heading (You Are Invited, Event Name, Event Date, etc.) in the dark Wedding Waitress purple (#7248E6), keeping the font size unchanged.
+### Summary
+Move the clickable Canva banner image from its own row below the buttons into the same flex row as Choose File and Image Gallery, so all three sit side by side on one line.
 
-**Change in `src/components/Dashboard/Invitations/InvitationCardCustomizer.tsx`:**
+### File Changes
 
-Line 318 - Wrap the zone label span in a bordered pill container:
-```tsx
-<span className="text-sm font-medium text-[#7248E6] border border-[#7248E6] rounded-full px-3 py-1">{zone.label}</span>
-```
+#### 1. `src/components/Dashboard/Invitations/InvitationCardCustomizer.tsx`
+- **Move lines 428-433** (the `<img>` tag) inside the `</div>` that closes at line 427, placing it after the Image Gallery button (before the closing `</div>`).
+- Remove `mt-2` from the image class since it will now be inline with the buttons.
+- The flex container already has `gap-2`, so the banner will sit naturally next to the buttons.
 
-This adds:
-- `border border-[#7248E6]` - dark purple border
-- `rounded-full` - pill/tablet shape
-- `px-3 py-1` - horizontal and vertical padding for the pill effect
+#### 2. `src/components/Dashboard/PlaceCards/PlaceCardCustomizer.tsx`
+- **Move lines 706-711** (the `<img>` tag) inside the `</div>` that closes at line 703, placing it after the Image Gallery button.
+- Same class adjustment: remove `mt-2`.
 
-The font size remains unchanged at `text-sm`, and the text color stays purple as previously set.
+### Result
+All three elements — Choose File (green), Image Gallery (purple), Edit with Canva (banner) — appear on a single row in both pages. No other changes.
 
