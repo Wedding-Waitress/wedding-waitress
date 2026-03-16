@@ -279,7 +279,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                 {/* Add Preset Zone buttons */}
                 <div className="space-y-2">
                   <Label className="text-sm font-semibold text-[#7248E6]">Add Preset Zone</Label>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-2 max-w-fit">
                     {PRESET_ZONES.map(pz => {
                       const isDisabled = textZones.some(z => z.preset_field === pz.field) || (pz.getDisabled ? pz.getDisabled(eventData) : false);
                       return (
