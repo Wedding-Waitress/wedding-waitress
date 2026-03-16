@@ -285,6 +285,7 @@ export const InvitationCardPreview: React.FC<InvitationCardPreviewProps> = ({
                 />
               )}
 
+              {textZones.length === 0 && !currentSettings.background_image_url && (
                 <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
                   <div className="text-center">
                     <p className="text-lg font-medium">Invitation Preview</p>
