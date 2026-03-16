@@ -1,21 +1,27 @@
 
 
-## Plan: Move Edit with Canva banner onto the same row as Choose File and Image Gallery
+## Adjust Preset Zone Vertical Spacing
 
-### Summary
-Move the clickable Canva banner image from its own row below the buttons into the same flex row as Choose File and Image Gallery, so all three sit side by side on one line.
+**File**: `src/components/Dashboard/Invitations/InvitationCardCustomizer.tsx` (line 137-145)
 
-### File Changes
+**Current spacing analysis:**
+- You Are Invited (14) → Event Name (26) = **12% gap** ✓
+- Event Name (26) → Event Date (38) = **12% gap** ✓ (already matches)
+- Ceremony Info (48) → Reception Info (58) = 10% gap (needs to become 12%)
 
-#### 1. `src/components/Dashboard/Invitations/InvitationCardCustomizer.tsx`
-- **Move lines 428-433** (the `<img>` tag) inside the `</div>` that closes at line 427, placing it after the Image Gallery button (before the closing `</div>`).
-- Remove `mt-2` from the image class since it will now be inline with the buttons.
-- The flex container already has `gap-2`, so the banner will sit naturally next to the buttons.
+**Changes:**
+1. Event Name → Event Date spacing is already 12%, no change needed
+2. Increase Ceremony Info → Reception Info gap from 10% to 12%
 
-#### 2. `src/components/Dashboard/PlaceCards/PlaceCardCustomizer.tsx`
-- **Move lines 706-711** (the `<img>` tag) inside the `</div>` that closes at line 703, placing it after the Image Gallery button.
-- Same class adjustment: remove `mt-2`.
-
-### Result
-All three elements — Choose File (green), Image Gallery (purple), Edit with Canva (banner) — appear on a single row in both pages. No other changes.
+```ts
+const PRESET_Y_POSITIONS: Record<string, number> = {
+  you_are_invited: 14,  // unchanged
+  event_name: 26,       // unchanged
+  event_date: 38,       // unchanged (gap is already 12)
+  ceremony_info: 48,      // unchanged
+  reception_info: 60,     // was 58 → +2 for 12% gap from ceremony
+  dress_code: 70,         // was 68 → +2 to maintain relative spacing
+  rsvp_deadline: 80,      // was 78 → +2 to maintain relative spacing
+};
+```
 
