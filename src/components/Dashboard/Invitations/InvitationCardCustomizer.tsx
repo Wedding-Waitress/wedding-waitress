@@ -356,12 +356,26 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                         </div>
                       </div>
 
-                      <div>
-                        <Label className="text-xs">Font Color</Label>
-                        <ColorPickerPopover
-                          value={zone.font_color}
-                          onChange={(color) => updateZone(zone.id, { font_color: color })}
-                        />
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          <Label className="text-xs">Font Color</Label>
+                          <ColorPickerPopover
+                            value={zone.font_color}
+                            onChange={(color) => updateZone(zone.id, { font_color: color })}
+                          />
+                        </div>
+                        <div>
+                          <Label className="text-xs">Text Style</Label>
+                          <Select value={zone.font_style || 'default'} onValueChange={(v) => updateZone(zone.id, { font_style: v })}>
+                            <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="default">Default</SelectItem>
+                              <SelectItem value="bold">Bold</SelectItem>
+                              <SelectItem value="italic">Italic</SelectItem>
+                              <SelectItem value="underline">Underline</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
                       </div>
 
                       <div className="grid grid-cols-2 gap-2">
