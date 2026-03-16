@@ -67,6 +67,7 @@ const parseRow = (d: any): InvitationCardSettings => ({
   text_zones: (d.text_zones || []) as TextZone[],
   card_type: (d.card_type || 'invitation') as CardType,
   name: d.name || 'Untitled',
+  qr_config: (d.qr_config || { ...DEFAULT_QR_CONFIG }) as QrConfig,
 });
 
 export const useInvitationCardSettings = (eventId: string | null) => {

@@ -179,6 +179,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
     orientation: 'portrait',
     card_type: 'invitation',
     name: 'Untitled',
+    qr_config: { ...DEFAULT_QR_CONFIG },
   };
 
   const textZones = currentSettings.text_zones || [];
