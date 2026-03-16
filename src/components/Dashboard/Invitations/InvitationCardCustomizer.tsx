@@ -29,7 +29,18 @@ interface InvitationCardCustomizerProps {
 
 const formatOrdinalDate = (dateStr: string): string => {
   if (!dateStr) return '';
-  const date = new Date(dateStr + 'T00:00:00');
+  
+  // Try ISO format first (e.g., "2026-12-20")
+  let date = new Date(dateStr + 'T00:00:00');
+  
+  // If invalid, try stripping ordinal suffixes (e.g., "5th, November 2026" → "5, November 2026")
+  if (isNaN(date.getTime())) {
+    const cleaned = dateStr.replace(/(\d+)(st|nd|rd|th)/, '$1');
+    date = new Date(cleaned);
+  }
+  
+  if (isNaN(date.getTime())) return '';
+  
   const day = date.getDate();
   const suffix = (day > 3 && day < 21) ? 'th' : (['th', 'st', 'nd', 'rd'][day % 10] || 'th');
   const weekday = date.toLocaleDateString('en-US', { weekday: 'long' });
