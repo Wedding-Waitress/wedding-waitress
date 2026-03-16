@@ -537,37 +537,9 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                   </div>
                 )}
 
-                {currentSettings.background_image_type === 'full' && currentSettings.background_image_url && (
-                  <div className="space-y-4 pt-4 border-t">
-                    <h4 className="text-sm font-medium">Image Positioning</h4>
-                    <div className="space-y-2">
-                      <Label>Horizontal Position</Label>
-                      <Select
-                        value={String(currentSettings.background_image_x_position || 50)}
-                        onValueChange={(value) => handleSettingChange('background_image_x_position', Number(value))}
-                      >
-                        <SelectTrigger><SelectValue /></SelectTrigger>
-                        <SelectContent>
-                          {[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100].map(val => (
-                            <SelectItem key={val} value={String(val)}>{val}%</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Vertical Position</Label>
-                      <Select
-                        value={String(currentSettings.background_image_y_position || 50)}
-                        onValueChange={(value) => handleSettingChange('background_image_y_position', Number(value))}
-                      >
-                        <SelectTrigger><SelectValue /></SelectTrigger>
-                        <SelectContent>
-                          {[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100].map(val => (
-                            <SelectItem key={val} value={String(val)}>{val}%</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
+                <div className="space-y-4 pt-4 border-t">
+                  <h4 className="text-sm font-medium">Invitation Customisation</h4>
+                  {currentSettings.background_image_type === 'full' && currentSettings.background_image_url && (
                     <div className="space-y-2">
                       <Label>Image Opacity</Label>
                       <Select
@@ -582,15 +554,14 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                         </SelectContent>
                       </Select>
                     </div>
+                  )}
+                  <div className="space-y-2">
+                    <Label>Card Background Color</Label>
+                    <ColorPickerPopover
+                      value={currentSettings.background_color}
+                      onChange={(color) => handleSettingChange('background_color', color)}
+                    />
                   </div>
-                )}
-
-                <div className="space-y-2 pt-4 border-t">
-                  <Label>Card Background Color</Label>
-                  <ColorPickerPopover
-                    value={currentSettings.background_color}
-                    onChange={(color) => handleSettingChange('background_color', color)}
-                  />
                 </div>
 
                 <div className="pt-4 border-t">
