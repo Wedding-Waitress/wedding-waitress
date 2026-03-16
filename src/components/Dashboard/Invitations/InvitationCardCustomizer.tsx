@@ -137,11 +137,11 @@ const createDefaultZone = (type: 'preset' | 'custom', label: string, presetField
 const PRESET_Y_POSITIONS: Record<string, number> = {
   you_are_invited: 14,
   event_name: 26,
-  event_date: 38,
-  ceremony_info: 48,
-  reception_info: 58,
-  dress_code: 68,
-  rsvp_deadline: 78,
+  event_date: 42,
+  ceremony_info: 52,
+  reception_info: 62,
+  dress_code: 72,
+  rsvp_deadline: 82,
 };
 
 const PRESET_STYLES: Record<string, { font_family: string; font_size: number }> = {
