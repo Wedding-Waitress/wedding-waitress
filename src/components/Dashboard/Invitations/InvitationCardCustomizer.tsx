@@ -177,7 +177,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
       toast({ title: "Already Added", description: `${preset.label} zone already exists` });
       return;
     }
-    const yOffset = 20 + textZones.length * 12;
+    const yOffset = 8 + textZones.length * 12;
     const zone = createDefaultZone('preset', preset.label, preset.field, Math.min(yOffset, 85));
     zone.text = preset.getText ? preset.getText(eventData) : (eventData[preset.field] || preset.defaultText || '');
     
