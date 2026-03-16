@@ -284,7 +284,7 @@ export const InvitationCardPreview: React.FC<InvitationCardPreviewProps> = ({
             type="button"
             className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground transition-colors disabled:opacity-40"
             onClick={() => handleZoomChange(zoom + 10)}
-            disabled={zoom >= 200}
+            disabled={zoom >= 110}
             aria-label="Zoom in"
           >
             <Plus className="h-4 w-4" />
