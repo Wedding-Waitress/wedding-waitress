@@ -270,9 +270,10 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="text-zones" className="space-y-4">
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="text-zones">Text Zones</TabsTrigger>
               <TabsTrigger value="background">Background</TabsTrigger>
+              <TabsTrigger value="qr-code">Add QR Code</TabsTrigger>
               <TabsTrigger value="messages">Messages</TabsTrigger>
             </TabsList>
 
