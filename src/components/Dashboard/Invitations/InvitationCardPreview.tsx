@@ -39,7 +39,7 @@ export const InvitationCardPreview: React.FC<InvitationCardPreviewProps> = ({
   const [zoom, setZoom] = useState(100);
 
   const handleZoomChange = useCallback((value: number) => {
-    setZoom(Math.max(25, Math.min(200, value)));
+    setZoom(Math.max(25, Math.min(110, value)));
   }, []);
 
   const currentSettings = settings || {
