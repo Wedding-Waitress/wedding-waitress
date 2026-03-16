@@ -56,6 +56,19 @@ export interface InvitationCardSettings {
   card_type: CardType;
   name: string;
   canva_template_url?: string | null;
+  qr_config: QrConfig;
+  created_at?: string;
+  updated_at?: string;
+}
+  background_image_y_position: number;
+  background_image_opacity: number;
+  text_zones: TextZone[];
+  font_color: string;
+  card_size: string;
+  orientation: string;
+  card_type: CardType;
+  name: string;
+  canva_template_url?: string | null;
   created_at?: string;
   updated_at?: string;
 }
