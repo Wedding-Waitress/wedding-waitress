@@ -293,7 +293,7 @@ export const InvitationCardPreview: React.FC<InvitationCardPreviewProps> = ({
             value={[zoom]}
             onValueChange={([v]) => handleZoomChange(v)}
             min={25}
-            max={200}
+            max={110}
             step={5}
             orientation="vertical"
             className="h-24"
