@@ -156,6 +156,9 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
   settings,
   onSettingsChange,
   eventData,
+  events = [],
+  qrDataUrl,
+  onQrEventChange,
 }) => {
   const [uploading, setUploading] = useState(false);
   const [galleryModalOpen, setGalleryModalOpen] = useState(false);
