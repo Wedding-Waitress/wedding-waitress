@@ -1,6 +1,7 @@
 import React, { useRef, useCallback, useState } from 'react';
-import { InvitationCardSettings, TextZone } from '@/hooks/useInvitationCardSettings';
+import { InvitationCardSettings, TextZone, QrConfig } from '@/hooks/useInvitationCardSettings';
 import { InteractiveTextOverlay } from '@/components/ui/InteractiveTextOverlay';
+import { InteractiveQROverlay } from '@/components/ui/InteractiveQROverlay';
 import { Minus, Plus } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
 
@@ -13,6 +14,8 @@ interface InvitationCardPreviewProps {
   onZoneDelete?: (zoneId: string) => void;
   onZoneDuplicate?: (zoneId: string) => void;
   onZoneReset?: (zoneId: string) => void;
+  qrDataUrl?: string | null;
+  onQrConfigUpdate?: (config: Partial<QrConfig>) => void;
 }
 
 const getTextTransform = (textCase: string): React.CSSProperties['textTransform'] => {
