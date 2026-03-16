@@ -1,21 +1,41 @@
 
 
-## Plan: Move Edit with Canva banner onto the same row as Choose File and Image Gallery
+## Fix RSVP Deadline Date Parsing
 
-### Summary
-Move the clickable Canva banner image from its own row below the buttons into the same flex row as Choose File and Image Gallery, so all three sit side by side on one line.
+**Problem**: The `rsvp_deadline` field is stored as text like `"5th, November 2026"` (with ordinal suffix), not as an ISO date. The `formatOrdinalDate` function tries `new Date("5th, November 2026T00:00:00")` which produces `Invalid Date`.
 
-### File Changes
+**Solution**: Update `formatOrdinalDate` in `InvitationCardCustomizer.tsx` to detect and handle text-format dates by stripping ordinal suffixes (`st`, `nd`, `rd`, `th`) before parsing.
 
-#### 1. `src/components/Dashboard/Invitations/InvitationCardCustomizer.tsx`
-- **Move lines 428-433** (the `<img>` tag) inside the `</div>` that closes at line 427, placing it after the Image Gallery button (before the closing `</div>`).
-- Remove `mt-2` from the image class since it will now be inline with the buttons.
-- The flex container already has `gap-2`, so the banner will sit naturally next to the buttons.
+**File**: `src/components/Dashboard/Invitations/InvitationCardCustomizer.tsx` (lines 30-39)
 
-#### 2. `src/components/Dashboard/PlaceCards/PlaceCardCustomizer.tsx`
-- **Move lines 706-711** (the `<img>` tag) inside the `</div>` that closes at line 703, placing it after the Image Gallery button.
-- Same class adjustment: remove `mt-2`.
+Update `formatOrdinalDate` to:
+1. First try parsing as-is (works for ISO dates like `2026-12-20`)
+2. If invalid, strip ordinal suffixes from the string (e.g., `"5th, November 2026"` → `"5, November 2026"`), then parse
+3. If still invalid, return empty string
 
-### Result
-All three elements — Choose File (green), Image Gallery (purple), Edit with Canva (banner) — appear on a single row in both pages. No other changes.
+```ts
+const formatOrdinalDate = (dateStr: string): string => {
+  if (!dateStr) return '';
+  
+  // Try ISO format first
+  let date = new Date(dateStr + 'T00:00:00');
+  
+  // If invalid, try stripping ordinal suffixes (e.g., "5th, November 2026")
+  if (isNaN(date.getTime())) {
+    const cleaned = dateStr.replace(/(\d+)(st|nd|rd|th)/, '$1');
+    date = new Date(cleaned);
+  }
+  
+  if (isNaN(date.getTime())) return '';
+  
+  const day = date.getDate();
+  const suffix = (day > 3 && day < 21) ? 'th' : (['th', 'st', 'nd', 'rd'][day % 10] || 'th');
+  const weekday = date.toLocaleDateString('en-US', { weekday: 'long' });
+  const month = date.toLocaleDateString('en-US', { month: 'long' });
+  const year = date.getFullYear();
+  return `${weekday}, the ${day}${suffix} of ${month} ${year}`;
+};
+```
+
+No other changes needed.
 
