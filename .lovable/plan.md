@@ -1,21 +1,22 @@
 
 
-## Plan: Move Edit with Canva banner onto the same row as Choose File and Image Gallery
+## Fix Event Date Reset Position
 
-### Summary
-Move the clickable Canva banner image from its own row below the buttons into the same flex row as Choose File and Image Gallery, so all three sit side by side on one line.
+**Bug**: The Event Date preset zone's field name is `'date'` (in `PRESET_ZONES`), but `PRESET_Y_POSITIONS` maps it as `'event_date'`. This mismatch means the Y position lookup returns `undefined`, defaulting to 50% instead of 42%.
 
-### File Changes
+**Fix**: In `InvitationCardCustomizer.tsx` line 140, change the key from `event_date` to `date`:
 
-#### 1. `src/components/Dashboard/Invitations/InvitationCardCustomizer.tsx`
-- **Move lines 428-433** (the `<img>` tag) inside the `</div>` that closes at line 427, placing it after the Image Gallery button (before the closing `</div>`).
-- Remove `mt-2` from the image class since it will now be inline with the buttons.
-- The flex container already has `gap-2`, so the banner will sit naturally next to the buttons.
+```ts
+export const PRESET_Y_POSITIONS: Record<string, number> = {
+  you_are_invited: 14,
+  event_name: 26,
+  date: 42,            // was 'event_date' — must match PRESET_ZONES field
+  ceremony_info: 52,
+  reception_info: 62,
+  dress_code: 72,
+  rsvp_deadline: 82,
+};
+```
 
-#### 2. `src/components/Dashboard/PlaceCards/PlaceCardCustomizer.tsx`
-- **Move lines 706-711** (the `<img>` tag) inside the `</div>` that closes at line 703, placing it after the Image Gallery button.
-- Same class adjustment: remove `mt-2`.
-
-### Result
-All three elements — Choose File (green), Image Gallery (purple), Edit with Canva (banner) — appear on a single row in both pages. No other changes.
+Single line change, one file.
 
