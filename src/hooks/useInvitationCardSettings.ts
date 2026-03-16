@@ -21,6 +21,22 @@ export interface TextZone {
   rotation: number;
 }
 
+export interface QrConfig {
+  enabled: boolean;
+  x_percent: number;
+  y_percent: number;
+  size_percent: number;
+  event_id: string | null;
+}
+
+export const DEFAULT_QR_CONFIG: QrConfig = {
+  enabled: false,
+  x_percent: 50,
+  y_percent: 90,
+  size_percent: 15,
+  event_id: null,
+};
+
 export type CardType = 'invitation' | 'save_the_date' | 'thank_you';
 
 export interface InvitationCardSettings {
@@ -40,6 +56,7 @@ export interface InvitationCardSettings {
   card_type: CardType;
   name: string;
   canva_template_url?: string | null;
+  qr_config: QrConfig;
   created_at?: string;
   updated_at?: string;
 }
@@ -50,6 +67,7 @@ const parseRow = (d: any): InvitationCardSettings => ({
   text_zones: (d.text_zones || []) as TextZone[],
   card_type: (d.card_type || 'invitation') as CardType,
   name: d.name || 'Untitled',
+  qr_config: (d.qr_config || { ...DEFAULT_QR_CONFIG }) as QrConfig,
 });
 
 export const useInvitationCardSettings = (eventId: string | null) => {

@@ -1,6 +1,7 @@
 import React, { useRef, useCallback, useState } from 'react';
-import { InvitationCardSettings, TextZone } from '@/hooks/useInvitationCardSettings';
+import { InvitationCardSettings, TextZone, QrConfig } from '@/hooks/useInvitationCardSettings';
 import { InteractiveTextOverlay } from '@/components/ui/InteractiveTextOverlay';
+import { InteractiveQROverlay } from '@/components/ui/InteractiveQROverlay';
 import { Minus, Plus } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
 
@@ -13,6 +14,8 @@ interface InvitationCardPreviewProps {
   onZoneDelete?: (zoneId: string) => void;
   onZoneDuplicate?: (zoneId: string) => void;
   onZoneReset?: (zoneId: string) => void;
+  qrDataUrl?: string | null;
+  onQrConfigUpdate?: (config: Partial<QrConfig>) => void;
 }
 
 const getTextTransform = (textCase: string): React.CSSProperties['textTransform'] => {
@@ -33,6 +36,8 @@ export const InvitationCardPreview: React.FC<InvitationCardPreviewProps> = ({
   onZoneDelete,
   onZoneDuplicate,
   onZoneReset,
+  qrDataUrl,
+  onQrConfigUpdate,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [dragGuides, setDragGuides] = useState<{ showVertical: boolean; showHorizontal: boolean } | null>(null);
@@ -263,6 +268,22 @@ export const InvitationCardPreview: React.FC<InvitationCardPreviewProps> = ({
                   </div>
                 );
               })}
+
+              {/* QR Code Overlay */}
+              {qrDataUrl && settings?.qr_config?.enabled && (
+                <InteractiveQROverlay
+                  qrDataUrl={qrDataUrl}
+                  xPercent={settings.qr_config.x_percent}
+                  yPercent={settings.qr_config.y_percent}
+                  sizePercent={settings.qr_config.size_percent}
+                  isSelected={selectedZoneId === '__qr__'}
+                  onSelect={() => onSelectZone?.('__qr__')}
+                  onMove={(x, y) => onQrConfigUpdate?.({ x_percent: x, y_percent: y })}
+                  onResize={(size) => onQrConfigUpdate?.({ size_percent: size })}
+                  onDelete={() => onQrConfigUpdate?.({ enabled: false })}
+                  containerRef={containerRef as React.RefObject<HTMLElement>}
+                />
+              )}
 
               {textZones.length === 0 && !currentSettings.background_image_url && (
                 <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">

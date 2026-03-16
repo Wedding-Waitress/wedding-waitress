@@ -9,8 +9,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
-import { InvitationCardSettings, TextZone } from '@/hooks/useInvitationCardSettings';
-import { Palette, Type, Image, MessageSquare, Layers, Upload, Images, Trash2, Plus, GripVertical } from 'lucide-react';
+import { InvitationCardSettings, TextZone, DEFAULT_QR_CONFIG } from '@/hooks/useInvitationCardSettings';
+import { Palette, Type, Image, MessageSquare, Layers, Upload, Images, Trash2, Plus, GripVertical, QrCode } from 'lucide-react';
 import canvaEditBanner from '@/assets/canva-edit-banner.png';
 import { InvitationGalleryModal } from './InvitationGalleryModal';
 import { PlaceCardFontPicker } from '../PlaceCards/PlaceCardFontPicker';
@@ -25,6 +25,9 @@ interface InvitationCardCustomizerProps {
   settings: InvitationCardSettings | null;
   onSettingsChange: (settings: Partial<InvitationCardSettings>) => Promise<boolean>;
   eventData: Record<string, string>;
+  events?: { id: string; name: string; slug?: string | null }[];
+  qrDataUrl?: string | null;
+  onQrEventChange?: (eventId: string | null) => void;
 }
 
 const formatOrdinalDate = (dateStr: string): string => {
@@ -153,6 +156,9 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
   settings,
   onSettingsChange,
   eventData,
+  events = [],
+  qrDataUrl,
+  onQrEventChange,
 }) => {
   const [uploading, setUploading] = useState(false);
   const [galleryModalOpen, setGalleryModalOpen] = useState(false);
@@ -174,6 +180,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
     orientation: 'portrait',
     card_type: 'invitation',
     name: 'Untitled',
+    qr_config: { ...DEFAULT_QR_CONFIG },
   };
 
   const textZones = currentSettings.text_zones || [];
@@ -263,9 +270,10 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="text-zones" className="space-y-4">
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="text-zones">Text Zones</TabsTrigger>
               <TabsTrigger value="background">Background</TabsTrigger>
+              <TabsTrigger value="qr-code">Add QR Code</TabsTrigger>
               <TabsTrigger value="messages">Messages</TabsTrigger>
             </TabsList>
 
@@ -576,6 +584,83 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                         background_image_opacity: 100,
                       });
                       toast({ title: "Background Reset", description: "Background settings reset to defaults" });
+                    }}
+                    variant="destructive"
+                    className="w-full rounded-full"
+                  >
+                    Reset to Default
+                  </Button>
+                </div>
+              </div>
+            </TabsContent>
+
+            {/* QR CODE TAB */}
+            <TabsContent value="qr-code" className="space-y-4">
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-primary">
+                  <QrCode className="h-5 w-5 inline-block mr-2" />
+                  Add QR Code to Invite
+                </h3>
+
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Choose Event</Label>
+                  <Select
+                    value={currentSettings.qr_config?.event_id || 'none'}
+                    onValueChange={(val) => {
+                      const eventId = val === 'none' ? null : val;
+                      onQrEventChange?.(eventId);
+                      handleSettingChange('qr_config', {
+                        ...currentSettings.qr_config,
+                        enabled: !!eventId,
+                        event_id: eventId,
+                      });
+                    }}
+                  >
+                    <SelectTrigger className="w-full border-primary">
+                      <SelectValue placeholder="Select an event..." />
+                    </SelectTrigger>
+                    <SelectContent className="bg-popover border-border z-50">
+                      <SelectItem value="none">No QR Code</SelectItem>
+                      {events.map(ev => (
+                        <SelectItem key={ev.id} value={ev.id}>{ev.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {currentSettings.qr_config?.enabled && (
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <Label className="text-sm">Show QR on Canvas</Label>
+                      <Switch
+                        checked={currentSettings.qr_config.enabled}
+                        onCheckedChange={(checked) => {
+                          handleSettingChange('qr_config', {
+                            ...currentSettings.qr_config,
+                            enabled: checked,
+                          });
+                        }}
+                      />
+                    </div>
+
+                    {qrDataUrl && (
+                      <div className="flex justify-center p-4 bg-muted/30 rounded-lg">
+                        <img src={qrDataUrl} alt="QR Preview" className="w-32 h-32" />
+                      </div>
+                    )}
+
+                    <p className="text-xs text-muted-foreground">
+                      Drag the QR code on the canvas to reposition it. Use the corner handles to resize.
+                    </p>
+                  </div>
+                )}
+
+                <div className="pt-4 border-t">
+                  <Button
+                    onClick={() => {
+                      handleSettingChange('qr_config', { ...DEFAULT_QR_CONFIG });
+                      onQrEventChange?.(null);
+                      toast({ title: "QR Code Reset", description: "QR code removed from invitation" });
                     }}
                     variant="destructive"
                     className="w-full rounded-full"

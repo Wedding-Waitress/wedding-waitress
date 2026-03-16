@@ -1,14 +1,15 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useEvents } from '@/hooks/useEvents';
-import { useInvitationCardSettings, CardType } from '@/hooks/useInvitationCardSettings';
+import { useInvitationCardSettings, CardType, QrConfig } from '@/hooks/useInvitationCardSettings';
 import { InvitationCardCustomizer, PRESET_ZONES, PRESET_Y_POSITIONS, PRESET_STYLES } from './InvitationCardCustomizer';
 import { InvitationCardPreview } from './InvitationCardPreview';
 import { formatDisplayDate, formatDisplayTime } from '@/lib/utils';
 import { Loader2, FileText, Calendar, Mail, Plus, Copy, Trash2, Pencil } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/enhanced-button';
+import { generateInvitationQR } from '@/lib/invitationQR';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -68,6 +69,28 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
   const [renamingId, setRenamingId] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState('');
   const [selectedZoneId, setSelectedZoneId] = useState<string | null>(null);
+  const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
+
+  // Generate QR when qr_config changes
+  useEffect(() => {
+    const qrConfig = activeArtwork?.qr_config;
+    if (!qrConfig?.enabled || !qrConfig.event_id) {
+      setQrDataUrl(null);
+      return;
+    }
+    const qrEvent = events.find(e => e.id === qrConfig.event_id);
+    if (!qrEvent?.slug) {
+      setQrDataUrl(null);
+      return;
+    }
+    let cancelled = false;
+    generateInvitationQR(qrEvent.slug, qrEvent.id).then(url => {
+      if (!cancelled) setQrDataUrl(url);
+    }).catch(() => {
+      if (!cancelled) setQrDataUrl(null);
+    });
+    return () => { cancelled = true; };
+  }, [activeArtwork?.qr_config?.enabled, activeArtwork?.qr_config?.event_id, events]);
 
   const selectedEvent = useMemo(() => events.find(e => e.id === selectedEventId), [events, selectedEventId]);
 
@@ -416,6 +439,11 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
               settings={activeArtwork}
               onSettingsChange={updateSettings}
               eventData={eventData}
+              events={events}
+              qrDataUrl={qrDataUrl}
+              onQrEventChange={(eventId) => {
+                // QR generation is handled by the useEffect above
+              }}
             />
           </div>
           <div className="lg:col-span-3 mt-12">
@@ -474,6 +502,11 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
                 const newZone = { ...zone, id: crypto.randomUUID(), x_percent: Math.min(100, zone.x_percent + 3), y_percent: Math.min(100, zone.y_percent + 3) };
                 updateSettings({ text_zones: [...zones, newZone] });
                 setSelectedZoneId(newZone.id);
+              }}
+              qrDataUrl={qrDataUrl}
+              onQrConfigUpdate={(updates) => {
+                const current = activeArtwork?.qr_config || { enabled: false, x_percent: 50, y_percent: 90, size_percent: 15, event_id: null };
+                updateSettings({ qr_config: { ...current, ...updates } });
               }}
             />
           </div>
