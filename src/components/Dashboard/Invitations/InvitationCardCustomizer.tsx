@@ -72,11 +72,13 @@ const PRESET_ZONES: { field: string; label: string; defaultText: string; getDisa
     getDisabled: (ed) => ed.reception_enabled !== 'true',
     getText: (ed) => {
       const venue = ed.venue || '';
+      const address = ed.venue_address || '';
+      const location = [venue, address].filter(Boolean).join(', ');
       const timeRange = ed.time && ed.finish_time
-        ? `${ed.time} - ${ed.finish_time}`
+        ? `${ed.time} — ${ed.finish_time}`
         : ed.time || '';
-      const details = venue && timeRange ? `${venue}, ${timeRange}` : venue || timeRange;
-      return `Reception\n${details}`;
+      const details = [location, timeRange].filter(Boolean).join(', ');
+      return `Reception - ${details}`;
     },
   },
   {

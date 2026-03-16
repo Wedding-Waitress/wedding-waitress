@@ -89,9 +89,11 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
       rsvp_deadline_raw: selectedEvent.rsvp_deadline || '',
       ceremony_enabled: selectedEvent.ceremony_enabled ? 'true' : 'false',
       ceremony_venue: selectedEvent.ceremony_venue || '',
+      ceremony_venue_address: selectedEvent.ceremony_venue_address || '',
       ceremony_time: selectedEvent.ceremony_start_time ? formatDisplayTime(selectedEvent.ceremony_start_time) : '',
       ceremony_finish_time: selectedEvent.ceremony_finish_time ? formatDisplayTime(selectedEvent.ceremony_finish_time) : '',
       reception_enabled: selectedEvent.reception_enabled ? 'true' : 'false',
+      venue_address: selectedEvent.venue_address || '',
     };
   }, [selectedEvent]);
 
