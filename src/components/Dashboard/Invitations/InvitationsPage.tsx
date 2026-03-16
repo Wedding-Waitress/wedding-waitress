@@ -1,14 +1,15 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useEvents } from '@/hooks/useEvents';
-import { useInvitationCardSettings, CardType } from '@/hooks/useInvitationCardSettings';
+import { useInvitationCardSettings, CardType, QrConfig } from '@/hooks/useInvitationCardSettings';
 import { InvitationCardCustomizer, PRESET_ZONES, PRESET_Y_POSITIONS, PRESET_STYLES } from './InvitationCardCustomizer';
 import { InvitationCardPreview } from './InvitationCardPreview';
 import { formatDisplayDate, formatDisplayTime } from '@/lib/utils';
 import { Loader2, FileText, Calendar, Mail, Plus, Copy, Trash2, Pencil } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/enhanced-button';
+import { generateInvitationQR } from '@/lib/invitationQR';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
