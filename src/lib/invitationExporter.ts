@@ -83,7 +83,9 @@ export function buildInvitationElement(opts: ExportOptions, guestName?: string):
       width: ${zone.width_percent}%;
       font-family: ${overrides.font_family || zone.font_family}, sans-serif;
       font-size: ${scaledFontSize}px;
-      font-weight: ${overrides.font_weight || zone.font_weight};
+      font-weight: ${(zone as any).font_style === 'bold' ? '700' : (overrides.font_weight || zone.font_weight)};
+      font-style: ${(zone as any).font_style === 'italic' ? 'italic' : 'normal'};
+      text-decoration: ${(zone as any).font_style === 'underline' ? 'underline' : 'none'};
       color: ${overrides.font_color || zone.font_color};
       text-align: ${overrides.text_align || zone.text_align};
       letter-spacing: ${(overrides.letter_spacing ?? zone.letter_spacing) * DPI_SCALE}px;
