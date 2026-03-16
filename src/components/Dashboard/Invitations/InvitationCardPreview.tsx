@@ -269,7 +269,22 @@ export const InvitationCardPreview: React.FC<InvitationCardPreviewProps> = ({
                 );
               })}
 
-              {textZones.length === 0 && !currentSettings.background_image_url && (
+              {/* QR Code Overlay */}
+              {qrDataUrl && settings?.qr_config?.enabled && (
+                <InteractiveQROverlay
+                  qrDataUrl={qrDataUrl}
+                  xPercent={settings.qr_config.x_percent}
+                  yPercent={settings.qr_config.y_percent}
+                  sizePercent={settings.qr_config.size_percent}
+                  isSelected={selectedZoneId === '__qr__'}
+                  onSelect={() => onSelectZone?.('__qr__')}
+                  onMove={(x, y) => onQrConfigUpdate?.({ x_percent: x, y_percent: y })}
+                  onResize={(size) => onQrConfigUpdate?.({ size_percent: size })}
+                  onDelete={() => onQrConfigUpdate?.({ enabled: false })}
+                  containerRef={containerRef as React.RefObject<HTMLElement>}
+                />
+              )}
+
                 <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
                   <div className="text-center">
                     <p className="text-lg font-medium">Invitation Preview</p>
