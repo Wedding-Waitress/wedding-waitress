@@ -184,7 +184,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
     // Special styling for "You Are Invited" preset
     if (preset.field === 'you_are_invited') {
       zone.font_family = 'Great Vibes';
-      zone.font_color = '#0000FF';
+      zone.font_color = '#000000';
       zone.font_size = 36;
     }
     
