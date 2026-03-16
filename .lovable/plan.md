@@ -1,15 +1,21 @@
 
 
-## Change Zone Heading Text Color to Dark Purple
+## Plan: Move Edit with Canva banner onto the same row as Choose File and Image Gallery
 
-**Task**: Make the zone heading text (e.g., "You Are Invited", "Event Name", "Custom Text 1") dark purple (#7248E6) to match the Wedding Waitress brand color.
+### Summary
+Move the clickable Canva banner image from its own row below the buttons into the same flex row as Choose File and Image Gallery, so all three sit side by side on one line.
 
-**Change in `src/components/Dashboard/Invitations/InvitationCardCustomizer.tsx`:**
+### File Changes
 
-Line 318 - Zone heading label:
-```tsx
-<span className="text-sm font-medium text-[#7248E6]">{zone.label}</span>
-```
+#### 1. `src/components/Dashboard/Invitations/InvitationCardCustomizer.tsx`
+- **Move lines 428-433** (the `<img>` tag) inside the `</div>` that closes at line 427, placing it after the Image Gallery button (before the closing `</div>`).
+- Remove `mt-2` from the image class since it will now be inline with the buttons.
+- The flex container already has `gap-2`, so the banner will sit naturally next to the buttons.
 
-Single line change that adds `text-[#7248E6]` to the existing `text-sm font-medium` classes.
+#### 2. `src/components/Dashboard/PlaceCards/PlaceCardCustomizer.tsx`
+- **Move lines 706-711** (the `<img>` tag) inside the `</div>` that closes at line 703, placing it after the Image Gallery button.
+- Same class adjustment: remove `mt-2`.
+
+### Result
+All three elements — Choose File (green), Image Gallery (purple), Edit with Canva (banner) — appear on a single row in both pages. No other changes.
 

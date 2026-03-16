@@ -315,7 +315,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <GripVertical className="h-4 w-4 text-muted-foreground" />
-                          <span className="text-sm font-medium">{zone.label}</span>
+                          <span className="text-sm font-medium text-[#7248E6]">{zone.label}</span>
                           {zone.type === 'preset' && (
                             <span className="text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded">Preset</span>
                           )}
