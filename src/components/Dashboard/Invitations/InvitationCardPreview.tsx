@@ -161,11 +161,11 @@ export const InvitationCardPreview: React.FC<InvitationCardPreviewProps> = ({
     <div className="print:hidden">
       <div className="flex items-start gap-3">
         {/* Canvas area */}
-        <div className="flex-1 flex justify-center">
+        <div className="flex-1 flex justify-center items-center">
           <div
             style={{
               transform: `scale(${zoom / 100})`,
-              transformOrigin: 'top center',
+              transformOrigin: 'center center',
               transition: 'transform 0.15s ease-out',
             }}
           >
