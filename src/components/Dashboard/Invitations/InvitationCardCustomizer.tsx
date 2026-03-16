@@ -144,7 +144,7 @@ export const PRESET_Y_POSITIONS: Record<string, number> = {
   rsvp_deadline: 82,
 };
 
-const PRESET_STYLES: Record<string, { font_family: string; font_size: number }> = {
+export const PRESET_STYLES: Record<string, { font_family: string; font_size: number }> = {
   you_are_invited: { font_family: 'ET Emilia Grace Demo', font_size: 24 },
   event_name: { font_family: 'Great Vibes', font_size: 56 },
 };
