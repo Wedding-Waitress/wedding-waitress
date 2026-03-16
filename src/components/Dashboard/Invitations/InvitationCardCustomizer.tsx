@@ -49,7 +49,7 @@ const formatOrdinalDate = (dateStr: string): string => {
   return `${weekday}, the ${day}${suffix} of ${month} ${year}`;
 };
 
-const PRESET_ZONES: { field: string; label: string; defaultText: string; getDisabled?: (eventData: Record<string, string>) => boolean; getText?: (eventData: Record<string, string>) => string }[] = [
+export const PRESET_ZONES: { field: string; label: string; defaultText: string; getDisabled?: (eventData: Record<string, string>) => boolean; getText?: (eventData: Record<string, string>) => string }[] = [
   {
     field: 'you_are_invited',
     label: 'You Are Invited',
@@ -134,7 +134,7 @@ const createDefaultZone = (type: 'preset' | 'custom', label: string, presetField
   rotation: 0,
 });
 
-const PRESET_Y_POSITIONS: Record<string, number> = {
+export const PRESET_Y_POSITIONS: Record<string, number> = {
   you_are_invited: 14,
   event_name: 26,
   event_date: 42,
@@ -144,7 +144,7 @@ const PRESET_Y_POSITIONS: Record<string, number> = {
   rsvp_deadline: 82,
 };
 
-const PRESET_STYLES: Record<string, { font_family: string; font_size: number }> = {
+export const PRESET_STYLES: Record<string, { font_family: string; font_size: number }> = {
   you_are_invited: { font_family: 'ET Emilia Grace Demo', font_size: 24 },
   event_name: { font_family: 'Great Vibes', font_size: 56 },
 };

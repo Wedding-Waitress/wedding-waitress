@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardTitle } from '@/components/ui/c
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useEvents } from '@/hooks/useEvents';
 import { useInvitationCardSettings, CardType } from '@/hooks/useInvitationCardSettings';
-import { InvitationCardCustomizer } from './InvitationCardCustomizer';
+import { InvitationCardCustomizer, PRESET_ZONES, PRESET_Y_POSITIONS, PRESET_STYLES } from './InvitationCardCustomizer';
 import { InvitationCardPreview } from './InvitationCardPreview';
 import { formatDisplayDate, formatDisplayTime } from '@/lib/utils';
 import { Loader2, FileText, Calendar, Mail, Plus, Copy, Trash2, Pencil } from 'lucide-react';
@@ -439,19 +439,28 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
                 const zones = activeArtwork?.text_zones || [];
                 const zone = zones.find(z => z.id === zoneId);
                 if (!zone) return;
+
+                const preset = PRESET_ZONES.find(p => p.field === zone.preset_field);
+                const style = zone.preset_field ? PRESET_STYLES[zone.preset_field] : undefined;
+                const defaultY = zone.preset_field ? PRESET_Y_POSITIONS[zone.preset_field] : 50;
+
+                const defaultText = preset?.getText
+                  ? preset.getText(eventData)
+                  : (zone.preset_field ? eventData[zone.preset_field] || preset?.defaultText || '' : '');
+
                 const newZones = zones.map(z =>
                   z.id === zoneId ? {
                     ...z,
-                    text: '',
-                    font_family: 'Inter',
-                    font_size: 24,
+                    text: defaultText,
+                    font_family: style?.font_family || 'ET Emilia Grace Demo',
+                    font_size: style?.font_size || 20,
                     font_color: '#000000',
                     font_weight: 'normal' as const,
                     font_style: 'normal' as const,
                     text_align: 'center' as const,
                     text_case: 'default',
                     x_percent: 50,
-                    y_percent: 50,
+                    y_percent: defaultY ?? 50,
                     width_percent: 80,
                     rotation: 0,
                   } : z
