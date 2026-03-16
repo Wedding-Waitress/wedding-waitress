@@ -161,7 +161,7 @@ export const InvitationCardPreview: React.FC<InvitationCardPreviewProps> = ({
     <div className="print:hidden">
       <div className="flex items-start gap-3">
         {/* Canvas area */}
-        <div className="flex-1 flex justify-center items-center">
+        <div className="flex-1 flex justify-center items-center" style={{ minHeight: '70vh' }}>
           <div
             style={{
               transform: `scale(${zoom / 100})`,
