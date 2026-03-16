@@ -69,6 +69,28 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
   const [renamingId, setRenamingId] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState('');
   const [selectedZoneId, setSelectedZoneId] = useState<string | null>(null);
+  const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
+
+  // Generate QR when qr_config changes
+  useEffect(() => {
+    const qrConfig = activeArtwork?.qr_config;
+    if (!qrConfig?.enabled || !qrConfig.event_id) {
+      setQrDataUrl(null);
+      return;
+    }
+    const qrEvent = events.find(e => e.id === qrConfig.event_id);
+    if (!qrEvent?.slug) {
+      setQrDataUrl(null);
+      return;
+    }
+    let cancelled = false;
+    generateInvitationQR(qrEvent.slug, qrEvent.id).then(url => {
+      if (!cancelled) setQrDataUrl(url);
+    }).catch(() => {
+      if (!cancelled) setQrDataUrl(null);
+    });
+    return () => { cancelled = true; };
+  }, [activeArtwork?.qr_config?.enabled, activeArtwork?.qr_config?.event_id, events]);
 
   const selectedEvent = useMemo(() => events.find(e => e.id === selectedEventId), [events, selectedEventId]);
 
