@@ -192,15 +192,15 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
       toast({ title: "Already Added", description: `${preset.label} zone already exists` });
       return;
     }
-    const yOffset = 8 + textZones.length * 12;
+    const yOffset = PRESET_Y_POSITIONS[preset.field] ?? (8 + textZones.length * 12);
     const zone = createDefaultZone('preset', preset.label, preset.field, Math.min(yOffset, 85));
     zone.text = preset.getText ? preset.getText(eventData) : (eventData[preset.field] || preset.defaultText || '');
     
-    // Special styling for "You Are Invited" preset
-    if (preset.field === 'you_are_invited') {
-      zone.font_family = 'Great Vibes';
-      zone.font_color = '#000000';
-      zone.font_size = 36;
+    // Apply per-preset font/size overrides
+    const style = PRESET_STYLES[preset.field];
+    if (style) {
+      zone.font_family = style.font_family;
+      zone.font_size = style.font_size;
     }
     
     await updateZones([...textZones, zone]);
