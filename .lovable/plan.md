@@ -1,21 +1,20 @@
 
 
-## Plan: Move Edit with Canva banner onto the same row as Choose File and Image Gallery
+## Fix Invitation Canvas Vertical Centering on Zoom Out
 
-### Summary
-Move the clickable Canva banner image from its own row below the buttons into the same flex row as Choose File and Image Gallery, so all three sit side by side on one line.
+**Problem**: When zooming out, the canvas stays anchored at the top of its container instead of centering vertically.
 
-### File Changes
+**Root cause**: The outer flex container on line 164 has `items-center` but the scaled div shrinks visually while still occupying its full original height in the layout. CSS `transform: scale()` doesn't change the element's layout size, so the flex centering has no effect.
 
-#### 1. `src/components/Dashboard/Invitations/InvitationCardCustomizer.tsx`
-- **Move lines 428-433** (the `<img>` tag) inside the `</div>` that closes at line 427, placing it after the Image Gallery button (before the closing `</div>`).
-- Remove `mt-2` from the image class since it will now be inline with the buttons.
-- The flex container already has `gap-2`, so the banner will sit naturally next to the buttons.
+**Fix in `src/components/Dashboard/Invitations/InvitationCardPreview.tsx`:**
 
-#### 2. `src/components/Dashboard/PlaceCards/PlaceCardCustomizer.tsx`
-- **Move lines 706-711** (the `<img>` tag) inside the `</div>` that closes at line 703, placing it after the Image Gallery button.
-- Same class adjustment: remove `mt-2`.
+Give the canvas wrapper container a fixed height so the scaled content can center within it. The simplest approach: set `min-height` on the flex container and keep `items-center`, but the real fix is to ensure the outer container has a defined height for centering to work against.
 
-### Result
-All three elements — Choose File (green), Image Gallery (purple), Edit with Canva (banner) — appear on a single row in both pages. No other changes.
+**Change**: On line 164, add a fixed height to the flex container so vertical centering works:
+
+```tsx
+<div className="flex-1 flex justify-center items-center" style={{ minHeight: '70vh' }}>
+```
+
+This gives the container enough height for the scaled-down canvas to visually center within it as zoom decreases.
 
