@@ -121,8 +121,8 @@ const createDefaultZone = (type: 'preset' | 'custom', label: string, presetField
   type,
   preset_field: presetField,
   text: '',
-  font_family: 'Inter',
-  font_size: 24,
+  font_family: 'ET Emilia Grace Demo',
+  font_size: 20,
   font_color: '#000000',
   font_weight: 'normal',
   font_style: 'normal',
@@ -133,6 +133,21 @@ const createDefaultZone = (type: 'preset' | 'custom', label: string, presetField
   width_percent: 80,
   rotation: 0,
 });
+
+const PRESET_Y_POSITIONS: Record<string, number> = {
+  you_are_invited: 14,
+  event_name: 26,
+  event_date: 38,
+  ceremony_info: 44,
+  reception_info: 50,
+  dress_code: 56,
+  rsvp_deadline: 62,
+};
+
+const PRESET_STYLES: Record<string, { font_family: string; font_size: number }> = {
+  you_are_invited: { font_family: 'ET Emilia Grace Demo', font_size: 24 },
+  event_name: { font_family: 'Great Vibes', font_size: 56 },
+};
 
 export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> = ({
   settings,
@@ -177,15 +192,15 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
       toast({ title: "Already Added", description: `${preset.label} zone already exists` });
       return;
     }
-    const yOffset = 8 + textZones.length * 12;
+    const yOffset = PRESET_Y_POSITIONS[preset.field] ?? (8 + textZones.length * 12);
     const zone = createDefaultZone('preset', preset.label, preset.field, Math.min(yOffset, 85));
     zone.text = preset.getText ? preset.getText(eventData) : (eventData[preset.field] || preset.defaultText || '');
     
-    // Special styling for "You Are Invited" preset
-    if (preset.field === 'you_are_invited') {
-      zone.font_family = 'Great Vibes';
-      zone.font_color = '#000000';
-      zone.font_size = 36;
+    // Apply per-preset font/size overrides
+    const style = PRESET_STYLES[preset.field];
+    if (style) {
+      zone.font_family = style.font_family;
+      zone.font_size = style.font_size;
     }
     
     await updateZones([...textZones, zone]);

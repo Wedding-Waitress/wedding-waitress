@@ -1,32 +1,21 @@
 
 
-## Update Preset Zone Defaults: Fonts, Sizes & Spacing
+## Plan: Move Edit with Canva banner onto the same row as Choose File and Image Gallery
 
-### Changes in `src/components/Dashboard/Invitations/InvitationCardCustomizer.tsx`
+### Summary
+Move the clickable Canva banner image from its own row below the buttons into the same flex row as Choose File and Image Gallery, so all three sit side by side on one line.
 
-**1. Per-preset Y positions** — Replace the generic `8 + textZones.length * 12` formula in `addPresetZone` with a lookup map that assigns specific Y positions per preset field:
+### File Changes
 
-| Preset | Y% | Gap from previous |
-|---|---|---|
-| You Are Invited | 14 | — |
-| Event Name | 26 | 12 |
-| Event Date | 38 | 12 |
-| Ceremony Info | 44 | 6 (closer) |
-| Reception Info | 50 | 6 (up one) |
-| Dress Code | 56 | 6 (up one) |
-| RSVP Deadline | 62 | 6 (up one) |
+#### 1. `src/components/Dashboard/Invitations/InvitationCardCustomizer.tsx`
+- **Move lines 428-433** (the `<img>` tag) inside the `</div>` that closes at line 427, placing it after the Image Gallery button (before the closing `</div>`).
+- Remove `mt-2` from the image class since it will now be inline with the buttons.
+- The flex container already has `gap-2`, so the banner will sit naturally next to the buttons.
 
-Falls back to `8 + textZones.length * 12` for any unknown preset.
+#### 2. `src/components/Dashboard/PlaceCards/PlaceCardCustomizer.tsx`
+- **Move lines 706-711** (the `<img>` tag) inside the `</div>` that closes at line 703, placing it after the Image Gallery button.
+- Same class adjustment: remove `mt-2`.
 
-**2. Per-preset font/size overrides** — Replace the current `you_are_invited`-only block with a lookup that applies:
-
-| Preset | Font | Size | Color |
-|---|---|---|---|
-| you_are_invited | ET Emilia Grace Demo | 24px | #000000 |
-| event_name | Great Vibes | 56px | #000000 |
-| All others | ET Emilia Grace Demo | 20px | #000000 |
-
-**3. Default zone font** — Update `createDefaultZone` to use `ET Emilia Grace Demo` at 20px instead of `Inter` at 24px (affects custom text zones).
-
-**4. Custom zone Y** — Keep `addCustomZone` using the generic formula `8 + textZones.length * 12`.
+### Result
+All three elements — Choose File (green), Image Gallery (purple), Edit with Canva (banner) — appear on a single row in both pages. No other changes.
 
