@@ -262,9 +262,9 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
 
                       <div>
                         <Label className="text-xs">Text Content</Label>
-                        <DebouncedTextInput
+                        <Input
                           value={zone.text || (zone.type === 'preset' && zone.preset_field ? eventData[zone.preset_field] || '' : '')}
-                          onChange={(v) => updateZone(zone.id, { text: v })}
+                          onChange={(e) => updateZone(zone.id, { text: e.target.value })}
                           placeholder={zone.type === 'preset' && zone.preset_field ? eventData[zone.preset_field] || `Enter ${zone.label}...` : 'Enter text...'}
                           className="mt-1"
                         />

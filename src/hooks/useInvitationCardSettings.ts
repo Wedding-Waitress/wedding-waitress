@@ -107,34 +107,35 @@ export const useInvitationCardSettings = (eventId: string | null) => {
   const updateSettings = async (newSettings: Partial<InvitationCardSettings>) => {
     if (!eventId || !activeArtworkId) return false;
 
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        toast({ title: "Error", description: "You must be logged in", variant: "destructive" });
-        return false;
+    // Optimistic: update local state immediately so canvas reflects changes instantly
+    setArtworks(prev => prev.map(a => a.id === activeArtworkId ? { ...a, ...newSettings } : a));
+
+    // Debounce the actual Supabase persistence
+    clearTimeout(saveTimerRef.current);
+    saveTimerRef.current = setTimeout(async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          toast({ title: "Error", description: "You must be logged in", variant: "destructive" });
+          return;
+        }
+
+        const result = await supabase
+          .from('invitation_card_settings' as any)
+          .update(newSettings)
+          .eq('id', activeArtworkId);
+
+        if (result.error) {
+          console.error('Error updating invitation card settings:', result.error);
+          toast({ title: "Error", description: "Failed to save settings", variant: "destructive" });
+        }
+      } catch (error) {
+        console.error('Error updating invitation card settings:', error);
+        toast({ title: "Error", description: "An unexpected error occurred", variant: "destructive" });
       }
+    }, 300);
 
-      const result = await supabase
-        .from('invitation_card_settings' as any)
-        .update(newSettings)
-        .eq('id', activeArtworkId)
-        .select()
-        .single();
-
-      if (result.error) {
-        console.error('Error updating invitation card settings:', result.error);
-        toast({ title: "Error", description: "Failed to save settings", variant: "destructive" });
-        return false;
-      }
-
-      const updated = parseRow(result.data);
-      setArtworks(prev => prev.map(a => a.id === activeArtworkId ? updated : a));
-      return true;
-    } catch (error) {
-      console.error('Error updating invitation card settings:', error);
-      toast({ title: "Error", description: "An unexpected error occurred", variant: "destructive" });
-      return false;
-    }
+    return true;
   };
 
   const createArtwork = async (cardType: CardType, name: string, cardSize?: string) => {
