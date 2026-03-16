@@ -16,11 +16,6 @@ import { InvitationGalleryModal } from './InvitationGalleryModal';
 import { PlaceCardFontPicker } from '../PlaceCards/PlaceCardFontPicker';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import canvaEditBanner from '@/assets/canva-edit-banner.png';
-import { InvitationGalleryModal } from './InvitationGalleryModal';
-import { PlaceCardFontPicker } from '../PlaceCards/PlaceCardFontPicker';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
 import { ColorPickerPopover } from '@/components/ui/color-picker-popover';
 
 
