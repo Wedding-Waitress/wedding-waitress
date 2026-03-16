@@ -1,21 +1,20 @@
 
 
-## Plan: Move Edit with Canva banner onto the same row as Choose File and Image Gallery
+## Equalize Preset Zone Button Container Gaps
 
-### Summary
-Move the clickable Canva banner image from its own row below the buttons into the same flex row as Choose File and Image Gallery, so all three sit side by side on one line.
+**Problem**: The preset zone button container stretches to full width, so the wrapped buttons leave a large uneven gap on the right side compared to the left.
 
-### File Changes
+**Fix in `src/components/Dashboard/Invitations/InvitationCardCustomizer.tsx`:**
 
-#### 1. `src/components/Dashboard/Invitations/InvitationCardCustomizer.tsx`
-- **Move lines 428-433** (the `<img>` tag) inside the `</div>` that closes at line 427, placing it after the Image Gallery button (before the closing `</div>`).
-- Remove `mt-2` from the image class since it will now be inline with the buttons.
-- The flex container already has `gap-2`, so the banner will sit naturally next to the buttons.
+Line 282 — Change the flex-wrap container to constrain its width so buttons fit snugly:
 
-#### 2. `src/components/Dashboard/PlaceCards/PlaceCardCustomizer.tsx`
-- **Move lines 706-711** (the `<img>` tag) inside the `</div>` that closes at line 703, placing it after the Image Gallery button.
-- Same class adjustment: remove `mt-2`.
+```tsx
+// Before
+<div className="flex flex-wrap gap-2">
 
-### Result
-All three elements — Choose File (green), Image Gallery (purple), Edit with Canva (banner) — appear on a single row in both pages. No other changes.
+// After
+<div className="flex flex-wrap gap-2 max-w-fit">
+```
+
+Adding `max-w-fit` ensures the container shrinks to fit its content width, making the visual gap on the right match the left padding naturally.
 
