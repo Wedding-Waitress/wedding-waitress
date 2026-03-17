@@ -1,21 +1,29 @@
 
 
-## Plan: Move Edit with Canva banner onto the same row as Choose File and Image Gallery
+## Fix PDF Download Filename
 
-### Summary
-Move the clickable Canva banner image from its own row below the buttons into the same flex row as Choose File and Image Gallery, so all three sit side by side on one line.
+### Format
+`Invitations-WeddingWaitress-{EventName}.pdf`
 
-### File Changes
+Example: If event name is "Jason & Lindas Wedding", the file downloads as:
+`Invitations-WeddingWaitress-Jason & Lindas Wedding.pdf`
 
-#### 1. `src/components/Dashboard/Invitations/InvitationCardCustomizer.tsx`
-- **Move lines 428-433** (the `<img>` tag) inside the `</div>` that closes at line 427, placing it after the Image Gallery button (before the closing `</div>`).
-- Remove `mt-2` from the image class since it will now be inline with the buttons.
-- The flex container already has `gap-2`, so the banner will sit naturally next to the buttons.
+### Changes
 
-#### 2. `src/components/Dashboard/PlaceCards/PlaceCardCustomizer.tsx`
-- **Move lines 706-711** (the `<img>` tag) inside the `</div>` that closes at line 703, placing it after the Image Gallery button.
-- Same class adjustment: remove `mt-2`.
+**1. `src/lib/invitationExporter.ts`** — Add optional `fileName` parameter to `exportInvitationPDF`:
+```ts
+export async function exportInvitationPDF(opts, guestName?, fileName?): Promise<void> {
+  // ... existing logic ...
+  pdf.save(fileName || `invitation.pdf`);
+}
+```
 
-### Result
-All three elements — Choose File (green), Image Gallery (purple), Edit with Canva (banner) — appear on a single row in both pages. No other changes.
+**2. `src/components/Dashboard/Invitations/InvitationsPage.tsx`** — Build filename from selected event and pass it:
+```ts
+const eventName = selectedEvent?.name || 'Event';
+const pdfFileName = `Invitations-WeddingWaitress-${eventName}.pdf`;
+await exportInvitationPDF(exportOpts, undefined, pdfFileName);
+```
+
+Two files, two small edits.
 
