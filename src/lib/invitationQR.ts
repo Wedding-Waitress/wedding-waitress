@@ -11,6 +11,7 @@ export interface QrConfig {
   x_percent: number;   // 0-100, center of QR
   y_percent: number;   // 0-100, center of QR
   size_percent: number; // 10-30, width as % of invitation
+  rotation: number;    // degrees
 }
 
 export const DEFAULT_QR_CONFIG: QrConfig = {
