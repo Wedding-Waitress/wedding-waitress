@@ -26,6 +26,7 @@ export interface QrConfig {
   x_percent: number;
   y_percent: number;
   size_percent: number;
+  rotation: number;
   event_id: string | null;
 }
 
@@ -34,6 +35,7 @@ export const DEFAULT_QR_CONFIG: QrConfig = {
   x_percent: 50,
   y_percent: 90,
   size_percent: 15,
+  rotation: 0,
   event_id: null,
 };
 

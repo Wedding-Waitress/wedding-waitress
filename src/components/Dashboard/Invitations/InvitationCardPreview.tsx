@@ -276,11 +276,14 @@ export const InvitationCardPreview: React.FC<InvitationCardPreviewProps> = ({
                   xPercent={settings.qr_config.x_percent}
                   yPercent={settings.qr_config.y_percent}
                   sizePercent={settings.qr_config.size_percent}
+                  rotation={settings.qr_config.rotation ?? 0}
                   isSelected={selectedZoneId === '__qr__'}
                   onSelect={() => onSelectZone?.('__qr__')}
                   onMove={(x, y) => onQrConfigUpdate?.({ x_percent: x, y_percent: y })}
                   onResize={(size) => onQrConfigUpdate?.({ size_percent: size })}
                   onDelete={() => onQrConfigUpdate?.({ enabled: false })}
+                  onReset={() => onQrConfigUpdate?.({ x_percent: 50, y_percent: 90, size_percent: 15, rotation: 0 })}
+                  onRotate={(r) => onQrConfigUpdate?.({ rotation: r })}
                   containerRef={containerRef as React.RefObject<HTMLElement>}
                 />
               )}
