@@ -505,7 +505,7 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
               }}
               qrDataUrl={qrDataUrl}
               onQrConfigUpdate={(updates) => {
-                const current = activeArtwork?.qr_config || { enabled: false, x_percent: 50, y_percent: 90, size_percent: 15, event_id: null };
+                const current = activeArtwork?.qr_config || { enabled: false, x_percent: 50, y_percent: 90, size_percent: 15, rotation: 0, event_id: null };
                 updateSettings({ qr_config: { ...current, ...updates } });
               }}
             />
