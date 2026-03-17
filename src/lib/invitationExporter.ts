@@ -149,7 +149,7 @@ export async function exportInvitationPNG(opts: ExportOptions, guestName?: strin
 }
 
 /** Export single invitation as PDF */
-export async function exportInvitationPDF(opts: ExportOptions, guestName?: string): Promise<void> {
+export async function exportInvitationPDF(opts: ExportOptions, guestName?: string, fileName?: string): Promise<void> {
   const el = buildInvitationElement(opts, guestName);
   const canvas = await captureElement(el);
   const pdf = new jsPDF({
