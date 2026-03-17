@@ -1,50 +1,21 @@
 
 
-## Fix: "Download All Pages PDF" Fails with "wrong PNG signature"
+## Plan: Move Edit with Canva banner onto the same row as Choose File and Image Gallery
 
-### Root Cause
+### Summary
+Move the clickable Canva banner image from its own row below the buttons into the same flex row as Choose File and Image Gallery, so all three sit side by side on one line.
 
-The visible preview only renders **one page at a time** with `data-page={currentPage - 1}`. The "all pages" section exists but is hidden (`class="hidden print:block"`). When `exportAllPlaceCardsToPdf` loops through pages and calls `document.querySelector('[data-page="1"]')`, it finds the hidden print div. Since it has `display: none`, `html2canvas` produces invalid/empty output, causing jsPDF's PNG decoder to fail with "wrong PNG signature".
+### File Changes
 
-### Fix
+#### 1. `src/components/Dashboard/Invitations/InvitationCardCustomizer.tsx`
+- **Move lines 428-433** (the `<img>` tag) inside the `</div>` that closes at line 427, placing it after the Image Gallery button (before the closing `</div>`).
+- Remove `mt-2` from the image class since it will now be inline with the buttons.
+- The flex container already has `gap-2`, so the banner will sit naturally next to the buttons.
 
-Modify `exportAllPlaceCardsToPdf` in `src/lib/placeCardsPdfExporter.ts` to temporarily unhide the print container before capturing, then re-hide it after. The approach:
+#### 2. `src/components/Dashboard/PlaceCards/PlaceCardCustomizer.tsx`
+- **Move lines 706-711** (the `<img>` tag) inside the `</div>` that closes at line 703, placing it after the Image Gallery button.
+- Same class adjustment: remove `mt-2`.
 
-1. Find the print container (parent of the hidden `data-page` elements — the `div.hidden.print\\:block`)
-2. Temporarily set it to `display: block` and position it offscreen (`position: absolute; left: -9999px`)
-3. Capture each page with `html2canvas`
-4. Restore the container to hidden
-
-**Single file change: `src/lib/placeCardsPdfExporter.ts`**
-
-Update `exportAllPlaceCardsToPdf` to:
-```ts
-// Find and temporarily show the print container
-const printContainer = document.querySelector('.hidden.print\\:block') as HTMLElement;
-if (printContainer) {
-  printContainer.style.display = 'block';
-  printContainer.style.position = 'absolute';
-  printContainer.style.left = '-9999px';
-  printContainer.style.top = '0';
-}
-
-try {
-  for (let pageIndex = 0; pageIndex < totalPages; pageIndex++) {
-    if (pageIndex > 0) pdf.addPage();
-    const imageData = await convertPlaceCardPageToImage(pageIndex);
-    pdf.addImage(imageData, 'PNG', 0, 0, 210, 297);
-  }
-  pdf.save(fileName);
-} finally {
-  // Restore hidden state
-  if (printContainer) {
-    printContainer.style.display = '';
-    printContainer.style.position = '';
-    printContainer.style.left = '';
-    printContainer.style.top = '';
-  }
-}
-```
-
-This ensures all page elements are rendered and capturable by `html2canvas` during export, without affecting the visible UI.
+### Result
+All three elements — Choose File (green), Image Gallery (purple), Edit with Canva (banner) — appear on a single row in both pages. No other changes.
 
