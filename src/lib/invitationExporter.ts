@@ -149,7 +149,7 @@ export async function exportInvitationPNG(opts: ExportOptions, guestName?: strin
 }
 
 /** Export single invitation as PDF */
-export async function exportInvitationPDF(opts: ExportOptions, guestName?: string): Promise<void> {
+export async function exportInvitationPDF(opts: ExportOptions, guestName?: string, fileName?: string): Promise<void> {
   const el = buildInvitationElement(opts, guestName);
   const canvas = await captureElement(el);
   const pdf = new jsPDF({
@@ -159,7 +159,7 @@ export async function exportInvitationPDF(opts: ExportOptions, guestName?: strin
   });
   const imgData = canvas.toDataURL('image/png');
   pdf.addImage(imgData, 'PNG', 0, 0, opts.widthMm, opts.heightMm);
-  pdf.save(`invitation${guestName ? `-${guestName.replace(/\s+/g, '-')}` : ''}.pdf`);
+  pdf.save(fileName || `invitation${guestName ? `-${guestName.replace(/\s+/g, '-')}` : ''}.pdf`);
 }
 
 /** Export 2-up A4 layout (two A5 invitations per page) */
