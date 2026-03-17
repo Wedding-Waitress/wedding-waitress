@@ -1,50 +1,21 @@
 
 
-## Add Text-Zone-Style Toolbar to QR Code Overlay
+## Plan: Move Edit with Canva banner onto the same row as Choose File and Image Gallery
 
-### Problem
-The QR code overlay currently shows a basic selection border with corner handles and a standalone delete button. It needs the same toolbar pattern as text zones: top toolbar (Reset, Duplicate, Delete) and bottom controls (Move grip, Rotate handle).
+### Summary
+Move the clickable Canva banner image from its own row below the buttons into the same flex row as Choose File and Image Gallery, so all three sit side by side on one line.
 
-### Changes
+### File Changes
 
-**Single file: `src/components/ui/InteractiveQROverlay.tsx`**
+#### 1. `src/components/Dashboard/Invitations/InvitationCardCustomizer.tsx`
+- **Move lines 428-433** (the `<img>` tag) inside the `</div>` that closes at line 427, placing it after the Image Gallery button (before the closing `</div>`).
+- Remove `mt-2` from the image class since it will now be inline with the buttons.
+- The flex container already has `gap-2`, so the banner will sit naturally next to the buttons.
 
-1. **Add new props**: `onReset`, `onDuplicate`, `onRotate`, plus `rotation` state support.
+#### 2. `src/components/Dashboard/PlaceCards/PlaceCardCustomizer.tsx`
+- **Move lines 706-711** (the `<img>` tag) inside the `</div>` that closes at line 703, placing it after the Image Gallery button.
+- Same class adjustment: remove `mt-2`.
 
-2. **Replace the current delete button** with a top toolbar matching the text zone pattern exactly:
-   - Centered above the QR code with `bottom: '100%'`, `marginBottom: 6`
-   - Same background, border, border-radius, padding, box-shadow
-   - Three `ToolbarButton`s in order: Reset (`RotateCcw`), Duplicate (`CopyPlus`), Delete (`Trash2`)
-
-3. **Add bottom controls** matching the text zone pattern:
-   - Centered below the QR code with `top: '100%'`, `marginTop: 6`
-   - Move grip: 24×24 rounded-full icon button with `Move` icon, triggers drag mode
-   - Rotate handle: 24×24 rounded-full icon button with `RotateCw` icon, triggers rotate mode
-   - Live angle indicator shown during rotation
-
-4. **Add rotate logic**: Reuse the same pointer-based rotation pattern (horizontal drag → angle change, 4° snap-to-zero, live degree badge).
-
-5. **Copy `ToolbarButton` helper** inline (same tiny component from `InteractiveTextOverlay`).
-
-6. **Keep existing** corner resize handles and drag-to-move on the QR image itself.
-
-**Wire up in `InvitationCardPreview.tsx`** (lines ~274-285):
-- Pass `onReset` → resets QR position/size to defaults (x:50, y:90, size:15)
-- Pass `onDuplicate` → no-op or not passed (QR is singular, but we show the icon for consistency; can be omitted if preferred)
-- Pass `onRotate` → updates a `rotation` field in qr_config (will need to add `rotation` to `QrConfig` interface)
-
-**Update `QrConfig` in `useInvitationCardSettings.ts`**:
-- Add `rotation: number` field (default `0`)
-
-### Toolbar Layout (matches text zones exactly)
-
-```text
-       [ ↺ Reset | ⊕ Duplicate | 🗑 Delete ]   ← top toolbar
-       ┌─────────────────────────┐
-       │                         │
-       │       QR Code           │
-       │                         │
-       └─────────────────────────┘
-              [ ✥ Move  ↻ Rotate ]              ← bottom controls
-```
+### Result
+All three elements — Choose File (green), Image Gallery (purple), Edit with Canva (banner) — appear on a single row in both pages. No other changes.
 
