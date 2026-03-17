@@ -309,11 +309,12 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
                 </div>
                 <div className="flex items-center gap-2">
                   <button
-                    disabled
+                    disabled={!activeArtwork || exporting}
+                    onClick={handleDownloadPDF}
                     className="inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none whitespace-nowrap"
                   >
-                    <FileText className="w-3 h-3" />
-                    Download PDF
+                    {exporting ? <Loader2 className="w-3 h-3 animate-spin" /> : <FileText className="w-3 h-3" />}
+                    {exporting ? 'Exporting…' : 'Download PDF'}
                   </button>
                 </div>
               </div>
