@@ -75,6 +75,50 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
   const [exporting, setExporting] = useState(false);
 
 
+  const CARD_SIZE_MM: Record<string, { w: number; h: number }> = {
+    A4: { w: 210, h: 297 },
+    A5: { w: 148, h: 210 },
+    A6: { w: 105, h: 148 },
+  };
+
+  const handleDownloadPDF = useCallback(async () => {
+    if (!activeArtwork) return;
+    setExporting(true);
+    try {
+      const size = CARD_SIZE_MM[activeArtwork.card_size] || CARD_SIZE_MM.A4;
+      const isLandscape = activeArtwork.orientation === 'landscape';
+      const widthMm = isLandscape ? size.h : size.w;
+      const heightMm = isLandscape ? size.w : size.h;
+
+      const textZones = (activeArtwork.text_zones || []) as any[];
+      const customText: Record<string, string> = {};
+      const customStyles: Record<string, any> = {};
+      textZones.forEach((z: any) => {
+        if (z.id && z.default_text) customText[z.id] = z.default_text;
+        if (z.id) customStyles[z.id] = {};
+      });
+
+      await exportInvitationPDF({
+        backgroundUrl: activeArtwork.background_image_url || '',
+        orientation: activeArtwork.orientation,
+        widthMm,
+        heightMm,
+        textZones,
+        customText,
+        customStyles,
+        eventData: eventData as Record<string, string>,
+        qrConfig: activeArtwork.qr_config as any,
+        qrDataUrl: qrDataUrl || undefined,
+      });
+      toast({ title: 'PDF downloaded', description: 'Your invitation PDF has been saved.' });
+    } catch (err) {
+      console.error('PDF export error:', err);
+      toast({ title: 'Export failed', description: 'Could not generate the PDF. Please try again.', variant: 'destructive' });
+    } finally {
+      setExporting(false);
+    }
+  }, [activeArtwork, eventData, qrDataUrl]);
+
 
   // Generate QR when qr_config changes
   useEffect(() => {
