@@ -1,53 +1,21 @@
 
 
-## Fix: PDF Export Missing Text
+## Plan: Move Edit with Canva banner onto the same row as Choose File and Image Gallery
 
-### Root Cause
+### Summary
+Move the clickable Canva banner image from its own row below the buttons into the same flex row as Choose File and Image Gallery, so all three sit side by side on one line.
 
-The `buildInvitationElement` in `invitationExporter.ts` was written for an older data model and doesn't match the current `TextZone` interface. Specifically:
+### File Changes
 
-| What exporter expects | What zones actually have |
-|---|---|
-| `customText[zone.id]` from `zone.default_text` | `zone.text` (the actual display text) |
-| `zone.type === 'auto'` + `zone.auto_field` | `zone.type === 'preset'` + `zone.preset_field` |
-| `zone.letter_spacing` | No `letter_spacing` field on current TextZone |
+#### 1. `src/components/Dashboard/Invitations/InvitationCardCustomizer.tsx`
+- **Move lines 428-433** (the `<img>` tag) inside the `</div>` that closes at line 427, placing it after the Image Gallery button (before the closing `</div>`).
+- Remove `mt-2` from the image class since it will now be inline with the buttons.
+- The flex container already has `gap-2`, so the banner will sit naturally next to the buttons.
 
-The preview component (`InvitationCardPreview.tsx` line 76-82) correctly resolves text via:
-```ts
-if (zone.text) return zone.text;
-if (zone.type === 'preset' && zone.preset_field) return eventData[zone.preset_field] || '';
-```
+#### 2. `src/components/Dashboard/PlaceCards/PlaceCardCustomizer.tsx`
+- **Move lines 706-711** (the `<img>` tag) inside the `</div>` that closes at line 703, placing it after the Image Gallery button.
+- Same class adjustment: remove `mt-2`.
 
-But the exporter never reads `zone.text` or `zone.preset_field`, so every zone gets empty text → nothing renders.
-
-### Fix — Two changes
-
-**1. `handleDownloadPDF` in `InvitationsPage.tsx` (lines 141-147)**
-
-Build `customText` using the same logic as the preview's `getZoneText`:
-```ts
-textZones.forEach((z: any) => {
-  if (z.text) {
-    customText[z.id] = z.text;
-  } else if (z.type === 'preset' && z.preset_field) {
-    customText[z.id] = eventData[z.preset_field] || '';
-  }
-});
-```
-
-**2. `buildInvitationElement` in `invitationExporter.ts` (lines 63-73)**
-
-Add a fallback that also checks `zone.text` and `zone.preset_field` so the exporter works with the current data model regardless of how `customText` is built:
-```ts
-let text = customText[zone.id] || '';
-if (!text && (zone as any).text) text = (zone as any).text;
-if (!text && zone.type === 'preset' && (zone as any).preset_field && eventData[(zone as any).preset_field]) {
-  text = eventData[(zone as any).preset_field];
-}
-// ... existing auto_field and guest_name fallbacks ...
-```
-
-Also guard `letter_spacing` with a fallback to `0` since the current TextZone interface doesn't have it.
-
-These two changes ensure the exported PDF text matches what's shown in the preview.
+### Result
+All three elements — Choose File (green), Image Gallery (purple), Edit with Canva (banner) — appear on a single row in both pages. No other changes.
 

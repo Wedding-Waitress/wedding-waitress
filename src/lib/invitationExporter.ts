@@ -64,13 +64,17 @@ export function buildInvitationElement(opts: ExportOptions, guestName?: string):
     const el = document.createElement('div');
     const overrides = customStyles[zone.id] || {};
     let text = customText[zone.id] || '';
+    if (!text && (zone as any).text) text = (zone as any).text;
+    if (!text && (zone as any).type === 'preset' && (zone as any).preset_field && eventData[(zone as any).preset_field]) {
+      text = eventData[(zone as any).preset_field];
+    }
     if (!text && zone.type === 'auto' && zone.auto_field && eventData[zone.auto_field]) {
       text = eventData[zone.auto_field];
     }
     if (!text && zone.type === 'guest_name' && guestName) {
       text = guestName;
     }
-    if (!text) text = zone.default_text;
+    if (!text) text = zone.default_text || '';
 
     const fontSize = overrides.font_size || zone.font_size;
     const scaledFontSize = fontSize * DPI_SCALE;
@@ -88,7 +92,7 @@ export function buildInvitationElement(opts: ExportOptions, guestName?: string):
       text-decoration: ${(zone as any).font_style === 'underline' ? 'underline' : 'none'};
       color: ${overrides.font_color || zone.font_color};
       text-align: ${overrides.text_align || zone.text_align};
-      letter-spacing: ${(overrides.letter_spacing ?? zone.letter_spacing) * DPI_SCALE}px;
+      letter-spacing: ${(overrides.letter_spacing ?? (zone as any).letter_spacing ?? 0) * DPI_SCALE}px;
       line-height: 1.3;
       white-space: pre-wrap;
       transform: rotate(${(zone as any).rotation || 0}deg);
