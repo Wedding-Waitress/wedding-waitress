@@ -101,6 +101,15 @@ export const exportAllPlaceCardsToPdf = async (
   event: any,
   totalPages: number
 ): Promise<void> => {
+  // Find and temporarily show the hidden print container
+  const printContainer = document.querySelector('.hidden.print\\:block') as HTMLElement;
+  if (printContainer) {
+    printContainer.style.display = 'block';
+    printContainer.style.position = 'absolute';
+    printContainer.style.left = '-9999px';
+    printContainer.style.top = '0';
+  }
+
   try {
     // Create PDF document (A4 portrait)
     const pdf = new jsPDF({
@@ -127,5 +136,13 @@ export const exportAllPlaceCardsToPdf = async (
   } catch (error) {
     console.error('All place cards PDF export error:', error);
     throw error;
+  } finally {
+    // Restore hidden state
+    if (printContainer) {
+      printContainer.style.display = '';
+      printContainer.style.position = '';
+      printContainer.style.left = '';
+      printContainer.style.top = '';
+    }
   }
 };
