@@ -82,9 +82,7 @@ export const exportPlaceCardPageToPdf = async (
     pdf.addImage(imageData, 'PNG', 0, 0, 210, 297);
 
     // Generate filename
-    const sanitizedName = event.name.replace(/[^a-z0-9]/gi, '-');
-    const today = new Date().toLocaleDateString('en-GB').replace(/\//g, '-');
-    const fileName = `${sanitizedName}-place-cards-page-${pageIndex + 1}-${today}.pdf`;
+    const fileName = `PlaceCards-WeddingWaitress-SinglePage-${event.name}.pdf`;
 
     // Save the PDF
     pdf.save(fileName);
