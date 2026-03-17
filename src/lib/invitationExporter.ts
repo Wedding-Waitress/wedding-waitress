@@ -92,7 +92,7 @@ export function buildInvitationElement(opts: ExportOptions, guestName?: string):
       text-decoration: ${(zone as any).font_style === 'underline' ? 'underline' : 'none'};
       color: ${overrides.font_color || zone.font_color};
       text-align: ${overrides.text_align || zone.text_align};
-      letter-spacing: ${(overrides.letter_spacing ?? zone.letter_spacing) * DPI_SCALE}px;
+      letter-spacing: ${(overrides.letter_spacing ?? (zone as any).letter_spacing ?? 0) * DPI_SCALE}px;
       line-height: 1.3;
       white-space: pre-wrap;
       transform: rotate(${(zone as any).rotation || 0}deg);

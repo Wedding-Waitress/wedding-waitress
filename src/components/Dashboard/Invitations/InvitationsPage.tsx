@@ -142,8 +142,16 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
       const customText: Record<string, string> = {};
       const customStyles: Record<string, any> = {};
       textZones.forEach((z: any) => {
-        if (z.id && z.default_text) customText[z.id] = z.default_text;
-        if (z.id) customStyles[z.id] = {};
+        if (z.id) {
+          if (z.text) {
+            customText[z.id] = z.text;
+          } else if (z.type === 'preset' && z.preset_field && (eventData as any)[z.preset_field]) {
+            customText[z.id] = (eventData as any)[z.preset_field];
+          } else if (z.default_text) {
+            customText[z.id] = z.default_text;
+          }
+          customStyles[z.id] = {};
+        }
       });
 
       await exportInvitationPDF({
