@@ -19,6 +19,7 @@ export const DEFAULT_QR_CONFIG: QrConfig = {
   x_percent: 85,
   y_percent: 85,
   size_percent: 15,
+  rotation: 0,
 };
 
 /** Generate a QR code data URL for an event's guest lookup page.
