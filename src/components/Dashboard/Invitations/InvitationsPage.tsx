@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useEvents } from '@/hooks/useEvents';
@@ -10,6 +10,8 @@ import { Loader2, FileText, Calendar, Mail, Plus, Copy, Trash2, Pencil } from 'l
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/enhanced-button';
 import { generateInvitationQR } from '@/lib/invitationQR';
+import { exportInvitationPDF } from '@/lib/invitationExporter';
+import { toast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -70,6 +72,7 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
   const [renameValue, setRenameValue] = useState('');
   const [selectedZoneId, setSelectedZoneId] = useState<string | null>(null);
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
+  const [exporting, setExporting] = useState(false);
 
   // Generate QR when qr_config changes
   useEffect(() => {
@@ -119,6 +122,51 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
       venue_address: selectedEvent.venue_address || '',
     };
   }, [selectedEvent]);
+
+  const CARD_SIZE_MM: Record<string, { w: number; h: number }> = {
+    A4: { w: 210, h: 297 },
+    A5: { w: 148, h: 210 },
+    A6: { w: 105, h: 148 },
+  };
+
+  const handleDownloadPDF = useCallback(async () => {
+    if (!activeArtwork) return;
+    setExporting(true);
+    try {
+      const size = CARD_SIZE_MM[activeArtwork.card_size] || CARD_SIZE_MM.A4;
+      const isLandscape = activeArtwork.orientation === 'landscape';
+      const widthMm = isLandscape ? size.h : size.w;
+      const heightMm = isLandscape ? size.w : size.h;
+
+      const textZones = (activeArtwork.text_zones || []) as any[];
+      const customText: Record<string, string> = {};
+      const customStyles: Record<string, any> = {};
+      textZones.forEach((z: any) => {
+        if (z.id && z.default_text) customText[z.id] = z.default_text;
+        if (z.id) customStyles[z.id] = {};
+      });
+
+      await exportInvitationPDF({
+        backgroundUrl: activeArtwork.background_image_url || '',
+        orientation: activeArtwork.orientation,
+        widthMm,
+        heightMm,
+        textZones,
+        customText,
+        customStyles,
+        eventData: eventData as Record<string, string>,
+        qrConfig: activeArtwork.qr_config as any,
+        qrDataUrl: qrDataUrl || undefined,
+      });
+      toast({ title: 'PDF downloaded', description: 'Your invitation PDF has been saved.' });
+    } catch (err) {
+      console.error('PDF export error:', err);
+      toast({ title: 'Export failed', description: 'Could not generate the PDF. Please try again.', variant: 'destructive' });
+    } finally {
+      setExporting(false);
+    }
+  }, [activeArtwork, eventData, qrDataUrl]);
+
 
   const filteredArtworks = useMemo(
     () => artworks.filter(a => a.card_type === activeCardType),
@@ -262,11 +310,12 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
                 </div>
                 <div className="flex items-center gap-2">
                   <button
-                    disabled
+                    disabled={!activeArtwork || exporting}
+                    onClick={handleDownloadPDF}
                     className="inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none whitespace-nowrap"
                   >
-                    <FileText className="w-3 h-3" />
-                    Download PDF
+                    {exporting ? <Loader2 className="w-3 h-3 animate-spin" /> : <FileText className="w-3 h-3" />}
+                    {exporting ? 'Exporting…' : 'Download PDF'}
                   </button>
                 </div>
               </div>
