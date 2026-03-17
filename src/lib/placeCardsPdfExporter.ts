@@ -120,9 +120,7 @@ export const exportAllPlaceCardsToPdf = async (
     }
 
     // Generate filename
-    const sanitizedName = event.name.replace(/[^a-z0-9]/gi, '-');
-    const today = new Date().toLocaleDateString('en-GB').replace(/\//g, '-');
-    const fileName = `${sanitizedName}-place-cards-all-pages-${today}.pdf`;
+    const fileName = `PlaceCards-WeddingWaitress-AllPages-${event.name}.pdf`;
 
     // Save the PDF
     pdf.save(fileName);
