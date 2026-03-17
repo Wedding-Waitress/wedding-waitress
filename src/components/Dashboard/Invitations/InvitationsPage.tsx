@@ -154,6 +154,9 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
         }
       });
 
+      const eventName = selectedEvent?.name || 'Event';
+      const pdfFileName = `Invitations-WeddingWaitress-${eventName}.pdf`;
+
       await exportInvitationPDF({
         backgroundUrl: activeArtwork.background_image_url || '',
         orientation: activeArtwork.orientation,
@@ -165,7 +168,7 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
         eventData: eventData as Record<string, string>,
         qrConfig: activeArtwork.qr_config as any,
         qrDataUrl: qrDataUrl || undefined,
-      });
+      }, undefined, pdfFileName);
       toast({ title: 'PDF downloaded', description: 'Your invitation PDF has been saved.' });
     } catch (err) {
       console.error('PDF export error:', err);
