@@ -1,26 +1,21 @@
 
 
-## Fix Place Cards PDF Download Filenames
+## Plan: Move Edit with Canva banner onto the same row as Choose File and Image Gallery
 
-### Current
-- Single page: `Jason---Linda-s-Wedding-place-cards-page-1-17-03-2026.pdf`
-- All pages: `Jason---Linda-s-Wedding-place-cards-all-pages-17-03-2026.pdf`
+### Summary
+Move the clickable Canva banner image from its own row below the buttons into the same flex row as Choose File and Image Gallery, so all three sit side by side on one line.
 
-### Required
-- Single page: `PlaceCards-WeddingWaitress-SinglePage-Jason & Linda's Wedding.pdf`
-- All pages: `PlaceCards-WeddingWaitress-AllPages-Jason & Linda's Wedding.pdf`
+### File Changes
 
-### Changes — Single file: `src/lib/placeCardsPdfExporter.ts`
+#### 1. `src/components/Dashboard/Invitations/InvitationCardCustomizer.tsx`
+- **Move lines 428-433** (the `<img>` tag) inside the `</div>` that closes at line 427, placing it after the Image Gallery button (before the closing `</div>`).
+- Remove `mt-2` from the image class since it will now be inline with the buttons.
+- The flex container already has `gap-2`, so the banner will sit naturally next to the buttons.
 
-**1. Single page export (lines 84-87)** — Replace filename generation:
-```ts
-const fileName = `PlaceCards-WeddingWaitress-SinglePage-${event.name}.pdf`;
-```
+#### 2. `src/components/Dashboard/PlaceCards/PlaceCardCustomizer.tsx`
+- **Move lines 706-711** (the `<img>` tag) inside the `</div>` that closes at line 703, placing it after the Image Gallery button.
+- Same class adjustment: remove `mt-2`.
 
-**2. All pages export (lines 124-127)** — Replace filename generation:
-```ts
-const fileName = `PlaceCards-WeddingWaitress-AllPages-${event.name}.pdf`;
-```
-
-Remove the `sanitizedName` and `today` variables in both functions as they're no longer needed.
+### Result
+All three elements — Choose File (green), Image Gallery (purple), Edit with Canva (banner) — appear on a single row in both pages. No other changes.
 
