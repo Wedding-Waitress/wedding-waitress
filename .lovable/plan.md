@@ -1,21 +1,21 @@
 
 
-## Issue: Missing `qr_config` column in database
+## Plan: Move Edit with Canva banner onto the same row as Choose File and Image Gallery
 
-The error is clear from the console log:
+### Summary
+Move the clickable Canva banner image from its own row below the buttons into the same flex row as Choose File and Image Gallery, so all three sit side by side on one line.
 
-> `Could not find the 'qr_config' column of 'invitation_card_settings' in the schema cache`
+### File Changes
 
-The code references a `qr_config` column on the `invitation_card_settings` table, but this column was never created in the database. The frontend code and hook were updated to use `qr_config`, but no database migration was run to add the column.
+#### 1. `src/components/Dashboard/Invitations/InvitationCardCustomizer.tsx`
+- **Move lines 428-433** (the `<img>` tag) inside the `</div>` that closes at line 427, placing it after the Image Gallery button (before the closing `</div>`).
+- Remove `mt-2` from the image class since it will now be inline with the buttons.
+- The flex container already has `gap-2`, so the banner will sit naturally next to the buttons.
 
-### Fix
+#### 2. `src/components/Dashboard/PlaceCards/PlaceCardCustomizer.tsx`
+- **Move lines 706-711** (the `<img>` tag) inside the `</div>` that closes at line 703, placing it after the Image Gallery button.
+- Same class adjustment: remove `mt-2`.
 
-Run a single SQL migration to add the column:
-
-```sql
-ALTER TABLE public.invitation_card_settings
-ADD COLUMN qr_config jsonb DEFAULT '{"enabled": false, "x_percent": 50, "y_percent": 90, "size_percent": 15, "event_id": null}'::jsonb;
-```
-
-This adds a `qr_config` JSONB column with sensible defaults matching the `DEFAULT_QR_CONFIG` in the code. No other code changes needed — the existing frontend code will work once the column exists.
+### Result
+All three elements — Choose File (green), Image Gallery (purple), Edit with Canva (banner) — appear on a single row in both pages. No other changes.
 

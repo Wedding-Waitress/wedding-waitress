@@ -1250,6 +1250,7 @@ export type Database = {
           id: string
           name: string
           orientation: string
+          qr_config: Json | null
           text_zones: Json
           updated_at: string
           user_id: string
@@ -1270,6 +1271,7 @@ export type Database = {
           id?: string
           name?: string
           orientation?: string
+          qr_config?: Json | null
           text_zones?: Json
           updated_at?: string
           user_id: string
@@ -1290,6 +1292,7 @@ export type Database = {
           id?: string
           name?: string
           orientation?: string
+          qr_config?: Json | null
           text_zones?: Json
           updated_at?: string
           user_id?: string
