@@ -65,7 +65,7 @@ export function buildInvitationElement(opts: ExportOptions, guestName?: string):
     const overrides = customStyles[zone.id] || {};
     let text = customText[zone.id] || '';
     if (!text && (zone as any).text) text = (zone as any).text;
-    if (!text && zone.type === 'preset' && (zone as any).preset_field && eventData[(zone as any).preset_field]) {
+    if (!text && (zone as any).type === 'preset' && (zone as any).preset_field && eventData[(zone as any).preset_field]) {
       text = eventData[(zone as any).preset_field];
     }
     if (!text && zone.type === 'auto' && zone.auto_field && eventData[zone.auto_field]) {
