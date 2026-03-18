@@ -191,7 +191,13 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
   const handleResetMessagesDefaults = async () => {
     const messagesDefaults = {
       mass_message: '',
-      individual_messages: {}
+      individual_messages: {},
+      message_font_family: 'Beauty Mountains',
+      message_font_size: 16,
+      message_font_color: '#000000',
+      message_bold: false,
+      message_italic: false,
+      message_underline: false,
     };
     
     setIndividualMessages({});
