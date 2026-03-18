@@ -452,7 +452,10 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
           <div className="lg:col-span-2">
             <PlaceCardCustomizer
               settings={settings}
-              onSettingsChange={updateSettings}
+              onSettingsChange={async (changes) => {
+                setLocalOverrides({});
+                return updateSettings(changes);
+              }}
               guests={assignedGuests}
               editMode={editMode}
               onEditModeChange={setEditMode}
