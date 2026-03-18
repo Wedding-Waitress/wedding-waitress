@@ -316,12 +316,17 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
         {/* FRONT Half (Bottom) - GUEST NAME + TABLE/SEAT */}
         <div 
           ref={isFirstCard ? firstCardRef : undefined}
-          className="relative z-10 flex flex-col items-center justify-start"
+          className="relative z-10"
           style={{ 
             height: '49.5mm',
-            padding: '5mm',
-            paddingTop: currentSettings.background_image_type === 'decorative' ? '1mm' : '8mm',
+            padding: isInteractive ? '0' : '5mm',
+            paddingTop: isInteractive ? '0' : (currentSettings.background_image_type === 'decorative' ? '1mm' : '8mm'),
             position: 'relative',
+            overflow: isInteractive ? 'hidden' : undefined,
+            display: isInteractive ? 'block' : 'flex',
+            flexDirection: isInteractive ? undefined : 'column',
+            alignItems: isInteractive ? undefined : 'center',
+            justifyContent: isInteractive ? undefined : 'flex-start',
           }}
         >
           {/* Guest Name - Interactive or Static */}
