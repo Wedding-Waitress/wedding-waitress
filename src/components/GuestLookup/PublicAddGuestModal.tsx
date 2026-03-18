@@ -65,8 +65,8 @@ interface PublicAddGuestModalProps {
   addedByGuestTableNo?: number;
 }
 
-const inputClasses = "rounded-full border-2 border-primary focus-visible:border-primary focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none h-9";
-const selectTriggerClasses = "w-full border-2 border-primary hover:border-primary focus:border-primary focus:border-[3px] focus:ring-0 focus:outline-none rounded-full h-9";
+const inputClasses = "rounded-full border-[3px] border-primary focus-visible:border-primary focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none h-9";
+const selectTriggerClasses = "w-full border-[3px] border-primary hover:border-primary focus:border-primary focus:border-[3px] focus:ring-0 focus:outline-none rounded-full h-9";
 
 export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
   open,
