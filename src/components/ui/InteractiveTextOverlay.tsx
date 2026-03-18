@@ -30,6 +30,11 @@ interface InteractiveTextOverlayProps {
   onReset?: () => void;
   onDuplicate?: () => void;
   onDelete?: () => void;
+  /** Live callbacks fire DURING interaction for real-time mirroring to sibling elements */
+  onLiveMove?: (dxPercent: number, dyPercent: number) => void;
+  onLiveRotate?: (degrees: number) => void;
+  onLiveFontSize?: (newSize: number) => void;
+  onLiveEnd?: () => void;
   containerRef: React.RefObject<HTMLElement>;
   showResizeHandles?: boolean;
   showRotateHandle?: boolean;
