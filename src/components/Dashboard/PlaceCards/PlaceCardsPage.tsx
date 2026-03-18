@@ -39,6 +39,7 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
   onEventSelect
 }) => {
   const [focusedPage, setFocusedPage] = useState<number | null>(null);
+  const [editMode, setEditMode] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [selectedPage, setSelectedPage] = useState<number>(0);
   const [isProcessing, setIsProcessing] = useState(false);

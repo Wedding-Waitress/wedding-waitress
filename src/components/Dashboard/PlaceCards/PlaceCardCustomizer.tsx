@@ -449,6 +449,20 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
           </TabsContent>
 
           <TabsContent value="position" className="space-y-4">
+            {/* Edit Mode Toggle */}
+            <div className="border-[1.5px] border-primary rounded-xl p-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Pencil className="w-4 h-4 text-primary" />
+                  <Label className="text-sm font-medium">Edit Mode</Label>
+                </div>
+                <Switch
+                  checked={editMode}
+                  onCheckedChange={onEditModeChange}
+                />
+              </div>
+            </div>
+
             <div className="space-y-4">
               <p className="text-sm text-muted-foreground">
                 Adjust the position of text elements. Changes apply to all cards.

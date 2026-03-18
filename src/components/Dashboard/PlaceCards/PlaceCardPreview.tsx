@@ -615,20 +615,6 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
           <div className="print:hidden">
             {/* Edit Mode Toggle + Pagination Controls */}
             <div className="flex items-center justify-center gap-4 mb-6">
-              {/* Edit Mode Toggle */}
-              {onSettingsChange && (
-                <div className="flex items-center gap-2 mr-4 px-3 py-1.5 rounded-lg border border-border bg-background">
-                  <Pencil className="h-3.5 w-3.5 text-muted-foreground" />
-                  <span className="text-sm font-medium text-foreground">Edit Mode</span>
-                  <Switch
-                    checked={editMode}
-                    onCheckedChange={(checked) => {
-                      setEditMode(checked);
-                      if (!checked) setSelectedElement(null);
-                    }}
-                  />
-                </div>
-              )}
 
               <Button
                 variant="outline"
