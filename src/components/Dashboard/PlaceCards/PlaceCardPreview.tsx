@@ -223,6 +223,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
           height: '99mm',
           backgroundColor: currentSettings.background_color,
           color: currentSettings.font_color,
+          zIndex: isInteractive ? 200 : undefined,
         }}
         onClick={isInteractive ? () => setSelectedElement(null) : undefined}
       >
