@@ -95,7 +95,13 @@ export const usePlaceCardSettings = (eventId: string | null) => {
       setSettings(data ? {
         ...data,
         background_image_type: data.background_image_type as 'none' | 'decorative' | 'full' | 'full_front' | 'full_back',
-        individual_messages: data.individual_messages as Record<string, string>
+        individual_messages: data.individual_messages as Record<string, string>,
+        message_font_family: (data as any).message_font_family || 'Beauty Mountains',
+        message_font_size: (data as any).message_font_size || 16,
+        message_font_color: (data as any).message_font_color || '#000000',
+        message_bold: (data as any).message_bold || false,
+        message_italic: (data as any).message_italic || false,
+        message_underline: (data as any).message_underline || false,
       } : null);
     } catch (error) {
       console.error('Error fetching place card settings:', error);
