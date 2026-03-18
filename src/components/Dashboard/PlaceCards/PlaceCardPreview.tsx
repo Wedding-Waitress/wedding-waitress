@@ -343,8 +343,10 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                   style={{
                     fontFamily: currentSettings.info_font_family,
                     fontSize: `${(currentSettings.info_font_size || 10) + 2}pt`,
-                    fontWeight: '600',
+                    fontWeight: currentSettings.info_bold ? '700' : '600',
                     color: currentSettings.font_color,
+                    fontStyle: currentSettings.info_italic ? 'italic' : undefined,
+                    textDecoration: currentSettings.info_underline ? 'underline' : undefined,
                   }}
                 >
                   {guest.seat_no || '—'}
