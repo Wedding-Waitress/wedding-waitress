@@ -53,6 +53,12 @@ export interface PlaceCardSettings {
   info_italic: boolean;
   info_underline: boolean;
   info_font_color: string;
+  message_font_family: string;
+  message_font_size: number;
+  message_font_color: string;
+  message_bold: boolean;
+  message_italic: boolean;
+  message_underline: boolean;
   created_at?: string;
   updated_at?: string;
 }

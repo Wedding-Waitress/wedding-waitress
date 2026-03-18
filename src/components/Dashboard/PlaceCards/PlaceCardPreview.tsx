@@ -230,10 +230,12 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
             <div
               className="text-center"
               style={{
-                fontFamily: currentSettings.info_font_family,
-                fontSize: `${currentSettings.info_font_size}pt`,
-                fontStyle: 'italic',
-                color: (currentSettings as any).info_font_color || '#000000',
+                fontFamily: currentSettings.message_font_family || currentSettings.info_font_family,
+                fontSize: `${currentSettings.message_font_size || currentSettings.info_font_size}pt`,
+                fontWeight: currentSettings.message_bold ? 'bold' : 'normal',
+                fontStyle: currentSettings.message_italic ? 'italic' : 'normal',
+                textDecoration: currentSettings.message_underline ? 'underline' : 'none',
+                color: currentSettings.message_font_color || '#000000',
               }}
             >
               {message}

@@ -904,6 +904,66 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
 
           <TabsContent value="messages" className="space-y-4">
             <div className="space-y-4">
+              {/* Message Styling Box */}
+              <div className="border-[1.5px] border-primary rounded-xl p-3 space-y-3">
+                <h3 className="text-sm font-semibold">Message Styling</h3>
+                
+                {/* Row 1: Font + Font Size */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <Label className="text-xs mb-1 block">Font</Label>
+                    <PlaceCardFontPicker
+                      value={currentSettings.message_font_family || 'Beauty Mountains'}
+                      onValueChange={value => handleSettingChange('message_font_family', value)}
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-xs mb-1 block">Font Size</Label>
+                    <Select 
+                      value={(currentSettings.message_font_size || 16).toString()} 
+                      onValueChange={(value) => handleSettingChange('message_font_size', parseInt(value))}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {[8, 9, 10, 11, 12, 13, 14, 16, 18, 20, 22, 24].map(size => (
+                          <SelectItem key={size} value={size.toString()}>
+                            {size}pt
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                {/* Row 2: Text Styling + Color */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="space-y-2">
+                    <Label className="text-xs">Text Styling</Label>
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="msg-bold-toggle" className="text-xs">Bold</Label>
+                      <Switch id="msg-bold-toggle" checked={currentSettings.message_bold || false} onCheckedChange={value => handleSettingChange('message_bold', value)} />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="msg-italic-toggle" className="text-xs">Italic</Label>
+                      <Switch id="msg-italic-toggle" checked={currentSettings.message_italic || false} onCheckedChange={value => handleSettingChange('message_italic', value)} />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="msg-underline-toggle" className="text-xs">Underline</Label>
+                      <Switch id="msg-underline-toggle" checked={currentSettings.message_underline || false} onCheckedChange={value => handleSettingChange('message_underline', value)} />
+                    </div>
+                  </div>
+                  <div>
+                    <Label className="text-xs mb-1 block">Color</Label>
+                    <ColorPickerPopover
+                      value={currentSettings.message_font_color || '#000000'}
+                      onChange={(color) => handleSettingChange('message_font_color', color)}
+                    />
+                  </div>
+                </div>
+              </div>
+
               <div className="p-4 border-2 border-accent-foreground rounded-xl space-y-3">
                 <Label className="flex items-center gap-2">
                   <MessageSquare className="h-4 w-4" />
