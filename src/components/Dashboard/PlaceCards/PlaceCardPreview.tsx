@@ -198,6 +198,12 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
 
     const guestNameTransform = `translate(${currentSettings.guest_name_offset_x ?? 0}mm, ${currentSettings.guest_name_offset_y ?? 0}mm) rotate(${(currentSettings as any).guest_name_rotation ?? 0}deg)`;
 
+    // Absolute percentage positions for interactive mode (matches InteractiveTextOverlay expectations)
+    const guestXPct = 50 + ((currentSettings.guest_name_offset_x ?? 0) / CARD_WIDTH_MM) * 100;
+    const guestYPct = 30 + ((currentSettings.guest_name_offset_y ?? 0) / FRONT_HEIGHT_MM) * 100;
+    const tableXPct = 50 + ((currentSettings.table_offset_x ?? 0) / CARD_WIDTH_MM) * 100;
+    const tableYPct = 70 + ((currentSettings.table_offset_y ?? 0) / FRONT_HEIGHT_MM) * 100;
+
     const tableInfoStyle: React.CSSProperties = {
       fontFamily: currentSettings.info_font_family,
       fontSize: `${currentSettings.info_font_size}pt`,
@@ -310,12 +316,17 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
         {/* FRONT Half (Bottom) - GUEST NAME + TABLE/SEAT */}
         <div 
           ref={isFirstCard ? firstCardRef : undefined}
-          className="relative z-10 flex flex-col items-center justify-start"
+          className="relative z-10"
           style={{ 
             height: '49.5mm',
-            padding: '5mm',
-            paddingTop: currentSettings.background_image_type === 'decorative' ? '1mm' : '8mm',
+            padding: isInteractive ? '0' : '5mm',
+            paddingTop: isInteractive ? '0' : (currentSettings.background_image_type === 'decorative' ? '1mm' : '8mm'),
             position: 'relative',
+            overflow: isInteractive ? 'hidden' : undefined,
+            display: isInteractive ? 'block' : 'flex',
+            flexDirection: isInteractive ? undefined : 'column',
+            alignItems: isInteractive ? undefined : 'center',
+            justifyContent: isInteractive ? undefined : 'flex-start',
           }}
         >
           {/* Guest Name - Interactive or Static */}
@@ -332,9 +343,13 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
               currentFontSize={currentSettings.guest_name_font_size}
               style={{
                 ...guestNameStyle,
-                transform: guestNameTransform,
+                marginBottom: 0,
+                left: `${guestXPct}%`,
+                top: `${guestYPct}%`,
+                transform: `translate(-50%, -50%) rotate(${(currentSettings as any).guest_name_rotation ?? 0}deg)`,
                 transformOrigin: 'center center',
-                position: 'relative',
+                textAlign: 'center',
+                whiteSpace: 'nowrap',
               }}
             >
               {currentSettings.background_behind_names ? (
@@ -423,9 +438,12 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                 currentFontSize={currentSettings.info_font_size}
                 style={{
                   ...tableInfoStyle,
-                  transform: tableTransform,
+                  left: `${tableXPct}%`,
+                  top: `${tableYPct}%`,
+                  transform: `translate(-50%, -50%) rotate(${(currentSettings as any).table_seat_rotation ?? 0}deg)`,
                   transformOrigin: 'center center',
-                  position: 'relative',
+                  textAlign: 'center',
+                  whiteSpace: 'nowrap',
                 }}
               >
                 {currentSettings.background_behind_table_seats ? (

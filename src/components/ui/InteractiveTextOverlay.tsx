@@ -63,7 +63,8 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
 
   const getBaseTransform = useCallback((): string => {
     const t = (style.transform as string) || '';
-    return t.replace(/rotate\([^)]*\)/g, '').trim();
+    // Strip rotate AND translate(px) added during drag, but keep translate(-50%, -50%) centering
+    return t.replace(/rotate\([^)]*\)/g, '').replace(/translate\([^)]*px[^)]*\)/g, '').trim();
   }, [style.transform]);
 
   const handlePointerDown = useCallback((e: React.PointerEvent, mode: string) => {
@@ -176,6 +177,7 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
         const newTop = initTop + dyP;
         el.style.left = `${newLeft}%`;
         el.style.top = `${newTop}%`;
+        // Restore base transform (e.g. translate(-50%,-50%)) plus rotation, without the drag px offset
         el.style.transform = `${baseTransform} rotate(${rotation}deg)`;
         onMove(dxP, dyP);
         onDragEnd?.();
