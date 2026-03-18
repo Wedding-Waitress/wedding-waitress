@@ -50,8 +50,24 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
   const { events, loading: eventsLoading } = useEvents();
   const { guests, loading: guestsLoading } = useRealtimeGuests(selectedEventId);
   const { tables, loading: tablesLoading } = useTables(selectedEventId);
-  const { settings, loading: settingsLoading, updateSettings } = usePlaceCardSettings(selectedEventId);
+  const { settings, loading: settingsLoading, updateSettings, updateSettingsSilent } = usePlaceCardSettings(selectedEventId);
   const { toast } = useToast();
+
+  // Local overrides for drag operations — instant visual feedback without DB round-trip
+  const [localOverrides, setLocalOverrides] = useState<Partial<import('@/hooks/usePlaceCardSettings').PlaceCardSettings>>({});
+  const mergedSettings = settings ? { ...settings, ...localOverrides } : settings;
+
+  // Handle preview changes (drag/move): update locally, save silently in background
+  const handlePreviewSettingsChange = React.useCallback(async (changes: Partial<import('@/hooks/usePlaceCardSettings').PlaceCardSettings>) => {
+    // Instant local update
+    setLocalOverrides(prev => ({ ...prev, ...changes }));
+    // Silent background save
+    const success = await updateSettingsSilent(changes);
+    if (success) {
+      // Clear overrides since DB state is now in sync
+      setLocalOverrides({});
+    }
+  }, [updateSettingsSilent]);
 
   // Persist table selection to sessionStorage
   React.useEffect(() => {
