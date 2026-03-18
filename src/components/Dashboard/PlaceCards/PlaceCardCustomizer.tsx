@@ -24,7 +24,7 @@ import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
 import { PlaceCardSettings } from '@/hooks/usePlaceCardSettings';
 import { Guest } from '@/hooks/useGuests';
-import { Palette, Type, Image, MessageSquare, Sparkles, Grid3X3, Trash2, Upload, Images } from 'lucide-react';
+import { Palette, Type, Image, MessageSquare, Sparkles, Grid3X3, Trash2, Upload, Images, Pencil } from 'lucide-react';
 import { PlaceCardGalleryModal } from './PlaceCardGalleryModal';
 import { PlaceCardFontPicker } from './PlaceCardFontPicker';
 import { supabase } from '@/integrations/supabase/client';
