@@ -219,30 +219,19 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
   const handleInteractiveReset = useCallback((element: 'guest-name' | 'table-seat') => {
     if (!onSettingsChange) return;
     if (element === 'guest-name') {
-      onSettingsChange({ guest_name_offset_x: 0, guest_name_offset_y: 0, guest_name_rotation: 0, guest_name_font_size: 40 });
+      const resetValues = { guest_name_offset_x: 0, guest_name_offset_y: 0, guest_name_rotation: 0, guest_name_font_size: 40 };
+      setCommittedOverrides(prev => ({ ...prev, ...resetValues }));
+      onSettingsChange(resetValues);
     } else {
-      onSettingsChange({ table_offset_x: 0, table_offset_y: 0, table_seat_rotation: 0, info_font_size: 16 });
+      const resetValues = { table_offset_x: 0, table_offset_y: 0, table_seat_rotation: 0, info_font_size: 16 };
+      setCommittedOverrides(prev => ({ ...prev, ...resetValues }));
+      onSettingsChange(resetValues);
     }
     setDraftOverrides(null);
-
-    // Force clear any stale inline styles set directly by InteractiveTextOverlay during drag
-    const el = firstCardRef.current;
-    if (el) {
-      el.querySelectorAll('[data-text-content]').forEach(node => {
-        const parent = node.parentElement;
-        if (parent) {
-          parent.style.left = '';
-          parent.style.top = '';
-          parent.style.transform = '';
-          parent.style.width = '';
-          parent.style.height = '';
-          parent.style.fontSize = '';
-        }
-      });
-    }
+    clearMasterInlineStyles();
 
     toast({ title: "Reset", description: `${element === 'guest-name' ? 'Guest Name' : 'Table & Seat'} fully reset to default` });
-  }, [onSettingsChange, toast]);
+  }, [onSettingsChange, toast, clearMasterInlineStyles]);
 
   const handleFontSizeChange = useCallback((element: 'guest-name' | 'table-seat', deltaPx: number) => {
     if (!onSettingsChange) return;
