@@ -1,21 +1,24 @@
 
 
-## Plan: Move Edit with Canva banner onto the same row as Choose File and Image Gallery
+## Lock Interactive Text Overlay & Drag Logic
 
-### Summary
-Move the clickable Canva banner image from its own row below the buttons into the same flex row as Choose File and Image Gallery, so all three sit side by side on one line.
+The user is happy with how the interactive text drag/move/resize/rotate works in both the Invitations editor and the Name Place Cards editor, and wants these protected from unintended changes.
 
-### File Changes
+### What to protect
 
-#### 1. `src/components/Dashboard/Invitations/InvitationCardCustomizer.tsx`
-- **Move lines 428-433** (the `<img>` tag) inside the `</div>` that closes at line 427, placing it after the Image Gallery button (before the closing `</div>`).
-- Remove `mt-2` from the image class since it will now be inline with the buttons.
-- The flex container already has `gap-2`, so the banner will sit naturally next to the buttons.
+Three files contain the working interactive text system:
 
-#### 2. `src/components/Dashboard/PlaceCards/PlaceCardCustomizer.tsx`
-- **Move lines 706-711** (the `<img>` tag) inside the `</div>` that closes at line 703, placing it after the Image Gallery button.
-- Same class adjustment: remove `mt-2`.
+1. **`src/components/ui/InteractiveTextOverlay.tsx`** — the shared overlay component (drag, resize, rotate, selection, toolbar)
+2. **`src/components/Dashboard/Invitations/InvitationCardPreview.tsx`** — how Invitations uses the overlay (coordinate system, zone positioning, interactive mode logic)
+3. **`src/components/Dashboard/PlaceCards/PlaceCardPreview.tsx`** — how Place Cards uses the overlay (absolute percentage positioning, mm-to-percent conversion, interactive mode logic)
 
-### Result
-All three elements — Choose File (green), Image Gallery (purple), Edit with Canva (banner) — appear on a single row in both pages. No other changes.
+### Changes
+
+#### 1. Add protection headers to all three files
+Add the same style of `⚠️ PRODUCTION-READY` comment block already used in `src/components/Dashboard/PlaceCards/index.ts`, specifying that the interactive text overlay system and its integration are locked and must not be modified without explicit user request.
+
+#### 2. Update project knowledge
+Store a memory entry documenting that these three files are locked, so future prompts automatically respect the rule even without the user repeating it.
+
+No functional code changes — only protective comments added to file headers.
 
