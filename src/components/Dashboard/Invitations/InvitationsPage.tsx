@@ -268,7 +268,7 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
 
           {selectedEvent && (
             <div className="flex flex-wrap items-start justify-between gap-4">
-              <div className="flex-1 border border-primary rounded-xl p-4 text-sm space-y-2">
+              <div className="flex-1 border-[1.5px] border-primary rounded-xl p-4 text-sm space-y-2">
                 <p className="font-medium text-green-600">
                   Manage your A4-A5 invitations and cards
                 </p>
@@ -314,7 +314,7 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
             </div>
 
             {selectedEvent && (
-              <div className="border border-primary rounded-xl p-3 flex flex-col gap-2 whitespace-nowrap">
+              <div className="border-[1.5px] border-primary rounded-xl p-3 flex flex-col gap-2 whitespace-nowrap">
                 <div className="text-sm">
                   <span className="font-medium">Export Controls</span>
                   <span className="text-muted-foreground ml-2">Download your invitations as PDF ready for printing.</span>

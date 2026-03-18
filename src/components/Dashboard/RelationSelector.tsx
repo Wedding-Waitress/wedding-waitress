@@ -206,7 +206,7 @@ export const RelationSelector: React.FC<RelationSelectorProps> = ({
       <div 
         onClick={onToggle}
         className={cn(
-          "w-full px-3 py-2 text-sm rounded-full border-2 cursor-pointer transition-colors",
+          "w-full px-3 py-2 text-sm rounded-full border-[3px] cursor-pointer transition-colors",
           error 
             ? 'border-red-500' 
             : 'border-[#7248e6] hover:border-[#7248e6]',
