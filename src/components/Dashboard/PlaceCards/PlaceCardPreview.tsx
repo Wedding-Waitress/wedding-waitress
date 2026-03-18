@@ -655,7 +655,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                     <div className="grid grid-cols-2 grid-rows-3" style={{ height: '297mm' }}>
                       {Array.from({ length: 6 }).map((_, index) => {
                         const guest = currentPageGuests[index];
-                        const isFirstCard = currentPage === 1 && index === 0;
+                        const isFirstCard = index === 0;
                         return guest ? renderPlaceCard(guest, isFirstCard) : renderEmptyCard(index);
                       })}
                     </div>
