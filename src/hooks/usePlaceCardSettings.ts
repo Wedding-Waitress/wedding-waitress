@@ -208,28 +208,33 @@ export const usePlaceCardSettings = (eventId: string | null) => {
     }
   };
 
-  const updateSettings = async (newSettings: Partial<PlaceCardSettings>) => {
+  /** Core save logic, optionally silent (no toasts) */
+  const saveSettings = async (newSettings: Partial<PlaceCardSettings>, silent = false): Promise<boolean> => {
     if (!eventId) return false;
 
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
-        toast({
-          title: "Error",
-          description: "You must be logged in to save settings",
-          variant: "destructive",
-        });
+        if (!silent) {
+          toast({
+            title: "Error",
+            description: "You must be logged in to save settings",
+            variant: "destructive",
+          });
+        }
         return false;
       }
 
       // Step 1: Ensure a base row exists (handles first-time creation safely)
       const baseSettings = await ensureSettingsExist(user.id);
       if (!baseSettings?.id) {
-        toast({
-          title: "Error",
-          description: "Failed to save settings",
-          variant: "destructive",
-        });
+        if (!silent) {
+          toast({
+            title: "Error",
+            description: "Failed to save settings",
+            variant: "destructive",
+          });
+        }
         return false;
       }
 
@@ -247,30 +252,39 @@ export const usePlaceCardSettings = (eventId: string | null) => {
 
       if (error) {
         console.error('Error updating place card settings:', error);
-        toast({
-          title: "Error",
-          description: "Failed to save settings",
-          variant: "destructive",
-        });
+        if (!silent) {
+          toast({
+            title: "Error",
+            description: "Failed to save settings",
+            variant: "destructive",
+          });
+        }
         return false;
       }
 
       setSettings(normalizeRow(data));
-      toast({
-        title: "Success",
-        description: "Settings saved successfully",
-      });
+      if (!silent) {
+        toast({
+          title: "Success",
+          description: "Settings saved successfully",
+        });
+      }
       return true;
     } catch (error) {
       console.error('Error updating place card settings:', error);
-      toast({
-        title: "Error",
-        description: "An unexpected error occurred",
-        variant: "destructive",
-      });
+      if (!silent) {
+        toast({
+          title: "Error",
+          description: "An unexpected error occurred",
+          variant: "destructive",
+        });
+      }
       return false;
     }
   };
+
+  const updateSettings = (newSettings: Partial<PlaceCardSettings>) => saveSettings(newSettings, false);
+  const updateSettingsSilent = (newSettings: Partial<PlaceCardSettings>) => saveSettings(newSettings, true);
 
   useEffect(() => {
     fetchSettings();
@@ -280,6 +294,7 @@ export const usePlaceCardSettings = (eventId: string | null) => {
     settings,
     loading,
     updateSettings,
+    updateSettingsSilent,
     refetchSettings: fetchSettings,
   };
 };
