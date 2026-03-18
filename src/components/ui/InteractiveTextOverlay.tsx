@@ -136,6 +136,12 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
         accumY = dy;
         el.style.transform = `${baseTransform} translate(${dx}px, ${dy}px) rotate(${rotation}deg)`;
         onDragMove?.({ x: dx, y: dy });
+        // Emit live position delta as percentage for sibling mirroring
+        if (onLiveMove) {
+          const dxP = (dx / containerRect.width) * 100;
+          const dyP = (dy / containerRect.height) * 100;
+          onLiveMove(dxP, dyP);
+        }
         return;
       }
 
