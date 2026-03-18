@@ -162,6 +162,23 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
     } else {
       onSettingsChange({ table_offset_x: 0, table_offset_y: 0, table_seat_rotation: 0, info_font_size: 16 });
     }
+
+    // Force clear any stale inline styles set directly by InteractiveTextOverlay during drag
+    const el = firstCardRef.current;
+    if (el) {
+      el.querySelectorAll('[data-text-content]').forEach(node => {
+        const parent = node.parentElement;
+        if (parent) {
+          parent.style.left = '';
+          parent.style.top = '';
+          parent.style.transform = '';
+          parent.style.width = '';
+          parent.style.height = '';
+          parent.style.fontSize = '';
+        }
+      });
+    }
+
     toast({ title: "Reset", description: `${element === 'guest-name' ? 'Guest Name' : 'Table & Seat'} fully reset to default` });
   }, [onSettingsChange, toast]);
 
