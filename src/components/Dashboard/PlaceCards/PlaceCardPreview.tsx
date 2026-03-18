@@ -44,10 +44,12 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
   focusedPage = null,
   selectedTable = null,
   onSettingsChange,
+  editMode: editModeProp = false,
+  onEditModeChange,
 }, ref) => {
   const { toast } = useToast();
   const [currentPage, setCurrentPage] = useState(1);
-  const [editMode, setEditMode] = useState(false);
+  const editMode = editModeProp;
   const [selectedElement, setSelectedElement] = useState<'guest_name' | 'table_seat' | null>(null);
   const frontHalfRef = useRef<HTMLDivElement>(null);
   
