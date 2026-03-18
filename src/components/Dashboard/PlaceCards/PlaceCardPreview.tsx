@@ -100,8 +100,8 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
   const handleGuestNameMove = useCallback((dxPct: number, dyPct: number) => {
     const rawX = (currentSettings.guest_name_offset_x ?? 0) + (dxPct * CARD_WIDTH_MM) / 100;
     const rawY = (currentSettings.guest_name_offset_y ?? 0) + (dyPct * FRONT_HEIGHT_MM) / 100;
-    const newX = Math.max(-CARD_WIDTH_MM / 2, Math.min(CARD_WIDTH_MM / 2, rawX));
-    const newY = Math.max(-FRONT_HEIGHT_MM / 2, Math.min(FRONT_HEIGHT_MM / 2, rawY));
+    const newX = Math.max(-CARD_WIDTH_MM * 0.35, Math.min(CARD_WIDTH_MM * 0.35, rawX));
+    const newY = Math.max(-FRONT_HEIGHT_MM * 0.35, Math.min(FRONT_HEIGHT_MM * 0.35, rawY));
     onSettingsChange?.({
       guest_name_offset_x: Math.round(newX * 10) / 10,
       guest_name_offset_y: Math.round(newY * 10) / 10,
