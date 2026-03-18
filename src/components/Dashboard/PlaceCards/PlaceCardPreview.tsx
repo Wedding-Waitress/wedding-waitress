@@ -19,6 +19,7 @@ import { PlaceCardSettings } from '@/hooks/usePlaceCardSettings';
 import { Guest } from '@/hooks/useGuests';
 import { ChevronLeft, ChevronRight, Pencil } from 'lucide-react';
 import { InteractiveTextOverlay } from '@/components/ui/InteractiveTextOverlay';
+import { useToast } from '@/hooks/use-toast';
 
 interface PlaceCardPreviewProps {
   settings: PlaceCardSettings | null;
@@ -42,6 +43,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
   selectedTable = null,
   onSettingsChange,
 }, ref) => {
+  const { toast } = useToast();
   const [currentPage, setCurrentPage] = useState(1);
   const [editMode, setEditMode] = useState(false);
   const [selectedElement, setSelectedElement] = useState<'guest_name' | 'table_seat' | null>(null);
@@ -361,13 +363,15 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
             )}
 
             {/* Guest Name - Interactive */}
-            <InteractiveTextOverlay
+             <InteractiveTextOverlay
               isSelected={selectedElement === 'guest_name'}
               onSelect={() => setSelectedElement('guest_name')}
               onMove={handleGuestNameMove}
               onFontSizeChange={handleGuestNameFontSize}
               onRotate={handleGuestNameRotate}
               onReset={handleGuestNameReset}
+              onDuplicate={() => toast({ title: "Not available", description: "Guest Name is a fixed element and cannot be duplicated" })}
+              onDelete={() => toast({ title: "Not available", description: "Guest Name is a fixed element and cannot be deleted" })}
               containerRef={frontHalfRef as React.RefObject<HTMLElement>}
               rotation={guestNameRotation}
               currentFontSize={currentSettings.guest_name_font_size}
@@ -405,13 +409,15 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
             </InteractiveTextOverlay>
 
             {/* Table/Seat Info - Interactive */}
-            <InteractiveTextOverlay
+             <InteractiveTextOverlay
               isSelected={selectedElement === 'table_seat'}
               onSelect={() => setSelectedElement('table_seat')}
               onMove={handleTableSeatMove}
               onFontSizeChange={handleTableSeatFontSize}
               onRotate={handleTableSeatRotate}
               onReset={handleTableSeatReset}
+              onDuplicate={() => toast({ title: "Not available", description: "Table/Seat is a fixed element and cannot be duplicated" })}
+              onDelete={() => toast({ title: "Not available", description: "Table/Seat is a fixed element and cannot be deleted" })}
               containerRef={frontHalfRef as React.RefObject<HTMLElement>}
               rotation={tableSeatRotation}
               currentFontSize={currentSettings.info_font_size}
