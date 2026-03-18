@@ -44,6 +44,15 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
   const [selectedElement, setSelectedElement] = useState<'guest-name' | 'table-seat' | null>(null);
   const firstCardRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+
+  // Live draft state: transient offsets during drag/rotate/resize, applied to ALL cards
+  const [liveDraft, setLiveDraft] = useState<{
+    element: 'guest-name' | 'table-seat';
+    dxPct?: number;
+    dyPct?: number;
+    rotation?: number;
+    fontSize?: number;
+  } | null>(null);
   
   const currentSettings = settings || {
     event_id: '',
