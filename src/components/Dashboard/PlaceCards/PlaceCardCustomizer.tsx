@@ -36,6 +36,8 @@ interface PlaceCardCustomizerProps {
   settings: PlaceCardSettings | null;
   onSettingsChange: (settings: Partial<PlaceCardSettings>) => Promise<boolean>;
   guests: Guest[];
+  editMode: boolean;
+  onEditModeChange: (mode: boolean) => void;
 }
 
 interface ExtendedPlaceCardSettings extends PlaceCardSettings {
