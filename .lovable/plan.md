@@ -1,21 +1,24 @@
 
 
-## Plan: Move Edit with Canva banner onto the same row as Choose File and Image Gallery
+## Fix: Remove `setLocalOverrides({})` from PlaceCardCustomizer's onSettingsChange
 
-### Summary
-Move the clickable Canva banner image from its own row below the buttons into the same flex row as Choose File and Image Gallery, so all three sit side by side on one line.
+**Problem**: Line 467 clears all local drag overrides whenever the customizer saves any setting. This wipes out in-progress or recently-saved drag positions before the DB response updates `settings`, causing snap-back.
 
-### File Changes
+**Change in `src/components/Dashboard/PlaceCards/PlaceCardsPage.tsx`**:
 
-#### 1. `src/components/Dashboard/Invitations/InvitationCardCustomizer.tsx`
-- **Move lines 428-433** (the `<img>` tag) inside the `</div>` that closes at line 427, placing it after the Image Gallery button (before the closing `</div>`).
-- Remove `mt-2` from the image class since it will now be inline with the buttons.
-- The flex container already has `gap-2`, so the banner will sit naturally next to the buttons.
+At line 466-469, change:
+```typescript
+onSettingsChange={async (changes) => {
+  setLocalOverrides({});
+  return updateSettings(changes);
+}}
+```
+to:
+```typescript
+onSettingsChange={updateSettings}
+```
 
-#### 2. `src/components/Dashboard/PlaceCards/PlaceCardCustomizer.tsx`
-- **Move lines 706-711** (the `<img>` tag) inside the `</div>` that closes at line 703, placing it after the Image Gallery button.
-- Same class adjustment: remove `mt-2`.
+The `useEffect` at line 69 already handles clearing `localOverrides` when `settings` syncs from the DB. Only `handlePreviewSettingsChange` should manage local overrides for drag operations.
 
-### Result
-All three elements — Choose File (green), Image Gallery (purple), Edit with Canva (banner) — appear on a single row in both pages. No other changes.
+**Files changed**: 1 (`PlaceCardsPage.tsx`, ~3 lines)
 
