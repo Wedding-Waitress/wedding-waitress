@@ -294,6 +294,7 @@ export const usePlaceCardSettings = (eventId: string | null) => {
     settings,
     loading,
     updateSettings,
+    updateSettingsSilent,
     refetchSettings: fetchSettings,
   };
 };
