@@ -26,6 +26,9 @@ interface InteractiveTextOverlayProps {
   onRotate?: (degrees: number) => void;
   onDragMove?: (pixelOffset: { x: number; y: number }) => void;
   onDragEnd?: () => void;
+  onLiveMove?: (dxPercent: number, dyPercent: number) => void;
+  onLiveRotate?: (degrees: number) => void;
+  onLiveFontSize?: (size: number) => void;
   onCopy?: () => void;
   onReset?: () => void;
   onDuplicate?: () => void;
