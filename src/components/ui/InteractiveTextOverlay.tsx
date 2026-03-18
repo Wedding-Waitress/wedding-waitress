@@ -199,6 +199,7 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
       cancelAnimationFrame(rafRef.current);
       document.removeEventListener('pointermove', onPointerMove);
       document.removeEventListener('pointerup', onPointerUp);
+      onLiveEnd?.();
 
       const rect = containerRect;
 
