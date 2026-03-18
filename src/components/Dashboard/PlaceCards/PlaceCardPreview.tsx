@@ -11,11 +11,13 @@
  * Updated: 2025-10-26 - Added Full Seating Chart-style layout with pagination controls
  */
 
-import React, { forwardRef, useState } from 'react';
+import React, { forwardRef, useState, useRef, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { PlaceCardSettings } from '@/hooks/usePlaceCardSettings';
 import { Guest } from '@/hooks/useGuests';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { InteractiveTextOverlay } from '@/components/ui/InteractiveTextOverlay';
+import { useToast } from '@/hooks/use-toast';
 
 interface PlaceCardPreviewProps {
   settings: PlaceCardSettings | null;
@@ -24,6 +26,8 @@ interface PlaceCardPreviewProps {
   isExporting?: boolean;
   focusedPage?: number | null;
   selectedTable?: { name: string; table_no?: number | null } | null;
+  textEditMode?: boolean;
+  onSettingsChange?: (settings: Partial<PlaceCardSettings>) => Promise<boolean>;
 }
 
 export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps>(({
@@ -32,9 +36,14 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
   event,
   isExporting = false,
   focusedPage = null,
-  selectedTable = null
+  selectedTable = null,
+  textEditMode = false,
+  onSettingsChange,
 }, ref) => {
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedElement, setSelectedElement] = useState<'guest-name' | 'table-seat' | null>(null);
+  const firstCardRef = useRef<HTMLDivElement>(null);
+  const { toast } = useToast();
   
   const currentSettings = settings || {
     event_id: '',
