@@ -117,7 +117,8 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
     background_behind_table_seats: false,
     info_bold: false,
     info_italic: false,
-    info_underline: false
+    info_underline: false,
+    info_font_color: '#000000'
   };
   const handleSettingChange = async (key: keyof PlaceCardSettings, value: any) => {
     await onSettingsChange({
@@ -158,7 +159,8 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
       font_color: '#000000',
       info_bold: false,
       info_italic: false,
-      info_underline: false
+      info_underline: false,
+      info_font_color: '#000000'
     };
     
     await onSettingsChange(designDefaults);
@@ -298,145 +300,128 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
 
           <TabsContent value="design" className="space-y-4">
             <div className="space-y-4">
-              <div>
-                <Label className="flex items-center gap-2 mb-2">
-                  <Type className="h-4 w-4" />
-                  Guest Name Font
-                </Label>
-                <PlaceCardFontPicker
-                  value={currentSettings.guest_font_family || 'Great Vibes'}
-                  onValueChange={value => handleSettingChange('guest_font_family', value)}
-                />
-              </div>
-
-              <div>
-                <Label className="flex items-center gap-2 mb-2">
-                  <Type className="h-4 w-4" />
-                  Table, Seat & Message Font
-                </Label>
-                <PlaceCardFontPicker
-                  value={currentSettings.info_font_family || 'Beauty Mountains'}
-                  onValueChange={value => handleSettingChange('info_font_family', value)}
-                />
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {/* Guest Name Styling Box */}
-                <div className="border border-primary rounded-xl bg-white p-3 space-y-3">
-                  <Label className="text-sm font-semibold">Guest Name Styling</Label>
-                  
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="bold-toggle" className="text-sm">Bold</Label>
-                    <Switch 
-                      id="bold-toggle"
-                      checked={currentSettings.guest_name_bold} 
-                      onCheckedChange={value => handleSettingChange('guest_name_bold', value)} 
+              {/* Box 1 — Guest Name */}
+              <div className="border-[1.5px] border-primary rounded-xl bg-white p-4 space-y-3">
+                <Label className="text-sm font-semibold">Guest Name</Label>
+                
+                {/* Row 1: Font + Font Size */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <Label className="text-xs text-muted-foreground mb-1 block">Font</Label>
+                    <PlaceCardFontPicker
+                      value={currentSettings.guest_font_family || 'Great Vibes'}
+                      onValueChange={value => handleSettingChange('guest_font_family', value)}
                     />
                   </div>
-
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="italic-toggle" className="text-sm">Italic</Label>
-                    <Switch 
-                      id="italic-toggle"
-                      checked={currentSettings.guest_name_italic} 
-                      onCheckedChange={value => handleSettingChange('guest_name_italic', value)} 
-                    />
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="underline-toggle" className="text-sm">Underline</Label>
-                    <Switch 
-                      id="underline-toggle"
-                      checked={currentSettings.guest_name_underline} 
-                      onCheckedChange={value => handleSettingChange('guest_name_underline', value)} 
-                    />
+                  <div>
+                    <Label className="text-xs text-muted-foreground mb-1 block">Font Size</Label>
+                    <Select 
+                      value={currentSettings.guest_name_font_size.toString()} 
+                      onValueChange={(value) => handleSettingChange('guest_name_font_size', parseInt(value))}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {[12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 36, 40, 44, 48].map(size => (
+                          <SelectItem key={size} value={size.toString()}>
+                            {size}pt
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
 
-                {/* Table & Seat Styling Box */}
-                <div className="border border-primary rounded-xl bg-white p-3 space-y-3">
-                  <Label className="text-sm font-semibold">Table & Seat Styling</Label>
-                  
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="info-bold-toggle" className="text-sm">Bold</Label>
-                    <Switch 
-                      id="info-bold-toggle"
-                      checked={currentSettings.info_bold} 
-                      onCheckedChange={value => handleSettingChange('info_bold', value)} 
-                    />
+                {/* Row 2: Text Styling + Color */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="space-y-2">
+                    <Label className="text-xs text-muted-foreground">Text Styling</Label>
+                    <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-1.5">
+                        <Label htmlFor="guest-bold" className="text-xs">Bold</Label>
+                        <Switch id="guest-bold" checked={currentSettings.guest_name_bold} onCheckedChange={value => handleSettingChange('guest_name_bold', value)} />
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <Label htmlFor="guest-italic" className="text-xs">Italic</Label>
+                        <Switch id="guest-italic" checked={currentSettings.guest_name_italic} onCheckedChange={value => handleSettingChange('guest_name_italic', value)} />
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <Label htmlFor="guest-underline" className="text-xs">Underline</Label>
+                        <Switch id="guest-underline" checked={currentSettings.guest_name_underline} onCheckedChange={value => handleSettingChange('guest_name_underline', value)} />
+                      </div>
+                    </div>
                   </div>
-
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="info-italic-toggle" className="text-sm">Italic</Label>
-                    <Switch 
-                      id="info-italic-toggle"
-                      checked={currentSettings.info_italic} 
-                      onCheckedChange={value => handleSettingChange('info_italic', value)} 
-                    />
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="info-underline-toggle" className="text-sm">Underline</Label>
-                    <Switch 
-                      id="info-underline-toggle"
-                      checked={currentSettings.info_underline} 
-                      onCheckedChange={value => handleSettingChange('info_underline', value)} 
+                  <div>
+                    <Label className="text-xs text-muted-foreground mb-1 block">Color</Label>
+                    <ColorPickerPopover
+                      value={currentSettings.font_color}
+                      onChange={(color) => handleSettingChange('font_color', color)}
                     />
                   </div>
                 </div>
               </div>
 
-              <div>
-                <Label className="flex items-center gap-2 mb-2">
-                  Guest Name Font Size
-                </Label>
-                <Select 
-                  value={currentSettings.guest_name_font_size.toString()} 
-                  onValueChange={(value) => handleSettingChange('guest_name_font_size', parseInt(value))}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {[12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 36, 40, 44, 48].map(size => (
-                      <SelectItem key={size} value={size.toString()}>
-                        {size}pt
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+              {/* Box 2 — Table & Seat */}
+              <div className="border-[1.5px] border-primary rounded-xl bg-white p-4 space-y-3">
+                <Label className="text-sm font-semibold">Table & Seat</Label>
+                
+                {/* Row 1: Font + Font Size */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <Label className="text-xs text-muted-foreground mb-1 block">Font</Label>
+                    <PlaceCardFontPicker
+                      value={currentSettings.info_font_family || 'Beauty Mountains'}
+                      onValueChange={value => handleSettingChange('info_font_family', value)}
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-xs text-muted-foreground mb-1 block">Font Size</Label>
+                    <Select 
+                      value={currentSettings.info_font_size.toString()} 
+                      onValueChange={(value) => handleSettingChange('info_font_size', parseInt(value))}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {[8, 9, 10, 11, 12, 13, 14, 16, 18, 20, 22, 24].map(size => (
+                          <SelectItem key={size} value={size.toString()}>
+                            {size}pt
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
 
-              <div>
-                <Label className="flex items-center gap-2 mb-2">
-                  Table & Seat Info Font Size
-                </Label>
-                <Select 
-                  value={currentSettings.info_font_size.toString()} 
-                  onValueChange={(value) => handleSettingChange('info_font_size', parseInt(value))}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {[8, 9, 10, 11, 12, 13, 14, 16, 18, 20, 22, 24].map(size => (
-                      <SelectItem key={size} value={size.toString()}>
-                        {size}pt
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div>
-                <Label className="flex items-center gap-2 mb-2">
-                  <Palette className="h-4 w-4" />
-                  Font Color
-                </Label>
-                <ColorPickerPopover
-                  value={currentSettings.font_color}
-                  onChange={(color) => handleSettingChange('font_color', color)}
-                />
+                {/* Row 2: Text Styling + Color */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="space-y-2">
+                    <Label className="text-xs text-muted-foreground">Text Styling</Label>
+                    <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-1.5">
+                        <Label htmlFor="info-bold" className="text-xs">Bold</Label>
+                        <Switch id="info-bold" checked={currentSettings.info_bold} onCheckedChange={value => handleSettingChange('info_bold', value)} />
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <Label htmlFor="info-italic" className="text-xs">Italic</Label>
+                        <Switch id="info-italic" checked={currentSettings.info_italic} onCheckedChange={value => handleSettingChange('info_italic', value)} />
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <Label htmlFor="info-underline" className="text-xs">Underline</Label>
+                        <Switch id="info-underline" checked={currentSettings.info_underline} onCheckedChange={value => handleSettingChange('info_underline', value)} />
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <Label className="text-xs text-muted-foreground mb-1 block">Color</Label>
+                    <ColorPickerPopover
+                      value={(currentSettings as any).info_font_color || '#000000'}
+                      onChange={(color) => handleSettingChange('info_font_color' as any, color)}
+                    />
+                  </div>
+                </div>
               </div>
 
               <div className="pt-4 border-t">
