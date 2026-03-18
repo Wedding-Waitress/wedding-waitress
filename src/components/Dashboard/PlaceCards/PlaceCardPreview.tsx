@@ -11,7 +11,7 @@
  * Updated: 2025-10-26 - Added Full Seating Chart-style layout with pagination controls
  */
 
-import React, { forwardRef, useState, useRef, useCallback, useMemo } from 'react';
+import React, { forwardRef, useState, useRef, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { PlaceCardSettings } from '@/hooks/usePlaceCardSettings';
 import { Guest } from '@/hooks/useGuests';
@@ -44,15 +44,6 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
   const [selectedElement, setSelectedElement] = useState<'guest-name' | 'table-seat' | null>(null);
   const firstCardRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
-
-  // Live draft state: transient offsets during drag/rotate/resize, applied to ALL cards
-  const [liveDraft, setLiveDraft] = useState<{
-    element: 'guest-name' | 'table-seat';
-    dxPct?: number;
-    dyPct?: number;
-    rotation?: number;
-    fontSize?: number;
-  } | null>(null);
   
   const currentSettings = settings || {
     event_id: '',
@@ -133,74 +124,10 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
   const CARD_WIDTH_MM = 105;
   const FRONT_HEIGHT_MM = 49.5;
 
-  // ── Unified absolute-position helpers ──
-  // These compute the SAME style for every card (interactive + passive + print).
-  // liveDraft overlays transient drag/rotate/resize values during interaction.
-
-  const getGuestNameAbsoluteStyle = useCallback((): React.CSSProperties => {
-    const baseXPct = 50 + ((currentSettings.guest_name_offset_x ?? 0) / CARD_WIDTH_MM) * 100;
-    const baseYPct = 30 + ((currentSettings.guest_name_offset_y ?? 0) / FRONT_HEIGHT_MM) * 100;
-    const draftDx = liveDraft?.element === 'guest-name' ? (liveDraft.dxPct ?? 0) : 0;
-    const draftDy = liveDraft?.element === 'guest-name' ? (liveDraft.dyPct ?? 0) : 0;
-    const rot = liveDraft?.element === 'guest-name' && liveDraft.rotation !== undefined
-      ? liveDraft.rotation
-      : Number(currentSettings.guest_name_rotation ?? 0);
-    const fontSize = liveDraft?.element === 'guest-name' && liveDraft.fontSize !== undefined
-      ? liveDraft.fontSize
-      : currentSettings.guest_name_font_size;
-
-    return {
-      fontFamily: currentSettings.guest_font_family,
-      fontWeight: currentSettings.guest_name_bold ? '700' : '400',
-      fontStyle: currentSettings.guest_name_italic ? 'italic' : 'normal',
-      textDecoration: currentSettings.guest_name_underline ? 'underline' : 'none',
-      fontSize: `${fontSize}pt`,
-      position: 'absolute' as const,
-      left: `${baseXPct + draftDx}%`,
-      top: `${baseYPct + draftDy}%`,
-      transform: `translate(-50%, -50%) rotate(${rot}deg)`,
-      transformOrigin: 'center center',
-      textAlign: 'center' as const,
-      whiteSpace: 'nowrap' as const,
-    };
-  }, [currentSettings, liveDraft]);
-
-  const getTableSeatAbsoluteStyle = useCallback((): React.CSSProperties => {
-    const baseXPct = 50 + ((currentSettings.table_offset_x ?? 0) / CARD_WIDTH_MM) * 100;
-    const baseYPct = 70 + ((currentSettings.table_offset_y ?? 0) / FRONT_HEIGHT_MM) * 100;
-    const draftDx = liveDraft?.element === 'table-seat' ? (liveDraft.dxPct ?? 0) : 0;
-    const draftDy = liveDraft?.element === 'table-seat' ? (liveDraft.dyPct ?? 0) : 0;
-    const rot = liveDraft?.element === 'table-seat' && liveDraft.rotation !== undefined
-      ? liveDraft.rotation
-      : Number(currentSettings.table_seat_rotation ?? 0);
-    const fontSize = liveDraft?.element === 'table-seat' && liveDraft.fontSize !== undefined
-      ? liveDraft.fontSize
-      : currentSettings.info_font_size;
-
-    return {
-      fontFamily: currentSettings.info_font_family,
-      fontSize: `${fontSize}pt`,
-      fontWeight: currentSettings.info_bold ? '700' : undefined,
-      fontStyle: currentSettings.info_italic ? 'italic' : undefined,
-      textDecoration: currentSettings.info_underline ? 'underline' : undefined,
-      color: currentSettings.info_font_color || currentSettings.font_color,
-      position: 'absolute' as const,
-      left: `${baseXPct + draftDx}%`,
-      top: `${baseYPct + draftDy}%`,
-      transform: `translate(-50%, -50%) rotate(${rot}deg)`,
-      transformOrigin: 'center center',
-      textAlign: 'center' as const,
-      whiteSpace: 'nowrap' as const,
-    };
-  }, [currentSettings, liveDraft]);
-
   const handleInteractiveMove = useCallback((element: 'guest-name' | 'table-seat', dxPercent: number, dyPercent: number) => {
     if (!onSettingsChange) return;
     const dxMm = (dxPercent / 100) * CARD_WIDTH_MM;
     const dyMm = (dyPercent / 100) * FRONT_HEIGHT_MM;
-
-    // Clear draft before persisting so all cards read from the new settings
-    setLiveDraft(null);
 
     if (element === 'guest-name') {
       const curX = Number(currentSettings.guest_name_offset_x ?? 0);
@@ -221,7 +148,6 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
 
   const handleInteractiveRotate = useCallback((element: 'guest-name' | 'table-seat', degrees: number) => {
     if (!onSettingsChange) return;
-    setLiveDraft(null);
     if (element === 'guest-name') {
       onSettingsChange({ guest_name_rotation: degrees });
     } else {
@@ -231,8 +157,6 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
 
   const handleInteractiveReset = useCallback((element: 'guest-name' | 'table-seat') => {
     if (!onSettingsChange) return;
-    // Clear live draft immediately
-    setLiveDraft(null);
     if (element === 'guest-name') {
       onSettingsChange({ guest_name_offset_x: 0, guest_name_offset_y: 0, guest_name_rotation: 0, guest_name_font_size: 40 });
     } else {
@@ -260,7 +184,6 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
 
   const handleFontSizeChange = useCallback((element: 'guest-name' | 'table-seat', deltaPx: number) => {
     if (!onSettingsChange) return;
-    setLiveDraft(null);
     if (element === 'guest-name') {
       const cur = currentSettings.guest_name_font_size || 40;
       onSettingsChange({ guest_name_font_size: Math.max(8, Math.min(120, cur + deltaPx)) });
@@ -269,23 +192,6 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
       onSettingsChange({ info_font_size: Math.max(6, Math.min(60, cur + deltaPx)) });
     }
   }, [onSettingsChange, currentSettings]);
-
-  // Live-update handlers: update draft state during drag so passive cards mirror instantly
-  const handleLiveMove = useCallback((element: 'guest-name' | 'table-seat') => (dxPct: number, dyPct: number) => {
-    setLiveDraft({ element, dxPct, dyPct });
-  }, []);
-
-  const handleLiveRotate = useCallback((element: 'guest-name' | 'table-seat') => (degrees: number) => {
-    setLiveDraft(prev => ({ element, dxPct: prev?.element === element ? prev?.dxPct : 0, dyPct: prev?.element === element ? prev?.dyPct : 0, rotation: degrees }));
-  }, []);
-
-  const handleLiveFontSize = useCallback((element: 'guest-name' | 'table-seat') => (newSize: number) => {
-    setLiveDraft(prev => ({ element, dxPct: prev?.element === element ? prev?.dxPct : 0, dyPct: prev?.element === element ? prev?.dyPct : 0, fontSize: newSize }));
-  }, []);
-
-  const handleLiveEnd = useCallback(() => {
-    setLiveDraft(null);
-  }, []);
 
   const renderPlaceCard = (guest: Guest, isFirstCard: boolean = false) => {
     const tableDisplay = getTableDisplay();
@@ -298,9 +204,32 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
 
     const isInteractive = textEditMode && isFirstCard;
 
-    // Shared absolute styles — same for interactive AND passive cards
-    const guestNameAbsStyle = getGuestNameAbsoluteStyle();
-    const tableSeatAbsStyle = getTableSeatAbsoluteStyle();
+    const guestNameStyle: React.CSSProperties = {
+      fontFamily: currentSettings.guest_font_family,
+      fontWeight: currentSettings.guest_name_bold ? '700' : '400',
+      fontStyle: currentSettings.guest_name_italic ? 'italic' : 'normal',
+      textDecoration: currentSettings.guest_name_underline ? 'underline' : 'none',
+      fontSize: `${currentSettings.guest_name_font_size}pt`,
+      marginBottom: currentSettings.background_image_type === 'decorative' ? '0mm' : `${currentSettings.name_spacing}mm`,
+    };
+
+    const guestNameTransform = `translate(${currentSettings.guest_name_offset_x ?? 0}mm, ${currentSettings.guest_name_offset_y ?? 0}mm) rotate(${(currentSettings as any).guest_name_rotation ?? 0}deg)`;
+
+    // Absolute percentage positions for interactive mode (matches InteractiveTextOverlay expectations)
+    const guestXPct = 50 + ((currentSettings.guest_name_offset_x ?? 0) / CARD_WIDTH_MM) * 100;
+    const guestYPct = 30 + ((currentSettings.guest_name_offset_y ?? 0) / FRONT_HEIGHT_MM) * 100;
+    const tableXPct = 50 + ((currentSettings.table_offset_x ?? 0) / CARD_WIDTH_MM) * 100;
+    const tableYPct = 70 + ((currentSettings.table_offset_y ?? 0) / FRONT_HEIGHT_MM) * 100;
+
+    const tableInfoStyle: React.CSSProperties = {
+      fontFamily: currentSettings.info_font_family,
+      fontSize: `${currentSettings.info_font_size}pt`,
+      fontWeight: currentSettings.info_bold ? '700' : undefined,
+      fontStyle: currentSettings.info_italic ? 'italic' : undefined,
+      textDecoration: currentSettings.info_underline ? 'underline' : undefined,
+    };
+
+    const tableTransform = `translate(${currentSettings.table_offset_x ?? 0}mm, ${currentSettings.table_offset_y ?? 0}mm) rotate(${(currentSettings as any).table_seat_rotation ?? 0}deg)`;
 
     return (
       <div
@@ -402,17 +331,23 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
           }}
         />
 
-        {/* FRONT Half (Bottom) - GUEST NAME + TABLE/SEAT — always absolute positioned */}
+        {/* FRONT Half (Bottom) - GUEST NAME + TABLE/SEAT */}
         <div 
           ref={isFirstCard ? firstCardRef : undefined}
           className="relative z-10"
           style={{ 
             height: '49.5mm',
+            padding: isInteractive ? '0' : '5mm',
+            paddingTop: isInteractive ? '0' : (currentSettings.background_image_type === 'decorative' ? '1mm' : '8mm'),
             position: 'relative',
-            overflow: isInteractive ? 'visible' : 'hidden',
+            overflow: isInteractive ? 'visible' : undefined,
+            display: isInteractive ? 'block' : 'flex',
+            flexDirection: isInteractive ? undefined : 'column',
+            alignItems: isInteractive ? undefined : 'center',
+            justifyContent: isInteractive ? undefined : 'flex-start',
           }}
         >
-          {/* Guest Name */}
+          {/* Guest Name - Interactive or Static */}
           {isInteractive ? (
             <InteractiveTextOverlay
               hideSideHandles
@@ -422,14 +357,19 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
               onRotate={(deg) => handleInteractiveRotate('guest-name', deg)}
               onReset={() => handleInteractiveReset('guest-name')}
               onFontSizeChange={(delta) => handleFontSizeChange('guest-name', delta)}
-              onLiveMove={handleLiveMove('guest-name')}
-              onLiveRotate={handleLiveRotate('guest-name')}
-              onLiveFontSize={handleLiveFontSize('guest-name')}
-              onLiveEnd={handleLiveEnd}
               containerRef={firstCardRef as React.RefObject<HTMLElement>}
-              rotation={Number(currentSettings.guest_name_rotation ?? 0)}
+              rotation={Number((currentSettings as any).guest_name_rotation ?? 0)}
               currentFontSize={currentSettings.guest_name_font_size}
-              style={guestNameAbsStyle}
+              style={{
+                ...guestNameStyle,
+                marginBottom: 0,
+                left: `${guestXPct}%`,
+                top: `${guestYPct}%`,
+                transform: `translate(-50%, -50%) rotate(${(currentSettings as any).guest_name_rotation ?? 0}deg)`,
+                transformOrigin: 'center center',
+                textAlign: 'center',
+                whiteSpace: 'nowrap',
+              }}
             >
               {currentSettings.background_behind_names ? (
                 <div style={{
@@ -445,7 +385,13 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
               )}
             </InteractiveTextOverlay>
           ) : (
-            <div style={guestNameAbsStyle}>
+            <div
+              style={{
+                ...guestNameStyle,
+                transform: guestNameTransform,
+                transformOrigin: 'center center',
+              }}
+            >
               {currentSettings.background_behind_names ? (
                 <div style={{
                   background: 'white',
@@ -470,15 +416,11 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                 justifyContent: 'space-between',
                 alignItems: 'flex-start',
                 width: '100%',
-                position: 'absolute',
-                bottom: '2mm',
-                left: 0,
-                right: 0,
-                padding: '0 2mm',
+                marginTop: '0mm',
               }}
             >
               {/* Left - Table info stacked */}
-              <div style={{ textAlign: 'center', minWidth: '18mm', transform: `translate(${currentSettings.table_offset_x ?? 0}mm, ${currentSettings.table_offset_y ?? 0}mm) rotate(${currentSettings.table_seat_rotation ?? 0}deg)`, transformOrigin: 'center center' }}>
+              <div style={{ textAlign: 'center', minWidth: '18mm', transform: `translate(${currentSettings.table_offset_x ?? 0}mm, ${currentSettings.table_offset_y ?? 0}mm) rotate(${(currentSettings as any).table_seat_rotation ?? 0}deg)`, transformOrigin: 'center center' }}>
                 <div style={{ fontFamily: currentSettings.info_font_family, fontSize: `${currentSettings.info_font_size}pt`, color: currentSettings.info_font_color || currentSettings.font_color, fontWeight: currentSettings.info_bold ? '700' : undefined, fontStyle: currentSettings.info_italic ? 'italic' : undefined, textDecoration: currentSettings.info_underline ? 'underline' : undefined }}>
                   Table
                 </div>
@@ -491,7 +433,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
               <div style={{ width: '55%', height: '35mm', backgroundImage: `url(${currentSettings.background_image_url})`, backgroundPosition: 'center', backgroundSize: 'contain', backgroundRepeat: 'no-repeat' }} />
 
               {/* Right - Seat info stacked */}
-              <div style={{ textAlign: 'center', minWidth: '18mm', transform: `translate(${currentSettings.seat_offset_x ?? 0}mm, ${currentSettings.seat_offset_y ?? 0}mm) rotate(${currentSettings.table_seat_rotation ?? 0}deg)`, transformOrigin: 'center center' }}>
+              <div style={{ textAlign: 'center', minWidth: '18mm', transform: `translate(${currentSettings.seat_offset_x ?? 0}mm, ${currentSettings.seat_offset_y ?? 0}mm) rotate(${(currentSettings as any).table_seat_rotation ?? 0}deg)`, transformOrigin: 'center center' }}>
                 <div style={{ fontFamily: currentSettings.info_font_family, fontSize: `${currentSettings.info_font_size}pt`, color: currentSettings.info_font_color || currentSettings.font_color, fontWeight: currentSettings.info_bold ? '700' : undefined, fontStyle: currentSettings.info_italic ? 'italic' : undefined, textDecoration: currentSettings.info_underline ? 'underline' : undefined }}>
                   Seat
                 </div>
@@ -501,7 +443,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
               </div>
             </div>
           ) : (
-            /* Standard centered table/seat layout — unified absolute positioning */
+            /* Standard centered table/seat layout */
             isInteractive ? (
               <InteractiveTextOverlay
                 hideSideHandles
@@ -511,14 +453,18 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                 onRotate={(deg) => handleInteractiveRotate('table-seat', deg)}
                 onReset={() => handleInteractiveReset('table-seat')}
                 onFontSizeChange={(delta) => handleFontSizeChange('table-seat', delta)}
-                onLiveMove={handleLiveMove('table-seat')}
-                onLiveRotate={handleLiveRotate('table-seat')}
-                onLiveFontSize={handleLiveFontSize('table-seat')}
-                onLiveEnd={handleLiveEnd}
                 containerRef={firstCardRef as React.RefObject<HTMLElement>}
-                rotation={Number(currentSettings.table_seat_rotation ?? 0)}
+                rotation={Number((currentSettings as any).table_seat_rotation ?? 0)}
                 currentFontSize={currentSettings.info_font_size}
-                style={tableSeatAbsStyle}
+                style={{
+                  ...tableInfoStyle,
+                  left: `${tableXPct}%`,
+                  top: `${tableYPct}%`,
+                  transform: `translate(-50%, -50%) rotate(${(currentSettings as any).table_seat_rotation ?? 0}deg)`,
+                  transformOrigin: 'center center',
+                  textAlign: 'center',
+                  whiteSpace: 'nowrap',
+                }}
               >
                 {currentSettings.background_behind_table_seats ? (
                   <div style={{ background: 'white', borderRadius: '12px', padding: '0.75mm 1.5mm', display: 'inline-block' }}>
@@ -529,7 +475,13 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                 )}
               </InteractiveTextOverlay>
             ) : (
-              <div style={tableSeatAbsStyle}>
+              <div
+                style={{
+                  ...tableInfoStyle,
+                  transform: tableTransform,
+                  transformOrigin: 'center center',
+                }}
+              >
                 {currentSettings.background_behind_table_seats ? (
                   <div style={{ background: 'white', borderRadius: '12px', padding: '0.75mm 1.5mm', display: 'inline-block' }}>
                     {tableInfo}
@@ -655,7 +607,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                     <div className="grid grid-cols-2 grid-rows-3" style={{ height: '297mm' }}>
                       {Array.from({ length: 6 }).map((_, index) => {
                         const guest = currentPageGuests[index];
-                        const isFirstCard = index === 0;
+                        const isFirstCard = currentPage === 1 && index === 0;
                         return guest ? renderPlaceCard(guest, isFirstCard) : renderEmptyCard(index);
                       })}
                     </div>
