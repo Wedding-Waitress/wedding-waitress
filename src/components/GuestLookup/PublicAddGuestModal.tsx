@@ -588,7 +588,7 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
                   value={guest.notes}
                   onChange={e => setGuest(prev => ({ ...prev, notes: e.target.value }))}
                   placeholder="Add any additional notes about this guest..."
-                  className="rounded-3xl border-2 border-[#7248e6] focus-visible:border-[#7248e6] focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none resize-none"
+                  className="rounded-3xl border-[3px] border-[#7248e6] focus-visible:border-[#7248e6] focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none resize-none"
                 />
               </div>
 

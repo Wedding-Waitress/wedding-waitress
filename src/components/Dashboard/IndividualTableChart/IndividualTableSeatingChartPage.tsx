@@ -340,7 +340,7 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
 
           {/* Export Controls */}
           {isDataReady && (
-            <div className="border border-primary rounded-xl p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div className="border-[1.5px] border-primary rounded-xl p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <p className="text-sm">
                 <span className="font-bold">Export Controls</span>
                 {' '}Download & share your individual table charts with your venue.

@@ -377,7 +377,7 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
 
             {/* Right side: Export Controls */}
             {selectedEvent && assignedGuests.length > 0 && !guestsLoading && !settingsLoading && (
-              <div className="border border-primary rounded-xl p-3 flex flex-col gap-2 whitespace-nowrap">
+              <div className="border-[1.5px] border-primary rounded-xl p-3 flex flex-col gap-2 whitespace-nowrap">
                 <div className="text-sm">
                   <span className="font-medium">Export Controls</span>
                   <span className="text-muted-foreground ml-2">Download your place cards as PDF ready for printing.</span>

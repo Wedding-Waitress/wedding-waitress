@@ -489,7 +489,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                 </div>
 
                 {/* Right Side: Export Controls */}
-                <div className="border border-primary rounded-xl p-4 space-y-3 flex-shrink-0">
+                <div className="border-[1.5px] border-primary rounded-xl p-4 space-y-3 flex-shrink-0">
                   <p className="text-sm">
                     <span className="font-bold">Export Controls</span>
                     {' '}Download & share your dietary requirement guests with your venue / Kitchen.
