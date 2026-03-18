@@ -1,21 +1,46 @@
 
 
-## Plan: Move Edit with Canva banner onto the same row as Choose File and Image Gallery
+## Gaps Between Requirements and Current Implementation
 
-### Summary
-Move the clickable Canva banner image from its own row below the buttons into the same flex row as Choose File and Image Gallery, so all three sit side by side on one line.
+After reviewing the code, the interactive editor is **already implemented** with `InteractiveTextOverlay` wrapping both Guest Name and Table/Seat elements. Here's what's done vs missing:
 
-### File Changes
+| Requirement | Status |
+|---|---|
+| 1. Purple bounding box + resize handles | ✅ Done |
+| 2. Resize text (drag corner handles) with font size tooltip | ✅ Done |
+| 3. Drag to move with move handle | ✅ Done |
+| 4. Rotation handle with degree tooltip | ✅ Done |
+| 5. Top toolbar with Reset/Duplicate/Delete | ⚠️ Only Reset exists |
+| 6. Edit Mode toggle | ✅ Done |
+| 7. Global sync (all cards) | ✅ Done |
+| 8. Keep existing Text Position controls | ✅ Done |
+| 9. Smooth UX, single selection | ✅ Done |
+| 10. Data sync (visual ↔ sliders) | ✅ Done |
 
-#### 1. `src/components/Dashboard/Invitations/InvitationCardCustomizer.tsx`
-- **Move lines 428-433** (the `<img>` tag) inside the `</div>` that closes at line 427, placing it after the Image Gallery button (before the closing `</div>`).
-- Remove `mt-2` from the image class since it will now be inline with the buttons.
-- The flex container already has `gap-2`, so the banner will sit naturally next to the buttons.
+### What's Missing
 
-#### 2. `src/components/Dashboard/PlaceCards/PlaceCardCustomizer.tsx`
-- **Move lines 706-711** (the `<img>` tag) inside the `</div>` that closes at line 703, placing it after the Image Gallery button.
-- Same class adjustment: remove `mt-2`.
+**Only the toolbar is incomplete** — it currently shows only a Reset button. The user wants 3 buttons matching the Invitations editor (see uploaded screenshot with red arrows):
 
-### Result
-All three elements — Choose File (green), Image Gallery (purple), Edit with Canva (banner) — appear on a single row in both pages. No other changes.
+1. **Reset** (RotateCcw icon) — already works
+2. **Duplicate** (CopyPlus icon) — not wired up
+3. **Delete** (Trash2 icon) — not wired up
+
+For Place Cards, Guest Name and Table/Seat are **fixed structural elements** — duplicating or deleting them doesn't make functional sense (unlike Invitations where users add custom text zones). 
+
+### Proposed Approach
+
+Add `onDuplicate` and `onDelete` callbacks to both `InteractiveTextOverlay` instances in `PlaceCardPreview.tsx`:
+
+- **Duplicate**: Creates a duplicate text element... but Place Cards don't support arbitrary custom text zones. This would require a significant architectural change (adding a `custom_text_zones` array to `place_card_settings`).
+- **Delete**: Same issue — hiding a fixed element needs new boolean fields (`guest_name_visible`, `table_seat_visible`).
+
+### Recommendation
+
+Given that the core interactive editing (select, move, resize, rotate, reset, edit mode, sync) is **fully working**, the Duplicate and Delete buttons require substantial new data architecture to function on Place Cards. Two options:
+
+**Option A — Show all 3 buttons visually** but make Duplicate/Delete no-ops with a toast message ("Not available for fixed elements"). Quick cosmetic match to Invitations.
+
+**Option B — Skip Duplicate/Delete for now** since Place Cards only have 2 fixed text elements. Focus effort elsewhere.
+
+**Option C — Full implementation** with new DB columns for visibility + custom text zones array. Significant scope.
 
