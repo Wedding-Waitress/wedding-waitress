@@ -181,8 +181,8 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
       if (mode === 'move' && onMove) {
         const dxP = (accumX / rect.width) * 100;
         const dyP = (accumY / rect.height) * 100;
-        const newLeft = initLeft + dxP;
-        const newTop = initTop + dyP;
+        const newLeft = Math.max(0, Math.min(100, initLeft + dxP));
+        const newTop = Math.max(0, Math.min(100, initTop + dyP));
         el.style.left = `${newLeft}%`;
         el.style.top = `${newTop}%`;
         el.style.transform = `${baseTransform} rotate(${rotation}deg)`;
