@@ -1,21 +1,19 @@
 
 
-## Plan: Move Edit with Canva banner onto the same row as Choose File and Image Gallery
+## Analysis: Current Implementation Already Correct
 
-### Summary
-Move the clickable Canva banner image from its own row below the buttons into the same flex row as Choose File and Image Gallery, so all three sit side by side on one line.
+After thorough investigation of all three files, the drag handlers are **already wired correctly**:
 
-### File Changes
+1. **PlaceCardsPage.tsx line 482**: `PlaceCardPreview` receives `onSettingsChange={handlePreviewSettingsChange}` — NOT `updateSettings`
+2. **PlaceCardPreview.tsx lines 100-108**: `handleGuestNameMove` converts pixel % deltas to mm offsets and calls `onSettingsChange` (which IS `handlePreviewSettingsChange`)
+3. **PlaceCardPreview.tsx lines 129-138**: `handleTableSeatMove` follows the same pattern
+4. **PlaceCardsPage.tsx lines 61-66**: `handlePreviewSettingsChange` sets `localOverrides` for instant visual feedback, then calls `updateSettingsSilent` for background DB save
+5. **PlaceCardsPage.tsx lines 69-81**: `useEffect` clears overrides only when DB settings catch up
 
-#### 1. `src/components/Dashboard/Invitations/InvitationCardCustomizer.tsx`
-- **Move lines 428-433** (the `<img>` tag) inside the `</div>` that closes at line 427, placing it after the Image Gallery button (before the closing `</div>`).
-- Remove `mt-2` from the image class since it will now be inline with the buttons.
-- The flex container already has `gap-2`, so the banner will sit naturally next to the buttons.
+The `PlaceCardCustomizer` (line 466) correctly uses `updateSettings` directly — it handles non-drag settings like fonts and colors.
 
-#### 2. `src/components/Dashboard/PlaceCards/PlaceCardCustomizer.tsx`
-- **Move lines 706-711** (the `<img>` tag) inside the `</div>` that closes at line 703, placing it after the Image Gallery button.
-- Same class adjustment: remove `mt-2`.
+**No code changes are needed.** The pattern already matches the described behavior:
+- Drag → pixel delta → mm conversion → `handlePreviewSettingsChange` → local override + silent save → position persists
 
-### Result
-All three elements — Choose File (green), Image Gallery (purple), Edit with Canva (banner) — appear on a single row in both pages. No other changes.
+If snap-back is still occurring, the issue would be elsewhere (e.g., in `InteractiveTextOverlay`'s inline style cleanup on pointer up, or a stale closure in the `useCallback` dependencies). But the routing of drag operations through `handlePreviewSettingsChange` is already correctly implemented.
 
