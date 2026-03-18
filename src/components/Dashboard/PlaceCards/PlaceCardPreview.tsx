@@ -46,13 +46,13 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
     background_image_type: 'none' as const,
     mass_message: '',
     individual_messages: {},
-    guest_font_family: 'Inter',
-    info_font_family: 'Inter',
+    guest_font_family: 'Great Vibes',
+    info_font_family: 'ET Emilia Grace Demo',
     guest_name_bold: false,
     guest_name_italic: false,
     guest_name_underline: false,
-    guest_name_font_size: 24,
-    info_font_size: 12,
+    guest_name_font_size: 40,
+    info_font_size: 16,
     name_spacing: 4
   };
 
