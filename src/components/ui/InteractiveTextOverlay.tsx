@@ -177,6 +177,7 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
         if (Math.abs(raw) < SNAP_THRESHOLD) raw = 0;
         currentAngle = Math.round(raw);
         setLiveAngle(currentAngle);
+        onLiveRotate?.(currentAngle);
         const finalDeg = ((currentAngle % 360) + 360) % 360;
         el.style.transform = `${baseTransform} rotate(${finalDeg}deg)`;
       }
