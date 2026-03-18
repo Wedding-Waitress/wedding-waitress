@@ -1,19 +1,22 @@
 
 
-## Analysis: Current Implementation Already Correct
+## Plan: Add informational note below "Add QR Code to Invite" heading
 
-After thorough investigation of all three files, the drag handlers are **already wired correctly**:
+### Change
 
-1. **PlaceCardsPage.tsx line 482**: `PlaceCardPreview` receives `onSettingsChange={handlePreviewSettingsChange}` — NOT `updateSettings`
-2. **PlaceCardPreview.tsx lines 100-108**: `handleGuestNameMove` converts pixel % deltas to mm offsets and calls `onSettingsChange` (which IS `handlePreviewSettingsChange`)
-3. **PlaceCardPreview.tsx lines 129-138**: `handleTableSeatMove` follows the same pattern
-4. **PlaceCardsPage.tsx lines 61-66**: `handlePreviewSettingsChange` sets `localOverrides` for instant visual feedback, then calls `updateSettingsSilent` for background DB save
-5. **PlaceCardsPage.tsx lines 69-81**: `useEffect` clears overrides only when DB settings catch up
+**File: `src/components/Dashboard/Invitations/InvitationCardCustomizer.tsx`**
 
-The `PlaceCardCustomizer` (line 466) correctly uses `updateSettings` directly — it handles non-drag settings like fonts and colors.
+Insert a styled note between line 603 (after the heading closing `</h3>`) and line 605 (before the "Choose Event" section). The note will be wrapped in a soft purple-bordered container:
 
-**No code changes are needed.** The pattern already matches the described behavior:
-- Drag → pixel delta → mm conversion → `handlePreviewSettingsChange` → local override + silent save → position persists
+```tsx
+<div className="border border-primary/30 rounded-lg p-3 bg-primary/5">
+  <p className="text-sm text-muted-foreground">
+    Adding a QR code to your invitation is only necessary and recommended when you are physically printing your invites and sending them in the mail.
+  </p>
+</div>
+```
 
-If snap-back is still occurring, the issue would be elsewhere (e.g., in `InteractiveTextOverlay`'s inline style cleanup on pointer up, or a stale closure in the `useCallback` dependencies). But the routing of drag operations through `handlePreviewSettingsChange` is already correctly implemented.
+This sits between the heading and the "Choose Event" dropdown, inherits the `space-y-4` gap from the parent, and uses a subtle purple border with light purple background consistent with the panel styling.
+
+### Files changed: 1
 
