@@ -166,7 +166,13 @@ export const usePlaceCardSettings = (eventId: string | null) => {
       setSettings({
         ...result.data,
         background_image_type: result.data.background_image_type as 'none' | 'decorative' | 'full' | 'full_front' | 'full_back',
-        individual_messages: result.data.individual_messages as Record<string, string>
+        individual_messages: result.data.individual_messages as Record<string, string>,
+        message_font_family: (result.data as any).message_font_family || 'Beauty Mountains',
+        message_font_size: (result.data as any).message_font_size || 16,
+        message_font_color: (result.data as any).message_font_color || '#000000',
+        message_bold: (result.data as any).message_bold || false,
+        message_italic: (result.data as any).message_italic || false,
+        message_underline: (result.data as any).message_underline || false,
       });
       toast({
         title: "Success",
