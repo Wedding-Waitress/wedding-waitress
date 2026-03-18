@@ -114,7 +114,10 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
     info_font_size: 16,
     name_spacing: 4,
     background_behind_names: false,
-    background_behind_table_seats: false
+    background_behind_table_seats: false,
+    info_bold: false,
+    info_italic: false,
+    info_underline: false
   };
   const handleSettingChange = async (key: keyof PlaceCardSettings, value: any) => {
     await onSettingsChange({
