@@ -53,7 +53,10 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
     guest_name_underline: false,
     guest_name_font_size: 40,
     info_font_size: 16,
-    name_spacing: 4
+    name_spacing: 4,
+    info_bold: false,
+    info_italic: false,
+    info_underline: false
   };
 
   // Get table display value - prefer table name, fall back to table_no
@@ -289,6 +292,9 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                     fontFamily: currentSettings.info_font_family,
                     fontSize: `${currentSettings.info_font_size}pt`,
                     color: currentSettings.font_color,
+                    fontWeight: currentSettings.info_bold ? '700' : undefined,
+                    fontStyle: currentSettings.info_italic ? 'italic' : undefined,
+                    textDecoration: currentSettings.info_underline ? 'underline' : undefined,
                   }}
                 >
                   Table
@@ -297,8 +303,10 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                   style={{
                     fontFamily: currentSettings.info_font_family,
                     fontSize: `${(currentSettings.info_font_size || 10) + 2}pt`,
-                    fontWeight: '600',
+                    fontWeight: currentSettings.info_bold ? '700' : '600',
                     color: currentSettings.font_color,
+                    fontStyle: currentSettings.info_italic ? 'italic' : undefined,
+                    textDecoration: currentSettings.info_underline ? 'underline' : undefined,
                   }}
                 >
                   {tableDisplay}
@@ -324,6 +332,9 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                     fontFamily: currentSettings.info_font_family,
                     fontSize: `${currentSettings.info_font_size}pt`,
                     color: currentSettings.font_color,
+                    fontWeight: currentSettings.info_bold ? '700' : undefined,
+                    fontStyle: currentSettings.info_italic ? 'italic' : undefined,
+                    textDecoration: currentSettings.info_underline ? 'underline' : undefined,
                   }}
                 >
                   Seat
@@ -332,8 +343,10 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                   style={{
                     fontFamily: currentSettings.info_font_family,
                     fontSize: `${(currentSettings.info_font_size || 10) + 2}pt`,
-                    fontWeight: '600',
+                    fontWeight: currentSettings.info_bold ? '700' : '600',
                     color: currentSettings.font_color,
+                    fontStyle: currentSettings.info_italic ? 'italic' : undefined,
+                    textDecoration: currentSettings.info_underline ? 'underline' : undefined,
                   }}
                 >
                   {guest.seat_no || '—'}
@@ -346,6 +359,9 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
               style={{
                 fontFamily: currentSettings.info_font_family,
                 fontSize: `${currentSettings.info_font_size}pt`,
+                fontWeight: currentSettings.info_bold ? '700' : undefined,
+                fontStyle: currentSettings.info_italic ? 'italic' : undefined,
+                textDecoration: currentSettings.info_underline ? 'underline' : undefined,
                 transform: `translate(${currentSettings.table_offset_x ?? 0}mm, ${currentSettings.table_offset_y ?? 0}mm) rotate(${(currentSettings as any).table_seat_rotation ?? 0}deg)`,
                 transformOrigin: 'center center',
               }}

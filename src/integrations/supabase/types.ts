@@ -1720,8 +1720,11 @@ export type Database = {
           guest_name_underline: boolean | null
           id: string
           individual_messages: Json | null
+          info_bold: boolean
           info_font_family: string | null
           info_font_size: number | null
+          info_italic: boolean
+          info_underline: boolean
           mass_message: string | null
           name_spacing: number | null
           seat_offset_x: number
@@ -1758,8 +1761,11 @@ export type Database = {
           guest_name_underline?: boolean | null
           id?: string
           individual_messages?: Json | null
+          info_bold?: boolean
           info_font_family?: string | null
           info_font_size?: number | null
+          info_italic?: boolean
+          info_underline?: boolean
           mass_message?: string | null
           name_spacing?: number | null
           seat_offset_x?: number
@@ -1796,8 +1802,11 @@ export type Database = {
           guest_name_underline?: boolean | null
           id?: string
           individual_messages?: Json | null
+          info_bold?: boolean
           info_font_family?: string | null
           info_font_size?: number | null
+          info_italic?: boolean
+          info_underline?: boolean
           mass_message?: string | null
           name_spacing?: number | null
           seat_offset_x?: number

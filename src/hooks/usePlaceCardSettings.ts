@@ -49,6 +49,9 @@ export interface PlaceCardSettings {
   seat_offset_y?: number;
   guest_name_rotation?: number;
   table_seat_rotation?: number;
+  info_bold: boolean;
+  info_italic: boolean;
+  info_underline: boolean;
   created_at?: string;
   updated_at?: string;
 }
