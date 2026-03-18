@@ -110,6 +110,18 @@ function normalizeRow(row: any): PlaceCardSettings {
     message_bold: row.message_bold ?? false,
     message_italic: row.message_italic ?? false,
     message_underline: row.message_underline ?? false,
+    guest_name_offset_x: row.guest_name_offset_x ?? 0,
+    guest_name_offset_y: row.guest_name_offset_y ?? 0,
+    table_offset_x: row.table_offset_x ?? 0,
+    table_offset_y: row.table_offset_y ?? 0,
+    seat_offset_x: row.seat_offset_x ?? 0,
+    seat_offset_y: row.seat_offset_y ?? 0,
+    guest_name_rotation: row.guest_name_rotation ?? 0,
+    table_seat_rotation: row.table_seat_rotation ?? 0,
+    info_bold: row.info_bold ?? false,
+    info_italic: row.info_italic ?? false,
+    info_underline: row.info_underline ?? false,
+    info_font_color: row.info_font_color || '#000000',
   };
 }
 
