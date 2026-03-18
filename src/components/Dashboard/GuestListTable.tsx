@@ -1504,7 +1504,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
 
                 {/* Box 2: Guest Relations */}
                 {selectedEventId && (
-                  <div className="border-2 border-[#7248E6] rounded-lg p-4 flex-1">
+                  <div className="border-[3px] border-[#7248E6] rounded-lg p-4 flex-1">
                     <div className="flex items-start gap-3 mb-2">
                      <span className="bg-green-500 text-white font-bold text-sm w-8 h-8 rounded-full inline-flex items-center justify-center shrink-0 mt-0">3</span>
                       <span className="text-sm font-semibold text-primary">Add what relationship each guest is to you. This will help your staff know who is who at your venue.</span>
