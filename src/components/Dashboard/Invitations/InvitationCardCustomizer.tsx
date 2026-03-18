@@ -598,6 +598,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                 <h3 className="text-lg font-semibold text-primary">
                   <QrCode className="h-5 w-5 inline-block mr-2" />
                   Add QR Code to Invite
+                </h3>
 
                 <div className="border border-primary/30 rounded-lg p-3 bg-primary/5">
                   <p className="text-sm text-muted-foreground">
@@ -605,6 +606,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                   </p>
                 </div>
 
+                <div className="space-y-2">
                   <Label className="text-sm font-medium">Choose Event</Label>
                   <Select
                     value={currentSettings.qr_config?.event_id || 'none'}
