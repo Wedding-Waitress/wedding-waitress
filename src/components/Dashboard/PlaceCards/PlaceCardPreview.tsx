@@ -459,7 +459,39 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
     );
   };
 
+  // Render empty card slot with background and fold line
+  const renderEmptyCard = (index: number) => {
+    return (
+      <div
+        key={`empty-${index}`}
+        className="relative"
+        style={{
+          width: '105mm',
+          height: '99mm',
+          backgroundColor: currentSettings.background_color,
+        }}
+      >
+        <div 
+          className="absolute left-0 right-0" 
+          style={{ 
+            top: '49.5mm',
+            borderTop: '0.5px solid #d3d3d3',
+            opacity: 0.3,
+            zIndex: 100
+          }}
+        />
+      </div>
+    );
+  };
 
+  if (!guests.length) {
+    return (
+      <div className="py-8 text-center text-muted-foreground bg-muted/30 rounded-lg border-2 border-dashed">
+        <p>No assigned guests found.</p>
+        <p className="text-sm">Assign guests to tables to see place cards preview.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
