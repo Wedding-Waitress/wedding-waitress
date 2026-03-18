@@ -56,7 +56,16 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
     name_spacing: 4,
     info_bold: false,
     info_italic: false,
-    info_underline: false
+    info_underline: false,
+    info_font_color: '#000000',
+    background_behind_names: false,
+    background_behind_table_seats: false,
+    guest_name_offset_x: 0,
+    guest_name_offset_y: 0,
+    table_offset_x: 0,
+    table_offset_y: 0,
+    seat_offset_x: 0,
+    seat_offset_y: 0,
   };
 
   // Get table display value - prefer table name, fall back to table_no
@@ -218,7 +227,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                 fontFamily: currentSettings.info_font_family,
                 fontSize: `${currentSettings.info_font_size}pt`,
                 fontStyle: 'italic',
-                color: currentSettings.font_color,
+                color: (currentSettings as any).info_font_color || '#000000',
               }}
             >
               {message}
@@ -291,7 +300,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                   style={{
                     fontFamily: currentSettings.info_font_family,
                     fontSize: `${currentSettings.info_font_size}pt`,
-                    color: currentSettings.font_color,
+                    color: (currentSettings as any).info_font_color || '#000000',
                     fontWeight: currentSettings.info_bold ? '700' : undefined,
                     fontStyle: currentSettings.info_italic ? 'italic' : undefined,
                     textDecoration: currentSettings.info_underline ? 'underline' : undefined,
@@ -304,7 +313,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                     fontFamily: currentSettings.info_font_family,
                     fontSize: `${(currentSettings.info_font_size || 10) + 2}pt`,
                     fontWeight: currentSettings.info_bold ? '700' : '600',
-                    color: currentSettings.font_color,
+                    color: (currentSettings as any).info_font_color || '#000000',
                     fontStyle: currentSettings.info_italic ? 'italic' : undefined,
                     textDecoration: currentSettings.info_underline ? 'underline' : undefined,
                   }}
@@ -331,7 +340,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                   style={{
                     fontFamily: currentSettings.info_font_family,
                     fontSize: `${currentSettings.info_font_size}pt`,
-                    color: currentSettings.font_color,
+                    color: (currentSettings as any).info_font_color || '#000000',
                     fontWeight: currentSettings.info_bold ? '700' : undefined,
                     fontStyle: currentSettings.info_italic ? 'italic' : undefined,
                     textDecoration: currentSettings.info_underline ? 'underline' : undefined,
@@ -344,7 +353,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                     fontFamily: currentSettings.info_font_family,
                     fontSize: `${(currentSettings.info_font_size || 10) + 2}pt`,
                     fontWeight: currentSettings.info_bold ? '700' : '600',
-                    color: currentSettings.font_color,
+                    color: (currentSettings as any).info_font_color || '#000000',
                     fontStyle: currentSettings.info_italic ? 'italic' : undefined,
                     textDecoration: currentSettings.info_underline ? 'underline' : undefined,
                   }}

@@ -1,0 +1,1 @@
+ALTER TABLE public.place_card_settings ADD COLUMN info_font_color text NOT NULL DEFAULT '#000000';

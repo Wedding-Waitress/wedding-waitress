@@ -1721,6 +1721,7 @@ export type Database = {
           id: string
           individual_messages: Json | null
           info_bold: boolean
+          info_font_color: string
           info_font_family: string | null
           info_font_size: number | null
           info_italic: boolean
@@ -1762,6 +1763,7 @@ export type Database = {
           id?: string
           individual_messages?: Json | null
           info_bold?: boolean
+          info_font_color?: string
           info_font_family?: string | null
           info_font_size?: number | null
           info_italic?: boolean
@@ -1803,6 +1805,7 @@ export type Database = {
           id?: string
           individual_messages?: Json | null
           info_bold?: boolean
+          info_font_color?: string
           info_font_family?: string | null
           info_font_size?: number | null
           info_italic?: boolean

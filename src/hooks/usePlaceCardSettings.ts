@@ -52,6 +52,7 @@ export interface PlaceCardSettings {
   info_bold: boolean;
   info_italic: boolean;
   info_underline: boolean;
+  info_font_color: string;
   created_at?: string;
   updated_at?: string;
 }
