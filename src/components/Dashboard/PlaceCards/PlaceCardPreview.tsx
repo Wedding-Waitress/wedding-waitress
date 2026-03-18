@@ -29,6 +29,8 @@ interface PlaceCardPreviewProps {
   focusedPage?: number | null;
   selectedTable?: { name: string; table_no?: number | null } | null;
   onSettingsChange?: (settings: Partial<PlaceCardSettings>) => void;
+  editMode?: boolean;
+  onEditModeChange?: (mode: boolean) => void;
 }
 
 const CARD_WIDTH_MM = 105;
