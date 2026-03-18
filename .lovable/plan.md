@@ -1,18 +1,21 @@
 
 
-## Change Default Table/Seat/Message Font to "Beauty Mountains"
+## Plan: Move Edit with Canva banner onto the same row as Choose File and Image Gallery
 
-Replace all occurrences of `'ET Emilia Grace Demo'` with `'Beauty Mountains'` in the **Place Cards** files only (not Invitations):
+### Summary
+Move the clickable Canva banner image from its own row below the buttons into the same flex row as Choose File and Image Gallery, so all three sit side by side on one line.
 
-**`src/components/Dashboard/PlaceCards/PlaceCardCustomizer.tsx`** (3 locations)
-- Line 109: initial defaults `info_font_family`
-- Line 151: reset defaults `info_font_family`
-- Line 318: fallback in font picker value
+### File Changes
 
-**`src/components/Dashboard/PlaceCards/PlaceCardPreview.tsx`** (1 location)
-- Line 50: preview fallback `info_font_family`
+#### 1. `src/components/Dashboard/Invitations/InvitationCardCustomizer.tsx`
+- **Move lines 428-433** (the `<img>` tag) inside the `</div>` that closes at line 427, placing it after the Image Gallery button (before the closing `</div>`).
+- Remove `mt-2` from the image class since it will now be inline with the buttons.
+- The flex container already has `gap-2`, so the banner will sit naturally next to the buttons.
 
-All four changes are the same: `'ET Emilia Grace Demo'` → `'Beauty Mountains'`.
+#### 2. `src/components/Dashboard/PlaceCards/PlaceCardCustomizer.tsx`
+- **Move lines 706-711** (the `<img>` tag) inside the `</div>` that closes at line 703, placing it after the Image Gallery button.
+- Same class adjustment: remove `mt-2`.
 
-No database changes needed — the font name is just a string stored in the existing column.
+### Result
+All three elements — Choose File (green), Image Gallery (purple), Edit with Canva (banner) — appear on a single row in both pages. No other changes.
 
