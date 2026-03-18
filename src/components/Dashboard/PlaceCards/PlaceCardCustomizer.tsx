@@ -454,7 +454,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Pencil className="w-4 h-4 text-primary" />
-                  <Label className="text-sm font-medium">Edit Mode</Label>
+                  <Label className="text-sm font-medium">Text Edit Mode</Label>
                 </div>
                 <Switch
                   checked={editMode}
