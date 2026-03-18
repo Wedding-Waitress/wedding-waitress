@@ -343,9 +343,13 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
               currentFontSize={currentSettings.guest_name_font_size}
               style={{
                 ...guestNameStyle,
-                transform: guestNameTransform,
+                marginBottom: 0,
+                left: `${guestXPct}%`,
+                top: `${guestYPct}%`,
+                transform: `translate(-50%, -50%) rotate(${(currentSettings as any).guest_name_rotation ?? 0}deg)`,
                 transformOrigin: 'center center',
-                position: 'relative',
+                textAlign: 'center',
+                whiteSpace: 'nowrap',
               }}
             >
               {currentSettings.background_behind_names ? (
