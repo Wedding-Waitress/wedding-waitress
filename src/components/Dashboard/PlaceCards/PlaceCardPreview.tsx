@@ -51,6 +51,11 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
   const [currentPage, setCurrentPage] = useState(1);
   const editMode = editModeProp;
   const [selectedElement, setSelectedElement] = useState<'guest_name' | 'table_seat' | null>(null);
+
+  // Clear selection when edit mode is turned off
+  React.useEffect(() => {
+    if (!editMode) setSelectedElement(null);
+  }, [editMode]);
   const frontHalfRef = useRef<HTMLDivElement>(null);
   
   const currentSettings = settings || {
