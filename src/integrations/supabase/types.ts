@@ -1727,6 +1727,12 @@ export type Database = {
           info_italic: boolean
           info_underline: boolean
           mass_message: string | null
+          message_bold: boolean
+          message_font_color: string
+          message_font_family: string
+          message_font_size: number
+          message_italic: boolean
+          message_underline: boolean
           name_spacing: number | null
           seat_offset_x: number
           seat_offset_y: number
@@ -1769,6 +1775,12 @@ export type Database = {
           info_italic?: boolean
           info_underline?: boolean
           mass_message?: string | null
+          message_bold?: boolean
+          message_font_color?: string
+          message_font_family?: string
+          message_font_size?: number
+          message_italic?: boolean
+          message_underline?: boolean
           name_spacing?: number | null
           seat_offset_x?: number
           seat_offset_y?: number
@@ -1811,6 +1823,12 @@ export type Database = {
           info_italic?: boolean
           info_underline?: boolean
           mass_message?: string | null
+          message_bold?: boolean
+          message_font_color?: string
+          message_font_family?: string
+          message_font_size?: number
+          message_italic?: boolean
+          message_underline?: boolean
           name_spacing?: number | null
           seat_offset_x?: number
           seat_offset_y?: number
