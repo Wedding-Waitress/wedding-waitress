@@ -322,7 +322,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
             padding: isInteractive ? '0' : '5mm',
             paddingTop: isInteractive ? '0' : (currentSettings.background_image_type === 'decorative' ? '1mm' : '8mm'),
             position: 'relative',
-            overflow: isInteractive ? 'hidden' : undefined,
+            overflow: isInteractive ? 'visible' : undefined,
             display: isInteractive ? 'block' : 'flex',
             flexDirection: isInteractive ? undefined : 'column',
             alignItems: isInteractive ? undefined : 'center',
