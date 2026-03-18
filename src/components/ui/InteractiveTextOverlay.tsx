@@ -30,6 +30,11 @@ interface InteractiveTextOverlayProps {
   onReset?: () => void;
   onDuplicate?: () => void;
   onDelete?: () => void;
+  /** Live callbacks fire DURING interaction for real-time mirroring to sibling elements */
+  onLiveMove?: (dxPercent: number, dyPercent: number) => void;
+  onLiveRotate?: (degrees: number) => void;
+  onLiveFontSize?: (newSize: number) => void;
+  onLiveEnd?: () => void;
   containerRef: React.RefObject<HTMLElement>;
   showResizeHandles?: boolean;
   showRotateHandle?: boolean;
@@ -60,6 +65,10 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
   onReset,
   onDuplicate,
   onDelete,
+  onLiveMove,
+  onLiveRotate,
+  onLiveFontSize,
+  onLiveEnd,
   containerRef,
   showResizeHandles = true,
   showRotateHandle = true,
@@ -127,6 +136,12 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
         accumY = dy;
         el.style.transform = `${baseTransform} translate(${dx}px, ${dy}px) rotate(${rotation}deg)`;
         onDragMove?.({ x: dx, y: dy });
+        // Emit live position delta as percentage for sibling mirroring
+        if (onLiveMove) {
+          const dxP = (dx / containerRect.width) * 100;
+          const dyP = (dy / containerRect.height) * 100;
+          onLiveMove(dxP, dyP);
+        }
         return;
       }
 
@@ -157,8 +172,8 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
         const newFontSize = Math.max(6, Math.min(200, (newWidth / baseWidth) * (currentFontSize || 24)));
         el.style.fontSize = `${newFontSize}px`;
 
-        lastFontDelta = newFontSize - (currentFontSize || 24);
         setLiveFontSize(Math.round(newFontSize));
+        onLiveFontSize?.(Math.round(newFontSize));
         return;
       }
 
@@ -171,6 +186,7 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
         setLiveAngle(currentAngle);
         const finalDeg = ((currentAngle % 360) + 360) % 360;
         el.style.transform = `${baseTransform} rotate(${finalDeg}deg)`;
+        onLiveRotate?.(finalDeg);
       }
     };
 
@@ -183,6 +199,7 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
       cancelAnimationFrame(rafRef.current);
       document.removeEventListener('pointermove', onPointerMove);
       document.removeEventListener('pointerup', onPointerUp);
+      onLiveEnd?.();
 
       const rect = containerRect;
 
@@ -237,7 +254,7 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
 
     document.addEventListener('pointermove', onPointerMove);
     document.addEventListener('pointerup', onPointerUp);
-  }, [containerRef, onMove, onResize, onCornerResize, onFontSizeChange, onRotate, onDragMove, onDragEnd, rotation, getBaseTransform]);
+  }, [containerRef, onMove, onResize, onCornerResize, onFontSizeChange, onRotate, onDragMove, onDragEnd, onLiveMove, onLiveRotate, onLiveFontSize, onLiveEnd, rotation, getBaseTransform]);
 
   const canResize = showResizeHandles && (onResize || onCornerResize || onFontSizeChange);
   const hasToolbar = onCopy || onReset || onDuplicate || onDelete;
