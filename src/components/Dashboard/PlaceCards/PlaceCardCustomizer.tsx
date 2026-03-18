@@ -155,7 +155,10 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
       guest_name_font_size: 40,
       info_font_size: 16,
       name_spacing: 4,
-      font_color: '#000000'
+      font_color: '#000000',
+      info_bold: false,
+      info_italic: false,
+      info_underline: false
     };
     
     await onSettingsChange(designDefaults);
