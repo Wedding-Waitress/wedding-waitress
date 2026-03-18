@@ -33,6 +33,7 @@ interface InteractiveTextOverlayProps {
   containerRef: React.RefObject<HTMLElement>;
   showResizeHandles?: boolean;
   showRotateHandle?: boolean;
+  hideSideHandles?: boolean;
   rotation?: number;
   currentFontSize?: number;
   className?: string;
