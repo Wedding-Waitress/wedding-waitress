@@ -462,13 +462,13 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
           {/* Right Panel - Preview */}
           <div className="lg:col-span-3">
             <PlaceCardPreview
-              settings={settings}
+              settings={mergedSettings}
               guests={assignedGuests}
               event={selectedEvent}
               isExporting={isExporting}
               focusedPage={focusedPage}
               selectedTable={selectedTable}
-              onSettingsChange={updateSettings}
+              onSettingsChange={handlePreviewSettingsChange}
               editMode={editMode}
               onEditModeChange={setEditMode}
             />
