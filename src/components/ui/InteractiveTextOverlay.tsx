@@ -106,10 +106,19 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
       const dy = ev.clientY - startY;
 
       if (mode === 'move') {
-        accumX = dx;
-        accumY = dy;
-        el.style.transform = `${baseTransform} translate(${dx}px, ${dy}px) rotate(${rotation}deg)`;
-        onDragMove?.({ x: dx, y: dy });
+        // Clamp so element center stays within container bounds
+        const elHalfW = baseWidth / 2;
+        const elHalfH = baseHeight / 2;
+        const currentLeftPx = (initLeft / 100) * containerRect.width;
+        const currentTopPx = (initTop / 100) * containerRect.height;
+        const minDx = -currentLeftPx + elHalfW;
+        const maxDx = containerRect.width - currentLeftPx - elHalfW;
+        const minDy = -currentTopPx + elHalfH;
+        const maxDy = containerRect.height - currentTopPx - elHalfH;
+        accumX = Math.max(minDx, Math.min(maxDx, dx));
+        accumY = Math.max(minDy, Math.min(maxDy, dy));
+        el.style.transform = `${baseTransform} translate(${accumX}px, ${accumY}px) rotate(${rotation}deg)`;
+        onDragMove?.({ x: accumX, y: accumY });
         return;
       }
 
@@ -172,8 +181,8 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
       if (mode === 'move' && onMove) {
         const dxP = (accumX / rect.width) * 100;
         const dyP = (accumY / rect.height) * 100;
-        const newLeft = initLeft + dxP;
-        const newTop = initTop + dyP;
+        const newLeft = Math.max(0, Math.min(100, initLeft + dxP));
+        const newTop = Math.max(0, Math.min(100, initTop + dyP));
         el.style.left = `${newLeft}%`;
         el.style.top = `${newTop}%`;
         el.style.transform = `${baseTransform} rotate(${rotation}deg)`;
