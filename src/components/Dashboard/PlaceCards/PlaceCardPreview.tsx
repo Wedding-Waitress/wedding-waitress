@@ -407,13 +407,15 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
             </InteractiveTextOverlay>
 
             {/* Table/Seat Info - Interactive */}
-            <InteractiveTextOverlay
+             <InteractiveTextOverlay
               isSelected={selectedElement === 'table_seat'}
               onSelect={() => setSelectedElement('table_seat')}
               onMove={handleTableSeatMove}
               onFontSizeChange={handleTableSeatFontSize}
               onRotate={handleTableSeatRotate}
               onReset={handleTableSeatReset}
+              onDuplicate={() => toast({ title: "Not available", description: "Table/Seat is a fixed element and cannot be duplicated" })}
+              onDelete={() => toast({ title: "Not available", description: "Table/Seat is a fixed element and cannot be deleted" })}
               containerRef={frontHalfRef as React.RefObject<HTMLElement>}
               rotation={tableSeatRotation}
               currentFontSize={currentSettings.info_font_size}
