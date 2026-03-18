@@ -438,6 +438,8 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
               settings={settings}
               onSettingsChange={updateSettings}
               guests={assignedGuests}
+              textEditMode={textEditMode}
+              onTextEditModeChange={setTextEditMode}
             />
           </div>
 
@@ -450,6 +452,8 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
               isExporting={isExporting}
               focusedPage={focusedPage}
               selectedTable={selectedTable}
+              textEditMode={textEditMode}
+              onSettingsChange={updateSettings}
             />
           </div>
         </div>
