@@ -1,21 +1,36 @@
 
 
-## Plan: Move Edit with Canva banner onto the same row as Choose File and Image Gallery
+## Rename "Table, Seat & Message" to "Table & Seat" + Add Message Styling Box to Messages Tab
 
-### Summary
-Move the clickable Canva banner image from its own row below the buttons into the same flex row as Choose File and Image Gallery, so all three sit side by side on one line.
+### What Changes
 
-### File Changes
+**1. Design Tab — Rename only**
+- Line 364 in `PlaceCardCustomizer.tsx`: Change `"Table, Seat & Message"` to `"Table & Seat"`
 
-#### 1. `src/components/Dashboard/Invitations/InvitationCardCustomizer.tsx`
-- **Move lines 428-433** (the `<img>` tag) inside the `</div>` that closes at line 427, placing it after the Image Gallery button (before the closing `</div>`).
-- Remove `mt-2` from the image class since it will now be inline with the buttons.
-- The flex container already has `gap-2`, so the banner will sit naturally next to the buttons.
+**2. Messages Tab — Add a styling box at the top**
+Add a new purple-bordered styling box (identical structure to the "Table & Seat" box in the Design tab) at the top of the Messages tab content (before the Mass Message section). This box will be titled **"Message Styling"** and contain:
+- Row 1: Font picker + Font Size dropdown
+- Row 2: Bold/Italic/Underline toggles + Color picker
 
-#### 2. `src/components/Dashboard/PlaceCards/PlaceCardCustomizer.tsx`
-- **Move lines 706-711** (the `<img>` tag) inside the `</div>` that closes at line 703, placing it after the Image Gallery button.
-- Same class adjustment: remove `mt-2`.
+This requires **new database columns** for message-specific styling since messages currently share `info_font_family`/`info_font_size`/`info_font_color` with table & seat text.
 
-### Result
-All three elements — Choose File (green), Image Gallery (purple), Edit with Canva (banner) — appear on a single row in both pages. No other changes.
+**3. Database Migration** — Add 6 new columns to `place_card_settings`:
+- `message_font_family` (TEXT, default `'Beauty Mountains'`)
+- `message_font_size` (INTEGER, default `16`)
+- `message_font_color` (TEXT, default `'#000000'`)
+- `message_bold` (BOOLEAN, default `false`)
+- `message_italic` (BOOLEAN, default `false`)
+- `message_underline` (BOOLEAN, default `false`)
+
+**4. `src/hooks/usePlaceCardSettings.ts`** — Add the 6 new fields to `PlaceCardSettings` interface.
+
+**5. `src/integrations/supabase/types.ts`** — Add the 6 new fields to the `place_card_settings` type.
+
+**6. `src/components/Dashboard/PlaceCards/PlaceCardPreview.tsx`**
+- Add message defaults to fallback settings
+- Update the message rendering (lines 223-235) to use `message_font_family`, `message_font_size`, `message_font_color`, `message_bold`, `message_italic`, `message_underline` instead of `info_font_family`/`info_font_size`/`info_font_color`
+
+**7. `src/components/Dashboard/PlaceCards/PlaceCardCustomizer.tsx`**
+- Add message defaults to `currentSettings` and `handleResetMessagesDefaults`
+- Insert the styling box at line 900 (top of Messages tab), before Mass Message section
 
