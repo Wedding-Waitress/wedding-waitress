@@ -324,7 +324,7 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
               }}
               placeholder="e.g., 1, Bridal, VIP A"
               disabled={isSubmitting}
-              className={`rounded-full border-2 focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none ${
+              className={`rounded-full border-[3px] focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none ${
                 validationState === 'duplicate' 
                   ? 'border-red-600 focus-visible:border-red-600' 
                   : validationState === 'valid' 
