@@ -353,7 +353,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                     fontFamily: currentSettings.info_font_family,
                     fontSize: `${(currentSettings.info_font_size || 10) + 2}pt`,
                     fontWeight: currentSettings.info_bold ? '700' : '600',
-                    color: currentSettings.font_color,
+                    color: (currentSettings as any).info_font_color || '#000000',
                     fontStyle: currentSettings.info_italic ? 'italic' : undefined,
                     textDecoration: currentSettings.info_underline ? 'underline' : undefined,
                   }}
