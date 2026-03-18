@@ -416,7 +416,7 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
                 }
               }}
               disabled={isSubmitting}
-              className="rounded-full border-2 border-[#7248e6] focus-visible:border-[#7248e6] focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none"
+              className="rounded-full border-[3px] border-[#7248e6] focus-visible:border-[#7248e6] focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none"
             />
             {errors.limitSeats && (
               <p className="text-sm text-destructive">{errors.limitSeats}</p>
