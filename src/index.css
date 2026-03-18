@@ -250,7 +250,7 @@
   /* Card styles */
   .card-elevated {
     box-shadow: var(--shadow-elevated);
-    border: 1px solid hsl(var(--card-border));
+    border: 1.5px solid hsl(var(--card-border));
     transition: var(--transition-smooth);
   }
   
