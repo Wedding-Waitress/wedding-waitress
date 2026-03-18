@@ -166,6 +166,7 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
 
         lastFontDelta = newFontSize - (currentFontSize || 24);
         setLiveFontSize(Math.round(newFontSize));
+        onLiveFontSize?.(Math.round(newFontSize));
         return;
       }
 
