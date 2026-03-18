@@ -332,6 +332,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
           {/* Guest Name - Interactive or Static */}
           {isInteractive ? (
             <InteractiveTextOverlay
+              hideSideHandles
               isSelected={selectedElement === 'guest-name'}
               onSelect={() => setSelectedElement('guest-name')}
               onMove={(dx, dy) => handleInteractiveMove('guest-name', dx, dy)}
