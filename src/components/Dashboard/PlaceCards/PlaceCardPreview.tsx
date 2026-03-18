@@ -150,7 +150,69 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
     );
   };
 
-  const renderPlaceCard = (guest: Guest) => {
+
+  // Clear selection when edit mode is turned off
+  React.useEffect(() => {
+    if (!textEditMode) setSelectedElement(null);
+  }, [textEditMode]);
+
+  // Card dimensions in mm for coordinate conversion
+  const CARD_WIDTH_MM = 105;
+  const FRONT_HEIGHT_MM = 49.5;
+
+  const handleInteractiveMove = useCallback((element: 'guest-name' | 'table-seat', dxPercent: number, dyPercent: number) => {
+    if (!onSettingsChange) return;
+    const dxMm = (dxPercent / 100) * CARD_WIDTH_MM;
+    const dyMm = (dyPercent / 100) * FRONT_HEIGHT_MM;
+
+    if (element === 'guest-name') {
+      const curX = Number(currentSettings.guest_name_offset_x ?? 0);
+      const curY = Number(currentSettings.guest_name_offset_y ?? 0);
+      onSettingsChange({
+        guest_name_offset_x: Math.round((curX + dxMm) * 10) / 10,
+        guest_name_offset_y: Math.round((curY + dyMm) * 10) / 10,
+      });
+    } else {
+      const curX = Number(currentSettings.table_offset_x ?? 0);
+      const curY = Number(currentSettings.table_offset_y ?? 0);
+      onSettingsChange({
+        table_offset_x: Math.round((curX + dxMm) * 10) / 10,
+        table_offset_y: Math.round((curY + dyMm) * 10) / 10,
+      });
+    }
+  }, [onSettingsChange, currentSettings]);
+
+  const handleInteractiveRotate = useCallback((element: 'guest-name' | 'table-seat', degrees: number) => {
+    if (!onSettingsChange) return;
+    if (element === 'guest-name') {
+      onSettingsChange({ guest_name_rotation: degrees });
+    } else {
+      onSettingsChange({ table_seat_rotation: degrees });
+    }
+  }, [onSettingsChange]);
+
+  const handleInteractiveReset = useCallback((element: 'guest-name' | 'table-seat') => {
+    if (!onSettingsChange) return;
+    if (element === 'guest-name') {
+      onSettingsChange({ guest_name_offset_x: 0, guest_name_offset_y: 0, guest_name_rotation: 0 });
+    } else {
+      onSettingsChange({ table_offset_x: 0, table_offset_y: 0, table_seat_rotation: 0 });
+    }
+    toast({ title: "Reset", description: `${element === 'guest-name' ? 'Guest Name' : 'Table & Seat'} position reset` });
+  }, [onSettingsChange, toast]);
+
+  const handleFontSizeChange = useCallback((element: 'guest-name' | 'table-seat', deltaPx: number) => {
+    if (!onSettingsChange) return;
+    if (element === 'guest-name') {
+      const cur = currentSettings.guest_name_font_size || 40;
+      onSettingsChange({ guest_name_font_size: Math.max(8, Math.min(120, cur + deltaPx)) });
+    } else {
+      const cur = currentSettings.info_font_size || 16;
+      onSettingsChange({ info_font_size: Math.max(6, Math.min(60, cur + deltaPx)) });
+    }
+  }, [onSettingsChange, currentSettings]);
+
+  const renderPlaceCard = (guest: Guest, isFirstCard: boolean = false) => {
     const tableDisplay = getTableDisplay();
     const tableInfo = guest.seat_no
       ? `Table ${tableDisplay}, Seat ${guest.seat_no}`
@@ -158,6 +220,280 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
 
     const individualMessage = currentSettings.individual_messages?.[guest.id];
     const message = individualMessage || currentSettings.mass_message || '';
+
+    const isInteractive = textEditMode && isFirstCard;
+
+    const guestNameStyle: React.CSSProperties = {
+      fontFamily: currentSettings.guest_font_family,
+      fontWeight: currentSettings.guest_name_bold ? '700' : '400',
+      fontStyle: currentSettings.guest_name_italic ? 'italic' : 'normal',
+      textDecoration: currentSettings.guest_name_underline ? 'underline' : 'none',
+      fontSize: `${currentSettings.guest_name_font_size}pt`,
+      marginBottom: currentSettings.background_image_type === 'decorative' ? '0mm' : `${currentSettings.name_spacing}mm`,
+    };
+
+    const guestNameTransform = `translate(${currentSettings.guest_name_offset_x ?? 0}mm, ${currentSettings.guest_name_offset_y ?? 0}mm) rotate(${(currentSettings as any).guest_name_rotation ?? 0}deg)`;
+
+    const tableInfoStyle: React.CSSProperties = {
+      fontFamily: currentSettings.info_font_family,
+      fontSize: `${currentSettings.info_font_size}pt`,
+      fontWeight: currentSettings.info_bold ? '700' : undefined,
+      fontStyle: currentSettings.info_italic ? 'italic' : undefined,
+      textDecoration: currentSettings.info_underline ? 'underline' : undefined,
+    };
+
+    const tableTransform = `translate(${currentSettings.table_offset_x ?? 0}mm, ${currentSettings.table_offset_y ?? 0}mm) rotate(${(currentSettings as any).table_seat_rotation ?? 0}deg)`;
+
+    return (
+      <div
+        key={guest.id}
+        className="relative"
+        style={{
+          width: '105mm',
+          height: '99mm',
+          backgroundColor: currentSettings.background_color,
+          color: currentSettings.font_color,
+        }}
+        onClick={isInteractive ? () => setSelectedElement(null) : undefined}
+      >
+        {/* Full Background Image (if applicable) */}
+        {currentSettings.background_image_url && currentSettings.background_image_type === 'full' && (
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              backgroundImage: `url(${currentSettings.background_image_url})`,
+              backgroundPosition: `${currentSettings.background_image_x_position || 50}% ${currentSettings.background_image_y_position || 50}%`,
+              backgroundSize: 'cover',
+              backgroundRepeat: 'no-repeat',
+              opacity: (currentSettings.background_image_opacity || 100) / 100,
+            }}
+          />
+        )}
+
+        {/* Full Front of Card Image - only on front (bottom) half */}
+        {currentSettings.background_image_url && currentSettings.background_image_type === 'full_front' && (
+          <div
+            className="absolute pointer-events-none"
+            style={{
+              top: '49.5mm',
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundImage: `url(${currentSettings.background_image_url})`,
+              backgroundPosition: `${currentSettings.background_image_x_position || 50}% ${currentSettings.background_image_y_position || 50}%`,
+              backgroundSize: 'cover',
+              backgroundRepeat: 'no-repeat',
+              opacity: (currentSettings.background_image_opacity || 100) / 100,
+            }}
+          />
+        )}
+
+        {/* Full Back of Card Image - only on back (top) half, pre-rotated */}
+        {currentSettings.background_image_url && currentSettings.background_image_type === 'full_back' && (
+          <div
+            className="absolute pointer-events-none"
+            style={{
+              top: 0,
+              left: 0,
+              right: 0,
+              height: '49.5mm',
+              backgroundImage: `url(${currentSettings.background_image_url})`,
+              backgroundPosition: `${currentSettings.background_image_x_position || 50}% ${currentSettings.background_image_y_position || 50}%`,
+              backgroundSize: 'cover',
+              backgroundRepeat: 'no-repeat',
+              opacity: (currentSettings.background_image_opacity || 100) / 100,
+              transform: 'rotate(180deg)',
+            }}
+          />
+        )}
+
+        {/* BACK Half (Top) - MESSAGE ONLY */}
+        <div 
+          className="relative z-10 flex items-center justify-start"
+          style={{ 
+            height: '49.5mm',
+            padding: '5mm',
+            paddingTop: '6mm',
+            transform: 'rotate(180deg)'
+          }}
+        >
+          {message && (
+            <div
+              className="text-center"
+              style={{
+                fontFamily: currentSettings.info_font_family,
+                fontSize: `${currentSettings.info_font_size}pt`,
+                fontStyle: 'italic',
+                color: currentSettings.font_color,
+              }}
+            >
+              {message}
+            </div>
+          )}
+        </div>
+
+        {/* CREASE LINE at Y = 49.5mm */}
+        <div 
+          className="absolute left-0 right-0" 
+          style={{ 
+            top: '49.5mm',
+            borderTop: '0.5px solid #d3d3d3',
+            opacity: 0.3,
+            zIndex: 100
+          }}
+        />
+
+        {/* FRONT Half (Bottom) - GUEST NAME + TABLE/SEAT */}
+        <div 
+          ref={isFirstCard ? firstCardRef : undefined}
+          className="relative z-10 flex flex-col items-center justify-start"
+          style={{ 
+            height: '49.5mm',
+            padding: '5mm',
+            paddingTop: currentSettings.background_image_type === 'decorative' ? '1mm' : '8mm',
+            position: 'relative',
+          }}
+        >
+          {/* Guest Name - Interactive or Static */}
+          {isInteractive ? (
+            <InteractiveTextOverlay
+              isSelected={selectedElement === 'guest-name'}
+              onSelect={() => setSelectedElement('guest-name')}
+              onMove={(dx, dy) => handleInteractiveMove('guest-name', dx, dy)}
+              onRotate={(deg) => handleInteractiveRotate('guest-name', deg)}
+              onReset={() => handleInteractiveReset('guest-name')}
+              onFontSizeChange={(delta) => handleFontSizeChange('guest-name', delta)}
+              containerRef={firstCardRef as React.RefObject<HTMLElement>}
+              rotation={Number((currentSettings as any).guest_name_rotation ?? 0)}
+              currentFontSize={currentSettings.guest_name_font_size}
+              style={{
+                ...guestNameStyle,
+                transform: guestNameTransform,
+                transformOrigin: 'center center',
+                position: 'relative',
+              }}
+            >
+              {currentSettings.background_behind_names ? (
+                <div style={{
+                  background: 'white',
+                  borderRadius: '9999px',
+                  padding: '0.2mm 3mm',
+                  display: 'inline-block'
+                }}>
+                  {guest.first_name} {guest.last_name}
+                </div>
+              ) : (
+                <>{guest.first_name} {guest.last_name}</>
+              )}
+            </InteractiveTextOverlay>
+          ) : (
+            <div
+              style={{
+                ...guestNameStyle,
+                transform: guestNameTransform,
+                transformOrigin: 'center center',
+              }}
+            >
+              {currentSettings.background_behind_names ? (
+                <div style={{
+                  background: 'white',
+                  borderRadius: '9999px',
+                  padding: '0.2mm 3mm',
+                  display: 'inline-block'
+                }}>
+                  {guest.first_name} {guest.last_name}
+                </div>
+              ) : (
+                <>{guest.first_name} {guest.last_name}</>
+              )}
+            </div>
+          )}
+          
+          {/* Table/Seat Info */}
+          {currentSettings.background_image_type === 'decorative' && currentSettings.background_image_url ? (
+            /* Three-column layout: Table | Image | Seat */
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'flex-start',
+                width: '100%',
+                marginTop: '0mm',
+              }}
+            >
+              {/* Left - Table info stacked */}
+              <div style={{ textAlign: 'center', minWidth: '18mm', transform: `translate(${currentSettings.table_offset_x ?? 0}mm, ${currentSettings.table_offset_y ?? 0}mm) rotate(${(currentSettings as any).table_seat_rotation ?? 0}deg)`, transformOrigin: 'center center' }}>
+                <div style={{ fontFamily: currentSettings.info_font_family, fontSize: `${currentSettings.info_font_size}pt`, color: currentSettings.info_font_color || currentSettings.font_color, fontWeight: currentSettings.info_bold ? '700' : undefined, fontStyle: currentSettings.info_italic ? 'italic' : undefined, textDecoration: currentSettings.info_underline ? 'underline' : undefined }}>
+                  Table
+                </div>
+                <div style={{ fontFamily: currentSettings.info_font_family, fontSize: `${(currentSettings.info_font_size || 10) + 2}pt`, fontWeight: currentSettings.info_bold ? '700' : '600', color: currentSettings.info_font_color || currentSettings.font_color, fontStyle: currentSettings.info_italic ? 'italic' : undefined, textDecoration: currentSettings.info_underline ? 'underline' : undefined }}>
+                  {tableDisplay}
+                </div>
+              </div>
+
+              {/* Center - Decorative Image */}
+              <div style={{ width: '55%', height: '35mm', backgroundImage: `url(${currentSettings.background_image_url})`, backgroundPosition: 'center', backgroundSize: 'contain', backgroundRepeat: 'no-repeat' }} />
+
+              {/* Right - Seat info stacked */}
+              <div style={{ textAlign: 'center', minWidth: '18mm', transform: `translate(${currentSettings.seat_offset_x ?? 0}mm, ${currentSettings.seat_offset_y ?? 0}mm) rotate(${(currentSettings as any).table_seat_rotation ?? 0}deg)`, transformOrigin: 'center center' }}>
+                <div style={{ fontFamily: currentSettings.info_font_family, fontSize: `${currentSettings.info_font_size}pt`, color: currentSettings.info_font_color || currentSettings.font_color, fontWeight: currentSettings.info_bold ? '700' : undefined, fontStyle: currentSettings.info_italic ? 'italic' : undefined, textDecoration: currentSettings.info_underline ? 'underline' : undefined }}>
+                  Seat
+                </div>
+                <div style={{ fontFamily: currentSettings.info_font_family, fontSize: `${(currentSettings.info_font_size || 10) + 2}pt`, fontWeight: currentSettings.info_bold ? '700' : '600', color: currentSettings.info_font_color || currentSettings.font_color, fontStyle: currentSettings.info_italic ? 'italic' : undefined, textDecoration: currentSettings.info_underline ? 'underline' : undefined }}>
+                  {guest.seat_no || '—'}
+                </div>
+              </div>
+            </div>
+          ) : (
+            /* Standard centered table/seat layout */
+            isInteractive ? (
+              <InteractiveTextOverlay
+                isSelected={selectedElement === 'table-seat'}
+                onSelect={() => setSelectedElement('table-seat')}
+                onMove={(dx, dy) => handleInteractiveMove('table-seat', dx, dy)}
+                onRotate={(deg) => handleInteractiveRotate('table-seat', deg)}
+                onReset={() => handleInteractiveReset('table-seat')}
+                onFontSizeChange={(delta) => handleFontSizeChange('table-seat', delta)}
+                containerRef={firstCardRef as React.RefObject<HTMLElement>}
+                rotation={Number((currentSettings as any).table_seat_rotation ?? 0)}
+                currentFontSize={currentSettings.info_font_size}
+                style={{
+                  ...tableInfoStyle,
+                  transform: tableTransform,
+                  transformOrigin: 'center center',
+                  position: 'relative',
+                }}
+              >
+                {currentSettings.background_behind_table_seats ? (
+                  <div style={{ background: 'white', borderRadius: '12px', padding: '0.75mm 1.5mm', display: 'inline-block' }}>
+                    {tableInfo}
+                  </div>
+                ) : (
+                  <>{tableInfo}</>
+                )}
+              </InteractiveTextOverlay>
+            ) : (
+              <div
+                style={{
+                  ...tableInfoStyle,
+                  transform: tableTransform,
+                  transformOrigin: 'center center',
+                }}
+              >
+                {currentSettings.background_behind_table_seats ? (
+                  <div style={{ background: 'white', borderRadius: '12px', padding: '0.75mm 1.5mm', display: 'inline-block' }}>
+                    {tableInfo}
+                  </div>
+                ) : (
+                  <>{tableInfo}</>
+                )}
+              </div>
+            )
+          )}
+        </div>
+      </div>
+    );
+  };
 
     return (
       <div
