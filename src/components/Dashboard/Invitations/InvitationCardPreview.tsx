@@ -1,3 +1,14 @@
+/**
+ * ⚠️ PRODUCTION-READY - DO NOT MODIFY WITHOUT APPROVAL ⚠️
+ * 
+ * This Invitation Card Preview and its interactive text overlay integration
+ * are COMPLETE and LOCKED. All functionality has been thoroughly tested and approved.
+ * 
+ * DO NOT make changes unless explicitly requested by the project owner.
+ * 
+ * Last locked: 2026-03-18
+ */
+
 import React, { useRef, useCallback, useState } from 'react';
 import { InvitationCardSettings, TextZone, QrConfig } from '@/hooks/useInvitationCardSettings';
 import { InteractiveTextOverlay } from '@/components/ui/InteractiveTextOverlay';
