@@ -554,8 +554,8 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                 onLiveRotate={handleLiveTableRotate}
                 onLiveFontSize={handleLiveTableFontSize}
                 containerRef={firstCardRef as React.RefObject<HTMLElement>}
-                rotation={Number((currentSettings as any).table_seat_rotation ?? 0)}
-                currentFontSize={currentSettings.info_font_size}
+                rotation={effTableRotation}
+                currentFontSize={effTableFontSize}
                 style={buildAbsoluteStyle(tableInfoBaseStyle, tablePos)}
               >
                 {tableSeatContent}
