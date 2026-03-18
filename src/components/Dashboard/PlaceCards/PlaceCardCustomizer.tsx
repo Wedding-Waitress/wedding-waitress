@@ -24,7 +24,7 @@ import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
 import { PlaceCardSettings } from '@/hooks/usePlaceCardSettings';
 import { Guest } from '@/hooks/useGuests';
-import { Palette, Type, Image, MessageSquare, Sparkles, Grid3X3, Trash2, Upload, Images } from 'lucide-react';
+import { Palette, Type, Image, MessageSquare, Sparkles, Grid3X3, Trash2, Upload, Images, Pencil } from 'lucide-react';
 import { PlaceCardGalleryModal } from './PlaceCardGalleryModal';
 import { PlaceCardFontPicker } from './PlaceCardFontPicker';
 import { supabase } from '@/integrations/supabase/client';
@@ -36,6 +36,8 @@ interface PlaceCardCustomizerProps {
   settings: PlaceCardSettings | null;
   onSettingsChange: (settings: Partial<PlaceCardSettings>) => Promise<boolean>;
   guests: Guest[];
+  editMode: boolean;
+  onEditModeChange: (mode: boolean) => void;
 }
 
 interface ExtendedPlaceCardSettings extends PlaceCardSettings {
@@ -47,7 +49,9 @@ interface ExtendedPlaceCardSettings extends PlaceCardSettings {
 export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
   settings,
   onSettingsChange,
-  guests
+  guests,
+  editMode,
+  onEditModeChange
 }) => {
   const [individualMessages, setIndividualMessages] = useState<Record<string, string>>(settings?.individual_messages || {});
   const [uploading, setUploading] = useState(false);
@@ -445,6 +449,20 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
           </TabsContent>
 
           <TabsContent value="position" className="space-y-4">
+            {/* Edit Mode Toggle */}
+            <div className="border-[1.5px] border-primary rounded-xl p-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Pencil className="w-4 h-4 text-primary" />
+                  <Label className="text-sm font-medium">Edit Mode</Label>
+                </div>
+                <Switch
+                  checked={editMode}
+                  onCheckedChange={onEditModeChange}
+                />
+              </div>
+            </div>
+
             <div className="space-y-4">
               <p className="text-sm text-muted-foreground">
                 Adjust the position of text elements. Changes apply to all cards.

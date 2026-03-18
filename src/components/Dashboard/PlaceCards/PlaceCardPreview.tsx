@@ -29,6 +29,8 @@ interface PlaceCardPreviewProps {
   focusedPage?: number | null;
   selectedTable?: { name: string; table_no?: number | null } | null;
   onSettingsChange?: (settings: Partial<PlaceCardSettings>) => void;
+  editMode?: boolean;
+  onEditModeChange?: (mode: boolean) => void;
 }
 
 const CARD_WIDTH_MM = 105;
@@ -42,11 +44,18 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
   focusedPage = null,
   selectedTable = null,
   onSettingsChange,
+  editMode: editModeProp = false,
+  onEditModeChange,
 }, ref) => {
   const { toast } = useToast();
   const [currentPage, setCurrentPage] = useState(1);
-  const [editMode, setEditMode] = useState(false);
+  const editMode = editModeProp;
   const [selectedElement, setSelectedElement] = useState<'guest_name' | 'table_seat' | null>(null);
+
+  // Clear selection when edit mode is turned off
+  React.useEffect(() => {
+    if (!editMode) setSelectedElement(null);
+  }, [editMode]);
   const frontHalfRef = useRef<HTMLDivElement>(null);
   
   const currentSettings = settings || {
@@ -611,20 +620,6 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
           <div className="print:hidden">
             {/* Edit Mode Toggle + Pagination Controls */}
             <div className="flex items-center justify-center gap-4 mb-6">
-              {/* Edit Mode Toggle */}
-              {onSettingsChange && (
-                <div className="flex items-center gap-2 mr-4 px-3 py-1.5 rounded-lg border border-border bg-background">
-                  <Pencil className="h-3.5 w-3.5 text-muted-foreground" />
-                  <span className="text-sm font-medium text-foreground">Edit Mode</span>
-                  <Switch
-                    checked={editMode}
-                    onCheckedChange={(checked) => {
-                      setEditMode(checked);
-                      if (!checked) setSelectedElement(null);
-                    }}
-                  />
-                </div>
-              )}
 
               <Button
                 variant="outline"

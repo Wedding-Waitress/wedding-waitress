@@ -1,21 +1,21 @@
 
 
-## Move Edit Mode Toggle into Text Position Tab
+## Plan: Move Edit with Canva banner onto the same row as Choose File and Image Gallery
 
-### What Changes
+### Summary
+Move the clickable Canva banner image from its own row below the buttons into the same flex row as Choose File and Image Gallery, so all three sit side by side on one line.
 
-1. **Lift `editMode` state** from `PlaceCardPreview.tsx` up to `PlaceCardsPage.tsx`
-2. **Pass `editMode` + `setEditMode`** as props to both `PlaceCardCustomizer` and `PlaceCardPreview`
-3. **Add Edit Mode section** at the top of the "Text Position" tab in `PlaceCardCustomizer.tsx` — same toggle UI (Pencil icon, "Edit Mode" label, Switch)
-4. **Remove the Edit Mode toggle** from `PlaceCardPreview.tsx`'s canvas header (keep pagination controls only)
+### File Changes
 
-### Files Modified
+#### 1. `src/components/Dashboard/Invitations/InvitationCardCustomizer.tsx`
+- **Move lines 428-433** (the `<img>` tag) inside the `</div>` that closes at line 427, placing it after the Image Gallery button (before the closing `</div>`).
+- Remove `mt-2` from the image class since it will now be inline with the buttons.
+- The flex container already has `gap-2`, so the banner will sit naturally next to the buttons.
 
-- **`PlaceCardsPage.tsx`**: Add `const [editMode, setEditMode] = useState(false)` state. Pass `editMode`/`onEditModeChange` to both child components.
-- **`PlaceCardCustomizer.tsx`**: Add `editMode` and `onEditModeChange` props. Render the toggle inside a bordered section at the top of `TabsContent value="position"`, before the existing position controls.
-- **`PlaceCardPreview.tsx`**: Replace internal `editMode` state with a new `editMode` prop. Remove the toggle UI from the canvas header. Keep `selectedElement` state local since it's only used within the preview.
+#### 2. `src/components/Dashboard/PlaceCards/PlaceCardCustomizer.tsx`
+- **Move lines 706-711** (the `<img>` tag) inside the `</div>` that closes at line 703, placing it after the Image Gallery button.
+- Same class adjustment: remove `mt-2`.
 
-### UI Detail
-
-The Edit Mode section in the Text Position tab will use the same purple-bordered section style (`border-[1.5px] border-primary rounded-xl p-3`) with the Pencil icon, "Edit Mode" label, and Switch toggle — matching the existing look exactly, just relocated.
+### Result
+All three elements — Choose File (green), Image Gallery (purple), Edit with Canva (banner) — appear on a single row in both pages. No other changes.
 

@@ -39,6 +39,7 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
   onEventSelect
 }) => {
   const [focusedPage, setFocusedPage] = useState<number | null>(null);
+  const [editMode, setEditMode] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [selectedPage, setSelectedPage] = useState<number>(0);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -437,6 +438,8 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
               settings={settings}
               onSettingsChange={updateSettings}
               guests={assignedGuests}
+              editMode={editMode}
+              onEditModeChange={setEditMode}
             />
           </div>
 
@@ -450,6 +453,8 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
               focusedPage={focusedPage}
               selectedTable={selectedTable}
               onSettingsChange={updateSettings}
+              editMode={editMode}
+              onEditModeChange={setEditMode}
             />
           </div>
         </div>
