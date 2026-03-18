@@ -36,6 +36,8 @@ interface PlaceCardCustomizerProps {
   settings: PlaceCardSettings | null;
   onSettingsChange: (settings: Partial<PlaceCardSettings>) => Promise<boolean>;
   guests: Guest[];
+  textEditMode?: boolean;
+  onTextEditModeChange?: (enabled: boolean) => void;
 }
 
 interface ExtendedPlaceCardSettings extends PlaceCardSettings {
@@ -47,7 +49,9 @@ interface ExtendedPlaceCardSettings extends PlaceCardSettings {
 export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
   settings,
   onSettingsChange,
-  guests
+  guests,
+  textEditMode = false,
+  onTextEditModeChange,
 }) => {
   const [individualMessages, setIndividualMessages] = useState<Record<string, string>>(settings?.individual_messages || {});
   const [uploading, setUploading] = useState(false);
@@ -63,33 +67,6 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
   useEffect(() => {
     setLocalMassMessage(settings?.mass_message || '');
   }, [settings?.mass_message]);
-
-  // Local state for position sliders (deferred save on release)
-  const [localGuestNameOffsetX, setLocalGuestNameOffsetX] = useState(0);
-  const [localGuestNameOffsetY, setLocalGuestNameOffsetY] = useState(0);
-  const [localTableOffsetX, setLocalTableOffsetX] = useState(0);
-  const [localTableOffsetY, setLocalTableOffsetY] = useState(0);
-
-  // String states for manual input (allows free typing of "-", ".", etc.)
-  const [inputGuestX, setInputGuestX] = useState('0');
-  const [inputGuestY, setInputGuestY] = useState('0');
-  const [inputTableX, setInputTableX] = useState('0');
-  const [inputTableY, setInputTableY] = useState('0');
-
-  useEffect(() => {
-    const gx = Number(settings?.guest_name_offset_x ?? 0);
-    const gy = Number(settings?.guest_name_offset_y ?? 0);
-    const tx = Number(settings?.table_offset_x ?? 0);
-    const ty = Number(settings?.table_offset_y ?? 0);
-    setLocalGuestNameOffsetX(gx);
-    setLocalGuestNameOffsetY(gy);
-    setLocalTableOffsetX(tx);
-    setLocalTableOffsetY(ty);
-    setInputGuestX(String(gx));
-    setInputGuestY(String(gy));
-    setInputTableX(String(tx));
-    setInputTableY(String(ty));
-  }, [settings?.guest_name_offset_x, settings?.guest_name_offset_y, settings?.table_offset_x, settings?.table_offset_y]);
 
   const currentSettings = settings || {
     event_id: '',
@@ -438,233 +415,26 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
 
           <TabsContent value="position" className="space-y-4">
             <div className="space-y-4">
-              <p className="text-sm text-muted-foreground">
-                Adjust the position of text elements. Changes apply to all cards.
-              </p>
-
-              {/* Guest Name Position */}
-              <div className="space-y-3 p-3 border rounded-lg bg-muted/30">
-                <Label className="text-sm font-semibold">Guest Name Position</Label>
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Label className="text-xs">Horizontal</Label>
-                    <div className="flex items-center gap-1">
-                      <Input
-                        type="number"
-                        value={inputGuestX}
-                        min={-25}
-                        max={25}
-                        step={0.5}
-                        className="h-6 w-[70px] text-xs text-right px-1"
-                        onChange={(e) => setInputGuestX(e.target.value)}
-                        onBlur={() => {
-                          const v = Math.min(25, Math.max(-25, parseFloat(inputGuestX) || 0));
-                          setLocalGuestNameOffsetX(v);
-                          setInputGuestX(String(v));
-                          onSettingsChange({ guest_name_offset_x: v });
-                        }}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') {
-                            const v = Math.min(25, Math.max(-25, parseFloat(inputGuestX) || 0));
-                            setLocalGuestNameOffsetX(v);
-                            setInputGuestX(String(v));
-                            onSettingsChange({ guest_name_offset_x: v });
-                          }
-                        }}
-                      />
-                      <span className="text-xs text-muted-foreground">mm</span>
-                    </div>
-                  </div>
-                  <Slider
-                    value={[localGuestNameOffsetX]}
-                    min={-25}
-                    max={25}
-                    step={0.5}
-                    onValueChange={([v]) => { setLocalGuestNameOffsetX(v); setInputGuestX(String(v)); }}
-                    onValueCommit={([v]) => onSettingsChange({ guest_name_offset_x: v })}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Label className="text-xs">Vertical</Label>
-                    <div className="flex items-center gap-1">
-                      <Input
-                        type="number"
-                        value={inputGuestY}
-                        min={-9}
-                        max={25}
-                        step={0.5}
-                        className="h-6 w-[70px] text-xs text-right px-1"
-                        onChange={(e) => setInputGuestY(e.target.value)}
-                        onBlur={() => {
-                          const v = Math.min(25, Math.max(-9, parseFloat(inputGuestY) || 0));
-                          setLocalGuestNameOffsetY(v);
-                          setInputGuestY(String(v));
-                          onSettingsChange({ guest_name_offset_y: v });
-                        }}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') {
-                            const v = Math.min(25, Math.max(-9, parseFloat(inputGuestY) || 0));
-                            setLocalGuestNameOffsetY(v);
-                            setInputGuestY(String(v));
-                            onSettingsChange({ guest_name_offset_y: v });
-                          }
-                        }}
-                      />
-                      <span className="text-xs text-muted-foreground">mm</span>
-                    </div>
-                  </div>
-                  <Slider
-                    value={[localGuestNameOffsetY]}
-                    min={-9}
-                    max={25}
-                    step={0.5}
-                    onValueChange={([v]) => { setLocalGuestNameOffsetY(v); setInputGuestY(String(v)); }}
-                    onValueCommit={([v]) => onSettingsChange({ guest_name_offset_y: v })}
-                  />
-                </div>
-              </div>
-
-              {/* Guest Name Rotation */}
-              <div className="space-y-2">
+              {/* Text Edit Mode container */}
+              <div className="border-[1.5px] border-primary rounded-xl bg-white p-4 space-y-4">
                 <div className="flex items-center justify-between">
-                  <Label className="text-xs">Rotation</Label>
-                  <div className="flex items-center gap-1">
-                    <span className="text-xs text-muted-foreground">{settings?.guest_name_rotation ?? 0}°</span>
-                    {(settings?.guest_name_rotation ?? 0) !== 0 && (
-                      <button
-                        onClick={() => onSettingsChange({ guest_name_rotation: 0 })}
-                        className="text-primary hover:underline text-[10px]"
-                      >
-                        Reset
-                      </button>
-                    )}
+                  <div className="flex items-center gap-2">
+                    <Type className="h-4 w-4 text-primary" />
+                    <Label className="text-sm font-semibold">Text Edit Mode</Label>
                   </div>
-                </div>
-                <Slider
-                  value={[Number(settings?.guest_name_rotation ?? 0)]}
-                  min={-180}
-                  max={180}
-                  step={1}
-                  onValueChange={([v]) => onSettingsChange({ guest_name_rotation: v })}
-                />
-              </div>
-
-              {/* Table & Seat Number Position */}
-              <div className="space-y-3 p-3 border rounded-lg bg-muted/30">
-                <Label className="text-sm font-semibold">Table & Seat Number Position</Label>
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Label className="text-xs">Horizontal</Label>
-                    <div className="flex items-center gap-1">
-                      <Input
-                        type="number"
-                        value={inputTableX}
-                        min={-25}
-                        max={25}
-                        step={0.5}
-                        className="h-6 w-[70px] text-xs text-right px-1"
-                        onChange={(e) => setInputTableX(e.target.value)}
-                        onBlur={() => {
-                          const v = Math.min(25, Math.max(-25, parseFloat(inputTableX) || 0));
-                          setLocalTableOffsetX(v);
-                          setInputTableX(String(v));
-                          onSettingsChange({ table_offset_x: v });
-                        }}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') {
-                            const v = Math.min(25, Math.max(-25, parseFloat(inputTableX) || 0));
-                            setLocalTableOffsetX(v);
-                            setInputTableX(String(v));
-                            onSettingsChange({ table_offset_x: v });
-                          }
-                        }}
-                      />
-                      <span className="text-xs text-muted-foreground">mm</span>
-                    </div>
-                  </div>
-                  <Slider
-                    value={[localTableOffsetX]}
-                    min={-25}
-                    max={25}
-                    step={0.5}
-                    onValueChange={([v]) => { setLocalTableOffsetX(v); setInputTableX(String(v)); }}
-                    onValueCommit={([v]) => onSettingsChange({ table_offset_x: v })}
+                  <Switch
+                    checked={textEditMode}
+                    onCheckedChange={(checked) => onTextEditModeChange?.(checked)}
                   />
                 </div>
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Label className="text-xs">Vertical</Label>
-                    <div className="flex items-center gap-1">
-                      <Input
-                        type="number"
-                        value={inputTableY}
-                        min={-15}
-                        max={15}
-                        step={0.5}
-                        className="h-6 w-[70px] text-xs text-right px-1"
-                        onChange={(e) => setInputTableY(e.target.value)}
-                        onBlur={() => {
-                          const v = Math.min(15, Math.max(-15, parseFloat(inputTableY) || 0));
-                          setLocalTableOffsetY(v);
-                          setInputTableY(String(v));
-                          onSettingsChange({ table_offset_y: v });
-                        }}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') {
-                            const v = Math.min(15, Math.max(-15, parseFloat(inputTableY) || 0));
-                            setLocalTableOffsetY(v);
-                            setInputTableY(String(v));
-                            onSettingsChange({ table_offset_y: v });
-                          }
-                        }}
-                      />
-                      <span className="text-xs text-muted-foreground">mm</span>
-                    </div>
-                  </div>
-                  <Slider
-                    value={[localTableOffsetY]}
-                    min={-15}
-                    max={15}
-                    step={0.5}
-                    onValueChange={([v]) => { setLocalTableOffsetY(v); setInputTableY(String(v)); }}
-                    onValueCommit={([v]) => onSettingsChange({ table_offset_y: v })}
-                  />
-                </div>
-              </div>
-
-              {/* Table & Seat Rotation */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label className="text-xs">Rotation</Label>
-                  <div className="flex items-center gap-1">
-                    <span className="text-xs text-muted-foreground">{settings?.table_seat_rotation ?? 0}°</span>
-                    {(settings?.table_seat_rotation ?? 0) !== 0 && (
-                      <button
-                        onClick={() => onSettingsChange({ table_seat_rotation: 0 })}
-                        className="text-primary hover:underline text-[10px]"
-                      >
-                        Reset
-                      </button>
-                    )}
-                  </div>
-                </div>
-                <Slider
-                  value={[Number(settings?.table_seat_rotation ?? 0)]}
-                  min={-180}
-                  max={180}
-                  step={1}
-                  onValueChange={([v]) => onSettingsChange({ table_seat_rotation: v })}
-                />
+                <p className="text-xs text-muted-foreground">
+                  Enable Text Edit Mode above, then drag text elements directly on the card preview to reposition them.
+                </p>
               </div>
 
               <div className="pt-4 border-t">
                 <Button 
                   onClick={async () => {
-                    setLocalGuestNameOffsetX(0);
-                    setLocalGuestNameOffsetY(0);
-                    setLocalTableOffsetX(0);
-                    setLocalTableOffsetY(0);
                     await onSettingsChange({
                       guest_name_offset_x: 0,
                       guest_name_offset_y: 0,

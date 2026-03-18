@@ -42,6 +42,7 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
   const [isExporting, setIsExporting] = useState(false);
   const [selectedPage, setSelectedPage] = useState<number>(0);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [textEditMode, setTextEditMode] = useState(false);
   const [selectedTableId, setSelectedTableId] = useState<string | null>(() => {
     return sessionStorage.getItem('ww:place_cards_selected_table') || null;
   });
@@ -437,6 +438,8 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
               settings={settings}
               onSettingsChange={updateSettings}
               guests={assignedGuests}
+              textEditMode={textEditMode}
+              onTextEditModeChange={setTextEditMode}
             />
           </div>
 
@@ -449,6 +452,8 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
               isExporting={isExporting}
               focusedPage={focusedPage}
               selectedTable={selectedTable}
+              textEditMode={textEditMode}
+              onSettingsChange={updateSettings}
             />
           </div>
         </div>
