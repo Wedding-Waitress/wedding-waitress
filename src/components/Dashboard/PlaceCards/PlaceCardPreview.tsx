@@ -120,15 +120,6 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
     if (!textEditMode) setSelectedElement(null);
   }, [textEditMode]);
 
-  if (!guests.length) {
-    return (
-      <div className="py-8 text-center text-muted-foreground bg-muted/30 rounded-lg border-2 border-dashed">
-        <p>No assigned guests found.</p>
-        <p className="text-sm">Assign guests to tables to see place cards preview.</p>
-      </div>
-    );
-  }
-
   // Card dimensions in mm for coordinate conversion
   const CARD_WIDTH_MM = 105;
   const FRONT_HEIGHT_MM = 49.5;
