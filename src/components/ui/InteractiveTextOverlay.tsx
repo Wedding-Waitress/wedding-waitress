@@ -177,6 +177,7 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
         const newTop = initTop + dyP;
         el.style.left = `${newLeft}%`;
         el.style.top = `${newTop}%`;
+        // Restore base transform (e.g. translate(-50%,-50%)) plus rotation, without the drag px offset
         el.style.transform = `${baseTransform} rotate(${rotation}deg)`;
         onMove(dxP, dyP);
         onDragEnd?.();
