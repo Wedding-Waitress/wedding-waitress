@@ -144,13 +144,13 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
 
   const handleResetDesignDefaults = async () => {
     const designDefaults = {
-      guest_font_family: 'Arial',
-      info_font_family: 'Arial',
+      guest_font_family: 'Great Vibes',
+      info_font_family: 'ET Emilia Grace Demo',
       guest_name_bold: false,
       guest_name_italic: false,
       guest_name_underline: false,
-      guest_name_font_size: 24,
-      info_font_size: 12,
+      guest_name_font_size: 40,
+      info_font_size: 16,
       name_spacing: 4,
       font_color: '#000000'
     };
